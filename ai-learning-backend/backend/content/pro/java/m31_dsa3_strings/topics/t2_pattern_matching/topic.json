@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m31_t2",
+  "language": "java",
+  "module_id": "m31",
+  "topic_number": 2,
+  "name": "Pattern Matching — KMP Algorithm",
+  "slug": "pattern-matching-kmp-algorithm",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m31_t1", "java_m29_t1"],
+    "concepts_taught": ["naive_pattern_matching","kmp_failure_function","lps_array","kmp_search","rabin_karp_intro","string_search_complexity"],
+    "skills_developed": ["implementing_kmp","building_lps_array","explaining_kmp_intuition","choosing_string_search_algorithm"],
+    "career_relevance": "Pattern matching powers Zerodha's trade log search, Flipkart's product search, and every text editor's Ctrl+F. The naive O(nm) fails for large texts. KMP O(n+m) is the canonical interview algorithm for 'advanced' string rounds at FAANG India.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha trade log search:\n  Log: 10 million chars (daily trade records)\n  Pattern: 'TIMEOUT_ERROR' (13 chars)\n\nNaive search O(n×m): 10M × 13 = 130M comparisons\nKMP O(n+m): 10M + 13 = ~10M comparisons\n\nKMP is 13× faster for this pattern.\nFor repeated patterns: KMP 100× faster or more.\n```",
+    "what_you_will_build": "Full KMP implementation: LPS array + search. Then use it to solve real string matching problems."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "naive": "**Naive pattern matching O(nm):**\n\n```java\n// Check every position in text\nfor (int i = 0; i <= n - m; i++) {\n    int j;\n    for (j = 0; j < m; j++)\n        if (text.charAt(i+j) != pattern.charAt(j)) break;\n    if (j == m) result.add(i); // match at i\n}\n// Worst case: text='aaaa...a', pattern='aaab' → O(nm)\n```",
+      "kmp": "**KMP: skip positions using failure function:**\n\n```java\n// Step 1: Build LPS (Longest Proper Prefix that is also Suffix)\n// lps[i] = length of longest proper prefix of pattern[0..i] that is also suffix\n// pattern = 'AABAAB'\n// lps =    [0,1,0,1,2,3]\n//  pattern[0]='A': no proper prefix → lps[0]=0\n//  pattern[1]='A': 'A'='A' → lps[1]=1\n//  pattern[2]='B': 'AB'≠'AB' but 'A'≠'B' → lps[2]=0\n//  pattern[3]='A': 'A'='A' → lps[3]=1\n//  pattern[4]='A': 'AA'='AA' → lps[4]=2\n//  pattern[5]='B': 'AAB'='AAB' → lps[5]=3\n\n// Step 2: Search using LPS to skip redundant comparisons\n// When mismatch at j: don't restart from i+1\n// Instead: j = lps[j-1] (skip already-matched prefix)\n```"
+    },
+    "visual_aid": {"type": "diagram", "description": "KMP diagram. Top: LPS array construction for 'AABAAB': table showing index, char, prefix-suffix matches, lps value. Bottom: KMP search on text='AABAABAAB', pattern='AABAAB'. Show how mismatch at j=5 jumps to j=lps[4]=2 instead of restarting at i+1. Mark: 'i stays, j jumps back via LPS — never re-examine text chars'. Final: match found at position 3.", "alt_text": "KMP LPS array and search with pointer jumps"},
+    "worked_example": {
+      "scenario": "Find all occurrences of 'AABAAB' in 'AABAABAAB'.",
+      "problem_statement": "Return all starting indices where pattern occurs in text.",
+      "step_by_step_solution": [
+        {"step": 1, "action": "Build LPS array for pattern 'AABAAB'", "details": "lps = [0,1,0,1,2,3]. At each position: what's the longest prefix that equals the suffix of pattern[0..i]? This tells us: on mismatch, how far back to jump in the pattern (not the text)."},
+        {"step": 2, "action": "Search using KMP", "details": "i=text index, j=pattern index. text[i]==pattern[j]: match, both advance. Mismatch with j>0: j=lps[j-1], i stays. Mismatch with j==0: i++. Match complete (j==m): record position i-m, j=lps[j-1]."}
+      ],
+      "final_code": "// Build LPS:\nint[] lps = buildLPS(pattern);\n// KMP search:\nint i=0, j=0;\nwhile(i < text.length()) {\n    if(text.charAt(i)==pattern.charAt(j)) { i++; j++; }\n    if(j==m) { result.add(i-m); j=lps[j-1]; }\n    else if(i<n && text.charAt(i)!=pattern.charAt(j)) {\n        if(j>0) j=lps[j-1]; else i++;\n    }\n}",
+      "expected_output": "Matches at indices: [0, 3]  (0-indexed)\nVerify: text[0..5]='AABAAB' ✓ text[3..8]='AABAAB' ✓",
+      "things_to_notice": [
+        "KMP never backtracks the text pointer i — it only moves forward. This guarantees O(n) text processing.",
+        "The LPS array encodes the 'skip' information for the pattern. Building it takes O(m). Combined: O(n+m).",
+        "When a match completes, j resets to lps[m-1] (not 0) — overlapping matches are correctly handled.",
+        "lps[0] is always 0 (no proper prefix of a single char). lps[j] = 0 means 'no useful skip, start over from pattern beginning'."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{"company_context": "Zerodha trade log analysis", "use_case": "Search 10GB of daily trade logs for error patterns. KMP: O(n) per pattern. Without KMP: O(n×m) — for m=20 char pattern and n=10⁹ text chars, 10× slower. Real usage: grep, text editors, database query engines all use variants of KMP or Boyer-Moore."}],
+      "interview_relevance": "KMP is a 'senior/advanced' string interview question. Correctly implementing LPS array + search within 20 minutes signals strong algorithm knowledge. Start by explaining the motivation (O(nm) naive fails), then describe LPS conceptually, then code it.",
+      "real_world_workflow": "Use Java's built-in String.indexOf() for most tasks (internally optimized). Only implement KMP manually when: (1) asked in interview, (2) need to find ALL occurrences with overlaps, (3) text is streamed and can't be loaded fully."
+    },
+    "common_gaps": [{"gap_id": "lps_off_by_one", "what_students_get_wrong": "Building LPS: confusing the comparison. When pattern[len] == pattern[i]: lps[i] = len+1, len++, i++. When mismatch with len>0: len = lps[len-1] (don't reset to 0 immediately). When mismatch with len==0: lps[i]=0, i++.", "remediation": "Trace LPS construction character by character on paper first. lps[i] = length of longest proper prefix of pattern[0..i] that is also its suffix. 'Proper' means it can't be the whole string.", "detection_pattern": "Student's LPS array is off by one or has wrong values for repeated patterns like 'AAAA'"}],
+    "reflection": {
+      "key_takeaways": [
+        "Naive pattern matching: O(nm) — fails for large texts or repeated chars in pattern",
+        "KMP: O(n+m) — build LPS array O(m), then search O(n)",
+        "LPS[i]: length of longest proper prefix of pattern[0..i] that equals its suffix",
+        "KMP key insight: on mismatch, use LPS to skip — text pointer i never goes back",
+        "On complete match: j = lps[m-1] (handle overlapping matches)",
+        "For interviews: explain motivation → LPS concept → code LPS → code search",
+        "Java's String.indexOf(): use in production (optimized); implement KMP for interviews"
+      ],
+      "self_check_questions": [{"question": "Why does KMP never move the text pointer backwards?", "answer": "The LPS (failure function) tells us that the prefix of the pattern we just matched also appears as a suffix of the same matched region. So when a mismatch occurs, we don't need to re-check text characters we already matched — we already know what they are (they matched the pattern prefix, which equals the LPS suffix). We reset j to lps[j-1] to use this knowledge: we're saying 'the last lps[j-1] characters of what we matched still match the beginning of the pattern.' The text pointer i can always stay put or advance — never retreating."}],
+      "next_topic_preview": "Next: Palindromes — checking and finding palindromic substrings in O(n)."
+    }
+  }
+}

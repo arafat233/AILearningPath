@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t2",
+  "topic_name": "Spring Kafka Producer",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m16_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What does kafkaTemplate.send() return?",
+      "scenario": "KafkaTemplate.send() is non-blocking — it returns a Future.",
+      "instructions": "```java\nkafkaTemplate.send(\"order-events\", \"ORD-001\", event)\n    .whenComplete((result, ex) -> {\n        if (ex != null) System.out.println(\"FAILED: \" + ex.getMessage());\n        else System.out.println(\"OK: offset=\" + result.getRecordMetadata().offset());\n    });\nSystem.out.println(\"send() called\");\n```\nWhat is the order of console output? Is 'send() called' printed before or after 'OK: offset=...'?",
+      "expected_solution": "Order: 'send() called' prints FIRST\nThen (after broker acknowledges): 'OK: offset=...' prints\n\nReason: kafkaTemplate.send() is non-blocking — returns CompletableFuture immediately.\nThe .whenComplete callback fires asynchronously when the broker acknowledges.\n'send() called' is the very next line after send() returns.",
+      "test_cases": [
+        { "type": "text_match", "expected": "Order: 'send() called' prints FIRST\nThen (after broker acknowledges): 'OK: offset=...' prints\n\nReason: kafkaTemplate.send() is non-blocking — returns CompletableFuture immediately.\nThe .whenComplete callback fires asynchronously when the broker acknowledges.\n'send() called' is the very next line after send() returns." }
+      ],
+      "hints": [
+        "kafkaTemplate.send() returns CompletableFuture — not the result",
+        "The callback fires asynchronously, after network round-trip to Kafka",
+        "Code after send() continues immediately"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Configure Spring Kafka producer properties",
+      "scenario": "Producer needs bootstrap-servers and serializers configured.",
+      "instructions": "Fill in the application.properties for a Spring Kafka producer.",
+      "starter_code": "# Kafka broker address:\nspring.kafka.bootstrap-servers=localhost:____\n\n# Key serializer (String keys):\nspring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.____Serializer\n\n# Value serializer (Java objects → JSON):\nspring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.____Serializer\n\n# Durability: all replicas must acknowledge:\nspring.kafka.producer.____=all",
+      "expected_solution": "spring.kafka.bootstrap-servers=localhost:9092\nspring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer\nspring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer\nspring.kafka.producer.acks=all",
+      "blanks": [
+        { "position": 1, "answer": "9092",   "hint": "Default Kafka port" },
+        { "position": 2, "answer": "String", "hint": "Serializer for String keys" },
+        { "position": 3, "answer": "Json",   "hint": "Serializer for Java objects to JSON (spring-kafka)" },
+        { "position": 4, "answer": "acks",   "hint": "Acknowledgment setting" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected": "spring.kafka.bootstrap-servers=localhost:9092\nspring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer\nspring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer\nspring.kafka.producer.acks=all" }
+      ],
+      "hints": [
+        "Kafka default port: 9092",
+        "spring-kafka's JsonSerializer: in the .serializer package",
+        "acks=all: highest durability"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal KafkaTemplate producer service",
+      "scenario": "Inject KafkaTemplate and publish a string message.",
+      "instructions": "Write a `NotificationPublisher` @Service that:\n1. Injects KafkaTemplate<String, String>\n2. Has `publishAlert(String userId, String message)` method\n3. Sends to topic 'alerts' with userId as key and message as value\n4. No callback needed (fire and forget)",
+      "starter_code": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n// NotificationPublisher\n",
+      "expected_solution": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class NotificationPublisher {\n    private final KafkaTemplate<String, String> kafkaTemplate;\n    \n    NotificationPublisher(KafkaTemplate<String, String> kafkaTemplate) {\n        this.kafkaTemplate = kafkaTemplate;\n    }\n    \n    public void publishAlert(String userId, String message) {\n        kafkaTemplate.send(\"alerts\",  // topic\n            userId,                   // key → same user → same partition\n            message);                 // value\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "KafkaTemplate<String, String>: both key and value are Strings",
+        "kafkaTemplate.send(topic, key, value): three-arg send",
+        "Constructor injection: standard Spring pattern"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m16_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Publish a JSON event with KafkaTemplate",
+      "scenario": "Java object serialized to JSON and published to Kafka.",
+      "instructions": "Write a `TradeEventPublisher` that publishes `TradeEvent` records:\n1. Record: TradeEvent(String tradeId, String symbol, int qty, double price)\n2. Publisher sends to 'trade-events' with symbol as key\n3. Uses KafkaTemplate<String, TradeEvent>",
+      "starter_code": "record TradeEvent(String tradeId, String symbol, int qty, double price) {}\n\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n// TradeEventPublisher\n",
+      "expected_solution": "record TradeEvent(String tradeId, String symbol, int qty, double price) {}\n\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class TradeEventPublisher {\n    private final KafkaTemplate<String, TradeEvent> kafkaTemplate;\n    \n    TradeEventPublisher(KafkaTemplate<String, TradeEvent> kt) {\n        kafkaTemplate = kt;\n    }\n    \n    public void publishTrade(TradeEvent event) {\n        kafkaTemplate.send(\n            \"trade-events\",      // topic\n            event.symbol(),      // key = symbol → all TCS trades in one partition\n            event               // value = TradeEvent serialized as JSON\n        );\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "KafkaTemplate<String, TradeEvent>: String key, TradeEvent value",
+        "JsonSerializer handles TradeEvent → JSON automatically",
+        "symbol() as key: all trades for same stock in one partition"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m16_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Async send with whenComplete callback",
+      "scenario": "Handle success and failure from Kafka send asynchronously.",
+      "instructions": "Write `PaymentEventPublisher.publishPayment(PaymentEvent event)` that:\n1. Sends to 'payment-events' with paymentId as key\n2. On success: logs 'Payment event published: {paymentId} offset={offset}'\n3. On failure: logs error and throws RuntimeException\n4. Uses .whenComplete() on the returned CompletableFuture",
+      "starter_code": "record PaymentEvent(String paymentId, String userId, double amount, String status) {}\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n// PaymentEventPublisher with callback\n",
+      "expected_solution": "record PaymentEvent(String paymentId, String userId, double amount, String status) {}\n\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PaymentEventPublisher {\n    private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;\n    PaymentEventPublisher(KafkaTemplate<String, PaymentEvent> kt) { kafkaTemplate = kt; }\n    \n    public void publishPayment(PaymentEvent event) {\n        kafkaTemplate.send(\"payment-events\", event.paymentId(), event)\n            .whenComplete((result, ex) -> {\n                if (ex != null) {\n                    System.err.println(\"Failed to publish payment event: \" + ex.getMessage());\n                    throw new RuntimeException(\"Kafka publish failed for payment: \" + event.paymentId(), ex);\n                } else {\n                    System.out.printf(\"Payment event published: %s offset=%d%n\",\n                        event.paymentId(),\n                        result.getRecordMetadata().offset());\n                }\n            });\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        ".whenComplete((result, ex) -> ...): fires asynchronously when broker responds",
+        "result.getRecordMetadata().offset(): the Kafka offset assigned to this message",
+        "ex != null: indicates send failure"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Message key selection — which key to use?",
+      "scenario": "The right key ensures ordering for the entity that needs it.",
+      "instructions": "For each event, choose the correct message key and explain why:\n\n1. order-service publishes OrderUpdatedEvent (orderId, status, updatedAt)\n2. trade-service publishes TradeEvent (tradeId, symbol, side, qty)\n3. user-service publishes UserProfileEvent (userId, field, oldValue, newValue)\n4. payment-service publishes PaymentEvent (paymentId, orderId, amount, status)\n\nFor each: which field is the key? Why?",
+      "starter_code": "// For each event type, state the key and reason\n// 1. OrderUpdatedEvent key:\n// 2. TradeEvent key:\n// 3. UserProfileEvent key:\n// 4. PaymentEvent key:\n",
+      "expected_solution": "// 1. OrderUpdatedEvent key: orderId\n// Reason: ORDER_PLACED, ORDER_CONFIRMED, ORDER_SHIPPED, ORDER_DELIVERED must arrive\n// in order for the same order. orderId key guarantees same partition = ordered delivery.\n\n// 2. TradeEvent key: symbol (e.g., 'TCS')\n// Reason: BUY and SELL for same symbol affect position calculation; must be in order.\n// Different symbols can be processed in parallel (different partitions).\n\n// 3. UserProfileEvent key: userId\n// Reason: Profile field updates for same user must arrive in order\n// (e.g., email change, then verification status — order matters).\n\n// 4. PaymentEvent key: paymentId\n// Reason: INITIATED → PROCESSING → COMPLETED must arrive in order for same payment.\n// Could also use orderId if you want all payment events for an order ordered together.\n\npublic class KeyExample {\n    public static void main(String[] args) {\n        System.out.println(\"1. orderId\");\n        System.out.println(\"2. symbol\");\n        System.out.println(\"3. userId\");\n        System.out.println(\"4. paymentId\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["orderId", "symbol", "userId", "paymentId"] }
+      ],
+      "hints": [
+        "Key = entity whose events must be ordered",
+        "All events for same key → same partition → ordered",
+        "Choose key that enables meaningful parallelism between different values"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m16_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "KafkaTemplate with @EmbeddedKafka test",
+      "scenario": "@EmbeddedKafka starts an in-process Kafka for unit tests.",
+      "instructions": "Write an @EmbeddedKafka @SpringBootTest test for `NotificationPublisher.publishAlert()` that:\n1. Uses @EmbeddedKafka with 1 partition\n2. Publishes an alert\n3. Consumes from the 'alerts' topic using KafkaTestUtils\n4. Asserts the message value contains the expected message",
+      "starter_code": "import org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\n// @EmbeddedKafka test\n",
+      "expected_solution": "import org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.kafka.test.EmbeddedKafkaBroker;\nimport org.springframework.kafka.test.utils.KafkaTestUtils;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport org.apache.kafka.clients.consumer.*;\nimport java.time.Duration; import java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions = 1, topics = {\"alerts\"})\n@TestPropertySource(properties = \"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\")\nclass NotificationPublisherTest {\n    @Autowired NotificationPublisher publisher;\n    @Autowired EmbeddedKafkaBroker embeddedKafka;\n    \n    @Test\n    void publishAlert_messageAppearsOnTopic() {\n        publisher.publishAlert(\"U001\", \"Your trade TCS x10 was executed\");\n        \n        // Create test consumer:\n        Map<String, Object> consumerProps = KafkaTestUtils.consumerProps(\n            \"test-group\", \"true\", embeddedKafka);\n        Consumer<String, String> consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(\n            consumerProps,\n            new org.apache.kafka.common.serialization.StringDeserializer(),\n            new org.apache.kafka.common.serialization.StringDeserializer());\n        consumer.subscribe(List.of(\"alerts\"));\n        \n        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));\n        assertFalse(records.isEmpty(), \"Expected at least one message on 'alerts' topic\");\n        \n        ConsumerRecord<String, String> record = records.iterator().next();\n        assertEquals(\"U001\", record.key());\n        assertTrue(record.value().contains(\"TCS\"), \"Expected TCS in message body\");\n        consumer.close();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@EmbeddedKafka: starts a Kafka broker in the JVM for testing",
+        "spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}: point to embedded",
+        "KafkaTestUtils.consumerProps: convenience method for test consumer config"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Publish multiple event types from one service",
+      "scenario": "Order-service publishes different events to different topics.",
+      "instructions": "Write `OrderEventPublisher` that publishes two event types:\n1. `OrderPlacedEvent(orderId, userId, items, total)` → topic 'order-placed'\n2. `OrderCancelledEvent(orderId, userId, reason)` → topic 'order-cancelled'\n3. Both with orderId as key\n4. Both with .whenComplete() error logging\n5. A single @Service with two publish methods",
+      "starter_code": "record OrderPlacedEvent(String orderId, String userId, int items, double total) {}\nrecord OrderCancelledEvent(String orderId, String userId, String reason) {}\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n// OrderEventPublisher\n",
+      "expected_solution": "record OrderPlacedEvent(String orderId, String userId, int items, double total) {}\nrecord OrderCancelledEvent(String orderId, String userId, String reason) {}\n\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class OrderEventPublisher {\n    // Using KafkaTemplate<String, Object> to handle both event types:\n    private final KafkaTemplate<String, Object> kafkaTemplate;\n    \n    OrderEventPublisher(KafkaTemplate<String, Object> kt) { kafkaTemplate = kt; }\n    \n    public void publishOrderPlaced(OrderPlacedEvent event) {\n        kafkaTemplate.send(\"order-placed\", event.orderId(), event)\n            .whenComplete((result, ex) -> {\n                if (ex != null)\n                    System.err.println(\"Failed to publish order-placed: \" + ex.getMessage());\n                else\n                    System.out.println(\"Order placed event published: \" + event.orderId());\n            });\n    }\n    \n    public void publishOrderCancelled(OrderCancelledEvent event) {\n        kafkaTemplate.send(\"order-cancelled\", event.orderId(), event)\n            .whenComplete((result, ex) -> {\n                if (ex != null)\n                    System.err.println(\"Failed to publish order-cancelled: \" + ex.getMessage());\n                else\n                    System.out.println(\"Order cancelled event published: \" + event.orderId());\n            });\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "KafkaTemplate<String, Object>: accepts any object value with JsonSerializer",
+        "Different events → different topics, same publisher",
+        "orderId as key for both: ordering per order preserved"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Producer @Bean configuration",
+      "scenario": "Programmatic KafkaTemplate configuration via @Configuration.",
+      "instructions": "Write a `KafkaProducerConfig` @Configuration class that:\n1. Defines ProducerFactory<String, TradeEvent> @Bean\n2. Sets: bootstrap-servers, StringSerializer for key, JsonSerializer for value\n3. Sets: acks=all, retries=3, enable.idempotence=true\n4. Defines KafkaTemplate<String, TradeEvent> @Bean using the ProducerFactory",
+      "starter_code": "import org.apache.kafka.clients.producer.ProducerConfig;\nimport org.apache.kafka.common.serialization.StringSerializer;\nimport org.springframework.kafka.core.*;\nimport org.springframework.kafka.support.serializer.JsonSerializer;\nimport org.springframework.context.annotation.*;\nimport java.util.*;\n// KafkaProducerConfig\n",
+      "expected_solution": "import org.apache.kafka.clients.producer.ProducerConfig;\nimport org.apache.kafka.common.serialization.StringSerializer;\nimport org.springframework.kafka.core.*;\nimport org.springframework.kafka.support.serializer.JsonSerializer;\nimport org.springframework.context.annotation.*;\nimport java.util.*;\n\n@Configuration\npublic class KafkaProducerConfig {\n    \n    @Bean\n    public ProducerFactory<String, TradeEvent> producerFactory() {\n        Map<String, Object> config = new HashMap<>();\n        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,    \"localhost:9092\");\n        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,   StringSerializer.class);\n        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);\n        config.put(ProducerConfig.ACKS_CONFIG,              \"all\");\n        config.put(ProducerConfig.RETRIES_CONFIG,            3);\n        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);\n        return new DefaultKafkaProducerFactory<>(config);\n    }\n    \n    @Bean\n    public KafkaTemplate<String, TradeEvent> kafkaTemplate(\n            ProducerFactory<String, TradeEvent> pf) {\n        return new KafkaTemplate<>(pf);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ProducerConfig.BOOTSTRAP_SERVERS_CONFIG: broker address",
+        "enable.idempotence=true: requires acks=all and retries > 0",
+        "DefaultKafkaProducerFactory: Spring's ProducerFactory implementation"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Key determines partition — predict routing",
+      "scenario": "Hash-based partition routing: same key → same partition.",
+      "instructions": "A topic 'stock-events' has 4 partitions. Three events are sent:\n\n```java\nkafkaTemplate.send(\"stock-events\", \"TCS\",     event1);\nkafkaTemplate.send(\"stock-events\", \"INFY\",    event2);\nkafkaTemplate.send(\"stock-events\", \"TCS\",     event3);\nkafkaTemplate.send(\"stock-events\", null,      event4);  // no key!\nkafkaTemplate.send(\"stock-events\", \"RELIANCE\",event5);\n```\n\nWhich events might share a partition? Which might not? What about event4 with null key?",
+      "expected_solution": "event1 (TCS) and event3 (TCS) → SAME partition (hash('TCS') % 4 = consistent)\nevent2 (INFY) → a partition determined by hash('INFY') % 4 (may or may not equal TCS's partition)\nevent5 (RELIANCE) → hash('RELIANCE') % 4 (likely different from TCS and INFY)\nevent4 (null key) → round-robin across partitions (Kafka partitions null-key messages randomly)\n\nOrdering guarantee:\n- event1 and event3 are in same partition → event1 arrives before event3 ✓\n- event2 and event5: may be in any partition, unrelated to TCS partition\n- event4: no ordering guarantee — could land anywhere",
+      "test_cases": [
+        { "type": "text_match", "expected": "event1 (TCS) and event3 (TCS) → SAME partition (hash('TCS') % 4 = consistent)\nevent2 (INFY) → a partition determined by hash('INFY') % 4 (may or may not equal TCS's partition)\nevent5 (RELIANCE) → hash('RELIANCE') % 4 (likely different from TCS and INFY)\nevent4 (null key) → round-robin across partitions (Kafka partitions null-key messages randomly)\n\nOrdering guarantee:\n- event1 and event3 are in same partition → event1 arrives before event3 ✓\n- event2 and event5: may be in any partition, unrelated to TCS partition\n- event4: no ordering guarantee — could land anywhere" }
+      ],
+      "hints": [
+        "Same key → hash(key) % partitions = always the same partition number",
+        "Null key → Kafka uses round-robin (different partitions each time)",
+        "Ordering guaranteed only within a partition for events from same producer"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Transactional Kafka producer — atomicity",
+      "scenario": "Kafka transactions ensure atomicity: DB save + Kafka publish together.",
+      "instructions": "Write `OrderService.placeOrder()` using Kafka transactions:\n1. Configure KafkaTemplate with transactional-id-prefix\n2. Use @Transactional on placeOrder() — saves order to DB AND publishes to Kafka in one transaction\n3. If DB save fails → Kafka message aborted (never delivered)\n4. Show application.properties and service method",
+      "starter_code": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.stereotype.Service;\n// Transactional OrderService\n",
+      "expected_solution": "// application.properties:\n// spring.kafka.producer.transaction-id-prefix=order-service-tx-\n// spring.kafka.producer.acks=all\n// spring.kafka.producer.enable-idempotence=true\n\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class OrderService {\n    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;\n    private final OrderRepository orderRepo;\n    \n    OrderService(KafkaTemplate<String, OrderPlacedEvent> kt, OrderRepository r) {\n        kafkaTemplate = kt; orderRepo = r;\n    }\n    \n    @Transactional  // DB transaction + Kafka transaction linked\n    public Order placeOrder(OrderRequest req) {\n        // 1. Save to DB:\n        Order order = orderRepo.save(new Order(req));\n        \n        // 2. Publish event — in same transaction:\n        kafkaTemplate.send(\"order-placed\", order.getId(),\n            new OrderPlacedEvent(order.getId(), req.userId(), req.total()));\n        \n        // If anything throws here, BOTH DB save AND Kafka publish are rolled back.\n        // Consumer never sees the event if the transaction aborts.\n        return order;\n    }\n}\n\n// Note: transactional Kafka requires:\n// - transaction-id-prefix configured\n// - Spring's KafkaTransactionManager in context\n// - @Transactional on the method\n// This is the 'exactly-once' pattern for DB + Kafka.",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "spring.kafka.producer.transaction-id-prefix: enables Kafka transactions",
+        "@Transactional: Spring links DB and Kafka transactions",
+        "On rollback: both DB save and Kafka publish are undone"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Zerodha-style trade publisher with dead letter",
+      "scenario": "Failed Kafka sends go to a dead-letter database for replay.",
+      "instructions": "Write `TradeEventPublisher.publishTrade(TradeEvent event)` that:\n1. Sends to 'trade-events'\n2. On success: logs partition and offset\n3. On failure: saves to a `FailedEvent` DB table for later replay\n4. The FailedEvent table: (id, topic, key, eventJson, failedAt, retried boolean)\n\nShow the FailedEvent entity and how it's saved in the callback.",
+      "starter_code": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\nimport com.fasterxml.jackson.databind.ObjectMapper;\n// TradeEventPublisher with dead-letter fallback\n",
+      "expected_solution": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.stereotype.Repository;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport jakarta.persistence.*;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport java.time.LocalDateTime;\n\n@Entity class FailedEvent {\n    @Id @GeneratedValue Long id;\n    String topic, key, eventJson, errorMessage;\n    boolean retried;\n    LocalDateTime failedAt;\n    FailedEvent(){}\n    FailedEvent(String t, String k, String j, String e){\n        topic=t; key=k; eventJson=j; errorMessage=e; retried=false; failedAt=LocalDateTime.now();\n    }\n}\ninterface FailedEventRepository extends JpaRepository<FailedEvent, Long> {}\n\n@Service\npublic class TradeEventPublisher {\n    private final KafkaTemplate<String, TradeEvent> kafkaTemplate;\n    private final FailedEventRepository failedRepo;\n    private final ObjectMapper objectMapper;\n    \n    TradeEventPublisher(KafkaTemplate<String, TradeEvent> kt,\n                        FailedEventRepository fr, ObjectMapper om) {\n        kafkaTemplate = kt; failedRepo = fr; objectMapper = om;\n    }\n    \n    public void publishTrade(TradeEvent event) {\n        kafkaTemplate.send(\"trade-events\", event.symbol(), event)\n            .whenComplete((result, ex) -> {\n                if (ex != null) {\n                    System.err.println(\"Kafka publish failed for trade: \" + event.tradeId());\n                    try {\n                        // Save to dead-letter DB for replay:\n                        failedRepo.save(new FailedEvent(\n                            \"trade-events\",\n                            event.symbol(),\n                            objectMapper.writeValueAsString(event),\n                            ex.getMessage()));\n                    } catch (Exception dbEx) {\n                        System.err.println(\"Even dead-letter save failed! \" + dbEx.getMessage());\n                    }\n                } else {\n                    System.out.printf(\"Trade published: %s partition=%d offset=%d%n\",\n                        event.tradeId(),\n                        result.getRecordMetadata().partition(),\n                        result.getRecordMetadata().offset());\n                }\n            });\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Dead-letter DB: saves failed events so they can be replayed later",
+        "ObjectMapper.writeValueAsString(event): serialize event to JSON string for storage",
+        "Nested try-catch: even the dead-letter save can fail — log it"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Integration test: verify event published and consumed",
+      "scenario": "@EmbeddedKafka integration test for producer + consumer round-trip.",
+      "instructions": "Write a complete @EmbeddedKafka @SpringBootTest test that:\n1. Publishes a TradeEvent via TradeEventPublisher\n2. Uses a test KafkaConsumer to read from 'trade-events'\n3. Verifies: the received message has symbol='TCS', qty=10\n4. Verifies: the key is 'TCS'\n5. Uses timeout: poll for up to 5 seconds\n\nAll assertions pass.",
+      "starter_code": "import org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\n// Full integration test\n",
+      "expected_solution": "import org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.kafka.test.EmbeddedKafkaBroker;\nimport org.springframework.kafka.test.utils.KafkaTestUtils;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport org.apache.kafka.clients.consumer.*;\nimport org.apache.kafka.common.serialization.StringDeserializer;\nimport java.time.Duration; import java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=1, topics={\"trade-events\"})\n@TestPropertySource(properties=\"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\")\nclass TradeEventIntegrationTest {\n    @Autowired TradeEventPublisher publisher;\n    @Autowired EmbeddedKafkaBroker embeddedKafka;\n    \n    @Test\n    void publishTradeEvent_receivedByConsumer() throws Exception {\n        // Arrange:\n        TradeEvent event = new TradeEvent(\"TRD-001\",\"TCS\",10,3890.0);\n        \n        // Act:\n        publisher.publishTrade(event);\n        Thread.sleep(500);  // let async send complete\n        \n        // Assert — consume from embedded broker:\n        Map<String,Object> cfg = KafkaTestUtils.consumerProps(\"it-group\",\"true\",embeddedKafka);\n        Consumer<String,String> consumer = new KafkaConsumer<>(cfg, new StringDeserializer(), new StringDeserializer());\n        consumer.subscribe(List.of(\"trade-events\"));\n        ConsumerRecords<String,String> records = consumer.poll(Duration.ofSeconds(5));\n        \n        assertFalse(records.isEmpty(),\"Expected at least one record\");\n        ConsumerRecord<String,String> record = records.iterator().next();\n        assertEquals(\"TCS\", record.key(),  \"Key should be the stock symbol\");\n        assertTrue(record.value().contains(\"TRD-001\"), \"Value should contain tradeId\");\n        assertTrue(record.value().contains(\"3890\"),    \"Value should contain price\");\n        consumer.close();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@EmbeddedKafka topics={\"trade-events\"}: pre-create the topic for testing",
+        "Thread.sleep(500): allow async send to complete before consuming",
+        "KafkaTestUtils.consumerProps: convenience method for test consumer setup"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m16_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Publish events from multiple services — batch scenario",
+      "scenario": "End-of-day batch job publishes thousands of events efficiently.",
+      "instructions": "Write a `DailyReportPublisher` that:\n1. Takes a List<TradeEvent> (could be thousands)\n2. Publishes each to 'daily-trade-reports' with userId as key\n3. Collects all CompletableFutures\n4. Waits for all to complete using CompletableFuture.allOf()\n5. Reports: total published, total failed\n\nThis is the batch publish pattern for daily report jobs.",
+      "starter_code": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.*;\n// DailyReportPublisher\n",
+      "expected_solution": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.kafka.support.SendResult;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Service\npublic class DailyReportPublisher {\n    private final KafkaTemplate<String, TradeEvent> kafkaTemplate;\n    DailyReportPublisher(KafkaTemplate<String, TradeEvent> kt) { kafkaTemplate = kt; }\n    \n    public BatchResult publishDailyReports(List<TradeEvent> events) {\n        AtomicInteger published = new AtomicInteger(0);\n        AtomicInteger failed    = new AtomicInteger(0);\n        \n        // Collect futures:\n        List<CompletableFuture<SendResult<String, TradeEvent>>> futures = events.stream()\n            .map(event -> kafkaTemplate.send(\"daily-trade-reports\", event.userId(), event)\n                .whenComplete((result, ex) -> {\n                    if (ex != null) { failed.incrementAndGet(); }\n                    else            { published.incrementAndGet(); }\n                }))\n            .toList();\n        \n        // Wait for all to complete:\n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();\n        \n        return new BatchResult(events.size(), published.get(), failed.get());\n    }\n    \n    record BatchResult(int total, int published, int failed) {\n        @Override public String toString() {\n            return String.format(\"Batch: total=%d published=%d failed=%d\", total, published, failed);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "CompletableFuture.allOf(futures.toArray(...)): waits for ALL futures to complete",
+        "AtomicInteger: thread-safe counter for concurrent callbacks",
+        ".join(): blocks until all futures complete (suitable for end-of-batch)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m16_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha trade publisher — Topic 16.2 synthesis",
+      "scenario": "Full production Kafka producer for the Zerodha trading platform.",
+      "instructions": "Build the complete Zerodha trade event producer:\n1. `TradeExecutedEvent` record: tradeId, userId, symbol, qty, price, totalValue, type (BUY/SELL), executedAt\n2. `KafkaProducerConfig` @Configuration: ProducerFactory with acks=all, retries=3, idempotence=true\n3. `TradeEventPublisher` @Service: publishes to 'trade-executed' with symbol as key + callback\n4. `TradeService.executeTrade()`: saves to DB first, then publishes event\n5. `@EmbeddedKafka` @SpringBootTest: publishes a trade, verifies on topic (2 tests)\n\nAll 2 tests pass.",
+      "starter_code": "// Complete Zerodha trade event producer\n// TradeExecutedEvent + KafkaProducerConfig + TradeEventPublisher\n// TradeService + @EmbeddedKafka tests\n",
+      "expected_solution": "import org.springframework.kafka.core.*;\nimport org.springframework.kafka.support.serializer.JsonSerializer;\nimport org.apache.kafka.clients.producer.ProducerConfig;\nimport org.apache.kafka.common.serialization.StringSerializer;\nimport org.springframework.context.annotation.*;\nimport org.springframework.stereotype.Service;\nimport java.time.Instant; import java.util.*;\n\n// 1. Event record:\npublic record TradeExecutedEvent(\n    String tradeId, String userId, String symbol, int qty,\n    double price, double totalValue, String type, Instant executedAt\n) {}\n\n// 2. Producer config:\n@Configuration\nclass KafkaProducerConfig {\n    @Bean public ProducerFactory<String,TradeExecutedEvent> pf() {\n        Map<String,Object> cfg = new HashMap<>();\n        cfg.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, \"localhost:9092\");\n        cfg.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);\n        cfg.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);\n        cfg.put(ProducerConfig.ACKS_CONFIG, \"all\");\n        cfg.put(ProducerConfig.RETRIES_CONFIG, 3);\n        cfg.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);\n        return new DefaultKafkaProducerFactory<>(cfg);\n    }\n    @Bean public KafkaTemplate<String,TradeExecutedEvent> kt(ProducerFactory<String,TradeExecutedEvent> pf) {\n        return new KafkaTemplate<>(pf);\n    }\n}\n\n// 3. Publisher:\n@Service\nclass TradeEventPublisher {\n    private final KafkaTemplate<String,TradeExecutedEvent> kt;\n    TradeEventPublisher(KafkaTemplate<String,TradeExecutedEvent> kt) { this.kt=kt; }\n    public void publish(TradeExecutedEvent event) {\n        kt.send(\"trade-executed\", event.symbol(), event)\n          .whenComplete((r,ex)->\n              ex!=null ? System.err.println(\"FAIL: \"+ex.getMessage())\n                       : System.out.printf(\"OK: %s p=%d o=%d%n\",event.tradeId(),\n                           r.getRecordMetadata().partition(), r.getRecordMetadata().offset()));\n    }\n}\n\n// 4. Service:\n@Service\nclass TradeService {\n    private final TradeEventPublisher pub;\n    TradeService(TradeEventPublisher p) { pub=p; }\n    public TradeExecutedEvent executeTrade(String uid, String sym, int qty, double price) {\n        // save to DB omitted (no repo in this test context)\n        TradeExecutedEvent evt = new TradeExecutedEvent(\n            \"TRD-\"+sym+\"-\"+qty, uid, sym, qty, price, qty*price, \"BUY\", Instant.now());\n        pub.publish(evt);\n        return evt;\n    }\n}\n\n// 5. Tests:\nimport org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.kafka.test.EmbeddedKafkaBroker;\nimport org.springframework.kafka.test.utils.KafkaTestUtils;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport org.apache.kafka.clients.consumer.*;\nimport org.apache.kafka.common.serialization.StringDeserializer;\nimport java.time.Duration; import java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=3, topics={\"trade-executed\"})\n@TestPropertySource(properties=\"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\")\nclass TradePublisherTest {\n    @Autowired TradeService svc; @Autowired EmbeddedKafkaBroker eb;\n    Consumer<String,String> consumer;\n    @BeforeEach void setup() {\n        Map<String,Object> cfg=KafkaTestUtils.consumerProps(\"tg\",\"true\",eb);\n        consumer=new KafkaConsumer<>(cfg,new StringDeserializer(),new StringDeserializer());\n        consumer.subscribe(List.of(\"trade-executed\"));\n    }\n    @AfterEach void teardown() { consumer.close(); }\n    \n    @Test void executeTrade_publishesToKafka() throws Exception {\n        svc.executeTrade(\"U01\",\"TCS\",10,3890.0);\n        Thread.sleep(500);\n        ConsumerRecords<String,String> records=consumer.poll(Duration.ofSeconds(5));\n        assertFalse(records.isEmpty());\n        ConsumerRecord<String,String> r=records.iterator().next();\n        assertEquals(\"TCS\",r.key());\n        assertTrue(r.value().contains(\"U01\"));\n    }\n    @Test void executeTrade_symbolIsKey() throws Exception {\n        svc.executeTrade(\"U02\",\"INFY\",5,1560.0);\n        Thread.sleep(500);\n        ConsumerRecords<String,String> records=consumer.poll(Duration.ofSeconds(5));\n        assertFalse(records.isEmpty());\n        assertEquals(\"INFY\",records.iterator().next().key());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "@EmbeddedKafka partitions=3: multiple partitions, like production",
+        "@BeforeEach create consumer, @AfterEach close: resource management",
+        "Thread.sleep(500): async send needs time to complete before consuming"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t5",
+  "language": "java",
+  "module_id": "m12",
+  "module_name": "Unit Testing with JUnit 5",
+  "topic_number": 5,
+  "name": "Test-Driven Development (TDD)",
+  "slug": "test-driven-development",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m12_t1", "java_m12_t2"],
+    "concepts_taught": [
+      "tdd_red_green_refactor_cycle",
+      "writing_test_before_code",
+      "minimum_viable_implementation",
+      "refactoring_with_test_safety",
+      "tdd_for_class_design",
+      "baby_steps_in_tdd",
+      "triangulation_technique",
+      "tdd_with_exceptions",
+      "tdd_for_collections_and_maps",
+      "when_not_to_tdd"
+    ],
+    "skills_developed": [
+      "writing_tests_before_implementation",
+      "taking_small_tdd_steps",
+      "using_red_green_refactor_cycle",
+      "letting_tests_drive_design",
+      "refactoring_safely_with_test_coverage"
+    ],
+    "career_relevance": "TDD is the mark of a senior engineer. Kent Beck (creator of JUnit and XP) described TDD as 'the courage to refactor'. ThoughtWorks, Pivotal, and every agile team that ships reliably practices TDD. It prevents regression bugs, produces clean APIs (because you design from the caller's perspective), and gives confidence to refactor. In interviews, writing tests first signals seniority. After this topic, you have the complete professional Java testing toolkit.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You need to build a shopping cart. Normally you'd write the Cart class, add items, test it manually:\n\n```\n→ Write Cart\n→ Write addItem, removeItem, getTotal\n→ Run the program, add a mouse, check the output\n→ Add discount logic\n→ Run again... something's broken\n→ Debug for 30 minutes\n```\n\n**With TDD:**\n```java\n// STEP 1: Write the test first (Cart doesn't exist yet)\n@Test\nvoid emptyCart_totalIsZero() {\n    Cart cart = new Cart();  // compile error — Cart doesn't exist\n    assertEquals(0.0, cart.getTotal());\n}\n\n// STEP 2: Write MINIMUM code to make it pass:\nclass Cart {\n    double getTotal() { return 0.0; }  // hardcoded — just enough to pass!\n}\n// Test is GREEN. Move on.\n\n// STEP 3: Write next test:\n@Test\nvoid addItem_oneItem_totalIsItemPrice() {\n    Cart cart = new Cart();\n    cart.addItem(\"Mouse\", 799.0);\n    assertEquals(799.0, cart.getTotal());\n}\n// Test is RED — addItem doesn't exist yet\n\n// STEP 4: Make it pass:\nclass Cart {\n    double total = 0;\n    void addItem(String name, double price) { total += price; }\n    double getTotal() { return total; }\n}\n// GREEN again. Keep going.\n```\n\n**TDD workflow: Red → Green → Refactor. Repeat.**\n\nEach cycle is tiny — maybe 2-3 minutes. You always have working code. You always have test coverage. Bugs are caught immediately. Design emerges from tests. This is how professional engineers build software.",
+    "what_you_will_build": "By the end of this topic, you'll write tests before code, work in small Red-Green-Refactor cycles, use triangulation to drive implementation, let tests guide class design, and refactor safely inside the green zone."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "red_green_refactor": "**The TDD cycle — Red, Green, Refactor:**\n\n```\nRED    → Write a failing test (code doesn't exist yet)\nGREEN  → Write MINIMUM code to make the test pass\nREFACTOR → Improve the code without breaking tests\nRepeat (each cycle ~2-5 minutes)\n```\n\n**The three rules of TDD (Kent Beck):**\n1. Don't write production code unless there is a failing test\n2. Write only ENOUGH test code to make one test fail\n3. Write only ENOUGH production code to make the failing test pass\n\n```java\n// RED: test fails (FizzBuzz doesn't exist)\n@Test void fizz_multipleOf3_returnsFizz() {\n    assertEquals(\"Fizz\", FizzBuzz.of(3));\n}\n\n// GREEN: minimum code:\nclass FizzBuzz {\n    static String of(int n) { return \"Fizz\"; }  // hardcoded — makes this test pass!\n}\n\n// Another RED: new test exposes the hardcode:\n@Test void number_notMultipleOf3or5_returnsNumber() {\n    assertEquals(\"1\", FizzBuzz.of(1));  // 'Fizz' != '1' → FAILS!\n}\n\n// GREEN again: force real logic:\nstatic String of(int n) {\n    if (n % 3 == 0) return \"Fizz\";\n    return String.valueOf(n);\n}\n```",
+
+      "baby_steps": "**Baby steps — the key TDD discipline:**\n\nTDD works in tiny increments. Each step is small enough that you can't get it wrong:\n\n```java\n// Building a price calculator — TDD style:\n\n// Cycle 1 — simplest possible test:\n@Test void total_noItems_returnsZero() { assertEquals(0.0, new Cart().getTotal()); }\n// Implementation: double getTotal() { return 0.0; }  // hardcoded!\n\n// Cycle 2 — force the real logic:\n@Test void total_oneItem_returnsItemPrice() {\n    Cart cart = new Cart();\n    cart.add(\"Mouse\", 799.0);\n    assertEquals(799.0, cart.getTotal());\n}\n// Implementation: List<Double> prices; add → prices.add; getTotal → sum\n\n// Cycle 3 — multiple items:\n@Test void total_twoItems_returnsSum() {\n    Cart cart = new Cart();\n    cart.add(\"Mouse\", 799.0); cart.add(\"Keyboard\", 1999.0);\n    assertEquals(2798.0, cart.getTotal());\n}\n// Implementation: already works! Test is green immediately.\n\n// Cycle 4 — boundary (zero items after removal):\n@Test void total_removeItem_reducesTotal() { ... }\n\n// Each cycle: 2-5 minutes. Each adds one behaviour.\n```",
+
+      "triangulation": "**Triangulation — driving real logic through multiple tests:**\n\nWhen a hardcoded value passes one test, add another test that forces the REAL logic:\n\n```java\n// Single test — could be faked:\n@Test void double_of3_returns6() { assertEquals(6, Doubler.of(3)); }\n// Could be implemented as: static int of(int n) { return 6; }  // FAKED!\n\n// Triangulate with a second test:\n@Test void double_of5_returns10() { assertEquals(10, Doubler.of(5)); }\n// Now 'return 6' fails. FORCED to write: static int of(int n) { return n * 2; }\n\n// Triangulation for discount tiers:\n@Test void discount_qty1_returns0percent()  { assertEquals(0.0, calc.discount(1)); }\n@Test void discount_qty10_returns10percent() { assertEquals(0.10, calc.discount(10)); }\n@Test void discount_qty50_returns20percent() { assertEquals(0.20, calc.discount(50)); }\n// Three tests triangulate the exact discount logic:\n// if n >= 50 return 0.20; if n >= 10 return 0.10; return 0.0;\n```",
+
+      "tdd_for_exceptions": "**TDD with exceptions — red-green for error paths:**\n\n```java\n// Write the exception test first:\n@Test\nvoid withdraw_moreThanBalance_throwsIllegalState() {\n    BankAccount acc = new BankAccount(1000);\n    assertThrows(IllegalStateException.class, () -> acc.withdraw(2000));\n}\n// BankAccount.withdraw doesn't throw yet → RED\n\n// Make it pass:\npublic void withdraw(double amount) {\n    if (amount > balance) throw new IllegalStateException(\"Insufficient funds\");\n    balance -= amount;\n}\n// GREEN\n\n// Refactor: add message detail:\n@Test\nvoid withdraw_insufficientFunds_messageContainsBothAmounts() {\n    BankAccount acc = new BankAccount(1000);\n    IllegalStateException ex = assertThrows(IllegalStateException.class,\n        () -> acc.withdraw(5000));\n    assertTrue(ex.getMessage().contains(\"1000\"));\n    assertTrue(ex.getMessage().contains(\"5000\"));\n}\n// RED — enhance the message in implementation\n```",
+
+      "tdd_drives_design": "**TDD drives better design:**\n\nWhen a test is hard to write, the code design is wrong.\n\n```java\n// HARD TO TEST — tightly coupled:\nclass OrderService {\n    void placeOrder(Order order) {\n        DatabaseConnection conn = new DatabaseConnection(\"jdbc:...\");  // hard to test!\n        conn.save(order);\n        new EmailClient().send(order.getEmail());  // hard to test!\n    }\n}\n\n// TDD forces you to inject dependencies (testable design):\nclass OrderService {\n    private final OrderRepository repo;\n    private final EmailService emailSvc;\n    // Constructor injection — testable with mocks!\n    OrderService(OrderRepository repo, EmailService emailSvc) {\n        this.repo = repo; this.emailSvc = emailSvc;\n    }\n}\n// The pain of writing the test signals a design problem.\n// TDD prevents untestable code from being written in the first place.\n```",
+
+      "when_not_tdd": "**When TDD is less useful:**\n\nTDD works best for:\n- Business logic (discount calculations, validation, state machines)\n- Service layer code\n- Algorithms and data transformations\n\nLess useful for:\n- Exploratory code (spike solutions — learn, then throw away)\n- UI layout and rendering\n- Database migrations\n- Configuration wiring\n- Already-tested framework code (no need to test Spring's @Transactional)\n\n**The pragmatic approach:** TDD for all business logic; test-after for integration/wiring where TDD is impractical. A reasonable target: 80% of business logic is TDD; 20% is tested after."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Circular workflow diagram: three states in a loop — RED (red circle, test written, code missing), GREEN (green circle, minimum code written, test passes), REFACTOR (blue circle, code improved, tests still pass). Arrow from RED to GREEN labeled 'write minimum code'. Arrow from GREEN to REFACTOR labeled 'improve code'. Arrow from REFACTOR back to RED labeled 'write next test'. In the center: 'repeat every 2-5 min'. Outside the circle: examples at each stage — RED: '@Test void discount_qty10...' (test code with no implementation), GREEN: 'class Calc { double disc(int n) { return 0.10; } }' (minimal), REFACTOR: 'if (n>=50) 0.20; if (n>=10) 0.10; else 0' (complete logic). Bottom: triangulation diagram — single test → fake implementation possible; two tests → real logic required.",
+      "alt_text": "Red-Green-Refactor cycle with examples at each stage, and triangulation forcing real implementation"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a `ShoppingCart` from scratch using TDD. Each cycle adds one behaviour. Show exactly 6 TDD cycles: empty cart, add item, add two items, remove item, apply discount, get item count.",
+
+    "problem_statement": "Build ShoppingCart.java using TDD — write tests first, implement minimum code to pass each test, refactor between cycles. Final cart supports: add, remove, getTotal, getItemCount, applyDiscount.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Cycle 1 — empty cart has zero total (RED → GREEN)",
+        "details": "```java\n// TEST FIRST (RED):\n@Test void emptyCart_totalIsZero() {\n    Cart cart = new Cart();\n    assertEquals(0.0, cart.getTotal(), 0.001);\n}\n\n// MINIMUM CODE (GREEN):\nclass Cart {\n    double getTotal() { return 0.0; }\n}\n// ✓ Passes. Move on.\n```"
+      },
+      {
+        "step": 2,
+        "action": "Cycle 2 — add one item, total changes (RED → GREEN)",
+        "details": "```java\n// TEST FIRST (RED):\n@Test void addItem_singleItem_totalIsItemPrice() {\n    Cart cart = new Cart();\n    cart.addItem(\"Mouse\", 799.0);\n    assertEquals(799.0, cart.getTotal(), 0.001);\n}\n\n// MINIMUM CODE (GREEN):\nclass Cart {\n    private double total = 0;\n    void addItem(String name, double price) { total += price; }\n    double getTotal() { return total; }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Cycle 3 — two items accumulate (RED → GREEN, already works)",
+        "details": "```java\n@Test void addTwoItems_totalIsSum() {\n    Cart cart = new Cart();\n    cart.addItem(\"Mouse\", 799.0);\n    cart.addItem(\"Keyboard\", 1999.0);\n    assertEquals(2798.0, cart.getTotal(), 0.001);\n}\n// Already GREEN — implementation works!\n```"
+      },
+      {
+        "step": 4,
+        "action": "Cycle 4 — remove item reduces total (RED → GREEN → REFACTOR)",
+        "details": "```java\n@Test void removeItem_existingItem_totalReduced() {\n    Cart cart = new Cart();\n    cart.addItem(\"Mouse\", 799.0);\n    cart.addItem(\"Keyboard\", 1999.0);\n    cart.removeItem(\"Mouse\");\n    assertEquals(1999.0, cart.getTotal(), 0.001);\n}\n// Implementation:\nclass Cart {\n    private Map<String, Double> items = new LinkedHashMap<>();\n    void addItem(String name, double price) { items.put(name, price); }\n    void removeItem(String name)            { items.remove(name); }\n    double getTotal() { return items.values().stream().mapToDouble(Double::doubleValue).sum(); }\n}\n// REFACTOR: changed from double total to Map<String, Double> items — clean!\n```"
+      },
+      {
+        "step": 5,
+        "action": "Cycle 5 — discount reduces total (RED → GREEN)",
+        "details": "```java\n@Test void applyDiscount_10percent_reducesTotal() {\n    Cart cart = new Cart();\n    cart.addItem(\"Mouse\", 799.0);\n    cart.applyDiscount(0.10);\n    assertEquals(719.1, cart.getTotal(), 0.001);\n}\n// Implementation:\nvoid applyDiscount(double rate) {\n    items.replaceAll((name, price) -> price * (1 - rate));\n}\n```"
+      },
+      {
+        "step": 6,
+        "action": "Cycle 6 — item count (trivial, but spec'd) (RED → GREEN)",
+        "details": "```java\n@Test void getItemCount_threeItems_returns3() {\n    Cart cart = new Cart();\n    cart.addItem(\"Mouse\", 799); cart.addItem(\"Keyboard\", 1999); cart.addItem(\"Hub\", 499);\n    assertEquals(3, cart.getItemCount());\n}\n// Implementation:\nint getItemCount() { return items.size(); }\n```"
+      }
+    ],
+
+    "final_code": "// Tests drive the design:\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CartTest {\n    @Test void emptyCart_totalIsZero()       { assertEquals(0.0,   new Cart().getTotal(), 0.001); }\n    @Test void addItem_singleItem_total()     { Cart c = new Cart(); c.addItem(\"Mouse\",799); assertEquals(799, c.getTotal(), 0.001); }\n    @Test void addTwoItems_totalIsSum()       { Cart c = new Cart(); c.addItem(\"Mouse\",799); c.addItem(\"Keyboard\",1999); assertEquals(2798, c.getTotal(), 0.001); }\n    @Test void removeItem_existingItem_reduced() { Cart c = new Cart(); c.addItem(\"Mouse\",799); c.addItem(\"Keyboard\",1999); c.removeItem(\"Mouse\"); assertEquals(1999, c.getTotal(), 0.001); }\n    @Test void applyDiscount_10pct_reduced()  { Cart c = new Cart(); c.addItem(\"Mouse\",799); c.applyDiscount(0.10); assertEquals(719.1, c.getTotal(), 0.001); }\n    @Test void getItemCount_threeItems()      { Cart c = new Cart(); c.addItem(\"A\",1); c.addItem(\"B\",2); c.addItem(\"C\",3); assertEquals(3, c.getItemCount()); }\n}\n\n// Production code emerged from tests:\nimport java.util.*;\nclass Cart {\n    private final Map<String, Double> items = new LinkedHashMap<>();\n    \n    void addItem(String name, double price)  { items.put(name, price); }\n    void removeItem(String name)             { items.remove(name); }\n    void applyDiscount(double rate) {\n        items.replaceAll((name, price) -> price * (1 - rate));\n    }\n    double getTotal()  { return items.values().stream().mapToDouble(Double::doubleValue).sum(); }\n    int getItemCount() { return items.size(); }\n}",
+
+    "expected_output": "Test Results:\n✓ emptyCart_totalIsZero\n✓ addItem_singleItem_total\n✓ addTwoItems_totalIsSum\n✓ removeItem_existingItem_reduced\n✓ applyDiscount_10pct_reduced\n✓ getItemCount_threeItems\n\n6 tests passed, 0 failed",
+
+    "things_to_notice": [
+      "Each test was written BEFORE the code that makes it pass. The test defines what the code must do — not the other way around.",
+      "Cycle 1's implementation (`return 0.0`) was intentionally hardcoded. This is correct TDD — write the MINIMUM to pass. Don't write `double total = 0; ... return total;` until a test forces you to.",
+      "Cycle 3 (two items) was already GREEN when the test was written — the implementation from Cycle 2 already handled it. This is normal in TDD and perfectly fine. Write the test anyway; it documents the behavior.",
+      "The refactoring in Cycle 4 changed the internal representation from a simple `double total` to `Map<String, Double> items`. The tests stayed GREEN throughout this structural change — that's the safety net at work.",
+      "applyDiscount uses `items.replaceAll()` — a clean functional API. This emerged naturally because the Map representation, chosen for removeItem, also makes discount elegant. Good design flows from the tests.",
+      "The final Cart class has 5 public methods, all designed from the tests' perspective. The API is clean because it was designed by someone who needed to USE it (the test), not someone thinking about implementation."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "ThoughtWorks / Agile teams",
+        "use_case": "ThoughtWorks (founded by Martin Fowler, practitioners of XP) mandates TDD for all production code. Each feature starts as a failing acceptance test (high-level) and failing unit tests (low-level). Code is written only to pass these tests. Refactoring is continuous. CI runs all tests on every commit. A codebase built with TDD has near-zero 'test debt' — tests exist for everything important."
+      },
+      {
+        "company_context": "Spring Boot auto-configuration testing",
+        "use_case": "The Spring Boot team develops all auto-configurations test-first. They write integration tests for the desired behavior (e.g., 'if H2 is on the classpath and no DataSource bean is defined, auto-configure one'), then write the auto-configuration code to make the test pass. This ensures every configuration is validated by tests that reflect real user scenarios."
+      },
+      {
+        "company_context": "Algorithm implementation (Leetcode-style)",
+        "use_case": "Many Flipkart and Zerodha engineering interviews now ask candidates to write tests first and code second. The ability to think from the caller's perspective, handle edge cases before coding them, and work in small steps separates junior from senior engineers. A candidate who writes tests before code demonstrates design thinking."
+      }
+    ],
+
+    "interview_relevance": "TDD in interviews:\n\n- **'How do you ensure code quality?'** → Test-driven development — write tests first, implement minimum code to pass, refactor with test safety.\n- **'How do you approach a new feature?'** → Start with failing tests that define the expected behaviour. Write code only to pass those tests. Refactor once green.\n- **'What is the Red-Green-Refactor cycle?'** → Red: write a failing test. Green: write minimum code to pass. Refactor: improve code while keeping tests green.\n- Some companies (ThoughtWorks, Pivotal) do pair-programming TDD sessions in their interviews.",
+
+    "real_world_workflow": "Daily TDD workflow:\n\n- New feature: write failing test first\n- New class: let first test define constructor and first method\n- Bug fix: write a test that demonstrates the bug, then fix\n- Refactoring: only refactor when you have full test coverage\n- Red stays red longer than 5 minutes? Your step was too big — back up\n- Tests pass immediately (never red)? Your test didn't add anything useful"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "writing_all_tests_first",
+      "what_students_get_wrong": "Writing all the tests for a class before writing any code — 10+ failing tests, then implementing everything at once. This is not TDD.",
+      "remediation": "TDD is one test at a time. Write one test, make it pass, refactor, repeat. The RED phase should be ONE failing test, not ten. The discipline is the short cycle — minutes, not hours.",
+      "detection_pattern": "Multiple tests written before any production code exists"
+    },
+    {
+      "gap_id": "too_much_code_in_green",
+      "what_students_get_wrong": "Writing the 'full' implementation when a simpler one would pass the current test — skipping the minimum-code step.",
+      "remediation": "In Green, write ONLY enough code to pass the current failing test. If you can return a hardcoded value and pass the test, do that. The next test will force you further. This discipline catches design assumptions early.",
+      "detection_pattern": "Implementation always complete after first test; subsequent tests never fail"
+    },
+    {
+      "gap_id": "skipping_refactor_step",
+      "what_students_get_wrong": "Going directly from Green to the next Red without refactoring — accumulating 'test debt' in the implementation.",
+      "remediation": "After every Green, ask: is this code clean? Rename variables, extract methods, remove duplication. The tests protect you. A 2-minute refactor after each cycle prevents hours of later cleanup.",
+      "detection_pattern": "Duplicated code, poor naming, long methods building up over TDD cycles"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "TDD cycle: Red (write failing test) → Green (minimum code to pass) → Refactor (improve) → Repeat",
+      "Write ONE test at a time — not all tests upfront",
+      "Green phase: write MINIMUM code — hardcoded returns are OK if they pass the test",
+      "Triangulation: add a second test to force real logic when the first can be faked",
+      "Refactor in Green — tests protect against breaking changes",
+      "TDD reveals design problems — if a test is hard to write, the design is wrong",
+      "Baby steps: each cycle 2-5 minutes; each test adds one behaviour",
+      "TDD produces better APIs — designed from the caller's perspective",
+      "Exception paths: write the test for the exception FIRST",
+      "TDD is not suitable for everything — exploratory, UI, migrations are less suited",
+      "The courage to refactor comes from test coverage"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You're TDDing a `StringReverser.reverse(String s)` class. First test: `assertEquals('olleh', reverser.reverse('hello'))`. You implement `return 'olleh'` (hardcoded). Why is this acceptable? What do you do next?",
+        "answer": "It's acceptable because the current test passes — and TDD's Green rule says write only enough to pass. The hardcoded value is the minimum code. Next: add a SECOND test that triangulates: `assertEquals('ydaer', reverser.reverse('ready'))`. Now 'olleh' fails for 'ready'. This forces a real implementation: `new StringBuilder(s).reverse().toString()`. Two tests triangulate the general logic that one test could fake."
+      },
+      {
+        "question": "You're in the Green phase (all tests pass) and realize the Cart.addItem() stores items in a List but you now need removeItem(). Should you refactor to a Map before writing the removeItem test?",
+        "answer": "Yes! Refactoring in the Green zone is exactly right. You see the design improvement (Map makes removeItem clean), you have test coverage (existing tests will protect you), so refactor NOW: change List to Map, run tests (they should all still pass), then write the failing removeItem test. Never add new behavior and refactor at the same time — refactor in Green, add behavior by writing a Red test."
+      },
+      {
+        "question": "A colleague says 'TDD is slow — writing tests before code doubles the time'. How do you respond?",
+        "answer": "TDD feels slower per feature but is faster overall. Time saved: (1) debugging — bugs caught immediately by the failing test, not hours later in production; (2) regression protection — every refactor is safe with full test coverage; (3) design — TDD prevents untestable code from being written, reducing future rework; (4) documentation — tests document exactly how the code should be used. Studies (including Microsoft and IBM internal research) show TDD increases initial development time by 15-35% but reduces bug rates by 40-90%. Net: faster total delivery because less time debugging and fixing production issues."
+      }
+    ],
+
+    "next_topic_preview": "Module 12: Unit Testing with JUnit 5 is complete! You've built the full testing toolkit: JUnit 5 basics, parameterized tests, Mockito mocking, I/O and HTTP testing, and TDD. From Module 13, the course moves into specialized Java topics: Spring Boot, database access with JPA, and building production REST APIs. Every module from here forward builds on the testing skills you've just mastered."
+  }
+}

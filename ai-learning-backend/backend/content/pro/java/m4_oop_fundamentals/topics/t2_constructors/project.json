@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m4_t2_proj",
+  "linked_topic": "java_m4_t2",
+  "level": "mini",
+  "name": "Library Management System",
+  "estimated_minutes": 60,
+  "difficulty": 6,
+  
+  "scenario": "You're building the backend for a library management system — the kind used in colleges, public libraries, or BlinkIt's book rentals. The system tracks Books and their availability. Each book has detailed metadata (title, author, year, ISBN). Books can be borrowed and returned. The constructor must REFUSE invalid data — no books with empty titles, no negative years, no malformed ISBNs. This mirrors real library software architecture used by ProQuest, OCLC, and every university IT department.",
+  
+  "description": "Build a `Book` class with multiple constructors, validation, and borrow/return state tracking. Then build a `Library` class that manages a collection of books with constructor validation, lookup methods, and reporting.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Book` class with fields: title (String), author (String), year (int), isbn (String), isBorrowed (boolean)",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "Book primary constructor: takes title, author, year, isbn. Validates: title non-empty, author non-empty, year between 1000-2030, isbn non-empty. isBorrowed starts as false.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "Book convenience constructor: takes only title, author, year. Defaults isbn to \"UNKNOWN\". Chains to primary using `this(...)`.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Book has `borrow()` method: if not borrowed, sets isBorrowed=true. If already borrowed, prints 'Already borrowed'.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Book has `returnBook()` method: if borrowed, sets isBorrowed=false. If not borrowed, prints 'Not borrowed yet'.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Book has `describe()` method: returns formatted string showing title, author, year, isbn, and borrow status",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`Library` class with fields: name (String), books (Book[])",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "Library constructor validates: name non-empty, books not null (but can be empty)",
+        "weight": 10
+      },
+      {
+        "id": "req_9",
+        "description": "Library has `findByTitle(String title)` returning Book or null",
+        "weight": 10
+      },
+      {
+        "id": "req_10",
+        "description": "main() demonstrates: creating books (mix of both constructors), invalid book attempts (catch errors), borrowing, returning, library setup, lookup",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Library has `countAvailable()` method — returns number of books not currently borrowed",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Library has `findByAuthor(String author)` returning Book[] of all matches",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a `borrowerName` field to Book (String, null if not borrowed). Update borrow() to take name, returnBook() to clear it.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Library has `report()` method that returns a multi-line summary: total books, available count, borrowed count, list of borrowed books and their borrowers (if bonus 3 done)",
+        "weight": 25
+      }
+    ]
+  },
+  
+  "data_to_use": "Test scenario in main():\n\n1. Create 5 books (mix of constructors):\n   - new Book(\"The Hobbit\", \"Tolkien\", 1937, \"978-0345534835\")\n   - new Book(\"Sapiens\", \"Harari\", 2011, \"978-0062316097\")\n   - new Book(\"3 Idiots Backstory\", \"Hirani\", 2019)  // 3-arg, isbn = UNKNOWN\n   - new Book(\"Dune\", \"Herbert\", 1965, \"978-0441172719\")\n   - new Book(\"Atomic Habits\", \"Clear\", 2018, \"978-0735211292\")\n\n2. Try creating invalid books (each in try/catch):\n   - new Book(\"\", \"Author\", 2020, \"ISBN\") — empty title\n   - new Book(\"Title\", \"Author\", 500, \"ISBN\") — year too old\n   - new Book(\"Title\", \"Author\", 2020, \"\") — empty isbn\n\n3. Create Library \"City Central Library\" with the 5 books\n\n4. Operations:\n   - Borrow \"The Hobbit\"\n   - Try to borrow it again (should print 'Already borrowed')\n   - Return \"The Hobbit\"\n   - Find \"Dune\" — print describe()\n   - Find \"Nonexistent\" — should be null\n\n5. Bonus: print report",
+  
+  "starter_code": "// Define Book class with constructors and methods\n// Define Library class with constructor and lookup methods\n\npublic class LibrarySystem {\n    public static void main(String[] args) {\n        // 1. Create books\n        // 2. Try invalid books in try/catch\n        // 3. Create library\n        // 4. Demonstrate borrow/return/find\n    }\n}",
+  
+  "example_output": "===================================\n   LIBRARY MANAGEMENT SYSTEM\n===================================\nCreated: The Hobbit by Tolkien (1937)\nCreated: Sapiens by Harari (2011)\nCreated: 3 Idiots Backstory by Hirani (2019)\nCreated: Dune by Herbert (1965)\nCreated: Atomic Habits by Clear (2018)\n\nValidation tests:\nRejected: Title cannot be empty\nRejected: Year must be between 1000 and 2030\nRejected: ISBN cannot be empty\n\nLibrary 'City Central Library' created with 5 books.\n\nBorrowed: The Hobbit\nAlready borrowed\nReturned: The Hobbit\n\nLookup 'Dune': Dune by Herbert (1965) ISBN 978-0441172719 [Available]\nLookup 'Nonexistent': Book not found\n\n(Bonus) Available: 5\n(Bonus) Books by Harari: Sapiens\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Book Class Design",
+      "points": 35,
+      "criteria": [
+        "Primary constructor with all validations (15 pts)",
+        "Convenience constructor uses this(...) to chain (10 pts)",
+        "borrow() and returnBook() handle state correctly (5 pts)",
+        "describe() format is clean (5 pts)"
+      ]
+    },
+    {
+      "category": "Library Class Design",
+      "points": 20,
+      "criteria": [
+        "Constructor validates name and books (10 pts)",
+        "findByTitle returns Book or null (10 pts)"
+      ]
+    },
+    {
+      "category": "Validation Demonstration",
+      "points": 15,
+      "criteria": [
+        "Each invalid book attempt is in try/catch (5 pts)",
+        "All three validation rules tested (10 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration in main",
+      "points": 15,
+      "criteria": [
+        "All operations demonstrated (10 pts)",
+        "Output is clean and informative (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 80,
+      "criteria": [
+        "countAvailable (15 pts)",
+        "findByAuthor returning array (20 pts)",
+        "borrowerName tracking (20 pts)",
+        "report() multi-line summary (25 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The trickiest piece is the convenience constructor using `this(title, author, year, \"UNKNOWN\")` to chain. Also, findByTitle should use `.equals()` for String comparison (callback to Module 3!). Returning Book[] from findByAuthor requires two passes or generous-sized array + Arrays.copyOf.",
+  
+  "submission_instructions": "Save as LibrarySystem.java. Run it. Push to GitHub portfolio. This is REAL library backend logic — your code could power a small library website with minimal changes.",
+  
+  "tips_for_success": [
+    "Validate FIRST in the constructor, assign LAST. If validation throws, no fields are touched.",
+    "The convenience 3-arg constructor MUST start with `this(title, author, year, \"UNKNOWN\")` — chaining to the validated primary.",
+    "For describe(): use ternary for status. `(isBorrowed ? \"Borrowed\" : \"Available\")`",
+    "For findByTitle: use `.equals()` to compare strings — NEVER ==",
+    "For findByTitle: linear search through books[], return book if match, return null after loop",
+    "For Library constructor validation: don't reject empty books[] — a new library can start empty",
+    "For bonus findByAuthor: first pass to count matches, second pass to fill array — OR use Arrays.copyOf to trim oversized array"
+  ],
+  
+  "concepts_reinforced": [
+    "Constructor design (primary + convenience)",
+    "Constructor chaining with this(...)",
+    "Validation in constructor",
+    "Multiple classes working together (Book and Library)",
+    "Methods that return objects or null sentinel",
+    "Methods that return arrays of objects",
+    "String comparison with .equals() (Module 3 callback)",
+    "Object lifecycle management (borrow/return state)"
+  ],
+  
+  "what_youll_learn_by_doing_this": "You're building a REAL backend service — separated into entity classes (Book) and aggregate classes (Library). This separation is the foundation of how all enterprise Java is structured. JPA entities, Spring services, microservices — all follow this pattern. Plus, the constructor validation is your first taste of DEFENSIVE PROGRAMMING — making it IMPOSSIBLE to create invalid data. This is what senior engineers actually do. After this project, you understand why interview questions like 'design a library system' are so common — they test EXACTLY this kind of multi-class design with validation.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a `Loan` class tracking borrow date and due date — compute overdue books",
+    "Add a `Member` class — library lookups can find what's checked out by a member",
+    "Implement a `removeBook(String isbn)` method on Library (needs array resize logic)",
+    "Add `borrow` validation: check if library has the book before allowing borrow",
+    "Move to a Builder pattern when there are too many constructor parameters (preview of Topic 4.6)"
+  ]
+}

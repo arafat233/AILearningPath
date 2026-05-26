@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t1",
+  "module_id": "m32",
+  "module_name": "DSA4: Linked Lists",
+  "topic_number": 1,
+  "name": "Linked List Basics \u2014 Node, Traversal, Dummy Head",
+  "slug": "linked-list-basics-node-traversal-dummy-head",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m29_t1",
+      "java_m8_t1"
+    ],
+    "concepts_taught": [
+      "node_structure",
+      "singly_linked_list",
+      "doubly_linked_list",
+      "traversal",
+      "insert_head_tail",
+      "delete_node",
+      "dummy_head_pattern",
+      "linked_list_vs_array",
+      "java_linkedlist_class"
+    ],
+    "skills_developed": [
+      "implementing_linked_list_from_scratch",
+      "using_dummy_head",
+      "basic_traversal_and_modification"
+    ],
+    "career_relevance": "Linked list questions appear in every Flipkart and Amazon India DSA round. The dummy head pattern eliminates edge cases in insert/delete \u2014 knowing it signals experience. Java's LinkedList uses a doubly-linked list internally; understanding the node structure helps you know when to use it vs ArrayList.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha order book: insert/delete orders at arbitrary positions\nArrayList: O(n) insert at position \u2014 shifts all elements\nLinkedList: O(1) insert given a pointer \u2014 just rewire pointers\n\nDummy head pattern:\n  Without dummy: special-case for empty list and head deletion\n  With dummy:    head = dummy.next; delete = prev.next = curr.next\n  Result: same code handles ALL cases \u2014 no if(head==null)\n```",
+    "what_you_will_build": "A linked list from scratch with insert, delete, reverse, and all classic operations."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "node_and_list": "**Linked List Node \u2014 the building block:**\n\n```java\n// Singly linked:\nclass ListNode {\n    int val;\n    ListNode next;\n    ListNode(int val) { this.val = val; }\n    ListNode(int val, ListNode next) { this.val = val; this.next = next; }\n}\n\n// Build list 1\u21922\u21923\u2192null:\nListNode head = new ListNode(1, new ListNode(2, new ListNode(3)));\n\n// Traversal: O(n)\nListNode curr = head;\nwhile (curr != null) {\n    System.out.print(curr.val + \" \");\n    curr = curr.next;\n}\n\n// Dummy head pattern \u2014 eliminates edge cases:\nListNode dummy = new ListNode(0);\ndummy.next = head; // dummy \u2192 actual head\n// Operations work uniformly \u2014 prev is never null\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Singly linked list 1\u21922\u21923\u2192null. Node structure: [val|next]. Dummy node pattern: [dummy|\u2192] \u2192 [1|\u2192] \u2192 [2|\u2192] \u2192 [3|null]. Delete node 2: prev.next = curr.next. Insert after 1: newNode.next=curr.next; curr.next=newNode.",
+      "alt_text": "Linked list with dummy head pattern"
+    },
+    "worked_example": {
+      "scenario": "Delete N-th node from end in one pass.",
+      "problem_statement": "ListNode head, int n \u2192 remove nth node from end.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Two pointers, gap n",
+          "details": "fast pointer advances n steps. Then advance both until fast reaches end. slow.next is the target."
+        }
+      ],
+      "final_code": "ListNode dummy=new ListNode(0);dummy.next=head;\nListNode fast=dummy,slow=dummy;\nfor(int i=0;i<=n;i++) fast=fast.next;\nwhile(fast!=null){fast=fast.next;slow=slow.next;}\nslow.next=slow.next.next;\nreturn dummy.next;",
+      "expected_output": "Delete 2nd from end of [1,2,3,4,5] \u2192 [1,2,3,5]",
+      "things_to_notice": [
+        "Dummy head: slow.next=slow.next.next works even when deleting the real head",
+        "Gap n+1 between fast and slow: fast is at null when slow.next is target",
+        "One pass: O(n) time, O(1) space"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha order management",
+          "use_case": "Order cancellation at arbitrary position: O(1) with pointer vs O(n) array shift."
+        }
+      ],
+      "interview_relevance": "Every LL interview starts with 'implement from scratch.' Dummy head pattern is the key insight that separates prepared candidates.",
+      "real_world_workflow": "LL checklist: (1) Always use dummy head, (2) track prev for deletion, (3) check null before .next access, (4) return dummy.next not head."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "null_pointer",
+        "what_students_get_wrong": "Accessing curr.next without checking curr!=null first. NPE crashes linked list solutions in interviews.",
+        "remediation": "Pattern: while(curr!=null) NOT while(curr.next!=null) unless you need the last non-null node. Always add null checks before .next access.",
+        "detection_pattern": "NullPointerException when traversing to end"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "ListNode: val + next. Doubly: val + next + prev",
+        "Dummy head: eliminates all head-special-cases",
+        "Traversal: while(curr!=null) \u2014 advance curr=curr.next",
+        "Delete: prev.next=curr.next (need prev pointer)",
+        "Insert after curr: newNode.next=curr.next; curr.next=newNode",
+        "LinkedList O(1) insert/delete given pointer; O(n) access by index",
+        "ArrayList O(1) access; O(n) insert/delete in middle"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why does the dummy head pattern simplify linked list code?",
+          "answer": "The dummy head ensures prev is never null. Without dummy, deleting the real head requires special-case code: if(curr==head) head=head.next. With dummy, the real head is dummy.next, and every node (including the real head) has a prev node (at minimum, dummy). So the delete operation prev.next=curr.next works uniformly for all nodes \u2014 no special cases needed."
+        }
+      ],
+      "next_topic_preview": "Next: Two-Pointer Techniques on Linked Lists \u2014 fast/slow runners for cycle detection, middle node, nth from end."
+    }
+  }
+}

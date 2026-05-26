@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m42_t1",
+  "module_id": "m42",
+  "topic_number": 1,
+  "name": "Interview Mindset \u2014 Framework, Communication, Problem-Solving",
+  "slug": "interview-mindset-framework-communication",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m41_t5"
+    ],
+    "concepts_taught": [
+      "interview_mindset",
+      "problem_solving_framework",
+      "complexity_communication",
+      "stuck_scripts",
+      "clarification_questions",
+      "time_management"
+    ],
+    "career_relevance": "The best coder in the room who can't communicate their thinking will lose to a mediocre coder who narrates clearly. Every Zerodha, Flipkart, and Razorpay interviewer explicitly evaluates communication alongside code correctness.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Interview Mindset \u2014 Framework, Communication, Problem-Solving"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises and README"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Clarify BEFORE coding: restate, ask constraints, create examples",
+        "Complexity script: '[O(X)] because [reason]. Could we do better? [alternative + tradeoff]'",
+        "Stuck script: narrate, brute force first, ask targeted question",
+        "Time budget: 2 min clarify, 3 min plan, 20 min code, 5 min test, 10 min discuss",
+        "Code style: meaningful names, comments, edge cases first, test aloud",
+        "Pattern recognition: Two Pointers, Sliding Window, Prefix Sum, Stack, BFS/DFS, DP, Binary Search, Heap"
+      ],
+      "next_topic_preview": "Next: Problem-Solving Framework \u2014 7-step process for any coding problem."
+    }
+  }
+}

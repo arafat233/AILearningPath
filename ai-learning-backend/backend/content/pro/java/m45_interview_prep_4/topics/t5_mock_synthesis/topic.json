@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m45_t5",
+  "module_id": "m45",
+  "topic_number": 5,
+  "name": "Mock Round Synthesis \u2014 Full Interview Simulations",
+  "slug": "mock-synthesis-full-rounds",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m44_t5"
+    ],
+    "concepts_taught": [
+      "mock-synthesis-full-rounds"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Mock Round Synthesis \u2014 Full Interview Simulations"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Full mock = 45-min with coding + 10 min for questions",
+        "Simulate realistic conditions: camera on, no IDE hints, one browser tab",
+        "Rate yourself: code correctness, communication, time management, edge cases",
+        "Schedule 3 full mocks/week in final 2 weeks before interview",
+        "Debrief after each mock: 3 wins + 3 areas to improve",
+        "Key metric: can you solve a medium in 15 min with clear communication?"
+      ],
+      "next_topic_preview": "Module 45 done! Next: M46 Company-Specific Prep."
+    }
+  }
+}

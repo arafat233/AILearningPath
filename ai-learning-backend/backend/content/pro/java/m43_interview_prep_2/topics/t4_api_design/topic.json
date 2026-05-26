@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m43_t4",
+  "module_id": "m43",
+  "topic_number": 4,
+  "name": "API Design \u2014 REST, Versioning, Idempotency",
+  "slug": "api-design-rest-idempotency",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t5"
+    ],
+    "concepts_taught": [
+      "api-design-rest-idempotency"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "API Design \u2014 REST, Versioning, Idempotency"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "REST status codes: 200 OK, 201 Created, 400 Bad Request, 401 Unauth, 403 Forbidden, 404, 429, 500",
+        "Idempotency key: client generates UUID; server deduplicates on retry; critical for payments",
+        "Versioning: /v1/path is most common; header-based is cleaner but harder to test",
+        "Rate limiting headers: X-RateLimit-Limit, X-RateLimit-Remaining, Retry-After",
+        "Pagination response: {data:[], next_cursor:'xyz', has_more:true}",
+        "HATEOAS: include links to related resources; rarely used in practice"
+      ],
+      "next_topic_preview": "Next: System Design Synthesis."
+    }
+  }
+}

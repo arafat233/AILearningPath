@@ -1,0 +1,443 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t1",
+  "topic_name": "Classes & Objects",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m4_t1_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Your first class",
+      "scenario": "Create a basic class with fields.",
+      "instructions": "Fill in the blanks to define a Cat class with a name field and create an object.",
+      "starter_code": "class Cat {\n    String ______;\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new ______();\n        c.______ = \"Whiskers\";\n        System.out.println(c.name);\n    }\n}",
+      "expected_solution": "class Cat {\n    String name;\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new Cat();\n        c.name = \"Whiskers\";\n        System.out.println(c.name);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "name", "hint": "Field name" },
+        { "position": 2, "answer": "Cat", "hint": "Class name with new" },
+        { "position": 3, "answer": "name", "hint": "Access field via dot" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Whiskers"
+        }
+      ],
+      "hints": [
+        "Field declared inside class",
+        "Create with new ClassName()",
+        "Access fields with dot: object.field"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m4_t1_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Two objects, independent state",
+      "scenario": "Understand that each object has its own field values.",
+      "instructions": "What does this print?\n\n```java\nclass Box {\n    int value;\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Box b1 = new Box();\n        Box b2 = new Box();\n        b1.value = 10;\n        b2.value = 20;\n        System.out.println(b1.value + \" \" + b2.value);\n    }\n}\n```",
+      "expected_solution": "10 20",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "10 20"
+        }
+      ],
+      "hints": [
+        "Each object has its OWN copy of fields",
+        "b1.value and b2.value are independent",
+        "Setting one doesn't affect the other"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m4_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Define a Person class",
+      "scenario": "Define a simple class with multiple fields.",
+      "instructions": "Write a class `Person` with fields `name` (String) and `age` (int). In main:\n1. Create one Person object\n2. Set name to \"Aisha\" and age to 28\n3. Print: 'Aisha is 28 years old'\n\nExpected output:\nAisha is 28 years old",
+      "starter_code": "// Write your Person class and App class below\n",
+      "expected_solution": "class Person {\n    String name;\n    int age;\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Person p = new Person();\n        p.name = \"Aisha\";\n        p.age = 28;\n        System.out.println(p.name + \" is \" + p.age + \" years old\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha is 28 years old"
+        }
+      ],
+      "hints": [
+        "Define class Person OUTSIDE the main class",
+        "Two fields: String name, int age",
+        "Create with new Person()",
+        "Set fields with dot notation"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m4_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Class with an instance method",
+      "scenario": "Add a method that uses the object's fields.",
+      "instructions": "Write a class `Rectangle` with fields `width` (double) and `height` (double), and an instance method `area()` that returns width * height.\n\nIn main: create a Rectangle with width=5, height=3 and print 'Area: 15.0'\n\nExpected output:\nArea: 15.0",
+      "starter_code": "// Write your Rectangle class below\n",
+      "expected_solution": "class Rectangle {\n    double width;\n    double height;\n    \n    double area() {\n        return width * height;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Rectangle r = new Rectangle();\n        r.width = 5;\n        r.height = 3;\n        System.out.println(\"Area: \" + r.area());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Area: 15.0"
+        }
+      ],
+      "hints": [
+        "Instance method has NO `static` keyword",
+        "Method can access width and height directly (no parameters needed)",
+        "Returns double",
+        "Call with r.area() — note the parens"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m4_t1_ex_5",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the NullPointerException",
+      "scenario": "Forgot to create the object.",
+      "instructions": "This code crashes. Fix it.\n\nExpected output:\nRex",
+      "starter_code": "class Dog {\n    String name;\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d;\n        d.name = \"Rex\";\n        System.out.println(d.name);\n    }\n}",
+      "expected_solution": "class Dog {\n    String name;\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog();\n        d.name = \"Rex\";\n        System.out.println(d.name);\n    }\n}",
+      "bugs": [
+        {
+          "line": "7",
+          "issue": "`Dog d;` only declares a reference (it's null). No Dog object exists to set the name on.",
+          "fix": "Use `Dog d = new Dog();` to actually create the object"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rex",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Dog d; declares a variable but doesn't create a Dog",
+        "Need `new Dog()` to actually create the object",
+        "Without new, d is null — accessing fields crashes"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["forgetting_new"]
+    },
+    
+    {
+      "id": "java_m4_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "BankAccount class",
+      "scenario": "Build a more realistic class with multiple methods.",
+      "instructions": "Create a `BankAccount` class with:\n- Field: balance (double)\n- Method `deposit(double amount)` — adds to balance\n- Method `withdraw(double amount)` — subtracts from balance\n\nIn main:\n1. Create an account with balance 1000\n2. Deposit 500 → balance 1500\n3. Withdraw 200 → balance 1300\n4. Print 'Balance: 1300.0'\n\nExpected output:\nBalance: 1300.0",
+      "starter_code": "// Write your BankAccount class below\n",
+      "expected_solution": "class BankAccount {\n    double balance;\n    \n    void deposit(double amount) {\n        balance += amount;\n    }\n    \n    void withdraw(double amount) {\n        balance -= amount;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount();\n        acc.balance = 1000;\n        acc.deposit(500);\n        acc.withdraw(200);\n        System.out.println(\"Balance: \" + acc.balance);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Balance: 1300.0"
+        }
+      ],
+      "hints": [
+        "deposit/withdraw are instance methods that modify balance",
+        "Use += and -= to update balance",
+        "Methods return void (no return value, just side effect)",
+        "Call: acc.deposit(500), acc.withdraw(200)"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m4_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Array of objects",
+      "scenario": "Create and use multiple objects in an array.",
+      "instructions": "Using the Person class (name, age):\n1. Create a Person[] of size 3\n2. Fill with: Aisha/28, Raj/35, Priya/24\n3. Loop through and print each person's info\n\nExpected output:\nAisha is 28 years old\nRaj is 35 years old\nPriya is 24 years old",
+      "starter_code": "class Person {\n    String name;\n    int age;\n}\n\npublic class App {\n    public static void main(String[] args) {\n        // Create array, populate, loop and print\n    }\n}",
+      "expected_solution": "class Person {\n    String name;\n    int age;\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Person[] people = new Person[3];\n        \n        people[0] = new Person();\n        people[0].name = \"Aisha\";\n        people[0].age = 28;\n        \n        people[1] = new Person();\n        people[1].name = \"Raj\";\n        people[1].age = 35;\n        \n        people[2] = new Person();\n        people[2].name = \"Priya\";\n        people[2].age = 24;\n        \n        for (Person p : people) {\n            System.out.println(p.name + \" is \" + p.age + \" years old\");\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha is 28 years old\nRaj is 35 years old\nPriya is 24 years old"
+        }
+      ],
+      "hints": [
+        "Person[] people = new Person[3] creates 3 null slots",
+        "Must `new Person()` for each slot before using",
+        "Use for-each: for (Person p : people)",
+        "Inside loop: p.name and p.age",
+        "Forgetting `new` for each slot → NullPointerException"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "array_of_objects"
+    },
+    
+    {
+      "id": "java_m4_t1_ex_8",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the array-of-objects NPE",
+      "scenario": "Common mistake when working with object arrays.",
+      "instructions": "This code crashes. Fix it.\n\nExpected output:\nRex (3)\nBuddy (5)",
+      "starter_code": "class Dog {\n    String name;\n    int age;\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog[] dogs = new Dog[2];\n        dogs[0].name = \"Rex\";\n        dogs[0].age = 3;\n        dogs[1].name = \"Buddy\";\n        dogs[1].age = 5;\n        \n        for (Dog d : dogs) {\n            System.out.println(d.name + \" (\" + d.age + \")\");\n        }\n    }\n}",
+      "expected_solution": "class Dog {\n    String name;\n    int age;\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog[] dogs = new Dog[2];\n        dogs[0] = new Dog();\n        dogs[0].name = \"Rex\";\n        dogs[0].age = 3;\n        dogs[1] = new Dog();\n        dogs[1].name = \"Buddy\";\n        dogs[1].age = 5;\n        \n        for (Dog d : dogs) {\n            System.out.println(d.name + \" (\" + d.age + \")\");\n        }\n    }\n}",
+      "bugs": [
+        {
+          "line": "8",
+          "issue": "`new Dog[2]` creates an array of 2 NULL references — no Dog objects yet. dogs[0].name crashes because dogs[0] is null.",
+          "fix": "Before accessing fields, create each Dog: dogs[0] = new Dog(); etc."
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rex (3)\nBuddy (5)",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "new Dog[2] creates an array of 2 null references",
+        "Each slot is null until you assign a Dog to it",
+        "Need: dogs[0] = new Dog(); BEFORE dogs[0].name = ...",
+        "Same for dogs[1]"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["null_object_in_array"]
+    },
+    
+    {
+      "id": "java_m4_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Object reference behavior",
+      "scenario": "Demonstrate that object assignment shares references.",
+      "instructions": "Write a class `Counter` with field `count` (int) and method `increment()` that adds 1.\n\nIn main:\n1. Create Counter c1, increment it 3 times\n2. Counter c2 = c1; — c2 references the SAME counter\n3. Increment c2 once\n4. Print c1.count AND c2.count\n\nExpected output:\nc1: 4\nc2: 4",
+      "starter_code": "// Write your Counter class below\n",
+      "expected_solution": "class Counter {\n    int count;\n    \n    void increment() {\n        count++;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Counter c1 = new Counter();\n        c1.increment();\n        c1.increment();\n        c1.increment();\n        \n        Counter c2 = c1;\n        c2.increment();\n        \n        System.out.println(\"c1: \" + c1.count);\n        System.out.println(\"c2: \" + c2.count);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "c1: 4\nc2: 4"
+        }
+      ],
+      "hints": [
+        "c1 increments 3 times → count = 3",
+        "`Counter c2 = c1` doesn't copy — c2 references the SAME Counter",
+        "c2.increment() affects the same object",
+        "Both c1.count and c2.count are 4 (same field of same object)"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "object_reference_semantics"
+    },
+    
+    {
+      "id": "java_m4_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Student class with GPA logic",
+      "scenario": "Build a class with multiple methods working together.",
+      "instructions": "Create a `Student` class:\n- Fields: name (String), gpa (double)\n- Method `isHonorRoll()` — returns true if gpa >= 3.5\n- Method `getStatus()` — returns 'Honor Roll' if honors, else 'Regular'\n\nIn main:\n1. Create student named \"Aisha\" with gpa 3.8\n2. Create student named \"Raj\" with gpa 3.2\n3. Print each: '<name>: <status>'\n\nExpected output:\nAisha: Honor Roll\nRaj: Regular",
+      "starter_code": "// Write your Student class below\n",
+      "expected_solution": "class Student {\n    String name;\n    double gpa;\n    \n    boolean isHonorRoll() {\n        return gpa >= 3.5;\n    }\n    \n    String getStatus() {\n        if (isHonorRoll()) {\n            return \"Honor Roll\";\n        }\n        return \"Regular\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Student s1 = new Student();\n        s1.name = \"Aisha\";\n        s1.gpa = 3.8;\n        \n        Student s2 = new Student();\n        s2.name = \"Raj\";\n        s2.gpa = 3.2;\n        \n        System.out.println(s1.name + \": \" + s1.getStatus());\n        System.out.println(s2.name + \": \" + s2.getStatus());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha: Honor Roll\nRaj: Regular"
+        }
+      ],
+      "hints": [
+        "isHonorRoll: simple return gpa >= 3.5",
+        "getStatus calls isHonorRoll internally — methods can call other methods of same object",
+        "Inside getStatus, just say isHonorRoll() — no need for this.isHonorRoll()",
+        "Return Strings: \"Honor Roll\" or \"Regular\""
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m4_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Method calling another method",
+      "scenario": "Instance method that calls another instance method.",
+      "instructions": "Create a `Calculator` class:\n- Field: result (double), starts at 0\n- Method `add(double n)` — adds n to result\n- Method `multiply(double n)` — multiplies result by n\n- Method `addThenMultiply(double addAmount, double multAmount)` — calls add then multiply\n\nIn main:\n1. Create calculator\n2. Call addThenMultiply(5, 3) → result is (0 + 5) * 3 = 15\n3. Print 'Result: 15.0'\n\nExpected output:\nResult: 15.0",
+      "starter_code": "// Write your Calculator class below\n",
+      "expected_solution": "class Calculator {\n    double result;\n    \n    void add(double n) {\n        result += n;\n    }\n    \n    void multiply(double n) {\n        result *= n;\n    }\n    \n    void addThenMultiply(double addAmount, double multAmount) {\n        add(addAmount);\n        multiply(multAmount);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Calculator c = new Calculator();\n        c.addThenMultiply(5, 3);\n        System.out.println(\"Result: \" + c.result);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Result: 15.0"
+        }
+      ],
+      "hints": [
+        "Instance methods can call other instance methods of the same object",
+        "No need for `this.` — just call: add(addAmount)",
+        "addThenMultiply: add first (result becomes 5), then multiply (result becomes 15)",
+        "Order matters: (0+5)*3 = 15, not 0+(5*3) = 15 — happens to be same here but pattern matters"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m4_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Refactor parallel arrays to objects",
+      "scenario": "The classic OOP refactoring exercise.",
+      "instructions": "Refactor this parallel-arrays code into a `Book` class with title, author, and pages fields.\n\nWrite a Book class and refactor main to use Book[] instead of three parallel arrays.\n\nExpected output:\n'The Hobbit' by Tolkien - 310 pages\n'1984' by Orwell - 328 pages\n'Sapiens' by Harari - 443 pages",
+      "starter_code": "public class Library {\n    public static void main(String[] args) {\n        String[] titles = {\"The Hobbit\", \"1984\", \"Sapiens\"};\n        String[] authors = {\"Tolkien\", \"Orwell\", \"Harari\"};\n        int[] pages = {310, 328, 443};\n        \n        for (int i = 0; i < titles.length; i++) {\n            System.out.println(\"'\" + titles[i] + \"' by \" + authors[i] + \" - \" + pages[i] + \" pages\");\n        }\n    }\n}",
+      "expected_solution": "class Book {\n    String title;\n    String author;\n    int pages;\n}\n\npublic class Library {\n    public static void main(String[] args) {\n        Book[] books = new Book[3];\n        \n        books[0] = new Book();\n        books[0].title = \"The Hobbit\";\n        books[0].author = \"Tolkien\";\n        books[0].pages = 310;\n        \n        books[1] = new Book();\n        books[1].title = \"1984\";\n        books[1].author = \"Orwell\";\n        books[1].pages = 328;\n        \n        books[2] = new Book();\n        books[2].title = \"Sapiens\";\n        books[2].author = \"Harari\";\n        books[2].pages = 443;\n        \n        for (Book b : books) {\n            System.out.println(\"'\" + b.title + \"' by \" + b.author + \" - \" + b.pages + \" pages\");\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "'The Hobbit' by Tolkien - 310 pages\n'1984' by Orwell - 328 pages\n'Sapiens' by Harari - 443 pages"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["class Book"]
+        }
+      ],
+      "hints": [
+        "Define Book class with title, author, pages",
+        "Create Book[] books = new Book[3]",
+        "For each slot: books[i] = new Book(); then set fields",
+        "Loop with for-each: for (Book b : books)"
+      ],
+      "xp_reward": 65,
+      "concept_tested": "parallel_arrays_to_objects"
+    },
+    
+    {
+      "id": "java_m4_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Class with describe method",
+      "scenario": "Build a Product class that can describe itself.",
+      "instructions": "Create a `Product` class:\n- Fields: name (String), price (double), inStock (boolean)\n- Method `describe()` returns a formatted string:\n  - If inStock: 'Apple iPhone - ₹79999.0 (In Stock)'\n  - If not: 'Apple iPhone - ₹79999.0 (Out of Stock)'\n\nIn main:\n1. Create two products with different stock status\n2. Print each using describe()\n\nExpected output:\nApple iPhone - ₹79999.0 (In Stock)\nSony Headphones - ₹14999.0 (Out of Stock)",
+      "starter_code": "// Write your Product class below\n// The describe() method should format the output based on inStock\n",
+      "expected_solution": "class Product {\n    String name;\n    double price;\n    boolean inStock;\n    \n    String describe() {\n        String status = inStock ? \"In Stock\" : \"Out of Stock\";\n        return name + \" - ₹\" + price + \" (\" + status + \")\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Product p1 = new Product();\n        p1.name = \"Apple iPhone\";\n        p1.price = 79999.0;\n        p1.inStock = true;\n        \n        Product p2 = new Product();\n        p2.name = \"Sony Headphones\";\n        p2.price = 14999.0;\n        p2.inStock = false;\n        \n        System.out.println(p1.describe());\n        System.out.println(p2.describe());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Apple iPhone - ₹79999.0 (In Stock)\nSony Headphones - ₹14999.0 (Out of Stock)"
+        }
+      ],
+      "hints": [
+        "Three fields, one method",
+        "describe() uses ternary or if-else for status",
+        "Returns formatted String — uses + concatenation or String.format",
+        "Self-describing objects are an OOP best practice"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m4_t1_ex_14",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "Find max price in product array",
+      "scenario": "Iterate an object array to find an extreme value.",
+      "instructions": "Using the Product class (with name, price, inStock fields):\n1. Create an array of 4 Products (with names and prices)\n2. Write a method `findMostExpensive(Product[] products)` returning the Product with highest price\n3. Print 'Most expensive: <name> at ₹<price>'\n\nUse these products:\n- \"Mouse\" at 599.0\n- \"Keyboard\" at 2499.0\n- \"Monitor\" at 18999.0\n- \"Webcam\" at 3499.0\n\nExpected output:\nMost expensive: Monitor at ₹18999.0",
+      "starter_code": "// Write your Product class and main class below\n// Method findMostExpensive takes Product[] and returns the most expensive Product\n",
+      "expected_solution": "class Product {\n    String name;\n    double price;\n    boolean inStock;\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Product[] products = new Product[4];\n        \n        products[0] = new Product();\n        products[0].name = \"Mouse\";\n        products[0].price = 599.0;\n        \n        products[1] = new Product();\n        products[1].name = \"Keyboard\";\n        products[1].price = 2499.0;\n        \n        products[2] = new Product();\n        products[2].name = \"Monitor\";\n        products[2].price = 18999.0;\n        \n        products[3] = new Product();\n        products[3].name = \"Webcam\";\n        products[3].price = 3499.0;\n        \n        Product expensive = findMostExpensive(products);\n        System.out.println(\"Most expensive: \" + expensive.name + \" at ₹\" + expensive.price);\n    }\n    \n    public static Product findMostExpensive(Product[] products) {\n        Product max = products[0];\n        for (Product p : products) {\n            if (p.price > max.price) {\n                max = p;\n            }\n        }\n        return max;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Most expensive: Monitor at ₹18999.0"
+        }
+      ],
+      "hints": [
+        "Method takes Product[], returns Product (not double!)",
+        "Track the Product object with max price (not just the price)",
+        "Start with products[0] as initial max",
+        "Compare prices: p.price > max.price",
+        "Return the WHOLE Product, not just price — caller wants the object"
+      ],
+      "xp_reward": 75,
+      "concept_tested": "method_returning_object"
+    },
+    
+    {
+      "id": "java_m4_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Mini banking system",
+      "scenario": "Build a multi-class mini-banking system.",
+      "instructions": "Build a banking system with TWO classes:\n\n1. `Account` class:\n   - Fields: accountId (int), holderName (String), balance (double)\n   - Method `deposit(double)` — adds to balance\n   - Method `withdraw(double)` — subtracts from balance if sufficient, otherwise prints 'Insufficient funds'\n   - Method `display()` — prints 'Account #<id> [<name>]: ₹<balance>'\n\n2. main method:\n   - Create 2 accounts: #101 Aisha ₹5000, #102 Raj ₹3000\n   - Aisha deposits 2000, withdraws 1500\n   - Raj attempts to withdraw 5000 (should fail)\n   - Display both accounts at the end\n\nExpected output:\nInsufficient funds\nAccount #101 [Aisha]: ₹5500.0\nAccount #102 [Raj]: ₹3000.0",
+      "starter_code": "// Build the Account class and main method\n",
+      "expected_solution": "class Account {\n    int accountId;\n    String holderName;\n    double balance;\n    \n    void deposit(double amount) {\n        balance += amount;\n    }\n    \n    void withdraw(double amount) {\n        if (amount > balance) {\n            System.out.println(\"Insufficient funds\");\n        } else {\n            balance -= amount;\n        }\n    }\n    \n    void display() {\n        System.out.println(\"Account #\" + accountId + \" [\" + holderName + \"]: ₹\" + balance);\n    }\n}\n\npublic class Bank {\n    public static void main(String[] args) {\n        Account a1 = new Account();\n        a1.accountId = 101;\n        a1.holderName = \"Aisha\";\n        a1.balance = 5000;\n        \n        Account a2 = new Account();\n        a2.accountId = 102;\n        a2.holderName = \"Raj\";\n        a2.balance = 3000;\n        \n        a1.deposit(2000);\n        a1.withdraw(1500);\n        \n        a2.withdraw(5000);\n        \n        a1.display();\n        a2.display();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Insufficient funds\nAccount #101 [Aisha]: ₹5500.0\nAccount #102 [Raj]: ₹3000.0"
+        }
+      ],
+      "hints": [
+        "Account class has 3 fields and 3 methods",
+        "withdraw checks: if (amount > balance) print error, else subtract",
+        "display uses System.out.println directly",
+        "Aisha: 5000 + 2000 = 7000, then -1500 = 5500",
+        "Raj: 5000 > 3000 → 'Insufficient funds', balance stays 3000",
+        "This is real banking logic in miniature"
+      ],
+      "xp_reward": 90,
+      "concept_tested": "complete_class_design"
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 11,
+      "debug": 2,
+      "predict_output": 1,
+      "algorithm": 1
+    },
+    "total_xp_possible": 675,
+    "estimated_completion_minutes": 65
+  },
+  
+  "gap_detection_map": {
+    "forgetting_new": ["ex_5"],
+    "null_object_in_array": ["ex_8"],
+    "array_of_objects": ["ex_7"],
+    "object_reference_semantics": ["ex_9"],
+    "parallel_arrays_to_objects": ["ex_12"],
+    "method_returning_object": ["ex_14"],
+    "complete_class_design": ["ex_15"]
+  }
+}

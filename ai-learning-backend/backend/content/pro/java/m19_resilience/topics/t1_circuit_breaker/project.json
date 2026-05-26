@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m19_t1_proj",
+  "linked_topic": "java_m19_t1",
+  "level": "mini",
+  "name": "Razorpay Payment Flow — Circuit Breaker Protection",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+
+  "scenario": "Razorpay's payment flow calls 3 external services: a card verification API, an SMS notification provider, and a fraud detection service. All three can fail under load. Build circuit breaker protection so payment processing continues even when non-critical services fail, with graceful degradation and proper fallbacks.",
+
+  "description": "Resilience4j @CircuitBreaker on 3 service calls + application.yml config + fallback methods + CircuitBreakerRegistry event listener + @SpringBootTest with 4 tests verifying degradation behavior.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "application.yml: 3 circuit breakers — 'card-verification' (failureRate=30%, window=20, wait=60s), 'sms-notification' (failureRate=70%, window=10, wait=15s), 'fraud-detection' (failureRate=40%, window=15, wait=30s). All with minimumNumberOfCalls=5.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "CardVerificationService: verifyCard(cardToken) @CircuitBreaker('card-verification'), fallback: return VerificationResult.UNVERIFIED (allows payment to proceed with flag). VerificationResult record with status and verified flag.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "SmsNotificationService: sendPaymentSMS(phone, message) @CircuitBreaker('sms-notification'), fallback: add to retry queue + log. Queue accessible for test verification.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "FraudDetectionService: checkFraud(paymentId, amount) @CircuitBreaker('fraud-detection'), fallback: return FraudScore.LOW_RISK (allow payment, flag for manual review).",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "PaymentOrchestrator.processPayment(request): calls all 3 services, returns PaymentResult with status and list of degradation warnings. Payment completes as APPROVED even when non-critical services fail.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "@SpringBootTest (4 tests): (1) payment completes when all 3 services fail, (2) SMS queued on notification failure, (3) UNVERIFIED flag set when card verification down, (4) CB OPEN after failure threshold. All 4 pass.",
+        "weight": 25
+      },
+      {
+        "id": "req_7",
+        "description": "CircuitBreakerAlertService @Service: @PostConstruct registers state-change listeners on all CBs. AtomicInteger openEventCount incremented on CLOSED_TO_OPEN. Logs CRITICAL on OPEN.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Custom HealthIndicator 'razorpayCircuits': DOWN if payment-critical CB (card-verification or fraud-detection) is OPEN. DEGRADED if only sms-notification OPEN. Test: verify health DOWN when card-verification circuit OPEN.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Slow call detection on card-verification: slowCallDurationThreshold=2s, slowCallRateThreshold=50. Test: mock that takes 3 seconds, verify circuit eventually opens due to slow calls even without errors.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "CircuitBreakerDashboardController @RestController /admin/circuits: returns JSON with all CB names, states, failure rates, slow call rates. @SpringBootTest MockMvc test verifying response structure.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Test payment request:\n  cardToken: 'tok_visa_4242424242424242'\n  amount: ₹2499\n  phone: '+919876543210'\n  paymentId: 'PAY-TEST-001'\n\nExpected degraded response:\n  status: APPROVED\n  warnings: ['card_unverified', 'sms_queued', 'fraud_check_bypassed']\n\nThreshold: sms-notification failureRateThreshold=70%\n  5 failures / 5 minimum calls = 100% → circuit opens after 5 failures",
+
+  "starter_code": "// application.yml (or application.properties)\n// VerificationResult.java (record)\n// FraudScore.java (record)\n// CardVerificationService.java (@CircuitBreaker)\n// SmsNotificationService.java (@CircuitBreaker)\n// FraudDetectionService.java (@CircuitBreaker)\n// PaymentOrchestrator.java\n// CircuitBreakerAlertService.java\n// PaymentResilienceTest.java (4 tests)",
+
+  "example_output": "# All services down — payment still approved:\n[CB] Card verification down — returning UNVERIFIED\n[CB] Fraud detection down — returning LOW_RISK (manual review flagged)\n[CB] SMS notification down — queuing for U001\nPaymentResult{status=APPROVED, warnings=[card_unverified, fraud_bypassed, sms_queued]}\n\n# Circuit opens:\n[ALERT CRITICAL] Circuit 'card-verification' OPENED! failure rate 35% ≥ 30%\n\n# Tests:\n✓ paymentApproved_whenAllServicesFail\n✓ smsQueued_whenNotificationDown\n✓ unverifiedFlag_whenCardVerificationDown\n✓ circuitOpen_afterFailureThreshold",
+
+  "rubric": [
+    { "category": "application.yml (3 CBs)", "points": 15, "criteria": ["3 named circuits correct (15 pts)"] },
+    { "category": "CardVerificationService", "points": 15, "criteria": ["CB + UNVERIFIED fallback (15 pts)"] },
+    { "category": "SmsNotificationService", "points": 15, "criteria": ["CB + retry queue fallback (15 pts)"] },
+    { "category": "FraudDetectionService", "points": 15, "criteria": ["CB + LOW_RISK fallback (15 pts)"] },
+    { "category": "PaymentOrchestrator", "points": 10, "criteria": ["Calls all 3, collects warnings (10 pts)"] },
+    { "category": "@SpringBootTest (4 tests)", "points": 25, "criteria": ["4 tests × 6 pts each"] },
+    { "category": "Alert service", "points": 5, "criteria": ["Event listener + openEventCount (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["Health indicator (25 pts)", "Slow call test (20 pts)", "Dashboard controller (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. spring-boot-starter-aop is required in pom.xml — @CircuitBreaker silently does nothing without AOP. Fallback signature: must match original method's return type and parameters exactly, with Exception as the last parameter. @BeforeEach cb.reset(): reset circuit state between tests to prevent test interference. minimumNumberOfCalls: without this, one failure opens the circuit — set to at least 5. CircuitBreakerRegistry.getAllCircuitBreakers(): may be empty until first CB is accessed — @PostConstruct listeners can miss CBs; use registry.getEventPublisher().onEntryAdded() as well.",
+
+  "submission_instructions": "GitHub push. All 4 @SpringBootTest tests pass. README includes: (1) architecture diagram showing 3 CBs, (2) what each fallback does, (3) why payment-critical CBs use stricter thresholds than notification CBs.",
+
+  "tips_for_success": [
+    "AOP dependency: add spring-boot-starter-aop or @CircuitBreaker does nothing",
+    "Fallback return type: must exactly match — List for List methods, void for void",
+    "@BeforeEach cb.reset(): test isolation — circuits must start CLOSED",
+    "minimumNumberOfCalls=5: prevents circuit from opening on first test call",
+    "Test order independence: each test resets all relevant CBs in @BeforeEach"
+  ],
+
+  "concepts_reinforced": [
+    "Circuit breaker CLOSED/OPEN/HALF-OPEN state machine",
+    "Fallback method signature: same params + Exception last",
+    "Independent CBs per service: different thresholds for critical vs non-critical",
+    "Graceful degradation: payment succeeds with warnings when non-critical services fail",
+    "spring-boot-starter-aop: required for @CircuitBreaker proxy",
+    "CircuitBreakerRegistry: programmatic state inspection and event subscription"
+  ]
+}

@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t1",
+  "topic_name": "Tree Traversals",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m35_t1_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Inorder traversal recursive",
+      "instructions": "Implement: Inorder traversal recursive.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Inorder {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<Integer> inorder(TreeNode root){\n        List<Integer> res=new ArrayList<>();dfs(root,res);return res;}\n    static void dfs(TreeNode n,List<Integer> l){\n        if(n==null)return;dfs(n.left,l);l.add(n.val);dfs(n.right,l);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.right=new TreeNode(2);r.right.left=new TreeNode(3);\n        System.out.println(inorder(r));  // [1,3,2]\n        System.out.println(\"L-N-R. BST inorder = sorted ascending.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 3, 2]",
+            "BST inorder = sorted"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t1_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Inorder iterative with stack",
+      "instructions": "Implement: Inorder iterative with stack.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class InorderIter {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<Integer> inorder(TreeNode root){\n        List<Integer> res=new ArrayList<>();Deque<TreeNode> st=new ArrayDeque<>();\n        TreeNode cur=root;\n        while(cur!=null||!st.isEmpty()){\n            while(cur!=null){st.push(cur);cur=cur.left;}\n            cur=st.pop();res.add(cur.val);cur=cur.right;}\n        return res;\n    }\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(4);r.left=new TreeNode(2);r.right=new TreeNode(6);\n        r.left.left=new TreeNode(1);r.left.right=new TreeNode(3);\n        System.out.println(inorder(r));  // [1,2,3,4,6]\n        System.out.println(\"O(n) O(h) \u2014 push lefts, pop then go right\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 2, 3, 4, 6]",
+            "O(n) O(h) \u2014 push lefts"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Level order BFS",
+      "instructions": "Implement: Level order BFS.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LevelOrd {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<List<Integer>> levelOrder(TreeNode root){\n        List<List<Integer>> res=new ArrayList<>();if(root==null)return res;\n        Queue<TreeNode> q=new ArrayDeque<>();q.offer(root);\n        while(!q.isEmpty()){\n            int sz=q.size();List<Integer> lvl=new ArrayList<>();\n            for(int i=0;i<sz;i++){\n                TreeNode n=q.poll();lvl.add(n.val);\n                if(n.left!=null)q.offer(n.left);\n                if(n.right!=null)q.offer(n.right);}\n            res.add(lvl);}\n        return res;\n    }\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(9);r.right=new TreeNode(20);\n        r.right.left=new TreeNode(15);r.right.right=new TreeNode(7);\n        System.out.println(levelOrder(r));\n        System.out.println(\"[[3],[9,20],[15,7]] \u2014 size snapshot per level\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[3], [9, 20], [15, 7]]",
+            "size snapshot per level"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m35_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Max depth (LeetCode #104)",
+      "instructions": "Implement: Max depth (LeetCode #104).",
+      "starter_code": "",
+      "expected_solution": "public class MaxDepth {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int maxDepth(TreeNode r){\n        return r==null?0:1+Math.max(maxDepth(r.left),maxDepth(r.right));}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(9);r.right=new TreeNode(20);\n        r.right.left=new TreeNode(15);r.right.right=new TreeNode(7);\n        System.out.println(maxDepth(r));  // 3\n        System.out.println(maxDepth(null)); // 0\n        System.out.println(\"O(n) postorder: 1+max(left,right)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "0",
+            "O(n) postorder"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m35_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Right side view (LeetCode #199)",
+      "instructions": "Implement: Right side view (LeetCode #199).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class RightView {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<Integer> rightSideView(TreeNode root){\n        List<Integer> res=new ArrayList<>();if(root==null)return res;\n        Queue<TreeNode> q=new ArrayDeque<>();q.offer(root);\n        while(!q.isEmpty()){\n            int sz=q.size();\n            for(int i=0;i<sz;i++){\n                TreeNode n=q.poll();\n                if(i==sz-1)res.add(n.val);\n                if(n.left!=null)q.offer(n.left);\n                if(n.right!=null)q.offer(n.right);}}\n        return res;\n    }\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);\n        r.left.right=new TreeNode(5);r.right.right=new TreeNode(4);\n        System.out.println(rightSideView(r)); // [1,3,4]\n        System.out.println(\"Last node (i==sz-1) per BFS level = right side\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 3, 4]",
+            "Last node (i==sz-1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m35_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Zigzag level order (LeetCode #103)",
+      "instructions": "Implement: Zigzag level order (LeetCode #103).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Zigzag {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<List<Integer>> zigzag(TreeNode root){\n        List<List<Integer>> res=new ArrayList<>();if(root==null)return res;\n        Queue<TreeNode> q=new ArrayDeque<>();q.offer(root);boolean lr=true;\n        while(!q.isEmpty()){\n            int sz=q.size();LinkedList<Integer> lvl=new LinkedList<>();\n            for(int i=0;i<sz;i++){\n                TreeNode n=q.poll();\n                if(lr)lvl.addLast(n.val);else lvl.addFirst(n.val);\n                if(n.left!=null)q.offer(n.left);\n                if(n.right!=null)q.offer(n.right);}\n            res.add(lvl);lr=!lr;}\n        return res;\n    }\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(9);r.right=new TreeNode(20);\n        r.right.left=new TreeNode(15);r.right.right=new TreeNode(7);\n        System.out.println(zigzag(r));\n        System.out.println(\"addFirst/addLast toggle by level direction flag\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[3], [20, 9], [15, 7]]",
+            "addFirst/addLast toggle"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m35_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Symmetric tree (LeetCode #101)",
+      "instructions": "Implement: Symmetric tree (LeetCode #101).",
+      "starter_code": "",
+      "expected_solution": "public class SymTree {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static boolean isSymmetric(TreeNode r){return r==null||mirror(r.left,r.right);}\n    static boolean mirror(TreeNode l,TreeNode r){\n        if(l==null&&r==null)return true;\n        if(l==null||r==null||l.val!=r.val)return false;\n        return mirror(l.left,r.right)&&mirror(l.right,r.left);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(2);\n        r.left.left=new TreeNode(3);r.left.right=new TreeNode(4);\n        r.right.left=new TreeNode(4);r.right.right=new TreeNode(3);\n        System.out.println(isSymmetric(r)); // true\n        TreeNode r2=new TreeNode(1);r2.left=new TreeNode(2);r2.right=new TreeNode(2);\n        r2.left.right=new TreeNode(3);r2.right.right=new TreeNode(3);\n        System.out.println(isSymmetric(r2)); // false\n        System.out.println(\"mirror(l.left,r.right) && mirror(l.right,r.left)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "mirror(l.left,r.right)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m35_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Binary tree diameter (LeetCode #543)",
+      "instructions": "Implement: Binary tree diameter (LeetCode #543).",
+      "starter_code": "",
+      "expected_solution": "public class Diameter {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int max=0;\n    static int dfs(TreeNode r){\n        if(r==null)return 0;\n        int l=dfs(r.left),ri=dfs(r.right);\n        max=Math.max(max,l+ri);\n        return 1+Math.max(l,ri);}\n    static int diameter(TreeNode r){max=0;dfs(r);return max;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);\n        r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);\n        System.out.println(diameter(r)); // 3\n        System.out.println(\"Diameter = max(left_h + right_h) across all nodes\");\n        System.out.println(\"O(n) \u2014 update global max at each node, return height\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "max(left_h + right_h)",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "All traversals comparison",
+      "instructions": "Implement: All traversals comparison.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class AllTraversals {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<Integer> pre(TreeNode n){List<Integer> r=new ArrayList<>();preH(n,r);return r;}\n    static void preH(TreeNode n,List<Integer> r){if(n==null)return;r.add(n.val);preH(n.left,r);preH(n.right,r);}\n    static List<Integer> in(TreeNode n){List<Integer> r=new ArrayList<>();inH(n,r);return r;}\n    static void inH(TreeNode n,List<Integer> r){if(n==null)return;inH(n.left,r);r.add(n.val);inH(n.right,r);}\n    static List<Integer> post(TreeNode n){List<Integer> r=new ArrayList<>();postH(n,r);return r;}\n    static void postH(TreeNode n,List<Integer> r){if(n==null)return;postH(n.left,r);postH(n.right,r);r.add(n.val);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);\n        r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);\n        System.out.println(\"Pre (N-L-R): \"+pre(r));  // [1,2,4,5,3]\n        System.out.println(\"In  (L-N-R): \"+in(r));   // [4,2,5,1,3]\n        System.out.println(\"Post(L-R-N): \"+post(r)); // [4,5,2,3,1]\n        System.out.println(\"Pre=copy tree, In=sorted(BST), Post=delete tree\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 2, 4, 5, 3]",
+            "[4, 2, 5, 1, 3]",
+            "[4, 5, 2, 3, 1]"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Flatten binary tree to list (LeetCode #114) \u2014 Morris-style",
+      "instructions": "Implement: Flatten binary tree to list (LeetCode #114) \u2014 Morris-style.",
+      "starter_code": "",
+      "expected_solution": "public class FlattenTree {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static void flatten(TreeNode root){\n        TreeNode cur=root;\n        while(cur!=null){\n            if(cur.left!=null){\n                TreeNode pre=cur.left;\n                while(pre.right!=null)pre=pre.right; // rightmost of left subtree\n                pre.right=cur.right; // connect right subtree to rightmost\n                cur.right=cur.left;  // move left subtree to right\n                cur.left=null;}\n            cur=cur.right;}}\n    static String str(TreeNode r){StringBuilder sb=new StringBuilder();while(r!=null){sb.append(r.val);if(r.right!=null)sb.append(\"-\");r=r.right;}return sb.toString();}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(5);\n        r.left.left=new TreeNode(3);r.left.right=new TreeNode(4);r.right.right=new TreeNode(6);\n        flatten(r);System.out.println(str(r)); // 1-2-3-4-5-6\n        System.out.println(\"O(n) O(1): connect leftmost path then move on\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-2-3-4-5-6",
+            "O(n) O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Traversal synthesis",
+      "instructions": "Implement: Traversal synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T1Synth {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<Integer> inIter(TreeNode root){List<Integer> res=new ArrayList<>();Deque<TreeNode> st=new ArrayDeque<>();TreeNode c=root;while(c!=null||!st.isEmpty()){while(c!=null){st.push(c);c=c.left;}c=st.pop();res.add(c.val);c=c.right;}return res;}\n    static List<List<Integer>> level(TreeNode root){List<List<Integer>> res=new ArrayList<>();if(root==null)return res;Queue<TreeNode> q=new ArrayDeque<>();q.offer(root);while(!q.isEmpty()){int sz=q.size();List<Integer> lvl=new ArrayList<>();for(int i=0;i<sz;i++){TreeNode n=q.poll();lvl.add(n.val);if(n.left!=null)q.offer(n.left);if(n.right!=null)q.offer(n.right);}res.add(lvl);}return res;}\n    static int depth(TreeNode r){return r==null?0:1+Math.max(depth(r.left),depth(r.right));}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(1);r.right=new TreeNode(2);\n        System.out.println(\"inorder=\"+inIter(r));\n        System.out.println(\"levels=\"+level(r).size());\n        System.out.println(\"depth=\"+depth(r));\n        boolean ok=inIter(r).toString().equals(\"[1, 3, 2]\")&&level(r).size()==2&&depth(r)==2;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "inorder=[1, 3, 2]",
+            "levels=2",
+            "depth=2"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M35 T1 Synthesis",
+      "instructions": "Implement: Complete M35 T1 Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T1Final {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<Integer> in(TreeNode r){List<Integer> res=new ArrayList<>();Deque<TreeNode> st=new ArrayDeque<>();TreeNode c=r;while(c!=null||!st.isEmpty()){while(c!=null){st.push(c);c=c.left;}c=st.pop();res.add(c.val);c=c.right;}return res;}\n    static int depth(TreeNode r){return r==null?0:1+Math.max(depth(r.left),depth(r.right));}\n    static int diam(TreeNode r){int[]m={0};dh(r,m);return m[0];}\n    static int dh(TreeNode r,int[]m){if(r==null)return 0;int l=dh(r.left,m),ri=dh(r.right,m);m[0]=Math.max(m[0],l+ri);return 1+Math.max(l,ri);}\n    static boolean sym(TreeNode r){return r==null||mir(r.left,r.right);}\n    static boolean mir(TreeNode l,TreeNode r){if(l==null&&r==null)return true;if(l==null||r==null||l.val!=r.val)return false;return mir(l.left,r.right)&&mir(l.right,r.left);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(2);\n        r.left.left=new TreeNode(3);r.right.right=new TreeNode(3);\n        System.out.println(\"in=\"+in(of(4,2,6,1,3)));\n        System.out.println(\"depth=\"+depth(r));\n        System.out.println(\"sym=\"+sym(r));\n        System.out.println(\"diam=\"+diam(of(1,2,3,4,5)));\n        boolean ok=depth(r)==3&&sym(r)&&diam(of(1,2,3,4,5))==3;\n        System.out.println(\"All pass: \"+ok);\n    }\n    static TreeNode of(int...vs){TreeNode d=new TreeNode(0);Queue<TreeNode> q=new ArrayDeque<>();q.offer(new TreeNode(vs[0]));TreeNode root=q.peek();for(int i=1;i<vs.length;i+=2){TreeNode n=q.poll();if(i<vs.length){n.left=new TreeNode(vs[i]);q.offer(n.left);}if(i+1<vs.length){n.right=new TreeNode(vs[i+1]);q.offer(n.right);}}return root;}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "sym=true",
+            "diam=3"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

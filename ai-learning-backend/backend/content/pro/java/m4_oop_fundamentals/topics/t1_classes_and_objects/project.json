@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m4_t1_proj",
+  "linked_topic": "java_m4_t1",
+  "level": "mini",
+  "name": "Movie Library (Refactor to Objects)",
+  "estimated_minutes": 50,
+  "difficulty": 5,
+  
+  "scenario": "You're building the backend for a movie review platform (think IMDb, BookMyShow, or a personal collection tracker). The current code uses parallel arrays to track movie data — title, director, year, rating. It works, but it's getting harder to maintain. Adding fields like 'genre' or 'duration' would require updating multiple arrays. Sorting movies by rating would require keeping all arrays in sync. Time to refactor using OBJECTS.\n\nThis project is the FIRST experience of OOP improving real code. You'll start with parallel arrays (provided), refactor to a Movie class, and see your code become shorter, clearer, and easier to extend.",
+  
+  "description": "Build a Movie collection app that uses a `Movie` class instead of parallel arrays. Create movie objects, add them to an array, then implement queries: list all, find highest rated, count movies by a director, find longest-running.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Define a `Movie` class in MovieLibrary.java",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "Movie has fields: title (String), director (String), year (int), rating (double)",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Movie has instance method `describe()` returning formatted string like 'Inception (2010) by Nolan - 8.8/10'",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Main class `MovieLibrary` has a Movie[] field with at least 6 movies populated",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`printAll()` method displays all movies using describe()",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`findHighestRated(Movie[] movies)` method returns the Movie object with highest rating",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "`countByDirector(Movie[] movies, String director)` returns count of movies by that director",
+        "weight": 15
+      },
+      {
+        "id": "req_8",
+        "description": "main() demonstrates all functionality with clear output",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `findByYear(Movie[] movies, int year)` returning a Movie[] of movies released in that year (could be 0, 1, or many)",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `averageRating(Movie[] movies)` method",
+        "weight": 10
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `isClassic()` instance method to Movie — returns true if year < 2000 AND rating >= 8.0",
+        "weight": 15
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add `printClassics(Movie[] movies)` that prints only classic movies",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Use this movie data:\n\n```java\nMovie m1 = new Movie();\nm1.title = \"Inception\";\nm1.director = \"Nolan\";\nm1.year = 2010;\nm1.rating = 8.8;\n\nMovie m2 = new Movie();\nm2.title = \"The Dark Knight\";\nm2.director = \"Nolan\";\nm2.year = 2008;\nm2.rating = 9.0;\n\nMovie m3 = new Movie();\nm3.title = \"Pulp Fiction\";\nm3.director = \"Tarantino\";\nm3.year = 1994;\nm3.rating = 8.9;\n\nMovie m4 = new Movie();\nm4.title = \"Interstellar\";\nm4.director = \"Nolan\";\nm4.year = 2014;\nm4.rating = 8.6;\n\nMovie m5 = new Movie();\nm5.title = \"Kill Bill\";\nm5.director = \"Tarantino\";\nm5.year = 2003;\nm5.rating = 8.1;\n\nMovie m6 = new Movie();\nm6.title = \"3 Idiots\";\nm6.director = \"Hirani\";\nm6.year = 2009;\nm6.rating = 8.4;\n```\n\nExpected:\n- Highest rated: The Dark Knight (9.0)\n- Nolan movies count: 3\n- Tarantino movies count: 2\n- (Bonus) Classics (year < 2000 AND rating >= 8.0): Pulp Fiction",
+  
+  "starter_code": "// Define Movie class and MovieLibrary class\n// Each Movie has: title, director, year, rating\n// Methods: describe() instance method, printAll/findHighestRated/countByDirector as static utilities\n\npublic class MovieLibrary {\n    public static void main(String[] args) {\n        // Create movies\n        // Build Movie[] array\n        // Call methods to demonstrate\n    }\n}",
+  
+  "example_output": "===================================\n        MOVIE LIBRARY\n===================================\nInception (2010) by Nolan - 8.8/10\nThe Dark Knight (2008) by Nolan - 9.0/10\nPulp Fiction (1994) by Tarantino - 8.9/10\nInterstellar (2014) by Nolan - 8.6/10\nKill Bill (2003) by Tarantino - 8.1/10\n3 Idiots (2009) by Hirani - 8.4/10\n-----------------------------------\nHighest rated: The Dark Knight (2008) by Nolan - 9.0/10\nNolan movies: 3\nTarantino movies: 2\nHirani movies: 1\n-----------------------------------\n(Bonus) Average rating: 8.63\n(Bonus) Classics:\n  Pulp Fiction (1994) by Tarantino - 8.9/10\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Class Design",
+      "points": 25,
+      "criteria": [
+        "Movie class with 4 fields (10 pts)",
+        "describe() is an instance method, not static (10 pts)",
+        "describe() format matches spec (5 pts)"
+      ]
+    },
+    {
+      "category": "Object Array Usage",
+      "points": 15,
+      "criteria": [
+        "Movie[] array correctly created (5 pts)",
+        "Each slot has `new Movie()` (10 pts)"
+      ]
+    },
+    {
+      "category": "Query Methods",
+      "points": 30,
+      "criteria": [
+        "printAll iterates and uses describe (10 pts)",
+        "findHighestRated returns Movie object (10 pts)",
+        "countByDirector uses .equals correctly (10 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 15,
+      "criteria": [
+        "Output is organized and clear (5 pts)",
+        "Movies displayed using describe() (5 pts)",
+        "Results match expected (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 60,
+      "criteria": [
+        "findByYear returning Movie[] (20 pts)",
+        "averageRating (10 pts)",
+        "isClassic() instance method (15 pts)",
+        "printClassics utility (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The key concepts (defining a class, creating objects, instance methods) are now familiar. The tricky parts are: (1) using .equals() for the director string comparison — NOT == (callback to Module 3!), and (2) findByYear returning a NEW array of variable size.",
+  
+  "submission_instructions": "Save as MovieLibrary.java. Run it. After working, look at your code and reflect: how much cleaner is this than the parallel-arrays approach? Push to GitHub — your first real OOP project.",
+  
+  "tips_for_success": [
+    "Movie class goes OUTSIDE the public MovieLibrary class (same file, NO `public` keyword for Movie)",
+    "Each Movie field is just declared (String title, etc.) — no value yet",
+    "describe() uses field names directly — no 'this.' needed, no parameters",
+    "For countByDirector: USE .equals() to compare director Strings, NEVER ==",
+    "findHighestRated: track the WHOLE Movie object (Movie max), not just the rating",
+    "For findByYear (bonus): make two passes — first count matches, then create array of right size and fill it",
+    "Or use a fixed-size 'output' array of length = input.length and a counter, then Arrays.copyOf(output, count)"
+  ],
+  
+  "concepts_reinforced": [
+    "Class definition with fields and methods",
+    "Object creation with new keyword",
+    "Instance methods accessing object fields",
+    "Object arrays — must new each slot",
+    "Methods that take/return objects",
+    "String.equals from Module 3 (CRITICAL callback)",
+    "Iterating object arrays with for-each",
+    "Replacing parallel arrays with OOP"
+  ],
+  
+  "what_youll_learn_by_doing_this": "This project is your FIRST OOP refactor. The Movie class with describe() is doing real work — bundling movie data and self-describing behavior. The methods findHighestRated and countByDirector operate on Movie objects, not separate arrays of fields.\n\nCompare to the equivalent parallel-arrays code: you'd need separate arrays for title, director, year, rating, all kept in sync. To find Nolan movies, you'd loop through directors array and use indices to look up other fields. With Movies as objects, the loop is one line cleaner per access.\n\nYou'll especially feel the difference when you do the bonus: findByYear returns a Movie[]. With parallel arrays, you'd need to return THREE arrays (titles, directors, ratings) of matching size. With objects: one array of Movies. This is the OOP payoff.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a runtime field (in minutes) and a 'isLongMovie' method (> 150 min)",
+    "Sort movies by rating descending (use bubble sort or Arrays.sort with Comparator — Comparator preview)",
+    "Group movies by decade and print each decade's count",
+    "Add a 'addReview(String reviewText, int score)' method that stores reviews (needs ArrayList — preview of Collections)",
+    "Refactor to use constructors when Topic 4.2 lands (preview)"
+  ]
+}

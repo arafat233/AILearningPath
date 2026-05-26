@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m7_t4_proj",
+  "linked_topic": "java_m7_t4",
+  "level": "mini",
+  "name": "Healthcare Patient Record System — Defensive Design",
+  "estimated_minutes": 55,
+  "difficulty": 7,
+
+  "scenario": "Build the core data layer for a hospital patient management system (like AIIMS or Manipal Hospital's EMR software). Medical data is sensitive and must be bulletproof: wrong or null data entered could impact patient care. Every class must be defensively designed — fail fast, validate everything, protect internal state, expose safely. This is what defensive programming looks like in a high-stakes domain.",
+
+  "description": "A healthcare patient record system where every class applies all defensive programming patterns: Objects.requireNonNull, guard clauses, defensive copies, immutable fields where possible, unmodifiable getters, and Optional for nullable results.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Immutable `BloodType` class (or enum): A+, A-, B+, B-, O+, O-, AB+, AB-. Static factory method `of(String)` that throws `IllegalArgumentException` for unknown types.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`PatientRecord` class — defensively designed:\n- `final` fields: patientId (String), name (String), age (int), bloodType (BloodType)\n- `List<String>` medications (mutable, defensive copy in/out)\n- Constructor validates: all requireNonNull, id/name not blank, age 0-150, medications defensive copy\n- `addMedication(String)` — validates not null, not blank, not already prescribed\n- `getMedications()` — returns unmodifiable list",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "`PatientRegistry` class — defensively designed:\n- `Map<String, PatientRecord>` internally\n- `register(PatientRecord)` — validatesnot null, no duplicate ID\n- `findById(String id)` — returns `Optional<PatientRecord>`\n- `findByName(String name)` — case-insensitive partial match, returns `List<PatientRecord>` (unmodifiable)\n- `getAllPatients()` — returns unmodifiable Collection",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`TransferRequest` class: fromWard, toWard, patientId, reason. Constructor validates all not blank. fromWard != toWard. Has a static `validate(TransferRequest)` returning `ValidationResult(boolean, String)`.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "main() demonstrates: register 3 patients, find by ID (found and not found), add medications, validate transfers, show a valid and an invalid transfer.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "All public methods are fail-fast: first invalid input causes immediate clear error with context.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Make PatientRecord implement Comparable<PatientRecord> (by name alphabetically) and add `sortedPatients()` to registry using Collections.sort on a copy.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `MedicalHistory` inner class to PatientRecord: `Map<String, List<String>>` of date → list of events. `addEvent(String date, String event)` validates both, builds the map defensively. `getHistory()` returns unmodifiable map.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `wardCapacity(Map<String, Integer> capacities, String wardName)` returning Optional<Integer>. Validate wardName not blank. Use Optional.ofNullable for the map lookup.",
+        "weight": 15
+      }
+    ]
+  },
+
+  "data_to_use": "Patients:\n- P001: Aisha Khan, 34, A+, medications: [Paracetamol]\n- P002: Raj Patel, 67, B-, medications: [Metformin, Lisinopril]\n- P003: Priya Sharma, 28, O+, medications: []\n\nTransfers:\n- Valid: P001 from Ward-A to Ward-B, reason: better monitoring\n- Invalid: P002 from Ward-C to Ward-C (same ward)\n- Invalid: P003 from null to Ward-D (null ward)\n\nLookups:\n- findById('P001') → found\n- findById('P999') → not found\n- findByName('raj') → [Raj Patel]",
+
+  "starter_code": "import java.util.*;\n\npublic class HospitalSystem {\n    public static void main(String[] args) {\n        // Create registry\n        // Register 3 patients\n        // Demonstrate: findById (found + not found), findByName, addMedication\n        // Test transfers: valid + invalid\n    }\n    // Define: BloodType, PatientRecord, PatientRegistry, TransferRequest, ValidationResult\n}",
+
+  "example_output": "=== PATIENT REGISTRY ===\nRegistered: Aisha Khan (P001)\nRegistered: Raj Patel (P002)\nRegistered: Priya Sharma (P003)\n\n--- Lookup ---\nP001: Aisha Khan, 34, A+, meds: [Paracetamol]\nP999: not found\n\n--- Medication ---\nAdded Aspirin to P002\nError: already prescribed: Metformin\n\n--- Transfers ---\nP001 transfer VALID: Ward-A → Ward-B\nP002 transfer INVALID: cannot transfer to same ward\nError (NPE): fromWard required\n\n--- Search ---\nFound for 'raj': [Raj Patel]",
+
+  "rubric": [
+    { "category": "Defensive PatientRecord", "points": 30, "criteria": ["All constructor validation (15 pts)", "Defensive copy in/out (10 pts)", "addMedication validation + no-duplicate (5 pts)"] },
+    { "category": "PatientRegistry", "points": 20, "criteria": ["Optional return (10 pts)", "Unmodifiable collection return (5 pts)", "findByName case-insensitive (5 pts)"] },
+    { "category": "TransferRequest + ValidationResult", "points": 15, "criteria": ["All validation (10 pts)", "same-ward check (5 pts)"] },
+    { "category": "BloodType", "points": 10, "criteria": ["Valid types + IllegalArgumentException for invalid (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 10, "criteria": ["All scenarios shown (10 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["Comparable + sortedPatients (15 pts)", "MedicalHistory inner class (25 pts)", "wardCapacity Optional (15 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The trickiest parts: PatientRecord's addMedication must check both null/blank AND duplicate (use list.contains). findByName needs to check toLowerCase().contains(query.toLowerCase()) for each patient. TransferRequest validate() is a separate static method — similar to the TransactionValidator from exercises.",
+
+  "submission_instructions": "Save as HospitalSystem.java. Run all scenarios. Every public method must fail fast — no silent acceptance of bad data. Push to GitHub with: 'Module 7.4 project: healthcare system with complete defensive design.' This demonstrates professional-grade input handling.",
+
+  "tips_for_success": [
+    "PatientRecord constructor: validate in order — null checks first, then blanks, then range, then defensive copy last.",
+    "addMedication: requireNonNull → isBlank → medications.contains(drug) → medications.add(drug).",
+    "findByName: loop getAllPatients(), check patient.getName().toLowerCase().contains(name.toLowerCase()).",
+    "TransferRequest.validate(): static method returning new ValidationResult. Check null fields, blank, same-ward.",
+    "BloodType: use a Set<String> of valid type strings. 'of' method checks containment, throws if not found."
+  ],
+
+  "concepts_reinforced": [
+    "Objects.requireNonNull at all public entry points",
+    "Guard clauses for value validation",
+    "Defensive copies: List in constructor, unmodifiable in getter",
+    "Optional<T> for nullable lookup results",
+    "Immutable-ish final fields",
+    "Fail-fast at boundaries",
+    "Validation result object pattern"
+  ]
+}

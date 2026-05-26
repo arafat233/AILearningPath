@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t5",
+  "topic_name": "Redis Pub/Sub & Cache Invalidation",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m18_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "How many instances receive the Pub/Sub message?",
+      "scenario": "Pub/Sub fans out to all current subscribers.",
+      "instructions": "```\n5 app instances, all subscribed to 'cache.invalidate.products'\n\nInstance 1 executes:\n  redis.convertAndSend('cache.invalidate.products', 'P001')\n```\n\n1. How many instances receive the 'P001' message?\n2. Does Instance 1 receive its own message?\n3. What if Instance 3 is restarting when the message is published?\n4. How is this different from Kafka?",
+      "expected_solution": "1. ALL 5 instances receive the message (including Instance 1).\n   PUBLISH fans out to ALL current subscribers simultaneously.\n\n2. YES, Instance 1 also receives it (it's subscribed too).\n   Typically: evict local BEFORE publishing to avoid double-eviction.\n   Or: let the handler evict (it's idempotent — evicting twice is harmless).\n\n3. Instance 3 (restarting) MISSES the message.\n   Redis Pub/Sub is at-most-once: no persistence, no retry.\n   Instance 3 restarts with empty L1 cache (clean start) — no problem.\n   If Instance 3 was running but briefly disconnected: it misses the event,\n   L1 remains stale until TTL expires.\n\n4. Kafka difference:\n   Kafka: durable log, messages persisted, consumer groups, replay.\n   Pub/Sub: fire-and-forget, no persistence, fan-out to all subscribers.\n   Kafka: Instance 3 reconnects and reads missed messages.\n   Pub/Sub: Instance 3 permanently missed the message.",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. ALL 5 instances receive the message (including Instance 1).\n   PUBLISH fans out to ALL current subscribers simultaneously.\n\n2. YES, Instance 1 also receives it (it's subscribed too).\n   Typically: evict local BEFORE publishing to avoid double-eviction.\n   Or: let the handler evict (it's idempotent — evicting twice is harmless).\n\n3. Instance 3 (restarting) MISSES the message.\n   Redis Pub/Sub is at-most-once: no persistence, no retry.\n   Instance 3 restarts with empty L1 cache (clean start) — no problem.\n   If Instance 3 was running but briefly disconnected: it misses the event,\n   L1 remains stale until TTL expires.\n\n4. Kafka difference:\n   Kafka: durable log, messages persisted, consumer groups, replay.\n   Pub/Sub: fire-and-forget, no persistence, fan-out to all subscribers.\n   Kafka: Instance 3 reconnects and reads missed messages.\n   Pub/Sub: Instance 3 permanently missed the message." }
+      ],
+      "hints": [
+        "Fan-out: every current subscriber gets the message",
+        "At-most-once: no persistence — offline subscribers miss messages",
+        "Pub/Sub vs Kafka: Pub/Sub = broadcast; Kafka = durable log"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the Pub/Sub configuration beans",
+      "scenario": "Three beans needed: handler, adapter, container.",
+      "instructions": "Fill in the blanks for the Spring Pub/Sub configuration.",
+      "starter_code": "@Configuration\npublic class PubSubConfig {\n    \n    @Bean\n    public _______________________ container(\n            RedisConnectionFactory factory,\n            MessageListenerAdapter adapter) {\n        var c = new RedisMessageListenerContainer();\n        c.setConnectionFactory(factory);\n        c.addMessageListener(adapter, new _____________(\"cache.invalidate.*\"));\n        return c;\n    }\n    \n    @Bean\n    public MessageListenerAdapter adapter(CacheInvalidationHandler h) {\n        return new MessageListenerAdapter(h, \"________\");\n    }\n}",
+      "expected_solution": "@Configuration\npublic class PubSubConfig {\n    \n    @Bean\n    public RedisMessageListenerContainer container(\n            RedisConnectionFactory factory,\n            MessageListenerAdapter adapter) {\n        var c = new RedisMessageListenerContainer();\n        c.setConnectionFactory(factory);\n        c.addMessageListener(adapter, new PatternTopic(\"cache.invalidate.*\"));\n        return c;\n    }\n    \n    @Bean\n    public MessageListenerAdapter adapter(CacheInvalidationHandler h) {\n        return new MessageListenerAdapter(h, \"onMessage\");\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "RedisMessageListenerContainer", "hint": "Spring class that manages Redis subscriptions" },
+        { "position": 2, "answer": "PatternTopic",                  "hint": "Wildcard topic for pattern matching (vs ChannelTopic for exact)" },
+        { "position": 3, "answer": "onMessage",                     "hint": "Method name on CacheInvalidationHandler to call" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "RedisMessageListenerContainer: the subscriber infrastructure",
+        "PatternTopic('*'): subscribes to all matching channels",
+        "MessageListenerAdapter second arg: method name to call on handler"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal Pub/Sub publisher and subscriber",
+      "scenario": "Simplest possible Spring Data Redis Pub/Sub implementation.",
+      "instructions": "Write:\n1. CacheInvalidationPublisher @Service: publish(channel, key) via convertAndSend\n2. CacheInvalidationHandler @Component: onMessage(message) logs received key\n3. PubSubConfig @Configuration: container + adapter beans\n4. Show: how the three classes connect",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.listener.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\n// Minimal Pub/Sub: publisher + handler + config\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.listener.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\n\n// 1. Publisher:\n@Service\nclass CacheInvalidationPublisher {\n    private final RedisTemplate<String, String> redis;\n    CacheInvalidationPublisher(RedisTemplate<String,String> r) { redis=r; }\n    \n    public void publish(String channel, String key) {\n        redis.convertAndSend(channel, key);  // PUBLISH channel key\n        System.out.println(\"[Published] \" + channel + \" → \" + key);\n    }\n}\n\n// 2. Handler (called by adapter on message arrival):\n@Component\nclass CacheInvalidationHandler {\n    public void onMessage(String message) {\n        System.out.println(\"[Received] Key to invalidate: \" + message);\n        // In production: cacheManager.getCache(cacheName).evict(message);\n    }\n}\n\n// 3. Config wiring them together:\n@Configuration\nclass PubSubConfig {\n    @Bean\n    public RedisMessageListenerContainer container(\n            RedisConnectionFactory factory, MessageListenerAdapter adapter) {\n        var c = new RedisMessageListenerContainer();\n        c.setConnectionFactory(factory);\n        // Subscribe to 'cache.invalidate.*' channels:\n        c.addMessageListener(adapter, new PatternTopic(\"cache.invalidate.*\"));\n        return c;\n    }\n    \n    @Bean\n    public MessageListenerAdapter adapter(CacheInvalidationHandler h) {\n        // Routes: byte[] message → String → h.onMessage(String)\n        return new MessageListenerAdapter(h, \"onMessage\");\n    }\n}\n\n// HOW THEY CONNECT:\n// Publisher: redis.convertAndSend('cache.invalidate.products', 'P001')\n// Redis: delivers 'P001' to all subscribers of 'cache.invalidate.products'\n// Container: receives the raw bytes\n// Adapter: deserializes bytes to String, calls handler.onMessage('P001')\n// Handler: logs/evicts",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "convertAndSend: Spring's PUBLISH wrapper",
+        "MessageListenerAdapter: bytes → String → method call bridge",
+        "Container wires the connection factory and channel subscription"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m18_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Cache invalidation handler with CacheManager",
+      "scenario": "Handler evicts from L1 Caffeine cache when Pub/Sub message arrives.",
+      "instructions": "Write CacheEvictionHandler that:\n1. @Autowired CacheManager\n2. onEvict(message, channel): extracts cache name from channel suffix\n3. Evicts the specific key from that cache\n4. If message is '*': clear all entries from the cache\n5. Logs every eviction",
+      "starter_code": "import org.springframework.cache.CacheManager;\nimport org.springframework.stereotype.Component;\n// CacheEvictionHandler\n",
+      "expected_solution": "import org.springframework.cache.CacheManager;\nimport org.springframework.cache.Cache;\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class CacheEvictionHandler {\n    private final CacheManager cacheManager;\n    \n    CacheEvictionHandler(CacheManager cm) { cacheManager = cm; }\n    \n    /**\n     * Called by MessageListenerAdapter for every Pub/Sub message.\n     * @param message  the entity ID (e.g., 'P001') or '*' to clear all\n     * @param channel  the Redis channel (e.g., 'cache.invalidate.products')\n     */\n    public void onEvict(String message, String channel) {\n        // Extract cache name: 'cache.invalidate.products' → 'products'\n        String cacheName = channel.contains(\".\")\n            ? channel.substring(channel.lastIndexOf('.') + 1)\n            : channel;\n        \n        Cache cache = cacheManager.getCache(cacheName);\n        if (cache == null) {\n            System.out.printf(\"[PubSub] Unknown cache '%s' for channel '%s'%n\",\n                cacheName, channel);\n            return;\n        }\n        \n        if (\"*\".equals(message)) {\n            cache.clear();\n            System.out.printf(\"[PubSub] Cleared ALL entries from '%s' cache%n\", cacheName);\n        } else {\n            cache.evict(message);\n            System.out.printf(\"[PubSub] Evicted '%s' from '%s' cache%n\", message, cacheName);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "channel.lastIndexOf('.')+1: extracts suffix after last dot",
+        "cache.evict(key): removes specific entry; cache.clear(): removes all",
+        "null check: channel may not correspond to any configured cache"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m18_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Publisher that evicts local + broadcasts",
+      "scenario": "Complete invalidation: evict local L1 AND publish to all other instances.",
+      "instructions": "Write CacheInvalidationService:\n1. invalidate(cacheName, key): evict from local + publish to channel\n2. invalidateAll(cacheName): local clear + publish '*'\n3. Channel format: 'cache.invalidate.{cacheName}'\n4. Show: evict local FIRST, then publish (avoids serving stale between publish and evict)",
+      "starter_code": "import org.springframework.cache.CacheManager;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\n// CacheInvalidationService\n",
+      "expected_solution": "import org.springframework.cache.CacheManager;\nimport org.springframework.cache.Cache;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class CacheInvalidationService {\n    private static final String CHANNEL_PREFIX = \"cache.invalidate.\";\n    \n    private final CacheManager cacheManager;\n    private final RedisTemplate<String, String> redis;\n    \n    CacheInvalidationService(CacheManager cm, RedisTemplate<String,String> r) {\n        cacheManager=cm; redis=r;\n    }\n    \n    public void invalidate(String cacheName, String key) {\n        // Step 1: Evict from LOCAL L1 cache first:\n        Cache cache = cacheManager.getCache(cacheName);\n        if (cache != null) cache.evict(key);\n        \n        // Step 2: Broadcast to ALL other instances:\n        String channel = CHANNEL_PREFIX + cacheName;\n        redis.convertAndSend(channel, key);\n        // Other instances: receive message → evict from their L1\n        \n        System.out.printf(\"[Invalidated] %s::%s (local+broadcast)%n\", cacheName, key);\n    }\n    \n    public void invalidateAll(String cacheName) {\n        // Clear local:\n        Cache cache = cacheManager.getCache(cacheName);\n        if (cache != null) cache.clear();\n        \n        // Broadcast clear-all signal ('*' = clear all):\n        redis.convertAndSend(CHANNEL_PREFIX + cacheName, \"*\");\n        System.out.printf(\"[Invalidated ALL] %s (local+broadcast)%n\", cacheName);\n    }\n    \n    // WHY LOCAL FIRST?\n    // If we publish first, there's a tiny window where:\n    //   - Other instances evict their L1 (good)\n    //   - THIS instance still has stale L1 (bad)\n    //   - A request on THIS instance serves stale data from L1\n    // Local evict first: this instance is immediately consistent.\n    // Publish after: other instances follow within milliseconds.\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Local first: this instance is immediately consistent after evict()",
+        "convertAndSend fires after local evict: consistent ordering",
+        "'*' as broadcast message: handler clears entire cache on receiving '*'"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Full Pub/Sub configuration with multiple caches",
+      "scenario": "Real-world config subscribing to multiple cache invalidation channels.",
+      "instructions": "Write PubSubConfig for Flipkart with 3 cache channels:\n1. 'cache.invalidate.products' → CacheEvictionHandler.onEvict\n2. 'cache.invalidate.categories' → same handler\n3. 'cache.invalidate.sellers' → same handler\n4. Use PatternTopic to subscribe to all three with one subscription\n5. Handler routes based on channel suffix",
+      "starter_code": "import org.springframework.context.annotation.*;\nimport org.springframework.data.redis.connection.RedisConnectionFactory;\nimport org.springframework.data.redis.listener.*;\n// FlipkartPubSubConfig\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.data.redis.connection.RedisConnectionFactory;\nimport org.springframework.data.redis.listener.*;\n\n@Configuration\npublic class FlipkartPubSubConfig {\n    \n    // PatternTopic: one subscription, 3 channels handled by routing in handler\n    @Bean\n    public RedisMessageListenerContainer flipkartContainer(\n            RedisConnectionFactory factory,\n            MessageListenerAdapter flipkartAdapter) {\n        var container = new RedisMessageListenerContainer();\n        container.setConnectionFactory(factory);\n        \n        // Single pattern subscription covers all 3 channels:\n        // cache.invalidate.products\n        // cache.invalidate.categories  \n        // cache.invalidate.sellers\n        container.addMessageListener(\n            flipkartAdapter,\n            new PatternTopic(\"cache.invalidate.*\")\n        );\n        \n        return container;\n    }\n    \n    @Bean\n    public MessageListenerAdapter flipkartAdapter(CacheEvictionHandler handler) {\n        // Handler receives both message AND channel name:\n        // Spring will call: handler.onEvict(message, channel)\n        MessageListenerAdapter adapter = new MessageListenerAdapter(handler, \"onEvict\");\n        return adapter;\n    }\n    \n    // Alternative: separate subscriptions per channel:\n    // container.addMessageListener(productsAdapter, new ChannelTopic(\"cache.invalidate.products\"));\n    // container.addMessageListener(categoriesAdapter, new ChannelTopic(\"cache.invalidate.categories\"));\n    // Disadvantage: more beans, same logic — PatternTopic is cleaner\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "PatternTopic covers multiple channels with one subscription",
+        "Handler with (message, channel) signature: Spring passes both when using PatternTopic",
+        "channel suffix routing: extract cache name from channel for correct eviction"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test Pub/Sub with CountDownLatch",
+      "scenario": "Async Pub/Sub delivery requires synchronization in tests.",
+      "instructions": "Write a @SpringBootTest test:\n1. Put 'P001' in 'products' cache\n2. Subscribe to messages with a test listener + CountDownLatch\n3. Publish invalidation for P001\n4. latch.await(2, SECONDS) — wait for subscriber\n5. Assert: P001 is no longer in products cache",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.cache.CacheManager;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport java.util.concurrent.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n// PubSubIntegrationTest\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.cache.CacheManager;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport java.util.concurrent.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest\nclass PubSubIntegrationTest {\n    @Autowired CacheManager cacheManager;\n    @Autowired RedisTemplate<String, String> redis;\n    @Autowired CacheInvalidationService invalidationService;\n    \n    @BeforeEach void setup() {\n        // Seed the cache:\n        cacheManager.getCache(\"products\").put(\"P001\", \"Wireless Mouse ₹799\");\n    }\n    \n    @Test\n    void publishInvalidation_evictsFromCache() throws Exception {\n        // Verify it's in cache:\n        assertNotNull(cacheManager.getCache(\"products\").get(\"P001\"),\n            \"P001 should be in cache before test\");\n        \n        // Publish invalidation:\n        invalidationService.invalidate(\"products\", \"P001\");\n        \n        // Async delivery — wait briefly:\n        // The local evict happens synchronously in invalidate().\n        // The Pub/Sub message is async — other instances need a moment.\n        // For THIS test (same instance): local evict already happened.\n        Thread.sleep(50);  // allow async pub/sub processing\n        \n        // Assert evicted:\n        assertNull(cacheManager.getCache(\"products\").get(\"P001\"),\n            \"P001 should be evicted from cache after invalidation\");\n    }\n    \n    @Test\n    void invalidateAll_clearsEntireCache() throws Exception {\n        cacheManager.getCache(\"products\").put(\"P002\", \"Keyboard ₹1999\");\n        \n        invalidationService.invalidateAll(\"products\");\n        Thread.sleep(50);\n        \n        assertNull(cacheManager.getCache(\"products\").get(\"P001\"));\n        assertNull(cacheManager.getCache(\"products\").get(\"P002\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Local evict is synchronous: asserting after local evict is reliable",
+        "Thread.sleep(50): small wait for async pub/sub delivery to other instances",
+        "Both tests verify that the CacheInvalidationService does what it should"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "ProductService with integrated cache invalidation",
+      "scenario": "Service that combines Spring @Cache annotations with Pub/Sub broadcast.",
+      "instructions": "Write FlipkartProductService:\n1. findById(id): @Cacheable('products', key='#id')\n2. updateProduct(product): saves to DB, evicts local + publishes via CacheInvalidationService\n3. deleteProduct(id): deletes from DB, evicts local + publishes '*' for categories too\n4. createProduct(product): saves, publishes categories invalidation\n5. Show: how @Cacheable and manual invalidation coexist",
+      "starter_code": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n// FlipkartProductService\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\n@Service\npublic class FlipkartProductService {\n    private final ProductRepository repo;\n    private final CacheInvalidationService invalidation;\n    \n    FlipkartProductService(ProductRepository r, CacheInvalidationService i) {\n        repo=r; invalidation=i;\n    }\n    \n    // @Cacheable: standard Spring cache for reads\n    @Cacheable(value=\"products\", key=\"#id\")\n    public Product findById(String id) {\n        System.out.println(\"[DB] Loading product \" + id);\n        return repo.findById(id).orElseThrow();\n    }\n    \n    // Update: save to DB + broadcast invalidation to all instances\n    @Transactional\n    public Product updateProduct(Product product) {\n        Product saved = repo.save(product);\n        // Evict local + broadcast to other 9 instances:\n        invalidation.invalidate(\"products\", product.getId());\n        return saved;\n    }\n    \n    // Delete: remove from DB + invalidate product + all category lists\n    @Transactional\n    public void deleteProduct(String id) {\n        Product p = repo.findById(id).orElseThrow();\n        repo.deleteById(id);\n        invalidation.invalidate(\"products\", id);\n        // Category lists that contained this product are now stale:\n        invalidation.invalidateAll(\"categories\");\n    }\n    \n    // Create: new product may appear in category lists\n    @Transactional\n    public Product createProduct(Product product) {\n        Product saved = repo.save(product);\n        // Category lists may now be missing this new product:\n        invalidation.invalidateAll(\"categories\");\n        return saved;\n    }\n    \n    // @Cacheable + manual invalidation coexistence:\n    // @Cacheable handles the READ path (automatic cache-aside)\n    // Manual invalidation handles the WRITE path (pub/sub broadcast)\n    // Together: reads are fast (cached), writes propagate immediately\n    \n    interface ProductRepository {\n        java.util.Optional<Product> findById(String id);\n        Product save(Product p);\n        void deleteById(String id);\n    }\n    record Product(String id, String name, double price) {}\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Cacheable for reads + manual invalidation for writes: clean separation",
+        "Categories need invalidateAll on create/delete: entire list is affected",
+        "Product invalidation: only specific ID evicted (cheaper than clear all)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Restaurant status broadcast — Swiggy real-time",
+      "scenario": "Restaurant open/close status must propagate instantly to all instances.",
+      "instructions": "Write RestaurantStatusBroadcaster:\n1. setOpen(restaurantId): update DB + publish 'restaurant.status.{id}' = 'OPEN'\n2. setClosed(restaurantId): update DB + publish 'restaurant.status.{id}' = 'CLOSED'\n3. Handler: on message, evict from 'restaurantStatus' L1 cache\n4. Config: subscribe to 'restaurant.status.*' pattern\n5. Explain: why is 30-second TTL NOT acceptable for restaurant status?",
+      "starter_code": "import org.springframework.cache.*;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.listener.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\n// RestaurantStatusBroadcaster + handler + config\n",
+      "expected_solution": "import org.springframework.cache.*;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.listener.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\n\n@Service\nclass RestaurantStatusBroadcaster {\n    private final RedisTemplate<String,String> redis;\n    private final CacheManager cacheManager;\n    private final RestaurantRepository repo;\n    \n    RestaurantStatusBroadcaster(RedisTemplate<String,String> r, CacheManager cm, RestaurantRepository rr){\n        redis=r; cacheManager=cm; repo=rr;\n    }\n    \n    public void setOpen(String restaurantId) {\n        repo.updateStatus(restaurantId, \"OPEN\");\n        evictAndBroadcast(restaurantId, \"OPEN\");\n    }\n    \n    public void setClosed(String restaurantId) {\n        repo.updateStatus(restaurantId, \"CLOSED\");\n        evictAndBroadcast(restaurantId, \"CLOSED\");\n    }\n    \n    private void evictAndBroadcast(String id, String newStatus) {\n        // Local evict first:\n        Cache c = cacheManager.getCache(\"restaurantStatus\");\n        if (c != null) c.evict(id);\n        // Broadcast to all instances:\n        redis.convertAndSend(\"restaurant.status.\" + id, newStatus);\n        System.out.printf(\"[RestaurantStatus] %s → %s (broadcast)%n\", id, newStatus);\n    }\n    \n    interface RestaurantRepository { void updateStatus(String id, String status); }\n}\n\n@Component\nclass RestaurantStatusHandler {\n    private final CacheManager cm;\n    RestaurantStatusHandler(CacheManager c){cm=c;}\n    public void onStatus(String message, String channel){\n        // channel: 'restaurant.status.R001' → extract ID\n        String restaurantId=channel.substring(channel.lastIndexOf('.')+1);\n        Cache c=cm.getCache(\"restaurantStatus\");\n        if(c!=null){c.evict(restaurantId);\n            System.out.printf(\"[Handler] Evicted restaurantStatus::%s%n\",restaurantId);}\n    }\n}\n\n@Configuration\nclass RestaurantStatusConfig {\n    @Bean RedisMessageListenerContainer rsContainer(\n            RedisConnectionFactory f, MessageListenerAdapter rsAdapter){\n        var c=new RedisMessageListenerContainer();\n        c.setConnectionFactory(f);\n        c.addMessageListener(rsAdapter,new PatternTopic(\"restaurant.status.*\"));\n        return c;\n    }\n    @Bean MessageListenerAdapter rsAdapter(RestaurantStatusHandler h){\n        return new MessageListenerAdapter(h,\"onStatus\");\n    }\n}\n\n// WHY 30-SECOND TTL IS NOT ACCEPTABLE:\n// A restaurant closes due to a kitchen fire.\n// 30 seconds × (orders/second) = many orders accepted for a closed restaurant!\n// Swiggy SLA: restaurant status must propagate within 5 seconds.\n// Pub/Sub delivers in <1ms → vastly better than any TTL.",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Channel includes restaurantId: 'restaurant.status.R001' → handler extracts 'R001'",
+        "PatternTopic('restaurant.status.*'): handles all restaurant IDs",
+        "setClosed urgency: orders must stop immediately — TTL is too slow"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What happens when subscriber misses the message?",
+      "scenario": "At-most-once delivery: offline subscribers miss messages.",
+      "instructions": "```\nSetup:\n  5 instances, all subscribed to 'cache.invalidate.products'\n  Each has product P001 in L1 Caffeine cache (TTL: 60s, 40s remaining)\n  Instance 3 loses Redis connection for 200ms due to network blip\n\nAt T=0: Product P001 price updated on Instance 1\n  → Instance 1: DB update, local L1 evict, PUBLISH\n  → Instance 3: misses the message (disconnected)\n\nAt T=5s: Instance 3 reconnects\n\n1. Which instances serve correct price (₹799) immediately after T=0?\n2. What does Instance 3 serve between T=0 and T=40s?\n3. What does Instance 3 serve after T=40s?\n4. What is the maximum staleness window?\n5. How could you reduce this window?",
+      "expected_solution": "1. Instances 1, 2, 4, 5 → immediately serve ₹799 (L1 evicted + fresh load)\n   Instance 3 → still serves ₹999 (stale L1, missed invalidation)\n\n2. Instance 3 between T=0 and T=40s:\n   Serves STALE ₹999 from L1 Caffeine cache.\n   The cache TTL countdown continues — it was at 40s when the miss happened.\n   Instance 3 reconnected at T=5s but Pub/Sub is at-most-once:\n   the missed message cannot be replayed.\n\n3. Instance 3 after T=40s:\n   L1 TTL expires → cache miss → loads from Redis L2 or DB → ₹799\n   From T=40s onward: Instance 3 serves correct price.\n\n4. Maximum staleness window: up to 40 seconds (remaining TTL)\n   Worst case: miss happens with full TTL remaining (60s window)\n   This is the designed trade-off: Pub/Sub + TTL-based fallback\n\n5. Reduce staleness window:\n   a) Shorter Caffeine TTL: 10s instead of 60s → max 10s staleness\n   b) Reconnect-triggered refresh: on Redis reconnect, evict all L1 entries\n      (conservative: clear L1 on reconnect → fresh loads after disruption)\n   c) Shorter reconnect timeout: detect disconnection faster",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. Instances 1, 2, 4, 5 → immediately serve ₹799 (L1 evicted + fresh load)\n   Instance 3 → still serves ₹999 (stale L1, missed invalidation)\n\n2. Instance 3 between T=0 and T=40s:\n   Serves STALE ₹999 from L1 Caffeine cache.\n   The cache TTL countdown continues — it was at 40s when the miss happened.\n   Instance 3 reconnected at T=5s but Pub/Sub is at-most-once:\n   the missed message cannot be replayed.\n\n3. Instance 3 after T=40s:\n   L1 TTL expires → cache miss → loads from Redis L2 or DB → ₹799\n   From T=40s onward: Instance 3 serves correct price.\n\n4. Maximum staleness window: up to 40 seconds (remaining TTL)\n   Worst case: miss happens with full TTL remaining (60s window)\n   This is the designed trade-off: Pub/Sub + TTL-based fallback\n\n5. Reduce staleness window:\n   a) Shorter Caffeine TTL: 10s instead of 60s → max 10s staleness\n   b) Reconnect-triggered refresh: on Redis reconnect, evict all L1 entries\n      (conservative: clear L1 on reconnect → fresh loads after disruption)\n   c) Shorter reconnect timeout: detect disconnection faster" }
+      ],
+      "hints": [
+        "At-most-once: reconnecting doesn't replay missed messages",
+        "TTL is the fallback: staleness bounded by remaining TTL at time of miss",
+        "Reconnect-evict: clearing L1 on reconnect is a common defensive pattern"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Razorpay merchant config invalidation via Pub/Sub",
+      "scenario": "Merchant configuration changes must propagate to all instances immediately.",
+      "instructions": "Build Razorpay merchant config invalidation:\n1. MerchantConfig record: merchantId, webhookUrl, maxPaymentAmount, enabled\n2. MerchantConfigService: findByMerchantId @Cacheable, updateConfig (save + invalidate)\n3. CacheInvalidationService: invalidate local + publish\n4. Handler: evict on receive\n5. @SpringBootTest test: update config, verify stale value evicted",
+      "starter_code": "import org.springframework.cache.annotation.*;\nimport org.springframework.cache.*;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.listener.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n// Complete Razorpay merchant config invalidation\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.cache.*;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\n\nrecord MerchantConfig(String merchantId,String webhookUrl,double maxAmount,boolean enabled){}\n\n@Service\nclass MerchantConfigService {\n    private final Map<String,MerchantConfig> store=new java.util.concurrent.ConcurrentHashMap<>();\n    private final CacheInvalidationPublisher pub;\n    private final CacheManager cm;\n    MerchantConfigService(CacheInvalidationPublisher p,CacheManager c){pub=p;cm=c;\n        store.put(\"M001\",new MerchantConfig(\"M001\",\"https://m001.io/webhook\",100000,true));}\n    \n    @Cacheable(value=\"merchantConfig\",key=\"#merchantId\")\n    public Optional<MerchantConfig> findByMerchantId(String merchantId){\n        System.out.println(\"[DB] Loading config for \"+merchantId);\n        return Optional.ofNullable(store.get(merchantId));\n    }\n    \n    public MerchantConfig updateConfig(MerchantConfig cfg){\n        store.put(cfg.merchantId(),cfg);\n        // Local evict:\n        Cache c=cm.getCache(\"merchantConfig\");\n        if(c!=null) c.evict(cfg.merchantId());\n        // Broadcast:\n        pub.publish(\"cache.invalidate.merchantConfig\",cfg.merchantId());\n        return cfg;\n    }\n}\n\n@Service\nclass CacheInvalidationPublisher {\n    private final RedisTemplate<String,String> redis;\n    CacheInvalidationPublisher(RedisTemplate<String,String> r){redis=r;}\n    public void publish(String channel,String key){\n        redis.convertAndSend(channel,key);\n    }\n}\n\n@SpringBootTest\nclass MerchantConfigInvalidationTest {\n    @Autowired MerchantConfigService svc;\n    @Autowired CacheManager cm;\n    @BeforeEach void clear(){cm.getCache(\"merchantConfig\").clear();}\n    \n    @Test void updateConfig_evictsFromCache() throws Exception {\n        svc.findByMerchantId(\"M001\"); // populate cache\n        assertNotNull(cm.getCache(\"merchantConfig\").get(\"M001\"),\"Should be cached\");\n        MerchantConfig updated=new MerchantConfig(\"M001\",\"https://new.io/webhook\",200000,true);\n        svc.updateConfig(updated);\n        Thread.sleep(50);\n        assertNull(cm.getCache(\"merchantConfig\").get(\"M001\"),\"Should be evicted after update\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "Local evict in updateConfig: synchronous, happens before publish",
+        "Thread.sleep(50): small buffer for async pub/sub delivery in test",
+        "CacheManager.getCache().clear() in @BeforeEach: clean test state"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Session invalidation via Pub/Sub — logout broadcast",
+      "scenario": "When a user logs out, invalidate their session on all instances.",
+      "instructions": "Write SessionInvalidationService:\n1. Session cached in L1 Caffeine per instance: 'session:{userId}'\n2. logout(userId): invalidate local session + broadcast\n3. Channel: 'session.invalidate'\n4. Message: userId\n5. Handler: evict session from L1\n6. Test: logout → session null on this instance + check broadcast was sent",
+      "starter_code": "import org.springframework.cache.*;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.*;\n// SessionInvalidationService\n",
+      "expected_solution": "import org.springframework.cache.*;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.*;\n\n@Service\npublic class SessionInvalidationService {\n    private static final String CHANNEL = \"session.invalidate\";\n    private static final String CACHE   = \"sessions\";\n    \n    private final CacheManager cacheManager;\n    private final RedisTemplate<String,String> redis;\n    \n    SessionInvalidationService(CacheManager cm, RedisTemplate<String,String> r){\n        cacheManager=cm; redis=r;\n    }\n    \n    // Put session in local L1 cache:\n    public void cacheSession(String userId, Object sessionData){\n        Cache sessions = cacheManager.getCache(CACHE);\n        if(sessions!=null) sessions.put(userId, sessionData);\n    }\n    \n    // Get session from L1 cache:\n    public Object getSession(String userId){\n        Cache sessions = cacheManager.getCache(CACHE);\n        Cache.ValueWrapper v = sessions!=null ? sessions.get(userId) : null;\n        return v!=null ? v.get() : null;\n    }\n    \n    // Logout: invalidate locally + broadcast to all instances:\n    public void logout(String userId){\n        // Local eviction:\n        Cache sessions = cacheManager.getCache(CACHE);\n        if(sessions!=null) sessions.evict(userId);\n        \n        // Broadcast — all other instances will also evict:\n        redis.convertAndSend(CHANNEL, userId);\n        System.out.printf(\"[Logout] User %s: session evicted + broadcast%n\", userId);\n    }\n}\n\n// Handler on all instances:\n@Component\nclass SessionEvictionHandler {\n    private final CacheManager cacheManager;\n    SessionEvictionHandler(CacheManager cm){cacheManager=cm;}\n    \n    public void onSessionInvalidate(String userId){\n        Cache sessions = cacheManager.getCache(\"sessions\");\n        if(sessions!=null){\n            sessions.evict(userId);\n            System.out.printf(\"[SessionHandler] Evicted session for %s%n\", userId);\n        }\n    }\n}\n\n// Use case: security event (password changed, suspicious activity)\n// Same pattern: publish 'security.invalidate.session' with userId\n// All instances immediately reject that user's existing sessions",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Logout is security-critical: must propagate to all instances immediately",
+        "TTL fallback too slow for security: use Pub/Sub for immediate propagation",
+        "Cache.ValueWrapper: Spring's nullable wrapper for cache.get(key)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multi-entity Pub/Sub with routing handler",
+      "scenario": "One container, multiple cache types, routing by channel.",
+      "instructions": "Build a universal CacheInvalidationRouter:\n1. Handles channels: 'cache.products.*', 'cache.categories.*', 'cache.merchants.*'\n2. PatternTopic: 'cache.*'\n3. Routes to correct cache based on second channel segment\n4. Supports specific key eviction AND full cache clear\n5. Test: three different invalidations all route correctly",
+      "starter_code": "import org.springframework.cache.*;\nimport org.springframework.data.redis.listener.adapter.MessageListenerAdapter;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\n// CacheInvalidationRouter + config + test\n",
+      "expected_solution": "import org.springframework.cache.*;\nimport org.springframework.data.redis.listener.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@Component\nclass CacheInvalidationRouter implements MessageListener {\n    private final CacheManager cm;\n    CacheInvalidationRouter(CacheManager c){cm=c;}\n    \n    @Override\n    public void onMessage(org.springframework.data.redis.connection.Message msg, byte[] pattern){\n        String channel=new String(msg.getChannel());\n        String body   =new String(msg.getBody());\n        \n        // Route by channel: 'cache.products.invalidate' → 'products' cache\n        String[] parts=channel.split(\"\\\\.\");\n        if(parts.length<2) return;\n        String cacheName=parts[1];  // 'products', 'categories', 'merchants'\n        \n        Cache cache=cm.getCache(cacheName);\n        if(cache==null){\n            System.out.println(\"[Router] No cache named: \"+cacheName); return;\n        }\n        if(\"*\".equals(body)){\n            cache.clear();\n            System.out.printf(\"[Router] CLEAR ALL %s cache%n\",cacheName);\n        }else{\n            cache.evict(body);\n            System.out.printf(\"[Router] EVICT %s from %s cache%n\",body,cacheName);\n        }\n    }\n}\n\n@Configuration\nclass RouterConfig {\n    @Bean RedisMessageListenerContainer routerContainer(\n            org.springframework.data.redis.connection.RedisConnectionFactory f,\n            CacheInvalidationRouter router){\n        var c=new RedisMessageListenerContainer();\n        c.setConnectionFactory(f);\n        c.addMessageListener(router,new PatternTopic(\"cache.*\"));\n        return c;\n    }\n}\n\n@SpringBootTest\nclass RouterTest {\n    @Autowired CacheManager cm;\n    @Autowired org.springframework.data.redis.core.RedisTemplate<String,String> redis;\n    @BeforeEach void seed(){\n        cm.getCache(\"products\").put(\"P001\",\"Mouse\");\n        cm.getCache(\"categories\").put(\"CAT1\",\"Electronics\");\n        cm.getCache(\"merchants\").put(\"M001\",\"Seller\");\n    }\n    @Test void routing_evictsCorrectCache() throws Exception{\n        redis.convertAndSend(\"cache.products.invalidate\",\"P001\");\n        Thread.sleep(100);\n        assertNull(cm.getCache(\"products\").get(\"P001\"),\"products P001 evicted\");\n        assertNotNull(cm.getCache(\"categories\").get(\"CAT1\"),\"categories unaffected\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "implements MessageListener: raw interface, gets Message object with channel bytes",
+        "channel.split('\\\\.'): extracts cache name from channel position",
+        "PatternTopic('cache.*'): matches cache.products.*, cache.categories.* etc."
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m18_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Reconnect-triggered L1 cache clear",
+      "scenario": "When Redis connection is restored, clear L1 to avoid serving stale data.",
+      "instructions": "Write RedisReconnectListener:\n1. Implement ConnectionEventListener or @EventListener for Redis connect events\n2. On reconnect: clear all L1 caches (conservative, safe)\n3. Log: which caches were cleared and when\n4. Explain: why this is safer than trusting TTL after a reconnect gap\n5. Test: simulate reconnect event, verify all caches cleared",
+      "starter_code": "import org.springframework.cache.CacheManager;\nimport org.springframework.context.event.EventListener;\nimport org.springframework.stereotype.Component;\nimport org.springframework.data.redis.connection.*;\n// RedisReconnectListener\n",
+      "expected_solution": "import org.springframework.cache.CacheManager;\nimport org.springframework.context.event.EventListener;\nimport org.springframework.stereotype.Component;\nimport org.springframework.data.redis.connection.*;\nimport java.time.LocalDateTime;\n\n@Component\npublic class RedisReconnectListener {\n    private final CacheManager cacheManager;\n    \n    RedisReconnectListener(CacheManager cm) { cacheManager = cm; }\n    \n    // Spring Data Redis publishes RedisConnectionFailedEvent and\n    // can be listened to for connection lifecycle events.\n    // In Lettuce (default client), we can use after-reconnect callback:\n    \n    @EventListener(org.springframework.data.redis.connection.RedisConnectionFailedEvent.class)\n    public void onConnectionFailed(Object event) {\n        System.out.printf(\"[Redis] Connection LOST at %s — L1 cache may become stale!%n\",\n            LocalDateTime.now());\n    }\n    \n    // On reconnect: conservatively clear all L1 caches\n    // (Any messages published during the disconnection window were missed)\n    public void onReconnect() {\n        System.out.printf(\"[Redis] Connection RESTORED at %s%n\", LocalDateTime.now());\n        int cleared = 0;\n        for (String cacheName : cacheManager.getCacheNames()) {\n            cacheManager.getCache(cacheName).clear();\n            cleared++;\n            System.out.printf(\"[Redis] Cleared L1 cache: '%s'%n\", cacheName);\n        }\n        System.out.printf(\"[Redis] Cleared %d L1 caches after reconnect.%n\", cleared);\n    }\n    \n    // WHY CLEAR ON RECONNECT?\n    // During disconnection (say, 2 seconds):\n    //   Many products may have been updated on other instances\n    //   Their Pub/Sub invalidation events were published but not received\n    //   THIS instance missed all of them\n    //   L1 cache has stale data for items changed in those 2 seconds\n    // Safest approach: clear L1 on reconnect\n    //   Next requests all miss L1 → fetch fresh from Redis L2 or DB\n    //   Slight latency spike: fresh loads take 0.3ms instead of 0.01ms\n    //   Worth it: no stale data served\n    \n    public static void main(String[] a) {\n        System.out.println(\"On reconnect: clear L1 → all instances consistent again\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["On reconnect: clear L1"] }
+      ],
+      "hints": [
+        "Conservative clear: safer than trying to replay missed events",
+        "Performance impact: brief L1 miss spike vs risk of stale data",
+        "getCacheNames(): iterate all configured caches to clear all"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Flipkart cache cluster — Module 18 synthesis",
+      "scenario": "Full Redis stack: @Cacheable + Pub/Sub invalidation + rate limiting + distributed lock.",
+      "instructions": "Build the complete Flipkart Redis layer:\n1. ProductCacheService: @Cacheable findById + Pub/Sub invalidation on update\n2. RateLimiter: INCR/EXPIRE, 100 products/min per userId\n3. DistributedLock: catalog update runs once across cluster\n4. PubSub: product invalidation to all instances\n5. CatalogSyncJob: distributed lock + rate check + cache invalidation broadcast\n6. Test (3 tests): rate limit enforced, catalog sync runs once, cache evicted on update\n\nAll 3 tests pass.",
+      "starter_code": "// Complete Flipkart Redis layer — M18 synthesis\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.cache.*;\nimport org.springframework.data.redis.core.*;\nimport org.springframework.data.redis.listener.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.Duration;\nimport java.util.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Service\nclass FKProductCacheService {\n    private final Map<String,String> db=new java.util.concurrent.ConcurrentHashMap<>(Map.of(\n        \"P001\",\"Wireless Mouse ₹799\",\"P002\",\"Keyboard ₹1999\"));\n    private final RedisTemplate<String,String> redis;\n    private final CacheManager cm;\n    FKProductCacheService(RedisTemplate<String,String> r,CacheManager c){redis=r;cm=c;}\n    @Cacheable(value=\"products\",key=\"#id\") public String findById(String id){return db.get(id);}\n    public void update(String id,String data){\n        db.put(id,data);\n        Cache c=cm.getCache(\"products\"); if(c!=null) c.evict(id);\n        redis.convertAndSend(\"cache.invalidate.products\",id);\n    }\n}\n\n@Service\nclass FKRateLimiter {\n    private final RedisTemplate<String,String> redis;\n    FKRateLimiter(RedisTemplate<String,String> r){redis=r;}\n    public boolean isAllowed(String uid,int limit){\n        String k=\"rate:fk:\"+uid+\":\"+(System.currentTimeMillis()/60_000);\n        Long c=redis.opsForValue().increment(k);\n        if(c==1) redis.expire(k,Duration.ofMinutes(2));\n        return c<=limit;\n    }\n}\n\n@Service\nclass FKCatalogSyncJob {\n    public final AtomicInteger syncCount=new AtomicInteger(0);\n    private final RedisTemplate<String,String> redis;\n    FKCatalogSyncJob(RedisTemplate<String,String> r){redis=r;}\n    public boolean sync(String jobId){\n        String k=\"lock:catalog:sync:\"+jobId;\n        Boolean ok=redis.opsForValue().setIfAbsent(k,\"1\",Duration.ofMinutes(10));\n        if(!Boolean.TRUE.equals(ok)) return false;\n        try{\n            syncCount.incrementAndGet();\n            redis.convertAndSend(\"cache.invalidate.products\",\"*\");\n            return true;\n        }finally{redis.delete(k);}\n    }\n}\n\n@SpringBootTest\nclass FlipkartRedisSynthesisTest {\n    @Autowired FKProductCacheService pcs;\n    @Autowired FKRateLimiter rl;\n    @Autowired FKCatalogSyncJob sync;\n    @Autowired CacheManager cm;\n    @Autowired RedisTemplate<String,String> redis;\n    String uid=\"fk-test-\"+System.currentTimeMillis();\n    String jobId=\"job-\"+System.currentTimeMillis();\n    @BeforeEach void clean(){\n        cm.getCache(\"products\").clear();\n        redis.delete(\"lock:catalog:sync:\"+jobId);\n        sync.syncCount.set(0);\n    }\n    @Test void rateLimit_enforced(){\n        for(int i=0;i<100;i++) assertTrue(rl.isAllowed(uid,100));\n        assertFalse(rl.isAllowed(uid,100),\"101st should be blocked\");\n    }\n    @Test void catalogSync_runsOnce(){\n        assertTrue(sync.sync(jobId)); assertFalse(sync.sync(jobId));\n        assertEquals(1,sync.syncCount.get());\n    }\n    @Test void update_evictsCache() throws Exception{\n        pcs.findById(\"P001\"); assertNotNull(cm.getCache(\"products\").get(\"P001\"));\n        pcs.update(\"P001\",\"Mouse ₹599\"); Thread.sleep(50);\n        assertNull(cm.getCache(\"products\").get(\"P001\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Rate limit key must include timestamp/window or counter never resets",
+        "Distributed lock key includes jobId: unique per sync run",
+        "Thread.sleep(50): small wait for pub/sub async eviction in test"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 65
+  }
+}

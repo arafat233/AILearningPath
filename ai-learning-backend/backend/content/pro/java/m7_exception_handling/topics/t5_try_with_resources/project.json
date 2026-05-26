@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m7_t5_proj",
+  "linked_topic": "java_m7_t5",
+  "level": "mini",
+  "name": "Inventory CSV Import System",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+
+  "scenario": "Build a real-world data import system: read a CSV inventory file, validate each row, write accepted rows to a processed report, write rejected rows to an error report. All file I/O uses try-with-resources. Validation uses custom exceptions. The system demonstrates the full Module 7 toolkit in a realistic pipeline.",
+
+  "description": "End-to-end CSV import pipeline: try-with-resources for all resources, custom exceptions for validation failures, defensive programming on inputs, structured error reporting. This is what a data import system looks like in production.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`ImportException extends RuntimeException` with `rowNumber` (int) and `reason` (String) fields.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`InventoryRow` record/class: sku (String), name (String), quantity (int), price (double). Static `parse(String csvLine, int rowNum) throws ImportException` — parses the line, throws ImportException for malformed rows (wrong field count, non-numeric qty/price, negative values).",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`ImportProcessor.process(String csvData)` — reads all rows using BufferedReader + StringReader in try-with-resources. Parses each row. Accepts valid rows into `List<InventoryRow>`. Rejects invalid rows (catches ImportException per row) into `List<String>` error log.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`ReportWriter.writeReport(List<InventoryRow> rows, List<String> errors)` — writes two reports using PrintWriter + StringWriter in try-with-resources. Accepted report: formatted table with SKU, name, qty, price. Error report: lists each rejected row with reason.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "main() calls ImportProcessor then ReportWriter. Prints both reports.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "All resources must use try-with-resources (no manual finally for closing).",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a custom `ReportSession implements AutoCloseable` that tracks import stats (start time, rows processed, rows rejected) and prints a summary on close(). Use it in try-with-resources in main().",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `totalInventoryValue()` method that returns sum of (quantity × price) for all accepted rows.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Demonstrate suppressed exceptions: create a version of ReportWriter where close() throws, and show the suppressed exception in the output.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "CSV data (7 rows, 3 invalid):\nSKU-001,Wireless Mouse,45,799.0\nSKU-002,Keyboard,12,1999.0\nSKU-003,,8,18999.0          ← invalid: name empty\nSKU-004,USB Hub,60,499.0\nSKU-005,Monitor,-5,15000.0  ← invalid: negative quantity\nSKU-006,Headphones,abc,2999.0 ← invalid: qty not a number\nSKU-007,Laptop Stand,25,1299.0",
+
+  "starter_code": "import java.io.*;\nimport java.util.*;\n\npublic class InventoryImport {\n    public static void main(String[] args) {\n        String csvData = \n            \"SKU-001,Wireless Mouse,45,799.0\\n\" +\n            \"SKU-002,Keyboard,12,1999.0\\n\" +\n            \"SKU-003,,8,18999.0\\n\" +\n            \"SKU-004,USB Hub,60,499.0\\n\" +\n            \"SKU-005,Monitor,-5,15000.0\\n\" +\n            \"SKU-006,Headphones,abc,2999.0\\n\" +\n            \"SKU-007,Laptop Stand,25,1299.0\";\n        \n        // Import, validate, write reports\n    }\n    \n    // Define: ImportException, InventoryRow, ImportProcessor, ReportWriter\n}",
+
+  "example_output": "=== IMPORT COMPLETE ===\nAccepted: 4 rows\nRejected: 3 rows\n\n=== ACCEPTED INVENTORY ===\nSKU-001  Wireless Mouse      qty=45  ₹799.0\nSKU-002  Keyboard            qty=12  ₹1999.0\nSKU-004  USB Hub             qty=60  ₹499.0\nSKU-007  Laptop Stand        qty=25  ₹1299.0\n\n=== IMPORT ERRORS ===\nRow 3: name cannot be blank\nRow 5: quantity must be positive, got: -5\nRow 6: quantity must be a number: 'abc'",
+
+  "rubric": [
+    { "category": "ImportException", "points": 10, "criteria": ["rowNumber and reason fields (10 pts)"] },
+    { "category": "InventoryRow.parse()", "points": 20, "criteria": ["Field count validation (5 pts)", "Number parsing with ImportException (10 pts)", "Negative value validation (5 pts)"] },
+    { "category": "ImportProcessor", "points": 20, "criteria": ["BufferedReader in try-with-resources (10 pts)", "Per-row exception catching (10 pts)"] },
+    { "category": "ReportWriter", "points": 20, "criteria": ["PrintWriter in try-with-resources (10 pts)", "Both accepted and error reports (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs with expected output (5 pts)"] },
+    { "category": "No Manual finally for Closing", "points": 15, "criteria": ["All resources via try-with-resources (15 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["ReportSession AutoCloseable (20 pts)", "totalInventoryValue (15 pts)", "Suppressed exception demo (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: InventoryRow.parse() catches NumberFormatException for qty/price and rethrows as ImportException. ImportProcessor wraps the entire read in try-with-resources and per-row in try-catch (so one bad row doesn't stop the batch). Both reports use separate try-with-resources blocks.",
+
+  "submission_instructions": "Save as InventoryImport.java. Run it. Push to GitHub — this is a complete real-world data pipeline demonstrating the full Module 7 exception handling toolkit.",
+
+  "tips_for_success": [
+    "parse() method: split on comma → check length == 4. Then parseInt/parseDouble each field in try-catch → throw ImportException on failure.",
+    "ImportProcessor: outer try-with-resources for the BufferedReader. Inner try-catch per row to collect errors without stopping.",
+    "ReportWriter: two separate PrintWriter try-with-resources blocks (one for accepted, one for errors). Or two in the same try with semicolons.",
+    "Keep the rowNumber counter outside the BufferedReader try (int row = 1; before try, row++ inside loop).",
+    "InventoryRow can be a simple class or a Java 16+ record — both work."
+  ],
+
+  "concepts_reinforced": [
+    "try-with-resources for all AutoCloseable resources",
+    "Custom exceptions with domain fields (rowNumber, reason)",
+    "Per-item exception handling without stopping the batch (T7.1 finally pattern)",
+    "Defensive validation in parse() (T7.4)",
+    "Multi-resource try-with-resources",
+    "Exception-safe resource cleanup"
+  ]
+}

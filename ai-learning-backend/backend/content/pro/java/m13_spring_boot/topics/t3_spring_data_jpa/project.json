@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m13_t3_proj",
+  "linked_topic": "java_m13_t3",
+  "level": "mini",
+  "name": "Flipkart-Style Product Import Pipeline — JPA Persistence",
+  "estimated_minutes": 55,
+  "difficulty": 7,
+
+  "scenario": "Upgrade the in-memory product catalog from Topic 13.2 to use real database persistence with Spring Data JPA. Import a batch of products, store them in H2, and serve them through the existing REST API. Add derived queries for searching and filtering.",
+
+  "description": "Full stack: @Entity Product → ProductRepository (with derived queries) → @Transactional ProductService → @RestController ProductController. H2 datasource configured. Batch import via CommandLineRunner. @DataJpaTest for repository layer.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Product` @Entity: id (UUID auto-generated), name (not null, max 200), price (not null), category (not null), stockQty (not null), createdAt (updatable=false). Protected no-arg constructor. Full-arg constructor.",
+        "weight": 18
+      },
+      {
+        "id": "req_2",
+        "description": "`ProductRepository extends JpaRepository<Product, String>` with 4 derived queries: findByCategory, findByPriceLessThanEqual, findByNameContainingIgnoreCase, existsByName. Plus one @Query: count distinct categories.",
+        "weight": 18
+      },
+      {
+        "id": "req_3",
+        "description": "`ProductService` (@Service @Transactional): importProducts(List<ProductRequest>), findAll(), findById(id), search(query), findByCategory(cat), getStats() → count, avgPrice, categories.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`ProductController` (@RestController @RequestMapping('/api/products')): GET all, GET/{id} (200/404), GET/search?q=..., GET/category/{cat}, GET/stats.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`ProductImportRunner` (@Component implements CommandLineRunner): imports 5 products at startup using ProductService. Prints count and total inventory value after import.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`application.properties`: H2 in-memory, create-drop, show-sql=true, h2-console enabled, port=8090.",
+        "weight": 9
+      },
+      {
+        "id": "req_7",
+        "description": "@DataJpaTest tests: save+findById, findByCategory, findByPriceLessThanEqual, existsByName, and the custom @Query count.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `@Modifying @Transactional @Query` to bulk-update prices by category: `updatePricesByCategory(double factor, String category)`. Test with @DataJpaTest.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a second @Entity `Category` with @OneToMany to Product. ProductRepository: findByCategoryEntity. Migrate the import runner to use Category entities.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add pagination: `ProductController.getAll(@RequestParam int page, @RequestParam int size)` using `PageRequest.of(page, size)` and `ProductRepository.findAll(Pageable)`. Return `Page<Product>`.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Import 5 products at startup:\nP001: Wireless Mouse, ₹799, Electronics, qty=50\nP002: Mechanical Keyboard, ₹1999, Electronics, qty=12\nP003: USB-C Hub, ₹499, Accessories, qty=60\nP004: Monitor 27\", ₹18999, Electronics, qty=5\nP005: Ergonomic Chair, ₹8999, Furniture, qty=8\n\nDerived queries to test:\nfindByCategory('Electronics') → 3 products\nfindByPriceLessThanEqual(1000) → 2 products (Mouse + Hub)\nfindByNameContainingIgnoreCase('key') → 1 product\ncountDistinctCategories → 3",
+
+  "starter_code": "// Product.java\n// ProductRepository.java\n// ProductService.java\n// ProductController.java\n// ProductImportRunner.java\n// src/main/resources/application.properties\n\n// Start with the @Entity:\n@Entity\n@Table(name = \"products\")\npublic class Product {\n    // ... your fields and annotations\n}",
+
+  "example_output": "  .   ____          _            __ _ _\n...\nHibernate: create table products (...)\n[ProductImportRunner] Importing 5 products...\nHibernate: insert into products ...\n[ProductImportRunner] Imported 5 products\n[ProductImportRunner] Total inventory value: ₹2,041,755\nStarted Application in 2.8 seconds\n\n# REST endpoints:\nGET  /api/products          → [{5 products}]\nGET  /api/products/P001     → {Wireless Mouse}\nGET  /api/products/search?q=key → [{Keyboard}]\nGET  /api/products/category/Electronics → [{3 products}]\nGET  /api/products/stats    → {count:5, avgPrice:6259, categories:3}",
+
+  "rubric": [
+    { "category": "@Entity Product", "points": 18, "criteria": ["All @Column annotations (10 pts)", "Constructors correct (8 pts)"] },
+    { "category": "ProductRepository", "points": 18, "criteria": ["4 derived methods (10 pts)", "@Query count categories (8 pts)"] },
+    { "category": "ProductService", "points": 20, "criteria": ["@Transactional (5 pts)", "All 6 methods (15 pts)"] },
+    { "category": "ProductController", "points": 15, "criteria": ["5 endpoints (15 pts)"] },
+    { "category": "ImportRunner", "points": 10, "criteria": ["5 products imported + summary (10 pts)"] },
+    { "category": "application.properties", "points": 9, "criteria": ["H2 + JPA properties (9 pts)"] },
+    { "category": "@DataJpaTest", "points": 10, "criteria": ["5 repository tests (10 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Bulk @Modifying (20 pts)", "@OneToMany Category (25 pts)", "Pagination (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: @Entity requires protected no-arg constructor. JpaRepository<Product, String> gives free CRUD. @DataJpaTest rolls back each test — use @BeforeEach to seed. JPQL uses field names (not column names). @Query for countDistinctCategories: 'SELECT COUNT(DISTINCT p.category) FROM Product p'.",
+
+  "submission_instructions": "Push to GitHub. `mvn spring-boot:run` and verify all endpoints with curl or Postman. Screenshot the H2 console showing the products table.",
+
+  "tips_for_success": [
+    "@Column(updatable=false) on createdAt: set in constructor, Hibernate won't update it",
+    "CommandLineRunner.run(): service.importProducts(List.of(p1, p2, ...)) — bulk save",
+    "getTotalInventoryValue(): repo.findAll().stream().mapToDouble(p -> p.getPrice() * p.getStockQty()).sum()",
+    "getStats(): Map.of('count', count(), 'avgPrice', avgPrice, 'categories', distinctCategories)",
+    "@DataJpaTest: each test method gets a rollback — seed in @BeforeEach"
+  ],
+
+  "concepts_reinforced": [
+    "@Entity with @Id, @GeneratedValue, @Column",
+    "JpaRepository derived queries",
+    "@Query with JPQL",
+    "@Transactional service layer",
+    "H2 datasource configuration",
+    "@DataJpaTest narrow context testing"
+  ]
+}

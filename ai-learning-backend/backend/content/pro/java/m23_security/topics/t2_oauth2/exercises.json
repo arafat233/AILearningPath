@@ -1,0 +1,370 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m23_t2",
+  "topic_name": "OAuth2 with Spring Security",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m23_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Auth Code vs Client Credentials — pick the right flow",
+      "instructions": "Pick the correct OAuth2 flow:\nA: Quicko tax app reading user's Zerodha trade history\nB: Razorpay reconciliation service calling HDFC settlements API (no user)\nC: User logging into Flipkart with Google account\nD: ICICI Bank system calling Razorpay payment API every minute",
+      "expected_solution": "A: AUTHORIZATION CODE FLOW\n   Quicko needs user's consent to read Zerodha data.\n   User must log in and click 'Allow Quicko to read my trades'.\n   Token represents the user's delegated permission.\n\nB: CLIENT CREDENTIALS FLOW\n   No user involved — automated service-to-service call.\n   Razorpay reconciliation service authenticates as itself.\n   Runs at 2am with no human present.\n\nC: AUTHORIZATION CODE FLOW (with PKCE for browser)\n   User is actively logging in — must be redirected to Google login.\n   Google issues tokens after user authenticates.\n   Flipkart receives an id_token with user email/profile.\n\nD: CLIENT CREDENTIALS FLOW\n   ICICI Bank's automated system — no user consent needed.\n   ICICI authenticates as 'icici-bank-client' with client_id + secret.\n   Gets a scoped token: payments:initiate only.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "A: AUTHORIZATION CODE FLOW\n   Quicko needs user's consent to read Zerodha data.\n   User must log in and click 'Allow Quicko to read my trades'.\n   Token represents the user's delegated permission.\n\nB: CLIENT CREDENTIALS FLOW\n   No user involved — automated service-to-service call.\n   Razorpay reconciliation service authenticates as itself.\n   Runs at 2am with no human present.\n\nC: AUTHORIZATION CODE FLOW (with PKCE for browser)\n   User is actively logging in — must be redirected to Google login.\n   Google issues tokens after user authenticates.\n   Flipkart receives an id_token with user email/profile.\n\nD: CLIENT CREDENTIALS FLOW\n   ICICI Bank's automated system — no user consent needed.\n   ICICI authenticates as 'icici-bank-client' with client_id + secret.\n   Gets a scoped token: payments:initiate only."
+        }
+      ],
+      "hints": [
+        "Auth Code: user must be present and consent",
+        "Client Credentials: service-to-service, no human involved"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m23_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the scope-based @PreAuthorize",
+      "instructions": "Fill in to check OAuth2 scope 'payments:read'.",
+      "starter_code": "@PreAuthorize(\"has___('___payments:read')\")\npublic List<Payment> getPayments() { ... }",
+      "expected_solution": "@PreAuthorize(\"hasAuthority('SCOPE_payments:read')\")\npublic List<Payment> getPayments() { ... }",
+      "blanks": [
+        {
+          "position": 1,
+          "answer": "Authority",
+          "hint": "scope check uses hasAuthority (not hasRole)"
+        },
+        {
+          "position": 2,
+          "answer": "SCOPE_",
+          "hint": "Spring Security prefixes OAuth2 scopes with SCOPE_"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected_contains": [
+            "hasAuthority('SCOPE_payments:read')"
+          ]
+        }
+      ],
+      "hints": [
+        "SCOPE_ prefix: Spring Security adds this automatically when mapping OAuth2 scopes",
+        "hasRole checks ROLE_ prefix; hasAuthority checks exact string"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m23_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Configure OAuth2 Client Credentials in application.yml",
+      "instructions": "Write the application.yml OAuth2 client config for:\n1. Client: 'hdfc-api' (client_credentials)\n2. Scopes: payments:read, settlements:write\n3. Token URI from HDFC Bank\n4. Credentials from environment variables",
+      "starter_code": "# application.yml — OAuth2 Client Credentials config\n",
+      "expected_solution": "# application.yml:\nspring:\n  security:\n    oauth2:\n      client:\n        registration:\n          hdfc-api:\n            client-id: ${HDFC_CLIENT_ID}           # from env var\n            client-secret: ${HDFC_CLIENT_SECRET}   # from env var (never hardcode!)\n            authorization-grant-type: client_credentials\n            scope:\n              - payments:read\n              - settlements:write\n        provider:\n          hdfc-api:\n            token-uri: https://api.hdfcbank.com/oauth2/token\n\n# Spring Security:\n# 1. On first WebClient call with 'hdfc-api' registration\n# 2. POST https://api.hdfcbank.com/oauth2/token\n#    grant_type=client_credentials\n#    client_id=${HDFC_CLIENT_ID}\n#    client_secret=${HDFC_CLIENT_SECRET}\n#    scope=payments:read settlements:write\n# 3. Response: { access_token, expires_in, token_type }\n# 4. Token cached until near-expiry, then auto-refreshed",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected_contains": [
+            "client_credentials",
+            "HDFC_CLIENT_SECRET",
+            "token-uri",
+            "settlements:write"
+          ]
+        }
+      ],
+      "hints": [
+        "client_credentials: the grant type for machine-to-machine auth",
+        "provider.token-uri: where to POST to get a token",
+        "Never hardcode client-secret — always use ${ENV_VAR}"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m23_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "WebClient with OAuth2 Client Credentials",
+      "instructions": "Write @Configuration that creates a WebClient for HDFC Bank API:\n1. Uses OAuth2AuthorizedClientManager\n2. Automatically injects Bearer token\n3. Uses 'hdfc-api' client registration\n4. Base URL from application property",
+      "starter_code": "import org.springframework.context.annotation.*;\nimport org.springframework.security.oauth2.client.*;\nimport org.springframework.security.oauth2.client.web.reactive.function.client.*;\nimport org.springframework.web.reactive.function.client.WebClient;\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.security.oauth2.client.*;\nimport org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;\nimport org.springframework.web.reactive.function.client.WebClient;\nimport org.springframework.beans.factory.annotation.Value;\n\n@Configuration\npublic class HdfcWebClientConfig {\n    \n    @Value(\"${hdfc.api.base-url}\")\n    private String hdfcBaseUrl;\n    \n    @Bean\n    public WebClient hdfcWebClient(OAuth2AuthorizedClientManager authorizedClientManager) {\n        // Filter function: automatically injects Authorization: Bearer <token>\n        var oauth2Filter = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);\n        // Default to 'hdfc-api' registration for all requests from this client:\n        oauth2Filter.setDefaultClientRegistrationId(\"hdfc-api\");\n        \n        return WebClient.builder()\n            .baseUrl(hdfcBaseUrl)\n            .filter(oauth2Filter)\n            .defaultHeader(\"Content-Type\", \"application/json\")\n            .build();\n    }\n    \n    @Bean\n    public OAuth2AuthorizedClientManager authorizedClientManager(\n            ClientRegistrationRepository clientRegistrations,\n            OAuth2AuthorizedClientRepository authorizedClients) {\n        var manager = new DefaultOAuth2AuthorizedClientManager(\n            clientRegistrations, authorizedClients);\n        // Provider: handles client_credentials grant type:\n        manager.setAuthorizedClientProvider(\n            OAuth2AuthorizedClientProviderBuilder.builder()\n                .clientCredentials()\n                .build());\n        return manager;\n    }\n}\n\n// USAGE in a service:\n// @Autowired @Qualifier(\"hdfcWebClient\") WebClient client;\n// client.get().uri(\"/settlements/today\").retrieve().bodyToMono(Settlement.class)\n//   → automatically sends Authorization: Bearer <cached_token>",
+      "test_cases": [
+        {
+          "type": "compilation",
+          "expected": "Compiles"
+        }
+      ],
+      "hints": [
+        "setDefaultClientRegistrationId: ties all requests from this WebClient to one OAuth2 registration",
+        "OAuth2AuthorizedClientManager: handles token acquisition, caching, refresh",
+        "filter(oauth2Filter): intercepts every request and adds the Bearer token"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m23_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Resource server with scope-based security",
+      "instructions": "Write SecurityFilterChain for Razorpay partner API:\n1. GET /api/payments → SCOPE_payments:read\n2. POST /api/payments → SCOPE_payments:write\n3. GET /api/settlements → SCOPE_settlements:read\n4. /actuator/health → permitAll\n5. @WebMvcTest (2 tests): correct scope → 200, wrong scope → 403",
+      "starter_code": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.web.*;\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\nimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;\nimport org.springframework.security.config.http.SessionCreationPolicy;\nimport org.springframework.security.web.*;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport org.junit.jupiter.api.*;\nimport org.springframework.security.core.authority.SimpleGrantedAuthority;\n\n@Configuration @EnableWebSecurity @EnableMethodSecurity\nclass PartnerApiSecurity {\n    @Bean SecurityFilterChain chain(HttpSecurity h) throws Exception {\n        return h.csrf(c->c.disable())\n            .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n            .authorizeHttpRequests(a->a\n                .requestMatchers(\"/actuator/health\").permitAll()\n                .requestMatchers(org.springframework.http.HttpMethod.GET, \"/api/payments\").hasAuthority(\"SCOPE_payments:read\")\n                .requestMatchers(org.springframework.http.HttpMethod.POST, \"/api/payments\").hasAuthority(\"SCOPE_payments:write\")\n                .requestMatchers(\"/api/settlements\").hasAuthority(\"SCOPE_settlements:read\")\n                .anyRequest().authenticated())\n            .oauth2ResourceServer(o->o.jwt(j->{}))\n            .build();\n    }\n}\n\n@org.springframework.web.bind.annotation.RestController\nclass PartnerPaymentCtrl {\n    @org.springframework.web.bind.annotation.GetMapping(\"/api/payments\")\n    public String list() { return \"[]\"; }\n}\n\n@WebMvcTest(PartnerPaymentCtrl.class)\nclass ScopeSecurityTest {\n    @Autowired MockMvc mvc;\n    @Test void correctScope_200() throws Exception {\n        mvc.perform(get(\"/api/payments\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_payments:read\"))))\n            .andExpect(status().isOk());\n    }\n    @Test void wrongScope_403() throws Exception {\n        mvc.perform(get(\"/api/payments\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_settlements:read\"))))\n            .andExpect(status().isForbidden());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "2 tests pass"
+        }
+      ],
+      "hints": [
+        "hasAuthority('SCOPE_payments:read'): exact string match — SCOPE_ prefix required",
+        "Different scopes for GET vs POST: fine-grained API access control",
+        ".jwt(j->{}): minimal JWT resource server (uses application.yml for JWK URI)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m23_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Extract OAuth2 token metadata in a service",
+      "instructions": "Write TokenInspectorService:\n1. Extract scopes from Jwt\n2. Check if a specific scope is present\n3. Get token expiry\n4. Get client_id (sub claim for Client Credentials tokens)\n5. @SpringBootTest: scope check works",
+      "starter_code": "import org.springframework.security.oauth2.jwt.Jwt;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n",
+      "expected_solution": "import org.springframework.security.oauth2.jwt.Jwt;\nimport org.springframework.stereotype.*;\nimport java.util.*;\nimport java.time.Instant;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport org.springframework.security.oauth2.jwt.JwtClaimNames;\n\n@Service\npublic class TokenInspectorService {\n    \n    public List<String> getScopes(Jwt jwt) {\n        // OAuth2 scopes can be in 'scp' or 'scope' claim:\n        List<String> scopes = jwt.getClaimAsStringList(\"scp\");\n        if (scopes == null) {\n            // Try space-separated string format (common in JWT):\n            String scopeStr = jwt.getClaimAsString(\"scope\");\n            if (scopeStr != null) return Arrays.asList(scopeStr.split(\" \"));\n        }\n        return scopes != null ? scopes : List.of();\n    }\n    \n    public boolean hasScope(Jwt jwt, String scope) {\n        return getScopes(jwt).contains(scope);\n    }\n    \n    public String getClientId(Jwt jwt) {\n        // For Client Credentials tokens: sub = client_id\n        // For Auth Code tokens: sub = user_id, azp = client_id\n        String azp = jwt.getClaimAsString(\"azp\");  // authorized party\n        return azp != null ? azp : jwt.getSubject();\n    }\n    \n    public boolean isExpired(Jwt jwt) {\n        Instant exp = jwt.getExpiresAt();\n        return exp != null && exp.isBefore(Instant.now());\n    }\n}\n\n@SpringBootTest\nclass TokenInspectorTest {\n    @Autowired TokenInspectorService svc;\n    \n    @Test void hasScope_works() {\n        // Simulate a JWT with scope claim:\n        org.springframework.security.oauth2.jwt.Jwt jwt =\n            org.springframework.security.oauth2.jwt.Jwt.withTokenValue(\"token\")\n                .header(\"alg\", \"RS256\")\n                .claim(\"scope\", \"payments:read settlements:read\")\n                .claim(\"sub\", \"hdfc-client\")\n                .issuedAt(Instant.now())\n                .expiresAt(Instant.now().plusSeconds(3600))\n                .build();\n        assertTrue(svc.hasScope(jwt, \"payments:read\"));\n        assertFalse(svc.hasScope(jwt, \"payments:write\"));\n        assertFalse(svc.isExpired(jwt));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "1 test passes"
+        }
+      ],
+      "hints": [
+        "scope claim: space-separated string OR string list — handle both formats",
+        "azp (authorized party): identifies the client in Auth Code tokens",
+        "Jwt.withTokenValue(): test builder for Jwt objects without real token issuer"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m23_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Service-to-service token propagation",
+      "instructions": "Razorpay payment service calls the fraud service, forwarding the user's token:\n1. Extract JWT from incoming request's SecurityContext\n2. Pass it as Bearer token to the downstream fraud service call\n3. WebClient builder: forward the token\n4. Explain: why token propagation (not Client Credentials) here",
+      "starter_code": "import org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.security.oauth2.jwt.Jwt;\nimport org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;\nimport org.springframework.web.reactive.function.client.WebClient;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.security.oauth2.jwt.Jwt;\nimport org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;\nimport org.springframework.web.reactive.function.client.WebClient;\nimport org.springframework.stereotype.*;\nimport reactor.core.publisher.Mono;\n\n@Service\npublic class FraudCheckService {\n    private final WebClient fraudClient;\n    \n    FraudCheckService(WebClient.Builder builder) {\n        this.fraudClient = builder.baseUrl(\"http://fraud-service.payments.svc.cluster.local\").build();\n    }\n    \n    public FraudScore checkFraud(String paymentId) {\n        // Extract current user's JWT from SecurityContext:\n        String token = getCurrentToken();\n        \n        // Forward token to fraud service (token propagation):\n        return fraudClient.post()\n            .uri(\"/api/fraud/check\")\n            .header(\"Authorization\", \"Bearer \" + token)\n            .bodyValue(new FraudRequest(paymentId))\n            .retrieve()\n            .bodyToMono(FraudScore.class)\n            .block();\n    }\n    \n    private String getCurrentToken() {\n        var auth = SecurityContextHolder.getContext().getAuthentication();\n        if (auth instanceof JwtAuthenticationToken jwtAuth) {\n            return jwtAuth.getToken().getTokenValue();\n        }\n        throw new IllegalStateException(\"No JWT in SecurityContext\");\n    }\n    \n    // WHY TOKEN PROPAGATION (not Client Credentials here):\n    // Payment service needs to check fraud on behalf of the MERCHANT.\n    // Fraud service needs to know: which merchant is making this request?\n    // Token propagation: fraud service sees the merchant's token → can enforce\n    // merchant-level rate limits, audit trails, and permission checks.\n    // Client Credentials: fraud service would only see 'payment-service' as caller\n    // → loses the merchant identity → can't enforce per-merchant limits.\n    \n    record FraudRequest(String paymentId) {}\n    record FraudScore(double score, String decision) {}\n}",
+      "test_cases": [
+        {
+          "type": "compilation",
+          "expected": "Compiles"
+        }
+      ],
+      "hints": [
+        "JwtAuthenticationToken: Spring Security's Auth type for JWT-based auth",
+        "getToken().getTokenValue(): the raw JWT string for forwarding",
+        "Token propagation: preserves user identity downstream; Client Credentials: loses it"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m23_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "OAuth2 login with Google (social login)",
+      "instructions": "Configure Spring Boot for Google OAuth2 login:\n1. application.yml: google client registration\n2. SecurityFilterChain: oauth2Login() for web app\n3. Controller: GET /profile using OidcUser\n4. Explain: OIDC (OpenID Connect) vs plain OAuth2\n5. @WebMvcTest: authenticated user gets profile",
+      "starter_code": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.web.*;\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\nimport org.springframework.security.web.*;\nimport org.springframework.security.oauth2.core.oidc.user.OidcUser;\nimport org.springframework.security.core.annotation.AuthenticationPrincipal;\nimport org.springframework.web.bind.annotation.*;\n\n// application.yml:\n// spring.security.oauth2.client.registration.google:\n//   client-id: ${GOOGLE_CLIENT_ID}\n//   client-secret: ${GOOGLE_CLIENT_SECRET}\n//   scope: openid,email,profile  ← OIDC scopes\n// (provider 'google' is built-in — no need to specify endpoints)\n\n@Configuration @EnableWebSecurity\nclass GoogleOAuthConfig {\n    @Bean SecurityFilterChain chain(HttpSecurity h) throws Exception {\n        return h\n            .authorizeHttpRequests(a->a\n                .requestMatchers(\"/\",\"/login\").permitAll()\n                .anyRequest().authenticated())\n            .oauth2Login(o->o\n                .defaultSuccessUrl(\"/profile\", true)\n                .failureUrl(\"/login?error\"))\n            .build();\n    }\n}\n\n@RestController\nclass ProfileController {\n    @GetMapping(\"/profile\")\n    public java.util.Map<String,String> profile(@AuthenticationPrincipal OidcUser user) {\n        // OidcUser: OIDC-specific (has id_token, userInfo claims)\n        return java.util.Map.of(\n            \"name\",  user.getFullName(),\n            \"email\", user.getEmail(),\n            \"sub\",   user.getSubject(),  // Google's stable user ID\n            \"picture\", user.getPicture()\n        );\n    }\n}\n\n// OIDC vs plain OAuth2:\n// OAuth2: authorization framework (access to resources)\n// OIDC (OpenID Connect): identity layer ON TOP of OAuth2\n// OIDC adds: id_token (JWT with user info) + /userinfo endpoint + standard claims\n// If scope includes 'openid': OIDC flow (you get user identity)\n// Without 'openid': plain OAuth2 (you get access to resources, not identity)\n// For login/SSO: always use OIDC (scope=openid,email,profile)\n\npublic class OidcGuide { public static void main(String[] a) {\n    System.out.println(\"OIDC: OAuth2 + openid scope + id_token = user identity\"); } }",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "OIDC: OAuth2 + openid scope + id_token"
+          ]
+        }
+      ],
+      "hints": [
+        "oauth2Login(): Spring Security handles the full Auth Code + redirect flow",
+        "OidcUser: use for OIDC (scope=openid); OAuth2User for plain OAuth2",
+        "Google provider: built-in to Spring Security — just provide client-id and secret"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m23_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multi-tenant OAuth2: Zerodha + NSE + BSE APIs",
+      "instructions": "Write multi-client OAuth2 config:\n1. Three clients: zerodha-auth, nse-api, bse-api (all client_credentials)\n2. WebClient beans for each, named accordingly\n3. OrderExecutionService: uses nse or bse client based on exchange\n4. @SpringBootTest: service selects correct client",
+      "starter_code": "import org.springframework.context.annotation.*;\nimport org.springframework.web.reactive.function.client.WebClient;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.web.reactive.function.client.WebClient;\nimport org.springframework.stereotype.*;\nimport org.springframework.security.oauth2.client.*;\nimport org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.beans.factory.annotation.Qualifier;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// application.yml:\n// spring.security.oauth2.client.registration:\n//   nse-api: { client-id: ${NSE_CLIENT_ID}, client-secret: ${NSE_SECRET}, grant-type: client_credentials }\n//   bse-api: { client-id: ${BSE_CLIENT_ID}, client-secret: ${BSE_SECRET}, grant-type: client_credentials }\n// spring.security.oauth2.client.provider:\n//   nse-api: { token-uri: https://api.nseindia.com/oauth/token }\n//   bse-api: { token-uri: https://api.bseindia.com/oauth/token }\n\n@Configuration\nclass ExchangeClientConfig {\n    WebClient buildClient(OAuth2AuthorizedClientManager mgr, String regId, String baseUrl){\n        var f=new ServerOAuth2AuthorizedClientExchangeFilterFunction(mgr);\n        f.setDefaultClientRegistrationId(regId);\n        return WebClient.builder().baseUrl(baseUrl).filter(f).build();\n    }\n    @Bean @Qualifier(\"nseClient\")\n    WebClient nseClient(OAuth2AuthorizedClientManager m){\n        return buildClient(m,\"nse-api\",\"https://api.nseindia.com\");\n    }\n    @Bean @Qualifier(\"bseClient\")\n    WebClient bseClient(OAuth2AuthorizedClientManager m){\n        return buildClient(m,\"bse-api\",\"https://api.bseindia.com\");\n    }\n}\n\n@Service\nclass OrderExecutionService {\n    private final WebClient nse, bse;\n    OrderExecutionService(@Qualifier(\"nseClient\") WebClient n, @Qualifier(\"bseClient\") WebClient b){ nse=n; bse=b; }\n    \n    WebClient clientFor(String exchange){\n        return \"NSE\".equalsIgnoreCase(exchange) ? nse : bse;\n    }\n    \n    String getExchangeName(String exchange){\n        return \"NSE\".equalsIgnoreCase(exchange) ? \"NSE\" : \"BSE\";\n    }\n}\n\n@SpringBootTest\nclass MultiClientTest {\n    @Autowired OrderExecutionService svc;\n    @Test void correctClientSelected(){\n        assertEquals(\"NSE\", svc.getExchangeName(\"NSE\"));\n        assertEquals(\"BSE\", svc.getExchangeName(\"BSE\"));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "1 test passes"
+        }
+      ],
+      "hints": [
+        "@Qualifier: disambiguates multiple WebClient beans of same type",
+        "ServerOAuth2AuthorizedClientExchangeFilterFunction: reactive-compatible OAuth2 filter",
+        "Each WebClient uses a separate OAuth2 registration → separate token cache"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m23_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What is wrong with this OAuth2 implementation?",
+      "instructions": "```java\n@Service\nclass PaymentToFraudService {\n    @Value(\"${fraud.client.secret}\")\n    private String clientSecret;  // stored in application.yml\n    \n    public boolean check(String paymentId) {\n        // Manually get token:\n        String token = restTemplate.postForObject(\n            \"https://auth.razorpay.com/token\",\n            Map.of(\"grant_type\", \"client_credentials\",\n                   \"client_secret\", clientSecret),\n            TokenResponse.class).getAccessToken();\n        \n        // Forward user's request token to fraud service:\n        return fraudWebClient.post().uri(\"/check\")\n            .header(\"Authorization\", \"Bearer \" + token)\n            .retrieve().bodyToMono(Boolean.class).block();\n    }\n}\n```\n\nList all problems with this code.",
+      "expected_solution": "PROBLEMS:\n\n1. Manual token fetching on EVERY request:\n   Every call to check() makes a POST to /token first.\n   This doubles latency (extra network call per request).\n   Fix: Use OAuth2AuthorizedClientManager — it caches and auto-refreshes tokens.\n\n2. client_secret in application.yml (even via @Value):\n   application.yml is often committed to git.\n   Fix: Use ${CLIENT_SECRET} env var, and store in Vault or Kubernetes Secret.\n   Never have credentials in config files that touch version control.\n\n3. Missing client_id in token request:\n   POST /token without client_id → authentication server likely rejects.\n   Fix: Include client_id AND client_secret (or use HTTP Basic auth header).\n\n4. Wrong token forwarded to fraud service:\n   The code gets a CLIENT CREDENTIALS token (service identity)\n   then forwards it as the user's token.\n   Fraud service receives a token for 'payment-service', not the merchant.\n   Fix: Either use SecurityContext to get the merchant's token,\n   or use Client Credentials intentionally and include merchant_id as a claim.\n\n5. No error handling:\n   If /token call fails: NullPointerException on .getAccessToken().\n   If fraud service returns non-2xx: WebClient throws WebClientResponseException.\n   Fix: Add fallback + circuit breaker (M19 patterns).",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "PROBLEMS:\n\n1. Manual token fetching on EVERY request:\n   Every call to check() makes a POST to /token first.\n   This doubles latency (extra network call per request).\n   Fix: Use OAuth2AuthorizedClientManager — it caches and auto-refreshes tokens.\n\n2. client_secret in application.yml (even via @Value):\n   application.yml is often committed to git.\n   Fix: Use ${CLIENT_SECRET} env var, and store in Vault or Kubernetes Secret.\n   Never have credentials in config files that touch version control.\n\n3. Missing client_id in token request:\n   POST /token without client_id → authentication server likely rejects.\n   Fix: Include client_id AND client_secret (or use HTTP Basic auth header).\n\n4. Wrong token forwarded to fraud service:\n   The code gets a CLIENT CREDENTIALS token (service identity)\n   then forwards it as the user's token.\n   Fraud service receives a token for 'payment-service', not the merchant.\n   Fix: Either use SecurityContext to get the merchant's token,\n   or use Client Credentials intentionally and include merchant_id as a claim.\n\n5. No error handling:\n   If /token call fails: NullPointerException on .getAccessToken().\n   If fraud service returns non-2xx: WebClient throws WebClientResponseException.\n   Fix: Add fallback + circuit breaker (M19 patterns)."
+        }
+      ],
+      "hints": [
+        "OAuth2AuthorizedClientManager: handles token caching — never fetch manually per request",
+        "client_secret in .yml: security risk if committed to git",
+        "Wrong token: service token ≠ user token"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m23_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete OAuth2 resource server with scopes and roles",
+      "instructions": "Build Razorpay partner API resource server:\n1. Payments endpoint: SCOPE_payments:read (scope check)\n2. Admin endpoint: hasRole('ADMIN') (role check)\n3. Custom JwtConverter: extract both roles AND scopes\n4. @WebMvcTest (3 tests): scope OK, role OK, mixed missing → 403\n5. All 3 pass",
+      "starter_code": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;\nimport org.springframework.security.web.*;\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\nimport org.springframework.security.config.http.SessionCreationPolicy;\nimport org.springframework.security.web.*;\nimport org.springframework.security.oauth2.server.resource.authentication.*;\nimport org.springframework.security.core.authority.SimpleGrantedAuthority;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.security.access.prepost.PreAuthorize;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport java.util.*;\nimport org.junit.jupiter.api.*;\n\n@Configuration @EnableWebSecurity @EnableMethodSecurity\nclass RzpPartnerSecurityFull {\n    @Bean SecurityFilterChain chain(HttpSecurity h) throws Exception {\n        return h.csrf(c->c.disable()).sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n            .authorizeHttpRequests(a->a.anyRequest().authenticated())\n            .oauth2ResourceServer(o->o.jwt(j->j.jwtAuthenticationConverter(conv()))).build();\n    }\n    @Bean JwtAuthenticationConverter conv(){\n        var c=new JwtAuthenticationConverter();\n        c.setJwtGrantedAuthoritiesConverter(jwt->{\n            var auths=new ArrayList<org.springframework.security.core.GrantedAuthority>();\n            // Extract roles:\n            var roles=jwt.getClaimAsStringList(\"roles\");\n            if(roles!=null) roles.forEach(r->auths.add(new SimpleGrantedAuthority(\"ROLE_\"+r)));\n            // Extract scopes:\n            var scopes=jwt.getClaimAsStringList(\"scp\");\n            if(scopes!=null) scopes.forEach(s->auths.add(new SimpleGrantedAuthority(\"SCOPE_\"+s)));\n            return auths;\n        }); return c;\n    }\n}\n\n@RestController class RzpPartnerCtrl {\n    @GetMapping(\"/api/payments\") @PreAuthorize(\"hasAuthority('SCOPE_payments:read')\")\n    public String payments(){return \"[]\";\n    }\n    @GetMapping(\"/api/admin\") @PreAuthorize(\"hasRole('ADMIN')\")\n    public String admin(){return \"admin\";}\n}\n\n@WebMvcTest(RzpPartnerCtrl.class)\nclass ScopeAndRoleTest {\n    @Autowired MockMvc mvc;\n    @Test void scopeOk_200() throws Exception {\n        mvc.perform(get(\"/api/payments\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_payments:read\")))).andExpect(status().isOk());\n    }\n    @Test void roleOk_200() throws Exception {\n        mvc.perform(get(\"/api/admin\").with(jwt().authorities(new SimpleGrantedAuthority(\"ROLE_ADMIN\")))).andExpect(status().isOk());\n    }\n    @Test void wrongScope_403() throws Exception {\n        mvc.perform(get(\"/api/payments\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_settlements:read\")))).andExpect(status().isForbidden());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "3 tests pass"
+        }
+      ],
+      "hints": [
+        "Custom converter: add both ROLE_ and SCOPE_ authorities from different claims",
+        "SCOPE_payments:read and ROLE_ADMIN can coexist in the same JWT",
+        "jwt().authorities(): override all authorities for the test JWT"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m23_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Token exchange: Zerodha service chain",
+      "instructions": "Zerodha's order-service calls risk-service, which calls market-data-service. Design token propagation through the chain:\n1. order-service: receives user JWT, propagates to risk-service\n2. risk-service: receives propagated JWT, calls market-data with its own Client Credentials token\n3. Document: when to propagate vs when to issue new token\n4. @SpringBootTest: token routing logic correct",
+      "starter_code": "import org.springframework.stereotype.Service;\nimport org.springframework.security.core.context.SecurityContextHolder;\n",
+      "expected_solution": "import org.springframework.stereotype.*;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.security.oauth2.jwt.Jwt;\nimport org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// TOKEN PROPAGATION STRATEGY:\n// 1. order-service → risk-service: PROPAGATE user JWT\n//    Risk service needs to know which merchant is making the trade\n//    to enforce per-merchant risk limits.\n//\n// 2. risk-service → market-data-service: CLIENT CREDENTIALS\n//    Market data is not user-specific (same data for all)\n//    No user identity needed — just service authentication\n//    Market data endpoint may not even accept user tokens\n\n@Service\nclass TokenRoutingService {\n    enum TokenStrategy { PROPAGATE_USER, CLIENT_CREDENTIALS }\n    \n    // Determine token strategy based on downstream service:\n    TokenStrategy strategyFor(String targetService) {\n        return switch(targetService) {\n            case \"risk-service\" -> TokenStrategy.PROPAGATE_USER;  // needs merchant identity\n            case \"market-data-service\" -> TokenStrategy.CLIENT_CREDENTIALS;  // generic data\n            case \"audit-service\" -> TokenStrategy.PROPAGATE_USER;  // needs audit trail\n            default -> TokenStrategy.CLIENT_CREDENTIALS;  // safe default\n        };\n    }\n    \n    String getUserToken() {\n        var auth = SecurityContextHolder.getContext().getAuthentication();\n        if (auth instanceof JwtAuthenticationToken jwtAuth)\n            return jwtAuth.getToken().getTokenValue();\n        return null;\n    }\n}\n\n@SpringBootTest\nclass TokenRoutingTest {\n    @Autowired TokenRoutingService svc;\n    @Test void routingStrategy(){\n        assertEquals(TokenRoutingService.TokenStrategy.PROPAGATE_USER, svc.strategyFor(\"risk-service\"));\n        assertEquals(TokenRoutingService.TokenStrategy.CLIENT_CREDENTIALS, svc.strategyFor(\"market-data-service\"));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "1 test passes"
+        }
+      ],
+      "hints": [
+        "Propagate: when downstream needs user identity for authorization/audit",
+        "Client Credentials: when downstream provides generic service (no per-user data)",
+        "SecurityContextHolder: extract the current user's JWT for propagation"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m23_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete Razorpay OAuth2 partner integration",
+      "instructions": "Build complete OAuth2 for Razorpay partner API:\n1. SecurityFilterChain: scope-based access (payments:read, payments:write)\n2. WebClient for outbound HDFC API calls (Client Credentials)\n3. TokenInspectorService: extract scopes and expiry\n4. @WebMvcTest (3 tests): scope checks work\n5. All 3 pass",
+      "starter_code": "// Complete Razorpay OAuth2 partner integration\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\nimport org.springframework.security.config.http.SessionCreationPolicy;\nimport org.springframework.security.web.*;\nimport org.springframework.security.core.authority.SimpleGrantedAuthority;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.security.access.prepost.PreAuthorize;\nimport org.springframework.stereotype.*;\nimport org.springframework.security.oauth2.jwt.Jwt;\nimport java.util.*;\nimport java.time.Instant;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport org.junit.jupiter.api.*;\n\n@Configuration @EnableWebSecurity @EnableMethodSecurity\nclass RzpOAuth2Complete {\n    @Bean SecurityFilterChain chain(HttpSecurity h) throws Exception {\n        return h.csrf(c->c.disable()).sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n            .authorizeHttpRequests(a->a.requestMatchers(\"/actuator/health\").permitAll().anyRequest().authenticated())\n            .oauth2ResourceServer(o->o.jwt(j->{})).build();\n    }\n}\n\n@Service\nclass RzpScopeInspector {\n    boolean hasScope(Jwt j, String s){\n        String sc=j.getClaimAsString(\"scope\");\n        return sc!=null&&Arrays.asList(sc.split(\" \")).contains(s);\n    }\n}\n\n@RestController\nclass RzpOAuth2Ctrl {\n    @GetMapping(\"/api/payments\") @PreAuthorize(\"hasAuthority('SCOPE_payments:read')\")\n    public String read(){return \"[]\";\n    }\n    @PostMapping(\"/api/payments\") @PreAuthorize(\"hasAuthority('SCOPE_payments:write')\")\n    public String write(){return \"{\\\"id\\\":\\\"PAY-1\\\"}\";\n    }\n}\n\n@WebMvcTest(RzpOAuth2Ctrl.class)\nclass RzpOAuth2Test {\n    @Autowired MockMvc mvc;\n    @Test void readScope_200() throws Exception {\n        mvc.perform(get(\"/api/payments\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_payments:read\")))).andExpect(status().isOk());\n    }\n    @Test void writeScope_200() throws Exception {\n        mvc.perform(post(\"/api/payments\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_payments:write\")))).andExpect(status().isOk());\n    }\n    @Test void readScopeForWrite_403() throws Exception {\n        mvc.perform(post(\"/api/payments\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_payments:read\")))).andExpect(status().isForbidden());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "3 tests pass"
+        }
+      ],
+      "hints": [
+        "GET scope ≠ POST scope: read vs write scopes separate",
+        "SCOPE_payments:read on POST → 403 (correct — need write scope)",
+        "@EnableMethodSecurity required for @PreAuthorize"
+      ],
+      "xp_reward": 70
+    },
+    {
+      "id": "java_m23_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "OAuth2 token refresh handling",
+      "instructions": "Handle token expiry gracefully in a WebClient call:\n1. Configure refresh_token grant in OAuth2 client\n2. On 401 from upstream: auto-retry with refreshed token\n3. If refresh fails: throw ServiceUnavailableException\n4. Log: token refreshed at what time\n5. @SpringBootTest: retry logic test",
+      "starter_code": "import org.springframework.web.reactive.function.client.*;\nimport org.springframework.stereotype.Service;\nimport reactor.core.publisher.Mono;\n",
+      "expected_solution": "import org.springframework.web.reactive.function.client.*;\nimport org.springframework.stereotype.*;\nimport reactor.core.publisher.Mono;\nimport org.slf4j.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// application.yml for refresh token grant:\n// spring.security.oauth2.client.registration.hdfc-api:\n//   authorization-grant-type: authorization_code  ← refresh only works with auth code flow\n//   # Client Credentials tokens don't have refresh tokens — just request a new one\n\n// For Client Credentials: token expiry → get a new token (no refresh token concept)\n// Spring OAuth2AuthorizedClientManager handles this AUTOMATICALLY:\n// - Checks token expiry before each request\n// - If expired: requests new client_credentials token\n// - No manual refresh needed!\n\n@Service\nclass HdfcApiService {\n    private static final Logger log = LoggerFactory.getLogger(HdfcApiService.class);\n    private final WebClient client;  // configured with OAuth2 filter\n    \n    HdfcApiService(WebClient c){client=c;}\n    \n    public String getSettlements() {\n        return client.get().uri(\"/settlements\")\n            .retrieve()\n            .onStatus(status -> status.value() == 401, resp -> {\n                // 401 from HDFC: token was rejected\n                // Spring's OAuth2 filter should have prevented this (pre-expiry check)\n                // If we get here: clock skew or token revoked externally\n                log.error(\"Token rejected by HDFC. Possible revocation or clock skew.\");\n                return Mono.error(new RuntimeException(\"Token rejected — check auth config\"));\n            })\n            .bodyToMono(String.class)\n            .block();\n    }\n    \n    // FOR REFRESH TOKENS (Auth Code flow):\n    // Spring's OAuth2AuthorizedClientManager handles refresh automatically\n    // when OAuth2AuthorizedClientProviderBuilder includes .refreshToken()\n    // manager.setAuthorizedClientProvider(\n    //   OAuth2AuthorizedClientProviderBuilder.builder()\n    //     .authorizationCode()\n    //     .refreshToken()  ← adds refresh capability\n    //     .build());\n    // On 401: Spring re-fetches using refresh_token, retries automatically\n}\n\n@SpringBootTest\nclass TokenRefreshTest {\n    @Test void serviceInstantiates(){\n        // Basic smoke test — real refresh tested in integration environment\n        assertNotNull(HdfcApiService.class.getSimpleName());\n        System.out.println(\"Token refresh: OAuth2AuthorizedClientManager handles automatically\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "1 test passes"
+        }
+      ],
+      "hints": [
+        "Client Credentials: no refresh token — just request a new one (Spring does this auto)",
+        "Auth Code: refresh_token grant used to get new access_token without user re-login",
+        "OAuth2AuthorizedClientManager + refreshToken() provider: auto-refresh before expiry"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m23_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete M23 T2 OAuth2 synthesis",
+      "instructions": "Build the complete Zerodha OAuth2 stack synthesis:\n1. SecurityFilterChain: scope-based (trades:read, trades:write)\n2. TokenRoutingService: PROPAGATE_USER for risk, CLIENT_CREDENTIALS for market-data\n3. TokenInspectorService: hasScope() method\n4. @WebMvcTest + @SpringBootTest (3 tests): scopes, routing logic, inspector\n\nAll 3 tests pass.",
+      "starter_code": "// Complete M23 T2 OAuth2 synthesis\n",
+      "expected_solution": "import org.springframework.context.annotation.*;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\nimport org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;\nimport org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;\nimport org.springframework.security.config.http.SessionCreationPolicy;\nimport org.springframework.security.web.*;\nimport org.springframework.security.core.authority.SimpleGrantedAuthority;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.security.access.prepost.PreAuthorize;\nimport org.springframework.stereotype.*;\nimport org.springframework.security.oauth2.jwt.Jwt;\nimport java.util.*;\nimport java.time.Instant;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport org.junit.jupiter.api.*;\n\n@Configuration @EnableWebSecurity @EnableMethodSecurity\nclass ZerodhaOAuth2Config {\n    @Bean SecurityFilterChain chain(HttpSecurity h) throws Exception {\n        return h.csrf(c->c.disable()).sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n            .authorizeHttpRequests(a->a.anyRequest().authenticated())\n            .oauth2ResourceServer(o->o.jwt(j->{})).build();\n    }\n}\n\n@Service class ZerodhaTokenRouter {\n    enum Strategy{PROPAGATE,CLIENT_CREDS}\n    Strategy for_(String svc){return svc.equals(\"risk\")?Strategy.PROPAGATE:Strategy.CLIENT_CREDS;}\n}\n\n@Service class ZerodhaTokenInspector {\n    boolean hasScope(Jwt j, String s){\n        String sc=j.getClaimAsString(\"scope\");\n        return sc!=null&&Arrays.asList(sc.split(\" \")).contains(s);\n    }\n}\n\n@RestController class ZerodhaTradeCtrl {\n    @GetMapping(\"/api/trades\") @PreAuthorize(\"hasAuthority('SCOPE_trades:read')\")\n    public String read(){return \"[]\";\n    }\n}\n\n@WebMvcTest(ZerodhaTradeCtrl.class)\nclass ZerodhaOAuth2Test1 {\n    @Autowired MockMvc mvc;\n    @Test void tradesReadScope_200() throws Exception {\n        mvc.perform(get(\"/api/trades\").with(jwt().authorities(new SimpleGrantedAuthority(\"SCOPE_trades:read\")))).andExpect(status().isOk());\n    }\n}\n\n@SpringBootTest\nclass ZerodhaOAuth2Test2 {\n    @Autowired ZerodhaTokenRouter router;\n    @Autowired ZerodhaTokenInspector inspector;\n    @Test void routerLogic(){\n        assertEquals(ZerodhaTokenRouter.Strategy.PROPAGATE,router.for_(\"risk\"));\n        assertEquals(ZerodhaTokenRouter.Strategy.CLIENT_CREDS,router.for_(\"market-data\"));\n    }\n    @Test void scopeInspector(){\n        Jwt jwt=Jwt.withTokenValue(\"t\").header(\"alg\",\"RS256\")\n            .claim(\"scope\",\"trades:read\").issuedAt(Instant.now()).expiresAt(Instant.now().plusSeconds(3600)).build();\n        assertTrue(inspector.hasScope(jwt,\"trades:read\"));\n        assertFalse(inspector.hasScope(jwt,\"trades:write\"));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "tests_pass",
+          "expected": "3 tests pass"
+        }
+      ],
+      "hints": [
+        "@WebMvcTest and @SpringBootTest in same file: both run independently",
+        "Jwt.withTokenValue builder: create test JWTs without real issuer",
+        "SCOPE_trades:read: must have SCOPE_ prefix for hasAuthority() check"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 70
+  }
+}

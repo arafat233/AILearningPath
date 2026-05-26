@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t5",
+  "topic_name": "Database Transactions & Locking",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m17_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Identify the lost update race condition",
+      "scenario": "Concurrent reads and writes without locking cause lost updates.",
+      "instructions": "```java\n@Transactional\npublic void transferFunds(String fromId, String toId, double amount) {\n    Account from = repo.findById(fromId).orElseThrow();\n    Account to   = repo.findById(toId).orElseThrow();\n    from.setBalance(from.getBalance() - amount);\n    to.setBalance(to.getBalance() + amount);\n    repo.save(from);\n    repo.save(to);\n}\n```\n\nThread A: transferFunds('ACC1', 'ACC2', 500) — ACC1 has ₹1000\nThread B: transferFunds('ACC1', 'ACC3', 300) — same ACC1\n\nBoth execute concurrently. Describe the lost update scenario.\nWhat are the correct balances? What might the actual balances be?\nWhat is the fix?",
+      "expected_solution": "Correct balances: ACC1 = ₹200 (1000 - 500 - 300), ACC2 = +₹500, ACC3 = +₹300\n\nLost update scenario:\n  T=0: Thread A reads ACC1.balance = 1000\n  T=0: Thread B reads ACC1.balance = 1000 (concurrent read!)\n  T=1: Thread A saves ACC1.balance = 500 (1000-500)\n  T=1: Thread B saves ACC1.balance = 700 (1000-300) ← OVERWRITES Thread A!\n\nActual broken result:\n  ACC1 = ₹700 (Thread B's write wins)\n  ACC2 = ₹500 (correct)\n  ACC3 = ₹300 (correct)\n  ACC1 lost ₹300 — money CREATED from nowhere!\n\nFix options:\n  1. Optimistic: @Version on Account — Thread B fails → retries with fresh balance=500\n  2. Pessimistic: SELECT FOR UPDATE on ACC1 — Thread B waits while Thread A completes\n  3. Isolation: SERIALIZABLE level — detects write-write conflict",
+      "test_cases": [
+        { "type": "text_match", "expected": "Correct balances: ACC1 = ₹200 (1000 - 500 - 300), ACC2 = +₹500, ACC3 = +₹300\n\nLost update scenario:\n  T=0: Thread A reads ACC1.balance = 1000\n  T=0: Thread B reads ACC1.balance = 1000 (concurrent read!)\n  T=1: Thread A saves ACC1.balance = 500 (1000-500)\n  T=1: Thread B saves ACC1.balance = 700 (1000-300) ← OVERWRITES Thread A!\n\nActual broken result:\n  ACC1 = ₹700 (Thread B's write wins)\n  ACC2 = ₹500 (correct)\n  ACC3 = ₹300 (correct)\n  ACC1 lost ₹300 — money CREATED from nowhere!\n\nFix options:\n  1. Optimistic: @Version on Account — Thread B fails → retries with fresh balance=500\n  2. Pessimistic: SELECT FOR UPDATE on ACC1 — Thread B waits while Thread A completes\n  3. Isolation: SERIALIZABLE level — detects write-write conflict" }
+      ],
+      "hints": [
+        "Both threads read the same initial balance (1000) before either writes",
+        "Second write overwrites first: Thread B saves 700, erasing Thread A's 500",
+        "Lost ₹300: money materializes from thin air (or disappears in reverse)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add @Version to an @Entity",
+      "scenario": "@Version tells Hibernate to check the version field on every UPDATE.",
+      "instructions": "Fill in the blanks to add optimistic locking to the BankAccount entity.",
+      "starter_code": "@Entity\npublic class BankAccount {\n    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    \n    private String accountNumber;\n    private double balance;\n    \n    @______\n    private int ______;  // ← Hibernate auto-increments on every UPDATE\n    \n    // Hibernate adds: ... WHERE id=? AND version=?\n    // If 0 rows: throws _________________\n    \n    protected BankAccount() {}\n    public BankAccount(String acctNum, double balance) { ... }\n    // getters/setters...\n}",
+      "expected_solution": "@Entity\npublic class BankAccount {\n    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    \n    private String accountNumber;\n    private double balance;\n    \n    @Version\n    private int version;  // ← Hibernate auto-increments on every UPDATE\n    \n    // Hibernate adds: ... WHERE id=? AND version=?\n    // If 0 rows: throws ObjectOptimisticLockingFailureException\n    \n    protected BankAccount() {}\n    public BankAccount(String acctNum, double balance) {\n        this.accountNumber=acctNum; this.balance=balance;\n    }\n    public Long getId()       { return id; }\n    public double getBalance(){ return balance; }\n    public int getVersion()   { return version; }\n    public void setBalance(double b){ balance=b; }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Version",                              "hint": "JPA annotation for optimistic locking field" },
+        { "position": 2, "answer": "version",                              "hint": "Field name (int or Integer)" },
+        { "position": 3, "answer": "ObjectOptimisticLockingFailureException", "hint": "Spring's exception for version mismatch" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Version: one annotation on an int/Integer/Long/Timestamp field",
+        "Hibernate: adds AND version=? to every UPDATE for this entity",
+        "Spring wraps Hibernate's exception: ObjectOptimisticLockingFailureException"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Classify transaction isolation anomalies",
+      "scenario": "Know which anomaly each isolation level prevents.",
+      "instructions": "For each scenario, identify: (1) the anomaly type, (2) minimum isolation level to prevent it:\n\nA: Transaction A reads balance=1000. Transaction B deducts 500 and commits. Transaction A reads balance=500. (Two different values in same transaction)\n\nB: Transaction A reads uncommitted data from Transaction B. Transaction B rolls back.\n\nC: Transaction A counts orders (5 rows). Transaction B inserts a new order and commits. Transaction A counts orders again (6 rows).\n\nD: Transaction A reads and changes a record. Transaction B reads the same uncommitted change.",
+      "starter_code": "// Classify each scenario\n// A: anomaly type + minimum isolation level\n// B: anomaly type + minimum isolation level\n// C: anomaly type + minimum isolation level\n// D: anomaly type + minimum isolation level\n",
+      "expected_solution": "// A: NON-REPEATABLE READ\n// Transaction A reads the same row twice with different results in the SAME transaction.\n// Minimum isolation: REPEATABLE_READ\n// (READ_COMMITTED allows this: committed changes by other transactions become visible)\n\n// B: DIRTY READ\n// Transaction A reads Transaction B's uncommitted changes.\n// If B rolls back, A made decisions on data that never existed.\n// Minimum isolation: READ_COMMITTED\n// (READ_UNCOMMITTED allows dirty reads; READ_COMMITTED prevents them)\n// Note: PostgreSQL default (READ_COMMITTED) already prevents this.\n\n// C: PHANTOM READ\n// Same query returns different number of rows due to new rows inserted by other transactions.\n// Transaction A's result set changes within the same transaction.\n// Minimum isolation: SERIALIZABLE\n// (REPEATABLE_READ prevents non-repeatable reads on EXISTING rows but not new rows)\n\n// D: DIRTY READ (same as B)\n// Reading uncommitted data from another transaction.\n// Minimum isolation: READ_COMMITTED\n\npublic class IsolationAnalysis {\n    public static void main(String[] args) {\n        System.out.println(\"A: Non-repeatable read → REPEATABLE_READ\");\n        System.out.println(\"B: Dirty read → READ_COMMITTED\");\n        System.out.println(\"C: Phantom read → SERIALIZABLE\");\n        System.out.println(\"D: Dirty read → READ_COMMITTED\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Non-repeatable", "Dirty read", "Phantom read"] }
+      ],
+      "hints": [
+        "Dirty read: reading UNCOMMITTED changes from another transaction",
+        "Non-repeatable read: same row, different values, within one transaction",
+        "Phantom read: different NUMBER of rows (new rows inserted by concurrent transaction)"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m17_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Implement optimistic locking with @Version",
+      "scenario": "Add @Version and handle OptimisticLockException in the service.",
+      "instructions": "Write:\n1. Ticket @Entity with @Version int version\n2. TicketRepository (standard JpaRepository)\n3. TicketService.bookTicket(Long id) that:\n   - Loads ticket\n   - Returns SOLD_OUT if available <= 0\n   - Decrements available and saves\n4. Show the SQL Hibernate generates with @Version",
+      "starter_code": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n// Ticket @Entity + TicketRepository + TicketService\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\n@Entity @Table(name = \"tickets\")\npublic class Ticket {\n    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    private String eventName;\n    private int available;\n    \n    @Version\n    private int version;  // ← Hibernate adds AND version=? to every UPDATE\n    \n    protected Ticket() {}\n    public Ticket(String event, int qty) { eventName=event; available=qty; }\n    \n    public Long getId()       { return id; }\n    public int getAvailable() { return available; }\n    public int getVersion()   { return version; }\n    public void setAvailable(int a) { available = a; }\n}\n\npublic interface TicketRepository extends JpaRepository<Ticket, Long> {}\n\npublic enum BookingResult { SUCCESS, SOLD_OUT }\n\n@Service\npublic class TicketService {\n    private final TicketRepository repo;\n    TicketService(TicketRepository r) { repo = r; }\n    \n    @Transactional\n    public BookingResult bookTicket(Long ticketId) {\n        Ticket t = repo.findById(ticketId).orElseThrow();\n        \n        if (t.getAvailable() <= 0) return BookingResult.SOLD_OUT;\n        \n        t.setAvailable(t.getAvailable() - 1);\n        repo.save(t);\n        // Hibernate SQL:\n        // UPDATE tickets SET available=N-1, version=V+1 WHERE id=? AND version=V\n        // If another thread already changed version: 0 rows → OptimisticLockException\n        \n        return BookingResult.SUCCESS;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Version on int field: Hibernate adds AND version=? to UPDATE SQL",
+        "0 rows affected → Spring throws ObjectOptimisticLockingFailureException",
+        "Service must be @Transactional for Hibernate to manage the update"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m17_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Retryable for OptimisticLockException",
+      "scenario": "Spring Retry automatically retries on optimistic lock conflicts.",
+      "instructions": "Add @Retryable to TicketService.bookTicket():\n1. Import spring-retry dependency (pom.xml snippet)\n2. @EnableRetry on @SpringBootApplication\n3. @Retryable: catch OptimisticLockException + ObjectOptimisticLockingFailureException\n4. maxAttempts=3, backoff: delay=50ms, multiplier=2.0\n5. @Recover method for when all retries are exhausted",
+      "starter_code": "// TicketService with @Retryable\nimport org.springframework.retry.annotation.*;\nimport jakarta.persistence.OptimisticLockException;\nimport org.springframework.orm.ObjectOptimisticLockingFailureException;\n",
+      "expected_solution": "// pom.xml:\n// <dependency>\n//   <groupId>org.springframework.retry</groupId>\n//   <artifactId>spring-retry</artifactId>\n// </dependency>\n// @SpringBootApplication must have @EnableRetry\n\nimport org.springframework.retry.annotation.*;\nimport jakarta.persistence.OptimisticLockException;\nimport org.springframework.orm.ObjectOptimisticLockingFailureException;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\n@Service\npublic class TicketServiceRetryable {\n    private final TicketRepository repo;\n    TicketServiceRetryable(TicketRepository r) { repo = r; }\n    \n    @Retryable(\n        value = {OptimisticLockException.class,\n                 ObjectOptimisticLockingFailureException.class},\n        maxAttempts = 3,\n        backoff = @Backoff(delay = 50, multiplier = 2.0)\n        // Retry delays: attempt 1 (immediate), attempt 2 (+50ms), attempt 3 (+100ms)\n    )\n    @Transactional\n    public BookingResult bookTicket(Long ticketId) {\n        Ticket t = repo.findById(ticketId).orElseThrow();\n        if (t.getAvailable() <= 0) return BookingResult.SOLD_OUT;\n        t.setAvailable(t.getAvailable() - 1);\n        repo.save(t);\n        return BookingResult.SUCCESS;\n    }\n    \n    @Recover\n    public BookingResult recoverFromLockFailure(\n            ObjectOptimisticLockingFailureException ex, Long ticketId) {\n        // Called after all retries exhausted:\n        System.err.println(\"All 3 attempts failed for ticket \" + ticketId + \": \" + ex.getMessage());\n        return BookingResult.SOLD_OUT;  // or throw an exception\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Retryable value: list both exception types (Spring wraps Hibernate's exception)",
+        "@Backoff(delay=50, multiplier=2.0): exponential backoff reduces thundering herd",
+        "@Recover: called when all retries exhausted — same method signature but Exception first"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Pessimistic locking with @Lock PESSIMISTIC_WRITE",
+      "scenario": "SELECT ... FOR UPDATE locks the row for the duration of the transaction.",
+      "instructions": "Write:\n1. InventoryItem @Entity (id, sku, stockQty) — NO @Version needed\n2. InventoryRepository: findBySkuWithLock() using @Lock(PESSIMISTIC_WRITE)\n3. InventoryService.reserve(sku, qty): loads with lock, checks quantity, decrements\n4. Show the SQL that @Lock generates\n5. What happens to Thread B when Thread A holds the lock?",
+      "starter_code": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n// Pessimistic locking implementation\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\n@Entity @Table(name=\"inventory_items\")\npublic class InventoryItem {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;\n    @Column(nullable=false, unique=true) private String sku;\n    @Column(nullable=false) private int stockQty;\n    \n    protected InventoryItem(){}\n    public InventoryItem(String sku, int qty){ this.sku=sku; stockQty=qty; }\n    public Long getId()     { return id; }\n    public String getSku()  { return sku; }\n    public int getStockQty(){ return stockQty; }\n    public void setStockQty(int q){ stockQty=q; }\n}\n\npublic interface InventoryRepository extends JpaRepository<InventoryItem,Long> {\n    \n    // @Lock PESSIMISTIC_WRITE: SELECT ... FROM inventory_items WHERE sku=? FOR UPDATE\n    @Lock(LockModeType.PESSIMISTIC_WRITE)\n    @Query(\"SELECT i FROM InventoryItem i WHERE i.sku = :sku\")\n    java.util.Optional<InventoryItem> findBySkuWithLock(@Param(\"sku\") String sku);\n    \n    // Without lock (for reads that don't need exclusive access):\n    java.util.Optional<InventoryItem> findBySku(String sku);\n}\n\n@Service\npublic class InventoryService {\n    private final InventoryRepository repo;\n    InventoryService(InventoryRepository r){ repo=r; }\n    \n    @Transactional  // REQUIRED: lock held until this transaction commits!\n    public boolean reserve(String sku, int qty) {\n        // SELECT ... FOR UPDATE: acquires exclusive row lock\n        InventoryItem item = repo.findBySkuWithLock(sku)\n            .orElseThrow(() -> new IllegalArgumentException(\"SKU not found: \" + sku));\n        \n        if (item.getStockQty() < qty) return false;  // insufficient stock\n        \n        item.setStockQty(item.getStockQty() - qty);\n        // Lock released when this method returns and transaction commits\n        return true;\n    }\n}\n\n// GENERATED SQL:\n// SELECT id, sku, stock_qty FROM inventory_items WHERE sku=? FOR UPDATE\n//                                                     ← FOR UPDATE = exclusive lock\n// Thread B calling reserve('SKU001', 2):\n//   → Blocks at FOR UPDATE until Thread A's transaction commits\n//   → Then reads FRESH data (Thread A's update already committed)\n//   → No race condition!",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Lock(PESSIMISTIC_WRITE) → SELECT ... FOR UPDATE in SQL",
+        "Must be inside @Transactional: lock held until transaction commits",
+        "Thread B waits at FOR UPDATE — no concurrency until lock is released"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@DataJpaTest: verify @Version detects conflict",
+      "scenario": "Simulate a version conflict in a test to verify optimistic locking works.",
+      "instructions": "Write a @DataJpaTest that simulates an optimistic lock conflict:\n1. Save a Product with @Version\n2. Load it in two separate 'views' (simulating two threads)\n3. Modify and save the first view (version becomes 2)\n4. Try to save the second view (still version=1) → expect ObjectOptimisticLockingFailureException\n5. Verify: only the first update succeeded (DB has correct state)",
+      "starter_code": "import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n// @DataJpaTest optimistic lock conflict test\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.beans.factory.annotation.*;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.orm.ObjectOptimisticLockingFailureException;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@Entity class OLProduct {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    String name; double price;\n    @Version int version;\n    protected OLProduct(){}\n    OLProduct(String n, double p){name=n;price=p;}\n    Long getId(){return id;} double getPrice(){return price;} int getVersion(){return version;}\n    void setPrice(double p){price=p;}\n}\ninterface OLProductRepo extends JpaRepository<OLProduct,Long>{}\n\n@DataJpaTest\nclass OptimisticLockTest {\n    @Autowired OLProductRepo repo;\n    @Autowired TestEntityManager testEm;\n    \n    @Test\n    void conflictingUpdates_secondFails() {\n        // Arrange: save initial product (version=0)\n        OLProduct saved = repo.save(new OLProduct(\"Keyboard\", 1999));\n        Long id = saved.getId();\n        testEm.flush(); testEm.clear();\n        \n        // Simulate Thread A: loads and modifies (version=0)\n        OLProduct threadA = repo.findById(id).orElseThrow();\n        assertEquals(0, threadA.getVersion());\n        threadA.setPrice(1899);\n        \n        // Thread A commits successfully:\n        repo.save(threadA); testEm.flush(); testEm.clear();\n        // Now DB: price=1899, version=1\n        \n        // Simulate Thread B: loaded BEFORE Thread A committed (stale version=0)\n        OLProduct threadB = new OLProduct(\"Keyboard\", 1999);\n        // Manually set the ID and version to simulate stale load:\n        // (In real app, threadB loaded before threadA saved)\n        // Use EntityManager to get a detached stale copy:\n        testEm.clear();\n        OLProduct stale = repo.findById(id).orElseThrow();\n        testEm.clear();\n        // Simulate stale: use EntityManager merge with old version\n        stale.setPrice(2099);\n        stale.version = 0; // force stale version (simulate Thread B loaded before Thread A)\n        \n        // Thread B tries to save → should fail:\n        assertThrows(ObjectOptimisticLockingFailureException.class, () -> {\n            repo.save(stale);\n            testEm.flush();  // force SQL execution\n        });\n        \n        // Verify: DB still has Thread A's price:\n        testEm.clear();\n        OLProduct final1 = repo.findById(id).orElseThrow();\n        assertEquals(1899, final1.getPrice(), 0.01, \"Thread A's price should persist\");\n        assertEquals(1, final1.getVersion(), \"Version should be 1 after Thread A's update\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "testEm.flush() + testEm.clear(): forces SQL execution and clears L1 cache",
+        "Force stale version: entity.version=0 simulates loading before concurrent update",
+        "assertThrows(ObjectOptimisticLockingFailureException.class, ...): verify conflict detected"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m17_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Propagation.REQUIRES_NEW for audit logging",
+      "scenario": "Audit log must be saved even if the main transaction rolls back.",
+      "instructions": "Write:\n1. AuditLog @Entity (id, operation, entityId, userId, timestamp, success)\n2. AuditService.log(operation, entityId, userId, success) with REQUIRES_NEW\n3. OrderService.placeOrder() that:\n   - Saves the order\n   - If payment fails (throws RuntimeException), audit log STILL saves\n4. @DataJpaTest (2 tests): order fails but audit log persists, order succeeds both persist",
+      "starter_code": "import jakarta.persistence.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.*;\nimport java.time.LocalDateTime;\n// AuditLog @Entity + AuditService (REQUIRES_NEW) + OrderService + tests\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.*;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.LocalDateTime;\n\n@Entity @Table(name=\"audit_logs\")\nclass AuditLog {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    String operation; String entityId; String userId; boolean success;\n    LocalDateTime timestamp=LocalDateTime.now();\n    protected AuditLog(){}\n    AuditLog(String op,String eid,String uid,boolean ok){operation=op;entityId=eid;userId=uid;success=ok;}\n    Long getId(){return id;} boolean isSuccess(){return success;} String getOperation(){return operation;}\n}\n@Entity @Table(name=\"audit_orders\")\nclass AuditOrder {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    String userId; double total;\n    protected AuditOrder(){}\n    AuditOrder(String uid,double t){userId=uid;total=t;}\n    Long getId(){return id;}\n}\ninterface AuditLogRepo extends JpaRepository<AuditLog,Long>{}\ninterface AuditOrderRepo extends JpaRepository<AuditOrder,Long>{}\n\n@Service\nclass AuditService {\n    private final AuditLogRepo repo;\n    AuditService(AuditLogRepo r){repo=r;}\n    \n    @Transactional(propagation=Propagation.REQUIRES_NEW)  // OWN transaction!\n    public void log(String op, String eid, String uid, boolean ok) {\n        repo.save(new AuditLog(op,eid,uid,ok));\n        // Even if caller's transaction rolls back, this COMMITS independently!\n    }\n}\n\n@Service\nclass OrderService {\n    private final AuditOrderRepo or; private final AuditService audit;\n    OrderService(AuditOrderRepo o,AuditService a){or=o;audit=a;}\n    \n    @Transactional\n    public AuditOrder placeOrder(String uid, double total, boolean paymentFails) {\n        AuditOrder order=or.save(new AuditOrder(uid,total));\n        if(paymentFails) {\n            audit.log(\"ORDER_FAILED\",String.valueOf(order.getId()),uid,false);\n            throw new RuntimeException(\"Payment failed!\");  // rolls back order save\n        }\n        audit.log(\"ORDER_PLACED\",String.valueOf(order.getId()),uid,true);\n        return order;\n    }\n}\n\n@DataJpaTest @Import({AuditService.class,OrderService.class})\nclass AuditPropagationTest {\n    @Autowired OrderService svc;\n    @Autowired AuditLogRepo auditRepo;\n    @Autowired AuditOrderRepo orderRepo;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void orderFails_auditLogPersists() {\n        assertThrows(RuntimeException.class,()->svc.placeOrder(\"U01\",999,true));\n        testEm.flush(); testEm.clear();\n        assertEquals(0,orderRepo.count(),\"Order should be rolled back\");\n        assertEquals(1,auditRepo.count(),\"Audit log should persist despite rollback\");\n        assertFalse(auditRepo.findAll().get(0).isSuccess());\n    }\n    @Test void orderSucceeds_bothPersist() {\n        svc.placeOrder(\"U01\",999,false);\n        testEm.flush(); testEm.clear();\n        assertEquals(1,orderRepo.count());\n        assertEquals(1,auditRepo.count());\n        assertTrue(auditRepo.findAll().get(0).isSuccess());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "REQUIRES_NEW: audit transaction commits independently of the outer transaction",
+        "RuntimeException: triggers rollback in @Transactional (default behavior)",
+        "testEm.flush(): forces SQL execution before clearing L1 cache"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "rollbackFor — checked exceptions and transaction rollback",
+      "scenario": "@Transactional only rolls back RuntimeException by default — checked exceptions don't!",
+      "instructions": "Write a demonstration of the rollbackFor gap:\n1. FileProcessingService.processAndSave(data) throws checked IOException\n2. WITHOUT rollbackFor: record saved to DB even when IOException thrown\n3. WITH rollbackFor=Exception.class: IOException triggers rollback\n4. @DataJpaTest (2 tests): verify the different behaviors",
+      "starter_code": "import jakarta.persistence.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport java.io.IOException;\n// Show rollbackFor gap with @DataJpaTest tests\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.io.IOException;\n\n@Entity @Table(name=\"processed_records\")\nclass ProcessedRecord {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    String data;\n    protected ProcessedRecord(){}\n    ProcessedRecord(String d){data=d;}\n    Long getId(){return id;}\n}\ninterface ProcessedRepo extends JpaRepository<ProcessedRecord,Long>{}\n\n@Service\nclass FileServiceWithGap {\n    private final ProcessedRepo repo;\n    FileServiceWithGap(ProcessedRepo r){repo=r;}\n    \n    // DEFAULT @Transactional: checked IOException does NOT trigger rollback!\n    @Transactional  // ← only rolls back on RuntimeException\n    public void processAndSaveNoRollback(String data) throws IOException {\n        repo.save(new ProcessedRecord(data));  // saved to DB...\n        throw new IOException(\"File write failed!\");  // ...but rollback NOT triggered!\n        // Result: record SAVED to DB, but IOException thrown to caller\n    }\n    \n    // FIXED: rollbackFor=Exception.class includes checked exceptions:\n    @Transactional(rollbackFor = Exception.class)\n    public void processAndSaveWithRollback(String data) throws IOException {\n        repo.save(new ProcessedRecord(data));  // saved...\n        throw new IOException(\"File write failed!\");  // rollback triggered!\n        // Result: record NOT saved (rolled back), IOException thrown to caller\n    }\n}\n\n@DataJpaTest @Import(FileServiceWithGap.class)\nclass RollbackForTest {\n    @Autowired FileServiceWithGap svc;\n    @Autowired ProcessedRepo repo;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void withoutRollbackFor_checkedExceptionDoesNotRollback() {\n        assertThrows(IOException.class, () -> svc.processAndSaveNoRollback(\"data1\"));\n        testEm.flush(); testEm.clear();\n        assertEquals(1, repo.count(),  // ← record IS saved despite IOException!\n            \"Without rollbackFor: record persists even though exception was thrown\");\n    }\n    \n    @Test void withRollbackFor_checkedExceptionRollsBack() {\n        assertThrows(IOException.class, () -> svc.processAndSaveWithRollback(\"data2\"));\n        testEm.flush(); testEm.clear();\n        assertEquals(0, repo.count(),  // ← record NOT saved (rolled back)\n            \"With rollbackFor=Exception.class: record rolled back on IOException\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Default @Transactional: only RuntimeException and Error trigger rollback",
+        "Checked exceptions (IOException, SQLException) do NOT rollback by default",
+        "rollbackFor=Exception.class: includes ALL exceptions (checked and unchecked)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m17_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Optimistic vs pessimistic locking — when each wins",
+      "scenario": "Choose the right locking strategy based on the use case.",
+      "instructions": "For each scenario, state: (1) optimistic or pessimistic locking, (2) why:\n\nA: E-commerce product rating: 10,000 users rate a product daily. Conflicts are rare.\nB: Concert ticket booking: 1 ticket left, 5,000 users click simultaneously.\nC: Bank transfer: updating account balance — must be exact, errors unacceptable.\nD: Shopping cart: user updates their own cart (no other users access it).\nE: Airline seat reservation: flight at 80% capacity, 200 users booking simultaneously.",
+      "expected_solution": "A: OPTIMISTIC locking\n  Low contention (10,000 users on thousands of products).\n  Conflicts are rare (same user rating same product simultaneously is unlikely).\n  Retry on conflict is acceptable — occasional re-try is cheap vs blocking 10,000 users.\n\nB: PESSIMISTIC locking\n  Extreme contention: 5,000 users competing for 1 item.\n  Optimistic: 4,999 users get OptimisticLockException → all retry → more collisions!\n  Pessimistic: serialized access — users queue, get definitive SOLD OUT immediately.\n  Under ultra-high contention, optimistic + retry amplifies the problem.\n\nC: PESSIMISTIC locking (or optimistic with very short retry)\n  Financial correctness is critical. Lost update = money disappears.\n  Pessimistic: guaranteed serial execution for each account.\n  Alternative: optimistic + REQUIRES_NEW audit + careful retry.\n  Most banks use pessimistic locking for balance updates.\n\nD: Neither needed (or optimistic as a safeguard)\n  User's own cart has no concurrent access from other users.\n  Still worth @Version to detect tab-sync bugs (same user, two browser tabs).\n  Optimistic with 0 retries acceptable here.\n\nE: OPTIMISTIC locking\n  200 users, 80% seats available → most seats uncongested.\n  Conflicts rare — different users choosing different seats.\n  @Retryable handles the occasional conflict (choose another seat).\n  Pessimistic would serialize ALL seat selections → slow at scale.",
+      "test_cases": [
+        { "type": "text_match", "expected": "A: OPTIMISTIC locking\n  Low contention (10,000 users on thousands of products).\n  Conflicts are rare (same user rating same product simultaneously is unlikely).\n  Retry on conflict is acceptable — occasional re-try is cheap vs blocking 10,000 users.\n\nB: PESSIMISTIC locking\n  Extreme contention: 5,000 users competing for 1 item.\n  Optimistic: 4,999 users get OptimisticLockException → all retry → more collisions!\n  Pessimistic: serialized access — users queue, get definitive SOLD OUT immediately.\n  Under ultra-high contention, optimistic + retry amplifies the problem.\n\nC: PESSIMISTIC locking (or optimistic with very short retry)\n  Financial correctness is critical. Lost update = money disappears.\n  Pessimistic: guaranteed serial execution for each account.\n  Alternative: optimistic + REQUIRES_NEW audit + careful retry.\n  Most banks use pessimistic locking for balance updates.\n\nD: Neither needed (or optimistic as a safeguard)\n  User's own cart has no concurrent access from other users.\n  Still worth @Version to detect tab-sync bugs (same user, two browser tabs).\n  Optimistic with 0 retries acceptable here.\n\nE: OPTIMISTIC locking\n  200 users, 80% seats available → most seats uncongested.\n  Conflicts rare — different users choosing different seats.\n  @Retryable handles the occasional conflict (choose another seat).\n  Pessimistic would serialize ALL seat selections → slow at scale." }
+      ],
+      "hints": [
+        "Optimistic: low contention, rare conflicts, retry acceptable",
+        "Pessimistic: high contention, must serialize, blocking is acceptable",
+        "Rule: if conflict rate > 10%, consider pessimistic to avoid retry amplification"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Pessimistic lock timeout — don't wait forever",
+      "scenario": "Lock timeout prevents indefinite blocking under deadlock or slow transactions.",
+      "instructions": "Write a TicketRepository with pessimistic lock + 3-second timeout:\n1. @Lock(PESSIMISTIC_WRITE)\n2. @QueryHint: jakarta.persistence.lock.timeout=3000\n3. TicketService.bookWithTimeout(): catches LockTimeoutException\n4. Returns TIMEOUT result if lock can't be acquired in 3 seconds\n5. Show what error is thrown when timeout expires",
+      "starter_code": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n// Pessimistic lock with timeout\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport java.util.Optional;\n\npublic interface TimeoutTicketRepo extends JpaRepository<Ticket, Long> {\n    \n    @Lock(LockModeType.PESSIMISTIC_WRITE)\n    @QueryHints({\n        @QueryHint(\n            name = \"jakarta.persistence.lock.timeout\",\n            value = \"3000\"  // 3000ms = 3 seconds\n        )\n    })\n    @Query(\"SELECT t FROM Ticket t WHERE t.id = :id\")\n    Optional<Ticket> findByIdWithLockAndTimeout(@Param(\"id\") Long id);\n}\n\npublic enum BookingResult { SUCCESS, SOLD_OUT, TIMEOUT, ERROR }\n\n@Service\npublic class TicketServiceTimeout {\n    private final TimeoutTicketRepo repo;\n    TicketServiceTimeout(TimeoutTicketRepo r) { repo = r; }\n    \n    @Transactional\n    public BookingResult bookWithTimeout(Long ticketId) {\n        try {\n            Ticket t = repo.findByIdWithLockAndTimeout(ticketId).orElseThrow();\n            \n            if (t.getAvailable() <= 0) return BookingResult.SOLD_OUT;\n            t.setAvailable(t.getAvailable() - 1);\n            // Lock held until transaction commits\n            return BookingResult.SUCCESS;\n            \n        } catch (LockTimeoutException e) {\n            // Could not acquire lock within 3 seconds:\n            System.err.println(\"Lock timeout for ticket \" + ticketId + \": \" + e.getMessage());\n            return BookingResult.TIMEOUT;  // return immediately, don't leave user waiting\n        } catch (PessimisticLockException e) {\n            // Lock acquisition failed immediately (some DBs throw this instead of LockTimeout):\n            return BookingResult.TIMEOUT;\n        }\n    }\n}\n\n// What happens at timeout:\n// LockTimeoutException: could not obtain pessimistic lock on rows in table 'tickets'\n//   → PostgreSQL: ERROR: canceling statement due to lock timeout\n//   → Application: LockTimeoutException caught → return TIMEOUT\n// Without timeout: thread blocked indefinitely → thread pool exhaustion under deadlock!",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "jakarta.persistence.lock.timeout: milliseconds to wait for lock",
+        "LockTimeoutException: thrown when timeout expires without acquiring lock",
+        "Without timeout: deadlock = thread blocks forever = thread pool exhausts"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Zerodha trade position — concurrent update with @Version + @Retryable",
+      "scenario": "Multiple trade executions update the same portfolio position simultaneously.",
+      "instructions": "Write the complete Zerodha position update:\n1. PortfolioPosition @Entity: userId, symbol, totalQty, avgPrice, @Version version\n2. PositionRepository: findByUserIdAndSymbol + findForUpdate (pessimistic)\n3. PositionService.applyTrade(): @Retryable(OptimisticLock, maxAttempts=5) + weighted avg price\n4. @DataJpaTest (2 tests): two trades apply correctly, version increments on each",
+      "starter_code": "// Zerodha portfolio position update with @Version\nimport jakarta.persistence.*;\nimport java.math.BigDecimal;\n// Full implementation + 2 @DataJpaTest tests\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.retry.annotation.*;\nimport org.springframework.orm.ObjectOptimisticLockingFailureException;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.math.BigDecimal;\nimport java.math.RoundingMode;\n\n@Entity @Table(name=\"z_positions\")\nclass ZPosition {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    @Column(nullable=false) String userId;\n    @Column(nullable=false) String symbol;\n    @Column(nullable=false) int totalQty;\n    @Column(nullable=false,precision=12,scale=2) BigDecimal avgPrice;\n    @Version int version;\n    protected ZPosition(){}\n    ZPosition(String u,String s,int q,BigDecimal p){userId=u;symbol=s;totalQty=q;avgPrice=p;}\n    Long getId(){return id;} int getTotalQty(){return totalQty;}\n    BigDecimal getAvgPrice(){return avgPrice;} int getVersion(){return version;}\n    void applyBuy(int qty,BigDecimal price){\n        BigDecimal totalVal=avgPrice.multiply(BigDecimal.valueOf(totalQty))\n            .add(price.multiply(BigDecimal.valueOf(qty)));\n        totalQty+=qty;\n        avgPrice=totalVal.divide(BigDecimal.valueOf(totalQty),2,RoundingMode.HALF_UP);\n    }\n}\ninterface ZPositionRepo extends JpaRepository<ZPosition,Long>{\n    java.util.Optional<ZPosition> findByUserIdAndSymbol(String uid,String sym);\n}\n\n@Service\nclass ZPositionService {\n    private final ZPositionRepo repo;\n    ZPositionService(ZPositionRepo r){repo=r;}\n    \n    @Retryable(value={ObjectOptimisticLockingFailureException.class},\n               maxAttempts=5,backoff=@Backoff(delay=50,multiplier=2))\n    @Transactional\n    ZPosition applyBuy(String uid,String sym,int qty,BigDecimal price){\n        ZPosition pos=repo.findByUserIdAndSymbol(uid,sym)\n            .orElseGet(()->new ZPosition(uid,sym,0,price));\n        pos.applyBuy(qty,price);\n        return repo.save(pos);\n    }\n}\n\n@DataJpaTest @Import(ZPositionService.class)\nclass ZPositionTest {\n    @Autowired ZPositionService svc;\n    @Autowired ZPositionRepo repo;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void twoBuys_accumulateCorrectly(){\n        svc.applyBuy(\"U01\",\"TCS\",10,new BigDecimal(\"3890\"));\n        svc.applyBuy(\"U01\",\"TCS\",5, new BigDecimal(\"3900\"));\n        testEm.flush(); testEm.clear();\n        ZPosition pos=repo.findByUserIdAndSymbol(\"U01\",\"TCS\").orElseThrow();\n        assertEquals(15,pos.getTotalQty());\n        // Weighted avg: (3890*10 + 3900*5) / 15 = 58400/15 = 3893.33\n        assertEquals(new BigDecimal(\"3893.33\"),pos.getAvgPrice());\n    }\n    @Test void versionIncrements(){\n        ZPosition p=svc.applyBuy(\"U02\",\"INFY\",10,new BigDecimal(\"1560\"));\n        int v1=p.getVersion();\n        svc.applyBuy(\"U02\",\"INFY\",5,new BigDecimal(\"1570\"));\n        testEm.flush(); testEm.clear();\n        ZPosition loaded=repo.findByUserIdAndSymbol(\"U02\",\"INFY\").orElseThrow();\n        assertTrue(loaded.getVersion()>v1,\"Version should increment after second update\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Weighted average: (oldAvg * oldQty + tradePrice * tradeQty) / newTotalQty",
+        "BigDecimal.divide(): must specify scale and RoundingMode to avoid ArithmeticException",
+        "@Version increments on each save — version after 2 saves > version after 1 save"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "BookMyShow seat booking — pessimistic lock with @DataJpaTest",
+      "scenario": "Seat booking requires pessimistic locking to prevent double-booking.",
+      "instructions": "Build BookMyShow seat booking:\n1. Seat @Entity: row, col, eventId, booked boolean, @Version for extra safety\n2. SeatRepository: findAvailable() + findByIdForUpdate() with PESSIMISTIC_WRITE\n3. SeatBookingService: bookSeat(seatId, userId) with pessimistic lock\n4. @DataJpaTest (3 tests): book a seat, booking same seat twice fails, unbooked count correct\n\nAll 3 tests pass.",
+      "starter_code": "// BookMyShow seat booking with pessimistic lock\n// Seat @Entity + SeatRepository + SeatBookingService + @DataJpaTest 3 tests\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\n\n@Entity @Table(name=\"bms_seats\")\nclass Seat {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    String eventId; int row; int col;\n    boolean booked=false; String bookedByUserId;\n    @Version int version;\n    protected Seat(){}\n    Seat(String eid,int r,int c){eventId=eid;row=r;col=c;}\n    Long getId(){return id;} boolean isBooked(){return booked;}\n    void book(String uid){booked=true;bookedByUserId=uid;}\n}\ninterface SeatRepo extends JpaRepository<Seat,Long>{\n    @Lock(LockModeType.PESSIMISTIC_WRITE)\n    @Query(\"SELECT s FROM Seat s WHERE s.id=:id\")\n    Optional<Seat> findByIdForUpdate(@Param(\"id\") Long id);\n    \n    @Query(\"SELECT s FROM Seat s WHERE s.eventId=:eid AND s.booked=false\")\n    List<Seat> findAvailable(@Param(\"eid\") String eventId);\n    \n    long countByEventIdAndBooked(String eventId, boolean booked);\n}\n\n@Service\nclass SeatBookingService {\n    private final SeatRepo repo;\n    SeatBookingService(SeatRepo r){repo=r;}\n    \n    @Transactional\n    public boolean bookSeat(Long seatId,String userId){\n        Seat seat=repo.findByIdForUpdate(seatId).orElseThrow();\n        if(seat.isBooked()) return false;  // already booked\n        seat.book(userId);\n        return true;\n    }\n}\n\n@DataJpaTest @Import(SeatBookingService.class)\nclass SeatBookingTest {\n    @Autowired SeatBookingService svc;\n    @Autowired SeatRepo repo;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void bookSeat_success(){\n        Seat s=testEm.persistAndFlush(new Seat(\"EVT1\",1,1));\n        testEm.clear();\n        assertTrue(svc.bookSeat(s.getId(),\"U001\"));\n        testEm.flush(); testEm.clear();\n        assertTrue(repo.findById(s.getId()).orElseThrow().isBooked());\n    }\n    @Test void bookSameSeatTwice_secondFails(){\n        Seat s=testEm.persistAndFlush(new Seat(\"EVT1\",1,2));\n        testEm.clear();\n        assertTrue(svc.bookSeat(s.getId(),\"U001\"));\n        testEm.flush(); testEm.clear();\n        assertFalse(svc.bookSeat(s.getId(),\"U002\"),\"Second booking should fail\");\n    }\n    @Test void availableSeats_correctCount(){\n        testEm.persistAndFlush(new Seat(\"EVT2\",1,1));\n        testEm.persistAndFlush(new Seat(\"EVT2\",1,2));\n        testEm.persistAndFlush(new Seat(\"EVT2\",1,3));\n        testEm.flush(); testEm.clear();\n        assertEquals(3,repo.countByEventIdAndBooked(\"EVT2\",false));\n        Seat s=repo.findAvailable(\"EVT2\").get(0);\n        svc.bookSeat(s.getId(),\"U001\");\n        testEm.flush(); testEm.clear();\n        assertEquals(2,repo.countByEventIdAndBooked(\"EVT2\",false));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "PESSIMISTIC_WRITE on findByIdForUpdate: SELECT FOR UPDATE prevents concurrent booking",
+        "@Transactional required: lock held until method returns",
+        "Second booking attempt: isBooked()=true after first commits → returns false"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m17_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Deadlock prevention with consistent lock ordering",
+      "scenario": "Deadlocks occur when transactions acquire locks in different orders.",
+      "instructions": "Two operations each lock accounts in different order:\n- transferAtoB(accA, accB): locks accA then accB\n- transferBtoA(accB, accA): locks accB then accA\n\n1. Show the deadlock scenario (which thread blocks which)\n2. Write a deadlock-free transfer by always locking in ascending ID order\n3. Implement AccountTransferService.transfer(fromId, toId, amount) with consistent ordering\n4. @DataJpaTest: two transfers in opposite directions don't deadlock\n\nAll tests pass.",
+      "starter_code": "// AccountTransferService with deadlock-safe lock ordering\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.Optional;\n\n@Entity @Table(name=\"dl_accounts\")\nclass DLAccount {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    String owner; double balance;\n    protected DLAccount(){}\n    DLAccount(String o,double b){owner=o;balance=b;}\n    Long getId(){return id;} double getBalance(){return balance;}\n    void debit(double a){if(a>balance)throw new IllegalStateException(\"Insufficient\");balance-=a;}\n    void credit(double a){balance+=a;}\n}\ninterface DLAccountRepo extends JpaRepository<DLAccount,Long>{\n    @Lock(LockModeType.PESSIMISTIC_WRITE)\n    @Query(\"SELECT a FROM DLAccount a WHERE a.id=:id\")\n    Optional<DLAccount> findByIdWithLock(@Param(\"id\") Long id);\n}\n\n// DEADLOCK SCENARIO (BAD):\n// Thread A: lock account 1 → lock account 2 → transfer A→B\n// Thread B: lock account 2 → lock account 1 → transfer B→A\n// Thread A holds lock on 1, waits for 2\n// Thread B holds lock on 2, waits for 1  ← DEADLOCK!\n\n@Service\nclass AccountTransferService {\n    private final DLAccountRepo repo;\n    AccountTransferService(DLAccountRepo r){repo=r;}\n    \n    @Transactional\n    public void transfer(Long fromId,Long toId,double amount){\n        // DEADLOCK PREVENTION: always lock in ascending ID order!\n        Long firstId  = Math.min(fromId,toId);\n        Long secondId = Math.max(fromId,toId);\n        \n        DLAccount first  = repo.findByIdWithLock(firstId).orElseThrow();\n        DLAccount second = repo.findByIdWithLock(secondId).orElseThrow();\n        \n        // Now determine which is 'from' and which is 'to':\n        DLAccount from = fromId.equals(firstId) ? first : second;\n        DLAccount to   = fromId.equals(firstId) ? second : first;\n        \n        from.debit(amount);\n        to.credit(amount);\n        // No deadlock: both threads lock id=1 first, then id=2\n    }\n}\n\n@DataJpaTest @Import(AccountTransferService.class)\nclass DeadlockFreeTest {\n    @Autowired AccountTransferService svc;\n    @Autowired DLAccountRepo repo;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void transfer_correctBalances(){\n        DLAccount a=testEm.persistAndFlush(new DLAccount(\"Aisha\",1000));\n        DLAccount b=testEm.persistAndFlush(new DLAccount(\"Raj\",500));\n        testEm.clear();\n        svc.transfer(a.getId(),b.getId(),300);\n        testEm.flush(); testEm.clear();\n        assertEquals(700,repo.findById(a.getId()).orElseThrow().getBalance(),0.01);\n        assertEquals(800,repo.findById(b.getId()).orElseThrow().getBalance(),0.01);\n    }\n    @Test void transfer_insufficientFunds_throws(){\n        DLAccount a=testEm.persistAndFlush(new DLAccount(\"Aisha\",100));\n        DLAccount b=testEm.persistAndFlush(new DLAccount(\"Raj\",500));\n        testEm.clear();\n        assertThrows(IllegalStateException.class,()->svc.transfer(a.getId(),b.getId(),500));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Deadlock: Thread A waits for B's lock, Thread B waits for A's lock → circular wait",
+        "Prevention: always lock resources in the SAME order across all transactions",
+        "Math.min/max: sort IDs so both threads always lock smaller ID first"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m17_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Razorpay payment processor — transactions synthesis",
+      "scenario": "Production-grade payment processor with optimistic locking, audit, and retry.",
+      "instructions": "Build the complete Razorpay payment processor:\n1. PaymentOrder @Entity: @Version, merchantId, amount, status (PENDING/CAPTURED/FAILED)\n2. PaymentRepository: standard JpaRepository\n3. AuditService with Propagation.REQUIRES_NEW\n4. PaymentService.capture(orderId): @Retryable(OptimisticLock), captures payment, logs audit\n5. PaymentService.refund(orderId): @Transactional(rollbackFor=Exception.class), @Retryable\n6. @DataJpaTest (3 tests): capture success, duplicate capture fails (wrong status), audit saved on failure\n\nAll 3 tests pass.",
+      "starter_code": "// Complete Razorpay payment processor — transactions synthesis\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.*;\nimport org.springframework.retry.annotation.*;\nimport org.springframework.orm.ObjectOptimisticLockingFailureException;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.math.BigDecimal;\nimport java.time.LocalDateTime;\n\n@Entity @Table(name=\"rp_payment_orders\")\nclass RPPaymentOrder {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    @Column(nullable=false) String merchantId;\n    @Column(nullable=false,precision=14,scale=2) BigDecimal amount;\n    @Column(nullable=false) String status=\"PENDING\";\n    @Version int version;\n    protected RPPaymentOrder(){}\n    RPPaymentOrder(String mid,BigDecimal amt){merchantId=mid;amount=amt;}\n    Long getId(){return id;} String getStatus(){return status;} int getVersion(){return version;}\n    void capture(){if(!\"PENDING\".equals(status))throw new IllegalStateException(\"Cannot capture: status=\"+status);status=\"CAPTURED\";}\n    void fail(){status=\"FAILED\";}\n}\n@Entity @Table(name=\"rp_payment_audits\")\nclass RPPaymentAudit {\n    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) Long id;\n    Long orderId; String action; boolean success; LocalDateTime at=LocalDateTime.now();\n    protected RPPaymentAudit(){}\n    RPPaymentAudit(Long oid,String a,boolean ok){orderId=oid;action=a;success=ok;}\n    boolean isSuccess(){return success;} String getAction(){return action;}\n}\ninterface RPPaymentRepo extends JpaRepository<RPPaymentOrder,Long>{}\ninterface RPAuditRepo  extends JpaRepository<RPPaymentAudit,Long>{\n    java.util.List<RPPaymentAudit> findByOrderId(Long orderId);\n}\n\n@Service\nclass RPAuditService {\n    private final RPAuditRepo repo;\n    RPAuditService(RPAuditRepo r){repo=r;}\n    @Transactional(propagation=Propagation.REQUIRES_NEW)\n    public void log(Long orderId,String action,boolean ok){\n        repo.save(new RPPaymentAudit(orderId,action,ok));\n    }\n}\n\n@Service\nclass RPPaymentService {\n    private final RPPaymentRepo pr; private final RPAuditService audit;\n    RPPaymentService(RPPaymentRepo p,RPAuditService a){pr=p;audit=a;}\n    \n    @Retryable(value=ObjectOptimisticLockingFailureException.class,maxAttempts=3,backoff=@Backoff(delay=50))\n    @Transactional(rollbackFor=Exception.class)\n    public RPPaymentOrder capture(Long orderId){\n        RPPaymentOrder order=pr.findById(orderId).orElseThrow();\n        order.capture();  // throws if not PENDING\n        RPPaymentOrder saved=pr.save(order);\n        audit.log(orderId,\"CAPTURE\",true);\n        return saved;\n    }\n    \n    @Retryable(value=ObjectOptimisticLockingFailureException.class,maxAttempts=3,backoff=@Backoff(delay=50))\n    @Transactional(rollbackFor=Exception.class)\n    public RPPaymentOrder refund(Long orderId){\n        RPPaymentOrder order=pr.findById(orderId).orElseThrow();\n        if(!\"CAPTURED\".equals(order.getStatus()))throw new IllegalStateException(\"Cannot refund\");\n        order.fail();\n        RPPaymentOrder saved=pr.save(order);\n        audit.log(orderId,\"REFUND\",true);\n        return saved;\n    }\n}\n\n@DataJpaTest @Import({RPAuditService.class,RPPaymentService.class})\nclass RPPaymentProcessorTest {\n    @Autowired RPPaymentService svc;\n    @Autowired RPPaymentRepo pr;\n    @Autowired RPAuditRepo ar;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void capture_success(){\n        RPPaymentOrder o=testEm.persistAndFlush(new RPPaymentOrder(\"M01\",new BigDecimal(\"999\")));\n        testEm.clear();\n        RPPaymentOrder captured=svc.capture(o.getId());\n        assertEquals(\"CAPTURED\",captured.getStatus());\n        assertEquals(1,ar.findByOrderId(o.getId()).size());\n        assertTrue(ar.findByOrderId(o.getId()).get(0).isSuccess());\n    }\n    @Test void captureTwice_secondFails(){\n        RPPaymentOrder o=testEm.persistAndFlush(new RPPaymentOrder(\"M02\",new BigDecimal(\"500\")));\n        testEm.clear();\n        svc.capture(o.getId());\n        assertThrows(IllegalStateException.class,()->svc.capture(o.getId()),\"Second capture should fail\");\n    }\n    @Test void capture_auditSavedOnSuccess(){\n        RPPaymentOrder o=testEm.persistAndFlush(new RPPaymentOrder(\"M03\",new BigDecimal(\"200\")));\n        testEm.clear();\n        svc.capture(o.getId());\n        testEm.flush(); testEm.clear();\n        assertEquals(1,ar.count());\n        assertEquals(\"CAPTURE\",ar.findAll().get(0).getAction());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@Retryable + @Transactional: Spring creates a new transaction for each retry attempt",
+        "REQUIRES_NEW audit: commits even if outer transaction (capture) fails or rolls back",
+        "capture() throws IllegalStateException for non-PENDING → not caught by OptimisticLock retry"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  }
+}

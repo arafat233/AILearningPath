@@ -1,0 +1,233 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t5",
+  "language": "java",
+  "module_id": "m4",
+  "module_name": "Object-Oriented Programming Fundamentals",
+  "topic_number": 5,
+  "name": "Static Members & Class-Level Data",
+  "slug": "static-members",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m4_t1", "java_m4_t2", "java_m4_t3", "java_m2_t1"],
+    "concepts_taught": [
+      "static_fields",
+      "static_methods_revisited",
+      "static_initializer_blocks",
+      "constants_static_final",
+      "static_counter_pattern",
+      "factory_method_pattern",
+      "static_utility_class_pattern",
+      "class_loading_and_static",
+      "static_vs_instance_design_decision",
+      "singleton_preview"
+    ],
+    "skills_developed": [
+      "using_static_fields_correctly",
+      "writing_static_utility_methods",
+      "designing_class_constants",
+      "implementing_instance_counting",
+      "writing_factory_methods",
+      "avoiding_static_overuse"
+    ],
+    "career_relevance": "Static members are everywhere in production Java: Math.PI, Integer.MAX_VALUE, String.format, Arrays.sort, System.out — all static. Logger instances are static fields. Constants like HTTP status codes, error codes, limits are static final. Factory methods (like Instant.now(), Optional.of()) are static. If you don't understand static deeply, you'll misuse it — either making everything static (procedural code hidden in classes) or never using it where appropriate. After this topic, you'll reach for static precisely when it's the right tool, and avoid it confidently when it's not.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "You've built a production-quality Product class: encapsulated, validated, with proper toString/equals/hashCode. Now the business says: 'We need to know how many products have been created in this session — it helps us size the inventory load.' How do you track that?\n\nEvery time `new Product()` is called, you want a counter to tick up. But that counter belongs to the WHOLE SYSTEM, not any particular product. There's no sensible place to put it in the instance fields — `int count` would give EACH product its own count of 1, which is meaningless.\n\nThis is exactly what **static fields** are for. A static field belongs to the CLASS, not any instance. One counter. Shared across every Product object. Every `new Product()` increments the same counter.\n\nYou've already been using static constantly without thinking about it — `Math.sqrt`, `Arrays.sort`, `Integer.parseInt`, `System.out`. All static. Today you'll go behind the curtain and understand what static actually means, when to use it, and how to design classes that use it well.",
+    "what_you_will_build": "By the end of this topic, you'll understand static fields (class-level shared state), static methods revisited (utility and factory methods), constants (`static final`), static initializer blocks, and the static vs instance design decision. You'll add an instance counter to Product, write a `ProductFactory` with factory methods, and define a `Constants` class. You'll understand the famous Singleton pattern preview (static field + private constructor). After this topic, you can read and write any Java code — the OOP toolkit is complete."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "You've worked with static since Module 2: every method you wrote in early topics was `public static` because main() is static. Now that you understand classes and instances, static makes complete sense.\n\n**Static** means 'belonging to the class, not to any instance.'\n\n- **Static field**: ONE copy shared by ALL instances of the class (and accessible without any instance)\n- **Static method**: callable on the class name, no instance needed\n- **Non-static (instance) field**: each object has its OWN copy\n- **Non-static (instance) method**: called on a specific object, can access that object's instance fields\n\nAll four appear in real production classes. Understanding when each is appropriate is the skill this topic develops.",
+      
+      "static_fields": "A **static field** is declared with the `static` keyword. ONE copy exists in memory, shared across all objects of the class.\n\n```java\nclass Counter {\n    private static int count = 0;  // shared counter\n    private int id;                  // each instance has its own id\n    \n    public Counter() {\n        count++;             // increment the shared counter\n        this.id = count;    // this instance's id = current count\n    }\n    \n    public static int getCount() { return count; }\n    public int getId() { return id; }\n}\n\nCounter a = new Counter();\nCounter b = new Counter();\nCounter c = new Counter();\n\nSystem.out.println(Counter.getCount());  // 3 — class-level access\nSystem.out.println(a.getId());            // 1\nSystem.out.println(b.getId());            // 2\nSystem.out.println(c.getId());            // 3\n```\n\n**Key observations**:\n- `count` is static — all three constructors increment the SAME count\n- `id` is instance — each object has its own\n- Static fields accessed via `ClassName.field` (preferred) or `instance.field` (compiles, but misleading)\n- Static fields initialized when the class is LOADED (before any instance is created)\n\n**When static fields make sense**:\n- Counters, ID generators\n- Shared configuration or state\n- Caches shared by all instances\n- Anything where one value applies to ALL objects",
+      
+      "constants": "The most common use of static fields is **constants** — values that never change, shared across all code.\n\n```java\nclass MathConstants {\n    public static final double PI = 3.14159265358979;\n    public static final double E = 2.71828182845904;\n    public static final int MAX_PRECISION = 15;\n}\n\n// Access without any object:\ndouble circumference = 2 * MathConstants.PI * radius;\n```\n\n**`static final`** — the canonical constant pattern:\n- `static`: one copy, class-level\n- `final`: can't be reassigned after initialization\n- Together: a true constant that won't change\n\n**Naming convention**: `SCREAMING_SNAKE_CASE` for constants. `MAX_SIZE`, `DEFAULT_TIMEOUT`, `HTTP_OK` — signals to readers: 'this doesn't change.'\n\nJava's own constants:\n```java\nMath.PI         // 3.141592653589793\nInteger.MAX_VALUE  // 2147483647\nDouble.NaN      // Not-a-Number\nInteger.MIN_VALUE  // -2147483648\nSystem.lineSeparator()  // OS-specific newline (it's actually a method, but same idea)\n```\n\n**Practical use**: HTTP status codes, error codes, limits, default values, mathematical constants. Every app has dozens.",
+      
+      "static_methods_revisited": "You've been writing static methods since Module 2. Now you understand them at a deeper level.\n\n```java\nclass MathUtils {\n    // Static utility — no instance needed, no instance data\n    public static int square(int n) {\n        return n * n;\n    }\n    \n    public static boolean isPrime(int n) {\n        if (n < 2) return false;\n        for (int i = 2; i * i <= n; i++) {\n            if (n % i == 0) return false;\n        }\n        return true;\n    }\n}\n\n// Call on class, not instance:\nSystem.out.println(MathUtils.square(5));    // 25\nSystem.out.println(MathUtils.isPrime(7));   // true\n```\n\n**Rules about static methods**:\n- Can access STATIC fields and methods (they're class-level too)\n- CANNOT access instance fields/methods directly (which instance?)\n- Cannot use `this` (no 'current object' in a static context)\n\n**Two primary reasons to make a method static**:\n\n1. **Utility method**: does computation on its parameters, needs no instance state. (`Math.sqrt`, `Arrays.sort`, `String.valueOf`)\n\n2. **Factory method**: creates and returns instances (alternative to directly calling `new`). (`LocalDate.now()`, `Optional.of(...)`, `List.of(...)`)\n\n**Utility class pattern**: a class with ONLY static methods and constants, no instance variables, private constructor to prevent instantiation:\n\n```java\nclass AppConfig {\n    public static final String APP_NAME = \"CodeQuest\";\n    public static final int MAX_USERS = 10000;\n    \n    private AppConfig() {}  // prevent instantiation\n    \n    public static String getVersion() { return \"1.0.0\"; }\n}\n// Use: AppConfig.APP_NAME, AppConfig.getVersion()\n// Can't do: new AppConfig() — constructor is private\n```\n\n**Why `private AppConfig()`?** Without it, someone could write `AppConfig cfg = new AppConfig()` — pointless since there are no instance fields. The private constructor explicitly says 'this class is not meant to be instantiated.' (`Math` does this.)",
+      
+      "factory_methods": "A **factory method** is a static method that creates and returns instances of the class, often providing more semantic clarity or validation than a constructor.\n\n```java\nclass Money {\n    private double amount;\n    private String currency;\n    \n    private Money(double amount, String currency) {  // private constructor!\n        this.amount = amount;\n        this.currency = currency;\n    }\n    \n    // Factory methods\n    public static Money inRupees(double amount) {\n        if (amount < 0) throw new IllegalArgumentException(\"Amount cannot be negative\");\n        return new Money(amount, \"INR\");\n    }\n    \n    public static Money inDollars(double amount) {\n        if (amount < 0) throw new IllegalArgumentException(\"Amount cannot be negative\");\n        return new Money(amount, \"USD\");\n    }\n    \n    public static Money zero(String currency) {\n        return new Money(0, currency);\n    }\n}\n\n// Usage:\nMoney rupees = Money.inRupees(1000);\nMoney dollars = Money.inDollars(50);\nMoney empty = Money.zero(\"INR\");\n```\n\n**Why factory methods?**\n\n1. **Semantic names**: `Money.inRupees(1000)` is clearer than `new Money(1000, \"INR\")`\n2. **Returns null if needed**: constructors always return a new object; factory methods can return null or a cached instance\n3. **Can return subclasses**: factory can decide which implementation to return\n4. **Control instantiation**: private constructor + factory = full control over who can create instances\n\nReal Java examples: `LocalDate.now()`, `LocalDate.of(2024, 1, 1)`, `Optional.of(value)`, `Optional.empty()`, `List.of(1, 2, 3)`.",
+      
+      "static_vs_instance": "The hardest part: deciding what's static vs instance. Questions to ask:\n\n**For FIELDS**:\n- Does ONE VALUE apply to ALL objects? → Static\n- Does EACH OBJECT have its own value? → Instance\n\nExamples:\n- `Product.count` (how many products exist) → static\n- `Product.id` (this product's ID) → instance\n- `BankAccount.interestRate` (same for all accounts) → could be static\n- `BankAccount.balance` (each account's own balance) → instance\n\n**For METHODS**:\n- Does the method need THIS OBJECT's data to work? → Instance\n- Does the method work purely on its PARAMETERS? → Static (utility)\n- Does the method create new objects? → Often static (factory)\n\nExamples:\n- `product.getPrice()` → instance (needs THIS product's price)\n- `Math.sqrt(x)` → static (works on x, needs no object)\n- `LocalDate.now()` → static factory (creates a new object)\n\n**The anti-pattern**: making everything static when you 'just want to call it.' This turns OOP into glorified procedural code:\n\n```java\n// BAD: all static, object-in-disguise\nclass ProductService {\n    public static Product getProduct(int id) { ... }\n    public static void updateProduct(Product p) { ... }\n    public static List<Product> search(String q) { ... }\n}\n\n// Good: instance-based service (constructor injects dependencies)\nclass ProductService {\n    private final Database db;\n    \n    public ProductService(Database db) { this.db = db; }\n    \n    public Product getProduct(int id) { return db.find(id); }\n    public void updateProduct(Product p) { db.save(p); }\n}\n```\n\nServices, repositories, any class that has dependencies — keep as instances. Constants, utilities, factories → static is appropriate.",
+      
+      "static_initializer_blocks": "When static field initialization is more complex than a simple assignment, use a **static initializer block**:\n\n```java\nclass Config {\n    public static final String DATABASE_URL;\n    public static final int MAX_CONNECTIONS;\n    \n    static {  // runs when class is first loaded\n        String env = System.getenv(\"DB_URL\");\n        DATABASE_URL = (env != null) ? env : \"jdbc:h2:mem:test\";\n        MAX_CONNECTIONS = Integer.parseInt(\n            System.getenv().getOrDefault(\"MAX_CONN\", \"10\")\n        );\n    }\n}\n```\n\nThe `static { ... }` block runs ONCE when the class is first loaded by the JVM — before any object is created, before any static method is called.\n\n**Use when**: initialization requires computation, try/catch, or multiple statements.\n\n**Simpler alternative for most cases**: static method returning a computed value:\n\n```java\npublic static final String VERSION = computeVersion();\n\nprivate static String computeVersion() {\n    return \"1.0.\" + BuildInfo.getBuildNumber();\n}\n```",
+      
+      "singleton_preview": "A brief, important preview: **Singleton** — a class that allows ONLY ONE instance to exist.\n\n```java\nclass AppLogger {\n    private static AppLogger instance;  // static field holds the single instance\n    \n    private AppLogger() {}  // private — prevents direct instantiation\n    \n    public static AppLogger getInstance() {\n        if (instance == null) {\n            instance = new AppLogger();\n        }\n        return instance;\n    }\n    \n    public void log(String message) {\n        System.out.println(\"[LOG] \" + message);\n    }\n}\n\n// Usage:\nAppLogger.getInstance().log(\"App started\");\nAppLogger.getInstance().log(\"User logged in\");\n// Always the SAME object\n```\n\n**Why Singleton?** Some things should be ONE: a logger, a configuration manager, a database connection pool. Multiple instances would be wasteful or cause conflicts.\n\n**Key**: private static field holds the one instance. Private constructor prevents others from creating it. Public static `getInstance()` returns the same one each time.\n\n**Important note**: Singleton is one of the most famous (and misused) design patterns. Modern Java with Spring uses dependency injection instead of Singleton for most cases. But understanding Singleton teaches you how static + instance concepts combine. We'll revisit in the Design Patterns topic."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a memory layout with class-level data on the LEFT and instance data on the RIGHT. Class-level (Product class): 'count = 3 (shared, static)'. Three Product objects: p1[id=101, name=Mouse], p2[id=102, name=Keyboard], p3[id=103, name=Monitor] — each with their own instance fields. Arrows from all three objects pointing to the same 'count' field — one counter, three objects sharing it. Below: constants panel showing 'static final int MAX_PRICE = 99999' — one value, never changes. Side panel shows: 'Static method called on class name: Product.getCount()' vs 'Instance method called on object: p1.getPrice()'.",
+      "alt_text": "Visual showing static (class-level) vs instance fields in memory, with all instances sharing one static counter"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "The Product class has evolved through 4 topics. Now the operations team wants two things: (1) a global counter of how many products have been created, and (2) a maximum price limit enforced at the class level. Plus, the catalog manager wants named factory methods instead of raw constructors. Time to add static members.",
+    
+    "problem_statement": "Add static members to the Product class:\n1. `static int count` — tracks total products ever created, increments in constructor\n2. `static final double MAX_PRICE = 99999.99` — a constant upper limit\n3. Constructor should validate against MAX_PRICE too\n4. `static int getCount()` — returns count\n5. `static Product electronics(int id, String name, double price)` — factory for electronics (stock defaults to 0)\n6. `static Product createWithAutoId(String name, int stock, double price)` — auto-assigns id based on count",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Add static count field and MAX_PRICE constant",
+        "details": "```java\nclass Product {\n    // STATIC members — belong to the class\n    private static int count = 0;\n    public static final double MAX_PRICE = 99999.99;\n    \n    // INSTANCE members — belong to each object\n    private final int id;\n    private String name;\n    private int stock;\n    private double price;\n    \n    // ...rest of class\n}\n```\n\nTwo very different kinds of fields:\n- `count`: private (hidden), mutable (changes), static (shared)\n- `MAX_PRICE`: public (accessible), immutable (final), static (one value for all)\n\nAccess:\n- `Product.count` — from inside the class (it's private)\n- `Product.MAX_PRICE` — from anywhere (it's public)"
+      },
+      {
+        "step": 2,
+        "action": "Update constructor to increment count and validate against MAX_PRICE",
+        "details": "```java\npublic Product(int id, String name, int stock, double price) {\n    if (id <= 0) throw new IllegalArgumentException(\"ID must be positive\");\n    if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n    if (stock < 0) throw new IllegalArgumentException(\"Stock cannot be negative\");\n    if (price < 0 || price > MAX_PRICE) {\n        throw new IllegalArgumentException(\"Price must be between 0 and \" + MAX_PRICE);\n    }\n    \n    count++;  // increment static counter\n    \n    this.id = id;\n    this.name = name;\n    this.stock = stock;\n    this.price = price;\n}\n```\n\nTwo additions:\n- Price validation now includes the upper limit\n- `count++` — each construction increments the shared counter\n\nNotice: inside the constructor (inside the class), we can access the static field `count` directly. No need for `Product.count` (though that also works)."
+      },
+      {
+        "step": 3,
+        "action": "Add static getter for count",
+        "details": "```java\npublic static int getCount() {\n    return count;\n}\n```\n\nSimple. The method is static — no instance needed, callable as `Product.getCount()`. Returns the static count field.\n\nWhy provide a getter instead of making count public? Same reason as always — controlled access. If count was public, someone could set `Product.count = 0` and clear the history. With a getter and no setter, count is read-only from outside."
+      },
+      {
+        "step": 4,
+        "action": "Add factory methods",
+        "details": "```java\n// Factory for electronics — stock defaults to 0 (not yet in inventory)\npublic static Product electronics(int id, String name, double price) {\n    return new Product(id, name, 0, price);\n}\n\n// Auto-assigns ID based on count (next available ID)\npublic static Product createWithAutoId(String name, int stock, double price) {\n    int nextId = count + 1;  // will become the next count after new Product increments\n    return new Product(nextId, name, stock, price);\n}\n```\n\nBoth are static — they CREATE Products but don't belong to any specific Product.\n\n`electronics` gives a semantic name: 'create a new product as an electronics item (stock 0, price is MSRP).'\n\n`createWithAutoId` uses the current count to assign an ID automatically. Clean convenience method.\n\n**Important**: both delegate to the main constructor — all validation still runs."
+      },
+      {
+        "step": 5,
+        "action": "Demonstrate in main",
+        "details": "```java\npublic static void main(String[] args) {\n    System.out.println(\"Initial count: \" + Product.getCount());  // 0\n    System.out.println(\"Max price: ₹\" + Product.MAX_PRICE);\n    \n    Product p1 = new Product(101, \"Mouse\", 45, 599.99);\n    Product p2 = Product.electronics(102, \"Keyboard\", 1999.0);\n    Product p3 = Product.createWithAutoId(\"Monitor\", 10, 15999.0);\n    \n    System.out.println(\"Count after 3 products: \" + Product.getCount());  // 3\n    \n    System.out.println(p1);\n    System.out.println(p2);\n    System.out.println(p3);\n    \n    // Try exceeding MAX_PRICE\n    try {\n        Product expensive = new Product(999, \"Diamond Watch\", 5, 199999.0);\n    } catch (IllegalArgumentException e) {\n        System.out.println(\"Rejected: \" + e.getMessage());\n    }\n    \n    System.out.println(\"Count still: \" + Product.getCount());  // still 3\n}\n```\n\nThe count stays 3 after the rejected creation — because the exception fires BEFORE `count++` in the constructor."
+      }
+    ],
+    
+    "final_code": "import java.util.Objects;\n\nclass Product {\n    // Static members\n    private static int count = 0;\n    public static final double MAX_PRICE = 99999.99;\n    \n    // Instance members\n    private final int id;\n    private String name;\n    private int stock;\n    private double price;\n    \n    public Product(int id, String name, int stock, double price) {\n        if (id <= 0) throw new IllegalArgumentException(\"ID must be positive\");\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        if (stock < 0) throw new IllegalArgumentException(\"Stock cannot be negative\");\n        if (price < 0 || price > MAX_PRICE) {\n            throw new IllegalArgumentException(\"Price must be between 0 and \" + MAX_PRICE);\n        }\n        count++;  // shared counter increments for each valid creation\n        this.id = id;\n        this.name = name;\n        this.stock = stock;\n        this.price = price;\n    }\n    \n    // Static getter\n    public static int getCount() { return count; }\n    \n    // Factory methods\n    public static Product electronics(int id, String name, double price) {\n        return new Product(id, name, 0, price);\n    }\n    \n    public static Product createWithAutoId(String name, int stock, double price) {\n        return new Product(count + 1, name, stock, price);\n    }\n    \n    // Instance methods\n    public int getId() { return id; }\n    public String getName() { return name; }\n    public int getStock() { return stock; }\n    public double getPrice() { return price; }\n    \n    @Override public String toString() {\n        return \"Product[#\" + id + \" \" + name + \" — Stock: \" + stock + \", Price: ₹\" + price + \"]\";\n    }\n    \n    @Override public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Product)) return false;\n        return this.id == ((Product) other).id;\n    }\n    \n    @Override public int hashCode() { return Objects.hash(id); }\n}\n\npublic class ProductV5 {\n    public static void main(String[] args) {\n        System.out.println(\"Initial count: \" + Product.getCount());\n        System.out.println(\"Max price: ₹\" + Product.MAX_PRICE);\n        \n        Product p1 = new Product(101, \"Mouse\", 45, 599.99);\n        Product p2 = Product.electronics(102, \"Keyboard\", 1999.0);\n        Product p3 = Product.createWithAutoId(\"Monitor\", 10, 15999.0);\n        \n        System.out.println(\"Count: \" + Product.getCount());\n        System.out.println(p1);\n        System.out.println(p2);\n        System.out.println(p3);\n        \n        try {\n            new Product(999, \"Diamond Watch\", 5, 199999.0);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Rejected: \" + e.getMessage());\n        }\n        \n        System.out.println(\"Count still: \" + Product.getCount());\n    }\n}",
+    
+    "expected_output": "Initial count: 0\nMax price: ₹99999.99\nCount: 3\nProduct[#101 Mouse — Stock: 45, Price: ₹599.99]\nProduct[#102 Keyboard — Stock: 0, Price: ₹1999.0]\nProduct[#103 Monitor — Stock: 10, Price: ₹15999.0]\nRejected: Price must be between 0 and 99999.99\nCount still: 3",
+    
+    "things_to_notice": [
+      "Product.getCount() called on the CLASS (no instance). Product.MAX_PRICE accessed on the class. This is static access pattern — no `new` needed.",
+      "After a FAILED construction (the 199999 price), count stays 3. Because we validate BEFORE `count++`. Order matters.",
+      "The factory method `createWithAutoId` uses `count + 1` for the id — before incrementing. After the constructor runs, count becomes 4, and this product has id 4. Clean.",
+      "MAX_PRICE is both `static` (one value) and `final` (can't change). Constants get both keywords.",
+      "Both factory methods delegate to the main constructor — all validation still runs. DRY (Don't Repeat Yourself).",
+      "The Product class now has BOTH static and instance members. It's not all-one-or-the-other. Real classes mix both appropriately.",
+      "Notice we can still call `p1.getCount()` (through an instance reference) but `Product.getCount()` is cleaner and makes the static nature explicit."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Java standard library (every Java app)",
+        "use_case": "The standard library is full of static: `Math.PI`, `Math.sqrt()`, `Integer.MAX_VALUE`, `String.valueOf()`, `Arrays.sort()`, `System.out`, `System.currentTimeMillis()`. You've been using static since day 1. Now you understand what those calls mean: no instance, just class-level operations."
+      },
+      {
+        "company_context": "Spring Framework (every modern Java backend)",
+        "use_case": "Spring beans are singletons by default (Spring manages their lifecycle using the Singleton pattern). LoggerFactory.getLogger() is a static factory method. Constants like HttpStatus.OK (200), HttpStatus.NOT_FOUND (404) are `public static final` in the HttpStatus enum. Static deeply permeates Spring usage."
+      },
+      {
+        "company_context": "Security & configuration (Razorpay, Stripe, PayU)",
+        "use_case": "API keys, timeout values, retry limits — all `static final` constants. Configuration loaded at startup is static. Singletons hold connection pools (one pool for all threads, not one per request). Misunderstanding static vs instance here causes resource leaks."
+      },
+      {
+        "company_context": "Android development (every Android app)",
+        "use_case": "Android's `Context` is often passed around statically (though modern code avoids this due to memory leak risks). Resources, themes, DP-to-pixel conversion utilities — all static methods. The Application class is a de-facto Singleton. Understanding static is essential for Android."
+      }
+    ],
+    
+    "interview_relevance": "Static is a HOT interview topic:\n\n- **'What's the difference between static and instance methods?'** — Foundational. Watch for: 'static belongs to class, instance belongs to objects.'\n- **'Can a static method call an instance method?'** — No, directly. It doesn't know which instance. Must have a reference.\n- **'Can an instance method access static fields?'** — Yes! Instance methods can access both.\n- **'What is a Singleton pattern?'** — Private static instance, private constructor, public static getInstance().\n- **'What is a factory method?'** — Static method that creates and returns an instance, often with semantic naming or special logic.\n- **'When would you use a static field?'** — Shared state: counters, constants, caches. Not for per-object state.\n\nCode smell question: 'I see this class has 20 static methods and no instance fields. What do you think?' — Expected answer: 'It's a utility class — valid if intentional, but could be a sign of procedural thinking in an OOP codebase.'",
+    
+    "real_world_workflow": "Daily life with static:\n\n- Reading constants: `HttpStatus.OK`, `MediaType.APPLICATION_JSON`, `TimeUnit.SECONDS`\n- Using utility methods: `Objects.nonNull()`, `Collections.emptyList()`, `StringUtils.isBlank()`\n- Using factory methods: `LocalDate.now()`, `Optional.of(value)`, `BigDecimal.valueOf(1.5)`\n- Writing constants in your domain: `public static final int MAX_RETRY_COUNT = 3`\n- Writing utility methods in a helper class\n- Using LoggerFactory: `private static final Logger log = LoggerFactory.getLogger(MyClass.class)`\n- Avoiding the trap of making service classes static (they need dependencies via constructor injection)"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "accessing_instance_from_static",
+      "what_students_get_wrong": "Trying to use `this` or access instance fields inside a static method. 'Cannot use this in a static context.'",
+      "remediation": "Static methods don't have a 'current object.' Pass the object as a parameter, or move the code to an instance method.",
+      "detection_pattern": "Compilation error: non-static method/field cannot be referenced from static context"
+    },
+    {
+      "gap_id": "calling_static_on_instance",
+      "what_students_get_wrong": "Writing `product.getCount()` instead of `Product.getCount()`. Compiles, but misleading — looks like an instance method.",
+      "remediation": "Static members should be accessed via the class name, not an instance reference. IDEs warn about this. Makes code clearer.",
+      "detection_pattern": "Code works but generates IDE warning"
+    },
+    {
+      "gap_id": "not_making_constants_final",
+      "what_students_get_wrong": "Writing `public static int MAX_PRICE = 100` — without `final`. It compiles, but anyone can change `MAX_PRICE`.",
+      "remediation": "Constants need both `static` AND `final`. Static means one copy. Final means immutable. Together: a true constant.",
+      "detection_pattern": "Constants accidentally modified"
+    },
+    {
+      "gap_id": "mutable_static_state_bugs",
+      "what_students_get_wrong": "Making too many things static (especially mutable state). In multi-threaded environments, shared mutable static state causes race conditions.",
+      "remediation": "Be careful with mutable static fields. Constants are fine (immutable). Mutable static state needs synchronization in concurrent code (covered in Threads topic).",
+      "detection_pattern": "Inconsistent behavior in concurrent applications"
+    },
+    {
+      "gap_id": "singleton_not_private_constructor",
+      "what_students_get_wrong": "Implementing Singleton without a private constructor — others can bypass getInstance() and call `new Singleton()` directly.",
+      "remediation": "Private constructor + static instance + static getInstance(). All three required for a proper Singleton.",
+      "detection_pattern": "Multiple instances of 'Singleton' class exist"
+    },
+    {
+      "gap_id": "constant_naming_wrong",
+      "what_students_get_wrong": "Naming constants like variables (`maxPrice`) instead of SCREAMING_SNAKE_CASE (`MAX_PRICE`).",
+      "remediation": "Convention: constants (static final) use SCREAMING_SNAKE_CASE. Signals to readers: 'this value is fixed and class-level.'",
+      "detection_pattern": "Code review feedback on naming"
+    },
+    {
+      "gap_id": "overusing_static",
+      "what_students_get_wrong": "Making everything static because 'it works.' Ends up with procedural code masquerading as OOP.",
+      "remediation": "Ask: 'Does this method/field belong to all objects or one specific object?' Services with dependencies must be instances (for testability, injection). Utility functions with no state → static.",
+      "detection_pattern": "Class has all static members, no instance state — often a service that SHOULD be an instance"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Static = belongs to the CLASS. One copy shared by all instances.",
+      "Instance = belongs to each OBJECT. Each object has its own copy.",
+      "Static fields: counters, constants, caches, shared state",
+      "Constants: `public static final TYPE NAME = value;` — SCREAMING_SNAKE_CASE",
+      "Static methods: utility (works on parameters) or factory (creates instances)",
+      "Static methods cannot access `this` or instance members (no current object)",
+      "Instance methods CAN access static members (they know their class)",
+      "Static factory methods: `ClassName.factoryMethod(...)` creates instances with semantic naming",
+      "Singleton: private static instance + private constructor + public static getInstance()",
+      "Don't make everything static — services with dependencies must be instances",
+      "Access static members via class name: `Product.getCount()`, NOT `p.getCount()`",
+      "Static initializer blocks: run once at class load, for complex initialization"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why doesn't this compile?\n```java\nclass Counter {\n    private int count = 0;\n    \n    public static void increment() {\n        count++;\n    }\n}\n```",
+        "answer": "Static methods cannot access instance (non-static) fields. `count` is an instance field — it belongs to specific Counter objects. Inside a static method, there's no 'current object,' so `count` is ambiguous — which object's count? Fix: make `count` static too (`private static int count = 0;`), or make `increment()` an instance method (remove `static`)."
+      },
+      {
+        "question": "What's the difference between `Product.MAX_PRICE` and `p1.MAX_PRICE`?",
+        "answer": "Both work and give the same value — MAX_PRICE is static, so there's only one copy regardless of which object you access it through. But `Product.MAX_PRICE` is PREFERRED. Accessing static via an instance (`p1.MAX_PRICE`) is misleading — it looks like p1's specific value. Using the class name makes the static nature explicit and is better practice. Most IDEs generate a warning for the instance-access form."
+      },
+      {
+        "question": "Can an instance method access a static field? Can a static method access an instance field?",
+        "answer": "YES and NO. Instance methods CAN access static fields — an instance knows its class, and static fields are class-level. Both are accessible from inside any method of that class. Static methods CANNOT access instance fields — there's no 'current object' inside a static method, so which instance's field would it access? The compiler refuses with 'non-static variable X cannot be referenced from a static context.'"
+      },
+      {
+        "question": "You have 1000 BankAccount objects all sharing the same interest rate. Should `interestRate` be static or instance?",
+        "answer": "Static. The interest rate is the SAME VALUE across all accounts — one copy applies to all. Making it an instance field would waste memory (1000 redundant copies of the same value) and, more importantly, make it hard to update consistently (change one instance → others still have the old rate). Static field → one update changes the rate for all accounts everywhere."
+      },
+      {
+        "question": "When should you use a factory method instead of a constructor?",
+        "answer": "Factory methods are useful when: (1) you want semantic naming (`Money.inRupees(100)` vs `new Money(100, 'INR')`), (2) you want to return null or a cached object (constructors always return new), (3) the actual returned type may differ (factory can return subclasses), (4) you want to restrict instantiation (private constructor + factory = full control). Real examples: `LocalDate.of(2024, 1, 1)`, `Optional.of(value)`, `Optional.empty()`, `List.of(1, 2, 3)`."
+      }
+    ],
+    
+    "next_topic_preview": "Module 4 is nearly complete! The final topic wraps up with the remaining OOP tools that complete the toolkit: **`this` keyword in depth** (referencing the current object, passing this, this() in constructors — which we touched on), **composition patterns** (classes that CONTAIN other classes as fields — has-a relationship), and a **Module 4 review** tying all five topics together into a complete class design exercise. After Topic 4.6, Module 4 is done and Module 5 (Inheritance & Polymorphism) begins."
+  }
+}

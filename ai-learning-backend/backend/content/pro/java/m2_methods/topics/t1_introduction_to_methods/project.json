@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m2_t1_proj",
+  "linked_topic": "java_m2_t1",
+  "level": "mini",
+  "name": "Refactor the ATM System into Methods",
+  "estimated_minutes": 40,
+  "difficulty": 4,
+  
+  "scenario": "Remember the ATM Withdrawal System from Module 1 (Topic 1.4)? It worked, but the entire program — validation, fee calculation, transaction logging, output — was crammed into a single 80-line main() method. That's exactly the kind of code that breaks in production: when one small thing changes, you have to read everything to figure out what to touch. This project takes that exact same logic and refactors it into properly organized methods. Same output, dramatically better code. This is what a senior engineer does on day one of any new job: 'organize this.'",
+  
+  "description": "Take the ATM Withdrawal System logic and refactor it into a class with multiple well-named methods. The refactored code should produce identical output but be structured into method calls instead of one long main().",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `ATMSystem` in file ATMSystem.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "main() method is 10 lines or fewer — just method calls",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Defines at least 5 distinct methods (besides main)",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "All methods are public static void",
+        "weight": 5
+      },
+      {
+        "id": "req_6",
+        "description": "Method names are camelCase verbs (printHeader, validateRequest, etc.)",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Uses class-level static variables for account data (acceptable for now — parameters covered next topic)",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "Output produces a complete ATM transaction summary",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Has at least one 'helper method' that's called from multiple other methods (DRY in action)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Defines a method `validateAll()` that calls individual `validateCard()`, `validateAccount()`, `validateAmount()`, `validateLimit()` methods. This is method-calling-method (hierarchy).",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Each method has a brief comment ABOVE it explaining what it does (industry standard for documentation)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Output has clear visual sections with consistent formatting",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Use these class-level static variables (declared at the top of the class):\n\n```java\nstatic String accountNumber = \"AC4729384726\";\nstatic String accountType = \"Savings\";\nstatic double currentBalance = 25000.0;\nstatic boolean accountActive = true;\nstatic boolean cardBlocked = false;\nstatic double todayWithdrawals = 8000.0;\nstatic final double DAILY_LIMIT = 25000.0;\nstatic double requestedAmount = 5000.0;\nstatic boolean isATMOwner = true;\n// Calculated later — declared but not initialized\nstatic double finalCost;\nstatic boolean approved;\n```",
+  
+  "suggested_method_breakdown": "Suggested methods (you can use these names or your own — point is to break it into logical pieces):\n\n- `printHeader()` — top section of the report\n- `printAccountDetails()` — show account info\n- `printValidationResults()` — show what passed/failed\n- `calculateFee()` — determine transaction fee based on account type (uses switch internally)\n- `calculateFinalAmount()` — figure out the total to deduct\n- `printTransactionSummary()` — show the final outcome\n- `printFooter()` — bottom section\n\nBonus structure: split validation into separate methods (validateCard, validateAccount, etc.) and have a `validateAll()` method that calls them.",
+  
+  "starter_code": "// Build your refactored ATMSystem below\n// Take the logic that was crammed into main() in Module 1's ATM project\n// and split it into properly organized methods\n\npublic class ATMSystem {\n    // Class-level data (we'll use parameters in next topic to improve this)\n    static String accountNumber = \"AC4729384726\";\n    static String accountType = \"Savings\";\n    static double currentBalance = 25000.0;\n    static boolean accountActive = true;\n    static boolean cardBlocked = false;\n    static double todayWithdrawals = 8000.0;\n    static final double DAILY_LIMIT = 25000.0;\n    static double requestedAmount = 5000.0;\n    static boolean isATMOwner = true;\n    \n    // Calculated values\n    static double fee;\n    static double finalCost;\n    static boolean approved;\n    \n    public static void main(String[] args) {\n        // This should be just method calls — ~5-10 lines\n        // Example structure:\n        // printHeader();\n        // printAccountDetails();\n        // validateRequest();  // or validateAll() for bonus\n        // calculateFee();\n        // calculateFinalAmount();\n        // printTransactionSummary();\n        // printFooter();\n    }\n    \n    // Define your methods below main\n    \n}",
+  
+  "example_output": "╔═══════════════════════════════════════════╗\n║         ATM TRANSACTION SYSTEM            ║\n╚═══════════════════════════════════════════╝\nAccount:          AC4729384726\nType:             Savings\nBalance:          ₹25000.0\n-------------------------------------------\nVALIDATION:\n  ✓ Card status check\n  ✓ Account active check\n  ✓ Amount valid check\n  ✓ Balance sufficient check\n  ✓ Daily limit check\n-------------------------------------------\nFEE CALCULATION:\n  Account Type: Savings\n  ATM Owner: true\n  Transaction Fee: ₹0.0\n-------------------------------------------\nTRANSACTION:\n  Amount Requested: ₹5000.0\n  Fee Applied:      ₹0.0\n  Total Deducted:   ₹5000.0\n  Remaining Today:  ₹12000.0\n-------------------------------------------\n         ✓ APPROVED\n===========================================\n\n(Your exact output can vary slightly — the important thing is each section has its own method generating it.)",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs and produces output (5 pts)"
+      ]
+    },
+    {
+      "category": "Method Count & Organization",
+      "points": 25,
+      "criteria": [
+        "At least 5 methods besides main (15 pts)",
+        "main() is 10 lines or fewer (10 pts)"
+      ]
+    },
+    {
+      "category": "Method Quality",
+      "points": 20,
+      "criteria": [
+        "All methods are public static void (5 pts)",
+        "Each method does ONE thing (10 pts)",
+        "Method names are camelCase verbs (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Structure",
+      "points": 15,
+      "criteria": [
+        "Class-level static variables used appropriately (5 pts)",
+        "Methods called in logical order from main (5 pts)",
+        "Definition order makes sense (related methods near each other) (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 15,
+      "criteria": [
+        "Clear section structure (5 pts)",
+        "Status indicators present (5 pts)",
+        "Professional appearance (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 10,
+      "criteria": [
+        "Consistent indentation (5 pts)",
+        "Variable names clear (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 55,
+      "criteria": [
+        "Helper method reused (15 pts)",
+        "Hierarchical validation (validateAll → validateCard etc.) (20 pts)",
+        "Comments on each method (10 pts)",
+        "Polished formatting (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 4 AI hints. This is a REFACTORING exercise — the original logic is already known from Module 1. Your job is to ORGANIZE it. Use hints if stuck on method syntax. Don't ask AI to design the method structure — that's the actual learning here.",
+  
+  "submission_instructions": "Save as ATMSystem.java. Run it. Compare to your Module 1 ATM project — the OUTPUT should be similar but the CODE should look very different (organized into methods). When complete, commit to GitHub with a meaningful message like 'refactor: organize ATM logic into methods'. This kind of refactoring commit is what daily code review looks like in industry.",
+  
+  "tips_for_success": [
+    "Plan first. List the SECTIONS of your output. Each section → likely a method.",
+    "Write main() FIRST. As a high-level outline. Even if the methods don't exist yet — Java reads the whole file before running.",
+    "Then implement the methods one by one. Test as you go — comment out unwritten methods and add them gradually.",
+    "If you find yourself writing the same code twice, extract a helper method (like printSeparator).",
+    "Compare your refactored version to the Module 1 original. Read main() out loud — does it sound like a sentence describing what the program does?",
+    "Method bodies should each be roughly the same size. If one method is 30 lines and another is 2, consider splitting the long one further."
+  ],
+  
+  "concepts_reinforced": [
+    "Method definition syntax",
+    "Method calls and execution flow",
+    "Methods calling other methods (hierarchy)",
+    "Single Responsibility Principle",
+    "DRY (Don't Repeat Yourself)",
+    "Class-level static variables (workaround until parameters)",
+    "Method naming conventions",
+    "Real-world refactoring workflow"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Refactoring is half of professional software engineering. You rarely write code from scratch — you ADAPT existing code, FIX existing code, EXTEND existing code. The skill of 'see messy code, see organized version' is what distinguishes a junior from a mid-level engineer. This exercise builds that skill directly. After this, when you see a 100-line method, you'll instinctively start identifying where the natural divisions are. That instinct is worth real money to employers.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a 'transaction history' method that prints (placeholder) data — preview of arrays/collections",
+    "Add a method `confirmTransaction()` that shows a 'Are you sure?' prompt — gets you thinking about user interaction (Scanner topic later)",
+    "Add multiple test scenarios: copy your class, change the static values, observe different outputs",
+    "Once you learn parameters (next topic), come back and refactor to pass account data through parameters instead of class variables"
+  ]
+}

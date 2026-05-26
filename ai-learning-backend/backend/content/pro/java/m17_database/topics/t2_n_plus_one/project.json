@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m17_t2_proj",
+  "linked_topic": "java_m17_t2",
+  "level": "mini",
+  "name": "Flipkart Order Dashboard — N+1 Detection & Fix",
+  "estimated_minutes": 55,
+  "difficulty": 8,
+
+  "scenario": "The Flipkart order dashboard is slow in production. 10,000 orders × 2 associations = 20,001 database queries per request. Identify the N+1, apply the correct fix (JOIN FETCH / @EntityGraph / @BatchSize as appropriate), write query-count assertion tests, and measure the improvement.",
+
+  "description": "Order @Entity with User @ManyToOne and Product @ManyToOne associations. N+1 demonstration, 3 fix approaches (JOIN FETCH, @EntityGraph, DTO projection), and @DataJpaTest verifying exactly 1 query using Hibernate statistics.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Order @Entity: id (UUID), user @ManyToOne (LAZY), product @ManyToOne (LAZY), status VARCHAR, quantity INT, total DECIMAL, created_at. User @Entity: id, name, email. Product @Entity: id, name, category, price.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "OrderService.getAllOrderDtos() version A — the N+1 version using findAll() + accessing associations in loop. Document with comments showing WHERE N+1 happens and how many queries for 100 orders.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "OrderRepository with 3 methods: (1) findAllWithDetails() using JOIN FETCH user + product, (2) @EntityGraph version on findByStatus(), (3) DTO projection findSummaryByStatus() returning OrderSummaryDto(orderId, userName, productName, total).",
+        "weight": 25
+      },
+      {
+        "id": "req_4",
+        "description": "OrderService.getAllOrderDtos() version B — uses findAllWithDetails() JOIN FETCH. getAllOrderSummaries(status) uses the DTO projection.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "@DataJpaTest with Hibernate statistics (4 tests): (1) getAllOrderDtos() returns correct count, (2) getAllOrderDtos() query count == 1, (3) getAllOrderSummaries() query count == 1, (4) user name correct in response. All 4 pass.",
+        "weight": 35
+      },
+      {
+        "id": "req_6",
+        "description": "README in project: shows before (N+1 log with repeated queries) vs after (single JOIN query) using the spring.jpa.show-sql output. Explains why the query count went from 2N+1 to 1.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add Order @OneToMany List<OrderItem> items (lazy, @BatchSize=25). Show that findAllWithDetails() still uses 1 query for user+product, and OrderItem loading uses batched IN queries (not N+1). @DataJpaTest verifying batch behavior.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add pagination: Page<Order> findByStatus(String status, Pageable pageable) with @EntityGraph. Verify it does NOT cause HHH90003004 (no @OneToMany JOIN FETCH with Pageable). 1 query for data, 1 query for count = 2 total.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add @NamedEntityGraph on Order for 'Order.forDashboard' (user + product) and 'Order.forDetailView' (user + product + items). Use named graphs in repository methods.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Seed for @DataJpaTest:\n  Users: Aisha Sharma (aisha@test.com), Raj Patel (raj@test.com)\n  Products: Wireless Mouse (Electronics, ₹799), Keyboard (Electronics, ₹1999)\n  Orders:\n    - Order 1: Aisha, Mouse, PLACED, qty=1, total=799\n    - Order 2: Aisha, Keyboard, DELIVERED, qty=1, total=1999\n    - Order 3: Raj, Mouse, PLACED, qty=2, total=1598\n\nExpected query counts:\n  N+1 (broken): 1 + 3 + 3 = 7 queries (findAll + user×3 + product×3)\n  JOIN FETCH (fixed): 1 query\n  DTO projection: 1 query",
+
+  "starter_code": "// Order.java (@Entity with LAZY @ManyToOne User + Product)\n// User.java (@Entity)\n// Product.java (@Entity)\n// OrderRepository.java (3 methods)\n// OrderSummaryDto.java (record)\n// OrderService.java (version A with N+1 + version B with fix)\n// OrderServiceTest.java (@DataJpaTest, 4 tests)",
+
+  "example_output": "# Before fix (show-sql output for 3 orders):\nHibernate: select id,user_id,product_id,status,total from orders\nHibernate: select id,name,email from users where id='U001'\nHibernate: select id,name,price from products where id='P001'\nHibernate: select id,name,email from users where id='U001'  ← DUPLICATE\nHibernate: select id,name,price from products where id='P002'\nHibernate: select id,name,email from users where id='U002'\nHibernate: select id,name,price from products where id='P001'  ← DUPLICATE\nTotal: 7 queries for 3 orders (2N+1)\n\n# After JOIN FETCH fix:\nHibernate: select o.id,o.status,o.total,\n           u.id,u.name,u.email,\n           p.id,p.name,p.price\n           from orders o\n           inner join users u on o.user_id=u.id\n           inner join products p on o.product_id=p.id\nTotal: 1 query for 3 orders\n\n# Tests:\n✓ getAllOrderDtos_returnsCorrectCount\n✓ getAllOrderDtos_exactlyOneQuery\n✓ getAllOrderSummaries_exactlyOneQuery\n✓ getAllOrderDtos_correctUserName",
+
+  "rubric": [
+    { "category": "Entities (3×)", "points": 15, "criteria": ["Order entity with LAZY associations (8 pts)", "User + Product entities (7 pts)"] },
+    { "category": "N+1 documentation", "points": 10, "criteria": ["N+1 code with comments (5 pts)", "Query count calculation (5 pts)"] },
+    { "category": "Repository (3 methods)", "points": 25, "criteria": ["JOIN FETCH (10 pts)", "@EntityGraph (8 pts)", "DTO projection (7 pts)"] },
+    { "category": "Service (versions A + B)", "points": 10, "criteria": ["Fixed getAllOrderDtos (5 pts)", "Summary projection (5 pts)"] },
+    { "category": "@DataJpaTest (4 tests)", "points": 35, "criteria": ["4 tests × 8-9 pts each"] },
+    { "category": "README comparison", "points": 5, "criteria": ["Before/after SQL logs documented (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["@BatchSize items (25 pts)", "Paginated @EntityGraph (20 pts)", "@NamedEntityGraph (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. testEm.clear() mandatory before query count assertion — without it, L1 cache hides N+1. JOIN FETCH on multiple @ManyToOne: JOIN FETCH o.user JOIN FETCH o.product (space-separated, same @Query string). DTO projection @Query: SELECT new com.package.Dto(t.field, t.user.name) FROM Order t — nested field access is supported. sf.getStatistics().getPreparedStatementCount(): call clear() first, then your query, then assert.",
+
+  "submission_instructions": "GitHub push. All 4 @DataJpaTest tests pass. README includes before/after SQL log screenshots (or copy-paste). spring.jpa.show-sql=true in test config.",
+
+  "tips_for_success": [
+    "Seed all entities in @BeforeEach, call testEm.clear() at the END of @BeforeEach",
+    "sf.getStatistics().clear() immediately before the method call, not before seeding",
+    "JOIN FETCH with two @ManyToOne: space between — 'JOIN FETCH o.user JOIN FETCH o.product'",
+    "DTO projection: fully qualified class name in new ClassName(...) in JPQL",
+    "@EntityGraph on findByStatus(): Spring adds LEFT JOIN — different from JOIN FETCH INNER JOIN"
+  ],
+
+  "concepts_reinforced": [
+    "N+1 pattern identification in code and logs",
+    "JOIN FETCH for @ManyToOne associations",
+    "@EntityGraph as JPQL-free alternative",
+    "DTO projection for read-only APIs",
+    "Hibernate statistics for query count assertion",
+    "L1 cache eviction with testEm.clear() before tests"
+  ]
+}

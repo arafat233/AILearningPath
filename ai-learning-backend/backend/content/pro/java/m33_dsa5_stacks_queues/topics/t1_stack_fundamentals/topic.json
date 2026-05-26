@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m33_t1",
+  "module_id": "m33",
+  "module_name": "DSA5: Stacks & Queues",
+  "topic_number": 1,
+  "name": "Stack Fundamentals \u2014 LIFO, Deque, Classic Problems",
+  "slug": "stack-fundamentals-deque-balanced-parens",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m32_t1"
+    ],
+    "concepts_taught": [
+      "stack_lifo",
+      "java_deque_as_stack",
+      "balanced_parentheses",
+      "next_greater_element",
+      "min_stack",
+      "daily_temperatures",
+      "asteroid_collision"
+    ],
+    "skills_developed": [
+      "stack_simulation",
+      "bracket_matching",
+      "monotonic_thinking_intro"
+    ],
+    "career_relevance": "Stack problems are in every coding interview \u2014 balanced parentheses is literally the #1 most asked warm-up. Zerodha uses stack-based expression evaluators in their algo trading engine. Min Stack (LeetCode #155) is a Google favorite.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```java\n// Zerodha algo trading: validate nested bracket expressions\n// '(3+4)*[5-{2+1}]' \u2192 valid\n// '(3+4]*[5-{2+1}]' \u2192 INVALID \u2014 mismatched types!\n\n// Stack approach: O(n) O(n)\n// For each char:\n//   '(' '[' '{' \u2192 push\n//   ')' \u2192 pop, must be '('\n//   ']' \u2192 pop, must be '['\n//   '}' \u2192 pop, must be '{'\n//   empty stack at end \u2192 valid\n```",
+    "what_you_will_build": "Stack toolkit: balanced parens, next greater element, min stack, daily temperatures."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "stack_java": "**Java Stack: use Deque, not legacy Stack class:**\n\n```java\n// WRONG: legacy Stack (synchronized, slow)\nStack<Integer> stack = new Stack<>();\n\n// CORRECT: ArrayDeque as stack (O(1) all ops, not synchronized)\nDeque<Integer> stack = new ArrayDeque<>();\nstack.push(1);       // addFirst \u2014 O(1)\nstack.push(2);\nstack.push(3);\nstack.peek();        // peekFirst \u2014 O(1), doesn't remove\nstack.pop();         // removeFirst \u2014 O(1), removes top\nstack.isEmpty();     // O(1)\nstack.size();        // O(1)\n\n// LIFO: Last In, First Out\n// push 1\u21922\u21923, pop gives 3\u21922\u21921\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Stack as vertical box. Push operations add to top: 1 at bottom, 2 middle, 3 at top. Pop removes 3 first (LIFO). Beside it: balanced parens trace for '([{}])'. Each open bracket pushed: stack grows. Each close bracket: pop and verify match. Empty stack at end = valid.",
+      "alt_text": "Stack LIFO and balanced parentheses trace"
+    },
+    "worked_example": {
+      "scenario": "Min Stack \u2014 O(1) getMin()",
+      "problem_statement": "Design stack with push, pop, top, getMin \u2014 all O(1).",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Two stacks: main + minStack",
+          "details": "minStack tracks running minimum. Push to minStack when val <= current min. Pop from minStack when popping the current min."
+        }
+      ],
+      "final_code": "class MinStack {\n    Deque<Integer> stack=new ArrayDeque<>(), minStack=new ArrayDeque<>();\n    void push(int val){\n        stack.push(val);\n        if(minStack.isEmpty()||val<=minStack.peek()) minStack.push(val);\n    }\n    void pop(){\n        if(stack.pop().equals(minStack.peek())) minStack.pop();\n    }\n    int top(){ return stack.peek(); }\n    int getMin(){ return minStack.peek(); }\n}",
+      "expected_output": "push(5),push(3),push(7) \u2192 getMin()=3, pop()\u21927, getMin()=3, pop()\u21923, getMin()=5",
+      "things_to_notice": [
+        "Two-stack trick: O(1) getMin without sorting",
+        "minStack only grows when new val \u2264 current min \u2014 tracks running minimum",
+        "Pop minStack only when popped value equals current min",
+        "use .equals() for Integer comparison (boxing!), not =="
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha algo trading",
+          "use_case": "Expression validation for algo trading formulas. Nested brackets must balance."
+        }
+      ],
+      "interview_relevance": "Balanced parens: warm-up in every interview. Min Stack: Google/Amazon medium. Next greater element: monotonic stack intro \u2014 covered in T2.",
+      "real_world_workflow": "Stack decision: LIFO access pattern, undo/redo, expression evaluation, DFS traversal, bracket matching."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "integer_equality",
+        "what_students_get_wrong": "Using == to compare Integer objects from stack.pop(). For Integer values > 127, == compares references (fails). Use .equals() or unbox to int first.",
+        "remediation": "stack.pop() returns Integer (boxed). Use (int)stack.pop() to unbox, or use .equals(). For stack.pop() == minStack.peek(): use Objects.equals() or int cast.",
+        "detection_pattern": "MinStack getMin fails for values > 127"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Use ArrayDeque not Stack: faster, not synchronized",
+        "Deque as stack: push=addFirst, pop=removeFirst, peek=peekFirst",
+        "LIFO: last pushed = first popped",
+        "Balanced parens: push opens, pop+verify closes, empty at end = valid",
+        "Min stack: two-stack trick, O(1) getMin",
+        "Integer ==: boxes, use .equals() or int cast for comparison"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why is ArrayDeque preferred over Stack for stack operations in Java?",
+          "answer": "The legacy Stack class in Java extends Vector, which is synchronized (thread-safe with lock overhead on every operation). This makes it significantly slower in single-threaded code. ArrayDeque is backed by a resizable array, provides O(1) amortized push/pop/peek, and is NOT synchronized \u2014 making it 2-5x faster in practice. The Java documentation itself recommends using Deque implementations over Stack. Additionally, Stack exposes Vector methods that allow arbitrary index access, which breaks the stack abstraction."
+        }
+      ],
+      "next_topic_preview": "Next: Monotonic Stack \u2014 the powerful pattern behind 'next greater element', 'largest rectangle in histogram', and 'trapping rain water'."
+    }
+  }
+}

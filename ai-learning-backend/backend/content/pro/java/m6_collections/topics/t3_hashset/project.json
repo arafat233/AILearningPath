@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m6_t3_proj",
+  "linked_topic": "java_m6_t3",
+  "level": "mini",
+  "name": "Event De-duplication System",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+  
+  "scenario": "You're building the event processing pipeline for a real-time system (like Razorpay's payment events or Zomato's order events). Events arrive from multiple sources and can be DUPLICATED — the same event sent twice due to network retries. Your system must process each event EXACTLY ONCE, track which events have been processed, and detect replay attacks. This is a real production concern: duplicate payment processing can charge a customer twice. HashSet is the solution.",
+  
+  "description": "Build an event deduplication pipeline using HashSet. Process events exactly once, detect duplicates, track processed event IDs, and implement a 'sliding window' where old event IDs are periodically cleared to prevent memory growth.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Event` class: eventId (String, unique), type (String), payload (String), timestamp (long). Override equals and hashCode by eventId.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`EventProcessor` class: `Set<String>` processedIds. `process(Event e)` — if eventId not seen, process it (print) and add to seen; if already seen, print 'Duplicate ignored: eventId'.",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "`processAll(List<Event> events)` — process all events in order, returns count of unique events processed.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "`getStats()` — prints: total attempted, unique processed, duplicates rejected.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "main() demonstrates: 8 events with some duplicates (same eventId arriving multiple times), print stats.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "Use Set<String> NOT Set<Event> for processed IDs (store just the ID string, not the whole event).",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`findDuplicateIds(List<Event> events)` static method — returns Set<String> of eventIds that appear more than once in the list.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `groupByType(List<Event> events)` — returns Map<String, List<Event>> with events grouped by type (using computeIfAbsent from T6.2). De-duplicate within each group.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `reset(int keepLatestN)` — keeps only the N most recently processed eventIds in the Set, clearing older ones (use a LinkedHashSet to maintain insertion order for this).",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `processedTypes()` — returns Set<String> of all unique event types that have been processed.",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Events (8 total with 3 duplicates):\n- EVT-001, PAYMENT, order #101, ts=1000\n- EVT-002, SIGNUP, user aisha@x.com, ts=1001\n- EVT-001, PAYMENT, order #101, ts=1002  ← duplicate\n- EVT-003, LOGIN, user aisha@x.com, ts=1003\n- EVT-002, SIGNUP, user aisha@x.com, ts=1004  ← duplicate\n- EVT-004, PAYMENT, order #102, ts=1005\n- EVT-001, PAYMENT, order #101, ts=1006  ← duplicate (3rd time)\n- EVT-005, LOGOUT, user aisha@x.com, ts=1007\n\nExpected:\n- 5 unique events processed\n- 3 duplicates rejected",
+  
+  "starter_code": "import java.util.*;\n\npublic class EventPipeline {\n    public static void main(String[] args) {\n        // Create events with duplicates\n        // Process through EventProcessor\n        // Print stats\n        // Find duplicate IDs\n    }\n    \n    // Define: Event, EventProcessor classes\n}",
+  
+  "example_output": "===================================\n     EVENT PROCESSING PIPELINE\n===================================\nProcessed: EVT-001 (PAYMENT)\nProcessed: EVT-002 (SIGNUP)\nDuplicate ignored: EVT-001\nProcessed: EVT-003 (LOGIN)\nDuplicate ignored: EVT-002\nProcessed: EVT-004 (PAYMENT)\nDuplicate ignored: EVT-001\nProcessed: EVT-005 (LOGOUT)\n\n--- Stats ---\nAttempted: 8\nProcessed (unique): 5\nDuplicates rejected: 3\n\n--- Duplicate IDs in batch ---\n[EVT-001, EVT-002]",
+  
+  "rubric": [
+    { "category": "Event Class", "points": 15, "criteria": ["Fields correct (5 pts)", "equals/hashCode by eventId (10 pts)"] },
+    { "category": "EventProcessor", "points": 35, "criteria": ["Set<String> processedIds (5 pts)", "process() deduplciation logic (20 pts)", "getStats() correct counts (10 pts)"] },
+    { "category": "findDuplicateIds", "points": 15, "criteria": ["Correct logic (15 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 10, "criteria": ["All operations shown (10 pts)"] },
+    { "category": "Code Quality", "points": 10, "criteria": ["Set<String> not Set<Event> for IDs (5 pts)", "processAll returns count (5 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["groupByType (20 pts)", "reset with LinkedHashSet (25 pts)", "processedTypes (15 pts)"] }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key challenge: findDuplicateIds needs to track which eventIds appear more than once — use two Sets (seen and duplicates), same pattern as exercise 5.",
+  
+  "submission_instructions": "Save as EventPipeline.java. Run it. Push to GitHub — this is real payment/order event deduplication architecture used by Razorpay, Stripe, and every event-driven system.",
+  
+  "tips_for_success": [
+    "EventProcessor.process(): add eventId to processedIds. add() returns true if new, false if duplicate.",
+    "Track totals: attempted++ always, processed++ when add() returns true, duplicates++ when false.",
+    "findDuplicateIds: use the seen/duplicates two-set pattern from exercise 5.",
+    "bonus reset(): LinkedHashSet preserves insertion order — iterate, keep last N, clear, re-add the N."
+  ],
+  
+  "concepts_reinforced": [
+    "HashSet for O(1) membership tracking",
+    "add() return value (true = new, false = duplicate)",
+    "Set<String> storing IDs (not full objects) — efficient and clear",
+    "findDuplicates: two-set pattern",
+    "Connecting Module 4.4 (equals/hashCode) with Module 6.3 (HashSet correctness)"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m11_t3_proj",
+  "linked_topic": "java_m11_t3",
+  "level": "mini",
+  "name": "Flipkart-Style Data Import System — CSV ↔ JSON Pipeline",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Build a complete product data import system. Sellers upload CSVs with product data. The system validates, cleans, transforms to JSON for the API layer, and produces error reports. Real seller CSVs have product names with commas (e.g., 'Mouse, wireless, Bluetooth'), quoted descriptions, and special characters — so correct CSV parsing is essential.",
+
+  "description": "A bidirectional CSV↔JSON data pipeline: reads seller product CSVs with full RFC 4180 quoting support, validates records, enriches with computed fields, outputs valid products as JSON API format, writes error records back as CSV with error reason, and generates a JSON audit report.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`CSVParser.parseCSVLine(String)` — full state machine CSV parser supporting quoted fields, escaped double-quotes, and commas inside quoted fields. Include unit tests (assertEquals) demonstrating it handles at least 3 edge cases.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "`CSVWriter.toCSVField(String)` — correctly quotes fields containing commas, double-quotes, or newlines. Handles null values.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Read a product CSV (at least 8 rows, some with quoted names/descriptions, 2+ invalid rows). Parse with CSVParser, not split().",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Validation: SKU non-blank, name non-blank, quantity ≥ 0, price > 0. Collect errors per row.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Enrichment: add `totalValue` (qty × price), `priceCategory` (BUDGET/MID/PREMIUM based on price thresholds), `inStock` boolean (qty > 0).",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Write valid products as `products.json` — JSON array using Jackson ObjectMapper. Include all enriched fields.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "Write invalid rows to `errors.csv` with all original fields PLUS an 'error' column (correctly quoted). Write audit report to `audit.json` with: total, valid, invalid counts, total inventory value, breakdown by priceCategory.",
+        "weight": 15
+      },
+      {
+        "id": "req_8",
+        "description": "Print summary to console. Use PrintWriter for CSV output, Jackson for JSON.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Support loading category mappings from a JSON config file (`categories.json`). Each product SKU prefix maps to a department. Enrich products with 'department' field. Use Jackson to read the config.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add JSON→CSV reverse transform: read the generated `products.json`, convert back to CSV with proper quoting, write `products_export.csv`. Round-trip fidelity: re-parsing the export should give the same data.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a `DiffReport`: given two product JSON files (before/after), identify new SKUs, removed SKUs, and price changes. Write the diff as `diff.json` using Jackson ObjectNode.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "products.csv (create with this content):\nsku,name,qty,price,description\nSKU-001,\"Wireless Mouse, Bluetooth\",50,799,\"Compact, 2.4GHz\"\nSKU-002,Keyboard,12,1999,Mechanical\nSKU-003,,8,18999,\"4K, HDMI\"           ← invalid: blank name\nSKU-004,USB Hub,60,499,7-port\nSKU-005,Monitor,0,15000,\"27 inch, 4K\"  ← note: qty=0 is valid (out of stock)\nSKU-006,Headphones,-5,2999,Wireless    ← invalid: negative qty\nSKU-007,\"Dell 27\\\"\\\" Display\",3,24999,\"Premium, curved\"\nSKU-008,Laptop Stand,25,1299,Aluminum\n\nPrice thresholds: BUDGET < ₹1000, MID ₹1000-₹5000, PREMIUM > ₹5000",
+
+  "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\n\npublic class ProductImporter {\n    public static void main(String[] args) throws Exception {\n        // Read CSV, validate, enrich, write JSON + errors CSV + audit JSON\n    }\n    // Define: CSVParser, CSVWriter, validation logic\n}",
+
+  "example_output": "=== Product Import System ===\nReading: products.csv\n\nSKU-001: Wireless Mouse, Bluetooth ✓\nSKU-002: Keyboard ✓\nSKU-003: [ERROR] Name cannot be blank\nSKU-004: USB Hub ✓\nSKU-005: Monitor ✓ (out of stock)\nSKU-006: [ERROR] Quantity must be non-negative\nSKU-007: Dell 27\" Display ✓\nSKU-008: Laptop Stand ✓\n\n=== Summary ===\nTotal rows: 8\nValid: 6\nInvalid: 2\nTotal inventory value: ₹170344\nBUDGET: 1 | MID: 3 | PREMIUM: 2\n\nFiles written:\n  products.json (6 products)\n  errors.csv (2 rows)\n  audit.json",
+
+  "rubric": [
+    { "category": "CSVParser", "points": 20, "criteria": ["Handles commas in quotes (10 pts)", "Handles escaped quotes (5 pts)", "Unit tests (5 pts)"] },
+    { "category": "CSVWriter", "points": 10, "criteria": ["toCSVField quotes correctly (10 pts)"] },
+    { "category": "Validation + Enrichment", "points": 20, "criteria": ["All 3 validation rules (10 pts)", "3 enrichment fields (10 pts)"] },
+    { "category": "JSON Output", "points": 15, "criteria": ["products.json with all fields (10 pts)", "audit.json with breakdown (5 pts)"] },
+    { "category": "Error CSV", "points": 10, "criteria": ["Correctly quoted error.csv (10 pts)"] },
+    { "category": "Compiles & Correct Output", "points": 15, "criteria": ["Compiles (8 pts)", "Correct counts (7 pts)"] },
+    { "category": "Console Summary", "points": 10, "criteria": ["Formatted summary (10 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Category config from JSON (20 pts)", "JSON→CSV round-trip (20 pts)", "DiffReport (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: CSVParser is the state machine from Topic 11.3. Jackson ObjectMapper is a static final field. For each valid row: ObjectNode.put() for all fields; set priceCategory based on price thresholds. errors.csv header must be original columns + 'error'. audit.json uses createObjectNode() with all summary fields.",
+
+  "submission_instructions": "Save as ProductImporter.java. Push to GitHub. Comment: 'Full CSV↔JSON ETL pipeline with RFC 4180 parsing'.",
+
+  "tips_for_success": [
+    "Price categories: price < 1000 → BUDGET; < 5000 → MID; else PREMIUM",
+    "qty = 0 is valid (out of stock) — only negative qty is invalid",
+    "errors.csv: include the error reason as last column, properly quoted",
+    "ObjectMapper: static final singleton — `private static final ObjectMapper MAPPER = new ObjectMapper()`",
+    "audit.json: totalRows, validCount, invalidCount, totalValue, categoryBreakdown (nested object)"
+  ],
+
+  "concepts_reinforced": [
+    "RFC 4180 CSV parsing with state machine",
+    "toCSVField for correct output quoting",
+    "Jackson ObjectMapper singleton pattern",
+    "ObjectNode + ArrayNode for programmatic JSON",
+    "Data validation and enrichment pipeline",
+    "Parallel CSV output (errors) and JSON output (valid)"
+  ]
+}

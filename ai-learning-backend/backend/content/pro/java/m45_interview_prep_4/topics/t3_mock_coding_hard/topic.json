@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m45_t3",
+  "module_id": "m45",
+  "topic_number": 3,
+  "name": "Mock Coding Hard \u2014 25-Minute Problems",
+  "slug": "mock-coding-hard",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m44_t5"
+    ],
+    "concepts_taught": [
+      "mock-coding-hard"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Mock Coding Hard \u2014 25-Minute Problems"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Hard problems: Word Search, LIS, Meeting Rooms II, LRU \u2014 25 min target",
+        "Hard = usually combines 2 patterns (backtracking+trie, DP+graph, heap+greedy)",
+        "First 5 min on hard: spend more time planning before coding",
+        "If can't solve optimally: correct brute force + explain the optimization",
+        "Hard problems evaluate: pattern recognition, adaptability under pressure, thinking speed"
+      ],
+      "next_topic_preview": "Next: Timed Practice."
+    }
+  }
+}

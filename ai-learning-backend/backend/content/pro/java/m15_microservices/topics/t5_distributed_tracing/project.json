@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m15_t5_proj",
+  "linked_topic": "java_m15_t5",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — Full Observability Stack",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Add distributed tracing to the complete Zerodha trading platform. Every trade request carries a traceId through order-service, market-service, and payment-service. Logs show traceId. Custom spans instrument key business operations. Zipkin shows the full request waterfall.",
+
+  "description": "Final Module 15 project: add Micrometer Tracing to all three trading services. Custom spans for DB queries and payment processing. MDC with userId. AuditFilter for every request. Zipkin visualizes the complete trade flow.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Add Micrometer Tracing dependencies to all three services (micrometer-tracing-bridge-brave, zipkin-reporter-brave, feign-micrometer). Configure endpoint and sampling in application.properties for each.",
+        "weight": 18
+      },
+      {
+        "id": "req_2",
+        "description": "Logging pattern includes [traceId] in all three services. Console pattern: `%d{HH:mm:ss.SSS} [%X{traceId}] [${spring.application.name}] %-5level %msg%n`.",
+        "weight": 12
+      },
+      {
+        "id": "req_3",
+        "description": "Custom spans: (1) `order-service.TradeService`: span 'trade-execution' tagged with userId, symbol, qty. (2) `market-service.StockController`: span 'stock-quote-db' with symbol and elapsed_ms tags. (3) `payment-service.PaymentController`: span 'payment-gateway-call' with transactionId tag.",
+        "weight": 25
+      },
+      {
+        "id": "req_4",
+        "description": "`UserContextFilter` in order-service: reads X-User-Id header → MDC.put('userId'). Feign RequestInterceptor forwards X-User-Id to market-service and payment-service. Logging pattern includes userId.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`AuditFilter` in order-service: logs [AUDIT-IN] request method/URI/traceId/userId before, [AUDIT-OUT] method/URI/status/duration after.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "@SpringBootTest tests (3): Tracer injected and functional, TradeService custom span created with correct name, AuditFilter logs contain traceId. All 3 pass.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add span error marking: in PaymentController, if payment amount > 1,000,000 (10L INR), mark span as error with tag 'error.reason=amount-limit-exceeded' and throw PaymentLimitException.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Create a TraceSearchController in order-service: POST /admin/trace/search {traceId} that returns the count of log lines containing that traceId from an in-memory audit log. Demonstrates log correlation.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Implement profile-specific sampling: dev application-dev.properties = 1.0, prod = 0.05. @SpringBootTest with @ActiveProfiles('dev') verifies sampling.probability=1.0.",
+        "weight": 15
+      }
+    ]
+  },
+
+  "data_to_use": "Test trade:\nuserId=U01, symbol=TCS, qty=10\ntraceId: auto-generated UUID by Micrometer Tracing\n\nExpected Zipkin waterfall:\norder-service: trade-execution [0→200ms]\n  feign→market-service: [5→120ms]\n    market-service: stock-quote-db [5→120ms]\n      stock-db: [10→115ms]\n  feign→payment-service: [130→195ms]\n    payment-service: payment-gateway-call [130→195ms]\n\nExpected log correlation (all with same traceId):\n[abc123] [order-service]  INFO  Trade received for U01/TCS/10\n[abc123] [market-service] INFO  Fetching quote for TCS\n[abc123] [payment-service] INFO  Processing payment ₹38900",
+
+  "starter_code": "// Add to ALL THREE services:\n// 1. pom.xml: micrometer-tracing-bridge-brave, zipkin-reporter-brave, feign-micrometer\n// 2. application.properties: sampling + endpoint + logging pattern\n\n// order-service specific:\n// TradeService.java: custom span 'trade-execution'\n// UserContextFilter.java: MDC + X-User-Id in MDC\n// AuditFilter.java: request/response logging with traceId\n// Feign RequestInterceptor: forward X-User-Id\n\n// market-service specific:\n// StockController.java: custom span 'stock-quote-db' with timing\n\n// payment-service specific:\n// PaymentController.java: custom span 'payment-gateway-call'\n\n// Tests:\n// TracingIntegrationTest.java (order-service) — 3 tests",
+
+  "example_output": "# Start Zipkin:\ndocker run -d -p 9411:9411 openzipkin/zipkin\n\n# Start all three services + POST /api/trades\n\n# Logs (all three services, same traceId!):\n10:15:32.001 [abc123defgh] [order-service]   INFO  [AUDIT-IN]  POST /api/trades userId=U01\n10:15:32.005 [abc123defgh] [order-service]   INFO  trade-execution span started: TCS/10\n10:15:32.010 [abc123defgh] [market-service]  INFO  GET /api/stocks/TCS/quote received\n10:15:32.015 [abc123defgh] [market-service]  INFO  stock-quote-db: querying TCS\n10:15:32.115 [abc123defgh] [market-service]  INFO  stock-quote-db: complete, 100ms\n10:15:32.130 [abc123defgh] [payment-service] INFO  POST /api/payments received\n10:15:32.195 [abc123defgh] [payment-service] INFO  payment-gateway-call: ₹38900 processed\n10:15:32.200 [abc123defgh] [order-service]   INFO  [AUDIT-OUT] POST /api/trades 201 199ms\n\n# Tests:\n✓ tracer_isAvailable\n✓ tradeService_createsSpanWithCorrectName\n✓ auditFilter_logsTraceId",
+
+  "rubric": [
+    { "category": "Dependencies + config", "points": 18, "criteria": ["3 dependencies (9 pts)", "application.properties (9 pts)"] },
+    { "category": "Logging pattern", "points": 12, "criteria": ["traceId in pattern (6 pts)", "service name (6 pts)"] },
+    { "category": "Custom spans (3 services)", "points": 25, "criteria": ["trade-execution (9 pts)", "stock-quote-db (8 pts)", "payment-gateway-call (8 pts)"] },
+    { "category": "UserContextFilter + Feign forwarding", "points": 15, "criteria": ["MDC put/remove (8 pts)", "Feign interceptor (7 pts)"] },
+    { "category": "AuditFilter", "points": 10, "criteria": ["Request/response logging (10 pts)"] },
+    { "category": "@SpringBootTest tests", "points": 20, "criteria": ["3 tests correct (7+7+6 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["Error span (20 pts)", "TraceSearchController (20 pts)", "Profile sampling (15 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. feign-micrometer is CRITICAL — without it, market-service and payment-service start new traces instead of continuing order-service's trace. span.end() must be in finally block — never skip. logging.pattern.console=%d [%X{traceId}] — the %X{...} is Logback MDC syntax. MDC.put in filter BEFORE chain.doFilter; MDC.remove in finally.",
+
+  "submission_instructions": "All three services in GitHub (separate directories). Zipkin screenshot showing trade waterfall. All 3 tests pass. Logs showing same traceId across all three service log files.",
+
+  "tips_for_success": [
+    "feign-micrometer: add to order-service pom — without it, cross-service trace propagation doesn't work",
+    "Start Zipkin first: docker run -d -p 9411:9411 openzipkin/zipkin",
+    "span.end() in finally: NEVER skip — open spans corrupt Zipkin timelines",
+    "MDC.remove() in finally: prevents thread pool contamination (next request gets stale userId)",
+    "Zipkin search: search by service name, find highest-duration trace, drill in"
+  ],
+
+  "concepts_reinforced": [
+    "TraceId propagation across services via Feign B3 headers",
+    "Custom spans with Tracer API",
+    "MDC (Mapped Diagnostic Context) for structured logging",
+    "AuditFilter for request/response tracing",
+    "Zipkin waterfall reading for latency diagnosis",
+    "feign-micrometer for cross-service trace propagation"
+  ]
+}

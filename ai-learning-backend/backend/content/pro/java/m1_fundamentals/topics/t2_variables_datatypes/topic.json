@@ -1,0 +1,254 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t2",
+  "language": "java",
+  "module_id": "m1",
+  "module_name": "Java Fundamentals",
+  "topic_number": 2,
+  "name": "Variables & Data Types",
+  "slug": "variables-and-data-types",
+  
+  "metadata": {
+    "difficulty": 2,
+    "estimated_minutes": 45,
+    "prerequisites": ["java_m1_t1"],
+    "concepts_taught": [
+      "variable_declaration",
+      "primitive_types",
+      "reference_types",
+      "type_inference_var",
+      "naming_conventions",
+      "constants_final",
+      "type_conversion_basics",
+      "string_basics"
+    ],
+    "skills_developed": [
+      "choosing_correct_types",
+      "memory_efficiency_thinking",
+      "naming_variables_well",
+      "reading_type_errors"
+    ],
+    "career_relevance": "Variables and types are the building blocks of every line of Java code you'll ever write. Beyond syntax, choosing the right type affects memory usage, performance, and even bugs in production. Senior engineers are distinguished from juniors partly by how thoughtfully they choose types. This isn't trivia — this is foundational engineering judgment.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Last year, Citibank made a $900 million payment error. The cause? Software that didn't validate which type of payment was being sent. Software bugs caused by misunderstanding data types have cost companies billions of dollars over the years. Variables aren't just 'where you store stuff' — they're the contract between you and the computer about what data means. Get this wrong, and you get bugs. Get it right, and your code starts behaving the way you expect.",
+    "what_you_will_build": "By the end of this topic, you'll understand all 8 primitive types in Java, when to use each one, what 'String' really is (spoiler: not a primitive), and you'll have built a real-feeling program that calculates employee payroll using the correct types for each piece of data. You'll also know why `int salary = 1000000;` is fine but `int worldPopulation = 8000000000;` is a bug waiting to happen."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A variable is a named storage location with a specific type. Three parts: a TYPE (what kind of data), a NAME (how you refer to it), and a VALUE (what's stored).\n\n```java\nint age = 25;\n```\n\n- Type: `int` (whole number)\n- Name: `age`\n- Value: `25`\n\nThe declaration also ends with `;` like all Java statements.\n\nThis looks simple, but there's depth here. Java is what's called a **statically typed** language. That means once you declare a variable as `int`, it's an `int` forever. You can't suddenly store text in it. The compiler enforces this strictly.\n\nThis is different from JavaScript or Python, where variables can change types freely. Java's strictness is a feature, not a bug — it catches errors at compile time instead of at 3 AM in production.",
+      
+      "the_eight_primitives": "Java has exactly 8 built-in primitive types. Memorize these — you'll use them constantly.\n\n**Integer types (whole numbers):**\n- `byte`: 8 bits, range -128 to 127. Rarely used directly. Useful for memory-tight scenarios like image processing.\n- `short`: 16 bits, range -32,768 to 32,767. Almost never used in practice.\n- `int`: 32 bits, range about -2.1 billion to 2.1 billion. **This is the default for whole numbers.** Use this 95% of the time.\n- `long`: 64 bits, range about ±9.2 quintillion. Use when int is too small (timestamps, large counters, financial calculations involving paise/cents at scale).\n\n**Decimal types (numbers with fractions):**\n- `float`: 32 bits, ~7 decimal digits precision. Rarely used. Suffix value with `f` (e.g., `3.14f`).\n- `double`: 64 bits, ~15 decimal digits precision. **This is the default for decimals.** Use this 95% of the time.\n\n**Other:**\n- `char`: 16 bits, single character. Wrap in single quotes: `char grade = 'A';`\n- `boolean`: true or false only. Lowercase. `boolean isActive = true;`\n\nThat's the entire list. Eight types. Internalize them.",
+      
+      "why_it_matters": "Here's where type choice becomes a real engineering decision:\n\n```java\nint worldPopulation = 8000000000;  // ❌ COMPILATION ERROR\n```\n\nWhy? Because `int` maxes out at about 2.1 billion. World population is 8 billion. You overflow the type.\n\nFix: use `long`.\n\n```java\nlong worldPopulation = 8000000000L;  // ✅ Note the L suffix\n```\n\nAnother real example: representing money.\n\n```java\ndouble accountBalance = 19.99;\ndouble afterPurchase = accountBalance - 19.99;\nSystem.out.println(afterPurchase);  // Prints: 8.881784197001252E-16\n```\n\nWhat? That's not zero! This is why **financial applications never use `double` for money**. They use `BigDecimal` (which we'll cover later) or store everything as integers in the smallest unit (paise/cents). Banks have learned this lesson the hard way.",
+      
+      "reference_types_intro": "Beyond the 8 primitives, Java has reference types. The most common is `String`.\n\n```java\nString customerName = \"Aisha Khan\";\n```\n\nString is NOT a primitive — it's a class. It uses double quotes (not single, that's `char`). For now, just know:\n- Use `String` for text\n- Always use double quotes\n- Strings are immutable (can't be changed after creation — covered in detail later)\n\nWe'll cover other reference types (arrays, ArrayList, custom classes) in future topics. For now, primitives + String is enough."
+    },
+    
+    "syntax_breakdown": {
+      "code": "// Declaration with initialization\nint age = 28;\n\n// Declaration only, assignment later\ndouble salary;\nsalary = 75000.50;\n\n// Multiple variables, same type\nint x = 10, y = 20, z = 30;\n\n// Constants — value can't change\nfinal double PI = 3.14159;\nfinal int MAX_USERS = 100;\n\n// Type inference (Java 10+)\nvar message = \"Hello\";  // Compiler infers String\nvar count = 42;          // Compiler infers int",
+      "annotations": [
+        {
+          "code_part": "int age = 28;",
+          "explanation": "Standard pattern: type, name, =, value, semicolon. The value 28 must match the type (int)."
+        },
+        {
+          "code_part": "double salary; salary = 75000.50;",
+          "explanation": "You can split declaration and assignment. But you must assign before reading the variable, or you'll get a compilation error about 'variable might not have been initialized'."
+        },
+        {
+          "code_part": "int x = 10, y = 20, z = 30;",
+          "explanation": "Comma-separated declaration. Less common in modern code — most teams prefer separate lines for clarity. Mentioned here so you recognize it in legacy code."
+        },
+        {
+          "code_part": "final double PI = 3.14159;",
+          "explanation": "The `final` keyword creates a constant. The value can never change after assignment. By convention, constant names are SCREAMING_SNAKE_CASE."
+        },
+        {
+          "code_part": "var message = \"Hello\";",
+          "explanation": "Local type inference (Java 10+). The compiler figures out the type. Useful for verbose types like `Map<String, List<Integer>>`. Use sparingly — explicit types are clearer for beginners."
+        }
+      ]
+    },
+    
+    "naming_conventions": {
+      "rules": [
+        "Must start with a letter, $, or _ (never a digit)",
+        "Can contain letters, digits, $, _ (no spaces or hyphens)",
+        "Case-sensitive: `age` and `Age` are different",
+        "Cannot be a Java keyword (class, int, public, etc.)"
+      ],
+      "conventions": [
+        "Variables and methods: camelCase (firstName, totalAmount)",
+        "Constants: SCREAMING_SNAKE_CASE (MAX_RETRIES, API_KEY)",
+        "Classes: PascalCase (UserService, OrderProcessor) — covered later",
+        "Be descriptive: `customerEmail` not `cE` or `email1`",
+        "Booleans often start with `is`, `has`, `can`: isActive, hasPermission, canEdit"
+      ],
+      "examples": {
+        "good": ["userAge", "totalRevenue", "isLoggedIn", "MAX_CONNECTIONS", "customerEmailAddress"],
+        "bad": ["x", "data", "temp", "a1", "MyVariable", "user_name (not Java style)"]
+      }
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a memory diagram with 8 boxes representing each primitive type. Each box shows: type name, size in bits, range, and one example value. Group by category: integers (byte, short, int, long), decimals (float, double), other (char, boolean). To the right, show one larger box for String labeled 'reference type — actually points to memory elsewhere'.",
+      "alt_text": "Memory layout diagram showing the 8 primitive types organized by category with sizes and ranges"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a payroll calculator for a small startup. You need to store information about an employee and calculate their take-home pay after taxes. Real payroll systems do exactly this kind of calculation — just with more edge cases.",
+    
+    "problem_statement": "Write a Java program that:\n1. Stores employee info: name, age, monthly salary, tax rate (as percentage), whether they're a full-time employee\n2. Calculates the monthly tax amount\n3. Calculates the take-home pay\n4. Prints a formatted payroll summary\n\nUse the most appropriate type for each piece of data.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Identify the data types needed",
+        "details": "Before writing code, decide types:\n\n- Name → String (text data)\n- Age → int (whole number, fits easily)\n- Monthly salary → double (has decimal points like 75000.50)\n- Tax rate → double (decimal percentage like 15.5)\n- Full-time status → boolean (yes/no)\n\nWhy not `long` for salary? Because salary fits comfortably in int range, but salary has decimals (10500.75), so double is right.\nWhy not `float` for salary? Money calculations need more precision — double is the right call. (For production financial systems, we'd use BigDecimal, but that's a later topic.)"
+      },
+      {
+        "step": 2,
+        "action": "Set up the class structure",
+        "details": "Start with the standard structure from Topic 1:\n\n```java\npublic class PayrollCalculator {\n    public static void main(String[] args) {\n        // Variables go here\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Declare and initialize variables",
+        "details": "Add inside main:\n\n```java\nString employeeName = \"Priya Sharma\";\nint employeeAge = 28;\ndouble monthlySalary = 85000.00;\ndouble taxRate = 15.5;\nboolean isFullTime = true;\n```\n\nNotice the naming: descriptive, camelCase, no abbreviations."
+      },
+      {
+        "step": 4,
+        "action": "Perform calculations",
+        "details": "Calculate tax and take-home pay:\n\n```java\ndouble taxAmount = monthlySalary * (taxRate / 100);\ndouble takeHomePay = monthlySalary - taxAmount;\n```\n\nWhy `taxRate / 100`? Because taxRate is stored as 15.5 (percentage), not 0.155 (decimal). Dividing by 100 converts."
+      },
+      {
+        "step": 5,
+        "action": "Print the formatted output",
+        "details": "Print a clean payroll summary:\n\n```java\nSystem.out.println(\"========================================\");\nSystem.out.println(\"          PAYROLL SUMMARY\");\nSystem.out.println(\"========================================\");\nSystem.out.println(\"Employee:        \" + employeeName);\nSystem.out.println(\"Age:             \" + employeeAge);\nSystem.out.println(\"Full-time:       \" + isFullTime);\nSystem.out.println(\"----------------------------------------\");\nSystem.out.println(\"Monthly Salary:  ₹\" + monthlySalary);\nSystem.out.println(\"Tax Rate:        \" + taxRate + \"%\");\nSystem.out.println(\"Tax Amount:      ₹\" + taxAmount);\nSystem.out.println(\"Take-Home Pay:   ₹\" + takeHomePay);\nSystem.out.println(\"========================================\");\n```\n\nNote: We use `+` to concatenate strings with variables. Java auto-converts variables to their string representation."
+      }
+    ],
+    
+    "final_code": "public class PayrollCalculator {\n    public static void main(String[] args) {\n        // Employee data\n        String employeeName = \"Priya Sharma\";\n        int employeeAge = 28;\n        double monthlySalary = 85000.00;\n        double taxRate = 15.5;\n        boolean isFullTime = true;\n        \n        // Calculations\n        double taxAmount = monthlySalary * (taxRate / 100);\n        double takeHomePay = monthlySalary - taxAmount;\n        \n        // Output\n        System.out.println(\"========================================\");\n        System.out.println(\"          PAYROLL SUMMARY\");\n        System.out.println(\"========================================\");\n        System.out.println(\"Employee:        \" + employeeName);\n        System.out.println(\"Age:             \" + employeeAge);\n        System.out.println(\"Full-time:       \" + isFullTime);\n        System.out.println(\"----------------------------------------\");\n        System.out.println(\"Monthly Salary:  ₹\" + monthlySalary);\n        System.out.println(\"Tax Rate:        \" + taxRate + \"%\");\n        System.out.println(\"Tax Amount:      ₹\" + taxAmount);\n        System.out.println(\"Take-Home Pay:   ₹\" + takeHomePay);\n        System.out.println(\"========================================\");\n    }\n}",
+    
+    "expected_output": "========================================\n          PAYROLL SUMMARY\n========================================\nEmployee:        Priya Sharma\nAge:             28\nFull-time:       true\n----------------------------------------\nMonthly Salary:  ₹85000.0\nTax Rate:        15.5%\nTax Amount:      ₹13175.0\nTake-Home Pay:   ₹71825.0\n========================================",
+    
+    "things_to_notice": [
+      "The output shows `85000.0` not `85000.00` — Java's default double formatting drops trailing zeros. We'll learn proper currency formatting later.",
+      "Boolean prints as lowercase 'true' (not 'True' like Python)",
+      "The order: declare all variables first, then calculate, then output. This is good practice — keeps logic clear.",
+      "Indentation isn't required by Java but makes code readable. Use 4 spaces consistently."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay / Stripe (Payment Processing)",
+        "use_case": "Payment systems use `long` for amounts, storing values in paise/cents (smallest unit). So ₹100.50 is stored as 10050. They never use `double` for money — the precision errors would cost millions over time."
+      },
+      {
+        "company_context": "Uber / Ola (Ride-sharing)",
+        "use_case": "Driver locations use `double` for latitude/longitude (need ~7 digits of precision). Ride IDs use `long` (need to be unique across billions of rides). Driver status uses `boolean` (online/offline). Vehicle category uses `String` (or enum). Variable type selection happens constantly."
+      },
+      {
+        "company_context": "Twitter / X (Social Media)",
+        "use_case": "User IDs were originally `int` but Twitter ran out at 2.1 billion users and migrated to `long` — known as the 'Twitter snowflake' system. Real cost of choosing wrong types: massive migration projects."
+      },
+      {
+        "company_context": "Banking Systems (HDFC, ICICI, Citibank)",
+        "use_case": "Account balances stored as `BigDecimal` (not double — the precision matters). Interest rates as `double`. Account numbers as `String` (not number — they can have leading zeros). Type choices affect both correctness and audit compliance."
+      }
+    ],
+    
+    "interview_relevance": "Variable types come up in interviews more than people realize. Common questions:\n\n- 'What's the difference between int and Integer?' (primitive vs wrapper class — we'll cover later)\n- 'Why shouldn't you use double for money?' (precision issues)\n- 'What's the range of int?' (~±2 billion — every Java dev should know this)\n- 'When would you use long instead of int?' (timestamps, large counters, IDs)\n- 'What's a primitive vs reference type?' (foundational OOP knowledge)\n\nInterviewers use these to gauge whether you understand the language or just memorized syntax.",
+    
+    "real_world_workflow": "A typical day involves making type decisions constantly. Writing a REST API endpoint to accept user registration? Decide: is the user age `int` or `String`? (Probably int — but what about ages like '20s' for analytics? Then String.) Is email validation result a `boolean` or an enum with reasons? These decisions cascade through your codebase. Get them right early — they're expensive to change later."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "int_overflow",
+      "what_students_get_wrong": "Using `int` for values that exceed ~2.1 billion. Common with timestamps (which are usually 13-digit milliseconds), large product IDs, or population numbers.",
+      "remediation": "Show the int range explicitly. Demonstrate overflow with code: when int reaches max value and adds 1, it becomes the minimum value (silent corruption). Emphasize: when in doubt, use `long`.",
+      "detection_pattern": "Wrong type chosen for large numbers in exercises"
+    },
+    {
+      "gap_id": "double_for_money",
+      "what_students_get_wrong": "Using `double` for currency calculations. This causes precision errors that compound over many transactions.",
+      "remediation": "Show the famous `0.1 + 0.2 != 0.3` example. Explain BigDecimal exists for production. For learning purposes double is fine, but flag this for the future.",
+      "detection_pattern": "Money handled with double in scenarios"
+    },
+    {
+      "gap_id": "primitive_vs_reference_confusion",
+      "what_students_get_wrong": "Treating String like a primitive. Trying to use single quotes for String, or thinking `==` works for String comparison.",
+      "remediation": "Be explicit: String is a class, not a primitive. Double quotes only. We'll cover String comparison properly in the String topic.",
+      "detection_pattern": "Single quotes around text, == used with String"
+    },
+    {
+      "gap_id": "uninitialized_variable",
+      "what_students_get_wrong": "Declaring a variable and trying to use it before assigning a value. The compiler catches this for local variables.",
+      "remediation": "Always initialize at declaration when possible. If you must split, ensure assignment happens before use on all code paths.",
+      "detection_pattern": "Compilation error: 'variable might not have been initialized'"
+    },
+    {
+      "gap_id": "type_mismatch_assignment",
+      "what_students_get_wrong": "Trying to assign incompatible types: `int x = 3.14;` or `String s = 42;` Java strictly type-checks at compile time.",
+      "remediation": "Explain implicit vs explicit conversions. `int` to `double` is fine (widening). `double` to `int` requires explicit cast (and loses data). String requires explicit conversion.",
+      "detection_pattern": "Compilation errors about incompatible types"
+    },
+    {
+      "gap_id": "naming_too_short",
+      "what_students_get_wrong": "Using single-letter or cryptic variable names like `x`, `t`, `d1`. Works in exercises but creates unmaintainable code.",
+      "remediation": "Coach: future-you (or your teammate) reading the code shouldn't have to guess. `temperature` not `t`. `daysElapsed` not `d`. Loop counter `i` is the only widely-accepted exception.",
+      "detection_pattern": "Cryptic variable names in submitted code"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Java has 8 primitive types: byte, short, int, long, float, double, char, boolean",
+      "Default for whole numbers: int. Default for decimals: double. Memorize this.",
+      "int range is ±2.1 billion — use long when you need bigger",
+      "double has precision issues — never use for money in production",
+      "String is a reference type (class), not a primitive. Double quotes only.",
+      "Variables must be declared with a type that can't change later (statically typed)",
+      "Use camelCase for variables, SCREAMING_SNAKE_CASE for constants (final)",
+      "Be descriptive with names — your future self will thank you"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Which type would you use to store a user's Twitter ID (could be a very large number)?",
+        "answer": "long. Twitter IDs exceed int's 2.1 billion range — they're 64-bit."
+      },
+      {
+        "question": "Why shouldn't you use double to store a customer's account balance?",
+        "answer": "Floating-point precision errors. Calculations like `0.1 + 0.2` don't give exactly 0.3. Over millions of transactions, errors accumulate. Production systems use BigDecimal or store values as integers (paise/cents)."
+      },
+      {
+        "question": "What's the difference between `final int MAX_AGE = 120;` and `int maxAge = 120;`?",
+        "answer": "The `final` keyword makes it a constant — the value can't be changed after assignment. Without final, the value can be reassigned. By convention, constants use SCREAMING_SNAKE_CASE naming."
+      },
+      {
+        "question": "Is `char` written with single or double quotes? What about `String`?",
+        "answer": "`char` uses single quotes: `char grade = 'A';`. `String` uses double quotes: `String name = \"Aisha\";`. Mixing them up is a common beginner error."
+      },
+      {
+        "question": "Why does Java force you to declare variable types?",
+        "answer": "Java is statically typed. The compiler checks types at compile time, catching type-related bugs before code runs. This costs verbosity but gains safety — bugs caught early are far cheaper to fix than bugs in production."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Operators & Expressions. Now that you can store data, you'll learn to manipulate it — arithmetic, comparisons, logical operations. We'll cover the surprisingly tricky behavior of integer division, string concatenation, and operator precedence (the reason `2 + 3 * 4` is 14, not 20)."
+  }
+}

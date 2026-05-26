@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t4",
+  "topic_name": "Redis Distributed Locks",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m18_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Who wins the lock?",
+      "scenario": "Only one instance can acquire a distributed lock.",
+      "instructions": "```java\n// 3 instances call simultaneously:\nBoolean a = redis.opsForValue().setIfAbsent(\"lock:job\", \"uuid-A\", Duration.ofMinutes(5));\nBoolean b = redis.opsForValue().setIfAbsent(\"lock:job\", \"uuid-B\", Duration.ofMinutes(5));\nBoolean c = redis.opsForValue().setIfAbsent(\"lock:job\", \"uuid-C\", Duration.ofMinutes(5));\n```\n\nWhat are the possible values of a, b, c?\nWhy can't two of them both be 'true'?\nWhat does Redis do under the hood?",
+      "expected_solution": "One of these three scenarios (exactly one true):\n  a=true,  b=false, c=false  (Instance A wins)\n  a=false, b=true,  c=false  (Instance B wins)\n  a=false, b=false, c=true   (Instance C wins)\n\nNever: a=true AND b=true (impossible)\n\nWhy: Redis is single-threaded for command execution.\n  Even simultaneous network requests are queued and processed one at a time.\n  The first SETNX: key doesn't exist → SET succeeds → returns 1 (true)\n  Subsequent SETNXs: key exists → NX condition fails → returns 0 (false/null)\n  Spring converts: 1→true, 0→null (which Boolean.TRUE.equals() treats as false)\n\nRedis command: SET lock:job uuid-A NX EX 300\n  NX = only set if key Not eXists\n  EX = set expiry in seconds (atomic with SET)",
+      "test_cases": [
+        { "type": "text_match", "expected": "One of these three scenarios (exactly one true):\n  a=true,  b=false, c=false  (Instance A wins)\n  a=false, b=true,  c=false  (Instance B wins)\n  a=false, b=false, c=true   (Instance C wins)\n\nNever: a=true AND b=true (impossible)\n\nWhy: Redis is single-threaded for command execution.\n  Even simultaneous network requests are queued and processed one at a time.\n  The first SETNX: key doesn't exist → SET succeeds → returns 1 (true)\n  Subsequent SETNXs: key exists → NX condition fails → returns 0 (false/null)\n  Spring converts: 1→true, 0→null (which Boolean.TRUE.equals() treats as false)\n\nRedis command: SET lock:job uuid-A NX EX 300\n  NX = only set if key Not eXists\n  EX = set expiry in seconds (atomic with SET)" }
+      ],
+      "hints": [
+        "Redis processes commands one at a time — no true parallelism",
+        "SETNX = SET if Not eXists; second caller always finds the key already set",
+        "Spring's setIfAbsent returns null (not false) when key already exists"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the lock acquire and release",
+      "scenario": "Minimal distributed lock pattern with UUID ownership.",
+      "instructions": "Fill in the blanks.",
+      "starter_code": "// Acquire:\nString lockValue = UUID.randomUUID().toString();\nBoolean acquired = redis.opsForValue()\n    .______(lockKey, lockValue, Duration.ofMinutes(10));\nif (!Boolean.TRUE.equals(______)) {\n    return;  // another instance has the lock\n}\n\n// Release (owner check):\nString current = redis.opsForValue().get(______);\nif (______.equals(current)) {\n    redis.______(lockKey);\n}",
+      "expected_solution": "String lockValue = UUID.randomUUID().toString();\nBoolean acquired = redis.opsForValue()\n    .setIfAbsent(lockKey, lockValue, Duration.ofMinutes(10));\nif (!Boolean.TRUE.equals(acquired)) {\n    return;\n}\n\nString current = redis.opsForValue().get(lockKey);\nif (lockValue.equals(current)) {\n    redis.delete(lockKey);\n}",
+      "blanks": [
+        { "position": 1, "answer": "setIfAbsent", "hint": "SETNX + EX atomic operation in Spring" },
+        { "position": 2, "answer": "acquired",    "hint": "The Boolean result of setIfAbsent" },
+        { "position": 3, "answer": "lockKey",     "hint": "The Redis key to check" },
+        { "position": 4, "answer": "lockValue",   "hint": "Our UUID — compare to current value" },
+        { "position": 5, "answer": "delete",      "hint": "Redis DEL command" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "setIfAbsent with Duration: one atomic operation (SET NX EX)",
+        "Boolean.TRUE.equals(): null-safe true check (setIfAbsent can return null)",
+        "Owner check before delete: prevents deleting another instance's lock"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Basic RedisDistributedLock service",
+      "scenario": "General-purpose distributed lock with acquire, release, and runOnce.",
+      "instructions": "Write RedisDistributedLock @Service:\n1. tryAcquire(key, ttl): returns UUID string if acquired, null if not\n2. release(key, lockValue): delete only if value matches\n3. runOnce(key, ttl, Runnable): acquire → run → finally release\n4. Show the Redis commands generated by each method",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.UUID;\n// RedisDistributedLock\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.UUID;\n\n@Service\npublic class RedisDistributedLock {\n    private final RedisTemplate<String, String> redis;\n    \n    RedisDistributedLock(RedisTemplate<String,String> r) { redis = r; }\n    \n    // SET key uuid NX EX ttlSeconds\n    public String tryAcquire(String key, Duration ttl) {\n        String value = UUID.randomUUID().toString();\n        Boolean ok   = redis.opsForValue().setIfAbsent(key, value, ttl);\n        return Boolean.TRUE.equals(ok) ? value : null;\n    }\n    \n    // GET key → compare → DEL key (non-atomic but safe enough for most uses)\n    public boolean release(String key, String lockValue) {\n        String current = redis.opsForValue().get(key);\n        if (lockValue.equals(current)) {\n            redis.delete(key);\n            return true;\n        }\n        return false;  // TTL expired and re-acquired by another, OR already released\n    }\n    \n    // Convenience: acquire → run → release (try-finally)\n    public boolean runOnce(String key, Duration ttl, Runnable task) {\n        String lockValue = tryAcquire(key, ttl);\n        if (lockValue == null) return false;  // not acquired\n        \n        try {\n            task.run();\n            return true;\n        } finally {\n            release(key, lockValue);  // always releases, even on exception\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "tryAcquire returns the UUID so the caller can verify ownership on release",
+        "release returns boolean: true if released, false if lock was already gone",
+        "runOnce try-finally: task exception doesn't prevent lock release"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m18_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "@Scheduled task with distributed lock guard",
+      "scenario": "Prevent @Scheduled job from running on multiple instances simultaneously.",
+      "instructions": "Add distributed lock to Swiggy's daily deals refresh job:\n1. Job runs every day at 2am\n2. Lock key includes current date\n3. TTL: 30 minutes\n4. Log: which instance ran, which instances skipped\n5. What happens if instance crashes mid-job?",
+      "starter_code": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.LocalDate;\nimport java.util.UUID;\n// SwiggyDailyDealsJob\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.LocalDate;\nimport java.util.UUID;\n\n@Service\npublic class SwiggyDailyDealsJob {\n    private final RedisDistributedLock lock;\n    private final String instanceId = UUID.randomUUID().toString().substring(0, 8);\n    \n    SwiggyDailyDealsJob(RedisDistributedLock l) { lock = l; }\n    \n    @Scheduled(cron = \"0 0 2 * * *\")  // 2:00 AM daily\n    public void refreshDailyDeals() {\n        // Date in key: naturally resets each day\n        String key = \"lock:daily-deals:\" + LocalDate.now().toString();\n        \n        boolean ran = lock.runOnce(key, java.time.Duration.ofMinutes(30), () -> {\n            System.out.printf(\"[%s] Refreshing daily deals...%n\", instanceId);\n            // ... load new deals, clear old caches, notify restaurants ...\n            System.out.printf(\"[%s] Daily deals refresh complete.%n\", instanceId);\n        });\n        \n        if (!ran) {\n            System.out.printf(\"[%s] Skipped — daily deals refresh already running.%n\", instanceId);\n        }\n    }\n    \n    // CRASH SCENARIO:\n    // Instance A: acquires lock, starts job at 2:00am\n    // At 2:15am: Instance A crashes (OOM, hardware failure)\n    // Lock: still in Redis with TTL = 30 min, expires at 2:30am\n    // At 2:30am: lock expires automatically (TTL design!)\n    // At next day 2:00am: fresh key 'lock:daily-deals:2024-06-16'\n    //   → any instance can acquire and run\n    // Today (2024-06-15): deals were NOT refreshed (job failed)\n    //   → monitoring alert should fire\n    //   → on-call engineer can manually trigger or it runs tomorrow\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "LocalDate.now().toString(): produces 'YYYY-MM-DD', unique per day",
+        "instanceId in logs: visibility for debugging which instance ran",
+        "TTL auto-expiry on crash: prevents permanent deadlock"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m18_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Idempotency key for payment deduplication",
+      "scenario": "Client retries on network timeout — idempotency key prevents double charge.",
+      "instructions": "Write PaymentIdempotencyService:\n1. processPayment(idempotencyKey, request): check cache → acquire lock → process → cache result\n2. Cache result in 'idem:result:{key}' for 24 hours\n3. Processing lock 'idem:lock:{key}': 30-second TTL\n4. If in-flight (lock exists): throw PaymentInProgressException\n5. Show the happy path and the retry path",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n// PaymentIdempotencyService\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n\n@Service\npublic class PaymentIdempotencyService {\n    private final RedisTemplate<String, String> redis;\n    \n    PaymentIdempotencyService(RedisTemplate<String,String> r) { redis=r; }\n    \n    public String processPayment(String idempotencyKey, String amount) {\n        String resultKey = \"idem:result:\" + idempotencyKey;\n        String lockKey   = \"idem:lock:\"   + idempotencyKey;\n        \n        // RETRY PATH: result already cached → return immediately\n        String cached = redis.opsForValue().get(resultKey);\n        if (cached != null) {\n            System.out.println(\"Idempotency HIT for \" + idempotencyKey + \" → \" + cached);\n            return cached;\n        }\n        \n        // Acquire processing lock (30s — enough for payment roundtrip):\n        Boolean acquired = redis.opsForValue()\n            .setIfAbsent(lockKey, \"processing\", Duration.ofSeconds(30));\n        \n        if (!Boolean.TRUE.equals(acquired)) {\n            throw new RuntimeException(\n                \"Payment \" + idempotencyKey + \" is already being processed\");\n        }\n        \n        try {\n            // Double-check after acquiring lock:\n            String check = redis.opsForValue().get(resultKey);\n            if (check != null) return check;\n            \n            // HAPPY PATH: process payment:\n            String paymentId = \"PAY-\" + System.currentTimeMillis();\n            String result    = \"{\\\"paymentId\\\":\\\"\" + paymentId + \"\\\",\\\"status\\\":\\\"success\\\"}\";\n            System.out.println(\"Processing payment \" + idempotencyKey + \" → \" + paymentId);\n            \n            // Cache result for 24h (covers client retry window):\n            redis.opsForValue().set(resultKey, result, Duration.ofHours(24));\n            return result;\n        } finally {\n            redis.delete(lockKey);\n        }\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"Happy path: new key → lock → process → cache result\");\n        System.out.println(\"Retry path: cached result → return immediately (no DB call)\");\n        System.out.println(\"In-flight: lock exists → throw PaymentInProgressException\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Happy path", "Retry path"] }
+      ],
+      "hints": [
+        "Result key and lock key are different: result persists 24h; lock is ephemeral",
+        "Double-check: another thread may have finished while waiting for lock",
+        "24-hour TTL: covers typical client retry window (network timeout + retry)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Lock with retry — wait for lock to be available",
+      "scenario": "Sometimes you want to WAIT for a lock instead of immediately giving up.",
+      "instructions": "Write LockWithRetry.tryAcquireWithWait(key, ttl, maxWaitMs):\n1. Tries to acquire lock\n2. If not available: wait 50ms and retry\n3. Repeat until maxWaitMs is exhausted\n4. Returns lock value if acquired, throws LockTimeoutException if not\n5. When to use waitForLock vs tryAcquire? Explain",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.UUID;\n// LockWithRetry\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.UUID;\n\n@Service\npublic class LockWithRetry {\n    private final RedisTemplate<String, String> redis;\n    private static final int RETRY_INTERVAL_MS = 50;\n    \n    LockWithRetry(RedisTemplate<String,String> r) { redis=r; }\n    \n    // Wait up to maxWaitMs for the lock:\n    public String tryAcquireWithWait(String key, Duration ttl, long maxWaitMs) {\n        long deadline = System.currentTimeMillis() + maxWaitMs;\n        \n        while (System.currentTimeMillis() < deadline) {\n            String value = UUID.randomUUID().toString();\n            Boolean ok = redis.opsForValue().setIfAbsent(key, value, ttl);\n            if (Boolean.TRUE.equals(ok)) return value;  // acquired!\n            \n            try { Thread.sleep(RETRY_INTERVAL_MS); }\n            catch (InterruptedException e) { Thread.currentThread().interrupt(); break; }\n        }\n        throw new LockTimeoutException(\"Could not acquire lock '\" + key + \"' within \" + maxWaitMs + \"ms\");\n    }\n    \n    // Simple non-blocking acquire (from Topic):\n    public String tryAcquire(String key, Duration ttl) {\n        String value = UUID.randomUUID().toString();\n        Boolean ok = redis.opsForValue().setIfAbsent(key, value, ttl);\n        return Boolean.TRUE.equals(ok) ? value : null;\n    }\n    \n    // WHEN TO USE EACH:\n    // tryAcquire (non-blocking):\n    //   @Scheduled jobs: skip if already running (don't wait — just skip this run)\n    //   Idempotency: if in-flight, return 409 immediately\n    //   Best for: jobs where skipping is acceptable\n    \n    // tryAcquireWithWait (blocking):\n    //   Critical operations where you MUST complete (e.g., completing a user's action)\n    //   Short-lived locks where waiting is better than failing\n    //   Best for: user-facing operations that can't silently skip\n    \n    static class LockTimeoutException extends RuntimeException {\n        LockTimeoutException(String m) { super(m); }\n    }\n    \n    public static void main(String[] a) {\n        System.out.println(\"tryAcquire: non-blocking, returns null if locked\");\n        System.out.println(\"tryAcquireWithWait: blocks up to maxWaitMs, throws on timeout\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["tryAcquire: non-blocking"] }
+      ],
+      "hints": [
+        "Deadline-based retry: check System.currentTimeMillis() < deadline",
+        "Thread.sleep(50): short polling interval (not too tight, not too slow)",
+        "Thread.currentThread().interrupt(): restore interrupt flag after catching InterruptedException"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@DataRedisTest: verify lock mutual exclusion",
+      "scenario": "Test that exactly one out of two concurrent lock attempts succeeds.",
+      "instructions": "Write a test that:\n1. Creates two threads both trying to acquire 'lock:test'\n2. Verifies exactly one gets 'true' (acquired)\n3. Verifies the other gets null/false\n4. Verifies Redis key exists after one acquires\n5. Verifies Redis key is gone after release",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.Duration;\nimport java.util.concurrent.*;\n// DistributedLockTest\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.Duration;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@SpringBootTest\nclass DistributedLockTest {\n    @Autowired RedisDistributedLock lock;\n    @Autowired RedisTemplate<String,String> redis;\n    \n    private final String TEST_KEY = \"lock:test:\" + System.currentTimeMillis();\n    \n    @AfterEach void cleanup() { redis.delete(TEST_KEY); }\n    \n    @Test void onlyOneAcquires_outOfTwo() throws Exception {\n        AtomicInteger successCount = new AtomicInteger(0);\n        AtomicInteger failCount    = new AtomicInteger(0);\n        CountDownLatch latch = new CountDownLatch(2);\n        \n        Runnable attempt = () -> {\n            String val = lock.tryAcquire(TEST_KEY, Duration.ofMinutes(1));\n            if (val != null) successCount.incrementAndGet();\n            else             failCount.incrementAndGet();\n            latch.countDown();\n        };\n        \n        new Thread(attempt).start();\n        new Thread(attempt).start();\n        latch.await(5, TimeUnit.SECONDS);\n        \n        assertEquals(1, successCount.get(), \"Exactly one should acquire the lock\");\n        assertEquals(1, failCount.get(),    \"Exactly one should fail to acquire\");\n    }\n    \n    @Test void keyExists_afterAcquire() {\n        String val = lock.tryAcquire(TEST_KEY, Duration.ofMinutes(1));\n        assertNotNull(val, \"Should acquire lock\");\n        assertTrue(redis.hasKey(TEST_KEY), \"Key should exist in Redis\");\n    }\n    \n    @Test void keyGone_afterRelease() {\n        String val = lock.tryAcquire(TEST_KEY, Duration.ofMinutes(1));\n        assertNotNull(val);\n        lock.release(TEST_KEY, val);\n        assertFalse(Boolean.TRUE.equals(redis.hasKey(TEST_KEY)), \"Key should be gone\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "CountDownLatch: wait for both threads to finish before asserting",
+        "AtomicInteger: thread-safe counter across concurrent threads",
+        "@AfterEach cleanup: always delete test keys so tests don't interfere"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Cluster-safe @Scheduled batch report job",
+      "scenario": "Monthly report generation — must run exactly once per month across the cluster.",
+      "instructions": "Write MonthlyReportJob for Razorpay:\n1. @Scheduled: runs on 1st of each month at midnight\n2. Lock key includes year-month: 'lock:report:2024-06'\n3. TTL: 2 hours (report generation can take 30-60 min)\n4. Logs: acquiring, generating, complete/skipped\n5. Test: verify lock key has correct format and 2-hour TTL",
+      "starter_code": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.*;\n// MonthlyReportJob\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.*;\nimport java.util.UUID;\n\n@Service\npublic class MonthlyReportJob {\n    private final RedisDistributedLock lock;\n    private final String instanceId = UUID.randomUUID().toString().substring(0, 8);\n    \n    MonthlyReportJob(RedisDistributedLock l) { lock = l; }\n    \n    // 1st day of month, midnight:\n    @Scheduled(cron = \"0 0 0 1 * *\")\n    public void generateMonthlyReport() {\n        // YearMonth in key: unique per month, never conflicts across months\n        String yearMonth = YearMonth.now().toString();  // '2024-06'\n        String lockKey   = \"lock:report:\" + yearMonth;  // 'lock:report:2024-06'\n        \n        // 2-hour TTL: report takes up to 60 min, 2h is safe 2× buffer\n        boolean ran = lock.runOnce(lockKey, Duration.ofHours(2), () -> {\n            System.out.printf(\"[%s] Generating monthly report for %s...%n\",\n                instanceId, yearMonth);\n            \n            // Simulate report generation:\n            generateMerchantReports(yearMonth);\n            generateSettlementSummary(yearMonth);\n            sendReportEmails(yearMonth);\n            \n            System.out.printf(\"[%s] Monthly report for %s complete.%n\",\n                instanceId, yearMonth);\n        });\n        \n        if (!ran) {\n            System.out.printf(\"[%s] Monthly report for %s already running — skipped.%n\",\n                instanceId, yearMonth);\n        }\n    }\n    \n    private void generateMerchantReports(String ym) {\n        System.out.println(\"  Generating merchant reports for \" + ym);\n    }\n    private void generateSettlementSummary(String ym) {\n        System.out.println(\"  Generating settlement summary for \" + ym);\n    }\n    private void sendReportEmails(String ym) {\n        System.out.println(\"  Sending report emails for \" + ym);\n    }\n    \n    // Lock key format test:\n    public static void main(String[] a) {\n        String ym = YearMonth.now().toString();\n        System.out.println(\"Lock key: lock:report:\" + ym);\n        System.out.println(\"TTL: 2 hours = 7200 seconds\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Lock key: lock:report:"] }
+      ],
+      "hints": [
+        "YearMonth.now().toString(): '2024-06' — unique per calendar month",
+        "Cron 0 0 0 1 * *: second=0, min=0, hour=0, day=1, any month, any DOW",
+        "TTL = 2× expected duration: generous buffer for slow months"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Idempotency key store with result caching",
+      "scenario": "Full idempotency service: lock + process + cache result + return cached on retry.",
+      "instructions": "Build IdempotentOrderService for Swiggy:\n1. confirmOrder(idempotencyKey, orderId): process exactly once\n2. Check 'idem:result:{key}' — return immediately if exists\n3. Lock 'idem:lock:{key}' for 30 seconds\n4. Process: save order confirmation, send to restaurant\n5. Store result with 6-hour TTL\n6. @SpringBootTest test: call twice with same key, verify method runs once",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.concurrent.atomic.AtomicInteger;\n// IdempotentOrderService\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Service\npublic class IdempotentOrderService {\n    private final RedisTemplate<String, String> redis;\n    // Track actual confirmations for test verification:\n    public final AtomicInteger confirmationCount = new AtomicInteger(0);\n    \n    IdempotentOrderService(RedisTemplate<String,String> r) { redis=r; }\n    \n    public String confirmOrder(String idempotencyKey, String orderId) {\n        String resultKey = \"idem:result:\" + idempotencyKey;\n        String lockKey   = \"idem:lock:\"   + idempotencyKey;\n        \n        // Fast path — already confirmed:\n        String cached = redis.opsForValue().get(resultKey);\n        if (cached != null) {\n            System.out.println(\"[IDEM HIT] Returning cached result for \" + idempotencyKey);\n            return cached;\n        }\n        \n        // Slow path — need to process:\n        Boolean acquired = redis.opsForValue()\n            .setIfAbsent(lockKey, \"1\", Duration.ofSeconds(30));\n        if (!Boolean.TRUE.equals(acquired)) {\n            throw new RuntimeException(\"Confirmation in progress for \" + idempotencyKey);\n        }\n        \n        try {\n            // Double-check:\n            String recheck = redis.opsForValue().get(resultKey);\n            if (recheck != null) return recheck;\n            \n            // Actually confirm:\n            confirmationCount.incrementAndGet();  // track for test assertion\n            String result = \"{\\\"orderId\\\":\\\"\" + orderId + \"\\\",\\\"status\\\":\\\"CONFIRMED\\\"}\";\n            System.out.println(\"[CONFIRM] Order \" + orderId + \" confirmed\");\n            \n            // Cache result:\n            redis.opsForValue().set(resultKey, result, Duration.ofHours(6));\n            return result;\n        } finally {\n            redis.delete(lockKey);\n        }\n    }\n    \n    public static void main(String[] a) {\n        System.out.println(\"Call 1: process + cache result\");\n        System.out.println(\"Call 2 (same key): return cached, do NOT process again\");\n        System.out.println(\"confirmationCount after 2 calls: 1 (not 2!)\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["confirmationCount after 2 calls: 1"] }
+      ],
+      "hints": [
+        "AtomicInteger confirmationCount: tracks actual processing for test assertion",
+        "6-hour TTL for result: covers typical payment callback retry window",
+        "Double-check in lock: prevents race between two simultaneous first requests"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What happens with no lock TTL?",
+      "scenario": "Missing TTL creates a permanent lock on instance crash.",
+      "instructions": "```java\n// BAD: setIfAbsent without TTL\nBoolean acquired = redis.opsForValue().setIfAbsent(\"lock:job\", \"uuid-A\");\n// ↑ TWO-argument version: no TTL!\n\nif (Boolean.TRUE.equals(acquired)) {\n    try {\n        runExpensiveJob();  // takes 10 minutes... then CRASHES\n    } finally {\n        redis.delete(\"lock:job\");  // ← NEVER REACHED due to crash\n    }\n}\n```\n\nAnswer:\n1. What is the TTL of 'lock:job' in Redis?\n2. What happens to the lock after the instance crashes?\n3. What can other instances do?\n4. How long is the system affected?\n5. How do you fix it?",
+      "expected_solution": "1. TTL: -1 (no expiry — key lives forever until manually deleted)\n   Redis CLI: TTL lock:job → -1\n\n2. After instance crashes:\n   The finally block never executes.\n   redis.delete() is never called.\n   'lock:job' remains in Redis with no TTL → PERMANENT.\n\n3. Other instances:\n   All calls to setIfAbsent('lock:job', ...) return false.\n   No other instance can run the job.\n   The system is PERMANENTLY LOCKED until someone manually deletes the key.\n\n4. Duration affected:\n   INDEFINITELY — until a human logs into Redis and runs: DEL lock:job\n   This is a production incident requiring manual intervention.\n\n5. Fix:\n   Use the 3-argument setIfAbsent with TTL:\n   redis.opsForValue().setIfAbsent(\"lock:job\", \"uuid-A\", Duration.ofMinutes(15));\n   Now: if instance crashes, TTL auto-expires after 15 minutes.\n   Other instances can re-acquire after TTL.",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. TTL: -1 (no expiry — key lives forever until manually deleted)\n   Redis CLI: TTL lock:job → -1\n\n2. After instance crashes:\n   The finally block never executes.\n   redis.delete() is never called.\n   'lock:job' remains in Redis with no TTL → PERMANENT.\n\n3. Other instances:\n   All calls to setIfAbsent('lock:job', ...) return false.\n   No other instance can run the job.\n   The system is PERMANENTLY LOCKED until someone manually deletes the key.\n\n4. Duration affected:\n   INDEFINITELY — until a human logs into Redis and runs: DEL lock:job\n   This is a production incident requiring manual intervention.\n\n5. Fix:\n   Use the 3-argument setIfAbsent with TTL:\n   redis.opsForValue().setIfAbsent(\"lock:job\", \"uuid-A\", Duration.ofMinutes(15));\n   Now: if instance crashes, TTL auto-expires after 15 minutes.\n   Other instances can re-acquire after TTL." }
+      ],
+      "hints": [
+        "TTL -1: key has no expiry in Redis",
+        "No finally on crash: JVM crash prevents cleanup code from running",
+        "3-argument setIfAbsent: generates SET NX EX (atomic lock + expiry)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Lock-based leader election",
+      "scenario": "In a cluster, one instance acts as 'leader' for coordination tasks.",
+      "instructions": "Write LeaderElectionService:\n1. tryBecomeLeader(): attempt to acquire 'lock:leader' with 30-second TTL\n2. renewLeadership(): if we're the leader, refresh TTL before it expires\n3. isLeader(): check if current instance holds the lock\n4. stepDown(): release leadership voluntarily\n5. @Scheduled: renew every 20 seconds (before 30s TTL expires)",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.UUID;\n// LeaderElectionService\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.UUID;\n\n@Service\npublic class LeaderElectionService {\n    private static final String LOCK_KEY    = \"lock:leader\";\n    private static final Duration LEADER_TTL = Duration.ofSeconds(30);\n    \n    private final RedisTemplate<String, String> redis;\n    private final String instanceId = UUID.randomUUID().toString();\n    private volatile String currentLockValue = null;\n    \n    LeaderElectionService(RedisTemplate<String,String> r) { redis=r; }\n    \n    public boolean tryBecomeLeader() {\n        String value = instanceId;\n        Boolean ok = redis.opsForValue().setIfAbsent(LOCK_KEY, value, LEADER_TTL);\n        if (Boolean.TRUE.equals(ok)) {\n            currentLockValue = value;\n            System.out.println(\"[\" + instanceId.substring(0,8) + \"] Became leader!\");\n            return true;\n        }\n        return false;\n    }\n    \n    // Called @Scheduled every 20s to renew before 30s TTL expires:\n    @Scheduled(fixedRate = 20_000)\n    public void renewLeadership() {\n        if (currentLockValue == null) {\n            tryBecomeLeader();  // try to take leadership if no one holds it\n            return;\n        }\n        String current = redis.opsForValue().get(LOCK_KEY);\n        if (instanceId.equals(current)) {\n            redis.expire(LOCK_KEY, LEADER_TTL);  // refresh TTL\n            System.out.println(\"[\" + instanceId.substring(0,8) + \"] Leadership renewed\");\n        } else {\n            // Lost leadership (TTL expired before renewal):\n            currentLockValue = null;\n            System.out.println(\"[\" + instanceId.substring(0,8) + \"] Lost leadership\");\n        }\n    }\n    \n    public boolean isLeader() {\n        return instanceId.equals(redis.opsForValue().get(LOCK_KEY));\n    }\n    \n    public void stepDown() {\n        String current = redis.opsForValue().get(LOCK_KEY);\n        if (instanceId.equals(current)) {\n            redis.delete(LOCK_KEY);\n            currentLockValue = null;\n            System.out.println(\"[\" + instanceId.substring(0,8) + \"] Stepped down\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Renewal at 20s, TTL at 30s: 10-second buffer for network latency",
+        "Check instanceId equals current before renewing: guards against race on re-election",
+        "volatile currentLockValue: shared between @Scheduled and request threads"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Razorpay payment dedup — full idempotency flow",
+      "scenario": "Complete idempotency key implementation for payment processing.",
+      "instructions": "Build Razorpay's IdempotentPaymentProcessor:\n1. process(idempotencyKey, merchantId, amount): full idempotency\n2. 3 states: COMPLETED (return cached), IN_PROGRESS (409), NOT_STARTED (process)\n3. On success: cache result JSON for 24 hours\n4. On failure: delete lock but DON'T cache (allow retry)\n5. Test: same key twice → method runs once, second returns cached",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.concurrent.atomic.AtomicInteger;\n// IdempotentPaymentProcessor\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Service\npublic class IdempotentPaymentProcessor {\n    public final AtomicInteger processCount = new AtomicInteger(0);\n    private final RedisTemplate<String, String> redis;\n    \n    IdempotentPaymentProcessor(RedisTemplate<String,String> r) { redis=r; }\n    \n    public String process(String idempotencyKey, String merchantId, double amount) {\n        String resultKey = \"pay:result:\" + idempotencyKey;\n        String lockKey   = \"pay:lock:\"   + idempotencyKey;\n        \n        // State 1: COMPLETED\n        String cached = redis.opsForValue().get(resultKey);\n        if (cached != null) {\n            System.out.println(\"[CACHED] \" + idempotencyKey);\n            return cached;\n        }\n        \n        // State 2: IN_PROGRESS\n        Boolean acquired = redis.opsForValue()\n            .setIfAbsent(lockKey, \"in-progress\", Duration.ofSeconds(30));\n        if (!Boolean.TRUE.equals(acquired)) {\n            throw new RuntimeException(\"409: payment \" + idempotencyKey + \" in progress\");\n        }\n        \n        try {\n            // Double-check after lock:\n            String recheck = redis.opsForValue().get(resultKey);\n            if (recheck != null) return recheck;\n            \n            // State 3: NOT_STARTED — process it:\n            processCount.incrementAndGet();\n            String payId = \"PAY-\" + System.currentTimeMillis();\n            System.out.printf(\"[PROCESS] %s → %s (₹%.2f)%n\", idempotencyKey, payId, amount);\n            \n            String result = \"{\\\"id\\\":\\\"\" + payId + \"\\\",\\\"merchant\\\":\\\"\" + merchantId +\n                \"\\\",\\\"amount\\\":\" + amount + \",\\\"status\\\":\\\"captured\\\"}\";\n            \n            // Only cache on SUCCESS — failure leaves no result → allows clean retry\n            redis.opsForValue().set(resultKey, result, Duration.ofHours(24));\n            return result;\n            \n        } catch (Exception e) {\n            // On failure: delete lock but NOT result\n            // → next call can retry (no cached failure)\n            System.err.println(\"[FAILED] \" + idempotencyKey + \": \" + e.getMessage());\n            throw e;  // lock deleted in finally\n        } finally {\n            redis.delete(lockKey);\n        }\n    }\n    \n    public static void main(String[] a) {\n        System.out.println(\"Call 1: process + cache result → processCount=1\");\n        System.out.println(\"Call 2 (same key): return cached → processCount still 1\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["processCount still 1"] }
+      ],
+      "hints": [
+        "Don't cache failure: on exception, only delete lock — next retry gets a clean attempt",
+        "Three states: check result first (fast), then check lock (slow), then process",
+        "finally: delete lock regardless of success or failure"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Zerodha settlement with distributed lock + verification",
+      "scenario": "Full end-of-day settlement with lock, crash-safe TTL, and verification test.",
+      "instructions": "Build ZerodhaSettlementService:\n1. runSettlement(date): acquire lock, settle, release\n2. Lock key: 'lock:settlement:{date}', TTL: 15 minutes\n3. Persist 'settlement:done:{date}' = 'true' after completion\n4. isDone(date): checks if settlement ran for that date\n5. @SpringBootTest test (2 tests): verify runs once, verify isDone after run\n\nAll tests pass.",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n// ZerodhaSettlementService + 2 tests\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Service\nclass ZerodhaSettlementService {\n    public final AtomicInteger runCount=new AtomicInteger(0);\n    private final RedisTemplate<String,String> redis;\n    private final RedisDistributedLock lock;\n    ZerodhaSettlementService(RedisTemplate<String,String> r,RedisDistributedLock l){redis=r;lock=l;}\n    \n    public boolean runSettlement(LocalDate date){\n        String key=\"lock:settlement:\"+date;\n        boolean ran=lock.runOnce(key,Duration.ofMinutes(15),()->{\n            System.out.println(\"Running settlement for \"+date);\n            runCount.incrementAndGet();\n            // Persist completion marker (survives beyond lock TTL):\n            redis.opsForValue().set(\"settlement:done:\"+date,\"true\",Duration.ofDays(7));\n            System.out.println(\"Settlement done for \"+date);\n        });\n        return ran;\n    }\n    \n    public boolean isDone(LocalDate date){\n        return \"true\".equals(redis.opsForValue().get(\"settlement:done:\"+date));\n    }\n}\n\n@SpringBootTest\nclass ZerodhaSettlementTest {\n    @Autowired ZerodhaSettlementService svc;\n    @Autowired RedisTemplate<String,String> redis;\n    LocalDate today=LocalDate.now();\n    \n    @BeforeEach void cleanup(){\n        redis.delete(\"lock:settlement:\"+today);\n        redis.delete(\"settlement:done:\"+today);\n        svc.runCount.set(0);\n    }\n    \n    @Test void runsExactlyOnce(){\n        assertTrue(svc.runSettlement(today),\"First run should return true\");\n        assertFalse(svc.runSettlement(today),\"Second run should return false (lock still held)\");\n        assertEquals(1,svc.runCount.get(),\"Should run exactly once\");\n    }\n    \n    @Test void isDone_afterSettlement(){\n        assertFalse(svc.isDone(today));\n        svc.runSettlement(today);\n        assertTrue(svc.isDone(today),\"isDone should be true after settlement\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Completion marker separate from lock: lock releases after job, but 'done' persists for 7 days",
+        "@BeforeEach cleanup: delete both lock and done keys to reset state",
+        "runCount.set(0) in @BeforeEach: reset counter between tests"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m18_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Lua script for atomic lock release",
+      "scenario": "True atomic compare-and-delete requires a Lua script.",
+      "instructions": "Write AtomicLockReleaseService using Redis Lua script:\n1. Lua script: if GET key == value then DEL key return 1 else return 0 end\n2. execute via RedisTemplate.execute(RedisScript, keys, args)\n3. Wrap in a service with tryAcquire + atomicRelease\n4. Explain why Lua is more correct than get-compare-delete\n5. Test: verify atomicRelease returns false when value doesn't match",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.core.script.DefaultRedisScript;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n// AtomicLockReleaseService with Lua script\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.core.script.DefaultRedisScript;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\nimport java.util.UUID;\n\n@Service\npublic class AtomicLockReleaseService {\n    private final RedisTemplate<String, String> redis;\n    \n    // Lua script: atomic compare-and-delete\n    private static final DefaultRedisScript<Long> RELEASE_SCRIPT =\n        new DefaultRedisScript<>(\n            // KEYS[1] = lock key, ARGV[1] = expected value\n            \"if redis.call('get', KEYS[1]) == ARGV[1] then \" +\n            \"  return redis.call('del', KEYS[1]) \" +\n            \"else \" +\n            \"  return 0 \" +\n            \"end\",\n            Long.class\n        );\n    \n    AtomicLockReleaseService(RedisTemplate<String,String> r) { redis=r; }\n    \n    public String tryAcquire(String key, Duration ttl) {\n        String value = UUID.randomUUID().toString();\n        Boolean ok = redis.opsForValue().setIfAbsent(key, value, ttl);\n        return Boolean.TRUE.equals(ok) ? value : null;\n    }\n    \n    // Atomic: compare + delete in one operation (no gap for other threads)\n    public boolean atomicRelease(String key, String value) {\n        Long result = redis.execute(\n            RELEASE_SCRIPT,\n            List.of(key),    // KEYS[1]\n            value             // ARGV[1]\n        );\n        return Long.valueOf(1L).equals(result);\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"Non-atomic release: GET → compare → DEL (gap between GET and DEL!)\");\n        System.out.println(\"Atomic Lua:        if GET==value: DEL (one Redis command, no gap)\");\n        System.out.println(\"\");\n        System.out.println(\"Race in non-atomic:\");\n        System.out.println(\"  T1: GET key → 'uuid-A' (matches our value)\");\n        System.out.println(\"  TTL expires here!\");\n        System.out.println(\"  T2: SETNX key → acquires with 'uuid-B'\");\n        System.out.println(\"  T1: DEL key → deletes T2's lock! Bug!\");\n        System.out.println(\"\");\n        System.out.println(\"Lua is atomic: no other command can execute between GET and DEL\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Lua is atomic"] }
+      ],
+      "hints": [
+        "DefaultRedisScript: wraps Lua script with return type",
+        "KEYS[1] and ARGV[1]: Redis convention for script parameters",
+        "redis.execute(script, keys, args): sends Lua to Redis eval"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Razorpay cluster coordination — synthesis",
+      "scenario": "All distributed lock patterns combined: @Scheduled dedup, idempotency, leader election.",
+      "instructions": "Build RazorpayClusterCoordinator:\n1. RedisDLock @Service: acquire (UUID), atomicRelease (Lua), runOnce\n2. DailyReconciliationJob @Scheduled: runs at 2am, lock 'lock:reconcile:{date}', TTL=2h\n3. IdempotentChargeProcessor.charge(key, amount): 3-state idempotency\n4. LeaderOnlyNotifier: only leader sends system-wide notifications\n5. Test (2 tests): reconciliation runs once, charge idempotent\n\nAll compiles and tests pass.",
+      "starter_code": "// Complete Razorpay cluster coordinator — synthesis\n",
+      "expected_solution": "import org.springframework.data.redis.core.*;\nimport org.springframework.data.redis.core.script.DefaultRedisScript;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.*;\nimport java.util.*;\nimport java.util.concurrent.atomic.*;\n\n@Service\nclass RedisDLock {\n    private final RedisTemplate<String,String> r;\n    private static final DefaultRedisScript<Long> RL=new DefaultRedisScript<>(\n        \"if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end\",Long.class);\n    RedisDLock(RedisTemplate<String,String> r){this.r=r;}\n    public String acquire(String k,Duration t){\n        String v=UUID.randomUUID().toString();\n        Boolean ok=r.opsForValue().setIfAbsent(k,v,t);\n        return Boolean.TRUE.equals(ok)?v:null;\n    }\n    public boolean release(String k,String v){\n        return Long.valueOf(1L).equals(r.execute(RL,List.of(k),v));\n    }\n    public boolean runOnce(String k,Duration t,Runnable task){\n        String v=acquire(k,t); if(v==null) return false;\n        try{task.run();return true;}finally{release(k,v);}\n    }\n}\n\n@Service\nclass DailyReconciliationJob {\n    public final AtomicInteger runs=new AtomicInteger(0);\n    private final RedisDLock lock;\n    DailyReconciliationJob(RedisDLock l){lock=l;}\n    @Scheduled(cron=\"0 0 2 * * *\")\n    public void reconcile(){\n        String k=\"lock:reconcile:\"+LocalDate.now();\n        lock.runOnce(k,Duration.ofHours(2),()->{\n            runs.incrementAndGet();\n            System.out.println(\"[Reconcile] Running for \"+LocalDate.now());\n        });\n    }\n    public boolean runForDate(LocalDate d){\n        return lock.runOnce(\"lock:reconcile:\"+d,Duration.ofHours(2),()->{\n            runs.incrementAndGet();\n        });\n    }\n}\n\n@Service\nclass IdempotentChargeProcessor {\n    public final AtomicInteger charges=new AtomicInteger(0);\n    private final RedisTemplate<String,String> redis;\n    private final RedisDLock lock;\n    IdempotentChargeProcessor(RedisTemplate<String,String> r,RedisDLock l){redis=r;lock=l;}\n    public String charge(String iKey,double amount){\n        String rk=\"charge:result:\"+iKey; String lk=\"charge:lock:\"+iKey;\n        String cached=redis.opsForValue().get(rk);\n        if(cached!=null)return cached;\n        String lv=lock.acquire(lk,Duration.ofSeconds(30));\n        if(lv==null) throw new RuntimeException(\"in-progress\");\n        try{\n            String rc=redis.opsForValue().get(rk);\n            if(rc!=null)return rc;\n            charges.incrementAndGet();\n            String result=\"charged:\"+amount;\n            redis.opsForValue().set(rk,result,Duration.ofHours(24));\n            return result;\n        }finally{lock.release(lk,lv);}\n    }\n}\n\n@SpringBootTest\nclass RazorpayCoordinatorTest{\n    @Autowired DailyReconciliationJob job;\n    @Autowired IdempotentChargeProcessor proc;\n    @Autowired RedisTemplate<String,String> redis;\n    LocalDate today=LocalDate.now();\n    @BeforeEach void clean(){\n        redis.delete(\"lock:reconcile:\"+today);\n        redis.delete(\"charge:result:KEY1\"); redis.delete(\"charge:lock:KEY1\");\n        job.runs.set(0); proc.charges.set(0);\n    }\n    @Test void reconcile_runsOnce(){\n        assertTrue(job.runForDate(today));\n        assertFalse(job.runForDate(today));\n        assertEquals(1,job.runs.get());\n    }\n    @Test void charge_idempotent(){\n        proc.charge(\"KEY1\",999.0);\n        proc.charge(\"KEY1\",999.0);\n        assertEquals(1,proc.charges.get(),\"Should charge only once\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Lua atomic release: prevents deleting another instance's lock after TTL expiry",
+        "@BeforeEach: clean up BOTH lock AND result keys for clean test state",
+        "runForDate helper: testable entry point (bypasses @Scheduled timing)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 70
+  }
+}

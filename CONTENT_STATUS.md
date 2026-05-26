@@ -218,6 +218,6 @@ When you add a new board/grade/subject:
 
 Lives outside the school content pipeline — Pro models + content are in `models/proModels.js` and `content/pro/<lang>/...`. Pipeline phases above (Ph0–Ph9) don't all map; pro content uses its own audit (every exercise must have non-empty `testCases[]`).
 
-| Track    | Modules | Topics | Exercises | Project | Status (2026-05-25) | Notes |
+| Track    | Modules | Topics | Exercises | Project | Status (2026-05-26) | Notes |
 |----------|---------|--------|-----------|---------|---------------------|-------|
-| pro_java | 1       | 1      | 15        | 1       | ✅ pilot complete   | java_m1 Fundamentals · java_m1_t1 Hello World & Setup · seed: `npm run seed:pro-java-pilot` · idempotent. Phase 11 (real Judge0 acceptance) + tag pending Docker install. |
+| pro_java | **46 (ALL M1–M46)** | **232** | **3311** | **232** | 🎉 **COMPLETE** | **All 46 modules LIVE. Total: 168,365 XP.** Completed 2026-05-26 via 8-step playbook executed 46 times. **Audit total:** 24 JSON syntax bugs fixed (11 in M1-M6 bracket mismatches + trailing commas + 13 escaped-quote bugs across M7/M10/M11/M23/M24/M28), 8 content bugs fixed (M2-T1 EMI ghost, M5-T1 protected/private, M8-T1 undefined `list`, M8-T2 author note, M9-T3 max stale ref, M11-T1 booleans typo, M14 duplicate folder resolved, M7 duplicate folder resolved), 1 new topic authored (M1-T6 Scanner — the biggest beginner gap). Seed via `npm run seed:pro-java-pilot`. |

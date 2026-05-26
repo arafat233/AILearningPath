@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t5",
+  "topic_name": "Kafka Schema Registry & Avro",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m16_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Avro vs JSON — what's the difference?",
+      "scenario": "Avro has schema enforcement; JSON is schema-less.",
+      "instructions": "A producer uses JSON. It renames the field 'price' to 'unitPrice' in its Java record and redeploys. A consumer is still running the old code expecting 'price'.\n\nWith JSON deserialization (Jackson):\n- What value does the consumer see for 'price'?\n- Is an exception thrown?\n- Is the bug immediately visible?\n\nWith Avro + Schema Registry:\n- Can the producer deploy the renamed field without any extra steps?\n- What happens when it tries to register the new schema?\n- When is the incompatibility caught?",
+      "expected_solution": "With JSON:\n- consumer sees price = null (Jackson ignores unknown fields by default)\n- No exception thrown — silent failure\n- Bug NOT immediately visible; discovered when calculations use null price\n\nWith Avro + Schema Registry:\n- Producer CANNOT deploy freely — schema must be registered\n- When it tries to register {field renamed from 'price' to 'unitPrice'}:\n  → Schema Registry returns: is_compatible=false (breaking change)\n  → Deploy pipeline BLOCKED\n- Incompatibility caught at DEPLOY TIME, not in production",
+      "test_cases": [
+        { "type": "text_match", "expected": "With JSON:\n- consumer sees price = null (Jackson ignores unknown fields by default)\n- No exception thrown — silent failure\n- Bug NOT immediately visible; discovered when calculations use null price\n\nWith Avro + Schema Registry:\n- Producer CANNOT deploy freely — schema must be registered\n- When it tries to register {field renamed from 'price' to 'unitPrice'}:\n  → Schema Registry returns: is_compatible=false (breaking change)\n  → Deploy pipeline BLOCKED\n- Incompatibility caught at DEPLOY TIME, not in production" }
+      ],
+      "hints": [
+        "JSON: Jackson ignores unknown fields, returns null for missing fields — no error",
+        "Avro: every schema version must be registered and compatibility checked",
+        "Schema Registry BLOCKS breaking changes before they reach production"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Write a minimal Avro schema",
+      "scenario": "Avro schema is a JSON document defining the record structure.",
+      "instructions": "Fill in the blanks to complete the Avro schema for OrderEvent.",
+      "starter_code": "{\n  \"____\": \"record\",\n  \"name\": \"OrderEvent\",\n  \"namespace\": \"com.codequest.events\",\n  \"______\": [\n    {\"name\": \"orderId\",   \"____\": \"string\"},\n    {\"name\": \"userId\",    \"type\": \"______\"},\n    {\"name\": \"total\",     \"type\": \"______\"},\n    {\"name\": \"itemCount\", \"type\": \"___\"}\n  ]\n}",
+      "expected_solution": "{\n  \"type\": \"record\",\n  \"name\": \"OrderEvent\",\n  \"namespace\": \"com.codequest.events\",\n  \"fields\": [\n    {\"name\": \"orderId\",   \"type\": \"string\"},\n    {\"name\": \"userId\",    \"type\": \"string\"},\n    {\"name\": \"total\",     \"type\": \"double\"},\n    {\"name\": \"itemCount\", \"type\": \"int\"}\n  ]\n}",
+      "blanks": [
+        { "position": 1, "answer": "type",   "hint": "Top-level property specifying this is a 'record'" },
+        { "position": 2, "answer": "fields", "hint": "Array of field definitions" },
+        { "position": 3, "answer": "type",   "hint": "Field property defining the data type" },
+        { "position": 4, "answer": "string", "hint": "Avro type for text" },
+        { "position": 5, "answer": "double", "hint": "Avro type for decimal numbers" },
+        { "position": 6, "answer": "int",    "hint": "Avro type for integers" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected": "{\n  \"type\": \"record\",\n  \"name\": \"OrderEvent\",\n  \"namespace\": \"com.codequest.events\",\n  \"fields\": [\n    {\"name\": \"orderId\",   \"type\": \"string\"},\n    {\"name\": \"userId\",    \"type\": \"string\"},\n    {\"name\": \"total\",     \"type\": \"double\"},\n    {\"name\": \"itemCount\", \"type\": \"int\"}\n  ]\n}" }
+      ],
+      "hints": [
+        "Avro primitive types: null, boolean, int, long, float, double, string, bytes",
+        "Top-level: {type: 'record', name: '...', namespace: '...', fields: [...]}"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Avro schema compatibility — safe or breaking?",
+      "scenario": "Classify each schema change as compatible or breaking.",
+      "instructions": "For each change, classify as (a) Backward Compatible, (b) Breaking, and explain why:\n\n1. Add field `{\"name\": \"sector\", \"type\": \"string\", \"default\": \"UNKNOWN\"}`\n2. Rename field 'price' to 'unitPrice'\n3. Remove field 'notes' (which has `\"default\": null`)\n4. Change field 'qty' type from 'int' to 'string'\n5. Add field `{\"name\": \"region\", \"type\": [\"null\",\"string\"], \"default\": null}`",
+      "starter_code": "// Classify each change:\n// 1. Add field with default:\n// 2. Rename field:\n// 3. Remove field with default:\n// 4. Change type:\n// 5. Add nullable field:\n",
+      "expected_solution": "// 1. Add field with default: BACKWARD COMPATIBLE\n//    Old consumers see 'UNKNOWN' for new events. No data loss.\n//    Old producers don't set it — new consumers see default 'UNKNOWN'. Safe.\n\n// 2. Rename field 'price' to 'unitPrice': BREAKING\n//    Old consumers look for 'price' — not found. Get null/error.\n//    Old events don't have 'unitPrice' — new consumers get null/error.\n//    Schema Registry rejects this.\n\n// 3. Remove field 'notes' (has default null): FORWARD COMPATIBLE\n//    New producers don't send 'notes'. Old consumers see null (default).\n//    But: old producers send 'notes', new schema ignores it.\n//    Backward compat depends on whether old data needs 'notes'.\n//    With BACKWARD compatibility: BREAKING (old data has 'notes', new schema can't read it)\n//    With FORWARD compatibility: OK\n\n// 4. Change 'qty' type int → string: BREAKING\n//    Old data has binary int. New schema expects string encoding. Can't read.\n//    Schema Registry rejects this.\n\n// 5. Add nullable field with null default: BACKWARD COMPATIBLE\n//    ['null','string'] union with default null.\n//    Old consumers: new events have the field as null. Safe.\n//    Old producers: field absent → new consumers see null (default). Safe.\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"1: Backward Compatible (has default)\");\n        System.out.println(\"2: BREAKING (rename)\");\n        System.out.println(\"3: Forward Compatible (removal with default)\");\n        System.out.println(\"4: BREAKING (type change)\");\n        System.out.println(\"5: Backward Compatible (nullable with default)\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Backward Compatible", "BREAKING"] }
+      ],
+      "hints": [
+        "Backward compatible: NEW schema can read data written with OLD schema",
+        "Adding field WITH default: backward compatible — old data missing field → uses default",
+        "Renaming/type change: always breaking"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m16_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Configure producer with KafkaAvroSerializer",
+      "scenario": "Producer must use KafkaAvroSerializer and point to Schema Registry.",
+      "instructions": "Write the application.properties for a Spring Boot Kafka producer using Avro:\n1. Bootstrap servers: localhost:9092\n2. Key serializer: StringSerializer\n3. Value serializer: KafkaAvroSerializer (io.confluent)\n4. Schema Registry URL: http://localhost:8081\n5. acks=all for reliability",
+      "starter_code": "# application.properties — Avro producer config\n",
+      "expected_solution": "# application.properties:\nspring.kafka.bootstrap-servers=localhost:9092\n\n# Producer config:\nspring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer\nspring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer\nspring.kafka.producer.acks=all\nspring.kafka.producer.retries=3\n\n# Schema Registry URL (must be under .properties!):\nspring.kafka.producer.properties.schema.registry.url=http://localhost:8081\n\n# Optional: auto-register schemas (dev only — disable in prod):\n# spring.kafka.producer.properties.auto.register.schemas=true",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["KafkaAvroSerializer", "schema.registry.url"] }
+      ],
+      "hints": [
+        "KafkaAvroSerializer: io.confluent.kafka.serializers.KafkaAvroSerializer",
+        "schema.registry.url MUST be under .properties, not at top level",
+        "auto.register.schemas=true: dev convenience; set false in prod"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m16_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Configure consumer with KafkaAvroDeserializer",
+      "scenario": "Consumer needs KafkaAvroDeserializer + specific.avro.reader=true.",
+      "instructions": "Write the application.properties for a Spring Boot Kafka consumer using Avro:\n1. Key deserializer: StringDeserializer\n2. Value deserializer: KafkaAvroDeserializer\n3. Schema Registry URL: http://localhost:8081\n4. specific.avro.reader=true\n5. auto-offset-reset=earliest\n6. group-id=trade-analytics",
+      "starter_code": "# application.properties — Avro consumer config\n",
+      "expected_solution": "# application.properties:\nspring.kafka.bootstrap-servers=localhost:9092\n\n# Consumer config:\nspring.kafka.consumer.group-id=trade-analytics\nspring.kafka.consumer.auto-offset-reset=earliest\nspring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer\nspring.kafka.consumer.value-deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer\n\n# Schema Registry URL:\nspring.kafka.consumer.properties.schema.registry.url=http://localhost:8081\n\n# CRITICAL: use specific generated class, not GenericRecord:\nspring.kafka.consumer.properties.specific.avro.reader=true",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["KafkaAvroDeserializer", "specific.avro.reader=true"] }
+      ],
+      "hints": [
+        "specific.avro.reader=true: critical! Without it, you get GenericRecord, not your generated class",
+        "KafkaAvroDeserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer",
+        "Both schema.registry.url: must be under .properties in producer AND consumer"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m16_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Use generated Avro class in producer service",
+      "scenario": "Generated classes use builder pattern, not constructors.",
+      "instructions": "Write `TradeEventPublisher.publishTrade()` that:\n1. Builds a TradeExecutedEvent using the generated Avro builder\n2. Uses kafkaTemplate.send() with the Avro event\n3. Shows the builder pattern: .newBuilder().setX().build()\n4. Handles the checked IOException from builder",
+      "starter_code": "// Assume TradeExecutedEvent is a generated Avro class with fields:\n// tradeId (String), symbol (String), qty (int), price (double), tradeType (String)\nimport org.apache.kafka.clients.producer.ProducerRecord;\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n// TradeEventPublisher using Avro generated class\n",
+      "expected_solution": "// TradeExecutedEvent is the Avro-generated class.\n// Builder pattern generated by avro-maven-plugin.\n\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class TradeEventPublisher {\n    private final KafkaTemplate<String, TradeExecutedEvent> kafkaTemplate;\n    \n    TradeEventPublisher(KafkaTemplate<String, TradeExecutedEvent> kt) {\n        kafkaTemplate = kt;\n    }\n    \n    public void publishTrade(String tradeId, String symbol, int qty,\n                              double price, String type) {\n        // Generated builder pattern:\n        TradeExecutedEvent event = TradeExecutedEvent.newBuilder()\n            .setTradeId(tradeId)\n            .setSymbol(symbol)\n            .setQty(qty)\n            .setPrice(price)\n            .setTotalValue(qty * price)\n            .setTradeType(type)   // or TradeType.BUY if enum is generated\n            .build();\n        \n        // KafkaAvroSerializer handles Avro → binary + schema registration:\n        kafkaTemplate.send(\"trade-executed\", symbol, event)\n            .whenComplete((result, ex) -> {\n                if (ex != null) System.err.println(\"Send failed: \" + ex.getMessage());\n            });\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "TradeExecutedEvent.newBuilder(): Avro-generated fluent builder",
+        "No constructor with all params — Avro uses builder pattern",
+        "kafkaTemplate type must match: KafkaTemplate<String, TradeExecutedEvent>"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m16_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@KafkaListener with Avro generated class",
+      "scenario": "Consumer method parameter is the Avro generated class.",
+      "instructions": "Write `TradeNotificationConsumer` that:\n1. @KafkaListener on 'trade-executed', groupId='avro-notification'\n2. Method parameter is TradeExecutedEvent (Avro generated class)\n3. Reads symbol, qty, price from the event using accessor methods\n4. Logs: 'Trade: {type} {qty} {symbol} @ ₹{price} for {userId}'",
+      "starter_code": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n// @KafkaListener with Avro generated class\n",
+      "expected_solution": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class TradeNotificationConsumer {\n    \n    @KafkaListener(topics = \"trade-executed\",\n                   groupId = \"avro-notification\")\n    public void handleTrade(TradeExecutedEvent event) {\n        // Access fields via generated accessor methods:\n        System.out.printf(\n            \"Trade: %s %d %s @ ₹%.2f for %s (total: ₹%.2f)%n\",\n            event.getTradeType(),   // 'BUY' or 'SELL'\n            event.getQty(),\n            event.getSymbol(),\n            event.getPrice(),\n            event.getUserId(),\n            event.getTotalValue()\n        );\n        \n        // Note: Avro generated classes use getX() not record accessor x()\n        // Also available: event.getTradeId(), event.getExecutedAt()\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Avro generated class: uses getX() accessors, not record x() pattern",
+        "KafkaAvroDeserializer converts Avro binary → TradeExecutedEvent Java object",
+        "specific.avro.reader=true in consumer properties ensures correct type"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m16_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Evolve schema safely — add nullable field",
+      "scenario": "Adding a nullable field with default null is always backward compatible.",
+      "instructions": "Version 1 of TradeExecutedEvent.avsc has 5 fields. Write Version 2 that:\n1. Keeps all existing fields unchanged\n2. Adds 'sector' as nullable string with null default\n3. Adds 'region' as nullable string with null default\n4. Show why this is backward compatible\n5. Show what the generated Java code looks like for the new fields",
+      "starter_code": "// Version 1 (existing):\n// {fields: [tradeId(string), symbol(string), qty(int), price(double), tradeType(string)]}\n\n// Write Version 2 .avsc:\n// + sector (nullable string, default null)\n// + region (nullable string, default null)\n// + explain backward compatibility\n// + show generated accessor\n",
+      "expected_solution": "// Version 2 TradeExecutedEvent.avsc:\n// {\n//   \"type\": \"record\",\n//   \"name\": \"TradeExecutedEvent\",\n//   \"namespace\": \"com.codequest.events.avro\",\n//   \"fields\": [\n//     {\"name\": \"tradeId\",    \"type\": \"string\"},\n//     {\"name\": \"symbol\",     \"type\": \"string\"},\n//     {\"name\": \"qty\",        \"type\": \"int\"},\n//     {\"name\": \"price\",      \"type\": \"double\"},\n//     {\"name\": \"tradeType\",  \"type\": \"string\"},\n//     {\"name\": \"sector\",     \"type\": [\"null\", \"string\"], \"default\": null},\n//     {\"name\": \"region\",     \"type\": [\"null\", \"string\"], \"default\": null}\n//   ]\n// }\n\n// Why backward compatible:\n// - Old consumers reading v2 events: sector/region fields may be present\n//   but old consumers ignore unknown fields (Avro reader schema controls this)\n// - New consumers reading v1 events: sector/region absent → use default null\n// - Schema Registry: COMPATIBLE (added with defaults)\n\n// Generated Java for new fields:\n// CharSequence getSector() → returns null if not set (union type)\n// CharSequence getRegion() → returns null if not set\n\n// Usage in producer (v2 events):\n// TradeExecutedEvent.newBuilder()\n//   .setTradeId(\"TRD-001\")\n//   ...existing fields...\n//   .setSector(\"Technology\")  // new field\n//   .setRegion(\"India\")       // new field\n//   .build();\n\npublic class SchemaEvolutionExample {\n    public static void main(String[] args) {\n        System.out.println(\"Version 2 adds sector and region with null defaults\");\n        System.out.println(\"Backward compatible: old consumers see null for new fields\");\n        System.out.println(\"Schema Registry: is_compatible=true\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["backward compatible", "is_compatible=true"] }
+      ],
+      "hints": [
+        "[\"null\", \"string\"]: union type allowing null or string",
+        "\"default\": null: must be first type in union (null comes first)",
+        "Old consumers reading new events: unknown fields ignored (Avro schema projection)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Avro schema for complex event with enum",
+      "scenario": "Enums in Avro ensure only valid values are accepted.",
+      "instructions": "Write a complete OrderStatusEvent.avsc with:\n1. orderId: string\n2. userId: string\n3. status: enum with values [PLACED, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]\n4. updatedAt: long (timestamp-millis)\n5. notes: nullable string with null default\n6. totalAmount: double\n\nAlso show how the generated Java enum would be used in a producer.",
+      "starter_code": "// OrderStatusEvent.avsc\n// Show enum definition in Avro\n// Show Java usage of generated enum\n",
+      "expected_solution": "// OrderStatusEvent.avsc:\n// {\n//   \"type\": \"record\",\n//   \"name\": \"OrderStatusEvent\",\n//   \"namespace\": \"com.codequest.events.avro\",\n//   \"fields\": [\n//     {\"name\": \"orderId\",     \"type\": \"string\"},\n//     {\"name\": \"userId\",      \"type\": \"string\"},\n//     {\"name\": \"status\",      \"type\": {\n//       \"type\": \"enum\",\n//       \"name\": \"OrderStatus\",\n//       \"symbols\": [\"PLACED\", \"CONFIRMED\", \"SHIPPED\", \"DELIVERED\", \"CANCELLED\"]\n//     }},\n//     {\"name\": \"updatedAt\",   \"type\": {\"type\": \"long\",\n//                                       \"logicalType\": \"timestamp-millis\"}},\n//     {\"name\": \"notes\",       \"type\": [\"null\", \"string\"], \"default\": null},\n//     {\"name\": \"totalAmount\", \"type\": \"double\"}\n//   ]\n// }\n\n// Generated Java usage:\nOrderStatusEvent event = OrderStatusEvent.newBuilder()\n    .setOrderId(\"ORD-001\")\n    .setUserId(\"U01\")\n    .setStatus(OrderStatus.SHIPPED)    // generated enum — type-safe!\n    .setUpdatedAt(java.time.Instant.now().toEpochMilli())\n    .setNotes(null)                    // nullable\n    .setTotalAmount(1599.0)\n    .build();\n\n// Avro enum is type-safe: only PLACED,CONFIRMED,SHIPPED,DELIVERED,CANCELLED allowed\n// Producer can't accidentally send 'PROCESING' (typo) → compile error!\n\npublic class AvroEnumExample {\n    public static void main(String[] args) {\n        System.out.println(\"Avro enum: compile-time type safety for status values\");\n        System.out.println(\"Generated OrderStatus enum: PLACED,CONFIRMED,SHIPPED,DELIVERED,CANCELLED\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Avro enum", "type safety"] }
+      ],
+      "hints": [
+        "Avro enum: {type:'enum', name:'...', symbols:[...]} — inline type definition",
+        "logicalType timestamp-millis: long value interpreted as milliseconds since epoch",
+        "Enum is generated as Java enum — type-safe, no typos"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Schema Registry API — what does each endpoint return?",
+      "scenario": "Schema Registry exposes a REST API for schema management.",
+      "instructions": "For each curl command, predict what the Schema Registry returns:\n\n```bash\n# 1. Register a new schema:\ncurl -X POST http://localhost:8081/subjects/trade-executed-value/versions \\\n  -H 'Content-Type: application/vnd.schemaregistry.v1+json' \\\n  -d '{\"schema\": \"{type:record,name:Trade,fields:[{name:id,type:string}]}\"}'\n\n# 2. Check compatibility of a new version:\ncurl -X POST http://localhost:8081/compatibility/subjects/trade-executed-value/versions/latest \\\n  -d '{\"schema\": \"{...renamed field...}\"}'\n\n# 3. Get all registered versions:\ncurl http://localhost:8081/subjects/trade-executed-value/versions\n\n# 4. Get schema by version:\ncurl http://localhost:8081/subjects/trade-executed-value/versions/1\n```",
+      "expected_solution": "1. Register new schema → returns the assigned schema ID:\n   {\"id\": 42}  ← schema ID 42 assigned\n   (All future messages using this schema embed ID 42 in wire format)\n\n2. Compatibility check with renamed field → returns false:\n   {\"is_compatible\": false}\n   (Schema Registry detects breaking change — field removed without default)\n\n3. All registered versions → returns version list:\n   [1, 2, 3]  ← three versions registered for this subject\n\n4. Get schema by version 1 → returns full schema:\n   {\"subject\":\"trade-executed-value\",\"version\":1,\n    \"id\":42,\"schema\":\"{type:record,...}\"}",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. Register new schema → returns the assigned schema ID:\n   {\"id\": 42}  ← schema ID 42 assigned\n   (All future messages using this schema embed ID 42 in wire format)\n\n2. Compatibility check with renamed field → returns false:\n   {\"is_compatible\": false}\n   (Schema Registry detects breaking change — field removed without default)\n\n3. All registered versions → returns version list:\n   [1, 2, 3]  ← three versions registered for this subject\n\n4. Get schema by version 1 → returns full schema:\n   {\"subject\":\"trade-executed-value\",\"version\":1,\n    \"id\":42,\"schema\":\"{type:record,...}\"}" }
+      ],
+      "hints": [
+        "Registration returns the numeric schema ID (not the schema itself)",
+        "Compatibility check: {is_compatible: true/false}",
+        "Subject = topic name + -value (or -key) by convention"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full Avro producer + consumer service pair",
+      "scenario": "End-to-end Avro pipeline: producer sends, consumer reads typed event.",
+      "instructions": "Write both sides of an Avro pipeline:\n1. `PaymentEventPublisher` @Service: builds PaymentEvent Avro, sends to 'payment-events'\n2. `PaymentAnalyticsConsumer` @Service: @KafkaListener, reads PaymentEvent, logs amount + userId\n3. Show the required properties for both producer and consumer\n4. Note: PaymentEvent fields: paymentId(string), userId(string), amount(double), status(string)",
+      "starter_code": "// PaymentEventPublisher.java\n// PaymentAnalyticsConsumer.java\n// application.properties snippets for both\n",
+      "expected_solution": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\n// Producer service:\n@Service\npublic class PaymentEventPublisher {\n    private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;\n    PaymentEventPublisher(KafkaTemplate<String, PaymentEvent> kt) { kafkaTemplate = kt; }\n    \n    public void publishPayment(String paymentId, String userId, double amount, String status) {\n        PaymentEvent event = PaymentEvent.newBuilder()\n            .setPaymentId(paymentId)\n            .setUserId(userId)\n            .setAmount(amount)\n            .setStatus(status)\n            .build();\n        kafkaTemplate.send(\"payment-events\", userId, event);\n    }\n}\n\n// Consumer service:\n@Service\npublic class PaymentAnalyticsConsumer {\n    @KafkaListener(topics = \"payment-events\", groupId = \"analytics-avro\")\n    public void handlePayment(PaymentEvent event) {\n        System.out.printf(\"Payment: userId=%s amount=₹%.2f status=%s%n\",\n            event.getUserId(), event.getAmount(), event.getStatus());\n    }\n}\n\n// application.properties (producer):\n// spring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer\n// spring.kafka.producer.properties.schema.registry.url=http://localhost:8081\n\n// application.properties (consumer):\n// spring.kafka.consumer.value-deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer\n// spring.kafka.consumer.properties.schema.registry.url=http://localhost:8081\n// spring.kafka.consumer.properties.specific.avro.reader=true",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Producer KafkaTemplate<String, PaymentEvent>: both key and value types specified",
+        "Consumer method parameter: PaymentEvent (Avro generated class) — uses getX() accessors",
+        "specific.avro.reader=true: MUST be in consumer properties"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m16_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Safe schema migration strategy — rename a field",
+      "scenario": "Renaming a field requires a two-step migration, not a single deploy.",
+      "instructions": "The current schema has 'price' (double). You need to rename it to 'unitPrice' (double).\n\nWrite the safe migration plan:\n1. Version 2: what change to make that is backward compatible?\n2. Version 3: what to do after all consumers are on v2?\n3. Show the .avsc for v2 and v3\n4. Explain why this is a 2-deploy migration",
+      "starter_code": "// Current schema v1:\n// {fields: [{name: tradeId, type: string}, {name: price, type: double}]}\n\n// Write the safe migration:\n// Version 2 .avsc (backward compatible):\n// Version 3 .avsc (after all consumers updated):\n// Why 2 deploys are needed:\n",
+      "expected_solution": "// SAFE MIGRATION: Rename 'price' → 'unitPrice' in 2 steps\n\n// VERSION 2 .avsc (backward compatible — add new field, keep old):\n// {\n//   \"type\": \"record\", \"name\": \"TradeEvent\", \"namespace\": \"com.codequest\",\n//   \"fields\": [\n//     {\"name\": \"tradeId\",   \"type\": \"string\"},\n//     {\"name\": \"price\",     \"type\": \"double\"},           ← KEEP existing\n//     {\"name\": \"unitPrice\", \"type\": \"double\", \"default\": 0.0}  ← ADD new with default\n//   ]\n// }\n// Schema Registry: COMPATIBLE ✓ (added with default)\n// Deploy: Producers set BOTH price AND unitPrice. Consumers can read either.\n\n// VERSION 3 .avsc (after ALL consumers updated to use unitPrice):\n// {\n//   \"type\": \"record\", \"name\": \"TradeEvent\", \"namespace\": \"com.codequest\",\n//   \"fields\": [\n//     {\"name\": \"tradeId\",   \"type\": \"string\"},\n//     {\"name\": \"unitPrice\", \"type\": \"double\"}             ← REMOVE old 'price'\n//   ]\n// }\n// Schema Registry: COMPATIBLE (forward compat — old data had 'price' with default → ignored)\n// This works IF 'price' had a default. If not: still breaking!\n\n// WHY 2 DEPLOYS:\n// 1 deploy: old consumers still expect 'price'. Adding 'unitPrice' with default is safe.\n//           New consumers can start using 'unitPrice'.\n// 2nd deploy (after all consumers migrated): remove 'price'.\n//           Now all data uses 'unitPrice'. Migration complete.\n// 1-deploy rename: old consumers break immediately → production incident\n\npublic class MigrationStrategy {\n    public static void main(String[] args) {\n        System.out.println(\"Step 1: Add unitPrice with default, keep price\");\n        System.out.println(\"Step 2: After all consumers updated, remove price\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Step 1", "Step 2"] }
+      ],
+      "hints": [
+        "Never rename in one step: old consumers break immediately",
+        "Step 1: add new field with default, keep old — both compatible with old consumers",
+        "Step 2: remove old field only after all consumers use new field"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Avro schema with nested records",
+      "scenario": "Avro supports nested records for complex event structures.",
+      "instructions": "Write an Avro schema for OrderPlacedEvent with nested types:\n- orderId: string\n- userId: string\n- customer: nested record (name, email, phone)\n- items: array of nested record (productId, name, qty, price)\n- totalAmount: double\n- shippingAddress: nested record (street, city, pincode)\n\nAlso show how to build this event in Java using nested builders.",
+      "starter_code": "// OrderPlacedEvent.avsc with nested records\n// Java builder usage\n",
+      "expected_solution": "// OrderPlacedEvent.avsc:\n// {\n//   \"type\": \"record\",\n//   \"name\": \"OrderPlacedEvent\",\n//   \"namespace\": \"com.codequest.events.avro\",\n//   \"fields\": [\n//     {\"name\": \"orderId\",   \"type\": \"string\"},\n//     {\"name\": \"userId\",    \"type\": \"string\"},\n//     {\"name\": \"customer\",  \"type\": {\n//       \"type\": \"record\",\n//       \"name\": \"Customer\",\n//       \"fields\": [\n//         {\"name\": \"name\",  \"type\": \"string\"},\n//         {\"name\": \"email\", \"type\": \"string\"},\n//         {\"name\": \"phone\", \"type\": [\"null\",\"string\"], \"default\": null}\n//       ]\n//     }},\n//     {\"name\": \"items\", \"type\": {\"type\": \"array\", \"items\": {\n//       \"type\": \"record\",\n//       \"name\": \"OrderItem\",\n//       \"fields\": [\n//         {\"name\": \"productId\", \"type\": \"string\"},\n//         {\"name\": \"name\",      \"type\": \"string\"},\n//         {\"name\": \"qty\",       \"type\": \"int\"},\n//         {\"name\": \"price\",     \"type\": \"double\"}\n//       ]\n//     }}},\n//     {\"name\": \"totalAmount\", \"type\": \"double\"},\n//     {\"name\": \"shippingAddress\", \"type\": {\n//       \"type\": \"record\",\n//       \"name\": \"Address\",\n//       \"fields\": [\n//         {\"name\": \"street\",  \"type\": \"string\"},\n//         {\"name\": \"city\",    \"type\": \"string\"},\n//         {\"name\": \"pincode\", \"type\": \"string\"}\n//       ]\n//     }}\n//   ]\n// }\n\n// Java builder usage:\nimport java.util.Arrays;\n\nOrderPlacedEvent event = OrderPlacedEvent.newBuilder()\n    .setOrderId(\"ORD-001\")\n    .setUserId(\"U01\")\n    .setCustomer(Customer.newBuilder()\n        .setName(\"Aisha Sharma\")\n        .setEmail(\"aisha@example.com\")\n        .setPhone(null)  // nullable\n        .build())\n    .setItems(Arrays.asList(\n        OrderItem.newBuilder()\n            .setProductId(\"P001\")\n            .setName(\"Wireless Mouse\")\n            .setQty(1)\n            .setPrice(799.0)\n            .build()\n    ))\n    .setTotalAmount(799.0)\n    .setShippingAddress(Address.newBuilder()\n        .setStreet(\"123 MG Road\")\n        .setCity(\"Bengaluru\")\n        .setPincode(\"560001\")\n        .build())\n    .build();\n\npublic class NestedAvroExample {\n    public static void main(String[] args) {\n        System.out.println(\"Nested Avro: Customer, OrderItem[], Address records\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Nested Avro"] }
+      ],
+      "hints": [
+        "Nested record: {type:'record', name:'...', fields:[...]} inline as a field type",
+        "Array type: {type:'array', items:{...nested record...}}",
+        "Each nested class gets its own generated Java class with builder"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m16_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "pom.xml Maven plugin for Avro code generation",
+      "scenario": "avro-maven-plugin generates Java from .avsc at compile time.",
+      "instructions": "Write the complete Maven pom.xml configuration for Avro:\n1. Confluent repository (for kafka-avro-serializer)\n2. avro, kafka-avro-serializer, spring-kafka dependencies\n3. avro-maven-plugin: generate-sources goal, sourceDirectory=src/main/avro, outputDirectory=target/generated-sources/avro\n4. Show the expected project structure with .avsc files",
+      "starter_code": "<!-- pom.xml snippets for Avro setup -->\n<!-- repositories, dependencies, build plugin -->\n",
+      "expected_solution": "<!-- pom.xml -->\n\n<!-- 1. Confluent repository (needed for kafka-avro-serializer):\n<repositories>\n  <repository>\n    <id>confluent</id>\n    <url>https://packages.confluent.io/maven/</url>\n  </repository>\n</repositories>\n-->\n\n<!-- 2. Dependencies:\n<dependency>\n  <groupId>org.apache.avro</groupId>\n  <artifactId>avro</artifactId>\n  <version>1.11.3</version>\n</dependency>\n<dependency>\n  <groupId>io.confluent</groupId>\n  <artifactId>kafka-avro-serializer</artifactId>\n  <version>7.5.0</version>\n</dependency>\n<dependency>\n  <groupId>org.springframework.kafka</groupId>\n  <artifactId>spring-kafka</artifactId>\n</dependency>\n-->\n\n<!-- 3. avro-maven-plugin:\n<build><plugins>\n  <plugin>\n    <groupId>org.apache.avro</groupId>\n    <artifactId>avro-maven-plugin</artifactId>\n    <version>1.11.3</version>\n    <executions>\n      <execution>\n        <phase>generate-sources</phase>\n        <goals><goal>schema</goal></goals>\n        <configuration>\n          <sourceDirectory>src/main/avro</sourceDirectory>\n          <outputDirectory>target/generated-sources/avro</outputDirectory>\n          <stringType>String</stringType>\n        </configuration>\n      </execution>\n    </executions>\n  </plugin>\n</plugins></build>\n-->\n\n// Project structure:\n// src/main/avro/\n//   TradeExecutedEvent.avsc\n//   OrderPlacedEvent.avsc\n//   PaymentEvent.avsc\n// target/generated-sources/avro/\n//   com/codequest/events/avro/\n//     TradeExecutedEvent.java   ← generated at mvn compile\n//     OrderPlacedEvent.java\n//     PaymentEvent.java\n\npublic class PomExample {\n    public static void main(String[] args) {\n        System.out.println(\"avro-maven-plugin: generates Java from .avsc at mvn compile\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["avro-maven-plugin"] }
+      ],
+      "hints": [
+        "Confluent repo: packages.confluent.io/maven — needed for kafka-avro-serializer",
+        "stringType=String: use java.lang.String instead of CharSequence in generated code",
+        "Phase generate-sources: runs before compile, so Java can import generated classes"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m16_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha Avro pipeline — Module 16.5 synthesis",
+      "scenario": "Full Avro-enabled Kafka pipeline for the Zerodha trading platform.",
+      "instructions": "Build the complete Zerodha Avro pipeline (conceptual — no real Schema Registry needed):\n1. TradeExecutedEvent.avsc: 7 fields including enum TradeType\n2. KafkaProducerConfig with KafkaAvroSerializer\n3. KafkaConsumerConfig with KafkaAvroDeserializer + specific.avro.reader=true\n4. TradeEventPublisher: builds and sends Avro event\n5. TradeAnalyticsConsumer: reads Avro event, logs analytics\n6. Schema v2: add 'exchange' field (nullable string, null default) — backward compatible\n7. Show why v2 is compatible, v3 attempt (rename 'price'→'unitPrice') is BREAKING\n\nAll compiles. Explanations clear.",
+      "starter_code": "// Complete Zerodha Avro pipeline\n// Schema + config + publisher + consumer + schema evolution\n",
+      "expected_solution": "// 1. TradeExecutedEvent.avsc (conceptual):\n// {type:record, name:TradeExecutedEvent, namespace:com.codequest.events.avro, fields:[\n//   {name:tradeId,    type:string},\n//   {name:userId,     type:string},\n//   {name:symbol,     type:string},\n//   {name:qty,        type:int},\n//   {name:price,      type:double},\n//   {name:totalValue, type:double},\n//   {name:tradeType,  type:{type:enum,name:TradeType,symbols:[BUY,SELL]}}\n// ]}\n\n// 2. Producer config:\n// spring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer\n// spring.kafka.producer.properties.schema.registry.url=http://localhost:8081\n\n// 3. Consumer config:\n// spring.kafka.consumer.value-deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer\n// spring.kafka.consumer.properties.schema.registry.url=http://localhost:8081\n// spring.kafka.consumer.properties.specific.avro.reader=true\n\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\n// 4. Publisher:\n@Service\nclass ZerodhaTradePublisher {\n    private final KafkaTemplate<String, Object> kafkaTemplate;  // Object for flexibility\n    ZerodhaTradePublisher(KafkaTemplate<String, Object> kt) { kafkaTemplate = kt; }\n    \n    public void publishTrade(String tradeId, String userId, String symbol,\n                              int qty, double price, String type) {\n        // Build with generated builder:\n        // TradeExecutedEvent event = TradeExecutedEvent.newBuilder()\n        //   .setTradeId(tradeId).setUserId(userId).setSymbol(symbol)\n        //   .setQty(qty).setPrice(price).setTotalValue(qty*price)\n        //   .setTradeType(type.equals(\"BUY\") ? TradeType.BUY : TradeType.SELL)\n        //   .build();\n        System.out.println(\"Publishing Avro event for trade: \" + tradeId);\n        // kafkaTemplate.send(\"trade-executed\", symbol, event);\n    }\n}\n\n// 5. Consumer:\n@Service\nclass ZerodhaTradeConsumer {\n    @KafkaListener(topics=\"trade-executed\", groupId=\"analytics-avro\")\n    public void handle(Object event) {\n        // In real code: TradeExecutedEvent event\n        System.out.println(\"Received Avro trade event\");\n        // event.getSymbol(), event.getQty(), event.getPrice()\n    }\n}\n\n// 6. Schema v2 — backward compatible (add 'exchange' with null default):\n// {name:'exchange', type:['null','string'], 'default':null}\n// Schema Registry: is_compatible=true\n// Old consumers reading v2: exchange=null (default) — safe\n\n// 7. Schema v3 ATTEMPT — BREAKING (rename price→unitPrice):\n// {name:'unitPrice', type:'double'}  // 'price' removed!\n// Schema Registry: is_compatible=false\n// FIX: step 1 → add 'unitPrice' with default 0.0, keep 'price'\n//      step 2 → remove 'price' after all consumers migrated\n\npublic class ZerodhaAvroSummary {\n    public static void main(String[] args) {\n        System.out.println(\"1. TradeExecutedEvent.avsc: 7 fields + TradeType enum\");\n        System.out.println(\"2. KafkaAvroSerializer + schema.registry.url in producer\");\n        System.out.println(\"3. KafkaAvroDeserializer + specific.avro.reader=true in consumer\");\n        System.out.println(\"4. Schema v2: add exchange (nullable) → backward compatible\");\n        System.out.println(\"5. Schema rename: BREAKING → Schema Registry rejects\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["TradeExecutedEvent.avsc", "backward compatible", "BREAKING"] }
+      ],
+      "hints": [
+        "specific.avro.reader=true: the single most important consumer property for Avro",
+        "Enum in Avro: {type:'enum',name:'TradeType',symbols:['BUY','SELL']} — inline type definition",
+        "Schema evolution: add with default=safe, rename=always breaking"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 65
+  }
+}

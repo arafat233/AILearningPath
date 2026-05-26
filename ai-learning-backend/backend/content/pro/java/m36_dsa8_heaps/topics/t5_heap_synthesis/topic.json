@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m36_t5",
+  "module_id": "m36",
+  "topic_number": 5,
+  "name": "Heap Synthesis \u2014 Meeting Rooms, Sliding Window, Design",
+  "slug": "heap-synthesis-meeting-rooms-design",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m36_t1",
+      "java_m36_t2",
+      "java_m36_t4"
+    ],
+    "concepts_taught": [
+      "meeting_rooms_ii",
+      "car_pooling",
+      "ipo",
+      "find_median_stream",
+      "sliding_window_median",
+      "design_twitter"
+    ],
+    "career_relevance": "Meeting Rooms II (interval scheduling) is asked at every FAANG company. Sliding Window Median combines sliding window (M30) with two heaps. These synthesis problems test ability to combine multiple patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Heap Synthesis \u2014 Meeting Rooms, Sliding Window, Design"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Meeting Rooms II: sort by start; min-heap of end times; count max simultaneous",
+        "Car Pooling: sort by pickup time; min-heap of (dropoff, seats); release when passed",
+        "IPO: two heaps \u2014 max-heap of profits unlocked by capital; min-heap of projects by capital",
+        "Sliding Window Median: two heaps + lazy deletion with HashMap",
+        "Design Twitter: PriorityQueue for top-10 feed merge; HashMap for follows/tweets"
+      ],
+      "next_topic_preview": "Module 36 complete! Next: M37 DSA9 \u2014 Graphs."
+    }
+  }
+}

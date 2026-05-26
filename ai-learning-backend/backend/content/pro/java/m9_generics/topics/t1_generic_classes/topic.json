@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t1",
+  "language": "java",
+  "module_id": "m9",
+  "module_name": "Generics",
+  "topic_number": 1,
+  "name": "Generic Classes",
+  "slug": "generic-classes",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m4_t1", "java_m5_t4", "java_m8_t2"],
+    "concepts_taught": [
+      "what_are_generics",
+      "type_erasure_concept",
+      "generic_class_syntax",
+      "type_parameter_conventions",
+      "multiple_type_parameters",
+      "generic_class_instantiation",
+      "type_safety_benefits",
+      "raw_types",
+      "generic_class_with_methods",
+      "comparable_integration"
+    ],
+    "skills_developed": [
+      "writing_generic_classes",
+      "using_type_parameters",
+      "building_type_safe_containers",
+      "understanding_why_generics_exist",
+      "reading_generic_class_code"
+    ],
+    "career_relevance": "Every professional Java codebase is full of generic classes — the entire Collections Framework (`ArrayList<T>`, `HashMap<K,V>`), Optional<T>, Comparator<T>, all functional interfaces. After this topic, you stop being a CONSUMER of generics and become a PRODUCER — you can build type-safe container classes, utility types, and data structures that work with any type. This unlocks a whole level of code reuse and API design that every senior Java developer uses constantly.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Imagine building a `Pair` class that holds two values. Without generics, you'd write it with `Object`:\n\n```java\nclass Pair {\n    private Object first;\n    private Object second;\n    Pair(Object first, Object second) { this.first = first; this.second = second; }\n    Object getFirst()  { return first; }\n    Object getSecond() { return second; }\n}\n\n// Usage — looks fine until you run it:\nPair p = new Pair(\"Hyderabad\", 42);\nString city = (String) p.getFirst();   // cast required\nInteger num  = (Integer) p.getFirst(); // ClassCastException at runtime!\n```\n\nTwo problems:\n1. You need casts everywhere — ugly and verbose\n2. The compiler can't catch type errors — they crash at runtime\n\n**With generics:**\n\n```java\nclass Pair<A, B> {\n    private final A first;\n    private final B second;\n    Pair(A first, B second) { this.first = first; this.second = second; }\n    A getFirst()  { return first; }  // no cast needed\n    B getSecond() { return second; } // no cast needed\n}\n\n// Usage:\nPair<String, Integer> p = new Pair<>(\"Hyderabad\", 42);\nString city   = p.getFirst();   // type safe — no cast\nInteger num   = p.getSecond();  // type safe — no cast\n// Integer wrong = p.getFirst(); // COMPILE ERROR — not Integer, it's String\n```\n\nThe compiler now knows `first` is a `String` and `second` is an `Integer`. Wrong type usage → compile error, not runtime crash. This is what generics do: **move type errors from runtime to compile time**.\n\nYou've been using generic classes since Module 3 (`List<String>`, `Map<String, Integer>`). Today you learn how to BUILD them.",
+    "what_you_will_build": "By the end of this topic, you'll define generic classes with one or more type parameters, understand the naming conventions, use type parameters in fields, constructors, and methods, and build reusable containers that work with any type — the same way Java's own Collections Framework is built."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "why_generics": "**Why generics exist — the two problems they solve:**\n\n**Problem 1: Without generics, containers use Object — dangerous casts**\n```java\n// Pre-Java 5 (before generics):\nList names = new ArrayList();\nnames.add(\"Aisha\");\nnames.add(42);  // accidentally added an int!\nString name = (String) names.get(1);  // ClassCastException at runtime!\n```\n\n**Problem 2: No type safety — errors found at runtime, not compile time**\n\nBoth problems vanish with generics:\n```java\n// With generics:\nList<String> names = new ArrayList<>();\nnames.add(\"Aisha\");\nnames.add(42);  // COMPILE ERROR — must be String\nString name = names.get(0);  // no cast needed — type is known\n```\n\n**The payoff**: bugs caught at compile time. Clean code without casts. Same class, any type.",
+
+      "generic_class_syntax": "**Defining a generic class:**\n\n```java\nclass ClassName<T> {\n    // T is the type parameter — a placeholder for the actual type\n    private T value;\n    \n    public ClassName(T value) {\n        this.value = value;\n    }\n    \n    public T getValue() {\n        return value;\n    }\n}\n```\n\n`<T>` after the class name is the **type parameter declaration**. `T` is a placeholder. When you create an instance, you provide the actual type:\n\n```java\nClassName<String>  s = new ClassName<>(\"hello\");  // T = String\nClassName<Integer> n = new ClassName<>(42);        // T = Integer\n// The <> is the diamond operator — type inferred from declaration\n```\n\n**The type parameter `T` can be used:**\n- As the type of a field: `private T value`\n- As a parameter type: `void set(T value)`\n- As a return type: `T get()`\n- As a local variable type inside methods\n\n**What `T` cannot be used for:**\n- `new T()` — can't instantiate a type parameter\n- `T[]` array creation — use List<T> instead\n- `instanceof T` — type erasure (see below)",
+
+      "naming_conventions": "**Type parameter naming conventions:**\n\nBy convention, single uppercase letters are used:\n\n| Letter | Meaning | Common usage |\n|--------|---------|-------------|\n| `T` | Type | General-purpose type parameter |\n| `E` | Element | Collection elements (ArrayList<E>) |\n| `K` | Key | Map keys (Map<K,V>) |\n| `V` | Value | Map values (Map<K,V>) |\n| `R` | Return | Method return types |\n| `N` | Number | Numeric types |\n| `A`, `B` | Types | Multiple generic params |\n\n```java\nclass Box<T> { ... }                 // simple container\nclass Pair<A, B> { ... }             // two different types\nclass Triple<A, B, C> { ... }        // three types\nclass NumberBox<N extends Number> {} // bounded (Topic 9.3)\n```\n\nThese are conventions only — `T1`, `T2`, `TElement` are all valid. Follow the convention in professional code.",
+
+      "multiple_type_parameters": "**Multiple type parameters:**\n\n```java\nclass Pair<A, B> {\n    private final A first;\n    private final B second;\n    \n    public Pair(A first, B second) {\n        this.first = first;\n        this.second = second;\n    }\n    \n    public A getFirst()  { return first; }\n    public B getSecond() { return second; }\n    \n    @Override\n    public String toString() {\n        return \"(\" + first + \", \" + second + \")\";\n    }\n    \n    // swap: returns Pair<B, A> — types are reversed!\n    public Pair<B, A> swap() {\n        return new Pair<>(second, first);\n    }\n}\n\n// Usage:\nPair<String, Integer> p1 = new Pair<>(\"Hyderabad\", 500032);\nSystem.out.println(p1);           // (Hyderabad, 500032)\nSystem.out.println(p1.swap());    // (500032, Hyderabad)\n\nPair<String, Boolean> p2 = new Pair<>(\"premium\", true);\nSystem.out.println(p2.getFirst() + \" = \" + p2.getSecond());\n```",
+
+      "generic_methods_on_generic_class": "**Methods on generic classes:**\n\n```java\nclass Stack<T> {\n    private List<T> elements = new ArrayList<>();\n    \n    public void push(T element) {\n        elements.add(element);\n    }\n    \n    public T pop() {\n        if (isEmpty()) throw new NoSuchElementException(\"Stack is empty\");\n        return elements.remove(elements.size() - 1);\n    }\n    \n    public T peek() {\n        if (isEmpty()) throw new NoSuchElementException(\"Stack is empty\");\n        return elements.get(elements.size() - 1);\n    }\n    \n    public boolean isEmpty() { return elements.isEmpty(); }\n    public int size()        { return elements.size(); }\n    \n    public List<T> toList() {\n        return Collections.unmodifiableList(elements);\n    }\n}\n\n// Works for any type:\nStack<String> words = new Stack<>();\nwords.push(\"hello\");\nwords.push(\"world\");\nSystem.out.println(words.pop());  // world\n\nStack<Integer> nums = new Stack<>();\nnums.push(1); nums.push(2); nums.push(3);\nSystem.out.println(nums.pop());   // 3\n```",
+
+      "type_erasure": "**Type erasure — what actually happens at runtime:**\n\nGeneric types are a COMPILE-TIME feature. The JVM (Java runtime) doesn't know about type parameters — they're erased at compilation:\n\n```java\nList<String> strings = new ArrayList<>();\nList<Integer> ints   = new ArrayList<>();\n\n// At runtime, both are just ArrayList (no type info)\nSystem.out.println(strings.getClass() == ints.getClass());  // true!\n```\n\nThe compiler:\n1. Checks type safety (at compile time)\n2. Inserts casts where needed (at compile time)\n3. Removes the type parameters — replaces T with Object (or bound if bounded)\n\n**Practical implications:**\n- `new T()` doesn't compile — type not known at runtime\n- `instanceof List<String>` doesn't compile — can only do `instanceof List`\n- You CAN'T do `T[] array = new T[10]` — use `List<T>` instead\n- At runtime, `List<String>` and `List<Integer>` are the same class\n\nYou don't need to understand type erasure deeply for daily work, but knowing it explains why certain things don't compile.",
+
+      "raw_types": "**Raw types** — generics used without type parameter (old Java style):\n\n```java\n// Raw type — don't do this:\nList rawList = new ArrayList();  // no type parameter\nrawList.add(\"string\");\nrawList.add(42);  // no compile error — raw type accepts anything\nString s = (String) rawList.get(1);  // ClassCastException!\n\n// Generic type — correct:\nList<String> typedList = new ArrayList<>();\ntypedList.add(\"string\");\ntypedList.add(42);  // COMPILE ERROR — wrong type\n```\n\nRaw types exist for backwards compatibility with pre-Java 5 code. **Never use raw types in new code.** They lose all type safety benefits. Your IDE will warn you about them."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show the generic class 'recipe' with type parameter: Box<T> class definition with T highlighted everywhere it appears (field type, constructor param, method return type). Below: three instantiations side by side — Box<String>, Box<Integer>, Box<Product> — each showing how T is substituted. Center: before/after comparison — Object-based container (with casts, ClassCastException arrow) vs generic container (no casts, compile error arrow for wrong type). Bottom: Pair<A,B> showing two type parameters, swap() returning Pair<B,A>.",
+      "alt_text": "Generic class anatomy with type parameter substitution and before/after type safety comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a generic `Result<T>` class — a common pattern in modern Java APIs (similar to Rust's Result, Kotlin's Result, and Java's own Optional). A Result is either SUCCESS (carrying a value of type T) or FAILURE (carrying an error message). This is used for operations that might fail without using exceptions.",
+
+    "problem_statement": "Create `Result<T>` that can represent either a successful value or a failure:\n- `Result.success(T value)` — factory method for success\n- `Result.failure(String error)` — factory method for failure\n- `isSuccess()`, `getValue()`, `getError()`\n- `map(Function<T, R>)` — transform the value if successful\n- `orElse(T default)` — get value or default on failure\n\nTest with: division (might fail on zero), parsing (might fail on non-number).",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Define the generic class",
+        "details": "```java\nimport java.util.function.Function;\n\npublic class Result<T> {\n    private final T value;         // non-null on success\n    private final String error;    // non-null on failure\n    private final boolean success;\n    \n    // Private constructor — use factory methods\n    private Result(T value, String error, boolean success) {\n        this.value   = value;\n        this.error   = error;\n        this.success = success;\n    }\n    \n    // Factory methods\n    public static <T> Result<T> success(T value) {\n        return new Result<>(value, null, true);\n    }\n    \n    public static <T> Result<T> failure(String error) {\n        return new Result<>(null, error, false);\n    }\n```\nNote: `static <T>` on factory methods is a generic STATIC method — we'll cover this in Topic 9.2."
+      },
+      {
+        "step": 2,
+        "action": "Access methods",
+        "details": "```java\n    public boolean isSuccess() { return success; }\n    public boolean isFailure() { return !success; }\n    \n    public T getValue() {\n        if (!success) throw new IllegalStateException(\"Result is failure: \" + error);\n        return value;\n    }\n    \n    public String getError() {\n        if (success) throw new IllegalStateException(\"Result is success\");\n        return error;\n    }\n    \n    public T orElse(T defaultValue) {\n        return success ? value : defaultValue;\n    }\n```"
+      },
+      {
+        "step": 3,
+        "action": "map — transform success value",
+        "details": "```java\n    public <R> Result<R> map(Function<T, R> mapper) {\n        if (success) return Result.success(mapper.apply(value));\n        return Result.failure(error);  // propagate failure\n    }\n    \n    @Override\n    public String toString() {\n        return success ? \"Success(\" + value + \")\" : \"Failure(\" + error + \")\";\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "Use with domain operations",
+        "details": "```java\nstatic Result<Integer> safeDivide(int a, int b) {\n    if (b == 0) return Result.failure(\"Division by zero\");\n    return Result.success(a / b);\n}\n\nstatic Result<Integer> parseInt(String s) {\n    try {\n        return Result.success(Integer.parseInt(s));\n    } catch (NumberFormatException e) {\n        return Result.failure(\"Not a number: \" + s);\n    }\n}\n\npublic static void main(String[] args) {\n    System.out.println(safeDivide(10, 2));         // Success(5)\n    System.out.println(safeDivide(10, 0));         // Failure(Division by zero)\n    System.out.println(parseInt(\"42\"));            // Success(42)\n    System.out.println(parseInt(\"abc\"));           // Failure(Not a number: abc)\n    \n    // map: transform success\n    String formatted = parseInt(\"42\")\n        .map(n -> \"Number: \" + n)\n        .orElse(\"Invalid\");\n    System.out.println(formatted);  // Number: 42\n    \n    String failed = parseInt(\"abc\")\n        .map(n -> \"Number: \" + n)\n        .orElse(\"Invalid\");\n    System.out.println(failed);  // Invalid\n}\n```"
+      }
+    ],
+
+    "final_code": "import java.util.function.Function;\n\npublic class Result<T> {\n    private final T value;\n    private final String error;\n    private final boolean success;\n    \n    private Result(T value, String error, boolean success) {\n        this.value=value; this.error=error; this.success=success;\n    }\n    \n    public static <T> Result<T> success(T value)    { return new Result<>(value, null,  true); }\n    public static <T> Result<T> failure(String err) { return new Result<>(null,  err,   false); }\n    \n    public boolean isSuccess() { return success; }\n    public T getValue()  {\n        if (!success) throw new IllegalStateException(\"Failure: \" + error);\n        return value;\n    }\n    public String getError() { return error; }\n    public T orElse(T def)   { return success ? value : def; }\n    \n    public <R> Result<R> map(Function<T, R> mapper) {\n        return success ? Result.success(mapper.apply(value)) : Result.failure(error);\n    }\n    \n    public String toString() { return success ? \"Success(\" + value + \")\" : \"Failure(\" + error + \")\"; }\n    \n    static Result<Integer> safeDivide(int a, int b) {\n        return b == 0 ? Result.failure(\"Division by zero\") : Result.success(a / b);\n    }\n    \n    static Result<Integer> parseIntSafe(String s) {\n        try { return Result.success(Integer.parseInt(s)); }\n        catch (NumberFormatException e) { return Result.failure(\"Not a number: \" + s); }\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(safeDivide(10, 2));\n        System.out.println(safeDivide(10, 0));\n        System.out.println(parseIntSafe(\"42\"));\n        System.out.println(parseIntSafe(\"abc\"));\n        System.out.println(parseIntSafe(\"42\").map(n -> \"Value: \" + n).orElse(\"Invalid\"));\n        System.out.println(parseIntSafe(\"abc\").map(n -> \"Value: \" + n).orElse(\"Invalid\"));\n    }\n}",
+
+    "expected_output": "Success(5)\nFailure(Division by zero)\nSuccess(42)\nFailure(Not a number: abc)\nValue: 42\nInvalid",
+
+    "things_to_notice": [
+      "Result<T> is a generic class with one type parameter T — the type of the success value. The error message is always a String, so it doesn't need a type parameter.",
+      "The private constructor is called only through factory methods `success()` and `failure()`. This ensures the Result is always in a valid state (either value or error, never both).",
+      "The `map` method itself has its OWN type parameter `<R>` — this is a generic method on a generic class (Topic 9.2). The class is parameterized on T; the map method adds R for the output type.",
+      "Result.failure() returns `Result<R>` even though there's no R value — the failure case has no value, so the type parameter doesn't matter. The compiler needs the type to match.",
+      "Compare this to Optional<T>: Optional is essentially a specialized Result where failure has no message. Result is more informative — callers know WHY it failed.",
+      "map propagates failure: `parseIntSafe('abc').map(n -> 'Value: '+n)` — since parseIntSafe returned failure, map is skipped and the Failure propagates. orElse then returns 'Invalid'."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Java Collections Framework itself",
+        "use_case": "ArrayList<E>, HashMap<K,V>, Optional<T>, Stream<T>, Comparator<T> — these are all generic classes written exactly like what you learn today. The T in ArrayList<T>.add(T element) is the same T you declare in class ArrayList<E>. After this topic, the source code of these classes is readable."
+      },
+      {
+        "company_context": "Spring Framework / Spring Data",
+        "use_case": "Spring's ResponseEntity<T> is a generic class: `ResponseEntity<User>`, `ResponseEntity<List<Product>>`. Spring's `CrudRepository<T, ID>` is a generic interface where T is the entity type and ID is the primary key type. Generic design makes one Repository interface work for all entity types."
+      },
+      {
+        "company_context": "API response wrappers (universal pattern)",
+        "use_case": "Every production REST API wraps responses: `class ApiResponse<T> { boolean success; T data; String message; }`. Returns `ApiResponse<User>` for user endpoints, `ApiResponse<List<Order>>` for order lists. One generic class serves all endpoints. This pattern is in every Flipkart, Razorpay, Zerodha internal API."
+      }
+    ],
+
+    "interview_relevance": "Generic class questions test depth:\n\n- **'What are generics in Java?'** — Parameterized types. Enforce type safety at compile time. Eliminate casts. Move ClassCastException from runtime to compile time.\n- **'What is type erasure?'** — Generic type parameters are removed at compile time; replaced with Object (or bound). At runtime, List<String> and List<Integer> are the same class.\n- **'What is a raw type?'** — Using a generic class without a type parameter (e.g., `List` instead of `List<String>`). Loses type safety. Never use in new code.\n- **'Can you instantiate a type parameter?'** → No (`new T()` doesn't compile — type not known at runtime). Use factory methods or Class<T> (advanced).",
+
+    "real_world_workflow": "Generic classes you'll write in production:\n\n- `ApiResponse<T>` wrapper for REST controllers\n- `Pair<A, B>` or `Tuple<A, B, C>` for multi-value returns\n- `Result<T>` for operations that might fail (alternative to exceptions)\n- `Cache<K, V>` wrapping a Map with TTL logic\n- `Page<T>` for paginated results (Spring Data's Page<T> is exactly this)"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "raw_type_usage",
+      "what_students_get_wrong": "Using raw types (`ArrayList list = new ArrayList()`) instead of parameterized types (`ArrayList<String> list = new ArrayList<>()`).",
+      "remediation": "Always provide the type parameter. Raw types lose all type safety. If you see IDE warnings about raw types, fix them.",
+      "detection_pattern": "IDE warning: 'Raw use of parameterized class'"
+    },
+    {
+      "gap_id": "new_T_instantiation",
+      "what_students_get_wrong": "Trying to create instances of the type parameter: `new T()` — compile error.",
+      "remediation": "Type parameters can't be instantiated at runtime (type erasure). Design around this: use factory methods, pass a Supplier<T>, or use reflection with Class<T> (advanced).",
+      "detection_pattern": "Compile error: 'Cannot instantiate the type T'"
+    },
+    {
+      "gap_id": "diamond_operator_confusion",
+      "what_students_get_wrong": "Writing `new Box<String>(value)` instead of `new Box<>(value)` — redundant type specification.",
+      "remediation": "Since Java 7, use the diamond operator `<>` on the right side — the compiler infers the type from the left side declaration. `Box<String> b = new Box<>(value)` — no need to repeat String.",
+      "detection_pattern": "Redundant type argument warning"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Generics: parameterized types that move type errors from runtime to compile time",
+      "Generic class syntax: `class Name<T> { ... }` — T is a placeholder for any type",
+      "Type parameter T can be used for fields, parameters, return types inside the class",
+      "Diamond operator `<>`: `new Box<>()` — compiler infers the type",
+      "Multiple type parameters: `class Pair<A, B>` — common for key-value or result types",
+      "Type erasure: T is replaced with Object at runtime — explains why `new T()` doesn't work",
+      "Never use raw types — always provide the type parameter",
+      "Naming conventions: T (type), E (element), K/V (key/value), R (return)",
+      "Generic classes enable ONE class to serve MANY types safely — the foundation of the Collections Framework",
+      "Result<T> pattern: generic class for success/failure without exceptions"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Why does `new T()` fail to compile inside a generic class?",
+        "answer": "Type erasure. At runtime, T is just Object — the JVM doesn't know what actual type T represents. Since Java can't call `new Object()` and get a T-typed object back safely, the compiler prevents this. Solutions: accept a `Supplier<T>` parameter, accept a `Class<T>` and use reflection, or use a factory method."
+      },
+      {
+        "question": "What's the difference between `Box<Object>` and a raw `Box`?",
+        "answer": "`Box<Object>` is a parameterized type where T = Object — it accepts any Object, but with full generic type checking. You'd need `Box<Object>` explicitly and can only get Object back. A raw `Box` (without any type parameter) is a pre-generics raw type — it accepts anything AND loses all type safety. They seem similar but raw type skips all generic checks (generates warnings), while `Box<Object>` is explicit and safe. Raw types are for backwards compatibility only — never use in new code."
+      },
+      {
+        "question": "Write a generic `Box<T>` class with get(), set(), and isEmpty().",
+        "answer": "```java\nclass Box<T> {\n    private T value;\n    \n    Box() {}  // empty box\n    Box(T value) { this.value = value; }  // pre-filled\n    \n    public T get() { return value; }\n    public void set(T value) { this.value = value; }\n    public boolean isEmpty() { return value == null; }\n    \n    @Override\n    public String toString() { return isEmpty() ? 'Box[]' : 'Box[' + value + ']'; }\n}\n// Usage:\nBox<String> strBox = new Box<>(\"hello\");\nBox<Integer> intBox = new Box<>();\nintBox.set(42);\n```"
+      }
+    ],
+
+    "next_topic_preview": "Next: **Generic Methods** — defining a type parameter on a method itself, independent of the class. `<T extends Comparable<T>> T max(List<T>)` is a generic method — it works for any Comparable type without making the whole class generic. Generic methods are what make utility classes like `Collections.sort()` and `Collections.min()` work for any type."
+  }
+}

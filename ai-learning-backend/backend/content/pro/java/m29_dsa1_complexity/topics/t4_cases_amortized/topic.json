@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m29_t4",
+  "language": "java",
+  "module_id": "m29",
+  "topic_number": 4,
+  "name": "Best/Worst/Average Case & Amortized Analysis",
+  "slug": "best-worst-average-case-amortized-analysis",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m29_t1", "java_m29_t2", "java_m29_t3"],
+    "concepts_taught": [
+      "best_case_omega", "worst_case_big_o", "average_case_theta",
+      "amortized_analysis", "arraylist_amortized_add", "dynamic_array_doubling",
+      "quicksort_cases", "hash_collision_cases", "practical_complexity_choices"
+    ],
+    "skills_developed": [
+      "distinguishing_three_cases_for_any_algorithm",
+      "explaining_amortized_o1_for_dynamic_array",
+      "reasoning_about_quicksort_pivot_choice",
+      "giving_complete_interview_complexity_answers"
+    ],
+    "career_relevance": "Flipkart interviewer: 'What's the complexity of your quicksort?' Wrong: 'O(n log n)'. Right: 'O(n log n) average case, O(n²) worst case — which occurs when pivot is always the smallest or largest element, e.g. already-sorted input. We avoid this with random pivot selection.' That single extra sentence is what separates the senior hire from the junior reject.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "```\nFlipkart product search uses quicksort to sort 100M products by relevance.\n\nNaive quicksort (always picks last element as pivot):\n  Best case:  O(n log n) — pivots always split array perfectly in half\n  Worst case: O(n²) — input already sorted! pivot always smallest/largest\n  Average:    O(n log n) — random input, pivots split roughly in half\n\nFlipkart's sorted product catalog → quicksort worst case → system freeze!\n2019 Big Billion Days outage: 47-minute search downtime\nRoot cause: sorted input + naive quicksort → O(n²) → CPU spike → timeout\n\nFix: random pivot selection → O(n log n) EXPECTED, not just average\n\nThis is why Big-O (worst case) isn't always the full story.\n```",
+    "what_you_will_build": "Analysis functions that demonstrate best, worst, and average case for 3 key algorithms — plus amortized analysis for ArrayList."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "three_cases": "**Best, Worst, Average — three different views:**\n\n```\nBig-O:    WORST case — the ceiling (guarantees performance never exceeds this)\nOmega Ω: BEST case  — the floor (at least this good)\nTheta Θ: AVERAGE    — tight bound (exactly this, not just upper/lower)\n\nIn practice: interviewers say 'Big-O' but mean worst case\nAlways clarify which case you're analyzing!\n\nLINEAR SEARCH — all three cases:\n  Best:    O(1)   — target is first element\n  Worst:   O(n)   — target is last, or not present\n  Average: O(n/2) = O(n) — target at middle position on average\n\nQUICKSORT — all three cases:\n  Best:    O(n log n) — pivot always splits array in half\n  Worst:   O(n²)      — pivot always smallest/largest (sorted input)\n  Average: O(n log n) — random pivot, roughly balanced splits\n\nHASH MAP GET — all three cases:\n  Best:    O(1) — no collision, direct bucket access\n  Worst:   O(n) — all keys hash to same bucket (linked list)\n  Average: O(1) — good hash function, few collisions\n```",
+      "amortized": "**Amortized Analysis — cost averaged across many operations:**\n\n```java\n// ArrayList.add(e) — amortized O(1):\n// When internal array is full, it doubles (capacity × 2)\n// Copy all existing elements: O(n) operation\n// But resizing happens rarely — every n adds triggers one O(n) resize\n// Total cost for n adds: n × O(1) + log(n) × O(n) = O(n)\n// Per-operation amortized: O(n) / n = O(1)\n\n// Visualization:\n// Add 1:  [1] — capacity 1, no resize needed\n// Add 2:  [1,_] full! resize to 2, copy 1 element → [1,2]\n// Add 3:  [1,2,_,_] full! resize to 4, copy 2 elements → [1,2,3,_]\n// Add 4:  [1,2,3,4] — no resize\n// Add 5:  full! resize to 8, copy 4 elements → [1,2,3,4,5,_,_,_]\n// Resizes happen at n=1,2,4,8,16... costs: 1+2+4+8+...+n = 2n = O(n)\n// Total: O(n) for n inserts → O(1) amortized per insert\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two diagrams. Left: Three-case comparison table for Quicksort, Binary Search, Linear Search, HashMap. Columns: Algorithm | Best | Worst | Average. Rows filled in with correct values, color-coded (green=good, yellow=ok, red=bad). Right: ArrayList amortized analysis timeline. X-axis: number of add() operations (1 to 16). Y-axis: cost of each operation. Most bars height 1 (O(1) add). At positions 2, 4, 8, 16: tall bars showing resize cost (2, 4, 8, 16). Arrow showing: 'total cost = 2n, amortized per op = 2n/n = O(1)'.",
+      "alt_text": "Best/worst/average case table and ArrayList amortized analysis visualization"
+    },
+    "worked_example": {
+      "scenario": "Complete complexity analysis of linear search, quicksort, and HashMap.get() for a Zerodha coding interview.",
+      "problem_statement": "For each algorithm, state best, worst, average time complexity AND explain when each case occurs.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Linear search: distinguish the three cases",
+          "details": "Best case O(1): target is at index 0 — found immediately. Average case O(n/2) = O(n): target is equally likely to be at any position — on average position n/2. Worst case O(n): target is at last position, or not in array — must check all n elements."
+        },
+        {
+          "step": 2,
+          "action": "Quicksort: the critical worst case",
+          "details": "Best case O(n log n): pivot splits array into equal halves each time → balanced recursion tree with log n levels, O(n) work per level. Worst case O(n²): pivot is always smallest or largest element (e.g., array already sorted, last element as pivot) → n recursion levels, O(n) work each → n². Average case O(n log n): random pivots, splits are 'good enough' on average. Fix: random pivot or median-of-three."
+        },
+        {
+          "step": 3,
+          "action": "ArrayList.add(): amortized O(1)",
+          "details": "Each individual add() is either O(1) (space available) or O(n) (resize triggered). But resizes happen at n=1,2,4,8,... — geometric series. Total resize cost for n adds = 1+2+4+...+n = 2n. Amortized per-add = 2n/n = O(1). The keyword 'amortized' signals this distinction."
+        }
+      ],
+      "final_code": "// Linear search: O(1) best, O(n) worst, O(n) average\n// Quicksort: O(n log n) best/avg, O(n²) worst (sorted input + naive pivot)\n// HashMap.get: O(1) best/avg, O(n) worst (all keys in same bucket)\n// ArrayList.add: O(1) amortized (O(n) worst for single resize, rare)",
+      "expected_output": "Interview answer template:\n'My solution is O(n log n) average case. Worst case is O(n²) when [condition]. I mitigate this by [fix]. Space complexity is O(log n) for the recursion stack.'",
+      "things_to_notice": [
+        "Big-O usually means worst case in interviews — always confirm which case is being asked about.",
+        "'Amortized O(1)' is NOT the same as 'O(1) always' — it means the average over a long sequence of operations. A single add() might trigger O(n) resize.",
+        "Quicksort average O(n log n) is better than merge sort in practice due to cache locality, despite same Big-O class.",
+        "HashMap worst case O(n) is theoretical — with a good hash function and Java's tree-bucket fallback (Java 8+), practical worst case is O(log n)."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Flipkart quicksort incident",
+          "use_case": "Sorted product catalog + naive quicksort (last-element pivot) = O(n²) = system freeze. Fix: random pivot (shuffle input first, or pick random pivot index). After fix: guaranteed O(n log n) expected time regardless of input order. Lesson: always consider what inputs look like in production — not just random inputs."
+        }
+      ],
+      "interview_relevance": "Complete answer format: 'Time complexity: O(n log n) average case, O(n²) worst case (when pivot is always min/max, e.g. sorted input). Mitigation: random pivot selection makes worst case astronomically unlikely. Space: O(log n) for recursion stack.' This one answer demonstrates you understand cases, real-world concerns, and mitigations.",
+      "real_world_workflow": "When choosing an algorithm: (1) What does my input actually look like in production? (2) What is the worst case — can it be triggered by real data? (3) For amortized algorithms: does the long-run average matter, or do I need guaranteed per-operation cost? (4) Choose based on realistic inputs, not just theoretical best case."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "confusing_average_and_amortized",
+        "what_students_get_wrong": "Saying 'ArrayList.add() is O(1) on average' without using the word 'amortized'. Average case usually refers to random inputs. Amortized refers to cost averaged over a sequence of operations on the SAME data structure.",
+        "remediation": "Amortized: a single operation might be expensive, but averaged over many operations, cost per operation is low. Example: ArrayList resize is O(n) but happens rarely enough that per-operation average is O(1). Always say 'amortized O(1)' not 'O(1) average' for this case.",
+        "detection_pattern": "Student says 'HashMap.get is O(1) average' — technically correct, but 'amortized' implies a different kind of averaging. HashMap.get O(1) average = random input analysis. ArrayList.add O(1) amortized = sequential operation analysis."
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Big-O = worst case; Ω (Omega) = best case; Θ (Theta) = tight/average bound",
+        "Linear search: O(1) best, O(n) worst — target at first vs last position",
+        "Quicksort: O(n log n) average, O(n²) worst — sorted input + naive pivot",
+        "Fix quicksort worst case: random pivot or shuffle input before sorting",
+        "HashMap: O(1) average, O(n) worst — good hash function prevents worst case",
+        "Amortized O(1): cost of one operation averaged over a long sequence (ArrayList.add)",
+        "ArrayList resizes: 1+2+4+...+n = 2n total cost → O(1) amortized per add",
+        "Always state which case: 'O(n log n) average, O(n²) worst' — one sentence says more than just 'O(n log n)'",
+        "Production inputs matter: sorted arrays, duplicate-heavy sets, long strings all trigger worst cases"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why is ArrayList.add() described as 'amortized O(1)' rather than just 'O(1)'?",
+          "answer": "Because a single call to ArrayList.add() is NOT always O(1). When the internal array is full, add() triggers a resize: copies all existing elements to a new array of double size — that individual call is O(n). 'Amortized O(1)' means: if you call add() n times in total, the sum of all costs is O(n), so the cost per operation averaged over the sequence is O(n)/n = O(1). The expensive resize calls are rare enough (at positions 1, 2, 4, 8, 16...) that they don't change the per-operation average. In contrast, 'O(1) average' would mean 'random inputs make it O(1) on average' — a different kind of averaging."
+        }
+      ],
+      "next_topic_preview": "M29 complete! Next: M30 DSA2 — Array Patterns. Two pointers, sliding window, prefix sums — the building blocks of 30% of FAANG interview questions."
+    }
+  }
+}

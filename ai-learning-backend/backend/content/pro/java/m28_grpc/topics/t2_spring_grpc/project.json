@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m28_t2_proj",
+  "linked_topic": "java_m28_t2",
+  "level": "mini",
+  "name": "Zerodha Trade Execution — gRPC Service",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Zerodha's OrderService needs to call the TradeExecutionService at 10,000 requests/second. REST with JSON parsing overhead is creating latency spikes at peak load. Migrate to gRPC: strict contract, binary serialization, HTTP/2 multiplexing.",
+  "requirements": {
+    "core": [
+      {"id":"req_1","description":"ZerodhaTradeService @GrpcService extending generated ImplBase. Constructor injection of TradeRepository @Service and AuditLogger @Service.","weight":15},
+      {"id":"req_2","description":"placeOrder(PlaceOrderRequest, StreamObserver<PlaceOrderResponse>): validate symbol not blank + qty > 0. INVALID_ARGUMENT on failure. Save + audit + onNext + onCompleted on success.","weight":20},
+      {"id":"req_3","description":"getOrder(GetOrderRequest, StreamObserver<PlaceOrderResponse>): NOT_FOUND if order doesn't exist. Return order on success.","weight":10},
+      {"id":"req_4","description":"LoggingServerInterceptor @GrpcGlobalServerInterceptor: log method name + call count. AtomicInteger counter per method.","weight":10},
+      {"id":"req_5","description":"TradeClientService @Service: @GrpcClient(\"zerodha-trade\") stub field. placeOrder() wraps stub call. Catches StatusRuntimeException: DEADLINE_EXCEEDED → retry once. UNAVAILABLE → throw immediately.","weight":15},
+      {"id":"req_6","description":"@SpringBootTest (4 tests): valid order placed, symbol empty → INVALID_ARGUMENT, order not found → NOT_FOUND, deadline exceeded → retried. All pass.","weight":25},
+      {"id":"req_7","description":"application.yml: grpc.server.port=9090, grpc.client.zerodha-trade.address=static://localhost:9090 with plaintext and 5s deadline.","weight":5}
+    ],
+    "bonus": [
+      {"id":"bonus_1","description":"MerchantContextInterceptor @GrpcGlobalServerInterceptor: extract x-merchant-id from Metadata headers, attach to gRPC Context. Service can access via Context.key. Test: metadata value propagated correctly.","weight":20},
+      {"id":"bonus_2","description":"GrpcHealthIndicator @Component implements HealthIndicator: checks if gRPC server is SERVING. Spring Actuator GET /actuator/health shows grpc component. Test: Health.up() when SERVING.","weight":15},
+      {"id":"bonus_3","description":"TrafficDistributor @Service: round-robin across 3 pod addresses, skip unhealthy pods. Test: 9 calls → 3 hits per pod, unhealthy pod gets 0.","weight":20}
+    ]
+  },
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. onCompleted() is MANDATORY after onNext() for unary RPCs — client hangs forever if missing. onError() vs onCompleted() are mutually exclusive: call one OR the other, never both. @GrpcGlobalServerInterceptor: auto-registered with all @GrpcService beans in the application context. StatusRuntimeException: catch this specifically (not generic Exception) for gRPC errors — it contains the Status.Code. application.yml grpc.client.NAME.address: the NAME in the YAML must match the @GrpcClient(\"NAME\") string exactly (case-sensitive).",
+  "rubric": [
+    {"category":"ZerodhaTradeService @GrpcService with DI","points":15},
+    {"category":"placeOrder with validation","points":20},
+    {"category":"getOrder with NOT_FOUND","points":10},
+    {"category":"LoggingInterceptor","points":10},
+    {"category":"TradeClientService with retry","points":15},
+    {"category":"4 tests (all pass)","points":25},
+    {"category":"application.yml","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

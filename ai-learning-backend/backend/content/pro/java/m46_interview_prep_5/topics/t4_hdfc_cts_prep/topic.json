@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m46_t4",
+  "module_id": "m46",
+  "topic_number": 4,
+  "name": "HDFC Tech / Cognizant / Infosys \u2014 Enterprise Prep",
+  "slug": "enterprise-prep",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m45_t5"
+    ],
+    "concepts_taught": [
+      "enterprise-prep"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "HDFC Tech / Cognizant / Infosys \u2014 Enterprise Prep"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Enterprise interviews: more emphasis on design patterns, SOLID, OOP",
+        "HDFC Tech: banking domain, legacy modernization, Java Spring Boot focus",
+        "CTS/Infosys/TCS: case studies, estimation, system design at enterprise scale",
+        "Java Spring ecosystem: Spring Boot, Spring Security, Spring Data JPA \u2014 know well",
+        "Banking domain: account management, transaction processing, interest calculation, reconciliation",
+        "Code quality: clean code, SOLID principles, design patterns \u2014 evaluated more heavily in enterprise rounds"
+      ],
+      "next_topic_preview": "Next: Final checklist."
+    }
+  }
+}

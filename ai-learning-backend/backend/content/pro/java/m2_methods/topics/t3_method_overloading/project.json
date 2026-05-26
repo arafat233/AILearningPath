@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m2_t3_proj",
+  "linked_topic": "java_m2_t3",
+  "level": "mini",
+  "name": "Build Your Own Print Library",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  
+  "scenario": "You're building a console output library for your team's CLI tools. Engineers want consistent formatting across all the tools, so the team lead has asked you to build a `Display` utility class. It needs to handle a variety of inputs (numbers, strings, errors, success messages, banners) with a single naming convention. This is the same pattern System.out.println uses — but you're writing your own version. After this project, you'll understand exactly how the Java standard library is built.",
+  
+  "description": "Build a `Display` class with heavily overloaded `print` methods (and a few helper methods) that produce consistently formatted console output. The goal: a clean, intuitive API that engineers can learn in 30 seconds and use everywhere.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `Display` in file Display.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`print(String message)` — prints with [INFO] prefix",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`print(int n)` — prints integer with [INT] prefix",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`print(double n)` — prints decimal with [NUM] prefix",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`print(String label, int value)` — prints '<label>: <value>'",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`print(String label, double value)` — prints '<label>: <value>'",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "`printBanner(String title)` — prints title with === borders above and below",
+        "weight": 15
+      },
+      {
+        "id": "req_9",
+        "description": "main() demonstrates EVERY method (proving overloads work)",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `print(String... messages)` varargs version — prints each on its own line with [LIST] prefix",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `printError(String message)`, `printSuccess(String message)`, `printWarning(String message)` with appropriate prefixes (✗ for error, ✓ for success, ⚠ for warning)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `printBanner(String title, char borderChar)` overload that uses a custom border character (#, *, etc.)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add `printKeyValue(String key, String value)` and `printKeyValue(String key, int value)` overloads that align colons (advanced formatting)",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "In main(), demonstrate each method. Use realistic values like:\n- Messages: 'Server started', 'Connection established'\n- Numbers: 42, 3.14, 1024\n- Key-value pairs: ('CPU', 'Intel i7'), ('Memory', 16), ('Uptime', 99.7)\n- Banner: 'SYSTEM STATUS'",
+  
+  "starter_code": "// Build your Display class below\n// Goal: overloaded print methods + helpers for a clean CLI output library\n\npublic class Display {\n    public static void main(String[] args) {\n        // Demonstrate every method here\n        // Examples:\n        // print(\"Server started\");\n        // print(42);\n        // print(3.14);\n        // print(\"Memory\", 16);\n        // print(\"CPU usage\", 78.5);\n        // printBanner(\"SYSTEM STATUS\");\n    }\n    \n    // TODO: Define all overloaded methods\n}",
+  
+  "example_output": "===============================\n         SYSTEM STATUS\n===============================\n[INFO] Server started\n[INT] 42\n[NUM] 3.14\nMemory: 16\nCPU usage: 78.5\n[INFO] Connection established\n===============================\n         END OF REPORT\n===============================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs and produces output (5 pts)"
+      ]
+    },
+    {
+      "category": "Required Overloads",
+      "points": 40,
+      "criteria": [
+        "print(String) implemented (5 pts)",
+        "print(int) implemented (5 pts)",
+        "print(double) implemented (5 pts)",
+        "print(String, int) implemented (10 pts)",
+        "print(String, double) implemented (10 pts)",
+        "printBanner(String) implemented (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration",
+      "points": 15,
+      "criteria": [
+        "main calls every method (10 pts)",
+        "Output is clean and consistent (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "No duplication across overloads (5 pts)",
+        "Consistent naming and style (5 pts)",
+        "Clean, readable code (5 pts)"
+      ]
+    },
+    {
+      "category": "Design Quality",
+      "points": 15,
+      "criteria": [
+        "Overloads do the same conceptual thing (5 pts)",
+        "Output formatting is consistent across overloads (5 pts)",
+        "API feels intuitive to use (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 55,
+      "criteria": [
+        "Varargs version (15 pts)",
+        "Error/Success/Warning variants (15 pts)",
+        "Banner with custom border char (10 pts)",
+        "Aligned key-value formatting (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. Overloading is one of the easier topics syntactically — the challenge is DESIGN. Think about how your library will be used. Would YOU enjoy using this API? Plan the method signatures BEFORE coding.",
+  
+  "submission_instructions": "Save as Display.java. Run it. Look at the output — does it feel like a real, professional library? Try renaming all the overloads with unique names (printMessage, printInt, etc.). Notice how much WORSE it feels. That's the value of overloading. Commit to your portfolio.",
+  
+  "tips_for_success": [
+    "Design ALL signatures first on paper. Then implement. This prevents 'fixing' overloads mid-build.",
+    "Notice: print(String, int) and print(String, double) are valid overloads (different types in 2nd position).",
+    "Avoid duplication: if banner border logic is in multiple places, extract a helper method.",
+    "Test each overload INDIVIDUALLY by calling it from main, then ADD MORE — incremental verification.",
+    "For the bonus aligned formatting: String.format(\"%-15s : %s\", key, value) gives left-padded keys.",
+    "Compare your library to System.out.println's overloads (Java docs) — see how the pros do it."
+  ],
+  
+  "concepts_reinforced": [
+    "Method overloading with various parameter types and counts",
+    "Choosing parameter ORDER thoughtfully (label first vs. value first)",
+    "API design: making libraries easy to use",
+    "Varargs for flexible inputs",
+    "Helper methods for shared logic",
+    "Consistent formatting across overloads"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond syntax, you learn API DESIGN — a senior-engineer skill. Every overload is a choice: which parameter order? Should the boolean be a separate method or a flag? Are there too many overloads? These choices, multiplied across the methods in real libraries (Spring has thousands of methods), shape how usable a library is. Bad API design feels like fighting your tools; good API design feels invisible. Your Display class is a tiny taste of API design — the same skill that makes someone valuable at any senior position.",
+  
+  "extensions_for_advanced_learners": [
+    "Add color support using ANSI escape codes (e.g., printError uses red)",
+    "Add a verbosity level: print(int level, String message) — only prints if level >= currentVerbosity",
+    "Add print(String message, Object... args) like printf — formatted strings with placeholders",
+    "Convert to instance class (preview of OOP) with state like 'currentLogLevel'",
+    "Add file output: every print also goes to a log file"
+  ]
+}

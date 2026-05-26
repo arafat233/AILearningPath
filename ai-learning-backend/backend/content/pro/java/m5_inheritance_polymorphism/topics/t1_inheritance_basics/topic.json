@@ -1,0 +1,226 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t1",
+  "language": "java",
+  "module_id": "m5",
+  "module_name": "Inheritance & Polymorphism",
+  "topic_number": 1,
+  "name": "Inheritance Basics",
+  "slug": "inheritance-basics",
+  
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m4_t1", "java_m4_t2", "java_m4_t3", "java_m4_t4"],
+    "concepts_taught": [
+      "extends_keyword",
+      "superclass_subclass_relationship",
+      "is_a_vs_has_a",
+      "inherited_fields_and_methods",
+      "super_keyword",
+      "super_constructor_call",
+      "method_overriding",
+      "override_annotation",
+      "protected_access_modifier",
+      "inheritance_chain",
+      "final_class_and_final_method"
+    ],
+    "skills_developed": [
+      "writing_subclasses",
+      "calling_super_constructor",
+      "overriding_methods",
+      "designing_inheritance_hierarchies",
+      "using_protected_access",
+      "knowing_when_to_inherit"
+    ],
+    "career_relevance": "Inheritance is the mechanism behind every Java framework. Spring's @Controller extends some base class. JPA Entity hierarchy. Android's Activity, Fragment, View class trees. Every UI toolkit is a tree of subclasses. Exception hierarchies (RuntimeException → IllegalArgumentException → ...) use inheritance. The Liskov Substitution Principle — one of the SOLID principles — is fundamentally about inheritance. After this topic, you can read any Java codebase, because you understand what 'extends' means everywhere you see it.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "You're building a zoo management system. You have Animals: Dogs, Cats, Birds. They all share common traits — name, age, sound they make. But each has unique behavior: Dogs fetch, Cats purr, Birds fly.\n\nWithout inheritance:\n```java\nclass Dog { String name; int age; void makeSound() { ... } void fetch() { ... } }\nclass Cat { String name; int age; void makeSound() { ... } void purr() { ... } }\nclass Bird { String name; int age; void makeSound() { ... } void fly() { ... } }\n```\n\nThree copies of `name`, `age`, and `makeSound()`. If you need to add a `weight` field, you update it in THREE places. If there's a bug in the shared logic, you fix it in THREE places. This is the fragility that inheritance solves.\n\nWith inheritance:\n```java\nclass Animal { String name; int age; void makeSound() { ... } }  // shared\nclass Dog extends Animal { void fetch() { ... } }   // adds Dog-specific\nclass Cat extends Animal { void purr() { ... } }    // adds Cat-specific\nclass Bird extends Animal { void fly() { ... } }    // adds Bird-specific\n```\n\nOne definition of shared traits. Three focused subclasses. Change `name` in one place. Fix `makeSound` in one place. This is inheritance — modeling the 'is-a' relationship and sharing code through a hierarchy.",
+    "what_you_will_build": "By the end of this topic, you'll understand the `extends` keyword, how subclasses inherit fields and methods, how to call the parent constructor with `super(...)`, how to override methods (and when to), the `protected` access modifier, and the rules around final classes and methods. You'll build a complete employee hierarchy (Employee → Manager, Developer, Intern) — the same shape as real HR systems in every company."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**Inheritance** is a 'is-a' relationship between classes. A Dog IS AN Animal. A Manager IS AN Employee. A SavingsAccount IS AN Account.\n\nThe child class (subclass) INHERITS from the parent class (superclass):\n- Gets all the parent's fields and methods\n- Can ADD new fields and methods\n- Can OVERRIDE methods to change behavior\n\nSyntax:\n```java\nclass Animal {              // parent / superclass\n    String name;\n    int age;\n    void breathe() { System.out.println(\"Breathing...\"); }\n}\n\nclass Dog extends Animal { // child / subclass\n    void fetch() { System.out.println(name + \" fetches!\"); }  // accesses inherited name\n}\n\nDog d = new Dog();\nd.name = \"Rex\";     // inherited from Animal\nd.age = 3;          // inherited from Animal\nd.breathe();        // inherited from Animal\nd.fetch();          // Dog's own method\n```\n\nThe `Dog` class doesn't define `name`, `age`, or `breathe()`. It gets them for free from `Animal`.",
+      
+      "is_a_vs_has_a": "This is THE most important design question in OOP:\n\n**Use INHERITANCE (is-a)** when:\n- The relationship makes sense as a type hierarchy\n- 'A [subclass] IS A [superclass]' is true\n- Dog IS AN Animal ✓\n- SavingsAccount IS AN Account ✓\n- Manager IS AN Employee ✓\n\n**Use COMPOSITION (has-a)** when:\n- The class CONTAINS or USES another class\n- 'A [container] HAS A [contained]' is true\n- Car HAS AN Engine ✓ (NOT: Car IS AN Engine ✗)\n- User HAS AN Address ✓ (NOT: User IS AN Address ✗)\n- Library HAS Books ✓ (NOT: Library IS A Book ✗)\n\n**The golden rule**: if the 'is-a' sentence sounds WEIRD, use composition.\n\n```java\n// WRONG: Phone IS A Battery (it has a battery!)\nclass Phone extends Battery { ... }  // bad design\n\n// RIGHT: Phone HAS A Battery\nclass Phone {\n    private Battery battery;  // composition\n}\n```\n\nCommon mistake: extending when you should compose. This leads to inflexible, confusing code. When in doubt, default to composition (Topic 4.6).",
+      
+      "extends_and_inheritance": "The `extends` keyword creates the parent-child relationship:\n\n```java\npublic class Animal {\n    protected String name;   // protected — accessible by subclasses\n    protected int age;\n    \n    public Animal(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n    \n    public void makeSound() {\n        System.out.println(name + \" makes a sound\");\n    }\n    \n    @Override\n    public String toString() {\n        return name + \" (age \" + age + \")\";\n    }\n}\n\npublic class Dog extends Animal {\n    private String breed;   // Dog-specific field\n    \n    public Dog(String name, int age, String breed) {\n        super(name, age);   // call Animal's constructor\n        this.breed = breed;\n    }\n    \n    public void fetch() {  // Dog-specific method\n        System.out.println(name + \" fetches the ball!\");\n    }\n    \n    public String getBreed() { return breed; }\n}\n\nDog d = new Dog(\"Rex\", 3, \"Labrador\");\nSystem.out.println(d);    // calls Animal's toString: \"Rex (age 3)\"\nd.makeSound();             // inherited from Animal\nd.fetch();                 // Dog's own method\n```",
+      
+      "super_keyword": "**`super`** refers to the PARENT class — analogous to how `this` refers to the current object.\n\n**Two main uses**:\n\n**1. Call parent constructor**: `super(args...)` — MUST be the first line of the subclass constructor.\n\n```java\nclass Dog extends Animal {\n    private String breed;\n    \n    public Dog(String name, int age, String breed) {\n        super(name, age);  // calls Animal(String, int) — FIRST LINE\n        this.breed = breed;\n    }\n}\n```\n\nWhy must it be first? The parent needs to be initialized before the child adds its own state.\n\nIf you don't call `super(...)`, Java calls the no-arg parent constructor automatically. If the parent doesn't HAVE a no-arg constructor, you get a compilation error.\n\n**2. Call overridden parent method**: `super.methodName()` — calls the parent's version.\n\n```java\nclass Animal {\n    public String toString() {\n        return name + \" (age \" + age + \")\";\n    }\n}\n\nclass Dog extends Animal {\n    @Override\n    public String toString() {\n        return super.toString() + \" [\" + breed + \"]\";  // reuses parent's toString\n    }\n}\n// Dog.toString() returns: \"Rex (age 3) [Labrador]\"\n```\n\nUsing `super.method()` lets you EXTEND parent behavior instead of completely replacing it.",
+      
+      "method_overriding": "**Overriding**: subclass provides a NEW implementation of a parent method.\n\n```java\nclass Animal {\n    public void makeSound() {\n        System.out.println(name + \" makes a sound\");\n    }\n}\n\nclass Dog extends Animal {\n    @Override\n    public void makeSound() {\n        System.out.println(name + \" says: Woof!\");\n    }\n}\n\nclass Cat extends Animal {\n    @Override\n    public void makeSound() {\n        System.out.println(name + \" says: Meow!\");\n    }\n}\n```\n\nEach subclass provides its own `makeSound`. The `@Override` annotation confirms it truly overrides (catches typos in method name).\n\n**Overriding rules**:\n- Same method name\n- Same parameter list\n- Return type: same OR a subtype (covariant return)\n- Access: same or MORE permissive (can't make more restrictive)\n- Can't override `final` methods\n\n**Overriding vs Overloading** (common confusion):\n- **Overriding**: same name, SAME parameters, different class (runtime behavior)\n- **Overloading**: same name, DIFFERENT parameters, same class (compile-time selection)",
+      
+      "protected_access": "We have four access levels. Now we can explain ALL of them:\n\n| Modifier | Same class | Same package | Subclass | Anywhere |\n|----------|-----------|--------------|----------|----------|\n| `private` | ✅ | ❌ | ❌ | ❌ |\n| default (none) | ✅ | ✅ | ❌* | ❌ |\n| `protected` | ✅ | ✅ | ✅ | ❌ |\n| `public` | ✅ | ✅ | ✅ | ✅ |\n\n*Default access IS inherited if subclass is in same package.\n\n**`protected`**: accessible within the class AND by subclasses (in any package). The typical choice for fields you want subclasses to access but not the general public.\n\n```java\nclass Animal {\n    protected String name;   // subclasses can read/write\n    private int secretAge;   // subclasses CANNOT access\n    public String species;   // everyone can access\n}\n\nclass Dog extends Animal {\n    void something() {\n        System.out.println(name);     // OK — protected\n        System.out.println(secretAge); // COMPILE ERROR — private\n    }\n}\n```\n\n**Best practice**: still prefer private fields + protected/public getters. Protected fields allow subclasses to set invalid values, bypassing encapsulation.",
+      
+      "inheritance_chain": "Java supports multi-level inheritance (but not multiple inheritance from classes):\n\n```java\nclass Animal { ... }\nclass Mammal extends Animal { ... }   // Mammal IS AN Animal\nclass Dog extends Mammal { ... }      // Dog IS A Mammal AND an Animal\n```\n\nDog inherits from Mammal, which inherits from Animal. Dog gets EVERYTHING: Animal's methods + Mammal's methods + Dog's own.\n\nEvery class implicitly inherits from `Object` (the root). The chain: Dog → Mammal → Animal → Object.\n\n**Method Resolution Order**: when you call `d.someMethod()`, Java looks:\n1. Dog's own methods\n2. Mammal's methods\n3. Animal's methods\n4. Object's methods\n5. Not found: compilation error\n\n**Java limitation**: a class can EXTEND only ONE class (single inheritance). This is different from C++ which allows multiple inheritance. Java uses INTERFACES for similar flexibility (Topic 5.4).",
+      
+      "final_class_final_method": "**`final` class**: cannot be extended. No subclasses allowed.\n\n```java\npublic final class String { ... }  // can't extend String\npublic final class Integer { ... } // can't extend Integer\n```\n\nString and Integer are final — Java's designers didn't want custom subclasses messing with their behavior.\n\n**`final` method**: cannot be overridden in subclasses.\n\n```java\nclass BankAccount {\n    protected double balance;\n    \n    public final void audit() {  // cannot be overridden\n        System.out.println(\"Auditing account: balance = \" + balance);\n    }\n}\n\nclass SavingsAccount extends BankAccount {\n    // CANNOT override audit() — it's final in BankAccount\n}\n```\n\nUsed when: you have critical logic that MUST NOT be altered by subclasses (security, financial calculations). The `final` method is a declaration: 'This implementation is correct. Trust it. Don't change it.'",
+      
+      "what_is_not_inherited": "Subclasses do NOT inherit:\n- `private` fields and methods (visible only in the class they're defined)\n- Constructors (you must call parent constructor via `super()`)\n\n**Private field gotcha**:\n```java\nclass Animal {\n    private String name;  // private — not inherited\n    \n    public String getName() { return name; }  // PUBLIC getter IS inherited\n}\n\nclass Dog extends Animal {\n    void test() {\n        System.out.println(name);      // COMPILE ERROR — can't access\n        System.out.println(getName()); // OK — inherited public getter\n    }\n}\n```\n\nPrivate fields are hidden. Subclasses must use the parent's public/protected getters. This is why proper encapsulation (from Topic 4.3) matters so much — it determines what subclasses can access.\n\n**Constructor gotcha**:\n```java\nclass Animal {\n    Animal(String name) { ... }  // constructor, NOT inherited\n}\n\nclass Dog extends Animal {\n    Dog(String name, String breed) {\n        super(name);  // MUST explicitly call Animal's constructor\n        ...\n    }\n}\n```"
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a class hierarchy tree. Top: Object (Java root). Below it: Animal. Below Animal: three branches — Dog, Cat, Bird. Each has a box showing fields (Dog: breed; Cat: isIndoor; Bird: wingspan) plus the inherited Animal fields shown in lighter color (name, age). Arrows pointing UP labeled 'extends'. Right side: memory diagram showing a Dog object in memory containing BOTH inherited Animal fields and Dog-specific fields, all in one object. Side panel: the access modifier table showing which modifiers allow subclass access — private (no), default (same package), protected (yes, any package), public (yes).",
+      "alt_text": "Class hierarchy tree showing Animal as parent with Dog, Cat, Bird as subclasses, plus memory layout of a Dog object"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Every company has an employee hierarchy: basic Employee, then Managers (lead teams), Developers (write code), and Interns (learning). They share common data (name, salary, employeeId) but have different behaviors and additional fields. This is the TEXTBOOK inheritance use case — real HR systems model this exact hierarchy. Let's build it.",
+    
+    "problem_statement": "Design an employee hierarchy:\n1. `Employee` (base class): name, salary, employeeId (static auto-assign). Constructor + getters. `getDescription()` returns basic info. `giveRaise(double percent)` increases salary.\n2. `Manager` extends Employee: adds teamSize (int). Overrides `getDescription()` to include team info.\n3. `Developer` extends Employee: adds primaryLanguage (String). Overrides `getDescription()`.\n4. Demonstrate polymorphic behavior — treat all as Employee, call getDescription() on each.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Define the Employee base class",
+        "details": "```java\nclass Employee {\n    private static int nextId = 1;\n    \n    private final int employeeId;\n    private String name;\n    private double salary;\n    \n    public Employee(String name, double salary) {\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        if (salary < 0) throw new IllegalArgumentException(\"Salary cannot be negative\");\n        this.employeeId = nextId++;\n        this.name = name;\n        this.salary = salary;\n    }\n    \n    public int getEmployeeId() { return employeeId; }\n    public String getName() { return name; }\n    public double getSalary() { return salary; }\n    \n    public void giveRaise(double percent) {\n        salary *= (1 + percent / 100);\n    }\n    \n    public String getDescription() {\n        return \"Employee[#\" + employeeId + \" \" + name + \", salary=₹\" + salary + \"]\";\n    }\n    \n    @Override\n    public String toString() {\n        return getDescription();\n    }\n}\n```\n\nNotice ALL fields are `private` — practicing what the topic preaches. Subclasses will read `name` through the public `getName()` getter, not by touching the field directly. `salary` modifications must go through `giveRaise()` (controlled access)."
+      },
+      {
+        "step": 2,
+        "action": "Define Manager extending Employee",
+        "details": "```java\nclass Manager extends Employee {\n    private int teamSize;\n    \n    public Manager(String name, double salary, int teamSize) {\n        super(name, salary);  // call Employee constructor — MUST be first\n        if (teamSize < 0) throw new IllegalArgumentException(\"Team size cannot be negative\");\n        this.teamSize = teamSize;\n    }\n    \n    public int getTeamSize() { return teamSize; }\n    \n    @Override\n    public String getDescription() {\n        return super.getDescription() + \" | Manager of \" + teamSize + \" people\";\n    }\n}\n```\n\nThree key moves:\n1. `super(name, salary)` — first line, delegates to Employee's constructor\n2. Add `teamSize` field (Manager-specific)\n3. Override `getDescription()` — EXTEND parent's description with team info using `super.getDescription()`"
+      },
+      {
+        "step": 3,
+        "action": "Define Developer extending Employee",
+        "details": "```java\nclass Developer extends Employee {\n    private String primaryLanguage;\n    \n    public Developer(String name, double salary, String primaryLanguage) {\n        super(name, salary);  // Employee constructor\n        this.primaryLanguage = primaryLanguage;\n    }\n    \n    public String getPrimaryLanguage() { return primaryLanguage; }\n    \n    @Override\n    public String getDescription() {\n        return super.getDescription() + \" | Developer (\" + primaryLanguage + \")\";\n    }\n}\n```\n\nSame pattern: `super(...)` first, add own field, override `getDescription()` to extend parent's version."
+      },
+      {
+        "step": 4,
+        "action": "Demonstrate — same Employee reference, different behaviors",
+        "details": "```java\npublic static void main(String[] args) {\n    // Create specific types\n    Manager aisha = new Manager(\"Aisha\", 120000, 8);\n    Developer raj = new Developer(\"Raj\", 85000, \"Java\");\n    Developer priya = new Developer(\"Priya\", 92000, \"Python\");\n    \n    // Can store all in Employee[]\n    Employee[] team = {aisha, raj, priya};\n    \n    System.out.println(\"=== Team Directory ===\");\n    for (Employee e : team) {\n        System.out.println(e.getDescription());\n    }\n    \n    // Give everyone a 10% raise\n    System.out.println(\"\\n=== After 10% Raise ===\");\n    for (Employee e : team) {\n        e.giveRaise(10);  // works on all — giveRaise is in Employee\n        System.out.println(e.getName() + \" now earns ₹\" + e.getSalary());\n    }\n}\n```\n\nThis is the payoff: an `Employee[]` holds Managers, Developers — any subclass. The loop calls `getDescription()` and each object uses ITS OWN version. This is **polymorphism** — the topic we'll deepen in Topic 5.2."
+      }
+    ],
+    
+    "final_code": "class Employee {\n    private static int nextId = 1;\n    private final int employeeId;\n    private String name;\n    private double salary;\n    \n    public Employee(String name, double salary) {\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        if (salary < 0) throw new IllegalArgumentException(\"Salary cannot be negative\");\n        this.employeeId = nextId++;\n        this.name = name;\n        this.salary = salary;\n    }\n    \n    public int getEmployeeId() { return employeeId; }\n    public String getName() { return name; }\n    public double getSalary() { return salary; }\n    \n    public void giveRaise(double percent) { salary *= (1 + percent / 100); }\n    \n    public String getDescription() {\n        return \"Employee[#\" + employeeId + \" \" + name + \", salary=₹\" + salary + \"]\";\n    }\n    \n    @Override\n    public String toString() { return getDescription(); }\n}\n\nclass Manager extends Employee {\n    private int teamSize;\n    \n    public Manager(String name, double salary, int teamSize) {\n        super(name, salary);\n        this.teamSize = teamSize;\n    }\n    \n    public int getTeamSize() { return teamSize; }\n    \n    @Override\n    public String getDescription() {\n        return super.getDescription() + \" | Manager of \" + teamSize + \" people\";\n    }\n}\n\nclass Developer extends Employee {\n    private String primaryLanguage;\n    \n    public Developer(String name, double salary, String primaryLanguage) {\n        super(name, salary);\n        this.primaryLanguage = primaryLanguage;\n    }\n    \n    public String getPrimaryLanguage() { return primaryLanguage; }\n    \n    @Override\n    public String getDescription() {\n        return super.getDescription() + \" | Developer (\" + primaryLanguage + \")\";\n    }\n}\n\npublic class CompanyHR {\n    public static void main(String[] args) {\n        Manager aisha = new Manager(\"Aisha\", 120000, 8);\n        Developer raj = new Developer(\"Raj\", 85000, \"Java\");\n        Developer priya = new Developer(\"Priya\", 92000, \"Python\");\n        \n        Employee[] team = {aisha, raj, priya};\n        \n        System.out.println(\"=== Team Directory ===\");\n        for (Employee e : team) {\n            System.out.println(e.getDescription());\n        }\n        \n        System.out.println(\"\\n=== After 10% Raise ===\");\n        for (Employee e : team) {\n            e.giveRaise(10);\n            System.out.printf(\"%s now earns ₹%.1f%n\", e.getName(), e.getSalary());\n        }\n    }\n}",
+    
+    "expected_output": "=== Team Directory ===\nEmployee[#1 Aisha, salary=₹120000.0] | Manager of 8 people\nEmployee[#2 Raj, salary=₹85000.0] | Developer (Java)\nEmployee[#3 Priya, salary=₹92000.0] | Developer (Python)\n\n=== After 10% Raise ===\nAisha now earns ₹132000.0\nRaj now earns ₹93500.0\nPriya now earns ₹101200.0",
+    
+    "things_to_notice": [
+      "`super(name, salary)` is the FIRST line of every subclass constructor. Employee's fields get initialized before Manager/Developer add their own. Order matters.",
+      "The `Employee[] team` holds Manager and Developer objects. A Manager IS AN Employee, so it fits in an Employee[]. This is the 'is-a' relationship at work.",
+      "`getDescription()` returns different strings for each type (Manager shows team, Developer shows language), even though the loop calls `e.getDescription()` on `Employee` references. POLYMORPHISM — we'll formalize this in Topic 5.2.",
+      "`giveRaise()` is defined once in Employee and works for ALL subclasses. No duplication. Change the raise logic once → affects everyone.",
+      "`super.getDescription()` in Manager/Developer REUSES the parent's description instead of rewriting it. Changes to Employee's format automatically propagate to subclasses.",
+      "Both `name` and `salary` are `private` — subclasses access them through the inherited public getters (`getName()`, `getSalary()`). This is the recommended pattern: tight encapsulation in the parent, controlled access from children.",
+      "Notice we DON'T call `e.getTeamSize()` on generic Employee references — that only works on Manager references. More on this in Topic 5.5 (casting and instanceof)."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Framework (every Spring MVC application)",
+        "use_case": "HttpServlet → GenericServlet → DispatcherServlet → your controllers inherit from SpringMVC's base. @RestController extends a chain. JPA's @Entity classes often share a base class with ID/timestamp fields. Spring Security's UserDetails is extended by every auth system. Inheritance is the backbone of Spring."
+      },
+      {
+        "company_context": "Android development",
+        "use_case": "Activity → FragmentActivity → AppCompatActivity → your HomeActivity. View → ViewGroup → LinearLayout → your custom layouts. Every Android screen extends a class in a long inheritance chain. Android literally cannot be written without understanding inheritance."
+      },
+      {
+        "company_context": "Exception hierarchies (every Java program)",
+        "use_case": "Throwable → Exception → RuntimeException → IllegalArgumentException. Your try/catch for IOException also catches its subclasses. Banks define PaymentException → InsufficientFundsException and handle them via the parent type. Exception hierarchies are pure inheritance."
+      },
+      {
+        "company_context": "Game engines (Unity-like, Minecraft-like architectures)",
+        "use_case": "GameObject → Enemy → Boss → FinalBoss. Or: Character → PlayerCharacter and NPCCharacter. Common stats (health, position) in the parent; unique behaviors in subclasses. Boss overrides attack() with special patterns. Inheritance enables massive code reuse in game entities."
+      }
+    ],
+    
+    "interview_relevance": "Inheritance is an interview mainstay:\n\n- **'What is inheritance? What problem does it solve?'** — Code reuse, modeling type hierarchies, single place for shared behavior.\n- **'What's the difference between inheritance and composition?'** — is-a vs has-a. Prefer composition for flexibility.\n- **'What does `super` do?'** — Calls parent constructor or parent method.\n- **'Can you extend multiple classes in Java?'** — No. Java has single inheritance for classes; use interfaces for multiple.\n- **'What is method overriding? How does it differ from overloading?'** — Override: same params, different class (runtime). Overload: different params, same class (compile-time).\n- **'What are final classes and methods?'** — Cannot be extended/overridden. String and Integer are final.\n\nDesign interviews: 'Design an employee system' → they expect a hierarchy. 'How would you add a PartTimeEmployee?' → extend Employee, modify salary calculation.",
+    
+    "real_world_workflow": "Daily life with inheritance:\n\n- Reading framework code: 'This controller extends RestController which extends BaseController which extends...' — following the chain to find what's available\n- Writing new service/controller: extend the framework's base class, override the method that customizes your behavior\n- Creating exception classes: extend RuntimeException or a custom base exception\n- Designing domain models: identify base type with shared fields/methods, derive specific types\n- Debugging: an overridden method not calling super() can break parent behavior — common bug in framework subclasses\n- Code review: 'Does this really need to extend X, or should it just use X (composition)?'"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_super_constructor",
+      "what_students_get_wrong": "Defining a subclass constructor without calling `super(...)` when parent has no default constructor. Compilation error.",
+      "remediation": "If parent has a parameterized constructor, you MUST call `super(args)` as the first line. Java won't call it automatically.",
+      "detection_pattern": "Compilation error: 'There is no default constructor available in superclass'"
+    },
+    {
+      "gap_id": "super_not_first",
+      "what_students_get_wrong": "Writing other code before `super(...)` in the constructor. Compilation error.",
+      "remediation": "`super(...)` must be the VERY FIRST statement in any constructor that calls it. Same rule as `this(...)`.",
+      "detection_pattern": "Compilation error: 'Call to super must be first statement in constructor'"
+    },
+    {
+      "gap_id": "inheriting_without_is_a",
+      "what_students_get_wrong": "Using inheritance when 'is-a' doesn't hold — e.g., having PhoneService extend Phone because they're related.",
+      "remediation": "Always say the sentence: 'A PhoneService IS A Phone?' No — use composition. Inheritance is only for real is-a relationships.",
+      "detection_pattern": "Awkward class hierarchies; subclass doesn't make sense as parent type"
+    },
+    {
+      "gap_id": "accessing_private_field_directly",
+      "what_students_get_wrong": "Trying to access parent's `private` field directly from subclass. Compilation error.",
+      "remediation": "Private fields are private to their class. Use the parent's public/protected getter. Or make the field protected (with care).",
+      "detection_pattern": "Compilation error: 'name has private access in Animal'"
+    },
+    {
+      "gap_id": "overriding_with_wrong_signature",
+      "what_students_get_wrong": "Accidentally overloading instead of overriding — different parameter types. Method doesn't override, just adds a new overload.",
+      "remediation": "Use `@Override`. The compiler will catch if you're not actually overriding. The method name AND parameter list must exactly match.",
+      "detection_pattern": "Parent's method still called instead of the expected override"
+    },
+    {
+      "gap_id": "forgetting_override_annotation",
+      "what_students_get_wrong": "Not using `@Override`, silently creating a new method instead of overriding when there's a typo.",
+      "remediation": "ALWAYS use `@Override` when intending to override. It costs nothing and catches errors immediately.",
+      "detection_pattern": "Parent behavior appears when subclass behavior was expected"
+    },
+    {
+      "gap_id": "narrowing_access_in_override",
+      "what_students_get_wrong": "Trying to make an overriding method `private` or `protected` when the parent method is `public`. Compilation error.",
+      "remediation": "An overriding method can't be more restrictive than the one it overrides. public → must stay public. protected → can be protected or public.",
+      "detection_pattern": "Compilation error: 'attempting to assign weaker access privileges'"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Inheritance models 'is-a': Dog IS AN Animal. Use composition for 'has-a'.",
+      "`extends` creates the subclass relationship. Subclass inherits all public/protected members.",
+      "`super(args)` calls the parent constructor — MUST be the first line of subclass constructor",
+      "`super.method()` calls the parent's version of an overridden method",
+      "Method overriding: same signature in subclass, provides new implementation. Use `@Override`.",
+      "`protected` access: visible within same class, subclasses, and same package",
+      "Private fields are NOT accessible directly in subclasses — use getters",
+      "Java supports single inheritance (extends one class). Not multiple.",
+      "`final class`: cannot be extended. `final method`: cannot be overridden.",
+      "Every class implicitly extends Object. Method lookup chains up the hierarchy.",
+      "Don't force is-a when it's not real — prefer composition when in doubt"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why doesn't this compile?\n```java\nclass Animal {\n    public Animal(String name) { ... }\n}\n\nclass Dog extends Animal {\n    public Dog(String name, String breed) {\n        this.breed = breed;  // Error on this line\n    }\n}\n```",
+        "answer": "Dog's constructor must call `super(name)` before doing anything else. Animal doesn't have a no-arg constructor — when you write any constructor, Java stops providing the default. So Java can't initialize the Animal part of Dog. Fix: make `super(name)` the FIRST line of Dog's constructor."
+      },
+      {
+        "question": "What's the difference between overriding and overloading?",
+        "answer": "Overriding: SAME method signature (name + parameter types) in a SUBCLASS. Replaces parent's behavior at runtime. Detected with @Override. Example: Dog.makeSound() overrides Animal.makeSound(). Overloading: DIFFERENT parameter list, same name, same class. Selects correct version at COMPILE time. Example: Dog.eat(String food) and Dog.eat(int calories) are overloads."
+      },
+      {
+        "question": "Can a subclass access a parent's `private` field? What about `protected`?",
+        "answer": "Private: NO. Private fields are hidden from all external code — including subclasses. Subclasses must use the parent's public or protected getter methods. Protected: YES. Protected fields and methods are accessible in subclasses (any package) and within the same package. That's protected's purpose — sharing with subclasses while hiding from general access."
+      },
+      {
+        "question": "When should you choose inheritance over composition?",
+        "answer": "Use inheritance when 'A is-a B' is genuinely true AND you want to model a type hierarchy. Manager IS AN Employee. Dog IS AN Animal. Confirmed is-a relationships. Use composition when the relationship is 'has-a'. Car HAS AN Engine. User HAS AN Address. When unsure, prefer composition — it's more flexible. Inheritance is hard to change later; composition can swap components at runtime."
+      }
+    ],
+    
+    "next_topic_preview": "Next: Polymorphism — the true power of inheritance. In our Employee example, calling `e.getDescription()` on an Employee reference gave different results for Manager and Developer. That's polymorphism. Topic 5.2 formalizes this: parent-type references, runtime method dispatch, why this is SO powerful for designing extensible systems. After 5.2, you'll understand why APIs are designed the way they are."
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m26_t4_proj",
+  "linked_topic": "java_m26_t4",
+  "level": "mini",
+  "name": "Razorpay Merchant Support AI — LangChain4j",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Razorpay wants to rebuild their merchant support chat using LangChain4j's cleaner interface API. The new system needs conversation memory per session, real-time payment data via tools, and multi-tenant isolation between merchants.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "RazorpaySupportAI @AiService interface: help(@UserMessage String msg, @MemoryId String sessionId). @SystemMessage defining Razorpay assistant persona.", "weight": 15 },
+      { "id": "req_2", "description": "PaymentLookupTools @Component: @Tool getPaymentStatus(paymentId) and @Tool getRefundStatus(paymentId). Descriptions accurate. Methods return String.", "weight": 15 },
+      { "id": "req_3", "description": "ChatMemoryProvider @Bean: MessageWindowChatMemory.builder().maxMessages(10).id(memoryId).build(). Each sessionId gets independent memory.", "weight": 15 },
+      { "id": "req_4", "description": "TenantKeyBuilder @Service: build(merchantId, conversationId) → 'merchantId:conversationId'. isValid(key) checks format.", "weight": 10 },
+      { "id": "req_5", "description": "MemoryIsolation test: verify two different sessionIds get different ChatMemory instances (assertNotSame).", "weight": 10 },
+      { "id": "req_6", "description": "@SpringBootTest (4 tests): tools work, memory isolated, interface has @SystemMessage, composite key correct. All 4 pass.", "weight": 30 },
+      { "id": "req_7", "description": "application.yml: langchain4j.anthropic.api-key=${ANTHROPIC_API_KEY} (env variable).", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "TokenStream streaming: streamAnswer(@UserMessage q) method on interface. StreamingController converts to SSE Flux<String> with onNext/onComplete/onError.", "weight": 20 },
+      { "id": "bonus_2", "description": "Structured output: RouteTicketAI interface with classify(@UserMessage ticket) → TicketRoute record. Test: method return type is TicketRoute.", "weight": 15 },
+      { "id": "bonus_3", "description": "Memory expiry: TenantMemoryManager tracks lastAccess per key. isExpired() returns true after 30 minutes. clearExpired() removes stale entries.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. @MemoryId: must be a unique per-session identifier — never hardcode. Use merchantId:conversationId composite key. Different values = different memory (LangChain4j creates one ChatMemory per unique memoryId). @Tool(description): the description tells the AI WHEN to call this method. Make it clear and specific: 'Get the current status of a Razorpay payment by its payment ID'. ChatMemoryProvider @Bean: registered as a Spring Bean, LangChain4j auto-wires it to your @AiService. MessageWindowChatMemory: keeps last N messages. When maxMessages exceeded, oldest message dropped (sliding window). @AiService Spring annotation: triggers LangChain4j Spring Boot auto-configuration to create the implementation Bean.",
+  "rubric": [
+    { "category": "RazorpaySupportAI interface", "points": 15 },
+    { "category": "PaymentLookupTools @Tool methods", "points": 15 },
+    { "category": "ChatMemoryProvider @Bean", "points": 15 },
+    { "category": "TenantKeyBuilder", "points": 10 },
+    { "category": "Memory isolation test", "points": 10 },
+    { "category": "4 tests (all pass)", "points": 30 },
+    { "category": "application.yml", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

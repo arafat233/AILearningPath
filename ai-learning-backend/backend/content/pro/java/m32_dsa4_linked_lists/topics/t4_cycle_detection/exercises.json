@@ -1,0 +1,404 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t4",
+  "topic_name": "Cycle Detection",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m32_t4_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Floyd's detect cycle",
+      "instructions": "Implement: Floyd's detect cycle.",
+      "starter_code": "",
+      "expected_solution": "public class FD{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static boolean hasCycle(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f)return true;}return false;}\n    public static void main(String[] a){ListNode n=new ListNode(1);n.next=new ListNode(2);n.next.next=n;System.out.println(hasCycle(n));System.out.println(hasCycle(new ListNode(1)));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m32_t4_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Why Floyd's works \u2014 explanation",
+      "instructions": "Implement: Why Floyd's works \u2014 explanation.",
+      "starter_code": "",
+      "expected_solution": "public class WhyFloyd{public static void main(String[] a){System.out.println(\"Fast gains 1 step per iteration over slow.\");System.out.println(\"In a cycle of length C, gap starts at 0, grows each step.\");System.out.println(\"After C steps, fast has gained C steps = full cycle = back to slow.\");System.out.println(\"They MUST meet within C iterations of entering cycle.\");System.out.println(\"Key: inside cycle, fast always catches slow.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Fast gains 1",
+            "must meet",
+            "catches slow"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m32_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find cycle entry (Phase 2)",
+      "instructions": "Implement: Find cycle entry (Phase 2).",
+      "starter_code": "",
+      "expected_solution": "public class CycleEntry{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode entry(ListNode head){ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){s=head;while(s!=f){s=s.next;f=f.next;}return s;}}return null;}\n    public static void main(String[] a){ListNode n=new ListNode(3);n.next=new ListNode(2);n.next.next=new ListNode(0);n.next.next.next=new ListNode(-4);n.next.next.next.next=n.next;ListNode e=entry(n);System.out.println(e!=null?e.val:null);System.out.println(\"Phase 2: reset slow=head, both speed 1 \u2192 entry\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "Phase 2: reset"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m32_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Find duplicate (LeetCode #287)",
+      "instructions": "Implement: Find duplicate (LeetCode #287).",
+      "starter_code": "",
+      "expected_solution": "public class FDup{static int findDuplicate(int[] nums){int s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!=f);s=nums[0];while(s!=f){s=nums[s];f=nums[f];}return s;}\n    public static void main(String[] a){System.out.println(findDuplicate(new int[]{1,3,4,2,2}));System.out.println(findDuplicate(new int[]{3,1,3,4,2}));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "3",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m32_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Cycle length",
+      "instructions": "Implement: Cycle length.",
+      "starter_code": "",
+      "expected_solution": "public class CLen{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static int cycleLen(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){int len=1;ListNode t=s.next;while(t!=s){t=t.next;len++;}return len;}}return 0;}\n    public static void main(String[] a){ListNode n=new ListNode(1);n.next=new ListNode(2);n.next.next=new ListNode(3);n.next.next.next=n;System.out.println(cycleLen(n));System.out.println(cycleLen(new ListNode(1)));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "0",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m32_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Happy Number (LeetCode #202)",
+      "instructions": "Implement: Happy Number (LeetCode #202).",
+      "starter_code": "",
+      "expected_solution": "public class HNum{static int sq(int n){int s=0;while(n>0){int d=n%10;s+=d*d;n/=10;}return s;}\n    static boolean isHappy(int n){int s=n,f=n;do{s=sq(s);f=sq(sq(f));}while(s!=f);return s==1;}\n    public static void main(String[] a){System.out.println(isHappy(19));System.out.println(isHappy(2));System.out.println(isHappy(7));System.out.println(\"Floyd on digit-square sequence\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "Floyd"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m32_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Intersection node (LeetCode #160)",
+      "instructions": "Implement: Intersection node (LeetCode #160).",
+      "starter_code": "",
+      "expected_solution": "public class Inter{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode inter(ListNode a,ListNode b){ListNode p=a,q=b;while(p!=q){p=(p==null?b:p.next);q=(q==null?a:q.next);}return p;}\n    public static void main(String[] a){ListNode s=new ListNode(8);s.next=new ListNode(4);ListNode la=new ListNode(4);la.next=new ListNode(1);la.next.next=s;ListNode lb=new ListNode(5);lb.next=s;System.out.println(inter(la,lb).val);System.out.println(\"O(n+m) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "8",
+            "O(n+m)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m32_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Prove Phase 2 for multiple entries",
+      "instructions": "Implement: Prove Phase 2 for multiple entries.",
+      "starter_code": "",
+      "expected_solution": "public class P2Proof{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode entry(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){s=h;while(s!=f){s=s.next;f=f.next;}return s;}}return null;}\n    public static void main(String[] a){for(int e=0;e<4;e++){ListNode[] n=new ListNode[5];for(int i=0;i<5;i++)n[i]=new ListNode(i);for(int i=0;i<4;i++)n[i].next=n[i+1];n[4].next=n[e];ListNode det=entry(n[0]);System.out.println(\"entry=\"+e+\",det=\"+(det!=null?det.val:-1)+\",ok=\"+(det==n[e]));}}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "ok=true"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Detect cycle in directed graph (adjacency list)",
+      "instructions": "Implement: Detect cycle in directed graph (adjacency list).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class GraphCycle{static boolean hasCycle(int n,int[][] edges){List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:edges)adj.get(e[0]).add(e[1]);int[] state=new int[n]; // 0=unvisited,1=visiting,2=done\n    for(int i=0;i<n;i++)if(state[i]==0&&dfs(adj,state,i))return true;return false;}\n    static boolean dfs(List<List<Integer>> adj,int[] state,int node){state[node]=1;for(int nb:adj.get(node)){if(state[nb]==1)return true;if(state[nb]==0&&dfs(adj,state,nb))return true;}state[node]=2;return false;}\n    public static void main(String[] a){System.out.println(hasCycle(4,new int[][]{{0,1},{1,2},{2,3},{3,1}}));System.out.println(hasCycle(4,new int[][]{{0,1},{1,2},{2,3}}));System.out.println(\"DFS cycle detection in graph\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "DFS cycle"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Linked list cycle \u2014 all three phases",
+      "instructions": "Implement: Linked list cycle \u2014 all three phases.",
+      "starter_code": "",
+      "expected_solution": "public class ThreePhase{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static void main(String[] a){ListNode n=new ListNode(1);n.next=new ListNode(2);n.next.next=new ListNode(3);n.next.next.next=new ListNode(4);n.next.next.next.next=n.next; // cycle to 2\n    // Phase 1:\n    ListNode s=n,f=n;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f)break;}System.out.println(\"Phase1 met at: \"+s.val);\n    // Phase 2:\n    s=n;while(s!=f){s=s.next;f=f.next;}System.out.println(\"Cycle entry: \"+s.val);\n    // Phase 3:\n    int len=1;ListNode t=s.next;while(t!=s){t=t.next;len++;}System.out.println(\"Cycle length: \"+len);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Cycle entry: 2",
+            "Cycle length: 3"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Find duplicate with constraint (no modify)",
+      "instructions": "Implement: Find duplicate with constraint (no modify).",
+      "starter_code": "",
+      "expected_solution": "public class FDupSafe{static int findDuplicate(int[] nums){int s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!=f);s=nums[0];while(s!=f){s=nums[s];f=nums[f];}return s;}\n    public static void main(String[] a){System.out.println(findDuplicate(new int[]{2,5,9,6,9,3,8,9,7,1}));System.out.println(findDuplicate(new int[]{1,1}));System.out.println(\"O(n) O(1) \u2014 does not modify array, binary search alternative: O(n log n)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "9",
+            "1",
+            "O(n) O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t4_ex_12",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Floyd's on functional sequences",
+      "instructions": "Implement: Floyd's on functional sequences.",
+      "starter_code": "",
+      "expected_solution": "public class FuncCycle{static int next(int x){return (x*x+1)%100;}\n    static int findCycleStart(int start){int s=start,f=start;do{s=next(s);f=next(next(f));}while(s!=f);s=start;while(s!=f){s=next(s);f=next(f);}return s;}\n    public static void main(String[] a){System.out.println(\"Cycle entry for start=0: \"+findCycleStart(0));System.out.println(\"Cycle entry for start=50: \"+findCycleStart(50));System.out.println(\"Floyd works on any functional sequence, not just linked lists!\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Cycle entry",
+            "Floyd works on any"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m32_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Detect cycle + count entry + length in O(n) O(1)",
+      "instructions": "Implement: Detect cycle + count entry + length in O(n) O(1).",
+      "starter_code": "",
+      "expected_solution": "public class FullCycle{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    record CycleInfo(boolean hasCycle,int entryVal,int length){}\n    static CycleInfo analyze(ListNode head){ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){int len=1;ListNode t=s.next;while(t!=s){t=t.next;len++;}s=head;while(s!=f){s=s.next;f=f.next;}return new CycleInfo(true,s.val,len);}}return new CycleInfo(false,-1,0);}\n    public static void main(String[] a){ListNode n=new ListNode(1);n.next=new ListNode(2);n.next.next=new ListNode(3);n.next.next.next=n.next;CycleInfo c=analyze(n);System.out.println(c);System.out.println(\"All 3 phases in one function \u2014 O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "CycleInfo",
+            "O(n) O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 70
+    },
+    {
+      "id": "java_m32_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Synthesis: cycle detection + Floyd on array + happy number",
+      "instructions": "Implement: Synthesis: cycle detection + Floyd on array + happy number.",
+      "starter_code": "",
+      "expected_solution": "public class T4Synth{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static boolean hasCyc(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f)return true;}return false;}\n    static int findDup(int[] a){int s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!=f);s=a[0];while(s!=f){s=a[s];f=a[f];}return s;}\n    static int sq(int n){int s=0;while(n>0){int d=n%10;s+=d*d;n/=10;}return s;}\n    static boolean isHappy(int n){int s=n,f=n;do{s=sq(s);f=sq(sq(f));}while(s!=f);return s==1;}\n    public static void main(String[] a){ListNode n=new ListNode(1);n.next=new ListNode(2);n.next.next=n;System.out.println(\"hasCycle=\"+hasCyc(n));System.out.println(\"findDuplicate=\"+findDup(new int[]{1,3,4,2,2}));System.out.println(\"isHappy(19)=\"+isHappy(19));boolean ok=hasCyc(n)&&findDup(new int[]{1,3,4,2,2})==2&&isHappy(19);System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m32_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete T4 Cycle Detection Synthesis",
+      "instructions": "Implement: Complete T4 Cycle Detection Synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class T4Final{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static boolean hasCyc(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f)return true;}return false;}\n    static ListNode cycleEntry(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){s=h;while(s!=f){s=s.next;f=f.next;}return s;}}return null;}\n    static int findDup(int[] a){int s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!=f);s=a[0];while(s!=f){s=a[s];f=a[f];}return s;}\n    public static void main(String[] a){ListNode cyc=new ListNode(3);cyc.next=new ListNode(2);cyc.next.next=new ListNode(0);cyc.next.next.next=new ListNode(-4);cyc.next.next.next.next=cyc.next;System.out.println(\"hasCycle=\"+hasCyc(cyc));System.out.println(\"entry=\"+cycleEntry(cyc).val);System.out.println(\"findDup=\"+findDup(new int[]{1,3,4,2,2}));boolean ok=hasCyc(cyc)&&cycleEntry(cyc).val==2&&findDup(new int[]{1,3,4,2,2})==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "hasCycle=true",
+            "entry=2"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "predict_output": 0,
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m8_t1_proj",
+  "linked_topic": "java_m8_t1",
+  "level": "mini",
+  "name": "Sortable Product Catalog V3 — Lambda Edition",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+
+  "scenario": "Remember the Sortable Product Catalog from Topic 5.5 and Topic 6.5? It used named Comparator classes (Topic 5.5) and then anonymous classes. Now it's time to upgrade it fully to lambdas — making every Comparator a one-liner, every iteration a forEach, every filter a removeIf. This refactoring arc (Module 4 → 5 → 6 → 8) is exactly what happens in real codebases as Java versions are upgraded.",
+
+  "description": "Refactor the product catalog from anonymous-class Comparators to lambda expressions. Every sort, every iteration, every filter becomes a concise lambda. Add dynamic sort selection (lambda returned from factory method). This is what modern Java product catalog code looks like.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Product` class: name, category, price (double), discount (double), stock (int). `finalPrice()` = price*(1-discount/100). All getters.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "ALL five sort operations implemented as lambda Comparators (one line each, no anonymous classes):\n- By price ascending\n- By final price ascending\n- By name alphabetical\n- By category then final price\n- By discount percent descending",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "`SortSelector.getComparator(String key)` — returns the right lambda-based Comparator based on a string key ('price', 'name', 'discount', 'category'). Demonstrates lambdas as returnable values.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "All iteration uses `forEach` with lambdas — no explicit for-each loops in main().",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`catalog.removeIf(lambda)` to remove out-of-stock items. Show before/after counts.",
+        "weight": 12
+      },
+      {
+        "id": "req_6",
+        "description": "main() demonstrates: 3 sort orders, removeIf, SortSelector with all 4 keys.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Zero anonymous class syntax anywhere — lambdas only for functional interfaces.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `Comparator.comparing` factory methods for at least 2 of the sort operations (instead of manual (a,b) -> lambda).",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `printFiltered(List<Product> catalog, Predicate<Product> filter)` — takes a lambda predicate and prints matching products. Use it for: expensive (>₹1000), high-discount (>15%), in-stock.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `Map.forEach` usage: group products by category (Map<String, List<Product>>), use map.forEach to print each group with its count.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Products:\n- Wireless Mouse, Electronics, ₹799, 10% off, stock=45\n- Mechanical Keyboard, Electronics, ₹4999, 20% off, stock=8\n- Java Book, Books, ₹649, 15% off, stock=30\n- Monitor (4K), Electronics, ₹18999, 25% off, stock=0 (out of stock)\n- Python Cookbook, Books, ₹549, 5% off, stock=20\n- USB Hub, Electronics, ₹499, 30% off, stock=60",
+
+  "starter_code": "import java.util.*;\n\npublic class ProductCatalogV3 {\n    public static void main(String[] args) {\n        // All lambdas — no anonymous classes!\n    }\n    // Define: Product, SortSelector\n}",
+
+  "example_output": "=== By Final Price ===\nUSB Hub: ₹349.30 (30% off)\nPython Cookbook: ₹521.55 (5% off)\nJava Book: ₹551.65 (15% off)\nWireless Mouse: ₹719.10 (10% off)\nMechanical Keyboard: ₹3999.20 (20% off)\nMonitor (4K): ₹14249.25 (25% off)\n\nRemoved out-of-stock. Remaining: 5\n\n=== SortSelector: discount ===\nUSB Hub (30%)\nMechanical Keyboard (20%)\nMonitor... (removed)\n...",
+
+  "rubric": [
+    { "category": "Lambda Comparators", "points": 30, "criteria": ["All 5 sorts as 1-line lambdas (20 pts)", "Zero anonymous class syntax (10 pts)"] },
+    { "category": "SortSelector", "points": 20, "criteria": ["Returns lambda-based Comparator per key (20 pts)"] },
+    { "category": "forEach + removeIf", "points": 20, "criteria": ["forEach replaces all for-each loops (10 pts)", "removeIf with lambda (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 15, "criteria": ["All operations shown (15 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["Comparator.comparing factory (15 pts)", "printFiltered predicate (20 pts)", "Map.forEach grouping (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The goal is to ensure ZERO anonymous class syntax. Every Comparator, every forEach body, every removeIf condition must be a lambda. SortSelector.getComparator returns a Comparator<Product> which is a lambda assigned to a variable and returned.",
+
+  "submission_instructions": "Save as ProductCatalogV3.java. Compare it to your Module 5.5 version — count the lines saved. Push to GitHub with commit message: 'Module 8: Upgraded to lambda expressions throughout.'",
+
+  "tips_for_success": [
+    "For each anonymous Comparator you had: `new Comparator<Product>() { public int compare(...) { return ...; } }` becomes `(a, b) -> ...`",
+    "SortSelector.getComparator: `static Comparator<Product> getComparator(String key)` returns a lambda. Inside: switch/if-else on key, each branch returns a different lambda.",
+    "forEach replaces for-each: `for (Product p : list) { ... }` → `list.forEach(p -> { ... })`",
+    "printFiltered: takes a `java.util.function.Predicate<Product>` parameter. Use `catalog.forEach(p -> { if (filter.test(p)) System.out.println(p); })`",
+    "Block lambda for forEach when the body has multiple statements: `p -> { ...; ...; }`"
+  ],
+
+  "concepts_reinforced": [
+    "Lambda as Comparator replacement (1-line sorts)",
+    "forEach with lambda (replaces for-each loops)",
+    "removeIf with lambda (conditional removal)",
+    "Lambda as returned value from factory method",
+    "Block lambdas for multi-statement bodies",
+    "Effectively final variable capture"
+  ]
+}

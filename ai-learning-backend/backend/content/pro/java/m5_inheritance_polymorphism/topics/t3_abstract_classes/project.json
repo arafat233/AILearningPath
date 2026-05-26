@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m5_t3_proj",
+  "linked_topic": "java_m5_t3",
+  "level": "mini",
+  "name": "Media Player Framework",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "You're building a media player framework (think VLC, Spotify, YouTube Music). Different media types — Audio, Video, Podcast — all need to be 'played' but do so differently. They all share common infrastructure (title, duration, buffering). The play lifecycle is always the same: load → buffer → start playback → stop. This is a textbook Template Method application: the framework defines WHEN things happen; concrete implementations define HOW. Real media players (VLC, ffmpeg-based tools) use exactly this pattern.",
+  
+  "description": "Build an abstract media player hierarchy using the Template Method pattern. Abstract MediaPlayer defines the playback lifecycle. Audio, Video, and PodcastPlayer implement type-specific playback details.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Abstract `MediaPlayer` class: title (String), durationSeconds (int), isBuffering (boolean). Validate title and duration > 0.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "MediaPlayer abstract methods: `loadMedia()`, `startPlayback()`, `stopPlayback()`",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "MediaPlayer final template `play()`: calls buffer() then loadMedia(), startPlayback(), 'Playing for Xs', stopPlayback(). Concrete `buffer()` prints 'Buffering...'",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Abstract method `getMediaType()` returning String (e.g., 'Audio', 'Video', 'Podcast')",
+        "weight": 5
+      },
+      {
+        "id": "req_5",
+        "description": "Concrete `getInfo()` returning 'mediaType: title (duration s)'",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`AudioPlayer extends MediaPlayer`: quality (String, e.g. '320kbps'). loadMedia, startPlayback, stopPlayback print audio-specific messages.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "`VideoPlayer extends MediaPlayer`: resolution (String, e.g. '1080p'). Similar lifecycle methods.",
+        "weight": 15
+      },
+      {
+        "id": "req_8",
+        "description": "main() creates all three types, stores in MediaPlayer[], calls play() and prints info for each.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `PodcastPlayer extends MediaPlayer` with host name field.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `abstract double downloadSizeMB()` to MediaPlayer. Audio: durationSeconds * 0.5, Video: durationSeconds * 5.0, Podcast: durationSeconds * 0.3.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add concrete `totalPlaylistDuration(MediaPlayer[] playlist)` static method that sums durations.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_4",
+        "description": "Override `play()` in VideoPlayer to add 'Rendering subtitles...' between buffer and startPlayback. (Requires removing final from play() — design trade-off discussion).",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Create:\n- AudioPlayer: 'Blinding Lights', 210 seconds, '320kbps'\n- VideoPlayer: 'Java Tutorial', 3600 seconds, '1080p'\n\nExpected main output:\nAudio: Blinding Lights (210 s)\nBuffering...\nLoading audio stream (320kbps)...\n▶ Playing audio...\nPlaying for 210s\n■ Audio stopped\n---\nVideo: Java Tutorial (3600 s)\nBuffering...\nLoading video (1080p)...\n▶ Playing video...\nPlaying for 3600s\n■ Video stopped",
+  
+  "starter_code": "public class MediaSystem {\n    public static void main(String[] args) {\n        // Create and play different media types\n    }\n    // Define: MediaPlayer, AudioPlayer, VideoPlayer\n}",
+  
+  "rubric": [
+    {
+      "category": "Abstract Class Design",
+      "points": 25,
+      "criteria": [
+        "Abstract MediaPlayer with correct fields (5 pts)",
+        "Template play() method is final (10 pts)",
+        "Abstract methods correctly declared (5 pts)",
+        "getInfo() concrete method (5 pts)"
+      ]
+    },
+    {
+      "category": "Concrete Implementations",
+      "points": 30,
+      "criteria": [
+        "AudioPlayer implements all abstract methods (15 pts)",
+        "VideoPlayer implements all abstract methods (15 pts)"
+      ]
+    },
+    {
+      "category": "Polymorphism",
+      "points": 15,
+      "criteria": [
+        "MediaPlayer[] holds both types (5 pts)",
+        "Correct methods called for each type (10 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": ["Compiles (10 pts)", "Runs (5 pts)"]
+    },
+    {
+      "category": "Output",
+      "points": 15,
+      "criteria": ["Lifecycle order correct (10 pts)", "Type-specific messages (5 pts)"]
+    },
+    {
+      "category": "Bonus",
+      "points": 65,
+      "criteria": [
+        "PodcastPlayer (15 pts)",
+        "downloadSizeMB() (20 pts)",
+        "totalPlaylistDuration() (15 pts)",
+        "VideoPlayer play() discussion (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The template method play() must be final and call the abstract methods in the right order. The abstract methods are what vary between AudioPlayer and VideoPlayer.",
+  
+  "submission_instructions": "Save as MediaSystem.java. Run it. Push to GitHub — this is the architecture of VLC, Spotify, and any media player framework.",
+  
+  "tips_for_success": [
+    "Design MediaPlayer completely (with all abstract methods declared) before writing subclasses.",
+    "play() is `final void play()` — it cannot be overridden by subclasses.",
+    "buffer() is concrete in MediaPlayer — same for all media types.",
+    "loadMedia(), startPlayback(), stopPlayback() are abstract — each type implements differently.",
+    "getMediaType() is abstract — AudioPlayer returns 'Audio', VideoPlayer returns 'Video'.",
+    "For getInfo(): `return getMediaType() + ': ' + title + ' (' + durationSeconds + ' s)'`"
+  ],
+  
+  "concepts_reinforced": [
+    "Abstract class with mixed concrete/abstract methods",
+    "Template Method pattern with final algorithm",
+    "Abstract methods as enforced contracts",
+    "super() in subclass constructors",
+    "Polymorphic MediaPlayer[] array",
+    "getInfo() calling abstract getMediaType() — polymorphic concrete method"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Real media players use exactly this lifecycle. VLC's libvlc, ffmpeg, Android's MediaPlayer — all define a fixed playback lifecycle that subtypes customize. The abstract class ensures every media type goes through the same steps in the same order. A malformed implementation that skips buffering or forgets to stop would break the framework's contract. By making the template `final`, the framework author says: 'You can change HOW each step works, but you cannot change WHAT steps exist.' This is professional API design."
+}

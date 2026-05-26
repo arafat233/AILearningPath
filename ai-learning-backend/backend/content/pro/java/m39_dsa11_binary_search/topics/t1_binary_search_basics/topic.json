@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m39_t1",
+  "module_id": "m39",
+  "topic_number": 1,
+  "name": "Binary Search Basics \u2014 Classic, First/Last, Insert Position",
+  "slug": "binary-search-basics-classic",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m29_t1"
+    ],
+    "concepts_taught": [
+      "binary-search-basics-classic"
+    ],
+    "career_relevance": "Core Binary Search Basics \u2014 Classic, First/Last, Insert Position.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Binary Search Basics \u2014 Classic, First/Last, Insert Position"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Template: `while(lo<=hi)` then `m=lo+(hi-lo)/2`",
+        "Not found: return lo (insert position) or -1",
+        "First occurrence: when found, `hi=m-1` (go left for earlier)",
+        "Last occurrence: when found, `lo=m+1` (go right for later)",
+        "`lo+(hi-lo)/2` prevents integer overflow vs `(lo+hi)/2`",
+        "All O(log n): each iteration halves the search space"
+      ],
+      "next_topic_preview": "Next: Search on Answer."
+    }
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m1_t3_proj",
+  "linked_topic": "java_m1_t3",
+  "level": "mini",
+  "name": "Smart Calculator with Validation",
+  "estimated_minutes": 35,
+  "difficulty": 3,
+  
+  "scenario": "You're building a 'smart' calculator widget for a financial planning website. Unlike a basic calculator, this one performs multiple calculations on two numbers and reports back a structured analysis — including comparison results, mathematical relationships, and validity checks. Real-world use case: tools like Bankrate, NerdWallet, and ClearTax have these kinds of analytical calculators throughout their interfaces.",
+  
+  "description": "Build a Java program that takes two numbers (hardcoded for now — we'll add user input later) and produces a complete analytical report using all 5 operator categories: arithmetic, comparison, logical, assignment, and increment. This is your chance to flex everything from Topic 3.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `SmartCalculator` in file SmartCalculator.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors or warnings",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Uses 5 arithmetic operations (+, -, *, /, %)",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Uses at least 3 comparison operations (==, !=, <, >, <=, >=)",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Uses at least 2 logical operations (&&, ||, or !)",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Uses at least 1 compound assignment (+=, -=, etc.)",
+        "weight": 5
+      },
+      {
+        "id": "req_7",
+        "description": "Uses at least 1 increment or decrement (++ or --)",
+        "weight": 5
+      },
+      {
+        "id": "req_8",
+        "description": "Produces clear, formatted output with sections",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Handles division by zero check (logical operator before division)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Includes 'analysis' section deriving multiple booleans (e.g., bothPositive, oneNegative, sameSign, divisible)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Uses modulo to determine and report multiple relationships (e.g., divides evenly, what's the remainder)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Output styled with professional formatting (boxes, alignment, sections)",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Use these values (or pick your own — the program should work for any pair):\n- num1: 24.0\n- num2: 7.0\n\nFeel free to test with different values like:\n- (0, 10) — division by zero\n- (-5, 5) — negative number\n- (10, 0) — division by zero from the other side\n- (15, 5) — divides evenly",
+  
+  "starter_code": "// Build your SmartCalculator program below\n// Required: use ALL 5 operator categories (arithmetic, comparison, logical, assignment, increment/decrement)\n\npublic class SmartCalculator {\n    public static void main(String[] args) {\n        // Input values\n        double num1 = 24.0;\n        double num2 = 7.0;\n        \n        // TODO: Calculate arithmetic results (use +, -, *, /, %)\n        \n        // TODO: Compare the numbers (use ==, !=, <, >, <=, >=)\n        \n        // TODO: Analyze relationships (use &&, ||, !)\n        \n        // TODO: Show counters/tallies (use +=, ++)\n        \n        // TODO: Print formatted output\n        \n    }\n}",
+  
+  "example_output": "╔═══════════════════════════════════════════╗\n║         SMART CALCULATOR ANALYSIS         ║\n╚═══════════════════════════════════════════╝\nInputs:    a = 24.0,  b = 7.0\n-------------------------------------------\nARITHMETIC RESULTS:\n  a + b  = 31.0\n  a - b  = 17.0\n  a * b  = 168.0\n  a / b  = 3.4285714285714284\n  a % b  = 3.0\n-------------------------------------------\nCOMPARISONS:\n  a == b: false\n  a >  b: true\n  a <  b: false\n  a >= b: true\n-------------------------------------------\nANALYSIS:\n  Both positive:     true\n  Same sign:         true\n  Divides evenly:    false\n  Remainder exists:  true\n  Either zero:       false\n-------------------------------------------\nOPERATIONS PERFORMED: 12\n===========================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs and produces output (5 pts)"
+      ]
+    },
+    {
+      "category": "Arithmetic Operators",
+      "points": 15,
+      "criteria": [
+        "Uses + (3 pts)",
+        "Uses - (3 pts)",
+        "Uses * (3 pts)",
+        "Uses / (3 pts)",
+        "Uses % (3 pts)"
+      ]
+    },
+    {
+      "category": "Comparison Operators",
+      "points": 10,
+      "criteria": [
+        "Uses == or != (3 pts)",
+        "Uses > or < (3 pts)",
+        "Uses >= or <= (4 pts)"
+      ]
+    },
+    {
+      "category": "Logical Operators",
+      "points": 10,
+      "criteria": [
+        "Uses && (3 pts)",
+        "Uses || (3 pts)",
+        "Uses ! (4 pts)"
+      ]
+    },
+    {
+      "category": "Assignment & Increment",
+      "points": 10,
+      "criteria": [
+        "Uses compound assignment (5 pts)",
+        "Uses ++ or -- (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 10,
+      "criteria": [
+        "Clear sections (5 pts)",
+        "Professional formatting (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 50,
+      "criteria": [
+        "Division by zero protection (15 pts)",
+        "Multi-boolean analysis (15 pts)",
+        "Modulo relationship analysis (10 pts)",
+        "Polished visual output (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. You've learned enough now to plan most of this yourself. Plan with pen-and-paper if needed: list each operator category, write 2-3 lines of code using it. Then assemble.",
+  
+  "submission_instructions": "Save as SmartCalculator.java. Run it locally. Try modifying num1 and num2 to test edge cases (negative numbers, zero, equal numbers). When satisfied, commit to your GitHub portfolio repo with message like 'feat: smart calculator with multi-operator analysis'.",
+  
+  "tips_for_success": [
+    "Don't try to be clever. Use plain, clear code that uses each operator deliberately.",
+    "Group related calculations together. Don't mix arithmetic with comparisons in random order.",
+    "Use comments to label each section: // ARITHMETIC, // COMPARISONS, etc.",
+    "Test with different values: what if num1 is 0? What if both are equal? What if num2 is negative?",
+    "For the bonus 'division by zero' check, use logical AND: `if num2 != 0, then divide`. We'll learn the proper `if` syntax next topic — for now, just calculate a boolean indicating it's safe.",
+    "The 'operations performed' counter is a fun place to use ++. Increment it after each operation."
+  ],
+  
+  "concepts_reinforced": [
+    "All 5 operator categories",
+    "Operator precedence (use parentheses!)",
+    "Integer vs double division",
+    "Modulo for divisibility checking",
+    "Boolean composition with && and ||",
+    "Short-circuit evaluation",
+    "Compound assignment",
+    "Increment operators"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Building a tool that uses every operator forces you to think about WHICH operator solves WHICH problem. Need 'both positive'? That's a logical AND of two comparisons. Need 'divides evenly'? That's modulo equaling zero. This translation — from problem statement to operator choice — is a core programming skill. Once internalized, it becomes automatic, and you stop thinking about operators and start thinking about logic.",
+  
+  "extensions_for_advanced_learners": [
+    "Read input from command line: java SmartCalculator 24.0 7.0 (we'll cover args later)",
+    "Add more analysis: is num1 prime? is the sum a perfect square?",
+    "Compare three numbers instead of two",
+    "Calculate the GCD using modulo (Euclidean algorithm — preview of future topics)",
+    "Add 'safe division' that returns 0 instead of crashing when divisor is zero"
+  ]
+}

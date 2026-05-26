@@ -1,0 +1,239 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t3",
+  "language": "java",
+  "module_id": "m3",
+  "module_name": "Arrays & Strings",
+  "topic_number": 3,
+  "name": "Multi-Dimensional Arrays",
+  "slug": "multidimensional-arrays",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m3_t1", "java_m3_t2"],
+    "concepts_taught": [
+      "two_dimensional_array_declaration",
+      "two_dimensional_array_initialization",
+      "row_column_indexing",
+      "nested_loops_for_2d",
+      "array_of_arrays_concept",
+      "jagged_arrays",
+      "row_iteration_vs_column_iteration",
+      "matrix_operations",
+      "two_dimensional_for_each",
+      "three_dimensional_arrays_intro"
+    ],
+    "skills_developed": [
+      "creating_2d_arrays",
+      "iterating_grid_data",
+      "thinking_in_rows_and_columns",
+      "implementing_matrix_algorithms",
+      "visualizing_2d_structure"
+    ],
+    "career_relevance": "Multi-dimensional arrays appear anywhere data has GRID structure: spreadsheets, game boards (chess, tic-tac-toe, minesweeper), images (each pixel is a cell), maps and matrices, seating charts, scientific data (sensor grids, weather data). Image processing libraries like OpenCV manipulate 2D arrays of pixels. Spreadsheet engines compute over 2D arrays of cells. Map tiles in games are 2D arrays. Even ML weight matrices in neural networks are 2D arrays (then 3D, 4D). This isn't a niche topic — it's the foundation for any spatial data.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Open Excel or Google Sheets right now. What you see is a 2D array: rows labeled 1, 2, 3..., columns labeled A, B, C... Every cell is identified by row + column. When you write `=SUM(A1:A10)`, the spreadsheet iterates a column of cells.\n\nNow open a chess game. The board is an 8×8 grid — a 2D array. Every move references row and column. AI chess engines literally store the board as `Piece[][] board = new Piece[8][8]`.\n\nNow think of any image on your screen. A 1920×1080 image is a 2D grid of pixels — each pixel has a color value. Image filters (Instagram, Snapchat) are 2D array operations.\n\nGrids are EVERYWHERE in software. 1D arrays handle lists; 2D arrays handle grids. This topic gives you the tool for any 'rows and columns' problem.",
+    "what_you_will_build": "By the end of this topic, you'll know how to declare 2D arrays (`int[][]`), access elements with two indices (`grid[row][col]`), iterate with nested loops, handle 'jagged' arrays (rows of different lengths), and apply common matrix operations. You'll build a complete sales analyzer that tracks 4 products × 7 days, computing totals by product, totals by day, and grand totals. Real spreadsheet logic."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A **2D array** is an array OF arrays. Think of it as a table with rows and columns.\n\n```\nint[][] grid = {\n    {1, 2, 3},   // row 0\n    {4, 5, 6},   // row 1\n    {7, 8, 9}    // row 2\n};\n```\n\nAccessing: `grid[row][col]`.\n\n```java\ngrid[0][0]  // 1 (row 0, col 0)\ngrid[1][2]  // 6 (row 1, col 2)\ngrid[2][1]  // 8 (row 2, col 1)\n```\n\nFirst index = row, second index = column. Both start at 0.\n\n**Mental model**: a 2D array is an outer array whose elements ARE arrays. `grid[1]` is the entire row 1 — itself an int array `{4, 5, 6}`. Then `[2]` indexes into that inner array. This 'array of arrays' interpretation explains a lot of Java's 2D array behavior.",
+      
+      "declaring_2d_arrays": "Multiple ways to create 2D arrays:\n\n**1. Array literal** (when you know values):\n\n```java\nint[][] matrix = {\n    {1, 2, 3},\n    {4, 5, 6},\n    {7, 8, 9}\n};\n```\n\n**2. With dimensions** (when you don't have values yet):\n\n```java\nint[][] grid = new int[3][4];  // 3 rows, 4 columns\n// All values default to 0\n\nString[][] board = new String[8][8];  // 8x8, all null\n```\n\n**3. With rows only, fill in later**:\n\n```java\nint[][] rows = new int[3][];  // 3 rows, columns TBD\nrows[0] = new int[]{1, 2, 3};\nrows[1] = new int[]{4, 5, 6, 7};  // can be different lengths!\nrows[2] = new int[]{8};\n```\n\nThis last form creates a **jagged array** — rows can have different column counts. Java doesn't require rows to match. This is rare in practice, but worth knowing.",
+      
+      "dimensions": "Getting dimensions:\n\n```java\nint[][] grid = {\n    {1, 2, 3, 4},\n    {5, 6, 7, 8},\n    {9, 10, 11, 12}\n};\n\nint rows = grid.length;       // 3 (number of rows)\nint cols = grid[0].length;    // 4 (length of first row)\n```\n\n**Important**: `grid.length` gives the number of ROWS. To get column count, you check `grid[0].length` (length of first row).\n\n**Jagged warning**: in a jagged array, different rows have different lengths. `grid[0].length` might not equal `grid[1].length`. Loop carefully.\n\nFor rectangular grids (common case), all rows have the same length.",
+      
+      "accessing_and_modifying": "Read and write with two indices:\n\n```java\nint[][] grid = new int[3][3];  // 3x3 all zeros\n\ngrid[0][0] = 1;     // top-left\ngrid[1][1] = 5;     // center\ngrid[2][2] = 9;     // bottom-right\n\nSystem.out.println(grid[1][1]);  // 5\ngrid[0][2] += 10;   // 0 + 10 = 10\n```\n\nSame `[index]` notation as 1D arrays, just twice.\n\n**Out-of-bounds** still applies in BOTH dimensions:\n\n```java\nint[][] grid = new int[3][4];\ngrid[3][0] = 1;  // CRASH: row index 3 invalid (only 0-2)\ngrid[0][4] = 1;  // CRASH: col index 4 invalid (only 0-3)\ngrid[0][-1] = 1; // CRASH: negative index\n```",
+      
+      "iterating_2d": "Iterate with NESTED loops. Outer loop for rows, inner for columns.\n\n```java\nint[][] grid = {\n    {1, 2, 3},\n    {4, 5, 6},\n    {7, 8, 9}\n};\n\nfor (int row = 0; row < grid.length; row++) {\n    for (int col = 0; col < grid[row].length; col++) {\n        System.out.print(grid[row][col] + \" \");\n    }\n    System.out.println();  // newline after each row\n}\n```\n\nOutput:\n```\n1 2 3\n4 5 6\n7 8 9\n```\n\n**Notice**:\n- Outer loop iterates rows (i = 0, 1, 2)\n- Inner loop iterates columns within current row (j = 0, 1, 2)\n- `grid[row].length` accommodates jagged arrays (uses length of THAT specific row)\n- `println()` after inner loop creates the row break\n\n**For-each version** (cleaner if you don't need indices):\n\n```java\nfor (int[] row : grid) {       // each row is an int[]\n    for (int value : row) {     // each value in that row\n        System.out.print(value + \" \");\n    }\n    System.out.println();\n}\n```\n\nReads as: 'for each row in grid, for each value in row, print.' Elegant.",
+      
+      "row_vs_column_iteration": "**Row-by-row** (outer loop = rows, inner = cols within row) — most common. Walks through 'reading order.'\n\n**Column-by-column** (outer = cols, inner = rows for each col) — less common but useful.\n\n```java\n// Column-major iteration\nfor (int col = 0; col < grid[0].length; col++) {\n    for (int row = 0; row < grid.length; row++) {\n        System.out.print(grid[row][col] + \" \");\n    }\n    System.out.println();\n}\n```\n\nFor the same grid `{{1,2,3},{4,5,6},{7,8,9}}`, this prints:\n```\n1 4 7\n2 5 8\n3 6 9\n```\n\nEach 'row' in output is actually a COLUMN from the original. This is one way to TRANSPOSE.\n\n**Use cases for column iteration**:\n- Summing by column (e.g., totals per product when products are columns)\n- Searching column-by-column\n- Reading a CSV in 'column-first' order",
+      
+      "common_2d_patterns": "Three essential 2D patterns:\n\n**1. Sum all elements (total)**:\n\n```java\nint total = 0;\nfor (int[] row : grid) {\n    for (int value : row) {\n        total += value;\n    }\n}\n```\n\n**2. Row totals (sum each row)**:\n\n```java\nfor (int row = 0; row < grid.length; row++) {\n    int rowTotal = 0;\n    for (int col = 0; col < grid[row].length; col++) {\n        rowTotal += grid[row][col];\n    }\n    System.out.println(\"Row \" + row + \" total: \" + rowTotal);\n}\n```\n\n**3. Column totals (sum each column)**:\n\n```java\nfor (int col = 0; col < grid[0].length; col++) {\n    int colTotal = 0;\n    for (int row = 0; row < grid.length; row++) {\n        colTotal += grid[row][col];\n    }\n    System.out.println(\"Col \" + col + \" total: \" + colTotal);\n}\n```\n\nNotice for columns: outer loop is `col`, inner is `row`. The roles of outer/inner determine which direction you 'sum across.'",
+      
+      "matrix_operations": "Common matrix operations:\n\n**Find max in 2D**:\n```java\nint max = grid[0][0];\nfor (int[] row : grid) {\n    for (int value : row) {\n        if (value > max) max = value;\n    }\n}\n```\n\n**Search in 2D**:\n```java\nint targetValue = 7;\nboolean found = false;\nfor (int row = 0; row < grid.length && !found; row++) {\n    for (int col = 0; col < grid[row].length; col++) {\n        if (grid[row][col] == targetValue) {\n            System.out.println(\"Found at [\" + row + \"][\" + col + \"]\");\n            found = true;\n            break;\n        }\n    }\n}\n```\n\nNote: outer loop also checks `!found` to break out of both loops once found.\n\n**Transpose (rows become columns)**:\n```java\nint rows = grid.length;\nint cols = grid[0].length;\nint[][] transposed = new int[cols][rows];  // swap dimensions\n\nfor (int i = 0; i < rows; i++) {\n    for (int j = 0; j < cols; j++) {\n        transposed[j][i] = grid[i][j];  // swap indices\n    }\n}\n```\n\nThe transposed matrix has cols × rows shape. Element at [i][j] in original goes to [j][i] in transposed.",
+      
+      "printing_2d_arrays": "**Arrays.toString won't work directly** for 2D arrays:\n\n```java\nimport java.util.Arrays;\n\nint[][] grid = {{1, 2}, {3, 4}};\nSystem.out.println(Arrays.toString(grid));\n// Output: [[I@5e9f23b4, [I@4d76f3f8]  (garbage!)\n```\n\nThat's because `Arrays.toString` treats each row as an Object (an array) and uses default toString.\n\n**Use `Arrays.deepToString` instead**:\n\n```java\nSystem.out.println(Arrays.deepToString(grid));\n// Output: [[1, 2], [3, 4]]\n```\n\n**`deepToString`** recursively converts inner arrays. Works for 2D, 3D, deeper.\n\nFor formatted output (rows on separate lines), use loops:\n\n```java\nfor (int[] row : grid) {\n    System.out.println(Arrays.toString(row));\n}\n// Output:\n// [1, 2]\n// [3, 4]\n```",
+      
+      "three_dimensional_intro": "Java supports arrays of more dimensions:\n\n```java\nint[][][] cube = new int[3][4][5];  // 3 layers, each 4x5\ncube[0][2][3] = 42;\n```\n\n**Real uses**:\n- RGB images: width × height × 3 (R, G, B values)\n- Volumetric data: x, y, z grid\n- ML tensors: batch × height × width × channels\n\nMost real Java code uses 1D or 2D. 3D+ exists but is rarer — usually replaced by specialized libraries (NumPy in Python, ND4J in Java).\n\nWe won't go deep on 3D. Just know it exists and uses the same nested principles."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a 3×4 grid with cells labeled grid[0][0] through grid[2][3], with example values inside (1-12). Row labels on the left (Row 0, Row 1, Row 2). Column labels on top (Col 0, Col 1, Col 2, Col 3). Annotation: 'grid[row][col] — row first, then column.' Below: two parallel iteration diagrams. LEFT: 'Row-major iteration: 1, 2, 3, 4, 5, 6, 7...' arrow path goes left-to-right, top-to-bottom. RIGHT: 'Column-major iteration: 1, 5, 9, 2, 6, 10...' arrow path goes top-to-bottom, left-to-right.",
+      "alt_text": "Visual 3x4 grid showing row/column indexing, plus comparison of row-major vs column-major iteration"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a sales analytics tool for a small retail chain. They track sales for 4 products across 7 days of the week. The owner wants to see: total sales by product (which product is most popular), total sales by day (which day is busiest), grand total, and the single best product+day combo. This is a CLASSIC 2D array problem — exactly what spreadsheets are designed for.",
+    
+    "problem_statement": "Given a 4×7 sales matrix (4 products, 7 days), compute and display:\n1. The full matrix in a readable format\n2. Each product's total (sum each row)\n3. Each day's total (sum each column)\n4. Grand total (sum everything)\n5. Best single product+day combo (max value + its location)\n\nData:\n```\n           Mon  Tue  Wed  Thu  Fri  Sat  Sun\nProduct A:  12   15   10   18   25   30   22\nProduct B:   8   10    7   12   18   28   20\nProduct C:  20   18   22   25   30   45   35\nProduct D:   5    7    6    8   12   18   15\n```",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Declare the 2D array",
+        "details": "```java\nint[][] sales = {\n    {12, 15, 10, 18, 25, 30, 22},  // Product A\n    {8, 10, 7, 12, 18, 28, 20},    // Product B\n    {20, 18, 22, 25, 30, 45, 35},  // Product C\n    {5, 7, 6, 8, 12, 18, 15}       // Product D\n};\n\nString[] productNames = {\"A\", \"B\", \"C\", \"D\"};\nString[] dayNames = {\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"};\n```\n\n4 rows × 7 columns. Row index = product, column index = day. Note we use two PARALLEL 1D arrays for names. We'll learn objects in Module 4 to bundle these together properly."
+      },
+      {
+        "step": 2,
+        "action": "Print the matrix in readable form",
+        "details": "Print headers then row by row:\n\n```java\n// Header: day names\nSystem.out.print(\"        \");\nfor (String day : dayNames) {\n    System.out.printf(\"%5s\", day);\n}\nSystem.out.println();\n\n// Each product's row\nfor (int p = 0; p < sales.length; p++) {\n    System.out.print(\"Prod \" + productNames[p] + \": \");\n    for (int d = 0; d < sales[p].length; d++) {\n        System.out.printf(\"%5d\", sales[p][d]);\n    }\n    System.out.println();\n}\n```\n\n`printf` with `%5d` formats as right-padded 5-character wide integer for clean columns. `%5s` does the same for strings."
+      },
+      {
+        "step": 3,
+        "action": "Calculate product totals (row sums)",
+        "details": "For each row (product), sum the columns:\n\n```java\nSystem.out.println(\"\\nProduct Totals:\");\nfor (int p = 0; p < sales.length; p++) {\n    int productTotal = 0;\n    for (int d = 0; d < sales[p].length; d++) {\n        productTotal += sales[p][d];\n    }\n    System.out.println(\"Product \" + productNames[p] + \": \" + productTotal);\n}\n```\n\nOuter loop fixes a row. Inner loop sums all columns in that row. `productTotal` resets to 0 at each new product."
+      },
+      {
+        "step": 4,
+        "action": "Calculate day totals (column sums)",
+        "details": "For each column (day), sum the rows. Note the loop direction flips:\n\n```java\nSystem.out.println(\"\\nDay Totals:\");\nfor (int d = 0; d < sales[0].length; d++) {\n    int dayTotal = 0;\n    for (int p = 0; p < sales.length; p++) {\n        dayTotal += sales[p][d];\n    }\n    System.out.println(dayNames[d] + \": \" + dayTotal);\n}\n```\n\n**Note**: outer loop is now `d` (day/column), inner is `p` (product/row). The roles swapped because we're summing IN A COLUMN now.\n\nThis is the key insight of 2D arrays: which dimension is outer determines what you're 'summing across.'"
+      },
+      {
+        "step": 5,
+        "action": "Calculate grand total",
+        "details": "Sum every element:\n\n```java\nint grandTotal = 0;\nfor (int[] productRow : sales) {\n    for (int dailySale : productRow) {\n        grandTotal += dailySale;\n    }\n}\nSystem.out.println(\"\\nGrand Total: \" + grandTotal);\n```\n\nFor-each is cleanest here because we don't need indices."
+      },
+      {
+        "step": 6,
+        "action": "Find best single sale (max with location)",
+        "details": "Track value AND coordinates:\n\n```java\nint bestSale = sales[0][0];\nint bestProduct = 0;\nint bestDay = 0;\n\nfor (int p = 0; p < sales.length; p++) {\n    for (int d = 0; d < sales[p].length; d++) {\n        if (sales[p][d] > bestSale) {\n            bestSale = sales[p][d];\n            bestProduct = p;\n            bestDay = d;\n        }\n    }\n}\n\nSystem.out.println(\"\\nBest single sale: Product \" + productNames[bestProduct] \n    + \" on \" + dayNames[bestDay] + \" = \" + bestSale);\n```\n\nSame pattern as finding max in 1D, but with two indices to track. Use classic for loop (need indices) for 2D max-with-location."
+      }
+    ],
+    
+    "final_code": "public class SalesAnalyzer {\n    public static void main(String[] args) {\n        int[][] sales = {\n            {12, 15, 10, 18, 25, 30, 22},\n            {8, 10, 7, 12, 18, 28, 20},\n            {20, 18, 22, 25, 30, 45, 35},\n            {5, 7, 6, 8, 12, 18, 15}\n        };\n        \n        String[] productNames = {\"A\", \"B\", \"C\", \"D\"};\n        String[] dayNames = {\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\", \"Sat\", \"Sun\"};\n        \n        // Print matrix\n        System.out.print(\"        \");\n        for (String day : dayNames) {\n            System.out.printf(\"%5s\", day);\n        }\n        System.out.println();\n        \n        for (int p = 0; p < sales.length; p++) {\n            System.out.print(\"Prod \" + productNames[p] + \": \");\n            for (int d = 0; d < sales[p].length; d++) {\n                System.out.printf(\"%5d\", sales[p][d]);\n            }\n            System.out.println();\n        }\n        \n        // Product totals\n        System.out.println(\"\\nProduct Totals:\");\n        for (int p = 0; p < sales.length; p++) {\n            int productTotal = 0;\n            for (int d = 0; d < sales[p].length; d++) {\n                productTotal += sales[p][d];\n            }\n            System.out.println(\"Product \" + productNames[p] + \": \" + productTotal);\n        }\n        \n        // Day totals\n        System.out.println(\"\\nDay Totals:\");\n        for (int d = 0; d < sales[0].length; d++) {\n            int dayTotal = 0;\n            for (int p = 0; p < sales.length; p++) {\n                dayTotal += sales[p][d];\n            }\n            System.out.println(dayNames[d] + \": \" + dayTotal);\n        }\n        \n        // Grand total\n        int grandTotal = 0;\n        for (int[] productRow : sales) {\n            for (int dailySale : productRow) {\n                grandTotal += dailySale;\n            }\n        }\n        System.out.println(\"\\nGrand Total: \" + grandTotal);\n        \n        // Best single sale\n        int bestSale = sales[0][0];\n        int bestProduct = 0;\n        int bestDay = 0;\n        \n        for (int p = 0; p < sales.length; p++) {\n            for (int d = 0; d < sales[p].length; d++) {\n                if (sales[p][d] > bestSale) {\n                    bestSale = sales[p][d];\n                    bestProduct = p;\n                    bestDay = d;\n                }\n            }\n        }\n        \n        System.out.println(\"\\nBest single sale: Product \" + productNames[bestProduct] \n            + \" on \" + dayNames[bestDay] + \" = \" + bestSale);\n    }\n}",
+    
+    "expected_output": "          Mon  Tue  Wed  Thu  Fri  Sat  Sun\nProd A:    12   15   10   18   25   30   22\nProd B:     8   10    7   12   18   28   20\nProd C:    20   18   22   25   30   45   35\nProd D:     5    7    6    8   12   18   15\n\nProduct Totals:\nProduct A: 132\nProduct B: 103\nProduct C: 195\nProduct D: 71\n\nDay Totals:\nMon: 45\nTue: 50\nWed: 45\nThu: 63\nFri: 85\nSat: 121\nSun: 92\n\nGrand Total: 501\n\nBest single sale: Product C on Sat = 45",
+    
+    "things_to_notice": [
+      "The SAME 2D array was analyzed in MULTIPLE ways: by row, by column, all elements, finding max. One data structure, many views.",
+      "Notice when outer loop is `p` (product), we sum rows. When outer is `d` (day), we sum columns. Loop ordering is the key 2D thinking skill.",
+      "We used parallel 1D arrays (productNames, dayNames) alongside the 2D sales array — a pre-OOP pattern. Module 4 will fix this with classes.",
+      "Saturday is the busiest day (₹121 total). Product C is the best-seller (₹195 total). The single best sale was Product C on Saturday (₹45). These insights come naturally from analyzing the same 2D data multiple ways.",
+      "`System.out.printf(\"%5d\", n)` produces aligned columns. The `%5d` means '5-character-wide integer.' This is how spreadsheets get those clean column layouts.",
+      "Every spreadsheet operation you've ever seen — SUM, AVERAGE, MAX, ROW totals, COLUMN totals — is a variant of these patterns. You're now thinking like a spreadsheet engine."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Image Processing (OpenCV, Photoshop, Instagram filters)",
+        "use_case": "Every digital image is a 2D array of pixels. Color images are 3D (rows × cols × RGB channels). Filters like blur, edge detection, grayscale conversion are 2D array operations. Snapchat face filters? 2D array math on every frame. ML image classification? 2D array goes in, prediction comes out."
+      },
+      {
+        "company_context": "Game Development (chess engines, board games, tile-based games)",
+        "use_case": "Chess boards: `Piece[8][8]`. Minesweeper: `boolean[][] mines`. Pokemon maps: `Tile[][]`. Every tile-based game is a 2D array under the hood. AI pathfinding (A*, Dijkstra) operates on 2D grids."
+      },
+      {
+        "company_context": "Spreadsheet engines (Google Sheets, Microsoft Excel, LibreOffice)",
+        "use_case": "Spreadsheets ARE 2D arrays of cells with formulas. =SUM(A1:A10) is iterating a column. =AVERAGE(A1:G3) is averaging a sub-matrix. Every formula you've ever written maps to 2D array operations."
+      },
+      {
+        "company_context": "Machine Learning & Data Science",
+        "use_case": "Datasets are 2D: rows are samples, columns are features. The famous Iris dataset: 150 flowers × 4 measurements = 150×4 matrix. Neural network weights are 2D arrays. Training is essentially: do math on 2D arrays many times. Java ML libraries (Weka, DeepLearning4J) heavily use 2D arrays."
+      }
+    ],
+    
+    "interview_relevance": "2D array problems are common in interviews:\n\n- **Easy**: 'Sum all elements,' 'Find max in matrix,' 'Print matrix'\n- **Medium**: 'Transpose matrix,' 'Rotate matrix 90 degrees,' 'Spiral traversal,' 'Search in row+column sorted matrix'\n- **Hard**: 'N-Queens,' 'Word search in board,' 'Number of islands' (DFS on 2D grid)\n\nClassic interview patterns:\n- **Row vs column iteration**: choosing the right outer loop\n- **Boundary checks**: ensuring row and col are both in bounds\n- **Diagonal traversal**: iterating along i==j or i+j==constant\n- **Grid search**: BFS/DFS on 2D arrays (covered in DSA module)\n\nIf you're going for FAANG/product-company interviews, 2D array problems WILL come up. Common warmup: 'rotate this matrix 90 degrees clockwise.' Common follow-up: 'do it in-place.'",
+    
+    "real_world_workflow": "Daily 2D array usage:\n\n- Reading CSV files: each row is a record, columns are fields = 2D array\n- Database query results: rows × columns = 2D table\n- Building dashboards: time-series data over multiple categories = 2D\n- Game state: any grid-based game stores state in 2D arrays\n- Image manipulation: filters, resizing, rotations, all 2D operations\n- Reporting: monthly sales by region by product = potentially 3D, often presented as 2D pivot table\n\nIn production Java, 2D arrays are often wrapped in higher-level abstractions (DataFrame, Matrix class, Tensor), but the underlying mental model is unchanged."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "confused_row_col_order",
+      "what_students_get_wrong": "Mixing up `grid[row][col]` order. Trying `grid[col][row]` and getting wrong values or crashes.",
+      "remediation": "First index = row, second = column. Memorize: ROW FIRST, COLUMN SECOND. Like 'row, column' in spreadsheet terminology, or 'y, x' in some math conventions (but Java uses row first regardless).",
+      "detection_pattern": "Out-of-bounds errors or wrong cell values"
+    },
+    {
+      "gap_id": "using_arrays_tostring_for_2d",
+      "what_students_get_wrong": "Calling `Arrays.toString(grid)` on a 2D array. Gets garbage output like `[[I@5e9f23b4, ...]`.",
+      "remediation": "Use `Arrays.deepToString(grid)` for 2D and higher. Or iterate row by row, calling `Arrays.toString(row)` for each.",
+      "detection_pattern": "Memory-address-looking output instead of values"
+    },
+    {
+      "gap_id": "wrong_inner_loop_bound",
+      "what_students_get_wrong": "Using `grid.length` in both outer AND inner loop. For non-square grids, this is wrong.",
+      "remediation": "Outer loop: `< grid.length` (rows). Inner loop: `< grid[row].length` (cols in THIS row). For rectangular: `grid[0].length` works for inner.",
+      "detection_pattern": "ArrayIndexOutOfBoundsException in inner loop on jagged arrays"
+    },
+    {
+      "gap_id": "confusing_dimensions_when_creating",
+      "what_students_get_wrong": "`new int[3][4]` creates 3 rows of 4 columns. Some students think it's 3 columns of 4 rows.",
+      "remediation": "First number = number of rows. Second = number of columns per row. Think: 'I have 3 things (rows), each containing 4 things (columns).'",
+      "detection_pattern": "Wrong dimensions in print output"
+    },
+    {
+      "gap_id": "iterating_wrong_direction_for_columns",
+      "what_students_get_wrong": "Trying to sum columns but having outer loop be `row`, getting row sums instead.",
+      "remediation": "For column sums, outer loop must be `col` (iterating columns). Inner is `row` (summing within that column).",
+      "detection_pattern": "Sum totals appearing on wrong axis"
+    },
+    {
+      "gap_id": "two_d_array_uneven_assumption",
+      "what_students_get_wrong": "Assuming all rows have the same length (which is true for literal-initialized arrays but not always for arrays of arrays).",
+      "remediation": "If creating with `new int[3][]`, each row can have different length. Defensive code uses `grid[row].length` not `grid[0].length`.",
+      "detection_pattern": "Issues with jagged arrays"
+    },
+    {
+      "gap_id": "comparing_2d_arrays_with_equals",
+      "what_students_get_wrong": "Using `Arrays.equals(a, b)` on 2D arrays. Only compares top-level references of inner arrays.",
+      "remediation": "Use `Arrays.deepEquals(a, b)` for 2D and higher arrays. Recursively compares contents.",
+      "detection_pattern": "Equal-looking arrays comparing as not equal"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "2D array = array of arrays. Access with `grid[row][col]`.",
+      "First index is ROW, second is COLUMN — always. Both zero-indexed.",
+      "Declaration: literal `{{1,2},{3,4}}` or `new int[rows][cols]`",
+      "`grid.length` = number of rows. `grid[0].length` = columns in first row.",
+      "Java supports jagged arrays — rows can have different lengths",
+      "Nested loops: outer for one dimension, inner for the other",
+      "Which dimension is outer determines what you're 'summing across'",
+      "Use `Arrays.deepToString` for 2D printing (NOT plain toString)",
+      "Use `Arrays.deepEquals` for 2D comparison (NOT plain equals)",
+      "Same patterns as 1D (sum, max, search) but with two indices",
+      "Real-world uses: spreadsheets, images, game boards, matrices, ML datasets"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "How do you access the element at row 2, column 3 in a 2D array `grid`?",
+        "answer": "`grid[2][3]`. First index is ROW, second is COLUMN. Both zero-indexed. So this accesses the third row (rows 0, 1, 2) and the fourth element of that row (columns 0, 1, 2, 3)."
+      },
+      {
+        "question": "Why doesn't this print correctly?\n```java\nint[][] grid = {{1, 2}, {3, 4}};\nSystem.out.println(Arrays.toString(grid));\n```",
+        "answer": "`Arrays.toString` treats inner arrays as objects and prints their default toString (memory addresses). Output looks like `[[I@..., [I@...]`. Fix: use `Arrays.deepToString(grid)` which recursively converts inner arrays. Output: `[[1, 2], [3, 4]]`."
+      },
+      {
+        "question": "If I have `int[][] sales` with 4 products and 7 days, and I want to sum sales for DAY 3 across all products, what's the loop pattern?",
+        "answer": "```java\nint dayTotal = 0;\nfor (int p = 0; p < sales.length; p++) {\n    dayTotal += sales[p][3];\n}\n```\nThe column index is fixed at 3 (day 3), the row index iterates through all products. We're summing DOWN a column. The single loop is enough because only one index varies."
+      },
+      {
+        "question": "What does `new int[3][5]` create?",
+        "answer": "A 2D int array with 3 rows and 5 columns. All 15 elements default to 0. Total size is 3 × 5 = 15 elements. Access ranges: rows 0-2, cols 0-4. So `arr[0][0]` through `arr[2][4]` are valid; anything outside that range throws ArrayIndexOutOfBoundsException."
+      },
+      {
+        "question": "How does iteration order affect what you compute? Compare:\n```java\n// Version A\nfor (int i = 0; i < grid.length; i++)\n    for (int j = 0; j < grid[i].length; j++) ...\n\n// Version B\nfor (int j = 0; j < grid[0].length; j++)\n    for (int i = 0; i < grid.length; i++) ...\n```",
+        "answer": "Version A iterates row-by-row (visits 1,2,3 then 4,5,6 in a 2×3 grid). Version B iterates column-by-column (visits 1,4 then 2,5 then 3,6). Same elements, different ORDER. For things like printing or summing all, either works. For row sums (A) vs column sums (B), the outer loop determines what you're summing across. For things like spiral traversal, the order matters critically."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Introduction to Strings. Strings are super important in Java — they're how you handle text. But Strings have unusual behavior: they're IMMUTABLE (can't be changed), they have a special `.length()` method (not `.length` field), and they have unique gotchas around `==` vs `.equals()`. We'll also cover the common methods: substring, indexOf, split, replace, etc. After that topic, you can confidently process text data."
+  }
+}

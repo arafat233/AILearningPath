@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m25_t4",
+  "language": "java",
+  "module_id": "m25",
+  "module_name": "Advanced Testing",
+  "topic_number": 4,
+  "name": "Performance Testing (Gatling & k6)",
+  "slug": "performance-testing-gatling-k6",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m12_t1", "java_m19_t1"],
+    "concepts_taught": [
+      "performance_testing_overview", "load_vs_stress_vs_soak", "gatling_dsl",
+      "gatling_scenarios", "gatling_assertions", "k6_basics", "response_time_percentiles",
+      "throughput_rps", "baseline_measurement", "performance_test_in_ci", "jmeter_overview"
+    ],
+    "skills_developed": [
+      "writing_gatling_scenarios", "asserting_performance_thresholds",
+      "interpreting_performance_reports", "load_stress_soak_design"
+    ],
+    "career_relevance": "Zerodha's trading platform handles 3 million concurrent users during the Diwali trading window. Without performance testing, they'd discover the bottleneck at 9:15am when markets open — too late. Gatling simulates 3M virtual users, finds the breaking point in pre-production, and identifies the bottleneck (database connection pool exhausted at 50K users). After this topic, you can write performance tests that catch scalability issues before they reach production.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Zerodha Diwali 2023 without performance testing:\n\n```\n09:15am: Markets open. 2.8 million users log in simultaneously.\n09:15:30: Database connection pool: EXHAUSTED (max 200 connections)\n09:15:45: All API calls: connection timeout\n09:16:00: Kite app: 502 Bad Gateway for all users\n09:16:30: Social media: #ZerodhaDown trending\n09:17:00: Estimated loss: ₹50 lakh/minute (missed trades)\n\nWith Gatling performance test (run in staging, week before):\nSimulated 3M users → connection pool exhausted at 50K\nFix: pool size 200 → 2000 + read replicas for portfolio queries\nDiwali actual: 2.8M users → all good → no outage\n```",
+    "what_you_will_build": "Gatling load test for a payment API with response time assertions, and a k6 stress test script."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "test_types": "**Performance test types:**\n\n```\nLOAD TEST: normal expected load\n  Simulate: 1000 users over 30 minutes\n  Question: 'Can we handle normal traffic?'\n  Pass criteria: p99 < 500ms, 0 errors\n  When: every feature release\n\nSTRESS TEST: beyond normal load until failure\n  Simulate: ramp up 100 → 1000 → 5000 → 10000 users\n  Question: 'Where does it break? How does it fail?'\n  Pass criteria: fails gracefully (503, not data corruption)\n  When: quarterly, before big events (Diwali, IPO launch)\n\nSOAK TEST: normal load for extended time\n  Simulate: 500 users for 8 hours\n  Question: 'Does it degrade over time? Memory leaks?'\n  Pass criteria: response time stable over 8 hours\n  When: pre-launch, detecting memory leaks\n\nSPIKE TEST: sudden massive spike\n  Simulate: 100 → 5000 users in 10 seconds\n  Question: 'Can it recover from sudden traffic spike?'\n  When: before flash sales, breaking news events\n```",
+      "gatling_dsl": "**Gatling Scala/Java DSL:**\n\n```java\n// PaymentLoadTest.java:\npublic class PaymentLoadTest extends Simulation {\n    HttpProtocolBuilder http = HttpDsl.http\n        .baseUrl(\"http://localhost:8080\")\n        .acceptHeader(\"application/json\");\n\n    ScenarioBuilder scn = CoreDsl.scenario(\"Payment load\")\n        .exec(HttpDsl.http(\"POST payment\")\n            .post(\"/api/payments\")\n            .header(\"Content-Type\", \"application/json\")\n            .header(\"X-API-Key\", \"rzp_test_abc\")\n            .body(StringBody(\"{\\\"amount\\\": 5000, \\\"gateway\\\": \\\"HDFC\\\"}\"))\n            .check(HttpDsl.status().is(200))\n            .check(HttpDsl.responseTimeInMillis().lte(500)));\n\n    { setUp(\n        scn.injectOpen(\n            CoreDsl.atOnceUsers(10),              // 10 users immediately\n            CoreDsl.rampUsers(100).during(30),     // ramp 100 over 30s\n            CoreDsl.constantUsersPerSec(50).during(60) // 50/s for 60s\n        ).protocols(http)\n    ).assertions(\n        CoreDsl.global().responseTime().percentile3().lt(500),  // p99 < 500ms\n        CoreDsl.global().successfulRequests().percent().gt(99.0) // >99% success\n    ); }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three side-by-side graphs. Graph 1 (Load test): steady ramp to 1000 users, flat for 10min, stable p99 response time. Graph 2 (Stress test): staircase ramp 100→1000→5000, error rate spikes and p99 explodes at 5000 — breaking point identified. Graph 3 (Soak test): 500 users flat for 8 hours, response time gradually increasing (memory leak pattern). Below: Gatling HTML report screenshot with request count, mean, p95, p99, max, error rate columns.",
+      "alt_text": "Load, Stress, and Soak test patterns with Gatling report metrics"
+    },
+    "worked_example": {
+      "scenario": "Load test for Razorpay payment creation API.",
+      "problem_statement": "1. Gatling scenario: POST /api/payments with HDFC gateway\n2. Inject: 10 at once + ramp 100 over 30s\n3. Assertions: p99 < 500ms, success rate > 99%\n4. @SpringBootTest: server starts, basic load test runs",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Response time percentiles",
+          "details": "p50 (median): 50% of requests faster than this. p95: 95% of requests faster. p99: 99% faster. MAX: slowest request. Use p99 for SLA (not average — averages hide tail latency). Zerodha: 'p99 < 500ms' means 99% of trade submissions complete in under 500ms. The worst 1% can be slow, but 99% must be fast."
+        }
+      ],
+      "final_code": "// global().responseTime().percentile3().lt(500)\n// percentile3 = p99 (3 = 99th percentile in Gatling DSL)\n// lt(500) = less than 500 milliseconds",
+      "expected_output": "================================================================================\n---- Global Information ----\n> request count: 7250 (OK=7214 KO=36)\n> min response time: 12 (OK=12 KO=502)\n> mean response time: 187 (OK=185 KO=512)\n> p95 response time: 342\n> p99 response time: 478\n> max response time: 891\n---- Errors ----\n> status.find.is(200), but actually found 503   (36)\n================================================================================\n> Global: percentage of successful requests is above 99%  KO (99.5 > 99.0) PASS\n> Global: 99th percentile of response time is below 500    478 < 500 PASS",
+      "things_to_notice": [
+        "percentile3 in Gatling DSL = p99 (not p3!). Naming convention: percentile1=p50, percentile2=p75, percentile3=p99. Always check the Gatling docs for the exact mapping.",
+        "KO requests (36): Gatling counted 36 failures. In stress tests, some failures are expected. The assertion 99% success means up to 1% failure is acceptable.",
+        "Baseline first: before running the load test, measure a single-user baseline (p99 should be 50-100ms). If baseline is already 400ms, adding load will definitely fail the 500ms threshold.",
+        "Gatling vs JMeter: Gatling uses Akka (non-blocking, can simulate thousands of users per machine). JMeter uses threads (one thread per user — 1000 users = 1000 threads, memory-intensive). For cloud-scale testing: Gatling scales better."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha pre-Diwali performance testing",
+          "use_case": "Every year before the Diwali trading window, Zerodha runs 3M-user Gatling stress tests against staging. Tests reveal: DB connection pool limit, Redis cache miss rate under load, Kafka consumer lag at peak. Engineers fix each bottleneck before the actual holiday. Result: zero outages during the highest-volume trading day of the year."
+        }
+      ],
+      "interview_relevance": "'How do you ensure your system can handle 10x load?' → Performance testing. Gatling load tests: simulate expected load, assert p99 < SLA. Stress tests: ramp to breaking point, ensure graceful degradation. Identify bottlenecks: DB connections, thread pools, memory. Fix: connection pool sizing, caching, horizontal scaling. Run in CI: every release, catch regressions. Baseline: measure single-user metrics before load testing.",
+      "real_world_workflow": "Performance testing workflow: (1) establish single-user baseline, (2) run load test at expected traffic, (3) run stress test to find breaking point, (4) fix bottlenecks (connection pools, caching, scaling), (5) re-run to verify fixes, (6) run soak test for memory leak detection, (7) CI gate: merge blocked if p99 > SLA."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "testing_against_production",
+        "what_students_get_wrong": "Running load tests against production ('it's the only real environment'). Load tests hammer the database with test data, can cause real outages, and corrupt production data.",
+        "remediation": "Load test environment: staging (same spec as production, isolated database, real network topology). Never run load tests against production databases. Use production-like data (anonymized snapshot). Monitor production separately.",
+        "detection_pattern": "Load test URL points to production endpoint; test data appears in production monitoring dashboards"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Load test: normal traffic, validates SLA under expected load",
+        "Stress test: beyond normal, finds breaking point",
+        "Soak test: extended duration, detects memory leaks and degradation",
+        "p99 for SLA: not average (averages hide tail latency)",
+        "Gatling: Akka-based, non-blocking, high concurrency per machine",
+        "k6: JavaScript, developer-friendly, great CI integration",
+        "percentile3 in Gatling = p99 (not p3!)",
+        "Baseline first: single-user metrics before load testing",
+        "Never test against production databases",
+        "CI gate: block merge if p99 regresses"
+      ],
+      "self_check_questions": [
+        {
+          "question": "A Zerodha trade API has p50=100ms and p99=800ms. Is this acceptable for a 500ms SLA?",
+          "answer": "No — the 500ms SLA is violated. The p99 = 800ms means 1% of users experience 800ms+ response times. With 1 million daily trades, 1% = 10,000 trades hitting slow response. The p50=100ms is misleading — the median looks fine but tail latency is terrible. Root cause: likely a slow code path triggered only in certain conditions (complex order type, specific stock, cache miss). Fix: identify what's special about the 1% slow cases. Check: database query without index for edge case, cold cache on first request per user, synchronous external API call on the slow path. The SLA must use p99 or p95 — never just p50."
+        }
+      ],
+      "next_topic_preview": "Final Module 25 topic: Chaos Engineering — deliberately inject failures (latency, exceptions, crashes) into your system to verify it handles them gracefully."
+    }
+  }
+}

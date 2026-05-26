@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t1",
+  "topic_name": "JUnit 5 Basics",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m12_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace test lifecycle execution order",
+      "scenario": "@BeforeEach and @AfterEach surround each test.",
+      "instructions": "What does this print when all tests run?\n\n```java\nimport org.junit.jupiter.api.*;\nclass OrderTest {\n    @BeforeEach void before() { System.out.print(\"B \"); }\n    @AfterEach  void after()  { System.out.print(\"A \"); }\n    @Test void test1() { System.out.print(\"1 \"); }\n    @Test void test2() { System.out.print(\"2 \"); }\n}\n```\n(Assuming test1 runs before test2)",
+      "expected_solution": "B 1 A B 2 A",
+      "test_cases": [
+        { "type": "text_match", "expected": "B 1 A B 2 A" }
+      ],
+      "hints": [
+        "BeforeEach runs before EACH test",
+        "AfterEach runs after EACH test",
+        "Pattern: B→test→A repeats for each test"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Write your first @Test",
+      "scenario": "assertEquals is the most common assertion.",
+      "instructions": "Fill in the blanks to write a test for String.length().",
+      "starter_code": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass StringTest {\n    @_____\n    void length_ofHyderabad_returns9() {\n        ____________(9, \"Hyderabad\".length());\n    }\n}",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass StringTest {\n    @Test\n    void length_ofHyderabad_returns9() {\n        assertEquals(9, \"Hyderabad\".length());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Test", "hint": "JUnit 5 annotation that marks a test method" },
+        { "position": 2, "answer": "assertEquals", "hint": "Most common assertion: checks exact equality" }
+      ],
+      "test_cases": [
+        { "type": "compilation_and_run", "expected": "1 test passed" }
+      ],
+      "hints": [
+        "@Test marks the method as a test case",
+        "assertEquals(expected, actual) — expected first!"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Test a simple Calculator class",
+      "scenario": "Three tests: add, subtract, multiply.",
+      "instructions": "Write `CalculatorTest` with three tests for:\n- `add(3, 4)` → 7\n- `subtract(10, 3)` → 7\n- `multiply(6, 7)` → 42\n\nEach test must pass.",
+      "starter_code": "// Calculator.java\npublic class Calculator {\n    public int add(int a, int b)      { return a + b; }\n    public int subtract(int a, int b) { return a - b; }\n    public int multiply(int a, int b) { return a * b; }\n}\n\n// CalculatorTest.java\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CalculatorTest {\n    // Write three tests here\n}",
+      "expected_solution": "public class Calculator {\n    public int add(int a, int b)      { return a + b; }\n    public int subtract(int a, int b) { return a - b; }\n    public int multiply(int a, int b) { return a * b; }\n}\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CalculatorTest {\n    Calculator calc = new Calculator();\n    @Test void add_3and4_returns7()           { assertEquals(7,  calc.add(3, 4)); }\n    @Test void subtract_10minus3_returns7()   { assertEquals(7,  calc.subtract(10, 3)); }\n    @Test void multiply_6times7_returns42()   { assertEquals(42, calc.multiply(6, 7)); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Use assertEquals(expected, actual) for each",
+        "Name pattern: method_scenario_expected"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m12_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "assertThrows — test exception throwing",
+      "scenario": "Test that divide by zero throws ArithmeticException.",
+      "instructions": "Write a test that verifies `Calculator.divide(10, 0)` throws `ArithmeticException` with message 'Cannot divide by zero'.\n\nAdd a `divide(int a, int b)` method to Calculator first.",
+      "starter_code": "// Extend Calculator with divide:\npublic class Calculator {\n    public int add(int a, int b)      { return a + b; }\n    // Add divide method here\n}\n\n// Test:\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CalculatorTest {\n    // Test divide by zero here\n}",
+      "expected_solution": "public class Calculator {\n    public int add(int a, int b) { return a + b; }\n    public int divide(int a, int b) {\n        if (b == 0) throw new ArithmeticException(\"Cannot divide by zero\");\n        return a / b;\n    }\n}\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CalculatorTest {\n    Calculator calc = new Calculator();\n    @Test\n    void divide_byZero_throwsArithmeticException() {\n        ArithmeticException ex = assertThrows(ArithmeticException.class,\n            () -> calc.divide(10, 0));\n        assertEquals(\"Cannot divide by zero\", ex.getMessage());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "assertThrows(ExType.class, () -> methodCall())",
+        "assertThrows returns the exception — check .getMessage()"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m12_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@BeforeEach for shared setup",
+      "scenario": "Fresh BankAccount before each test.",
+      "instructions": "Write `BankAccountTest` with @BeforeEach creating a fresh account (balance ₹1000), and three tests:\n- Initial balance is 1000\n- Deposit 500 → balance is 1500\n- Withdraw 200 → balance is 800",
+      "starter_code": "public class BankAccount {\n    private double balance;\n    public BankAccount(double b) { this.balance = b; }\n    public void deposit(double a)  { balance += a; }\n    public void withdraw(double a) { balance -= a; }\n    public double getBalance()     { return balance; }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass BankAccountTest {\n    BankAccount account;\n    \n    @BeforeEach\n    void setUp() {\n        // Create fresh account here\n    }\n    // Three tests\n}",
+      "expected_solution": "public class BankAccount {\n    private double balance;\n    public BankAccount(double b) { this.balance = b; }\n    public void deposit(double a)  { balance += a; }\n    public void withdraw(double a) { balance -= a; }\n    public double getBalance()     { return balance; }\n}\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass BankAccountTest {\n    BankAccount account;\n    @BeforeEach void setUp() { account = new BankAccount(1000); }\n    @Test void newAccount_hasInitialBalance()      { assertEquals(1000, account.getBalance()); }\n    @Test void deposit_500_balanceIs1500()         { account.deposit(500); assertEquals(1500, account.getBalance()); }\n    @Test void withdraw_200_balanceIs800()         { account.withdraw(200); assertEquals(800,  account.getBalance()); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@BeforeEach runs before EACH test — fresh account every time",
+        "Without BeforeEach, tests interfere with each other"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m12_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "assertAll — multiple assertions in one test",
+      "scenario": "assertAll runs all assertions even when one fails.",
+      "instructions": "Write a test for a `User` class. Use assertAll to verify all fields: name='Aisha', age=28, city='Hyderabad'. Also write a second test that verifies a failed assertAll reports all failures.",
+      "starter_code": "public class User {\n    private String name; private int age; private String city;\n    public User(String name, int age, String city) { this.name=name; this.age=age; this.city=city; }\n    public String getName() { return name; }\n    public int    getAge()  { return age;  }\n    public String getCity() { return city; }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass UserTest {\n    // Test with assertAll\n}",
+      "expected_solution": "// (User class as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass UserTest {\n    @Test\n    void user_allFields_areCorrect() {\n        User user = new User(\"Aisha\", 28, \"Hyderabad\");\n        assertAll(\"user fields\",\n            () -> assertEquals(\"Aisha\",     user.getName()),\n            () -> assertEquals(28,           user.getAge()),\n            () -> assertEquals(\"Hyderabad\", user.getCity())\n        );\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "assertAll('heading', () -> assert1, () -> assert2, () -> assert3)",
+        "All three run even if one fails"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m12_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test a ProductValidator",
+      "scenario": "Multiple validation rules each get their own test.",
+      "instructions": "Write tests for `ProductValidator.validate(Product p)`:\n- Valid product passes without exception\n- Blank name throws IllegalArgumentException\n- Price <= 0 throws IllegalArgumentException\n- Null product throws NullPointerException\n\n(Implement ProductValidator too)",
+      "starter_code": "// Implement ProductValidator and Product, then write 4 tests\n",
+      "expected_solution": "record Product(String name, double price) {}\nclass ProductValidator {\n    void validate(Product p) {\n        if (p == null) throw new NullPointerException(\"Product cannot be null\");\n        if (p.name() == null || p.name().isBlank()) throw new IllegalArgumentException(\"Name cannot be blank\");\n        if (p.price() <= 0) throw new IllegalArgumentException(\"Price must be positive\");\n    }\n}\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass ProductValidatorTest {\n    ProductValidator v = new ProductValidator();\n    @Test void validProduct_noException()              { assertDoesNotThrow(() -> v.validate(new Product(\"Mouse\", 799))); }\n    @Test void blankName_throwsIllegalArgument()       { assertThrows(IllegalArgumentException.class, () -> v.validate(new Product(\"\", 799))); }\n    @Test void negativePice_throwsIllegalArgument()    { assertThrows(IllegalArgumentException.class, () -> v.validate(new Product(\"Mouse\", -1))); }\n    @Test void nullProduct_throwsNullPointer()         { assertThrows(NullPointerException.class, () -> v.validate(null)); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "assertDoesNotThrow(() -> methodCall()) for the happy path",
+        "One test per validation rule",
+        "assertThrows returns the exception for message checking"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m12_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Test a stock P&L calculator",
+      "scenario": "Financial calculations need precise testing.",
+      "instructions": "Write tests for `StockPosition.getPnL()` and `getPnLPercent()`:\n- Buy 10 shares at ₹2760, current price ₹3890 → P&L=₹11300, %=40.9%\n- Loss scenario: buy at ₹1600, current ₹1560 → P&L=-₹1200, %=-2.5%\n- Zero position → P&L=0\n\nUse delta for double comparisons.",
+      "starter_code": "class StockPosition {\n    private final String symbol;\n    private final int shares;\n    private final double buyPrice;\n    private final double currentPrice;\n    public StockPosition(String sym, int shares, double buy, double current) {\n        this.symbol=sym; this.shares=shares; this.buyPrice=buy; this.currentPrice=current;\n    }\n    public double getPnL() { return shares * (currentPrice - buyPrice); }\n    public double getPnLPercent() { return (currentPrice / buyPrice - 1) * 100; }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass StockPositionTest {\n    // Write 3 tests for getPnL and getPnLPercent\n}",
+      "expected_solution": "// (StockPosition as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass StockPositionTest {\n    @Test void getPnL_gain_returnsPositiveValue() {\n        StockPosition pos = new StockPosition(\"TCS\", 10, 2760, 3890);\n        assertEquals(11300, pos.getPnL(), 0.01);\n    }\n    @Test void getPnLPercent_gain_returnsCorrectPercent() {\n        StockPosition pos = new StockPosition(\"TCS\", 10, 2760, 3890);\n        assertEquals(40.94, pos.getPnLPercent(), 0.01);\n    }\n    @Test void getPnL_loss_returnsNegativeValue() {\n        StockPosition pos = new StockPosition(\"INFY\", 30, 1600, 1560);\n        assertEquals(-1200, pos.getPnL(), 0.01);\n    }\n    @Test void getPnL_zerShares_returnsZero() {\n        StockPosition pos = new StockPosition(\"WIPRO\", 0, 450, 412);\n        assertEquals(0, pos.getPnL(), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "assertEquals(expected, actual, delta) for doubles",
+        "10 × (3890 - 2760) = 10 × 1130 = 11300",
+        "(3890/2760 - 1) × 100 = 40.94%"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@BeforeAll for expensive setup",
+      "scenario": "One-time expensive setup shared by all tests.",
+      "instructions": "Write tests for a `UserRepository` (in-memory, populated once). Use @BeforeAll to load 3 users, then test:\n- findById returns correct user\n- findById unknown id returns empty\n- findAll returns 3 users\n- count returns 3",
+      "starter_code": "import java.util.*;\nclass UserRepository {\n    private final Map<String, String> users = new HashMap<>();\n    void add(String id, String name) { users.put(id, name); }\n    Optional<String> findById(String id) { return Optional.ofNullable(users.get(id)); }\n    List<String> findAll() { return new ArrayList<>(users.values()); }\n    int count() { return users.size(); }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass UserRepositoryTest {\n    static UserRepository repo;\n    \n    @BeforeAll\n    static void loadData() {\n        // Create and populate repo once here\n    }\n    // 4 tests\n}",
+      "expected_solution": "// (UserRepository as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass UserRepositoryTest {\n    static UserRepository repo;\n    @BeforeAll static void loadData() {\n        repo = new UserRepository();\n        repo.add(\"U01\", \"Aisha\"); repo.add(\"U02\", \"Raj\"); repo.add(\"U03\", \"Priya\");\n    }\n    @Test void findById_validId_returnsUser()    { assertEquals(\"Aisha\", repo.findById(\"U01\").orElseThrow()); }\n    @Test void findById_unknownId_returnsEmpty() { assertTrue(repo.findById(\"U99\").isEmpty()); }\n    @Test void findAll_returns3Users()           { assertEquals(3, repo.findAll().size()); }\n    @Test void count_returns3()                  { assertEquals(3, repo.count()); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "@BeforeAll must be static; field must be static too",
+        "Use this when setup is expensive and data is read-only across tests",
+        "Optional.orElseThrow() in test — fails with NoSuchElementException if empty"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "assertEquals argument order matters",
+      "scenario": "Expected first, actual second — failure message depends on order.",
+      "instructions": "This test fails. What does the failure message say?\n\n```java\n@Test\nvoid incorrectOrder() {\n    int actual = 42;\n    assertEquals(actual, 7);  // WRONG ORDER\n}\n```\n\nVs the correct:\n```java\n@Test\nvoid correctOrder() {\n    int actual = 42;\n    assertEquals(7, actual);  // CORRECT ORDER\n}\n```",
+      "expected_solution": "Wrong order: expected: <42> but was: <7>\nCorrect order: expected: <7> but was: <42>",
+      "test_cases": [
+        { "type": "text_match", "expected": "Wrong order: expected: <42> but was: <7>\nCorrect order: expected: <7> but was: <42>" }
+      ],
+      "hints": [
+        "assertEquals(expected, actual) — expected is what you WANT, actual is what you GOT",
+        "Wrong order: 'expected 42 but was 7' — confusing! You expected 7, not 42",
+        "Correct order: 'expected 7 but was 42' — clear!"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m12_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Test an order pricing engine",
+      "scenario": "Complex business logic needs thorough testing.",
+      "instructions": "Write 5 tests for `OrderPricer`:\n- Base price = qty × unit price\n- Discount 10% if qty >= 10\n- Discount 20% if qty >= 50\n- Tax 18% added to discounted price\n- Zero qty throws IllegalArgumentException\n\nTest each rule independently.",
+      "starter_code": "class OrderPricer {\n    double calculateTotal(int qty, double unitPrice) {\n        if (qty <= 0) throw new IllegalArgumentException(\"Qty must be positive\");\n        double base = qty * unitPrice;\n        double discount = qty >= 50 ? 0.20 : qty >= 10 ? 0.10 : 0.0;\n        double discounted = base * (1 - discount);\n        return discounted * 1.18;  // + 18% GST\n    }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass OrderPricerTest {\n    OrderPricer pricer = new OrderPricer();\n    // 5 tests here\n}",
+      "expected_solution": "// (OrderPricer as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass OrderPricerTest {\n    OrderPricer pricer = new OrderPricer();\n    @Test void calculateTotal_singleItem_noDiscount()  { assertEquals(799 * 1.18, pricer.calculateTotal(1, 799), 0.01); }\n    @Test void calculateTotal_10items_10percentDiscount() {\n        double expected = 10 * 799 * 0.90 * 1.18;\n        assertEquals(expected, pricer.calculateTotal(10, 799), 0.01);\n    }\n    @Test void calculateTotal_50items_20percentDiscount() {\n        double expected = 50 * 799 * 0.80 * 1.18;\n        assertEquals(expected, pricer.calculateTotal(50, 799), 0.01);\n    }\n    @Test void calculateTotal_includesGST() {\n        double noTax = 1 * 100.0;\n        double withTax = pricer.calculateTotal(1, 100);\n        assertEquals(noTax * 1.18, withTax, 0.01);\n    }\n    @Test void calculateTotal_zeroQty_throwsIllegalArgument() {\n        assertThrows(IllegalArgumentException.class, () -> pricer.calculateTotal(0, 799));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "One test per business rule",
+        "Use delta 0.01 for double comparisons",
+        "Boundary test: exactly 10 (discount applies) and exactly 49 (10% not 20%)"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m12_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "assertNotNull and assertTrue for collections",
+      "scenario": "Testing collection return values needs appropriate assertions.",
+      "instructions": "Write tests for `ProductSearch.search(String query)` returning `List<Product>`:\n- Search 'mouse' returns non-null, non-empty list\n- All results contain 'mouse' (case insensitive)\n- Search '' returns empty list\n- Search 'zzznotfound' returns empty list",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\nrecord Product(String name, int price) {}\nclass ProductSearch {\n    private final List<Product> catalog = List.of(\n        new Product(\"Wireless Mouse\", 799), new Product(\"Gaming Mouse\", 1999),\n        new Product(\"Keyboard\", 1599), new Product(\"Monitor\", 18999)\n    );\n    List<Product> search(String query) {\n        if (query == null || query.isBlank()) return List.of();\n        return catalog.stream()\n            .filter(p -> p.name().toLowerCase().contains(query.toLowerCase()))\n            .collect(Collectors.toList());\n    }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass ProductSearchTest {\n    ProductSearch search = new ProductSearch();\n    // 4 tests\n}",
+      "expected_solution": "// (ProductSearch and Product as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.*;\nclass ProductSearchTest {\n    ProductSearch search = new ProductSearch();\n    @Test void search_mouse_returnsNonEmptyList() {\n        List<Product> results = search.search(\"mouse\");\n        assertNotNull(results); assertFalse(results.isEmpty());\n    }\n    @Test void search_mouse_allResultsContainMouse() {\n        search.search(\"mouse\").forEach(p ->\n            assertTrue(p.name().toLowerCase().contains(\"mouse\"),\n                \"Expected 'mouse' in: \" + p.name()));\n    }\n    @Test void search_emptyString_returnsEmptyList()  { assertTrue(search.search(\"\").isEmpty()); }\n    @Test void search_noMatch_returnsEmptyList()       { assertTrue(search.search(\"zzznotfound\").isEmpty()); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "assertNotNull then assertFalse(isEmpty()) for non-empty list",
+        "forEach inside test can do per-element assertion",
+        "assertTrue with message for clear failure output"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m12_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete BankAccount test suite",
+      "scenario": "Thorough test coverage for a business-critical class.",
+      "instructions": "Write a full test suite (7+ tests) for BankAccount covering:\n- Constructor sets initial balance\n- Multiple deposits accumulate correctly\n- Withdraw reduces balance\n- Overdraft throws with exact message\n- Negative deposit throws\n- Close prevents further operations (3 assertions)\n- Transfer between two accounts",
+      "starter_code": "public class BankAccount {\n    private String id; private double balance; private boolean closed;\n    public BankAccount(String id, double balance) { this.id=id; this.balance=balance; }\n    public void deposit(double a) {\n        check(!closed, \"Account is closed\");\n        check(a > 0, \"Amount must be positive: \" + a);\n        balance += a;\n    }\n    public void withdraw(double a) {\n        check(!closed, \"Account is closed\");\n        check(a > 0, \"Amount must be positive: \" + a);\n        check(a <= balance, \"Insufficient funds: have ₹\" + balance + \", need ₹\" + a);\n        balance -= a;\n    }\n    public double getBalance() { check(!closed, \"Account is closed\"); return balance; }\n    public void close() { closed = true; }\n    public void transfer(BankAccount to, double a) { withdraw(a); to.deposit(a); }\n    private void check(boolean cond, String msg) {\n        if (!cond) throw new IllegalStateException(msg);\n    }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass BankAccountTest {\n    BankAccount acc;\n    @BeforeEach void setUp() { acc = new BankAccount(\"ACC-001\", 1000); }\n    // Write 7+ tests\n}",
+      "expected_solution": "// (BankAccount as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass BankAccountTest {\n    BankAccount acc;\n    @BeforeEach void setUp() { acc = new BankAccount(\"ACC-001\", 1000); }\n    @Test void constructor_setsInitialBalance()     { assertEquals(1000, acc.getBalance(), 0.01); }\n    @Test void deposit_twice_accumulatesCorrectly() { acc.deposit(500); acc.deposit(300); assertEquals(1800, acc.getBalance(), 0.01); }\n    @Test void withdraw_reducesBalance()            { acc.withdraw(400); assertEquals(600, acc.getBalance(), 0.01); }\n    @Test void withdraw_insufficientFunds_throwsWithMessage() {\n        IllegalStateException ex = assertThrows(IllegalStateException.class, () -> acc.withdraw(5000));\n        assertTrue(ex.getMessage().contains(\"Insufficient funds\"));\n    }\n    @Test void deposit_negativeAmount_throws()      { assertThrows(IllegalStateException.class, () -> acc.deposit(-100)); }\n    @Test void closedAccount_allOpsThrow()          {\n        acc.close();\n        assertAll(\n            () -> assertThrows(IllegalStateException.class, () -> acc.deposit(100)),\n            () -> assertThrows(IllegalStateException.class, () -> acc.withdraw(100)),\n            () -> assertThrows(IllegalStateException.class, () -> acc.getBalance())\n        );\n    }\n    @Test void transfer_movesBalanceBetweenAccounts() {\n        BankAccount to = new BankAccount(\"ACC-002\", 0);\n        acc.transfer(to, 400);\n        assertEquals(600, acc.getBalance(), 0.01);\n        assertEquals(400, to.getBalance(), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "7 tests pass" }
+      ],
+      "hints": [
+        "Transfer test needs TWO accounts — create second in test body",
+        "assertAll for closedAccount covers all three ops at once",
+        "Negative deposit uses check() which throws IllegalStateException"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m12_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Test CSV parser edge cases",
+      "scenario": "The parseCSVLine function needs exhaustive testing.",
+      "instructions": "Write 6 tests for `parseCSVLine` (implement or use the Topic 11.3 version):\n- Simple unquoted line: 3 fields\n- Quoted field with comma: still 2 fields\n- Escaped quote inside quoted: single quote in result\n- Empty field: empty string in result\n- Quoted empty field: empty string in result\n- Single field no comma: 1-element list",
+      "starter_code": "import java.util.*;\n// parseCSVLine implementation (from Topic 11.3 state machine)\npublic class CSVParser {\n    public static List<String> parseCSVLine(String line) {\n        // state machine implementation\n        List<String> fields = new ArrayList<>();\n        StringBuilder current = new StringBuilder();\n        boolean inQuotes = false;\n        for (int i = 0; i < line.length(); i++) {\n            char c = line.charAt(i);\n            if (c == '\"') {\n                if (inQuotes && i+1 < line.length() && line.charAt(i+1) == '\"') { current.append('\"'); i++; }\n                else inQuotes = !inQuotes;\n            } else if (c == ',' && !inQuotes) { fields.add(current.toString()); current.setLength(0); }\n            else current.append(c);\n        }\n        fields.add(current.toString());\n        return fields;\n    }\n}\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CSVParserTest {\n    // 6 tests for parseCSVLine edge cases\n}",
+      "expected_solution": "// (CSVParser as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.*;\nclass CSVParserTest {\n    @Test void simpleUnquoted_3fields()        { assertEquals(List.of(\"a\",\"b\",\"c\"), CSVParser.parseCSVLine(\"a,b,c\")); }\n    @Test void quotedWithComma_2fields()       {\n        List<String> r = CSVParser.parseCSVLine(\"\\\"Smith, John\\\",95000\");\n        assertEquals(2, r.size()); assertEquals(\"Smith, John\", r.get(0)); }\n    @Test void escapedQuote_singleQuoteInResult() {\n        List<String> r = CSVParser.parseCSVLine(\"\\\"Dell 27\\\"\\\" Monitor\\\",18999\");\n        assertEquals(\"Dell 27\\\" Monitor\", r.get(0)); }\n    @Test void emptyMiddleField_emptyStringResult() {\n        List<String> r = CSVParser.parseCSVLine(\"a,,c\");\n        assertEquals(\"\", r.get(1)); }\n    @Test void quotedEmptyField_emptyStringResult() {\n        List<String> r = CSVParser.parseCSVLine(\"a,\\\"\\\",c\");\n        assertEquals(\"\", r.get(1)); }\n    @Test void singleField_1elementList() {\n        assertEquals(List.of(\"hello\"), CSVParser.parseCSVLine(\"hello\")); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "6 tests pass" }
+      ],
+      "hints": [
+        "Each test covers exactly one edge case",
+        "Escaped quote in Java string: \\\"\\\"\\\" = the characters: \"\"\" (two actual double quotes)",
+        "After escaped quote parse: 'Dell 27\" Monitor' (one quote, not two)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m12_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Full order system test suite — Module 12.1 synthesis",
+      "scenario": "Complete test coverage for an order processing system.",
+      "instructions": "Write a comprehensive test suite (8+ tests) for an `OrderService`:\n- Place order: returns order with generated ID, status=PENDING\n- Place order 0 qty: throws IllegalArgumentException\n- Place order negative price: throws\n- Get order by ID: returns correct order\n- Get order unknown ID: throws IllegalArgumentException\n- Cancel PENDING order: status becomes CANCELLED\n- Cancel SHIPPED order: throws (cannot cancel shipped)\n- Total orders count updates after placement\n\nImplement OrderService to make all tests pass.",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.atomic.*;\n\n// Implement Order, OrderStatus, OrderService, then write 8+ tests\nenum OrderStatus { PENDING, SHIPPED, CANCELLED }\n\n// Write tests in OrderServiceTest\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass OrderServiceTest {\n    OrderService service;\n    @BeforeEach void setUp() { service = new OrderService(); }\n    // 8+ tests\n}",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.atomic.*;\nenum OrderStatus { PENDING, SHIPPED, CANCELLED }\nrecord Order(String id, String product, int qty, double price, OrderStatus status) {\n    Order withStatus(OrderStatus s) { return new Order(id, product, qty, price, s); }\n}\nclass OrderService {\n    private final Map<String, Order> orders = new LinkedHashMap<>();\n    private final AtomicInteger seq = new AtomicInteger(1);\n    Order placeOrder(String product, int qty, double price) {\n        if (qty <= 0)   throw new IllegalArgumentException(\"Qty must be positive\");\n        if (price <= 0) throw new IllegalArgumentException(\"Price must be positive\");\n        String id = \"ORD-\" + seq.getAndIncrement();\n        Order o = new Order(id, product, qty, price, OrderStatus.PENDING);\n        orders.put(id, o); return o;\n    }\n    Order getOrder(String id) {\n        if (!orders.containsKey(id)) throw new IllegalArgumentException(\"Not found: \" + id);\n        return orders.get(id);\n    }\n    Order cancelOrder(String id) {\n        Order o = getOrder(id);\n        if (o.status() == OrderStatus.SHIPPED) throw new IllegalStateException(\"Cannot cancel shipped order\");\n        Order cancelled = o.withStatus(OrderStatus.CANCELLED);\n        orders.put(id, cancelled); return cancelled;\n    }\n    int count() { return orders.size(); }\n}\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass OrderServiceTest {\n    OrderService service;\n    @BeforeEach void setUp() { service = new OrderService(); }\n    @Test void placeOrder_returnsOrderWithIdAndPending() {\n        Order o = service.placeOrder(\"Mouse\", 2, 799);\n        assertNotNull(o.id()); assertEquals(OrderStatus.PENDING, o.status()); }\n    @Test void placeOrder_zeroQty_throwsIllegalArgument() {\n        assertThrows(IllegalArgumentException.class, () -> service.placeOrder(\"Mouse\", 0, 799)); }\n    @Test void placeOrder_negativePrice_throws() {\n        assertThrows(IllegalArgumentException.class, () -> service.placeOrder(\"Mouse\", 1, -1)); }\n    @Test void getOrder_validId_returnsOrder() {\n        Order placed = service.placeOrder(\"Mouse\", 1, 799);\n        assertEquals(placed.id(), service.getOrder(placed.id()).id()); }\n    @Test void getOrder_unknownId_throwsIllegalArgument() {\n        assertThrows(IllegalArgumentException.class, () -> service.getOrder(\"ORD-999\")); }\n    @Test void cancelOrder_pendingOrder_becomesCancelled() {\n        Order o = service.placeOrder(\"Mouse\", 1, 799);\n        assertEquals(OrderStatus.CANCELLED, service.cancelOrder(o.id()).status()); }\n    @Test void cancelOrder_shippedOrder_throwsIllegalState() {\n        Order o = service.placeOrder(\"Mouse\", 1, 799);\n        service.orders.put(o.id(), o.withStatus(OrderStatus.SHIPPED));\n        assertThrows(IllegalStateException.class, () -> service.cancelOrder(o.id())); }\n    @Test void count_updatesAfterEachOrder() {\n        assertEquals(0, service.count());\n        service.placeOrder(\"Mouse\", 1, 799);\n        service.placeOrder(\"Keyboard\", 2, 1999);\n        assertEquals(2, service.count()); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "8 tests pass" }
+      ],
+      "hints": [
+        "OrderService needs to expose orders map for SHIPPED test — make it package-private",
+        "Each test is independent via @BeforeEach (fresh service)",
+        "Generated ID: assertNotNull(o.id()) — don't hardcode 'ORD-1'"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 695,
+    "estimated_completion_minutes": 65
+  }
+}

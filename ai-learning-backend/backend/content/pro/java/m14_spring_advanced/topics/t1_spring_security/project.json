@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m14_t1_proj",
+  "linked_topic": "java_m14_t1",
+  "level": "mini",
+  "name": "Razorpay-Style Payment API — JWT Secured",
+  "estimated_minutes": 55,
+  "difficulty": 8,
+
+  "scenario": "Secure the Payment API from Module 13 with JWT authentication. Anonymous users can check payment status. Authenticated users can create payments. Only ADMIN users can refund payments. Implement login/register endpoints. Test the full auth flow.",
+
+  "description": "Add Spring Security with JWT to the existing Payment API. The security layer includes: AppUser entity, BCrypt password hashing, JWT token generation/validation, a JwtAuthFilter, and a SecurityFilterChain with role-based access. @WebMvcTest and @SpringBootTest tests cover all auth scenarios.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`AppUser` @Entity: id, username (unique), password (BCrypt), role (USER/ADMIN). `AppUserRepository` with findByUsername and existsByUsername.",
+        "weight": 12
+      },
+      {
+        "id": "req_2",
+        "description": "`AppUserDetailsService` implementing UserDetailsService. Loads user from DB, throws UsernameNotFoundException if not found.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`JwtService`: generateToken(username, roles), extractUsername(token), isValid(token, UserDetails). Uses @Value for secret and expiry.",
+        "weight": 18
+      },
+      {
+        "id": "req_4",
+        "description": "`JwtAuthFilter` (OncePerRequestFilter): extracts Bearer token, validates, sets SecurityContextHolder authentication.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`SecurityConfig`: disable CSRF, STATELESS sessions, rules — GET /api/payments/** public (payment status is public), POST /api/payments requires USER/ADMIN, POST /api/payments/{id}/refund requires ADMIN, /api/auth/** public.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "`AuthController`: POST /api/auth/register (BCrypt hash, save user, return JWT), POST /api/auth/login (authenticate, return JWT).",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "@WebMvcTest tests (5): GET payment public 200, POST payment no auth 401, POST payment with @WithMockUser 201, POST refund as USER 403, POST refund as ADMIN 200.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @SpringBootTest integration test: register user, login, use token to create payment, verify in DB, attempt refund as USER (403), create ADMIN user, login as ADMIN, refund succeeds (200).",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add token refresh endpoint: POST /api/auth/refresh with valid (non-expired) token → returns new token with extended expiry. Reject expired tokens.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add @PreAuthorize at method level: `@PreAuthorize('hasRole(\"ADMIN\") or #userId == authentication.name')` on getPaymentsByUser. Enables @EnableMethodSecurity in SecurityConfig.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Test users:\n- username=aisha, password=Secure123!, role=USER\n- username=admin, password=Admin123!, role=ADMIN\n\nSecurity rules:\n- GET /api/payments/** → public (check payment status without login)\n- POST /api/payments → USER or ADMIN (create payment)\n- POST /api/payments/{id}/refund → ADMIN only\n- /api/auth/** → public (login and register)\n\njwt.secret: use openssl rand -base64 32 to generate\njwt.expiration: 86400000 (24 hours)",
+
+  "starter_code": "// Add security to the existing Payment API:\n// 1. AppUser.java + AppUserRepository.java\n// 2. AppUserDetailsService.java\n// 3. JwtService.java\n// 4. JwtAuthFilter.java\n// 5. SecurityConfig.java\n// 6. AuthController.java\n// 7. PaymentControllerSecurityTest.java (@WebMvcTest)\n\n// application.properties:\n// jwt.secret=YOUR_BASE64_SECRET\n// jwt.expiration=86400000",
+
+  "example_output": "# Register:\nPOST /api/auth/register {\"username\":\"aisha\",\"password\":\"Secure123!\",\"email\":\"aisha@example.com\"}\n→ 201 {\"userId\":\"U-001\",\"username\":\"aisha\",\"token\":\"eyJ...\"}\n\n# Login:\nPOST /api/auth/login {\"username\":\"aisha\",\"password\":\"Secure123!\"}\n→ 200 {\"token\":\"eyJ...\",\"username\":\"aisha\",\"roles\":[\"ROLE_USER\"]}\n\n# Create payment (with token):\nPOST /api/payments\nAuthorization: Bearer eyJ...\n{\"amount\":1500,\"currency\":\"INR\",\"orderId\":\"ORD-001\"}\n→ 201 {\"id\":\"PAY-001\",\"status\":\"CREATED\",...}\n\n# Create payment (no token):\nPOST /api/payments\n→ 401 Unauthorized\n\n# Refund as USER:\nPOST /api/payments/PAY-001/refund\nAuthorization: Bearer [aisha-token]\n→ 403 Forbidden\n\n# Refund as ADMIN:\nPOST /api/payments/PAY-001/refund\nAuthorization: Bearer [admin-token]\n→ 200 {\"status\":\"REFUNDED\"}",
+
+  "rubric": [
+    { "category": "AppUser + Repository", "points": 12, "criteria": ["@Entity correct (6 pts)", "findByUsername + existsByUsername (6 pts)"] },
+    { "category": "UserDetailsService", "points": 10, "criteria": ["Correct implementation (10 pts)"] },
+    { "category": "JwtService", "points": 18, "criteria": ["generate (6 pts)", "extract (6 pts)", "validate (6 pts)"] },
+    { "category": "JwtAuthFilter", "points": 15, "criteria": ["Extracts token (5 pts)", "Validates (5 pts)", "Sets context (5 pts)"] },
+    { "category": "SecurityConfig", "points": 15, "criteria": ["STATELESS (5 pts)", "Correct rules (10 pts)"] },
+    { "category": "AuthController", "points": 15, "criteria": ["Register (7 pts)", "Login (8 pts)"] },
+    { "category": "@WebMvcTest tests", "points": 15, "criteria": ["5 tests correct (3 pts each)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Integration test (25 pts)", "Token refresh (20 pts)", "@PreAuthorize (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. JWT secret: base64-encode a 32-byte random value (openssl rand -base64 32). BCryptPasswordEncoder: @Bean in SecurityConfig, injected where needed. STATELESS session: mandatory. @WithMockUser needs @MockBean for JwtService and UserDetailsService since JwtAuthFilter references them.",
+
+  "submission_instructions": "Push to GitHub. Include all 7 files listed in starter_code. Screenshot showing: successful login response with token, successful payment creation with token, 401 without token, 403 for USER trying to refund.",
+
+  "tips_for_success": [
+    "Generate secret: openssl rand -base64 32 → paste in application.properties",
+    "BCryptPasswordEncoder: declare as @Bean in SecurityConfig, inject everywhere",
+    "@WebMvcTest: @MockBean JwtService AND AppUserDetailsService (JwtAuthFilter needs both)",
+    "Register: passwordEncoder.encode(req.password()) BEFORE saving to DB",
+    "Token extraction: substring(7) removes 'Bearer ' (7 chars including space)"
+  ],
+
+  "concepts_reinforced": [
+    "JWT generation and validation",
+    "OncePerRequestFilter for JWT",
+    "SecurityFilterChain with role-based rules",
+    "BCryptPasswordEncoder for password hashing",
+    "AuthenticationManager for credential validation",
+    "@WithMockUser in @WebMvcTest security tests"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m30_t1",
+  "language": "java",
+  "module_id": "m30",
+  "module_name": "DSA2: Array Patterns",
+  "topic_number": 1,
+  "name": "Two Pointers — O(n) Pair Problems",
+  "slug": "two-pointers-on-pair-problems",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m29_t1", "java_m29_t2"],
+    "concepts_taught": [
+      "two_pointer_concept", "inward_two_pointers", "outward_two_pointers",
+      "pair_sum_sorted", "container_with_most_water", "remove_duplicates_sorted",
+      "three_sum", "valid_palindrome", "trapping_rain_water_intro"
+    ],
+    "skills_developed": [
+      "recognizing_two_pointer_pattern", "implementing_pair_search_on_sorted_array",
+      "solving_palindrome_problems_o1_space", "three_sum_with_two_pointers"
+    ],
+    "career_relevance": "Two pointers appear in ~25% of Flipkart, Zerodha, and Amazon India DSA interviews. 'Find two numbers that sum to target' is asked in nearly every first DSA round. The O(n²) brute force always fails for n=10⁶. Two pointers gives O(n) on sorted input — and sorting first is O(n log n), still vastly better than O(n²). After this topic, you'll solve these in 5 minutes and explain why.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha trade reconciliation:\nGiven 1M trade records, find all pairs where\nbuy_amount + sell_amount = target_profit\n\nBrute force O(n²): 10¹² comparisons = 11.5 days\nTwo pointers O(n log n): sort + single pass = 3 seconds\n\nThe pattern:\n  Sort trades by amount: [100, 200, 300, 400, 500]\n  left=0, right=4, target=600\n  400+200=600? No, 100+500=600 ✓ → found!\n  Move left++ or right-- based on sum vs target\n```",
+    "what_you_will_build": "Two-pointer solutions to 6 classic problems — all O(n) or O(n log n), replacing O(n²) brute force."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "pattern": "**Two Pointer pattern — when to use it:**\n\n```\nUse two pointers when:\n1. Array is SORTED (or can be sorted)\n2. You need to find a PAIR satisfying some condition\n3. You want O(n) instead of O(n²) brute force\n\nTwo pointer types:\n  INWARD: lo=0, hi=n-1, move toward each other\n    When: pair problems, palindrome check, container water\n  OUTWARD: both start at same point, expand\n    When: expand-around-center (palindromes)\n  SAME DIRECTION: slow=0, fast=0, fast moves ahead\n    When: remove duplicates, find cycle, nth from end\n\nInward two pointer template:\n  int lo = 0, hi = arr.length - 1;\n  while (lo < hi) {\n    if (condition_met(arr[lo], arr[hi])) {\n      // record result, move both\n      lo++; hi--;\n    } else if (sum_too_small) {\n      lo++;    // increase sum → move left pointer right\n    } else {\n      hi--;    // decrease sum → move right pointer left\n    }\n  }\n```",
+      "pair_sum_example": "**Pair sum — classic O(n) two-pointer:**\n\n```java\n// Given SORTED array, find if any pair sums to target\nbool twoSum(int[] sorted, int target) {\n    int lo = 0, hi = sorted.length - 1;\n    while (lo < hi) {\n        int sum = sorted[lo] + sorted[hi];\n        if (sum == target) return true;      // found!\n        else if (sum < target) lo++;         // need bigger sum\n        else hi--;                            // need smaller sum\n    }\n    return false;\n    // O(n) time — each step: lo++ or hi-- → at most n steps\n    // O(1) space — two index variables only\n}\n// If array not sorted: sort first → O(n log n) total\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two-pointer inward diagram. Array: [1, 3, 5, 7, 9, 11], target=12. Step-by-step: Step 1: lo=0(1), hi=5(11), sum=12 → FOUND! Return true. Alternate scenario target=14: Step 1: lo=0(1)+hi=5(11)=12 < 14 → lo++. Step 2: lo=1(3)+hi=5(11)=14 = target → FOUND. Arrows show lo moving right, hi moving left. Bottom: 'At most n steps: lo+hi pointers together traverse the array once total → O(n)'.",
+      "alt_text": "Two pointer converging from both ends of sorted array"
+    },
+    "worked_example": {
+      "scenario": "Container With Most Water (LeetCode #11) — Zerodha capacity planning.",
+      "problem_statement": "Given n non-negative heights[i], find two lines that form a container holding the most water. Return max water volume.",
+      "step_by_step_solution": [
+        {"step": 1, "action": "Why two pointers work here", "details": "Width of container = hi - lo. Volume = min(height[lo], height[hi]) × width. To maximize: start with widest possible (lo=0, hi=n-1). Move the SHORTER side inward — moving the taller side can only decrease or maintain the minimum height, making things worse. Moving the shorter side might find a taller line that compensates for reduced width."},
+        {"step": 2, "action": "Move the shorter pointer", "details": "if height[lo] < height[hi]: lo++ — shorter side limits volume, move it hoping to find taller. else: hi-- — right side is shorter (or equal), move it."}
+      ],
+      "final_code": "int maxWater = 0;\nint lo = 0, hi = height.length - 1;\nwhile (lo < hi) {\n    int water = Math.min(height[lo], height[hi]) * (hi - lo);\n    maxWater = Math.max(maxWater, water);\n    if (height[lo] < height[hi]) lo++;\n    else hi--;\n}\nreturn maxWater; // O(n) time, O(1) space",
+      "expected_output": "heights=[1,8,6,2,5,4,8,3,7] → 49\n  max container: indices 1(height=8) and 8(height=7)\n  width=7, min_height=7, water=49",
+      "things_to_notice": [
+        "Always move the SHORTER pointer: moving the taller pointer can only reduce or maintain the min height — never helps.",
+        "Two pointers work because we prove no better solution exists to the left of lo or right of hi after each step. This is the key proof for correctness.",
+        "O(1) space: only lo, hi, maxWater variables — no extra array.",
+        "This pattern applies to any 'maximize/minimize over pairs' problem on arrays."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {"company_context": "Zerodha trade matching", "use_case": "Match buy orders with sell orders where |buy - sell| ≤ tolerance. Sort both arrays, use two pointers (one per array) to match in O(n + m) instead of O(n×m)."}
+      ],
+      "interview_relevance": "'Find pair summing to k in sorted array' — answer in 2 minutes: 'Two pointers, O(n) time O(1) space. lo starts at 0, hi at n-1. If sum < k: lo++. If sum > k: hi--. If equal: found.' Then code it. Next: 'Can you extend to three numbers?' Yes: fix one, two-pointer on the rest → O(n²).",
+      "real_world_workflow": "Two pointer checklist: (1) Is array sorted or sortable? (2) Am I looking for a pair/triplet? (3) Can I decide which pointer to move based on current sum vs target? If yes to all → two pointers. Default: try O(n²) brute force first, then ask 'can I sort and use two pointers?'"
+    },
+    "common_gaps": [
+      {
+        "gap_id": "using_two_pointers_on_unsorted",
+        "what_students_get_wrong": "Applying two pointers to an unsorted array without sorting first. Two pointers rely on the monotonicity property of sorted arrays — moving lo right always increases the sum.",
+        "remediation": "Two pointers on unsorted arrays: WRONG. Sort first: O(n log n). THEN two pointers: O(n). Total: O(n log n). Much better than O(n²) brute force. Exception: some problems (like remove duplicates) work on unsorted with same-direction fast/slow pointers.",
+        "detection_pattern": "Student applies inward two pointers to unsorted array and gets wrong answers"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Two pointers: O(n) on sorted array, replacing O(n²) brute force",
+        "Sort first if needed: O(n log n) total still beats O(n²)",
+        "Inward: lo=0, hi=n-1, move toward each other (pair problems)",
+        "Move the SHORTER pointer in container water / move pointer that improves condition",
+        "Same-direction: slow + fast pointers (remove duplicates, find cycle)",
+        "Three Sum: fix one element, two-pointer on remaining → O(n²) total",
+        "O(1) space: only index variables, no extra arrays",
+        "Proof of correctness: after each move, prove no valid pair exists in discarded region"
+      ],
+      "self_check_questions": [
+        {"question": "Why do we move the shorter pointer in the 'Container with Most Water' problem?", "answer": "The container's volume is limited by the SHORTER of the two walls. If we move the taller wall inward, the minimum height can only stay the same or decrease, while the width always decreases. So the volume can only decrease or stay the same — we'd never find a better answer by moving the taller pointer. By moving the shorter pointer, we might find a taller wall that compensates for the reduced width. This greedy argument proves that two pointers finds the optimal solution: we never discard a potentially better answer."}
+      ],
+      "next_topic_preview": "Next: Sliding Window — for contiguous subarray problems. Instead of two pointers from both ends, we slide a window across the array maintaining some invariant."
+    }
+  }
+}

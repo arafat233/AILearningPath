@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0", "project_id": "java_m22_t4_proj", "linked_topic": "java_m22_t4",
+  "level": "mini", "name": "Flipkart Product Cache — L1 + L2 Performance Optimization",
+  "estimated_minutes": 45, "difficulty": 7,
+  "scenario": "Flipkart's product page hits the DB 200M times per day. Add a two-level cache: Caffeine L1 (in-process, fast) + Redis L2 (distributed, shared). Target: 95% of requests served from cache, 5% hitting DB.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "TwoLevelProductCache @Service: L1 Caffeine (1000, 30s, recordStats) + mock L2. get() checks L1 → L2 → DB. put() populates both.", "weight": 25 },
+      { "id": "req_2", "description": "Cache metrics: Counter by level (cache.hits{level=l1/l2/db}). Gauge for hit rate and cache size. All registered in constructor.", "weight": 20 },
+      { "id": "req_3", "description": "CacheWarmupService @EventListener: load top 100 products into Caffeine on startup. Log warm-up time.", "weight": 15 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): second access returns from L1 (verify(repo, times(1))), hit rate > 0.5 after 2 hits + 1 miss, warm-up count >= 100. All 3 pass.", "weight": 35 },
+      { "id": "req_5", "description": "README: cache hit/miss sequence diagram (T=0, T=10s, T=35s, T=6min).", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Stampede protection: StampedeProtectedGet using a ConcurrentHashMap<String,CompletableFuture> to coalesce duplicate in-flight requests. Test: 10 concurrent gets → only 1 DB call.", "weight": 25 },
+      { "id": "bonus_2", "description": "Write-through: updateProduct() writes to DB AND L1 simultaneously. Test: update reflects in get() without DB hit.", "weight": 20 },
+      { "id": "bonus_3", "description": "Prometheus alert rule: L2 hit rate < 80% for 10 minutes. alertmanager.yml routing.", "weight": 15 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Caffeine recordStats(): REQUIRED for cache.stats().hitRate() to work; without it, hitRate() always returns NaN. L1 TTL shorter than L2: L1 is a local buffer — short TTL ensures L1 re-fetches from L2 (which may have been updated) rather than serving stale data. Cache-aside delete before write: delete from cache BEFORE writing to DB (prevents window where concurrent read caches old value). Caffeine cache.get(key, loader): alternative to getIfPresent — calls loader on miss and caches result automatically. Counter by 'level' tag: enables PromQL filtering by level (l1/l2/db) without separate metric names.",
+  "rubric": [
+    { "category": "TwoLevelProductCache (L1 + mock L2)", "points": 25 },
+    { "category": "Cache metrics (Counter + Gauge)", "points": 20 },
+    { "category": "CacheWarmupService", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 35 },
+    { "category": "README sequence diagram", "points": 5 },
+    { "category": "Bonus", "points": 60 }
+  ]
+}

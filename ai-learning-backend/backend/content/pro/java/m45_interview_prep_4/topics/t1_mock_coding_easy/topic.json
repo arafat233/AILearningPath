@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m45_t1",
+  "module_id": "m45",
+  "topic_number": 1,
+  "name": "Mock Coding Easy \u2014 5-Minute Problems",
+  "slug": "mock-coding-easy",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m44_t5"
+    ],
+    "concepts_taught": [
+      "mock-coding-easy"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Mock Coding Easy \u2014 5-Minute Problems"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Easy problems: Two Sum, Valid Parens, Reverse LL, FizzBuzz, Binary Search \u2014 all solvable in 5 min",
+        "Warm-up before interview: solve 2 easy problems to get in rhythm",
+        "Practice: set timer, solve without looking at solutions",
+        "Always: clarify (30 sec) \u2192 approach (30 sec) \u2192 code (3 min) \u2192 test (1 min)",
+        "Easy \u2260 trivial: edge cases, integer overflow, null checks still matter"
+      ],
+      "next_topic_preview": "Next: Mock Medium problems."
+    }
+  }
+}

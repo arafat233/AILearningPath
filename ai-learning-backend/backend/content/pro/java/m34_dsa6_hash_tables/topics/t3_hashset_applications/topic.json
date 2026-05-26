@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t3",
+  "module_id": "m34",
+  "topic_number": 3,
+  "name": "HashSet Applications \u2014 Dedup, Intersection, Sliding Window",
+  "slug": "t3_hashset_applications",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m34_t2"
+    ],
+    "concepts_taught": [
+      "t3_hashset_applications"
+    ],
+    "career_relevance": "Core HashSet Applications \u2014 Dedup, Intersection, Sliding Window patterns \u2014 critical for FAANG interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "HashSet Applications \u2014 Dedup, Intersection, Sliding Window"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "- **HashSet**: backed by HashMap with dummy values; O(1) add/remove/contains\n- **`add()` returns false if already present**: elegant duplicate detection\n- **Contains Duplicate**: `!seen.add(n)` \u2192 already exists \u2192 duplicate\n- **Sliding HashSet window**: add new, remove old when `window.size() > k`\n- **Intersection**: add array A to set, scan array B for membership\n- **Longest Consecutive**: only start from `n` where `n-1` not in set\n- **LinkedHashSet**: O(1) + insertion order preserved\n- **TreeSet**: O(log n) + sorted; `first()`, `last()`, `floor()`, `ceiling()`\n- **HashSet vs Floyd's**: both detect cycles; Floyd's O(1) space wins"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "- **HashSet**: backed by HashMap with dummy values; O(1) add/remove/contains",
+        "- **`add()` returns false if already present**: elegant duplicate detection",
+        "- **Contains Duplicate**: `!seen.add(n)` \u2192 already exists \u2192 duplicate",
+        "- **Sliding HashSet window**: add new, remove old when `window.size() > k`",
+        "- **Intersection**: add array A to set, scan array B for membership",
+        "- **Longest Consecutive**: only start from `n` where `n-1` not in set"
+      ],
+      "next_topic_preview": "Next topic"
+    }
+  }
+}

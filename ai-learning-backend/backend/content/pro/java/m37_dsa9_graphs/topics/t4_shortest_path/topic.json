@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m37_t4",
+  "module_id": "m37",
+  "topic_number": 4,
+  "name": "Shortest Path \u2014 Dijkstra, Bellman-Ford, Floyd-Warshall",
+  "slug": "shortest-path-dijkstra-bellman-floyd",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m37_t3",
+      "java_m36_t1"
+    ],
+    "concepts_taught": [
+      "shortest-path-dijkstra-bellman-floyd"
+    ],
+    "career_relevance": "Core Shortest Path \u2014 Dijkstra, Bellman-Ford, Floyd-Warshall patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Shortest Path \u2014 Dijkstra, Bellman-Ford, Floyd-Warshall"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Dijkstra: min-heap; dist[u]+w < dist[v] \u2192 relax; O((V+E) log V); no negative edges",
+        "Bellman-Ford: relax all edges V-1 times; O(VE); handles negative edges",
+        "Floyd-Warshall: dp[i][j]=min(dp[i][j], dp[i][k]+dp[k][j]); O(V\u00b3); all-pairs",
+        "Network Delay: single-source Dijkstra from source k",
+        "Cheapest Flights K Stops: Bellman-Ford K+1 iterations",
+        "Word Ladder: BFS on implicit graph; level = steps",
+        "0-1 BFS: edges weight 0 or 1; use deque; O(V+E)"
+      ],
+      "next_topic_preview": "Next: Graph synthesis."
+    }
+  }
+}

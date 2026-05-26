@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m15_t2_proj",
+  "linked_topic": "java_m15_t2",
+  "level": "mini",
+  "name": "Zerodha-Style Trading Platform — Feign Client Upgrade",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Upgrade the order-service from Topic 15.1 (RestTemplate) to use Feign Client. Replace all RestTemplate calls with a clean @FeignClient interface. Add error decoder, timeout configuration, and a RequestInterceptor that adds a correlation ID header to all inter-service calls.",
+
+  "description": "Replace RestTemplate with @FeignClient in order-service. Same two-service architecture (market-service + order-service), but the inter-service calls are now declarative. Add ErrorDecoder for all error scenarios. WireMock tests validate the full Feign stack.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`MarketServiceClient` @FeignClient (url from `${market.service.url}`): getQuote(symbol) → GET /api/stocks/{symbol}/quote, listTradeable() → GET /api/stocks?tradeable=true, reserveShares(symbol, qty) → POST /api/stocks/{symbol}/reserve.",
+        "weight": 22
+      },
+      {
+        "id": "req_2",
+        "description": "`MarketServiceErrorDecoder` implementing ErrorDecoder: 404→SymbolNotFoundException, 409→InsufficientSharesException, 503→MarketServiceDownException. Registered in `MarketFeignConfig` @Configuration.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`CorrelationIdInterceptor` implements RequestInterceptor: adds 'X-Correlation-Id' header (UUID per request) to every Feign call. Registered as @Bean in MarketFeignConfig or globally.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Timeout configuration in application.properties: market-service connect-timeout=2000, read-timeout=3000. Global default: connect=5000, read=5000.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`TradeService` refactored: inject `MarketServiceClient` instead of RestTemplate. All three Feign methods called (getQuote + reserveShares). No RestTemplate remaining.",
+        "weight": 13
+      },
+      {
+        "id": "req_6",
+        "description": "WireMock @SpringBootTest tests (5): successful BUY with reservation, symbol not found (404→SymbolNotFoundException), insufficient shares (409→InsufficientSharesException), market down (503→MarketServiceDownException), correlation ID header present in all calls.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add logger-level=FULL for market-service in dev profile. Verify with a test that Feign logs are produced (check log output contains request/response details).",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a second Feign client: `AccountServiceClient` that calls account-service to verify trading account is active before executing any trade. Add WireMock stub for both active and inactive states.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Write a Feign `ResponseInterceptor` that logs the correlation ID and response time for every Feign call. Output: '[FEIGN] market-service/getQuote | corr=abc123 | 45ms | 200 OK'.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Same stock data as T15.1:\nTCS: price=3890, available=true\nPAYTM: price=475, tradeable=false\n\nWireMock stubs:\nGET /api/stocks/TCS/quote → 200 {symbol:TCS, price:3890, tradeable:true}\nGET /api/stocks/PAYTM/quote → 200 {symbol:PAYTM, price:475, tradeable:false}\nGET /api/stocks/UNKNOWN/quote → 404\nPOST /api/stocks/TCS/reserve → 200 (success)\nPOST /api/stocks/TCS/reserve (qty too large) → 409\nGET /api/stocks/TCS/quote (market down) → 503",
+
+  "starter_code": "// Upgrade order-service from Topic 15.1:\n\n// Remove:\n//   AppConfig.java (RestTemplate @Bean)\n//   RestTemplate injection from TradeService\n\n// Add:\n//   MarketServiceClient.java (@FeignClient interface)\n//   MarketServiceErrorDecoder.java\n//   MarketFeignConfig.java (@Configuration)\n//   CorrelationIdInterceptor.java (implements RequestInterceptor)\n\n// Modify:\n//   Application.java (add @EnableFeignClients)\n//   application.properties (add timeouts, market.service.url)\n//   TradeService.java (inject MarketServiceClient)\n//   TradeServiceFeignTest.java (WireMock tests)\n\n// pom.xml: add spring-cloud-starter-openfeign + wiremock-standalone",
+
+  "example_output": "# TradeService.executeTrade('TCS', 10):\n[FEIGN] GET http://localhost:8081/api/stocks/TCS/quote\n[FEIGN] Headers: X-Correlation-Id: 8f3a2b1c-...\n[FEIGN] Response: 200 {symbol:TCS, price:3890.0, tradeable:true}\n[FEIGN] POST http://localhost:8081/api/stocks/TCS/reserve?qty=10\n[FEIGN] Response: 200 OK\nTrade executed: ORD-TCS-10\n\n# WireMock test results:\n✓ executeTrade_TCS_BUY_success\n✓ executeTrade_UNKNOWN_symbol_404\n✓ executeTrade_insufficientShares_409\n✓ executeTrade_marketDown_503\n✓ executeTrade_correlationId_presentInHeaders",
+
+  "rubric": [
+    { "category": "MarketServiceClient @FeignClient", "points": 22, "criteria": ["3 methods correct (22 pts)"] },
+    { "category": "ErrorDecoder", "points": 20, "criteria": ["3 error mappings (20 pts)"] },
+    { "category": "CorrelationIdInterceptor", "points": 15, "criteria": ["UUID header on all calls (15 pts)"] },
+    { "category": "Timeout config", "points": 10, "criteria": ["Per-client + global (10 pts)"] },
+    { "category": "TradeService refactor", "points": 13, "criteria": ["No RestTemplate, uses Feign (13 pts)"] },
+    { "category": "WireMock tests", "points": 20, "criteria": ["5 tests correct (4 pts each)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["Logger level (15 pts)", "Account client (25 pts)", "Response interceptor (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. @EnableFeignClients on Application is mandatory. WireMock: new WireMockServer(wireMockConfig().port(PORT)), @TestPropertySource sets market.service.url=http://localhost:PORT. Header test: wm.stubFor(get(...).withHeader('X-Correlation-Id', matching('.+')).willReturn(...)). ErrorDecoder lambda: (methodKey, response) -> switch(response.status()) {...}.",
+
+  "submission_instructions": "Push to GitHub. Show before (RestTemplate) and after (Feign) code in README. All 5 WireMock tests pass.",
+
+  "tips_for_success": [
+    "pom.xml: add spring-cloud-starter-openfeign + WireMock dependency",
+    "application.properties: market.service.url=http://localhost:8081 (hardcoded until Eureka)",
+    "WireMock port: use a port not used by your services (e.g., 9101)",
+    "@TestPropertySource: override market.service.url to WireMock port",
+    "Correlation ID test: stub with .withHeader('X-Correlation-Id', matching('.+')).willReturn(...)"
+  ],
+
+  "concepts_reinforced": [
+    "@FeignClient interface declaration with @GetMapping/@PostMapping",
+    "Custom ErrorDecoder for exception translation",
+    "RequestInterceptor for automatic header injection",
+    "Timeout configuration per client and globally",
+    "WireMock as HTTP stub server for Feign testing",
+    "@EnableFeignClients on Application class"
+  ]
+}

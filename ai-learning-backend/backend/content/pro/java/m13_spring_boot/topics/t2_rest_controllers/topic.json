@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t2",
+  "language": "java",
+  "module_id": "m13",
+  "module_name": "Spring Boot Fundamentals",
+  "topic_number": 2,
+  "name": "REST Controllers",
+  "slug": "rest-controllers",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m13_t1", "java_m11_t3"],
+    "concepts_taught": [
+      "restcontroller_annotation",
+      "requestmapping",
+      "getmapping",
+      "postmapping",
+      "putmapping",
+      "deletemapping",
+      "pathvariable",
+      "requestparam",
+      "requestbody",
+      "responseentity",
+      "http_status_codes_in_spring",
+      "returning_json_automatically",
+      "rest_api_design",
+      "optional_to_responseentity",
+      "request_response_models"
+    ],
+    "skills_developed": [
+      "building_crud_rest_controllers",
+      "handling_path_variables_and_query_params",
+      "deserializing_request_bodies",
+      "returning_correct_http_status_codes",
+      "using_responseentity_for_control",
+      "designing_clean_rest_apis"
+    ],
+    "career_relevance": "REST controllers are the public face of every Spring Boot backend. When Flipkart's mobile app loads your order history, a @GetMapping handles that. When you place an order on Razorpay, a @PostMapping processes it. Knowing @RestController, ResponseEntity, @PathVariable, @RequestBody, and correct HTTP status codes is required knowledge for every Java backend interview and every Spring Boot job.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your Spring Boot app is running. But nothing can talk to it — there's no HTTP interface. You need to expose your ProductService over the network:\n\n```\nGET  /api/products         → list all products\nGET  /api/products/P001   → get one product\nPOST /api/products         → create a new product\nPUT  /api/products/P001   → update a product\nDELETE /api/products/P001 → delete a product\n```\n\n**Without REST controllers:**\n```java\n// None of these requests work — Spring doesn't know how to handle HTTP yet\n```\n\n**With @RestController:**\n```java\n@RestController\n@RequestMapping(\"/api/products\")\npublic class ProductController {\n    \n    @GetMapping\n    public List<Product> getAll() {\n        return service.findAll();  // Spring serializes to JSON automatically!\n    }\n    \n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Product> getById(@PathVariable String id) {\n        return service.findById(id)\n            .map(ResponseEntity::ok)           // 200 OK + product as JSON\n            .orElse(ResponseEntity.notFound().build());  // 404 Not Found\n    }\n    \n    @PostMapping\n    public ResponseEntity<Product> create(@RequestBody Product product) {\n        Product saved = service.save(product);\n        return ResponseEntity.status(HttpStatus.CREATED).body(saved);  // 201 Created\n    }\n}\n```\n\nGET, POST, PUT, DELETE — all mapped. JSON in, JSON out. Correct status codes. This is what every Java backend developer writes every day.",
+    "what_you_will_build": "By the end of this topic, you'll build a complete CRUD REST API: @RestController with all four HTTP methods, @PathVariable for URL segments, @RequestParam for query strings, @RequestBody for JSON input, ResponseEntity for status control, and correct HTTP status codes (200, 201, 204, 404)."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "restcontroller_basics": "**@RestController — the HTTP handler class:**\n\n```java\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n\n@RestController                       // @Controller + @ResponseBody\n@RequestMapping(\"/api/products\")      // base URL for all methods in this class\npublic class ProductController {\n    \n    private final ProductService service;\n    \n    ProductController(ProductService service) {  // constructor injection\n        this.service = service;\n    }\n    \n    // GET /api/products\n    @GetMapping\n    public List<Product> getAll() {\n        return service.findAll();\n        // Spring serializes List<Product> to JSON array automatically\n        // HTTP 200 OK (default when you return a value)\n    }\n}\n```\n\n**@RestController = @Controller + @ResponseBody:**\n- @Controller: marks this as a Spring MVC controller\n- @ResponseBody: return values are written directly to the HTTP response body (as JSON)\n- Without @ResponseBody, Spring would look for a view template (HTML) instead",
+
+      "mapping_annotations": "**HTTP method mapping annotations:**\n\n```java\n@GetMapping(\"/hello\")            // GET request\n@PostMapping(\"/hello\")           // POST request\n@PutMapping(\"/hello/{id}\")       // PUT request\n@DeleteMapping(\"/hello/{id}\")    // DELETE request\n@PatchMapping(\"/hello/{id}\")     // PATCH request (partial update)\n\n// Equivalent verbose form:\n@RequestMapping(value = \"/hello\", method = RequestMethod.GET)\n\n// Multiple paths:\n@GetMapping({\"/hello\", \"/hi\"})\npublic String hello() { return \"world\"; }\n\n// Produces specific content type:\n@GetMapping(value = \"/csv\", produces = \"text/csv\")\npublic String getCsv() { return \"name,price\\nMouse,799\"; }\n```",
+
+      "path_variable_request_param": "**@PathVariable and @RequestParam:**\n\n```java\n// @PathVariable — URL segment: GET /api/products/P001\n@GetMapping(\"/{id}\")\npublic Product getById(@PathVariable String id) {\n    return service.findById(id);\n}\n\n// Multiple path variables: GET /api/orders/ORD-001/items/3\n@GetMapping(\"/orders/{orderId}/items/{itemIndex}\")\npublic OrderItem getItem(@PathVariable String orderId,\n                          @PathVariable int itemIndex) {\n    return service.getItem(orderId, itemIndex);\n}\n\n// @RequestParam — query string: GET /api/products?category=Electronics&limit=10\n@GetMapping\npublic List<Product> search(\n        @RequestParam String category,\n        @RequestParam(defaultValue = \"20\") int limit,\n        @RequestParam(required = false) String sort) {\n    return service.search(category, limit, sort);\n}\n// URL: /api/products?category=Electronics        → limit=20 (default), sort=null\n// URL: /api/products?category=Electronics&limit=5  → limit=5\n```",
+
+      "request_body_response_entity": "**@RequestBody and ResponseEntity:**\n\n```java\n// @RequestBody — deserialize JSON request body to Java object:\n@PostMapping\npublic ResponseEntity<Product> create(@RequestBody Product product) {\n    // HTTP body: {\"name\":\"Mouse\",\"price\":799}\n    // Spring uses Jackson to deserialize → Product object\n    Product saved = service.save(product);\n    return ResponseEntity\n        .status(HttpStatus.CREATED)  // 201\n        .body(saved);\n}\n\n// @PutMapping — update:\n@PutMapping(\"/{id}\")\npublic ResponseEntity<Product> update(@PathVariable String id,\n                                       @RequestBody Product product) {\n    return service.update(id, product)\n        .map(ResponseEntity::ok)                      // 200 with updated product\n        .orElse(ResponseEntity.notFound().build());   // 404 if not found\n}\n\n// @DeleteMapping — no response body:\n@DeleteMapping(\"/{id}\")\npublic ResponseEntity<Void> delete(@PathVariable String id) {\n    if (service.delete(id)) {\n        return ResponseEntity.noContent().build();    // 204 No Content\n    }\n    return ResponseEntity.notFound().build();         // 404\n}\n\n// Convenience shortcuts:\nResponseEntity.ok(body)              // 200 + body\nResponseEntity.created(uri).body(b) // 201 + Location header\nResponseEntity.noContent().build()  // 204, no body\nResponseEntity.notFound().build()   // 404, no body\nResponseEntity.badRequest().body(e) // 400 + error\n```",
+
+      "http_status_codes": "**HTTP status codes — use the right one:**\n\n```\n2xx Success:\n  200 OK            — GET (found), PUT (updated), PATCH\n  201 Created       — POST (created new resource)\n  204 No Content    — DELETE (success, nothing to return)\n\n4xx Client Error:\n  400 Bad Request   — invalid request body, validation failure\n  401 Unauthorized  — not logged in\n  403 Forbidden     — logged in but no permission\n  404 Not Found     — resource doesn't exist\n  409 Conflict      — duplicate (e.g., duplicate username)\n\n5xx Server Error:\n  500 Internal Server Error — unexpected exception\n```\n\n```java\n// WRONG — returning 200 for resource not found:\n@GetMapping(\"/{id}\")\npublic Product get(@PathVariable String id) {\n    return service.findById(id).orElse(null);  // null → empty 200 response!\n}\n\n// RIGHT — 404 when not found:\n@GetMapping(\"/{id}\")\npublic ResponseEntity<Product> get(@PathVariable String id) {\n    return service.findById(id)\n        .map(ResponseEntity::ok)\n        .orElse(ResponseEntity.notFound().build()); // 404\n}\n```",
+
+      "request_response_records": "**Request and response record design:**\n\n```java\n// Use separate request/response records — not your domain entity directly:\n\n// Domain entity (internal):\npublic class Product {\n    private String id;  // generated by server\n    private String name;\n    private double price;\n    private String createdAt;  // server-set timestamp\n}\n\n// Request record — what the client sends (no id, no createdAt):\npublic record ProductRequest(String name, double price) {}\n\n// Response record — what the server returns (includes id, createdAt):\npublic record ProductResponse(String id, String name, double price, String createdAt) {}\n\n// Controller uses both:\n@PostMapping\npublic ResponseEntity<ProductResponse> create(@RequestBody ProductRequest req) {\n    Product saved = service.create(req.name(), req.price());\n    return ResponseEntity.status(HttpStatus.CREATED)\n        .body(toResponse(saved));\n}\n```\n\nThis separation prevents over-posting (clients can't set id or createdAt) and lets you evolve the internal model independently of the API contract."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "HTTP request/response flow through Spring Boot: (1) HTTP Request arrives → DispatcherServlet → @RestController method matched. (2) Input: URL path → @PathVariable extracted; query string → @RequestParam extracted; JSON body → Jackson deserializes to @RequestBody. (3) Method executes, calls service. (4) Output: return value serialized to JSON by Jackson; ResponseEntity wraps with status code and headers. (5) HTTP Response sent. Second panel: URL pattern table: GET /api/products (getAll), GET /api/products/{id} (getById), POST /api/products (create), PUT /api/products/{id} (update), DELETE /api/products/{id} (delete) — each with status code and description.",
+      "alt_text": "HTTP request routing to @RestController, @PathVariable/@RequestParam/@RequestBody extraction, ResponseEntity status codes, CRUD URL pattern table"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a complete CRUD REST API for a product catalog. All five operations: list, get one, create, update, delete. Uses ResponseEntity for status codes. In-memory storage (no database yet).",
+
+    "problem_statement": "Build `ProductController` with:\n- GET /api/products → 200 + list\n- GET /api/products/{id} → 200 + product or 404\n- GET /api/products?category=X → filtered list\n- POST /api/products → 201 + created product\n- PUT /api/products/{id} → 200 + updated or 404\n- DELETE /api/products/{id} → 204 or 404",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Domain model and request/response records",
+        "details": "```java\n// Domain entity (internal service layer):\npublic record Product(String id, String name, String category, double price) {}\n\n// Request — what the client sends (no id — server generates it):\npublic record ProductRequest(String name, String category, double price) {}\n```"
+      },
+      {
+        "step": 2,
+        "action": "In-memory service",
+        "details": "```java\n@Service\npublic class ProductService {\n    private final Map<String, Product> store = new LinkedHashMap<>();\n    private int seq = 1;\n    \n    public List<Product> findAll()                      { return new ArrayList<>(store.values()); }\n    public List<Product> findByCategory(String cat)     {\n        return store.values().stream()\n            .filter(p -> p.category().equalsIgnoreCase(cat)).toList();\n    }\n    public Optional<Product> findById(String id)        { return Optional.ofNullable(store.get(id)); }\n    public Product save(ProductRequest req) {\n        String id = \"P\" + String.format(\"%03d\", seq++);\n        Product p = new Product(id, req.name(), req.category(), req.price());\n        store.put(id, p); return p;\n    }\n    public Optional<Product> update(String id, ProductRequest req) {\n        if (!store.containsKey(id)) return Optional.empty();\n        Product p = new Product(id, req.name(), req.category(), req.price());\n        store.put(id, p); return Optional.of(p);\n    }\n    public boolean delete(String id) {\n        return store.remove(id) != null;\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Complete CRUD controller",
+        "details": "```java\n@RestController\n@RequestMapping(\"/api/products\")\npublic class ProductController {\n    private final ProductService service;\n    ProductController(ProductService service) { this.service = service; }\n    \n    // GET /api/products OR GET /api/products?category=Electronics\n    @GetMapping\n    public List<Product> getAll(\n            @RequestParam(required = false) String category) {\n        return category != null ? service.findByCategory(category)\n                                : service.findAll();\n    }\n    \n    // GET /api/products/P001 → 200 or 404\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Product> getById(@PathVariable String id) {\n        return service.findById(id)\n            .map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    \n    // POST /api/products → 201\n    @PostMapping\n    public ResponseEntity<Product> create(@RequestBody ProductRequest req) {\n        Product saved = service.save(req);\n        return ResponseEntity.status(HttpStatus.CREATED).body(saved);\n    }\n    \n    // PUT /api/products/P001 → 200 or 404\n    @PutMapping(\"/{id}\")\n    public ResponseEntity<Product> update(@PathVariable String id,\n                                           @RequestBody ProductRequest req) {\n        return service.update(id, req)\n            .map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    \n    // DELETE /api/products/P001 → 204 or 404\n    @DeleteMapping(\"/{id}\")\n    public ResponseEntity<Void> delete(@PathVariable String id) {\n        return service.delete(id)\n            ? ResponseEntity.noContent().build()       // 204\n            : ResponseEntity.notFound().build();       // 404\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Product.java:\npublic record Product(String id, String name, String category, double price) {}\n\n// ProductRequest.java:\npublic record ProductRequest(String name, String category, double price) {}\n\n// ProductService.java — (as in step 2 above)\n\n// ProductController.java — (as in step 3 above)",
+
+    "expected_output": "# Run the app, then test with curl:\n\ncurl http://localhost:8080/api/products\n→ []  (200 empty list)\n\ncurl -X POST http://localhost:8080/api/products \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"name\":\"Wireless Mouse\",\"category\":\"Electronics\",\"price\":799}'\n→ {\"id\":\"P001\",\"name\":\"Wireless Mouse\",\"category\":\"Electronics\",\"price\":799.0}  (201)\n\ncurl http://localhost:8080/api/products/P001\n→ {\"id\":\"P001\",\"name\":\"Wireless Mouse\",\"category\":\"Electronics\",\"price\":799.0}  (200)\n\ncurl http://localhost:8080/api/products/P999\n→ (empty body, 404)\n\ncurl -X DELETE http://localhost:8080/api/products/P001\n→ (empty body, 204)",
+
+    "things_to_notice": [
+      "@RestController combines @Controller + @ResponseBody. Without @ResponseBody, Spring would look for a view template named 'Wireless Mouse' — wrong! @ResponseBody tells Spring: serialize the return value to the HTTP response body as JSON.",
+      "`@RequestParam(required = false) String category` makes the query param optional. If absent: null. If present: the value. This lets `GET /api/products` return all and `GET /api/products?category=Electronics` return filtered — same endpoint.",
+      "The Optional-to-ResponseEntity pattern: `findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build())` — this is idiomatic Spring. Every GET-by-id should use this pattern.",
+      "DELETE returns 204 No Content (not 200) on success. 204 means 'it worked, there's nothing to return'. Never return the deleted object — it no longer exists.",
+      "POST returns 201 Created (not 200 OK). 201 means a new resource was created. The response body contains the created resource with its server-assigned ID. Following REST conventions matters for interoperability.",
+      "The ProductRequest record separates input from output. Clients cannot set the id field (server assigns it), preventing over-posting attacks. This is the DTO (Data Transfer Object) pattern — critical for production security."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart product catalog API",
+        "use_case": "`GET /api/v3/products/{productId}` — @GetMapping, @PathVariable. `POST /api/v3/cart/items` — @PostMapping, @RequestBody with item details. `DELETE /api/v3/cart/items/{itemId}` — @DeleteMapping, 204 on success. `GET /api/v3/products?category=Electronics&sort=price&limit=24` — @RequestParam with multiple optional params. All return JSON, all use ResponseEntity for status codes."
+      },
+      {
+        "company_context": "Razorpay payment API",
+        "use_case": "`POST /v1/orders` — creates a payment order (@RequestBody with amount, currency, receipt). Returns 201 with orderId. `GET /v1/orders/{id}` — fetch order status (@PathVariable). `POST /v1/payments/{id}/capture` — capture a payment (@PathVariable + @RequestBody with amount). All authenticated. Follows the same @RestController patterns, just with auth middleware added."
+      },
+      {
+        "company_context": "Zerodha trading API",
+        "use_case": "`GET /api/portfolio/positions` — get all current positions. `GET /api/orders?status=PENDING` — filter by query param. `POST /api/orders` — place an order. `DELETE /api/orders/{orderId}` — cancel pending order (204 if cancelled, 400 if already executed). These are the same patterns you just learned."
+      }
+    ],
+
+    "interview_relevance": "REST controller interview questions — must know:\n\n- **'What is the difference between @Controller and @RestController?'** → @RestController = @Controller + @ResponseBody. Without @ResponseBody, return values are view names, not JSON.\n- **'What status code should a POST that creates a resource return?'** → 201 Created, not 200 OK.\n- **'What is the difference between @PathVariable and @RequestParam?'** → @PathVariable: part of the URL path (/products/{id}). @RequestParam: query string (/products?category=X).\n- **'How do you return 404 for a missing resource?'** → `Optional.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build())`",
+
+    "real_world_workflow": "Daily REST controller workflow:\n\n- New resource: create record + controller + service + tests\n- GET all: @GetMapping, return list, 200 implicit\n- GET by id: @GetMapping/{id}, Optional → ResponseEntity\n- POST: @PostMapping, @RequestBody, 201\n- PUT: @PutMapping/{id}, Optional → ResponseEntity\n- DELETE: @DeleteMapping/{id}, boolean → 204 or 404\n- Test with MockMvc (@WebMvcTest) or curl"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "returning_200_for_missing_resource",
+      "what_students_get_wrong": "Returning `null` from a method instead of ResponseEntity.notFound() — Spring returns 200 OK with empty body.",
+      "remediation": "Never return null from a controller method. Use `Optional<T>` in the service and convert to ResponseEntity: `optional.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build())`. A client receiving 200 OK with an empty body is confused — they expect 404.",
+      "detection_pattern": "curl returns HTTP 200 with empty body instead of 404 for missing resource"
+    },
+    {
+      "gap_id": "missing_content_type_header",
+      "what_students_get_wrong": "POST request returns 415 Unsupported Media Type — forgot to add `Content-Type: application/json` header.",
+      "remediation": "Every POST/PUT with a JSON body requires `Content-Type: application/json` in the request. Spring won't know to parse the body as JSON without it. Always test with: `curl -H 'Content-Type: application/json' -d '{...}'`",
+      "detection_pattern": "415 Unsupported Media Type when sending POST with JSON body"
+    },
+    {
+      "gap_id": "wrong_status_code_for_post",
+      "what_students_get_wrong": "Returning `ResponseEntity.ok(saved)` (200) for a POST — should be 201 Created.",
+      "remediation": "POST that creates a resource should return 201 Created: `ResponseEntity.status(HttpStatus.CREATED).body(saved)`. This is a REST convention — clients and API gateways use status codes to determine caching behavior, retry logic, and monitoring.",
+      "detection_pattern": "POST returns 200 instead of 201"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@RestController = @Controller + @ResponseBody: return values become JSON response body",
+      "@RequestMapping on class: base URL prefix for all methods",
+      "@GetMapping, @PostMapping, @PutMapping, @DeleteMapping: map HTTP methods",
+      "@PathVariable: extract URL segment — /products/{id}",
+      "@RequestParam: query string param — /products?category=X",
+      "@RequestParam(required=false): optional param, null if absent",
+      "@RequestParam(defaultValue='20'): optional param with default",
+      "@RequestBody: deserialize JSON body to Java object",
+      "ResponseEntity<T>: control status code + body + headers",
+      "ResponseEntity.ok(body): 200 + body",
+      "ResponseEntity.status(CREATED).body(b): 201 + body",
+      "ResponseEntity.noContent().build(): 204 no body",
+      "ResponseEntity.notFound().build(): 404 no body",
+      "Optional → ResponseEntity: `.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build())`",
+      "Status codes: 200 GET/PUT success, 201 POST create, 204 DELETE, 404 not found"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Write the controller method signature for: GET /api/orders/{userId}/items?status=PENDING&limit=10",
+        "answer": "```java\n@GetMapping(\"/api/orders/{userId}/items\")\npublic List<OrderItem> getItems(\n        @PathVariable String userId,\n        @RequestParam(defaultValue = \"ALL\") String status,\n        @RequestParam(defaultValue = \"20\") int limit) {\n    return service.getItems(userId, status, limit);\n}\n```\n@PathVariable for {userId} in the path. @RequestParam for the query string parameters. defaultValue makes them optional — the URL works without them."
+      },
+      {
+        "question": "Your GET /api/users/{id} endpoint returns 200 OK with an empty body when the user doesn't exist. How do you fix it?",
+        "answer": "Change the return type from `User` to `ResponseEntity<User>` and use the Optional pattern:\n```java\n@GetMapping('/{id}')\npublic ResponseEntity<User> getById(@PathVariable String id) {\n    return service.findById(id)\n        .map(ResponseEntity::ok)              // 200 if found\n        .orElse(ResponseEntity.notFound().build()); // 404 if not found\n}\n```\nThe service should return `Optional<User>`, not `User`. Never return null from a controller method."
+      },
+      {
+        "question": "What is the difference between `@RequestMapping(\"/api\")` on the class and `@GetMapping(\"/products\")` on a method?",
+        "answer": "@RequestMapping at the class level sets the base URL for ALL methods in that controller — every method URL is prefixed with it. @GetMapping at the method level adds the method-specific path segment. The final URL is: base + method path. So @RequestMapping('/api') + @GetMapping('/products') → `GET /api/products`. This lets you group related endpoints under a common prefix without repeating it on every method."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Spring Data JPA** — now that you can receive and return data via HTTP, Topic 13.3 connects to a real database. @Entity, @Repository extends JpaRepository, findById(), findAll(), save(), deleteById(). Spring Data generates the SQL for you. After Topic 13.3, your CRUD API uses a real H2 (or PostgreSQL) database instead of an in-memory Map."
+  }
+}

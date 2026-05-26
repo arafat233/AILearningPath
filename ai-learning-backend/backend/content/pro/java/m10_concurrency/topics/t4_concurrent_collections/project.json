@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m10_t4_proj",
+  "linked_topic": "java_m10_t4",
+  "level": "mini",
+  "name": "Zerodha-Style Real-Time Market Data Processor",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Build a real-time market data processing engine. Price ticks arrive continuously (produced into a BlockingQueue). Multiple worker threads consume ticks and update per-symbol statistics (ConcurrentHashMap + AtomicLong). A reporter thread reads statistics and prints a live dashboard. All concurrent, all lock-free or fine-grained.",
+
+  "description": "A real-time tick processor demonstrating all concurrent collection types: BlockingQueue for tick stream, ConcurrentHashMap for per-symbol stats, AtomicInteger for tick counts, and CopyOnWriteArrayList for alert subscriptions.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`PriceTick` record: symbol (String), price (double), volume (long), timestamp (long).",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`TickProducer` — generates 200 random ticks for 5 symbols into a `LinkedBlockingQueue<PriceTick>(100)`. Runs as a daemon thread.",
+        "weight": 12
+      },
+      {
+        "id": "req_3",
+        "description": "`MarketStats` class using `ConcurrentHashMap<String, AtomicLong>` for tick counts, `ConcurrentHashMap<String, AtomicReference<Double>>` for last price. Methods: recordTick(PriceTick), getTickCount(symbol), getLastPrice(symbol).",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "3 `TickConsumer` worker threads consuming from the BlockingQueue, calling marketStats.recordTick() for each tick. Use poll(200ms) with null check for graceful shutdown.",
+        "weight": 18
+      },
+      {
+        "id": "req_5",
+        "description": "After all ticks are produced and consumed: print final stats per symbol (tick count, last price) sorted by tick count descending.",
+        "weight": 12
+      },
+      {
+        "id": "req_6",
+        "description": "Global AtomicLong totalTicks — incremented for every tick processed. Final value should exactly equal 200.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Proper shutdown: producer finishes → workers drain queue → all join → print report.",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "Zero race conditions: all shared state accessed through concurrent types only.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a `PriceAlertSystem` using `CopyOnWriteArrayList<PriceAlert>`: add/remove alerts, and after each tick check all alerts. Alert fires if price crosses threshold. Show that alert iteration is safe while ticks are processed concurrently.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add VWAP (Volume Weighted Average Price) per symbol: `ConcurrentHashMap<String, AtomicLong>` for totalValue (price * volume as long cents) and totalVolume. Print VWAP = totalValue / totalVolume for each symbol.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add high-water mark tracking using AtomicReference<Double> and compareAndSet: if new price > current high, atomically update. Print per-symbol high-water mark at the end.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Symbols: RELIANCE, TCS, INFY, HDFC, WIPRO\nTicks: 200 random ticks, ~40 per symbol on average\nPrice range: symbol base ± 2% random walk\nVolume: random 100-10000 per tick",
+
+  "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n\npublic class MarketProcessor {\n    public static void main(String[] args) throws InterruptedException {\n        // Create BlockingQueue, MarketStats, TickProducer, 3 TickConsumers\n        // Start producer (daemon) and consumers\n        // Wait for producer to finish, then drain queue\n        // Print final stats\n    }\n    // Define: PriceTick, MarketStats, TickProducer, TickConsumer\n}",
+
+  "example_output": "=== Market Data Processor ===\nStarting 1 producer + 3 consumers...\n[processing 200 ticks...]\n\n=== Final Statistics ===\nSymbol       Ticks  Last Price\n-----------------------------\nRELIANCE       43   ₹2462.50\nTCS            41   ₹3891.20\nINFY           40   ₹1558.30\nWIPRO          39   ₹413.70\nHDFC           37   ₹1679.40\n\nTotal ticks processed: 200\nQueue empty: true",
+
+  "rubric": [
+    { "category": "BlockingQueue Usage", "points": 20, "criteria": ["Bounded queue (10 pts)", "poll() with timeout for graceful shutdown (10 pts)"] },
+    { "category": "MarketStats", "points": 20, "criteria": ["ConcurrentHashMap<String, AtomicLong> (10 pts)", "AtomicReference<Double> for last price (10 pts)"] },
+    { "category": "Concurrent Correctness", "points": 20, "criteria": ["Total ticks = 200 exactly (10 pts)", "No race conditions (10 pts)"] },
+    { "category": "Shutdown", "points": 15, "criteria": ["Producer finishes → workers drain (10 pts)", "All threads join before report (5 pts)"] },
+    { "category": "Report", "points": 15, "criteria": ["Sorted by tick count (8 pts)", "Shows last price (7 pts)"] },
+    { "category": "Compiles & Runs", "points": 10, "criteria": ["Compiles (5 pts)", "Runs correctly (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["PriceAlertSystem COWAL (20 pts)", "VWAP calculation (25 pts)", "High-water mark CAS (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key design: producer is daemon (JVM won't wait for it). Workers use poll(200ms) — returns null after 200ms with no tick, then check if producer is done AND queue is empty → stop. AtomicReference<Double> with compareAndSet for high-water mark (bonus). MarketStats is completely lock-free — ConcurrentHashMap handles map-level safety, AtomicLong handles count-level, AtomicReference handles reference-level.",
+
+  "submission_instructions": "Save as MarketProcessor.java. Push to GitHub. This demonstrates all four concurrent collection types in one real-time system.",
+
+  "tips_for_success": [
+    "Producer: runs in daemon thread, loops 200 times putting to queue",
+    "Consumer: while(!done || !queue.isEmpty()) { tick = queue.poll(200, ms); if (tick != null) process; }",
+    "MarketStats: computeIfAbsent(sym, k -> new AtomicLong(0)).incrementAndGet()",
+    "Last price: computeIfAbsent(sym, k -> new AtomicReference<>(0.0)).set(price)",
+    "High-water mark CAS: ref.updateAndGet(old -> Math.max(old, newPrice))"
+  ],
+
+  "concepts_reinforced": [
+    "LinkedBlockingQueue for producer-consumer",
+    "ConcurrentHashMap for per-key stats",
+    "AtomicLong for lock-free counters",
+    "AtomicReference<T> for atomic object references",
+    "Poll with timeout for graceful worker shutdown",
+    "Daemon thread for background producers"
+  ]
+}

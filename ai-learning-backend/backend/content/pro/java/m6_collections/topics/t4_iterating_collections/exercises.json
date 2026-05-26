@@ -1,0 +1,360 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t4",
+  "topic_name": "Iterating Collections & the Collections Utility Class",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m6_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace Iterator removal",
+      "scenario": "Safe removal changes the list.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5));\n        Iterator<Integer> it = nums.iterator();\n        while (it.hasNext()) {\n            int n = it.next();\n            if (n % 2 == 0) it.remove();\n        }\n        System.out.println(nums);\n    }\n}\n```",
+      "expected_solution": "[1, 3, 5]",
+      "test_cases": [
+        { "type": "text_match", "expected": "[1, 3, 5]" }
+      ],
+      "hints": [
+        "Removes even numbers via Iterator.remove()",
+        "2 and 4 are removed; 1, 3, 5 remain",
+        "Safe: no ConcurrentModificationException"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m6_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Collections utility methods",
+      "scenario": "Practice Collections.sort, min, max.",
+      "instructions": "Fill in the blanks to sort, find min, and find max.",
+      "starter_code": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>(Arrays.asList(5, 2, 8, 1, 9));\n        \n        _____________.sort(nums);\n        System.out.println(\"Min: \" + Collections.______(nums));\n        System.out.println(\"Max: \" + Collections.______(nums));\n    }\n}",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>(Arrays.asList(5, 2, 8, 1, 9));\n        \n        Collections.sort(nums);\n        System.out.println(\"Min: \" + Collections.min(nums));\n        System.out.println(\"Max: \" + Collections.max(nums));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Collections", "hint": "The utility class name" },
+        { "position": 2, "answer": "min", "hint": "Smallest element" },
+        { "position": 3, "answer": "max", "hint": "Largest element" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Min: 1\nMax: 9" }
+      ],
+      "hints": [
+        "Collections.sort(list) sorts in-place",
+        "Collections.min(list) — uses Comparable",
+        "Collections.max(list) — uses Comparable"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m6_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Collections.frequency and shuffle",
+      "scenario": "Count occurrences and randomize.",
+      "instructions": "Create a list with repeating elements. Use Collections.frequency() to count 'java' occurrences. Then shuffle and print size (size stays same regardless of order).\n\nExpected output:\nFrequency of 'java': 3\nSize after shuffle: 6",
+      "starter_code": "import java.util.*;\n\n// Collections.frequency and shuffle\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> langs = new ArrayList<>(Arrays.asList(\"java\", \"python\", \"java\", \"go\", \"java\", \"python\"));\n        \n        System.out.println(\"Frequency of 'java': \" + Collections.frequency(langs, \"java\"));\n        Collections.shuffle(langs);\n        System.out.println(\"Size after shuffle: \" + langs.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Frequency of 'java': 3\nSize after shuffle: 6" }
+      ],
+      "hints": [
+        "Collections.frequency(list, element) counts occurrences using equals()",
+        "Collections.shuffle(list) randomizes — size doesn't change",
+        "java appears 3 times in the list"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m6_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Iterator — remove elements meeting condition",
+      "scenario": "Safe removal with complex logic.",
+      "instructions": "Use Iterator to remove all strings shorter than 4 characters from a list. Print removed items and final list.\n\nInput: [hi, hello, go, java, ok, world]\n\nExpected output:\nRemoved: [hi, go, ok]\nRemaining: [hello, java, world]",
+      "starter_code": "import java.util.*;\n\n// Use Iterator to remove short strings and track them\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> words = new ArrayList<>(Arrays.asList(\"hi\", \"hello\", \"go\", \"java\", \"ok\", \"world\"));\n        List<String> removed = new ArrayList<>();\n        \n        Iterator<String> it = words.iterator();\n        while (it.hasNext()) {\n            String word = it.next();\n            if (word.length() < 4) {\n                removed.add(word);\n                it.remove();\n            }\n        }\n        \n        System.out.println(\"Removed: \" + removed);\n        System.out.println(\"Remaining: \" + words);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Removed: [hi, go, ok]\nRemaining: [hello, java, world]" }
+      ],
+      "hints": [
+        "Iterator<String> it = words.iterator()",
+        "it.next() to get current, it.remove() to remove",
+        "Build removed list before calling it.remove()",
+        "Cannot use removeIf here because we need to track what was removed"
+      ],
+      "xp_reward": 35,
+      "concept_tested": "iterator_with_side_effect"
+    },
+    
+    {
+      "id": "java_m6_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Collections.sort with Comparator",
+      "scenario": "Sort objects by multiple criteria.",
+      "instructions": "Sort a list of String city names by length ascending, then alphabetically for same-length cities.\n\nCities: Hyderabad, Mumbai, Delhi, Chennai, Pune\n\nExpected output:\n[Pune, Delhi, Mumbai, Chennai, Hyderabad]",
+      "starter_code": "import java.util.*;\n\n// Sort cities by length, then alphabetically\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> cities = new ArrayList<>(Arrays.asList(\n            \"Hyderabad\", \"Mumbai\", \"Delhi\", \"Chennai\", \"Pune\"));\n        \n        Collections.sort(cities, new Comparator<String>() {\n            @Override\n            public int compare(String a, String b) {\n                int lenCmp = Integer.compare(a.length(), b.length());\n                if (lenCmp != 0) return lenCmp;\n                return a.compareTo(b);\n            }\n        });\n        \n        System.out.println(cities);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Pune, Delhi, Mumbai, Chennai, Hyderabad]" }
+      ],
+      "hints": [
+        "Collections.sort(list, comparator) — pass a custom comparator",
+        "Primary: length ascending",
+        "Tie-break: alphabetical",
+        "Pune(4) < Delhi(5) < Mumbai(6) < Chennai(7) < Hyderabad(9)"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m6_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Unmodifiable list — defensive API",
+      "scenario": "Return read-only view to protect internal state.",
+      "instructions": "Create a `Config` class with internal List<String> settings. `getSettings()` returns an UNMODIFIABLE view. Show that reads work but writes throw an exception.\n\nExpected output:\nSettings: [debug=true, theme=dark]\nCannot modify: UnsupportedOperationException",
+      "starter_code": "import java.util.*;\n\n// Config with unmodifiableList protection\n",
+      "expected_solution": "import java.util.*;\n\nclass Config {\n    private List<String> settings = new ArrayList<>();\n    \n    public Config() {\n        settings.add(\"debug=true\");\n        settings.add(\"theme=dark\");\n    }\n    \n    public List<String> getSettings() {\n        return Collections.unmodifiableList(settings);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Config config = new Config();\n        List<String> s = config.getSettings();\n        System.out.println(\"Settings: \" + s);\n        \n        try {\n            s.add(\"newSetting\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"Cannot modify: UnsupportedOperationException\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Settings: [debug=true, theme=dark]\nCannot modify: UnsupportedOperationException" }
+      ],
+      "hints": [
+        "return Collections.unmodifiableList(settings)",
+        "Caller can read (get, iterate) but not write (add, remove)",
+        "Any mutation throws UnsupportedOperationException"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m6_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "entrySet iteration — build report",
+      "scenario": "Efficient Map iteration with key+value.",
+      "instructions": "Given a `Map<String, Integer>` of sales by region, use entrySet() to build a report: print each region's sales and find the highest-selling region.\n\nExpected output (sorted):\nEast: 8500\nNorth: 12000\nSouth: 6200\nWest: 9800\nBest region: North",
+      "starter_code": "import java.util.*;\n\n// Sales report using entrySet iteration\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Map<String, Integer> sales = new HashMap<>();\n        sales.put(\"North\", 12000);\n        sales.put(\"South\", 6200);\n        sales.put(\"East\", 8500);\n        sales.put(\"West\", 9800);\n        \n        // Sort for output\n        List<String> regions = new ArrayList<>(sales.keySet());\n        Collections.sort(regions);\n        \n        String bestRegion = null;\n        int bestSales = 0;\n        \n        for (String region : regions) {\n            int regionSales = sales.get(region);\n            System.out.println(region + \": \" + regionSales);\n            if (regionSales > bestSales) {\n                bestSales = regionSales;\n                bestRegion = region;\n            }\n        }\n        \n        System.out.println(\"Best region: \" + bestRegion);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "East: 8500\nNorth: 12000\nSouth: 6200\nWest: 9800\nBest region: North" }
+      ],
+      "hints": [
+        "Sort regions list for deterministic output",
+        "Iterate sorted keys, get value from map",
+        "Track max during iteration"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m6_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "ListIterator — in-place transformation",
+      "scenario": "Transform list elements during iteration.",
+      "instructions": "Use ListIterator to transform a list of names: capitalize first letter of each word.\n\nInput: [aisha khan, raj patel, priya sharma]\n\nExpected output:\n[Aisha Khan, Raj Patel, Priya Sharma]",
+      "starter_code": "import java.util.*;\n\n// ListIterator to transform names in-place\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    static String capitalize(String s) {\n        String[] parts = s.split(\" \");\n        StringBuilder result = new StringBuilder();\n        for (String part : parts) {\n            if (result.length() > 0) result.append(\" \");\n            result.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));\n        }\n        return result.toString();\n    }\n    \n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(Arrays.asList(\"aisha khan\", \"raj patel\", \"priya sharma\"));\n        \n        ListIterator<String> lit = names.listIterator();\n        while (lit.hasNext()) {\n            String name = lit.next();\n            lit.set(capitalize(name));\n        }\n        \n        System.out.println(names);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha Khan, Raj Patel, Priya Sharma]" }
+      ],
+      "hints": [
+        "ListIterator<String> lit = names.listIterator()",
+        "lit.next() to get element, lit.set() to replace it",
+        "Capitalize each word: split by space, capitalize each part"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "listiterator_set"
+    },
+    
+    {
+      "id": "java_m6_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Collections.disjoint and nCopies",
+      "scenario": "Set disjoint check and create repeated lists.",
+      "instructions": "Check if two course lists share no courses (disjoint). Then create a 'wait list' of 5 placeholder slots using nCopies.\n\nExpected output:\nMath and CS share courses: false\nCS and Arts share courses: true\nWait list: [PENDING, PENDING, PENDING, PENDING, PENDING]",
+      "starter_code": "import java.util.*;\n\n// Collections.disjoint and nCopies\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> math = Arrays.asList(\"Calculus\", \"Statistics\", \"Linear Algebra\");\n        List<String> cs = Arrays.asList(\"Statistics\", \"Algorithms\", \"Databases\");\n        List<String> arts = Arrays.asList(\"History\", \"Literature\", \"Music\");\n        \n        System.out.println(\"Math and CS share courses: \" + !Collections.disjoint(math, cs));\n        System.out.println(\"CS and Arts share courses: \" + !Collections.disjoint(cs, arts));\n        \n        List<String> waitList = Collections.nCopies(5, \"PENDING\");\n        System.out.println(\"Wait list: \" + waitList);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Math and CS share courses: false\nCS and Arts share courses: true\nWait list: [PENDING, PENDING, PENDING, PENDING, PENDING]" }
+      ],
+      "hints": [
+        "disjoint(a, b) returns TRUE if no common elements",
+        "To print 'share courses': negate disjoint with !",
+        "nCopies(n, element) creates immutable list of n copies"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m6_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Safe batch update with Iterator",
+      "scenario": "Complex Iterator removal with state tracking.",
+      "instructions": "Process a list of orders. Use Iterator to:\n- Remove CANCELLED orders (track count)\n- Remove orders with total < 100 as 'small orders' (track their total for refund)\n- Keep all others\n\nExpected output:\nCancelled: 1\nSmall order refunds: ₹149.0\nRemaining orders: 2",
+      "starter_code": "import java.util.*;\n\n// Use Iterator to batch-remove with multiple conditions and side effects\n",
+      "expected_solution": "import java.util.*;\n\nclass Order {\n    int id;\n    String status;\n    double total;\n    Order(int id, String status, double total) {\n        this.id = id; this.status = status; this.total = total;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<Order> orders = new ArrayList<>(Arrays.asList(\n            new Order(1, \"ACTIVE\", 599.0),\n            new Order(2, \"CANCELLED\", 1200.0),\n            new Order(3, \"ACTIVE\", 75.0),\n            new Order(4, \"ACTIVE\", 1800.0),\n            new Order(5, \"ACTIVE\", 74.0)\n        ));\n        \n        int cancelledCount = 0;\n        double smallRefund = 0;\n        \n        Iterator<Order> it = orders.iterator();\n        while (it.hasNext()) {\n            Order o = it.next();\n            if (o.status.equals(\"CANCELLED\")) {\n                cancelledCount++;\n                it.remove();\n            } else if (o.total < 100) {\n                smallRefund += o.total;\n                it.remove();\n            }\n        }\n        \n        System.out.println(\"Cancelled: \" + cancelledCount);\n        System.out.println(\"Small order refunds: ₹\" + smallRefund);\n        System.out.println(\"Remaining orders: \" + orders.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Cancelled: 1\nSmall order refunds: ₹149.0\nRemaining orders: 2" }
+      ],
+      "hints": [
+        "Iterator lets you accumulate side effects before or after removal",
+        "Two conditions: CANCELLED → cancelledCount++; total < 100 → smallRefund +=",
+        "Both call it.remove() after their logic",
+        "75.0 + 74.0 = 149.0"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m6_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Collections utility combo — top N with stats",
+      "scenario": "Multiple Collections methods in one workflow.",
+      "instructions": "Given exam scores as List<Integer>:\n- Sort ascending with Collections.sort\n- Find min and max\n- Count how many scored 90+\n- Get top 3 scores\n- Reverse the list\n\nExpected output:\nMin: 65, Max: 98\nScored 90+: 3\nTop 3: [98, 95, 92]\nReversed: [98, 95, 92, 88, 81, 73, 65]",
+      "starter_code": "import java.util.*;\n\n// Multiple Collections utility methods on exam scores\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> scores = new ArrayList<>(Arrays.asList(88, 65, 95, 73, 92, 81, 98));\n        \n        Collections.sort(scores);\n        \n        System.out.println(\"Min: \" + Collections.min(scores) + \", Max: \" + Collections.max(scores));\n        \n        int above90 = 0;\n        for (int s : scores) if (s >= 90) above90++;\n        System.out.println(\"Scored 90+: \" + above90);\n        \n        List<Integer> top3 = new ArrayList<>(scores.subList(scores.size() - 3, scores.size()));\n        Collections.sort(top3, Collections.reverseOrder());\n        System.out.println(\"Top 3: \" + top3);\n        \n        Collections.reverse(scores);\n        System.out.println(\"Reversed: \" + scores);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Min: 65, Max: 98\nScored 90+: 3\nTop 3: [98, 95, 92]\nReversed: [98, 95, 92, 88, 81, 73, 65]" }
+      ],
+      "hints": [
+        "Sort first, then min/max use Comparable",
+        "Top 3 after sorting ascending: last 3 elements (subList from size-3)",
+        "Reverse the top3 copy for descending display",
+        "Then reverse the whole list"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m6_t4_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Collections.sort modifies in-place",
+      "scenario": "Sort mutates the original list.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> original = new ArrayList<>(Arrays.asList(3, 1, 2));\n        List<Integer> copy = new ArrayList<>(original);\n        \n        Collections.sort(original);\n        \n        System.out.println(\"original: \" + original);\n        System.out.println(\"copy: \" + copy);\n        System.out.println(\"frequency of 1: \" + Collections.frequency(original, 1));\n    }\n}\n```",
+      "expected_solution": "original: [1, 2, 3]\ncopy: [3, 1, 2]\nfrequency of 1: 1",
+      "test_cases": [
+        { "type": "text_match", "expected": "original: [1, 2, 3]\ncopy: [3, 1, 2]\nfrequency of 1: 1" }
+      ],
+      "hints": [
+        "Collections.sort(original) mutates original IN PLACE",
+        "copy was made before sort — unaffected",
+        "frequency(list, 1) counts occurrences of 1 in sorted list → 1"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m6_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Iterator over Map.entrySet for value update",
+      "scenario": "Modify map values during entrySet iteration.",
+      "instructions": "Apply a 10% discount to all products priced above ₹1000 using entrySet iteration.\n\nInput: {Mouse=599, Keyboard=1999, Monitor=18999, USB_Hub=499}\n\nExpected output (sorted):\nKeyboard: 1799.1\nMonitor: 17099.1\nMouse: 599.0\nUSB_Hub: 499.0",
+      "starter_code": "import java.util.*;\n\n// Apply discount via entrySet iteration with setValue()\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Map<String, Double> prices = new HashMap<>();\n        prices.put(\"Mouse\", 599.0);\n        prices.put(\"Keyboard\", 1999.0);\n        prices.put(\"Monitor\", 18999.0);\n        prices.put(\"USB_Hub\", 499.0);\n        \n        for (Map.Entry<String, Double> entry : prices.entrySet()) {\n            if (entry.getValue() > 1000) {\n                entry.setValue(entry.getValue() * 0.9);\n            }\n        }\n        \n        List<String> keys = new ArrayList<>(prices.keySet());\n        Collections.sort(keys);\n        for (String k : keys) {\n            System.out.println(k + \": \" + prices.get(k));\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Keyboard: 1799.1\nMonitor: 17099.1\nMouse: 599.0\nUSB_Hub: 499.0" }
+      ],
+      "hints": [
+        "entry.setValue() modifies the map value in-place",
+        "Only for values > 1000: *= 0.9 (10% discount)",
+        "1999 × 0.9 = 1799.1, 18999 × 0.9 = 17099.1"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m6_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Leaderboard with Collections — full pipeline",
+      "scenario": "Sort, slice top N, reverse, and return read-only view.",
+      "instructions": "Build a `Leaderboard` class:\n- Internal `List<Player>` (name, score)\n- `addPlayer(Player)`\n- `getTopPlayers(int n)` — sorted descending by score, top n, returned as unmodifiable\n- `getBottomPlayers(int n)` — lowest n scores\n- `printStats()` — min, max, frequency of tied scores\n\nExpected output:\nTop 3: [Aisha(9500), Raj(8200), Priya(7800)]\nBottom 2: [Anita(6500), Vikram(7200)]\nMin score: 6500, Max: 9500\nOccurrences of score 7800: 1",
+      "starter_code": "import java.util.*;\n\n// Leaderboard with full Collections utility usage\n",
+      "expected_solution": "import java.util.*;\n\nclass Player implements Comparable<Player> {\n    String name;\n    int score;\n    Player(String name, int score) { this.name = name; this.score = score; }\n    @Override public int compareTo(Player o) { return Integer.compare(this.score, o.score); }\n    @Override public String toString() { return name + \"(\" + score + \")\"; }\n}\n\nclass Leaderboard {\n    private List<Player> players = new ArrayList<>();\n    \n    public void addPlayer(Player p) { players.add(p); }\n    \n    public List<Player> getTopPlayers(int n) {\n        List<Player> sorted = new ArrayList<>(players);\n        sorted.sort(Collections.reverseOrder());\n        List<Player> top = sorted.subList(0, Math.min(n, sorted.size()));\n        return Collections.unmodifiableList(new ArrayList<>(top));\n    }\n    \n    public List<Player> getBottomPlayers(int n) {\n        List<Player> sorted = new ArrayList<>(players);\n        Collections.sort(sorted);\n        List<Player> bottom = sorted.subList(0, Math.min(n, sorted.size()));\n        return Collections.unmodifiableList(new ArrayList<>(bottom));\n    }\n    \n    public void printStats() {\n        if (players.isEmpty()) return;\n        Player best = Collections.max(players);\n        Player worst = Collections.min(players);\n        System.out.println(\"Min score: \" + worst.score + \", Max: \" + best.score);\n        int freq = 0;\n        for (Player p : players) if (p.score == 7800) freq++;\n        System.out.println(\"Occurrences of score 7800: \" + freq);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Leaderboard lb = new Leaderboard();\n        lb.addPlayer(new Player(\"Priya\", 7800));\n        lb.addPlayer(new Player(\"Aisha\", 9500));\n        lb.addPlayer(new Player(\"Anita\", 6500));\n        lb.addPlayer(new Player(\"Raj\", 8200));\n        lb.addPlayer(new Player(\"Vikram\", 7200));\n        \n        System.out.println(\"Top 3: \" + lb.getTopPlayers(3));\n        System.out.println(\"Bottom 2: \" + lb.getBottomPlayers(2));\n        lb.printStats();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Top 3: [Aisha(9500), Raj(8200), Priya(7800)]\nBottom 2: [Anita(6500), Vikram(7200)]\nMin score: 6500, Max: 9500\nOccurrences of score 7800: 1" }
+      ],
+      "hints": [
+        "getTopPlayers: copy, sort descending, subList(0, n), wrap in unmodifiableList",
+        "getBottomPlayers: copy, sort ascending, subList(0, n)",
+        "Collections.max/min use Comparable on Player",
+        "Wrap subList result in new ArrayList before unmodifiableList (subList is a view)"
+      ],
+      "xp_reward": 80
+    },
+    
+    {
+      "id": "java_m6_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Inventory cleanup with full Iterator pipeline",
+      "scenario": "Complex Iterator operations on a product list.",
+      "instructions": "Build an `InventoryCleaner` that processes a `List<Product>` (name, category, stock, price) using Iterator:\n\n1. `removeOutOfStock()` — remove products with stock=0, return count removed\n2. `expensiveItems(double threshold)` — using Iterator, collect products above threshold, apply 15% discount via ListIterator, return discounted items\n3. `consolidate(List<Product> products)` — use Iterator to remove duplicates by name (keep first occurrence)\n\nExpected output:\nRemoved out-of-stock: 2\nDiscounted expensive items: [Monitor: ₹16149.15, Keyboard: ₹1699.15]\nAfter consolidation: 3 unique products",
+      "starter_code": "import java.util.*;\n\n// InventoryCleaner with Iterator-based operations\n",
+      "expected_solution": "import java.util.*;\n\nclass Product {\n    String name, category;\n    int stock;\n    double price;\n    \n    Product(String name, String category, int stock, double price) {\n        this.name = name; this.category = category;\n        this.stock = stock; this.price = price;\n    }\n    \n    Product withPrice(double newPrice) {\n        return new Product(name, category, stock, newPrice);\n    }\n    \n    public String toString() { return name + \": ₹\" + String.format(\"%.2f\", price); }\n}\n\nclass InventoryCleaner {\n    \n    public int removeOutOfStock(List<Product> products) {\n        int count = 0;\n        Iterator<Product> it = products.iterator();\n        while (it.hasNext()) {\n            if (it.next().stock == 0) { count++; it.remove(); }\n        }\n        return count;\n    }\n    \n    public List<Product> expensiveItems(List<Product> products, double threshold) {\n        List<Product> expensive = new ArrayList<>();\n        for (Product p : products) {\n            if (p.price > threshold) expensive.add(p);\n        }\n        \n        // Apply 15% discount via ListIterator\n        ListIterator<Product> lit = expensive.listIterator();\n        while (lit.hasNext()) {\n            Product p = lit.next();\n            lit.set(p.withPrice(p.price * 0.85));\n        }\n        return expensive;\n    }\n    \n    public void consolidate(List<Product> products) {\n        Set<String> seen = new HashSet<>();\n        Iterator<Product> it = products.iterator();\n        while (it.hasNext()) {\n            Product p = it.next();\n            if (!seen.add(p.name)) {  // add returns false if already present\n                it.remove();\n            }\n        }\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<Product> inventory = new ArrayList<>(Arrays.asList(\n            new Product(\"Mouse\", \"Electronics\", 45, 799.0),\n            new Product(\"Keyboard\", \"Electronics\", 0, 1999.0),\n            new Product(\"Monitor\", \"Electronics\", 8, 18999.0),\n            new Product(\"USB Hub\", \"Electronics\", 0, 499.0),\n            new Product(\"Mouse\", \"Electronics\", 20, 849.0),\n            new Product(\"Monitor\", \"Electronics\", 5, 19999.0)\n        ));\n        \n        InventoryCleaner cleaner = new InventoryCleaner();\n        \n        int removed = cleaner.removeOutOfStock(inventory);\n        System.out.println(\"Removed out-of-stock: \" + removed);\n        \n        List<Product> discounted = cleaner.expensiveItems(inventory, 1000);\n        System.out.println(\"Discounted expensive items: \" + discounted);\n        \n        cleaner.consolidate(inventory);\n        System.out.println(\"After consolidation: \" + inventory.size() + \" unique products\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Removed out-of-stock: 2\nDiscounted expensive items: [Monitor: ₹16149.15, Keyboard: ₹1699.15]\nAfter consolidation: 3 unique products" }
+      ],
+      "hints": [
+        "removeOutOfStock: simple Iterator.remove() when stock==0",
+        "expensiveItems: collect matching, then ListIterator.set() with discounted price",
+        "consolidate: Set<String> seen, seen.add(name) returns false for duplicates → remove",
+        "18999 × 0.85 = 16149.15, 1999 × 0.85 = 1699.15",
+        "After removeOutOfStock: Keyboard(0) and USB Hub(0) removed → 4 left",
+        "After consolidation: Mouse + Monitor duplicates removed → 3 unique"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 12,
+      "debug": 0,
+      "predict_output": 2
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  },
+  
+  "gap_detection_map": {
+    "calling_remove_without_next": ["ex_1"],
+    "sorting_original_when_copy_needed": ["ex_12"],
+    "iterator_with_side_effect": ["ex_4", "ex_10"],
+    "listiterator_set": ["ex_8"]
+  }
+}

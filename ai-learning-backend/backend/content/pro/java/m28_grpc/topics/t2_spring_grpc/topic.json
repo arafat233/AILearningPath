@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m28_t2",
+  "language": "java",
+  "module_id": "m28",
+  "module_name": "gRPC with Spring Boot",
+  "topic_number": 2,
+  "name": "Spring Boot gRPC — Server & Client",
+  "slug": "spring-boot-grpc-server-client",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m28_t1", "java_m13_t1"],
+    "concepts_taught": [
+      "grpc_server_spring_boot", "grpc_service_annotation", "stream_observer",
+      "grpc_client_annotation", "blocking_stub", "async_stub",
+      "grpc_channel", "grpc_server_config", "grpc_client_config",
+      "grpc_status_codes", "status_runtime_exception", "error_handling"
+    ],
+    "skills_developed": [
+      "implementing_grpc_service", "injecting_grpc_client",
+      "handling_grpc_errors", "configuring_grpc_spring_boot"
+    ],
+    "career_relevance": "Razorpay's risk engine is a gRPC server receiving 10,000 payment validation requests per second from the payment service. The payment service is a gRPC client. With Spring Boot gRPC: @GrpcService on the risk engine implementation, @GrpcClient on the payment service — zero boilerplate channel management. After this topic, you can build production gRPC microservices in Spring Boot as naturally as REST controllers.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay payment risk check:\n\n```\nPayment Service calls Risk Engine:\n  REST approach: POST http://risk-engine/api/check (JSON body)\n    Boilerplate: RestTemplate/WebClient, JSON serialization, HTTP headers\n    Latency: 1.5ms\n    Type safety: none (JSON is stringly-typed)\n\n  gRPC approach: RiskService.checkPayment(CheckRequest)\n    Spring Boot: @GrpcClient(\"risk-engine\") RiskServiceBlockingStub stub;\n    Call: stub.checkPayment(request)\n    Latency: 0.15ms (10x faster!)\n    Type safety: CheckRequest and CheckResponse are protobuf-typed\n    Boilerplate: ZERO — Spring Boot manages the channel\n```",
+    "what_you_will_build": "Razorpay risk engine gRPC server + payment service gRPC client."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "grpc_service": "**Implementing a gRPC server with @GrpcService:**\n\n```java\n// Proto-generated: RiskServiceGrpc.RiskServiceImplBase\n// Extend it, annotate with @GrpcService:\n\n@GrpcService\npublic class RiskServiceImpl extends RiskServiceGrpc.RiskServiceImplBase {\n\n    @Autowired\n    private RiskCalculator riskCalculator;\n\n    @Override\n    public void checkPayment(CheckRequest req, StreamObserver<CheckResponse> responseObserver) {\n        try {\n            // 1. Business logic:\n            RiskScore score = riskCalculator.calculate(req.getMerchantId(), req.getAmountPaise());\n\n            // 2. Build response:\n            CheckResponse response = CheckResponse.newBuilder()\n                .setApproved(score.isApproved())\n                .setRiskScore(score.getScore())\n                .setReason(score.getReason())\n                .build();\n\n            // 3. Send response and complete:\n            responseObserver.onNext(response);     // send the response message\n            responseObserver.onCompleted();         // signal: done sending\n\n        } catch (IllegalArgumentException e) {\n            // 4. Error: use gRPC Status codes:\n            responseObserver.onError(\n                Status.INVALID_ARGUMENT\n                    .withDescription(e.getMessage())\n                    .asRuntimeException()\n            );\n        }\n    }\n}\n```",
+      "grpc_client": "**gRPC client with @GrpcClient:**\n\n```yaml\n# application.yml (payment-service):\ngrpc:\n  client:\n    risk-engine:\n      address: static://risk-engine.prod.svc.cluster.local:9090\n      negotiation-type: plaintext  # or TLS\n```\n\n```java\n@Service\npublic class PaymentService {\n    // @GrpcClient: Spring injects the stub, manages the channel\n    @GrpcClient(\"risk-engine\")  // must match application.yml key\n    private RiskServiceGrpc.RiskServiceBlockingStub riskStub; // sync call\n\n    public PaymentResult createPayment(PaymentRequest req) {\n        // gRPC call (blocking stub blocks until response):\n        CheckRequest checkReq = CheckRequest.newBuilder()\n            .setMerchantId(req.getMerchantId())\n            .setAmountPaise(req.getAmountPaise())\n            .build();\n\n        try {\n            CheckResponse risk = riskStub.checkPayment(checkReq);\n            if (!risk.getApproved()) {\n                return PaymentResult.rejected(risk.getReason());\n            }\n            return executePayment(req);\n        } catch (StatusRuntimeException e) {\n            if (e.getStatus().getCode() == Status.Code.UNAVAILABLE) {\n                return PaymentResult.serviceUnavailable();\n            }\n            throw e;\n        }\n    }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two boxes side by side. Left (Payment Service): @Service PaymentService with @GrpcClient injected RiskServiceBlockingStub. Arrow showing: stub.checkPayment(request) → gRPC binary over HTTP/2 → Right box. Right (Risk Engine): @GrpcService RiskServiceImpl extending RiskServiceImplBase. responseObserver.onNext(response) → back to left. Below: Spring Boot auto-wiring diagram: grpc-spring-boot-starter creates ManagedChannel, injects as BlockingStub/FutureStub. application.yml: grpc.client.risk-engine.address → channel target.",
+      "alt_text": "@GrpcService implements server; @GrpcClient injects stub; Spring manages channel"
+    },
+    "worked_example": {
+      "scenario": "Razorpay risk engine gRPC server + payment service client.",
+      "problem_statement": "1. RiskServiceImpl @GrpcService: extends RiskServiceImplBase, @Autowired RiskCalculator\n2. checkPayment: build CheckResponse, call onNext + onCompleted\n3. PaymentService: @GrpcClient injects BlockingStub\n4. application.yml: grpc.server.port + grpc.client config\n5. @SpringBootTest with GrpcCleanupRule: server starts, client calls it",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "StreamObserver contract",
+          "details": "Every gRPC method receives a StreamObserver<ResponseType> as the last parameter. The contract: call onNext(response) once (for unary), call onCompleted() to signal success, OR call onError(exception) to signal failure. NEVER call onNext after onCompleted or onError. For streaming: call onNext multiple times, then onCompleted."
+        }
+      ],
+      "final_code": "// Server: @GrpcService extends ImplBase → override rpc methods\n// Client: @GrpcClient → injects BlockingStub → stub.method(request)\n// Error: Status.INVALID_ARGUMENT.withDescription().asRuntimeException()\n// Client catch: StatusRuntimeException → e.getStatus().getCode()",
+      "expected_output": "// Server: gRPC server started on port 9090 (configured in application.yml)\n// Client: stub.checkPayment(request) → CheckResponse{approved=true, riskScore=25}\n// Error: StatusRuntimeException(INVALID_ARGUMENT, 'merchantId is required')",
+      "things_to_notice": [
+        "ALWAYS call onCompleted() or onError() — never leave the stream hanging. If you return from the method without calling either, the client will wait forever (or until timeout).",
+        "BlockingStub vs FutureStub: BlockingStub.method() blocks the calling thread (simple, like RestTemplate). FutureStub.method() returns ListenableFuture (async, like WebClient). Use BlockingStub for simplicity unless you need high concurrency.",
+        "Status codes have retry semantics: UNAVAILABLE = transient (retry), INVALID_ARGUMENT = permanent (don't retry). Client code should check the code to decide retry policy.",
+        "@GrpcClient name: must match the key in application.yml grpc.client.<name>.address. Case-sensitive."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay payment → risk engine",
+          "use_case": "PaymentService (Spring Boot) calls RiskEngine (Spring Boot gRPC server) for every payment. @GrpcClient('risk-engine'): Spring Boot manages the HTTP/2 connection pool, load balancing across 5 risk engine pods (round-robin), TLS, keepalive pings. PaymentService code: just stub.checkPayment(req). Zero channel management. 0.15ms per call vs 1.5ms REST."
+        }
+      ],
+      "interview_relevance": "'How do you implement a gRPC server and client in Spring Boot?' → Server: @GrpcService on class extending ServiceNameGrpc.ServiceNameImplBase. Override RPC methods: build response, call responseObserver.onNext(response) + onCompleted(). Client: @GrpcClient('service-name') injects BlockingStub. Configure grpc.client.service-name.address in application.yml. Error: StatusRuntimeException — check getStatus().getCode() for retry decisions.",
+      "real_world_workflow": "Spring Boot gRPC workflow: (1) add grpc-server and grpc-client starters (net.devh), (2) write @GrpcService class extending proto-generated ImplBase, (3) configure grpc.server.port in yml, (4) in client service: @GrpcClient injects stub, (5) configure grpc.client.<name>.address in yml, (6) catch StatusRuntimeException with appropriate retry logic, (7) test with InProcessServer (no real port needed)."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "missing_onCompleted",
+        "what_students_get_wrong": "Building and sending the response via responseObserver.onNext(response) but forgetting to call responseObserver.onCompleted(). The client waits forever for more messages (or until timeout).",
+        "remediation": "Template for every unary RPC: try { ... responseObserver.onNext(response); responseObserver.onCompleted(); } catch (Exception e) { responseObserver.onError(...); }. The finally block is not the right place — onCompleted and onError are mutually exclusive.",
+        "detection_pattern": "Client hangs indefinitely on stub call; server logs show method completed without error but client never receives response"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "@GrpcService: marks Spring bean as gRPC service implementation",
+        "Extend ServiceNameGrpc.ServiceNameImplBase: generated abstract class",
+        "responseObserver.onNext(response): send a response message",
+        "responseObserver.onCompleted(): signal stream is done (call exactly once)",
+        "responseObserver.onError(exception): signal error (mutually exclusive with onCompleted)",
+        "@GrpcClient('name'): Spring injects blocking/async stub + manages channel",
+        "BlockingStub: synchronous (blocks thread); FutureStub: async (ListenableFuture)",
+        "StatusRuntimeException: gRPC error — check getStatus().getCode()",
+        "UNAVAILABLE: retryable; INVALID_ARGUMENT: not retryable",
+        "grpc.server.port=9090, grpc.client.name.address=static://host:9090"
+      ],
+      "self_check_questions": [
+        {
+          "question": "What happens if a gRPC service method returns without calling onNext/onCompleted or onError?",
+          "answer": "The client's blocking stub call will hang indefinitely (or until the deadline/timeout is reached). This is a very common bug in gRPC implementations. The server-side method returns normally (from Java's perspective), but the gRPC framework doesn't know the RPC is complete — it's still waiting for the responseObserver to be called. The client eventually gets a DEADLINE_EXCEEDED error (if a deadline was set) or waits forever. Fix: always call onCompleted() after onNext() for success, or onError() for failure. Use try-catch-finally pattern: try { onNext(); onCompleted(); } catch (Exception e) { onError(Status.INTERNAL...); } — but note: finally block is wrong because you'd call both onCompleted AND onError on exception."
+        }
+      ],
+      "next_topic_preview": "Next: Streaming gRPC — server streaming (price feed), client streaming (bulk order upload), and bidirectional streaming (order book)."
+    }
+  }
+}

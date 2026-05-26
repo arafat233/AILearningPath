@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m3_t4_proj",
+  "linked_topic": "java_m3_t4",
+  "level": "mini",
+  "name": "Password Strength Checker",
+  "estimated_minutes": 50,
+  "difficulty": 5,
+  
+  "scenario": "Every signup form on the internet has one — the password strength indicator. As users type, the meter shifts from 'Weak' to 'Strong' based on what they've typed. You're building this engine for a security-conscious fintech app (think Razorpay, Stripe, HDFC NetBanking). Real password strength requires checking multiple criteria: length, character diversity (uppercase, lowercase, digits, special chars), common-password detection, and absence of obvious patterns. This is real security code — sloppy implementation here has led to actual breaches at real companies.",
+  
+  "description": "Build a `PasswordChecker` class that evaluates passwords against multiple criteria. Each criterion is a separate method. The final score determines the strength label. Practice character-level analysis, multiple checks composed together, and a touch of real-world security awareness.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `PasswordChecker` in file PasswordChecker.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`isMinLength(String password)` — true if length >= 8",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`hasUppercase(String password)` — true if contains at least one uppercase letter (A-Z)",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`hasLowercase(String password)` — true if contains at least one lowercase letter (a-z)",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`hasDigit(String password)` — true if contains at least one digit (0-9)",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`hasSpecialChar(String password)` — true if contains at least one of: !@#$%^&*()",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "`isCommonPassword(String password)` — returns true if password (case-insensitive) matches any of: 'password', '12345678', 'qwerty', 'admin'",
+        "weight": 10
+      },
+      {
+        "id": "req_9",
+        "description": "`getStrength(String password)` — returns 'Weak', 'Medium', or 'Strong' based on number of criteria met",
+        "weight": 15
+      },
+      {
+        "id": "req_10",
+        "description": "main() tests with at least 5 different password examples (showing weak, medium, strong)",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `hasNoCommonPattern(String password)` — returns false if password contains '1234' or 'abcd' (case-insensitive)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Print a CHECKLIST showing which criteria passed/failed (✓ or ✗)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Calculate a numeric score (0-100) based on criteria met, weighted by importance",
+        "weight": 15
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add `suggestImprovement(String password)` — returns a string telling the user what to add",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Test with these passwords:\n\n1. `\"abc\"` — weak (short, missing everything)\n2. `\"password\"` — weak (common, missing uppercase, digits, special)\n3. `\"Password1\"` — medium (length OK, has 3 criteria)\n4. `\"P@ssw0rd123\"` — strong (all 5 criteria)\n5. `\"12345678\"` — weak (common password)\n\nExpected scoring:\n- 0-2 criteria: Weak\n- 3-4 criteria: Medium\n- 5 criteria: Strong\n\nCommon passwords automatically score 'Weak' regardless of other criteria.",
+  
+  "starter_code": "public class PasswordChecker {\n    public static void main(String[] args) {\n        String[] testPasswords = {\n            \"abc\",\n            \"password\",\n            \"Password1\",\n            \"P@ssw0rd123\",\n            \"12345678\"\n        };\n        \n        for (String pwd : testPasswords) {\n            String strength = getStrength(pwd);\n            System.out.println(\"'\" + pwd + \"' → \" + strength);\n        }\n    }\n    \n    // TODO: Define all required methods\n}",
+  
+  "example_output": "===================================\n      PASSWORD STRENGTH CHECK\n===================================\n'abc' → Weak\n'password' → Weak (common password!)\n'Password1' → Medium\n'P@ssw0rd123' → Strong\n'12345678' → Weak (common password!)\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Individual Check Methods",
+      "points": 50,
+      "criteria": [
+        "isMinLength (10 pts)",
+        "hasUppercase iterates through chars correctly (10 pts)",
+        "hasLowercase (10 pts)",
+        "hasDigit (10 pts)",
+        "hasSpecialChar checks specific characters (10 pts)"
+      ]
+    },
+    {
+      "category": "Common Password Detection",
+      "points": 10,
+      "criteria": [
+        "isCommonPassword uses .equalsIgnoreCase (NOT ==) (5 pts)",
+        "Catches all 4 common passwords (5 pts)"
+      ]
+    },
+    {
+      "category": "Strength Calculation",
+      "points": 15,
+      "criteria": [
+        "Returns Weak/Medium/Strong correctly (10 pts)",
+        "Common passwords always Weak (5 pts)"
+      ]
+    },
+    {
+      "category": "main Demonstration",
+      "points": 10,
+      "criteria": [
+        "Tests at least 5 passwords (5 pts)",
+        "Output is clean (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 60,
+      "criteria": [
+        "Common pattern check (15 pts)",
+        "Checklist display (15 pts)",
+        "Numeric score (15 pts)",
+        "Improvement suggestions (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. You have all the tools (charAt, contains, equalsIgnoreCase, iteration). The challenge is composing many simple methods into the getStrength logic. Plan: write each check method, then getStrength counts how many returned true.",
+  
+  "submission_instructions": "Save as PasswordChecker.java. Run it. Try edge cases: empty string, single character, very long password. Push to GitHub portfolio — this is real security utility code.",
+  
+  "tips_for_success": [
+    "For character checks: use Character.isUpperCase(c), Character.isLowerCase(c), Character.isDigit(c). These are cleaner than manual ASCII comparison.",
+    "For hasSpecialChar: check if a string like \"!@#$%^&*()\" contains the character. Use .indexOf(c) != -1 or build a Set of allowed chars.",
+    "For isCommonPassword: use String[] commonPasswords array, loop through, equalsIgnoreCase each.",
+    "For getStrength: count how many criteria methods returned true. Use the count to determine level.",
+    "Special case: if isCommonPassword returns true, return Weak IMMEDIATELY regardless of other criteria.",
+    "For the bonus checklist: print each criterion's pass/fail using ✓ and ✗ (or true/false if encoding is an issue)."
+  ],
+  
+  "concepts_reinforced": [
+    "String iteration with charAt",
+    "Character class methods (isUpperCase, isLowerCase, isDigit)",
+    "String.contains for special character checks",
+    "equalsIgnoreCase for case-insensitive comparison",
+    "Method composition (each check is a method, getStrength uses them all)",
+    "Early return patterns",
+    "Real-world validation logic"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond the syntax, you experience HOW REAL SECURITY VALIDATION IS BUILT. Real password validators (in OWASP libraries, in NIST guidelines, in Spring Security) do exactly this — composing many small criteria checks. The actual rules are more complex (entropy calculation, breach database lookups), but the structure is identical. Notice: each check is INDEPENDENT and TESTABLE. That's the key — small, focused, composable methods. This is the engineering style you'll use for years.",
+  
+  "extensions_for_advanced_learners": [
+    "Add an entropy calculator (estimate bits of randomness)",
+    "Detect keyboard patterns (qwerty, asdf, 1234)",
+    "Check for personal info (user's name shouldn't be in password)",
+    "Add policy customization (configurable min length, required criteria)",
+    "Hash the password with SHA-256 before storage (preview of real auth)"
+  ]
+}

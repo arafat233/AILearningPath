@@ -1,0 +1,337 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m33_t4",
+  "topic_name": "Deque & Sliding Window Max",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m33_t4_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Deque both-ends demo",
+      "instructions": "Implement: Deque both-ends demo.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DequeDemo {\n    public static void main(String[] a){\n        Deque<Integer> dq=new ArrayDeque<>();\n        dq.offerFirst(2);dq.offerFirst(1); // front: [1,2]\n        dq.offerLast(3);dq.offerLast(4);   // back: [1,2,3,4]\n        System.out.println(\"front: \"+dq.peekFirst()); // 1\n        System.out.println(\"back: \"+dq.peekLast());   // 4\n        dq.pollFirst(); dq.pollLast();\n        System.out.println(\"after poll both: \"+dq); // [2,3]\n        System.out.println(\"Deque: O(1) at BOTH ends \u2014 stack+queue combined\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "front: 1",
+            "back: 4",
+            "[2, 3]",
+            "O(1) at BOTH ends"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m33_t4_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sliding Window Maximum (LeetCode #239)",
+      "instructions": "Implement: Sliding Window Maximum (LeetCode #239).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SWMax {\n    public static int[] maxSlidingWindow(int[] nums, int k) {\n        int n=nums.length; int[] res=new int[n-k+1]; Deque<Integer> dq=new ArrayDeque<>();\n        for(int i=0;i<n;i++){\n            if(!dq.isEmpty()&&dq.peekFirst()<=i-k) dq.pollFirst();\n            while(!dq.isEmpty()&&nums[dq.peekLast()]<=nums[i]) dq.pollLast();\n            dq.offerLast(i);\n            if(i>=k-1) res[i-k+1]=nums[dq.peekFirst()];\n        }\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(maxSlidingWindow(new int[]{1,3,-1,-3,5,3,6,7},3)));\n        System.out.println(Arrays.toString(maxSlidingWindow(new int[]{1},1)));\n        System.out.println(\"O(n) monotonic decreasing deque of indices\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[3, 3, 5, 5, 6, 7]",
+            "[1]",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m33_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sliding Window Minimum",
+      "instructions": "Implement: Sliding Window Minimum.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SWMin {\n    public static int[] minSlidingWindow(int[] nums, int k) {\n        int n=nums.length; int[] res=new int[n-k+1]; Deque<Integer> dq=new ArrayDeque<>();\n        for(int i=0;i<n;i++){\n            if(!dq.isEmpty()&&dq.peekFirst()<=i-k) dq.pollFirst();\n            while(!dq.isEmpty()&&nums[dq.peekLast()]>=nums[i]) dq.pollLast();\n            dq.offerLast(i);\n            if(i>=k-1) res[i-k+1]=nums[dq.peekFirst()];\n        }\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(minSlidingWindow(new int[]{1,3,-1,-3,5,3,6,7},3)));\n        System.out.println(\"O(n) monotonic INCREASING deque (remove >= instead of <=)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[-1, -3, -3, -3, 3, 3]",
+            "monotonic INCREASING"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m33_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Jump Game I (LeetCode #55)",
+      "instructions": "Implement: Jump Game I (LeetCode #55).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class JumpI {\n    public static boolean canJump(int[] nums) {\n        int maxReach=0;\n        for(int i=0;i<nums.length;i++){\n            if(i>maxReach) return false;\n            maxReach=Math.max(maxReach,i+nums[i]);\n        }\n        return true;\n    }\n    public static void main(String[] a){\n        System.out.println(canJump(new int[]{2,3,1,1,4})); // true\n        System.out.println(canJump(new int[]{3,2,1,0,4})); // false\n        System.out.println(\"O(n) greedy \u2014 track max reachable index\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m33_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Jump Game II (LeetCode #45) \u2014 min jumps",
+      "instructions": "Implement: Jump Game II (LeetCode #45) \u2014 min jumps.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class JumpII {\n    public static int jump(int[] nums) {\n        int jumps=0,currEnd=0,farthest=0;\n        for(int i=0;i<nums.length-1;i++){\n            farthest=Math.max(farthest,i+nums[i]);\n            if(i==currEnd){jumps++;currEnd=farthest;}\n        }\n        return jumps;\n    }\n    public static void main(String[] a){\n        System.out.println(jump(new int[]{2,3,1,1,4})); // 2\n        System.out.println(jump(new int[]{2,3,0,1,4})); // 2\n        System.out.println(\"O(n) greedy BFS-like \u2014 currEnd is current jump range boundary\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "2",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m33_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sliding window max \u2014 explain why O(n)",
+      "instructions": "Implement: Sliding window max \u2014 explain why O(n).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SWMaxProof {\n    public static void main(String[] a){\n        System.out.println(\"Each element is added to deque ONCE and removed ONCE.\");\n        System.out.println(\"Total operations: 2n = O(n), regardless of k.\");\n        System.out.println(\"The nested while loop is amortized O(1) per outer iteration.\");\n        System.out.println(\"Compare: naive O(n*k) \u2014 check all k elements per window.\");\n        System.out.println(\"For n=10^5, k=10^4: naive=10^9 ops, deque=2*10^5 ops.\");\n        // Verify:\n        Deque<Integer> dq=new ArrayDeque<>();int[] nums={1,3,-1,-3,5,3,6,7};int k=3;\n        int[] res=new int[nums.length-k+1];\n        for(int i=0;i<nums.length;i++){if(!dq.isEmpty()&&dq.peekFirst()<=i-k)dq.pollFirst();while(!dq.isEmpty()&&nums[dq.peekLast()]<=nums[i])dq.pollLast();dq.offerLast(i);if(i>=k-1)res[i-k+1]=nums[dq.peekFirst()];}\n        System.out.println(Arrays.toString(res));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Each element is added",
+            "amortized O(1)",
+            "[3, 3, 5, 5, 6, 7]"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m33_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Longest Subarray with Absolute Diff \u2264 Limit (LeetCode #1438)",
+      "instructions": "Implement: Longest Subarray with Absolute Diff \u2264 Limit (LeetCode #1438).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class AbsDiffWindow {\n    public static int longestSubarray(int[] nums, int limit) {\n        Deque<Integer> maxDq=new ArrayDeque<>(),minDq=new ArrayDeque<>();\n        int lo=0,res=0;\n        for(int hi=0;hi<nums.length;hi++){\n            while(!maxDq.isEmpty()&&nums[maxDq.peekLast()]<=nums[hi])maxDq.pollLast();maxDq.offerLast(hi);\n            while(!minDq.isEmpty()&&nums[minDq.peekLast()]>=nums[hi])minDq.pollLast();minDq.offerLast(hi);\n            while(nums[maxDq.peekFirst()]-nums[minDq.peekFirst()]>limit){lo++;if(maxDq.peekFirst()<lo)maxDq.pollFirst();if(minDq.peekFirst()<lo)minDq.pollFirst();}\n            res=Math.max(res,hi-lo+1);\n        }\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(longestSubarray(new int[]{8,2,4,7},4)); // 2\n        System.out.println(longestSubarray(new int[]{10,1,2,4,7,2},5)); // 4\n        System.out.println(\"O(n) \u2014 two monotonic deques (max and min simultaneously)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "4",
+            "O(n) \u2014 two monotonic"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Shortest Subarray with Sum \u2265 K (LeetCode #862)",
+      "instructions": "Implement: Shortest Subarray with Sum \u2265 K (LeetCode #862).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ShortestSubK {\n    public static int shortestSubarray(int[] nums, int k) {\n        int n=nums.length; long[] prefix=new long[n+1]; for(int i=0;i<n;i++) prefix[i+1]=prefix[i]+nums[i];\n        Deque<Integer> dq=new ArrayDeque<>(); int res=Integer.MAX_VALUE;\n        for(int i=0;i<=n;i++){\n            while(!dq.isEmpty()&&prefix[i]-prefix[dq.peekFirst()]>=k) res=Math.min(res,i-dq.pollFirst());\n            while(!dq.isEmpty()&&prefix[dq.peekLast()]>=prefix[i]) dq.pollLast();\n            dq.offerLast(i);\n        }\n        return res==Integer.MAX_VALUE?-1:res;\n    }\n    public static void main(String[] a){\n        System.out.println(shortestSubarray(new int[]{1},1)); // 1\n        System.out.println(shortestSubarray(new int[]{1,2},4)); // -1\n        System.out.println(shortestSubarray(new int[]{2,-1,2},3)); // 3\n        System.out.println(\"O(n) \u2014 prefix sums + monotonic deque (handles negatives!)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "3",
+            "O(n) \u2014 prefix"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Deque as both stack and queue",
+      "instructions": "Implement: Deque as both stack and queue.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DequeMultiMode {\n    public static void main(String[] a){\n        // Mode 1: Stack (LIFO) \u2014 use Front\n        Deque<Integer> stack=new ArrayDeque<>();\n        stack.push(1);stack.push(2);stack.push(3); // addFirst\n        System.out.println(\"Stack (LIFO): \"+stack.pop()+\",\"+stack.pop()); // 3,2\n        // Mode 2: Queue (FIFO) \u2014 offer=addLast, poll=removeFirst\n        Deque<Integer> queue=new ArrayDeque<>();\n        queue.offer(1);queue.offer(2);queue.offer(3); // addLast\n        System.out.println(\"Queue (FIFO): \"+queue.poll()+\",\"+queue.poll()); // 1,2\n        // Mode 3: Sliding window \u2014 use BOTH ends\n        System.out.println(\"Deque = stack + queue + sliding window support\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Stack (LIFO): 3,2",
+            "Queue (FIFO): 1,2",
+            "Deque = stack + queue"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Circular deque design",
+      "instructions": "Implement: Circular deque design.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CircularDeque {\n    // Design circular deque with fixed capacity k\n    static class MyCircularDeque {\n        Deque<Integer> dq=new ArrayDeque<>(); int cap;\n        MyCircularDeque(int k){cap=k;}\n        boolean insertFront(int v){if(isFull())return false;dq.offerFirst(v);return true;}\n        boolean insertLast(int v){if(isFull())return false;dq.offerLast(v);return true;}\n        boolean deleteFront(){if(isEmpty())return false;dq.pollFirst();return true;}\n        boolean deleteLast(){if(isEmpty())return false;dq.pollLast();return true;}\n        int getFront(){return isEmpty()?-1:dq.peekFirst();}\n        int getRear(){return isEmpty()?-1:dq.peekLast();}\n        boolean isEmpty(){return dq.isEmpty();}\n        boolean isFull(){return dq.size()==cap;}\n    }\n    public static void main(String[] a){\n        MyCircularDeque cd=new MyCircularDeque(3);\n        System.out.println(cd.insertLast(1));  // true\n        System.out.println(cd.insertLast(2));  // true\n        System.out.println(cd.insertFront(3)); // true\n        System.out.println(cd.insertFront(4)); // false (full)\n        System.out.println(cd.getRear());      // 2\n        System.out.println(cd.isFull());       // true\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "true",
+            "false",
+            "2",
+            "true"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m33_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Deque synthesis \u2014 SW max + jump game",
+      "instructions": "Implement: Deque synthesis \u2014 SW max + jump game.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DequeSynth {\n    static int[] swMax(int[] nums,int k){int n=nums.length;int[] r=new int[n-k+1];Deque<Integer> dq=new ArrayDeque<>();for(int i=0;i<n;i++){if(!dq.isEmpty()&&dq.peekFirst()<=i-k)dq.pollFirst();while(!dq.isEmpty()&&nums[dq.peekLast()]<=nums[i])dq.pollLast();dq.offerLast(i);if(i>=k-1)r[i-k+1]=nums[dq.peekFirst()];}return r;}\n    static int minJumps(int[] nums){int j=0,end=0,far=0;for(int i=0;i<nums.length-1;i++){far=Math.max(far,i+nums[i]);if(i==end){j++;end=far;}}return j;}\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(swMax(new int[]{1,3,-1,-3,5,3,6,7},3)));\n        System.out.println(minJumps(new int[]{2,3,1,1,4}));\n        boolean ok=Arrays.toString(swMax(new int[]{1,3,-1,-3,5,3,6,7},3)).equals(\"[3, 3, 5, 5, 6, 7]\")&&minJumps(new int[]{2,3,1,1,4})==2;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[3, 3, 5, 5, 6, 7]",
+            "2"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m33_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M33 T4 Deque Synthesis",
+      "instructions": "Implement: Complete M33 T4 Deque Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T4Final {\n    static int[] swMax(int[] nums,int k){int n=nums.length;int[] r=new int[n-k+1];Deque<Integer> dq=new ArrayDeque<>();for(int i=0;i<n;i++){if(!dq.isEmpty()&&dq.peekFirst()<=i-k)dq.pollFirst();while(!dq.isEmpty()&&nums[dq.peekLast()]<=nums[i])dq.pollLast();dq.offerLast(i);if(i>=k-1)r[i-k+1]=nums[dq.peekFirst()];}return r;}\n    static int[] swMin(int[] nums,int k){int n=nums.length;int[] r=new int[n-k+1];Deque<Integer> dq=new ArrayDeque<>();for(int i=0;i<n;i++){if(!dq.isEmpty()&&dq.peekFirst()<=i-k)dq.pollFirst();while(!dq.isEmpty()&&nums[dq.peekLast()]>=nums[i])dq.pollLast();dq.offerLast(i);if(i>=k-1)r[i-k+1]=nums[dq.peekFirst()];}return r;}\n    static boolean canJump(int[] nums){int max=0;for(int i=0;i<nums.length;i++){if(i>max)return false;max=Math.max(max,i+nums[i]);}return true;}\n    public static void main(String[] a){\n        System.out.println(\"swMax: \"+Arrays.toString(swMax(new int[]{1,3,-1,-3,5,3,6,7},3)));\n        System.out.println(\"swMin: \"+Arrays.toString(swMin(new int[]{1,3,-1,-3,5,3,6,7},3)));\n        System.out.println(\"canJump: \"+canJump(new int[]{2,3,1,1,4}));\n        boolean ok=canJump(new int[]{2,3,1,1,4})&&!canJump(new int[]{3,2,1,0,4})&&Arrays.toString(swMax(new int[]{1,3,-1,-3,5,3,6,7},3)).equals(\"[3, 3, 5, 5, 6, 7]\");\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "swMax: [3, 3, 5, 5, 6, 7]",
+            "swMin: [-1, -3, -3, -3, 3, 3]"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

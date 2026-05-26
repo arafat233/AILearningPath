@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m35_t5_proj",
+  "linked_topic": "java_m35_t5",
+  "level": "mini",
+  "name": "Flipkart Search Autocomplete Engine",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "Build autocomplete for Flipkart search using Trie with insert/search/suggest.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Trie: insert, search, startsWith, suggest(prefix) \u2192 List<String>",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README: Trie vs HashMap for prefix search",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "WordSearch II, ReplaceWords, MapSum",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Trie node: Trie[] ch=new Trie[26]; boolean end; (optional String word). Insert: cur=root; for each char: i=c-'a'; if ch[i]==null create; cur=ch[i]; end loop sets cur.end=true. Search: same traversal, return cur.end. StartsWith: same traversal, return true (no end check). Suggest: traverse to prefix end, then DFS collecting all nodes with end=true.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

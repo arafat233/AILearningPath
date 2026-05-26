@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m12_t2_proj",
+  "linked_topic": "java_m12_t2",
+  "level": "mini",
+  "name": "Zerodha-Style Order Validator — Parameterized Test Suite",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+
+  "scenario": "Write a comprehensive parameterized test suite for a stock order validation system. Orders must be validated against multiple rules: symbol format, quantity limits, price ranges, order type, and fund sufficiency. Using all four @Source annotations, achieve thorough boundary and edge case coverage with minimal test code duplication.",
+
+  "description": "The production `OrderValidator` is provided. Students write a parameterized test suite using @CsvSource for tabular cases, @MethodSource for complex Order objects, @EnumSource for order types, @NullAndEmptySource for null handling — covering all validation rules, all boundaries, and all enum values.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "@CsvSource test: `isValid_csvCases` with at least 8 rows covering all validation rules. Columns: symbol, qty, price, orderType, availableFunds, expectedValid. Use descriptive test name template.",
+        "weight": 25
+      },
+      {
+        "id": "req_2",
+        "description": "@MethodSource test: `validate_complexOrders` accepting `Order` objects. Provide at least 4 cases including boundary orders. Method returns Stream<Arguments>.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "@EnumSource test: `validate_allOrderTypes_nonNullReturn` verifying that getOrderFeeRate(OrderType) returns a non-negative value for ALL order types.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "@NullAndEmptySource test: `validate_nullOrEmptySymbol_returnsFalse` verifying null and empty symbols are rejected.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Boundary value test: @CsvSource for quantity boundaries (0, 1, 2, 999, 1000, 1001) and price boundaries (0, 0.01, 1000000, 1000000.01).",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "At least one @ParameterizedTest uses custom name template: `@ParameterizedTest(name = 'Case {index}: {0} qty={1} → {5}')` or equivalent.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "All test executions pass. Total: at least 20 test executions across all parameterized tests.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @CsvFileSource loading test cases from `src/test/resources/order-test-cases.csv`. File has at least 5 rows of test data.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a failure message test: use `assertThrows` inside a @ParameterizedTest and verify the exact exception message contains the right field name (qty, price, symbol) in the failure message.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a custom `ArgumentsProvider` implementing `ArgumentsProvider` interface for generating 10 random valid orders and 10 random invalid orders. Verify each category is handled correctly.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Order validation rules:\n- symbol: non-null, non-blank, 2-10 uppercase letters only\n- qty: 1-1000\n- price: > 0 and < 10,000,000\n- orderType: BUY or SELL\n- availableFunds (for BUY): must be >= qty * price\n\nenum OrderType { BUY, SELL }\nFee rates: BUY=0.1%, SELL=0.2%\n\nBoundary values:\n  qty: 0 (invalid), 1 (valid), 1000 (valid), 1001 (invalid)\n  price: 0 (invalid), 0.01 (valid), 9999999.99 (valid), 10000000 (invalid)",
+
+  "starter_code": "// Production code (provided):\npublic enum OrderType { BUY, SELL }\n\npublic record Order(String symbol, int qty, double price,\n                    OrderType type, double availableFunds) {}\n\npublic class OrderValidator {\n    public boolean isValid(Order order) { /* validation logic */ }\n    public double getOrderFeeRate(OrderType type) { /* fee lookup */ }\n    public void validate(Order order) throws IllegalArgumentException { /* throws on invalid */ }\n}\n\n// YOUR TEST CLASS:\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\n\nclass OrderValidatorTest {\n    OrderValidator validator = new OrderValidator();\n    \n    // Your parameterized tests here\n}",
+
+  "example_output": "Test Results (OrderValidatorTest):\n  isValid_csvCases: 8 executions ✓\n  validate_complexOrders: 4 executions ✓\n  validate_allOrderTypes_feeNonNegative: 2 executions ✓  (BUY, SELL)\n  validate_nullOrEmptySymbol_returnsFalse: 2 executions ✓\n  validate_qtyBoundaries: 6 executions ✓\n  validate_priceBoundaries: 4 executions ✓\n\nTotal: 26 test executions, 0 failures",
+
+  "rubric": [
+    { "category": "@CsvSource test", "points": 25, "criteria": ["8+ rows (15 pts)", "Name template (5 pts)", "All columns correct (5 pts)"] },
+    { "category": "@MethodSource test", "points": 20, "criteria": ["Stream<Arguments> static method (10 pts)", "4+ complex orders (10 pts)"] },
+    { "category": "@EnumSource test", "points": 15, "criteria": ["All OrderType values tested (15 pts)"] },
+    { "category": "@NullAndEmptySource test", "points": 10, "criteria": ["2 executions for null/empty (10 pts)"] },
+    { "category": "Boundary values", "points": 15, "criteria": ["qty boundaries (8 pts)", "price boundaries (7 pts)"] },
+    { "category": "All tests pass", "points": 15, "criteria": ["20+ executions (10 pts)", "Zero failures (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["@CsvFileSource (20 pts)", "Exception message tests (20 pts)", "Custom ArgumentsProvider (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. This is a testing exercise — read the production code carefully. @CsvSource column order must match test method parameter order. @MethodSource must be static. @EnumSource(OrderType.class) without names= iterates all values. @NullAndEmptySource gives null then empty string.",
+
+  "submission_instructions": "Save as OrderValidatorTest.java. Push to GitHub. Include the production code in src/main/java, test in src/test/java.",
+
+  "tips_for_success": [
+    "@CsvSource name template: `@ParameterizedTest(name = 'Case {index}: sym={0} qty={1}')`",
+    "@MethodSource method must be static and return Stream<Arguments>",
+    "Boundary pattern: test {n-1, n, n+1} at each limit",
+    "@EnumSource(OrderType.class) — no names= parameter means ALL values",
+    "For BUY validity: qty*price <= availableFunds"
+  ],
+
+  "concepts_reinforced": [
+    "@ParameterizedTest with all four source annotations",
+    "@CsvSource with name template",
+    "@MethodSource with Arguments.of()",
+    "@EnumSource for all enum values",
+    "@NullAndEmptySource for null handling",
+    "Boundary value analysis at all limits"
+  ]
+}

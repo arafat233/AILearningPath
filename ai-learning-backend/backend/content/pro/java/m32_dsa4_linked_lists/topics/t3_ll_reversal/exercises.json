@@ -1,0 +1,335 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t3",
+  "topic_name": "LL Reversal",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m32_t3_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Reverse Linked List (LeetCode #206)",
+      "instructions": "Implement: Reverse Linked List (LeetCode #206).",
+      "starter_code": "",
+      "expected_solution": "public class RevLL{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static ListNode reverse(ListNode head){ListNode prev=null,curr=head,next;while(curr!=null){next=curr.next;curr.next=prev;prev=curr;curr=next;}return prev;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(reverse(of(1,2,3,4,5))));System.out.println(str(reverse(of(1,2))));System.out.println(\"O(n) O(1): 3-pointer prev/curr/next\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "5-4-3-2-1",
+            "2-1",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m32_t3_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Reverse: explain return prev not curr",
+      "instructions": "Implement: Reverse: explain return prev not curr.",
+      "starter_code": "",
+      "expected_solution": "public class WhyPrev{public static void main(String[] a){System.out.println(\"After loop: curr=null (past end), prev=last node processed\");System.out.println(\"Last node = original LAST node = NEW HEAD after reversal\");System.out.println(\"Return prev: new head. Return curr: null (wrong!)\");System.out.println(\"For [1,2,3]: after loop prev=3, curr=null. Return 3=new head.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "prev=last node",
+            "NEW HEAD",
+            "Return prev"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m32_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Trace 3-pointer on [1,2,3]",
+      "instructions": "Implement: Trace 3-pointer on [1,2,3].",
+      "starter_code": "",
+      "expected_solution": "public class Trace3Ptr{public static void main(String[] a){System.out.println(\"Start: prev=null, curr=1, next=?\");System.out.println(\"Step1: next=2; 1.next=null; prev=1; curr=2 \u2192 null\u21901  2\u21923\");System.out.println(\"Step2: next=3; 2.next=1; prev=2; curr=3 \u2192 null\u21901\u21902  3\");System.out.println(\"Step3: next=null; 3.next=2; prev=3; curr=null \u2192 3\u21902\u21901\u2190null\");System.out.println(\"Loop ends. Return prev=3. Result: 3\u21922\u21921\u2192null\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "prev=null",
+            "3\u21922\u21921",
+            "Return prev=3"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m32_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Reverse Between (LeetCode #92)",
+      "instructions": "Implement: Reverse Between (LeetCode #92).",
+      "starter_code": "",
+      "expected_solution": "public class RevBetween{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static ListNode reverseBetween(ListNode head,int left,int right){ListNode dummy=new ListNode(0);dummy.next=head;ListNode prev=dummy;for(int i=0;i<left-1;i++)prev=prev.next;ListNode curr=prev.next,prevNode=null,nextNode;int steps=right-left+1;ListNode tail=curr;for(int i=0;i<steps;i++){nextNode=curr.next;curr.next=prevNode;prevNode=curr;curr=nextNode;}prev.next=prevNode;tail.next=curr;return dummy.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(reverseBetween(of(1,2,3,4,5),2,4)));System.out.println(str(reverseBetween(of(5),1,1)));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-4-3-2-5",
+            "5",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m32_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Reverse K-Group (LeetCode #25)",
+      "instructions": "Implement: Reverse K-Group (LeetCode #25).",
+      "starter_code": "",
+      "expected_solution": "public class RevKGroup{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static ListNode reverseKGroup(ListNode head,int k){ListNode curr=head;int count=0;while(curr!=null&&count<k){curr=curr.next;count++;}if(count<k)return head;ListNode prev=null,c=head,next;for(int i=0;i<k;i++){next=c.next;c.next=prev;prev=c;c=next;}head.next=reverseKGroup(c,k);return prev;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(reverseKGroup(of(1,2,3,4,5),2)));System.out.println(str(reverseKGroup(of(1,2,3,4,5),3)));System.out.println(\"O(n) O(n/k) recursion\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2-1-4-3-5",
+            "3-2-1-4-5",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m32_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Palindrome LL O(1) space (reversal approach)",
+      "instructions": "Implement: Palindrome LL O(1) space (reversal approach).",
+      "starter_code": "",
+      "expected_solution": "public class PalLL{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static boolean isPalindrome(ListNode head){ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode p=null,c=s;while(c!=null){ListNode n=c.next;c.next=p;p=c;c=n;}ListNode l=head,r=p;while(r!=null){if(l.val!=r.val)return false;l=l.next;r=r.next;}return true;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    public static void main(String[] a){System.out.println(isPalindrome(of(1,2,2,1)));System.out.println(isPalindrome(of(1,2)));System.out.println(isPalindrome(of(1,2,1)));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m32_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Swap Pairs (LeetCode #24)",
+      "instructions": "Implement: Swap Pairs (LeetCode #24).",
+      "starter_code": "",
+      "expected_solution": "public class SwapP{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode swapPairs(ListNode head){ListNode d=new ListNode(0);d.next=head;ListNode prev=d;while(prev.next!=null&&prev.next.next!=null){ListNode a=prev.next,b=prev.next.next;a.next=b.next;b.next=a;prev.next=b;prev=a;}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(swapPairs(of(1,2,3,4))));System.out.println(str(swapPairs(of(1))));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2-1-4-3",
+            "1",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m32_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Odd Even List (LeetCode #328)",
+      "instructions": "Implement: Odd Even List (LeetCode #328).",
+      "starter_code": "",
+      "expected_solution": "public class OddEven{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode oddEvenList(ListNode head){if(head==null)return null;ListNode odd=head,even=head.next,evenHead=even;while(even!=null&&even.next!=null){odd.next=even.next;odd=odd.next;even.next=odd.next;even=even.next;}odd.next=evenHead;return head;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(oddEvenList(of(1,2,3,4,5))));System.out.println(str(oddEvenList(of(2,1,3,5,6,4,7))));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-3-5-2-4",
+            "2-3-6-7-1-5-4",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Reverse recursively",
+      "instructions": "Implement: Reverse recursively.",
+      "starter_code": "",
+      "expected_solution": "public class RevRec{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode reverseRec(ListNode head){if(head==null||head.next==null)return head;ListNode newHead=reverseRec(head.next);head.next.next=head;head.next=null;return newHead;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(reverseRec(of(1,2,3,4,5))));System.out.println(\"O(n) time O(n) space recursion stack\");System.out.println(\"vs iterative: O(n) O(1) \u2014 iterative preferred\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "5-4-3-2-1",
+            "O(n) space recursion",
+            "iterative preferred"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Rotate List (LeetCode #61)",
+      "instructions": "Implement: Rotate List (LeetCode #61).",
+      "starter_code": "",
+      "expected_solution": "public class RotLL{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode rotateRight(ListNode head,int k){if(head==null||k==0)return head;int len=1;ListNode tail=head;while(tail.next!=null){tail=tail.next;len++;}k%=len;if(k==0)return head;tail.next=head;ListNode prev=head;for(int i=0;i<len-k-1;i++)prev=prev.next;ListNode newHead=prev.next;prev.next=null;tail.next=null; return newHead;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(rotateRight(of(1,2,3,4,5),2)));System.out.println(str(rotateRight(of(0,1,2),4)));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4-5-1-2-3",
+            "2-0-1",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Reversal synthesis",
+      "instructions": "Implement: Reversal synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class RevSynth{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode rev(ListNode h){ListNode p=null,c=h,n;while(c!=null){n=c.next;c.next=p;p=c;c=n;}return p;}\n    static ListNode revBetween(ListNode head,int l,int r){ListNode d=new ListNode(0);d.next=head;ListNode prev=d;for(int i=0;i<l-1;i++)prev=prev.next;ListNode curr=prev.next,pn=null,nn;int steps=r-l+1;ListNode tail=curr;for(int i=0;i<steps;i++){nn=curr.next;curr.next=pn;pn=curr;curr=nn;}prev.next=pn;tail.next=curr;return d.next;}\n    static ListNode revK(ListNode head,int k){ListNode c=head;int cnt=0;while(c!=null&&cnt<k){c=c.next;cnt++;}if(cnt<k)return head;ListNode p=null,cc=head,n;for(int i=0;i<k;i++){n=cc.next;cc.next=p;p=cc;cc=n;}head.next=revK(cc,k);return p;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(rev(of(1,2,3,4,5))));System.out.println(str(revBetween(of(1,2,3,4,5),2,4)));System.out.println(str(revK(of(1,2,3,4,5),2)));boolean ok=str(rev(of(1,2,3,4,5))).equals(\"5-4-3-2-1\")&&str(revBetween(of(1,2,3,4,5),2,4)).equals(\"1-4-3-2-5\")&&str(revK(of(1,2,3,4,5),2)).equals(\"2-1-4-3-5\");System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "5-4-3-2-1",
+            "1-4-3-2-5"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m32_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete T3 Synthesis",
+      "instructions": "Implement: Complete T3 Synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class T3Final{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode rev(ListNode h){ListNode p=null,c=h,n;while(c!=null){n=c.next;c.next=p;p=c;c=n;}return p;}\n    static ListNode revK(ListNode h,int k){ListNode c=h;int cnt=0;while(c!=null&&cnt<k){c=c.next;cnt++;}if(cnt<k)return h;ListNode p=null,cc=h,n;for(int i=0;i<k;i++){n=cc.next;cc.next=p;p=cc;cc=n;}h.next=revK(cc,k);return p;}\n    static boolean isPal(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode p=null,c=s;while(c!=null){ListNode n=c.next;c.next=p;p=c;c=n;}ListNode l=h,r=p;while(r!=null){if(l.val!=r.val)return false;l=l.next;r=r.next;}return true;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(rev(of(1,2,3))));System.out.println(str(revK(of(1,2,3,4,5),2)));System.out.println(isPal(of(1,2,2,1)));boolean ok=str(rev(of(1,2,3))).equals(\"3-2-1\")&&str(revK(of(1,2,3,4,5),2)).equals(\"2-1-4-3-5\")&&isPal(of(1,2,2,1));System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "3-2-1",
+            "2-1-4-3-5"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "predict_output": 0,
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

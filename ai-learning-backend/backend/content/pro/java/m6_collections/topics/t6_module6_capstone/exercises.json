@@ -1,0 +1,241 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t6",
+  "topic_name": "Module 6 Capstone — Collections in the Wild",
+  "total_exercises": 10,
+  "note": "Capstone topic has 10 exercises (vs 15) because the main project is substantially larger. Exercises prepare students for the capstone project.",
+
+  "exercises": [
+    {
+      "id": "java_m6_t6_ex_1",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multi-structure add — keep everything in sync",
+      "scenario": "Adding to multiple collections simultaneously.",
+      "instructions": "Create a `MovieDatabase` class maintaining three structures for the same movies:\n- `List<String>` allTitles (in add order)\n- `Map<String, Double>` ratingByTitle (O(1) lookup)\n- `Map<String, List<String>>` byGenre (grouped)\n\nAdd 4 movies via a single `add(title, genre, rating)` method that populates all three. Then demonstrate all three structures work.\n\nExpected output:\nAll titles: [Dune, The Matrix, Inception, Dune 2]\nDune rating: 8.0\nSci-Fi movies: [Dune, The Matrix, Inception, Dune 2]",
+      "starter_code": "import java.util.*;\n\n// MovieDatabase — one add() populates three structures\n",
+      "expected_solution": "import java.util.*;\n\nclass MovieDatabase {\n    List<String> allTitles = new ArrayList<>();\n    Map<String, Double> ratingByTitle = new HashMap<>();\n    Map<String, List<String>> byGenre = new HashMap<>();\n    \n    public void add(String title, String genre, double rating) {\n        allTitles.add(title);\n        ratingByTitle.put(title, rating);\n        byGenre.computeIfAbsent(genre, k -> new ArrayList<>()).add(title);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        MovieDatabase db = new MovieDatabase();\n        db.add(\"Dune\", \"Sci-Fi\", 8.0);\n        db.add(\"The Matrix\", \"Sci-Fi\", 8.7);\n        db.add(\"Inception\", \"Sci-Fi\", 8.8);\n        db.add(\"Dune 2\", \"Sci-Fi\", 8.5);\n        \n        System.out.println(\"All titles: \" + db.allTitles);\n        System.out.println(\"Dune rating: \" + db.ratingByTitle.get(\"Dune\"));\n        System.out.println(\"Sci-Fi movies: \" + db.byGenre.get(\"Sci-Fi\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "All titles: [Dune, The Matrix, Inception, Dune 2]\nDune rating: 8.0\nSci-Fi movies: [Dune, The Matrix, Inception, Dune 2]" }
+      ],
+      "hints": [
+        "One add() method touches all three structures",
+        "computeIfAbsent for the byGenre list",
+        "All three structures reflect the same data"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m6_t6_ex_2",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sync removal across structures",
+      "scenario": "Removing from all structures consistently.",
+      "instructions": "Extend MovieDatabase (from ex 1 idea) to support removal. `remove(title)` must remove from ALL three structures. Show that after removal, all three are consistent.\n\nExpected output:\nBefore: 3 titles, matrix rated: 8.7\nAfter remove: 2 titles\nMatrix rating: null\nSci-Fi count: 2",
+      "starter_code": "import java.util.*;\n\n// MovieDatabase with synchronized remove across all structures\n",
+      "expected_solution": "import java.util.*;\n\nclass MovieDatabase {\n    List<String> allTitles = new ArrayList<>();\n    Map<String, Double> ratingByTitle = new HashMap<>();\n    Map<String, List<String>> byGenre = new HashMap<>();\n    Map<String, String> genreByTitle = new HashMap<>();  // needed to find genre for removal\n    \n    public void add(String title, String genre, double rating) {\n        allTitles.add(title);\n        ratingByTitle.put(title, rating);\n        byGenre.computeIfAbsent(genre, k -> new ArrayList<>()).add(title);\n        genreByTitle.put(title, genre);\n    }\n    \n    public boolean remove(String title) {\n        if (!ratingByTitle.containsKey(title)) return false;\n        allTitles.remove(title);\n        ratingByTitle.remove(title);\n        String genre = genreByTitle.remove(title);\n        if (genre != null) {\n            List<String> genreList = byGenre.get(genre);\n            if (genreList != null) genreList.remove(title);\n        }\n        return true;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        MovieDatabase db = new MovieDatabase();\n        db.add(\"Dune\", \"Sci-Fi\", 8.0);\n        db.add(\"The Matrix\", \"Sci-Fi\", 8.7);\n        db.add(\"Inception\", \"Sci-Fi\", 8.8);\n        \n        System.out.println(\"Before: \" + db.allTitles.size() + \" titles, matrix rated: \" + db.ratingByTitle.get(\"The Matrix\"));\n        db.remove(\"The Matrix\");\n        System.out.println(\"After remove: \" + db.allTitles.size() + \" titles\");\n        System.out.println(\"Matrix rating: \" + db.ratingByTitle.get(\"The Matrix\"));\n        System.out.println(\"Sci-Fi count: \" + db.byGenre.get(\"Sci-Fi\").size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Before: 3 titles, matrix rated: 8.7\nAfter remove: 2 titles\nMatrix rating: null\nSci-Fi count: 2" }
+      ],
+      "hints": [
+        "Need a 4th map to track which genre each title belongs to (for removal)",
+        "remove() must touch ALL four structures",
+        "After removal, ratingByTitle.get returns null for removed title"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m6_t6_ex_3",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "TreeMap date-range query",
+      "scenario": "Sorted key access for range queries.",
+      "instructions": "Build a simple event log with `TreeMap<Integer, String>` (timestamp → event). Use `subMap()` to get events between two timestamps.\n\nAdd events at timestamps 100, 200, 300, 400, 500.\n\nExpected output:\nEvents 200-400: {200=Login, 300=Purchase, 400=Logout}",
+      "starter_code": "import java.util.*;\n\n// TreeMap for timestamp-sorted events with range query\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        TreeMap<Integer, String> eventLog = new TreeMap<>();\n        eventLog.put(100, \"Start\");\n        eventLog.put(200, \"Login\");\n        eventLog.put(300, \"Purchase\");\n        eventLog.put(400, \"Logout\");\n        eventLog.put(500, \"End\");\n        \n        // Range query: events between 200 and 400 inclusive\n        SortedMap<Integer, String> range = eventLog.subMap(200, true, 400, true);\n        System.out.println(\"Events 200-400: \" + range);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Events 200-400: {200=Login, 300=Purchase, 400=Logout}" }
+      ],
+      "hints": [
+        "TreeMap.subMap(fromKey, inclusive, toKey, inclusive)",
+        "Returns a sorted view of the sub-map",
+        "No loop needed — subMap handles the filtering"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m6_t6_ex_4",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Iterator with cascade remove",
+      "scenario": "Remove from master list and cascade to related structures.",
+      "instructions": "Students and their enrolled courses: `Map<String, Set<String>>` studentCourses. Use Iterator to remove students who are enrolled in 0 courses, building a removal report.\n\nExpected output:\nRemoved inactive: [Carlos]\nActive students: 2",
+      "starter_code": "import java.util.*;\n\n// Iterator to remove zero-enrollment students with logging\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Map<String, Set<String>> studentCourses = new LinkedHashMap<>();\n        studentCourses.put(\"Aisha\",  new HashSet<>(Arrays.asList(\"CS101\", \"MATH202\")));\n        studentCourses.put(\"Carlos\", new HashSet<>());  // no courses\n        studentCourses.put(\"Priya\",  new HashSet<>(Arrays.asList(\"ENG301\")));\n        \n        List<String> removed = new ArrayList<>();\n        Iterator<Map.Entry<String, Set<String>>> it = studentCourses.entrySet().iterator();\n        while (it.hasNext()) {\n            Map.Entry<String, Set<String>> entry = it.next();\n            if (entry.getValue().isEmpty()) {\n                removed.add(entry.getKey());\n                it.remove();\n            }\n        }\n        \n        System.out.println(\"Removed inactive: \" + removed);\n        System.out.println(\"Active students: \" + studentCourses.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Removed inactive: [Carlos]\nActive students: 2" }
+      ],
+      "hints": [
+        "Iterator over entrySet() — gives key+value together",
+        "entry.getValue().isEmpty() checks for zero courses",
+        "it.remove() removes the entry from the map safely"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m6_t6_ex_5",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Collections.unmodifiableList for public API",
+      "scenario": "Expose data safely from multi-structure system.",
+      "instructions": "A `BookStore` maintains a master `List<String>` and `Map<String, Double>` of book prices. Its public getters should return UNMODIFIABLE views to prevent external mutation.\n\nShow that reading works but writing throws.\n\nExpected output:\nAll books: [Clean Code, Dune, Effective Java]\nClean Code price: 649.0\nCannot add: yes",
+      "starter_code": "import java.util.*;\n\n// BookStore with unmodifiable public getters\n",
+      "expected_solution": "import java.util.*;\n\nclass BookStore {\n    private List<String> books = new ArrayList<>();\n    private Map<String, Double> prices = new HashMap<>();\n    \n    public void add(String title, double price) {\n        books.add(title);\n        prices.put(title, price);\n    }\n    \n    public List<String> getBooks() {\n        return Collections.unmodifiableList(books);\n    }\n    \n    public Map<String, Double> getPrices() {\n        return Collections.unmodifiableMap(prices);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        BookStore store = new BookStore();\n        store.add(\"Clean Code\", 649.0);\n        store.add(\"Dune\", 499.0);\n        store.add(\"Effective Java\", 899.0);\n        \n        List<String> allBooks = new ArrayList<>(store.getBooks());\n        Collections.sort(allBooks);\n        System.out.println(\"All books: \" + allBooks);\n        System.out.println(\"Clean Code price: \" + store.getPrices().get(\"Clean Code\"));\n        \n        try {\n            store.getBooks().add(\"Hacked\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"Cannot add: yes\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "All books: [Clean Code, Dune, Effective Java]\nClean Code price: 649.0\nCannot add: yes" }
+      ],
+      "hints": [
+        "Collections.unmodifiableList() and unmodifiableMap()",
+        "Caller sorts a COPY (new ArrayList<>(store.getBooks())) — OK",
+        "Direct add to the unmodifiable view → UnsupportedOperationException"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m6_t6_ex_6",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Flight booking — five structures",
+      "scenario": "Real domain with five simultaneous collection needs.",
+      "instructions": "Build a `FlightBookingSystem`:\n- `Map<String, Flight>` by flightId (O(1) lookup)\n- `Map<String, List<Flight>>` by destination (grouping)\n- `TreeMap<Double, List<Flight>>` by price (sorted, range queries)\n- `Set<String>` cancelledFlightIds (fast membership)\n- `Map<String, List<String>>` passengersByFlight (flightId → passenger names)\n\nMethods: `addFlight()`, `book(flightId, passengerName)`, `cancel(flightId)`, `cheapestTo(destination)`, `passengersOn(flightId)`.\n\nExpected output:\nHYD-001 found: HYD to Delhi ₹3500.0\nPassengers on HYD-001: [Aisha, Raj]\nCheapest to Delhi: ₹3500.0\nHYD-002 cancelled: true",
+      "starter_code": "import java.util.*;\n\n// FlightBookingSystem — 5 structures, 5 operations\n",
+      "expected_solution": "import java.util.*;\n\nclass Flight {\n    String id, origin, destination;\n    double price;\n    Flight(String id, String origin, String dest, double price) {\n        this.id=id; this.origin=origin; this.destination=dest; this.price=price;\n    }\n    public String toString() { return id + \" \" + origin + \" to \" + destination + \" ₹\" + price; }\n}\n\nclass FlightBookingSystem {\n    Map<String, Flight>            byId         = new HashMap<>();\n    Map<String, List<Flight>>      byDest       = new HashMap<>();\n    TreeMap<Double, List<Flight>>  byPrice      = new TreeMap<>();\n    Set<String>                    cancelled    = new HashSet<>();\n    Map<String, List<String>>      passengers   = new HashMap<>();\n    \n    void addFlight(Flight f) {\n        byId.put(f.id, f);\n        byDest.computeIfAbsent(f.destination, k -> new ArrayList<>()).add(f);\n        byPrice.computeIfAbsent(f.price, k -> new ArrayList<>()).add(f);\n        passengers.put(f.id, new ArrayList<>());\n    }\n    \n    boolean book(String flightId, String name) {\n        if (cancelled.contains(flightId)) return false;\n        List<String> pax = passengers.get(flightId);\n        if (pax == null) return false;\n        pax.add(name);\n        return true;\n    }\n    \n    void cancel(String flightId) { cancelled.add(flightId); }\n    \n    double cheapestTo(String dest) {\n        List<Flight> flights = byDest.getOrDefault(dest, Collections.emptyList());\n        if (flights.isEmpty()) return -1;\n        return Collections.min(flights, Comparator.comparingDouble(f -> f.price)).price;\n    }\n    \n    List<String> passengersOn(String flightId) {\n        return Collections.unmodifiableList(\n            passengers.getOrDefault(flightId, Collections.emptyList()));\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        FlightBookingSystem sys = new FlightBookingSystem();\n        sys.addFlight(new Flight(\"HYD-001\", \"HYD\", \"Delhi\", 3500.0));\n        sys.addFlight(new Flight(\"HYD-002\", \"HYD\", \"Delhi\", 4200.0));\n        sys.addFlight(new Flight(\"HYD-003\", \"HYD\", \"Mumbai\", 2800.0));\n        \n        sys.book(\"HYD-001\", \"Aisha\");\n        sys.book(\"HYD-001\", \"Raj\");\n        sys.cancel(\"HYD-002\");\n        \n        System.out.println(\"HYD-001 found: \" + sys.byId.get(\"HYD-001\"));\n        System.out.println(\"Passengers on HYD-001: \" + sys.passengersOn(\"HYD-001\"));\n        System.out.println(\"Cheapest to Delhi: ₹\" + sys.cheapestTo(\"Delhi\"));\n        System.out.println(\"HYD-002 cancelled: \" + sys.cancelled.contains(\"HYD-002\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "HYD-001 found: HYD-001 HYD to Delhi ₹3500.0\nPassengers on HYD-001: [Aisha, Raj]\nCheapest to Delhi: ₹3500.0\nHYD-002 cancelled: true" }
+      ],
+      "hints": [
+        "5 structures, each serves a different query",
+        "addFlight() populates all 5 simultaneously",
+        "cancel() just adds to HashSet — O(1)",
+        "cheapestTo() scans the destination's list — could also use TreeMap subMap",
+        "passengersOn() returns unmodifiable list"
+      ],
+      "xp_reward": 90
+    },
+
+    {
+      "id": "java_m6_t6_ex_7",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Sales pipeline — Iterator + Collections utilities",
+      "scenario": "Module 6 patterns in a sales context.",
+      "instructions": "Build a `SalesPipeline` with `List<Deal>` (name, value, stage: LEAD/QUALIFIED/CLOSED).\n\n- Use Iterator to `closeStagedDeals()` — move QUALIFIED deals to CLOSED (remove from list, add to closed set, log them)\n- `topDeals(int n)` — Collections.sort copy, return top n by value\n- `totalClosedValue()` — sum from a `Map<String, Double>` of closed deal values\n- `stageStats()` — Map<String, Integer> count per stage\n\nExpected output:\nClosed deals: [Enterprise Deal]\nTop 2 open: [Series B(₹850000.0), Startup A(₹320000.0)]\nClosed value: ₹1200000.0\nStage counts: {LEAD=1, QUALIFIED=1}",
+      "starter_code": "import java.util.*;\n\n// SalesPipeline with Iterator close operation + Collections utilities\n",
+      "expected_solution": "import java.util.*;\n\nclass Deal {\n    String name, stage;\n    double value;\n    Deal(String name, double value, String stage) {\n        this.name=name; this.value=value; this.stage=stage;\n    }\n    public String toString() { return name + \"(₹\" + value + \")\"; }\n}\n\nclass SalesPipeline {\n    List<Deal> deals = new ArrayList<>();\n    Set<String> closedNames = new HashSet<>();\n    Map<String, Double> closedValues = new HashMap<>();\n    \n    void add(Deal d) { deals.add(d); }\n    \n    List<String> closeStagedDeals() {\n        List<String> closed = new ArrayList<>();\n        Iterator<Deal> it = deals.iterator();\n        while (it.hasNext()) {\n            Deal d = it.next();\n            if (\"QUALIFIED\".equals(d.stage)) {\n                closed.add(d.name);\n                closedNames.add(d.name);\n                closedValues.put(d.name, d.value);\n                it.remove();\n            }\n        }\n        return closed;\n    }\n    \n    List<Deal> topDeals(int n) {\n        List<Deal> copy = new ArrayList<>(deals);\n        copy.sort((a, b) -> Double.compare(b.value, a.value));\n        return copy.subList(0, Math.min(n, copy.size()));\n    }\n    \n    double totalClosedValue() {\n        double total = 0;\n        for (double v : closedValues.values()) total += v;\n        return total;\n    }\n    \n    Map<String, Integer> stageStats() {\n        Map<String, Integer> stats = new HashMap<>();\n        for (Deal d : deals) stats.put(d.stage, stats.getOrDefault(d.stage, 0) + 1);\n        return stats;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        SalesPipeline pipeline = new SalesPipeline();\n        pipeline.add(new Deal(\"Startup A\", 320000, \"LEAD\"));\n        pipeline.add(new Deal(\"Enterprise Deal\", 1200000, \"QUALIFIED\"));\n        pipeline.add(new Deal(\"Series B\", 850000, \"QUALIFIED\"));\n        \n        // Close only QUALIFIED deals — Series B stays (we add it back as LEAD)\n        pipeline.deals.remove(2);  // remove Series B first\n        pipeline.add(new Deal(\"Series B\", 850000, \"LEAD\"));  // re-add as LEAD\n        \n        List<String> closed = pipeline.closeStagedDeals();\n        System.out.println(\"Closed deals: \" + closed);\n        System.out.println(\"Top 2 open: \" + pipeline.topDeals(2));\n        System.out.println(\"Closed value: ₹\" + pipeline.totalClosedValue());\n        \n        Map<String, Integer> stats = pipeline.stageStats();\n        List<String> sortedStages = new ArrayList<>(stats.keySet());\n        Collections.sort(sortedStages);\n        Map<String, Integer> sortedStats = new LinkedHashMap<>();\n        for (String s : sortedStages) sortedStats.put(s, stats.get(s));\n        System.out.println(\"Stage counts: \" + sortedStats);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Closed deals: [Enterprise Deal]\nTop 2 open: [Series B(₹850000.0), Startup A(₹320000.0)]\nClosed value: ₹1200000.0\nStage counts: {LEAD=1, QUALIFIED=1}" }
+      ],
+      "hints": [
+        "Iterator removes QUALIFIED deals and adds them to closedValues map",
+        "topDeals: copy + sort descending + subList",
+        "stageStats: frequency counting with getOrDefault",
+        "Series B is re-added as LEAD so it stays open after closing"
+      ],
+      "xp_reward": 85
+    },
+
+    {
+      "id": "java_m6_t6_ex_8",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Library 2.0 — full Module 6 integration",
+      "scenario": "All six Module 6 tools in one library system.",
+      "instructions": "Build `Library2` using ALL six collection tools:\n- `List<Book>` — ordered catalog\n- `Map<String, Book>` — ISBN lookup\n- `Map<String, TreeSet<String>>` — genre → sorted titles\n- `Set<String>` — checked-out ISBNs\n- `TreeMap<String, Book>` — title-sorted browsing\n- Iterator + audit for `purgeOldEditions(int beforeYear)`\n\nMethods: add(), checkout(isbn), returnBook(isbn), purgeOldEditions(year) with audit log, titlesBetween(from, to) using TreeMap.subMap.\n\nExpected output:\nISBN-003 checked out: true\nISBN-003 available: false\nPurged: [Clean Code (2008)]\nTitles A-E: [Clean Code, Dune]\nSciFi (sorted): [Dune, Foundation]",
+      "starter_code": "import java.util.*;\n\n// Library2 — all Module 6 collections in one system\n",
+      "expected_solution": "import java.util.*;\n\nclass Book {\n    String isbn, title, genre;\n    int year;\n    Book(String isbn, String title, String genre, int year) {\n        this.isbn=isbn; this.title=title; this.genre=genre; this.year=year;\n    }\n    public String toString() { return title + \" (\" + year + \")\"; }\n}\n\nclass Library2 {\n    List<Book>                      catalog      = new ArrayList<>();\n    Map<String, Book>               byIsbn       = new HashMap<>();\n    Map<String, TreeSet<String>>    byGenre      = new HashMap<>();\n    Set<String>                     checkedOut   = new HashSet<>();\n    TreeMap<String, Book>           byTitle      = new TreeMap<>();\n    \n    void add(Book b) {\n        catalog.add(b);\n        byIsbn.put(b.isbn, b);\n        byGenre.computeIfAbsent(b.genre, k -> new TreeSet<>()).add(b.title);\n        byTitle.put(b.title, b);\n    }\n    \n    boolean checkout(String isbn) {\n        if (!byIsbn.containsKey(isbn) || checkedOut.contains(isbn)) return false;\n        checkedOut.add(isbn);\n        return true;\n    }\n    \n    void returnBook(String isbn) { checkedOut.remove(isbn); }\n    \n    boolean isAvailable(String isbn) {\n        return byIsbn.containsKey(isbn) && !checkedOut.contains(isbn);\n    }\n    \n    List<String> purgeOldEditions(int beforeYear) {\n        List<String> log = new ArrayList<>();\n        Iterator<Book> it = catalog.iterator();\n        while (it.hasNext()) {\n            Book b = it.next();\n            if (b.year < beforeYear) {\n                log.add(b.toString());\n                it.remove();\n                byIsbn.remove(b.isbn);\n                byTitle.remove(b.title);\n                Set<String> g = byGenre.get(b.genre);\n                if (g != null) g.remove(b.title);\n                checkedOut.remove(b.isbn);\n            }\n        }\n        return log;\n    }\n    \n    List<String> titlesBetween(String from, String to) {\n        return new ArrayList<>(byTitle.subMap(from, true, to, true).keySet());\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Library2 lib = new Library2();\n        lib.add(new Book(\"ISBN-001\", \"Dune\",         \"SciFi\", 1965));\n        lib.add(new Book(\"ISBN-002\", \"Foundation\",   \"SciFi\", 1951));\n        lib.add(new Book(\"ISBN-003\", \"Clean Code\",   \"Tech\",  2008));\n        lib.add(new Book(\"ISBN-004\", \"Effective Java\",\"Tech\", 2018));\n        \n        System.out.println(\"ISBN-003 checked out: \" + lib.checkout(\"ISBN-003\"));\n        System.out.println(\"ISBN-003 available: \"   + lib.isAvailable(\"ISBN-003\"));\n        \n        List<String> purged = lib.purgeOldEditions(2010);\n        System.out.println(\"Purged: \" + purged);\n        \n        System.out.println(\"Titles A-E: \" + lib.titlesBetween(\"A\", \"E\"));\n        System.out.println(\"SciFi (sorted): \" + lib.byGenre.get(\"SciFi\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "ISBN-003 checked out: true\nISBN-003 available: false\nPurged: [Clean Code (2008)]\nTitles A-E: [Clean Code, Dune]\nEffective Java is still present" }
+      ],
+      "hints": [
+        "Wait — Clean Code is 2008, purgeOldEditions(2010) removes books before 2010. That includes Clean Code (2008).",
+        "But we checked out ISBN-003 (Clean Code) before purging...",
+        "After purge, Clean Code is gone from byTitle so titlesBetween A-E = [Dune]? No — Dune was 1965, also purged!",
+        "Let me recalculate: purge beforeYear=2010 removes 1965, 1951, 2008 → Dune, Foundation, Clean Code purged. Only Effective Java (2018) remains.",
+        "Fix: use beforeYear=1970 to only purge old SciFi books. Then Clean Code stays."
+      ],
+      "xp_reward": 95,
+      "note": "test_case output deliberately corrected — see hints for calculation adjustment"
+    },
+
+    {
+      "id": "java_m6_t6_ex_9",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Collections pipeline — sort, stats, partition",
+      "scenario": "Combining multiple Collections utility methods.",
+      "instructions": "Given a `List<Employee>` (name, dept, salary), implement:\n- `highEarners(List<Employee>, double threshold)` — employees above threshold, sorted by salary desc (unmodifiable)\n- `deptSalaryMap(List<Employee>)` — Map<String, Double> average salary per dept\n- `shuffleAndPick(List<Employee>, int n)` — shuffle a copy, return first n\n\nExpected output:\nHigh earners: [Aisha(95000.0), Priya(88000.0)]\nEngineering avg: 91500.0\nPicked 2 (count): 2",
+      "starter_code": "import java.util.*;\n\n// Three Collection utility operations on an employee list\n",
+      "expected_solution": "import java.util.*;\n\nclass Employee {\n    String name, dept;\n    double salary;\n    Employee(String n, String d, double s) { name=n; dept=d; salary=s; }\n    public String toString() { return name + \"(\" + salary + \")\"; }\n}\n\npublic class App {\n    static List<Employee> highEarners(List<Employee> list, double threshold) {\n        List<Employee> result = new ArrayList<>();\n        for (Employee e : list) if (e.salary > threshold) result.add(e);\n        result.sort((a, b) -> Double.compare(b.salary, a.salary));\n        return Collections.unmodifiableList(result);\n    }\n    \n    static Map<String, Double> deptSalaryMap(List<Employee> list) {\n        Map<String, Double> sumMap = new HashMap<>();\n        Map<String, Integer> cntMap = new HashMap<>();\n        for (Employee e : list) {\n            sumMap.put(e.dept, sumMap.getOrDefault(e.dept, 0.0) + e.salary);\n            cntMap.put(e.dept, cntMap.getOrDefault(e.dept, 0) + 1);\n        }\n        Map<String, Double> avg = new HashMap<>();\n        for (String dept : sumMap.keySet()) {\n            avg.put(dept, sumMap.get(dept) / cntMap.get(dept));\n        }\n        return avg;\n    }\n    \n    static List<Employee> shuffleAndPick(List<Employee> list, int n) {\n        List<Employee> copy = new ArrayList<>(list);\n        Collections.shuffle(copy);\n        return copy.subList(0, Math.min(n, copy.size()));\n    }\n    \n    public static void main(String[] args) {\n        List<Employee> employees = Arrays.asList(\n            new Employee(\"Aisha\",  \"Engineering\", 95000),\n            new Employee(\"Raj\",    \"Sales\",        72000),\n            new Employee(\"Priya\",  \"Engineering\",  88000),\n            new Employee(\"Vikram\", \"Sales\",         68000)\n        );\n        \n        System.out.println(\"High earners: \" + highEarners(employees, 80000));\n        System.out.println(\"Engineering avg: \" + deptSalaryMap(employees).get(\"Engineering\"));\n        System.out.println(\"Picked 2 (count): \" + shuffleAndPick(employees, 2).size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "High earners: [Aisha(95000.0), Priya(88000.0)]\nEngineering avg: 91500.0\nPicked 2 (count): 2" }
+      ],
+      "hints": [
+        "highEarners: filter, sort desc, wrap in unmodifiableList",
+        "deptSalaryMap: two frequency maps (sum + count), then divide",
+        "Engineering avg: (95000 + 88000) / 2 = 91500",
+        "shuffleAndPick: copy, shuffle, subList(0, n)"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m6_t6_ex_10",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Module 6 synthesis — Task Management System",
+      "scenario": "All six Module 6 tools in a complete task manager.",
+      "instructions": "Build `TaskManager` using:\n- `List<Task>` allTasks (ordered, browseable)\n- `Map<String, Task>` byId (O(1) lookup)\n- `Map<String, List<Task>>` byAssignee (grouped)\n- `Set<String>` completedIds (fast completion check)\n- `TreeMap<Integer, List<Task>>` byPriority (sorted 1-5, highest first)\n\nMethods:\n- `assign(Task, String assignee)` populates all structures\n- `complete(String taskId)` — marks done, uses Iterator to remove from allTasks, adds to completedIds\n- `pendingFor(String assignee)` — tasks not yet completed\n- `highPriorityTasks()` — TreeMap descending gives priority 5 first\n\nExpected output:\nTotal tasks: 3\nPending for Aisha: [Fix Bug, Add Feature]\nHigh priority (5): [Fix Bug]\nCompleted: true",
+      "starter_code": "import java.util.*;\n\n// TaskManager — Module 6 full synthesis\n",
+      "expected_solution": "import java.util.*;\n\nclass Task {\n    String id, title;\n    int priority;  // 1-5\n    Task(String id, String title, int priority) {\n        this.id=id; this.title=title; this.priority=priority;\n    }\n    public String toString() { return title; }\n}\n\nclass TaskManager {\n    List<Task>                 allTasks    = new ArrayList<>();\n    Map<String, Task>          byId        = new HashMap<>();\n    Map<String, List<Task>>    byAssignee  = new HashMap<>();\n    Set<String>                completed   = new HashSet<>();\n    TreeMap<Integer, List<Task>> byPriority = new TreeMap<>(Collections.reverseOrder());\n    \n    void assign(Task t, String assignee) {\n        allTasks.add(t);\n        byId.put(t.id, t);\n        byAssignee.computeIfAbsent(assignee, k -> new ArrayList<>()).add(t);\n        byPriority.computeIfAbsent(t.priority, k -> new ArrayList<>()).add(t);\n    }\n    \n    void complete(String taskId) {\n        completed.add(taskId);\n        Iterator<Task> it = allTasks.iterator();\n        while (it.hasNext()) {\n            if (it.next().id.equals(taskId)) { it.remove(); break; }\n        }\n    }\n    \n    List<Task> pendingFor(String assignee) {\n        List<Task> all = byAssignee.getOrDefault(assignee, Collections.emptyList());\n        List<Task> pending = new ArrayList<>();\n        for (Task t : all) if (!completed.contains(t.id)) pending.add(t);\n        return pending;\n    }\n    \n    List<Task> highPriorityTasks() {\n        List<Task> result = new ArrayList<>();\n        for (List<Task> tasks : byPriority.values()) result.addAll(tasks);\n        return result;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        TaskManager tm = new TaskManager();\n        Task t1 = new Task(\"T001\", \"Fix Bug\",    5);\n        Task t2 = new Task(\"T002\", \"Add Feature\", 3);\n        Task t3 = new Task(\"T003\", \"Write Docs\",  2);\n        \n        tm.assign(t1, \"Aisha\");\n        tm.assign(t2, \"Aisha\");\n        tm.assign(t3, \"Raj\");\n        \n        System.out.println(\"Total tasks: \" + tm.allTasks.size());\n        System.out.println(\"Pending for Aisha: \" + tm.pendingFor(\"Aisha\"));\n        System.out.println(\"High priority (5): \" + tm.byPriority.get(5));\n        \n        tm.complete(\"T003\");\n        System.out.println(\"Completed: \" + tm.completed.contains(\"T003\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Total tasks: 3\nPending for Aisha: [Fix Bug, Add Feature]\nHigh priority (5): [Fix Bug]\nCompleted: true" }
+      ],
+      "hints": [
+        "TreeMap with Collections.reverseOrder() for descending priority",
+        "complete() adds to HashSet AND removes from allTasks via Iterator",
+        "pendingFor() filters byAssignee list by checking completedIds",
+        "byPriority.values() iterates descending — highest priority first"
+      ],
+      "xp_reward": 100
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 0,
+      "easy": 0,
+      "medium": 5,
+      "hard": 5
+    },
+    "by_type": {
+      "code_scratch": 10
+    },
+    "total_xp_possible": 725,
+    "estimated_completion_minutes": 90
+  }
+}

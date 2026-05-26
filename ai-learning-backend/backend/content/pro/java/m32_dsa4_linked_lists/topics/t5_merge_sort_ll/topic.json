@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t5",
+  "module_id": "m32",
+  "topic_number": 5,
+  "name": "Merge and Sort Linked Lists",
+  "slug": "merge-sort-linked-lists",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": [
+      "java_m32_t1",
+      "java_m32_t2",
+      "java_m32_t3"
+    ],
+    "concepts_taught": [
+      "merge_two_sorted_lists",
+      "merge_k_sorted_lists",
+      "sort_linked_list",
+      "priority_queue_k_merge",
+      "add_two_numbers",
+      "reorder_list",
+      "odd_even_linked_list"
+    ],
+    "skills_developed": [
+      "merge_sorted_linked_lists",
+      "k_way_merge_with_heap",
+      "sort_linked_list_merge_sort",
+      "complex_linked_list_manipulation"
+    ],
+    "career_relevance": "Merge K Sorted Lists is a top Flipkart/Amazon hard question. It combines linked lists with heaps (priority queues). Sort Linked List demonstrates why merge sort is preferred over quicksort for linked lists \u2014 there's no O(1) random access so quicksort's partition is expensive.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nFlipkart: merge K sorted product price feeds from K suppliers\nEach feed is a sorted linked list of prices\nNeed: one merged sorted list in O(N log K) time\n\nNaive: merge pairwise \u2192 O(NK) time\nHeap approach:\n  Push head of each list into min-heap\n  Extract min \u2192 push its next\n  O(N log K) \u2014 N total nodes, log K per heap op\n```",
+    "what_you_will_build": "Merge two sorted lists, merge K with heap, sort linked list with merge sort."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "merge_two": "**Merge Two Sorted Lists \u2014 O(n+m) O(1):**\n\n```java\nListNode mergeTwoLists(ListNode l1, ListNode l2) {\n    ListNode dummy=new ListNode(0), curr=dummy;\n    while(l1!=null&&l2!=null){\n        if(l1.val<=l2.val){curr.next=l1;l1=l1.next;}\n        else{curr.next=l2;l2=l2.next;}\n        curr=curr.next;\n    }\n    curr.next=(l1!=null)?l1:l2; // attach remaining\n    return dummy.next;\n}\n\n// Sort Linked List \u2014 merge sort O(n log n) O(log n) space:\nListNode sortList(ListNode head){\n    if(head==null||head.next==null) return head;\n    // Find middle:\n    ListNode slow=head,fast=head.next;\n    while(fast!=null&&fast.next!=null){slow=slow.next;fast=fast.next.next;}\n    ListNode mid=slow.next; slow.next=null; // split\n    ListNode left=sortList(head), right=sortList(mid);\n    return mergeTwoLists(left,right);\n}\n// WHY merge sort (not quicksort):\n// LL has no O(1) random access \u2192 quicksort pivot partition is O(n)\n// Merge sort splits at middle (O(n/2) to find) + merges O(n) \u2192 O(n log n)\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Merge K sorted lists with min-heap. 3 lists: [1,4,7], [2,5,8], [3,6,9]. Heap starts with heads: {1,2,3}. Extract 1(min), push 4 \u2192 heap {2,3,4}. Extract 2, push 5 \u2192 {3,4,5}. Continues producing 1,2,3,4,5,6,7,8,9. Total: N=9 extractions, each O(log K=log3). Total O(N log K).",
+      "alt_text": "Merge K sorted lists with min-heap"
+    },
+    "worked_example": {
+      "scenario": "Sort Linked List (LeetCode #148) \u2014 merge sort on LL.",
+      "problem_statement": "Sort linked list in O(n log n) time, O(log n) space.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Find middle (fast=head.next to avoid equal-length split loop)",
+          "details": "fast starts at head.next so slow stops at the END of first half. slow.next is the start of second half. Set slow.next=null to split."
+        }
+      ],
+      "final_code": "// Split at slow.next:\nListNode slow=head,fast=head.next;\nwhile(fast!=null&&fast.next!=null){slow=slow.next;fast=fast.next.next;}\nListNode mid=slow.next;slow.next=null;\nListNode left=sortList(head),right=sortList(mid);\nreturn mergeTwoLists(left,right);",
+      "expected_output": "[4,2,1,3] \u2192 [1,2,3,4]",
+      "things_to_notice": [
+        "fast=head.next (not head): ensures proper split for even-length lists",
+        "slow.next=null: physically splits the list into two",
+        "Merge sort on LL: O(n log n) time, O(log n) space (recursion depth)",
+        "Bottom-up merge sort: O(1) space \u2014 avoid recursion overhead"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Flipkart supplier feed",
+          "use_case": "Merge K sorted price feeds from K suppliers: heap-based O(N log K) vs naive O(NK)."
+        }
+      ],
+      "interview_relevance": "Merge K Sorted Lists is the canonical heap+LL problem. 'Sort LL in O(n log n) O(1) space' is a follow-up that requires bottom-up merge sort.",
+      "real_world_workflow": "Merge K lists: PriorityQueue<ListNode> with custom comparator. Push all heads, extract min, push extracted.next. Continue until heap empty."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "split_off_by_one",
+        "what_students_get_wrong": "Using fast=head instead of fast=head.next for the split. With fast=head, for a 2-node list [1,2]: slow=2, mid=null \u2014 impossible to split.",
+        "remediation": "Start fast at head.next: for [1,2], slow=1 (stops immediately since fast.next=null), mid=2. For [1,2,3,4]: slow=2, mid=3. Correct split every time.",
+        "detection_pattern": "StackOverflow for 2-element list in sortList"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Merge two sorted: dummy + curr + while(l1&&l2) + attach remainder",
+        "Merge K: min-heap PriorityQueue, push heads, extract-push loop",
+        "Sort LL: merge sort \u2014 find middle (fast=head.next), split, sort halves, merge",
+        "Why merge sort not quicksort on LL: no O(1) random access for pivot swap",
+        "Split trick: fast=head.next ensures correct split for even-length lists"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why is merge sort preferred over quicksort for linked lists?",
+          "answer": "Merge sort is preferred because: (1) Finding the middle is O(n/2) with fast/slow pointers \u2014 acceptable overhead. (2) The merge step naturally works on linked lists without extra space \u2014 just pointer rewiring. Quicksort's problem: (1) partitioning requires swapping arbitrary elements \u2014 on a linked list this means O(n) traversal for each pivot partition. (2) There's no O(1) random access to swap elements at positions i and j. So quicksort on LL degrades to O(n\u00b2) average. Merge sort maintains O(n log n) with O(log n) recursion stack space (or O(1) with bottom-up merge sort)."
+        }
+      ],
+      "next_topic_preview": "Module 32 complete! Next: M33 DSA5 \u2014 Stacks & Queues (monotonic stack, sliding window max, implement queue with stack)."
+    }
+  }
+}

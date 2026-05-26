@@ -1,0 +1,185 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t4",
+  "language": "java",
+  "module_id": "m16",
+  "module_name": "Apache Kafka & Event-Driven Architecture",
+  "topic_number": 4,
+  "name": "Kafka Streams",
+  "slug": "kafka-streams",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m16_t3"],
+    "concepts_taught": [
+      "kafka_streams_overview",
+      "streams_vs_consumer",
+      "kstream",
+      "ktable",
+      "streams_builder",
+      "stream_filter",
+      "stream_map",
+      "stream_groupby",
+      "stream_aggregate",
+      "stream_count",
+      "tumbling_window",
+      "hopping_window",
+      "stream_to_topic",
+      "stream_peek",
+      "materialized_view",
+      "kafka_streams_testing"
+    ],
+    "skills_developed": [
+      "building_kafka_streams_topologies",
+      "filtering_and_mapping_streams",
+      "grouping_and_aggregating",
+      "windowed_computations",
+      "testing_with_topologytestdriver"
+    ],
+    "career_relevance": "Kafka Streams powers real-time dashboards at Swiggy (live order counts), Zerodha (real-time P&L), and Flipkart (inventory alerts). It's the difference between batch analytics (yesterday's report) and streaming analytics (what's happening right now). After this topic, you can build real-time aggregations that would otherwise require a database query on every request — replaced by a continuously maintained in-memory result.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "The Zerodha trading dashboard needs to show: 'Total volume traded for TCS in the last 5 minutes'. With @KafkaListener:\n\n```java\n// Option A: @KafkaListener + DB query (WRONG approach):\n@KafkaListener(topics=\"trade-executed\")\nvoid handle(TradeExecutedEvent e) {\n    db.insert(e);  // save every trade\n}\n\n// Dashboard API:\n@GetMapping(\"/volume/TCS\")\ndouble getVolume() {\n    return db.sum(\"SELECT SUM(total) FROM trades WHERE symbol='TCS'\n                   AND executed_at > NOW() - INTERVAL 5 MINUTES\");\n    // Problem: this runs on EVERY dashboard refresh (100s/second)!\n    // Problem: result is stale the moment you execute it\n}\n```\n\n**With Kafka Streams:**\n```java\n// The answer is ALWAYS ready — Kafka Streams maintains it continuously:\n@Bean\npublic KStream<String, TradeExecutedEvent> buildStreamsTopology(\n        StreamsBuilder builder) {\n    \n    builder.stream(\"trade-executed\", Consumed.with(stringSerde, tradeSerde))\n        .groupBy((key, event) -> event.symbol())       // group by stock symbol\n        .windowedBy(TimeWindows.ofSizeWithNoGrace(\n            Duration.ofMinutes(5)))                    // 5-minute window\n        .aggregate(\n            () -> 0.0,                                 // init\n            (sym, event, total) -> total + event.totalValue())\n        .toStream()\n        .to(\"trade-volume-5min\");                      // result always up-to-date\n    \n    return null;\n}\n\n// Dashboard API (now INSTANT — no DB query):\n@GetMapping(\"/volume/{symbol}\")\ndouble getVolume(@PathVariable String symbol) {\n    return stateStore.get(symbol);  // pre-computed by Kafka Streams!\n}\n```\n\nThe volume is maintained continuously by Kafka Streams as trades arrive. The dashboard reads a pre-computed result. No DB query. No staleness. Real-time.",
+    "what_you_will_build": "By the end of this topic, you'll build Kafka Streams topologies that filter, transform, group, count, and aggregate trade events in real-time using windowed computations — and test them with TopologyTestDriver."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "streams_overview": "**Kafka Streams vs @KafkaListener:**\n\n```\n@KafkaListener           Kafka Streams\n────────────────────     ────────────────────────────\nOne event at a time      Continuous stream of events\nStateless (mostly)       Stateful aggregations built-in\nPull from topic only     Transform + aggregate + join\nNo windowing             Time-window computations\nSimple to learn          More powerful, steeper curve\n────────────────────     ────────────────────────────\nUse for: sending SMS     Use for: real-time dashboards,\nper event, updating      running totals, fraud detection,\na single entity's DB     complex event processing\n```\n\n**Kafka Streams setup:**\n```xml\n<dependency>\n    <groupId>org.apache.kafka</groupId>\n    <artifactId>kafka-streams</artifactId>\n</dependency>\n<dependency>\n    <groupId>org.springframework.kafka</groupId>\n    <artifactId>spring-kafka</artifactId>\n</dependency>\n```\n\n```properties\n# application.properties:\nspring.kafka.streams.application-id=trade-analytics-service\nspring.kafka.streams.bootstrap-servers=localhost:9092\nspring.kafka.streams.properties.default.key.serde=org.apache.kafka.common.serialization.Serdes$StringSerde\n```",
+
+      "kstream_operations": "**KStream — the heart of Kafka Streams:**\n\n```java\nimport org.apache.kafka.streams.StreamsBuilder;\nimport org.apache.kafka.streams.kstream.*;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\n\n@Configuration\npublic class TradingStreamsTopology {\n    \n    @Bean\n    public KStream<String, TradeEvent> tradeStream(StreamsBuilder builder) {\n        \n        KStream<String, TradeEvent> trades = builder.stream(\n            \"trade-executed\",\n            Consumed.with(Serdes.String(), tradeSerde()));\n        \n        // FILTER — only BUY trades:\n        KStream<String, TradeEvent> buyTrades = trades\n            .filter((key, event) -> \"BUY\".equals(event.type()));\n        \n        // MAP — transform the event:\n        KStream<String, Double> tradeValues = trades\n            .mapValues(event -> event.totalValue());\n        \n        // PEEK — log without changing stream:\n        trades.peek((key, event) ->\n            System.out.printf(\"Stream: %s %s x%d%n\",\n                event.type(), event.symbol(), event.qty()));\n        \n        // RE-KEY — change the key for grouping:\n        KStream<String, TradeEvent> bySymbol = trades\n            .selectKey((key, event) -> event.symbol());\n        \n        // BRANCH — split stream:\n        Map<String, KStream<String, TradeEvent>> branched = trades\n            .split(Named.as(\"branch-\"))\n            .branch((key, e) -> \"BUY\".equals(e.type()),  Named.as(\"buys\"))\n            .branch((key, e) -> \"SELL\".equals(e.type()), Named.as(\"sells\"))\n            .defaultBranch(Named.as(\"other\"));\n        \n        // WRITE to output topic:\n        buyTrades.to(\"buy-trades\", Produced.with(Serdes.String(), tradeSerde()));\n        \n        return trades;\n    }\n}",
+
+      "aggregations": "**Grouping and aggregating:**\n\n```java\n// COUNT — how many trades per symbol:\nKStream<String, Long> tradeCounts = builder\n    .stream(\"trade-executed\", Consumed.with(Serdes.String(), tradeSerde()))\n    .selectKey((k, e) -> e.symbol())          // re-key by symbol\n    .groupByKey()\n    .count(Materialized.as(\"trade-count-store\"))  // named state store\n    .toStream();\n\ntradeCounts.to(\"trade-counts\",\n    Produced.with(Serdes.String(), Serdes.Long()));\n\n// Emits: [TCS, 45] [INFY, 12] [RELIANCE, 33]\n// (running totals, updated on each trade)\n\n// AGGREGATE — total trade value per user:\nbuilder.stream(\"trade-executed\", Consumed.with(Serdes.String(), tradeSerde()))\n    .selectKey((k, e) -> e.userId())\n    .groupByKey()\n    .aggregate(\n        () -> 0.0,                              // initializer\n        (userId, event, runningTotal) ->        // aggregator\n            runningTotal + event.totalValue(),\n        Materialized.<String, Double, KeyValueStore<Bytes, byte[]>>as(\n            \"user-volume-store\")\n            .withValueSerde(Serdes.Double())\n    )\n    .toStream()\n    .to(\"user-trade-volume\", Produced.with(Serdes.String(), Serdes.Double()));\n```",
+
+      "windowed_aggregations": "**Windowed aggregations — real-time time-based metrics:**\n\n```java\n// Tumbling window: fixed, non-overlapping 5-minute buckets\n// [0:00–5:00] [5:00–10:00] [10:00–15:00]...\n\nbuilder.stream(\"trade-executed\", Consumed.with(Serdes.String(), tradeSerde()))\n    .selectKey((k, e) -> e.symbol())\n    .groupByKey()\n    .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))\n    .aggregate(\n        () -> 0.0,\n        (sym, event, volume) -> volume + event.totalValue(),\n        Materialized.<String, Double, WindowStore<Bytes, byte[]>>as(\n            \"symbol-5min-volume\")\n            .withValueSerde(Serdes.Double())\n    )\n    .toStream()\n    .map((windowed, volume) -> KeyValue.pair(\n        windowed.key(),     // symbol\n        volume))            // total volume in this window\n    .to(\"symbol-volume-5min\", Produced.with(Serdes.String(), Serdes.Double()));\n\n// Hopping window: overlapping — e.g. 5-min window, advance every 1 min\n// At any moment, shows the last 5 minutes' volume\n.windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5))\n    .advanceBy(Duration.ofMinutes(1)))  // update every minute\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Kafka Streams topology as a DAG: boxes connected by arrows. Source: 'trade-executed' topic → filter (BUY only) → selectKey (symbol) → groupByKey → aggregate (sum totalValue) → windowedBy (5-min tumbling) → toStream → Sink: 'trade-volume-5min' topic. Each box labeled with the operation name. (2) Tumbling vs hopping windows on a timeline: events shown as dots. Tumbling: 5-min blocks side by side, each event in exactly one block. Hopping: overlapping blocks advancing every 1 minute, each event appears in multiple blocks. Table: tumbling=non-overlapping for totals, hopping=sliding window for 'last N minutes'. (3) KTable vs KStream: KTable shows current state for each key (TCS→₹15,67,000; INFY→₹4,23,000; latest value per key). KStream shows all events in order (immutable log). Comparison: KStream=every event, KTable=current state per key.",
+      "alt_text": "Kafka Streams DAG topology, tumbling vs hopping windows on timeline, and KStream vs KTable comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a real-time trade analytics service for Zerodha. It consumes from 'trade-executed' and produces: (1) running trade count per symbol to 'symbol-trade-count', (2) 5-minute volume per symbol to 'symbol-volume-5min', (3) filter only large trades (>₹1L) to 'large-trades'.",
+
+    "problem_statement": "1. KStream filter + to: large trades → 'large-trades'\n2. KStream groupBy + count: trade count per symbol → 'symbol-trade-count'\n3. KStream windowed aggregate: 5-min volume per symbol → 'symbol-volume-5min'\n4. Test with TopologyTestDriver (no running Kafka needed)",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Streams configuration",
+        "details": "```properties\n# application.properties:\nspring.kafka.streams.application-id=trade-analytics\nspring.kafka.streams.bootstrap-servers=localhost:9092\nspring.kafka.streams.properties.default.key.serde=org.apache.kafka.common.serialization.Serdes$StringSerde\nspring.kafka.streams.properties.default.value.serde=org.springframework.kafka.support.serializer.JsonSerde\n```"
+      },
+      {
+        "step": 2,
+        "action": "Three-branch topology",
+        "details": "```java\n@Configuration\n@EnableKafkaStreams\npublic class TradeAnalyticsTopology {\n    \n    @Bean\n    public KStream<String, TradeEvent> analyticsTopology(StreamsBuilder builder) {\n        KStream<String, TradeEvent> trades = builder.stream(\n            \"trade-executed\",\n            Consumed.with(Serdes.String(), tradeEventSerde()));\n        \n        // Branch 1: Large trades (>₹1L) → 'large-trades' topic:\n        trades\n            .filter((key, e) -> e.totalValue() > 100_000)\n            .to(\"large-trades\");\n        \n        // Branch 2: Trade count per symbol → 'symbol-trade-count':\n        trades\n            .selectKey((k, e) -> e.symbol())\n            .groupByKey()\n            .count(Materialized.as(\"symbol-count-store\"))\n            .toStream()\n            .to(\"symbol-trade-count\",\n                Produced.with(Serdes.String(), Serdes.Long()));\n        \n        // Branch 3: 5-min volume per symbol → 'symbol-volume-5min':\n        trades\n            .selectKey((k, e) -> e.symbol())\n            .groupByKey()\n            .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))\n            .aggregate(\n                () -> 0.0,\n                (sym, e, vol) -> vol + e.totalValue(),\n                Materialized.<String, Double, WindowStore<Bytes,byte[]>>\n                    as(\"symbol-5min-vol\").withValueSerde(Serdes.Double())\n            )\n            .toStream()\n            .map((windowed, vol) -> KeyValue.pair(windowed.key(), vol))\n            .to(\"symbol-volume-5min\",\n                Produced.with(Serdes.String(), Serdes.Double()));\n        \n        return trades;\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "TopologyTestDriver test",
+        "details": "```java\nclass TradeAnalyticsTopologyTest {\n    TopologyTestDriver driver;\n    TestInputTopic<String, TradeEvent> inputTopic;\n    TestOutputTopic<String, Long> countTopic;\n    \n    @BeforeEach void setup() {\n        StreamsBuilder builder = new StreamsBuilder();\n        new TradeAnalyticsTopology().analyticsTopology(builder);\n        \n        Properties props = new Properties();\n        props.put(StreamsConfig.APPLICATION_ID_CONFIG, \"test-app\");\n        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, \"dummy:9092\");\n        \n        driver = new TopologyTestDriver(builder.build(), props);\n        inputTopic = driver.createInputTopic(\"trade-executed\",\n            new StringSerializer(), new JsonSerializer<>());\n        countTopic = driver.createOutputTopic(\"symbol-trade-count\",\n            new StringDeserializer(), new LongDeserializer());\n    }\n    @AfterEach void teardown() { driver.close(); }\n    \n    @Test void tradeCounts_accumulatePerSymbol() {\n        inputTopic.pipeInput(\"TCS\", trade(\"TCS\", 10));\n        inputTopic.pipeInput(\"TCS\", trade(\"TCS\", 5));\n        inputTopic.pipeInput(\"INFY\", trade(\"INFY\", 3));\n        \n        // Count for TCS = 2, INFY = 1:\n        var records = countTopic.readKeyValuesToMap();\n        assertEquals(2L, records.get(\"TCS\"));\n        assertEquals(1L, records.get(\"INFY\"));\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// @EnableKafkaStreams + application-id config\n// TradeAnalyticsTopology: 3 branches\n//   1. filter(>1L) → 'large-trades'\n//   2. selectKey(symbol) + groupByKey + count → 'symbol-trade-count'\n//   3. selectKey(symbol) + groupByKey + windowedBy(5min) + aggregate → 'symbol-volume-5min'\n// TopologyTestDriver test: 3 trades in, verify counts and large-trades",
+
+    "expected_output": "# Kafka Streams processing trades:\n[TCS, BUY 10@3890] → symbol-trade-count: TCS=1\n[TCS, BUY 5@3890]  → symbol-trade-count: TCS=2\n[INFY, SELL 100@1560] → symbol-trade-count: INFY=1\n                     → large-trades: INFY SELL 100@1560 (₹1,56,000 > ₹1,00,000)\n\n# After 5 minutes:\n→ symbol-volume-5min: TCS=₹5,84,350 (10×3890 + 5×3890)\n→ symbol-volume-5min: INFY=₹1,56,000 (100×1560)",
+
+    "things_to_notice": [
+      "The same input stream (trades) feeds THREE different output branches. Kafka Streams fans out the data — each branch independently processes every event. The topology is a DAG (directed acyclic graph), not a sequence.",
+      "selectKey() before groupByKey(): trades come in with tradeId as key, but aggregations need symbol as key. selectKey() re-keys the stream. This causes a repartition (messages are redistributed by new key across partitions) — necessary for correct parallel aggregation.",
+      "TopologyTestDriver: tests the entire Streams topology without a running Kafka broker. It's the Streams equivalent of @EmbeddedKafka for consumers. createInputTopic + pipeInput simulates incoming messages; createOutputTopic reads the output. Test runs synchronously — no Thread.sleep needed.",
+      "Windowed aggregations emit results per window. TimeWindows.ofSizeWithNoGrace(5min): 'no grace' means events that arrive late (after the window closed) are ignored. For financial data where low latency is critical, this is fine. For event-time processing with late arrivals, use .withGracePeriod(Duration.ofSeconds(30)).",
+      "count() is a special aggregate that counts messages per key. It maintains state in a local RocksDB state store (the Materialized.as('store-name') names it). The count is durable — if the Streams application restarts, it resumes from the stored state, not from 0."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Zerodha real-time P&L",
+        "use_case": "Zerodha's portfolio dashboard shows real-time P&L. Kafka Streams joins 'trade-executed' (what price you bought at) with 'market-prices' (current price). The join computes unrealized P&L per holding continuously. When TCS price ticks, P&L updates instantly for every user holding TCS — no DB query, no scheduled batch job. Kafka Streams KStream-KTable join makes this possible."
+      },
+      {
+        "company_context": "Swiggy order rate monitoring",
+        "use_case": "Swiggy's ops dashboard shows orders per minute per restaurant. Kafka Streams: 'order-placed' stream → groupBy(restaurantId) → windowedBy(1 minute tumbling) → count → 'restaurant-order-rate'. When a restaurant's order rate drops suddenly (possible issue), an alert fires. Real-time monitoring without querying the orders DB every second."
+      },
+      {
+        "company_context": "Razorpay fraud detection",
+        "use_case": "Razorpay detects payment card fraud in real-time: 'payment-events' → groupBy(cardId) → windowedBy(10 minutes) → count → if count > 10 → publish to 'suspicious-cards'. A card used more than 10 times in 10 minutes → flagged. Kafka Streams evaluates this for every payment as it arrives, in under 10ms — impossible with batch processing."
+      }
+    ],
+
+    "interview_relevance": "Kafka Streams interview questions:\n\n- **'What is Kafka Streams and when do you use it?'** → Stream processing library that reads from Kafka topics, applies transformations (filter, map, aggregate), and writes results back to Kafka. Use when you need stateful, real-time computation — running totals, windowed metrics, stream joins.\n- **'What is the difference between KStream and KTable?'** → KStream: every event (immutable append-only log — BUY TCS, SELL TCS, BUY TCS = 3 events). KTable: current state per key (latest value only — TCS current holdings = BUY+BUY-SELL = net position).\n- **'What is a tumbling window?'** → Fixed-size, non-overlapping time bucket. Events in [0:00–5:00] are separate from [5:00–10:00]. Use for 'volume per 5-minute period'. Hopping window: overlapping; use for 'volume in the last 5 minutes at any moment'.\n- **'How do you test Kafka Streams?'** → TopologyTestDriver: no real Kafka needed. createInputTopic → pipeInput → createOutputTopic → readRecords → assert.",
+
+    "real_world_workflow": "Daily Kafka Streams workflow:\n\n- New real-time metric: add filter + groupBy + aggregate to topology\n- Test: TopologyTestDriver + pipeInput + assert output\n- Deploy: Streams app joins consumer group, picks up from committed offset\n- Monitor: state stores + lag via JMX or Actuator"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_enable_kafka_streams",
+      "what_students_get_wrong": "Defining StreamsBuilder @Bean without @EnableKafkaStreams — Streams topology not started.",
+      "remediation": "Add @EnableKafkaStreams to a @Configuration class (or @SpringBootApplication). This tells Spring Kafka to auto-configure and start the KafkaStreams application with the topology built from all StreamsBuilder @Beans.",
+      "detection_pattern": "StreamsBuilder @Bean defined but no Kafka Streams processing happens; no 'streams' thread in thread dump"
+    },
+    {
+      "gap_id": "serde_mismatch",
+      "what_students_get_wrong": "Using StringSerde for value when the value is a TradeEvent object — ClassCastException or SerializationException.",
+      "remediation": "Match the Serde to the data type. String keys → Serdes.String(). TradeEvent values → JsonSerde or custom Serde. In Consumed.with(keySerde, valueSerde): keySerde=Serdes.String(), valueSerde=new JsonSerde<>(TradeEvent.class). Mismatched Serdes throw at runtime, not compile time.",
+      "detection_pattern": "SerializationException or ClassCastException in Kafka Streams thread"
+    },
+    {
+      "gap_id": "forgetting_selectkey_before_groupby",
+      "what_students_get_wrong": "Calling groupByKey() without first re-keying with selectKey() — aggregations happen by the original key (tradeId) instead of the intended key (symbol).",
+      "remediation": "If you want to aggregate by symbol: first call .selectKey((k, e) -> e.symbol()) to change the key to symbol, then .groupByKey(). Or use .groupBy((k, e) -> e.symbol()) which is equivalent. Without this, each trade has a unique tradeId key — groupByKey() creates a group of 1, producing no meaningful aggregation.",
+      "detection_pattern": "Aggregation results show one entry per tradeId (unique keys) instead of per symbol (grouped keys)"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@EnableKafkaStreams: required to start the Streams processing",
+      "spring.kafka.streams.application-id: unique identifier for the Streams app",
+      "StreamsBuilder @Bean: defines the processing topology",
+      "builder.stream(topic, Consumed.with(keySerde, valueSerde)): source stream",
+      ".filter((k, v) -> condition): keep only matching events",
+      ".mapValues(v -> transform): transform value, keep key",
+      ".selectKey((k, v) -> newKey): change the key (triggers repartition)",
+      ".groupByKey(): group by current key for aggregation",
+      ".groupBy((k, v) -> newKey): selectKey + groupByKey in one step",
+      ".count(Materialized.as('store')): count events per key",
+      ".aggregate(init, (k, v, acc) -> newAcc, Materialized...): custom aggregation",
+      ".windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5))): 5-min tumbling window",
+      ".toStream(): convert KTable/KGrouped back to KStream",
+      ".to('output-topic'): write results to a Kafka topic",
+      "TopologyTestDriver: test without Kafka; createInputTopic + pipeInput + createOutputTopic"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You want to count trades per user in the last 10 minutes, updated every minute. Which window type do you use?",
+        "answer": "Hopping window: TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(10)).advanceBy(Duration.ofMinutes(1)). Window size=10 minutes (how far back to look), advance=1 minute (how often to update). At every minute mark, Kafka Streams emits a count for each user covering the last 10 minutes. Tumbling window would only emit at the end of each 10-minute block, giving a count for each fixed period. Hopping gives a rolling count that updates every minute — 'how many trades in the last 10 minutes' is always current."
+      },
+      {
+        "question": "Your Streams topology has .groupByKey() but the aggregation is grouping by tradeId (unique) instead of symbol. What's wrong?",
+        "answer": "selectKey() was not called before groupByKey(). The stream still has the original key (tradeId, which is unique). groupByKey() groups by the current key — one unique tradeId per group means 1 event per group, not a meaningful aggregation by symbol. Fix: add .selectKey((k, e) -> e.symbol()) before .groupByKey(). Alternatively, use .groupBy((k, e) -> e.symbol()) which combines selectKey + groupByKey. After this, all TCS trades share the key 'TCS' and are aggregated together."
+      },
+      {
+        "question": "How does TopologyTestDriver work? Why is it preferred over @EmbeddedKafka for Streams tests?",
+        "answer": "TopologyTestDriver instantiates the Kafka Streams topology in-process and runs it synchronously. createInputTopic() gives a handle to pipe test events in. pipeInput() adds events directly to the topology — they're processed immediately (synchronous, no async). createOutputTopic().readRecords() reads the output. Benefits over @EmbeddedKafka: (1) No real Kafka broker needed, (2) No Thread.sleep or CountDownLatch — synchronous execution, (3) Much faster tests, (4) Can control event timestamps (important for window testing). @EmbeddedKafka is better for consumer (@KafkaListener) tests; TopologyTestDriver is better for Streams topology tests."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 16 topic: **Kafka Schema Registry with Avro** — all events so far have been JSON: flexible but no enforced schema. If order-service changes TradeExecutedEvent (adds a field, renames one), portfolio-service's deserialization breaks silently. Avro + Schema Registry solves this: events have a versioned schema registered centrally. Producers and consumers must agree on the schema. Schema evolution rules (backward/forward compatibility) allow safe changes. After Topic 16.5, your Kafka pipeline is schema-governed — no surprise deserialization failures from schema drift."
+  }
+}

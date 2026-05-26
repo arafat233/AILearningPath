@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m31_t1",
+  "language": "java",
+  "module_id": "m31",
+  "module_name": "DSA3: String Algorithms",
+  "topic_number": 1,
+  "name": "String Fundamentals — Immutability, Operations, Complexity",
+  "slug": "string-fundamentals-immutability-complexity",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m29_t1", "java_m29_t3"],
+    "concepts_taught": [
+      "string_immutability", "string_pool", "string_vs_stringbuilder",
+      "charAt_vs_toCharArray", "substring_complexity", "string_comparison",
+      "character_frequency_arrays", "common_string_operations_complexity",
+      "string_to_int_and_back", "string_split_join"
+    ],
+    "skills_developed": [
+      "avoiding_on2_string_concat", "choosing_stringbuilder_vs_string",
+      "efficient_character_access", "string_complexity_analysis"
+    ],
+    "career_relevance": "String manipulation is in 40% of all DSA interviews. The #1 hidden performance killer: `result += char` in a loop → O(n²) due to String immutability. After this topic you'll never write O(n²) string code again, and you'll explain the complexity correctly in every interview.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "```java\n// Flipkart's product description formatter — SLOW:\nString result = \"\";\nfor (char c : description.toCharArray()) {\n    if (Character.isLetterOrDigit(c)) result += c; // O(n²)!!\n}\n// n=100,000 chars: 10^10 operations = system timeout\n\n// FAST — StringBuilder:\nStringBuilder sb = new StringBuilder();\nfor (char c : description.toCharArray()) {\n    if (Character.isLetterOrDigit(c)) sb.append(c); // O(n)\n}\nString result = sb.toString();\n// n=100,000: 100,000 operations = milliseconds\n```",
+    "what_you_will_build": "Deep understanding of Java String internals, complexity of every string operation, and StringBuilder patterns."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "immutability": "**String is immutable — every modification creates a new object:**\n\n```java\n// What String += actually does:\nString s = \"hello\";\ns += \" world\"; // creates new String(\"hello world\"), discards old\n\n// In a loop over n characters — O(n²):\nString result = \"\";\nfor (int i = 0; i < n; i++) {\n    result += arr[i]; // step i: copies (i) chars + adds 1 = O(i)\n}\n// Total: 0+1+2+...+(n-1) = n(n-1)/2 = O(n²)\n\n// StringBuilder — O(n):\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < n; i++) {\n    sb.append(arr[i]); // O(1) amortized\n}\nString result = sb.toString(); // one final copy O(n)\n```",
+      "operations_complexity": "**Java String operation complexity:**\n\n```\ns.length()        → O(1)  — stored field\ns.charAt(i)       → O(1)  — array index\ns.substring(l,r)  → O(r-l) — copies chars since Java 7u6\ns.contains(t)     → O(n*m) — naive; KMP is O(n+m)\ns.equals(t)       → O(n)   — char by char comparison\ns.indexOf(c)      → O(n)   — linear scan\ns.toCharArray()   → O(n)   — copy\ns.split(regex)    → O(n)   — linear scan + compile\n\nStringBuilder:\nsb.append(c)      → O(1) amortized\nsb.toString()     → O(n) — creates String\nsb.reverse()      → O(n)\nsb.charAt(i)      → O(1)\nsb.length()       → O(1)\n```"
+    },
+    "visual_aid": {"type": "diagram", "description": "String pool diagram: String literals point to same pool object ('hello' shared). String s = new String('hello') creates separate heap object (avoid this). Comparison: s1 == s2 checks reference; s1.equals(s2) checks content. StringBuilder internal: char[] buffer that doubles when full (same as ArrayList amortized O(1) append).", "alt_text": "String pool, heap allocation, and StringBuilder buffer"},
+    "worked_example": {
+      "scenario": "Build a string from character array — compare 3 approaches.",
+      "problem_statement": "Given char[] chars, build a String containing only alphanumeric characters.",
+      "step_by_step_solution": [
+        {"step": 1, "action": "Naive: String concatenation O(n²)", "details": "result += c creates a new String on each iteration. Step k copies k characters. Total: O(n²). At n=100K: 10^10 ops."},
+        {"step": 2, "action": "Optimal: StringBuilder O(n)", "details": "sb.append(c) is amortized O(1). sb.toString() is O(n). Total: O(n). At n=100K: 100K ops."},
+        {"step": 3, "action": "Alternative: char[] then new String", "details": "Pre-allocate char[], fill with valid chars, new String(chars, 0, len). O(n) time O(n) space."}
+      ],
+      "final_code": "// BEST: StringBuilder\nStringBuilder sb = new StringBuilder();\nfor (char c : input) if (Character.isLetterOrDigit(c)) sb.append(c);\nreturn sb.toString(); // O(n) total",
+      "expected_output": "n=100000: String concat ≈ 5000ms, StringBuilder ≈ 5ms",
+      "things_to_notice": [
+        "String is immutable — every += creates a new String object on the heap.",
+        "The Java compiler may optimize simple concatenations (s = 'a' + 'b') at compile time, but NOT concatenation inside loops.",
+        "StringBuilder.reverse() is O(n) — use it instead of building reversed string manually.",
+        "String.substring() is O(r-l) since Java 7u6 — it copies chars. In tight loops, prefer index arithmetic over repeated substring calls."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{"company_context": "Flipkart search normalization", "use_case": "Normalize 10M product titles: remove special chars, lowercase, deduplicate spaces. StringBuilder pipeline: O(n) per title vs O(n²) naive. At n=200 chars × 10M titles: 2×10⁹ vs 4×10¹⁴ operations."}],
+      "interview_relevance": "Every string interview: mention StringBuilder for building strings in loops. Mention substring is O(k). Mention equals vs == immediately. Interviewers test that you know String internals.",
+      "real_world_workflow": "String processing pipeline: (1) toCharArray() once for index access, (2) StringBuilder for output accumulation, (3) int[26] or int[128] for frequency counts (not HashMap), (4) toString() once at end."
+    },
+    "common_gaps": [
+      {"gap_id": "equals_vs_double_equals", "what_students_get_wrong": "Using == to compare Strings. s1 == s2 compares references (usually false unless same pool object). s1.equals(s2) compares content.", "remediation": "Rule: ALWAYS use .equals() for String content comparison. s1 == s2 is almost never what you want. The only valid use: checking null (s == null).", "detection_pattern": "Student writes: if (s1 == s2) — will fail on most non-literal strings"},
+      {"gap_id": "substring_in_loop", "what_students_get_wrong": "Calling s.substring(0, i) inside a loop thinking it's O(1). It's O(i) — copies i characters each time.", "remediation": "Track indices instead of creating substrings in loops. Pass (start, end) parameters or use character-by-character access via charAt().", "detection_pattern": "Student uses s.substring() inside a loop → hidden O(n²)"}
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "String immutability: every += creates new object → O(n²) in loops",
+        "StringBuilder: amortized O(1) append → O(n) for n appends",
+        "equals() for content, == only for null check",
+        "charAt(i): O(1). substring(l,r): O(r-l) — avoid in loops",
+        "int[26] for lowercase alpha frequency — O(1) per op, O(1) space",
+        "String.split(), contains(), indexOf(): O(n) each",
+        "toCharArray(): O(n) one-time cost — pay it once at start",
+        "String comparison: s.compareTo() for lexicographic ordering"
+      ],
+      "self_check_questions": [{"question": "Why is `result += char` inside a loop O(n²) instead of O(n)?", "answer": "Strings are immutable in Java. The += operator doesn't modify the existing string — it creates a brand new String object that is a copy of the old string plus the new character. At step k, the new string has k characters, so the copy takes O(k) time. Over n steps: O(1)+O(2)+...+O(n) = O(n²). StringBuilder instead maintains a mutable internal char[] buffer. Appending is amortized O(1) (same as ArrayList) because the buffer doubles when full. Total for n appends: O(n). The final toString() is O(n) to create the immutable String — paid once at the end."}],
+      "next_topic_preview": "Next: Pattern Matching — given text and pattern, find all occurrences. Naive O(nm) vs KMP O(n+m)."
+    }
+  }
+}

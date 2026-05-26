@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m40_t5",
+  "module_id": "m40",
+  "topic_number": 5,
+  "name": "Backtracking Synthesis \u2014 Patterns and Optimizations",
+  "slug": "backtracking-synthesis-patterns",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m40_t1",
+      "java_m40_t3"
+    ],
+    "concepts_taught": [
+      "backtracking-synthesis-patterns"
+    ],
+    "career_relevance": "Core Backtracking Synthesis \u2014 Patterns and Optimizations.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Backtracking Synthesis \u2014 Patterns and Optimizations"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "All backtracking: choose\u2192recurse\u2192undo",
+        "Subsets: add at every call (not just leaves)",
+        "Permutations: used[] for selection",
+        "Combination Sum: allow reuse (i not i+1); prune with sort+break",
+        "N-Queens: valid() check; queens[] array tracks column per row",
+        "Pruning is the key optimization: sort + early break can cut O(2^n) dramatically"
+      ],
+      "next_topic_preview": "Module 40 complete! Next: M41 Dynamic Programming."
+    }
+  }
+}

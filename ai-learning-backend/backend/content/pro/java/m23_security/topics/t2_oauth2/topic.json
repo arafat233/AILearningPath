@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m23_t2",
+  "language": "java",
+  "module_id": "m23",
+  "module_name": "Security",
+  "topic_number": 2,
+  "name": "OAuth2 with Spring Security",
+  "slug": "oauth2-spring-security",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m23_t1"],
+    "concepts_taught": [
+      "oauth2_overview", "authorization_code_flow", "client_credentials_flow",
+      "resource_server_vs_authorization_server", "spring_oauth2_client",
+      "spring_oauth2_resource_server", "scopes_and_permissions",
+      "opaque_vs_jwt_tokens", "token_introspection", "pkce",
+      "social_login_google", "service_to_service_auth"
+    ],
+    "skills_developed": [
+      "configuring_oauth2_client", "implementing_resource_server",
+      "service_to_service_token_exchange", "testing_oauth2_flows"
+    ],
+    "career_relevance": "Every Indian fintech uses OAuth2. Razorpay's partner API uses Client Credentials flow — when HDFC Bank's system calls Razorpay programmatically, it authenticates with a client_id + client_secret and gets an access token scoped to only what HDFC is allowed to do. After this topic, you can implement both user-facing OAuth2 login and machine-to-machine OAuth2 for service APIs.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Zerodha wants to integrate with a third-party tax filing service (Quicko). Users should be able to authorize Quicko to read their trading history WITHOUT sharing their Zerodha password.\n\n```\nWithout OAuth2 (dangerous):\n  User gives Quicko their Zerodha username/password\n  Quicko stores the password → security breach risk\n  Zerodha can't revoke access without password change\n\nWith OAuth2 Authorization Code flow:\n  User → Zerodha login page → 'Authorize Quicko to read trading history'\n  → Zerodha issues access_token (scoped: read:trades only)\n  → Quicko uses token to read trades (never sees password)\n  → User can revoke Quicko's access anytime in Zerodha settings\n```",
+    "what_you_will_build": "OAuth2 resource server (validates tokens from an auth server) and OAuth2 client configuration for service-to-service Client Credentials flow."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "flows": "**OAuth2 Flows:**\n\n```\nAUTHORIZATION CODE (user-facing apps):\n  1. User clicks 'Login with Google'\n  2. App → Auth Server: GET /authorize?client_id=...&scope=email&redirect_uri=...\n  3. User logs in + consents\n  4. Auth Server → App: redirect_uri?code=AUTH_CODE\n  5. App → Auth Server: POST /token (code + client_secret)\n  6. Auth Server → App: { access_token, refresh_token }\n  7. App uses access_token to call APIs\n\nCLIENT CREDENTIALS (machine-to-machine):\n  1. Service A → Auth Server: POST /token (client_id + client_secret + grant_type=client_credentials)\n  2. Auth Server → Service A: { access_token }\n  3. Service A calls Service B with access_token\n  (No user involved — service authenticates as itself)\n```",
+      "spring_config": "**Spring OAuth2 Resource Server + Client:**\n\n```yaml\n# application.yml — Resource Server (validates tokens):\nspring:\n  security:\n    oauth2:\n      resourceserver:\n        jwt:\n          jwk-set-uri: https://auth.razorpay.com/.well-known/jwks.json\n          issuer-uri: https://auth.razorpay.com\n\n# application.yml — OAuth2 Client (gets tokens for outbound calls):\n  security:\n    oauth2:\n      client:\n        registration:\n          hdfc-api:\n            client-id: razorpay-service\n            client-secret: ${HDFC_CLIENT_SECRET}\n            authorization-grant-type: client_credentials\n            scope: payments:read, settlements:write\n        provider:\n          hdfc-api:\n            token-uri: https://api.hdfcbank.com/oauth/token\n```\n\n```java\n// WebClient with OAuth2 token injection:\n@Bean\nWebClient hdfcClient(OAuth2AuthorizedClientManager mgr) {\n    var oauth2 = new ServletOAuth2AuthorizedClientExchangeFilterFunction(mgr);\n    oauth2.setDefaultClientRegistrationId(\"hdfc-api\");\n    return WebClient.builder()\n        .baseUrl(\"https://api.hdfcbank.com\")\n        .apply(oauth2.oauth2Configuration())\n        .build();\n}\n// WebClient automatically obtains + caches + refreshes the token!\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Two flow diagrams side by side. Left: Authorization Code — User browser → Zerodha Auth Server (login+consent) → redirect with code → Quicko backend exchanges code for token → calls Zerodha API. Right: Client Credentials — HDFC Bank service → Razorpay Auth Server (client_id+secret) → access_token → calls Razorpay payment API. Both show scopes as labels on the token arrows.", "alt_text": "OAuth2 Authorization Code flow (user) vs Client Credentials flow (service-to-service)" },
+    "worked_example": {
+      "scenario": "Razorpay payment service as OAuth2 resource server + WebClient using Client Credentials to call HDFC Bank API.",
+      "problem_statement": "1. SecurityFilterChain: JWT resource server with scope-based access\n2. WebClient: Client Credentials for HDFC API calls\n3. @SpringBootTest: verify scope check works",
+      "step_by_step_solution": [
+        { "step": 1, "action": "Scopes vs Roles", "details": "Roles (MERCHANT, ADMIN): who the user IS. Scopes (payments:read, settlements:write): what the application is ALLOWED to do on behalf of the user. @PreAuthorize: `hasRole('MERCHANT')` checks roles; `hasAuthority('SCOPE_payments:read')` checks scopes. Spring Security maps OAuth2 scopes to SCOPE_xxx GrantedAuthority automatically." }
+      ],
+      "final_code": "// @PreAuthorize(\"hasAuthority('SCOPE_payments:read')\")\n// Checks OAuth2 scope in the token (not role)\n// SCOPE_ prefix added automatically by Spring Security",
+      "expected_output": "// Token with scope 'payments:read' → 200\n// Token without that scope → 403\n// No token → 401",
+      "things_to_notice": [
+        "SCOPE_ prefix: Spring Security automatically prefixes OAuth2 scopes with SCOPE_ when creating GrantedAuthority. So scope 'payments:read' becomes authority 'SCOPE_payments:read'. Use hasAuthority('SCOPE_payments:read'), not hasRole('payments:read').",
+        "Client Credentials caching: Spring's OAuth2AuthorizedClientManager automatically caches the access token and refreshes it before expiry. You don't manage token lifecycle manually — WebClient handles it transparently.",
+        "PKCE (Proof Key for Code Exchange): for Authorization Code flow in SPAs/mobile apps, PKCE prevents authorization code interception attacks. Spring Security 6+ enables it by default for public clients.",
+        "Token introspection vs JWT: JWT = self-contained (validated locally with public key). Opaque token = reference token, validated by calling auth server's /introspect endpoint. JWT is faster (no network call); opaque allows real-time revocation."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        { "company_context": "Razorpay partner API auth", "use_case": "HDFC Bank, ICICI, Axis all integrate with Razorpay programmatically using Client Credentials flow. Each bank has a client_id scoped to: payments:initiate, refunds:read, settlements:read. A token from HDFC cannot initiate refunds at ICICI — scopes are bank-specific." }
+      ],
+      "interview_relevance": "'Explain the difference between OAuth2 Authorization Code and Client Credentials flows.' → Auth Code: user-facing, delegates user permission to a third-party app (Quicko reading Zerodha trades). Client Credentials: machine-to-machine, no user, service authenticates as itself (HDFC calling Razorpay). Auth Code has redirect URI and authorization step; Client Credentials is a single POST /token call.",
+      "real_world_workflow": "OAuth2 setup: (1) register client with auth server (get client_id + secret), (2) configure Spring Security resource server (validate incoming tokens), (3) configure WebClient with OAuth2 for outbound calls (auto token management), (4) use scopes for fine-grained access control on each endpoint."
+    },
+    "common_gaps": [
+      { "gap_id": "scope_vs_role_confusion", "what_students_get_wrong": "Using hasRole('payments:read') instead of hasAuthority('SCOPE_payments:read'). OAuth2 scopes are NOT roles. They're different grant mechanisms.", "remediation": "Scopes → GrantedAuthority with SCOPE_ prefix (e.g., SCOPE_payments:read). Roles → GrantedAuthority with ROLE_ prefix (e.g., ROLE_MERCHANT). Use hasAuthority() for scopes, hasRole() for roles. Both can be in the same token.", "detection_pattern": "hasRole('payments:read') always returns 403 even with correct scope — missing the SCOPE_ prefix" }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Auth Code flow: user-facing, consent-based, includes redirect",
+        "Client Credentials: machine-to-machine, no user, single token request",
+        "Scopes → SCOPE_xxx authority; Roles → ROLE_xxx authority",
+        "hasAuthority('SCOPE_payments:read') for scope checks",
+        "WebClient + OAuth2AuthorizedClientManager: automatic token lifecycle",
+        "PKCE: required for SPAs/mobile apps (prevents code interception)",
+        "Opaque token: requires /introspect call; JWT: validated locally"
+      ],
+      "self_check_questions": [
+        { "question": "When should you use Authorization Code flow vs Client Credentials?", "answer": "Authorization Code: when a user needs to delegate access to a third-party application. The user must actively consent. Example: user allows Quicko to read their Zerodha trades. The application gets a token that represents the user's delegated permission. Client Credentials: when a service calls another service with no user involved. Example: Razorpay's reconciliation service calling its own settlements service at 2am (no user is present). The service authenticates as itself using client_id + client_secret. Rule: if there's a human consenting → Auth Code. If it's automated service-to-service → Client Credentials." }
+      ],
+      "next_topic_preview": "Next: Secrets Management with HashiCorp Vault — storing database passwords, API keys, and certificates securely instead of in application.yml or environment variables."
+    }
+  }
+}

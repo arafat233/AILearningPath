@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m11_t4_proj",
+  "linked_topic": "java_m11_t4",
+  "level": "mini",
+  "name": "Multi-API Data Aggregator — REST Client",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Build a data aggregator that calls multiple simulated REST APIs: a product catalog API, a pricing API, and an inventory API. Aggregates all three responses into a unified product record. Demonstrates GET, POST, header auth, JSON parsing, and error handling — the complete HttpClient skill set. Since real external APIs require live network access unavailable in the exercise environment, all HTTP calls use convincing simulations that demonstrate the identical patterns.",
+
+  "description": "A REST API client that aggregates data from three simulated endpoints, handles auth, parses JSON responses with Jackson, gracefully degrades on 404, retries on 429, and writes the aggregated results to a JSON report file.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`ApiClient` class with: static final HttpClient singleton (configured with timeout), static final ObjectMapper singleton. Helper method `buildGetRequest(String url, String token)` that sets Authorization Bearer header and Accept: application/json.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "Three simulated API responses (mock the body strings as would be returned by real APIs):\n- GET /products/{id} → product name, category, description\n- GET /pricing/{id} → current price, originalPrice, discount%\n- GET /inventory/{id} → quantityAvailable, warehouseLocation, inStock",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`fetchProduct(String productId)` — calls all three simulated endpoints, parses JSON with Jackson, builds a unified `ProductDetail` object or ObjectNode combining all three responses.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Handle three status scenarios: 200 (parse), 404 (return partial with defaults), 429 (retry once after 200ms delay, then give up with logged warning).",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Fetch 5 products (P001-P005). P003 simulates a 404 on inventory. Aggregate results into a List and print a formatted summary table.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "Write all results to `product_report.json` using Jackson pretty printer. File includes timestamp, total count, available count, and array of product details.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "POST a search request to `/search` with a JSON body `{\"category\":\"Electronics\",\"maxPrice\":5000}`. Parse and print the simulated result count.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a `RateLimiter` helper: tracks request count per second (AtomicInteger + scheduled reset). If > 10 requests/sec, sleep 100ms before sending. Demonstrates combining concurrency (Topic 10.4) with HTTP.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add response caching: ConcurrentHashMap<String, CachedResponse> where CachedResponse holds body + timestamp. If cached and < 60 seconds old, return cached body instead of calling the API. Print 'CACHE HIT' or 'CACHE MISS' for each call.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a mock authentication flow: POST to `/auth/token` with `{\"username\":\"demo\",\"password\":\"demo123\"}`, receive a Bearer token, then use that token for all subsequent requests. Simulate token expiry after 3 calls and re-authenticate.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Products: P001(Mouse), P002(Keyboard), P003(Monitor—404 on inventory), P004(USB Hub), P005(Headphones)\nAPI token: 'test-bearer-token-xyz'\n\nSimulated responses:\nP001: name=Wireless Mouse, price=799, qty=50\nP002: name=Keyboard, price=1999, qty=12\nP003: name=Monitor (inventory 404 → inStock=false, qty=0)\nP004: name=USB Hub, price=499, qty=60\nP005: name=Headphones, price=2999, qty=25",
+
+  "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.net.http.*;\nimport java.net.URI;\nimport java.time.*;\nimport java.util.*;\nimport java.nio.file.*;\n\n/**\n * Multi-API Data Aggregator — HttpClient REST Client\n * Note: Uses simulated API responses (identical patterns to real HTTP calls)\n */\npublic class ApiAggregator {\n    public static void main(String[] args) throws Exception {\n        // Fetch 5 products, aggregate data, write JSON report\n    }\n    // Define: ApiClient, fetchProduct, simulateResponse methods\n}",
+
+  "example_output": "=== Product Data Aggregator ===\nFetching 5 products...\n\nP001: Wireless Mouse    ₹799    50 in stock  ✓\nP002: Keyboard         ₹1999    12 in stock  ✓\nP003: Monitor         ₹18999    [inventory unavailable] ✗\nP004: USB Hub           ₹499    60 in stock  ✓\nP005: Headphones       ₹2999    25 in stock  ✓\n\nSearch POST → found 3 products under ₹5000\n\n=== Summary ===\nTotal: 5  |  In stock: 4  |  Unavailable: 1\nReport written: product_report.json",
+
+  "rubric": [
+    { "category": "ApiClient Singleton", "points": 15, "criteria": ["HttpClient singleton (8 pts)", "buildGetRequest helper (7 pts)"] },
+    { "category": "Three API Simulation", "points": 15, "criteria": ["Three distinct response structures (15 pts)"] },
+    { "category": "Aggregation", "points": 20, "criteria": ["Combines all three responses (15 pts)", "Correct field extraction with Jackson (5 pts)"] },
+    { "category": "Error Handling", "points": 20, "criteria": ["404 graceful degradation (10 pts)", "429 retry logic (10 pts)"] },
+    { "category": "POST search", "points": 10, "criteria": ["POST with JSON body + parse response (10 pts)"] },
+    { "category": "JSON Report", "points": 10, "criteria": ["Valid pretty-printed JSON output file (10 pts)"] },
+    { "category": "Formatted Console Output", "points": 10, "criteria": ["Aligned table (10 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["RateLimiter (20 pts)", "Response cache (25 pts)", "Auth token flow (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: simulate response by returning a JSON string directly (same parsing logic works against real HTTP). For 404 simulation: return null from simulate method, check null in fetchProduct. For POST: BodyPublishers.ofString(mapper.writeValueAsString(requestNode)). Report file: Files.writeString(Path.of('product_report.json'), mapper.writerWithDefaultPrettyPrinter().writeValueAsString(reportNode)).",
+
+  "submission_instructions": "Save as ApiAggregator.java. Push to GitHub. Comment: 'HttpClient REST API aggregation with error handling'. Note: exercises use simulated responses — real HTTP calls work identically.",
+
+  "tips_for_success": [
+    "Simulate API: method returns String (mock body) or null (mock 404)",
+    "HttpClient singleton: `private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build()`",
+    "For real calls: `String body = HTTP.send(req, BodyHandlers.ofString()).body()`",
+    "Retry on 429: `if (status == 429) { Thread.sleep(200); body = HTTP.send(req, ...).body(); }`",
+    "Report: ObjectNode with timestamp, count, ArrayNode of product ObjectNodes"
+  ],
+
+  "concepts_reinforced": [
+    "HttpClient singleton pattern",
+    "HttpRequest.newBuilder() fluent chain",
+    "Authorization Bearer header",
+    "BodyPublishers.ofString for POST",
+    "Status code handling: 200/404/429",
+    "Jackson ObjectMapper for request/response",
+    "Files.writeString for JSON report output"
+  ]
+}

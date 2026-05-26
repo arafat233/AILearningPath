@@ -1,0 +1,341 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t5",
+  "topic_name": "Actuator and Production Observability",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m14_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What does /actuator/health return by default?",
+      "scenario": "Spring Boot Actuator's health endpoint aggregates component statuses.",
+      "instructions": "A Spring Boot app has: Actuator added, H2 datasource configured, no custom HealthIndicators.\n\nWhat does GET /actuator/health return? What components appear?\nWhat is the overall status?\nWhat is the default show-details setting?",
+      "expected_solution": "Default response: {\"status\":\"UP\"}\nComponents visible by default: none (details hidden)\nWith management.endpoint.health.show-details=always: db, diskSpace, ping\nDefault show-details: never (only top-level status shown)",
+      "test_cases": [
+        { "type": "text_match", "expected": "Default response: {\"status\":\"UP\"}\nComponents visible by default: none (details hidden)\nWith management.endpoint.health.show-details=always: db, diskSpace, ping\nDefault show-details: never (only top-level status shown)" }
+      ],
+      "hints": [
+        "Default show-details: never — only {status: UP}",
+        "Auto-included: db (if Spring Data), diskSpace, ping",
+        "management.endpoint.health.show-details=always to see components"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Expose Actuator endpoints and show health details",
+      "scenario": "Endpoints must be explicitly exposed; details must be configured.",
+      "instructions": "Fill in the application.properties to expose health, info, and metrics with full details.",
+      "starter_code": "# application.properties:\n\n# Expose health, info and metrics:\nmanagement.endpoints.web.exposure.______=health,info,metrics\n\n# Show all health component details:\nmanagement.endpoint.health.show-_______=always\n\n# App info for /actuator/info:\ninfo.app.______=payment-service\ninfo.app.version=1.0.0",
+      "expected_solution": "management.endpoints.web.exposure.include=health,info,metrics\nmanagement.endpoint.health.show-details=always\ninfo.app.name=payment-service\ninfo.app.version=1.0.0",
+      "blanks": [
+        { "position": 1, "answer": "include",  "hint": "Property to include endpoints in web exposure" },
+        { "position": 2, "answer": "details",   "hint": "show-____ controls component visibility" },
+        { "position": 3, "answer": "name",      "hint": "info.app.____=payment-service" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected": "management.endpoints.web.exposure.include=health,info,metrics\nmanagement.endpoint.health.show-details=always\ninfo.app.name=payment-service\ninfo.app.version=1.0.0" }
+      ],
+      "hints": [
+        "management.endpoints.web.exposure.include: whitelist of exposed endpoints",
+        "show-details=always: components visible without authentication"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal custom HealthIndicator",
+      "scenario": "A custom HealthIndicator checks if an external dependency is up.",
+      "instructions": "Write a `PaymentGatewayHealthIndicator` that:\n1. Implements HealthIndicator\n2. In health(): returns Health.up() if a boolean `isGatewayReachable()` returns true\n3. Returns Health.down() with detail 'gateway unreachable' if false\n4. Is a @Component (auto-registered by Actuator)",
+      "starter_code": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n// PaymentGatewayHealthIndicator\n",
+      "expected_solution": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n\n@Component\npublic class PaymentGatewayHealthIndicator implements HealthIndicator {\n    \n    // Simulated gateway check — in real code, inject HttpClient or similar:\n    private boolean isGatewayReachable() {\n        // Ping the gateway endpoint\n        return true;  // simulate UP\n    }\n    \n    @Override\n    public Health health() {\n        if (isGatewayReachable()) {\n            return Health.up()\n                .withDetail(\"gateway\", \"Razorpay API\")\n                .build();\n        } else {\n            return Health.down()\n                .withDetail(\"reason\", \"gateway unreachable\")\n                .build();\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Health.up().withDetail('key', value).build()",
+        "Health.down().withDetail('reason', '...').build()",
+        "@Component: Spring registers this automatically with Actuator"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m14_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Micrometer Counter — count events",
+      "scenario": "Counter increments on each event occurrence.",
+      "instructions": "Write an `OrderService` that:\n1. Injects MeterRegistry via constructor\n2. Creates a Counter 'orders.placed' in the constructor\n3. Creates a Counter 'orders.failed' with tag 'reason' to be set at increment time\n4. Increments appropriate counter in placeOrder() and on exception\n\nNote: with tags set at increment time, use registry.counter('orders.failed', 'reason', 'validation').",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n// OrderService with two counters\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class OrderService {\n    private final MeterRegistry registry;\n    private final Counter ordersPlaced;\n    \n    OrderService(MeterRegistry registry) {\n        this.registry = registry;\n        this.ordersPlaced = Counter.builder(\"orders.placed\")\n            .description(\"Total orders placed successfully\")\n            .tag(\"service\", \"payment\")\n            .register(registry);\n    }\n    \n    public String placeOrder(String symbol, int qty, double price) {\n        try {\n            if (qty <= 0) throw new IllegalArgumentException(\"Invalid qty\");\n            // ... save order\n            ordersPlaced.increment();\n            return \"ORD-\" + System.currentTimeMillis();\n        } catch (IllegalArgumentException e) {\n            // Tag added at increment time:\n            registry.counter(\"orders.failed\", \"reason\", \"validation\").increment();\n            throw e;\n        } catch (Exception e) {\n            registry.counter(\"orders.failed\", \"reason\", \"system\").increment();\n            throw e;\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Counter.builder('name').description('').tag('k','v').register(registry)",
+        "counter.increment(): add 1 to the counter",
+        "registry.counter('name', 'tag', 'value'): counter with tag set at use time"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m14_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Micrometer Gauge — track current state",
+      "scenario": "Gauge reflects a current value (queue depth, active connections).",
+      "instructions": "Write a `PaymentQueueService` that:\n1. Uses AtomicInteger to track pending payments count\n2. Registers it as a Gauge named 'payments.pending'\n3. Has enqueue() incrementing and dequeue() decrementing the counter\n4. The Gauge automatically reflects the AtomicInteger value",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n// PaymentQueueService with Gauge\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport java.util.*;\n\n@Service\npublic class PaymentQueueService {\n    private final Queue<String> queue = new java.util.concurrent.LinkedBlockingQueue<>();\n    private final AtomicInteger pendingCount;\n    \n    PaymentQueueService(MeterRegistry registry) {\n        // AtomicInteger registered as a Gauge:\n        pendingCount = registry.gauge(\n            \"payments.pending\",\n            new AtomicInteger(0));\n    }\n    \n    public void enqueue(String paymentId) {\n        queue.add(paymentId);\n        pendingCount.incrementAndGet();\n        System.out.println(\"Enqueued \" + paymentId + \" (pending: \" + pendingCount.get() + \")\");\n    }\n    \n    public String dequeue() {\n        String paymentId = queue.poll();\n        if (paymentId != null) {\n            pendingCount.decrementAndGet();\n            System.out.println(\"Dequeued \" + paymentId + \" (pending: \" + pendingCount.get() + \")\");\n        }\n        return paymentId;\n    }\n    \n    public int getPendingCount() { return pendingCount.get(); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "registry.gauge('name', atomicInteger): Gauge reads AI value automatically",
+        "Gauge = current snapshot (can go up/down), Counter = always increasing",
+        "AtomicInteger is thread-safe — important for concurrent queue access"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Micrometer Timer — measure operation duration",
+      "scenario": "Timer records count, total time, and percentiles.",
+      "instructions": "Write a `DatabaseService` that:\n1. Wraps each query in a Timer named 'db.query.duration' with tag 'query'\n2. Uses Timer.record(Supplier<T>) for findById\n3. Uses Timer.start/stop for a more complex findAll operation\n4. Prints the timer stats: count and total time",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n// DatabaseService with Timer\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\n@Service\npublic class DatabaseService {\n    private final MeterRegistry registry;\n    private final Timer findByIdTimer;\n    \n    DatabaseService(MeterRegistry registry) {\n        this.registry = registry;\n        findByIdTimer = Timer.builder(\"db.query.duration\")\n            .description(\"DB query execution time\")\n            .tag(\"query\", \"findById\")\n            .register(registry);\n    }\n    \n    // Wraps the operation and records duration:\n    public Optional<String> findById(String id) {\n        return findByIdTimer.record(() -> {\n            // Simulate DB query:\n            try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            return Optional.of(\"Product: \" + id);\n        });\n    }\n    \n    // Manual start/stop for complex operations:\n    public List<String> findAll() {\n        Timer.Sample sample = Timer.start(registry);\n        try {\n            // Simulate longer DB scan:\n            try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            return List.of(\"Product A\", \"Product B\");\n        } finally {\n            sample.stop(Timer.builder(\"db.query.duration\")\n                .tag(\"query\", \"findAll\")\n                .register(registry));\n        }\n    }\n    \n    public void printStats() {\n        System.out.printf(\"findById: count=%d total=%.0fms%n\",\n            (long) findByIdTimer.count(),\n            findByIdTimer.totalTime(java.util.concurrent.TimeUnit.MILLISECONDS));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Timer.record(supplier): measures duration + returns supplier result",
+        "Timer.start(registry) + sample.stop(timer): manual measurement",
+        "timer.count(): number of recordings; timer.totalTime(MILLISECONDS): sum"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m14_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@SpringBootTest — verify /actuator/health",
+      "scenario": "Integration test that the health endpoint returns UP.",
+      "instructions": "Write a @SpringBootTest(RANDOM_PORT) test that:\n1. Calls GET /actuator/health via TestRestTemplate\n2. Asserts status code is 200\n3. Asserts response body contains '\"status\":\"UP\"'\n4. Calls GET /actuator/info and asserts it contains the app name",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.http.*;\n// @SpringBootTest actuator tests\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass ActuatorEndpointTest {\n    @Autowired TestRestTemplate rest;\n    \n    @Test\n    void health_returns200AndUp() {\n        ResponseEntity<String> response = rest.getForEntity(\"/actuator/health\", String.class);\n        assertEquals(HttpStatus.OK, response.getStatusCode());\n        assertTrue(response.getBody().contains(\"\\\"status\\\":\\\"UP\\\"\"),\n            \"Expected UP status but got: \" + response.getBody());\n    }\n    \n    @Test\n    void info_returnsAppName() {\n        ResponseEntity<String> response = rest.getForEntity(\"/actuator/info\", String.class);\n        assertEquals(HttpStatus.OK, response.getStatusCode());\n        // app.name from application.properties info.app.name=payment-service\n        assertTrue(response.getBody().contains(\"payment-service\"),\n            \"Expected app name in info: \" + response.getBody());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "@SpringBootTest RANDOM_PORT: starts real server with actuator endpoints",
+        "TestRestTemplate: doesn't throw on non-2xx — use assertEquals on status",
+        "management.endpoints.web.exposure.include=health,info in test properties"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m14_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "HealthIndicator with DOWN state",
+      "scenario": "Health indicators should accurately reflect dependency health.",
+      "instructions": "Write `StockFeedHealthIndicator` that:\n1. Depends on a StockFeedClient with isConnected() and getLatencyMs() methods\n2. Returns Health.up() with latency detail if connected\n3. Returns Health.down() with 'Stock feed disconnected' if not\n4. Returns Health.unknown() if latency > 500ms (connected but slow)\n5. Write @SpringBootTest verifying all three states",
+      "starter_code": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n// StockFeedHealthIndicator + test\n",
+      "expected_solution": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n\ninterface StockFeedClient { boolean isConnected(); long getLatencyMs(); }\n\n@Component\npublic class StockFeedHealthIndicator implements HealthIndicator {\n    private final StockFeedClient client;\n    StockFeedHealthIndicator(StockFeedClient c) { client = c; }\n    \n    @Override\n    public Health health() {\n        if (!client.isConnected()) {\n            return Health.down()\n                .withDetail(\"reason\", \"Stock feed disconnected\")\n                .build();\n        }\n        long latency = client.getLatencyMs();\n        if (latency > 500) {\n            return Health.unknown()\n                .withDetail(\"latencyMs\", latency)\n                .withDetail(\"warning\", \"High latency — degraded performance\")\n                .build();\n        }\n        return Health.up().withDetail(\"latencyMs\", latency).build();\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.actuate.health.Status;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass StockFeedHealthIndicatorTest {\n    StockFeedClient mockClient;\n    StockFeedHealthIndicator indicator;\n    \n    @BeforeEach void setup() {\n        mockClient = mock(StockFeedClient.class);\n        indicator = new StockFeedHealthIndicator(mockClient);\n    }\n    @Test void connected_lowLatency_up() {\n        when(mockClient.isConnected()).thenReturn(true);\n        when(mockClient.getLatencyMs()).thenReturn(45L);\n        assertEquals(Status.UP, indicator.health().getStatus());\n    }\n    @Test void notConnected_down() {\n        when(mockClient.isConnected()).thenReturn(false);\n        assertEquals(Status.DOWN, indicator.health().getStatus());\n    }\n    @Test void connected_highLatency_unknown() {\n        when(mockClient.isConnected()).thenReturn(true);\n        when(mockClient.getLatencyMs()).thenReturn(800L);\n        assertEquals(Status.UNKNOWN, indicator.health().getStatus());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Health.unknown(): between UP and DOWN — degraded state",
+        ".withDetail('key', value): add diagnostic info",
+        "Test with mock client — no Spring context needed for unit testing HealthIndicator"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m14_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Verify metrics increment in tests",
+      "scenario": "MeterRegistry can be inspected in tests to assert metric values.",
+      "instructions": "Write a @SpringBootTest test for OrderService that:\n1. @Autowired MeterRegistry and OrderService\n2. Calls placeOrder() 3 times (valid)\n3. Asserts orders.placed counter = 3\n4. Calls placeOrder() with invalid data (throws)\n5. Asserts orders.failed counter = 1",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.boot.test.context.SpringBootTest;\n// @SpringBootTest metric assertion test\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass OrderMetricsTest {\n    @Autowired MeterRegistry registry;\n    @Autowired OrderService orderService;\n    \n    @BeforeEach\n    void resetCounters() {\n        // Clear counters between tests (for SimpleMeterRegistry):\n        Counter placed = registry.find(\"orders.placed\").counter();\n        // Note: in real tests use @ResetMicrometer or fresh SimpleMeterRegistry\n    }\n    \n    @Test\n    void placeOrder_threeValid_counterIsThree() {\n        double before = registry.find(\"orders.placed\").counter().count();\n        orderService.placeOrder(\"TCS\", 10, 3890.0);\n        orderService.placeOrder(\"INFY\", 5, 1560.0);\n        orderService.placeOrder(\"RELIANCE\", 20, 2450.0);\n        double after = registry.find(\"orders.placed\").counter().count();\n        assertEquals(3.0, after - before, 0.001);\n    }\n    \n    @Test\n    void placeOrder_invalid_failedCounterIncrements() {\n        double before = registry.find(\"orders.failed\").counter().count();\n        assertThrows(IllegalArgumentException.class,\n            () -> orderService.placeOrder(\"TCS\", -1, 3890.0));  // qty=-1 invalid\n        double after = registry.find(\"orders.failed\").counter().count();\n        assertEquals(1.0, after - before, 0.001);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "registry.find('metric.name').counter(): find a counter in the registry",
+        "counter.count(): current count as double",
+        "Measure delta (after - before) to avoid test order dependency"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m14_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What happens when a HealthIndicator throws?",
+      "scenario": "Uncaught exceptions in health() affect the overall health status.",
+      "instructions": "A custom HealthIndicator's health() method throws a RuntimeException.\n\n```java\n@Component\nclass BrokenIndicator implements HealthIndicator {\n    @Override public Health health() {\n        throw new RuntimeException(\"Connection pool exhausted!\");\n    }\n}\n```\n\nWhat does /actuator/health return? What is the component status? What is the overall status?",
+      "expected_solution": "The BrokenIndicator component status becomes DOWN\nSpring Actuator catches the exception and treats it as DOWN\nOverall status: DOWN (because one component is DOWN)\nResponse: {\"status\":\"DOWN\",\"components\":{\"broken\":{\"status\":\"DOWN\",\"details\":{\"error\":\"Connection pool exhausted!\"}}}}\nNote: the exception message appears in the 'error' detail field",
+      "test_cases": [
+        { "type": "text_match", "expected": "The BrokenIndicator component status becomes DOWN\nSpring Actuator catches the exception and treats it as DOWN\nOverall status: DOWN (because one component is DOWN)\nResponse: {\"status\":\"DOWN\",\"components\":{\"broken\":{\"status\":\"DOWN\",\"details\":{\"error\":\"Connection pool exhausted!\"}}}}\nNote: the exception message appears in the 'error' detail field" }
+      ],
+      "hints": [
+        "Actuator wraps each HealthIndicator.health() call in try-catch",
+        "Exception → component status DOWN → overall DOWN",
+        "Never let health() throw — return Health.down() instead, use try-catch"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Cached HealthIndicator — don't check on every request",
+      "scenario": "Cache the health result to avoid hitting external services per probe.",
+      "instructions": "Write a `CachedExternalApiHealthIndicator` that:\n1. Actually checks an external API only every 30 seconds (@Scheduled)\n2. Caches the result in an AtomicReference<Health>\n3. HealthIndicator.health() returns the cached result instantly\n4. Starts as Health.unknown() until first check completes",
+      "starter_code": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport java.util.concurrent.atomic.AtomicReference;\n// CachedExternalApiHealthIndicator\n",
+      "expected_solution": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Component;\nimport java.util.concurrent.atomic.AtomicReference;\n\n@Component\npublic class CachedExternalApiHealthIndicator implements HealthIndicator {\n    \n    // Starts as UNKNOWN — not yet checked:\n    private final AtomicReference<Health> cachedHealth =\n        new AtomicReference<>(Health.unknown().withDetail(\"reason\", \"Initial check pending\").build());\n    \n    // Run actual check every 30 seconds:\n    @Scheduled(fixedRate = 30_000)\n    public void refreshHealth() {\n        try {\n            long latency = pingExternalApi();\n            cachedHealth.set(Health.up()\n                .withDetail(\"latencyMs\", latency)\n                .withDetail(\"checkedAt\", java.time.LocalDateTime.now().toString())\n                .build());\n        } catch (Exception e) {\n            cachedHealth.set(Health.down()\n                .withDetail(\"reason\", e.getMessage())\n                .withDetail(\"checkedAt\", java.time.LocalDateTime.now().toString())\n                .build());\n        }\n    }\n    \n    // Instant — reads cached value:\n    @Override\n    public Health health() { return cachedHealth.get(); }\n    \n    private long pingExternalApi() throws Exception {\n        long start = System.currentTimeMillis();\n        // HTTP call to external API...\n        return System.currentTimeMillis() - start;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "AtomicReference<Health>: thread-safe holder for the cached Health object",
+        "@Scheduled runs the check; health() reads the cache — no blocking",
+        "Initial UNKNOWN: reasonable until first @Scheduled run completes"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m14_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Change log level at runtime via Actuator",
+      "scenario": "/actuator/loggers enables runtime log level changes.",
+      "instructions": "Write a @SpringBootTest(RANDOM_PORT) test that:\n1. Gets the current log level for 'com.codequest' via GET /actuator/loggers/com.codequest\n2. Changes it to DEBUG via POST /actuator/loggers/com.codequest\n3. Verifies the level changed via GET\n4. Resets to INFO\n\nNote: management.endpoints.web.exposure.include must include 'loggers'.",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.http.*;\n// Logger level change test\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.*;\nimport java.util.Map;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// application.properties: management.endpoints.web.exposure.include=health,info,metrics,loggers\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass LoggerLevelTest {\n    @Autowired TestRestTemplate rest;\n    \n    @Test\n    void changeLogLevel_codequest_toDebug() {\n        String loggerPath = \"/actuator/loggers/com.codequest\";\n        \n        // GET current level:\n        ResponseEntity<String> getResp = rest.getForEntity(loggerPath, String.class);\n        assertEquals(HttpStatus.OK, getResp.getStatusCode());\n        System.out.println(\"Before: \" + getResp.getBody());\n        \n        // POST new level:\n        HttpHeaders headers = new HttpHeaders();\n        headers.setContentType(MediaType.APPLICATION_JSON);\n        HttpEntity<Map<String,String>> req = new HttpEntity<>(Map.of(\"configuredLevel\", \"DEBUG\"), headers);\n        ResponseEntity<Void> postResp = rest.postForEntity(loggerPath, req, Void.class);\n        assertEquals(HttpStatus.NO_CONTENT, postResp.getStatusCode());\n        \n        // Verify changed:\n        ResponseEntity<String> afterResp = rest.getForEntity(loggerPath, String.class);\n        assertTrue(afterResp.getBody().contains(\"DEBUG\"), \"Level should be DEBUG\");\n        \n        // Reset to INFO:\n        rest.postForEntity(loggerPath,\n            new HttpEntity<>(Map.of(\"configuredLevel\", \"INFO\"), headers), Void.class);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "POST /actuator/loggers/{logger}: body = {configuredLevel: DEBUG}",
+        "Returns 204 No Content on success",
+        "GET /actuator/loggers/{logger}: returns {configuredLevel, effectiveLevel}"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m14_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full observability stack — health + metrics + info",
+      "scenario": "Production-ready observability on a payment service.",
+      "instructions": "Build complete observability for PaymentService:\n1. `PaymentGatewayHealthIndicator`: checks ping, shows latency, DOWN if >500ms\n2. `PaymentMetrics` @Component: Counter payments.processed, Counter payments.failed, Gauge payments.queued, Timer payment.processing.duration\n3. PaymentService.process() uses all 4 metrics\n4. application.properties: expose health,info,metrics\n5. @SpringBootTest(RANDOM_PORT): verify /actuator/health UP, /actuator/info has version, /actuator/metrics lists payment.* metrics",
+      "starter_code": "// Full observability: HealthIndicator + 4 Micrometer metrics + properties + test\n",
+      "expected_solution": "import org.springframework.boot.actuate.health.*;\nimport io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Component\nclass PaymentGatewayHealthIndicator implements HealthIndicator {\n    @Override public Health health() {\n        // Simulate ping:\n        long latency = 45L;\n        return latency > 500 ? Health.down().withDetail(\"latencyMs\",latency).build()\n                             : Health.up().withDetail(\"latencyMs\",latency).build();\n    }\n}\n\n@Component\nclass PaymentMetrics {\n    final Counter processed, failed;\n    final AtomicInteger queued;\n    final Timer processingTimer;\n    PaymentMetrics(MeterRegistry r) {\n        processed = Counter.builder(\"payments.processed\").register(r);\n        failed    = Counter.builder(\"payments.failed\").register(r);\n        queued    = r.gauge(\"payments.queued\", new AtomicInteger(0));\n        processingTimer = Timer.builder(\"payment.processing.duration\").register(r);\n    }\n}\n\n@Service\nclass PaymentService {\n    private final PaymentMetrics metrics;\n    PaymentService(PaymentMetrics m) { metrics = m; }\n    public String process(String orderId) {\n        metrics.queued.incrementAndGet();\n        return metrics.processingTimer.record(() -> {\n            try {\n                Thread.sleep(50);\n                metrics.processed.increment();\n                return \"PAY-\" + orderId;\n            } catch (Exception e) {\n                metrics.failed.increment();\n                throw new RuntimeException(e);\n            } finally {\n                metrics.queued.decrementAndGet();\n            }\n        });\n    }\n}\n\n// application.properties:\n// management.endpoints.web.exposure.include=health,info,metrics\n// management.endpoint.health.show-details=always\n// info.app.name=payment-service\n// info.app.version=1.0.0\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass FullObservabilityTest {\n    @Autowired TestRestTemplate rest;\n    @Test void health_isUp() {\n        var r = rest.getForEntity(\"/actuator/health\",String.class);\n        assertEquals(HttpStatus.OK,r.getStatusCode());\n        assertTrue(r.getBody().contains(\"\\\"status\\\":\\\"UP\\\"\"));\n    }\n    @Test void info_hasVersion() {\n        var r = rest.getForEntity(\"/actuator/info\",String.class);\n        assertTrue(r.getBody().contains(\"1.0.0\"));\n    }\n    @Test void metrics_list_containsPaymentMetrics() {\n        var r = rest.getForEntity(\"/actuator/metrics\",String.class);\n        assertTrue(r.getBody().contains(\"payments.processed\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@Component PaymentMetrics: inject into PaymentService via constructor",
+        "metrics.processingTimer.record(Callable): wraps operation and records time",
+        "GET /actuator/metrics: returns list of all registered metric names"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m14_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Kubernetes-ready liveness and readiness probes",
+      "scenario": "Spring Boot Actuator provides separate liveness and readiness groups.",
+      "instructions": "Configure the application to expose:\n1. /actuator/health/liveness — always UP unless JVM is broken\n2. /actuator/health/readiness — DOWN when DB or payment gateway is not ready\n\nWrite application.properties configuration. Write a ReadinessIndicator that goes DOWN if a required service is not initialized. Write @SpringBootTest verifying both paths.",
+      "starter_code": "import org.springframework.boot.actuate.availability.*;\nimport org.springframework.boot.actuate.health.*;\n// Liveness + Readiness + test\n",
+      "expected_solution": "// application.properties:\n// management.endpoint.health.probes.enabled=true\n// management.endpoints.web.exposure.include=health,info,metrics\n// management.endpoint.health.show-details=always\n// management.health.livenessState.enabled=true\n// management.health.readinessState.enabled=true\n\nimport org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\nimport java.util.concurrent.atomic.AtomicBoolean;\n\n// Custom readiness check:\n@Component\nclass ServiceReadinessIndicator implements HealthIndicator {\n    private final AtomicBoolean initialized = new AtomicBoolean(false);\n    \n    // Called after the app starts:\n    @org.springframework.boot.context.event.EventListener\n    public void onAppReady(org.springframework.context.event.ContextRefreshedEvent e) {\n        initialized.set(true);\n    }\n    \n    @Override\n    public Health health() {\n        return initialized.get()\n            ? Health.up().withDetail(\"initialized\", true).build()\n            : Health.down().withDetail(\"reason\", \"Service not yet initialized\").build();\n    }\n}\n\n// Test:\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass KubernetesProbeTest {\n    @Autowired TestRestTemplate rest;\n    @Test void liveness_isUp() {\n        var r = rest.getForEntity(\"/actuator/health/liveness\", String.class);\n        assertEquals(HttpStatus.OK, r.getStatusCode());\n        assertTrue(r.getBody().contains(\"UP\"));\n    }\n    @Test void readiness_isUp_afterContextRefreshed() {\n        // Context is refreshed by the time test runs\n        var r = rest.getForEntity(\"/actuator/health/readiness\", String.class);\n        assertEquals(HttpStatus.OK, r.getStatusCode());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "management.endpoint.health.probes.enabled=true: adds /health/liveness and /health/readiness",
+        "/health/liveness: JVM alive; /health/readiness: ready to serve",
+        "@EventListener ContextRefreshedEvent: fires after all beans initialized"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m14_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete production observability — Module 14.5 synthesis",
+      "scenario": "Full Actuator stack: health, metrics, info, secured endpoints.",
+      "instructions": "Build production-ready observability for the Zerodha-style trading service:\n1. `MarketFeedHealthIndicator`: UP with latency if connected, DOWN if not, cached with @Scheduled\n2. `TradingMetrics`: Counter trades.executed (with 'symbol' tag), Timer trade.execution.duration, Gauge positions.open\n3. `TradingService.executeTrade()`: uses all metrics, wrapped in Timer\n4. application.properties: expose health,info,metrics; secure env and threaddump; show details; info.version\n5. @SpringBootTest(RANDOM_PORT): 4 tests — health UP, metrics listed, info has version, trade increments counter\n\nAll 4 tests must pass.",
+      "starter_code": "// Complete trading service observability\n// MarketFeedHealthIndicator (cached)\n// TradingMetrics (counter+timer+gauge)\n// TradingService (metrics in executeTrade)\n// application.properties\n// @SpringBootTest 4 tests\n",
+      "expected_solution": "import org.springframework.boot.actuate.health.*;\nimport io.micrometer.core.instrument.*;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.*;\nimport java.util.concurrent.atomic.*;\n\n@Component\nclass MarketFeedHealthIndicator implements HealthIndicator {\n    private final AtomicReference<Health> cache =\n        new AtomicReference<>(Health.unknown().withDetail(\"status\",\"initializing\").build());\n    @Scheduled(fixedRate=30_000)\n    public void refresh() {\n        try { long ms=45L; cache.set(Health.up().withDetail(\"latencyMs\",ms).build()); }\n        catch(Exception e) { cache.set(Health.down().withDetail(\"error\",e.getMessage()).build()); }\n    }\n    @Override public Health health() { return cache.get(); }\n}\n\n@Component\nclass TradingMetrics {\n    final Counter tradesExecuted;\n    final Timer executionTimer;\n    final AtomicInteger openPositions;\n    TradingMetrics(MeterRegistry r){\n        tradesExecuted = Counter.builder(\"trades.executed\").register(r);\n        executionTimer = Timer.builder(\"trade.execution.duration\").register(r);\n        openPositions  = r.gauge(\"positions.open\", new AtomicInteger(0));\n    }\n}\n\n@Service\nclass TradingService {\n    private final TradingMetrics m;\n    TradingService(TradingMetrics m) { this.m=m; }\n    public String executeTrade(String symbol, int qty) {\n        m.openPositions.incrementAndGet();\n        return m.executionTimer.record(() -> {\n            try {\n                m.tradesExecuted.increment();\n                return \"TRD-\" + symbol + \"-\" + qty;\n            } finally { m.openPositions.decrementAndGet(); }\n        });\n    }\n}\n\n// application.properties:\n// management.endpoints.web.exposure.include=health,info,metrics\n// management.endpoint.health.show-details=always\n// info.app.name=trading-service\n// info.app.version=2.0.0\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass TradingObservabilityTest {\n    @Autowired TestRestTemplate rest; @Autowired TradingService svc; @Autowired MeterRegistry registry;\n    @Test void health_isUp() {\n        assertTrue(rest.getForEntity(\"/actuator/health\",String.class).getBody().contains(\"UP\")); }\n    @Test void metrics_listed() {\n        assertTrue(rest.getForEntity(\"/actuator/metrics\",String.class).getBody().contains(\"trades.executed\")); }\n    @Test void info_hasVersion() {\n        assertTrue(rest.getForEntity(\"/actuator/info\",String.class).getBody().contains(\"2.0.0\")); }\n    @Test void executeTrade_incrementsCounter() {\n        double before = registry.find(\"trades.executed\").counter().count();\n        svc.executeTrade(\"TCS\",10);\n        assertEquals(1.0, registry.find(\"trades.executed\").counter().count()-before, 0.001); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "Cached HealthIndicator: AtomicReference<Health> updated by @Scheduled, health() reads cache",
+        "Timer.record(Callable<T>): wraps and returns the result while timing",
+        "registry.find('metric.name').counter(): look up a counter by name in tests"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  }
+}

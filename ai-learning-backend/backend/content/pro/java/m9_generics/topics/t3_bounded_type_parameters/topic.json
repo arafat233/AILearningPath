@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t3",
+  "language": "java",
+  "module_id": "m9",
+  "module_name": "Generics",
+  "topic_number": 3,
+  "name": "Bounded Type Parameters",
+  "slug": "bounded-type-parameters",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m9_t1", "java_m9_t2", "java_m5_t1"],
+    "concepts_taught": [
+      "upper_bound_extends",
+      "multiple_bounds",
+      "comparable_bound",
+      "number_bound",
+      "bounded_class_type_parameters",
+      "bounded_method_type_parameters",
+      "calling_bound_interface_methods",
+      "combining_bounds_ampersand",
+      "practical_bounded_patterns",
+      "why_bounds_are_needed"
+    ],
+    "skills_developed": [
+      "writing_upper_bounded_type_parameters",
+      "using_comparable_bound_for_sorting",
+      "using_number_bound_for_math",
+      "combining_interface_bounds",
+      "designing_constrained_generic_apis"
+    ],
+    "career_relevance": "Bounded type parameters are how professional generic APIs enforce contracts. `<T extends Comparable<T>>` means 'give me any type that can be sorted'. `<T extends Number>` means 'give me any numeric type'. `Collections.sort()`, `Collections.min()`, `TreeMap<K extends Comparable<K>>` — all use bounds. After this topic, you understand WHY these signatures look the way they do, and you can write the same kind of constrained generic APIs.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Now that you can write generic methods (Topic 9.2), try writing a `max` method that returns the largest element of any list:\n\n```java\npublic static <T> T max(List<T> list) {\n    T result = list.get(0);\n    for (T item : list) {\n        if (item > result) { ... }  // COMPILE ERROR — can't use > on T!\n        if (item.compareTo(result) > 0) { ... }  // COMPILE ERROR — T has no compareTo()!\n    }\n    return result;\n}\n```\n\nThe compiler rightfully complains: `T` could be ANYTHING — a Product, a Scanner, a Thread. You can't compare arbitrary objects.\n\n**With an upper bound:**\n\n```java\npublic static <T extends Comparable<T>> T max(List<T> list) {\n    //               ↑ bound: T MUST implement Comparable<T>\n    T result = list.get(0);\n    for (T item : list) {\n        if (item.compareTo(result) > 0) result = item;  // NOW COMPILES!\n    }\n    return result;\n}\n```\n\nThe bound `<T extends Comparable<T>>` tells Java: 'T can be any type, AS LONG AS it implements Comparable<T>'. Now:\n- The compiler KNOWS T has `compareTo()` — allows the call\n- PREVENTS calling `max()` with a non-comparable type (e.g., `max(List<Product>)` fails unless Product implements Comparable)\n\n```java\nmax(List.of(3, 1, 4))           // OK — Integer implements Comparable<Integer>\nmax(List.of(\"Raj\", \"Aisha\"))    // OK — String implements Comparable<String>\nmax(List.of(new Scanner(System.in)))  // COMPILE ERROR — Scanner doesn't implement Comparable\n```\n\nThis is exactly how `Collections.max()` and `Collections.min()` are implemented in Java's standard library.",
+    "what_you_will_build": "By the end of this topic, you'll use `extends` to bound type parameters (both on classes and methods), call methods from the bound interface/class on T, use `Comparable` and `Number` bounds for the most common use cases, combine multiple bounds with `&`, and understand why Java's utility methods have those complex-looking signatures."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "upper_bound_syntax": "**Upper bound syntax — `extends`:**\n\n```java\n// Class with bound: T must be a Number (or subclass)\nclass NumberBox<T extends Number> {\n    private T value;\n    NumberBox(T v) { value = v; }\n    \n    // Can call Number methods on T:\n    double asDouble() { return value.doubleValue(); }  // Number has doubleValue()\n    int    asInt()    { return value.intValue(); }     // Number has intValue()\n    \n    boolean isPositive() { return value.doubleValue() > 0; }\n}\n\n// Usage:\nNumberBox<Integer> intBox = new NumberBox<>(42);     // OK — Integer extends Number\nNumberBox<Double>  dblBox = new NumberBox<>(3.14);   // OK — Double extends Number\nNumberBox<String>  strBox = new NumberBox<>(\"hi\");   // COMPILE ERROR — String not a Number\n```\n\n**The key insight**: inside the class, you can call any method that `Number` declares on the value — because the compiler KNOWS T is at least a Number.\n\n**Note**: in generics, `extends` means both 'extends' (class hierarchy) AND 'implements' (interface). `<T extends Comparable<T>>` means T implements Comparable, even though Comparable is an interface.",
+
+      "comparable_bound": "**The most common bound: `Comparable<T>`**\n\n```java\n// Find the maximum of any Comparable list:\npublic static <T extends Comparable<T>> T max(List<T> list) {\n    if (list.isEmpty()) throw new IllegalArgumentException(\"Empty list\");\n    T result = list.get(0);\n    for (T item : list) {\n        if (item.compareTo(result) > 0) result = item;\n    }\n    return result;\n}\n\n// Find min:\npublic static <T extends Comparable<T>> T min(List<T> list) {\n    if (list.isEmpty()) throw new IllegalArgumentException(\"Empty list\");\n    T result = list.get(0);\n    for (T item : list) {\n        if (item.compareTo(result) < 0) result = item;\n    }\n    return result;\n}\n\n// Sort in place (selection sort):\npublic static <T extends Comparable<T>> void sort(List<T> list) {\n    for (int i = 0; i < list.size(); i++) {\n        int minIdx = i;\n        for (int j = i+1; j < list.size(); j++) {\n            if (list.get(j).compareTo(list.get(minIdx)) < 0) minIdx = j;\n        }\n        // swap i and minIdx\n        T temp = list.get(i);\n        list.set(i, list.get(minIdx));\n        list.set(minIdx, temp);\n    }\n}\n\n// Usage:\nSystem.out.println(max(Arrays.asList(3, 1, 4, 1, 5)));         // 5\nSystem.out.println(min(Arrays.asList(\"Priya\", \"Aisha\", \"Raj\"))); // Aisha\n```",
+
+      "number_bound": "**`Number` bound** — for numeric types only:\n\n```java\n// Sum any list of numbers:\npublic static <T extends Number> double sum(List<T> numbers) {\n    double total = 0;\n    for (T n : numbers) {\n        total += n.doubleValue();  // Number.doubleValue() is available\n    }\n    return total;\n}\n\n// Average:\npublic static <T extends Number> double average(List<T> numbers) {\n    if (numbers.isEmpty()) return 0;\n    return sum(numbers) / numbers.size();\n}\n\n// Usage:\nList<Integer> ints = Arrays.asList(10, 20, 30);\nList<Double> doubles = Arrays.asList(1.5, 2.5, 3.5);\nList<Long> longs = Arrays.asList(100L, 200L, 300L);\n\nSystem.out.println(sum(ints));     // 60.0\nSystem.out.println(sum(doubles));  // 7.5\nSystem.out.println(sum(longs));    // 600.0\n```\n\nNumber's methods: `doubleValue()`, `intValue()`, `longValue()`, `floatValue()`.",
+
+      "multiple_bounds": "**Multiple bounds — `&`**:\n\n```java\n// T must be both Comparable AND Cloneable:\n<T extends Comparable<T> & Cloneable>\n\n// More common: T extends a class AND implements an interface:\n<T extends Number & Comparable<T>>\n```\n\nRules:\n- At most ONE class bound (must be first if present)\n- Any number of interface bounds (after the class)\n- Separate with `&`\n\n```java\n// Useful pattern: Comparable AND some custom interface\ninterface Printable { void print(); }\n\npublic static <T extends Comparable<T> & Printable> T maxAndPrint(List<T> list) {\n    T result = max(list);\n    result.print();    // Printable is available\n    return result;     // Comparable was used to find it\n}\n```\n\n**Common real bound: `T extends Number & Comparable<T>`**\n\n```java\n// T must be a numeric type that's also sortable:\n<T extends Number & Comparable<T>>\n// Matches: Integer, Long, Double, Float (all extend Number AND implement Comparable)\n// Doesn't match: BigDecimal (extends Number but Comparable impl differs)\n```",
+
+      "bounded_on_class": "**Bounded type parameter on a class:**\n\n```java\n// SortedBox only accepts Comparable types:\nclass SortedBox<T extends Comparable<T>> {\n    private List<T> items = new ArrayList<>();\n    \n    public void add(T item) {\n        items.add(item);\n        Collections.sort(items);  // Can sort because T is Comparable\n    }\n    \n    public T min() { return items.isEmpty() ? null : items.get(0); }\n    public T max() { return items.isEmpty() ? null : items.get(items.size() - 1); }\n    public List<T> getItems() { return Collections.unmodifiableList(items); }\n}\n\n// Usage:\nSortedBox<Integer> intBox = new SortedBox<>();\nintBox.add(5); intBox.add(2); intBox.add(8); intBox.add(1);\nSystem.out.println(intBox.getItems()); // [1, 2, 5, 8] — auto-sorted!\nSystem.out.println(intBox.min());      // 1\nSystem.out.println(intBox.max());      // 8\n\n// Works for any Comparable:\nSortedBox<String> strBox = new SortedBox<>();\nstrBox.add(\"Priya\"); strBox.add(\"Aisha\"); strBox.add(\"Raj\");\nSystem.out.println(strBox.getItems()); // [Aisha, Priya, Raj]\n\n// This doesn't compile:\nSortedBox<Product> productBox = new SortedBox<>();  // COMPILE ERROR unless Product implements Comparable\n```",
+
+      "clamp_and_range_methods": "**Practical bounded patterns:**\n\n```java\n// Clamp: keep value within [min, max]\npublic static <T extends Comparable<T>> T clamp(T value, T min, T max) {\n    if (value.compareTo(min) < 0) return min;\n    if (value.compareTo(max) > 0) return max;\n    return value;\n}\n// clamp(15, 0, 10) = 10;  clamp(5, 0, 10) = 5;  clamp(-3, 0, 10) = 0\n\n// isBetween: is value in range [min, max]?\npublic static <T extends Comparable<T>> boolean isBetween(T value, T min, T max) {\n    return value.compareTo(min) >= 0 && value.compareTo(max) <= 0;\n}\n// isBetween(75, 60, 100) = true\n// isBetween(55, 60, 100) = false\n\n// Numeric statistics — both Number and Comparable\npublic static <T extends Number & Comparable<T>> T median(List<T> list) {\n    List<T> sorted = new ArrayList<>(list);\n    Collections.sort(sorted);  // OK — Comparable\n    return sorted.get(sorted.size() / 2);\n}\n```",
+
+      "reading_java_signatures": "**Reading real Java library signatures:**\n\n```java\n// Collections.sort:\npublic static <T extends Comparable<? super T>> void sort(List<T> list)\n// '<? super T>' is a wildcard (Topic 9.4) — means T or any supertype of T\n\n// Collections.max:\npublic static <T extends Object & Comparable<? super T>> T max(Collection<? extends T> coll)\n// 'extends Object' ensures type erasure produces Object not Comparable\n\n// TreeMap constructor:\npublic class TreeMap<K extends Comparable<? super K>, V> ...\n// K must be Comparable — TreeMap keeps keys sorted\n\n// Understanding NOW (wildcards in 9.4):\n// The ?super part allows max(Collection<Integer>) where T is Number\n// Because Integer extends Number extends Object which implements Comparable\n```\n\nThe wildcards (`? super T`, `? extends T`) are Topic 9.4. But the core `<T extends Comparable<T>>` pattern you fully understand now."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show bound syntax as a Venn diagram: all types (large circle), inside it 'Types extending Number' (medium circle containing Integer, Double, Long, Float, BigDecimal), inside that 'Types extending Comparable' (overlapping). The intersection shows what `<T extends Number & Comparable<T>>` accepts. Below: before/after comparison — without bound: T can be anything, calling compareTo() fails; with bound: T constrained, compareTo() allowed. Side: class hierarchy showing Integer → Number → Object, Integer → Comparable<Integer>. Multiple bounds rule: class first, then interfaces, separated by &.",
+      "alt_text": "Bounded type parameter Venn diagram, before/after with/without bounds, and Number hierarchy"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a `Statistics<T>` class that computes summary statistics on any numeric type. Uses `<T extends Number & Comparable<T>>` to get both numeric operations (doubleValue) and comparison operations (compareTo) on the same T.",
+
+    "problem_statement": "Create `Statistics<T extends Number & Comparable<T>>` with:\n- Add data points with `add(T)`\n- Compute: `sum()`, `average()`, `min()`, `max()`, `count()`\n- Range: `range()` = max - min\n- `isBetween(T value)` — is value within [min, max]?\n\nTest with Integer data and Double data.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Class declaration and fields",
+        "details": "```java\nclass Statistics<T extends Number & Comparable<T>> {\n    private List<T> data = new ArrayList<>();\n    \n    // add data points\n    public void add(T value) { data.add(value); }\n    public void addAll(List<T> values) { data.addAll(values); }\n    public int count() { return data.size(); }\n```\nThe bound `<T extends Number & Comparable<T>>` means:\n- T has `doubleValue()` (from Number) — for arithmetic\n- T has `compareTo()` (from Comparable<T>) — for ordering"
+      },
+      {
+        "step": 2,
+        "action": "Numeric aggregates using Number.doubleValue()",
+        "details": "```java\n    public double sum() {\n        double total = 0;\n        for (T item : data) total += item.doubleValue();  // Number method\n        return total;\n    }\n    \n    public double average() {\n        if (data.isEmpty()) return Double.NaN;\n        return sum() / count();\n    }\n```"
+      },
+      {
+        "step": 3,
+        "action": "Ordering using Comparable.compareTo()",
+        "details": "```java\n    public T min() {\n        if (data.isEmpty()) return null;\n        T result = data.get(0);\n        for (T item : data) {\n            if (item.compareTo(result) < 0) result = item;  // Comparable method\n        }\n        return result;\n    }\n    \n    public T max() {\n        if (data.isEmpty()) return null;\n        T result = data.get(0);\n        for (T item : data) {\n            if (item.compareTo(result) > 0) result = item;\n        }\n        return result;\n    }\n    \n    public double range() {\n        return max().doubleValue() - min().doubleValue();  // both methods available\n    }\n    \n    public boolean isBetween(T value) {\n        return value.compareTo(min()) >= 0 && value.compareTo(max()) <= 0;\n    }\n```"
+      },
+      {
+        "step": 4,
+        "action": "Test with integers and doubles",
+        "details": "```java\n// Integer statistics\nStatistics<Integer> intStats = new Statistics<>();\nintStats.addAll(Arrays.asList(85, 92, 78, 95, 68, 88));\nSystem.out.println(\"Count: \" + intStats.count());\nSystem.out.println(\"Sum: \" + intStats.sum());\nSystem.out.println(\"Avg: \" + intStats.average());\nSystem.out.println(\"Min: \" + intStats.min() + \", Max: \" + intStats.max());\nSystem.out.println(\"Range: \" + intStats.range());\nSystem.out.println(\"90 in range: \" + intStats.isBetween(90));\n\n// Double statistics — SAME class, different T!\nStatistics<Double> dblStats = new Statistics<>();\ndblStats.addAll(Arrays.asList(2450.0, 3890.0, 1560.0, 412.0));\nSystem.out.println(\"Avg price: ₹\" + dblStats.average());\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\n\nclass Statistics<T extends Number & Comparable<T>> {\n    private List<T> data = new ArrayList<>();\n    \n    public void add(T value)           { data.add(value); }\n    public void addAll(List<T> values) { data.addAll(values); }\n    public int count()                 { return data.size(); }\n    \n    public double sum() {\n        double total = 0;\n        for (T item : data) total += item.doubleValue();\n        return total;\n    }\n    \n    public double average() {\n        return data.isEmpty() ? Double.NaN : sum() / count();\n    }\n    \n    public T min() {\n        if (data.isEmpty()) return null;\n        T result = data.get(0);\n        for (T item : data) if (item.compareTo(result) < 0) result = item;\n        return result;\n    }\n    \n    public T max() {\n        if (data.isEmpty()) return null;\n        T result = data.get(0);\n        for (T item : data) if (item.compareTo(result) > 0) result = item;\n        return result;\n    }\n    \n    public double range()             { return max().doubleValue() - min().doubleValue(); }\n    public boolean isBetween(T value) { return value.compareTo(min()) >= 0 && value.compareTo(max()) <= 0; }\n}\n\npublic class StatsDemo {\n    public static void main(String[] args) {\n        Statistics<Integer> scores = new Statistics<>();\n        scores.addAll(Arrays.asList(85, 92, 78, 95, 68, 88));\n        System.out.println(\"Exam scores:\");\n        System.out.println(\"  Count: \" + scores.count());\n        System.out.println(\"  Average: \" + scores.average());\n        System.out.println(\"  Min: \" + scores.min() + \" | Max: \" + scores.max());\n        System.out.println(\"  Range: \" + scores.range());\n        System.out.println(\"  90 in range: \" + scores.isBetween(90));\n        \n        Statistics<Double> prices = new Statistics<>();\n        prices.addAll(Arrays.asList(2450.0, 3890.0, 1560.0, 412.0));\n        System.out.println(\"\\nStock prices:\");\n        System.out.println(\"  Average: ₹\" + prices.average());\n        System.out.println(\"  Range: ₹\" + prices.range());\n    }\n}",
+
+    "expected_output": "Exam scores:\n  Count: 6\n  Average: 84.33333333333333\n  Min: 68 | Max: 95\n  Range: 27.0\n  90 in range: true\n\nStock prices:\n  Average: ₹2078.0\n  Range: ₹3478.0",
+
+    "things_to_notice": [
+      "The bound `<T extends Number & Comparable<T>>` grants BOTH sets of methods: Number's `doubleValue()` for arithmetic AND Comparable's `compareTo()` for ordering. Without both bounds, you'd only have one.",
+      "Inside the class, T behaves as if it IS a Number AND a Comparable<T>. The compiler knows which methods are available.",
+      "The same Statistics<T> class works for Integer, Double, Long, Float — any numeric type that also implements Comparable. One class handles them all, type-safely.",
+      "Statistics<String> would be a COMPILE ERROR — String extends Comparable<String> but NOT Number. The & ensures both bounds are satisfied.",
+      "range() uses both: `max().doubleValue()` (Number) minus `min().doubleValue()` (Number). Both max() and min() used compareTo() (Comparable) internally.",
+      "Average of scores: (85+92+78+95+68+88)/6 = 506/6 = 84.33. Average of prices: (2450+3890+1560+412)/4 = 8312/4 = 2078."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Java Collections.sort / TreeMap / TreeSet",
+        "use_case": "`Collections.sort(List<T>)` requires `<T extends Comparable<? super T>>`. `TreeMap<K, V>` requires K extends Comparable to keep keys sorted. These are the most-used bounded generics in Java — every time you use TreeMap or sort a List, bounds are enforcing that the elements are orderable."
+      },
+      {
+        "company_context": "Spring Data JPA / Hibernate",
+        "use_case": "Spring Data's `CrudRepository<T, ID extends Serializable>` — the primary key type ID must extend Serializable. `JpaRepository` has `<T, ID extends Comparable<ID>>` in some implementations. Bounds ensure primary keys satisfy the required contracts (serializable, comparable for range queries)."
+      },
+      {
+        "company_context": "Financial calculation libraries (Zerodha, Razorpay, HDFC internal)",
+        "use_case": "Internal financial libraries have `<T extends Number & Comparable<T>>` for portfolio analytics (Statistics<Double> for returns, Statistics<Long> for volumes, Statistics<Integer> for counts). One generic statistics class serves all numeric domains without code duplication."
+      }
+    ],
+
+    "interview_relevance": "Bounded generics questions at senior level:\n\n- **'What does `<T extends Comparable<T>>` mean?'** — T must implement Comparable<T>. The compiler allows calling compareTo() on T inside the method/class. Prevents using the method with non-comparable types.\n- **'Why does TreeMap require its key type to extend Comparable?'** — TreeMap keeps keys sorted. To sort, it must be able to call compareTo(). The bound enforces this contract at compile time.\n- **'What is the difference between `<T extends Number>` and `<T extends Number & Comparable<T>>`?'** — First: only Number methods available. Second: BOTH Number AND Comparable methods available, but T must satisfy both constraints.\n- **'Can you write a generic min() method?'** → `static <T extends Comparable<T>> T min(List<T> list)`",
+
+    "real_world_workflow": "Daily bounded generics:\n- Writing a utility that compares values: add `<T extends Comparable<T>>`\n- Writing a numeric utility: add `<T extends Number>`\n- Writing a value class that should support sorting: implement `Comparable<T>` on the class, then `SortedBox<T extends Comparable<T>>` holds it\n- Reading a Stack Overflow answer that has `<T extends Comparable<? super T>>` — now you understand the base (extends Comparable), wildcards come in Topic 9.4"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "extends_vs_implements_confusion",
+      "what_students_get_wrong": "Using `implements` instead of `extends` in the type bound — `<T implements Comparable<T>>` doesn't compile.",
+      "remediation": "In generics, ALWAYS use `extends` for bounds — even for interfaces. `<T extends Comparable<T>>`, `<T extends Iterable<T>>`, `<T extends Number>` — always `extends`, never `implements`.",
+      "detection_pattern": "Compile error: 'implements' cannot be used as a bound"
+    },
+    {
+      "gap_id": "class_bound_after_interface",
+      "what_students_get_wrong": "Putting a class bound after an interface bound: `<T extends Comparable<T> & Number>` — compile error.",
+      "remediation": "Class bounds must come FIRST: `<T extends Number & Comparable<T>>`. Then interfaces. At most one class, any number of interfaces, class first.",
+      "detection_pattern": "Compile error: 'The type Number is not an interface; it cannot be specified as a bounded parameter'"
+    },
+    {
+      "gap_id": "forgetting_bound_means_methods_available",
+      "what_students_get_wrong": "Knowing the syntax but not connecting it to method availability inside the class/method.",
+      "remediation": "The POINT of a bound is to use methods from it. `<T extends Comparable<T>>` → you can call `item.compareTo(other)` on any T inside. `<T extends Number>` → you can call `item.doubleValue()`. Write the bound, then USE the methods it unlocks.",
+      "detection_pattern": "Correct bound, but no use of the bound's methods inside the body"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Upper bound: `<T extends SomeType>` — T must extend/implement SomeType",
+      "In generics, `extends` means both extends (class) AND implements (interface)",
+      "The bound grants access to SomeType's methods inside the generic scope",
+      "Most common bound: `<T extends Comparable<T>>` — enables compareTo() for sorting",
+      "Number bound: `<T extends Number>` — enables doubleValue(), intValue() for arithmetic",
+      "Multiple bounds: `<T extends ClassBound & Interface1 & Interface2>` — class FIRST",
+      "Class bound: `class SortedBox<T extends Comparable<T>>` — ALL instances must use Comparable types",
+      "If T doesn't satisfy the bound at the call site → COMPILE ERROR (not runtime)",
+      "Collections.sort, Collections.min/max, TreeMap all use Comparable bounds",
+      "Statistics<T extends Number & Comparable<T>> — the archetypal dual-bound pattern"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What does `<T extends Comparable<T>>` allow you to do inside a method that plain `<T>` doesn't?",
+        "answer": "Call `item.compareTo(other)` on any T. Without the bound, T could be anything — the compiler doesn't know T has compareTo(). With the bound, the compiler guarantees T implements Comparable<T>, so compareTo() is always available. This unlocks: sorting, finding min/max, range checks, ordering any T."
+      },
+      {
+        "question": "Why does `<T extends Comparable<T> & Number>` fail to compile, but `<T extends Number & Comparable<T>>` works?",
+        "answer": "Multiple bounds require the CLASS bound first, then INTERFACES. Comparable is an interface; Number is a class. In `<T extends Comparable<T> & Number>`, the class Number comes after an interface — illegal. In `<T extends Number & Comparable<T>>`, Number (class) is first, Comparable (interface) is second — correct."
+      },
+      {
+        "question": "Write the signature for a generic method `clamp(value, min, max)` that works for any Comparable type.",
+        "answer": "`public static <T extends Comparable<T>> T clamp(T value, T min, T max)` \n\nThe body:\n```java\nif (value.compareTo(min) < 0) return min;\nif (value.compareTo(max) > 0) return max;\nreturn value;\n```\nWorks for any Comparable: clamp(15, 0, 10) = 10; clamp(\"Raj\", \"Aisha\", \"Priya\") = \"Raj\" (between them alphabetically)."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Wildcards** — `?`, `? extends T`, `? super T`. When you want to read a `List<Integer>` or `List<Double>` with one method, wildcards let you say 'a List of anything that extends Number': `List<? extends Number>`. The distinction between wildcards and bounded type parameters is subtle but important — wildcards are for USE SITES (parameters), bounds are for DEFINITION SITES (class/method declarations). After Topic 9.4, Java generic signatures that once looked cryptic — `Collection<? extends T>`, `Comparator<? super T>` — will be completely clear."
+  }
+}

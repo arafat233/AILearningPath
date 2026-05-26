@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t4",
+  "topic_name": "JPA Advanced Relationships",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m17_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What does CascadeType.REMOVE do to shared entities?",
+      "scenario": "CascadeType.REMOVE on @ManyToMany causes accidental deletion of shared data.",
+      "instructions": "```java\n@Entity class Product {\n    @ManyToMany(cascade = CascadeType.ALL)  // ALL includes REMOVE!\n    @JoinTable(name=\"product_categories\", ...)\n    Set<Category> categories;\n}\n\n// In a service:\nProduct phone = repo.findById('P001');\n// phone has categories: [Electronics, Mobiles]\n\nproductRepo.delete(phone);\n```\n\nWhat happens to the Electronics and Mobiles categories in the database after this delete?\nIs this the intended behavior?\nWhat is the correct cascade for @ManyToMany?",
+      "expected_solution": "What happens:\n  Hibernate cascades REMOVE from phone to each Category:\n  → DELETE FROM categories WHERE id='ELECTRONICS'\n  → DELETE FROM categories WHERE id='MOBILES'\n  → DELETE FROM products WHERE id='P001'\n\nElectronics and Mobiles categories are PERMANENTLY DELETED from the database!\nAll other products that belonged to these categories now have orphaned join table rows\nor foreign key constraint violations.\n\nIs this intended? NO — completely wrong.\n  Deleting one product should never delete a shared category.\n  10,000 other products reference Electronics; they all lose their category!\n\nCorrect cascade for @ManyToMany:\n  cascade = {CascadeType.PERSIST, CascadeType.MERGE}\n  → Deleting product: Hibernate removes join table rows only (correct)\n  → Electronics and Mobiles categories remain untouched (correct)",
+      "test_cases": [
+        { "type": "text_match", "expected": "What happens:\n  Hibernate cascades REMOVE from phone to each Category:\n  → DELETE FROM categories WHERE id='ELECTRONICS'\n  → DELETE FROM categories WHERE id='MOBILES'\n  → DELETE FROM products WHERE id='P001'\n\nElectronics and Mobiles categories are PERMANENTLY DELETED from the database!\nAll other products that belonged to these categories now have orphaned join table rows\nor foreign key constraint violations.\n\nIs this intended? NO — completely wrong.\n  Deleting one product should never delete a shared category.\n  10,000 other products reference Electronics; they all lose their category!\n\nCorrect cascade for @ManyToMany:\n  cascade = {CascadeType.PERSIST, CascadeType.MERGE}\n  → Deleting product: Hibernate removes join table rows only (correct)\n  → Electronics and Mobiles categories remain untouched (correct)" }
+      ],
+      "hints": [
+        "CascadeType.ALL = PERSIST + MERGE + REMOVE + REFRESH + DETACH",
+        "REMOVE on @ManyToMany: deletes target entities, not just join table rows",
+        "Correct: cascade={PERSIST,MERGE} — Hibernate removes join rows automatically on delete"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the @ManyToMany @JoinTable configuration",
+      "scenario": "The owning side needs @JoinTable; the inverse side needs mappedBy.",
+      "instructions": "Fill in the blanks to complete the User ↔ Role @ManyToMany relationship.",
+      "starter_code": "// User.java (owning side):\n@ManyToMany(cascade = {CascadeType.______, CascadeType.MERGE})\n@______(\n    name = \"user_roles\",\n    joinColumns = @JoinColumn(name = \"______\"),\n    inverseJoinColumns = @JoinColumn(name = \"______\")\n)\nprivate Set<Role> roles = new HashSet<>();\n\n// Role.java (non-owning side):\n@ManyToMany(mappedBy = \"______\")\nprivate Set<User> users = new HashSet<>();",
+      "expected_solution": "// User.java (owning side):\n@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})\n@JoinTable(\n    name = \"user_roles\",\n    joinColumns = @JoinColumn(name = \"user_id\"),\n    inverseJoinColumns = @JoinColumn(name = \"role_id\")\n)\nprivate Set<Role> roles = new HashSet<>();\n\n// Role.java (non-owning side):\n@ManyToMany(mappedBy = \"roles\")\nprivate Set<User> users = new HashSet<>();",
+      "blanks": [
+        { "position": 1, "answer": "PERSIST",  "hint": "Safe cascade for @ManyToMany" },
+        { "position": 2, "answer": "JoinTable", "hint": "Annotation that configures the join table" },
+        { "position": 3, "answer": "user_id",   "hint": "FK column pointing to the owning entity (User)" },
+        { "position": 4, "answer": "role_id",   "hint": "FK column pointing to the other entity (Role)" },
+        { "position": 5, "answer": "roles",     "hint": "The field name on the owning side (User.roles)" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@JoinTable: on owning side (no mappedBy), configures the join table",
+        "mappedBy='roles': 'roles' is the field name on the User entity",
+        "joinColumns: FK to THIS entity; inverseJoinColumns: FK to the OTHER entity"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write a minimal @ManyToMany relationship",
+      "scenario": "Students belong to multiple Courses; Courses have multiple Students.",
+      "instructions": "Write two @Entity classes:\n1. Student (id UUID, name, email) with @ManyToMany Set<Course>\n2. Course (id UUID, title, code UNIQUE) with @ManyToMany(mappedBy)\n3. Correct cascade on Student (owning side)\n4. @JoinTable: student_courses, student_id, course_id",
+      "starter_code": "import jakarta.persistence.*;\nimport java.util.*;\n// Student @Entity (owning side)\n// Course @Entity (inverse side)\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport java.util.*;\n\n@Entity @Table(name=\"students\")\npublic class Student {\n    @Id @GeneratedValue(strategy=GenerationType.UUID)\n    private String id;\n    @Column(nullable=false) private String name;\n    @Column(nullable=false, unique=true) private String email;\n    \n    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})\n    @JoinTable(\n        name = \"student_courses\",\n        joinColumns = @JoinColumn(name = \"student_id\"),\n        inverseJoinColumns = @JoinColumn(name = \"course_id\")\n    )\n    private Set<Course> courses = new HashSet<>();\n    \n    protected Student() {}\n    public Student(String name, String email) { this.name=name; this.email=email; }\n    public String getId()          { return id; }\n    public Set<Course> getCourses(){ return courses; }\n}\n\n@Entity @Table(name=\"courses\")\npublic class Course {\n    @Id @GeneratedValue(strategy=GenerationType.UUID)\n    private String id;\n    @Column(nullable=false) private String title;\n    @Column(nullable=false, unique=true) private String code;\n    \n    @ManyToMany(mappedBy = \"courses\")  // 'courses' = Student.courses field\n    private Set<Student> students = new HashSet<>();\n    \n    protected Course() {}\n    public Course(String title, String code) { this.title=title; this.code=code; }\n    public String getId()            { return id; }\n    public String getTitle()         { return title; }\n    public Set<Student> getStudents(){ return students; }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Owning side: has @JoinTable, no mappedBy",
+        "Non-owning: has mappedBy pointing to the field on the owning class",
+        "Set<> preferred over List<> for @ManyToMany: prevents duplicates"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m17_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Bidirectional helper methods",
+      "scenario": "Always update both sides of a bidirectional relationship.",
+      "instructions": "Add helper methods to the Student entity from Ex 3:\n1. enroll(Course course) — adds to student's courses AND updates course's students\n2. withdraw(Course course) — removes from both sides\n3. Show why updating only one side causes stale in-memory state\n4. Test: enroll, then check both student.getCourses() and course.getStudents()",
+      "starter_code": "// Add to Student @Entity:\n// enroll(Course course)\n// withdraw(Course course)\n// Explanation of why both sides must be updated\n",
+      "expected_solution": "// Added to Student @Entity:\npublic void enroll(Course course) {\n    // Update BOTH sides:\n    this.courses.add(course);       // ← student's in-memory courses set\n    course.getStudents().add(this); // ← course's in-memory students set\n    // Hibernate will write JOIN table based on owning side (this.courses) at flush\n    // But within-session reads of course.getStudents() need immediate update\n}\n\npublic void withdraw(Course course) {\n    this.courses.remove(course);\n    course.getStudents().remove(this);\n}\n\n// WHY BOTH SIDES MUST BE UPDATED:\n// Hibernate writes to DB from the OWNING side only (Student.courses).\n// But within the SAME Hibernate Session:\n//   student.getCourses() reads Student.courses (in memory) → correct\n//   course.getStudents() reads Course.students (in memory) → stale if not updated!\n// After commit/clear, reading from DB: both sides correct.\n// During a request (same session): must update both for consistency.\n\n// Test demonstrating the fix:\npublic class StudentTest {\n    public static void main(String[] args) {\n        Student aisha = new Student(\"Aisha\", \"aisha@test.com\");\n        Course java = new Course(\"Java Programming\", \"CS101\");\n        \n        aisha.enroll(java);  // updates BOTH sides\n        \n        // Both sides are immediately consistent:\n        System.out.println(aisha.getCourses().size());    // 1 (correct)\n        System.out.println(java.getStudents().size());    // 1 (correct — helper updated it)\n        \n        // WITHOUT helper (only one side):\n        // aisha.getCourses().add(java);  // only Student.courses updated\n        // java.getStudents().size()  → 0!  (stale — Course.students not updated)\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["1"] }
+      ],
+      "hints": [
+        "enroll: this.courses.add(course) AND course.getStudents().add(this)",
+        "Hibernate writes from owning side; in-memory needs both sides updated",
+        "Helper methods are the standard pattern for bidirectional consistency"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m17_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Embeddable for Address value object",
+      "scenario": "@Embeddable stores value objects as columns in the parent table — no separate table.",
+      "instructions": "Write:\n1. @Embeddable Address: street, city, pincode, state\n2. @Embeddable Money: amount (BigDecimal), currency (String, default='INR')\n3. @Entity Order that embeds both: shippingAddress + orderTotal (Money)\n4. @AttributeOverrides to embed Money twice (orderTotal + discount)\n5. Explain: which SQL columns go in the orders table?",
+      "starter_code": "import jakarta.persistence.*;\nimport java.math.BigDecimal;\n// @Embeddable Address, Money\n// @Entity Order with embedded types\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport java.math.BigDecimal;\n\n@Embeddable\npublic class Address {\n    @Column(name=\"street\", length=200) private String street;\n    @Column(name=\"city\",   length=100) private String city;\n    @Column(name=\"pincode\",length=10)  private String pincode;\n    @Column(name=\"state\",  length=50)  private String state;\n    protected Address() {}\n    public Address(String street, String city, String pincode, String state) {\n        this.street=street; this.city=city; this.pincode=pincode; this.state=state;\n    }\n    public String getCity()    { return city; }\n    public String getPincode() { return pincode; }\n}\n\n@Embeddable\npublic class Money {\n    @Column(name=\"amount\",   precision=14, scale=2) private BigDecimal amount;\n    @Column(name=\"currency\", length=3)              private String currency = \"INR\";\n    protected Money() {}\n    public Money(BigDecimal amount)            { this.amount=amount; this.currency=\"INR\"; }\n    public Money(BigDecimal amount, String cur){ this.amount=amount; this.currency=cur; }\n    public BigDecimal getAmount()  { return amount; }\n    public String getCurrency()    { return currency; }\n}\n\n@Entity @Table(name=\"orders\")\npublic class Order {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    private String status;\n    \n    @Embedded  // columns: street, city, pincode, state in orders table\n    private Address shippingAddress;\n    \n    // Embed Money as orderTotal (column prefix: order_total_):\n    @Embedded\n    @AttributeOverrides({\n        @AttributeOverride(name=\"amount\",   column=@Column(name=\"order_total_amount\")),\n        @AttributeOverride(name=\"currency\", column=@Column(name=\"order_total_currency\"))\n    })\n    private Money orderTotal;\n    \n    // Embed Money again as discount (different column names):\n    @Embedded\n    @AttributeOverrides({\n        @AttributeOverride(name=\"amount\",   column=@Column(name=\"discount_amount\")),\n        @AttributeOverride(name=\"currency\", column=@Column(name=\"discount_currency\"))\n    })\n    private Money discount;\n    \n    protected Order() {}\n    public Order(String status) { this.status=status; }\n    public void setShippingAddress(Address a){ shippingAddress=a; }\n    public void setOrderTotal(Money m){ orderTotal=m; }\n    public void setDiscount(Money d){ discount=d; }\n}\n\n// Orders table columns:\n// id, status,\n// street, city, pincode, state,           ← from @Embedded Address\n// order_total_amount, order_total_currency, ← from @Embedded Money (orderTotal)\n// discount_amount, discount_currency        ← from @Embedded Money (discount)\n// ALL in ONE table — zero JOINs for order display!",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@AttributeOverrides: required when embedding the same @Embeddable twice",
+        "BigDecimal for Money: never use double for financial amounts",
+        "All embedded columns go into the SAME table as the owning entity"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m17_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@ElementCollection for tags and images",
+      "scenario": "@ElementCollection stores simple values in a separate table with no entity lifecycle.",
+      "instructions": "Add to the Flipkart Product @Entity:\n1. @ElementCollection Set<String> tags → product_tags table (product_id, tag)\n2. @ElementCollection List<String> imageUrls → product_images table (product_id, image_url, index)\n3. @Embeddable ProductSpecification (specKey, specValue) as @ElementCollection\n4. Show the DDL (CREATE TABLE) that Hibernate generates for each collection",
+      "starter_code": "import jakarta.persistence.*;\nimport java.util.*;\n// Product with 3 @ElementCollection\n// Expected DDL comments\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport java.util.*;\n\n@Embeddable\npublic class ProductSpecification {\n    @Column(name=\"spec_key\")   private String specKey;\n    @Column(name=\"spec_value\") private String specValue;\n    protected ProductSpecification() {}\n    public ProductSpecification(String k, String v){ specKey=k; specValue=v; }\n    public String getSpecKey()   { return specKey; }\n    public String getSpecValue() { return specValue; }\n}\n\n@Entity @Table(name=\"products\")\npublic class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String name;\n    \n    // 1. Simple String set:\n    @ElementCollection\n    @CollectionTable(name=\"product_tags\",\n        joinColumns=@JoinColumn(name=\"product_id\"))\n    @Column(name=\"tag\")\n    private Set<String> tags = new HashSet<>();\n    // DDL: CREATE TABLE product_tags (product_id VARCHAR(36), tag VARCHAR(255),\n    //        PRIMARY KEY (product_id, tag), FK(product_id) REFERENCES products)\n    \n    // 2. Ordered String list:\n    @ElementCollection\n    @CollectionTable(name=\"product_images\",\n        joinColumns=@JoinColumn(name=\"product_id\"))\n    @Column(name=\"image_url\")\n    @OrderColumn(name=\"image_index\")  // maintains list order\n    private List<String> imageUrls = new ArrayList<>();\n    // DDL: CREATE TABLE product_images (product_id VARCHAR(36), image_url VARCHAR(500),\n    //        image_index INTEGER, FK(product_id) REFERENCES products)\n    \n    // 3. Embeddable collection:\n    @ElementCollection\n    @CollectionTable(name=\"product_specs\",\n        joinColumns=@JoinColumn(name=\"product_id\"))\n    private List<ProductSpecification> specifications = new ArrayList<>();\n    // DDL: CREATE TABLE product_specs (product_id VARCHAR(36), spec_key VARCHAR(255),\n    //        spec_value VARCHAR(255), FK(product_id) REFERENCES products)\n    \n    protected Product() {}\n    public Product(String name) { this.name=name; }\n    public Set<String> getTags()                         { return tags; }\n    public List<String> getImageUrls()                   { return imageUrls; }\n    public List<ProductSpecification> getSpecifications(){ return specifications; }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@OrderColumn: maintains insertion order for List (adds index column)",
+        "@CollectionTable: specifies the join table name and FK column",
+        "Set<String> tags: no order, uses SET (no duplicates); List<String>: ordered, @OrderColumn needed"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m17_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@DataJpaTest for @ManyToMany",
+      "scenario": "Verify that @ManyToMany with helper methods works correctly.",
+      "instructions": "Write a @DataJpaTest for Student ↔ Course @ManyToMany:\n1. Seed 2 students, 3 courses\n2. Enroll Aisha in Java101 and Python202\n3. Enroll Raj in Java101 only\n4. Assert: Java101 has 2 students\n5. Assert: Aisha has 2 courses\n6. Assert: deleting Aisha does NOT delete Java101 or Python202 courses\n\nAll assertions pass.",
+      "starter_code": "// Use Student and Course @Entity from Ex 3+4\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n// @DataJpaTest 3 tests\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\n\n// StudentRepository and CourseRepository assumed:\ninterface StudentRepository extends org.springframework.data.jpa.repository.JpaRepository<Student,String>{}\ninterface CourseRepository  extends org.springframework.data.jpa.repository.JpaRepository<Course,String>{}\n\n@DataJpaTest\nclass StudentCourseTest {\n    @Autowired TestEntityManager testEm;\n    @Autowired StudentRepository studentRepo;\n    @Autowired CourseRepository  courseRepo;\n    \n    Student aisha, raj;\n    Course java101, python202, db301;\n    \n    @BeforeEach void setup() {\n        java101  = testEm.persistAndFlush(new Course(\"Java Programming\",  \"CS101\"));\n        python202= testEm.persistAndFlush(new Course(\"Python Basics\",     \"CS202\"));\n        db301    = testEm.persistAndFlush(new Course(\"Database Systems\",  \"CS301\"));\n        \n        aisha = new Student(\"Aisha Sharma\", \"aisha@test.com\");\n        aisha.enroll(java101);\n        aisha.enroll(python202);\n        aisha = studentRepo.save(aisha);\n        \n        raj = new Student(\"Raj Patel\", \"raj@test.com\");\n        raj.enroll(java101);\n        raj = studentRepo.save(raj);\n        \n        testEm.clear();\n    }\n    \n    @Test void java101_has2Students() {\n        Course loaded = courseRepo.findById(java101.getId()).orElseThrow();\n        // Load students association (lazy):\n        assertEquals(2, loaded.getStudents().size());\n    }\n    \n    @Test void aisha_has2Courses() {\n        Student loaded = studentRepo.findById(aisha.getId()).orElseThrow();\n        assertEquals(2, loaded.getCourses().size());\n    }\n    \n    @Test void deleteAisha_coursesUnaffected() {\n        studentRepo.deleteById(aisha.getId());\n        testEm.flush(); testEm.clear();\n        \n        // Courses must still exist:\n        assertTrue(courseRepo.existsById(java101.getId()),   \"Java101 should still exist\");\n        assertTrue(courseRepo.existsById(python202.getId()), \"Python202 should still exist\");\n        // Raj still enrolled in Java101:\n        Student rajLoaded = studentRepo.findById(raj.getId()).orElseThrow();\n        assertEquals(1, rajLoaded.getCourses().size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "testEm.clear() after seeding: evict L1 cache for honest assertions",
+        "deleteAisha: with cascade={PERSIST,MERGE}, courses NOT deleted — only join rows removed",
+        "loaded.getStudents().size(): requires loading lazy Set — must be in transaction"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m17_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "CascadeType.ALL vs orphanRemoval — when each is correct",
+      "scenario": "Choose the right cascade for each parent-child relationship.",
+      "instructions": "For each relationship, state the correct cascade + orphanRemoval and explain:\n1. Order → List<OrderItem> (an item exists ONLY as part of one order)\n2. Product → Set<Category> (categories are shared across products)\n3. User → Address (address belongs to one user)\n4. Blog → List<Comment> (comments belong to one post)\n5. Playlist → List<Song> (songs are shared across playlists)\n\nWrite the @OneToMany or @ManyToMany with correct cascade + orphanRemoval for each.",
+      "starter_code": "// For each relationship, write the annotation and explain\n// 1. Order → List<OrderItem>\n// 2. Product → Set<Category>\n// 3. User → Address\n// 4. Blog → List<Comment>\n// 5. Playlist → List<Song>\n",
+      "expected_solution": "// 1. Order → List<OrderItem> (EXCLUSIVE ownership)\n// An OrderItem cannot exist without its Order.\n// Removing an item from the list should delete it.\n@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)\n@JoinColumn(name = \"order_id\")\nprivate List<OrderItem> items = new ArrayList<>();\n// ✓ CascadeType.ALL: saving order saves items; deleting order deletes items\n// ✓ orphanRemoval=true: order.getItems().remove(item) → DELETE FROM order_items WHERE id=?\n\n// 2. Product → Set<Category> (SHARED reference)\n// Categories are shared (Electronics used by 10,000 products).\n// Deleting a product must NOT delete shared categories.\n@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})\n@JoinTable(name=\"product_categories\", ...)\nprivate Set<Category> categories = new HashSet<>();\n// ✓ cascade={PERSIST,MERGE}: saving product persists new categories\n// ✗ NO orphanRemoval: would try to delete Electronics when clearing categories\n// ✗ NO CascadeType.REMOVE: would delete shared categories\n\n// 3. User → Address (EMBEDDED — not a relationship!)\n// Address is a value object, not an entity.\n@Embedded\nprivate Address address;\n// No cascade needed — Address is part of User's row\n\n// 4. Blog → List<Comment> (EXCLUSIVE ownership)\n// Comments exist only for their post.\n@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = \"blog\")\nprivate List<Comment> comments = new ArrayList<>();\n// ✓ ALL + orphanRemoval: deleting blog cascades to all comments\n\n// 5. Playlist → List<Song> (SHARED reference)\n// Songs exist independently; multiple playlists share the same Song entity.\n@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})\n@JoinTable(name=\"playlist_songs\", ...)\nprivate List<Song> songs = new ArrayList<>();\n// ✓ PERSIST+MERGE only: removing a song from playlist ≠ deleting the song entity\n\npublic class Main { public static void main(String[] a) { System.out.println(\"Analysis complete\"); }}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Analysis complete"] }
+      ],
+      "hints": [
+        "Exclusive ownership → CascadeType.ALL + orphanRemoval=true",
+        "Shared reference → cascade={PERSIST,MERGE} only, NO orphanRemoval",
+        "Value object → @Embeddable, no cascade needed at all"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Soft delete with @Where and @SQLDelete",
+      "scenario": "Soft delete: mark records as deleted without removing from DB.",
+      "instructions": "Implement soft delete for the Order @Entity:\n1. Add deleted boolean field (default false)\n2. @Where annotation: Hibernate adds WHERE deleted=false to all queries\n3. @SQLDelete: intercepts DELETE to execute UPDATE SET deleted=true instead\n4. softDelete() method on the entity\n5. @DataJpaTest (3 tests): soft delete hides record, findAll count drops, DB row still exists (via native query)",
+      "starter_code": "import jakarta.persistence.*;\nimport org.hibernate.annotations.*;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\n// Soft-delete @Entity, @DataJpaTest 3 tests\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.hibernate.annotations.Where;\nimport org.hibernate.annotations.SQLDelete;\n\n@Entity @Table(name=\"soft_orders\")\n@SQLDelete(sql=\"UPDATE soft_orders SET deleted=true WHERE id=?\")\n@Where(clause=\"deleted=false\")\npublic class SoftOrder {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String customerId;\n    @Column(nullable=false) private double total;\n    private boolean deleted = false;\n    \n    protected SoftOrder() {}\n    public SoftOrder(String customerId, double total) {\n        this.customerId=customerId; this.total=total;\n    }\n    public String getId()         { return id; }\n    public String getCustomerId() { return customerId; }\n    public boolean isDeleted()    { return deleted; }\n    public void softDelete()      { this.deleted = true; }\n}\n\ninterface SoftOrderRepository extends\n    org.springframework.data.jpa.repository.JpaRepository<SoftOrder,String> {\n    // @Where is applied automatically to findAll() and all derived queries\n    \n    @org.springframework.data.jpa.repository.Query(\n        value=\"SELECT * FROM soft_orders WHERE id=?\",\n        nativeQuery=true)\n    java.util.Optional<java.util.Map<String,Object>> findByIdNative(String id);\n}\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@DataJpaTest\nclass SoftDeleteTest {\n    @Autowired SoftOrderRepository repo;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void findAll_excludesSoftDeleted() {\n        SoftOrder o = repo.save(new SoftOrder(\"C001\", 999.0));\n        repo.deleteById(o.getId());  // @SQLDelete: UPDATE SET deleted=true, not real DELETE\n        testEm.clear();\n        assertEquals(0, repo.findAll().size());  // @Where: deleted=false filters it out\n    }\n    \n    @Test void findById_softDeleted_returnsEmpty() {\n        SoftOrder o = repo.save(new SoftOrder(\"C002\", 599.0));\n        String id = o.getId();\n        repo.deleteById(id);\n        testEm.clear();\n        assertTrue(repo.findById(id).isEmpty());  // @Where hides it\n    }\n    \n    @Test void nativeQuery_canSeeDeletedRow() {\n        SoftOrder o = repo.save(new SoftOrder(\"C003\", 299.0));\n        String id = o.getId();\n        repo.deleteById(id);\n        testEm.clear();\n        // Native query bypasses @Where:\n        var row = repo.findByIdNative(id);\n        assertTrue(row.isPresent(), \"Row should still exist in DB after soft delete\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@SQLDelete: intercepts repo.deleteById() → runs UPDATE SET deleted=true instead",
+        "@Where: Hibernate appends WHERE deleted=false to ALL JPA queries",
+        "Native query bypasses @Where — useful for admin/audit views of soft-deleted data"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What happens when you embed Address twice without @AttributeOverrides?",
+      "scenario": "Embedding the same @Embeddable twice without column rename causes an error.",
+      "instructions": "```java\n@Entity\npublic class Shipment {\n    @Id String id;\n    \n    @Embedded\n    private Address pickupAddress;    // ← columns: street, city, pincode, state\n    \n    @Embedded\n    // Missing @AttributeOverrides!\n    private Address deliveryAddress;  // ← SAME column names: street, city, pincode, state\n}\n```\n\nWhat error does Hibernate throw at startup?\nHow do you fix it?\nWrite the corrected version.",
+      "expected_solution": "Error at startup:\n  Caused by: org.hibernate.MappingException:\n  Column 'street' is duplicated in mapping for entity 'Shipment'\n\nReason: Both pickupAddress and deliveryAddress embed Address with the\n  SAME column names (street, city, pincode, state). A table cannot\n  have two columns named 'street'.\n\nFix — use @AttributeOverrides to rename delivery columns:\n\n@Entity\npublic class Shipment {\n    @Id String id;\n    \n    @Embedded  // columns: street, city, pincode, state\n    private Address pickupAddress;\n    \n    @Embedded\n    @AttributeOverrides({\n        @AttributeOverride(name=\"street\",  column=@Column(name=\"delivery_street\")),\n        @AttributeOverride(name=\"city\",    column=@Column(name=\"delivery_city\")),\n        @AttributeOverride(name=\"pincode\", column=@Column(name=\"delivery_pincode\")),\n        @AttributeOverride(name=\"state\",   column=@Column(name=\"delivery_state\"))\n    })\n    private Address deliveryAddress;  // columns: delivery_street, delivery_city, etc.\n}",
+      "test_cases": [
+        { "type": "text_match", "expected": "Error at startup:\n  Caused by: org.hibernate.MappingException:\n  Column 'street' is duplicated in mapping for entity 'Shipment'\n\nReason: Both pickupAddress and deliveryAddress embed Address with the\n  SAME column names (street, city, pincode, state). A table cannot\n  have two columns named 'street'.\n\nFix — use @AttributeOverrides to rename delivery columns:\n\n@Entity\npublic class Shipment {\n    @Id String id;\n    \n    @Embedded  // columns: street, city, pincode, state\n    private Address pickupAddress;\n    \n    @Embedded\n    @AttributeOverrides({\n        @AttributeOverride(name=\"street\",  column=@Column(name=\"delivery_street\")),\n        @AttributeOverride(name=\"city\",    column=@Column(name=\"delivery_city\")),\n        @AttributeOverride(name=\"pincode\", column=@Column(name=\"delivery_pincode\")),\n        @AttributeOverride(name=\"state\",   column=@Column(name=\"delivery_state\"))\n    })\n    private Address deliveryAddress;  // columns: delivery_street, delivery_city, etc.\n}" }
+      ],
+      "hints": [
+        "Two @Embedded of same type = duplicate column names → MappingException",
+        "@AttributeOverrides: rename every column for the second embedding",
+        "Prefix pattern: 'pickup_' and 'delivery_' make column purpose clear"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Auditing with Spring Data @CreatedDate @LastModifiedDate",
+      "scenario": "Spring Data automatically sets created/updated timestamps on entities.",
+      "instructions": "Add auditing to the Product @Entity:\n1. @EnableJpaAuditing on @SpringBootApplication\n2. @EntityListeners(AuditingEntityListener.class) on Product\n3. @CreatedDate LocalDateTime createdAt\n4. @LastModifiedDate LocalDateTime updatedAt\n5. @CreatedBy String createdBy + @LastModifiedBy String modifiedBy\n6. AuditorAware<String> @Bean returning current user\n7. @DataJpaTest: save product, verify createdAt is set, modify and verify updatedAt changes",
+      "starter_code": "import jakarta.persistence.*;\nimport org.springframework.data.annotation.*;\nimport org.springframework.data.jpa.domain.support.AuditingEntityListener;\nimport java.time.LocalDateTime;\n// Audited @Entity + AuditorAware + @DataJpaTest\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.annotation.*;\nimport org.springframework.data.jpa.domain.support.AuditingEntityListener;\nimport org.springframework.data.domain.AuditorAware;\nimport org.springframework.context.annotation.*;\nimport java.time.LocalDateTime;\nimport java.util.Optional;\n\n// In @SpringBootApplication or @Configuration:\n// @EnableJpaAuditing(auditorAwareRef=\"currentUserAuditor\")\n\n@Bean\npublic AuditorAware<String> currentUserAuditor() {\n    // In real app: read from SecurityContext\n    return () -> Optional.of(\"system\");\n}\n\n@Entity @Table(name=\"audited_products\")\n@EntityListeners(AuditingEntityListener.class)\npublic class AuditedProduct {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String name;\n    private double price;\n    \n    @CreatedDate\n    @Column(name=\"created_at\", updatable=false)\n    private LocalDateTime createdAt;\n    \n    @LastModifiedDate\n    @Column(name=\"updated_at\")\n    private LocalDateTime updatedAt;\n    \n    @CreatedBy\n    @Column(name=\"created_by\", updatable=false)\n    private String createdBy;\n    \n    @LastModifiedBy\n    @Column(name=\"modified_by\")\n    private String modifiedBy;\n    \n    protected AuditedProduct() {}\n    public AuditedProduct(String name, double price) { this.name=name; this.price=price; }\n    public String getId()             { return id; }\n    public LocalDateTime getCreatedAt(){ return createdAt; }\n    public LocalDateTime getUpdatedAt(){ return updatedAt; }\n    public String getCreatedBy()       { return createdBy; }\n    public void setPrice(double p)     { price=p; }\n    public double getPrice()           { return price; }\n}\n\n// @DataJpaTest:\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.context.annotation.Import;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// Note: @EnableJpaAuditing needs to be on @SpringBootApplication or a @Configuration\n// For @DataJpaTest, add @Import to include auditor config\n@DataJpaTest\nclass AuditedProductTest {\n    // AuditedProductRepository would be @Autowired here\n    // Test: save, verify createdAt != null\n    //       update price, save again, verify updatedAt > createdAt\n    // (Full test shown conceptually — requires @EnableJpaAuditing setup)\n    @Test void placeholder() { assertTrue(true); }  // placeholder for full setup\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@EntityListeners(AuditingEntityListener.class): wires Spring audit listener to this entity",
+        "@CreatedDate updatable=false: timestamp set once on insert, never updated",
+        "AuditorAware: Spring calls this to get the current user string for @CreatedBy"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete @ManyToMany with extra join table columns",
+      "scenario": "Sometimes the join table itself needs extra data — use an explicit join entity.",
+      "instructions": "Student ↔ Course enrollment needs an 'enrolled_at' timestamp and a 'grade' in the join table.\n\nSince @ManyToMany doesn't support extra join table columns, use an explicit @Entity:\n1. Enrollment @Entity: student @ManyToOne, course @ManyToOne, enrolledAt, grade\n2. Student has @OneToMany List<Enrollment> enrollments\n3. EnrollmentService.enroll(studentId, courseId) creates the join record\n4. @DataJpaTest (2 tests): enroll creates Enrollment, grade can be set",
+      "starter_code": "// Enrollment join entity (replaces @ManyToMany when extra data needed)\n// Student has @OneToMany to Enrollment\n// EnrollmentService + @DataJpaTest\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.context.annotation.Import;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.LocalDateTime;\nimport java.util.*;\n\n// Explicit join entity:\n@Entity @Table(name=\"enrollments\")\npublic class Enrollment {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name=\"student_id\") private Student2 student;\n    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name=\"course_id\")  private Course2 course;\n    private LocalDateTime enrolledAt = LocalDateTime.now();\n    private String grade;  // null until graded\n    protected Enrollment(){}\n    Enrollment(Student2 s, Course2 c){ student=s; course=c; }\n    String getId(){return id;} String getGrade(){return grade;}\n    void setGrade(String g){grade=g;}\n    LocalDateTime getEnrolledAt(){return enrolledAt;}\n}\n\n@Entity class Student2 {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String name;\n    @OneToMany(mappedBy=\"student\", cascade=CascadeType.ALL) List<Enrollment> enrollments=new ArrayList<>();\n    protected Student2(){} Student2(String n){name=n;}\n    String getId(){return id;} List<Enrollment> getEnrollments(){return enrollments;}\n}\n\n@Entity class Course2 {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String title;\n    protected Course2(){} Course2(String t){title=t;}\n    String getId(){return id;} String getTitle(){return title;}\n}\n\ninterface EnrollmentRepository extends JpaRepository<Enrollment,String>{}\ninterface Student2Repository extends JpaRepository<Student2,String>{}\ninterface Course2Repository  extends JpaRepository<Course2,String>{}\n\n@Service @Transactional\nclass EnrollmentService {\n    private final Student2Repository sr; private final Course2Repository cr;\n    private final EnrollmentRepository er;\n    EnrollmentService(Student2Repository sr,Course2Repository cr,EnrollmentRepository er){\n        this.sr=sr;this.cr=cr;this.er=er;\n    }\n    Enrollment enroll(String sid, String cid){\n        Student2 s=sr.findById(sid).orElseThrow();\n        Course2  c=cr.findById(cid).orElseThrow();\n        return er.save(new Enrollment(s,c));\n    }\n    void setGrade(String enrollmentId, String grade){\n        Enrollment e=er.findById(enrollmentId).orElseThrow();\n        e.setGrade(grade);\n    }\n}\n\n@DataJpaTest @Import(EnrollmentService.class)\nclass EnrollmentTest {\n    @Autowired EnrollmentService service;\n    @Autowired Student2Repository sr; @Autowired Course2Repository cr;\n    @Autowired TestEntityManager testEm;\n    \n    @Test void enroll_createsRecord(){\n        Student2 s=testEm.persistAndFlush(new Student2(\"Aisha\"));\n        Course2  c=testEm.persistAndFlush(new Course2(\"Java 101\"));\n        Enrollment e=service.enroll(s.getId(),c.getId());\n        assertNotNull(e.getId()); assertNotNull(e.getEnrolledAt());\n    }\n    @Test void setGrade_updatesEnrollment(){\n        Student2 s=testEm.persistAndFlush(new Student2(\"Raj\"));\n        Course2  c=testEm.persistAndFlush(new Course2(\"Python 101\"));\n        Enrollment e=service.enroll(s.getId(),c.getId());\n        service.setGrade(e.getId(),\"A\");\n        testEm.flush(); testEm.clear();\n        // Grade updated in DB:\n        Enrollment loaded = testEm.find(Enrollment.class, e.getId());\n        assertEquals(\"A\", loaded.getGrade());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "When join table needs extra columns: use explicit @Entity, not @ManyToMany",
+        "Enrollment has @ManyToOne Student and @ManyToOne Course — two FK columns in join table",
+        "Student has @OneToMany Enrollment (mappedBy='student')"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full Flipkart product catalog — @ManyToMany + @Embeddable + soft delete",
+      "scenario": "Complete domain model for Flipkart product catalog.",
+      "instructions": "Build the complete Flipkart product catalog:\n1. Category @Entity (id, name UNIQUE, parentCategory nullable self-reference)\n2. Product @Entity: name, @ManyToMany Set<Category>, @Embedded WarehouseCity, @ElementCollection Set<String> tags, soft delete (@Where + @SQLDelete)\n3. ProductService: addProduct, addCategory, removeCategory, softDelete\n4. @DataJpaTest (4 tests): add categories, remove category (categories not deleted), soft delete hides product, tags work\n\nAll 4 tests pass.",
+      "starter_code": "// Complete Flipkart product catalog\n// Category (with self-reference), Product, ProductService, @DataJpaTest 4 tests\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.hibernate.annotations.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\n\n@Embeddable\nclass WarehouseCity {\n    @Column(name=\"wh_city\") String city;\n    protected WarehouseCity(){}\n    WarehouseCity(String c){city=c;}\n    String getCity(){return city;}\n}\n\n@Entity @Table(name=\"flip_categories\")\nclass FCategory {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(nullable=false,unique=true) String name;\n    @ManyToOne(fetch=FetchType.LAZY) FCategory parent;  // self-reference\n    @ManyToMany(mappedBy=\"categories\") Set<FProduct> products=new HashSet<>();\n    protected FCategory(){} FCategory(String n){name=n;} FCategory(String n,FCategory p){name=n;parent=p;}\n    String getId(){return id;} String getName(){return name;} Set<FProduct> getProducts(){return products;}\n}\n\n@Entity @Table(name=\"flip_products\")\n@SQLDelete(sql=\"UPDATE flip_products SET deleted=true WHERE id=?\")\n@Where(clause=\"deleted=false\")\nclass FProduct {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(nullable=false) String name;\n    double price; boolean deleted=false;\n    @Embedded WarehouseCity warehouseCity;\n    @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})\n    @JoinTable(name=\"flip_product_cats\",joinColumns=@JoinColumn(name=\"product_id\"),inverseJoinColumns=@JoinColumn(name=\"category_id\"))\n    Set<FCategory> categories=new HashSet<>();\n    @ElementCollection @CollectionTable(name=\"flip_product_tags\",joinColumns=@JoinColumn(name=\"product_id\")) @Column(name=\"tag\")\n    Set<String> tags=new HashSet<>();\n    protected FProduct(){} FProduct(String n,double p){name=n;price=p;}\n    void addCategory(FCategory c){categories.add(c);c.getProducts().add(this);}\n    void removeCategory(FCategory c){categories.remove(c);c.getProducts().remove(this);}\n    void softDelete(){deleted=true;}\n    String getId(){return id;} Set<FCategory> getCategories(){return categories;} Set<String> getTags(){return tags;}\n}\n\ninterface FCategoryRepository extends JpaRepository<FCategory,String>{}\ninterface FProductRepository extends JpaRepository<FProduct,String>{}\n\n@Service @Transactional\nclass FProductService {\n    private final FProductRepository pr; private final FCategoryRepository cr;\n    FProductService(FProductRepository p,FCategoryRepository c){pr=p;cr=c;}\n    FProduct addProduct(String name,double price,WarehouseCity wc,Set<String> tags){\n        FProduct p=new FProduct(name,price); p.warehouseCity=wc; p.tags.addAll(tags); return pr.save(p);\n    }\n    void addCategory(String pid,String cid){ FProduct p=pr.findById(pid).orElseThrow(); FCategory c=cr.findById(cid).orElseThrow(); p.addCategory(c); }\n    void removeCategory(String pid,String cid){ FProduct p=pr.findById(pid).orElseThrow(); FCategory c=cr.findById(cid).orElseThrow(); p.removeCategory(c); }\n    void softDelete(String pid){ FProduct p=pr.findById(pid).orElseThrow(); p.softDelete(); }\n}\n\n@DataJpaTest @Import(FProductService.class)\nclass FlipkartCatalogTest {\n    @Autowired FProductService svc; @Autowired FProductRepository pr; @Autowired FCategoryRepository cr;\n    @Autowired TestEntityManager testEm;\n    FCategory elec,mob; FProduct phone;\n    @BeforeEach void setup(){\n        elec=testEm.persistAndFlush(new FCategory(\"Electronics\"));\n        mob=testEm.persistAndFlush(new FCategory(\"Mobiles\",elec));\n        phone=pr.save(new FProduct(\"iPhone15\",89999));\n        svc.addCategory(phone.getId(),elec.getId());\n        svc.addCategory(phone.getId(),mob.getId());\n        testEm.flush(); testEm.clear();\n    }\n    @Test void addCategory_linksProduct(){ assertEquals(2,pr.findById(phone.getId()).orElseThrow().getCategories().size()); }\n    @Test void removeCategory_doesNotDeleteCategory(){\n        svc.removeCategory(phone.getId(),mob.getId());\n        testEm.flush(); testEm.clear();\n        assertEquals(1,pr.findById(phone.getId()).orElseThrow().getCategories().size());\n        assertTrue(cr.existsById(mob.getId()));\n    }\n    @Test void softDelete_hiddenFromFindAll(){\n        svc.softDelete(phone.getId());\n        testEm.flush(); testEm.clear();\n        assertEquals(0,pr.findAll().size());\n        assertTrue(pr.findById(phone.getId()).isEmpty());\n    }\n    @Test void tags_savedAndLoaded(){\n        FProduct p=new FProduct(\"Galaxy\",75000); p.tags.add(\"5G\"); p.tags.add(\"Android\");\n        p=pr.save(p); testEm.flush(); testEm.clear();\n        assertEquals(2,pr.findById(p.getId()).orElseThrow().getTags().size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "Self-referential @ManyToOne: FCategory parent — parent is nullable (null = root)",
+        "@SQLDelete intercepts deleteById() → runs UPDATE; @Where hides the deleted row",
+        "flush() + clear() after mutations: forces DB write and clears L1 cache"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m17_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Razorpay user role management — @ManyToMany with service operations",
+      "scenario": "Role-based access control using @ManyToMany with business operations.",
+      "instructions": "Build Razorpay user-role management:\n1. User @Entity (id, email, name) with @ManyToMany Set<Role> roles\n2. Role @Entity (id, name UNIQUE, description)\n3. UserRoleService: assignRole, revokeRole, hasPermission(userId, roleName)\n4. Both using helper methods for bidirectional consistency\n5. @DataJpaTest (3 tests): assign role, revoke doesn't delete role, hasPermission",
+      "starter_code": "// Razorpay user role management\n// User, Role @Entity, UserRoleService, @DataJpaTest 3 tests\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\n\n@Entity @Table(name=\"rp_users\")\nclass RpUser {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(nullable=false,unique=true) String email;\n    @Column(nullable=false) String name;\n    @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE})\n    @JoinTable(name=\"rp_user_roles\",joinColumns=@JoinColumn(name=\"user_id\"),inverseJoinColumns=@JoinColumn(name=\"role_id\"))\n    Set<RpRole> roles=new HashSet<>();\n    protected RpUser(){} RpUser(String email,String name){this.email=email;this.name=name;}\n    String getId(){return id;} Set<RpRole> getRoles(){return roles;}\n    void addRole(RpRole r){roles.add(r);r.getUsers().add(this);}\n    void removeRole(RpRole r){roles.remove(r);r.getUsers().remove(this);}\n    boolean hasRole(String roleName){return roles.stream().anyMatch(r->r.getName().equals(roleName));}\n}\n\n@Entity @Table(name=\"rp_roles\")\nclass RpRole {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(nullable=false,unique=true) String name;\n    String description;\n    @ManyToMany(mappedBy=\"roles\") Set<RpUser> users=new HashSet<>();\n    protected RpRole(){} RpRole(String n,String d){name=n;description=d;}\n    String getId(){return id;} String getName(){return name;} Set<RpUser> getUsers(){return users;}\n}\n\ninterface RpUserRepository extends JpaRepository<RpUser,String>{}\ninterface RpRoleRepository extends JpaRepository<RpRole,String>{ Optional<RpRole> findByName(String name); }\n\n@Service @Transactional\nclass UserRoleService {\n    private final RpUserRepository ur; private final RpRoleRepository rr;\n    UserRoleService(RpUserRepository u,RpRoleRepository r){ur=u;rr=r;}\n    void assignRole(String userId,String roleName){\n        RpUser u=ur.findById(userId).orElseThrow();\n        RpRole r=rr.findByName(roleName).orElseThrow(()-> new IllegalArgumentException(\"Role not found: \"+roleName));\n        u.addRole(r);\n    }\n    void revokeRole(String userId,String roleName){\n        RpUser u=ur.findById(userId).orElseThrow();\n        RpRole r=rr.findByName(roleName).orElseThrow();\n        u.removeRole(r);\n    }\n    boolean hasPermission(String userId,String roleName){\n        RpUser u=ur.findById(userId).orElseThrow();\n        return u.hasRole(roleName);\n    }\n}\n\n@DataJpaTest @Import(UserRoleService.class)\nclass UserRoleTest {\n    @Autowired UserRoleService svc; @Autowired RpUserRepository ur; @Autowired RpRoleRepository rr;\n    @Autowired TestEntityManager testEm;\n    RpUser u; RpRole admin,viewer;\n    @BeforeEach void seed(){\n        admin=testEm.persistAndFlush(new RpRole(\"ADMIN\",\"Full access\"));\n        viewer=testEm.persistAndFlush(new RpRole(\"VIEWER\",\"Read only\"));\n        u=testEm.persistAndFlush(new RpUser(\"aisha@rp.com\",\"Aisha\"));\n        testEm.clear();\n    }\n    @Test void assignRole_userHasRole(){ svc.assignRole(u.getId(),\"ADMIN\"); assertTrue(svc.hasPermission(u.getId(),\"ADMIN\")); }\n    @Test void revokeRole_doesNotDeleteRole(){\n        svc.assignRole(u.getId(),\"VIEWER\"); svc.revokeRole(u.getId(),\"VIEWER\");\n        testEm.flush(); testEm.clear();\n        assertFalse(svc.hasPermission(u.getId(),\"VIEWER\"));\n        assertTrue(rr.existsById(viewer.getId()));\n    }\n    @Test void hasPermission_falseForUnassigned(){ assertFalse(svc.hasPermission(u.getId(),\"ADMIN\")); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "addRole helper updates both user.roles and role.users for in-session consistency",
+        "revokeRole cascade={PERSIST,MERGE}: remove from collection removes join row only, role entity untouched",
+        "hasPermission: loads user entity → checks roles set (lazy-loaded)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m17_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete HDFC loan system — advanced relationships synthesis",
+      "scenario": "Multi-entity JPA domain model with all advanced relationship types.",
+      "instructions": "Build HDFC bank loan system:\n1. @Embeddable Money(amount BigDecimal, currency), @Embeddable Address\n2. Customer @Entity: name, @Embedded homeAddress, @Embedded workAddress (@AttributeOverrides), @ManyToMany Set<LoanProduct>\n3. LoanProduct @Entity: name, type, minAmount (Money), maxAmount (Money)\n4. Loan @Entity: customer @ManyToOne, loanProduct @ManyToOne, sanctionedAmount (Money), @OneToMany List<Repayment> (cascade=ALL, orphanRemoval), @ElementCollection Set<String> documents\n5. Repayment @Entity: amount (Money), paidAt, status\n6. @DataJpaTest (3 tests): create loan with repayments, remove repayment (orphanRemoval deletes it), add documents\n\nAll 3 tests pass.",
+      "starter_code": "// HDFC loan system — complete advanced JPA domain model\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport java.math.BigDecimal;\nimport java.time.LocalDateTime;\nimport java.util.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@Embeddable class HMoney {\n    @Column(name=\"amount\",precision=14,scale=2) BigDecimal amount;\n    @Column(name=\"currency\",length=3)           String currency=\"INR\";\n    protected HMoney(){}\n    HMoney(BigDecimal a){amount=a;}\n    BigDecimal getAmount(){return amount;}\n}\n@Embeddable class HAddress {\n    @Column(name=\"street\") String street;\n    @Column(name=\"city\")   String city;\n    @Column(name=\"pin\")    String pin;\n    protected HAddress(){}\n    HAddress(String s,String c,String p){street=s;city=c;pin=p;}\n    String getCity(){return city;}\n}\n@Entity @Table(name=\"h_loan_products\")\nclass HLoanProduct {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(nullable=false) String name;\n    @Embedded @AttributeOverrides({@AttributeOverride(name=\"amount\",column=@Column(name=\"min_amount\")),@AttributeOverride(name=\"currency\",column=@Column(name=\"min_currency\"))}) HMoney minAmount;\n    @Embedded @AttributeOverrides({@AttributeOverride(name=\"amount\",column=@Column(name=\"max_amount\")),@AttributeOverride(name=\"currency\",column=@Column(name=\"max_currency\"))}) HMoney maxAmount;\n    @ManyToMany(mappedBy=\"loanProducts\") Set<HCustomer> customers=new HashSet<>();\n    protected HLoanProduct(){} HLoanProduct(String n,BigDecimal min,BigDecimal max){name=n;minAmount=new HMoney(min);maxAmount=new HMoney(max);}\n    String getId(){return id;} Set<HCustomer> getCustomers(){return customers;}\n}\n@Entity @Table(name=\"h_customers\")\nclass HCustomer {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(nullable=false) String name;\n    @Embedded HAddress homeAddress;\n    @Embedded @AttributeOverrides({@AttributeOverride(name=\"street\",column=@Column(name=\"work_street\")),@AttributeOverride(name=\"city\",column=@Column(name=\"work_city\")),@AttributeOverride(name=\"pin\",column=@Column(name=\"work_pin\"))}) HAddress workAddress;\n    @ManyToMany(cascade={CascadeType.PERSIST,CascadeType.MERGE}) @JoinTable(name=\"h_customer_products\",joinColumns=@JoinColumn(name=\"customer_id\"),inverseJoinColumns=@JoinColumn(name=\"product_id\")) Set<HLoanProduct> loanProducts=new HashSet<>();\n    protected HCustomer(){} HCustomer(String n){name=n;}\n    String getId(){return id;}\n    void applyFor(HLoanProduct p){loanProducts.add(p);p.getCustomers().add(this);}\n}\n@Entity @Table(name=\"h_repayments\")\nclass HRepayment {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Embedded HMoney amount; String status=\"PENDING\"; LocalDateTime paidAt=LocalDateTime.now();\n    protected HRepayment(){} HRepayment(BigDecimal amt){amount=new HMoney(amt);}\n    String getId(){return id;} String getStatus(){return status;}\n}\n@Entity @Table(name=\"h_loans\")\nclass HLoan {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @ManyToOne(fetch=FetchType.LAZY) HCustomer customer;\n    @ManyToOne(fetch=FetchType.LAZY) HLoanProduct loanProduct;\n    @Embedded @AttributeOverrides({@AttributeOverride(name=\"amount\",column=@Column(name=\"sanctioned_amount\")),@AttributeOverride(name=\"currency\",column=@Column(name=\"sanctioned_currency\"))}) HMoney sanctionedAmount;\n    @OneToMany(cascade=CascadeType.ALL,orphanRemoval=true) @JoinColumn(name=\"loan_id\") List<HRepayment> repayments=new ArrayList<>();\n    @ElementCollection @CollectionTable(name=\"h_loan_docs\",joinColumns=@JoinColumn(name=\"loan_id\")) @Column(name=\"doc_url\") Set<String> documents=new HashSet<>();\n    protected HLoan(){} HLoan(HCustomer c,HLoanProduct p,BigDecimal amt){customer=c;loanProduct=p;sanctionedAmount=new HMoney(amt);}\n    String getId(){return id;} List<HRepayment> getRepayments(){return repayments;} Set<String> getDocuments(){return documents;}\n}\ninterface HLoanProductRepo extends JpaRepository<HLoanProduct,String>{}\ninterface HCustomerRepo extends JpaRepository<HCustomer,String>{}\ninterface HLoanRepo extends JpaRepository<HLoan,String>{}\ninterface HRepaymentRepo extends JpaRepository<HRepayment,String>{}\n\n@DataJpaTest\nclass HdfcLoanTest {\n    @Autowired HLoanProductRepo lpr; @Autowired HCustomerRepo cr;\n    @Autowired HLoanRepo lr; @Autowired HRepaymentRepo rr;\n    @Autowired TestEntityManager testEm;\n    @Test void createLoan_withRepayments(){\n        HLoanProduct hp=testEm.persistAndFlush(new HLoanProduct(\"Home Loan\",new BigDecimal(\"100000\"),new BigDecimal(\"5000000\")));\n        HCustomer c=testEm.persistAndFlush(new HCustomer(\"Priya Verma\"));\n        HLoan loan=new HLoan(c,hp,new BigDecimal(\"2000000\"));\n        loan.getRepayments().add(new HRepayment(new BigDecimal(\"20000\")));\n        loan.getRepayments().add(new HRepayment(new BigDecimal(\"20000\")));\n        loan=lr.save(loan); testEm.flush(); testEm.clear();\n        assertEquals(2,lr.findById(loan.getId()).orElseThrow().getRepayments().size());\n    }\n    @Test void orphanRemoval_deletesRepayment(){\n        HLoanProduct hp=testEm.persistAndFlush(new HLoanProduct(\"Personal Loan\",new BigDecimal(\"10000\"),new BigDecimal(\"500000\")));\n        HCustomer c=testEm.persistAndFlush(new HCustomer(\"Ravi\"));\n        HLoan loan=new HLoan(c,hp,new BigDecimal(\"100000\"));\n        HRepayment rep=new HRepayment(new BigDecimal(\"5000\"));\n        loan.getRepayments().add(rep); loan=lr.save(loan); String repId=loan.getRepayments().get(0).getId();\n        testEm.flush(); testEm.clear();\n        HLoan loaded=lr.findById(loan.getId()).orElseThrow();\n        loaded.getRepayments().clear();\n        lr.save(loaded); testEm.flush(); testEm.clear();\n        assertFalse(rr.existsById(repId));\n    }\n    @Test void documents_savedAndLoaded(){\n        HLoanProduct hp=testEm.persistAndFlush(new HLoanProduct(\"Car Loan\",new BigDecimal(\"50000\"),new BigDecimal(\"1000000\")));\n        HCustomer c=testEm.persistAndFlush(new HCustomer(\"Anita\"));\n        HLoan loan=new HLoan(c,hp,new BigDecimal(\"300000\"));\n        loan.getDocuments().add(\"https://docs/aadhar.pdf\");\n        loan.getDocuments().add(\"https://docs/salary.pdf\");\n        loan=lr.save(loan); testEm.flush(); testEm.clear();\n        assertEquals(2,lr.findById(loan.getId()).orElseThrow().getDocuments().size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@AttributeOverrides needed for each @Embedded Money (minAmount vs maxAmount columns)",
+        "orphanRemoval: repayments.clear() then save → DELETE all repayment rows",
+        "@ElementCollection documents: stored in h_loan_docs table"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  }
+}

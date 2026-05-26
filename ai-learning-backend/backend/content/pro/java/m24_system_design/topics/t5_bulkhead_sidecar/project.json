@@ -1,0 +1,29 @@
+{
+  "schema_version":"1.0","project_id":"java_m24_t5_proj","linked_topic":"java_m24_t5",
+  "level":"mini","name":"Razorpay Payment Gateway — Bulkhead Isolation",
+  "estimated_minutes":45,"difficulty":7,
+  "scenario":"Razorpay's payment service calls 4 downstream APIs (HDFC, VISA, Aadhaar KYC, FraudDetection). During an HDFC NEFT outage, all 200 Tomcat threads get consumed by 10-second HDFC timeouts, causing VISA/KYC/Fraud calls to also fail. Implement Resilience4j Bulkhead isolation so HDFC failures never impact other gateways.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"BulkheadConfiguration @Configuration: 4 Bulkhead beans (hdfc=50, visa=40, kyc=30, fraud=20 concurrent calls, 100ms wait). BulkheadRegistry.","weight":15},
+    {"id":"req_2","description":"PaymentGatewayService @Service: callHdfc(), callVisa(), callKyc(), callFraud() — each guarded by its respective Bulkhead (manual tryAcquirePermission/onComplete in finally). Each has a typed fallback method returning {status: FALLBACK, gateway: NAME}.","weight":25},
+    {"id":"req_3","description":"GatewayRouter @Service: route(merchantId, preferredGateway) — tries preferred first, cascades to VISA fallback, then HDFC fallback, then ultimate fallback response.","weight":15},
+    {"id":"req_4","description":"Micrometer: bulkhead.available_calls Gauge per gateway (tag: name), bulkhead.rejected_calls Counter per gateway (tag: name). Incremented correctly.","weight":10},
+    {"id":"req_5","description":"@SpringBootTest (5 tests): normal HDFC call succeeds; HDFC bulkhead full → VISA cascade; VISA also full → fallback message; rejected counter increments; available gauge reads correctly. All 5 pass.","weight":30},
+    {"id":"req_6","description":"README: Little's Law sizing calculation for each gateway (throughput × latency = concurrent calls) and why +20% buffer.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"ThreadPoolBulkhead for HDFC (coreSize=20, maxSize=40, queue=10). callHdfcAsync() returns CompletableFuture<GatewayResponse>. Test: result correct.","weight":20},
+    {"id":"bonus_2","description":"@CircuitBreaker + @Bulkhead combination on HDFC method. Multiple fallback overloads: BulkheadFullException, CallNotPermittedException, generic Exception. Test: each fallback type triggered.","weight":20},
+    {"id":"bonus_3","description":"K8s Pod YAML: payment-service + fluent-bit sidecar + envoy-proxy sidecar. emptyDir shared volume. Comment explaining shared localhost network namespace.","weight":15}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. tryAcquirePermission() + onComplete() in finally: always release the permit even if exception thrown — otherwise the slot is permanently consumed and the bulkhead gradually exhausts itself. maxWaitDuration: how long to wait for a permit before throwing BulkheadFullException — set to 0ms for immediate rejection (better for payment APIs than waiting). Gauge registration in constructor: register once, not on every call — Gauge reads the current value at scrape time. Fallback method signature: same return type, same parameters, plus the exception type as last parameter. Spring picks the most specific exception type. Little's Law: concurrent_calls = throughput_per_second × average_latency_seconds — size your bulkhead to this + 20% buffer.",
+  "rubric":[
+    {"category":"BulkheadConfiguration (4 beans)","points":15},
+    {"category":"PaymentGatewayService (4 methods + fallbacks)","points":25},
+    {"category":"GatewayRouter with cascade","points":15},
+    {"category":"Micrometer Gauge + Counter","points":10},
+    {"category":"5 tests (all pass)","points":30},
+    {"category":"README (Little's Law sizing)","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

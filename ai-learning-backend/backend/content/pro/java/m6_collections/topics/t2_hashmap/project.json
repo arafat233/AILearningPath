@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m6_t2_proj",
+  "linked_topic": "java_m6_t2",
+  "level": "mini",
+  "name": "Student Grade Book",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "Build a complete digital grade book for a university (think BITS Pilani or IIT's internal grade management). Students take multiple courses. Teachers need to: look up any student's grades by ID, find the class average per course, see which students are at risk (below passing threshold), and generate a grade distribution report. All powered by HashMap.",
+  
+  "description": "Grade book system using HashMap for student lookup, course grade storage, and statistical aggregation. Demonstrates all three HashMap patterns (lookup, counting/aggregation, grouping) in one cohesive educational domain.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Student` class: studentId (String), name, Map<String, Integer> courseGrades (course name → grade). Constructor takes id and name.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "Student: `addGrade(String course, int grade)`, `getGrade(String course)` returns Integer (null if not enrolled), `getGPA()` returns average of all grades, `isPassing(int threshold)` returns true if ALL grades >= threshold.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`GradeBook` class: `Map<String, Student>` by studentId. `enrollStudent(Student)`, `findStudent(String id)` returns Student or null.",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`courseAverage(String course)` → double average grade for that course across all enrolled students who took it.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`atRisk(int threshold)` → List<Student> who are not passing (isPassing returns false). Sort by GPA ascending.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "`gradeDistribution(String course)` → Map<String, Integer> counting how many students got each letter grade (A:90+, B:80+, C:70+, D:60+, F:below 60).",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "main() demonstrates all operations with at least 5 students and 3 courses.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `topStudents(int n)` — returns List<Student> of the n students with highest GPA. Sort descending.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `courseRoster(String course)` — returns List<String> of student names enrolled in that course.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `transferGrades(String fromId, String toId)` — copies all grades from one student to another (e.g., ID change). Validate both students exist.",
+        "weight": 20
+      }
+    ]
+  },
+  
+  "data_to_use": "Students and courses:\n- S001: Aisha — Java(92), Math(88), DSA(95)\n- S002: Raj — Java(75), Math(62), DSA(70)\n- S003: Priya — Java(85), Math(90), DSA(88)\n- S004: Vikram — Java(55), Math(48), DSA(60) ← at risk!\n- S005: Anita — Java(88), Math(79), DSA(92)\n\nPassing threshold: 60\n\nExpected:\n- Java average: (92+75+85+55+88)/5 = 79.0\n- At risk: Vikram (GPA=54.33)\n- Java distribution: A=2(Aisha,Anita), B=2(Priya,Raj... wait: Raj=75 is C), let me recalc\n  Java: 92(A), 75(C), 85(B), 55(F), 88(B) → A:1, B:2, C:1, F:1",
+  
+  "starter_code": "import java.util.*;\n\npublic class GradeBookSystem {\n    public static void main(String[] args) {\n        // Create grade book, enroll students, add grades\n        // Demonstrate: findStudent, courseAverage, atRisk, gradeDistribution\n    }\n    \n    // Define: Student, GradeBook classes\n}",
+  
+  "example_output": "=== GRADE BOOK SYSTEM ===\n\n--- Student Lookup ---\nFound: Priya (S003), GPA=87.67\n\n--- Java Course Average ---\nJava average: 79.0\n\n--- At Risk (below 60) ---\nVikram (S004) GPA=54.33\n\n--- Java Grade Distribution ---\nA: 1\nB: 2\nC: 1\nF: 1\n\n=== END ===",
+  
+  "rubric": [
+    { "category": "Student Class", "points": 25, "criteria": ["Map<String,Integer> for grades (10 pts)", "getGPA, isPassing correct (10 pts)", "addGrade/getGrade (5 pts)"] },
+    { "category": "GradeBook Operations", "points": 35, "criteria": ["findStudent O(1) by id (5 pts)", "courseAverage correct (10 pts)", "atRisk sorted (10 pts)", "gradeDistribution correct (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 15, "criteria": ["All operations shown (15 pts)"] },
+    { "category": "Code Quality", "points": 10, "criteria": ["Uses Map<> correctly (5 pts)", "Declares as Map not HashMap (5 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["topStudents (20 pts)", "courseRoster (15 pts)", "transferGrades (20 pts)"] }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key challenges: Student stores grades as Map<String, Integer> (a map INSIDE a map). gradeDistribution must convert numeric grades to letter grades. atRisk must sort by GPA ascending — use a Comparator.",
+  
+  "submission_instructions": "Save as GradeBookSystem.java. Run it. Push to GitHub — this demonstrates three HashMap patterns in a real educational domain that interviewers recognize.",
+  
+  "tips_for_success": [
+    "Student contains a Map<String, Integer> courseGrades — a map inside the student object.",
+    "GradeBook contains Map<String, Student> — key is studentId String.",
+    "courseAverage: loop all students in GradeBook.values(), check if student has that course (getGrade != null), sum and count.",
+    "gradeDistribution: same loop, convert numeric grade to letter with if-chain.",
+    "atRisk: build list, filter by !isPassing(threshold), sort by getGPA() ascending."
+  ],
+  
+  "concepts_reinforced": [
+    "HashMap as primary storage (O(1) student lookup)",
+    "Map within map (Student.courseGrades)",
+    "Aggregation across map values (courseAverage)",
+    "Frequency counting / distribution (gradeDistribution)",
+    "Filtering + sorting (atRisk)",
+    "getOrDefault for safe access",
+    "entrySet iteration"
+  ]
+}

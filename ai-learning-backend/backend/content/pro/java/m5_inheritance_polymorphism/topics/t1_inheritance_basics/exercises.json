@@ -1,0 +1,421 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t1",
+  "topic_name": "Inheritance Basics",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m5_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace inherited method call",
+      "scenario": "Understand that subclasses inherit parent methods.",
+      "instructions": "What does this print?\n\n```java\nclass Vehicle {\n    protected String type;\n    public Vehicle(String type) { this.type = type; }\n    public void describe() { System.out.println(\"I am a \" + type); }\n}\n\nclass Car extends Vehicle {\n    public Car() { super(\"Car\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Car c = new Car();\n        c.describe();\n    }\n}\n```",
+      "expected_solution": "I am a Car",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "I am a Car"
+        }
+      ],
+      "hints": [
+        "Car extends Vehicle → Car inherits describe()",
+        "Car constructor calls super('Car') → sets type = 'Car'",
+        "c.describe() uses Vehicle's describe() with type = 'Car'"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m5_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Write a subclass with super()",
+      "scenario": "Practice basic inheritance syntax.",
+      "instructions": "Fill in the blanks to complete a Dog that extends Animal.",
+      "starter_code": "class Animal {\n    protected String name;\n    public Animal(String name) { this.name = name; }\n    public void breathe() { System.out.println(name + \" breathes\"); }\n}\n\nclass Dog ______ Animal {\n    public Dog(String name) {\n        ______(name);\n    }\n    public void fetch() { System.out.println(name + \" fetches!\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\");\n        d.breathe();\n        d.fetch();\n    }\n}",
+      "expected_solution": "class Animal {\n    protected String name;\n    public Animal(String name) { this.name = name; }\n    public void breathe() { System.out.println(name + \" breathes\"); }\n}\n\nclass Dog extends Animal {\n    public Dog(String name) {\n        super(name);\n    }\n    public void fetch() { System.out.println(name + \" fetches!\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\");\n        d.breathe();\n        d.fetch();\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "extends", "hint": "Keyword for inheritance" },
+        { "position": 2, "answer": "super", "hint": "Calls parent constructor" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rex breathes\nRex fetches!"
+        }
+      ],
+      "hints": [
+        "`extends Animal` establishes the inheritance",
+        "`super(name)` calls Animal's constructor",
+        "Must be first line of constructor"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m5_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Shape hierarchy",
+      "scenario": "Build a simple two-level hierarchy.",
+      "instructions": "Create a `Shape` base class with private field color (String). Constructor + getter. Subclass `Circle` adds radius (double). Constructor calls super. Method `area()` returns πr².\n\nIn main, create and print a circle's color and area.\n\nExpected output:\nColor: red\nArea: 78.53981633974483",
+      "starter_code": "// Create Shape and Circle classes\n",
+      "expected_solution": "class Shape {\n    private String color;\n    \n    public Shape(String color) {\n        this.color = color;\n    }\n    \n    public String getColor() { return color; }\n}\n\nclass Circle extends Shape {\n    private double radius;\n    \n    public Circle(String color, double radius) {\n        super(color);\n        this.radius = radius;\n    }\n    \n    public double area() {\n        return Math.PI * radius * radius;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Circle c = new Circle(\"red\", 5);\n        System.out.println(\"Color: \" + c.getColor());\n        System.out.println(\"Area: \" + c.area());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Color: red\nArea: 78.53981633974483"
+        }
+      ],
+      "hints": [
+        "Circle constructor: super(color) first, then this.radius = radius",
+        "getColor() is inherited from Shape",
+        "area() is Circle-specific",
+        "Math.PI * radius * radius"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m5_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Override a method",
+      "scenario": "Subclass provides its own implementation.",
+      "instructions": "Create an `Animal` class with makeSound() that prints 'Animal makes a sound'. Create `Dog` and `Cat` that each override makeSound() with their specific sound.\n\nIn main, create one of each and call makeSound().\n\nExpected output:\nWoof!\nMeow!",
+      "starter_code": "// Create Animal, Dog, Cat — override makeSound in each subclass\n",
+      "expected_solution": "class Animal {\n    public void makeSound() {\n        System.out.println(\"Animal makes a sound\");\n    }\n}\n\nclass Dog extends Animal {\n    @Override\n    public void makeSound() {\n        System.out.println(\"Woof!\");\n    }\n}\n\nclass Cat extends Animal {\n    @Override\n    public void makeSound() {\n        System.out.println(\"Meow!\");\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Dog d = new Dog();\n        Cat c = new Cat();\n        d.makeSound();\n        c.makeSound();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Woof!\nMeow!"
+        }
+      ],
+      "hints": [
+        "@Override annotation before the overriding method",
+        "Same method signature: public void makeSound()",
+        "Each subclass provides its own body"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m5_t1_ex_5",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix missing super() call",
+      "scenario": "Subclass constructor must call parent.",
+      "instructions": "This code doesn't compile. Fix it.\n\nExpected output:\nBuddy the Labrador",
+      "starter_code": "class Animal {\n    protected String name;\n    public Animal(String name) { this.name = name; }\n}\n\nclass Dog extends Animal {\n    private String breed;\n    public Dog(String name, String breed) {\n        this.breed = breed;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Buddy\", \"Labrador\");\n        System.out.println(d.name + \" the \" + d.breed);\n    }\n}",
+      "expected_solution": "class Animal {\n    protected String name;\n    public Animal(String name) { this.name = name; }\n}\n\nclass Dog extends Animal {\n    private String breed;\n    public Dog(String name, String breed) {\n        super(name);\n        this.breed = breed;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Buddy\", \"Labrador\");\n        System.out.println(d.name + \" the \" + d.breed);\n    }\n}",
+      "bugs": [
+        {
+          "line": "8",
+          "issue": "Dog's constructor doesn't call super(). Animal has no no-arg constructor. Java can't initialize the Animal part.",
+          "fix": "Add super(name) as the first line of Dog's constructor"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Buddy the Labrador",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Animal only has Animal(String name) — no no-arg constructor",
+        "Dog must call super(name) explicitly",
+        "super() must be the first line of the constructor"
+      ],
+      "xp_reward": 35,
+      "common_misconceptions_tested": ["forgetting_super_constructor"]
+    },
+    
+    {
+      "id": "java_m5_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Use super.method() in override",
+      "scenario": "Extend parent's behavior without rewriting it.",
+      "instructions": "Create a `Person` class with method intro() that prints 'I am [name]'. Create a `Student` that overrides intro() to ALSO print their major — use super.intro() to reuse the parent's message.\n\nExpected output:\nI am Aisha\nI am Aisha, studying Computer Science",
+      "starter_code": "// Create Person and Student — Student.intro() uses super.intro()\n",
+      "expected_solution": "class Person {\n    protected String name;\n    \n    public Person(String name) {\n        this.name = name;\n    }\n    \n    public void intro() {\n        System.out.println(\"I am \" + name);\n    }\n}\n\nclass Student extends Person {\n    private String major;\n    \n    public Student(String name, String major) {\n        super(name);\n        this.major = major;\n    }\n    \n    @Override\n    public void intro() {\n        super.intro();\n        System.out.println(\"I am \" + name + \", studying \" + major);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Person p = new Person(\"Aisha\");\n        p.intro();\n        Student s = new Student(\"Aisha\", \"Computer Science\");\n        s.intro();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "I am Aisha\nI am Aisha, studying Computer Science"
+        }
+      ],
+      "hints": [
+        "Student.intro() calls super.intro() first",
+        "Then adds its own line",
+        "super.intro() calls Person's version — no repetition"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m5_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Three-level inheritance chain",
+      "scenario": "Multiple levels of inheritance working together.",
+      "instructions": "Create:\n- `LivingThing`: breathe() prints 'Breathing'\n- `Animal extends LivingThing`: eat() prints '<name> eats'\n- `Dog extends Animal`: fetch() prints '<name> fetches'\n\nIn main, create a Dog that calls all three methods.\n\nExpected output:\nBreathing\nRex eats\nRex fetches",
+      "starter_code": "// Three levels: LivingThing → Animal → Dog\n",
+      "expected_solution": "class LivingThing {\n    public void breathe() { System.out.println(\"Breathing\"); }\n}\n\nclass Animal extends LivingThing {\n    protected String name;\n    public Animal(String name) { this.name = name; }\n    public void eat() { System.out.println(name + \" eats\"); }\n}\n\nclass Dog extends Animal {\n    public Dog(String name) { super(name); }\n    public void fetch() { System.out.println(name + \" fetches\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Dog rex = new Dog(\"Rex\");\n        rex.breathe();\n        rex.eat();\n        rex.fetch();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Breathing\nRex eats\nRex fetches"
+        }
+      ],
+      "hints": [
+        "Dog extends Animal, Animal extends LivingThing",
+        "Dog inherits from ALL levels: breathe, eat, AND fetch",
+        "Each super() call chains up",
+        "Method lookup: Dog → Animal → LivingThing"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m5_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Array of parent type, mixed subclass objects",
+      "scenario": "Polymorphism preview — treating different subclasses uniformly.",
+      "instructions": "Using Animal (with name + makeSound()), Dog (overrides: Woof!), Cat (overrides: Meow!), Bird (overrides: Tweet!):\n\nCreate Animal[] with one of each. Loop and call makeSound() on each.\n\nExpected output:\nRex: Woof!\nWhiskers: Meow!\nTweety: Tweet!",
+      "starter_code": "// Create Animal, Dog, Cat, Bird\n// Put all in Animal[] and call makeSound() on each\n",
+      "expected_solution": "class Animal {\n    protected String name;\n    public Animal(String name) { this.name = name; }\n    public void makeSound() { System.out.println(name + \" makes a sound\"); }\n}\n\nclass Dog extends Animal {\n    public Dog(String name) { super(name); }\n    @Override public void makeSound() { System.out.println(name + \": Woof!\"); }\n}\n\nclass Cat extends Animal {\n    public Cat(String name) { super(name); }\n    @Override public void makeSound() { System.out.println(name + \": Meow!\"); }\n}\n\nclass Bird extends Animal {\n    public Bird(String name) { super(name); }\n    @Override public void makeSound() { System.out.println(name + \": Tweet!\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Animal[] animals = {\n            new Dog(\"Rex\"),\n            new Cat(\"Whiskers\"),\n            new Bird(\"Tweety\")\n        };\n        for (Animal a : animals) {\n            a.makeSound();\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rex: Woof!\nWhiskers: Meow!\nTweety: Tweet!"
+        }
+      ],
+      "hints": [
+        "Animal[] can hold Dog, Cat, Bird (they are all Animals)",
+        "a.makeSound() calls each object's OWN makeSound",
+        "Even though reference is Animal type, the actual object's method runs",
+        "This is POLYMORPHISM — more on it next topic"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "polymorphism_preview"
+    },
+    
+    {
+      "id": "java_m5_t1_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix access violation — private field in subclass",
+      "scenario": "Private fields aren't accessible in subclasses.",
+      "instructions": "This code doesn't compile. Fix it using the appropriate getter.\n\nExpected output:\nRex is 3 years old",
+      "starter_code": "class Animal {\n    private String name;\n    private int age;\n    \n    public Animal(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n    \n    public String getName() { return name; }\n    public int getAge() { return age; }\n}\n\nclass Dog extends Animal {\n    public Dog(String name, int age) { super(name, age); }\n    \n    public String report() {\n        return name + \" is \" + age + \" years old\";  // broken\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\", 3);\n        System.out.println(d.report());\n    }\n}",
+      "expected_solution": "class Animal {\n    private String name;\n    private int age;\n    \n    public Animal(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n    \n    public String getName() { return name; }\n    public int getAge() { return age; }\n}\n\nclass Dog extends Animal {\n    public Dog(String name, int age) { super(name, age); }\n    \n    public String report() {\n        return getName() + \" is \" + getAge() + \" years old\";\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\", 3);\n        System.out.println(d.report());\n    }\n}",
+      "bugs": [
+        {
+          "line": "18",
+          "issue": "`name` and `age` are private in Animal — Dog cannot access them directly.",
+          "fix": "Use inherited getters: getName() and getAge()"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rex is 3 years old",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Private fields are hidden even from subclasses",
+        "Use the public getters: getName() and getAge()",
+        "These getters ARE inherited — you can call them from Dog"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["accessing_private_field_directly"]
+    },
+    
+    {
+      "id": "java_m5_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Account hierarchy",
+      "scenario": "Banking domain inheritance.",
+      "instructions": "Create:\n- `Account`: private balance (double), accountId (static auto-assign). Constructor validates balance >= 0. deposit(amount), getBalance(), getAccountId().\n- `SavingsAccount extends Account`: private interestRate (double). Method applyInterest() adds interest to balance (balance * rate).\n\nIn main:\n- Create savings account with ₹5000 and 5% interest\n- Apply interest\n- Print new balance\n\nExpected output:\nAccount #1 balance after interest: ₹5250.0",
+      "starter_code": "// Create Account and SavingsAccount classes\n",
+      "expected_solution": "class Account {\n    private static int nextId = 1;\n    private final int accountId;\n    private double balance;\n    \n    public Account(double balance) {\n        if (balance < 0) throw new IllegalArgumentException(\"Balance cannot be negative\");\n        this.accountId = nextId++;\n        this.balance = balance;\n    }\n    \n    public void deposit(double amount) { balance += amount; }\n    public double getBalance() { return balance; }\n    public int getAccountId() { return accountId; }\n    \n    protected void setBalance(double balance) { this.balance = balance; }  // for subclasses\n}\n\nclass SavingsAccount extends Account {\n    private double interestRate;\n    \n    public SavingsAccount(double balance, double interestRate) {\n        super(balance);\n        this.interestRate = interestRate;\n    }\n    \n    public void applyInterest() {\n        double interest = getBalance() * (interestRate / 100);\n        deposit(interest);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        SavingsAccount sa = new SavingsAccount(5000, 5);\n        sa.applyInterest();\n        System.out.println(\"Account #\" + sa.getAccountId() + \" balance after interest: ₹\" + sa.getBalance());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Account #1 balance after interest: ₹5250.0"
+        }
+      ],
+      "hints": [
+        "SavingsAccount constructor: super(balance) first",
+        "applyInterest uses getBalance() (inherited) to read balance",
+        "deposit() (inherited) to add the interest",
+        "5000 × 5% = 250 interest → 5250 total"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m5_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Override toString() in hierarchy",
+      "scenario": "Subclass toString extends parent's with additional info.",
+      "instructions": "Create:\n- `Product`: private id (final, static auto), name, price. toString: 'Product[#id name ₹price]'.\n- `DigitalProduct extends Product`: private fileSize (String). Override toString: append ' (download: fileSize)' to parent's.\n- `PhysicalProduct extends Product`: private weight (double). Override toString: append ' (ships: weightkg)' to parent's.\n\nIn main, create one of each and print them.\n\nExpected output:\nProduct[#1 Java Book ₹599.0] (download: 25MB)\nProduct[#2 Keyboard ₹1999.0] (ships: 0.8kg)",
+      "starter_code": "import java.util.Objects;\n\n// Create Product, DigitalProduct, PhysicalProduct\n",
+      "expected_solution": "class Product {\n    private static int nextId = 1;\n    private final int id;\n    private String name;\n    private double price;\n    \n    public Product(String name, double price) {\n        this.id = nextId++;\n        this.name = name;\n        this.price = price;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    public double getPrice() { return price; }\n    \n    @Override\n    public String toString() {\n        return \"Product[#\" + id + \" \" + name + \" ₹\" + price + \"]\";\n    }\n}\n\nclass DigitalProduct extends Product {\n    private String fileSize;\n    \n    public DigitalProduct(String name, double price, String fileSize) {\n        super(name, price);\n        this.fileSize = fileSize;\n    }\n    \n    @Override\n    public String toString() {\n        return super.toString() + \" (download: \" + fileSize + \")\";\n    }\n}\n\nclass PhysicalProduct extends Product {\n    private double weight;\n    \n    public PhysicalProduct(String name, double price, double weight) {\n        super(name, price);\n        this.weight = weight;\n    }\n    \n    @Override\n    public String toString() {\n        return super.toString() + \" (ships: \" + weight + \"kg)\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        DigitalProduct dp = new DigitalProduct(\"Java Book\", 599.0, \"25MB\");\n        PhysicalProduct pp = new PhysicalProduct(\"Keyboard\", 1999.0, 0.8);\n        System.out.println(dp);\n        System.out.println(pp);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Product[#1 Java Book ₹599.0] (download: 25MB)\nProduct[#2 Keyboard ₹1999.0] (ships: 0.8kg)"
+        }
+      ],
+      "hints": [
+        "super(name, price) in each subclass constructor",
+        "super.toString() reuses Product's format",
+        "Each subclass appends its own info after"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m5_t1_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace override resolution",
+      "scenario": "Which version runs when override exists?",
+      "instructions": "What does this print?\n\n```java\nclass A {\n    public void greet() { System.out.println(\"Hello from A\"); }\n}\n\nclass B extends A {\n    @Override\n    public void greet() { System.out.println(\"Hello from B\"); }\n}\n\nclass C extends B {\n    // No greet override\n}\n\npublic class App {\n    public static void main(String[] args) {\n        new A().greet();\n        new B().greet();\n        new C().greet();\n        A ref = new B();\n        ref.greet();\n    }\n}\n```",
+      "expected_solution": "Hello from A\nHello from B\nHello from B\nHello from B",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Hello from A\nHello from B\nHello from B\nHello from B"
+        }
+      ],
+      "hints": [
+        "A uses A's greet",
+        "B uses B's greet (overrides A's)",
+        "C has no greet, looks up chain → finds B's",
+        "A ref = new B() — the OBJECT is B, so B's greet runs"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m5_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete vehicle hierarchy",
+      "scenario": "Three-class hierarchy with fields, overrides, and super.",
+      "instructions": "Build:\n- `Vehicle`: year (int), make (String), model (String), protected double fuelEfficiency. toString: 'make model (year)'.\n- `Car extends Vehicle`: private int numDoors. Override toString: append ', numDoors doors'.\n- `ElectricCar extends Car`: private int batteryRange (km). Override toString: append ', range: rangeKm'.\n\nAll use super() in constructors and super.toString() in overrides.\n\nExpected output:\nToyota Camry (2022)\nHonda Civic (2023), 4 doors\nTesla Model 3 (2024), 4 doors, range: 500km",
+      "starter_code": "// Build Vehicle → Car → ElectricCar hierarchy\n",
+      "expected_solution": "class Vehicle {\n    private int year;\n    private String make;\n    private String model;\n    protected double fuelEfficiency;\n    \n    public Vehicle(String make, String model, int year, double fuelEfficiency) {\n        this.year = year;\n        this.make = make;\n        this.model = model;\n        this.fuelEfficiency = fuelEfficiency;\n    }\n    \n    public int getYear() { return year; }\n    public String getMake() { return make; }\n    public String getModel() { return model; }\n    \n    @Override\n    public String toString() {\n        return make + \" \" + model + \" (\" + year + \")\";\n    }\n}\n\nclass Car extends Vehicle {\n    private int numDoors;\n    \n    public Car(String make, String model, int year, double fuelEfficiency, int numDoors) {\n        super(make, model, year, fuelEfficiency);\n        this.numDoors = numDoors;\n    }\n    \n    @Override\n    public String toString() {\n        return super.toString() + \", \" + numDoors + \" doors\";\n    }\n}\n\nclass ElectricCar extends Car {\n    private int batteryRange;\n    \n    public ElectricCar(String make, String model, int year, int numDoors, int batteryRange) {\n        super(make, model, year, 0, numDoors);  // no fuel efficiency\n        this.batteryRange = batteryRange;\n    }\n    \n    @Override\n    public String toString() {\n        return super.toString() + \", range: \" + batteryRange + \"km\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Vehicle v = new Vehicle(\"Toyota\", \"Camry\", 2022, 14.5);\n        Car c = new Car(\"Honda\", \"Civic\", 2023, 15.0, 4);\n        ElectricCar e = new ElectricCar(\"Tesla\", \"Model 3\", 2024, 4, 500);\n        \n        System.out.println(v);\n        System.out.println(c);\n        System.out.println(e);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Toyota Camry (2022)\nHonda Civic (2023), 4 doors\nTesla Model 3 (2024), 4 doors, range: 500km"
+        }
+      ],
+      "hints": [
+        "ElectricCar calls Car's constructor (super) which calls Vehicle's",
+        "ElectricCar.toString calls super.toString (Car's) which calls super.toString (Vehicle's)",
+        "Chain of toString: Vehicle's format + Car's addition + ElectricCar's addition"
+      ],
+      "xp_reward": 80
+    },
+    
+    {
+      "id": "java_m5_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Employee hierarchy with salary calculation",
+      "scenario": "Polymorphic salary calculation.",
+      "instructions": "Build:\n- `Employee`: name, baseSalary. `calculateSalary()` returns baseSalary.\n- `Manager extends Employee`: bonus (double). Override `calculateSalary()`: base + bonus.\n- `SalesEmployee extends Employee`: commissionRate (double), salesAmount (double). Override `calculateSalary()`: base + salesAmount * commissionRate.\n\nIn main, create one of each. Store in Employee[]. Loop and print each employee's name + calculated salary.\n\nExpected output:\nAisha: ₹75000.0\nRaj: ₹100000.0\nPriya: ₹88500.0",
+      "starter_code": "// Build Employee, Manager, SalesEmployee\n// calculateSalary() is overridden in each subclass\n",
+      "expected_solution": "class Employee {\n    protected String name;\n    protected double baseSalary;\n    \n    public Employee(String name, double baseSalary) {\n        this.name = name;\n        this.baseSalary = baseSalary;\n    }\n    \n    public double calculateSalary() {\n        return baseSalary;\n    }\n    \n    public String getName() { return name; }\n}\n\nclass Manager extends Employee {\n    private double bonus;\n    \n    public Manager(String name, double baseSalary, double bonus) {\n        super(name, baseSalary);\n        this.bonus = bonus;\n    }\n    \n    @Override\n    public double calculateSalary() {\n        return baseSalary + bonus;\n    }\n}\n\nclass SalesEmployee extends Employee {\n    private double commissionRate;\n    private double salesAmount;\n    \n    public SalesEmployee(String name, double baseSalary, double commissionRate, double salesAmount) {\n        super(name, baseSalary);\n        this.commissionRate = commissionRate;\n        this.salesAmount = salesAmount;\n    }\n    \n    @Override\n    public double calculateSalary() {\n        return baseSalary + salesAmount * commissionRate;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Employee[] staff = {\n            new Employee(\"Aisha\", 75000),\n            new Manager(\"Raj\", 85000, 15000),\n            new SalesEmployee(\"Priya\", 60000, 0.05, 570000)\n        };\n        \n        for (Employee e : staff) {\n            System.out.println(e.getName() + \": ₹\" + e.calculateSalary());\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha: ₹75000.0\nRaj: ₹100000.0\nPriya: ₹88500.0"
+        }
+      ],
+      "hints": [
+        "Manager: base + bonus = 85000 + 15000 = 100000",
+        "Sales: base + sales × rate = 60000 + 570000 × 0.05 = 60000 + 28500 = 88500",
+        "Employee[] holds all three types — polymorphism!",
+        "Each e.calculateSalary() calls the CORRECT override for that object"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "polymorphic_method_dispatch"
+    },
+    
+    {
+      "id": "java_m5_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Notification system hierarchy",
+      "scenario": "Extending a framework-style hierarchy.",
+      "instructions": "Build a notification system:\n\n1. `Notification` (base): message (String), priority (int, 1-5). Constructor validates. `send()` prints '[PRIORITY-n] message'. `getLog()` returns 'Notification: message'.\n\n2. `EmailNotification extends Notification`: recipientEmail. Override `send()`: calls super.send() THEN prints 'Sent to: email'. Override `getLog()`: prepends 'Email | ' to super's.\n\n3. `SMSNotification extends Notification`: phoneNumber. Similar overrides.\n\nIn main:\n- Create one Email and one SMS notification\n- Call send() on each\n- Print getLogs\n\nExpected output:\n[PRIORITY-1] Server is down!\nSent to: ops@company.com\nLog: Email | Notification: Server is down!\n[PRIORITY-3] Reminder: meeting at 3pm\nSent to: +919876543210\nLog: SMS | Notification: Reminder: meeting at 3pm",
+      "starter_code": "// Build Notification, EmailNotification, SMSNotification\n// Use super in both send() and getLog()\n",
+      "expected_solution": "class Notification {\n    private String message;\n    private int priority;\n    \n    public Notification(String message, int priority) {\n        if (message == null || message.isBlank()) throw new IllegalArgumentException(\"Message required\");\n        if (priority < 1 || priority > 5) throw new IllegalArgumentException(\"Priority must be 1-5\");\n        this.message = message;\n        this.priority = priority;\n    }\n    \n    public String getMessage() { return message; }\n    public int getPriority() { return priority; }\n    \n    public void send() {\n        System.out.println(\"[PRIORITY-\" + priority + \"] \" + message);\n    }\n    \n    public String getLog() {\n        return \"Notification: \" + message;\n    }\n}\n\nclass EmailNotification extends Notification {\n    private String recipientEmail;\n    \n    public EmailNotification(String message, int priority, String recipientEmail) {\n        super(message, priority);\n        this.recipientEmail = recipientEmail;\n    }\n    \n    @Override\n    public void send() {\n        super.send();\n        System.out.println(\"Sent to: \" + recipientEmail);\n    }\n    \n    @Override\n    public String getLog() {\n        return \"Email | \" + super.getLog();\n    }\n}\n\nclass SMSNotification extends Notification {\n    private String phoneNumber;\n    \n    public SMSNotification(String message, int priority, String phoneNumber) {\n        super(message, priority);\n        this.phoneNumber = phoneNumber;\n    }\n    \n    @Override\n    public void send() {\n        super.send();\n        System.out.println(\"Sent to: \" + phoneNumber);\n    }\n    \n    @Override\n    public String getLog() {\n        return \"SMS | \" + super.getLog();\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        EmailNotification email = new EmailNotification(\"Server is down!\", 1, \"ops@company.com\");\n        SMSNotification sms = new SMSNotification(\"Reminder: meeting at 3pm\", 3, \"+919876543210\");\n        \n        email.send();\n        System.out.println(\"Log: \" + email.getLog());\n        \n        sms.send();\n        System.out.println(\"Log: \" + sms.getLog());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[PRIORITY-1] Server is down!\nSent to: ops@company.com\nLog: Email | Notification: Server is down!\n[PRIORITY-3] Reminder: meeting at 3pm\nSent to: +919876543210\nLog: SMS | Notification: Reminder: meeting at 3pm"
+        }
+      ],
+      "hints": [
+        "Notification.send() handles the core output",
+        "EmailNotification.send() calls super.send() then adds email line",
+        "getLog() uses string prepending to parent's result",
+        "This pattern is common in real notification frameworks"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 10,
+      "debug": 2,
+      "predict_output": 2
+    },
+    "total_xp_possible": 715,
+    "estimated_completion_minutes": 70
+  },
+  
+  "gap_detection_map": {
+    "forgetting_super_constructor": ["ex_5"],
+    "accessing_private_field_directly": ["ex_9"],
+    "polymorphism_preview": ["ex_8"],
+    "polymorphic_method_dispatch": ["ex_14"]
+  }
+}

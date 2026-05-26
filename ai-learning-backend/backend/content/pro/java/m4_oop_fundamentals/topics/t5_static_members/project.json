@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m4_t5_proj",
+  "linked_topic": "java_m4_t5",
+  "level": "mini",
+  "name": "Game Leaderboard System",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "You're building the backend for a mobile game's leaderboard (think Angry Birds, Candy Crush, or any competitive mobile game). The system needs: class-level constants (max score, max players), a static counter for total players registered, a global high score that any player instance can update, factory methods for creating players (regular vs premium), and a static leaderboard that manages rankings. This uses every static concept from the topic in a cohesive, realistic system.",
+  
+  "description": "Build a complete game leaderboard using both static and instance members appropriately. Player class with instance data + class-level tracking. Leaderboard class as a static registry. Constants for game rules. Factory methods for player creation.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`GameConstants` class: public static final MAX_SCORE = 999999, MAX_PLAYERS = 100, DEFAULT_LIVES = 3. Private constructor.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`Player` class with private final playerId (int, auto-assigned), private String username, private int score, private boolean premium",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Player has private static int nextId (starts at 1) and private static int totalPlayers (count of registered players)",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Player private constructor (used by factory methods). Factory methods: `createFree(String username)` and `createPremium(String username)` — both validate username not empty, auto-assign id, increment totalPlayers.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Player has `addScore(int points)` — validates 0 to MAX_SCORE, updates score. Getter for score, username, playerId, premium.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "Player static methods: `getTotalPlayers()`, and `getNextId()` (for debugging).",
+        "weight": 5
+      },
+      {
+        "id": "req_7",
+        "description": "`Leaderboard` class: private static Player[] players (sized to GameConstants.MAX_PLAYERS), private static int count. Static `register(Player p)`, `printTopN(int n)` that prints top N scores (sort and print).",
+        "weight": 20
+      },
+      {
+        "id": "req_8",
+        "description": "main() demonstrates: create 4 players (mix of free/premium), add scores, register on leaderboard, print top 3, print total player count.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a private static int globalHighScore to Player class. addScore updates globalHighScore if new score exceeds it. Static getter getGlobalHighScore().",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Leaderboard: add `findById(int id)` returning Player or null.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Premium players get a 10% score bonus: in addScore, if premium, multiply points by 1.1 before adding.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add a static `reset()` method to Player that resets all static state (for testing). Also add to Leaderboard.",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Test scenario:\n\n1. Create players:\n   - Aisha (free): addScore(85000)\n   - Raj (premium): addScore(72000)\n   - Priya (free): addScore(95000)\n   - Vikram (premium): addScore(68000)\n\n2. Register all on leaderboard\n\n3. Print:\n   - Player.getTotalPlayers() → 4\n   - Top 3 from leaderboard (sorted by score)\n   - Bonus: global high score\n\nExpected (core + bonus 3 — premium 10% bonus):\n- Raj premium: 72000 × 1.1 = 79200\n- Vikram premium: 68000 × 1.1 = 74800\n- Top 3: Priya (95000), Raj (79200), Vikram (74800)",
+  
+  "starter_code": "public class GameSystem {\n    public static void main(String[] args) {\n        // Create players using factory methods\n        // Add scores\n        // Register on leaderboard\n        // Print results\n    }\n    \n    // Define GameConstants class\n    // Define Player class\n    // Define Leaderboard class\n}",
+  
+  "example_output": "===================================\n       GAME LEADERBOARD\n===================================\nTotal players registered: 4\n\nTop 3 Scores:\n1. Priya (#3) — 95000\n2. Raj (#2) — 72000\n3. Vikram (#4) — 68000\n\n===================================\n(if bonus 3 premium multiplier):\nTop 3 Scores:\n1. Priya (#3) — 95000\n2. Raj (#2) — 79200  [premium: +10%]\n3. Vikram (#4) — 74800  [premium: +10%]\n\n(if bonus 1 global high score):\nGlobal high score: 95000\n===================================",
+  
+  "rubric": [
+    {
+      "category": "GameConstants Design",
+      "points": 10,
+      "criteria": [
+        "All constants public static final (5 pts)",
+        "Private constructor (5 pts)"
+      ]
+    },
+    {
+      "category": "Player Class Static Members",
+      "points": 20,
+      "criteria": [
+        "nextId and totalPlayers static fields (10 pts)",
+        "Both increment correctly in factory (5 pts)",
+        "Static getters work (5 pts)"
+      ]
+    },
+    {
+      "category": "Player Factory Methods",
+      "points": 20,
+      "criteria": [
+        "Private constructor (5 pts)",
+        "createFree works correctly (7 pts)",
+        "createPremium works correctly (8 pts)"
+      ]
+    },
+    {
+      "category": "Leaderboard Static Registry",
+      "points": 20,
+      "criteria": [
+        "Static Player[] array (5 pts)",
+        "register() adds players (5 pts)",
+        "printTopN prints sorted (10 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles (10 pts)",
+        "Runs (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration",
+      "points": 15,
+      "criteria": [
+        "All operations demonstrated (10 pts)",
+        "Output clear (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 65,
+      "criteria": [
+        "Global high score (15 pts)",
+        "findById (15 pts)",
+        "Premium 10% bonus (20 pts)",
+        "reset() methods (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The trickiest part: printTopN needs to sort by score. Without ArrayList or sort, you'll need a simple selection sort or bubble sort on the first `count` elements of the array. Or copy to a temp array of right size and sort it.",
+  
+  "submission_instructions": "Save as GameSystem.java. Run it. Push to GitHub — this demonstrates full static member usage in a real-world system. Note which parts are static (class-level) and which are instance (per-player).",
+  
+  "tips_for_success": [
+    "Keep GameConstants as a pure constants class — no methods, private constructor only.",
+    "Player factory methods: call `new Player(username, false/true)` — private constructor does the static work.",
+    "In the private Player constructor: assign id from nextId++, increment totalPlayers.",
+    "addScore validates: if points < 0 || score + points > MAX_SCORE then reject or cap.",
+    "For printTopN sorting: simple selection sort in-place on a copy of the players array — sort the copy by score descending.",
+    "Leaderboard iterates from 0 to count-1, not players.length (many slots may be null).",
+    "Premium bonus (if doing bonus_3): in addScore, use `int actual = premium ? (int)(points * 1.1) : points;`"
+  ],
+  
+  "concepts_reinforced": [
+    "static final constants (GameConstants pattern)",
+    "private static counter + auto-id (Player.nextId)",
+    "private static total count (Player.totalPlayers)",
+    "private constructor with factory methods",
+    "factory method naming (createFree, createPremium)",
+    "static registry (Leaderboard with static array)",
+    "static vs instance — clear separation",
+    "multiple classes in one system using static appropriately"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Every real game backend uses exactly this pattern. The leaderboard is static (one global ranking). Players are instances (each has their own state). Constants define game rules globally. Factory methods provide semantic creation APIs.\n\nProfessional game studios (Zynga, Supercell, King) and game backend services (PlayFab, GameLift) have these exact class-level patterns at scale. Your code mirrors the ARCHITECTURE, just at a smaller scale.\n\nCritically: you'll feel the difference between static (class-level, one copy) and instance (per-object) in a way that makes the concept CONCRETE. After building this, you'll intuitively know which things should be static and which shouldn't.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a tournament system: Tournament class with static current tournament + scoring multiplier",
+    "Add score history per player (array of past scores — instance field)",
+    "Implement a 'season reset' that wipes all player scores but keeps accounts",
+    "Add achievement tracking: static constants for achievement thresholds, instance flags for earned achievements",
+    "Thread-safety: what happens if two players addScore() simultaneously? (Preview of synchronization)"
+  ]
+}

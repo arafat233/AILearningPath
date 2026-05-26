@@ -1,0 +1,456 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t4",
+  "topic_name": "Control Flow: if/else & switch",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m1_t4_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Basic if statement",
+      "scenario": "A simple age check for an adult content website.",
+      "instructions": "Fill in the blanks to print 'Access granted' only if age is 18 or older.",
+      "starter_code": "public class AgeCheck {\n    public static void main(String[] args) {\n        int age = 25;\n        \n        ______ (age ______ 18) {\n            System.out.println(\"Access granted\");\n        }\n    }\n}",
+      "expected_solution": "public class AgeCheck {\n    public static void main(String[] args) {\n        int age = 25;\n        \n        if (age >= 18) {\n            System.out.println(\"Access granted\");\n        }\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "if", "hint": "The keyword for a conditional check" },
+        { "position": 2, "answer": ">=", "hint": "Operator for 'at least' (greater than or equal)" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Access granted"
+        }
+      ],
+      "hints": [
+        "The keyword is `if`",
+        "'18 or older' means age >= 18",
+        "Don't forget the parentheses around the condition"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t4_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 1,
+      "title": "Simple if-else",
+      "scenario": "Display a different message based on whether a number is positive or not.",
+      "instructions": "Write a class `NumberCheck` that:\n1. Stores an int variable `number` with value -5\n2. Prints 'Positive' if number > 0\n3. Prints 'Not positive' otherwise",
+      "starter_code": "// Write your NumberCheck class below\n",
+      "expected_solution": "public class NumberCheck {\n    public static void main(String[] args) {\n        int number = -5;\n        \n        if (number > 0) {\n            System.out.println(\"Positive\");\n        } else {\n            System.out.println(\"Not positive\");\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Not positive"
+        }
+      ],
+      "hints": [
+        "Use `if (condition) { ... } else { ... }`",
+        "Condition: number > 0",
+        "Don't forget braces and semicolons"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m1_t4_ex_3",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Predict the branch",
+      "scenario": "Trace through an if-else if chain.",
+      "instructions": "What does this code print?\n\n```java\npublic class Trace {\n    public static void main(String[] args) {\n        int x = 50;\n        \n        if (x > 100) {\n            System.out.println(\"Big\");\n        } else if (x > 50) {\n            System.out.println(\"Medium\");\n        } else if (x >= 50) {\n            System.out.println(\"Exactly 50 or just under\");\n        } else {\n            System.out.println(\"Small\");\n        }\n    }\n}\n```",
+      "expected_solution": "Exactly 50 or just under",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Exactly 50 or just under"
+        }
+      ],
+      "hints": [
+        "x = 50",
+        "x > 100? No (50 is not > 100)",
+        "x > 50? No (50 is not > 50, that's strictly greater)",
+        "x >= 50? Yes! 50 >= 50 is true",
+        "First true condition wins, chain stops"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m1_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Grade calculator",
+      "scenario": "Build a simple grade calculator from a score.",
+      "instructions": "Write a class `GradeCalculator` that:\n1. Stores int `score` = 75\n2. Determines the grade using if-else if:\n   - 90+: 'A'\n   - 80-89: 'B'\n   - 70-79: 'C'\n   - 60-69: 'D'\n   - Below 60: 'F'\n3. Prints: 'Score: 75 → Grade: C'",
+      "starter_code": "// Write your GradeCalculator class below\n",
+      "expected_solution": "public class GradeCalculator {\n    public static void main(String[] args) {\n        int score = 75;\n        String grade;\n        \n        if (score >= 90) {\n            grade = \"A\";\n        } else if (score >= 80) {\n            grade = \"B\";\n        } else if (score >= 70) {\n            grade = \"C\";\n        } else if (score >= 60) {\n            grade = \"D\";\n        } else {\n            grade = \"F\";\n        }\n        \n        System.out.println(\"Score: \" + score + \" → Grade: \" + grade);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Score: 75 → Grade: C"
+        }
+      ],
+      "hints": [
+        "Use else-if chain",
+        "Check from highest threshold (90) down to lowest",
+        "Declare `grade` before the if-else so it's accessible after",
+        "Final `else` handles 'below 60' case"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m1_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Even or odd",
+      "scenario": "Classic interview warm-up question.",
+      "instructions": "Write a class `EvenOdd` that:\n1. Stores int `number` = 42\n2. Uses if-else to determine if it's even or odd\n3. Prints either '42 is even' or '42 is odd'\n\nHint: A number is even if `number % 2 == 0`.",
+      "starter_code": "// Write your EvenOdd class below\n",
+      "expected_solution": "public class EvenOdd {\n    public static void main(String[] args) {\n        int number = 42;\n        \n        if (number % 2 == 0) {\n            System.out.println(number + \" is even\");\n        } else {\n            System.out.println(number + \" is odd\");\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "42 is even"
+        }
+      ],
+      "hints": [
+        "Use modulo: number % 2",
+        "If the remainder is 0, it's even",
+        "Concatenate: number + \" is even\""
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Ternary practice",
+      "scenario": "Use the ternary operator instead of if-else for a simple decision.",
+      "instructions": "Write a class `TernaryDemo` that:\n1. Stores int `temperature` = 28\n2. Uses the TERNARY operator (`? :`) to determine if it's 'Warm' (>= 25) or 'Cool' (< 25)\n3. Stores the result in a String variable\n4. Prints: 'Temperature: 28°C → Warm'\n\nMust use the ternary operator. NO if statement.",
+      "starter_code": "// Write your TernaryDemo class below\n// Must use ? : instead of if/else\n",
+      "expected_solution": "public class TernaryDemo {\n    public static void main(String[] args) {\n        int temperature = 28;\n        String description = (temperature >= 25) ? \"Warm\" : \"Cool\";\n        \n        System.out.println(\"Temperature: \" + temperature + \"°C → \" + description);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Temperature: 28°C → Warm"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["?"],
+          "must_not_contain": ["if ("],
+          "description": "Must use ternary, not if statement"
+        }
+      ],
+      "hints": [
+        "Ternary syntax: `result = condition ? valueIfTrue : valueIfFalse;`",
+        "Condition: temperature >= 25",
+        "True value: \"Warm\", False value: \"Cool\"",
+        "Assign result to a String variable, then println it"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m1_t4_ex_7",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the dangling else",
+      "scenario": "Your colleague's age validation code has a subtle bug due to missing braces. Fix it.",
+      "instructions": "This code is supposed to print:\n- 'Adult' if age >= 18\n- 'Minor' otherwise\n- Always print 'Have a nice day' at the end\n\nBut something's wrong. Fix it.\n\nFor age = 15, expected output:\nMinor\nHave a nice day",
+      "starter_code": "public class AgeCheck {\n    public static void main(String[] args) {\n        int age = 15;\n        \n        if (age >= 18)\n            System.out.println(\"Adult\");\n        else\n            System.out.println(\"Minor\");\n            System.out.println(\"Have a nice day\");\n    }\n}",
+      "expected_solution": "public class AgeCheck {\n    public static void main(String[] args) {\n        int age = 15;\n        \n        if (age >= 18) {\n            System.out.println(\"Adult\");\n        } else {\n            System.out.println(\"Minor\");\n        }\n        System.out.println(\"Have a nice day\");\n    }\n}",
+      "bugs": [
+        {
+          "line": "5-8",
+          "issue": "Missing braces. The third println ('Have a nice day') APPEARS to be in the else block due to indentation, but actually runs ALWAYS (which is correct behavior, but the misleading indentation suggests a bug). The bigger issue: with no braces, this is fragile and confusing.",
+          "fix": "Add braces around the if and else blocks. The third println should be at the same level as the if-else (always runs)."
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Minor\nHave a nice day",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Always use braces, even for single-statement blocks",
+        "Without braces, only the FIRST line after if/else is in the block",
+        "The 'Have a nice day' line currently looks like it's in the else (by indentation) but isn't (no braces)",
+        "Fix: add braces around 'Adult' line and around 'Minor' line"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["missing_braces_dangling_else"]
+    },
+    
+    {
+      "id": "java_m1_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Day of week with switch",
+      "scenario": "Convert a number (1-7) to a day name using switch.",
+      "instructions": "Write a class `DayConverter` that:\n1. Stores int `dayNumber` = 3\n2. Uses a `switch` statement (classic, with break) to set dayName: 1='Monday', 2='Tuesday', 3='Wednesday', 4='Thursday', 5='Friday', 6='Saturday', 7='Sunday'. For any other value: 'Invalid'\n3. Prints: 'Day 3 is Wednesday'\n\nMust use switch (not if-else).",
+      "starter_code": "// Write your DayConverter class below\n// Must use switch statement\n",
+      "expected_solution": "public class DayConverter {\n    public static void main(String[] args) {\n        int dayNumber = 3;\n        String dayName;\n        \n        switch (dayNumber) {\n            case 1:\n                dayName = \"Monday\";\n                break;\n            case 2:\n                dayName = \"Tuesday\";\n                break;\n            case 3:\n                dayName = \"Wednesday\";\n                break;\n            case 4:\n                dayName = \"Thursday\";\n                break;\n            case 5:\n                dayName = \"Friday\";\n                break;\n            case 6:\n                dayName = \"Saturday\";\n                break;\n            case 7:\n                dayName = \"Sunday\";\n                break;\n            default:\n                dayName = \"Invalid\";\n                break;\n        }\n        \n        System.out.println(\"Day \" + dayNumber + \" is \" + dayName);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Day 3 is Wednesday"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["switch", "case", "break", "default"],
+          "must_not_contain": ["if ("]
+        }
+      ],
+      "hints": [
+        "switch syntax: `switch (variable) { case value: ... break; ... default: ... }`",
+        "Each case must have `break;` to prevent fall-through",
+        "Use `default:` for unmatched values",
+        "Don't forget to declare `dayName` before the switch"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m1_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Modern switch expression",
+      "scenario": "Rewrite Day Converter using the modern Java 14+ switch expression.",
+      "instructions": "Write a class `ModernDayConverter` that:\n1. Stores int `dayNumber` = 5\n2. Uses MODERN switch expression (arrow syntax `->`) to get the day name\n3. Stores result directly: `String dayName = switch (...) { ... };`\n4. Prints: 'Day 5 is Friday'\n\nFor invalid days (anything other than 1-7), return 'Invalid'.",
+      "starter_code": "// Write your ModernDayConverter class below\n// Must use modern switch expression (-> arrow syntax)\n",
+      "expected_solution": "public class ModernDayConverter {\n    public static void main(String[] args) {\n        int dayNumber = 5;\n        \n        String dayName = switch (dayNumber) {\n            case 1 -> \"Monday\";\n            case 2 -> \"Tuesday\";\n            case 3 -> \"Wednesday\";\n            case 4 -> \"Thursday\";\n            case 5 -> \"Friday\";\n            case 6 -> \"Saturday\";\n            case 7 -> \"Sunday\";\n            default -> \"Invalid\";\n        };\n        \n        System.out.println(\"Day \" + dayNumber + \" is \" + dayName);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Day 5 is Friday"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["->"],
+          "must_not_contain": ["break"]
+        }
+      ],
+      "hints": [
+        "Modern switch returns a value: `var = switch (x) { case ... -> ...; };`",
+        "Note the semicolon AFTER the closing brace — it's a statement",
+        "Arrow syntax: `case 1 -> \"Monday\";` (no break needed)",
+        "default -> \"Invalid\";"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m1_t4_ex_10",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the switch fall-through",
+      "scenario": "Your colleague's switch statement is misbehaving. Customers using the 'Standard' shipping tier are seeing 'Express' messages too.",
+      "instructions": "This switch has missing breaks causing fall-through. Fix it so each case prints only its own message.\n\nFor `tier = 2`, expected output should be just:\nStandard shipping (5-7 days)",
+      "starter_code": "public class Shipping {\n    public static void main(String[] args) {\n        int tier = 2;\n        \n        switch (tier) {\n            case 1:\n                System.out.println(\"Economy shipping (10-14 days)\");\n            case 2:\n                System.out.println(\"Standard shipping (5-7 days)\");\n            case 3:\n                System.out.println(\"Express shipping (2-3 days)\");\n            case 4:\n                System.out.println(\"Overnight shipping (1 day)\");\n            default:\n                System.out.println(\"Invalid tier\");\n        }\n    }\n}",
+      "expected_solution": "public class Shipping {\n    public static void main(String[] args) {\n        int tier = 2;\n        \n        switch (tier) {\n            case 1:\n                System.out.println(\"Economy shipping (10-14 days)\");\n                break;\n            case 2:\n                System.out.println(\"Standard shipping (5-7 days)\");\n                break;\n            case 3:\n                System.out.println(\"Express shipping (2-3 days)\");\n                break;\n            case 4:\n                System.out.println(\"Overnight shipping (1 day)\");\n                break;\n            default:\n                System.out.println(\"Invalid tier\");\n                break;\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Standard shipping (5-7 days)"
+        }
+      ],
+      "hints": [
+        "Without `break`, execution falls through to the next case",
+        "Add `break;` after each println",
+        "Even the `default` should have break (good habit)",
+        "Alternative fix: convert to modern switch expression (no break needed)"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["missing_break_in_switch"]
+    },
+    
+    {
+      "id": "java_m1_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Refactor BMI calculator",
+      "scenario": "Remember the BMI calculator from Topic 3 that printed ALL four booleans? Now you have if/else. Refactor it to print only the ONE applicable category.",
+      "instructions": "Write a class `BMICalculator` that:\n1. Stores weightKg = 75.5, heightM = 1.75\n2. Calculates BMI = weight / (height * height)\n3. Uses if-else if to determine category:\n   - < 18.5: Underweight\n   - 18.5 to < 25.0: Normal\n   - 25.0 to < 30.0: Overweight\n   - >= 30.0: Obese\n4. Prints only the applicable category\n\nExpected output:\nBMI: 24.65306122448979\nCategory: Normal",
+      "starter_code": "// Write your refactored BMICalculator class below\n",
+      "expected_solution": "public class BMICalculator {\n    public static void main(String[] args) {\n        double weightKg = 75.5;\n        double heightM = 1.75;\n        \n        double bmi = weightKg / (heightM * heightM);\n        String category;\n        \n        if (bmi < 18.5) {\n            category = \"Underweight\";\n        } else if (bmi < 25.0) {\n            category = \"Normal\";\n        } else if (bmi < 30.0) {\n            category = \"Overweight\";\n        } else {\n            category = \"Obese\";\n        }\n        \n        System.out.println(\"BMI: \" + bmi);\n        System.out.println(\"Category: \" + category);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "BMI: 24.65306122448979\nCategory: Normal"
+        }
+      ],
+      "hints": [
+        "Calculate BMI first using parentheses: weightKg / (heightM * heightM)",
+        "Declare `category` before the if-else chain",
+        "Order conditions from lowest to highest threshold",
+        "Each `else if` automatically excludes previous ranges (no need for >= AND <)",
+        "Final `else` handles the highest range"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m1_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Login validator with nested conditions",
+      "scenario": "Write the login validation logic for an app. Multiple checks must pass in sequence.",
+      "instructions": "Write a class `LoginValidator` that:\n1. Stores: hasUsername (true), hasPassword (true), passwordMatches (true), accountLocked (false), twoFactorVerified (true)\n2. Prints validation result step by step:\n   - First check: has username AND password? If not, print 'Missing credentials' and stop\n   - Second check: password correct? If not, print 'Invalid password' and stop\n   - Third check: account locked? If yes, print 'Account locked' and stop\n   - Fourth check: 2FA verified? If not, print '2FA required' and stop\n   - All pass: print 'Login successful'\n\nFor the given values, expected output:\nLogin successful",
+      "starter_code": "// Write your LoginValidator class below\n",
+      "expected_solution": "public class LoginValidator {\n    public static void main(String[] args) {\n        boolean hasUsername = true;\n        boolean hasPassword = true;\n        boolean passwordMatches = true;\n        boolean accountLocked = false;\n        boolean twoFactorVerified = true;\n        \n        if (!hasUsername || !hasPassword) {\n            System.out.println(\"Missing credentials\");\n        } else if (!passwordMatches) {\n            System.out.println(\"Invalid password\");\n        } else if (accountLocked) {\n            System.out.println(\"Account locked\");\n        } else if (!twoFactorVerified) {\n            System.out.println(\"2FA required\");\n        } else {\n            System.out.println(\"Login successful\");\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Login successful"
+        }
+      ],
+      "hints": [
+        "Use else-if chain to enforce check order",
+        "First check: !hasUsername || !hasPassword (missing means either is false)",
+        "Use ! to negate booleans",
+        "Each check is independent — first failing one prints, rest are skipped",
+        "Final else: all checks passed"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m1_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "FizzBuzz (the famous interview question)",
+      "scenario": "FizzBuzz is THE classic interview question. It tests: modulo, if-else order, attention to detail. Many candidates fail this. Don't be one.",
+      "instructions": "Write a class `FizzBuzz` that, for the number 15, prints exactly ONE of:\n- 'FizzBuzz' if number is divisible by both 3 AND 5\n- 'Fizz' if divisible by 3 only\n- 'Buzz' if divisible by 5 only\n- The number itself if neither\n\nFor 15: divisible by both → expected output: 'FizzBuzz'\n\nCRITICAL: Order of checks matters! Check divisible-by-15 FIRST (or use AND). Otherwise checking 3 first will match and skip the BuzzFizz case.",
+      "starter_code": "// Write your FizzBuzz class below\n",
+      "expected_solution": "public class FizzBuzz {\n    public static void main(String[] args) {\n        int number = 15;\n        \n        if (number % 3 == 0 && number % 5 == 0) {\n            System.out.println(\"FizzBuzz\");\n        } else if (number % 3 == 0) {\n            System.out.println(\"Fizz\");\n        } else if (number % 5 == 0) {\n            System.out.println(\"Buzz\");\n        } else {\n            System.out.println(number);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "FizzBuzz"
+        }
+      ],
+      "hints": [
+        "Use modulo to check divisibility: `n % 3 == 0` means divisible by 3",
+        "Check BOTH conditions first: `n % 3 == 0 && n % 5 == 0`",
+        "If you check `n % 3 == 0` first alone, 15 will print 'Fizz' incorrectly",
+        "Alternative: check `n % 15 == 0` for the FizzBuzz case (same result)",
+        "Use else-if to skip remaining checks once one matches"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "fizzbuzz_classic"
+    },
+    
+    {
+      "id": "java_m1_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Modern switch with multiple values",
+      "scenario": "Build a workday classifier using modern switch expression with multi-value cases.",
+      "instructions": "Write a class `WorkdayClassifier` that:\n1. Stores int `dayOfWeek` = 6 (Saturday)\n2. Uses MODERN switch expression with MULTIPLE values per case:\n   - 1, 2, 3, 4, 5 → 'Workday'\n   - 6, 7 → 'Weekend'\n   - Otherwise → 'Invalid'\n3. Prints: 'Day 6 is a Weekend'\n\nMust use the `case 1, 2, 3 ->` syntax (multiple values).",
+      "starter_code": "// Write your WorkdayClassifier class below\n// Must use modern switch with multi-value cases\n",
+      "expected_solution": "public class WorkdayClassifier {\n    public static void main(String[] args) {\n        int dayOfWeek = 6;\n        \n        String dayType = switch (dayOfWeek) {\n            case 1, 2, 3, 4, 5 -> \"Workday\";\n            case 6, 7 -> \"Weekend\";\n            default -> \"Invalid\";\n        };\n        \n        System.out.println(\"Day \" + dayOfWeek + \" is a \" + dayType);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Day 6 is a Weekend"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["case 1, 2, 3"],
+          "description": "Must use comma-separated case values"
+        }
+      ],
+      "hints": [
+        "Modern switch supports multiple values per case: `case 1, 2, 3 -> result;`",
+        "Combine all 5 workdays into ONE case",
+        "Combine both weekend days into ONE case",
+        "Don't forget the final semicolon after the closing brace"
+      ],
+      "xp_reward": 65,
+      "concept_tested": "switch_multiple_values"
+    },
+    
+    {
+      "id": "java_m1_t4_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Build a smart shipping calculator",
+      "scenario": "You're implementing the shipping calculation logic for an e-commerce site. Many factors affect the final shipping cost and method.",
+      "instructions": "Write a class `ShippingCalculator` that determines shipping cost based on these rules:\n\nINPUTS:\n- orderTotal: 2500.0\n- weightKg: 3.5\n- destinationType: 'Metro' (could be 'Metro', 'Tier-2', 'Tier-3', 'Remote')\n- isPrimeMember: true\n- requestedSpeed: 'Standard' (could be 'Standard', 'Express', 'Overnight')\n\nLOGIC:\n1. If isPrimeMember AND orderTotal >= 500: free standard shipping (no upgrade to Express/Overnight is free)\n2. Otherwise calculate base cost using switch on destinationType:\n   - 'Metro' → 50\n   - 'Tier-2' → 100\n   - 'Tier-3' → 150\n   - 'Remote' → 250\n   - default → 100\n3. Add weight surcharge:\n   - If weight > 2.0 AND weight <= 5.0: add 50\n   - If weight > 5.0: add 150\n4. If requestedSpeed is Express, multiply by 2. If Overnight, multiply by 3.\n5. Store final cost. If free shipping applies (rule 1), final cost = 0.\n\nOUTPUT EXACTLY:\n=========================================\n           SHIPPING ESTIMATE\n=========================================\nOrder Total:      ₹2500.0\nWeight:           3.5 kg\nDestination:      Metro\nPrime Member:     true\nRequested Speed:  Standard\n-----------------------------------------\nFree Shipping:    true\nFinal Cost:       ₹0.0\n=========================================",
+      "starter_code": "// Write your ShippingCalculator class below\n",
+      "expected_solution": "public class ShippingCalculator {\n    public static void main(String[] args) {\n        double orderTotal = 2500.0;\n        double weightKg = 3.5;\n        String destinationType = \"Metro\";\n        boolean isPrimeMember = true;\n        String requestedSpeed = \"Standard\";\n        \n        double finalCost;\n        boolean freeShipping = false;\n        \n        // Rule 1: Free shipping for Prime members with standard speed and qualifying order\n        if (isPrimeMember && orderTotal >= 500 && requestedSpeed.equals(\"Standard\")) {\n            freeShipping = true;\n            finalCost = 0.0;\n        } else {\n            // Rule 2: Base cost by destination\n            double baseCost = switch (destinationType) {\n                case \"Metro\" -> 50.0;\n                case \"Tier-2\" -> 100.0;\n                case \"Tier-3\" -> 150.0;\n                case \"Remote\" -> 250.0;\n                default -> 100.0;\n            };\n            \n            // Rule 3: Weight surcharge\n            if (weightKg > 2.0 && weightKg <= 5.0) {\n                baseCost += 50;\n            } else if (weightKg > 5.0) {\n                baseCost += 150;\n            }\n            \n            // Rule 4: Speed multiplier\n            if (requestedSpeed.equals(\"Express\")) {\n                baseCost *= 2;\n            } else if (requestedSpeed.equals(\"Overnight\")) {\n                baseCost *= 3;\n            }\n            \n            finalCost = baseCost;\n        }\n        \n        // Output\n        System.out.println(\"=========================================\");\n        System.out.println(\"           SHIPPING ESTIMATE\");\n        System.out.println(\"=========================================\");\n        System.out.println(\"Order Total:      ₹\" + orderTotal);\n        System.out.println(\"Weight:           \" + weightKg + \" kg\");\n        System.out.println(\"Destination:      \" + destinationType);\n        System.out.println(\"Prime Member:     \" + isPrimeMember);\n        System.out.println(\"Requested Speed:  \" + requestedSpeed);\n        System.out.println(\"-----------------------------------------\");\n        System.out.println(\"Free Shipping:    \" + freeShipping);\n        System.out.println(\"Final Cost:       ₹\" + finalCost);\n        System.out.println(\"=========================================\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "=========================================\n           SHIPPING ESTIMATE\n=========================================\nOrder Total:      ₹2500.0\nWeight:           3.5 kg\nDestination:      Metro\nPrime Member:     true\nRequested Speed:  Standard\n-----------------------------------------\nFree Shipping:    true\nFinal Cost:       ₹0.0\n=========================================",
+          "must_compile": true
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["switch", ".equals("],
+          "description": "Must use both switch (for destination) and .equals (for String comparison)"
+        }
+      ],
+      "hints": [
+        "Break into steps. Don't try one giant expression.",
+        "Use .equals() for String comparison (not ==)",
+        "Rule 1 check first — if Prime + qualifies, set freeShipping = true and skip rest",
+        "Otherwise: calculate base cost via switch, add weight surcharge, apply speed multiplier",
+        "Use modern switch expression for destination cost",
+        "The test data falls into 'free shipping' rule — final cost should be 0"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 9,
+      "debug": 2,
+      "predict_output": 1,
+      "algorithm": 2
+    },
+    "total_xp_possible": 705,
+    "estimated_completion_minutes": 45
+  },
+  
+  "gap_detection_map": {
+    "missing_braces_dangling_else": ["ex_7"],
+    "missing_break_in_switch": ["ex_10"],
+    "wrong_order_in_if_else_chain": ["ex_4", "ex_13"],
+    "fizzbuzz_classic": ["ex_13"],
+    "switch_multiple_values": ["ex_14"],
+    "ternary_operator_usage": ["ex_6"],
+    "modern_switch_expression": ["ex_9", "ex_14"]
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t4",
+  "language": "java",
+  "module_id": "m10",
+  "module_name": "Concurrency and Threads",
+  "topic_number": 4,
+  "name": "Concurrent Collections and Atomic Types",
+  "slug": "concurrent-collections-atomic-types",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m10_t2", "java_m10_t3", "java_m6_t2"],
+    "concepts_taught": [
+      "why_concurrent_collections",
+      "concurrent_hash_map",
+      "concurrent_hash_map_compound_ops",
+      "copy_on_write_array_list",
+      "blocking_queue",
+      "linked_blocking_queue",
+      "atomic_integer",
+      "atomic_long",
+      "atomic_reference",
+      "compare_and_set",
+      "atomic_vs_synchronized",
+      "collections_synchronizedmap_vs_concurrenthashmap",
+      "producer_consumer_pattern"
+    ],
+    "skills_developed": [
+      "using_concurrent_hashmap_safely",
+      "using_atomic_types_for_counters",
+      "implementing_producer_consumer_with_blocking_queue",
+      "choosing_right_concurrent_collection",
+      "writing_lock_free_concurrent_code"
+    ],
+    "career_relevance": "Every high-throughput Java system uses concurrent collections. ConcurrentHashMap is the #1 used data structure in concurrent Java code — it's what Spring's bean registry, Guava's caches, and Kafka's state stores all use internally. AtomicInteger replaces synchronized counters — used in everything from HTTP request counters to database connection pools. After this topic, you write high-performance concurrent code without coarse-grained locking.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You have a web server tracking request counts per endpoint. Multiple threads update the map simultaneously:\n\n```java\n// WRONG — HashMap is not thread-safe:\nMap<String, Integer> requestCounts = new HashMap<>();\n// Thread 1 and Thread 2 both update \"/api/orders\":\nrequestCounts.put(\"/api/orders\",\n    requestCounts.getOrDefault(\"/api/orders\", 0) + 1); // RACE CONDITION!\n// Possible: both read 0, both write 1 — one update lost!\n// Worse: HashMap can corrupt internally under concurrent modification!\n\n// Also WRONG — synchronized HashMap is thread-safe but SLOW:\nMap<String, Integer> counts = Collections.synchronizedMap(new HashMap<>());\n// Locks the ENTIRE map for every operation — every thread waits!\n```\n\n**The right approach — ConcurrentHashMap:**\n```java\nConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();\n\n// Thread-safe AND fast (locks only the affected bucket):\ncounts.merge(\"/api/orders\", 1, Integer::sum);  // atomic increment!\n// No lock on the whole map — other threads update other keys simultaneously\n```\n\nAnd for counters specifically — even simpler:\n```java\n// AtomicInteger — zero synchronization overhead:\nAtomicInteger orderCount = new AtomicInteger(0);\norderCount.incrementAndGet();  // atomic, no lock, wait-free\n```\n\nToday you learn the concurrent collection types and atomic variables that make high-throughput Java applications fast and correct.",
+    "what_you_will_build": "By the end of this topic, you'll use ConcurrentHashMap with atomic compound operations, AtomicInteger/AtomicLong for lock-free counters, CopyOnWriteArrayList for read-heavy lists, and LinkedBlockingQueue for the producer-consumer pattern."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "why_concurrent_collections": "**The problem with regular collections in concurrent code:**\n\n```java\n// HashMap: NOT thread-safe — corruption possible\nMap<String, List<Order>> byUser = new HashMap<>();\n// Thread 1: byUser.put() while Thread 2: byUser.get() → ConcurrentModificationException\n// Thread 1 and 2 both put() → internal state corrupted → infinite loop in get()!\n\n// ArrayList: NOT thread-safe\nList<String> list = new ArrayList<>();\n// Thread 1: list.add() while Thread 2 reads → ArrayIndexOutOfBoundsException\n\n// Collections.synchronizedMap: thread-safe but locks the whole map:\nMap<String, Integer> safe = Collections.synchronizedMap(new HashMap<>());\ncounts.put(key, counts.get(key) + 1);  // STILL NOT ATOMIC — check-then-act race!\n// And: slow (single lock = all threads queue)\n```\n\n**Java's concurrent package: designed for concurrent access, fine-grained locking:**\n```java\nimport java.util.concurrent.*;\n\nConcurrentHashMap     → fine-grained locking per bucket\nCopyOnWriteArrayList  → copy-on-write for read-heavy, rare-write lists\nLinkedBlockingQueue   → thread-safe producer-consumer queue\nAtomicInteger         → lock-free atomic counter\nAtomicLong            → lock-free 64-bit counter\nAtomicReference<T>    → lock-free atomic object reference\n```",
+
+      "concurrent_hash_map": "**ConcurrentHashMap — the most-used concurrent collection:**\n\n```java\nConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();\n\n// Basic ops — all thread-safe:\nmap.put(\"Hyderabad\", 1);\nInteger val = map.get(\"Hyderabad\");   // 1\nmap.remove(\"Hyderabad\");\n\n// putIfAbsent — atomic: only puts if key absent:\nmap.putIfAbsent(\"Delhi\", 0);  // no race between check and put\n\n// computeIfAbsent — atomic: compute and insert only if absent:\nmap.computeIfAbsent(\"Bengaluru\", k -> new ArrayList<>());\n// Common pattern for grouping:\nmap.computeIfAbsent(category, k -> new ArrayList<>()).add(item);\n\n// merge — atomic increment:\nmap.merge(\"Mumbai\", 1, Integer::sum);  // if absent: put 1; else: existing + 1\nmap.merge(\"Mumbai\", 1, Integer::sum);  // now 2\n\n// getOrDefault:\nint count = map.getOrDefault(\"Chennai\", 0);  // 0 if absent\n```\n\n**ConcurrentHashMap vs synchronizedMap:**\n- `synchronizedMap`: one global lock — only one thread accesses the map at a time\n- `ConcurrentHashMap`: segment/bucket-level locks — concurrent reads, concurrent writes to different keys\n- ConcurrentHashMap is **5-10x faster** under contention",
+
+      "concurrent_hashmap_compound_ops": "**Atomic compound operations on ConcurrentHashMap:**\n\n```java\nConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();\n\n// WRONG — not atomic even with ConcurrentHashMap:\ncounts.put(key, counts.getOrDefault(key, 0) + 1);  // read-then-write: race condition!\n\n// CORRECT — atomic compound ops:\ncounts.merge(key, 1, Integer::sum);         // atomic increment\ncounts.compute(key, (k, v) -> v == null ? 1 : v + 1);  // same as merge\ncounts.computeIfPresent(key, (k, v) -> v + 1);  // only if key exists\n\n// Frequency counter — fully thread-safe:\nMap<String, Long> wordFreq = new ConcurrentHashMap<>();\nfor (String word : words) wordFreq.merge(word, 1L, Long::sum);\n\n// Multi-step: check, then update:\nbooleans worked = map.replace(\"balance\", oldVal, newVal); // atomic CAS on map value\n```\n\n**merge(key, value, remappingFunction)** is the atomic increment — the most important ConcurrentHashMap method. It's the thread-safe equivalent of `map.put(k, map.getOrDefault(k,0) + 1)`.",
+
+      "copy_on_write_array_list": "**CopyOnWriteArrayList — for read-heavy, rare-write lists:**\n\n```java\nimport java.util.concurrent.CopyOnWriteArrayList;\n\nCopyOnWriteArrayList<String> listeners = new CopyOnWriteArrayList<>();\n\n// Reads are lock-free and very fast:\nfor (String listener : listeners) notifyListener(listener);  // no lock!\n\n// Writes create a whole new array — expensive but safe:\nlisteners.add(\"newListener\");    // creates a copy of internal array\nlisteners.remove(\"oldListener\"); // creates a copy\n\n// No ConcurrentModificationException during iteration — reads a snapshot:\nfor (String s : listeners) {\n    listeners.add(\"another\");  // safe — iterating a snapshot\n}\n```\n\n**When to use COWAL:**\n- Event listener lists (rarely changed, frequently iterated)\n- Configuration snapshots\n- Read path is hot; writes are rare (e.g., on startup only)\n\n**When NOT to use COWAL:**\n- High-write scenarios — copying the array on every write is expensive\n- Large lists — copy cost is O(n)\n- Use ConcurrentHashMap or BlockingQueue instead for write-heavy scenarios",
+
+      "blocking_queue": "**LinkedBlockingQueue — the producer-consumer pattern:**\n\n```java\nimport java.util.concurrent.*;\n\nBlockingQueue<String> queue = new LinkedBlockingQueue<>(100);  // capacity 100\n\n// Producer thread:\nproducer = new Thread(() -> {\n    while (!done) {\n        String task = getNextTask();\n        queue.put(task);  // blocks if queue is full\n    }\n});\n\n// Consumer thread:\nconsumer = new Thread(() -> {\n    while (!done || !queue.isEmpty()) {\n        String task = queue.take();  // blocks if queue is empty\n        processTask(task);\n    }\n});\n```\n\n**Key BlockingQueue operations:**\n```java\nqueue.put(item);      // add; BLOCKS if full (producer waits)\nqueue.take();         // remove and return; BLOCKS if empty (consumer waits)\nqueue.offer(item);    // add; returns false if full (non-blocking)\nqueue.poll();         // remove and return; returns null if empty (non-blocking)\nqueue.offer(item, 2, TimeUnit.SECONDS);  // timeout version\nqueue.poll(2, TimeUnit.SECONDS);         // timeout version\nqueue.size();         // current elements\nqueue.remainingCapacity();  // how much space left\n```\n\n**The producer-consumer pattern** is the foundation of: Kafka consumers, async logging, task queues, pipeline processing.",
+
+      "atomic_types": "**Atomic types — lock-free concurrent operations:**\n\n```java\nimport java.util.concurrent.atomic.*;\n\n// AtomicInteger — lock-free int counter:\nAtomicInteger requestCount = new AtomicInteger(0);\nrequestCount.incrementAndGet();  // thread-safe ++, returns new value\nrequestCount.decrementAndGet();  // thread-safe --, returns new value\nrequestCount.addAndGet(5);       // thread-safe +=5, returns new value\nrequestCount.get();              // read current value\nrequestCount.getAndSet(0);       // atomically read and reset to 0\n\n// compareAndSet (CAS) — atomic conditional update:\nint current = requestCount.get();\nboolean updated = requestCount.compareAndSet(current, current + 1);\n// Only updates if current value == first arg; returns true if updated\n\n// AtomicLong for large counters:\nAtomicLong totalBytes = new AtomicLong(0);\ntotalBytes.addAndGet(response.length());\n\n// AtomicBoolean for flags:\nAtomicBoolean initialized = new AtomicBoolean(false);\nboolean wasFirst = initialized.compareAndSet(false, true);\n// Only the FIRST thread to call this gets true — used for one-time init\n\n// AtomicReference<T> for object references:\nAtomicReference<String> config = new AtomicReference<>(\"v1\");\nconfig.set(\"v2\");                     // atomic set\nString old = config.getAndSet(\"v3\");  // atomic swap\n```",
+
+      "atomic_vs_synchronized": "**Atomic vs synchronized — when to use each:**\n\n```java\n// SYNCHRONIZED: necessary for compound operations on multiple variables:\nsynchronized void transfer(Account from, Account to, int amount) {\n    from.balance -= amount;\n    to.balance   += amount;  // both must change together — needs lock\n}\n\n// ATOMIC: sufficient for single-variable operations:\nAtomicInteger requestCount = new AtomicInteger(0);\nrequestCount.incrementAndGet();  // one variable, one operation — atomic is enough\n\n// ATOMIC: sufficient for read-modify-write on one variable:\nAtomicReference<Config> config = new AtomicReference<>(current);\nConfig newConfig = computeNewConfig();\nconfig.compareAndSet(current, newConfig);  // atomic swap\n\n// Rule of thumb:\n// - Single variable, single operation → Atomic*\n// - Multiple variables or multiple operations that must be consistent → synchronized\n```\n\n**Performance**: Atomic operations use CPU-level instructions (compare-and-swap). No OS lock, no thread blocking. Under low to moderate contention, 10-50x faster than synchronized. Under extreme contention, LongAdder (Java 8+) outperforms even AtomicLong."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) ConcurrentHashMap internals — show the map partitioned into 16 segments/buckets, multiple threads accessing different buckets simultaneously (no blocking), vs. synchronized map with one giant lock blocking all threads. (2) Producer-Consumer with LinkedBlockingQueue — Producer thread adding to queue (blocks when full, shown with a wall), Consumer thread taking from queue (blocks when empty, shown with empty-box pause). Queue shown as a conveyor belt between them. (3) Atomic operations — CPU CAS instruction: compare current value with expected, if match update atomically (one indivisible CPU instruction). No thread blocking, no OS involvement. Counter: AtomicInteger.incrementAndGet() internal loop with CAS retry.",
+      "alt_text": "ConcurrentHashMap bucket-level locking, producer-consumer queue, and atomic CAS operation"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a thread-safe analytics dashboard for a web server. Multiple threads record request counts, response times, and errors. The dashboard reads this data concurrently. Demonstrates ConcurrentHashMap, AtomicInteger, AtomicLong, and CopyOnWriteArrayList.",
+
+    "problem_statement": "Build `RequestAnalytics` that:\n1. `recordRequest(endpoint, responseTimeMs)` — increment request count, accumulate response time\n2. `recordError(endpoint)` — increment error count per endpoint\n3. `getTopEndpoints(int n)` — return n endpoints by request count (sorted)\n4. `getErrorRate(endpoint)` — errors / requests for that endpoint\n5. Multiple threads record simultaneously; reads always return consistent data",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Data structures using concurrent types",
+        "details": "```java\nclass RequestAnalytics {\n    // Request counts per endpoint — atomic map updates\n    private final ConcurrentHashMap<String, AtomicLong> requestCounts\n        = new ConcurrentHashMap<>();\n    \n    // Total response time per endpoint — for average calculation\n    private final ConcurrentHashMap<String, AtomicLong> responseTimes\n        = new ConcurrentHashMap<>();\n    \n    // Error counts per endpoint\n    private final ConcurrentHashMap<String, AtomicLong> errorCounts\n        = new ConcurrentHashMap<>();\n    \n    // Global counters\n    private final AtomicLong totalRequests = new AtomicLong(0);\n    private final AtomicLong totalErrors   = new AtomicLong(0);\n```"
+      },
+      {
+        "step": 2,
+        "action": "Record request — atomic increment",
+        "details": "```java\n    void recordRequest(String endpoint, long responseTimeMs) {\n        // computeIfAbsent is atomic — safely initialises counters\n        requestCounts\n            .computeIfAbsent(endpoint, k -> new AtomicLong(0))\n            .incrementAndGet();\n        responseTimes\n            .computeIfAbsent(endpoint, k -> new AtomicLong(0))\n            .addAndGet(responseTimeMs);\n        totalRequests.incrementAndGet();\n    }\n    \n    void recordError(String endpoint) {\n        errorCounts\n            .computeIfAbsent(endpoint, k -> new AtomicLong(0))\n            .incrementAndGet();\n        totalErrors.incrementAndGet();\n    }\n```"
+      },
+      {
+        "step": 3,
+        "action": "Analytics queries",
+        "details": "```java\n    List<String> getTopEndpoints(int n) {\n        return requestCounts.entrySet().stream()\n            .sorted((a, b) -> Long.compare(b.getValue().get(), a.getValue().get()))\n            .limit(n)\n            .map(Map.Entry::getKey)\n            .collect(Collectors.toList());\n    }\n    \n    double getAvgResponseTime(String endpoint) {\n        AtomicLong total  = responseTimes.get(endpoint);\n        AtomicLong count  = requestCounts.get(endpoint);\n        if (total == null || count == null || count.get() == 0) return 0;\n        return (double) total.get() / count.get();\n    }\n    \n    double getErrorRate(String endpoint) {\n        AtomicLong errors   = errorCounts.getOrDefault(endpoint, new AtomicLong(0));\n        AtomicLong requests = requestCounts.getOrDefault(endpoint, new AtomicLong(1));\n        return (double) errors.get() / requests.get();\n    }\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\nimport java.util.stream.*;\n\nclass RequestAnalytics {\n    private final ConcurrentHashMap<String, AtomicLong> requestCounts = new ConcurrentHashMap<>();\n    private final ConcurrentHashMap<String, AtomicLong> responseTimes = new ConcurrentHashMap<>();\n    private final ConcurrentHashMap<String, AtomicLong> errorCounts   = new ConcurrentHashMap<>();\n    private final AtomicLong totalRequests = new AtomicLong(0);\n    \n    void recordRequest(String endpoint, long ms) {\n        requestCounts.computeIfAbsent(endpoint, k -> new AtomicLong(0)).incrementAndGet();\n        responseTimes.computeIfAbsent(endpoint, k -> new AtomicLong(0)).addAndGet(ms);\n        totalRequests.incrementAndGet();\n    }\n    \n    void recordError(String endpoint) {\n        errorCounts.computeIfAbsent(endpoint, k -> new AtomicLong(0)).incrementAndGet();\n    }\n    \n    List<String> getTopEndpoints(int n) {\n        return requestCounts.entrySet().stream()\n            .sorted((a, b) -> Long.compare(b.getValue().get(), a.getValue().get()))\n            .limit(n).map(Map.Entry::getKey).collect(Collectors.toList());\n    }\n    \n    double getAvgMs(String ep) {\n        AtomicLong t = responseTimes.get(ep), c = requestCounts.get(ep);\n        return (t==null||c==null||c.get()==0) ? 0 : (double)t.get()/c.get();\n    }\n}\n\npublic class AnalyticsDemo {\n    public static void main(String[] args) throws InterruptedException {\n        RequestAnalytics analytics = new RequestAnalytics();\n        String[] endpoints = {\"/api/orders\", \"/api/users\", \"/api/products\", \"/api/search\"};\n        \n        ExecutorService pool = Executors.newFixedThreadPool(8);\n        Random rnd = new Random();\n        \n        // Simulate 1000 concurrent requests:\n        for (int i = 0; i < 1000; i++) {\n            String ep = endpoints[i % endpoints.length];\n            pool.submit(() -> {\n                analytics.recordRequest(ep, 10 + rnd.nextInt(200));\n                if (rnd.nextInt(10) == 0) analytics.recordError(ep);\n            });\n        }\n        pool.shutdown();\n        pool.awaitTermination(10, TimeUnit.SECONDS);\n        \n        System.out.println(\"Total requests: \" + analytics.totalRequests.get());\n        System.out.println(\"Top endpoints:\");\n        analytics.getTopEndpoints(4).forEach(ep ->\n            System.out.printf(\"  %-20s %s reqs, avg %.0fms%n\",\n                ep,\n                analytics.requestCounts.get(ep).get(),\n                analytics.getAvgMs(ep)));\n    }\n}",
+
+    "expected_output": "Total requests: 1000\nTop endpoints:\n  /api/orders         250 reqs, avg ~105ms\n  /api/users          250 reqs, avg ~105ms\n  /api/products       250 reqs, avg ~105ms\n  /api/search         250 reqs, avg ~105ms",
+
+    "things_to_notice": [
+      "ConcurrentHashMap<String, AtomicLong> — each endpoint gets its own AtomicLong counter. Multiple threads can increment DIFFERENT endpoints simultaneously (no blocking). Same endpoint updates are serialized by AtomicLong's CAS.",
+      "computeIfAbsent is atomic — if two threads both call it for the same key simultaneously, only ONE AtomicLong is created. The atomic initialization + atomic increment together give correctness without any synchronized block.",
+      "AtomicLong.incrementAndGet() and addAndGet() are single CPU instructions (CAS loop). No thread ever blocks. Under high throughput, this is dramatically faster than synchronized.",
+      "Total requests = 1000 exactly — no lost increments despite 8 concurrent threads. Atomic types guarantee this.",
+      "The analytics queries (getTopEndpoints, getAvgMs) work correctly even if recordRequest() is being called concurrently while you read — ConcurrentHashMap allows concurrent reads+writes, and each AtomicLong read is atomic."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot metrics / Micrometer",
+        "use_case": "Spring's metrics library (Micrometer) uses ConcurrentHashMap to store per-endpoint counters and AtomicLong for the counts. Every HTTP request increments a counter: `registry.counter('http.requests', 'endpoint', path).increment()`. Internally: ConcurrentHashMap<String, AtomicDouble> + atomic increment. This is what `/actuator/metrics` reads."
+      },
+      {
+        "company_context": "Kafka consumer group coordination",
+        "use_case": "Kafka uses LinkedBlockingQueue internally for its producer record queue (max.block.ms controls how long producers block when full). When producing records faster than they can be sent, put() blocks — natural backpressure. Kafka consumers use ConcurrentHashMap<TopicPartition, OffsetAndMetadata> for tracking committed offsets across threads."
+      },
+      {
+        "company_context": "Guava / Caffeine caches",
+        "use_case": "Guava Cache and Caffeine (Java's best caching library) are built on ConcurrentHashMap with per-bucket locking. Cache.put/get from thousands of threads concurrently. AtomicLong tracks cache hit/miss counts. CopyOnWriteArrayList stores removal listeners (rarely change, frequently iterated on cache eviction)."
+      }
+    ],
+
+    "interview_relevance": "Concurrent collection questions at mid-senior level:\n\n- **'Why use ConcurrentHashMap instead of synchronizedMap?'** — ConcurrentHashMap uses per-bucket locking — multiple threads access different buckets simultaneously. synchronizedMap uses one global lock — only one thread at a time. ConcurrentHashMap is far faster under contention.\n- **'When would you use CopyOnWriteArrayList?'** — When iteration happens far more often than modification (event listeners, configuration snapshots). Iteration is lock-free; writes copy the array.\n- **'What is the difference between AtomicInteger.incrementAndGet() and synchronized counter?'** — Atomic uses CPU CAS instruction — no OS-level lock, no thread blocking. Synchronized may block threads. Atomic is faster under low/moderate contention.\n- **'What is a BlockingQueue good for?'** — Producer-consumer pattern. Producers add tasks, consumers take them. Built-in blocking handles synchronization automatically.",
+
+    "real_world_workflow": "Daily concurrent collection usage:\n\n- Request counter: `ConcurrentHashMap<String, AtomicInteger> counts; counts.merge(endpoint, 1, Integer::sum)`\n- Connection pool: `LinkedBlockingQueue<Connection> pool; conn = pool.take(); ... pool.put(conn)`\n- Cache: `ConcurrentHashMap<String, Object> cache; cache.computeIfAbsent(key, loader)`\n- Listener registry: `CopyOnWriteArrayList<EventListener> listeners`\n- Global sequence: `AtomicLong sequenceNumber = new AtomicLong(0); long id = seq.incrementAndGet()`"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "concurrent_hashmap_non_atomic_compound",
+      "what_students_get_wrong": "Using `map.put(k, map.get(k) + 1)` on ConcurrentHashMap — still a race condition despite thread-safe individual operations.",
+      "remediation": "ConcurrentHashMap makes individual operations atomic — but get()+put() together is still a read-modify-write race. Use map.merge(key, 1, Integer::sum) or map.compute() for atomic compound operations.",
+      "detection_pattern": "Inconsistent counts despite using ConcurrentHashMap"
+    },
+    {
+      "gap_id": "blocking_queue_interrupted_exception",
+      "what_students_get_wrong": "Not handling InterruptedException from BlockingQueue.take() or put() — silently suppressing the interrupt.",
+      "remediation": "Always catch InterruptedException from blocking queue operations. Either: restore the interrupt flag (`Thread.currentThread().interrupt(); return;`) or rethrow as RuntimeException. Never swallow silently.",
+      "detection_pattern": "Thread that was interrupted continues running instead of stopping"
+    },
+    {
+      "gap_id": "cow_list_write_overhead",
+      "what_students_get_wrong": "Using CopyOnWriteArrayList for a high-write scenario — extremely slow due to array copying on every write.",
+      "remediation": "CopyOnWriteArrayList is read-optimized. Each write copies the entire array — O(n) cost. Use it ONLY when reads massively outnumber writes (e.g., 1000 reads per 1 write). For equal read/write, use ConcurrentHashMap or synchronized structures.",
+      "detection_pattern": "Performance degrades as list grows with frequent writes"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Regular HashMap/ArrayList are not thread-safe — concurrent access causes corruption or wrong results",
+      "ConcurrentHashMap: fine-grained bucket locking — much faster than synchronizedMap under contention",
+      "map.merge(key, 1, Integer::sum): atomic increment in ConcurrentHashMap — never map.get+put!",
+      "computeIfAbsent: atomically initialises a value if key is absent",
+      "CopyOnWriteArrayList: lock-free reads, copy-on-write for writes — only for read-heavy, rare-write",
+      "LinkedBlockingQueue: put() blocks if full, take() blocks if empty — perfect for producer-consumer",
+      "AtomicInteger/AtomicLong: lock-free counters using CPU CAS — faster than synchronized for single variables",
+      "AtomicBoolean.compareAndSet(false, true): one-time initialization — only first thread succeeds",
+      "Atomic types for single-variable ops; synchronized for compound multi-variable ops",
+      "LongAdder (Java 8+): even better than AtomicLong for pure increment/sum under high contention"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Is this code thread-safe? `ConcurrentHashMap<String, Integer> map; map.put(key, map.getOrDefault(key, 0) + 1);`",
+        "answer": "No. Each operation (getOrDefault, put) is individually atomic — but the sequence is not. Two threads can both getOrDefault(key, 0) → both get 0, both put 1 → one increment lost. Use map.merge(key, 1, Integer::sum) instead — it's a single atomic operation that reads, adds, and writes."
+      },
+      {
+        "question": "When should you use CopyOnWriteArrayList instead of a synchronized ArrayList?",
+        "answer": "When iteration happens far more often than modification — for example, a list of event listeners. CopyOnWriteArrayList iterates lock-free (reads the immutable snapshot), making reads very fast. Each write copies the full array — expensive but acceptable if writes are rare (e.g., add/remove listeners only at startup or configuration changes). For write-heavy scenarios, use synchronizedList or ConcurrentLinkedQueue instead."
+      },
+      {
+        "question": "What does `AtomicBoolean initialized = new AtomicBoolean(false); boolean wasFirst = initialized.compareAndSet(false, true)` guarantee?",
+        "answer": "Exactly ONE thread gets wasFirst=true, no matter how many threads call this concurrently. compareAndSet atomically reads the value, checks if it equals the expected (false), and if so writes true — all as one indivisible CPU instruction. The first thread to call it finds false, updates to true, returns true. All subsequent threads find true (already updated), don't update, return false. This is the thread-safe one-time initialization pattern."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 10 topic: **CompletableFuture** — composable async programming. Instead of `future.get()` blocking threads, CompletableFuture lets you declare what happens when a result is ready: `.thenApply(transform).thenAccept(action).exceptionally(handleError)`. Chain async operations like a stream pipeline, without blocking any thread. After Topic 10.5, you write modern async code the way Netty, Spring WebFlux, and all reactive Java frameworks are built."
+  }
+}

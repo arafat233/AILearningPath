@@ -1,0 +1,31 @@
+{
+  "schema_version":"1.0","project_id":"java_m24_t1_proj","linked_topic":"java_m24_t1",
+  "level":"mini","name":"Zerodha Trade Execution — CQRS",
+  "estimated_minutes":45,"difficulty":7,
+  "scenario":"Zerodha's portfolio dashboard loads in 800ms because it joins 5 tables on every request. Refactor using CQRS: separate write (trade execution) and read (portfolio dashboard) models.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"PlaceOrderCommand record + CancelOrderCommand record. Both immutable, validate-by-construction (null checks in compact constructor).","weight":10},
+    {"id":"req_2","description":"OrderCommandHandler @Service: validate command, save to write DB, publish event via ApplicationEventPublisher. Returns orderId String.","weight":20},
+    {"id":"req_3","description":"PortfolioProjection @Service: @EventListener on OrderFilledEvent, updates in-memory Map<merchantId, totalValue> (or repository). @Async optional.","weight":20},
+    {"id":"req_4","description":"GetPortfolioQuery record + PortfolioQueryHandler @Service: reads from projection's store (no DB joins). Returns PortfolioView record.","weight":15},
+    {"id":"req_5","description":"ZerodhaOrderController: POST /api/orders → 202 Accepted + {orderId}, GET /api/portfolio/{merchantId} → 200 + PortfolioView.","weight":10},
+    {"id":"req_6","description":"@SpringBootTest (3 tests): valid command→orderId, invalid command throws, projection updates→query returns correct value. All 3 pass.","weight":20},
+    {"id":"req_7","description":"README: explains eventual consistency — when dashboard shows old value and why this is acceptable.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"Multiple projections: AnalyticsProjection counts daily trade volume per symbol. Same OrderFilledEvent updates both PortfolioProjection and AnalyticsProjection independently.","weight":20},
+    {"id":"bonus_2","description":"Command validation: CommandValidationException for invalid inputs (separate from IllegalArgumentException). @ControllerAdvice returns 422 Unprocessable Entity.","weight":15},
+    {"id":"bonus_3","description":"Paginated trade history: GetTradeHistoryQuery(merchantId, page, size) + handler returning Page<TradeHistoryView>.","weight":20}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. Command returns only ID (not the entity): commands are write-only — the response is just 'accepted' with the orderId. Use GET /portfolio/{id} to read state after a command. ApplicationEventPublisher.publishEvent(): Spring's built-in event bus — works within the same JVM/service. Projection @EventListener: fires synchronously by default (easier for tests). Add @Async + @EnableAsync only if you want non-blocking behavior. Eventual consistency: the test for 'projection updates → query returns correct value' should call the command then the query in the same test (synchronous event). PortfolioView record: immutable data carrier for the read side — NOT a JPA entity. Read model entities are separate from write model entities.",
+  "rubric":[
+    {"category":"Command records","points":10},
+    {"category":"OrderCommandHandler","points":20},
+    {"category":"PortfolioProjection","points":20},
+    {"category":"GetPortfolioQuery + handler","points":15},
+    {"category":"REST controller","points":10},
+    {"category":"3 tests (all pass)","points":20},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

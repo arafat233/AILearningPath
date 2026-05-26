@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m40_t3",
+  "module_id": "m40",
+  "topic_number": 3,
+  "name": "Sudoku and N-Queens \u2014 Constraint Satisfaction",
+  "slug": "sudoku-nqueens-constraint",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m40_t2"
+    ],
+    "concepts_taught": [
+      "sudoku-nqueens-constraint"
+    ],
+    "career_relevance": "Core Sudoku and N-Queens \u2014 Constraint Satisfaction.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Sudoku and N-Queens \u2014 Constraint Satisfaction"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "N-Queens conflict: same column OR diagonal (|r1-r2|==|c1-c2|)",
+        "Sudoku valid: check row, column, and 3x3 box",
+        "Sudoku box index: `b[3*(r/3)+i/3][3*(c/3)+i%3]`",
+        "Both: try all choices, recurse, undo on failure",
+        "Return true as soon as solution found (don't explore all)",
+        "3-col sets (seen_cols, seen_rows, seen_boxes) can optimize N-Queens to O(n)"
+      ],
+      "next_topic_preview": "Next: Word Search."
+    }
+  }
+}

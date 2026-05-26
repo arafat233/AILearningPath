@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t1",
+  "topic_name": "Spring Security and JWT Authentication",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m14_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "HTTP status codes for auth vs authz",
+      "scenario": "401 and 403 have distinct meanings in security.",
+      "instructions": "Match each scenario to the correct HTTP status code (401 or 403):\n\nA. Request has no Authorization header\nB. Request has an expired JWT token\nC. Request has a valid JWT but user role is VIEWER, endpoint needs ADMIN\nD. Request has a JWT signed with the wrong secret\nE. Request has a valid JWT, user is authenticated but tries to access another user's data",
+      "expected_solution": "A → 401 (no credentials)\nB → 401 (invalid/expired token = unauthenticated)\nC → 403 (authenticated but wrong role)\nD → 401 (invalid token = unauthenticated)\nE → 403 (authenticated but unauthorized for that resource)",
+      "test_cases": [
+        { "type": "text_match", "expected": "A → 401 (no credentials)\nB → 401 (invalid/expired token = unauthenticated)\nC → 403 (authenticated but wrong role)\nD → 401 (invalid token = unauthenticated)\nE → 403 (authenticated but unauthorized for that resource)" }
+      ],
+      "hints": [
+        "401: who are you? (unauthenticated)",
+        "403: I know who you are, but you can't do this (unauthorized)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "SecurityFilterChain configuration",
+      "scenario": "The SecurityFilterChain defines which endpoints need authentication.",
+      "instructions": "Fill in the blanks to complete the SecurityFilterChain.",
+      "starter_code": "@Bean\npublic SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n    return http\n        .csrf(csrf -> csrf._______())        // disable CSRF for REST APIs\n        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.________))\n        .authorizeHttpRequests(auth -> auth\n            .requestMatchers(\"/api/auth/**\").________()   // login is public\n            .anyRequest().___________()                    // everything else needs JWT\n        )\n        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)\n        .build();\n}",
+      "expected_solution": "@Bean\npublic SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n    return http\n        .csrf(csrf -> csrf.disable())\n        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n        .authorizeHttpRequests(auth -> auth\n            .requestMatchers(\"/api/auth/**\").permitAll()\n            .anyRequest().authenticated()\n        )\n        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)\n        .build();\n}",
+      "blanks": [
+        { "position": 1, "answer": "disable",       "hint": "Turns off CSRF protection for REST APIs" },
+        { "position": 2, "answer": "STATELESS",     "hint": "No HTTP sessions — JWT is the only state" },
+        { "position": 3, "answer": "permitAll",     "hint": "No authentication required for this path" },
+        { "position": 4, "answer": "authenticated", "hint": "Any authenticated user can access" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "csrf.disable(): no sessions means no CSRF risk",
+        "STATELESS: JWT APIs don't use HTTP sessions"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Decode a JWT payload (conceptual)",
+      "scenario": "JWT payloads are base64-encoded JSON — not encrypted.",
+      "instructions": "Write a method `decodePayload(String jwtToken)` that:\n1. Splits the token by '.'\n2. Decodes the second part (payload) with Base64\n3. Parses it as JSON with Jackson\n4. Returns the 'sub' (subject) field as a String\n\nThis demonstrates that JWT payloads are readable — but NOT modifiable without the secret.",
+      "starter_code": "import java.util.*;\nimport com.fasterxml.jackson.databind.ObjectMapper;\n// decodePayload method\n",
+      "expected_solution": "import java.util.*;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport com.fasterxml.jackson.databind.JsonNode;\npublic class JwtDecoder {\n    static final ObjectMapper MAPPER = new ObjectMapper();\n    \n    static String decodePayload(String jwtToken) throws Exception {\n        // Split header.payload.signature:\n        String[] parts = jwtToken.split(\"\\\\.\");\n        if (parts.length != 3) throw new IllegalArgumentException(\"Not a JWT\");\n        \n        // Decode payload (second part) — base64url:\n        byte[] payloadBytes = Base64.getUrlDecoder().decode(parts[1]);\n        String payloadJson = new String(payloadBytes);\n        \n        // Parse JSON and extract subject:\n        JsonNode payload = MAPPER.readTree(payloadJson);\n        return payload.path(\"sub\").asText();\n    }\n    \n    public static void main(String[] args) throws Exception {\n        // Simulated JWT with payload: {\"sub\":\"aisha\",\"roles\":[\"USER\"]}\n        String fakeJwt = \"header.eyJzdWIiOiJhaXNoYSIsInJvbGVzIjpbIlVTRVIiXX0.signature\";\n        System.out.println(\"Subject: \" + decodePayload(fakeJwt));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Subject: aisha" }
+      ],
+      "hints": [
+        "Base64.getUrlDecoder() for JWT (URL-safe base64, not standard)",
+        "Split by '.': [header, payload, signature]",
+        "Anyone can decode the payload — only the signature is secret"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m14_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "JwtService — generate and extract username",
+      "scenario": "JwtService wraps jjwt library for token operations.",
+      "instructions": "Write the core `JwtService` methods:\n1. `generateToken(String username)` — creates a JWT with subject and 24h expiry\n2. `extractUsername(String token)` — reads subject from token\n\nUse a hardcoded secret for this exercise (in production: use @Value).",
+      "starter_code": "import io.jsonwebtoken.*;\nimport io.jsonwebtoken.security.Keys;\nimport java.security.Key;\nimport java.util.*;\n// JwtService with generate and extract\n",
+      "expected_solution": "import io.jsonwebtoken.*;\nimport io.jsonwebtoken.security.Keys;\nimport java.security.Key;\nimport java.util.Date;\nimport javax.crypto.SecretKey;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class JwtService {\n    // In production: @Value('${jwt.secret}') — never hardcode!\n    private static final String SECRET = \"dGhpcyBpcyBhIHZlcnkgc2VjdXJlIGtleQ==\";\n    private static final long EXPIRY_MS = 86_400_000L;  // 24 hours\n    \n    private SecretKey signingKey() {\n        return Keys.hmacShaKeyFor(Base64.getDecoder().decode(SECRET));\n    }\n    \n    public String generateToken(String username) {\n        return Jwts.builder()\n            .subject(username)\n            .issuedAt(new Date())\n            .expiration(new Date(System.currentTimeMillis() + EXPIRY_MS))\n            .signWith(signingKey())\n            .compact();\n    }\n    \n    public String extractUsername(String token) {\n        return Jwts.parser()\n            .verifyWith(signingKey())\n            .build()\n            .parseSignedClaims(token)\n            .getPayload()\n            .getSubject();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Jwts.builder().subject().issuedAt().expiration().signWith().compact()",
+        "Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload()",
+        "Keys.hmacShaKeyFor(base64DecodedBytes) creates the signing key"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m14_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Validate JWT — isValid method",
+      "scenario": "Validation checks username match and expiry.",
+      "instructions": "Add `isValid(String token, UserDetails userDetails)` to JwtService. It should:\n1. Extract the username from the token\n2. Check username matches userDetails.getUsername()\n3. Check the token is not expired\n4. Return false (not throw) if any JwtException occurs",
+      "starter_code": "// Add to JwtService (build on Ex 4)\n// isValid(String token, UserDetails userDetails) → boolean\n",
+      "expected_solution": "// Additional method in JwtService:\n\npublic boolean isValid(String token, org.springframework.security.core.userdetails.UserDetails userDetails) {\n    try {\n        Claims claims = Jwts.parser()\n            .verifyWith(signingKey())\n            .build()\n            .parseSignedClaims(token)\n            .getPayload();\n        \n        String username = claims.getSubject();\n        Date expiry = claims.getExpiration();\n        \n        return username.equals(userDetails.getUsername())\n            && expiry.after(new Date());\n    } catch (JwtException e) {\n        // Expired, tampered, or invalid format — not valid\n        return false;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "try-catch JwtException: return false for any invalid token",
+        "expiry.after(new Date()): true if not yet expired",
+        "Return false, not throw — the filter handles the unauthenticated state"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "JwtAuthFilter skeleton",
+      "scenario": "The filter extracts the JWT and sets authentication.",
+      "instructions": "Write the `JwtAuthFilter` class skeleton with:\n1. Extends OncePerRequestFilter\n2. doFilterInternal that extracts Bearer token from Authorization header\n3. Calls jwtService.extractUsername()\n4. Sets authentication if valid\n\nLeave the UserDetails loading as a comment placeholder.",
+      "starter_code": "import org.springframework.web.filter.OncePerRequestFilter;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.stereotype.Component;\nimport jakarta.servlet.*; import jakarta.servlet.http.*;\n// JwtAuthFilter\n",
+      "expected_solution": "import org.springframework.web.filter.OncePerRequestFilter;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.security.authentication.UsernamePasswordAuthenticationToken;\nimport org.springframework.security.core.userdetails.*;\nimport org.springframework.stereotype.Component;\nimport jakarta.servlet.*; import jakarta.servlet.http.*;\nimport java.io.IOException;\n\n@Component\npublic class JwtAuthFilter extends OncePerRequestFilter {\n    private final JwtService jwtService;\n    private final UserDetailsService userDetailsService;\n    \n    JwtAuthFilter(JwtService j, UserDetailsService u) { jwtService=j; userDetailsService=u; }\n    \n    @Override\n    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)\n            throws ServletException, IOException {\n        \n        String authHeader = req.getHeader(\"Authorization\");\n        if (authHeader == null || !authHeader.startsWith(\"Bearer \")) {\n            chain.doFilter(req, res); return;\n        }\n        \n        String token = authHeader.substring(7);\n        String username = jwtService.extractUsername(token);\n        \n        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {\n            UserDetails userDetails = userDetailsService.loadUserByUsername(username);\n            if (jwtService.isValid(token, userDetails)) {\n                var auth = new UsernamePasswordAuthenticationToken(\n                    userDetails, null, userDetails.getAuthorities());\n                SecurityContextHolder.getContext().setAuthentication(auth);\n            }\n        }\n        chain.doFilter(req, res);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "OncePerRequestFilter: guaranteed to run once per request",
+        "substring(7): removes 'Bearer ' prefix (7 characters including space)",
+        "chain.doFilter(req, res): must call at end to continue the filter chain"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m14_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "UserDetailsService implementation",
+      "scenario": "Spring Security needs to load users from your database.",
+      "instructions": "Implement `AppUserDetailsService` that:\n1. Implements UserDetailsService\n2. Loads AppUser from AppUserRepository by username\n3. Throws UsernameNotFoundException if not found\n4. Returns Spring's User.builder() with username, hashed password, and role",
+      "starter_code": "@Entity class AppUser {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(unique=true,nullable=false) String username;\n    @Column(nullable=false) String password;  // BCrypt hashed\n    @Column(nullable=false) String role;      // e.g. USER, ADMIN\n    // constructors, getters\n}\ninterface AppUserRepository extends JpaRepository<AppUser,String> {\n    Optional<AppUser> findByUsername(String username);\n}\n// AppUserDetailsService implementation\n",
+      "expected_solution": "// (AppUser and AppUserRepository as above)\nimport org.springframework.security.core.userdetails.*;\nimport org.springframework.stereotype.Service;\n@Service\npublic class AppUserDetailsService implements UserDetailsService {\n    private final AppUserRepository repo;\n    AppUserDetailsService(AppUserRepository r) { repo=r; }\n    \n    @Override\n    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {\n        AppUser user = repo.findByUsername(username)\n            .orElseThrow(() -> new UsernameNotFoundException(\"User not found: \" + username));\n        return User.builder()\n            .username(user.getUsername())\n            .password(user.getPassword())  // already BCrypt hashed\n            .roles(user.getRole())          // adds ROLE_ prefix automatically\n            .build();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "UsernameNotFoundException: specific exception Spring Security catches",
+        "User.builder().roles('ADMIN'): Spring adds ROLE_ADMIN prefix",
+        "Password must be BCrypt hashed — pass the hashed value"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m14_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@WebMvcTest with @WithMockUser",
+      "scenario": "@WithMockUser simulates an authenticated user in @WebMvcTest.",
+      "instructions": "Write @WebMvcTest tests for a secured `ProductController`:\n1. GET /api/products — no auth needed → 200\n2. POST /api/products — needs auth, no @WithMockUser → 401\n3. POST /api/products — with @WithMockUser → 201\n4. DELETE /api/products/P001 — with @WithMockUser(roles='ADMIN') → 204",
+      "starter_code": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.security.test.context.support.WithMockUser;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n// @WebMvcTest with security tests\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.security.test.context.support.WithMockUser;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport java.util.*;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(ProductController.class)\nclass SecuredProductControllerTest {\n    @Autowired MockMvc mvc;\n    @Autowired ObjectMapper mapper;\n    @MockBean ProductService service;\n    @MockBean JwtService jwtService;          // needed by JwtAuthFilter\n    @MockBean AppUserDetailsService userSvc;  // needed by JwtAuthFilter\n    \n    @Test\n    void getAll_noAuth_200() throws Exception {\n        when(service.findAll()).thenReturn(List.of());\n        mvc.perform(get(\"/api/products\")).andExpect(status().isOk());\n    }\n    \n    @Test\n    void create_noAuth_401() throws Exception {\n        mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5))))\n            .andExpect(status().isUnauthorized());\n    }\n    \n    @Test @WithMockUser\n    void create_authenticated_201() throws Exception {\n        when(service.create(any())).thenReturn(new Product(\"P001\",\"Mouse\",799));\n        mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5))))\n            .andExpect(status().isCreated());\n    }\n    \n    @Test @WithMockUser(roles=\"ADMIN\")\n    void delete_asAdmin_204() throws Exception {\n        mvc.perform(delete(\"/api/products/P001\")).andExpect(status().isNoContent());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@WithMockUser: simulates authenticated user with USER role",
+        "@WithMockUser(roles='ADMIN'): simulates ADMIN user",
+        "@MockBean JwtService and UserDetailsService: needed even in @WebMvcTest because JwtAuthFilter uses them"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m14_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "AuthController — login endpoint",
+      "scenario": "The login endpoint validates credentials and returns a JWT.",
+      "instructions": "Write `AuthController.login(@RequestBody LoginRequest req)` that:\n1. Uses AuthenticationManager to verify credentials\n2. Loads UserDetails for the authenticated user\n3. Calls jwtService.generateToken(username, roles)\n4. Returns 200 with AuthResponse(token, username, roles)\n5. On bad credentials: AuthenticationException → 401",
+      "starter_code": "import org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.security.authentication.*;\nimport org.springframework.security.core.userdetails.*;\nimport java.util.*;\n// AuthController with login endpoint\n",
+      "expected_solution": "import org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.security.authentication.*;\nimport org.springframework.security.core.userdetails.*;\nimport java.util.*;\n\n@RestController @RequestMapping(\"/api/auth\")\npublic class AuthController {\n    private final AuthenticationManager authManager;\n    private final JwtService jwtService;\n    private final UserDetailsService userDetailsService;\n    \n    AuthController(AuthenticationManager am, JwtService j, UserDetailsService u) {\n        authManager=am; jwtService=j; userDetailsService=u;\n    }\n    \n    record LoginRequest(String username, String password) {}\n    record AuthResponse(String token, String username, List<String> roles) {}\n    \n    @PostMapping(\"/login\")\n    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req) {\n        try {\n            authManager.authenticate(\n                new UsernamePasswordAuthenticationToken(req.username(), req.password()));\n        } catch (AuthenticationException e) {\n            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();\n        }\n        UserDetails user = userDetailsService.loadUserByUsername(req.username());\n        List<String> roles = user.getAuthorities().stream()\n            .map(a -> a.getAuthority()).toList();\n        String token = jwtService.generateToken(req.username(), roles);\n        return ResponseEntity.ok(new AuthResponse(token, req.username(), roles));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "authManager.authenticate() throws BadCredentialsException on wrong password",
+        "Catch AuthenticationException (parent of BadCredentialsException)",
+        "getAuthority() returns 'ROLE_ADMIN' — roles includes the ROLE_ prefix"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m14_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "JWT claim structure — what's in the payload",
+      "scenario": "JWT payload contains standard and custom claims.",
+      "instructions": "A JWT is generated with:\n```java\nJwts.builder()\n    .subject(\"aisha\")\n    .claim(\"role\", \"ADMIN\")\n    .claim(\"userId\", \"U-001\")\n    .issuedAt(new Date(1710000000000L))   // some timestamp\n    .expiration(new Date(1710086400000L)) // 24h later\n    .signWith(key)\n    .compact();\n```\n\nWhat fields does the decoded payload JSON contain? List all fields and their values.",
+      "expected_solution": "{\n  \"sub\": \"aisha\",\n  \"role\": \"ADMIN\",\n  \"userId\": \"U-001\",\n  \"iat\": 1710000000,\n  \"exp\": 1710086400\n}",
+      "test_cases": [
+        { "type": "text_match", "expected": "{\n  \"sub\": \"aisha\",\n  \"role\": \"ADMIN\",\n  \"userId\": \"U-001\",\n  \"iat\": 1710000000,\n  \"exp\": 1710086400\n}" }
+      ],
+      "hints": [
+        "subject() → 'sub' claim",
+        "issuedAt() → 'iat' (in seconds, not milliseconds)",
+        "expiration() → 'exp' (in seconds)",
+        ".claim('role','ADMIN') → custom claim 'role'"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Get current user in controller",
+      "scenario": "Authenticated user identity is available via Spring Security context.",
+      "instructions": "Write a `UserProfileController` with:\n1. `GET /api/me` → returns currently logged-in user's profile (uses Authentication parameter)\n2. `GET /api/users/{id}` → returns user by id, but only if it's the requesting user OR an ADMIN\n3. Returns 403 if a non-admin user requests another user's profile",
+      "starter_code": "import org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\n// UserProfileController with authentication-aware endpoints\n",
+      "expected_solution": "import org.springframework.security.core.Authentication;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.security.access.AccessDeniedException;\n\n@RestController @RequestMapping(\"/api\")\npublic class UserProfileController {\n    private final AppUserRepository userRepo;\n    UserProfileController(AppUserRepository r) { userRepo=r; }\n    \n    @GetMapping(\"/me\")\n    public ResponseEntity<AppUser> getMe(Authentication auth) {\n        // auth.getName() = the username from JWT subject\n        return userRepo.findByUsername(auth.getName())\n            .map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    \n    @GetMapping(\"/users/{id}\")\n    public ResponseEntity<AppUser> getUser(\n            @PathVariable String id,\n            Authentication auth) {\n        AppUser requester = userRepo.findByUsername(auth.getName()).orElseThrow();\n        AppUser target    = userRepo.findById(id)\n            .orElseThrow(() -> new ResourceNotFoundException(\"User\",id));\n        \n        boolean isAdmin = auth.getAuthorities().stream()\n            .anyMatch(a -> a.getAuthority().equals(\"ROLE_ADMIN\"));\n        \n        // Only admin or the user themselves can see the profile:\n        if (!isAdmin && !requester.getId().equals(id)) {\n            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();\n        }\n        return ResponseEntity.ok(target);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "auth.getName(): the username (JWT subject)",
+        "auth.getAuthorities(): Collection<GrantedAuthority> — check for ROLE_ADMIN",
+        "Return 403 (FORBIDDEN) when user tries to access another user's data"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m14_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Role-based endpoint security",
+      "scenario": "Different roles get different access levels.",
+      "instructions": "Configure a SecurityFilterChain for an e-commerce API:\n- GET /api/products/** → public\n- POST/PUT /api/products/** → requires SELLER or ADMIN role\n- DELETE /api/products/** → requires ADMIN only\n- GET /api/orders/** → requires authentication\n- POST /api/orders → requires USER or ADMIN\n- GET /api/admin/** → requires ADMIN only\n- /api/auth/** → public\n\nWrite the complete authorizeHttpRequests block.",
+      "starter_code": "import org.springframework.http.HttpMethod;\nimport org.springframework.security.config.annotation.web.builders.HttpSecurity;\n// Security config for e-commerce API\n",
+      "expected_solution": "@Bean\npublic SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n    return http\n        .csrf(csrf -> csrf.disable())\n        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n        .authorizeHttpRequests(auth -> auth\n            // Public:\n            .requestMatchers(\"/api/auth/**\").permitAll()\n            .requestMatchers(HttpMethod.GET, \"/api/products/**\").permitAll()\n            // Seller or Admin can manage products:\n            .requestMatchers(HttpMethod.POST, \"/api/products/**\").hasAnyRole(\"SELLER\",\"ADMIN\")\n            .requestMatchers(HttpMethod.PUT,  \"/api/products/**\").hasAnyRole(\"SELLER\",\"ADMIN\")\n            // Only Admin can delete:\n            .requestMatchers(HttpMethod.DELETE, \"/api/products/**\").hasRole(\"ADMIN\")\n            // Orders: any authenticated user:\n            .requestMatchers(HttpMethod.GET,  \"/api/orders/**\").authenticated()\n            .requestMatchers(HttpMethod.POST, \"/api/orders\").hasAnyRole(\"USER\",\"ADMIN\")\n            // Admin dashboard:\n            .requestMatchers(\"/api/admin/**\").hasRole(\"ADMIN\")\n            // Everything else needs authentication:\n            .anyRequest().authenticated()\n        )\n        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)\n        .build();\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "hasAnyRole('A','B'): accepts either role",
+        "Order matters: more specific rules first (GET /api/products before anyRequest)",
+        "HttpMethod.GET etc: restrict by HTTP method"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m14_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Register endpoint + BCrypt password hashing",
+      "scenario": "User registration hashes the password before saving.",
+      "instructions": "Write `AuthController.register(@RequestBody RegisterRequest req)` that:\n1. Validates username not taken (throw 409 if exists)\n2. Hashes the password with BCryptPasswordEncoder\n3. Saves the new AppUser with role USER\n4. Returns 201 with the created user (without the password field)\n5. Immediately logs them in and returns a JWT",
+      "starter_code": "record RegisterRequest(String username, String password, String email) {}\nrecord RegisterResponse(String userId, String username, String token) {}\n// Register endpoint in AuthController\n",
+      "expected_solution": "// In AuthController:\n\n@PostMapping(\"/register\")\npublic ResponseEntity<RegisterResponse> register(@RequestBody RegisterRequest req) {\n    // Check username taken:\n    if (userRepo.existsByUsername(req.username())) {\n        return ResponseEntity.status(HttpStatus.CONFLICT).build();\n    }\n    \n    // Hash password — NEVER store plain text:\n    String hashedPassword = passwordEncoder.encode(req.password());\n    \n    // Save new user:\n    AppUser newUser = new AppUser(req.username(), hashedPassword, \"USER\");\n    AppUser saved = userRepo.save(newUser);\n    \n    // Generate JWT immediately:\n    String token = jwtService.generateToken(saved.getUsername(), List.of(\"ROLE_USER\"));\n    \n    return ResponseEntity.status(HttpStatus.CREATED)\n        .body(new RegisterResponse(saved.getId(), saved.getUsername(), token));\n}\n\n// PasswordEncoder is a @Bean in SecurityConfig:\n// @Bean public PasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "passwordEncoder.encode(rawPassword): BCrypt hash — different each time",
+        "Never return the password field in the response",
+        "409 Conflict for duplicate username"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m14_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@SpringBootTest security integration test",
+      "scenario": "Integration test the full login → use token flow.",
+      "instructions": "Write @SpringBootTest(RANDOM_PORT) tests that:\n1. Register a user\n2. Login with that user → receive a JWT\n3. Access a protected endpoint with the JWT → 200\n4. Access the same endpoint without a token → 401\n5. Access an ADMIN endpoint with USER token → 403",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.http.*;\nimport org.springframework.beans.factory.annotation.Autowired;\n// @SpringBootTest security integration tests\n",
+      "expected_solution": "@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass SecurityIntegrationTest {\n    @Autowired TestRestTemplate rest;\n    @Autowired AppUserRepository userRepo;\n    @Autowired PasswordEncoder passwordEncoder;\n    \n    String userToken;\n    \n    @BeforeEach void setup() {\n        userRepo.deleteAll();\n        // Create test user:\n        userRepo.save(new AppUser(\"testuser\", passwordEncoder.encode(\"password\"), \"USER\"));\n        // Login to get token:\n        var loginResp = rest.postForEntity(\"/api/auth/login\",\n            Map.of(\"username\",\"testuser\",\"password\",\"password\"), java.util.LinkedHashMap.class);\n        userToken = (String) loginResp.getBody().get(\"token\");\n    }\n    \n    @Test void protectedEndpoint_withToken_200() {\n        HttpHeaders headers = new HttpHeaders();\n        headers.setBearerAuth(userToken);\n        var resp = rest.exchange(\"/api/products\", HttpMethod.POST,\n            new HttpEntity<>(Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5), headers),\n            java.util.LinkedHashMap.class);\n        assertEquals(HttpStatus.CREATED, resp.getStatusCode());\n    }\n    \n    @Test void protectedEndpoint_noToken_401() {\n        var resp = rest.postForEntity(\"/api/products\",\n            Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5),\n            String.class);\n        assertEquals(HttpStatus.UNAUTHORIZED, resp.getStatusCode());\n    }\n    \n    @Test void adminEndpoint_userToken_403() {\n        HttpHeaders headers = new HttpHeaders();\n        headers.setBearerAuth(userToken);\n        var resp = rest.exchange(\"/api/admin/dashboard\", HttpMethod.GET,\n            new HttpEntity<>(headers), String.class);\n        assertEquals(HttpStatus.FORBIDDEN, resp.getStatusCode());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "headers.setBearerAuth(token): sets 'Authorization: Bearer {token}' header",
+        "rest.exchange(): for non-GET methods or when you need to set headers",
+        "userToken from @BeforeEach login response — extract 'token' field"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m14_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete JWT auth system — Module 14.1 synthesis",
+      "scenario": "Full JWT authentication stack for the Zerodha-style trading API.",
+      "instructions": "Build a complete JWT-secured trading API:\n- AppUser @Entity (id, username, password, role)\n- AppUserDetailsService\n- JwtService (generate with roles claim, validate, extract username + roles)\n- JwtAuthFilter\n- SecurityConfig: /api/auth/** public; GET /api/market/** public; POST /api/orders requires USER/ADMIN; DELETE /api/orders/** requires ADMIN\n- AuthController with login and register\n- @WebMvcTest tests: public endpoint (no auth), protected endpoint (no auth 401), protected (with @WithMockUser 200), admin-only (USER role 403)\n\nAll tests must pass.",
+      "starter_code": "// Complete JWT security stack\n// AppUser, AppUserDetailsService, JwtService (with roles),\n// JwtAuthFilter, SecurityConfig, AuthController, tests\n",
+      "expected_solution": "// Full solution spans multiple files — key parts:\n\n// JwtService.generateToken with roles:\npublic String generateToken(String username, List<String> roles) {\n    return Jwts.builder()\n        .subject(username)\n        .claim(\"roles\", roles)\n        .issuedAt(new Date())\n        .expiration(new Date(System.currentTimeMillis() + EXPIRY_MS))\n        .signWith(signingKey()).compact();\n}\n\n// SecurityConfig:\n@Bean public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n    return http\n        .csrf(c->c.disable())\n        .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n        .authorizeHttpRequests(a->a\n            .requestMatchers(\"/api/auth/**\").permitAll()\n            .requestMatchers(HttpMethod.GET,\"/api/market/**\").permitAll()\n            .requestMatchers(HttpMethod.POST,\"/api/orders\").hasAnyRole(\"USER\",\"ADMIN\")\n            .requestMatchers(HttpMethod.DELETE,\"/api/orders/**\").hasRole(\"ADMIN\")\n            .anyRequest().authenticated())\n        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)\n        .build();\n}\n\n// @WebMvcTest tests:\n@WebMvcTest(OrderController.class)\nclass OrderControllerSecurityTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;\n    @MockBean OrderService service; @MockBean JwtService jwt; @MockBean AppUserDetailsService uds;\n    \n    @Test void getMarket_public_200() throws Exception {\n        mvc.perform(get(\"/api/market/prices\")).andExpect(status().isOk());\n    }\n    @Test void postOrder_noAuth_401() throws Exception {\n        mvc.perform(post(\"/api/orders\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"symbol\",\"TCS\",\"qty\",10))))\n            .andExpect(status().isUnauthorized());\n    }\n    @Test @WithMockUser(roles=\"USER\")\n    void postOrder_asUser_201() throws Exception {\n        when(service.placeOrder(any())).thenReturn(new Order(\"ORD-001\",\"TCS\",10));\n        mvc.perform(post(\"/api/orders\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"symbol\",\"TCS\",\"qty\",10))))\n            .andExpect(status().isCreated());\n    }\n    @Test @WithMockUser(roles=\"USER\")\n    void deleteOrder_asUser_403() throws Exception {\n        mvc.perform(delete(\"/api/orders/ORD-001\")).andExpect(status().isForbidden());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "@MockBean JwtService and AppUserDetailsService: needed because JwtAuthFilter references them",
+        "@WithMockUser(roles='USER'): simulates USER role; @WithMockUser(roles='ADMIN') for admin",
+        "status().isUnauthorized()=401; status().isForbidden()=403"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 75
+  }
+}

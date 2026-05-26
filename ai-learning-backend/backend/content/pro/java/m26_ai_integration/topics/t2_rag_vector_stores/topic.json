@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m26_t2",
+  "language": "java",
+  "module_id": "m26",
+  "module_name": "AI-Powered Java Applications",
+  "topic_number": 2,
+  "name": "RAG — Retrieval Augmented Generation",
+  "slug": "rag-retrieval-augmented-generation",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m26_t1", "java_m17_t1", "java_m18_t1"],
+    "concepts_taught": [
+      "rag_overview", "embeddings_concept", "vector_stores", "similarity_search",
+      "document_ingestion_pipeline", "text_splitting", "pgvector_setup",
+      "spring_ai_vector_store", "rag_prompt_engineering", "chunking_strategies",
+      "retrieval_quality", "hybrid_search"
+    ],
+    "skills_developed": [
+      "building_document_ingestion_pipeline", "implementing_rag_qa_service",
+      "querying_vector_store", "evaluating_retrieval_quality"
+    ],
+    "career_relevance": "HDFC Bank has 50,000 pages of policy documents, loan guidelines, and compliance manuals. Before RAG: customer asks 'What documents do I need for a home loan?' — agent looks through 50 documents for 10 minutes. After RAG: Spring AI embeds all 50,000 pages into a vector store; at query time, finds the 3 most relevant paragraphs in 50ms; Claude answers based on THOSE paragraphs — not its training data. The AI is grounded in HDFC's actual current policies. After this topic, you can build AI that answers questions about YOUR company's private data.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay merchant documentation problem:\n\n```\nPROBLEM WITHOUT RAG:\nMerchant: 'What is Razorpay's webhook retry policy?'\nAI (no RAG): 'Webhooks are typically retried 3-5 times...'\n  ← AI guessing from training data (may be wrong, may be outdated!)\n\nWITH RAG (Razorpay's actual docs embedded):\n  1. Embed query → similarity search in vector store\n  2. Retrieve: 'Razorpay webhooks retry up to 5 times over 24 hours\n     with exponential backoff starting at 1 minute.' (from actual docs)\n  3. AI answers: 'Based on Razorpay's documentation: webhooks retry\n     up to 5 times over 24 hours, with 1min/2min/4min/8min/16min delays.'\n  ← Grounded in real, current documentation!\n\nResult:\n  - Merchant confidence: AI cites actual policy, not guess\n  - Up-to-date: re-ingest docs after policy change, AI updates immediately\n  - Private knowledge: your internal data, not in Claude's training\n```",
+    "what_you_will_build": "A Razorpay documentation Q&A system: ingest docs → embed → store in pgvector → retrieve → answer."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "embeddings": "**Embeddings — semantic meaning as vectors:**\n\n```\nText → Embedding model → Vector (array of 1536 floats)\n\n'What is the refund policy?' → [0.23, -0.87, 0.41, ...] (1536 dims)\n'How do I get my money back?' → [0.24, -0.85, 0.43, ...] (similar!)\n'What is my account balance?' → [0.89, 0.12, -0.67, ...] (different!)\n\nSimilarity: cos(v1, v2)\n  refund/money-back: 0.96 (very similar semantically)\n  refund/balance:    0.21 (very different)\n\nWhy: 'refund policy' and 'money back' mean the same thing\n     even though they share no words.\n     Embeddings capture MEANING, not just keywords.\n```",
+      "rag_pipeline": "**RAG pipeline in Spring AI:**\n\n```java\n// INGESTION (do once, or on document update):\n@Service\npublic class DocumentIngestionService {\n    private final VectorStore vectorStore;\n    private final DocumentReader reader;\n    private final TextSplitter splitter;\n\n    public void ingest(Resource documentResource) {\n        // 1. Read document:\n        List<Document> docs = new PagePdfDocumentReader(documentResource).get();\n\n        // 2. Split into chunks (too large = noise; too small = no context):\n        List<Document> chunks = new TokenTextSplitter()\n            .apply(docs); // ~500 tokens per chunk, 20% overlap\n\n        // 3. Embed + store (embedding model called automatically):\n        vectorStore.add(chunks); // pgvector, Chroma, or Pinecone\n    }\n}\n\n// RETRIEVAL + GENERATION (on each query):\n@Service\npublic class RazorpayDocsQA {\n    private final VectorStore vectorStore;\n    private final ChatClient chatClient;\n\n    public String answer(String question) {\n        // 1. Embed question + find similar chunks:\n        List<Document> context = vectorStore.similaritySearch(\n            SearchRequest.query(question).withTopK(3).withSimilarityThreshold(0.7));\n\n        // 2. Build prompt with retrieved context:\n        String contextText = context.stream()\n            .map(Document::getContent)\n            .collect(Collectors.joining(\"\\n---\\n\"));\n\n        // 3. AI answers based on retrieved context:\n        return chatClient.prompt()\n            .user(u -> u.text(\"\"\"\n                Answer based ONLY on the provided context.\n                If the answer is not in the context, say 'I don't have that information.'\n\n                Context:\n                {context}\n\n                Question: {question}\n                \"\"\")\n                .param(\"context\", contextText)\n                .param(\"question\", question))\n            .call()\n            .content();\n    }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two-phase RAG diagram. Phase 1 (Ingestion — top lane, happens once): Policy PDFs → DocumentReader → TextSplitter (chunks) → EmbeddingModel → Vectors → VectorStore (pgvector DB). Phase 2 (Query — bottom lane, every request): User Question → EmbeddingModel → Query Vector → Similarity Search in VectorStore → Top-3 Relevant Chunks → ChatClient (chunks + question in prompt) → Claude → Answer. Key labels: 'pgvector: PostgreSQL with vector extension', 'Similarity: cosine distance', 'Top-K=3: retrieve 3 most relevant paragraphs'.",
+      "alt_text": "RAG: ingest documents into vector store, retrieve relevant chunks, AI answers based on chunks"
+    },
+    "worked_example": {
+      "scenario": "Razorpay documentation Q&A: ingest webhook policy, answer questions grounded in actual docs.",
+      "problem_statement": "1. InMemoryVectorStore (for tests) or pgvector (for production)\n2. Ingest 3 Document chunks about Razorpay webhook policy\n3. similaritySearch for 'retry policy' → retrieves relevant chunks\n4. Answer question based on retrieved context only\n5. @SpringBootTest: ingestion + retrieval + answer",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Chunking strategy matters",
+          "details": "Too large chunks: retrieval finds whole sections but prompt becomes too long (token limit). Too small chunks: retrieval is precise but loses context ('retry 5 times' without knowing 'for webhooks'). Best practice: 500-800 tokens per chunk, 10-20% overlap. Overlap ensures that sentences at chunk boundaries are captured in at least one chunk."
+        }
+      ],
+      "final_code": "// VectorStore.add(docs): embeds each chunk and stores vector\n// VectorStore.similaritySearch(SearchRequest.query(q).withTopK(3))\n//   → returns 3 most semantically similar chunks\n// Prompt: 'Answer based ONLY on context' → grounded AI (no hallucination)",
+      "expected_output": "Question: 'How many times are webhooks retried?'\nRetrieved context: 'Razorpay retries failed webhooks up to 5 times over 24 hours...'\nAI Answer: 'According to Razorpay's documentation, failed webhooks are retried up to 5 times over a 24-hour period, using exponential backoff starting at 1 minute.'",
+      "things_to_notice": [
+        "'Answer based ONLY on the provided context': this instruction prevents the AI from mixing in its training data. Without it, AI might blend real policy with outdated training knowledge.",
+        "withSimilarityThreshold(0.7): only return chunks that are at least 70% similar. Prevents retrieving irrelevant chunks when the question is outside the knowledge base.",
+        "Metadata on documents: add source URL, page number, document date to each chunk. Include this in the prompt so AI can cite its sources ('According to page 12 of webhook-docs.pdf...').",
+        "pgvector for production: InMemoryVectorStore works for tests but loses data on restart. pgvector is a PostgreSQL extension — same DB your Spring Boot app already uses."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "HDFC Bank policy knowledge base",
+          "use_case": "50,000+ pages of RBI regulations, loan policies, account terms ingested into pgvector. Customer asks: 'Am I eligible for a home loan?' → top-5 relevant policy chunks retrieved → Claude answers based on actual HDFC policy. Re-ingest runs nightly: when RBI updates guidelines, the bot reflects them within 24 hours. 80% reduction in policy-related support tickets."
+        }
+      ],
+      "interview_relevance": "'How would you build an AI that answers questions about company documents?' → RAG. Two phases: ingestion (read docs → split → embed → store in vector DB) and retrieval (embed question → similarity search → top-K chunks → prompt AI with chunks). Key: 'Answer based only on context' prevents hallucination. pgvector: PostgreSQL vector extension (no new infrastructure if already using Postgres). Chunk size: 500 tokens, 10% overlap. Top-K: 3-5 chunks per query.",
+      "real_world_workflow": "RAG workflow: (1) choose vector store (pgvector for existing Postgres, Chroma for easy start), (2) build ingestion pipeline: read PDFs → split tokens → embed → store with metadata, (3) set up scheduled re-ingestion (nightly for live docs), (4) build query service: embed question → similarity search → build prompt with context, (5) tune retrieval: adjust top-K and similarity threshold based on accuracy, (6) evaluate: ask 20 questions with known answers, measure correctness."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "no_grounding_instruction",
+        "what_students_get_wrong": "Building RAG but not instructing the AI to use only the provided context. AI happily blends retrieved context with its training data — sometimes the training data overrides the correct retrieved answer.",
+        "remediation": "Always include: 'Answer based ONLY on the provided context. If the answer is not in the context, say: I don't have that information.' This forces grounding. Test: ask a question whose answer is NOT in your docs — AI should say 'I don't have that info', not hallucinate.",
+        "detection_pattern": "RAG prompt doesn't include 'only on context' instruction — AI answers questions about topics not in the vector store (hallucinating from training data)"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "RAG: embed your docs → semantic search → AI answers based on retrieved chunks",
+        "Embedding: text → vector capturing semantic meaning (not keywords)",
+        "Similarity search: finds semantically similar chunks, not keyword matches",
+        "VectorStore.add(docs): embed + persist (pgvector, Chroma, Pinecone)",
+        "withTopK(3): retrieve 3 most relevant chunks per query",
+        "withSimilarityThreshold(0.7): reject chunks below 70% relevance",
+        "'Answer based ONLY on context': prevents hallucination — critical!",
+        "Chunk size: 500-800 tokens, 10-20% overlap (balance context vs precision)",
+        "Document metadata: include source/page — AI can cite sources",
+        "pgvector: PostgreSQL extension — no new infrastructure if already using Postgres"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Zerodha wants to build a bot that answers questions about NSE trading rules from official PDF documents. Why is RAG better than fine-tuning the model on those documents?",
+          "answer": "Fine-tuning: expensive (requires GPU compute), time-consuming (hours-days), and the new knowledge is baked into weights — updating requires re-training when rules change. RAG: no GPU required (just embedding API calls, much cheaper), instant to update (re-ingest changed documents, new knowledge available immediately), grounded and auditable (can show which specific regulation chunks the AI used to answer). For NSE rules that change frequently (new circular issued): RAG ingestion can run nightly, bot reflects current rules the next morning. Fine-tuning would require a whole new training run. Additionally: RAG doesn't risk the model 'forgetting' other knowledge (catastrophic forgetting is a real fine-tuning problem). Rule of thumb: RAG for frequently updated private documents; fine-tuning for permanent style/behavior changes."
+        }
+      ],
+      "next_topic_preview": "Next: AI-Powered Features — structured output, document analysis, semantic search in your API, and function calling for complex AI workflows."
+    }
+  }
+}

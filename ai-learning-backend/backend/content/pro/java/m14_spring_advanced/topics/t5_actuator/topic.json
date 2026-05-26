@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t5",
+  "language": "java",
+  "module_id": "m14",
+  "module_name": "Advanced Spring Boot",
+  "topic_number": 5,
+  "name": "Actuator and Production Observability",
+  "slug": "actuator-observability",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m14_t4"],
+    "concepts_taught": [
+      "spring_boot_actuator",
+      "actuator_endpoints",
+      "health_endpoint",
+      "health_indicator",
+      "custom_health_indicator",
+      "info_endpoint",
+      "metrics_endpoint",
+      "micrometer_counter",
+      "micrometer_gauge",
+      "micrometer_timer",
+      "actuator_security",
+      "actuator_configuration",
+      "custom_endpoint",
+      "loggers_endpoint"
+    ],
+    "skills_developed": [
+      "adding_actuator_to_spring_boot",
+      "writing_custom_health_indicators",
+      "recording_custom_metrics_with_micrometer",
+      "securing_actuator_endpoints",
+      "configuring_info_endpoint",
+      "reading_actuator_in_tests"
+    ],
+    "career_relevance": "Every production Spring Boot deployment is monitored. Kubernetes liveness and readiness probes call /actuator/health. Prometheus scrapes /actuator/prometheus for metrics. Operations teams check /actuator/info for deployed version. Being able to add meaningful health indicators and custom metrics is a Senior Java Engineer skill. After this topic, your application speaks the language of production infrastructure.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your payment service is deployed. Three minutes later:\n\n```\n[ALERT] PaymentService is DOWN in prod!\nOps team: 'Is the app running?'\nDev: 'I don't know — I can't SSH into prod'\nOps: 'Is the database connection pool saturated?'\nDev: 'I'd need to check... but how?'\nOps: 'How many payments processed in the last hour?'\nDev: 'No idea. We don't log that.'\nOps: 'Which version is deployed?'\nDev: '...'\n```\n\n**With Spring Boot Actuator — 2 minutes after deploy:**\n\n```bash\n# Is the app healthy?\ncurl http://prod-server:8080/actuator/health\n→ {\"status\":\"UP\",\"components\":{\n    \"db\":{\"status\":\"UP\"},\n    \"paymentGateway\":{\"status\":\"UP\",\"details\":{\"latencyMs\":45}},\n    \"diskSpace\":{\"status\":\"UP\"}\n  }}\n\n# Which version is deployed?\ncurl http://prod-server:8080/actuator/info\n→ {\"app\":{\"name\":\"payment-service\",\"version\":\"2.1.4\",\"buildTime\":\"2024-03-15T09:30:00Z\"}}\n\n# How many payments processed?\ncurl http://prod-server:8080/actuator/metrics/payments.processed\n→ {\"name\":\"payments.processed\",\"measurements\":[{\"statistic\":\"COUNT\",\"value\":15234}]}\n\n# DB connection pool status:\ncurl http://prod-server:8080/actuator/metrics/hikaricp.connections.active\n→ {\"value\":12}  ← out of 20 max — pool is fine\n```\n\nActuator is the production dashboard built into your app. Zero extra code to enable — just one dependency.",
+    "what_you_will_build": "By the end of this topic, you'll add Spring Boot Actuator, write custom HealthIndicators, record business metrics with Micrometer (Counter, Timer, Gauge), configure the info endpoint with build info, secure actuator endpoints, and verify health and metrics in @SpringBootTest."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "actuator_setup": "**Adding Spring Boot Actuator:**\n\n```xml\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-actuator</artifactId>\n</dependency>\n```\n\n**application.properties configuration:**\n```properties\n# Expose all endpoints (default: only 'health' is exposed):\nmanagement.endpoints.web.exposure.include=health,info,metrics,loggers,env,caches\n# Or expose everything (careful in prod — secure first):\n# management.endpoints.web.exposure.include=*\n\n# Show full health details:\nmanagement.endpoint.health.show-details=always\n# or: when-authorized (only for authenticated users)\n\n# App info for /actuator/info:\ninfo.app.name=payment-service\ninfo.app.version=1.0.0\ninfo.app.java.version=21\n\n# Custom management port (keep actuator off main port in prod):\n# management.server.port=8090\n```\n\n**Out-of-the-box endpoints:**\n```\n/actuator/health   → UP/DOWN with component details\n/actuator/info     → app metadata (name, version, git commit)\n/actuator/metrics  → list of available metrics\n/actuator/metrics/{name} → specific metric value\n/actuator/loggers  → get/change log levels at runtime\n/actuator/env      → all properties (secrets masked)\n/actuator/caches   → cache statistics\n/actuator/threaddump → thread dump for deadlock diagnosis\n/actuator/prometheus → metrics in Prometheus format (needs actuator + micrometer-prometheus)\n```",
+
+      "health_indicators": "**Custom HealthIndicator — know your dependencies:**\n\n```java\nimport org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n\n// Spring Boot auto-registers: DB, diskSpace, ping\n// Add your own for external dependencies:\n\n@Component\npublic class PaymentGatewayHealthIndicator implements HealthIndicator {\n    \n    private final PaymentGatewayClient gatewayClient;\n    \n    PaymentGatewayHealthIndicator(PaymentGatewayClient client) {\n        gatewayClient = client;\n    }\n    \n    @Override\n    public Health health() {\n        try {\n            long start = System.currentTimeMillis();\n            boolean reachable = gatewayClient.ping();  // simple connectivity check\n            long latency = System.currentTimeMillis() - start;\n            \n            if (reachable) {\n                return Health.up()\n                    .withDetail(\"latencyMs\", latency)\n                    .withDetail(\"endpoint\", gatewayClient.getUrl())\n                    .build();\n            } else {\n                return Health.down()\n                    .withDetail(\"reason\", \"Gateway ping failed\")\n                    .build();\n            }\n        } catch (Exception e) {\n            return Health.down(e)\n                .withDetail(\"reason\", e.getMessage())\n                .build();\n        }\n    }\n}\n\n// Result in /actuator/health:\n// {\n//   \"status\": \"UP\",\n//   \"components\": {\n//     \"paymentGateway\": {\"status\": \"UP\", \"details\": {\"latencyMs\": 45, \"endpoint\": \"https://api.razorpay.com\"}},\n//     \"db\": {\"status\": \"UP\"},\n//     \"diskSpace\": {\"status\": \"UP\"}\n//   }\n// }\n```",
+
+      "micrometer_metrics": "**Micrometer — custom business metrics:**\n\n```java\nimport io.micrometer.core.instrument.*;\n\n@Service\npublic class OrderService {\n    \n    private final MeterRegistry registry;\n    private final Counter ordersPlaced;\n    private final Counter ordersFailed;\n    private final AtomicInteger activeOrders;\n    \n    OrderService(MeterRegistry registry, OrderRepository repo) {\n        this.registry = registry;\n        \n        // Counter: monotonically increasing count\n        ordersPlaced = Counter.builder(\"orders.placed\")\n            .description(\"Total orders placed successfully\")\n            .tag(\"service\", \"payment\")\n            .register(registry);\n        \n        ordersFailed = Counter.builder(\"orders.failed\")\n            .description(\"Total orders that failed\")\n            .register(registry);\n        \n        // Gauge: current value (can go up or down)\n        activeOrders = registry.gauge(\"orders.active\",\n            new AtomicInteger(0));\n    }\n    \n    public Order placeOrder(OrderRequest req) {\n        activeOrders.incrementAndGet();\n        try {\n            Order saved = repo.save(new Order(req));\n            ordersPlaced.increment();\n            return saved;\n        } catch (Exception e) {\n            ordersFailed.increment();\n            throw e;\n        } finally {\n            activeOrders.decrementAndGet();\n        }\n    }\n    \n    // Timer: measure operation duration\n    public void processWithTiming(OrderRequest req) {\n        Timer.Sample sample = Timer.start(registry);\n        try {\n            processOrder(req);\n        } finally {\n            sample.stop(Timer.builder(\"order.processing.time\")\n                .description(\"Time to process an order\")\n                .tag(\"status\", \"success\")\n                .register(registry));\n        }\n    }\n}\n```\n\n**Query metrics at runtime:**\n```bash\n# Count of placed orders:\ncurl /actuator/metrics/orders.placed\n→ {\"name\":\"orders.placed\",\"measurements\":[{\"statistic\":\"COUNT\",\"value\":15234.0}]}\n\n# Active orders (gauge):\ncurl /actuator/metrics/orders.active\n→ {\"measurements\":[{\"statistic\":\"VALUE\",\"value\":42.0}]}\n```",
+
+      "actuator_security": "**Securing Actuator endpoints in production:**\n\n```properties\n# Expose only safe endpoints in prod:\nmanagement.endpoints.web.exposure.include=health,info,metrics\nmanagement.endpoint.health.show-details=when-authorized\n\n# Use a separate port for actuator (firewall off from public internet):\nmanagement.server.port=8090\n# Then: only internal services can reach port 8090\n```\n\n```java\n// With Spring Security — protect sensitive endpoints:\n@Bean\npublic SecurityFilterChain actuatorSecurity(HttpSecurity http) throws Exception {\n    return http\n        .securityMatcher(\"/actuator/**\")\n        .authorizeHttpRequests(auth -> auth\n            .requestMatchers(\"/actuator/health\", \"/actuator/info\").permitAll()\n            .requestMatchers(\"/actuator/**\").hasRole(\"ADMIN\")\n        )\n        .httpBasic(Customizer.withDefaults())\n        .build();\n}\n```\n\n**Kubernetes integration:**\n```yaml\n# Kubernetes health probes:\nlivenessProbe:\n  httpGet:\n    path: /actuator/health/liveness\n    port: 8080\n  initialDelaySeconds: 30\n  periodSeconds: 10\nreadinessProbe:\n  httpGet:\n    path: /actuator/health/readiness\n    port: 8080\n  initialDelaySeconds: 15\n  periodSeconds: 5\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Actuator endpoint map: Application box with /actuator/* routes labeled. /health → green UP badge with DB, Gateway, DiskSpace components. /info → JSON with name, version, buildTime. /metrics → list of metric names. /metrics/orders.placed → COUNT:15234. /loggers → log level table. Kubernetes probe arrows pointing to /health/liveness and /health/readiness. Prometheus scraper arrow to /actuator/prometheus. (2) Custom HealthIndicator hierarchy: HealthIndicator interface → DB (auto), DiskSpace (auto), Ping (auto), PaymentGatewayHealthIndicator (custom) → all aggregate into /actuator/health response. Status rules: any DOWN → overall DOWN. (3) Micrometer types: Counter (orders.placed: 15234, ever-increasing), Gauge (orders.active: 42, current snapshot), Timer (order.processing.time: p50=45ms, p95=120ms, p99=250ms). All register into MeterRegistry → /actuator/metrics.",
+      "alt_text": "Actuator endpoint map with Kubernetes integration, HealthIndicator hierarchy, and Micrometer metric types"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add full production observability to the payment service: custom health indicators for the payment gateway and database, business metrics (payments processed, active payments, processing time), and the info endpoint showing the build version.",
+
+    "problem_statement": "Add to PaymentService:\n1. PaymentGatewayHealthIndicator — checks if gateway is reachable\n2. Counters for payments.processed and payments.failed\n3. Gauge for payments.pending (current queue depth)\n4. Timer for payment.processing.duration\n5. Info endpoint showing app name + version\n6. @SpringBootTest verifying /actuator/health returns UP",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Dependency and properties",
+        "details": "```xml\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-actuator</artifactId>\n</dependency>\n```\n\n```properties\nmanagement.endpoints.web.exposure.include=health,info,metrics,loggers\nmanagement.endpoint.health.show-details=always\ninfo.app.name=payment-service\ninfo.app.version=1.0.0\n```"
+      },
+      {
+        "step": 2,
+        "action": "Custom HealthIndicator",
+        "details": "```java\n@Component\npublic class PaymentGatewayHealthIndicator implements HealthIndicator {\n    private final PaymentGatewayClient client;\n    PaymentGatewayHealthIndicator(PaymentGatewayClient c) { client = c; }\n    \n    @Override\n    public Health health() {\n        try {\n            long ms = System.currentTimeMillis();\n            client.ping();\n            long latency = System.currentTimeMillis() - ms;\n            return Health.up()\n                .withDetail(\"latencyMs\", latency)\n                .build();\n        } catch (Exception e) {\n            return Health.down().withDetail(\"error\", e.getMessage()).build();\n        }\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Service with Micrometer metrics",
+        "details": "```java\n@Service\npublic class PaymentService {\n    private final Counter processed;\n    private final Counter failed;\n    private final AtomicInteger pending;\n    private final Timer processingTimer;\n    \n    PaymentService(MeterRegistry registry, PaymentRepository repo) {\n        processed = Counter.builder(\"payments.processed\").register(registry);\n        failed    = Counter.builder(\"payments.failed\").register(registry);\n        pending   = registry.gauge(\"payments.pending\", new AtomicInteger(0));\n        processingTimer = Timer.builder(\"payment.processing.duration\")\n            .description(\"Payment end-to-end processing time\")\n            .register(registry);\n    }\n    \n    public Payment process(PaymentRequest req) {\n        pending.incrementAndGet();\n        return processingTimer.record(() -> {\n            try {\n                Payment saved = repo.save(new Payment(req));\n                processed.increment();\n                return saved;\n            } catch (Exception e) {\n                failed.increment();\n                throw e;\n            } finally {\n                pending.decrementAndGet();\n            }\n        });\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "@SpringBootTest — verify health endpoint",
+        "details": "```java\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass ActuatorTest {\n    @Autowired TestRestTemplate rest;\n    \n    @Test\n    void health_returns200Up() {\n        var response = rest.getForEntity(\"/actuator/health\", String.class);\n        assertEquals(HttpStatus.OK, response.getStatusCode());\n        assertTrue(response.getBody().contains(\"\\\"status\\\":\\\"UP\\\"\"));\n    }\n    \n    @Test\n    void info_returnsAppName() {\n        var response = rest.getForEntity(\"/actuator/info\", String.class);\n        assertEquals(HttpStatus.OK, response.getStatusCode());\n        assertTrue(response.getBody().contains(\"payment-service\"));\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// application.properties:\n// management.endpoints.web.exposure.include=health,info,metrics\n// management.endpoint.health.show-details=always\n// info.app.name=payment-service\n// info.app.version=1.0.0\n\n// PaymentGatewayHealthIndicator: implements HealthIndicator, checks ping latency\n// PaymentService: Counter(processed+failed), AtomicInteger gauge(pending), Timer(processing)\n// @SpringBootTest RANDOM_PORT: assert /actuator/health = UP\n\n// At runtime:\n// GET /actuator/health → {status:UP, components:{paymentGateway:{status:UP,latencyMs:45}, db:{...}}}\n// GET /actuator/metrics/payments.processed → {COUNT: 15234}\n// GET /actuator/metrics/payment.processing.duration → {p50: 45ms, p95: 120ms}\n// GET /actuator/info → {app:{name:payment-service, version:1.0.0}}",
+
+    "expected_output": "# On startup:\nINFO  - Exposing 4 endpoint(s) beneath base path '/actuator'\n\n# GET /actuator/health:\n{\n  \"status\": \"UP\",\n  \"components\": {\n    \"db\": {\"status\": \"UP\"},\n    \"paymentGateway\": {\"status\": \"UP\", \"details\": {\"latencyMs\": 45}},\n    \"diskSpace\": {\"status\": \"UP\", \"details\": {\"free\": 148043571200}},\n    \"ping\": {\"status\": \"UP\"}\n  }\n}\n\n# GET /actuator/info:\n{\"app\":{\"name\":\"payment-service\",\"version\":\"1.0.0\"}}\n\n# GET /actuator/metrics/payments.processed:\n{\"name\":\"payments.processed\",\"measurements\":[{\"statistic\":\"COUNT\",\"value\":15234.0}]}",
+
+    "things_to_notice": [
+      "HealthIndicator.health() is called on every /actuator/health request. Keep it fast (< 100ms) — a slow health check degrades Kubernetes probes. For expensive checks, use @Scheduled to run them periodically and cache the result.",
+      "The overall /actuator/health status is UP only if ALL component statuses are UP. A single DOWN component makes the entire status DOWN. This is how Kubernetes knows to stop sending traffic to a pod — it checks /health/readiness.",
+      "Micrometer is the unified metrics facade. MeterRegistry is auto-configured by Spring Boot Actuator. Inject it via constructor — no extra configuration. Counter, Timer, and Gauge work the same whether you're running locally (SimpleMeterRegistry) or in prod (PrometheusMeterRegistry).",
+      "Timer.record(Runnable) or Timer.record(Supplier<T>): wraps the operation and records the duration automatically. The timer accumulates count, total time, and percentile data (p50, p95, p99). This is how you measure end-to-end latency without manual start/stop.",
+      "management.endpoints.web.exposure.include=health,info: only these two are visible by default in Spring Boot 2+. In production, NEVER expose /actuator/env (leaks all properties including masked secrets) without authentication. Use management.server.port=8090 to put actuator on a separate port, then firewall it from the public internet."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Kubernetes at Flipkart",
+        "use_case": "Flipkart runs thousands of Spring Boot pods in Kubernetes. Every pod exposes /actuator/health/liveness (is the JVM alive?) and /actuator/health/readiness (is the pod ready to serve traffic?). Kubernetes checks readiness every 5 seconds. If the DB connection is down or the payment gateway is unreachable, the readiness probe returns DOWN — Kubernetes stops routing traffic to that pod and routes it to healthy ones. The healthiness separation (live but not ready) prevents cascading failures."
+      },
+      {
+        "company_context": "Prometheus + Grafana at Razorpay",
+        "use_case": "Razorpay's payment service exposes /actuator/prometheus. Prometheus scrapes it every 15 seconds. Grafana dashboards show: payments.processed rate, payment.processing.duration p99, orders.failed count. Alert: if payments.failed > 100/min → PagerDuty alert. These metrics are built with Micrometer Counter and Timer — the same code you wrote. The only difference is using PrometheusMeterRegistry instead of SimpleMeterRegistry."
+      },
+      {
+        "company_context": "Runtime log level changes",
+        "use_case": "A production issue appears. The dev needs DEBUG logs for PaymentService but can't restart the pod (would affect active payments). With /actuator/loggers: POST /actuator/loggers/com.razorpay.PaymentService with body `{\"configuredLevel\":\"DEBUG\"}`. Instantly: DEBUG logs flow without restart. After diagnosis, set back to INFO. This is one of Actuator's most-used features in production debugging."
+      }
+    ],
+
+    "interview_relevance": "Actuator and observability questions:\n\n- **'How do you add health checks to a Spring Boot app?'** → spring-boot-starter-actuator dependency + @Component implementing HealthIndicator. /actuator/health shows all components.\n- **'What are Kubernetes liveness and readiness probes?'** → Liveness: is the JVM alive (restart if not). Readiness: is the app ready to serve traffic (stop routing if not). Spring Actuator provides /actuator/health/liveness and /health/readiness.\n- **'How do you measure application performance at runtime?'** → Micrometer Counter for counts, Timer for durations, Gauge for current values. Inject MeterRegistry via constructor, build metrics in service methods.\n- **'How would you diagnose a production issue without restarting?'** → Change log level at runtime via POST /actuator/loggers/{logger}, check thread dump at /actuator/threaddump, check active DB connections at /actuator/metrics/hikaricp.connections.active.",
+
+    "real_world_workflow": "Daily Actuator workflow:\n\n- New external dependency: add HealthIndicator @Component\n- New critical operation: add Timer.record() around it\n- New business event: add Counter.increment()\n- New queue: add Gauge for current depth\n- Before deploy: verify /actuator/health returns UP in staging\n- Production issue: check /actuator/metrics and change log level"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "endpoints_not_exposed",
+      "what_students_get_wrong": "Adding the dependency but getting 404 on /actuator/metrics — endpoint not exposed.",
+      "remediation": "Only /health and /info are exposed by default. Add `management.endpoints.web.exposure.include=health,info,metrics,loggers` in application.properties. Or `include=*` for all (secure first in prod). Without explicit exposure, other endpoints return 404.",
+      "detection_pattern": "GET /actuator/metrics returns 404 despite actuator dependency present"
+    },
+    {
+      "gap_id": "slow_health_indicator",
+      "what_students_get_wrong": "Writing a health indicator that makes an HTTP call to an external service — called on every /health request, slowing down Kubernetes probes.",
+      "remediation": "Health checks should be fast (< 100ms). For slow checks (external HTTP call, complex query), cache the result: run the actual check every 30 seconds with @Scheduled and store the result in an AtomicReference<Health>. The HealthIndicator reads from the cache.",
+      "detection_pattern": "Kubernetes probe timeouts; /actuator/health takes > 1 second"
+    },
+    {
+      "gap_id": "exposing_env_in_prod",
+      "what_students_get_wrong": "Using `management.endpoints.web.exposure.include=*` in production — exposes all properties including environment variable names (secrets visible even if values are masked).",
+      "remediation": "In production: expose only health, info, metrics, and prometheus. Put actuator on a separate port (management.server.port=8090) and firewall it from the public internet. For /env, /threaddump, /heapdump — require authentication or restrict to internal network only.",
+      "detection_pattern": "Security audit finds /actuator/env accessible publicly with environment details"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "spring-boot-starter-actuator: one dependency adds /actuator endpoints",
+      "Only /health and /info exposed by default — configure exposure explicitly",
+      "management.endpoints.web.exposure.include=health,info,metrics,loggers",
+      "management.endpoint.health.show-details=always: full component breakdown",
+      "HealthIndicator interface: health() returns Health.up() or Health.down()",
+      ".withDetail('key', value): add diagnostic info to health response",
+      "Overall health: UP only if ALL components are UP",
+      "MeterRegistry: auto-configured by Actuator; inject via constructor",
+      "Counter: monotonically increasing — use for events (orders placed, errors)",
+      "Gauge: current value snapshot — use for queue depth, active connections",
+      "Timer: measures duration — Timer.record(supplier) wraps the operation",
+      "management.server.port=8090: separate actuator from main port (prod security)",
+      "/actuator/loggers: change log level at runtime without restart",
+      "/actuator/health/liveness + /health/readiness: Kubernetes probes"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Your HealthIndicator makes an HTTP call to an external API every time /actuator/health is checked. Kubernetes checks it every 5 seconds. The API call takes 2 seconds. What's the problem and how do you fix it?",
+        "answer": "The health check takes 2 seconds, but Kubernetes probes typically have a 1-second timeout — the probe fails, marking the pod unhealthy. Even with a longer timeout: 12 health calls per minute × 2 seconds = 24 seconds/minute of HTTP calls to the external API. Fix: cache the health result. Use @Scheduled(fixedRate=30000) to run the actual check every 30 seconds and store the result in an AtomicReference<Health>. The HealthIndicator.health() method reads from the AtomicReference — it's instant. The external check runs asynchronously every 30 seconds."
+      },
+      {
+        "question": "You want to track how many Razorpay webhook calls succeeded vs failed. Which Micrometer instrument do you use, and how do you add tags for filtering?",
+        "answer": "Counter — webhooks are discrete events, you want a total count. Two counters with different tags:\n```java\nCounter success = Counter.builder('webhook.calls')\n    .tag('result', 'success').register(registry);\nCounter failure = Counter.builder('webhook.calls')\n    .tag('result', 'failure').register(registry);\n```\nTags allow filtering in Prometheus/Grafana: `webhook.calls{result='failure'}` gives failure rate. Query /actuator/metrics/webhook.calls?tag=result:failure to filter by tag in the Actuator UI."
+      },
+      {
+        "question": "What is the difference between /actuator/health/liveness and /actuator/health/readiness, and when should each return DOWN?",
+        "answer": "Liveness (/health/liveness): is the JVM alive and not in a broken state? Return DOWN only if the application is deadlocked or fatally broken — Kubernetes restarts the pod. Should almost never be DOWN in practice. Readiness (/health/readiness): is the app ready to serve traffic? Return DOWN if: DB is disconnected, external payment gateway is unreachable, cache is warming up, application is still initializing. Kubernetes stops routing traffic to the pod but doesn't restart it. The pod recovers when the dependency comes back. Rule: liveness = restart needed; readiness = stop traffic, wait for recovery."
+      }
+    ],
+
+    "next_topic_preview": "Module 14: Advanced Spring Boot is complete! The full set: JWT security, async/scheduled tasks, caching, type-safe configuration, and production observability. The next modules apply these skills to specialized domains: Module 15 covers Microservices Architecture (breaking the monolith into services, service discovery, API gateway, inter-service communication with Feign), or Module 16 covers building a complete full-stack application. Every remaining module builds on the Spring Boot foundation established in M13-M14."
+  }
+}

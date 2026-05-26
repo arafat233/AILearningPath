@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m42_t3",
+  "module_id": "m42",
+  "topic_number": 3,
+  "name": "Time Complexity Communication \u2014 Speaking Complexity Fluently",
+  "slug": "time-complexity-communication-fluency",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t1"
+    ],
+    "concepts_taught": [
+      "time-complexity-communication-fluency"
+    ],
+    "career_relevance": "Core interview preparation topic.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Time Complexity Communication \u2014 Speaking Complexity Fluently"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Always say 'O(X) because [reason]' \u2014 never just 'O(n)'",
+        "Common complexities and their causes: O(1) hashmap, O(log n) binary search, O(n) single pass, O(n\u00b2) nested loop",
+        "Space complexity: count auxiliary structures, not input size",
+        "Amortized analysis: ArrayList.add() is O(1) amortized despite occasional O(n) resize",
+        "Best/worst/average: quicksort O(n log n) avg O(n\u00b2) worst \u2014 always mention when relevant",
+        "Trade-off language: 'We can reduce time to O(X) at the cost of O(Y) space'"
+      ],
+      "next_topic_preview": "Next: Common Patterns Review \u2014 final pattern drill."
+    }
+  }
+}

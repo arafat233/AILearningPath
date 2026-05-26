@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t4",
+  "language": "java",
+  "module_id": "m13",
+  "module_name": "Spring Boot Fundamentals",
+  "topic_number": 4,
+  "name": "Validation and Exception Handling",
+  "slug": "validation-exception-handling",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m13_t3"],
+    "concepts_taught": [
+      "bean_validation_annotations",
+      "not_blank_not_null",
+      "positive_min_max",
+      "size_annotation",
+      "pattern_annotation",
+      "valid_annotation_on_request_body",
+      "method_argument_not_valid_exception",
+      "controller_advice",
+      "exception_handler",
+      "response_entity_with_error_body",
+      "custom_exception_classes",
+      "problem_detail_response",
+      "http_status_mapping"
+    ],
+    "skills_developed": [
+      "validating_request_bodies_with_jakarta_validation",
+      "writing_global_exception_handlers",
+      "returning_structured_error_responses",
+      "creating_custom_exceptions",
+      "mapping_exceptions_to_http_status_codes"
+    ],
+    "career_relevance": "Every production API validates input and handles errors gracefully. An API that returns stack traces on bad input is unmaintainable and a security risk. After this topic, your API rejects invalid data with clear 400 error messages, handles not-found and conflict cases with 404/409, and never leaks internal implementation details in error responses.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Without validation, your API accepts this:\n```json\nPOST /api/products\n{\"name\": \"\", \"price\": -500, \"qty\": 0}\n```\n→ saves garbage to the database, no error.\n\nWith a stack trace on bad input:\n```\nPOST /api/products\n{\"price\": \"not-a-number\"}\n→ 500 Internal Server Error\n   java.lang.NumberFormatException: For input string: \"not-a-number\"\n   at com.example.ProductService.create(ProductService.java:23)\n   ...(30 more lines exposing your package structure)\n```\n→ security risk, terrible user experience.\n\n**The professional approach:**\n```java\n// 1. Declare validation rules on the request:\npublic record ProductRequest(\n    @NotBlank(message = \"Name is required\")         String name,\n    @Positive(message = \"Price must be positive\")   double price,\n    @Min(value = 1, message = \"Qty must be >= 1\")   int qty\n) {}\n\n// 2. Trigger validation:\n@PostMapping\npublic ResponseEntity<Product> create(@Valid @RequestBody ProductRequest req) { ... }\n\n// 3. Handle validation errors globally:\n@ControllerAdvice\nclass GlobalExceptionHandler {\n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    ResponseEntity<Map<String,String>> handleValidation(MethodArgumentNotValidException ex) {\n        Map<String,String> errors = new LinkedHashMap<>();\n        ex.getBindingResult().getFieldErrors()\n          .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));\n        return ResponseEntity.badRequest().body(errors);\n    }\n}\n```\n\nNow bad input returns:\n```json\n400 Bad Request\n{\"name\": \"Name is required\", \"price\": \"Price must be positive\"}\n```\n\nClear, structured, secure. No stack trace. No internal details.",
+    "what_you_will_build": "By the end of this topic, you'll use @Valid with Bean Validation constraints (@NotBlank, @Positive, @Min, @Max, @Size, @Pattern), write a @ControllerAdvice with @ExceptionHandler, create custom exception classes, and map them to correct HTTP status codes."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "bean_validation": "**Bean Validation — annotate the rules on the class:**\n\n```java\nimport jakarta.validation.constraints.*;\n\npublic record ProductRequest(\n    @NotBlank(message = \"Name is required\")               String name,\n    @NotNull(message = \"Price is required\")\n    @Positive(message = \"Price must be positive\")          Double price,\n    @Min(value = 1, message = \"Qty must be at least 1\")\n    @Max(value = 999, message = \"Qty cannot exceed 999\")   int qty,\n    @Size(min = 2, max = 50, message = \"Category must be 2-50 chars\")\n    @NotBlank(message = \"Category is required\")            String category,\n    @Pattern(regexp = \"^[A-Z]{3,10}$\",\n             message = \"SKU must be 3-10 uppercase letters\") String sku\n) {}\n```\n\n**Common constraints:**\n- `@NotNull`: field must not be null\n- `@NotBlank`: String must not be null, empty, or whitespace-only\n- `@NotEmpty`: collection/String must not be null or empty\n- `@Positive`: number > 0\n- `@PositiveOrZero`: number >= 0\n- `@Min(n)` / `@Max(n)`: numeric minimum/maximum\n- `@Size(min, max)`: String/collection length bounds\n- `@Pattern(regexp)`: regex match\n- `@Email`: valid email format\n- `@Future` / `@Past`: date validation\n\n**pom.xml dependency:**\n```xml\n<!-- Already included with spring-boot-starter-web -->\n<!-- But for explicit dependency: -->\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-validation</artifactId>\n</dependency>\n```",
+
+      "valid_annotation": "**@Valid — trigger validation on the controller:**\n\n```java\n@PostMapping\npublic ResponseEntity<Product> create(@Valid @RequestBody ProductRequest req) {\n    // If req fails validation, Spring throws MethodArgumentNotValidException\n    // and control never reaches here\n    Product saved = productService.create(req);\n    return ResponseEntity.status(HttpStatus.CREATED).body(saved);\n}\n\n// Also works on @PathVariable and @RequestParam with @Validated on class:\n@RestController\n@Validated  // enables constraint validation on method parameters\nclass ProductController {\n    @GetMapping(\"/{id}\")\n    public Product getById(@PathVariable @Pattern(regexp=\"P\\\\d{3}\") String id) { ... }\n    // GET /api/products/not-valid → 400\n}\n```\n\n`@Valid` vs `@Validated`:\n- `@Valid` — standard Jakarta Validation; works on @RequestBody\n- `@Validated` — Spring's extension; required for validating @PathVariable and @RequestParam",
+
+      "controller_advice": "**@ControllerAdvice — global exception handling:**\n\n```java\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.MethodArgumentNotValidException;\n\n@RestControllerAdvice  // @ControllerAdvice + @ResponseBody (JSON error responses)\npublic class GlobalExceptionHandler {\n    \n    // Handle @Valid failures — 400 Bad Request:\n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    public ResponseEntity<Map<String, String>> handleValidation(\n            MethodArgumentNotValidException ex) {\n        Map<String, String> errors = new LinkedHashMap<>();\n        ex.getBindingResult().getFieldErrors()\n            .forEach(error -> errors.put(\n                error.getField(),\n                error.getDefaultMessage()));\n        return ResponseEntity.badRequest().body(errors);\n    }\n    \n    // Handle not-found scenarios — 404:\n    @ExceptionHandler(ResourceNotFoundException.class)\n    public ResponseEntity<Map<String, String>> handleNotFound(\n            ResourceNotFoundException ex) {\n        return ResponseEntity.status(HttpStatus.NOT_FOUND)\n            .body(Map.of(\"error\", ex.getMessage()));\n    }\n    \n    // Catch-all — 500 Internal Server Error (never expose details):\n    @ExceptionHandler(Exception.class)\n    public ResponseEntity<Map<String, String>> handleGeneric(Exception ex) {\n        // Log the real exception, return generic message:\n        return ResponseEntity.internalServerError()\n            .body(Map.of(\"error\", \"An unexpected error occurred\"));\n    }\n}\n```\n\n**@RestControllerAdvice** = @ControllerAdvice + @ResponseBody. Methods' return values are serialized to JSON.",
+
+      "custom_exceptions": "**Custom exception classes — map business errors to HTTP:**\n\n```java\n// Exception for missing resources (→ 404):\npublic class ResourceNotFoundException extends RuntimeException {\n    public ResourceNotFoundException(String resource, String id) {\n        super(resource + \" not found with id: \" + id);\n    }\n}\n\n// Exception for duplicate resources (→ 409 Conflict):\npublic class DuplicateResourceException extends RuntimeException {\n    public DuplicateResourceException(String message) {\n        super(message);\n    }\n}\n\n// Exception for business rule violations (→ 422):\npublic class BusinessRuleException extends RuntimeException {\n    private final String rule;\n    public BusinessRuleException(String rule, String message) {\n        super(message); this.rule = rule;\n    }\n    public String getRule() { return rule; }\n}\n\n// In the service:\npublic Product create(ProductRequest req) {\n    if (repo.existsByName(req.name()))\n        throw new DuplicateResourceException(\"Product already exists: \" + req.name());\n    return repo.save(new Product(req.name(), req.price(), req.category()));\n}\n\n// In the controller advice:\n@ExceptionHandler(DuplicateResourceException.class)\npublic ResponseEntity<Map<String,String>> handleDuplicate(DuplicateResourceException ex) {\n    return ResponseEntity.status(HttpStatus.CONFLICT)\n        .body(Map.of(\"error\", ex.getMessage()));\n}\n```",
+
+      "error_response_design": "**Structured error response design:**\n\n```java\n// Standard error response record:\npublic record ErrorResponse(\n    int status,\n    String error,\n    String message,\n    String path,\n    LocalDateTime timestamp\n) {}\n\n// In the handler:\n@ExceptionHandler(ResourceNotFoundException.class)\npublic ResponseEntity<ErrorResponse> handleNotFound(\n        ResourceNotFoundException ex,\n        HttpServletRequest request) {\n    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(\n        new ErrorResponse(\n            404,\n            \"Not Found\",\n            ex.getMessage(),\n            request.getRequestURI(),\n            LocalDateTime.now()\n        )\n    );\n}\n\n// Response:\n// 404 Not Found\n// {\n//   \"status\": 404,\n//   \"error\": \"Not Found\",\n//   \"message\": \"Product not found with id: P999\",\n//   \"path\": \"/api/products/P999\",\n//   \"timestamp\": \"2024-03-15T10:30:00\"\n// }\n```\n\nThis mirrors Spring Boot's default error format — familiar to API consumers."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Request lifecycle with validation and exception handling: (1) HTTP request arrives → DispatcherServlet → @Valid on @RequestBody → Jakarta Validation runs constraints. Two paths: PASS → controller method executes → response. FAIL → MethodArgumentNotValidException thrown → @ControllerAdvice catches → 400 response with field errors map. (2) Custom exception flow: service throws ResourceNotFoundException → bubbles up through controller → @ExceptionHandler in @ControllerAdvice catches → 404 response. (3) Exception-to-status mapping table: MethodArgumentNotValidException → 400, ResourceNotFoundException → 404, DuplicateResourceException → 409, BusinessRuleException → 422, Exception → 500.",
+      "alt_text": "Validation pipeline, custom exception handling flow, and exception-to-HTTP-status mapping"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add validation and error handling to the Product API from Topics 13.2/13.3. Validate the POST/PUT request body, handle not-found and duplicate errors, and return structured JSON error responses.",
+
+    "problem_statement": "Add to the product API:\n1. `ProductRequest` record with @NotBlank, @Positive, @Min/@Max, @Size constraints\n2. `@Valid` on @RequestBody in controller\n3. `ResourceNotFoundException` for GET/{id} misses\n4. `DuplicateResourceException` for duplicate product names\n5. `GlobalExceptionHandler` with @RestControllerAdvice handling 4 exception types\n6. Structured `ErrorResponse` record",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Validated request DTO",
+        "details": "```java\nimport jakarta.validation.constraints.*;\n\npublic record ProductRequest(\n    @NotBlank(message = \"Product name is required\")\n    @Size(max = 200, message = \"Name must not exceed 200 characters\")\n    String name,\n    \n    @NotNull(message = \"Price is required\")\n    @Positive(message = \"Price must be greater than 0\")\n    Double price,\n    \n    @NotBlank(message = \"Category is required\")\n    String category,\n    \n    @Min(value = 0, message = \"Stock cannot be negative\")\n    @Max(value = 10000, message = \"Stock cannot exceed 10,000\")\n    int stockQty\n) {}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Custom exceptions",
+        "details": "```java\npublic class ResourceNotFoundException extends RuntimeException {\n    public ResourceNotFoundException(String resource, String id) {\n        super(resource + \" not found: \" + id);\n    }\n}\n\npublic class DuplicateResourceException extends RuntimeException {\n    public DuplicateResourceException(String message) { super(message); }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Updated controller with @Valid",
+        "details": "```java\n@PostMapping\npublic ResponseEntity<Product> create(@Valid @RequestBody ProductRequest req) {\n    // Validation passed — proceed:\n    return ResponseEntity.status(HttpStatus.CREATED)\n        .body(productService.create(req));\n}\n\n@GetMapping(\"/{id}\")\npublic Product getById(@PathVariable String id) {\n    return productService.findById(id)\n        .orElseThrow(() -> new ResourceNotFoundException(\"Product\", id));\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "GlobalExceptionHandler",
+        "details": "```java\n@RestControllerAdvice\npublic class GlobalExceptionHandler {\n    \n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    public ResponseEntity<Map<String, String>> handleValidation(\n            MethodArgumentNotValidException ex) {\n        Map<String, String> errors = new LinkedHashMap<>();\n        ex.getBindingResult().getFieldErrors()\n            .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));\n        return ResponseEntity.badRequest().body(errors);\n    }\n    \n    @ExceptionHandler(ResourceNotFoundException.class)\n    public ResponseEntity<Map<String, String>> handleNotFound(\n            ResourceNotFoundException ex) {\n        return ResponseEntity.status(HttpStatus.NOT_FOUND)\n            .body(Map.of(\"error\", ex.getMessage()));\n    }\n    \n    @ExceptionHandler(DuplicateResourceException.class)\n    public ResponseEntity<Map<String, String>> handleDuplicate(\n            DuplicateResourceException ex) {\n        return ResponseEntity.status(HttpStatus.CONFLICT)\n            .body(Map.of(\"error\", ex.getMessage()));\n    }\n    \n    @ExceptionHandler(Exception.class)\n    public ResponseEntity<Map<String, String>> handleGeneric(Exception ex) {\n        return ResponseEntity.internalServerError()\n            .body(Map.of(\"error\", \"An unexpected error occurred\"));\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// ProductRequest.java:\nrecord ProductRequest(\n    @NotBlank(message=\"Name is required\") @Size(max=200) String name,\n    @NotNull @Positive(message=\"Price must be positive\") Double price,\n    @NotBlank(message=\"Category is required\") String category,\n    @Min(0) @Max(10000) int stockQty) {}\n\n// Exceptions:\nclass ResourceNotFoundException extends RuntimeException {\n    ResourceNotFoundException(String r, String id) { super(r+\" not found: \"+id); }\n}\nclass DuplicateResourceException extends RuntimeException {\n    DuplicateResourceException(String msg) { super(msg); }\n}\n\n// GlobalExceptionHandler.java:\n@RestControllerAdvice\nclass GlobalExceptionHandler {\n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    ResponseEntity<Map<String,String>> handleValidation(MethodArgumentNotValidException ex) {\n        Map<String,String> errors = new LinkedHashMap<>();\n        ex.getBindingResult().getFieldErrors().forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));\n        return ResponseEntity.badRequest().body(errors);\n    }\n    @ExceptionHandler(ResourceNotFoundException.class)\n    ResponseEntity<Map<String,String>> handleNotFound(ResourceNotFoundException ex) {\n        return ResponseEntity.status(404).body(Map.of(\"error\", ex.getMessage()));\n    }\n    @ExceptionHandler(DuplicateResourceException.class)\n    ResponseEntity<Map<String,String>> handleDuplicate(DuplicateResourceException ex) {\n        return ResponseEntity.status(409).body(Map.of(\"error\", ex.getMessage()));\n    }\n    @ExceptionHandler(Exception.class)\n    ResponseEntity<Map<String,String>> handleGeneric(Exception ex) {\n        return ResponseEntity.internalServerError().body(Map.of(\"error\",\"Unexpected error\"));\n    }\n}",
+
+    "expected_output": "# Blank name:\nPOST /api/products {\"name\":\"\",\"price\":799,\"category\":\"Electronics\",\"stockQty\":50}\n→ 400 {\"name\":\"Name is required\"}\n\n# Negative price:\nPOST /api/products {\"name\":\"Mouse\",\"price\":-50,\"category\":\"Electronics\",\"stockQty\":50}\n→ 400 {\"price\":\"Price must be positive\"}\n\n# Multiple errors:\nPOST /api/products {\"name\":\"\",\"price\":-1,\"stockQty\":-5}\n→ 400 {\"name\":\"Name is required\",\"price\":\"Price must be positive\",\"category\":\"Category is required\",\"stockQty\":\"Stock cannot be negative\"}\n\n# Not found:\nGET /api/products/P999\n→ 404 {\"error\":\"Product not found: P999\"}\n\n# Duplicate:\nPOST /api/products {\"name\":\"Wireless Mouse\",...} (already exists)\n→ 409 {\"error\":\"Product already exists: Wireless Mouse\"}",
+
+    "things_to_notice": [
+      "@Valid on @RequestBody is the trigger. Without it, Jakarta Validation annotations are defined but never checked. The controller method doesn't run at all when validation fails — Spring throws MethodArgumentNotValidException before entering the method.",
+      "The @RestControllerAdvice class is a global handler — it applies to ALL controllers in the application. One class handles errors for everything. No need to duplicate error handling logic per controller.",
+      "ex.getBindingResult().getFieldErrors() gives a list of FieldError objects. Each has getField() (the record field name, e.g., 'price') and getDefaultMessage() (the message from the annotation, e.g., 'Price must be positive'). Building a Map makes the JSON response clean.",
+      "The @ExceptionHandler(Exception.class) catch-all should NEVER expose the internal exception message to the client — that leaks implementation details and is a security risk. Log the real exception internally (log.error('Unexpected error', ex)), return a generic message.",
+      "Multiple errors in one request: all field errors are collected in one MethodArgumentNotValidException — the response shows ALL failures at once, not just the first. Users can fix everything in one round-trip.",
+      "Exception hierarchy matters: @ExceptionHandler(ResourceNotFoundException.class) is more specific than @ExceptionHandler(Exception.class). Spring picks the most specific handler. Put the catch-all last."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment validation",
+        "use_case": "POST /v1/orders validates: amount (@Positive, @Min(100) — minimum ₹1 in paise), currency (@Pattern(regexp='INR|USD|EUR')), receipt (@NotBlank). MethodArgumentNotValidException → 400 with `{\"error\": \"BAD_REQUEST\", \"description\": \"amount must be positive\"}`. The structured error response is documented in Razorpay's API docs so developers know exactly what to fix."
+      },
+      {
+        "company_context": "Flipkart seller portal",
+        "use_case": "When a seller uploads a product with invalid data (blank name, negative price, SKU format wrong), the API returns 400 with a map of every field that failed. @ControllerAdvice centralizes this — 50 controllers all get the same error format automatically. ProductNotFoundException → 404, DuplicateSkuException → 409. No stack traces ever reach the seller portal."
+      },
+      {
+        "company_context": "Spring Boot default error handling",
+        "use_case": "Without @ControllerAdvice, Spring Boot uses BasicErrorController — returns a generic error JSON but with Whitelabel Error Page for browser requests. With @ControllerAdvice, you own the error format. Companies standardize on formats like RFC 7807 Problem Details (Spring 6 supports this with ProblemDetail class). Consistent error responses are critical for API consumers."
+      }
+    ],
+
+    "interview_relevance": "Validation and error handling questions:\n\n- **'How do you validate a request body in Spring Boot?'** → Annotate the DTO with @NotBlank/@Positive/etc., add @Valid before @RequestBody in the controller. Validation failures throw MethodArgumentNotValidException.\n- **'What is @ControllerAdvice?'** → A class that provides cross-cutting behavior for all controllers. @ExceptionHandler methods in it catch exceptions from any controller.\n- **'How do you return a 404 when a resource is not found?'** → Throw a custom ResourceNotFoundException from the service. Handle it in @ControllerAdvice with @ExceptionHandler → ResponseEntity.status(404).body(...).\n- **'Difference between @ControllerAdvice and @RestControllerAdvice?'** → @RestControllerAdvice = @ControllerAdvice + @ResponseBody. Methods return JSON automatically.",
+
+    "real_world_workflow": "Daily validation workflow:\n\n- New endpoint: create DTO record with validation annotations\n- Add @Valid to @RequestBody parameter in controller\n- Add @ExceptionHandler for new exception types in GlobalExceptionHandler\n- Write @WebMvcTest that POSTs invalid data and asserts 400 + field errors"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_valid_annotation",
+      "what_students_get_wrong": "Adding @NotBlank etc. to the DTO but forgetting @Valid on the controller parameter — validation never runs.",
+      "remediation": "@Valid is the trigger. The constraint annotations on the class describe the rules; @Valid on the parameter tells Spring to actually run them. Without @Valid, POST with blank name is accepted silently.",
+      "detection_pattern": "Invalid data accepted without errors; tests expect 400 but get 201"
+    },
+    {
+      "gap_id": "using_controller_advice_not_rest",
+      "what_students_get_wrong": "@ControllerAdvice instead of @RestControllerAdvice — @ExceptionHandler methods return view names, not JSON.",
+      "remediation": "Use @RestControllerAdvice (= @ControllerAdvice + @ResponseBody) for REST APIs. Or add @ResponseBody to each @ExceptionHandler method. With plain @ControllerAdvice, returning a Map tries to find a view named 'java.util.LinkedHashMap' — 500 error.",
+      "detection_pattern": "500 from @ExceptionHandler; 'No template found' error"
+    },
+    {
+      "gap_id": "exposing_exception_details_in_catch_all",
+      "what_students_get_wrong": "In the catch-all: `Map.of('error', ex.getMessage())` — exposes internal details.",
+      "remediation": "The catch-all should log the real exception (log.error('Unexpected error', ex)) and return a generic message ('An unexpected error occurred'). Never expose internal exception messages, stack traces, or class names to API clients.",
+      "detection_pattern": "Stack trace or NullPointerException message in API response body"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@NotBlank: String not null/empty/whitespace; @NotNull: any type not null",
+      "@Positive: > 0; @Min(n)/@Max(n): numeric bounds; @Size(min,max): length bounds",
+      "@Pattern(regexp): regex constraint; @Email: valid email format",
+      "@Valid on @RequestBody: triggers constraint checking before method runs",
+      "MethodArgumentNotValidException: thrown when @Valid fails",
+      "ex.getBindingResult().getFieldErrors(): list of failing fields + messages",
+      "@RestControllerAdvice: global exception handler for JSON APIs",
+      "@ExceptionHandler(ExType.class): handles that exception type from any controller",
+      "Custom exceptions: ResourceNotFoundException → 404, DuplicateResourceException → 409",
+      "Catch-all @ExceptionHandler(Exception.class): log internally, return generic message",
+      "Exception specificity: Spring picks most specific handler; catch-all goes last",
+      "@Validated on controller class: enables validation of @PathVariable and @RequestParam"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "POST /api/orders with body `{\"amount\": -50, \"currency\": \"XYZ\"}` should return 400 with both field errors. Write the request DTO and the relevant @ExceptionHandler signature.",
+        "answer": "```java\nrecord OrderRequest(\n    @Positive(message = 'Amount must be positive') double amount,\n    @Pattern(regexp = 'INR|USD|EUR', message = 'Currency must be INR, USD, or EUR') String currency\n) {}\n\n// In controller: @PostMapping public ResponseEntity<Order> create(@Valid @RequestBody OrderRequest req)\n\n// @ExceptionHandler:\n@ExceptionHandler(MethodArgumentNotValidException.class)\nResponseEntity<Map<String,String>> handleValidation(MethodArgumentNotValidException ex) {\n    Map<String,String> errors = new LinkedHashMap<>();\n    ex.getBindingResult().getFieldErrors()\n        .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));\n    return ResponseEntity.badRequest().body(errors);\n}\n// Response: 400 {\"amount\": \"Amount must be positive\", \"currency\": \"Currency must be INR, USD, or EUR\"}\n```"
+      },
+      {
+        "question": "You throw ResourceNotFoundException from ProductService. The @ExceptionHandler in GlobalExceptionHandler should catch it. But it's still returning 500. What went wrong?",
+        "answer": "Several possible causes: (1) @ControllerAdvice instead of @RestControllerAdvice — without @ResponseBody, the method's Map return tries to resolve a view name and fails with 500. Fix: use @RestControllerAdvice. (2) GlobalExceptionHandler is not in the component scan path — place it in the same package tree as @SpringBootApplication. (3) The exception extends checked Exception instead of RuntimeException — if the controller declares `throws ResourceNotFoundException` and it's caught elsewhere. Most likely cause: forgot @RestControllerAdvice."
+      },
+      {
+        "question": "You have two @ExceptionHandler methods in @RestControllerAdvice: one for IllegalStateException and one for Exception. A service throws IllegalStateException. Which handler fires?",
+        "answer": "The IllegalStateException handler fires — Spring picks the most specific (closest to the thrown exception in the hierarchy) @ExceptionHandler. IllegalStateException is more specific than Exception, so it wins. If you only had the Exception handler, that would fire. This means you can have a generic fallback with @ExceptionHandler(Exception.class) and add specific handlers for known exception types without them interfering."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 13 topic: **Testing Spring Boot** — @WebMvcTest (test the HTTP layer with MockMvc, no database), @DataJpaTest (test repositories with H2), and @SpringBootTest (full integration test). MockMvc: `mvc.perform(post('/api/products').contentType(JSON).content(body)).andExpect(status().isCreated())`. After Topic 13.5, every layer of the Spring Boot stack is testable and tested."
+  }
+}

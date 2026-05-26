@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t4",
+  "language": "java",
+  "module_id": "m15",
+  "module_name": "Microservices Architecture",
+  "topic_number": 4,
+  "name": "Resilience4j Circuit Breaker",
+  "slug": "resilience4j-circuit-breaker",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m15_t3"],
+    "concepts_taught": [
+      "cascade_failure_problem",
+      "circuit_breaker_pattern",
+      "circuit_states_closed_open_half_open",
+      "resilience4j_dependency",
+      "circuit_breaker_annotation",
+      "fallback_method",
+      "circuit_breaker_configuration",
+      "failure_rate_threshold",
+      "wait_duration_open_state",
+      "retry_pattern",
+      "retry_annotation",
+      "rate_limiter_concept",
+      "bulkhead_concept",
+      "resilience4j_actuator_metrics",
+      "testing_circuit_breaker"
+    ],
+    "skills_developed": [
+      "adding_circuit_breaker_to_feign_calls",
+      "writing_fallback_methods",
+      "configuring_circuit_breaker_thresholds",
+      "adding_retry_logic",
+      "testing_circuit_breaker_state_transitions",
+      "monitoring_circuit_breaker_with_actuator"
+    ],
+    "career_relevance": "Cascade failures are the #1 cause of major outages in microservices systems. Swiggy, Flipkart, and Razorpay have all experienced cascades. Circuit breakers prevent a single failing service from taking down the entire system. Resilience4j is the standard Java circuit breaker library. After this topic, your microservices degrade gracefully — one service fails, others continue serving with fallbacks.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "It's 10 AM on a Monday. market-service goes down (deployment issue). Without a circuit breaker:\n\n```\norder-service receives 1000 requests/second\n→ each calls market-service (DOWN)\n→ each waits 30 seconds for TCP timeout\n→ order-service's thread pool fills up (all threads waiting)\n→ new requests queue up, then start failing\n→ order-service goes DOWN\n→ api-gateway can't reach order-service\n→ payment-service calls order-service (DOWN)\n→ cascade: ALL services are DOWN\n```\n\nOne service outage → everything fails. This is a cascade failure.\n\n**With Resilience4j Circuit Breaker:**\n```java\n@Service\nclass TradeService {\n    private final MarketServiceClient marketClient;\n    \n    @CircuitBreaker(name = \"market-service\",\n                    fallbackMethod = \"getQuoteFallback\")\n    public StockQuote getQuote(String symbol) {\n        return marketClient.getQuote(symbol);  // may fail\n    }\n    \n    // Called when market-service is DOWN or circuit is OPEN:\n    public StockQuote getQuoteFallback(String symbol, Exception ex) {\n        return new StockQuote(symbol, getLastKnownPrice(symbol), false);\n        // returns cached price; tradeable=false means orders won't execute\n    }\n}\n```\n\n```\nWhen market-service goes DOWN:\nFirst 5 calls fail → circuit OPENS\nNext calls: fallback returned INSTANTLY (no waiting 30s)\n→ order-service threads NOT blocked\n→ order-service stays UP\n→ users see 'market data unavailable, using cached prices'\n→ NOT a total outage\n\nAfter 60 seconds → circuit HALF-OPEN\n→ 1 test call to market-service\n→ if success: circuit CLOSES → normal operation\n→ if fail: circuit OPENS again → continue fallback\n```\n\nOne service goes down. Everything else stays up. That's circuit breaker.",
+    "what_you_will_build": "By the end of this topic, you'll add @CircuitBreaker to Feign calls, write fallback methods, configure thresholds, add @Retry for transient failures, and verify circuit breaker state transitions in @SpringBootTest."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "circuit_breaker_states": "**The three circuit breaker states:**\n\n```\n  CLOSED ←────────────────────────── HALF-OPEN\n    │                                     ↑\n    │  failure rate > threshold       test call succeeds\n    ↓                                     │\n  OPEN ──── wait duration ──────────── test call\n\n──────────────────────────────────────────────────────\nCLOSED (normal):\n  - All calls go through\n  - Counts successes and failures\n  - When failure rate > threshold → moves to OPEN\n\nOPEN (broken):\n  - NO calls go through — fallback returned IMMEDIATELY\n  - No waiting for timeouts → threads freed instantly\n  - After wait-duration-in-open-state → moves to HALF-OPEN\n\nHALF-OPEN (testing recovery):\n  - Allows N test calls through\n  - If success rate is good → CLOSED (service recovered!)\n  - If failure rate is still high → OPEN again\n──────────────────────────────────────────────────────\n```",
+
+      "resilience4j_setup": "**Adding Resilience4j:**\n\n```xml\n<dependency>\n    <groupId>org.springframework.cloud</groupId>\n    <artifactId>spring-cloud-starter-circuitbreaker-resilience4j</artifactId>\n</dependency>\n<!-- For Actuator metrics integration: -->\n<dependency>\n    <groupId>io.github.resilience4j</groupId>\n    <artifactId>resilience4j-micrometer</artifactId>\n</dependency>\n```\n\n```properties\n# application.properties — circuit breaker config:\nresilience4j.circuitbreaker.instances.market-service.register-health-indicator=true\nresilience4j.circuitbreaker.instances.market-service.sliding-window-size=10\nresilience4j.circuitbreaker.instances.market-service.minimum-number-of-calls=5\nresilience4j.circuitbreaker.instances.market-service.failure-rate-threshold=50\nresilience4j.circuitbreaker.instances.market-service.wait-duration-in-open-state=60s\nresilience4j.circuitbreaker.instances.market-service.permitted-number-of-calls-in-half-open-state=3\nresilience4j.circuitbreaker.instances.market-service.automatic-transition-from-open-to-half-open-enabled=true\n```",
+
+      "circuit_breaker_annotation": "**@CircuitBreaker — wrap a service call:**\n\n```java\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class TradeService {\n    private final MarketServiceClient marketClient;\n    \n    TradeService(MarketServiceClient mc) { marketClient = mc; }\n    \n    // The main call — wrapped in circuit breaker:\n    @CircuitBreaker(name = \"market-service\",    // matches config key\n                    fallbackMethod = \"quoteFallback\")\n    public StockQuote getQuote(String symbol) {\n        return marketClient.getQuote(symbol);\n        // If this throws: fallback is called\n        // If circuit is OPEN: fallback is called immediately (no HTTP call)\n    }\n    \n    // Fallback — same return type, SAME PARAMETERS + Exception:\n    public StockQuote quoteFallback(String symbol, Exception ex) {\n        System.out.println(\"Circuit breaker: using fallback for \" + symbol\n            + \" | reason: \" + ex.getClass().getSimpleName());\n        return new StockQuote(symbol, 0.0, false, \"FALLBACK\");\n    }\n    \n    // Multiple exception types — different fallbacks:\n    @CircuitBreaker(name = \"market-service\",\n                    fallbackMethod = \"quoteConnectionFallback\")\n    @Retry(name = \"market-service\")  // retry before circuit breaker kicks in\n    public StockQuote getQuoteWithRetry(String symbol) {\n        return marketClient.getQuote(symbol);\n    }\n    \n    public StockQuote quoteConnectionFallback(String symbol,\n            feign.FeignException.ServiceUnavailable ex) {\n        return new StockQuote(symbol, getCachedPrice(symbol), false, \"CACHED\");\n    }\n    \n    public StockQuote quoteConnectionFallback(String symbol, Exception ex) {\n        return new StockQuote(symbol, 0.0, false, \"ERROR\");\n    }\n}\n```\n\n**Fallback rules:**\n1. Same return type as the original method\n2. Same parameters PLUS one `Exception` (or specific exception subtype) at the end\n3. Multiple fallback methods for different exception types — most specific matches first",
+
+      "retry_annotation": "**@Retry — handle transient failures:**\n\n```properties\n# Retry configuration:\nresilience4j.retry.instances.market-service.max-attempts=3\nresilience4j.retry.instances.market-service.wait-duration=500ms\nresilience4j.retry.instances.market-service.retry-exceptions=java.io.IOException,feign.RetryableException\nresilience4j.retry.instances.market-service.ignore-exceptions=com.example.SymbolNotFoundException\n```\n\n```java\n// @Retry + @CircuitBreaker together:\n// Retry runs first (inner), circuit breaker wraps it (outer)\n@CircuitBreaker(name = \"market-service\", fallbackMethod = \"fallback\")\n@Retry(name = \"market-service\")\npublic StockQuote getQuote(String symbol) {\n    return marketClient.getQuote(symbol);\n}\n// Flow: call fails → retry (1) → retry (2) → retry (3) → all fail → circuit counts failure\n// After threshold failures → circuit opens → no more retries → immediate fallback\n```\n\n**When to use @Retry vs @CircuitBreaker:**\n- **@Retry**: transient failures (brief network hiccup, temporary 503)\n- **@CircuitBreaker**: prolonged outages (service is down for minutes)\n- **Both together**: retry transient failures; open circuit if persistent",
+
+      "actuator_monitoring": "**Monitor circuit breaker state via Actuator:**\n\n```properties\n# Expose circuit breaker health in Actuator:\nmanagement.endpoints.web.exposure.include=health,metrics\nmanagement.endpoint.health.show-details=always\nmanagement.health.circuitbreakers.enabled=true\n```\n\n```bash\n# Check circuit breaker state:\ncurl /actuator/health\n→ {\n     \"circuitBreakers\": {\n       \"market-service\": {\n         \"status\": \"CIRCUIT_OPEN\",  ← the circuit is open!\n         \"details\": {\n           \"failureRate\": \"60.0%\",\n           \"slowCallRate\": \"0.0%\",\n           \"bufferedCalls\": 10,\n           \"failedCalls\": 6,\n           \"state\": \"OPEN\"\n         }\n       }\n     }\n   }\n\n# Circuit breaker metrics:\ncurl /actuator/metrics/resilience4j.circuitbreaker.state\ncurl /actuator/metrics/resilience4j.circuitbreaker.calls\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Without circuit breaker — cascade failure timeline: market-service goes DOWN at t=0. order-service threads block (30s timeout each). Thread pool fills at t=10s. New requests queued then rejected. order-service DOWN at t=20s. payment-service also fails. Total cascade by t=30s. Red X on all services. (2) With circuit breaker — state machine diagram: CLOSED box with counters (8 success, 2 fail). Arrow labeled 'failure rate 50% exceeded' → OPEN box (lightning bolt icon, 'fallback returned instantly'). Arrow labeled 'wait 60s' → HALF-OPEN box ('3 test calls'). Arrow labeled 'tests pass' → back to CLOSED. Arrow labeled 'tests fail' → back to OPEN. (3) @CircuitBreaker + @Retry ordering: inner = @Retry (3 attempts, 500ms gap), outer = @CircuitBreaker (counts failure after retries). Diagram shows: call fails → wait 500ms → retry → fail → wait 500ms → retry → all fail → 1 failure recorded to circuit breaker count. If 6/10 fail → circuit opens.",
+      "alt_text": "Cascade failure without circuit breaker, circuit breaker state machine (CLOSED/OPEN/HALF-OPEN), and @Retry inside @CircuitBreaker ordering"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add circuit breaker to the trading platform. market-service is called on every trade. Add @CircuitBreaker with a fallback that returns cached prices. Add @Retry for transient errors. Verify state transitions in tests.",
+
+    "problem_statement": "1. Add @CircuitBreaker to TradeService.getQuote()\n2. Write a fallback that returns last-known price (from a simple cache)\n3. Add @Retry for network errors\n4. Configure thresholds in application.properties\n5. Test: verify fallback is called when market-service fails\n6. Test: verify circuit opens after threshold failures",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Configure circuit breaker",
+        "details": "```properties\n# application.properties:\nresilience4j.circuitbreaker.instances.market-service.sliding-window-size=10\nresilience4j.circuitbreaker.instances.market-service.minimum-number-of-calls=5\nresilience4j.circuitbreaker.instances.market-service.failure-rate-threshold=50\nresilience4j.circuitbreaker.instances.market-service.wait-duration-in-open-state=10s\nresilience4j.circuitbreaker.instances.market-service.permitted-number-of-calls-in-half-open-state=2\nresilience4j.circuitbreaker.instances.market-service.register-health-indicator=true\n\nresilience4j.retry.instances.market-service.max-attempts=3\nresilience4j.retry.instances.market-service.wait-duration=200ms\n```"
+      },
+      {
+        "step": 2,
+        "action": "TradeService with circuit breaker and fallback",
+        "details": "```java\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\nimport java.util.Map;\nimport java.util.concurrent.ConcurrentHashMap;\n\n@Service\npublic class TradeService {\n    private final MarketServiceClient marketClient;\n    // Simple price cache for fallback:\n    private final Map<String, Double> priceCache = new ConcurrentHashMap<>();\n    \n    TradeService(MarketServiceClient mc) { marketClient = mc; }\n    \n    @CircuitBreaker(name = \"market-service\", fallbackMethod = \"getQuoteFallback\")\n    @Retry(name = \"market-service\")\n    public StockQuote getQuote(String symbol) {\n        StockQuote quote = marketClient.getQuote(symbol);\n        priceCache.put(symbol, quote.price());  // update cache on success\n        return quote;\n    }\n    \n    // Fallback: returns cached price, tradeable=false\n    public StockQuote getQuoteFallback(String symbol, Exception ex) {\n        double cachedPrice = priceCache.getOrDefault(symbol, 0.0);\n        System.out.printf(\"[FALLBACK] %s: using cached price %.2f | %s%n\",\n            symbol, cachedPrice, ex.getClass().getSimpleName());\n        return new StockQuote(symbol, cachedPrice, false);\n    }\n    \n    public TradeConfirmation executeTrade(String userId, String symbol, int qty) {\n        StockQuote quote = getQuote(symbol);\n        if (!quote.tradeable()) {\n            throw new MarketUnavailableException(\n                \"Market unavailable for \" + symbol + \" — using cached price\");\n        }\n        return new TradeConfirmation(userId, symbol, qty, quote.price());\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "@SpringBootTest circuit breaker test",
+        "details": "```java\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties = {\n    \"eureka.client.enabled=false\",\n    // Low thresholds for testing:\n    \"resilience4j.circuitbreaker.instances.market-service.sliding-window-size=5\",\n    \"resilience4j.circuitbreaker.instances.market-service.minimum-number-of-calls=3\",\n    \"resilience4j.circuitbreaker.instances.market-service.failure-rate-threshold=60\",\n    \"resilience4j.circuitbreaker.instances.market-service.wait-duration-in-open-state=2s\"\n})\nclass CircuitBreakerTest {\n    @MockBean MarketServiceClient marketClient;\n    @Autowired TradeService tradeService;\n    @Autowired CircuitBreakerRegistry registry;\n    \n    @BeforeEach void resetCircuit() {\n        registry.circuitBreaker(\"market-service\").reset();\n    }\n    \n    @Test void fallback_calledWhenServiceFails() {\n        when(marketClient.getQuote(anyString()))\n            .thenThrow(new RuntimeException(\"Connection refused\"));\n        StockQuote quote = tradeService.getQuote(\"TCS\");\n        assertEquals(\"TCS\", quote.symbol());\n        assertFalse(quote.tradeable());  // fallback returns tradeable=false\n    }\n    \n    @Test void circuit_opensAfterThresholdFailures() throws Exception {\n        when(marketClient.getQuote(anyString()))\n            .thenThrow(new RuntimeException(\"Service down\"));\n        // Trigger 5 failures (above minimum-calls=3 and threshold=60%):\n        for (int i = 0; i < 5; i++) tradeService.getQuote(\"TCS\");\n        var cb = registry.circuitBreaker(\"market-service\");\n        assertEquals(CircuitBreaker.State.OPEN, cb.getState());\n        // Now call — fallback returned without calling marketClient:\n        verify(marketClient, atMost(5)).getQuote(any());\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// application.properties: resilience4j CB + Retry config\n// TradeService: @CircuitBreaker + @Retry + fallback with price cache\n// CircuitBreakerTest: @MockBean + @SpringBootTest, verify fallback + state\n\n// Flow:\n// getQuote('TCS') → @Retry(max=3) → marketClient.getQuote('TCS')\n//   fail → retry → fail → retry → fail → COUNTED as 1 failure by CB\n//   after 60% fail rate → circuit OPENS\n//   next getQuote('TCS') → IMMEDIATELY returns fallback (no HTTP call)",
+
+    "expected_output": "# Normal operation:\ngetQuote('TCS') → market-service returns {price: 3890, tradeable: true}\n[cache updated: TCS=3890]\n\n# market-service goes DOWN:\ngetQuote('TCS') → fail → retry → fail → retry → fail → FAILURE\n[FALLBACK] TCS: using cached price 3890.00 | ConnectException\n\n# After 5 failures (circuit OPENS):\ngetQuote('TCS') → [CIRCUIT OPEN] fallback immediately\n[FALLBACK] TCS: using cached price 3890.00 | CallNotPermittedException\n\n# After 10s wait (HALF-OPEN):\ngetQuote('TCS') → test call → SUCCESS\ncircuit CLOSED → normal operation resumed",
+
+    "things_to_notice": [
+      "The fallback method signature: same return type, same parameters as the original, PLUS Exception at the end. The name is passed in fallbackMethod='getQuoteFallback'. If the names don't match exactly, it fails at startup with an error.",
+      "@Retry and @CircuitBreaker together: order matters. Retry is 'inner' (runs first), CircuitBreaker is 'outer' (wraps the retry block). So: call fails → retry up to 3 times → all 3 fail → CircuitBreaker counts 1 failure. After enough 'events', circuit opens.",
+      "CallNotPermittedException: the exception Resilience4j throws when the circuit is OPEN and a call is attempted. In the fallback, you can check `ex instanceof CallNotPermittedException` to distinguish 'circuit open' from 'actual service error' and return different responses.",
+      "registry.circuitBreaker('market-service').reset() in @BeforeEach: essential for test isolation. Without resetting, failures from test1 affect the circuit state for test2. Each test should start with a CLOSED circuit.",
+      "The circuit breaker is applied at the SERVICE level (@Service method), not the Feign interface level. This means the fallback logic is in your domain code, not buried in infrastructure. You can cache prices, return defaults, or throw domain-specific exceptions in the fallback."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy order resilience",
+        "use_case": "Swiggy's order-service has circuit breakers on calls to restaurant-service, payment-service, and delivery-service. When restaurant-service is slow during lunch rush: circuit opens after 50% failure rate. Fallback: return cached restaurant status (last known: open). User can still see the restaurant and place orders — payment might fail later, which is handled separately. Partial degradation instead of total failure."
+      },
+      {
+        "company_context": "Razorpay payment fallback",
+        "use_case": "If the fraud-detection-service is down, should payments fail? No — Razorpay's circuit breaker fallback: allow low-risk payments (small amounts, trusted merchants) through without fraud check. The circuit open state triggers a flag in the order: 'fraud_check=SKIPPED'. A separate reconciliation job retro-checks skipped payments once fraud-service recovers. Business continuity over strict correctness."
+      },
+      {
+        "company_context": "Netflix's original Hystrix",
+        "use_case": "Resilience4j is the successor to Netflix's Hystrix (now in maintenance mode). Netflix uses circuit breakers across their entire microservices ecosystem — if recommendation-service is down, users still see the home screen with popular titles. If playback-service has latency, circuit opens and serves cached video URLs. Circuit breakers are a key reason Netflix can handle massive failures without complete outages."
+      }
+    ],
+
+    "interview_relevance": "Circuit breaker interview questions:\n\n- **'What is a circuit breaker in microservices?'** → A pattern that prevents cascade failures. After N failures, the circuit 'opens' and calls return a fallback immediately — no blocking on a broken service.\n- **'What are the three circuit breaker states?'** → CLOSED (normal), OPEN (failing — fallback returned), HALF-OPEN (testing recovery with limited calls).\n- **'What is the difference between @Retry and @CircuitBreaker?'** → @Retry: retries transient errors (brief failures). @CircuitBreaker: opens after persistent failures (service is down for minutes). Use together: retry first, then circuit breaker counts the result.\n- **'What is a fallback method?'** → The code that runs when the circuit is open or the call fails. Same signature + Exception parameter. Returns a safe default — cached data, empty list, disabled feature.",
+
+    "real_world_workflow": "Daily circuit breaker workflow:\n\n- New Feign call: add @CircuitBreaker with meaningful fallback\n- Configure thresholds in application.properties per service\n- Verify fallback makes sense (cached data? empty list? disabled feature?)\n- Test: mock the failure, verify fallback is called\n- Monitor: /actuator/health shows circuit breaker state in production"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "fallback_signature_wrong",
+      "what_students_get_wrong": "Fallback method has wrong signature — missing Exception parameter or wrong return type — fails at startup.",
+      "remediation": "Fallback must: (1) have the same return type as the annotated method, (2) take exactly the same parameters as the annotated method PLUS one Exception (or specific subtype) at the end. Name in fallbackMethod= must exactly match the fallback method name (case-sensitive). Startup error: 'No fallback method found for method name: ...'",
+      "detection_pattern": "IllegalStateException: No fallback method found at application startup"
+    },
+    {
+      "gap_id": "circuit_breaker_on_interface",
+      "what_students_get_wrong": "Adding @CircuitBreaker to the @FeignClient interface method instead of the @Service method.",
+      "remediation": "@CircuitBreaker must be on a @Service method, not on the @FeignClient interface. Feign interfaces are proxies — Spring AOP (which powers @CircuitBreaker) doesn't wrap Feign proxy methods. Put the circuit breaker in the service that calls the Feign interface.",
+      "detection_pattern": "@CircuitBreaker on Feign interface is silently ignored — circuit never opens"
+    },
+    {
+      "gap_id": "not_resetting_circuit_in_tests",
+      "what_students_get_wrong": "Circuit breaker state persists between tests — failures in test1 open the circuit for test2.",
+      "remediation": "In @BeforeEach: `registry.circuitBreaker('my-service').reset()`. This resets the circuit to CLOSED state with zero counters. Without this, tests are order-dependent and intermittently failing.",
+      "detection_pattern": "Tests pass individually but fail when run together; intermittent failures"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Circuit breaker: CLOSED (normal) → OPEN (fallback) → HALF-OPEN (testing) → CLOSED",
+      "OPEN state: calls return fallback IMMEDIATELY — no blocking, no timeout",
+      "@CircuitBreaker(name='key', fallbackMethod='method'): wraps the call",
+      "Fallback signature: same return type + same params + Exception at end",
+      "CallNotPermittedException: thrown when circuit is OPEN and call attempted",
+      "@Retry: retry transient failures; @CircuitBreaker: open on persistent failures",
+      "Order: @Retry inside @CircuitBreaker — retry first, then circuit counts result",
+      "failure-rate-threshold=50: open circuit when 50% of calls fail",
+      "sliding-window-size=10: count last 10 calls for failure rate",
+      "wait-duration-in-open-state=60s: how long circuit stays OPEN",
+      "register-health-indicator=true: shows circuit state in /actuator/health",
+      "registry.circuitBreaker('name').reset() in @BeforeEach: test isolation"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Your @CircuitBreaker fallback is never called even though the downstream service is throwing exceptions. What might be wrong?",
+        "answer": "Several possibilities: (1) @CircuitBreaker is on the @FeignClient interface method instead of the @Service method — doesn't work on Feign proxies, must be on @Service. (2) Fallback method name in fallbackMethod= doesn't match exactly (case-sensitive). (3) Fallback method signature is wrong — must have same return type and params as original + Exception at end. (4) @EnableAspectJAutoProxy is disabled — Resilience4j uses AOP. (5) Self-invocation: method with @CircuitBreaker calls another method on `this` that fails — AOP proxy not involved. Check: look for startup warnings about missing fallback."
+      },
+      {
+        "question": "After 5 consecutive failures, the circuit opens. The next 100 calls all return the fallback instantly. After 60 seconds, the circuit moves to HALF-OPEN. The first test call succeeds. What happens next?",
+        "answer": "After the first test call succeeds in HALF-OPEN state, Resilience4j checks if the success rate for permitted calls is above the threshold. With 1 success and permitted-number-of-calls-in-half-open-state=2 (for example), it allows one more test call. If both test calls succeed and the success rate is above the threshold, the circuit transitions back to CLOSED — normal operation resumes. If configured with only 1 permitted call and it succeeds, the circuit might close with just that one success. The exact behavior depends on permitted-number-of-calls and success-rate-threshold-in-half-open-state."
+      },
+      {
+        "question": "Should you put @CircuitBreaker on every inter-service call? What are the tradeoffs?",
+        "answer": "Not necessarily every call, but every critical inter-service call. Tradeoffs: FOR: prevents cascade failures, graceful degradation, better user experience. AGAINST: fallbacks need meaningful business logic (what's a 'good' fallback?), circuit state adds operational complexity, debugging is harder when calls silently fall back. Decision criteria: (1) Is the call on the critical path? If it fails, does the whole feature fail? → use circuit breaker. (2) Is there a meaningful fallback? (cached data, disabled feature, default value) → use it. (3) For non-critical (analytics, logging) calls: @Retry may be enough without circuit breaker. Rule: if a downstream failure would propagate to the end user as an error, add a circuit breaker."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 15 topic: **Distributed Tracing** — your trading platform has 5 microservices. A trade takes 2 seconds. Which service is slow? Where did the request spend its time? Without tracing: impossible to diagnose. With distributed tracing (Micrometer Tracing + Zipkin): each request gets a `traceId`. Every service logs this ID. Zipkin shows the full request tree: `order-service(50ms) → market-service(1800ms) → DB(1700ms)`. The bottleneck is clear immediately. After Topic 15.5, you trace requests across your entire microservices system."
+  }
+}

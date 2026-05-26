@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m30_t4",
+  "language": "java",
+  "module_id": "m30",
+  "topic_number": 4,
+  "name": "Dutch National Flag \u2014 3-Way Partition",
+  "slug": "dutch-national-flag-3way-partition",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m30_t1",
+      "java_m29_t1"
+    ],
+    "concepts_taught": [
+      "dutch_national_flag",
+      "3way_partition",
+      "sort_colors",
+      "partition_around_pivot",
+      "equal_elements_3way",
+      "in_place_categorization"
+    ],
+    "skills_developed": [
+      "3way_partition_in_on_o1",
+      "sorting_0s_1s_2s",
+      "applying_dnf_to_quicksort"
+    ],
+    "career_relevance": "DNF partition is the key to quicksort performance on duplicate-heavy data (common in Zerodha's trade prices). It also appears as 'Sort Colors' (LeetCode #75) in nearly every DSA screening.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha trade status array:\n['PENDING','EXECUTED','FAILED','EXECUTED','PENDING','FAILED']\nSort into: all PENDING | all EXECUTED | all FAILED\n\nBrute force: sort \u2192 O(n log n)\nDutch National Flag: O(n) time, O(1) space \u2014 one pass!\n\nAlgorithm:\n  low=0, mid=0, high=n-1\n  while mid <= high:\n    if arr[mid] == PENDING: swap(low, mid), low++, mid++\n    if arr[mid] == EXECUTED: mid++\n    if arr[mid] == FAILED: swap(mid, high), high--\n```",
+    "what_you_will_build": "DNF partition for Sort Colors and custom 3-way categorization."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "dnf": "**Dutch National Flag \u2014 3 pointers:**\n\n```java\n// Sort Colors: 0=red, 1=white, 2=blue\nvoid sortColors(int[] nums) {\n    int low=0, mid=0, high=nums.length-1;\n    while (mid <= high) {\n        if (nums[mid] == 0) {      // red: move to front\n            swap(nums, low++, mid++);\n        } else if (nums[mid] == 1) { // white: correct position\n            mid++;\n        } else {                   // blue: move to end\n            swap(nums, mid, high--);\n            // Note: don't increment mid \u2014 swapped element needs checking\n        }\n    }\n}\n// O(n) time, O(1) space \u2014 one pass, three regions:\n// [0..low-1] = all 0s (red)\n// [low..mid-1] = all 1s (white)\n// [high+1..n-1] = all 2s (blue)\n// [mid..high] = unexplored\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "DNF array partitioned into 4 regions: [0..low-1] all 0s (red), [low..mid-1] all 1s (white), [mid..high] unknown (to process), [high+1..n-1] all 2s (blue). Arrows: low and mid advance together on 0, only mid advances on 1, high recedes on 2.",
+      "alt_text": "Dutch National Flag three-way partition"
+    },
+    "worked_example": {
+      "scenario": "Sort Colors: [2,0,2,1,1,0] \u2192 [0,0,1,1,2,2]",
+      "problem_statement": "Single pass sort of array containing only 0, 1, 2.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Invariants",
+          "details": "low: next position for 0. mid: current element being processed. high: next position for 2. Everything between low and mid-1 is 1. When mid swaps with high: check swapped element (don't advance mid)."
+        }
+      ],
+      "final_code": "int low=0,mid=0,high=n-1; while(mid<=high){if(nums[mid]==0) swap(low++,mid++); else if(nums[mid]==1) mid++; else swap(mid,high--);}",
+      "expected_output": "[2,0,2,1,1,0] \u2192 [0,0,1,1,2,2]",
+      "things_to_notice": [
+        "When swapping mid with high: don't advance mid \u2014 need to re-examine the swapped element",
+        "This handles duplicates of 0, 1, 2 naturally",
+        "Three invariants maintained throughout: left region=0, middle=1, right=2"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha order status",
+          "use_case": "Partition 1M orders into PENDING/EXECUTED/FAILED in O(n) O(1) space."
+        }
+      ],
+      "interview_relevance": "LeetCode #75 Sort Colors \u2014 asked in 20%+ of first DSA rounds at Flipkart, Amazon India. Key follow-up: 'Can you do it in one pass without extra space?' \u2192 DNF.",
+      "real_world_workflow": "3-way partition: identify your 3 categories, map to 0/1/2, apply DNF. Also used for 3-way quicksort (faster on duplicate-heavy data like sorted or all-same arrays)."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "advancing_mid_on_2_swap",
+        "what_students_get_wrong": "Incrementing mid after swapping with high. The element swapped from high hasn't been examined yet \u2014 it could be 0, 1, or 2.",
+        "remediation": "Only increment mid when nums[mid] is 0 or 1 (element confirmed in correct region). When swapping with high, only decrement high \u2014 don't advance mid.",
+        "detection_pattern": "Student writes: else { swap(mid, high); mid++; high--; } \u2014 incorrect, misses elements"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "3 pointers: low (next 0 position), mid (current), high (next 2 position)",
+        "Case 0: swap(low,mid), low++, mid++ \u2014 both advance",
+        "Case 1: mid++ only \u2014 element in place",
+        "Case 2: swap(mid,high), high-- only \u2014 mid stays (re-examine swapped)",
+        "One pass O(n), O(1) space \u2014 optimal for 3-value sort"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why don't we increment mid after swapping nums[mid] with nums[high]?",
+          "answer": "When we swap nums[mid] with nums[high], the element that moves to position mid came from nums[high] \u2014 and we haven't examined it yet. It could be 0, 1, or 2. We must check it in the next iteration. Decrementing high is safe (that position is now confirmed as 2), but mid stays because it now contains an unexamined element."
+        }
+      ],
+      "next_topic_preview": "Next: Array Synthesis \u2014 combine two pointers, sliding window, prefix sums, and DNF on harder problems."
+    }
+  }
+}

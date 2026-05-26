@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m20_t4",
+  "language": "java",
+  "module_id": "m20",
+  "module_name": "Observability",
+  "topic_number": 4,
+  "name": "Prometheus & Grafana Dashboards",
+  "slug": "prometheus-grafana-dashboards",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m20_t3"],
+    "concepts_taught": ["prometheus_data_model","promql_basics","rate_function","histogram_quantile","grafana_panels","grafana_alerts","dashboard_as_code","recording_rules","service_level_indicators"],
+    "skills_developed": ["writing_promql_queries","building_grafana_panels","setting_alert_thresholds","creating_service_dashboards","using_recording_rules"],
+    "career_relevance": "Grafana dashboards are the war room for production incidents. When Razorpay's p99 spikes at 7pm, the on-call engineer opens Grafana and sees exactly which service, which gateway, and which error type. After this topic, you can build a production-ready payment dashboard from scratch.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Without Grafana: engineer receives PagerDuty alert at 7pm — no visibility. Opens logs, scans thousands of lines, manually correlates. 45 minutes to find root cause.\n\nWith Grafana dashboard:\n- Panel 1: Payment rate (req/s) → drops from 200 to 12 at 7:00pm\n- Panel 2: p99 latency → spikes to 2.8s at 7:00pm\n- Panel 3: Error rate by gateway → visa error rate jumps to 15%\n- Panel 4: Circuit breaker state → payment-cb shows OPEN\nDiagnosis in 90 seconds: Visa gateway issue → CB opened → most payments queued.",
+    "what_you_will_build": "PromQL queries for payment metrics, Grafana dashboard with 4 key panels, alert rules, and service level indicator (SLI) tracking."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "promql": "**Key PromQL patterns for Spring Boot services:**\n\n```promql\n# Payment rate (requests per second, 5-minute window):\nrate(payments_total_total{status='success'}[5m])\n\n# Error rate percentage:\nsum(rate(payments_total_total{status='failure'}[5m]))\n/ sum(rate(payments_total_total[5m])) * 100\n\n# p99 latency (from Timer with publishPercentileHistogram=true):\nhistogram_quantile(0.99,\n  sum(rate(payments_duration_seconds_bucket[5m])) by (le, gateway)\n)\n\n# p99 from pre-computed percentiles (publishPercentiles=[0.99]):\npayments_duration_seconds{quantile='0.99'}\n\n# Circuit breaker open count:\nresilience4j_circuitbreaker_state{state='open'}\n\n# DB connection pool utilization:\nhikaricp_connections_active / hikaricp_connections_max\n```",
+      "grafana": "**Grafana dashboard panels:**\n\n```\nPanel 1: Payment Throughput (time series)\n  Query: sum(rate(payments_total_total[5m])) by (status)\n  Threshold: alert if success rate < 100 req/s\n\nPanel 2: P99 Latency (time series)\n  Query: payments_duration_seconds{quantile='0.99'}\n  Threshold: alert if > 500ms\n\nPanel 3: Error Rate % (stat panel)\n  Query: see above\n  Thresholds: green < 0.5%, yellow 0.5-1%, red > 1%\n\nPanel 4: Circuit Breaker States (table)\n  Query: resilience4j_circuitbreaker_state\n  Show: name, state (CLOSED/OPEN/HALF_OPEN)\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Grafana dashboard with 4 panels. Top-left: payment rate time series (green line drops to red at 7pm). Top-right: p99 latency (spikes to 2.8s). Bottom-left: error rate gauge (0.2% → 15%). Bottom-right: table showing circuit breakers — payment-cb=OPEN. Red shading shows incident window.", "alt_text": "Grafana dashboard showing payment metrics during an incident" }
+  },
+  "worked_example": {
+    "scenario": "Build a Razorpay payment dashboard in Grafana: rate, p99, error%, circuit breaker state.",
+    "problem_statement": "Write 4 PromQL queries and describe their Grafana panel configurations.",
+    "step_by_step_solution": [{ "step": 1, "action": "4 PromQL queries", "details": "```promql\n# Rate: rate(payments_total_total{status='success'}[5m])\n# Error%: sum(rate(...{status='failure'}[5m])) / sum(rate(...[5m])) * 100\n# P99: payments_duration_seconds{quantile='0.99'}\n# CB: resilience4j_circuitbreaker_state{name='payment-cb'}\n```" }],
+    "final_code": "// Dashboard JSON exported from Grafana — version-controlled in Git\n// prometheus.yml scrape config: scrape_interval: 15s, metrics_path: /actuator/prometheus",
+    "expected_output": "# Grafana: 4 panels showing payment health at a glance\n# SLI: 99.9% of payments complete in < 500ms p99",
+    "things_to_notice": [
+      "rate() with [5m] window: smooths out spikes. Shorter window = more sensitive. Longer = smoother.",
+      "histogram_quantile: requires publishPercentileHistogram=true (server-side computation). More accurate than pre-computed percentiles for multi-instance deployments.",
+      "Dashboard as code: export dashboard JSON to Git. Reproducible, reviewable, deployable.",
+      "SLI vs SLO: SLI is the metric (actual p99). SLO is the target (p99 < 500ms). Alert fires when SLI breaches SLO."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay SRE dashboard", "use_case": "5 panels: payment rate, p50/p95/p99 latency, error rate by gateway, circuit breaker states, DB pool utilization. Alert: error rate > 1% for 5 minutes → PagerDuty + Slack." }
+    ],
+    "interview_relevance": "'What is a SLI/SLO?' → SLI (Service Level Indicator): the metric measuring your promise (actual p99 latency). SLO (Service Level Objective): the target (p99 < 500ms 99.9% of the time). Alert fires when SLI threatens to breach SLO.",
+    "real_world_workflow": "Dashboard build order: (1) identify 3-4 key metrics from product requirements, (2) write PromQL, (3) build panels, (4) set alert thresholds with runbooks, (5) export to Git."
+  },
+  "common_gaps": [
+    { "gap_id": "wrong_rate_window", "what_students_get_wrong": "Using [1m] rate window on low-traffic services — shows NaN or 0 when traffic is sparse.", "remediation": "Use [5m] for most services. [1m] needs > 1 data point per minute. [15m] for very low traffic.", "detection_pattern": "Grafana shows NaN or 0 for rate() when metric clearly has values" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "rate(): converts counter to rate/second over a time window",
+      "histogram_quantile(0.99, ...): p99 from histogram buckets (publishPercentileHistogram=true)",
+      "Error rate%: sum(failure rate) / sum(total rate) * 100",
+      "SLI: the measured metric; SLO: the target; Error budget: 1 - SLO",
+      "Dashboard as code: export JSON to Git, reproducible deployments"
+    ],
+    "self_check_questions": [
+      { "question": "rate(payments_total_total[5m]) vs irate(payments_total_total[5m]) — which is better for alerting?", "answer": "rate(): better for alerting. It calculates average rate over the full [5m] window — smooth and stable. irate(): instantaneous rate (last two samples) — very sensitive to spikes but unreliable for alerting (a single bad data point causes false alert). Use rate() for alerts and dashboards. Use irate() only for real-time debugging where you want maximum sensitivity." }
+    ],
+    "next_topic_preview": "Final Module 20 topic: Alerting & SLO monitoring — building a complete alerting strategy with error budgets, on-call runbooks, and multi-window burn rate alerts."
+  }
+}

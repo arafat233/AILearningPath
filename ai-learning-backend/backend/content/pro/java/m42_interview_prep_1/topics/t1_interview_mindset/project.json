@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m42_t1_proj",
+  "linked_topic": "java_m42_t1",
+  "level": "mini",
+  "name": "Zerodha Mock Interview Round 1 \u2014 Communication",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  "scenario": "Build Zerodha Mock Interview Round 1 \u2014 Communication.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Complete all core practice exercises.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "Record yourself answering 4 questions; time under 2 min each.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "Written reflection: 3 things to improve.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Peer review with another learner.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Interview mindset: (1) Clarify before coding, (2) State approach + complexity, (3) Code with narration, (4) Test aloud. The 5-minute rule: spend first 5 min on clarity and planning, not coding.",
+  "rubric": [
+    {
+      "category": "Core exercises",
+      "points": 50
+    },
+    {
+      "category": "Timed practice",
+      "points": 35
+    },
+    {
+      "category": "Reflection",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

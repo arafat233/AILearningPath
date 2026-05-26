@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m37_t3",
+  "module_id": "m37",
+  "topic_number": 3,
+  "name": "Topological Sort \u2014 Kahn's BFS, DFS Post-Order, Course Schedule",
+  "slug": "topological-sort-kahns-dfs",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m37_t2"
+    ],
+    "concepts_taught": [
+      "topological-sort-kahns-dfs"
+    ],
+    "career_relevance": "Core Topological Sort \u2014 Kahn's BFS, DFS Post-Order, Course Schedule patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Topological Sort \u2014 Kahn's BFS, DFS Post-Order, Course Schedule"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Kahn's BFS: start from 0-indegree nodes; process + decrement neighbors; cycle if count<n",
+        "DFS topo: post-order DFS, push to stack on return; reverse stack = order",
+        "Course Schedule: canFinish = Kahn's processed count == n",
+        "Course Schedule II: return order array from Kahn's",
+        "Alien Dictionary: build graph from adjacent word pairs",
+        "Task ordering: any valid topological order is a valid schedule"
+      ],
+      "next_topic_preview": "Next: Shortest Path algorithms."
+    }
+  }
+}

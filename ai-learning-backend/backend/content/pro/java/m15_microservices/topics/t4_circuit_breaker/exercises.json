@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t4",
+  "topic_name": "Resilience4j Circuit Breaker",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m15_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Circuit states — what happens when?",
+      "scenario": "The circuit breaker state determines whether calls go through.",
+      "instructions": "A circuit breaker has: failure-rate-threshold=50%, sliding-window-size=10, minimum-calls=5.\n\n10 calls are made. 6 succeed, 4 fail (40% failure rate). Is the circuit OPEN?\n\nThen 5 more calls are made. All 5 fail. What is the failure rate for the last 10 calls? Is the circuit OPEN now?\n\nIf the circuit opens, what happens to the NEXT call attempt?",
+      "expected_solution": "After first 10 calls (6 success, 4 fail = 40% failure rate):\nCircuit is CLOSED (40% < 50% threshold)\n\nAfter 5 more failures (sliding window now: last 10 = 5 old success + 5 new fail = 50% failure):\nCircuit is CLOSED → wait... 5 fails in window size 10: failure rate = 50% → threshold met → circuit OPENS\n\nNext call attempt:\n→ CallNotPermittedException thrown immediately\n→ Fallback method called (no HTTP call made)\n→ Response returned in microseconds (not 30s timeout)",
+      "test_cases": [
+        { "type": "text_match", "expected": "After first 10 calls (6 success, 4 fail = 40% failure rate):\nCircuit is CLOSED (40% < 50% threshold)\n\nAfter 5 more failures (sliding window now: last 10 = 5 old success + 5 new fail = 50% failure):\nCircuit is CLOSED → wait... 5 fails in window size 10: failure rate = 50% → threshold met → circuit OPENS\n\nNext call attempt:\n→ CallNotPermittedException thrown immediately\n→ Fallback method called (no HTTP call made)\n→ Response returned in microseconds (not 30s timeout)" }
+      ],
+      "hints": [
+        "Sliding window: last N calls, not all calls",
+        "50% failure rate = threshold met = OPEN",
+        "OPEN state: CallNotPermittedException → fallback instantly"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete @CircuitBreaker and fallback",
+      "scenario": "@CircuitBreaker wraps a call; fallback has same return type + Exception.",
+      "instructions": "Fill in the blanks.",
+      "starter_code": "@Service\npublic class PriceService {\n    private final MarketClient client;\n    \n    @_______________(name = \"market-service\",\n                    fallbackMethod = \"_____________\")\n    public Double getPrice(String symbol) {\n        return client.getPrice(symbol);\n    }\n    \n    // Fallback: same params + Exception\n    public Double ______________(String symbol, __________ ex) {\n        System.out.println(\"Fallback for \" + symbol);\n        return 0.0;\n    }\n}",
+      "expected_solution": "@Service\npublic class PriceService {\n    private final MarketClient client;\n    \n    @CircuitBreaker(name = \"market-service\",\n                    fallbackMethod = \"getPriceFallback\")\n    public Double getPrice(String symbol) {\n        return client.getPrice(symbol);\n    }\n    \n    public Double getPriceFallback(String symbol, Exception ex) {\n        System.out.println(\"Fallback for \" + symbol);\n        return 0.0;\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "CircuitBreaker",    "hint": "Resilience4j annotation wrapping the call" },
+        { "position": 2, "answer": "getPriceFallback",  "hint": "Must match the fallback method name exactly" },
+        { "position": 3, "answer": "getPriceFallback",  "hint": "Method name matching fallbackMethod=" },
+        { "position": 4, "answer": "Exception",         "hint": "Last parameter in fallback — the caught exception" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@CircuitBreaker: Resilience4j annotation",
+        "fallbackMethod: exact method name (case-sensitive)",
+        "Fallback: same return type, same params, + Exception"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal circuit breaker with fallback",
+      "scenario": "A service with @CircuitBreaker that returns a safe default on failure.",
+      "instructions": "Write `WeatherService.getTemperature(String city)` that:\n1. Calls a `WeatherClient` Feign interface (assume defined)\n2. Has @CircuitBreaker named 'weather-service' with fallback\n3. Fallback returns -999.0 (sentinel value indicating unavailable)\n4. Prints a log message in the fallback",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n// WeatherService with @CircuitBreaker\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n\ninterface WeatherClient {\n    double getTemperature(String city);\n}\n\n@Service\npublic class WeatherService {\n    private final WeatherClient client;\n    WeatherService(WeatherClient c) { client = c; }\n    \n    @CircuitBreaker(name = \"weather-service\",\n                    fallbackMethod = \"getTemperatureFallback\")\n    public double getTemperature(String city) {\n        return client.getTemperature(city);\n    }\n    \n    public double getTemperatureFallback(String city, Exception ex) {\n        System.out.printf(\"[FALLBACK] Weather service unavailable for %s: %s%n\",\n            city, ex.getClass().getSimpleName());\n        return -999.0;  // sentinel: UI shows 'unavailable'\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@CircuitBreaker(name='weather-service', fallbackMethod='getTemperatureFallback')",
+        "Fallback: double (same return type), String city (same param), Exception ex",
+        "Return -999.0: calling code checks for this and shows 'data unavailable'"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m15_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Circuit breaker configuration properties",
+      "scenario": "Configure circuit breaker thresholds in application.properties.",
+      "instructions": "Write application.properties for a 'payment-service' circuit breaker:\n1. sliding-window-size: 20 calls\n2. minimum-calls: 10 before evaluating\n3. failure-rate-threshold: 60%\n4. wait-duration-in-open-state: 30 seconds\n5. permitted-calls-in-half-open: 3\n6. Register as health indicator\n7. Also configure @Retry: 3 attempts, 500ms wait",
+      "starter_code": "# application.properties — circuit breaker config for payment-service\n",
+      "expected_solution": "# Circuit breaker for payment-service:\nresilience4j.circuitbreaker.instances.payment-service.sliding-window-size=20\nresilience4j.circuitbreaker.instances.payment-service.minimum-number-of-calls=10\nresilience4j.circuitbreaker.instances.payment-service.failure-rate-threshold=60\nresilience4j.circuitbreaker.instances.payment-service.wait-duration-in-open-state=30s\nresilience4j.circuitbreaker.instances.payment-service.permitted-number-of-calls-in-half-open-state=3\nresilience4j.circuitbreaker.instances.payment-service.register-health-indicator=true\nresilience4j.circuitbreaker.instances.payment-service.automatic-transition-from-open-to-half-open-enabled=true\n\n# Retry for payment-service:\nresilience4j.retry.instances.payment-service.max-attempts=3\nresilience4j.retry.instances.payment-service.wait-duration=500ms\n\n# Actuator health for circuit breaker:\nmanagement.health.circuitbreakers.enabled=true\nmanagement.endpoints.web.exposure.include=health,metrics",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["failure-rate-threshold=60", "wait-duration-in-open-state=30s", "max-attempts=3"] }
+      ],
+      "hints": [
+        "sliding-window-size: last N calls counted",
+        "wait-duration-in-open-state: how long circuit stays OPEN",
+        "register-health-indicator=true: shows in /actuator/health"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m15_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Retry — handle transient failures",
+      "scenario": "@Retry retries the call before the circuit breaker counts it as failure.",
+      "instructions": "Write `MarketDataService.getQuotes(List<String> symbols)` with:\n1. @Retry named 'market-data': max 3 attempts, 500ms wait between\n2. @CircuitBreaker named 'market-data' with fallback\n3. Fallback returns empty list\n4. Show application.properties for both\n5. Explain: if all 3 retries fail, does the circuit breaker count 1 failure or 3?",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport java.util.*;\n// MarketDataService with @Retry + @CircuitBreaker\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\n@Service\npublic class MarketDataService {\n    private final MarketClient client;\n    MarketDataService(MarketClient c) { client = c; }\n    \n    // @Retry inside @CircuitBreaker:\n    // Retry is the inner layer, CB is the outer layer\n    @CircuitBreaker(name = \"market-data\", fallbackMethod = \"getQuotesFallback\")\n    @Retry(name = \"market-data\")\n    public List<StockQuote> getQuotes(List<String> symbols) {\n        return client.getQuotes(symbols);\n    }\n    \n    public List<StockQuote> getQuotesFallback(List<String> symbols, Exception ex) {\n        System.out.printf(\"[FALLBACK] getQuotes(%s): %s%n\", symbols, ex.getMessage());\n        return Collections.emptyList();  // empty list — caller handles gracefully\n    }\n}\n\n// application.properties:\n// resilience4j.retry.instances.market-data.max-attempts=3\n// resilience4j.retry.instances.market-data.wait-duration=500ms\n// resilience4j.circuitbreaker.instances.market-data.sliding-window-size=10\n// resilience4j.circuitbreaker.instances.market-data.failure-rate-threshold=50\n\n// ANSWER: If all 3 retries fail → circuit breaker counts 1 FAILURE\n// The @Retry block (inner) exhausts all retries and throws.\n// That SINGLE exception is what @CircuitBreaker (outer) counts.\n// So 3 retry attempts = 1 circuit breaker failure event.\nclass Explanation {\n    static void explain() {\n        System.out.println(\"3 retries exhausted = 1 circuit breaker failure\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Retry is inner (runs first), @CircuitBreaker is outer (wraps the retry)",
+        "All retries fail → 1 exception bubbles to @CircuitBreaker → 1 failure counted",
+        "Empty list fallback: caller code must handle gracefully (don't NPE on null)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Fallback with cached data",
+      "scenario": "Meaningful fallbacks cache the last known good value.",
+      "instructions": "Write `StockPriceService.getPrice(String symbol)` with:\n1. @CircuitBreaker named 'market-service'\n2. A `ConcurrentHashMap<String, Double>` price cache (updated on success)\n3. On success: update cache and return price\n4. On fallback: return cached price or 0.0 if not cached\n5. Include 'CACHED' in fallback log message",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.ConcurrentHashMap;\n// StockPriceService with cached fallback\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.ConcurrentHashMap;\nimport java.util.Map;\n\n@Service\npublic class StockPriceService {\n    private final MarketClient marketClient;\n    private final Map<String, Double> priceCache = new ConcurrentHashMap<>();\n    \n    StockPriceService(MarketClient mc) { marketClient = mc; }\n    \n    @CircuitBreaker(name = \"market-service\",\n                    fallbackMethod = \"getPriceFallback\")\n    public double getPrice(String symbol) {\n        double price = marketClient.getPrice(symbol);\n        priceCache.put(symbol, price);  // update cache on success\n        return price;\n    }\n    \n    public double getPriceFallback(String symbol, Exception ex) {\n        double cached = priceCache.getOrDefault(symbol, 0.0);\n        System.out.printf(\"[FALLBACK/CACHED] %s: using cached price %.2f (%s)%n\",\n            symbol, cached,\n            cached == 0.0 ? \"no cache\" : \"CACHED\");\n        return cached;\n    }\n    \n    // Helper for tests:\n    public void warmCache(String symbol, double price) {\n        priceCache.put(symbol, price);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ConcurrentHashMap: thread-safe for concurrent requests",
+        "Update cache on success: priceCache.put(symbol, price)",
+        "getOrDefault(symbol, 0.0): returns 0.0 if not in cache"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m15_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test fallback is called on failure",
+      "scenario": "@MockBean the downstream client; make it throw; verify fallback returned.",
+      "instructions": "Write @SpringBootTest test for `StockPriceService.getPrice()` that:\n1. @MockBean MarketClient\n2. Makes marketClient.getPrice() throw RuntimeException\n3. Calls stockPriceService.getPrice('TCS') — expect fallback\n4. Asserts: returned 0.0 (no cache), tradeable=false if applicable\n5. Asserts: marketClient.getPrice() was called exactly once (no retry in this test)",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\n// @SpringBootTest circuit breaker fallback test\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties = \"eureka.client.enabled=false\")\nclass StockPriceServiceFallbackTest {\n    @MockBean MarketClient marketClient;\n    @Autowired StockPriceService stockPriceService;\n    @Autowired CircuitBreakerRegistry circuitBreakerRegistry;\n    \n    @BeforeEach void resetCircuit() {\n        circuitBreakerRegistry.circuitBreaker(\"market-service\").reset();\n    }\n    \n    @Test\n    void getPrice_marketClientFails_returnsFallback() {\n        when(marketClient.getPrice(\"TCS\"))\n            .thenThrow(new RuntimeException(\"market-service down\"));\n        \n        double price = stockPriceService.getPrice(\"TCS\");\n        \n        // Fallback: no cache → returns 0.0\n        assertEquals(0.0, price, 0.001);\n        // marketClient was called once (CB hasn't opened yet):\n        verify(marketClient, times(1)).getPrice(\"TCS\");\n    }\n    \n    @Test\n    void getPrice_withCachedValue_returnsCachedOnFallback() {\n        // Pre-warm the cache:\n        stockPriceService.warmCache(\"TCS\", 3890.0);\n        when(marketClient.getPrice(\"TCS\"))\n            .thenThrow(new RuntimeException(\"service down\"));\n        \n        double price = stockPriceService.getPrice(\"TCS\");\n        assertEquals(3890.0, price, 0.001);  // cached value returned\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "circuitBreakerRegistry.circuitBreaker('name').reset(): ESSENTIAL for test isolation",
+        "First failure: fallback called, circuit still CLOSED (not enough failures yet)",
+        "verify(client, times(1)): CB not yet open, so client was called"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Verify circuit OPENS after threshold failures",
+      "scenario": "After enough failures, the circuit opens and subsequent calls skip the client.",
+      "instructions": "Write @SpringBootTest test that:\n1. Configures low thresholds: sliding-window=5, minimum-calls=3, threshold=60%\n2. @MockBean MarketClient — always throws\n3. Makes 5 calls to trigger circuit opening\n4. Asserts: CircuitBreaker.State.OPEN\n5. Makes one more call — assert marketClient was NOT called (fallback only)\n6. Verify call count: exactly 5 (not more — circuit stopped additional calls)",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.CircuitBreaker;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport org.springframework.boot.test.context.SpringBootTest;\n// Circuit OPEN test\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties={\n    \"eureka.client.enabled=false\",\n    \"resilience4j.circuitbreaker.instances.market-service.sliding-window-size=5\",\n    \"resilience4j.circuitbreaker.instances.market-service.minimum-number-of-calls=3\",\n    \"resilience4j.circuitbreaker.instances.market-service.failure-rate-threshold=60\",\n    \"resilience4j.circuitbreaker.instances.market-service.wait-duration-in-open-state=10s\"\n})\nclass CircuitBreakerOpenTest {\n    @MockBean MarketClient marketClient;\n    @Autowired StockPriceService svc;\n    @Autowired CircuitBreakerRegistry registry;\n    \n    @BeforeEach void reset() { registry.circuitBreaker(\"market-service\").reset(); }\n    \n    @Test\n    void circuit_opensAfterThreshold_subsequentCallsSkipClient() {\n        when(marketClient.getPrice(anyString()))\n            .thenThrow(new RuntimeException(\"service down\"));\n        \n        // 5 failures to exceed 60% of 5-call window:\n        for (int i = 0; i < 5; i++) svc.getPrice(\"TCS\");\n        \n        // Circuit should be OPEN now:\n        assertEquals(CircuitBreaker.State.OPEN,\n            registry.circuitBreaker(\"market-service\").getState());\n        \n        // Reset call count:\n        clearInvocations(marketClient);\n        \n        // Next call — circuit is OPEN, fallback returned without calling client:\n        double price = svc.getPrice(\"TCS\");\n        assertEquals(0.0, price, 0.001);  // fallback\n        verify(marketClient, never()).getPrice(anyString());  // NOT called!\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@TestPropertySource: low thresholds so circuit opens in few calls",
+        "clearInvocations(mock): reset call count after triggering circuit open",
+        "verify(mock, never()): confirms circuit blocked the Feign call"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m15_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multiple exception-type fallbacks",
+      "scenario": "Different exceptions get different fallback responses.",
+      "instructions": "Write `OrderService.getOrderStatus(String orderId)` with two fallbacks:\n1. When `ResourceNotFoundException` → return OrderStatus.NOT_FOUND\n2. When any other Exception → return OrderStatus.UNKNOWN\n3. Use Resilience4j — most specific exception type matched first",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nrecord OrderStatus(String orderId, String status, String source) {}\nclass ResourceNotFoundException extends RuntimeException { ResourceNotFoundException(String m){super(m);} }\n// OrderService with two fallback methods\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nrecord OrderStatus(String orderId, String status, String source) {}\nclass ResourceNotFoundException extends RuntimeException { ResourceNotFoundException(String m){super(m);} }\n\ninterface OrderClient { OrderStatus getOrderStatus(String orderId); }\n\n@Service\npublic class OrderService {\n    private final OrderClient client;\n    OrderService(OrderClient c) { client = c; }\n    \n    @CircuitBreaker(name = \"order-service\", fallbackMethod = \"getStatusFallback\")\n    public OrderStatus getOrderStatus(String orderId) {\n        return client.getOrderStatus(orderId);\n    }\n    \n    // Most specific first: ResourceNotFoundException\n    public OrderStatus getStatusFallback(String orderId,\n            ResourceNotFoundException ex) {\n        System.out.println(\"Order not found: \" + orderId);\n        return new OrderStatus(orderId, \"NOT_FOUND\", \"FALLBACK\");\n    }\n    \n    // General fallback: any other Exception\n    public OrderStatus getStatusFallback(String orderId, Exception ex) {\n        System.out.println(\"Order service error for \" + orderId + \": \" + ex.getMessage());\n        return new OrderStatus(orderId, \"UNKNOWN\", \"FALLBACK\");\n    }\n    // Resilience4j matches: most specific exception type first\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Two fallback methods with same name but different exception type",
+        "Resilience4j picks the most specific matching exception type",
+        "ResourceNotFoundException extends RuntimeException extends Exception"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "CallNotPermittedException — what it means",
+      "scenario": "When circuit is OPEN, Resilience4j throws CallNotPermittedException.",
+      "instructions": "The circuit for 'inventory-service' is OPEN. `inventoryService.checkStock('P001')` is called.\n\nThe method has @CircuitBreaker(name='inventory-service', fallbackMethod='stockFallback').\n\nWhat exception type is passed to stockFallback? Does the underlying inventoryClient.checkStock() get called? What is the source of the exception?",
+      "expected_solution": "Exception passed to stockFallback: io.github.resilience4j.circuitbreaker.CallNotPermittedException\nMessage: 'CircuitBreaker inventory-service is OPEN and does not permit further calls'\n\ninventoryClient.checkStock() is NOT called — Resilience4j intercepts before the HTTP call\n\nSource: Resilience4j throws CallNotPermittedException internally when circuit is OPEN\nThe fallback receives this exception as the 'ex' parameter\n\nPractical: check `ex instanceof CallNotPermittedException` in fallback\nto distinguish 'circuit open' from 'actual service error' if needed",
+      "test_cases": [
+        { "type": "text_match", "expected": "Exception passed to stockFallback: io.github.resilience4j.circuitbreaker.CallNotPermittedException\nMessage: 'CircuitBreaker inventory-service is OPEN and does not permit further calls'\n\ninventoryClient.checkStock() is NOT called — Resilience4j intercepts before the HTTP call\n\nSource: Resilience4j throws CallNotPermittedException internally when circuit is OPEN\nThe fallback receives this exception as the 'ex' parameter\n\nPractical: check `ex instanceof CallNotPermittedException` in fallback\nto distinguish 'circuit open' from 'actual service error' if needed" }
+      ],
+      "hints": [
+        "OPEN circuit: Resilience4j throws CallNotPermittedException before any HTTP",
+        "fallback(params, CallNotPermittedException ex): most specific for OPEN state",
+        "fallback(params, Exception ex): catches everything else"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Circuit breaker in /actuator/health",
+      "scenario": "Resilience4j integrates with Actuator to show circuit state.",
+      "instructions": "Configure the 'payment-service' circuit breaker to show in /actuator/health. Write a @SpringBootTest that:\n1. Makes 6 failing calls to open the circuit\n2. Calls GET /actuator/health via TestRestTemplate\n3. Asserts the response contains 'OPEN' in the circuit breaker details\n4. Asserts overall status might still be UP (circuit breaker can be configured not to affect overall health)",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\n// Circuit breaker health actuator test\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)\n@TestPropertySource(properties={\n    \"eureka.client.enabled=false\",\n    \"management.endpoints.web.exposure.include=health,metrics\",\n    \"management.endpoint.health.show-details=always\",\n    \"management.health.circuitbreakers.enabled=true\",\n    \"resilience4j.circuitbreaker.instances.payment-service.sliding-window-size=5\",\n    \"resilience4j.circuitbreaker.instances.payment-service.minimum-number-of-calls=3\",\n    \"resilience4j.circuitbreaker.instances.payment-service.failure-rate-threshold=60\",\n    \"resilience4j.circuitbreaker.instances.payment-service.register-health-indicator=true\"\n})\nclass CircuitBreakerHealthTest {\n    @MockBean PaymentClient paymentClient;\n    @Autowired TestRestTemplate rest;\n    @Autowired PaymentService paymentService;\n    @Autowired CircuitBreakerRegistry registry;\n    \n    @BeforeEach void setup() {\n        registry.circuitBreaker(\"payment-service\").reset();\n        when(paymentClient.processPayment(any()))\n            .thenThrow(new RuntimeException(\"payment service down\"));\n    }\n    \n    @Test\n    void openCircuit_showsInActuatorHealth() {\n        // Open the circuit:\n        for (int i = 0; i < 6; i++) paymentService.processPayment(\"P001\");\n        \n        // Check health endpoint:\n        String health = rest.getForEntity(\"/actuator/health\", String.class).getBody();\n        assertTrue(health.contains(\"OPEN\"),\n            \"Expected OPEN in health but got: \" + health);\n        assertTrue(health.contains(\"payment-service\"),\n            \"Expected payment-service in health\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "register-health-indicator=true: adds CB state to /actuator/health",
+        "management.health.circuitbreakers.enabled=true: shows CB section in health",
+        "RANDOM_PORT: needed for TestRestTemplate to call /actuator/health"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "RateLimiter — protect your service from overload",
+      "scenario": "RateLimiter prevents too many calls per second.",
+      "instructions": "Write `SmsService.sendSms(String phone, String message)` with:\n1. @RateLimiter named 'sms-gateway': 10 calls per minute\n2. Fallback: log 'Rate limit reached, SMS queued' and add to a queue\n3. application.properties configuration for the rate limiter",
+      "starter_code": "import io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport java.util.concurrent.*;\n// SmsService with @RateLimiter\n",
+      "expected_solution": "import io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.*;\n\n@Service\npublic class SmsService {\n    private final SmsClient smsClient;\n    private final Queue<String[]> retryQueue = new ConcurrentLinkedQueue<>();\n    \n    SmsService(SmsClient sc) { smsClient = sc; }\n    \n    @RateLimiter(name = \"sms-gateway\", fallbackMethod = \"smsFallback\")\n    public void sendSms(String phone, String message) {\n        smsClient.send(phone, message);\n        System.out.println(\"SMS sent to \" + phone);\n    }\n    \n    public void smsFallback(String phone, String message, \n            io.github.resilience4j.ratelimiter.RequestNotPermitted ex) {\n        System.out.printf(\"[RATE LIMITED] SMS to %s queued for retry%n\", phone);\n        retryQueue.offer(new String[]{phone, message});\n    }\n    \n    public Queue<String[]> getRetryQueue() { return retryQueue; }\n}\n\n// application.properties:\n// resilience4j.ratelimiter.instances.sms-gateway.limit-for-period=10\n// resilience4j.ratelimiter.instances.sms-gateway.limit-refresh-period=1m\n// resilience4j.ratelimiter.instances.sms-gateway.timeout-duration=0s\n// (timeout=0: fail immediately instead of waiting for a permit)\n\ninterface SmsClient { void send(String phone, String msg); }",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@RateLimiter: limits calls per time period",
+        "RequestNotPermitted: thrown when rate limit exceeded (like CallNotPermittedException for CB)",
+        "limit-for-period=10, limit-refresh-period=1m: 10 calls per minute"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full resilience stack for trading platform",
+      "scenario": "Circuit breaker + retry + fallback for all three critical calls.",
+      "instructions": "Write `TradeOrchestrationService` with resilience for 3 calls:\n1. `getMarketQuote(symbol)`: @CircuitBreaker('market') + @Retry, fallback=cached price\n2. `verifyUser(userId)`: @CircuitBreaker('user'), fallback=throw UserVerificationUnavailableException\n3. `chargePayment(userId, amount)`: @CircuitBreaker('payment'), fallback=throw PaymentUnavailableException\n\n`executeTrade(userId, symbol, qty)` calls all three in order.\n\nWrite @SpringBootTest with 3 tests: success, market CB open (cached fallback used), payment CB open (exception).",
+      "starter_code": "// Full resilience stack for trading platform\n// TradeOrchestrationService + CircuitBreaker tests\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.ConcurrentHashMap;\n\nclass UserVerificationUnavailableException extends RuntimeException{ UserVerificationUnavailableException(String m){super(m);} }\nclass PaymentUnavailableException extends RuntimeException{ PaymentUnavailableException(String m){super(m);} }\nrecord Quote(String symbol, double price, boolean tradeable) {}\nrecord TradeResult(String orderId, String symbol, int qty, double total) {}\n\n@Service\npublic class TradeOrchestrationService {\n    private final MarketClient marketClient;\n    private final UserClient userClient;\n    private final PaymentClient paymentClient;\n    private final Map<String,Double> priceCache = new ConcurrentHashMap<>();\n    \n    TradeOrchestrationService(MarketClient m, UserClient u, PaymentClient p){ marketClient=m; userClient=u; paymentClient=p; }\n    \n    @CircuitBreaker(name=\"market\", fallbackMethod=\"quoteFallback\") @Retry(name=\"market\")\n    public Quote getMarketQuote(String symbol) {\n        Quote q = marketClient.getQuote(symbol); priceCache.put(symbol, q.price()); return q;\n    }\n    Quote quoteFallback(String symbol, Exception ex) {\n        return new Quote(symbol, priceCache.getOrDefault(symbol,0.0), false);\n    }\n    \n    @CircuitBreaker(name=\"user\", fallbackMethod=\"verifyFallback\")\n    public boolean verifyUser(String userId) { return userClient.isActive(userId); }\n    boolean verifyFallback(String userId, Exception ex) {\n        throw new UserVerificationUnavailableException(\"Cannot verify user: circuit open\");\n    }\n    \n    @CircuitBreaker(name=\"payment\", fallbackMethod=\"chargeFallback\")\n    public String chargePayment(String userId, double amount) { return paymentClient.charge(userId, amount); }\n    String chargeFallback(String userId, double amount, Exception ex) {\n        throw new PaymentUnavailableException(\"Payment service unavailable\");\n    }\n    \n    public TradeResult executeTrade(String userId, String symbol, int qty) {\n        if (!verifyUser(userId)) throw new IllegalStateException(\"User not active\");\n        Quote q = getMarketQuote(symbol);\n        if (!q.tradeable()) throw new IllegalStateException(symbol + \" not tradeable\");\n        String payId = chargePayment(userId, q.price() * qty);\n        return new TradeResult(\"TRD-\"+payId, symbol, qty, q.price()*qty);\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties={\"eureka.client.enabled=false\",\n    \"resilience4j.circuitbreaker.instances.market.sliding-window-size=5\",\n    \"resilience4j.circuitbreaker.instances.market.minimum-number-of-calls=3\",\n    \"resilience4j.circuitbreaker.instances.market.failure-rate-threshold=60\",\n    \"resilience4j.circuitbreaker.instances.payment.sliding-window-size=5\",\n    \"resilience4j.circuitbreaker.instances.payment.minimum-number-of-calls=3\",\n    \"resilience4j.circuitbreaker.instances.payment.failure-rate-threshold=60\"})\nclass TradeResilienceTest {\n    @MockBean MarketClient marketClient; @MockBean UserClient userClient; @MockBean PaymentClient paymentClient;\n    @Autowired TradeOrchestrationService svc; @Autowired CircuitBreakerRegistry registry;\n    \n    @BeforeEach void reset() {\n        registry.circuitBreaker(\"market\").reset();\n        registry.circuitBreaker(\"user\").reset();\n        registry.circuitBreaker(\"payment\").reset();\n    }\n    \n    @Test void success() {\n        when(userClient.isActive(\"U01\")).thenReturn(true);\n        when(marketClient.getQuote(\"TCS\")).thenReturn(new Quote(\"TCS\",3890.0,true));\n        when(paymentClient.charge(anyString(),anyDouble())).thenReturn(\"PAY-001\");\n        assertNotNull(svc.executeTrade(\"U01\",\"TCS\",10));\n    }\n    @Test void marketCBOpen_usesCache() {\n        svc.quoteFallback(\"TCS\", new RuntimeException());  // warm cache workaround: hack\n        // Better: set cache via warmCache helper\n        when(marketClient.getQuote(\"TCS\")).thenThrow(new RuntimeException());\n        Quote q = svc.getMarketQuote(\"TCS\");\n        assertFalse(q.tradeable());  // cached/fallback: tradeable=false\n    }\n    @Test void paymentCBOpen_throwsException() {\n        when(paymentClient.charge(anyString(),anyDouble())).thenThrow(new RuntimeException());\n        for(int i=0;i<5;i++) { try{svc.chargePayment(\"U01\",100.0);} catch(Exception ignored){} }\n        assertThrows(PaymentUnavailableException.class, ()->svc.chargePayment(\"U01\",100.0));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Three separate circuit breaker names: market, user, payment",
+        "Fallback that throws: re-throw a domain exception from the fallback",
+        "registry.circuitBreaker('name').reset() for each CB in @BeforeEach"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m15_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Circuit half-open state — recovery test",
+      "scenario": "Test that circuit transitions from OPEN to CLOSED after recovery.",
+      "instructions": "Write a test that:\n1. Opens the circuit with failures\n2. Transitions to HALF-OPEN manually (or waits)\n3. Makes a successful call in HALF-OPEN\n4. Asserts circuit transitions to CLOSED\n\nUse CircuitBreakerRegistry to manually transition state for testing (no Thread.sleep).",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.boot.test.context.SpringBootTest;\n// Half-open recovery test\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties={\n    \"eureka.client.enabled=false\",\n    \"resilience4j.circuitbreaker.instances.market-service.sliding-window-size=5\",\n    \"resilience4j.circuitbreaker.instances.market-service.minimum-number-of-calls=3\",\n    \"resilience4j.circuitbreaker.instances.market-service.failure-rate-threshold=60\",\n    \"resilience4j.circuitbreaker.instances.market-service.permitted-number-of-calls-in-half-open-state=2\"\n})\nclass CircuitHalfOpenTest {\n    @MockBean MarketClient marketClient;\n    @Autowired StockPriceService svc;\n    @Autowired CircuitBreakerRegistry registry;\n    \n    @BeforeEach void reset() { registry.circuitBreaker(\"market-service\").reset(); }\n    \n    @Test\n    void circuit_recovers_closedAfterHalfOpenSuccess() {\n        CircuitBreaker cb = registry.circuitBreaker(\"market-service\");\n        \n        // Step 1: Open the circuit with failures\n        when(marketClient.getPrice(anyString())).thenThrow(new RuntimeException(\"down\"));\n        for (int i = 0; i < 5; i++) svc.getPrice(\"TCS\");\n        assertEquals(CircuitBreaker.State.OPEN, cb.getState());\n        \n        // Step 2: Manually transition to HALF-OPEN (avoid Thread.sleep in test)\n        cb.transitionToHalfOpenState();\n        assertEquals(CircuitBreaker.State.HALF_OPEN, cb.getState());\n        \n        // Step 3: Successful calls in HALF-OPEN\n        when(marketClient.getPrice(\"TCS\")).thenReturn(3890.0);\n        svc.getPrice(\"TCS\");  // test call 1 — success\n        svc.getPrice(\"TCS\");  // test call 2 — success (permitted-calls=2)\n        \n        // Step 4: Circuit should be CLOSED now\n        assertEquals(CircuitBreaker.State.CLOSED, cb.getState());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "cb.transitionToHalfOpenState(): manually trigger HALF-OPEN (no Thread.sleep needed)",
+        "permitted-calls-in-half-open=2: 2 test calls needed to evaluate",
+        "After 2 successes: circuit transitions to CLOSED automatically"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m15_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete resilient trading service — Module 15.4 synthesis",
+      "scenario": "Full Resilience4j stack: circuit breaker, retry, rate limiter, and metrics.",
+      "instructions": "Build the complete resilient Zerodha trading service:\n1. `PriceService`: @CB('market') + @Retry(3 attempts) + cached fallback\n2. `AccountService`: @CB('account') + @RateLimiter('account') fallback=throw\n3. `TradeExecutionService`: calls both, orchestrates the trade\n4. application.properties: CB + Retry + RateLimiter configs\n5. Actuator health shows CB state\n6. @SpringBootTest tests: 3 tests — success, market CB open, account rate limited\n\nAll 3 tests pass.",
+      "starter_code": "// Complete resilient trading service\n// PriceService + AccountService + TradeExecutionService\n// Full properties + Actuator + 3 tests\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.*;\n\nrecord Price(String symbol, double value, boolean live) {}\nclass AccountRateLimitedException extends RuntimeException{ AccountRateLimitedException(String m){super(m);} }\n\n@Service class PriceService {\n    private final Map<String,Double> cache=new ConcurrentHashMap<>();\n    @CircuitBreaker(name=\"market\",fallbackMethod=\"fallback\") @Retry(name=\"market\")\n    public Price getPrice(String sym) {\n        // simulate market call\n        if(sym.equals(\"FAIL\")) throw new RuntimeException(\"Market down\");\n        double p=sym.equals(\"TCS\")?3890.0:1560.0; cache.put(sym,p); return new Price(sym,p,true);\n    }\n    Price fallback(String sym,Exception ex){ return new Price(sym,cache.getOrDefault(sym,0.0),false); }\n}\n\n@Service class AccountService {\n    @RateLimiter(name=\"account\",fallbackMethod=\"rateFallback\")\n    @CircuitBreaker(name=\"account\",fallbackMethod=\"cbFallback\")\n    public boolean isAccountActive(String userId){\n        if(userId.equals(\"U99\")) throw new RuntimeException(\"Account svc down\");\n        return true;\n    }\n    boolean rateFallback(String uid,io.github.resilience4j.ratelimiter.RequestNotPermitted ex){\n        throw new AccountRateLimitedException(\"Account verification rate limited\");\n    }\n    boolean cbFallback(String uid,Exception ex){ throw new RuntimeException(\"Account CB: \"+ex.getMessage()); }\n}\n\n@Service class TradeExecutionService {\n    private final PriceService priceService; private final AccountService accountService;\n    TradeExecutionService(PriceService p, AccountService a){priceService=p;accountService=a;}\n    public String executeTrade(String userId,String symbol,int qty){\n        if(!accountService.isAccountActive(userId)) throw new IllegalStateException(\"Inactive account\");\n        Price p=priceService.getPrice(symbol);\n        if(!p.live()) throw new IllegalStateException(symbol+\" price not live — using cache\");\n        return \"TRD-\"+symbol+\"-\"+qty+\"@\"+p.value();\n    }\n}\n\n// application.properties (key configs):\n// resilience4j.circuitbreaker.instances.market.sliding-window-size=5\n// resilience4j.circuitbreaker.instances.market.minimum-number-of-calls=3\n// resilience4j.circuitbreaker.instances.market.failure-rate-threshold=60\n// resilience4j.retry.instances.market.max-attempts=2\n// resilience4j.retry.instances.market.wait-duration=100ms\n// resilience4j.ratelimiter.instances.account.limit-for-period=1\n// resilience4j.ratelimiter.instances.account.limit-refresh-period=1m\n// resilience4j.ratelimiter.instances.account.timeout-duration=0\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties={\"eureka.client.enabled=false\",\n    \"resilience4j.circuitbreaker.instances.market.sliding-window-size=5\",\n    \"resilience4j.circuitbreaker.instances.market.minimum-number-of-calls=3\",\n    \"resilience4j.circuitbreaker.instances.market.failure-rate-threshold=60\",\n    \"resilience4j.retry.instances.market.max-attempts=2\",\n    \"resilience4j.retry.instances.market.wait-duration=100ms\",\n    \"resilience4j.ratelimiter.instances.account.limit-for-period=1\",\n    \"resilience4j.ratelimiter.instances.account.limit-refresh-period=1m\",\n    \"resilience4j.ratelimiter.instances.account.timeout-duration=0\"})\nclass TradeResilienceFullTest {\n    @Autowired TradeExecutionService svc;\n    @Autowired CircuitBreakerRegistry cbReg;\n    @BeforeEach void reset(){cbReg.circuitBreaker(\"market\").reset();cbReg.circuitBreaker(\"account\").reset();}\n    \n    @Test void success_TCS() { assertNotNull(svc.executeTrade(\"U01\",\"TCS\",10)); }\n    @Test void marketDown_fallback_notLive() {\n        for(int i=0;i<5;i++){try{svc.executeTrade(\"U01\",\"FAIL\",10);}catch(Exception ignored){}}\n        // CB open, getPrice returns cached (live=false), executeTrade throws\n        assertThrows(IllegalStateException.class,()->svc.executeTrade(\"U01\",\"FAIL\",10));\n    }\n    @Test void accountRateLimited() {\n        svc.executeTrade(\"U01\",\"TCS\",1); // use 1 permit\n        assertThrows(AccountRateLimitedException.class,()->svc.executeTrade(\"U01\",\"TCS\",1));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Three resilience patterns: CB (market), RateLimiter+CB (account)",
+        "Rate limiter: 1 call per minute for testing — second call throws",
+        "Market CB open + fallback live=false → executeTrade throws IllegalState"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 70
+  }
+}

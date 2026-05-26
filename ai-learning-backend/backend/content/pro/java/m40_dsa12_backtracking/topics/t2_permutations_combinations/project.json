@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m40_t2_proj",
+  "linked_topic": "java_m40_t2",
+  "level": "mini",
+  "name": "Permutations, Combinations, Subsets",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Build Permutations, Combinations, Subsets.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Core algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Backtracking: always choose\u2192recurse\u2192UNDO. Subsets: add at every call. Combination Sum: i (not i+1) allows reuse; sort+break for pruning. N-Queens: |r1-r2|==|c1-c2| for diagonal. Word Search: mark with '#', restore after.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

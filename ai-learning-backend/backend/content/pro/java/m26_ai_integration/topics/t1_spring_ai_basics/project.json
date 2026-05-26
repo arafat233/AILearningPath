@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m26_t1_proj",
+  "linked_topic": "java_m26_t1",
+  "level": "mini",
+  "name": "HDFC Bank AI Customer Support",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "HDFC Bank wants to reduce support wait times from 12 minutes to 0 seconds. Build an AI-powered customer support service that answers banking questions, fetches real account data via tools, and protects against prompt injection — all within the existing Spring Boot backend.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "HdfcAiService @Service: inject ChatClient.Builder, call .defaultSystem() with HDFC Bank persona (banking only, professional, concise). .build() to create ChatClient.", "weight": 15 },
+      { "id": "req_2", "description": "AccountDataTool @Component: @Tool-annotated methods getBalance(accountId) and getRecentTransactions(accountId). Register with defaultTools() on ChatClient.", "weight": 15 },
+      { "id": "req_3", "description": "answer(sessionId, customerId, question): parameterized prompt (.text(template).param()), call(), return content(). Use accountId as context parameter.", "weight": 15 },
+      { "id": "req_4", "description": "PromptInjectionGuard @Service: detect 'ignore previous', 'you are now', 'system:' patterns. Throw IllegalArgumentException on injection attempt. Max input length 2000 chars.", "weight": 15 },
+      { "id": "req_5", "description": "AiRateLimiter @Service: Bucket4j, 20 calls/minute per customerId. Throw RateLimitException on exceeding limit.", "weight": 10 },
+      { "id": "req_6", "description": "@SpringBootTest (4 tests): tool returns balance, injection blocked, rate limit enforced, normal call succeeds. All pass.", "weight": 25 },
+      { "id": "req_7", "description": "application.yml: spring.ai.anthropic.api-key=${ANTHROPIC_API_KEY} (env variable, never hardcoded).", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "BeanOutputConverter<SupportResponse>: structured output with category (BILLING/TECH/FRAUD/OTHER), answer, requiresHuman. Temperature=0.1. Test: converter schema contains 'category'.", "weight": 20 },
+      { "id": "bonus_2", "description": "ConversationHistory @Service: Map<sessionId, List<Message>>. addMessage(), getHistory(). Multi-turn: AI remembers earlier messages. Test: history grows with each turn.", "weight": 20 },
+      { "id": "bonus_3", "description": "AiAuditLog JPA entity + @Async audit service: log every call (prompt, response, model, latencyMs, hadError). @DataJpaTest: successful and error calls logged.", "weight": 15 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. ChatClient.Builder: Spring AI autoconfigures this — inject ChatClient.Builder (not ChatClient directly). @Tool annotation: marks a public method as callable by the AI. The AI decides when to call it — you don't call it manually. API key: spring.ai.anthropic.api-key=${ANTHROPIC_API_KEY} in application.yml — NEVER put the actual key in the file. Prompt templates: use .text(template).param(key, value) instead of string concatenation — parameterized inputs cannot break out of the template structure (injection safety). BeanOutputConverter.getFormat(): include this as a parameter in your user message so the AI knows exactly what JSON schema to produce.",
+  "rubric": [
+    { "category": "HdfcAiService (ChatClient setup)", "points": 15 },
+    { "category": "AccountDataTool (@Tool methods)", "points": 15 },
+    { "category": "answer() with parameterized prompt", "points": 15 },
+    { "category": "PromptInjectionGuard", "points": 15 },
+    { "category": "AiRateLimiter", "points": 10 },
+    { "category": "4 tests (all pass)", "points": 25 },
+    { "category": "application.yml (env var key)", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t1",
+  "language": "java",
+  "module_id": "m16",
+  "module_name": "Apache Kafka & Event-Driven Architecture",
+  "topic_number": 1,
+  "name": "Introduction to Apache Kafka",
+  "slug": "kafka-intro",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m15_t1"],
+    "concepts_taught": [
+      "event_driven_architecture",
+      "kafka_vs_rest",
+      "kafka_cluster_architecture",
+      "kafka_topics",
+      "kafka_partitions",
+      "kafka_offsets",
+      "kafka_producers",
+      "kafka_consumers",
+      "consumer_groups",
+      "kafka_brokers",
+      "zookeeper_vs_kraft",
+      "kafka_replication",
+      "message_keys_and_ordering",
+      "kafka_use_cases",
+      "docker_kafka_setup"
+    ],
+    "skills_developed": [
+      "understanding_kafka_architecture",
+      "knowing_when_to_use_kafka_vs_rest",
+      "setting_up_local_kafka_with_docker",
+      "understanding_partitions_and_consumer_groups",
+      "designing_kafka_topics_for_microservices"
+    ],
+    "career_relevance": "Apache Kafka is the event streaming backbone of modern Indian tech. Flipkart, Swiggy, Zerodha, Razorpay, PhonePe — all use Kafka at scale. At Zerodha, every trade tick flows through Kafka. At Swiggy, every order event (placed, accepted, cooking, out for delivery) is a Kafka message. Understanding Kafka is a strong differentiator for senior backend roles. After this module, you can design and implement event-driven microservices.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Swiggy processes 10 million orders a month. When a user places an order, these things need to happen:\n\n```\n1. Order saved to database\n2. Restaurant notified (SMS + app push)\n3. Delivery partner assigned\n4. User gets confirmation SMS\n5. Analytics event recorded\n6. Loyalty points calculated\n7. Inventory updated\n8. Fraud check logged\n```\n\n**With synchronous REST calls (Module 15 approach):**\n```java\n// order-service.placeOrder() — the caller waits for EVERYTHING:\nvoid placeOrder(OrderRequest req) {\n    orderRepo.save(req);                    // 20ms\n    restaurantClient.notify(req);           // 150ms — wait\n    deliveryClient.assignDriver(req);       // 200ms — wait\n    smsClient.sendConfirmation(req);        // 180ms — wait\n    analyticsClient.logEvent(req);          // 100ms — wait\n    loyaltyClient.calculatePoints(req);     // 90ms — wait\n    // Total: 740ms before user gets response!\n    // If SMS service is down → ORDER FAILS!\n}\n```\n\n**With Apache Kafka (event-driven):**\n```java\n// order-service.placeOrder() — publishes event and returns:\nvoid placeOrder(OrderRequest req) {\n    Order saved = orderRepo.save(req);      // 20ms\n    kafka.send(\"order-events\", saved);      // 5ms — fire and forget\n    return saved;                           // 25ms total!\n}\n\n// Each service listens independently:\n@KafkaListener(topics=\"order-events\") restaurantService.onOrder(order){...}\n@KafkaListener(topics=\"order-events\") deliveryService.onOrder(order){...}\n@KafkaListener(topics=\"order-events\") smsService.onOrder(order){...}\n@KafkaListener(topics=\"order-events\") analyticsService.onOrder(order){...}\n// All run in parallel. SMS down? Others still work. 25ms response time.\n```\n\n25ms vs 740ms. Decoupled. Resilient. This is Kafka.",
+    "what_you_will_build": "By the end of this topic, you'll understand Kafka's architecture (brokers, topics, partitions, consumer groups), know when to choose Kafka over REST, and run Kafka locally with Docker to produce and consume your first messages."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "kafka_architecture": "**Apache Kafka — the core architecture:**\n\n```\n┌─────────────────────────────────────────────────────────────┐\n│                    KAFKA CLUSTER                             │\n│  ┌──────────┐   ┌──────────┐   ┌──────────┐               │\n│  │ Broker 1 │   │ Broker 2 │   │ Broker 3 │               │\n│  └──────────┘   └──────────┘   └──────────┘               │\n│       Topic: order-events                                    │\n│  ┌───────────────────────────────────────────────────────┐  │\n│  │ Partition 0: [msg0][msg1][msg2][msg3]... → ∞          │  │\n│  │ Partition 1: [msg0][msg1][msg2]...                    │  │\n│  │ Partition 2: [msg0][msg1]...                          │  │\n│  └───────────────────────────────────────────────────────┘  │\n└─────────────────────────────────────────────────────────────┘\n         ↑ Producers write                  ↓ Consumers read\n┌─────────────────┐              ┌──────────────────────────┐\n│  order-service  │              │  Consumer Group A:        │\n│  (Producer)     │              │  notification-service × 2 │\n└─────────────────┘              │  Consumer Group B:        │\n                                 │  analytics-service × 1    │\n                                 └──────────────────────────┘\n\nKey components:\n- Broker: a Kafka server (stores messages, serves producers/consumers)\n- Topic: a named stream of messages (like a channel)\n- Partition: a topic is split into N ordered logs\n- Offset: position of a message within a partition (0, 1, 2, ...)\n- Producer: writes messages to a topic\n- Consumer: reads messages from a topic\n- Consumer Group: a set of consumers that share the work\n```",
+
+      "topics_and_partitions": "**Topics and Partitions — the storage model:**\n\n```\nTopic 'order-events' with 3 partitions:\n\nPartition 0:  [offset 0: ORD-001] [offset 1: ORD-004] [offset 2: ORD-007]\nPartition 1:  [offset 0: ORD-002] [offset 1: ORD-005] [offset 2: ORD-008]\nPartition 2:  [offset 0: ORD-003] [offset 1: ORD-006]\n\nKey rules:\n1. Within a partition: messages are ORDERED (offset 0 before offset 1)\n2. Across partitions: no ordering guarantee\n3. Same key → same partition (e.g., all orders from userId=U01 go to same partition)\n4. Messages are RETAINED even after consumption (default: 7 days)\n   → Multiple consumer groups can read the same messages independently\n5. Partitions enable parallelism: N partitions → up to N consumers per group\n```\n\n**Message key → partition routing:**\n```java\n// Send with key = userId → same user's orders always go to same partition:\nkafka.send(\"order-events\", userId, orderEvent);  // key=userId\n\n// Why? If analytics needs userId's orders in order:\n// ORD-001 (userId=U01) → Partition 0\n// ORD-005 (userId=U01) → Partition 0 (same key → same partition)\n// ORD-003 (userId=U02) → Partition 1 (different key → different partition)\n\n// Within partition 0: ORD-001 is ALWAYS before ORD-005\n// Ordering preserved per user ✓\n```",
+
+      "consumer_groups": "**Consumer Groups — parallel consumption:**\n\n```\nTopic 'order-events' with 3 partitions:\n         P0         P1         P2\n\nConsumer Group 'notification-svc' (3 consumers):\n  Consumer-A → reads P0  (1 consumer per partition)\n  Consumer-B → reads P1\n  Consumer-C → reads P2\n  → Maximum parallelism: 3 consumers for 3 partitions\n\nConsumer Group 'analytics-svc' (1 consumer):\n  Consumer-X → reads P0, P1, P2 (one consumer handles all)\n\nBoth groups read ALL messages independently.\nnotification-svc processing doesn't affect analytics-svc offsets.\n\nScaling rule: adding a 4th consumer to 'notification-svc':\n  → One consumer is idle (4 consumers, 3 partitions)\n  → Add more partitions to enable more parallelism\n```\n\n**What happens when a consumer crashes:**\n```\nConsumer-B (reading P1) crashes.\n→ Kafka reassigns P1 to Consumer-A or Consumer-C\n   (one consumer now reads 2 partitions)\n→ Messages in P1 are NOT lost (still in Kafka)\n→ Consumer resumes from last committed offset\n```",
+
+      "kafka_vs_rest": "**Kafka vs REST — choosing the right communication:**\n\n```\n╔══════════════════╦═════════════════════════╦══════════════════════════╗\n║ Criterion        ║  REST (Feign/HTTP)       ║  Kafka (events)          ║\n╠══════════════════╬═════════════════════════╬══════════════════════════╣\n║ Style            ║ Request-response         ║ Fire-and-forget          ║\n║ Caller waits     ║ Yes                      ║ No                       ║\n║ Consumer down    ║ Request fails            ║ Messages buffered        ║\n║ Multiple         ║ N sequential calls       ║ One message, N listeners ║\n║ consumers        ║                          ║                          ║\n║ Ordering         ║ Not guaranteed           ║ Per-partition ordering    ║\n║ Replay           ║ No                       ║ Yes (retention period)   ║\n║ Debugging        ║ Direct logs              ║ Kafka UI / Zipkin        ║\n║ Latency          ║ Low (sync)               ║ Higher (async)           ║\n╚══════════════════╩═════════════════════════╩══════════════════════════╝\n\nUse REST when:\n→ You need the response to proceed (stock price before placing trade)\n→ Simple request-response, one sender, one receiver\n→ Low latency is critical\n\nUse Kafka when:\n→ You don't need to wait for a response (notification, audit)\n→ Multiple services need to react to the same event\n→ You need buffering (consumer can be temporarily down)\n→ You need to replay events (debugging, new service catching up)\n→ High throughput, many events per second\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) Kafka architecture: Central 'Kafka Cluster' box containing 3 Broker boxes and a Topic 'order-events' with 3 Partition bars (P0, P1, P2). Each partition has offset numbers [0][1][2][3]. Order-service (Producer) arrow goes in from left. Two Consumer Group boxes on right: 'notification-service' with 3 Consumer instances (each pointing to one partition), 'analytics-service' with 1 Consumer (pointing to all 3 partitions). Arrow labeled '7-day retention' on topic. (2) Kafka vs REST comparison: Left side shows REST flow — order-service → restaurant-svc (wait 150ms) → delivery-svc (wait 200ms) → SMS-svc (wait 180ms). Total 530ms. If SMS-svc down → order fails. Right side shows Kafka — order-service publishes ONE message (5ms), 3 services all read it in parallel, total 25ms. SMS-svc down → messages buffered.",
+      "alt_text": "Kafka cluster architecture with producer and consumer groups, and REST vs Kafka comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Design and set up Kafka for the Zerodha trading platform. Map out which events should use Kafka vs REST. Start Kafka with Docker. Produce and consume a test trade event.",
+
+    "problem_statement": "1. Identify: which trading platform calls should be Kafka vs REST\n2. Design topic structure for the trading platform\n3. Start Kafka locally with Docker\n4. Produce a trade event to 'trade-events' topic (command line)\n5. Consume it from 'trade-events' topic",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Sync vs async decision for Zerodha platform",
+        "details": "```\nZerodha trading flow — sync vs async:\n\nSYNC (REST/Feign) — need the answer before proceeding:\n→ order-service calls market-service: get current TCS price ✓\n→ order-service calls account-service: verify trading account ✓\n→ order-service calls risk-service: check position limits ✓\n\nASYNC (Kafka) — fire and forget:\n→ Trade executed → publish to 'trade-events':\n   notification-service listens → sends SMS \"TCS bought at ₹3890\"\n   portfolio-service listens → updates holdings\n   audit-service listens → logs for regulatory compliance\n   analytics-service listens → updates dashboards\n   tax-service listens → calculates tax implications\n\nResult: trade API response in 120ms (sync calls only)\nNon-critical updates happen asynchronously\n```"
+      },
+      {
+        "step": 2,
+        "action": "Topic design for trading platform",
+        "details": "```\nKafka topics for Zerodha:\n\ntrade-events         (partitions=6, key=userId)\n  → trade placed, executed, cancelled, modified\n  consumers: portfolio-svc, notification-svc, analytics-svc, tax-svc\n\nmarket-data          (partitions=12, key=symbol)\n  → tick data: {symbol, price, volume, timestamp}\n  consumers: order-svc (circuit breaker), trading-engine, analytics\n\nnotification-events  (partitions=3)\n  → SMS, email, push notification requests\n  consumers: sms-gateway-svc, email-svc, push-svc\n\naudit-log            (partitions=6, retention=365days)\n  → all user actions (regulatory requirement: 1 year)\n  consumers: compliance-svc, reporting-svc\n\nPartition count: based on throughput target\n→ 1 million trades/day ÷ 6 partitions = ~167K messages/partition/day\n→ Each consumer handles ~167K messages/day — manageable\n```"
+      },
+      {
+        "step": 3,
+        "action": "Start Kafka with Docker",
+        "details": "```yaml\n# docker-compose.yml:\nversion: '3'\nservices:\n  kafka:\n    image: confluentinc/cp-kafka:7.5.0\n    ports:\n      - '9092:9092'\n    environment:\n      KAFKA_NODE_ID: 1\n      KAFKA_PROCESS_ROLES: broker,controller\n      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093\n      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092\n      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093\n      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER\n      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1\n      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk\n\n# Start: docker compose up -d\n```\n\n```bash\n# Create topic:\ndocker exec kafka kafka-topics --bootstrap-server localhost:9092 \\\n    --create --topic trade-events --partitions 3 --replication-factor 1\n\n# Produce a test message:\ndocker exec -it kafka kafka-console-producer --bootstrap-server localhost:9092 \\\n    --topic trade-events\n> {\"tradeId\":\"TRD-001\",\"symbol\":\"TCS\",\"qty\":10,\"price\":3890}\n\n# Consume (new terminal):\ndocker exec kafka kafka-console-consumer --bootstrap-server localhost:9092 \\\n    --topic trade-events --from-beginning\n# Output: {\"tradeId\":\"TRD-001\",\"symbol\":\"TCS\",\"qty\":10,\"price\":3890}\n```"
+      }
+    ],
+
+    "final_code": "// No Java code this topic — architecture and concepts\n// Key decisions:\n// Sync (REST): price check, account verify, risk check\n// Async (Kafka): notification, portfolio update, audit, analytics, tax\n\n// Topic design: trade-events (partitions=6, key=userId)\n// Docker: confluentinc/cp-kafka with KRaft (no Zookeeper)\n// CLI: kafka-topics --create, kafka-console-producer, kafka-console-consumer\n\n// Next topic: Spring Kafka — produce from Java code\n// kafka.send('trade-events', tradeEvent)",
+
+    "expected_output": "# docker compose up -d\n[+] Running 1/1  kafka Started\n\n# kafka-topics --create\nCreated topic trade-events.\n\n# kafka-console-consumer (after producing):\n{\"tradeId\":\"TRD-001\",\"symbol\":\"TCS\",\"qty\":10,\"price\":3890}\n\n# List topics:\ntrade-events\n\n# Describe topic:\nTopic: trade-events  Partition: 0  Leader: 1  Replicas: 1\nTopic: trade-events  Partition: 1  Leader: 1  Replicas: 1\nTopic: trade-events  Partition: 2  Leader: 1  Replicas: 1",
+
+    "things_to_notice": [
+      "Kafka uses KRaft mode in modern versions (Kafka 3.x+) — Zookeeper is no longer required. The docker-compose uses KAFKA_PROCESS_ROLES: broker,controller which means one container runs both the broker (stores messages) and the controller (cluster management). In production, these are separate.",
+      "The partition count is a permanent design decision — you can increase but not decrease partitions. Plan for your throughput target. Rule of thumb: aim for 1 partition handling 10MB/s or 1 million messages/day. 6 partitions for trade-events handles ~6M trades/day with headroom.",
+      "Messages are retained EVEN AFTER consumption (default 7 days). This is fundamentally different from a traditional message queue (like RabbitMQ) where messages are deleted after consumption. In Kafka, you can replay — a new analytics-service can consume all trade-events from the beginning. retention.ms controls how long.",
+      "Consumer groups with group IDs: kafka-console-consumer without --group creates a random group. In production, each service uses a fixed --group ID (notification-svc, analytics-svc). Kafka tracks the last consumed offset per consumer group independently — notification-svc and analytics-svc each have their own position in the topic.",
+      "The key=userId partition routing ensures ordering: all of U01's trades always go to the same partition in the same order. analytics-service can reliably process U01's portfolio changes in sequence. Without a key, messages round-robin to partitions and ordering is lost across messages."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Zerodha market data pipeline",
+        "use_case": "NSE sends 5 million stock ticks per day. Zerodha's market-data-ingestion service consumes these ticks and publishes to Kafka topic 'nse-ticks' (partitioned by symbol). MarketService consumes and maintains current prices. TradingEngine consumes and evaluates stop-loss orders. Analytics consumes and updates charts. One producer, multiple consumers, zero coupling — adding a new consumer (say, ML prediction service) requires zero changes to the producer."
+      },
+      {
+        "company_context": "Swiggy order lifecycle events",
+        "use_case": "Every order status change (PLACED, ACCEPTED, COOKING, OUT_FOR_DELIVERY, DELIVERED, CANCELLED) is published to Kafka. notification-service consumes and sends push/SMS. tracking-service consumes and updates the live map. analytics-service consumes and updates dashboards. For the 2022 Great Indian Festival, Swiggy processed 500K orders — Kafka's partitioning handled the throughput by scaling consumer instances."
+      },
+      {
+        "company_context": "Razorpay payment events",
+        "use_case": "Every payment event (initiated, authorized, captured, refunded, failed) flows through Kafka. The audit-service consumes with a 1-year retention topic (regulatory requirement). The reconciliation-service consumes to match payments with bank settlements. The dashboard-service consumes to update merchant dashboards in near-real-time. Kafka's replay capability: when the reconciliation-service had a bug, they fixed it and replayed the last 24 hours of events from Kafka."
+      }
+    ],
+
+    "interview_relevance": "Kafka interview questions:\n\n- **'What is Apache Kafka?'** → A distributed event streaming platform. Producers publish messages to topics. Consumers read from topics. Messages are retained (not deleted after consumption) and partitioned for parallelism.\n- **'What is a partition?'** → A topic is split into N ordered logs. Each partition is independent. More partitions = more consumer parallelism. Same key always goes to same partition (ordering guarantee per key).\n- **'What is a consumer group?'** → A set of consumers sharing the work of reading a topic. Each partition is assigned to exactly one consumer in the group. Multiple groups can read the same topic independently.\n- **'When would you use Kafka vs REST?'** → Kafka for: async notifications, multiple consumers, message buffering, event replay, high throughput. REST for: synchronous query-response, single consumer, low latency needs.",
+
+    "real_world_workflow": "Kafka design workflow:\n\n- New event: design the topic (name, partitions, retention, key strategy)\n- Producer: which service owns the event? publishes on state change\n- Consumers: which services react? each in their own consumer group\n- Schema: define the message structure (JSON, Avro)\n- Error handling: what if consumer fails? (next topic: DLT)"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "too_many_topics",
+      "what_students_get_wrong": "Creating one Kafka topic per event type: 'order-placed', 'order-accepted', 'order-cooking', 'order-delivered' — proliferates topics.",
+      "remediation": "Group related events into one topic: 'order-events' with a status field (PLACED, ACCEPTED, COOKING, DELIVERED). Consumers filter by event type. Exception: if one event type has wildly different throughput, retention, or consumer needs, separate topics may be warranted.",
+      "detection_pattern": "Dozens of topics for one service's events; duplicate consumer setups"
+    },
+    {
+      "gap_id": "wrong_partition_count",
+      "what_students_get_wrong": "Using 1 partition for a high-throughput topic — only 1 consumer can read at a time, no parallelism.",
+      "remediation": "Partition count = target number of concurrent consumers × headroom. If notification-service needs 5 instances for peak throughput, create 5 (or more) partitions. You can increase partitions later but not decrease. Start with 3-12 for most use cases.",
+      "detection_pattern": "5 consumer instances but only 1 is working; others are idle"
+    },
+    {
+      "gap_id": "no_key_ordering_assumption",
+      "what_students_get_wrong": "Assuming Kafka maintains global ordering — it doesn't. Kafka maintains ordering WITHIN a partition only.",
+      "remediation": "For ordering guarantees, use a key: all messages with the same key go to the same partition (and are ordered there). Use userId as key for user-specific events, orderId for order events. Without a key, messages round-robin across partitions and you have no ordering guarantee.",
+      "detection_pattern": "Portfolio updates arriving out of order even though sent sequentially"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Kafka: distributed event streaming — producers publish, consumers subscribe",
+      "Topic: named stream of messages (like a channel)",
+      "Partition: a topic split into N ordered logs — enables parallelism",
+      "Offset: message position within a partition (monotonically increasing)",
+      "Messages retained after consumption (default 7 days) — replay possible",
+      "Consumer group: set of consumers sharing a topic's partitions",
+      "One partition → one consumer in a group (at most)",
+      "Multiple consumer groups: read the same topic independently",
+      "Message key → same key always routed to same partition (ordering per key)",
+      "KRaft mode: modern Kafka without Zookeeper",
+      "Use Kafka for: async, multi-consumer, buffer, replay, high-throughput",
+      "Use REST for: synchronous, need-immediate-response, single consumer"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A 'user-events' topic has 4 partitions. The notification-service consumer group has 6 consumer instances. How many are actively consuming? Why?",
+        "answer": "4 out of 6 are active (one per partition). The remaining 2 are idle — there are only 4 partitions to assign, and each partition is assigned to exactly one consumer in the group. The 2 idle consumers serve as hot standbys: if one of the active 4 crashes, Kafka rebalances and assigns its partition to one of the idle consumers. To use all 6, you'd need at least 6 partitions."
+      },
+      {
+        "question": "Two consumer groups — 'notification-svc' and 'analytics-svc' — both consume from 'order-events'. notification-svc is at offset 1000 in partition 0. analytics-svc is at offset 500. A new order event arrives at offset 1001. Which groups receive it?",
+        "answer": "Both groups receive it independently. Kafka tracks offsets per consumer group — notification-svc's offset (1000) and analytics-svc's offset (500) are completely independent. The new message at offset 1001 will be consumed by notification-svc next, and analytics-svc still has to process offsets 500-1001 first before reaching 1001. Both groups get every message; Kafka doesn't coordinate between them."
+      },
+      {
+        "question": "You're designing a Zerodha trade event topic. Should you use tradeId or userId as the partition key? Justify.",
+        "answer": "userId is the better partition key. Here's why: a portfolio-service consuming trade-events needs to process a user's trades in order (to calculate accurate P&L). Using userId as key ensures all of U01's trades go to partition 0, all of U02's trades go to partition 1, etc. — ordering is preserved per user. Using tradeId as key distributes evenly but randomly — U01's trades might go to different partitions with no ordering guarantee. Exception: if you need high-throughput and tradeId provides better distribution than userId (e.g., a few power users dominate), you might sacrifice ordering for throughput."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Spring Kafka Producer** — wire Kafka into a Spring Boot microservice. `KafkaTemplate<String, TradeEvent>` sends messages. `@Bean KafkaProducerFactory` configures serialization. `ProducerRecord` sets the key, topic, and value. `ListenableFuture` or `CompletableFuture` for async send acknowledgement. After Topic 16.2, your trading service publishes a trade event to Kafka with one line of Java code."
+  }
+}

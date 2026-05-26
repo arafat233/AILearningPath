@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t5",
+  "language": "java",
+  "module_id": "m3",
+  "module_name": "Arrays & Strings",
+  "topic_number": 5,
+  "name": "StringBuilder & String Manipulation",
+  "slug": "stringbuilder-and-string-manipulation",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m3_t4"],
+    "concepts_taught": [
+      "stringbuilder_motivation",
+      "stringbuilder_creation",
+      "stringbuilder_append",
+      "stringbuilder_insert_delete",
+      "stringbuilder_reverse",
+      "stringbuilder_to_string",
+      "string_immutability_performance_cost",
+      "string_format",
+      "string_join",
+      "string_repeat",
+      "advanced_split",
+      "string_to_number_conversion",
+      "stringbuilder_vs_stringbuffer"
+    ],
+    "skills_developed": [
+      "building_strings_efficiently",
+      "choosing_stringbuilder_vs_string",
+      "formatting_output_professionally",
+      "parsing_complex_strings",
+      "converting_between_strings_and_numbers"
+    ],
+    "career_relevance": "StringBuilder is one of those concepts that separates beginners from professionals. In code reviews, 'why aren't you using StringBuilder?' is one of the most common questions on string-heavy code. Junior devs concatenate with + in loops; senior devs reach for StringBuilder instinctively. Performance-wise, StringBuilder is 10-1000x faster than string concatenation for non-trivial sizes — the difference between a job finishing in seconds vs hours on large data. Plus, formatting (`String.format`, `printf`) is daily-use for clean output. Parsing (split, parseInt) is the bread and butter of data processing.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Last topic we built a string-reverse method using `result += s.charAt(i)` in a loop. It worked. But there's a problem you wouldn't notice until production: for a 10,000-character string, that code is 10,000 times SLOWER than it should be.\n\nWhy? Strings are immutable. Every `result += c` creates a NEW string, copies all previous characters plus the new one, then discards the old. For N characters, you do N copies of strings of growing size — that's O(N²) work. For 10,000 chars, that's 100,000,000 operations. Your code 'works' on small inputs and falls over on big ones.\n\n**StringBuilder fixes this.** It's a MUTABLE string-like object. Appending just adds to its internal buffer — O(1) per append. For the same 10,000 chars, StringBuilder does 10,000 operations vs String's 100 million.\n\nThis is the difference between a Java rookie and a professional. After today, you'll never concatenate strings in a loop again — and your code will be ready for real data sizes.",
+    "what_you_will_build": "By the end of this topic, you'll know StringBuilder inside out — when to use it, when to use String, and the common methods (append, insert, delete, reverse, toString). You'll also master `String.format` for clean output, `String.join` for delimiter-separated strings, parsing patterns with `split` and `Integer.parseInt`, and conversion between strings and numbers. You'll build a CSV-to-formatted-report tool — exactly the kind of utility that runs in millions of business apps."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "Java has TWO main classes for working with text:\n\n**`String`**: Immutable. Every 'modification' creates a new object. Great for fixed text, comparisons, passing around.\n\n**`StringBuilder`**: Mutable. Modifications happen in place on a single object. Great for BUILDING strings, especially in loops.\n\nRule of thumb:\n- A few concatenations? Use `+` with String. Java optimizes simple cases.\n- Loop building a string? Use StringBuilder.\n- Many appends? Use StringBuilder.\n\nThe rest of this topic teaches you StringBuilder fluently.",
+      
+      "the_immutability_cost": "Let's see why this matters. Compare these two methods that build a string from an array:\n\n**Bad (using String +)**:\n\n```java\npublic static String concatBad(String[] words) {\n    String result = \"\";\n    for (String word : words) {\n        result += word + \" \";  // creates a NEW string each time\n    }\n    return result.trim();\n}\n```\n\nEach `result += word` does:\n1. Read old `result` (n characters so far)\n2. Allocate new string of size n + word.length\n3. Copy all n old characters into new string\n4. Copy word characters after\n5. `result` now points to new string; old discarded\n\nFor 1000 words averaging 10 chars: ~5 million character copies. SLOW.\n\n**Good (using StringBuilder)**:\n\n```java\npublic static String concatGood(String[] words) {\n    StringBuilder sb = new StringBuilder();\n    for (String word : words) {\n        sb.append(word).append(\" \");\n    }\n    return sb.toString().trim();\n}\n```\n\nEach `sb.append(word)` just adds to an internal buffer. ~10,000 operations total. FAST.\n\n**Real measurement**: For 10,000 string concatenations:\n- String +: ~5 seconds\n- StringBuilder: ~10 milliseconds\n\n500x faster. This isn't a micro-optimization — it's the difference between code that ships and code that doesn't.",
+      
+      "stringbuilder_basics": "**Creating a StringBuilder**:\n\n```java\nimport java.lang.StringBuilder;  // actually in java.lang, no import needed\n\nStringBuilder sb = new StringBuilder();           // empty\nStringBuilder sb2 = new StringBuilder(\"Hello\");   // pre-loaded\nStringBuilder sb3 = new StringBuilder(100);       // empty, capacity hint of 100\n```\n\nMost commonly: `new StringBuilder()` — start empty, build up.\n\n**The capacity hint** is an optimization — telling Java 'I'll probably grow to this size.' Skip unless you know the final size will be large; the default capacity handling works fine for most cases.",
+      
+      "common_methods": "**The 6 most-used StringBuilder methods**:\n\n**1. `append(value)`** — add to the end:\n\n```java\nStringBuilder sb = new StringBuilder();\nsb.append(\"Hello\");\nsb.append(\" \");\nsb.append(\"World\");\nsb.append(2024);  // append works for any type — ints, doubles, booleans\nSystem.out.println(sb);  // Hello World2024\n```\n\nAppend returns the SAME StringBuilder, so you can chain:\n\n```java\nsb.append(\"Hello\").append(\" \").append(\"World\").append(\"!\");\n```\n\n**2. `toString()`** — convert to regular String:\n\n```java\nString result = sb.toString();\n```\n\nUse this when you're done building — most APIs want String, not StringBuilder.\n\n**3. `insert(index, value)`** — insert at a position:\n\n```java\nStringBuilder sb = new StringBuilder(\"Hello World\");\nsb.insert(5, \" beautiful\");\nSystem.out.println(sb);  // Hello beautiful World\n```\n\nIndex 5 is between 'o' and ' '. The new text gets inserted there; everything after shifts right.\n\n**4. `delete(start, end)`** — remove a range:\n\n```java\nStringBuilder sb = new StringBuilder(\"Hello World\");\nsb.delete(5, 11);  // removes \" World\" (indices 5 to 10)\nSystem.out.println(sb);  // Hello\n```\n\nStandard convention: end index is EXCLUSIVE (same as substring).\n\n**5. `reverse()`** — reverse in place:\n\n```java\nStringBuilder sb = new StringBuilder(\"hello\");\nsb.reverse();\nSystem.out.println(sb);  // olleh\n```\n\nElegant — but modifies in place. The original `sb` is now the reversed string.\n\n**6. `length()`** — current length (METHOD, like String):\n\n```java\nStringBuilder sb = new StringBuilder(\"Hello\");\nint len = sb.length();  // 5\n```\n\nAlso useful: `sb.charAt(index)` for accessing characters, similar to String.",
+      
+      "stringbuilder_vs_string_decision": "**When to use StringBuilder**:\n- Building a string in a LOOP (most important case)\n- Many sequential modifications\n- Building a string piece by piece\n- Anytime you find yourself doing `result += something` repeatedly\n\n**When to use String**:\n- Simple, fixed text\n- A few concatenations (Java optimizes `\"a\" + \"b\" + \"c\"` automatically)\n- Comparing, passing, returning\n- When immutability is the FEATURE (thread safety, cache keys, etc.)\n\n**Common pattern**: Use StringBuilder to BUILD, convert to String for USE.\n\n```java\nStringBuilder sb = new StringBuilder();\nfor (String item : items) {\n    sb.append(item).append(\", \");\n}\nString result = sb.toString();  // now use it as String\n```\n\nMost methods/APIs expect String. StringBuilder is a building tool — final product is usually String.",
+      
+      "string_format": "**`String.format`** — formatted string output, similar to printf but returns a String:\n\n```java\nString name = \"Aisha\";\nint score = 95;\nString message = String.format(\"%s scored %d%%\", name, score);\nSystem.out.println(message);  // Aisha scored 95%\n```\n\n**Common format specifiers**:\n- `%s` — String\n- `%d` — int\n- `%f` — double (default 6 decimal places)\n- `%.2f` — double with 2 decimal places: `%.2f` with 3.14159 → \"3.14\"\n- `%5d` — int right-padded to 5 width: `%5d` with 42 → \"   42\"\n- `%-10s` — left-padded String to 10 width\n- `%,d` — int with comma separators: `%,d` with 1000000 → \"1,000,000\"\n- `%%` — literal percent sign\n- `%n` — newline (platform-independent)\n\n**Examples**:\n\n```java\nString.format(\"Price: ₹%,.2f\", 12345.6)     // Price: ₹12,345.60\nString.format(\"%-10s : %5d\", \"Apples\", 42)  // Apples     :    42\nString.format(\"Tax: %.1f%%\", 18.0)          // Tax: 18.0%\n```\n\n**`printf`** is the same but prints directly:\n\n```java\nSystem.out.printf(\"%s scored %d%n\", name, score);\n```\n\nUse `String.format` when you need the formatted string. Use `printf` when you just want to print it.",
+      
+      "string_join": "**`String.join(separator, items)`** — join an array of strings with a delimiter:\n\n```java\nString[] names = {\"Aisha\", \"Raj\", \"Priya\"};\nString joined = String.join(\", \", names);\nSystem.out.println(joined);  // Aisha, Raj, Priya\n```\n\nMuch cleaner than building manually:\n\n```java\n// Without String.join (clunky)\nStringBuilder sb = new StringBuilder();\nfor (int i = 0; i < names.length; i++) {\n    if (i > 0) sb.append(\", \");\n    sb.append(names[i]);\n}\nString result = sb.toString();\n\n// With String.join (clean)\nString result = String.join(\", \", names);\n```\n\nCommon uses: CSV output, joining tags, building paths.\n\n**Also accepts List** (covered in Collections module): `String.join(\", \", myList)`",
+      
+      "split_advanced": "We learned `.split(\",\")` last topic. A few subtleties:\n\n**`split` uses regex** — be careful with special characters:\n\n```java\n// CORRECT: split on literal period\n\"a.b.c\".split(\"\\\\.\")  // [\"a\", \"b\", \"c\"]\n\n// WRONG: . is a regex wildcard (matches ANY char)\n\"a.b.c\".split(\".\")    // [\"\", \"\", \"\", \"\", \"\"] (yikes)\n```\n\nSpecial regex characters that need escaping: `. * + ? ( ) [ ] | \\ ^ $`\n\n**Limit parameter**:\n\n```java\n\"a,b,c,d,e\".split(\",\", 3)  // [\"a\", \"b\", \"c,d,e\"] (only split first 2 times)\n```\n\nUseful for parsing key=value where value might contain `=`.\n\n**Splitting by multiple separators**:\n\n```java\n\"hello world, foo bar\".split(\"[, ]+\")  // [\"hello\", \"world\", \"foo\", \"bar\"]\n```\n\nThe `[, ]+` is regex for 'one or more comma OR space.' We won't go deep into regex — just know split can be powerful.",
+      
+      "string_to_number": "Converting between strings and numbers — daily operation:\n\n**String → int**:\n\n```java\nString text = \"42\";\nint number = Integer.parseInt(text);  // 42\n```\n\n**String → double**:\n\n```java\nString text = \"3.14\";\ndouble d = Double.parseDouble(text);\n```\n\n**Other primitives**: `Long.parseLong`, `Float.parseFloat`, `Boolean.parseBoolean`, etc.\n\n**Number → String** (several ways):\n\n```java\nint n = 42;\nString s1 = String.valueOf(n);  // \"42\" — most explicit\nString s2 = Integer.toString(n);  // \"42\"\nString s3 = \"\" + n;             // \"42\" — concatenation trick (slower)\n```\n\n**Beware**: parsing throws exceptions for invalid input:\n\n```java\nInteger.parseInt(\"abc\");  // NumberFormatException at runtime\nInteger.parseInt(\"\");     // also throws\nInteger.parseInt(\" 42\");  // throws! Whitespace not tolerated — trim first.\n```\n\nIn production code, you'd handle this with try/catch (covered in Exceptions module). For now: trim input first and only parse what you know is numeric.",
+      
+      "string_repeat_etc": "**A few more useful methods**:\n\n**`repeat(n)`** (Java 11+) — repeat a string N times:\n\n```java\n\"ab\".repeat(3)  // \"ababab\"\n\"-\".repeat(20)  // \"--------------------\" (handy for separators)\n```\n\n**`isBlank()`** vs **`isEmpty()`**:\n\n```java\n\"\".isEmpty()     // true\n\"\".isBlank()     // true\n\" \".isEmpty()    // false (has a space)\n\" \".isBlank()    // true (only whitespace)\n```\n\n`isBlank` is more useful for validating user input — catches accidental spaces.\n\n**`String.chars()`** — convert to a stream of int values (covered in Streams module).\n\nThese are the methods you'll reach for daily."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Side-by-side comparison. LEFT: 'String concatenation in loop' — shows 5 boxes labeled 'hello', 'hello ', 'hello w', 'hello wo', 'hello wor' — each is a NEW string object, previous ones discarded. Annotation: 'N strings created. O(N²) work for N chars.' RIGHT: 'StringBuilder' — shows ONE box growing internally as 'hello → hello [w] → hello w[o] → hello wo[r]' — same buffer expanding. Annotation: 'One object. O(N) work.' Below: a chart showing time (Y) vs N (X) — String shows quadratic curve, StringBuilder linear.",
+      "alt_text": "Visual comparing string concatenation creating many objects vs StringBuilder using one expanding buffer"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a tool that converts raw CSV data into a formatted HR report. Sales managers send daily reports as CSV like 'Aisha,Khan,Engineering,85000\\nRaj,Patel,Sales,72000\\n...'. You need to parse it, format it nicely with aligned columns, and produce a clean report. This is real ETL (Extract, Transform, Load) code — every data pipeline does string manipulation like this.",
+    
+    "problem_statement": "Given a CSV string with employee data, build a formatted report:\n1. Parse the CSV (split into rows, then fields)\n2. Build a header row\n3. For each employee, build a formatted line: name (left-aligned 20 chars), department (left-aligned 15 chars), salary (right-aligned ₹ with commas)\n4. Add a footer with total salary\n\nUse StringBuilder for building the output. Use String.format for column alignment.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Set up data and approach",
+        "details": "We'll receive CSV as a single multi-line string. Each line has 4 fields: firstName, lastName, department, salary.\n\n```java\nString csv = \"Aisha,Khan,Engineering,85000\\n\"\n           + \"Raj,Patel,Sales,72000\\n\"\n           + \"Priya,Sharma,Engineering,92000\\n\"\n           + \"Vikram,Mehta,Marketing,68000\\n\"\n           + \"Anita,Gupta,Engineering,75000\";\n```\n\nApproach:\n1. Split by newline → array of lines\n2. For each line, split by comma → array of fields\n3. Build StringBuilder with: header, separator, each row, footer with total\n4. Convert to String at the end"
+      },
+      {
+        "step": 2,
+        "action": "Parse the CSV",
+        "details": "```java\nString[] lines = csv.split(\"\\n\");\n```\n\nNow `lines` has 5 elements, each a single CSV row. We'll process each in a loop."
+      },
+      {
+        "step": 3,
+        "action": "Build header with StringBuilder + String.format",
+        "details": "```java\nStringBuilder sb = new StringBuilder();\n\n// Header row\nsb.append(String.format(\"%-20s %-15s %15s%n\", \"NAME\", \"DEPARTMENT\", \"SALARY\"));\nsb.append(\"-\".repeat(52)).append(\"\\n\");\n```\n\nNotice:\n- `%-20s` = left-aligned String in 20 char field\n- `%-15s` = left-aligned in 15 chars\n- `%15s` = right-aligned in 15 chars (no minus)\n- `%n` = platform-appropriate newline\n- `\"-\".repeat(52)` = 52 dashes for visual separator\n- `.append(...).append(...)` chains nicely"
+      },
+      {
+        "step": 4,
+        "action": "Process each employee row",
+        "details": "```java\ndouble totalSalary = 0;\n\nfor (String line : lines) {\n    String[] fields = line.split(\",\");\n    String firstName = fields[0];\n    String lastName = fields[1];\n    String department = fields[2];\n    double salary = Double.parseDouble(fields[3]);\n    \n    String fullName = firstName + \" \" + lastName;\n    String salaryFormatted = String.format(\"₹%,.0f\", salary);\n    \n    sb.append(String.format(\"%-20s %-15s %15s%n\", fullName, department, salaryFormatted));\n    \n    totalSalary += salary;\n}\n```\n\nNotice:\n- Parse line: `line.split(\",\")` → 4 fields\n- Convert salary: `Double.parseDouble(fields[3])`\n- Combine name: `firstName + \" \" + lastName` (a few concats, no StringBuilder needed)\n- Format salary: `%,.0f` = number with commas, no decimals → \"85,000\"\n- Append formatted row to sb\n- Accumulate total"
+      },
+      {
+        "step": 5,
+        "action": "Build footer with total",
+        "details": "```java\nsb.append(\"-\".repeat(52)).append(\"\\n\");\nsb.append(String.format(\"%-36s %15s%n\", \"TOTAL\", \n    String.format(\"₹%,.0f\", totalSalary)));\n```\n\nNotice the nested `String.format` calls — first format the salary, then format the whole row. Both produce strings.\n\nThe `%-36s` (left-aligned 36 chars) takes the place of name+department fields, leaving room for the salary column on the right."
+      },
+      {
+        "step": 6,
+        "action": "Convert to String and print",
+        "details": "```java\nString report = sb.toString();\nSystem.out.println(report);\n```\n\nFinal step: convert StringBuilder to String. We did all our work efficiently in the StringBuilder, then materialize the result."
+      }
+    ],
+    
+    "final_code": "public class CSVReportGenerator {\n    public static void main(String[] args) {\n        String csv = \"Aisha,Khan,Engineering,85000\\n\"\n                   + \"Raj,Patel,Sales,72000\\n\"\n                   + \"Priya,Sharma,Engineering,92000\\n\"\n                   + \"Vikram,Mehta,Marketing,68000\\n\"\n                   + \"Anita,Gupta,Engineering,75000\";\n        \n        String report = generateReport(csv);\n        System.out.println(report);\n    }\n    \n    public static String generateReport(String csv) {\n        String[] lines = csv.split(\"\\n\");\n        StringBuilder sb = new StringBuilder();\n        \n        // Header\n        sb.append(String.format(\"%-20s %-15s %15s%n\", \"NAME\", \"DEPARTMENT\", \"SALARY\"));\n        sb.append(\"-\".repeat(52)).append(\"\\n\");\n        \n        // Rows\n        double totalSalary = 0;\n        for (String line : lines) {\n            String[] fields = line.split(\",\");\n            String firstName = fields[0];\n            String lastName = fields[1];\n            String department = fields[2];\n            double salary = Double.parseDouble(fields[3]);\n            \n            String fullName = firstName + \" \" + lastName;\n            String salaryFormatted = String.format(\"₹%,.0f\", salary);\n            \n            sb.append(String.format(\"%-20s %-15s %15s%n\", fullName, department, salaryFormatted));\n            \n            totalSalary += salary;\n        }\n        \n        // Footer\n        sb.append(\"-\".repeat(52)).append(\"\\n\");\n        sb.append(String.format(\"%-36s %15s%n\", \"TOTAL\", \n            String.format(\"₹%,.0f\", totalSalary)));\n        \n        return sb.toString();\n    }\n}",
+    
+    "expected_output": "NAME                 DEPARTMENT              SALARY\n----------------------------------------------------\nAisha Khan           Engineering            ₹85,000\nRaj Patel            Sales                  ₹72,000\nPriya Sharma         Engineering            ₹92,000\nVikram Mehta         Marketing              ₹68,000\nAnita Gupta          Engineering            ₹75,000\n----------------------------------------------------\nTOTAL                                      ₹392,000",
+    
+    "things_to_notice": [
+      "StringBuilder for the OVERALL report (building up over many appends), but plain String concatenation for `firstName + \" \" + lastName` (few operations, simple).",
+      "`String.format` with column-width specifiers gives professional aligned output — every business report does this.",
+      "`Double.parseDouble(fields[3])` converts the salary string from CSV into a number we can sum.",
+      "`%,.0f` formats salary with comma separators (85000 → 85,000) and no decimals. Perfect for currency.",
+      "The `\"-\".repeat(52)` is a clean way to create a separator line — much better than hardcoding 52 dashes.",
+      "We split first by newline (to get rows), then by comma (to get fields within row). Real ETL code does this constantly.",
+      "Returning the report as a STRING (not just printing) makes the method REUSABLE — could be saved to file, sent to API, displayed in UI."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Log file processing (every backend service)",
+        "use_case": "Every running app generates logs. Parsing them for analysis (error rates, response times, user activity) means splitting lines, extracting fields, building reports. Tools like Splunk, ELK, Datadog process billions of log lines — all string manipulation."
+      },
+      {
+        "company_context": "API response building (Spring, every REST API)",
+        "use_case": "Building JSON or XML responses requires assembling strings. While dedicated libraries handle the encoding, the underlying mechanism is StringBuilder. A single API endpoint might assemble dozens of strings per request — at scale, StringBuilder efficiency matters."
+      },
+      {
+        "company_context": "Report generation (HR, finance, analytics)",
+        "use_case": "PDF reports, Excel exports, daily emails — all start as string assembly. The CSV-to-report example you just built is exactly the architecture of these tools. Tata, Infosys, every corp generates millions of such reports daily."
+      },
+      {
+        "company_context": "Code generation (compilers, code analyzers, ORMs)",
+        "use_case": "Tools that GENERATE code (Spring Data, Hibernate, IDE refactoring) build strings of code character by character. StringBuilder is essential — building a 10,000-line Java file with String + would crawl. JPA query generation, code lint warnings, all use StringBuilder."
+      }
+    ],
+    
+    "interview_relevance": "StringBuilder is a frequent topic:\n\n- **'Why is concatenating strings in a loop bad?'** — common warm-up question testing if you understand immutability and StringBuilder\n- **'Implement string reverse'** — best answer uses `new StringBuilder(s).reverse().toString()` or two-pointer with char array\n- **'Build a comma-separated string from a list'** — String.join is the idiomatic answer\n- **'What's the difference between StringBuilder and StringBuffer?'** — StringBuffer is thread-safe (synchronized methods), slower. StringBuilder is the modern choice unless you need thread safety. (This trips up many candidates.)\n\nFormatting questions:\n- **'How do you format currency in Java?'** — String.format with `%,.2f`\n- **'Print a table with aligned columns'** — printf or String.format with width specifiers\n\nAll daily-life skills. Knowing StringBuilder fluently shows you understand performance and idiomatic Java.",
+    
+    "real_world_workflow": "Daily StringBuilder usage:\n\n- Building log messages with multiple variables\n- Constructing SQL queries (carefully — prefer parameterized queries to prevent injection)\n- Generating HTML/JSON/XML output\n- Building file paths with multiple segments\n- Constructing user-facing messages with dynamic parts\n- ETL pipelines: read line, transform, write to output buffer\n- Test data generation\n\nWhen reviewing junior code, replacing String + in loops with StringBuilder is one of the most common feedback items. After this topic, you'll naturally write the right thing."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "string_concat_in_loop",
+      "what_students_get_wrong": "Using `result += something` in a loop. Works for small data but slow for production-sized data.",
+      "remediation": "ANY string-building inside a loop should use StringBuilder. Initialize before loop, append inside, toString after.",
+      "detection_pattern": "Code reviews catching this pattern"
+    },
+    {
+      "gap_id": "forgetting_tostring",
+      "what_students_get_wrong": "Returning the StringBuilder directly instead of calling .toString().",
+      "remediation": "Always convert StringBuilder to String at the end with .toString(). Methods that take StringBuilder are rare; String is the standard interchange type.",
+      "detection_pattern": "Type mismatch errors or unexpected output"
+    },
+    {
+      "gap_id": "split_period_regex_trap",
+      "what_students_get_wrong": "Calling `.split(\".\")` to split on period. Period is regex wildcard — matches any character. Gets empty array.",
+      "remediation": "For literal period, escape it: `.split(\"\\\\.\")`. Same for other regex special chars.",
+      "detection_pattern": "Unexpected empty arrays from split"
+    },
+    {
+      "gap_id": "parseint_failure_ignored",
+      "what_students_get_wrong": "Calling Integer.parseInt on user input without validating. Crashes on non-numeric input.",
+      "remediation": "Either: trim/validate first, OR use try/catch (covered in Exceptions module), OR check with regex-like checks. Don't trust user input.",
+      "detection_pattern": "Runtime NumberFormatException"
+    },
+    {
+      "gap_id": "format_specifier_wrong_type",
+      "what_students_get_wrong": "Using %d for double, or %s for int. Throws exceptions at runtime.",
+      "remediation": "Match format specifier to type: %d for integers, %f for doubles, %s for strings. The compiler can't catch these mismatches.",
+      "detection_pattern": "IllegalFormatConversionException"
+    },
+    {
+      "gap_id": "expecting_stringbuilder_immutable",
+      "what_students_get_wrong": "Treating StringBuilder methods as returning new objects (like String). They modify in-place AND return the same builder.",
+      "remediation": "StringBuilder is MUTABLE. sb.append(x) modifies sb. The return value is sb itself (for chaining). Don't store the return as a 'new' builder.",
+      "detection_pattern": "Confusion about whether sb has been modified"
+    },
+    {
+      "gap_id": "stringbuffer_vs_stringbuilder_confusion",
+      "what_students_get_wrong": "Using StringBuffer (legacy, synchronized, slower) when StringBuilder is appropriate.",
+      "remediation": "Default to StringBuilder for single-threaded code (99%+ of cases). StringBuffer only when multiple threads share a builder (rare).",
+      "detection_pattern": "Using StringBuffer in new code"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Strings are immutable: concatenation in loops creates many objects, O(N²) work",
+      "StringBuilder is mutable: append modifies in place, O(N) work for N appends",
+      "Use StringBuilder when building strings, especially in loops",
+      "Convert back to String with .toString() at the end",
+      "String.format provides printf-style formatting: %s, %d, %f, %.2f, %,d, %-10s, etc.",
+      "String.join(separator, items) cleanly concatenates with delimiter",
+      "split uses regex — special characters need escaping (\\\\. for literal period)",
+      "Integer.parseInt / Double.parseDouble convert string → number (throw on invalid input)",
+      "String.valueOf / Integer.toString convert number → string",
+      "String.repeat(n) creates a string repeated n times (useful for separators)",
+      "isBlank() catches whitespace-only strings; isEmpty() only true empty",
+      "StringBuffer is older, slower (thread-safe). Use StringBuilder for new code."
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why is this code slow for large inputs?\n```java\nString result = \"\";\nfor (int i = 0; i < 100000; i++) {\n    result += \"x\";\n}\n```",
+        "answer": "String is immutable. Each `result += \"x\"` creates a NEW String, copies all previous characters plus one more, then discards the old. After N iterations, total work is 1+2+3+...+N = O(N²). For 100,000 iterations: 5 BILLION character copies. Replace with StringBuilder: `sb.append(\"x\")` is O(1), total O(N). 100,000 ops vs 5 billion."
+      },
+      {
+        "question": "What does this print?\n```java\nStringBuilder sb = new StringBuilder(\"Hello\");\nsb.append(\" World\").append(\"!\");\nSystem.out.println(sb);\n```",
+        "answer": "`Hello World!`. StringBuilder.append modifies the same builder AND returns it (for chaining). So `sb.append(\" World\").append(\"!\")` is equivalent to: `sb.append(\" World\"); sb.append(\"!\")`. The builder ends up holding 'Hello World!'. println calls toString automatically."
+      },
+      {
+        "question": "What's wrong with this?\n```java\nString[] parts = \"a.b.c\".split(\".\");\n```",
+        "answer": "`.` is a regex wildcard — matches ANY character. So `split(\".\")` splits on every character. Result: array of empty strings. To split on literal period: `split(\"\\\\.\")` (escape with backslash, written as `\\\\.` in Java because `\\` itself needs escaping). Or use `\\Q.\\E` for 'quoted literal.' The shorthand: when split surprises you, it's probably regex."
+      },
+      {
+        "question": "What does this produce?\n```java\nString s = String.format(\"%,.2f\", 1234567.891);\n```",
+        "answer": "`1,234,567.89`. Breakdown of `%,.2f`: `f` = double/float, `.2` = 2 decimal places, `,` = group separator (commas). So 1234567.891 becomes 1,234,567.89 (rounded to 2 decimals, with thousand-separator commas). Perfect for displaying currency or large numbers."
+      },
+      {
+        "question": "When should you use StringBuilder vs String concatenation?",
+        "answer": "Use StringBuilder when: (1) building a string in a LOOP, (2) many sequential modifications, (3) building a long string piece by piece. Use plain String + when: (1) a few concatenations (Java optimizes `\"a\" + \"b\"` at compile time), (2) simple cases like `\"Hello \" + name`. Rule of thumb: if you're inside a loop adding to a string, switch to StringBuilder."
+      }
+    ],
+    
+    "next_topic_preview": "🎉 You've completed Module 3! You now handle data — arrays for collections, strings for text. Module 4: Object-Oriented Programming. This is the BIGGEST conceptual leap in the course. You'll learn classes, objects, encapsulation, and start thinking the way modern Java is structured. The parallel-arrays pattern from inventory project? It becomes a clean Product class. The Tic-Tac-Toe game? An instance-based engine. After OOP, you're writing professional-grade Java."
+  }
+}

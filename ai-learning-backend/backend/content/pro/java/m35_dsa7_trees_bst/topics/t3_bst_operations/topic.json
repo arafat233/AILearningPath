@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t3",
+  "module_id": "m35",
+  "topic_number": 3,
+  "name": "BST Operations \u2014 Insert, Delete, Validate, Kth, Iterator",
+  "slug": "bst-operations-insert-delete-validate",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m35_t2"
+    ],
+    "concepts_taught": [
+      "bst_search",
+      "bst_insert",
+      "validate_bst",
+      "kth_smallest",
+      "lca_bst",
+      "bst_delete",
+      "bst_iterator"
+    ],
+    "career_relevance": "Validate BST and Kth Smallest are top-5 BST questions. BST Delete tests understanding of inorder successor. BST Iterator is a Google medium favorite.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "// BST property: left<node<right at every node\n// Validate: pass (lo,hi) bounds down \u2014 common gotcha: use Long not Integer\n",
+    "what_you_will_build": "Search, insert, delete, validate, kth smallest, LCA, iterator."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "validate": "Pass (lo, hi) bounds. Long.MIN/MAX handles Integer.MIN_VALUE edge case."
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Validate BST: pass (lo,hi) not just check parent",
+        "Kth smallest: inorder traversal, stop at kth node",
+        "Delete 2-children: replace with inorder successor (leftmost of right subtree)",
+        "BST LCA: use BST property \u2192 O(h) not O(n)",
+        "BST Iterator: O(h) space stack; push lefts; next() pops + pushes right's lefts",
+        "Greater Sum Tree: reverse inorder (R-N-L) with running sum"
+      ],
+      "next_topic_preview": "Next: Path Problems \u2014 binary tree path sum variations."
+    }
+  }
+}

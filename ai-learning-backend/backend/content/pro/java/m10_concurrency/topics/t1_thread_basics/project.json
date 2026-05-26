@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m10_t1_proj",
+  "linked_topic": "java_m10_t1",
+  "level": "mini",
+  "name": "Restaurant Kitchen — 4 Concurrent Stations",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+
+  "scenario": "A full-service restaurant kitchen has four stations running simultaneously: cold prep, hot line, grill, and pastry. Each station is its own thread. Orders are dispatched concurrently. The expeditor (main thread) waits for all stations to complete each order before calling 'ticket up!'",
+
+  "description": "Simulate a restaurant kitchen with 4 concurrent cooking stations, each implemented as a named Thread with a Runnable. The main thread dispatches an order, all four stations start simultaneously, and main waits with join() for all to complete before announcing the order is done.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`CookingStation` implements Runnable with stationName, dishName, prepTimeMs. run() prints 'stationName: starting dishName...', sleeps, then prints 'stationName: dishName ready!'",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "Four stations per order: ColdPrep, HotLine, Grill, Pastry — each with different prep times.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "All four station threads started simultaneously using start(). Main uses join() on all four before printing 'Ticket up! Order complete.'",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Process THREE orders sequentially (one order = all 4 stations in parallel). Between orders, main prints 'Order N sent to kitchen...'",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Each thread named 'Kitchen-StationName' (e.g., 'Kitchen-Grill'). Verify with Thread.currentThread().getName() in output.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Total time for each order is printed: should be ~max(station times), NOT sum.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "InterruptedException handled properly in every thread (restore interrupt flag).",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "main() declares `throws InterruptedException` (or catches at the top level).",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a 'Head Chef' daemon thread that prints 'Chef: checking quality...' every 1 second. Start it before processing orders. Verify it stops when main exits.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Track which station finishes last (holds up the order). Print 'Bottleneck: ColdPrep (800ms)' at end of each order.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Process 2 orders concurrently (two sets of 4 stations simultaneously — 8 threads total). Print order-level timing.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Order 1 (Pasta):\n  ColdPrep: Caesar Salad — 300ms\n  HotLine:  Carbonara — 800ms\n  Grill:    Garlic Bread — 400ms\n  Pastry:   Tiramisu — 600ms\n\nOrder 2 (Steak dinner):\n  ColdPrep: Caprese — 200ms\n  HotLine:  Ribeye sauce — 1000ms\n  Grill:    Ribeye — 1200ms\n  Pastry:   Panna Cotta — 500ms\n\nOrder 3 (Quick lunch):\n  ColdPrep: Side salad — 150ms\n  HotLine:  Tomato soup — 400ms\n  Grill:    Panini — 350ms\n  Pastry:   Cookie — 200ms",
+
+  "starter_code": "public class RestaurantKitchen {\n    public static void main(String[] args) throws InterruptedException {\n        // Process 3 orders, each with 4 concurrent stations\n    }\n    \n    // Define: CookingStation implements Runnable\n    // Define: dispatchOrder(String orderName, CookingStation... stations)\n}",
+
+  "example_output": "=== Order 1: Pasta ===\nOrder 1 sent to kitchen...\n[Kitchen-ColdPrep] Starting: Caesar Salad...\n[Kitchen-HotLine] Starting: Carbonara...\n[Kitchen-Grill] Starting: Garlic Bread...\n[Kitchen-Pastry] Starting: Tiramisu...\n[Kitchen-ColdPrep] Caesar Salad ready! (300ms)\n[Kitchen-Grill] Garlic Bread ready! (400ms)\n[Kitchen-Pastry] Tiramisu ready! (600ms)\n[Kitchen-HotLine] Carbonara ready! (800ms)\nTicket up! Order 1 complete in 802ms\n\n=== Order 2: Steak dinner ===\n...",
+
+  "rubric": [
+    { "category": "CookingStation Runnable", "points": 20, "criteria": ["Correct start/done messages (10 pts)", "Sleep + InterruptedException (10 pts)"] },
+    { "category": "Concurrency", "points": 30, "criteria": ["All 4 started before any join (15 pts)", "Joins wait for all stations (15 pts)"] },
+    { "category": "3 Orders", "points": 15, "criteria": ["3 orders processed sequentially (15 pts)"] },
+    { "category": "Timing", "points": 15, "criteria": ["Order time ~= max station time (15 pts)"] },
+    { "category": "Thread Naming", "points": 10, "criteria": ["Names appear in output (10 pts)"] },
+    { "category": "Code Quality", "points": 10, "criteria": ["InterruptedException handled (5 pts)", "Clean output (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Daemon chef thread (20 pts)", "Bottleneck tracking (20 pts)", "Concurrent orders (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key requirement: start ALL station threads before calling join() on any of them. The dispatchOrder method signature: takes order name and array/varargs of Thread or CookingStation. Timing: record System.currentTimeMillis() before starting, after all joins, print diff.",
+
+  "submission_instructions": "Save as RestaurantKitchen.java. Push to GitHub. Comment: 'Concurrent kitchen simulation — 4 threads per order, join() for synchronization'.",
+
+  "tips_for_success": [
+    "Create all 4 Thread objects, call setName(), then start() all four, then join() all four",
+    "Record `long orderStart = System.currentTimeMillis()` before first start()",
+    "After all joins: `System.out.printf('Ticket up! %s complete in %dms%n', orderName, elapsed)`",
+    "For bonus bottleneck: share a volatile reference to track the last-finishing station",
+    "For bonus daemon: setDaemon(true) before start(); infinite loop with sleep(1000)"
+  ],
+
+  "concepts_reinforced": [
+    "Thread creation with Runnable",
+    "Thread naming with setName()",
+    "start() then join() pattern",
+    "Non-deterministic completion order",
+    "Parallel time = max(individual times)",
+    "InterruptedException proper handling"
+  ]
+}

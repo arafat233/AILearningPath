@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m27_t1",
+  "language": "java",
+  "module_id": "m27",
+  "module_name": "GraphQL with Spring Boot",
+  "topic_number": 1,
+  "name": "GraphQL Basics — Schema, Queries & Mutations",
+  "slug": "graphql-basics-schema-queries-mutations",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m13_t2", "java_m13_t3"],
+    "concepts_taught": [
+      "graphql_overview", "graphql_vs_rest", "schema_definition_language",
+      "query_type", "mutation_type", "object_types", "scalar_types",
+      "non_null_fields", "list_types", "input_types", "enum_types",
+      "introspection", "graphql_playground"
+    ],
+    "skills_developed": [
+      "writing_graphql_schemas", "designing_queries_and_mutations",
+      "choosing_graphql_vs_rest", "reading_graphql_errors"
+    ],
+    "career_relevance": "Flipkart's product detail page fetches data from 12 different microservices (product, inventory, reviews, seller, shipping, offers, images, recommendations...). With REST: 12 separate API calls from the frontend. With GraphQL: one query that specifies exactly the fields needed — product name, first 3 reviews, current price, estimated delivery. GraphQL is used at Flipkart, Razorpay (merchant dashboard), Swiggy (menu API), and Zerodha (portfolio queries). After this topic, you can design GraphQL schemas for real APIs.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Flipkart product page with REST:\n\n```\nFrontend makes 6 API calls per page load:\n  GET /api/products/PROD-123               → 2.1KB (need 200 bytes)\n  GET /api/products/PROD-123/reviews?limit=3 → 4.8KB (need 800 bytes)\n  GET /api/sellers/SELL-456                → 1.2KB (need 100 bytes)\n  GET /api/shipping/estimate?product=PROD-123 → 0.9KB (need 50 bytes)\n  GET /api/offers/product/PROD-123         → 3.1KB (need 200 bytes)\n  GET /api/images/PROD-123?size=thumb      → 0.8KB (need 50 bytes)\n\nTotal: 6 round trips, 13KB transferred, 600ms wait\nUser sees: blank page for 600ms, then all at once\n\nWith GraphQL (one query):\n  query ProductPage($id: ID!) {\n    product(id: $id) {\n      name price { amount currency }\n      reviews(first: 3) { rating comment }\n      seller { name rating }\n      shipping { estimatedDays cost }\n    }\n  }\n\nResult: 1 round trip, 400 bytes, 120ms, zero over-fetching\n```",
+    "what_you_will_build": "Flipkart product catalog GraphQL schema with queries and mutations."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "schema_definition": "**GraphQL Schema Definition Language (SDL):**\n\n```graphql\n# Types:\ntype Product {\n  id: ID!            # Non-null ID (! = required)\n  name: String!      # Non-null String\n  price: Price!      # Nested object type\n  description: String  # Nullable String (no !)\n  reviews: [Review!]!  # Non-null list of non-null Reviews\n  category: Category!  # Enum type\n}\n\ntype Price {\n  amount: Float!\n  currency: String!   # 'INR', 'USD'\n}\n\nenum Category {\n  ELECTRONICS\n  CLOTHING\n  BOOKS\n  HOME_KITCHEN\n}\n\n# Input type for mutations (not return types):\ninput CreateProductInput {\n  name: String!\n  priceAmount: Float!\n  category: Category!\n  description: String\n}\n\n# Entry points:\ntype Query {\n  product(id: ID!): Product          # returns nullable\n  products(category: Category): [Product!]!  # list, always non-null\n  searchProducts(keyword: String!): [Product!]!\n}\n\ntype Mutation {\n  createProduct(input: CreateProductInput!): Product!\n  updatePrice(productId: ID!, newPrice: Float!): Product!\n  deleteProduct(id: ID!): Boolean!\n}\n```",
+      "graphql_vs_rest": "**GraphQL vs REST:**\n\n```\nREST:\n  GET /products/PROD-123          → entire product (all fields)\n  GET /products/PROD-123/reviews  → all reviews\n  Multiple endpoints, multiple calls\n  Over-fetching: backend sends fields frontend doesn't need\n  Under-fetching: one call doesn't have enough (need a second)\n  Versioning: /v1/products, /v2/products — version proliferation\n\nGraphQL:\n  POST /graphql                  → one endpoint for everything\n  Client specifies EXACTLY the fields it needs\n  Zero over-fetching: only requested fields sent\n  Zero under-fetching: one query can nest multiple resources\n  No versioning: add new fields (backwards compatible), deprecate old ones\n\nUSE GRAPHQL WHEN:\n  - Multiple clients (web, iOS, Android) need different fields\n  - Data is highly interconnected (product → reviews → seller → rating)\n  - Over-fetching is hurting mobile performance\n\nUSE REST WHEN:\n  - Simple CRUD without complex relationships\n  - File upload/download (GraphQL handles poorly)\n  - Webhooks and event notifications (REST + HTTP well-suited)\n  - Team is unfamiliar with GraphQL (learning curve real)\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "GraphQL schema diagram. Center: single /graphql endpoint. Left side: three clients (Web, iOS Android, Admin dashboard) each sending different query shapes to the same endpoint. Right side: GraphQL resolvers connecting to different data sources (Product DB, Reviews Service, Seller DB, Shipping API). Schema box in the middle shows: type Query { product, products }, type Mutation { createProduct, updatePrice }. Annotation: 'One schema, many clients, each gets exactly the fields they need.'",
+      "alt_text": "GraphQL: one endpoint, multiple clients each requesting different field subsets"
+    },
+    "worked_example": {
+      "scenario": "Design Flipkart product catalog GraphQL schema.",
+      "problem_statement": "1. Product type with id, name, price (nested), category (enum), reviews list\n2. Review type: id, rating, comment, author\n3. Query type: product(id), products(category), searchProducts(keyword)\n4. Mutation type: createProduct(input), updatePrice\n5. Input type: CreateProductInput\n6. Validate schema is correct GraphQL SDL",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Non-null vs nullable design decisions",
+          "details": "Use ! (non-null) for: ID fields (always has an ID if it exists), name/required fields. Omit ! for: optional fields (description, discount). List: [Product!]! means the list is always returned (never null) and each item in the list is non-null. [Product] means the list itself could be null AND items could be null. For queries returning single items: product(id): Product (nullable) is better than product(id): Product! because if the product doesn't exist, returning null is cleaner than an error."
+        }
+      ],
+      "final_code": "# schema.graphqls\ntype Product { id: ID! name: String! price: Price! }\ntype Price { amount: Float! currency: String! }\ntype Query { product(id: ID!): Product products: [Product!]! }\ntype Mutation { createProduct(input: CreateProductInput!): Product! }",
+      "expected_output": "# Valid GraphQL SDL — passes schema validation\n# query: { product(id: \"PROD-1\") { name price { amount currency } } }\n# → fetches ONLY name and price.amount and price.currency\n# → seller, reviews, images NOT fetched (not requested)",
+      "things_to_notice": [
+        "ID! scalar: GraphQL's built-in opaque identifier type. Clients treat it as a string but shouldn't parse it. Always non-null for an entity's own ID.",
+        "Input types vs object types: CreateProductInput is an INPUT type — only for arguments. Product is an OBJECT type — only for return values. You can't use Product as a mutation argument directly.",
+        "SDL is the contract: the schema is the contract between frontend and backend. Once published, adding fields is backwards-compatible. Removing fields is breaking — deprecate first with @deprecated.",
+        "Queries are GET-equivalent (safe, idempotent); Mutations are POST/PUT/DELETE-equivalent (may have side effects). This distinction matters for caching."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay merchant dashboard",
+          "use_case": "Merchant dashboard shows: payment volume, settlement status, dispute count, recent transactions. Each widget needs different data. REST: 4 API calls per page. GraphQL: one query per page load with exactly the fields each widget needs. Mobile app: smaller query (fewer fields). Web admin: larger query (all details). Same schema, different queries per client."
+        }
+      ],
+      "interview_relevance": "'Why use GraphQL instead of REST for our product?' → Client-specified fields: each client gets exactly what it needs (mobile: lightweight, admin: full details). One round trip: nested data in one query (product + reviews + seller). No versioning: add fields backwards-compatibly. Trade-offs: more complex server-side (resolvers, N+1), harder to cache (all POST to /graphql), learning curve. Best for: multiple clients needing different data shapes from interconnected data.",
+      "real_world_workflow": "GraphQL adoption: (1) design schema collaboratively (frontend + backend), (2) implement backend resolvers one type at a time, (3) use GraphQL Playground for exploration and testing, (4) add to existing REST service incrementally (both /api/rest and /graphql can coexist), (5) monitor: track slow queries by field, add DataLoader for N+1 (T3)."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "using_object_type_as_input",
+        "what_students_get_wrong": "Using Product type directly as a mutation argument: `createProduct(product: Product!)`. GraphQL doesn't allow object types as inputs — only scalar types and input types.",
+        "remediation": "Always create a separate input type: `input CreateProductInput { name: String! price: Float! }`. Input types are prefixed with the operation name and suffixed with 'Input'. They can only contain scalar types, enum types, and other input types — not object types with resolvers.",
+        "detection_pattern": "Mutation argument uses an object type (type keyword) instead of an input type (input keyword) — GraphQL schema validation error: 'Expected type to be input type'"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "GraphQL: one endpoint (/graphql), client specifies exact fields needed",
+        "Zero over-fetching: only requested fields sent; zero under-fetching: nested in one query",
+        "Schema SDL: type, input, enum, scalar, Query, Mutation, Subscription",
+        "Non-null (!): use for IDs and required fields; nullable for optional fields",
+        "Input types: for mutation arguments; Object types: for return values (can't mix!)",
+        "Single nullable return from query: product(id): Product (not Product!) — null if not found",
+        "Backwards compatible: add fields freely; deprecate old ones with @deprecated",
+        "GraphQL vs REST: use GraphQL for interconnected data + multiple clients; REST for simple CRUD",
+        "Introspection: clients can query the schema itself (__schema, __type)",
+        "SDL is the contract: frontend and backend agree on schema before implementation"
+      ],
+      "self_check_questions": [
+        {
+          "question": "A Swiggy engineer says: 'I want to add a new `deliveryFee` field to the Order type. Will this break existing clients?' What is the answer and how does GraphQL handle this differently from REST versioning?",
+          "answer": "Answer: NO — adding a new field to an existing type is backwards compatible in GraphQL. Existing queries that don't request `deliveryFee` are completely unaffected (they just won't receive that field). Only clients that explicitly add `deliveryFee` to their query will receive it. In REST: adding a new JSON field to a response is also technically backwards compatible, but REST APIs often resort to versioning (/v1/, /v2/) when changing response shapes — because REST doesn't have a mechanism for clients to specify which fields they want, so you can't safely remove fields later without breaking clients. GraphQL: the field selection mechanism means you can add fields freely (safe) and deprecate old fields with @deprecated before removing them (giving clients time to migrate). REST equivalent would require versioning to safely add+remove fields. This is GraphQL's major operational advantage for APIs with multiple client teams."
+        }
+      ],
+      "next_topic_preview": "Next: Spring for GraphQL — implement the schema in Spring Boot using @QueryMapping, @MutationMapping, and @SchemaMapping annotations."
+    }
+  }
+}

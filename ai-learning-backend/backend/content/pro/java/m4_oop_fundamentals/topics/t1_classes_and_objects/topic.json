@@ -1,0 +1,240 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t1",
+  "language": "java",
+  "module_id": "m4",
+  "module_name": "Object-Oriented Programming Fundamentals",
+  "topic_number": 1,
+  "name": "Classes & Objects",
+  "slug": "classes-and-objects",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m2_t1", "java_m2_t2", "java_m2_t4", "java_m3_t2"],
+    "concepts_taught": [
+      "class_as_blueprint",
+      "object_as_instance",
+      "fields_instance_variables",
+      "instance_methods",
+      "new_keyword",
+      "dot_notation",
+      "multiple_objects",
+      "object_references",
+      "default_field_values",
+      "instance_vs_static_first_distinction"
+    ],
+    "skills_developed": [
+      "defining_classes",
+      "creating_objects",
+      "accessing_object_state",
+      "calling_instance_methods",
+      "thinking_in_objects",
+      "modeling_real_world_entities"
+    ],
+    "career_relevance": "Object-oriented programming is THE dominant paradigm in production Java. Every Spring service, every Android app, every backend system is built around classes. Until now, your code has been procedural — you've written methods that take parameters. Real Java code organizes things differently: bundles related data and behavior into classes, then creates objects from those classes. The Inventory Manager from Module 3 used parallel arrays — clunky. Real systems would model Products as a class. This single conceptual shift is the most important leap in your Java journey.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Remember the Inventory Manager project from Module 3? Three parallel arrays — productIds, stocks, prices — and the rule that index `i` in all three referred to the SAME product. If you sorted prices, you'd have to sort the other arrays IN SYNC, or your data would mismatch. If you added a new product, you had to update all three arrays. If you wanted to add 'category' or 'discount' fields later, you'd need new arrays everywhere.\n\nThat's how procedural code handles 'records' — and it's fragile. The data BELONGS TOGETHER, but the language doesn't enforce that.\n\nObject-oriented programming fixes this. Instead of three parallel arrays, you have ONE array of `Product` objects. Each Product knows its own ID, stock, AND price. Sorting one array sorts the data together. Adding a new field means adding it to the class, period. This is how every modern Java application is structured.\n\nThis topic introduces the most important concept in Java: classes. After today, you'll never want to use parallel arrays again.",
+    "what_you_will_build": "By the end of this topic, you'll know how to define a class (a 'blueprint' for objects), create objects using `new`, access fields and methods with dot notation, and work with multiple objects of the same class. You'll refactor the Inventory Manager from Module 3 using a `Product` class — same functionality, dramatically cleaner code. After this topic, you start writing Java the way professionals do."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "Object-oriented programming has two core concepts:\n\n**Class**: A BLUEPRINT for creating objects. Defines what data the object holds (fields) and what it can do (methods). A class is a TYPE.\n\n**Object**: An INSTANCE of a class. The actual thing you work with. Each object has its own copy of the fields.\n\nAnalogy: A 'House' class describes what every house has (walls, doors, address) and can do (open door, lock door). A specific house — say, the one at 123 Main Street — is an OBJECT of type House. There can be many House objects, each with different addresses and states.\n\nYou've already used objects: `String` is a class, `\"Hello\"` is an object. `StringBuilder` is a class. `Arrays.toString(...)` returns a String object. You've been a USER of objects. Now you'll DEFINE your own classes.",
+      
+      "first_class": "Let's define the simplest possible class:\n\n```java\npublic class Dog {\n    String name;\n    int age;\n    \n    void bark() {\n        System.out.println(name + \" says: Woof!\");\n    }\n}\n```\n\nBreakdown:\n- `public class Dog` — declares a class named Dog\n- `String name` and `int age` — **fields** (also called instance variables). Each Dog object will have its OWN name and age.\n- `void bark()` — an **instance method**. Notice: no `static` keyword. Why? Because this method belongs to each individual Dog object, not the class itself.\n\nNow let's USE this class:\n\n```java\npublic class App {\n    public static void main(String[] args) {\n        Dog d1 = new Dog();   // Create a Dog object\n        d1.name = \"Rex\";       // Set its name field\n        d1.age = 3;\n        \n        Dog d2 = new Dog();\n        d2.name = \"Buddy\";\n        d2.age = 5;\n        \n        d1.bark();   // Rex says: Woof!\n        d2.bark();   // Buddy says: Woof!\n    }\n}\n```\n\nWhat happened:\n- `new Dog()` creates a NEW Dog object\n- `d1` is a REFERENCE to that object (variable points to it)\n- `d1.name = \"Rex\"` accesses the name field of d1 specifically — dot notation\n- `d1.bark()` calls bark() on d1. Inside bark, `name` refers to d1's name (\"Rex\").\n- `d2` is a SEPARATE object with its own name and age\n- Each Dog has independent state",
+      
+      "fields_and_dot_notation": "**Fields** (also called instance variables) are variables declared inside a class but outside any method.\n\n```java\npublic class Person {\n    String name;       // field\n    int age;           // field\n    String email;      // field\n}\n```\n\nEach object has its OWN copy of each field. Setting `person1.age = 30` doesn't affect `person2.age`.\n\n**Default values** if not initialized:\n- numeric types (int, double, etc.): 0 or 0.0\n- boolean: false\n- char: '\\u0000' (null character)\n- reference types (String, custom classes, arrays): null\n\nSo a freshly-created Person has `name = null`, `age = 0`, `email = null`. **Calling methods on null fields throws NullPointerException** — we'll learn to prevent this in next topic with constructors.\n\n**Dot notation** is how you access fields and methods:\n\n```java\nperson.name       // read field\nperson.name = \"X\"  // write field\nperson.sayHello()  // call method\n```\n\nThe pattern: `objectReference.member`. Always works the same way.",
+      
+      "instance_methods": "**Instance methods** operate on a specific object. They can access that object's fields directly by name.\n\n```java\npublic class Circle {\n    double radius;\n    \n    double area() {\n        return Math.PI * radius * radius;\n    }\n    \n    double circumference() {\n        return 2 * Math.PI * radius;\n    }\n}\n```\n\nNote how `area()` uses `radius` directly — no need to pass it as a parameter. It's a FIELD of the same object the method belongs to.\n\nUsing:\n\n```java\nCircle c = new Circle();\nc.radius = 5;\nSystem.out.println(c.area());           // 78.54...\nSystem.out.println(c.circumference());  // 31.42...\n```\n\n**Compare to procedural style** (last module):\n\n```java\n// Old way — procedural\npublic static double area(double radius) {\n    return Math.PI * radius * radius;\n}\n// Caller: area(5)\n\n// New way — object-oriented\nCircle c = new Circle();\nc.radius = 5;\nc.area();\n```\n\nWith one object, the procedural way is shorter. With many objects (50 circles, each with different radii), the OOP way is dramatically cleaner — radius is BOUND to its circle, not separate data you must keep track of.\n\n**The key shift**: methods don't operate on data passed in — they operate on the object's OWN data.",
+      
+      "instance_vs_static_revisited": "Module 2 introduced static methods. Now you see the difference:\n\n**Static method**: belongs to the CLASS. No object needed to call.\n\n```java\npublic class MathUtils {\n    public static int square(int n) {\n        return n * n;\n    }\n}\n// Call: MathUtils.square(5)\n```\n\n**Instance method**: belongs to an OBJECT. Need an object to call.\n\n```java\npublic class Circle {\n    double radius;\n    \n    double area() {  // no static keyword\n        return Math.PI * radius * radius;\n    }\n}\n// Call: c.area() — where c is a Circle object\n```\n\n**When to use each**:\n- Static: utility functions that don't need object state (Math.sqrt, Math.max)\n- Instance: methods that operate on a specific object's data (c.area)\n\n**Why your main method is static**: Java needs to start somewhere — it can't create an object before any code has run. So `main` is static, called by the JVM without any object. From main, you THEN create objects.\n\n**Static fields** (like `static int count` from Module 2): shared across all objects — really, they belong to the class. Used for counters, constants, shared resources. We'll see more of these soon.",
+      
+      "object_references": "**Critical concept**: When you have `Dog d = new Dog();`, the variable `d` doesn't hold the dog. It holds a REFERENCE to the dog — a memory address.\n\n```java\nDog d1 = new Dog();\nd1.name = \"Rex\";\n\nDog d2 = d1;   // d2 now points to the SAME dog\nd2.name = \"Buddy\";\n\nSystem.out.println(d1.name);  // Buddy! (same object)\n```\n\nThis is identical to the array reference behavior from Module 3. Objects are passed by reference.\n\n**Implications**:\n- Modifying through `d2` modifies the same object `d1` refers to\n- Passing an object to a method gives the method a reference — modifications inside the method affect the caller's object\n- Comparing with `==` checks if two variables point to the SAME object, not if their contents are equal\n\nThis is why we use `.equals()` for Strings — to compare CONTENT, not REFERENCE. The same will apply to custom classes (covered in Topic 4.4).\n\n**Visual model**:\n```\nd1 ──┐\n      ├──→ [Dog object: name=\"Buddy\", age=5]\nd2 ──┘\n```\n\nBoth variables point to the same object. To create a TRUE copy, you'd need to create a new Dog and copy fields manually (covered later).",
+      
+      "multiple_objects": "The power of classes: easily create many objects.\n\n```java\nDog[] dogs = new Dog[3];\ndogs[0] = new Dog();\ndogs[0].name = \"Rex\";\ndogs[0].age = 3;\n\ndogs[1] = new Dog();\ndogs[1].name = \"Buddy\";\ndogs[1].age = 5;\n\ndogs[2] = new Dog();\ndogs[2].name = \"Luna\";\ndogs[2].age = 2;\n\nfor (Dog d : dogs) {\n    d.bark();\n}\n```\n\nOutput:\n```\nRex says: Woof!\nBuddy says: Woof!\nLuna says: Woof!\n```\n\nThis is HUGE. With parallel arrays, you'd have:\n```java\nString[] names = {\"Rex\", \"Buddy\", \"Luna\"};\nint[] ages = {3, 5, 2};\n// To bark: System.out.println(names[i] + \" says: Woof!\");\n```\n\nThe data is split across arrays. With objects: each Dog is self-contained.\n\n**Important**: `Dog[] dogs = new Dog[3]` creates an array of 3 dog REFERENCES, all initially null. You must `new Dog()` for each slot. Otherwise: NullPointerException when you try to use `dogs[i].something`.",
+      
+      "naming_conventions": "Java has strong naming conventions:\n\n**Classes**: PascalCase (first letter capital). `Dog`, `BankAccount`, `OrderProcessor`.\n\n**Fields and methods**: camelCase. `firstName`, `accountBalance`, `calculateTotal()`.\n\n**Constants**: SCREAMING_SNAKE_CASE. `static final int MAX_USERS = 100`.\n\n**Packages**: lowercase. `com.codequest.banking`.\n\nFollowing conventions is REQUIRED in professional Java. Tools, IDEs, and code reviewers assume them. Using `dog` instead of `Dog` for a class will work but mark you as a beginner instantly.\n\n**Class naming rule**: a class is usually a NOUN — something that has data and behaviors. `Dog`, `Order`, `User`, `Calculator`. Not verbs (`Process`, `Calculate`) — those are method names.\n\n**Class names usually match file names**. `Dog.java` contains `public class Dog`. Java enforces this for `public` classes.",
+      
+      "looking_ahead": "**What's coming up in Module 4**:\n\n- **Constructors** (next topic): better way to initialize objects. Instead of `d.name = \"Rex\"; d.age = 3;`, write `new Dog(\"Rex\", 3)`.\n- **Encapsulation**: making fields private, using getter/setter methods. Prevents direct field access (and the bugs that come with it).\n- **`this` keyword**: refer to the current object.\n- **toString, equals**: methods that make your classes work well with Java's APIs.\n- **Composition**: classes that contain other classes (Address inside Person).\n\nEach builds on this foundation. The big takeaway from Topic 4.1: classes bundle DATA and BEHAVIOR. Objects are instances of classes. Each object has its own state. After this, you'll see classes everywhere in Java code."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a 'Class blueprint' on the LEFT — Dog class with fields (name: String, age: int) and methods (bark()). Right side shows three 'instantiated' Dog objects: Rex (age 3), Buddy (age 5), Luna (age 2) — each as a separate box with its own field values. Arrows from class to each object labeled 'new Dog()'. Below: comparison of parallel arrays vs object array. LEFT: three arrays for names/ages/breeds with index correlation. RIGHT: single array of Dog objects, each self-contained. Annotation: 'Same data, dramatically different organization.'",
+      "alt_text": "Visual showing Dog class as blueprint creating multiple Dog objects, plus comparison of parallel arrays vs array of objects"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Remember the Inventory Manager from Module 3 Topic 3.2? Three parallel arrays for productIds, stocks, and prices. Awkward to maintain. Today we'll REFACTOR it using a `Product` class. SAME functionality. Same data. Dramatically cleaner code. This refactor reveals exactly why OOP exists.",
+    
+    "problem_statement": "Refactor the inventory system using a `Product` class:\n1. Define a `Product` class with fields: `id` (int), `name` (String), `stock` (int), `price` (double)\n2. Add an instance method `describe()` that returns a formatted string about the product\n3. In main: create an array of 5 Product objects, populate them, print all using describe()\n\nCompare the result to the parallel-arrays version. Notice how much cleaner this is.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Define the Product class",
+        "details": "Create the class structure. For now, this goes in the SAME file as your main class (Java allows multiple classes per file, though only one can be `public`).\n\n```java\nclass Product {\n    int id;\n    String name;\n    int stock;\n    double price;\n    \n    String describe() {\n        return \"#\" + id + \" \" + name + \" — Stock: \" + stock + \", Price: ₹\" + price;\n    }\n}\n```\n\nThe class has:\n- Four fields representing what a Product 'has'\n- One method representing what a Product 'can do' (describe itself)\n\nNote: `class Product` (no `public`) because it's a helper class in the same file. The `public class` is your main class."
+      },
+      {
+        "step": 2,
+        "action": "Set up the main method",
+        "details": "Main now uses Product objects instead of parallel arrays:\n\n```java\npublic class InventoryOOP {\n    public static void main(String[] args) {\n        Product[] catalog = new Product[5];\n        // ... populate, then use\n    }\n}\n```\n\n`Product[] catalog` is an array of Product REFERENCES. We need to create actual Product objects to fill it."
+      },
+      {
+        "step": 3,
+        "action": "Create and populate Product objects",
+        "details": "```java\ncatalog[0] = new Product();\ncatalog[0].id = 101;\ncatalog[0].name = \"Wireless Mouse\";\ncatalog[0].stock = 45;\ncatalog[0].price = 599.99;\n\ncatalog[1] = new Product();\ncatalog[1].id = 102;\ncatalog[1].name = \"USB-C Cable\";\ncatalog[1].stock = 12;\ncatalog[1].price = 249.0;\n\ncatalog[2] = new Product();\ncatalog[2].id = 103;\ncatalog[2].name = \"Notebook\";\ncatalog[2].stock = 87;\ncatalog[2].price = 89.5;\n\ncatalog[3] = new Product();\ncatalog[3].id = 104;\ncatalog[3].name = \"Mechanical Keyboard\";\ncatalog[3].stock = 8;\ncatalog[3].price = 4500.0;\n\ncatalog[4] = new Product();\ncatalog[4].id = 105;\ncatalog[4].name = \"Desk Lamp\";\ncatalog[4].stock = 23;\ncatalog[4].price = 1299.0;\n```\n\nVerbose — and we'll fix this with **constructors** next topic. For now, manual field assignment works.\n\nNotice we MUST `new Product()` for each slot. Skipping that line would leave the slot null, and accessing `catalog[0].id` would throw NullPointerException."
+      },
+      {
+        "step": 4,
+        "action": "Iterate and use the objects",
+        "details": "```java\nSystem.out.println(\"=== INVENTORY ===\");\nfor (Product p : catalog) {\n    System.out.println(p.describe());\n}\n```\n\nClean. The for-each gives us each Product. We call `describe()` on it — the method uses the object's own fields internally."
+      },
+      {
+        "step": 5,
+        "action": "Compare to parallel arrays version",
+        "details": "**Old (parallel arrays, from Module 3.2)**:\n```java\nint[] productIds = {101, 102, 103, 104, 105};\nString[] names = {\"Wireless Mouse\", \"USB-C Cable\", ...};\nint[] stocks = {45, 12, 87, 8, 23};\ndouble[] prices = {599.99, 249.0, 89.5, 4500.0, 1299.0};\n\nfor (int i = 0; i < productIds.length; i++) {\n    System.out.println(\"#\" + productIds[i] + \" \" + names[i] \n        + \" — Stock: \" + stocks[i] + \", Price: ₹\" + prices[i]);\n}\n```\n\n**New (object array)**:\n```java\nfor (Product p : catalog) {\n    System.out.println(p.describe());\n}\n```\n\nDifferences:\n- Old: 4 arrays must be kept in sync. New: 1 array of self-contained objects.\n- Old: print logic inline, with index gymnastics. New: each Product describes itself.\n- Old: adding 'category' means a 5th array everywhere. New: add a field to Product.\n- Old: sorting requires sorting all 4 arrays together. New: sort the array of products.\n\nThis is the OOP advantage."
+      }
+    ],
+    
+    "final_code": "class Product {\n    int id;\n    String name;\n    int stock;\n    double price;\n    \n    String describe() {\n        return \"#\" + id + \" \" + name + \" — Stock: \" + stock + \", Price: ₹\" + price;\n    }\n}\n\npublic class InventoryOOP {\n    public static void main(String[] args) {\n        Product[] catalog = new Product[5];\n        \n        catalog[0] = new Product();\n        catalog[0].id = 101;\n        catalog[0].name = \"Wireless Mouse\";\n        catalog[0].stock = 45;\n        catalog[0].price = 599.99;\n        \n        catalog[1] = new Product();\n        catalog[1].id = 102;\n        catalog[1].name = \"USB-C Cable\";\n        catalog[1].stock = 12;\n        catalog[1].price = 249.0;\n        \n        catalog[2] = new Product();\n        catalog[2].id = 103;\n        catalog[2].name = \"Notebook\";\n        catalog[2].stock = 87;\n        catalog[2].price = 89.5;\n        \n        catalog[3] = new Product();\n        catalog[3].id = 104;\n        catalog[3].name = \"Mechanical Keyboard\";\n        catalog[3].stock = 8;\n        catalog[3].price = 4500.0;\n        \n        catalog[4] = new Product();\n        catalog[4].id = 105;\n        catalog[4].name = \"Desk Lamp\";\n        catalog[4].stock = 23;\n        catalog[4].price = 1299.0;\n        \n        System.out.println(\"=== INVENTORY ===\");\n        for (Product p : catalog) {\n            System.out.println(p.describe());\n        }\n    }\n}",
+    
+    "expected_output": "=== INVENTORY ===\n#101 Wireless Mouse — Stock: 45, Price: ₹599.99\n#102 USB-C Cable — Stock: 12, Price: ₹249.0\n#103 Notebook — Stock: 87, Price: ₹89.5\n#104 Mechanical Keyboard — Stock: 8, Price: ₹4500.0\n#105 Desk Lamp — Stock: 23, Price: ₹1299.0",
+    
+    "things_to_notice": [
+      "The Product class encapsulates EVERYTHING about a product — id, name, stock, price, AND the describe behavior. Self-contained.",
+      "`for (Product p : catalog)` — each iteration gives a Product object, not separate values to recombine.",
+      "`p.describe()` accesses the object's own state. Inside the method, `id`, `name`, etc. refer to THAT product's fields.",
+      "The verbose initialization (5 lines per product) is annoying. Constructors (next topic) will fix this — eventually we'll write `new Product(101, \"Wireless Mouse\", 45, 599.99)`.",
+      "We can pass a Product to any method that takes a Product parameter. Methods can return a Product. This is real composition — data and behavior together as a unit.",
+      "Adding a new field (say `category`) requires changing the class once. With parallel arrays, you'd add an array AND update every loop that touches the data.",
+      "Right now, anyone can do `p.price = -999` (set a nonsense price). That's a problem. **Encapsulation** (Topic 4.3) will fix this with private fields and validation."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Every backend service (Spring, Quarkus, Micronaut)",
+        "use_case": "REST endpoints work with classes called 'DTOs' (Data Transfer Objects) — User, Order, Product, Account. JSON requests become objects; method calls return objects; objects get serialized back to JSON. Without classes, there'd be no way to organize this data cleanly."
+      },
+      {
+        "company_context": "Banking apps (HDFC, SBI, Razorpay)",
+        "use_case": "Every concept is a class: Account, Transaction, Customer, Card. A money transfer involves creating a Transaction object, modifying two Account objects, persisting to a database. Imagine doing this with parallel arrays — a nightmare for audits and reliability."
+      },
+      {
+        "company_context": "Android development",
+        "use_case": "Every UI screen extends a class (Activity, Fragment). Every data model is a class (User, Post, Message). Every adapter, every viewmodel. Classes are the unit of code. Android development without classes is impossible."
+      },
+      {
+        "company_context": "Game development",
+        "use_case": "Player, Enemy, Weapon, Level — all classes. A combat system uses player.attack(enemy). Inventory holds Item objects. The Tic-Tac-Toe engine from Module 3? It would naturally be a Game class with a board field. Games without OOP are unmaintainable past ~1000 lines of code."
+      }
+    ],
+    
+    "interview_relevance": "OOP fundamentals come up constantly:\n\n- **'What is a class? What is an object?'** — Foundational question. Class = blueprint, object = instance.\n- **'Design a class for X'** — Tests if you can identify fields (data) and methods (behavior). Common: 'Design a Library' (Book, Member, Loan classes).\n- **'What's the difference between static and instance methods?'** — Tests Module 2 + Module 4 understanding.\n- **'Why do we use classes?'** — Expect: organization, reusability, modeling real-world concepts, encapsulation.\n\nSystem design interviews (senior) are heavily class-based:\n- 'Design Uber' — you'd describe Driver, Rider, Trip, Vehicle classes\n- 'Design a parking lot' — ParkingLot, Spot, Vehicle, Ticket classes\n\nIf you can't reason in classes, you can't pass senior interviews. After Module 4, you'll think in objects naturally.",
+    
+    "real_world_workflow": "Daily life with classes:\n\n- Reading any open-source Java project: you navigate by classes. Each class is one file usually.\n- Writing new features: 'Add a refund feature' = create Refund class + method to process it\n- Code review: 'This class has too many responsibilities' is the most common feedback at senior level\n- Refactoring: extracting cohesive data + methods into a new class is a daily task\n- Documentation: JavaDocs describe classes — `@param User user` etc.\n\nIDE features (Eclipse, IntelliJ) are class-centric. Most code navigation is class-based. Once you start writing classes, every part of Java development clicks together better."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_new",
+      "what_students_get_wrong": "Declaring an object reference but not creating an actual object. `Dog d;` doesn't make a dog — d is null.",
+      "remediation": "To create an object: `Dog d = new Dog();`. The `new` keyword allocates memory and creates the object.",
+      "detection_pattern": "NullPointerException when accessing object fields/methods"
+    },
+    {
+      "gap_id": "null_object_in_array",
+      "what_students_get_wrong": "`Dog[] dogs = new Dog[5]` creates an array of 5 NULL references, not 5 Dogs. Accessing `dogs[0].name` crashes.",
+      "remediation": "After creating the array, must `dogs[i] = new Dog()` for each slot. The array creation doesn't create the objects.",
+      "detection_pattern": "NullPointerException on array index access"
+    },
+    {
+      "gap_id": "calling_instance_method_statically",
+      "what_students_get_wrong": "Trying `Dog.bark()` when bark is an instance method. Requires an object: `d.bark()`.",
+      "remediation": "Instance methods need an object. ClassName.method() only works for static methods. Create an object first.",
+      "detection_pattern": "Compilation error 'non-static method cannot be referenced from a static context'"
+    },
+    {
+      "gap_id": "expecting_assignment_to_copy",
+      "what_students_get_wrong": "Doing `Dog d2 = d1` and thinking d2 is a new dog. They're the SAME dog — both variables reference the same object.",
+      "remediation": "Object assignment shares the reference. To create a real copy, manually create a new object and copy fields.",
+      "detection_pattern": "Unexpected mutation affecting both 'copies'"
+    },
+    {
+      "gap_id": "using_static_when_instance_needed",
+      "what_students_get_wrong": "Making methods static when they need instance data. Then having to pass that data as parameters.",
+      "remediation": "If a method uses the object's fields, make it an instance method (no static). The data is 'free' — no need to pass.",
+      "detection_pattern": "Verbose methods with many parameters that are really one object's data"
+    },
+    {
+      "gap_id": "class_naming_lowercase",
+      "what_students_get_wrong": "Naming classes in camelCase (`dog`) instead of PascalCase (`Dog`).",
+      "remediation": "Classes are PascalCase. Always. Java tools and conventions assume this.",
+      "detection_pattern": "Code reviews flagging style"
+    },
+    {
+      "gap_id": "filename_doesnt_match_public_class",
+      "what_students_get_wrong": "Naming the file differently from the public class. `class Dog` in `Animal.java` — compiler error.",
+      "remediation": "File name must match public class name (case-sensitive). Dog.java contains `public class Dog`.",
+      "detection_pattern": "Compilation error: 'class X is public, should be declared in a file named X.java'"
+    },
+    {
+      "gap_id": "fields_accessed_externally",
+      "what_students_get_wrong": "Setting `p.price = -100` (nonsense value). Public fields allow any modification.",
+      "remediation": "This isn't an error YET — but it's a problem we'll solve with encapsulation in Topic 4.3. For now, just be aware: public fields = no validation possible.",
+      "detection_pattern": "Invalid object states reachable from outside"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Class = blueprint, defines what objects of this type look like and can do",
+      "Object = instance of a class, created with `new ClassName()`",
+      "Fields = variables inside a class, each object has its own copy",
+      "Instance methods = methods that operate on a specific object's data (no `static`)",
+      "Static methods = belong to the class, callable without an object",
+      "Dot notation: `object.field` or `object.method()` to access members",
+      "Object references: variables hold POINTERS to objects, not the objects themselves",
+      "Object[] is array of references — must `new` each slot",
+      "Class names: PascalCase. File name matches public class name.",
+      "OOP organizes code as DATA + BEHAVIOR together, not separate arrays of values",
+      "Real Java code is built on classes — Module 4 is the most important conceptual leap"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's the difference between a class and an object?",
+        "answer": "A class is a BLUEPRINT or TEMPLATE — it defines what fields and methods objects of this type will have. An object is an INSTANCE created from that blueprint, with its own field values. Analogy: 'House' is a class (idea of a house). The actual house at 123 Main Street is an object. You can have many House objects from one House class — each with different addresses, owners, etc."
+      },
+      {
+        "question": "Why does this crash?\n```java\nDog d;\nd.bark();\n```",
+        "answer": "`Dog d;` declares a Dog REFERENCE but doesn't create a Dog object. `d` is null. Calling any method on null throws NullPointerException. Fix: `Dog d = new Dog(); d.bark();`. The `new Dog()` actually creates the object."
+      },
+      {
+        "question": "What's the difference between instance methods and static methods?",
+        "answer": "Instance methods are called on an OBJECT (`dog.bark()`) and can access that object's fields directly. They have no `static` keyword. Static methods belong to the CLASS (`Math.sqrt(16)`) and can't access any specific object's fields — only their parameters and static fields. Use instance for methods that work with object state; use static for utilities that don't need object state."
+      },
+      {
+        "question": "What's wrong here?\n```java\nDog[] dogs = new Dog[3];\ndogs[0].name = \"Rex\";\n```",
+        "answer": "`new Dog[3]` creates an array of 3 Dog REFERENCES, all initialized to null. The array exists but contains no Dog objects. `dogs[0].name = ...` throws NullPointerException because `dogs[0]` is null. Fix: `dogs[0] = new Dog(); dogs[0].name = \"Rex\";`. You must create each Dog separately."
+      },
+      {
+        "question": "If I have `Dog d1 = new Dog(); Dog d2 = d1; d2.name = \"Buddy\";`, what is d1.name?",
+        "answer": "\"Buddy\". Object assignment shares references — d2 doesn't get a copy of d1's Dog; it gets a reference to the SAME Dog. Modifying through d2 modifies the same object d1 points to. d1.name and d2.name are the same field of the same object. To make a true copy, you'd need to manually create a new Dog and copy fields, or implement a copy method (Topic 4.x)."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Constructors. The manual field assignment (`d.name = \"Rex\"; d.age = 3;`) is tedious. Constructors are special methods that run when you create an object — letting you initialize fields in one shot: `new Dog(\"Rex\", 3)`. They also let you ENFORCE that objects are created with valid data. By next topic, your Product class will use a constructor."
+  }
+}

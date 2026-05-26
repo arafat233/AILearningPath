@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m36_t2",
+  "module_id": "m36",
+  "topic_number": 2,
+  "name": "Heap Patterns \u2014 K Largest, Median Stream, Task Scheduling",
+  "slug": "heap-patterns-k-largest-median",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m36_t1"
+    ],
+    "concepts_taught": [
+      "k_largest",
+      "k_closest",
+      "kth_largest_stream",
+      "find_median_stream",
+      "top_k_frequent",
+      "interval_scheduling"
+    ],
+    "career_relevance": "K Largest (min-heap size k) and Find Median from Data Stream are top-5 heap interview questions at every company. The Two-Heap technique for median is a classic that appears at Google and Amazon.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Heap Patterns \u2014 K Largest, Median Stream, Task Scheduling"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "K Largest: min-heap of size k. When size>k: poll(). Answer: heap top.",
+        "K Closest to origin: max-heap size k on distance. Or sort O(n log n).",
+        "Kth Largest Stream: maintain min-heap size k; add each element; return peek()",
+        "Median Stream: two heaps \u2014 max-heap (lower half) + min-heap (upper half). Balance after each insert.",
+        "Top K Frequent: freq map + min-heap size k sorted by frequency",
+        "Meeting Rooms II: sort by start; min-heap of end times; rooms = max heap size"
+      ],
+      "next_topic_preview": "Next: Priority Queue Design \u2014 lazy deletion, delayed removal techniques."
+    }
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m29_t1",
+  "language": "java",
+  "module_id": "m29",
+  "module_name": "DSA1: Big-O & Complexity Analysis",
+  "topic_number": 1,
+  "name": "Big-O Notation — The Language of Efficiency",
+  "slug": "big-o-notation-language-of-efficiency",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m1_t1", "java_m8_t1"],
+    "concepts_taught": [
+      "why_complexity_matters", "big_o_definition", "o_1_constant",
+      "o_n_linear", "o_n_squared_quadratic", "o_log_n_logarithmic",
+      "o_n_log_n", "o_2_n_exponential", "dominant_terms",
+      "dropping_constants", "big_o_rules"
+    ],
+    "skills_developed": [
+      "reading_big_o_notation", "comparing_algorithm_efficiency",
+      "identifying_complexity_class", "reasoning_about_scale"
+    ],
+    "career_relevance": "Every Flipkart, Amazon, Zerodha, and Razorpay interview starts with Big-O. Your solution works? Great. Is it O(n²) when O(n log n) exists? You won't clear the round. Zerodha's trading engine processes 10 million orders per day — an O(n²) sort would take 10¹⁴ operations vs O(n log n)'s 2.3×10⁸. That's the difference between a sub-second response and one that takes days. After this topic, you'll think about efficiency before writing a single line of code.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Zerodha order matching without Big-O thinking:\n\n```\nNaive approach: For each incoming order, scan ALL existing orders\nCode: for each new order → loop through 10M orders to find match\nComplexity: O(n²) — 10M × 10M = 10¹⁴ operations\nTime: Would take ~115 days for one trading session\n\nWith Big-O thinking:\nUse a sorted order book (binary search + heap)\nComplexity: O(log n) per match — log₂(10M) ≈ 23 operations\nTime: Microseconds per match\nResult: NSE processes 1M+ orders/second with no lag\n\nBig-O is why Zerodha can handle 10 crore trades on Diwali\nwithout crashing. It's the most important concept in DSA.\n```",
+    "what_you_will_build": "The mental model to classify any algorithm's efficiency — and communicate it in technical interviews."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "big_o_definition": "**Big-O: describes how runtime grows as input grows**\n\n```\nBig-O answers: 'If I double the input size, what happens to the time?'\n\nO(1)       — Constant:     doesn't matter (array index, HashMap get)\nO(log n)   — Logarithmic:  halves the problem each step (binary search)\nO(n)       — Linear:       one pass through data (single loop)\nO(n log n) — Linearithmic: sort the data (merge sort, TimSort)\nO(n²)      — Quadratic:    nested loops (bubble sort, naive search)\nO(2ⁿ)      — Exponential:  try every combination (brute-force recursion)\n\nGrowth rate visualized (n = 1,000,000):\n  O(1)       → 1 operation\n  O(log n)   → ~20 operations\n  O(n)       → 1,000,000 operations\n  O(n log n) → ~20,000,000 operations\n  O(n²)      → 1,000,000,000,000 operations (1 trillion) ← unusable\n```",
+      "the_rules": "**4 Rules for calculating Big-O:**\n\n```java\n// RULE 1: Drop constants\n// This is O(2n) = O(n) — the 2 doesn't matter at scale\nfor (int x : arr) sum += x;         // n ops\nfor (int x : arr) product *= x;     // n ops\n// Total: 2n → O(n)\n\n// RULE 2: Drop non-dominant terms\n// O(n² + n) → O(n²) — n² dominates\nfor (int i = 0; i < n; i++)         // n ops\n    for (int j = 0; j < n; j++) {}  // n ops each → n²\nfor (int i = 0; i < n; i++) {}      // n ops → irrelevant\n// Total: n² + n → O(n²)\n\n// RULE 3: Different inputs = different variables\nfor (int a : arrA) {}  // O(a)\nfor (int b : arrB) {}  // O(b)\n// Total: O(a + b), NOT O(n)\n\n// RULE 4: Nested loops = multiply\nfor (int i = 0; i < n; i++)         // n\n    for (int j = 0; j < n; j++) {}  // × n = n²\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Big-O growth rate graph. X-axis: input size n (0 to 100). Y-axis: operations (0 to 10,000). Six curves: O(1) flat at bottom, O(log n) barely rising, O(n) diagonal, O(n log n) slightly above diagonal, O(n²) steep parabola, O(2ⁿ) rockets off the chart. Each curve labeled with color and typical example: O(1)=HashMap.get(), O(log n)=Binary Search, O(n)=Linear Search, O(n log n)=Merge Sort, O(n²)=Bubble Sort, O(2ⁿ)=All Subsets. Key annotation: 'At n=100, O(n²)=10,000 ops vs O(n log n)=664 ops'",
+      "alt_text": "Big-O complexity growth curves showing dramatic difference between O(n log n) and O(n²)"
+    },
+    "worked_example": {
+      "scenario": "Classify the Big-O of 5 Zerodha order-processing code snippets.",
+      "problem_statement": "Without running any code, determine the Big-O time complexity of each snippet. Justify with one sentence.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Single loop = O(n)",
+          "details": "Each loop that iterates once over n elements = O(n). Two sequential loops = O(2n) = O(n) (drop constants). The key: does the loop run n times? If yes, it's O(n) at minimum."
+        },
+        {
+          "step": 2,
+          "action": "Nested loops = O(n²) typically",
+          "details": "Outer loop runs n times, inner loop runs n times for EACH outer iteration: n × n = n². BUT: if inner loop doesn't depend on n (e.g., always runs 10 times), it's still O(n)."
+        },
+        {
+          "step": 3,
+          "action": "Halving the problem = O(log n)",
+          "details": "If each step cuts the remaining work in half: binary search on sorted array, dividing by 2 each time. How many times can you halve n before reaching 1? log₂(n) times."
+        }
+      ],
+      "final_code": "// O(1): array[0] — index access\n// O(log n): binary search on sorted array\n// O(n): single loop over all orders\n// O(n log n): Collections.sort() — Java's TimSort\n// O(n²): nested loop comparing every pair of orders",
+      "expected_output": "n=1,000,000 orders:\n  O(1):       1 operation\n  O(log n):   20 operations\n  O(n):       1,000,000 operations\n  O(n log n): 20,000,000 operations\n  O(n²):      1,000,000,000,000 operations ← 50,000x slower than sort",
+      "things_to_notice": [
+        "Constants don't matter at scale: O(100n) and O(n) are both 'O(n)'. A loop that does 100 things per iteration is still linear. What matters is HOW the time grows with n, not the absolute time.",
+        "The dominant term wins: if your algorithm is O(n² + n), the n² term completely overwhelms n for large inputs. At n=1000: n²=1,000,000 vs n=1,000. The n is 0.1% of the total — we ignore it.",
+        "log n is almost constant: log₂(1,000,000,000) = ~30. Even for a billion elements, binary search takes only 30 steps. This is why sorted data + binary search is so powerful.",
+        "O(n log n) is the practical sorting limit: you can't sort faster than O(n log n) in the general case (comparison-based sort). Any interview answer that claims O(n) sort for arbitrary data is wrong."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Flipkart Big Billion Days search",
+          "use_case": "100 million products. User searches 'iPhone 15 blue 128GB'. O(n) linear scan = 100M comparisons per search = 10 seconds. O(log n) indexed search (inverted index + binary search) = ~30 comparisons = milliseconds. Big-O difference between a working product and an unusable one."
+        }
+      ],
+      "interview_relevance": "Every technical interview at FAANG India, Zerodha, Razorpay, Flipkart: after you code a solution, the interviewer asks 'What's the time and space complexity?' If you can't answer in 10 seconds, it signals you're not thinking about efficiency. The expected format: 'This is O(n log n) time and O(n) space because...' — one sentence justification.",
+      "real_world_workflow": "Algorithm analysis workflow: (1) identify the input size variable(s) — usually n, (2) find the most expensive operation (usually the innermost loop or recursion), (3) count how many times it runs in terms of n, (4) drop constants and non-dominant terms, (5) state the Big-O class with justification."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "confusing_constant_with_linear",
+        "what_students_get_wrong": "Thinking a loop that always runs exactly 100 times is O(n). It's O(1) — because 100 is a constant, not n.",
+        "remediation": "Ask: 'Does the number of iterations grow with input size n?' If no → O(1). If the loop runs `array.length` times → O(n). If it runs always exactly 10 or 100 times → O(1).",
+        "detection_pattern": "Student labels `for (int i = 0; i < 10; i++) {}` as O(n) instead of O(1)"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Big-O describes growth rate, not absolute time — O(n) means linear growth",
+        "O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ) — memorize this order",
+        "Drop constants: O(3n) = O(n). Drop non-dominant: O(n² + n) = O(n²)",
+        "Nested loops: multiply. Sequential loops: add (then drop non-dominant)",
+        "Different inputs: use different variables — O(a + b), not O(n)",
+        "log n growth is magical: log₂(1 billion) ≈ 30 steps",
+        "O(n log n) is the practical sorting lower bound",
+        "Always state Big-O with justification in interviews"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Zerodha has 5 million active traders. Algorithm A processes each trader in O(log n) time. Algorithm B is O(n). How many times faster is A than B?",
+          "answer": "n = 5,000,000. O(n) = 5,000,000 operations. O(log n) = log₂(5,000,000) ≈ 22.25 operations. A is 5,000,000 ÷ 22 ≈ 227,000 times faster. This is why binary search on a sorted trader list vs linear scan is the difference between microseconds and seconds. At Zerodha's scale, choosing the wrong algorithm would make the system unusable."
+        }
+      ],
+      "next_topic_preview": "Next: Analyzing Code Complexity — given any block of Java code, systematically calculate its Big-O time complexity step by step."
+    }
+  }
+}

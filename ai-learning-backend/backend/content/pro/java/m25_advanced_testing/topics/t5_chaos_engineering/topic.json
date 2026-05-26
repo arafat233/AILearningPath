@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m25_t5",
+  "language": "java",
+  "module_id": "m25",
+  "module_name": "Advanced Testing",
+  "topic_number": 5,
+  "name": "Chaos Engineering",
+  "slug": "chaos-engineering",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m19_t1", "java_m21_t1", "java_m25_t4"],
+    "concepts_taught": [
+      "chaos_engineering_principles", "chaos_monkey_spring_boot", "latency_assault",
+      "exception_assault", "kill_app_assault", "memory_assault",
+      "chaos_monkey_watcher", "steady_state_hypothesis", "chaos_in_ci",
+      "resilience_verification", "game_days"
+    ],
+    "skills_developed": [
+      "configuring_chaos_monkey", "writing_chaos_verification_tests",
+      "steady_state_definition", "validating_circuit_breakers_under_chaos"
+    ],
+    "career_relevance": "Razorpay's circuit breakers look correct in code, but do they actually work when HDFC gateway goes down at 3am? Chaos engineering answers this: deliberately break things in staging, verify the circuit breakers open and fallbacks activate correctly. Netflix Chaos Monkey famously crashes random production EC2 instances. After this topic, you can systematically validate that your system handles failures gracefully — before production discovers the gaps.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay circuit breaker confidence problem:\n\n```\nCode review: 'Our circuit breaker is configured perfectly'\n@ Annotated @CircuitBreaker on hdfcGatewayService.charge()\n@ Fallback method returns PaymentResponse.failed()\n@ threshold: 50% failures in 10s → OPEN\n\nProduction incident, 2:47am:\n  HDFC gateway: DNS resolution failure\n  CircuitBreaker state: CLOSED (not opening as expected!)\n  Root cause: circuit breaker configured for HTTP timeouts\n  DNS failure: not an HTTP timeout → circuit breaker never triggered\n  Duration: 47 minutes of payment failures\n\nWith Chaos Engineering:\n  Staging: inject DNS failure → circuit breaker stays CLOSED → bug found!\n  Fix: configure CB for all exception types (not just HTTP timeouts)\n  Re-chaos: DNS failure → CB opens → fallback → PASS\n  Production: 0 minutes of payment failure on next real DNS issue\n```",
+    "what_you_will_build": "Chaos Monkey for Spring Boot: latency + exception assaults, and a chaos verification test."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "principles": "**Principles of Chaos Engineering (Netflix):**\n\n```\n1. DEFINE STEADY STATE:\n   'Under normal operation, payment API: p99 < 500ms, error rate < 0.5%'\n   Measure this with monitoring BEFORE any chaos\n\n2. HYPOTHESIZE: 'Even when HDFC gateway has 3s latency,\n   our circuit breaker opens and payments fall back to VISA'\n\n3. INTRODUCE CHAOS:\n   Inject: HDFC gateway latency assault (3s per call)\n\n4. OBSERVE:\n   - Did circuit breaker open? (CB state = OPEN in actuator)\n   - Did fallback activate? (payments.fallback counter > 0)\n   - Did overall p99 stay < 500ms? (fallback is fast)\n\n5. AUTOMATE AND REPEAT:\n   Run chaos in CI every night (chaos suite)\n   Chaos reveals: 'fallback works but DB queries not isolated'\n   → Fix → chaos again → now that's fixed too\n```",
+      "spring_chaos": "**Chaos Monkey for Spring Boot:**\n\n```java\n// pom.xml:\n// <dependency> de.codecentric:chaos-monkey-spring-boot:3.1.0 </dependency>\n\n// Enable:\n@SpringBootApplication\n@EnableChaosMonkey\npublic class RazorpayApplication { ... }\n\n// application.yml:\nchaos:\n  monkey:\n    enabled: true\n    watcher:\n      service: true        # @Service methods can be assaulted\n      rest-controller: true\n      repository: true\n    assaults:\n      level: 5             # assault 1 in every 5 calls\n      latency-active: true\n      latency-range-start: 500   # 500ms\n      latency-range-end: 2000    # up to 2s\n      exceptions-active: false   # keep off by default\n      kill-application-active: false\n```\n\n```java\n// Chaos verification test:\n@SpringBootTest(webEnvironment = RANDOM_PORT)\nclass ChaosVerificationTest {\n    @Autowired ChaosMonkeyRequestScope chaosMonkey;\n    @Autowired CircuitBreakerRegistry cbRegistry;\n    @Autowired HdfcGatewayService svc;\n\n    @Test\n    void underLatencyChaos_circuitBreakerOpens() {\n        // Enable latency assault:\n        chaosMonkey.setLatencyActive(true);\n        chaosMonkey.setLatencyRangeStart(3000);\n        chaosMonkey.setLatencyRangeEnd(3000); // exactly 3s always\n\n        // Trigger enough calls to open circuit breaker:\n        for (int i = 0; i < 20; i++) {\n            try { svc.charge(\"MRC-001\", 5000L); } catch (Exception ignored) {}\n        }\n\n        // Verify circuit breaker opened:\n        CircuitBreaker cb = cbRegistry.circuitBreaker(\"hdfc-gateway\");\n        assertNotEquals(CLOSED, cb.getState()); // Should be OPEN or HALF_OPEN\n    }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Chaos Engineering cycle diagram. Center: Spring Boot app. Outer ring: 5-step cycle going clockwise — (1) Steady State: green metrics baseline, (2) Hypothesize: speech bubble 'CB opens if HDFC has 3s latency', (3) Inject Chaos: red lightning bolt into HDFC Gateway box, (4) Observe: Prometheus dashboard showing CB state OPEN + fallback counter spike, (5) Improve: wrench icon + 'fixed DNS exception handling'. Second diagram: Chaos Monkey for Spring Boot — @Service bean with chaos monkey agent sitting on top, randomly injecting latency arrows or exception bombs into method calls.",
+      "alt_text": "Chaos Engineering cycle: steady state → hypothesize → inject → observe → improve"
+    },
+    "worked_example": {
+      "scenario": "Chaos test for Razorpay circuit breaker validation.",
+      "problem_statement": "1. @EnableChaosMonkey Spring Boot app\n2. Enable latency assault on HdfcGatewayService\n3. Run 20 calls → circuit breaker should open\n4. Assert CB state is OPEN\n5. Verify fallback counter incremented",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Why chaos in CI (not just production)?",
+          "details": "Production chaos (Netflix style): works if you have triple redundancy, great monitoring, and brave ops team. For most companies: chaos in staging + nightly CI is safer and catches the same bugs. Run chaos tests every night in staging: inject failures, verify resilience mechanisms activate. If they don't → fix before it happens in production. Chaos in production: start with low-impact (latency) before destructive (kill-app)."
+        }
+      ],
+      "final_code": "// chaosMonkey.setLatencyActive(true) + run N calls → CB opens\n// Assert: cb.getState() != CLOSED\n// Assert: fallback counter > 0",
+      "expected_output": "// Chaos test output:\n// [CHAOS] Injecting 3000ms latency on HdfcGatewayService.charge()\n// [CHAOS] Injecting 3000ms latency on HdfcGatewayService.charge()\n// ... (20 times)\n// [CircuitBreaker] State transition: CLOSED → OPEN (failure rate: 55%)\n// [Fallback] hdfcFallback() called for: MRC-001\n// [ASSERTION] CB state = OPEN ✓\n// [ASSERTION] fallback.counter = 12 ✓",
+      "things_to_notice": [
+        "Chaos level (1-10): level=5 means assault 1 in every 5 method calls. For targeted testing: set level=1 (assault every call) to guarantee CB triggers within N calls.",
+        "Steady-state first: before running chaos, measure your normal metrics (p99, error rate, CB state). Chaos test: metrics should return to steady state within 30 seconds of chaos stopping.",
+        "Game days: scheduled 'chaos days' where the engineering team deliberately breaks things in production (Netflix does this monthly). Team learns how to respond to failures before they're real.",
+        "Blast radius control: start with latency assault (safe — just slow). Then exceptions (triggers fallbacks). Never start with kill-app assault on production without proper runbooks."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay chaos engineering program",
+          "use_case": "Monthly chaos days: team injects HDFC gateway timeout, Razorpay DB read replica failure, Redis cache miss storm, and Kafka consumer lag. Each experiment: 1. Define steady state (p99, error rate). 2. Hypothesize which resilience mechanism will activate. 3. Inject chaos. 4. Observe whether CB opened, fallback activated, SLA held. 5. Fix gaps found. Result: last 12 months, zero unplanned incidents from failures that chaos tests cover."
+        }
+      ],
+      "interview_relevance": "'How do you verify your circuit breakers work?' → Chaos engineering. Chaos Monkey for Spring Boot: inject latency or exceptions into @Service methods, verify circuit breakers open and fallbacks activate. Steady-state hypothesis: define normal metrics first. After chaos: metrics return to normal. Run in CI nightly. Blast radius: start with latency assault (safest), then exceptions, only kill-app for advanced teams with runbooks.",
+      "real_world_workflow": "Chaos workflow: (1) instrument steady-state metrics (Micrometer + Prometheus), (2) define hypothesis ('circuit breaker will open at 50% failure rate'), (3) enable chaos (latency or exception assault), (4) run N requests and observe CB state + fallback counter, (5) assert: CB state = OPEN AND fallback activated, (6) disable chaos and verify recovery to steady state."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "chaos_without_observability",
+        "what_students_get_wrong": "Running chaos without monitoring. Inject failure → service seems to 'work' → chaos test passes. But without checking CB state, fallback counter, p99 — you don't know IF the resilience mechanism activated.",
+        "remediation": "Chaos test assertions: (1) CircuitBreakerRegistry.circuitBreaker('name').getState() == OPEN, (2) Micrometer counter 'payment.fallback' > 0, (3) p99 remained < threshold during chaos. All three must pass.",
+        "detection_pattern": "Chaos test only asserts 'no exception thrown' — doesn't verify which code path was taken (main or fallback)"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "@EnableChaosMonkey: enables Chaos Monkey in a Spring Boot app",
+        "Assaults: Latency (safe), Exception (medium), KillApp (destructive), Memory (memory leak)",
+        "Watcher: which beans get assaulted (@Service, @Repository, @RestController)",
+        "Level 1-10: level=1 means every call; level=5 means 1 in 5 calls assaulted",
+        "Steady state: define normal metrics BEFORE any chaos",
+        "Hypothesis: explicit 'when X fails, Y happens' prediction before the experiment",
+        "Assertions: CB state, fallback counter, p99 — all three required",
+        "Recovery: after chaos stops, metrics should return to steady state within 30s",
+        "Game days: scheduled chaos in production (for mature teams with runbooks)",
+        "Blast radius: start with latency, not kill-app"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why is it not enough to just assert 'no exception thrown' in a chaos test?",
+          "answer": "A chaos test that only asserts 'no exception thrown' doesn't verify WHICH code path handled the request. If the circuit breaker is misconfigured and the fallback method catches the chaos exception and swallows it, the test passes — but the circuit breaker never opened. In production, when the real HDFC gateway fails for 30 minutes, the circuit breaker still won't open because it was never properly tested. The correct chaos test asserts: (1) CircuitBreaker state = OPEN (the CB actually detected the failures), (2) fallback counter > 0 (the fallback actually ran, not just the happy path catching an exception), (3) p99 < threshold (the fallback is fast enough to maintain SLA). All three together prove the resilience mechanism works end-to-end."
+        }
+      ],
+      "next_topic_preview": "Module 25 Advanced Testing is complete! You now have the full testing toolkit: Testcontainers (realistic infra), Contract Testing (API compatibility), Mutation Testing (test quality), Performance Testing (SLA verification), and Chaos Engineering (resilience validation)."
+    }
+  }
+}

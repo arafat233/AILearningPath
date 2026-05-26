@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t4",
+  "module_id": "m35",
+  "topic_number": 4,
+  "name": "Tree Path Problems \u2014 Path Sum, Max Path, Prefix Technique",
+  "slug": "tree-path-problems-sum-max-prefix",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m35_t2",
+      "java_m34_t1"
+    ],
+    "concepts_taught": [
+      "path_sum",
+      "path_sum_ii",
+      "max_path_sum",
+      "path_sum_iii",
+      "good_nodes",
+      "pseudo_palindromic"
+    ],
+    "career_relevance": "Path Sum III (prefix+map in tree) is a canonical O(n) technique \u2014 same as SubarrayK but on trees. Max Path Sum is a Google hard. These test ability to combine DFS with HashMap.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "// Path Sum III: O(n\u00b2) naive \u2192 O(n) with prefix sum + HashMap\n// Same trick as SubarrayK, applied to trees\n",
+    "what_you_will_build": "Path Sum I/II/III, Max Path, Good Nodes, Sum Root-to-Leaf Numbers."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "path_sum_iii": "Prefix sum + HashMap in DFS. Backtrack: restore map after each subtree."
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Path Sum: subtract target at each node; check ==0 at leaf",
+        "Path Sum II: backtrack \u2014 add to path, recurse, then remove last",
+        "Max Path Sum: max(0, child) clips negatives; update global with l+node+r",
+        "Path Sum III: prefix HashMap in tree DFS; put(0,1); backtrack map",
+        "Sum root-to-leaf: cur=cur*10+node.val; add at leaf",
+        "Good Nodes: pass maxSoFar down; good if node >= maxSoFar"
+      ],
+      "next_topic_preview": "Next: Trie \u2014 prefix tree for autocomplete and word search."
+    }
+  }
+}

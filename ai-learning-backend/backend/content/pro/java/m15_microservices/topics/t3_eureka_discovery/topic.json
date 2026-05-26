@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t3",
+  "language": "java",
+  "module_id": "m15",
+  "module_name": "Microservices Architecture",
+  "topic_number": 3,
+  "name": "Eureka Service Discovery",
+  "slug": "eureka-service-discovery",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m15_t2"],
+    "concepts_taught": [
+      "service_discovery_problem",
+      "eureka_server",
+      "eureka_client",
+      "enable_eureka_server",
+      "enable_discovery_client",
+      "service_registration",
+      "service_lookup",
+      "load_balancing_with_discovery",
+      "feign_with_eureka",
+      "eureka_dashboard",
+      "health_check_integration",
+      "eureka_configuration",
+      "self_preservation_mode",
+      "instance_metadata"
+    ],
+    "skills_developed": [
+      "setting_up_eureka_server",
+      "registering_services_with_eureka",
+      "using_feign_with_service_discovery",
+      "configuring_eureka_client",
+      "understanding_load_balancing_with_discovery"
+    ],
+    "career_relevance": "Service discovery is fundamental to microservices in production. You can't hardcode IPs when services run in Kubernetes with dynamic addresses and multiple instances. Eureka (or its cloud equivalents) solves this. Understanding service discovery is expected for any senior microservices engineer. Swiggy, Flipkart, Zomato all use service discovery. After this topic, your services find each other by name — no hardcoded URLs anywhere.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your trading platform scales up. market-service is under heavy load, so you run 3 instances:\n\n```\nmarket-service-1  → 10.0.1.45:8081\nmarket-service-2  → 10.0.1.67:8081\nmarket-service-3  → 10.0.2.12:8081\n```\n\nProblems with hardcoded URLs:\n```java\n// Which one do you call? All three have different IPs.\n@FeignClient(name=\"market-service\", url=\"http://10.0.1.45:8081\")  // only hits one instance\n// What if 10.0.1.45 goes down? Your service is broken.\n// In Kubernetes, pods are rescheduled to different IPs constantly.\n// Hardcoding IP addresses is impossible.\n```\n\n**With Eureka Service Discovery:**\n```\n┌─────────────────────────────────────────┐\n│              EUREKA SERVER              │\n│           (service registry)            │\n│  market-service → [45:8081, 67:8081,   │\n│                    12:8081]             │\n│  order-service  → [23:8082]             │\n└─────────────────────────────────────────┘\n       ↑ each service registers itself      ↑\n\norder-service's Feign client:\n  @FeignClient(name=\"market-service\")  // just the name\n  → Feign asks Eureka: \"Where is market-service?\"\n  → Eureka: 3 instances available\n  → Feign picks one (load balanced)\n  → HTTP call to actual IP\n\nIf market-service-1 dies:\n  → Eureka removes it from registry\n  → Next calls go to market-service-2 and -3\n  → order-service never knew the IP anyway\n```\n\nThe service registry is the phone book for your microservices. Services register themselves. Clients look up addresses by name.",
+    "what_you_will_build": "By the end of this topic, you'll set up a Eureka Server, register microservices with it, remove hardcoded URLs from Feign clients, and understand how load balancing works automatically with multiple service instances."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "eureka_server_setup": "**Eureka Server — the service registry:**\n\n```xml\n<!-- eureka-server/pom.xml -->\n<dependency>\n    <groupId>org.springframework.cloud</groupId>\n    <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>\n</dependency>\n```\n\n```java\n// EurekaServerApplication.java:\n@SpringBootApplication\n@EnableEurekaServer  // activates the registry\npublic class EurekaServerApplication {\n    public static void main(String[] args) {\n        SpringApplication.run(EurekaServerApplication.class, args);\n    }\n}\n```\n\n```properties\n# eureka-server/application.properties:\nserver.port=8761\nspring.application.name=eureka-server\n\n# Don't register the server with itself:\neureka.client.register-with-eureka=false\neureka.client.fetch-registry=false\n\n# Dashboard at http://localhost:8761\n```\n\nStart it. Go to http://localhost:8761 — you see the Eureka dashboard showing registered services.",
+
+      "eureka_client_setup": "**Registering a service with Eureka:**\n\n```xml\n<!-- market-service/pom.xml -->\n<dependency>\n    <groupId>org.springframework.cloud</groupId>\n    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>\n</dependency>\n```\n\n```java\n// MarketServiceApplication.java:\n@SpringBootApplication\n@EnableDiscoveryClient  // registers this service with Eureka\npublic class MarketServiceApplication { ... }\n```\n\n```properties\n# market-service/application.properties:\nserver.port=8081\nspring.application.name=market-service  # ← the name in Eureka registry\n\n# Tell this service where Eureka is:\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n\n# Health check endpoint (Actuator must be present):\neureka.instance.lease-renewal-interval-in-seconds=10\neureka.instance.lease-expiration-duration-in-seconds=30\n```\n\nWhen market-service starts, it sends a registration message to Eureka:\n`POST /eureka/apps/MARKET-SERVICE {host: '10.0.1.45', port: 8081, status: UP}`\n\nEvery 10 seconds: heartbeat to confirm it's still alive.",
+
+      "feign_with_eureka": "**Feign Client with service discovery — remove the url=:**\n\n```java\n// BEFORE (hardcoded URL):\n@FeignClient(name = \"market-service\", url = \"${market.service.url}\")\npublic interface MarketServiceClient { ... }\n\n// AFTER (Eureka discovery — just the name):\n@FeignClient(name = \"market-service\")  // url= is gone!\npublic interface MarketServiceClient {\n    @GetMapping(\"/api/stocks/{symbol}/quote\")\n    StockQuote getQuote(@PathVariable String symbol);\n}\n```\n\n**What happens at runtime:**\n```\n1. marketClient.getQuote(\"TCS\") called\n2. Feign asks Eureka: \"Where is MARKET-SERVICE?\"\n3. Eureka returns: [{host:10.0.1.45, port:8081}, {host:10.0.1.67, port:8081}]\n4. Spring Cloud LoadBalancer picks one (round-robin by default)\n5. Feign calls: GET http://10.0.1.45:8081/api/stocks/TCS/quote\n```\n\n**Required in order-service pom.xml:**\n```xml\n<!-- Load balancer: needed when Feign uses service discovery -->\n<dependency>\n    <groupId>org.springframework.cloud</groupId>\n    <artifactId>spring-cloud-starter-loadbalancer</artifactId>\n</dependency>\n```",
+
+      "eureka_config_details": "**Eureka configuration details:**\n\n```properties\n# ── Eureka CLIENT properties (in each microservice) ─────────────\n\n# Where is Eureka? (default if you run locally):\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n\n# How often to renew registration (heartbeat, seconds):\neureka.instance.lease-renewal-interval-in-seconds=10\n\n# How long before Eureka considers instance dead (seconds):\neureka.instance.lease-expiration-duration-in-seconds=30\n\n# Show IP address in Eureka dashboard (instead of hostname):\neureka.instance.prefer-ip-address=true\n\n# Instance ID (useful when running multiple instances locally):\neureka.instance.instance-id=${spring.application.name}:${server.port}\n\n# ── Eureka SERVER properties ─────────────────────────────────────\n\n# Server doesn't register itself:\neureka.client.register-with-eureka=false\neureka.client.fetch-registry=false\n\n# Self-preservation: if > 85% of heartbeats fail, Eureka\n# won't expire registrations (assumes network issue, not dead services):\neureka.server.enable-self-preservation=false  # disable in dev\n```\n\n**High-availability Eureka (production):**\n```\n# Two Eureka servers that replicate to each other:\neureka-server-1 → registers with eureka-server-2\neureka-server-2 → registers with eureka-server-1\n# Each service registers with both. If one Eureka dies, discovery still works.\n```",
+
+      "load_balancing": "**Automatic load balancing across instances:**\n\n```\n# Running 3 market-service instances:\njava -jar market-service.jar --server.port=8081\njava -jar market-service.jar --server.port=8082\njava -jar market-service.jar --server.port=8083\n\n# Each registers with Eureka as 'market-service' on its port.\n# Eureka now shows 3 instances of market-service.\n\n# In order-service:\nmarketClient.getQuote(\"TCS\")  # call 1 → goes to :8081\nmarketClient.getQuote(\"TCS\")  # call 2 → goes to :8082\nmarketClient.getQuote(\"TCS\")  # call 3 → goes to :8083\nmarketClient.getQuote(\"TCS\")  # call 4 → goes to :8081 (round-robin)\n```\n\n**Spring Cloud LoadBalancer strategies:**\n- `RoundRobinLoadBalancer` (default): requests distributed evenly\n- `RandomLoadBalancer`: random instance selection\n\nNo configuration needed — round-robin happens automatically when Feign+Eureka are on the classpath."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three-panel diagram: (1) Startup sequence: market-service starts → sends POST /eureka/apps/MARKET-SERVICE to Eureka Server → appears in registry. order-service starts → fetches registry from Eureka → caches locally. (2) Request flow with discovery: Feign.getQuote('TCS') → check local registry cache [market-service: 45:8081, 67:8081] → LoadBalancer picks 45:8081 (round-robin) → HTTP GET 45:8081/api/stocks/TCS/quote → response → returned. Heartbeat arrow every 10s from market-service to Eureka. (3) Failure scenario: market-service-1 dies → stops heartbeating → Eureka removes it after 30s → next getQuote() only routes to market-service-2 and market-service-3. order-service never hard-coded an IP — transparent failover.",
+      "alt_text": "Eureka startup registration, Feign request with load balancing, and automatic failover on instance death"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add Eureka to the trading platform. Set up eureka-server as a standalone Spring Boot app. Register market-service and order-service. Remove hardcoded URLs from Feign. Run two instances of market-service — requests automatically load balance.",
+
+    "problem_statement": "1. Create `eureka-server` Spring Boot app (port 8761)\n2. Add Eureka client to `market-service` — registers on startup\n3. Add Eureka client to `order-service` — fetches registry\n4. Remove `url=` from `MarketServiceClient` @FeignClient\n5. Verify: start 2 market-service instances, observe round-robin",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "eureka-server (new Spring Boot project)",
+        "details": "```java\n// EurekaServerApplication.java:\n@SpringBootApplication\n@EnableEurekaServer\npublic class EurekaServerApplication {\n    public static void main(String[] args) { SpringApplication.run(EurekaServerApplication.class, args); }\n}\n```\n\n```properties\n# application.properties:\nserver.port=8761\nspring.application.name=eureka-server\neureka.client.register-with-eureka=false\neureka.client.fetch-registry=false\n```\n\nStart → visit http://localhost:8761 → empty dashboard."
+      },
+      {
+        "step": 2,
+        "action": "Register market-service with Eureka",
+        "details": "```properties\n# market-service/application.properties:\nserver.port=8081\nspring.application.name=market-service\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\neureka.instance.lease-renewal-interval-in-seconds=10\n```\n\n```java\n// MarketServiceApplication.java:\n@SpringBootApplication\n@EnableDiscoveryClient\npublic class MarketServiceApplication { ... }\n```"
+      },
+      {
+        "step": 3,
+        "action": "Remove url= from Feign in order-service",
+        "details": "```java\n// BEFORE:\n@FeignClient(name = \"market-service\", url = \"${market.service.url}\")\n\n// AFTER (url= removed — Eureka handles it):\n@FeignClient(name = \"market-service\")\npublic interface MarketServiceClient {\n    @GetMapping(\"/api/stocks/{symbol}/quote\")\n    StockQuote getQuote(@PathVariable String symbol);\n}\n```\n\n```properties\n# order-service/application.properties:\nserver.port=8082\nspring.application.name=order-service\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n```"
+      },
+      {
+        "step": 4,
+        "action": "Run two market-service instances",
+        "details": "```bash\n# Terminal 1:\njava -jar market-service.jar --server.port=8081\n\n# Terminal 2:\njava -jar market-service.jar --server.port=8082\n\n# Eureka dashboard at :8761 now shows:\n# MARKET-SERVICE  |  market-service:8081  |  UP\n# MARKET-SERVICE  |  market-service:8082  |  UP\n\n# order-service calls market-service 4 times:\n# Call 1 → :8081, Call 2 → :8082, Call 3 → :8081, Call 4 → :8082\n# Round-robin automatic!\n```"
+      }
+    ],
+
+    "final_code": "// Three separate Spring Boot projects:\n\n// eureka-server: @EnableEurekaServer, port=8761\n// market-service: @EnableDiscoveryClient, port=8081\n// order-service: @EnableDiscoveryClient, port=8082\n//   MarketServiceClient @FeignClient(name='market-service') — no url=\n\n// Start order:\n// 1. eureka-server\n// 2. market-service (one or more instances)\n// 3. order-service\n// → POST /api/trades hits market-service via Eureka discovery",
+
+    "expected_output": "# Eureka Server (port 8761) starts:\nStarted EurekaServerApplication\nDashboard: http://localhost:8761\n\n# market-service-1 (port 8081) starts:\nRegistering application MARKET-SERVICE with Eureka\nStatus: UP\n\n# market-service-2 (port 8082) starts:\nRegistering application MARKET-SERVICE with Eureka\nStatus: UP\n\n# order-service starts:\nFetched registry from Eureka: {MARKET-SERVICE: [8081, 8082]}\n\n# POST /api/trades → order-service → Feign → Eureka → market-service\n[order-service] Feign: GET http://10.0.0.1:8081/api/stocks/TCS/quote\n[order-service] Feign: GET http://10.0.0.1:8082/api/stocks/TCS/quote  ← load balanced",
+
+    "things_to_notice": [
+      "@EnableDiscoveryClient: marks a service as a Eureka client. Modern Spring Cloud (3.x) makes this optional — just having the Eureka client dependency on the classpath auto-configures registration. But it's still good practice for clarity.",
+      "eureka.client.register-with-eureka=false on the Eureka SERVER itself: the server shouldn't register with itself. Without this, the server tries to register with itself, gets errors at startup.",
+      "The name in @FeignClient(name='market-service') must EXACTLY match spring.application.name in market-service's application.properties. Eureka is case-insensitive (stores as uppercase MARKET-SERVICE), but Spring Cloud's load balancer matches the name you specify.",
+      "Startup order matters: Eureka server must start before the services. The services log 'Cannot execute request on any known server' on startup if Eureka isn't available yet — they retry and eventually connect.",
+      "Eureka caches the registry locally in each client. Even if Eureka goes down briefly, the services continue routing to each other using the cached registry. This is the 'self-preservation' feature — reduces cascading failures."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy microservices registry",
+        "use_case": "Swiggy runs hundreds of microservices across thousands of pods in Kubernetes. Each service registers with the discovery registry on startup. When order-service needs to call restaurant-service, it asks the registry: 'Which pods are running restaurant-service right now?' — gets the current healthy instances — calls one. When Kubernetes reschedules a pod (new IP), the pod re-registers. order-service discovers the new IP automatically. No hardcoded addresses anywhere in the codebase."
+      },
+      {
+        "company_context": "Kubernetes service discovery (Eureka alternative)",
+        "use_case": "In Kubernetes, the platform provides native service discovery via Kubernetes Services (DNS). `http://market-service:8081` resolves to the Service's ClusterIP, which load-balances to healthy pods. Spring Cloud Kubernetes replaces Eureka with Kubernetes-native discovery — same Feign interface, different backend. Understanding Eureka teaches the pattern; Kubernetes applies it at scale."
+      },
+      {
+        "company_context": "Zerodha trading platform scaling",
+        "use_case": "During market open (9:15 AM), market-service load spikes. DevOps scales it from 2 to 6 instances. Each new pod registers with Eureka. The trade-service Feign clients automatically start sending requests to the new instances — no deployment, no config change needed. At 3:30 PM, scale back to 2. Pods de-register. Load balancer stops routing to them. Elastic scaling is automatic with service discovery."
+      }
+    ],
+
+    "interview_relevance": "Eureka and service discovery interview questions:\n\n- **'What is service discovery?'** → A mechanism for services to find each other by name without hardcoded IPs. Services register themselves with a registry; clients query the registry for current addresses.\n- **'What is Eureka?'** → Netflix Eureka is Spring Cloud's service discovery server. Microservices register with it on startup. Clients fetch the registry and load-balance across instances.\n- **'What is the difference between client-side and server-side load balancing?'** → Server-side (like AWS ALB): a dedicated load balancer distributes traffic. Client-side (like Feign+Eureka): the calling service itself has the instance list and picks one. Feign uses client-side load balancing.\n- **'What happens if Eureka goes down?'** → Clients cached the registry locally. Service-to-service calls continue using the cached data until Eureka recovers.",
+
+    "real_world_workflow": "Daily Eureka workflow:\n\n- New service: add Eureka client dependency, spring.application.name, eureka.client.service-url\n- Call it: @FeignClient(name='my-new-service') — Eureka discovers automatically\n- Scale up: start another instance — Eureka registers it, load balancer picks it up\n- Health check: Actuator /health integrated — unhealthy instances deregistered"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "name_mismatch",
+      "what_students_get_wrong": "spring.application.name=marketService (camelCase) in market-service properties, but @FeignClient(name='market-service') (kebab-case) in order-service — service not found.",
+      "remediation": "Eureka stores names in uppercase and normalizes them. But the @FeignClient name and spring.application.name must be consistent. Best practice: always use kebab-case (market-service) for spring.application.name — matches DNS naming conventions and Feign client names.",
+      "detection_pattern": "FeignException: 'No instances available for market-service' at runtime"
+    },
+    {
+      "gap_id": "missing_loadbalancer_dependency",
+      "what_students_get_wrong": "Removing url= from @FeignClient without adding spring-cloud-starter-loadbalancer — Feign can't do client-side load balancing without it.",
+      "remediation": "When using @FeignClient without url=, Spring Cloud needs a load balancer to pick an instance from the registry. Add `spring-cloud-starter-loadbalancer` to pom.xml. Without it: IllegalStateException at startup about no LoadBalancer.",
+      "detection_pattern": "No qualifying bean of type 'ReactorLoadBalancerExchangeFilterFunction' or similar"
+    },
+    {
+      "gap_id": "startup_order",
+      "what_students_get_wrong": "Starting microservices before Eureka is ready — they fail to register and throw errors.",
+      "remediation": "Start Eureka first, wait for it to be fully started (see 'Started EurekaServerApplication' in logs), then start the microservices. In production (Docker Compose / Kubernetes), use health checks and depends_on/readiness probes to enforce startup order.",
+      "detection_pattern": "Cannot execute request on any known server at startup; services re-register after a few seconds"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@EnableEurekaServer on @SpringBootApplication: creates the service registry",
+      "eureka.client.register-with-eureka=false on the server: don't register with itself",
+      "@EnableDiscoveryClient: registers service with Eureka on startup",
+      "spring.application.name=market-service: the name used in registry and Feign",
+      "eureka.client.service-url.defaultZone=http://localhost:8761/eureka/: where is Eureka?",
+      "Remove url= from @FeignClient: Feign now uses Eureka for discovery",
+      "Feign + Eureka = automatic load balancing across instances (round-robin)",
+      "spring-cloud-starter-loadbalancer: required when using Feign without url=",
+      "Eureka heartbeat: every 10s (configurable); instance expires after 30s without heartbeat",
+      "Local registry cache: service-to-service works even if Eureka is briefly down",
+      "Dashboard: http://localhost:8761 shows all registered services and their status"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You have market-service running on ports 8081 and 8082, both registered with Eureka. order-service makes 6 calls to marketClient.getQuote(). How many calls go to each instance, and why?",
+        "answer": "3 calls to each instance (round-robin). Spring Cloud LoadBalancer uses round-robin by default when Feign discovers multiple instances from Eureka. The load balancer maintains a counter per service name: instance 0 → 8081, instance 1 → 8082, instance 2 → 8081, and so on. This distributes load evenly. No configuration needed — automatic when Feign + Eureka + LoadBalancer are all on the classpath."
+      },
+      {
+        "question": "market-service-2 (port 8082) crashes. How does Eureka handle this, and how quickly does order-service stop routing to it?",
+        "answer": "Eureka waits for the lease expiration duration (default 90 seconds, configurable with eureka.instance.lease-expiration-duration-in-seconds). market-service-2 was sending heartbeats every 10 seconds — when Eureka stops receiving them, it marks the instance as DOWN and eventually removes it from the registry. During the expiration window, order-service might still route some requests to the dead instance (getting connection errors). With a circuit breaker (Resilience4j, Topic 15.4), those errors are handled gracefully. The shorter you set lease-expiration-duration, the faster failover, but at the cost of more false positives."
+      },
+      {
+        "question": "What is the difference between running with spring-cloud-starter-netflix-eureka-client vs spring-cloud-starter-netflix-eureka-server?",
+        "answer": "eureka-server: starts the Netflix Eureka registry application. Services register WITH it. Annotated with @EnableEurekaServer. Should have register-with-eureka=false. eureka-client: the dependency added to each microservice (market-service, order-service etc.) so they can register themselves and discover other services. Annotated with @EnableDiscoveryClient. Each client service registers with the Eureka server. The server and client are separate Spring Boot applications — the server is a dedicated infrastructure service, not part of your business logic."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Resilience4j Circuit Breaker** — what happens when market-service is down? Right now: Feign throws an exception, the order fails, the user gets a 500 error. Resilience4j adds a circuit breaker: after N failures, stop calling the broken service and return a fallback immediately. The circuit 'opens', protecting the system from cascade failures. After Topic 15.4, your microservices degrade gracefully instead of failing hard."
+  }
+}

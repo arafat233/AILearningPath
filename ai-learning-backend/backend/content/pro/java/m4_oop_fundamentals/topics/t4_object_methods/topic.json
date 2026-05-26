@@ -1,0 +1,246 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t4",
+  "language": "java",
+  "module_id": "m4",
+  "module_name": "Object-Oriented Programming Fundamentals",
+  "topic_number": 4,
+  "name": "Object Methods (toString, equals, hashCode)",
+  "slug": "object-methods",
+  
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m4_t1", "java_m4_t2", "java_m4_t3"],
+    "concepts_taught": [
+      "object_class_as_root",
+      "override_annotation",
+      "tostring_method",
+      "equals_method",
+      "hashcode_method",
+      "equals_hashcode_contract",
+      "objects_helper_class",
+      "instanceof_basic_usage",
+      "casting_in_equals",
+      "when_to_override"
+    ],
+    "skills_developed": [
+      "overriding_object_methods",
+      "writing_meaningful_tostring",
+      "implementing_correct_equals",
+      "implementing_compatible_hashcode",
+      "using_objects_utility_methods",
+      "designing_classes_for_collections"
+    ],
+    "career_relevance": "Every professional Java class overrides these methods. When you `System.out.println(myUser)`, you want to see user info — not memory addresses. When you check `user1.equals(user2)`, you want CONTENT comparison — not reference. When you put objects in a HashSet or use them as HashMap keys, hashCode MUST be implemented correctly or your code breaks subtly. Misunderstanding the equals/hashCode contract has caused real production bugs at every major company. Plus, every IDE has 'Generate equals and hashCode' shortcuts — these methods are SO standard that tooling auto-generates them. Knowing what's being generated (and why) is the difference between using these methods correctly and shooting yourself in the foot.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Remember when we learned about `==` vs `.equals()` in Module 3? We said: 'Use `.equals()` for Strings — it compares content.' But here's the thing — that only worked for String because String had ALREADY overridden equals(). What about YOUR Product class?\n\n```java\nProduct p1 = new Product(101, \"Mouse\", 45, 599.99);\nProduct p2 = new Product(101, \"Mouse\", 45, 599.99);\n\nSystem.out.println(p1);            // Product@1b6d3586 (garbage)\nSystem.out.println(p1.equals(p2)); // false (!?)\n```\n\nTwo Products with IDENTICAL fields. equals() returns false. println prints memory addresses. This is what Java gives you by default — and it's almost never what you want.\n\nThe reason: every class inherits `toString()` and `equals()` from the `Object` class (Java's root class). The defaults are:\n- `toString()` returns `ClassName@hashCodeHex` — useless for debugging\n- `equals()` checks reference equality (same as `==`) — useless for value comparison\n\nReal classes OVERRIDE these methods. After today, your Product objects will print readably, compare correctly, and work properly with collections (HashSet, HashMap — coming in a later module). Plus you'll learn the famous `equals/hashCode` contract — one of Java's most subtle requirements, source of real production bugs at every major company.",
+    "what_you_will_build": "By the end of this topic, you'll know how to OVERRIDE the three most important methods every class inherits: `toString()` for readable output, `equals()` for content comparison, and `hashCode()` for collections compatibility. You'll understand the equals/hashCode contract (and why violating it causes bugs). You'll use `@Override`, `instanceof`, and `Objects.equals()` / `Objects.hash()` helpers. By the end, your classes are FIRST-CLASS Java citizens."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "Every class in Java implicitly extends `java.lang.Object` — the root of the class hierarchy. Even your simple `Dog` class is automatically a subclass of `Object`. This means every class inherits these methods (among others):\n\n- `toString()` — returns a string representation\n- `equals(Object other)` — checks equality\n- `hashCode()` — returns an int 'hash' of the object\n\nBy default, these are nearly useless. To make them work properly for YOUR class, you OVERRIDE them — provide your own version that replaces the inherited one.\n\nThis is your first taste of **inheritance** — getting behavior from a parent class. We'll cover inheritance fully in Module 5; for now, just know that `Object` is the parent and these three methods come 'for free' (with bad defaults).",
+      
+      "override_annotation": "When you write a method that REPLACES an inherited one, mark it with `@Override`:\n\n```java\nclass Product {\n    // ...\n    \n    @Override\n    public String toString() {\n        return \"Product #\" + id + \" \" + name;\n    }\n}\n```\n\n**What `@Override` does**:\n- Tells the compiler: 'this should override an inherited method'\n- If you misspell the method name or get the signature wrong, the compiler errors out\n- Without `@Override`, you'd accidentally create a NEW method instead of overriding\n\n**Example of the trap @Override prevents**:\n\n```java\n@Override\npublic boolean equals(Product other) {  // WRONG — parameter should be Object, not Product\n    // ...\n}\n// Compiler error: 'method does not override or implement a method from a supertype'\n```\n\nWithout `@Override`, this would compile — and silently fail to override `equals`. With `@Override`, the compiler catches the bug immediately.\n\n**Convention**: use `@Override` EVERY time you override. Modern Java codebases require it.",
+      
+      "tostring_method": "**`toString()`** returns a string representation of the object. Override it to make `println(obj)` show meaningful info.\n\n**Default `toString()`** (inherited from Object):\n```java\nProduct p = new Product(101, \"Mouse\", 45, 599.99);\nSystem.out.println(p);  // Product@1b6d3586\n```\n\nThe garbage `Product@1b6d3586` is `ClassName@hashCodeInHex`. Not useful for debugging.\n\n**Overriding `toString()`**:\n```java\n@Override\npublic String toString() {\n    return \"Product[id=\" + id + \", name=\" + name + \", stock=\" + stock + \", price=\" + price + \"]\";\n}\n\n// Now:\nSystem.out.println(p);  // Product[id=101, name=Mouse, stock=45, price=599.99]\n```\n\nMuch better. Now println, debuggers, log statements, exception messages all show useful info.\n\n**Conventions for toString format**:\n- Most common: `ClassName[field1=value1, field2=value2, ...]`\n- Alternative: `ClassName(value1, value2, ...)` (like a constructor call)\n- Or simply human-readable: `Aisha Khan (28)`\n\nPick a style and be consistent. The goal: when you see this string in logs, you understand what the object is.\n\n**Note**: println AUTOMATICALLY calls toString. So does string concatenation: `\"User: \" + user` calls `user.toString()` implicitly.",
+      
+      "equals_method": "**`equals(Object other)`** checks if two objects are equal. Override it to compare CONTENTS, not references.\n\n**Default `equals()`** (inherited from Object):\n```java\npublic boolean equals(Object other) {\n    return this == other;  // reference comparison\n}\n```\n\nSo by default, `a.equals(b)` is the same as `a == b`. Two different objects with identical fields = NOT equal.\n\n**Overriding equals — the standard pattern**:\n```java\n@Override\npublic boolean equals(Object other) {\n    if (this == other) return true;             // same reference: yes equal\n    if (other == null) return false;             // null: not equal\n    if (!(other instanceof Product)) return false; // different type: not equal\n    \n    Product p = (Product) other;                  // cast to Product\n    return this.id == p.id;                       // compare by id\n}\n```\n\n**Walk through line by line**:\n\n1. **`if (this == other) return true;`** — Same object reference → definitely equal. Quick win.\n2. **`if (other == null) return false;`** — null is never equal to anything (except null itself, handled above).\n3. **`if (!(other instanceof Product)) return false;`** — `instanceof` checks if `other` is a Product (or subclass). If not, can't be equal to a Product.\n4. **`Product p = (Product) other;`** — Cast `other` to Product so we can access its fields.\n5. **`return this.id == p.id;`** — The actual comparison. Compare what makes Products 'equal' (here, the id).\n\n**This is a TEMPLATE**. Almost every equals implementation follows this exact structure. Just change the comparison logic at the end.\n\n**Multi-field equals** (using more than one field):\n```java\n@Override\npublic boolean equals(Object other) {\n    if (this == other) return true;\n    if (!(other instanceof Product)) return false;\n    Product p = (Product) other;\n    return this.id == p.id\n        && Objects.equals(this.name, p.name)  // null-safe String comparison\n        && this.stock == p.stock\n        && Double.compare(this.price, p.price) == 0;\n}\n```\n\n**Notes**:\n- For Strings (and other objects), use `Objects.equals(a, b)` — null-safe, handles null without crashing\n- For doubles, prefer `Double.compare` over `==` (handles NaN, -0.0 edge cases)\n- For ints, `==` is fine",
+      
+      "instanceof_basic": "**`instanceof`** is an operator that checks if an object is an instance of a class.\n\n```java\nObject obj = new Product(101, \"Mouse\", 45, 599.99);\n\nSystem.out.println(obj instanceof Product);  // true\nSystem.out.println(obj instanceof String);   // false\nSystem.out.println(obj instanceof Object);   // true (everything is an Object)\nSystem.out.println(obj instanceof Dog);      // false\n```\n\nUseful in equals():\n```java\nif (!(other instanceof Product)) return false;\n```\n\nThis ensures we only proceed if `other` is actually a Product (not a Cat, not a String, not null).\n\n**null check is included**: `null instanceof AnyClass` is always false. So `instanceof` doubles as a null check in equals().\n\n**Modern Java (16+)**: there's a 'pattern matching for instanceof' shorthand:\n```java\nif (!(other instanceof Product p)) return false;\n// p is now a Product variable, ready to use\nreturn this.id == p.id;\n```\n\nCombines the check and cast in one line. Cleaner, but the traditional form works fine.",
+      
+      "hashcode_method": "**`hashCode()`** returns an int that represents this object's 'identity' for hash-based collections (HashMap, HashSet — covered later).\n\n**Why does it matter?** When you put objects in a HashMap or HashSet, Java uses their hashCode to find them quickly. If two equal objects have DIFFERENT hashCodes, the collection breaks — it can't find duplicates.\n\n**The equals/hashCode contract** (Java's most famous rule):\n\n> If `a.equals(b)` is true, then `a.hashCode() == b.hashCode()` MUST be true.\n\nThe reverse doesn't have to hold (different objects CAN have the same hashCode — called 'collisions' — they're acceptable). But equal objects MUST have equal hashCodes.\n\n**Consequence**: if you override `equals`, you MUST also override `hashCode`. Failing to do so means your class is broken when used with HashMap/HashSet/HashTable — even though the code still 'compiles and runs.'\n\n**Overriding hashCode using Objects.hash**:\n```java\n@Override\npublic int hashCode() {\n    return Objects.hash(id);  // hash based on whatever equals uses\n}\n```\n\nIf equals uses multiple fields:\n```java\n@Override\npublic int hashCode() {\n    return Objects.hash(id, name, stock, price);\n}\n```\n\n`Objects.hash(...)` is a helper that combines multiple values into a single hash. Easy and correct.\n\n**Critical rule**: ALWAYS use the SAME FIELDS in `hashCode` that you use in `equals`. If equals compares (id, name), hashCode uses (id, name). Same set of fields.",
+      
+      "objects_utility_class": "Java provides `java.util.Objects` — a utility class with helper methods that make overriding these methods easier:\n\n```java\nimport java.util.Objects;\n\n// Equals helpers\nObjects.equals(a, b)            // null-safe equality (both null = true)\nObjects.hash(a, b, c)           // combined hashCode\n\n// Other useful methods\nObjects.requireNonNull(obj)     // throws NullPointerException if null\nObjects.toString(obj)           // null-safe toString (returns 'null' if obj is null)\n```\n\n**`Objects.equals(a, b)`** is null-safe:\n\n```java\nObjects.equals(null, \"hello\")  // false\nObjects.equals(\"hello\", null)  // false\nObjects.equals(null, null)     // true\nObjects.equals(\"hi\", \"hi\")     // true\n```\n\nVs direct `a.equals(b)` which throws NullPointerException if `a` is null. Use `Objects.equals` whenever fields might be null.\n\n**`Objects.hash(...)`**: takes any number of values, computes a combined hashCode. Implementations vary but always satisfy the contract: if all values are equal, hashes are equal.",
+      
+      "when_to_override": "**When SHOULD you override these methods?**\n\n**toString**: ALWAYS override for data classes. Saves debugging hours.\n\n**equals/hashCode**: Override when:\n- Objects represent VALUES (Product, User, Address, Money — content matters more than identity)\n- You'll use them in HashSet/HashMap\n- You'll compare them with `.equals()`\n\n**Don't override when**:\n- Class represents a service or stateful behavior (no meaningful 'equality')\n- Class is a one-of-a-kind (Singleton)\n- The default reference identity is what you want\n\n**Example: override**:\n- `User`, `Product`, `Order` — all value-like, override all three\n- `Money`, `Address`, `EmailAddress` — value objects, definitely override\n\n**Example: don't override**:\n- `DatabaseConnection`, `EmailService`, `Logger` — service classes, identity matters\n- `Server` — there's only one, comparing two doesn't make sense",
+      
+      "complete_pattern": "**Putting it all together — a complete value class**:\n\n```java\nimport java.util.Objects;\n\nclass Product {\n    private final int id;\n    private final String name;\n    private final double price;\n    \n    public Product(int id, String name, double price) {\n        this.id = id;\n        this.name = name;\n        this.price = price;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    public double getPrice() { return price; }\n    \n    @Override\n    public String toString() {\n        return \"Product[id=\" + id + \", name=\" + name + \", price=\" + price + \"]\";\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Product)) return false;\n        Product p = (Product) other;\n        return this.id == p.id\n            && Objects.equals(this.name, p.name)\n            && Double.compare(this.price, p.price) == 0;\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(id, name, price);\n    }\n}\n```\n\nThis is THE template for value classes in Java. Memorize the pattern.\n\n**Most IDEs auto-generate this**: in IntelliJ, press Alt+Insert → 'equals() and hashCode()' → pick fields. IDE generates correct code following this exact template. But you should know what's being generated and why."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show the Java class hierarchy: Object at the top, with arrows down to Product, String, Integer, MyClass, etc. — every class. Annotation: 'Every class inherits toString(), equals(), hashCode() from Object.' Side-by-side: LEFT shows 'Default Object methods' with println printing 'Product@1b6d3586', equals returning false even for identical objects. RIGHT shows 'Overridden methods' with println printing 'Product[id=101, name=Mouse]', equals returning true for content-equal objects. Bottom panel: the equals/hashCode contract — two equal objects must have equal hashCodes (arrows showing this requirement). Diagram of HashSet with two 'equal' but different-hashCode objects ending up in different buckets — illustrating the bug when contract is violated.",
+      "alt_text": "Visual showing Object class as root of hierarchy, default vs overridden methods, and the equals/hashCode contract"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "It's time to give your Product class the full Object-methods treatment. We'll add toString, equals, and hashCode. Then we'll verify they work — println shows nice output, equals compares by content, and (looking ahead) the class will work correctly with HashMap/HashSet.",
+    
+    "problem_statement": "Update the Product class with all three Object method overrides:\n1. `toString()` returns formatted info about the product\n2. `equals()` compares by id (two Products with the same id are 'equal' — typical for entities)\n3. `hashCode()` uses the same field (id)\n\nDemonstrate in main:\n- println shows product info nicely\n- Two products with same id are equal\n- Two products with different ids are not equal\n- Equal products have equal hashCodes\n\nStart from the encapsulated Product class from Topic 4.3.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Add toString method",
+        "details": "```java\n@Override\npublic String toString() {\n    return \"Product[#\" + id + \" \" + name + \" — Stock: \" + stock + \", Price: ₹\" + price + \"]\";\n}\n```\n\nFour fields shown clearly. The `@Override` annotation tells the compiler 'this replaces the inherited toString.' If we accidentally wrote `toStrng()` (typo), the compiler would error: 'doesn't override anything.'\n\nWith this method, `System.out.println(product)` now produces:\n`Product[#101 Wireless Mouse — Stock: 45, Price: ₹599.99]`\n\nMuch better than the default garbage."
+      },
+      {
+        "step": 2,
+        "action": "Add equals method following the standard pattern",
+        "details": "```java\n@Override\npublic boolean equals(Object other) {\n    if (this == other) return true;\n    if (!(other instanceof Product)) return false;\n    Product p = (Product) other;\n    return this.id == p.id;\n}\n```\n\nFollow the template exactly:\n1. Same reference? Yes, equal.\n2. Different type (or null)? No, not equal.\n3. Cast and compare.\n\n**Why compare only by id?** This is a design decision. For entities (database-backed objects), TWO Products with the same id are 'the same product' — possibly the same row in the database, perhaps fetched at different times. The name or price might have been updated, but the entity identity is the id.\n\nFor value objects (Money, Date, Point), you'd compare ALL fields. The choice depends on your class's semantics."
+      },
+      {
+        "step": 3,
+        "action": "Add hashCode using same fields as equals",
+        "details": "```java\n@Override\npublic int hashCode() {\n    return Objects.hash(id);\n}\n```\n\nSince equals uses ONLY id, hashCode uses ONLY id. **This is the contract**: same fields in both methods.\n\n**Why not just `return id;`?** That would also work for an int field (id IS already an int). But using `Objects.hash(id)` is consistent — if you ever add more fields to the comparison, it scales: `Objects.hash(id, name)`. Less likely to be forgotten.\n\nDon't forget the `import java.util.Objects;` at the top of the file."
+      },
+      {
+        "step": 4,
+        "action": "Test with println (uses toString automatically)",
+        "details": "```java\npublic static void main(String[] args) {\n    Product p1 = new Product(101, \"Mouse\", 45, 599.99);\n    \n    System.out.println(p1);                          // calls toString()\n    System.out.println(\"As string: \" + p1);          // also calls toString()\n    System.out.printf(\"Formatted: %s%n\", p1);        // also calls toString()\n}\n```\n\nAll three styles end up using toString. We override once, every print works.\n\nExpected output:\n```\nProduct[#101 Mouse — Stock: 45, Price: ₹599.99]\nAs string: Product[#101 Mouse — Stock: 45, Price: ₹599.99]\nFormatted: Product[#101 Mouse — Stock: 45, Price: ₹599.99]\n```"
+      },
+      {
+        "step": 5,
+        "action": "Test equals — content comparison works",
+        "details": "```java\nProduct p1 = new Product(101, \"Mouse\", 45, 599.99);\nProduct p2 = new Product(101, \"Wireless Mouse\", 50, 549.99);  // same ID, diff details\nProduct p3 = new Product(102, \"Mouse\", 45, 599.99);          // different ID, same details\n\nSystem.out.println(\"p1 == p2: \" + (p1 == p2));                // false (different objects)\nSystem.out.println(\"p1.equals(p2): \" + p1.equals(p2));        // true (same id)\nSystem.out.println(\"p1.equals(p3): \" + p1.equals(p3));        // false (different id)\n\nSystem.out.println(\"p1.equals(null): \" + p1.equals(null));    // false (handled in equals)\nSystem.out.println(\"p1.equals(\\\"hello\\\"): \" + p1.equals(\"hello\")); // false (different type)\n```\n\nNotice:\n- `==` always compares references — p1 and p2 are different objects, so false\n- `.equals()` is our custom logic — uses id, so p1 and p2 (same id 101) are equal\n- p1 and p3 have different ids → not equal\n- Comparing to null or wrong type → safely false (handled by our checks)"
+      },
+      {
+        "step": 6,
+        "action": "Verify hashCode contract",
+        "details": "```java\nSystem.out.println(\"p1.equals(p2): \" + p1.equals(p2));\nSystem.out.println(\"p1.hashCode() == p2.hashCode(): \" + (p1.hashCode() == p2.hashCode()));\n```\n\nIf equals returns true, hashCodes must match. We use the same field (id) in both, so they always match.\n\nExpected:\n```\np1.equals(p2): true\np1.hashCode() == p2.hashCode(): true\n```\n\nIf this output ever shows `true / false`, you've violated the contract — your code is broken even if it compiles."
+      }
+    ],
+    
+    "final_code": "import java.util.Objects;\n\nclass Product {\n    private final int id;\n    private String name;\n    private int stock;\n    private double price;\n    \n    public Product(int id, String name, int stock, double price) {\n        if (id <= 0) throw new IllegalArgumentException(\"ID must be positive\");\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        if (stock < 0) throw new IllegalArgumentException(\"Stock cannot be negative\");\n        if (price < 0) throw new IllegalArgumentException(\"Price cannot be negative\");\n        this.id = id;\n        this.name = name;\n        this.stock = stock;\n        this.price = price;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    public int getStock() { return stock; }\n    public double getPrice() { return price; }\n    \n    @Override\n    public String toString() {\n        return \"Product[#\" + id + \" \" + name + \" — Stock: \" + stock + \", Price: ₹\" + price + \"]\";\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Product)) return false;\n        Product p = (Product) other;\n        return this.id == p.id;\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(id);\n    }\n}\n\npublic class ProductV4 {\n    public static void main(String[] args) {\n        Product p1 = new Product(101, \"Mouse\", 45, 599.99);\n        Product p2 = new Product(101, \"Wireless Mouse\", 50, 549.99);\n        Product p3 = new Product(102, \"Mouse\", 45, 599.99);\n        \n        System.out.println(\"=== toString ===\");\n        System.out.println(p1);\n        System.out.println(\"As string: \" + p1);\n        \n        System.out.println(\"\\n=== equals ===\");\n        System.out.println(\"p1 == p2: \" + (p1 == p2));\n        System.out.println(\"p1.equals(p2): \" + p1.equals(p2));\n        System.out.println(\"p1.equals(p3): \" + p1.equals(p3));\n        System.out.println(\"p1.equals(null): \" + p1.equals(null));\n        System.out.println(\"p1.equals(\\\"hello\\\"): \" + p1.equals(\"hello\"));\n        \n        System.out.println(\"\\n=== hashCode contract ===\");\n        System.out.println(\"p1.equals(p2): \" + p1.equals(p2));\n        System.out.println(\"p1.hashCode() == p2.hashCode(): \" + (p1.hashCode() == p2.hashCode()));\n    }\n}",
+    
+    "expected_output": "=== toString ===\nProduct[#101 Mouse — Stock: 45, Price: ₹599.99]\nAs string: Product[#101 Mouse — Stock: 45, Price: ₹599.99]\n\n=== equals ===\np1 == p2: false\np1.equals(p2): true\np1.equals(p3): false\np1.equals(null): false\np1.equals(\"hello\"): false\n\n=== hashCode contract ===\np1.equals(p2): true\np1.hashCode() == p2.hashCode(): true",
+    
+    "things_to_notice": [
+      "println(p1) automatically calls toString(). Same for string concatenation `\"As string: \" + p1` — Java implicitly calls toString.",
+      "p1 == p2 is false (different objects in memory) but p1.equals(p2) is true (same business id). This is the WHOLE point of overriding equals.",
+      "p1.equals(null) and p1.equals(\"hello\") both return false safely — handled by our equals template. NO crashes.",
+      "p1 and p2 have IDENTICAL hashCodes because they have the same id. If you change equals to use multiple fields, also update hashCode to use the same fields.",
+      "Using `@Override` on all three methods catches typos. Try removing it and misspelling `equals` as `eqauls` — compiler now lets it slide (creates a new method) and your equals never gets called.",
+      "Real Spring/JPA entities follow this EXACT pattern. The IDE generates this code with one click — but understanding what's generated is essential.",
+      "For PRODUCTION code at major companies, the equals method often uses ALL business-meaningful fields, not just id. For database entities, id alone is typical. Choice depends on context."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "JPA / Spring Data entities (banking, e-commerce, SaaS)",
+        "use_case": "Every database-mapped class needs equals/hashCode. Hibernate uses them for caching, change detection, and identity within transactions. Forgetting to override leads to subtle bugs: entity 'duplicated' in collection, dirty checks failing, cache misses. Every senior Java backend developer writes these methods regularly."
+      },
+      {
+        "company_context": "Collections framework usage (everywhere)",
+        "use_case": "Putting your class into a HashSet to dedupe? Using it as a HashMap key? Then hashCode/equals MUST be correct. The bug where 'I added 5 things to a HashSet but it shows 5 different objects when they look the same' — that's missing equals/hashCode."
+      },
+      {
+        "company_context": "Logging and debugging (every Java app)",
+        "use_case": "When your app crashes at 3 AM with a NullPointerException, log entries show object state. If toString returns `User@1b6d3586`, you've learned nothing. If it returns `User[id=42, email=a@b.com]`, you can debug instantly. Production debuggability hinges on good toString."
+      },
+      {
+        "company_context": "Testing (every Java project)",
+        "use_case": "JUnit's `assertEquals(expected, actual)` uses .equals(). If your class doesn't override equals, two 'identical' test fixtures fail comparison. Every assertion involving custom objects depends on proper equals implementation."
+      }
+    ],
+    
+    "interview_relevance": "These methods are CONSTANT in interviews:\n\n- **'What's the contract between equals and hashCode?'** — Classic question. Watch for: 'equal objects must have equal hashCodes.'\n- **'What happens if you override equals but not hashCode?'** — Tests deep understanding. Answer: HashMap/HashSet break — can't find your objects.\n- **'Why is `@Override` important?'** — Compiler safety, catches typos.\n- **'Write equals() for this class'** — Live coding. Expect the full template.\n- **'What does `instanceof` do?'** — Tests Java basics.\n\nAlso common: 'Compare and contrast == vs .equals()' — they're testing if you understand reference vs content (callback to Module 3).\n\nFor data classes, expect interviewers to ask about Java 14+ `records` (records auto-generate all three methods). Knowing the manual implementation prepares you for records, which we'll cover later.",
+    
+    "real_world_workflow": "Daily life with these methods:\n\n- New class? Override toString immediately. Saves debugging time.\n- Value class? Override all three. IDE shortcut: Alt+Insert (IntelliJ).\n- Code review: 'Did you override hashCode after changing equals?' (very common feedback)\n- Debugging: looking at log lines, you see real object state via toString\n- Testing: assertEquals depends on proper equals\n- Refactoring: changing fields in equals? Update hashCode the same way\n- Records (Java 14+): for simple data classes, use `record` instead — Java auto-generates all three methods correctly\n\nLombok provides `@EqualsAndHashCode` and `@ToString` annotations that generate this boilerplate. But you must understand what's being generated."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "overriding_equals_not_hashcode",
+      "what_students_get_wrong": "Override equals to compare content, forget hashCode. Code compiles. Then breaks subtly when used with HashMap/HashSet.",
+      "remediation": "ALWAYS override hashCode whenever you override equals. They're a pair. Use Objects.hash(...) for safety.",
+      "detection_pattern": "Objects 'duplicated' in HashSet, missing from HashMap"
+    },
+    {
+      "gap_id": "equals_wrong_signature",
+      "what_students_get_wrong": "Writing `public boolean equals(Product other)` — type-specific. This creates a NEW method, doesn't override.",
+      "remediation": "Parameter must be `Object`, not the specific class. Use `@Override` to catch this — compiler will error if signature is wrong.",
+      "detection_pattern": "equals() doesn't get called by collections or by Object.equals(...)"
+    },
+    {
+      "gap_id": "using_double_equals_in_equals",
+      "what_students_get_wrong": "Comparing String fields with `==` inside equals(). Should use `.equals()` for Strings.",
+      "remediation": "Use `Objects.equals(this.field, other.field)` for any reference-type field — null-safe and uses .equals() internally.",
+      "detection_pattern": "equals returns false for objects with identical String fields"
+    },
+    {
+      "gap_id": "forgetting_null_check",
+      "what_students_get_wrong": "Writing equals without checking for null other. `other.someMethod()` throws NPE when called with null.",
+      "remediation": "Use the template: `if (this == other) return true; if (!(other instanceof MyClass)) return false;`. The instanceof check also handles null (null instanceof X is always false).",
+      "detection_pattern": "NullPointerException in equals method"
+    },
+    {
+      "gap_id": "using_at_override_wrong",
+      "what_students_get_wrong": "Adding `@Override` to a method that doesn't actually override anything — compiler errors out.",
+      "remediation": "`@Override` requires the method to actually exist in a parent class. If you get the error, check spelling, parameter types, return type.",
+      "detection_pattern": "'Method does not override or implement a method from a supertype'"
+    },
+    {
+      "gap_id": "inconsistent_fields_equals_hashcode",
+      "what_students_get_wrong": "equals uses id and name; hashCode uses only id. Two objects with same id but different names: equal but different hashCodes. Contract violated.",
+      "remediation": "Use the SAME fields in both methods. If you change one, update the other.",
+      "detection_pattern": "Collections behavior breaks intermittently"
+    },
+    {
+      "gap_id": "using_classes_as_keys_without_override",
+      "what_students_get_wrong": "Putting custom objects in HashMap as keys without overriding equals/hashCode. Lookups always fail.",
+      "remediation": "Before using a class as a HashMap key or in a HashSet, override both methods. Otherwise default reference equality means each 'lookup' creates a new key.",
+      "detection_pattern": "Map.get(key) returns null even though same data was put in"
+    },
+    {
+      "gap_id": "expensive_tostring",
+      "what_students_get_wrong": "Putting expensive computations in toString — slows down every log statement.",
+      "remediation": "toString should be FAST. No database lookups, no heavy computation. Just string assembly from fields.",
+      "detection_pattern": "Logging seems slow"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Every class inherits toString(), equals(), hashCode() from Object",
+      "Default implementations are nearly useless — override them for value classes",
+      "`@Override` annotation catches typos and signature errors at compile time",
+      "toString: return a readable representation. Called implicitly by println and string concatenation.",
+      "equals: follow the standard template — same reference check, instanceof, cast, field comparison",
+      "instanceof handles null safely (null instanceof X is always false)",
+      "hashCode: if you override equals, you MUST override hashCode (the contract)",
+      "Use the SAME FIELDS in equals and hashCode",
+      "`Objects.equals(a, b)` is null-safe; use for object-type fields",
+      "`Objects.hash(...)` combines multiple values into a hashCode",
+      "Override these for VALUE classes; skip for service classes",
+      "Modern IDEs auto-generate correct implementations — but understand what they're generating"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why does this code print false?\n```java\nclass Point {\n    int x, y;\n    public Point(int x, int y) { this.x = x; this.y = y; }\n}\nPoint p1 = new Point(3, 4);\nPoint p2 = new Point(3, 4);\nSystem.out.println(p1.equals(p2));\n```",
+        "answer": "Point doesn't override equals(), so it inherits Object's default — which uses == (reference equality). p1 and p2 are different objects in memory, so equals returns false. To fix: override equals() in Point to compare x and y. Also override hashCode() to maintain the contract."
+      },
+      {
+        "question": "What's wrong with this equals method?\n```java\n@Override\npublic boolean equals(Product other) {\n    return this.id == other.id;\n}\n```",
+        "answer": "Wrong parameter type — should be `Object`, not `Product`. As written, this creates a NEW method `equals(Product)` instead of overriding `equals(Object)`. The compiler should error because `@Override` says 'this overrides' but the signature doesn't match. Fix: change parameter to `Object other`, then add `if (!(other instanceof Product)) return false;` and cast. Without `@Override`, this code would 'compile' but never actually be called by Java's framework code."
+      },
+      {
+        "question": "What's the equals/hashCode contract? Give an example of why it matters.",
+        "answer": "Contract: if `a.equals(b)` is true, then `a.hashCode() == b.hashCode()` must be true. Example impact: if you put `Product p1` in a HashSet, then `Product p2` (equal to p1 by content) is checked. Java first computes p2.hashCode() to find the right 'bucket' in the HashSet. If hashCodes differ, Java looks in the wrong bucket and doesn't find p1 — so the duplicate slips in. Result: HashSet contains 'duplicates.' Code looks correct, behavior is broken."
+      },
+      {
+        "question": "Why should you use `Objects.equals(a, b)` instead of `a.equals(b)` in your equals method?",
+        "answer": "Null safety. `a.equals(b)` throws NullPointerException if `a` is null. `Objects.equals(a, b)` handles null gracefully: returns true if both null, false if one is null, otherwise calls a.equals(b). Inside an equals implementation where fields might be null, `Objects.equals` prevents the crash. Example: comparing two Products where one has null name and the other doesn't — Objects.equals returns false safely; `this.name.equals(other.name)` would crash."
+      },
+      {
+        "question": "When should you NOT override equals/hashCode?",
+        "answer": "When reference identity is what you want — service classes (DatabaseConnection, Logger, EmailService), singletons, or any class where there's no meaningful 'equal' concept. For these, the inherited Object.equals (which uses ==) is correct: a DatabaseConnection isn't 'equal' to another DatabaseConnection — each is its own entity. Override only for VALUE classes (Product, Money, User, Address) where content determines identity."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Static Members & Class-Level Data. You've been creating individual objects. But sometimes data or behavior belongs to the CLASS, not any specific instance — like a counter of how many Products have been created, or a utility method that doesn't need any object. We covered `static` briefly back in Module 2 — now we'll go deep: static fields, static methods, static initializer blocks, constants, and when to use static vs instance. After 4.5, your toolkit for designing classes is complete."
+  }
+}

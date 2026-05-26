@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t5",
+  "language": "java",
+  "module_id": "m13",
+  "module_name": "Spring Boot Fundamentals",
+  "topic_number": 5,
+  "name": "Testing Spring Boot",
+  "slug": "testing-spring-boot",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m13_t4", "java_m12_t3"],
+    "concepts_taught": [
+      "spring_boot_test_slices",
+      "web_mvc_test",
+      "mock_mvc",
+      "mock_mvc_perform",
+      "mock_mvc_expect",
+      "mock_bean",
+      "data_jpa_test",
+      "spring_boot_test_full",
+      "test_rest_template",
+      "random_port",
+      "web_environment_none",
+      "mockito_in_spring_tests",
+      "json_path_assertions",
+      "import_for_service_slices"
+    ],
+    "skills_developed": [
+      "writing_web_mvc_test_for_controllers",
+      "using_mock_mvc_for_http_assertions",
+      "using_mock_bean_for_service_mocks",
+      "writing_data_jpa_test_for_repositories",
+      "writing_full_integration_tests_with_spring_boot_test",
+      "testing_validation_and_error_responses"
+    ],
+    "career_relevance": "Spring Boot testing is mandatory in any professional team. @WebMvcTest lets you test HTTP controllers in milliseconds without a database. @DataJpaTest validates your queries against a real (H2) database. @SpringBootTest runs full integration tests. Knowing which test slice to use and when is what separates a competent Spring Boot developer from an expert. Every PR at Flipkart, Razorpay, and Zerodha requires tests to merge.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your product API is feature-complete. How do you know it works?\n\n```\nManual testing:\n- Start the server\n- Open Postman\n- POST a product... check 201\n- GET it back... check 200\n- DELETE it... check 204\n- GET again... check 404\n- Test invalid data... check 400\n- Repeat for every scenario...\n→ 15 minutes per change. Teams skip it. Bugs ship.\n```\n\n**Spring Boot testing — automated in seconds:**\n\n```java\n// Controller test — no database, no server startup:\n@WebMvcTest(ProductController.class)\nclass ProductControllerTest {\n    @Autowired MockMvc mvc;\n    @MockBean ProductService service;\n    \n    @Test\n    void createProduct_valid_returns201() throws Exception {\n        when(service.create(any())).thenReturn(savedProduct);\n        mvc.perform(post(\"/api/products\")\n                .contentType(APPLICATION_JSON)\n                .content(\"{\\\"name\\\":\\\"Mouse\\\",\\\"price\\\":799}\"))\n            .andExpect(status().isCreated())\n            .andExpect(jsonPath(\"$.id\").exists())\n            .andExpect(jsonPath(\"$.name\").value(\"Mouse\"));\n    }\n    \n    @Test\n    void createProduct_blankName_returns400() throws Exception {\n        mvc.perform(post(\"/api/products\")\n                .contentType(APPLICATION_JSON)\n                .content(\"{\\\"name\\\":\\\"\\\",\\\"price\\\":799}\"))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.name\").value(\"Name is required\"));\n    }\n}\n// Runs in 500ms. Tests everything. No manual work.\n```\n\nThree test slices, three purposes:\n- **@WebMvcTest**: HTTP layer — controllers, validation, error handling. No database.\n- **@DataJpaTest**: Data layer — repositories, queries. No HTTP.\n- **@SpringBootTest**: Full stack — everything together.",
+    "what_you_will_build": "By the end of this topic, you'll write @WebMvcTest tests for controllers using MockMvc, @DataJpaTest tests for repositories with @Import for services, @SpringBootTest full integration tests with TestRestTemplate, and understand which slice to use for each testing need."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "web_mvc_test": "**@WebMvcTest — testing the HTTP layer in isolation:**\n\n```java\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\n\n@WebMvcTest(ProductController.class)  // loads ONLY this controller + security config\nclass ProductControllerTest {\n    \n    @Autowired MockMvc mvc;              // the HTTP test client\n    @Autowired ObjectMapper mapper;      // for JSON serialization\n    @MockBean ProductService service;    // mock all dependencies!\n    \n    @Test\n    void getAll_returns200WithList() throws Exception {\n        // Arrange:\n        when(service.findAll()).thenReturn(List.of(\n            new Product(\"P001\", \"Mouse\", 799),\n            new Product(\"P002\", \"Keyboard\", 1999)));\n        \n        // Act + Assert:\n        mvc.perform(get(\"/api/products\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$\").isArray())\n            .andExpect(jsonPath(\"$.length()\").value(2))\n            .andExpect(jsonPath(\"$[0].name\").value(\"Mouse\"))\n            .andExpect(jsonPath(\"$[1].price\").value(1999));\n    }\n}\n```\n\n**What @WebMvcTest loads:**\n- The specified controller class\n- @ControllerAdvice / @RestControllerAdvice beans\n- Jackson (JSON serialization)\n- MockMvc\n\n**What @WebMvcTest does NOT load:**\n- @Service beans (use @MockBean)\n- @Repository beans\n- The database\n- The full application context",
+
+      "mock_mvc": "**MockMvc — the HTTP test DSL:**\n\n```java\n// GET request:\nmvc.perform(get(\"/api/products/{id}\", \"P001\")\n        .header(\"Authorization\", \"Bearer test-token\"))\n    .andExpect(status().isOk())\n    .andExpect(content().contentType(APPLICATION_JSON))\n    .andExpect(jsonPath(\"$.id\").value(\"P001\"))\n    .andExpect(jsonPath(\"$.name\").value(\"Mouse\"));\n\n// POST with JSON body:\nProduct request = new Product(null, \"Mouse\", 799);\nmvc.perform(post(\"/api/products\")\n        .contentType(APPLICATION_JSON)\n        .content(mapper.writeValueAsString(request)))\n    .andExpect(status().isCreated())\n    .andExpect(header().exists(\"Location\"))\n    .andExpect(jsonPath(\"$.id\").exists());\n\n// DELETE:\nmvc.perform(delete(\"/api/products/{id}\", \"P001\"))\n    .andExpect(status().isNoContent());\n\n// Query parameters:\nmvc.perform(get(\"/api/products/search\")\n        .param(\"name\", \"mouse\")\n        .param(\"maxPrice\", \"1000\"))\n    .andExpect(status().isOk())\n    .andExpect(jsonPath(\"$\").isArray());\n\n// Common status matchers:\n// isOk() = 200, isCreated() = 201, isNoContent() = 204\n// isBadRequest() = 400, isNotFound() = 404, isConflict() = 409\n\n// jsonPath() expressions:\n// '$' = root, '$.field' = field, '$[0]' = first element\n// '$.items[*].name' = all name fields in items array\n```",
+
+      "data_jpa_test_advanced": "**@DataJpaTest — repository slice:**\n\n```java\n@DataJpaTest  // H2 + JPA only; no controllers, no services\n@Import(ProductService.class)  // import services you need\nclass ProductServiceRepositoryTest {\n    \n    @Autowired ProductRepository repo;\n    @Autowired ProductService service;  // imported above\n    \n    @BeforeEach\n    void seed() {\n        repo.save(new Product(\"Mouse\",    799,  \"Electronics\"));\n        repo.save(new Product(\"Keyboard\", 1999, \"Electronics\"));\n        repo.save(new Product(\"Chair\",    5000, \"Furniture\"));\n    }\n    \n    @Test\n    void findByCategory_electronics_returns2() {\n        List<Product> result = repo.findByCategory(\"Electronics\");\n        assertEquals(2, result.size());\n    }\n    \n    @Test\n    void create_duplicate_throws() {\n        // service imported — test the full service logic\n        assertThrows(DuplicateResourceException.class,\n            () -> service.create(new ProductRequest(\"Mouse\", 999.0, \"Electronics\", 5)));\n    }\n    \n    // Each @Test runs in a transaction that ROLLS BACK after\n    // seed() re-runs before each test — clean state guaranteed\n}\n```\n\n**@Import(ServiceClass.class)**: import a service bean into the DataJpaTest slice. Without this, the service is not in the context.",
+
+      "spring_boot_test_full": "**@SpringBootTest — full integration test:**\n\n```java\n// Full stack: HTTP → Controller → Service → Repository → H2\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass ProductApiIntegrationTest {\n    \n    @Autowired TestRestTemplate rest;  // HTTP client for tests\n    @Autowired ProductRepository repo;  // optional: check DB state\n    \n    @Test\n    void fullCrudLifecycle() {\n        // CREATE:\n        var createResp = rest.postForEntity(\n            \"/api/products\",\n            new ProductRequest(\"Mouse\", 799.0, \"Electronics\", 50),\n            Product.class);\n        assertEquals(HttpStatus.CREATED, createResp.getStatusCode());\n        String id = createResp.getBody().getId();\n        \n        // READ:\n        var getResp = rest.getForEntity(\"/api/products/\" + id, Product.class);\n        assertEquals(HttpStatus.OK, getResp.getStatusCode());\n        assertEquals(\"Mouse\", getResp.getBody().getName());\n        \n        // DELETE:\n        rest.delete(\"/api/products/\" + id);\n        \n        // VERIFY 404:\n        var notFound = rest.getForEntity(\"/api/products/\" + id, String.class);\n        assertEquals(HttpStatus.NOT_FOUND, notFound.getStatusCode());\n    }\n}\n```\n\n**WebEnvironment options:**\n- `RANDOM_PORT`: starts real Tomcat on a random port — true end-to-end\n- `MOCK` (default): mock servlet environment — like @WebMvcTest but full context\n- `NONE`: no web environment — for testing service beans only",
+
+      "which_slice_when": "**Choosing the right test slice:**\n\n```\n┌─────────────────────────────────────────────────────────────┐\n│ What are you testing?          │ Use                        │\n├────────────────────────────────┼────────────────────────────┤\n│ HTTP layer: routing, status    │ @WebMvcTest                │\n│ codes, JSON, validation        │ (fast: ~1 sec)             │\n├────────────────────────────────┼────────────────────────────┤\n│ Database queries, derived      │ @DataJpaTest               │\n│ methods, @Query                │ (fast: ~2 sec)             │\n├────────────────────────────────┼────────────────────────────┤\n│ Business logic only            │ Plain JUnit + Mockito      │\n│ (no Spring context needed)     │ (fastest: ~0.1 sec)        │\n├────────────────────────────────┼────────────────────────────┤\n│ Full stack: controller         │ @SpringBootTest RANDOM_PORT│\n│ through to database            │ (slow: ~5-10 sec, use less)│\n└─────────────────────────────────────────────────────────────┘\n\nRule of thumb:\n- Most tests: @WebMvcTest or @DataJpaTest (fast slices)\n- Few tests: @SpringBootTest (critical paths only)\n- Always: plain JUnit for pure business logic\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three-column diagram: (1) @WebMvcTest — shows the HTTP request → MockMvc → Controller → @MockBean Service (returns stub). Arrow says 'No DB, no full context'. Loads: Controller, ControllerAdvice, Jackson. Mocked: Service, Repository. (2) @DataJpaTest — shows Service → Repository → H2 Database. @Import(Service.class) shown as dotted line. No HTTP. Rollback arrow shows each test gets clean state. (3) @SpringBootTest RANDOM_PORT — full stack: TestRestTemplate sends HTTP → real Tomcat → Controller → Service → Repository → H2. Label: 'slowest but most realistic'. Below: timing comparison bar chart: @WebMvcTest ~500ms, @DataJpaTest ~2s, @SpringBootTest ~5-10s.",
+      "alt_text": "Three Spring Boot test slices: WebMvcTest (HTTP only), DataJpaTest (DB only), SpringBootTest (full stack) with timing comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Write a complete three-layer test suite for the Product API from Module 13. One @WebMvcTest for the controller, one @DataJpaTest for the repository, and one @SpringBootTest integration test — each testing only what's relevant to that slice.",
+
+    "problem_statement": "Write tests for the complete Product API:\n1. @WebMvcTest: GET all, GET/{id} found/not-found, POST valid/invalid\n2. @DataJpaTest: save, findByCategory, findByPriceLessThan, duplicate name\n3. @SpringBootTest: full CRUD lifecycle end-to-end",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "@WebMvcTest — 5 controller tests",
+        "details": "```java\n@WebMvcTest(ProductController.class)\nclass ProductControllerTest {\n    @Autowired MockMvc mvc;\n    @Autowired ObjectMapper mapper;\n    @MockBean ProductService service;\n    \n    Product mouse = new Product(\"P001\", \"Mouse\", 799.0, \"Electronics\");\n    \n    @Test\n    void getAll_returns200AndList() throws Exception {\n        when(service.findAll()).thenReturn(List.of(mouse));\n        mvc.perform(get(\"/api/products\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.length()\").value(1))\n            .andExpect(jsonPath(\"$[0].name\").value(\"Mouse\"));\n    }\n    \n    @Test\n    void getById_found_returns200() throws Exception {\n        when(service.findByIdOrThrow(\"P001\")).thenReturn(mouse);\n        mvc.perform(get(\"/api/products/P001\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.price\").value(799.0));\n    }\n    \n    @Test\n    void getById_notFound_returns404() throws Exception {\n        when(service.findByIdOrThrow(\"P999\"))\n            .thenThrow(new ResourceNotFoundException(\"Product\", \"P999\"));\n        mvc.perform(get(\"/api/products/P999\")).andExpect(status().isNotFound());\n    }\n    \n    @Test\n    void create_validRequest_returns201() throws Exception {\n        when(service.create(any())).thenReturn(mouse);\n        mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(\n                    Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Electronics\",\"stockQty\",50))))\n            .andExpect(status().isCreated())\n            .andExpect(jsonPath(\"$.id\").value(\"P001\"));\n    }\n    \n    @Test\n    void create_blankName_returns400WithFieldError() throws Exception {\n        mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(\n                    Map.of(\"name\",\"\",\"price\",799.0,\"category\",\"Electronics\",\"stockQty\",5))))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.name\").exists());\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "@DataJpaTest — 4 repository tests",
+        "details": "```java\n@DataJpaTest\n@Import(ProductService.class)\nclass ProductServiceTest {\n    @Autowired ProductRepository repo;\n    @Autowired ProductService service;\n    \n    @BeforeEach\n    void seed() {\n        repo.save(new Product(\"Mouse\",    799,  \"Electronics\"));\n        repo.save(new Product(\"Keyboard\", 1999, \"Electronics\"));\n        repo.save(new Product(\"Chair\",    5000, \"Furniture\"));\n    }\n    \n    @Test\n    void findByCategory_electronics_returns2() {\n        assertEquals(2, repo.findByCategory(\"Electronics\").size());\n    }\n    \n    @Test\n    void create_duplicate_throwsDuplicate() {\n        assertThrows(DuplicateResourceException.class,\n            () -> service.create(new ProductRequest(\"Mouse\", 999.0, \"Electronics\", 5)));\n    }\n    \n    @Test\n    void findById_afterSave_returnsProduct() {\n        Product saved = repo.save(new Product(\"Hub\", 499, \"Accessories\"));\n        assertTrue(repo.findById(saved.getId()).isPresent());\n    }\n    \n    @Test\n    void delete_removesProduct() {\n        Product p = repo.save(new Product(\"Hub\", 499, \"Accessories\"));\n        service.delete(p.getId());\n        assertFalse(repo.existsById(p.getId()));\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "@SpringBootTest — 1 integration test",
+        "details": "```java\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass ProductApiIntegrationTest {\n    @Autowired TestRestTemplate rest;\n    @Autowired ProductRepository repo;\n    \n    @BeforeEach void cleanDb() { repo.deleteAll(); }\n    \n    @Test\n    void fullCrudLifecycle() {\n        // CREATE:\n        var cr = rest.postForEntity(\"/api/products\",\n            Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Electronics\",\"stockQty\",50),\n            Product.class);\n        assertEquals(HttpStatus.CREATED, cr.getStatusCode());\n        String id = cr.getBody().getId();\n        \n        // READ:\n        var gr = rest.getForEntity(\"/api/products/\" + id, Product.class);\n        assertEquals(HttpStatus.OK, gr.getStatusCode());\n        assertEquals(\"Mouse\", gr.getBody().getName());\n        \n        // DELETE:\n        rest.delete(\"/api/products/\" + id);\n        var nf = rest.getForEntity(\"/api/products/\" + id, String.class);\n        assertEquals(HttpStatus.NOT_FOUND, nf.getStatusCode());\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// All three test classes as above\n// Key imports for @WebMvcTest:\n// import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\n// import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n// import static org.springframework.http.MediaType.APPLICATION_JSON;\n\n// Key imports for @DataJpaTest:\n// import org.springframework.context.annotation.Import;\n\n// Key imports for @SpringBootTest:\n// import org.springframework.boot.test.web.client.TestRestTemplate;",
+
+    "expected_output": "@WebMvcTest results:\n✓ getAll_returns200AndList\n✓ getById_found_returns200\n✓ getById_notFound_returns404\n✓ create_validRequest_returns201\n✓ create_blankName_returns400WithFieldError\n\n@DataJpaTest results:\n✓ findByCategory_electronics_returns2\n✓ create_duplicate_throwsDuplicate\n✓ findById_afterSave_returnsProduct\n✓ delete_removesProduct\n\n@SpringBootTest result:\n✓ fullCrudLifecycle\n\n10 tests passed, 0 failed\nTotal time: ~6 seconds",
+
+    "things_to_notice": [
+      "@WebMvcTest runs in ~500ms because it loads only the controller layer. No Spring context startup, no database initialization. The service is a @MockBean — Spring creates a Mockito mock and injects it into the controller.",
+      "MockMvc.perform() builds and executes a mock HTTP request. The method-chained andExpect() calls assert on the response. jsonPath('$.name').value('Mouse') uses JSONPath to navigate the response JSON — '$' is the root, '$.length()' gives array size.",
+      "@DataJpaTest with @BeforeEach seed: each test gets a rollback transaction. seed() runs before each test, inserts data, and after the test the entire transaction rolls back. The next test starts with an empty database.",
+      "@Import(ProductService.class) in @DataJpaTest: the DataJpa slice doesn't load @Service beans automatically. You must explicitly import each service you need. Without it, @Autowired ProductService fails.",
+      "@SpringBootTest with repo.deleteAll() in @BeforeEach: integration tests hit a real database that persists between tests. You must clean up manually — unlike @DataJpaTest which rolls back automatically.",
+      "TestRestTemplate vs RestTemplate: TestRestTemplate is configured for test use — it doesn't throw on 4xx/5xx responses, making it easy to assert error status codes. Regular RestTemplate throws HttpClientErrorException on 4xx."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart CI/CD pipeline",
+        "use_case": "Every PR triggers a GitHub Actions pipeline: @WebMvcTest tests (fast, run every commit), @DataJpaTest tests (medium, run every commit), @SpringBootTest integration tests (slow, run nightly or on main). This tiered strategy keeps the commit loop fast (< 2 minutes for sliced tests) while still catching integration bugs. The rule: 70% unit/@WebMvcTest, 20% @DataJpaTest, 10% @SpringBootTest."
+      },
+      {
+        "company_context": "Razorpay payment service",
+        "use_case": "PaymentController is tested with @WebMvcTest: valid payment 201, invalid amount 400, unknown order 404, insufficient funds 422 — all using @MockBean PaymentService. PaymentRepository is tested with @DataJpaTest: findByOrderIdAndStatus, sumAmountByUser (aggregate @Query). A critical end-to-end test with @SpringBootTest verifies the full payment creation → verification flow against an in-memory H2."
+      },
+      {
+        "company_context": "Spring Boot reference architecture",
+        "use_case": "Spring Boot's own test documentation recommends the slice approach. The official Spring Boot guides show exactly the three-layer testing strategy taught here. Test slices (autoconfiguration slices) were introduced specifically to solve the problem of slow, monolithic @SpringBootTest tests. This is the Spring team's own recommended testing strategy."
+      }
+    ],
+
+    "interview_relevance": "Spring Boot testing interview questions:\n\n- **'What is @WebMvcTest?'** → Loads only the web layer (controller, ControllerAdvice, Jackson). Uses @MockBean for service dependencies. Uses MockMvc for HTTP assertions.\n- **'When would you use @SpringBootTest vs @WebMvcTest?'** → @WebMvcTest for unit/controller tests (fast). @SpringBootTest for integration tests (full stack). @WebMvcTest is preferred for most tests.\n- **'What is MockMvc?'** → A test client for the Spring MVC layer. `mvc.perform(get('/api/x')).andExpect(status().isOk())` tests HTTP without a real server.\n- **'How do you test a Spring Data repository?'** → @DataJpaTest with H2 in-memory. Each test is transactional and rolls back. Add @Import for service classes.",
+
+    "real_world_workflow": "Daily Spring Boot testing workflow:\n\n- New controller method → @WebMvcTest with @MockBean service\n- New repository method → @DataJpaTest with @BeforeEach seed\n- Critical user flow → @SpringBootTest RANDOM_PORT\n- Pure business logic → plain JUnit + Mockito (no Spring needed)\n- CI: run @WebMvcTest + @DataJpaTest on every commit; @SpringBootTest nightly"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_mock_bean",
+      "what_students_get_wrong": "Forgetting @MockBean for service dependencies in @WebMvcTest — Spring can't find the service bean and throws NoSuchBeanDefinitionException.",
+      "remediation": "@WebMvcTest doesn't load @Service beans. Every dependency of the controller must be declared as @MockBean in the test class. Check the controller constructor — each injected dependency needs a @MockBean.",
+      "detection_pattern": "NoSuchBeanDefinitionException or UnsatisfiedDependencyException at test startup"
+    },
+    {
+      "gap_id": "not_cleaning_db_in_springboottest",
+      "what_students_get_wrong": "@SpringBootTest tests that create data affect each other — test order dependency.",
+      "remediation": "@DataJpaTest rolls back automatically. @SpringBootTest does NOT. Use @BeforeEach to clean: `repo.deleteAll()`. Or use `@Transactional` on the test class (rolls back each test). Or use an H2 in-memory database that resets per test run.",
+      "detection_pattern": "Tests pass in isolation but fail when run together"
+    },
+    {
+      "gap_id": "springboottest_without_port",
+      "what_students_get_wrong": "Using @SpringBootTest with RANDOM_PORT but trying to use MockMvc — doesn't work.",
+      "remediation": "MockMvc works with MOCK environment (default). TestRestTemplate works with RANDOM_PORT. For RANDOM_PORT: `@Autowired TestRestTemplate rest`. For MockMvc: use `@SpringBootTest` without environment (default is MOCK) or use `@AutoConfigureMockMvc` with RANDOM_PORT.",
+      "detection_pattern": "TestRestTemplate connection refused on port 0; MockMvc not working with real port"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@WebMvcTest(Controller.class): loads only the HTTP layer — fast, focused",
+      "@MockBean: creates Mockito mock for a Spring bean — use in @WebMvcTest for all service deps",
+      "MockMvc: `mvc.perform(get/post/put/delete(url)).andExpect(status().isOk()).andExpect(jsonPath...)`",
+      "jsonPath('$.field').value(x): assert JSON response field value",
+      "jsonPath('$').isArray() / jsonPath('$.length()').value(n): assert JSON array",
+      "@DataJpaTest: loads JPA + H2 only — each test rolls back automatically",
+      "@Import(ServiceClass.class): import service bean into @DataJpaTest slice",
+      "@SpringBootTest(webEnvironment=RANDOM_PORT): full stack with real HTTP",
+      "TestRestTemplate: HTTP client for @SpringBootTest — doesn't throw on 4xx/5xx",
+      "@BeforeEach repo.deleteAll() in @SpringBootTest — manual cleanup (no auto rollback)",
+      "Slice hierarchy: plain Mockito (fastest) → @WebMvcTest → @DataJpaTest → @SpringBootTest",
+      "70/20/10 rule: 70% @WebMvcTest+Mockito, 20% @DataJpaTest, 10% @SpringBootTest"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Your @WebMvcTest starts but fails with 'No qualifying bean of type ProductService'. What's wrong?",
+        "answer": "@WebMvcTest does NOT load @Service beans. You declared the controller and the test, but ProductService is not in the test context. Fix: add `@MockBean ProductService service;` to the test class. @WebMvcTest loads only the web layer — every service the controller depends on must be explicitly mocked with @MockBean."
+      },
+      {
+        "question": "You're testing a repository query `findByStatus('PENDING')`. Should you use @WebMvcTest, @DataJpaTest, or @SpringBootTest?",
+        "answer": "@DataJpaTest is the right choice. It loads JPA and H2, creates the schema, and gives you the actual repository bean. @WebMvcTest doesn't load repositories. @SpringBootTest would work but is overkill — it loads the full context when you only need to test the database query. In @DataJpaTest: seed data with repo.save() in @BeforeEach, call repo.findByStatus('PENDING'), assert."
+      },
+      {
+        "question": "Two @SpringBootTest tests run together. The first creates a product named 'Mouse'. The second tests that no products exist initially. The second fails. Why and how do you fix it?",
+        "answer": "Unlike @DataJpaTest, @SpringBootTest does NOT roll back between tests. The product created in test 1 persists in the H2 database for test 2. Fix options: (1) @BeforeEach repo.deleteAll() — clean before each test. (2) @Transactional on the test class — rolls back each test (usually works but can hide transaction issues). (3) Isolation: design tests to not depend on 'no data' — count before and after instead. Option 1 is most explicit and reliable."
+      }
+    ],
+
+    "next_topic_preview": "Module 13: Spring Boot Fundamentals is complete! You now have the full professional Spring Boot skill set: application setup, REST controllers, JPA persistence, validation, exception handling, and testing. From here, the course moves into specialized domains: Module 14 covers advanced Spring Boot patterns (configuration properties, caching, async), or specialized domains like Microservices, Security, or React frontend. Every module from here applies Spring Boot — you've built the foundation everything else needs."
+  }
+}

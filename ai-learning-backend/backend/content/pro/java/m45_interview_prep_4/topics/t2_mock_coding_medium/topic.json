@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m45_t2",
+  "module_id": "m45",
+  "topic_number": 2,
+  "name": "Mock Coding Medium \u2014 15-Minute Problems",
+  "slug": "mock-coding-medium",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m44_t5"
+    ],
+    "concepts_taught": [
+      "mock-coding-medium"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Mock Coding Medium \u2014 15-Minute Problems"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Medium problems: Kadane, 3Sum, Merge Intervals, Product Except Self \u2014 15 min target",
+        "Always state pattern first: 'This is a sliding window / two pointer / DP problem'",
+        "If stuck at 10 min: brute force + communicate why you want to optimize",
+        "Test with given example + your own + edge case",
+        "Medium is the bread-and-butter of SDE-1 interviews at all Indian tech companies"
+      ],
+      "next_topic_preview": "Next: Mock Hard problems."
+    }
+  }
+}

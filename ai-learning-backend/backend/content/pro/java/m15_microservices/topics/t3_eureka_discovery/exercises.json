@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t3",
+  "topic_name": "Eureka Service Discovery",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m15_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Eureka startup — what gets registered?",
+      "scenario": "Services register with Eureka using spring.application.name.",
+      "instructions": "Three Spring Boot services start up. Each has:\n\n```properties\n# market-service:\nspring.application.name=market-service\nserver.port=8081\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n\n# order-service:\nspring.application.name=order-service\nserver.port=8082\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n\n# eureka-server:\nspring.application.name=eureka-server\nserver.port=8761\neureka.client.register-with-eureka=false\n```\n\nWhat appears in the Eureka dashboard at http://localhost:8761?\nIf a Feign client in order-service is @FeignClient(name='market-service'), which host:port does it call?",
+      "expected_solution": "Eureka dashboard shows:\n- MARKET-SERVICE: 1 instance at host:8081\n- ORDER-SERVICE: 1 instance at host:8082\n(eureka-server itself does NOT appear — register-with-eureka=false)\n\n@FeignClient(name='market-service') resolves to:\n→ http://host:8081 (the registered IP/port of market-service)\nEureka provides the actual host; Feign + LoadBalancer use it to make the HTTP call",
+      "test_cases": [
+        { "type": "text_match", "expected": "Eureka dashboard shows:\n- MARKET-SERVICE: 1 instance at host:8081\n- ORDER-SERVICE: 1 instance at host:8082\n(eureka-server itself does NOT appear — register-with-eureka=false)\n\n@FeignClient(name='market-service') resolves to:\n→ http://host:8081 (the registered IP/port of market-service)\nEureka provides the actual host; Feign + LoadBalancer use it to make the HTTP call" }
+      ],
+      "hints": [
+        "register-with-eureka=false: server doesn't register itself",
+        "Each service registers under its spring.application.name",
+        "@FeignClient(name=...) must match the registered service name"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete Eureka server application.properties",
+      "scenario": "Eureka server needs specific properties to not register with itself.",
+      "instructions": "Fill in the application.properties for a Eureka server.",
+      "starter_code": "server.port=____\nspring.application.name=eureka-server\n\n# Don't register server with itself:\neureka.client.register-with-eureka=_____\neureka.client.fetch-registry=_____\n\n# Disable self-preservation in development:\neureka.server.enable-self-preservation=_____",
+      "expected_solution": "server.port=8761\nspring.application.name=eureka-server\neureka.client.register-with-eureka=false\neureka.client.fetch-registry=false\neureka.server.enable-self-preservation=false",
+      "blanks": [
+        { "position": 1, "answer": "8761",  "hint": "Standard Eureka dashboard port" },
+        { "position": 2, "answer": "false", "hint": "Server should not register with itself" },
+        { "position": 3, "answer": "false", "hint": "Server should not fetch registry from itself" },
+        { "position": 4, "answer": "false", "hint": "Disable in dev to avoid zombie registrations" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected": "server.port=8761\nspring.application.name=eureka-server\neureka.client.register-with-eureka=false\neureka.client.fetch-registry=false\neureka.server.enable-self-preservation=false" }
+      ],
+      "hints": [
+        "8761: conventional Eureka server port",
+        "register-with-eureka=false: prevents server registering with itself",
+        "self-preservation=false: disable in dev to avoid stale entries"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Eureka Server minimal setup",
+      "scenario": "Three lines to stand up a complete Eureka service registry.",
+      "instructions": "Write a complete minimal Eureka Server:\n1. `EurekaServerApplication` with @SpringBootApplication + @EnableEurekaServer\n2. application.properties with all required server config\n3. Maven dependency snippet",
+      "starter_code": "// EurekaServerApplication.java\n// application.properties\n// pom.xml dependency snippet\n",
+      "expected_solution": "// EurekaServerApplication.java:\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;\n\n@SpringBootApplication\n@EnableEurekaServer\npublic class EurekaServerApplication {\n    public static void main(String[] args) {\n        SpringApplication.run(EurekaServerApplication.class, args);\n    }\n}\n\n// application.properties:\n// server.port=8761\n// spring.application.name=eureka-server\n// eureka.client.register-with-eureka=false\n// eureka.client.fetch-registry=false\n// eureka.server.enable-self-preservation=false\n\n// pom.xml snippet:\n// <dependency>\n//   <groupId>org.springframework.cloud</groupId>\n//   <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>\n// </dependency>\n// (plus spring-cloud-dependencies BOM in dependencyManagement)\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Eureka Server: @EnableEurekaServer + register-with-eureka=false\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Eureka Server"] }
+      ],
+      "hints": [
+        "@EnableEurekaServer: activates the Eureka registry",
+        "register-with-eureka=false: Eureka server doesn't join its own registry",
+        "Dashboard at http://localhost:8761 after startup"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m15_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Register a service with Eureka",
+      "scenario": "Adding Eureka client to an existing Spring Boot microservice.",
+      "instructions": "Modify `market-service` to register with Eureka:\n1. Application class with @EnableDiscoveryClient\n2. Complete application.properties with Eureka client config\n3. Heartbeat interval: 10 seconds, lease expiry: 30 seconds\n4. Show the Maven dependency to add",
+      "starter_code": "// MarketServiceApplication.java (add Eureka registration)\n// application.properties (add Eureka client config)\n// pom.xml snippet\n",
+      "expected_solution": "import org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.cloud.client.discovery.EnableDiscoveryClient;\n\n@SpringBootApplication\n@EnableDiscoveryClient\npublic class MarketServiceApplication {\n    public static void main(String[] args) {\n        SpringApplication.run(MarketServiceApplication.class, args);\n    }\n}\n\n// application.properties:\n// server.port=8081\n// spring.application.name=market-service\n// \n// # Where is Eureka:\n// eureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n// \n// # Heartbeat every 10 seconds:\n// eureka.instance.lease-renewal-interval-in-seconds=10\n// \n// # Die after 30s without heartbeat:\n// eureka.instance.lease-expiration-duration-in-seconds=30\n// \n// # Show IP (not hostname) in dashboard:\n// eureka.instance.prefer-ip-address=true\n// \n// # Unique instance id when running multiple instances:\n// eureka.instance.instance-id=${spring.application.name}:${server.port}\n\n// pom.xml:\n// <dependency>\n//   <groupId>org.springframework.cloud</groupId>\n//   <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>\n// </dependency>\n\npublic class Main {\n    public static void main(String[] args) {\n        System.out.println(\"market-service registered with Eureka as 'market-service'\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["market-service"] }
+      ],
+      "hints": [
+        "@EnableDiscoveryClient: registers this service with Eureka on startup",
+        "spring.application.name: the name shown in Eureka dashboard",
+        "instance-id with port: allows running multiple instances locally"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m15_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Feign without url= — service discovery",
+      "scenario": "Remove url= from @FeignClient to use Eureka discovery.",
+      "instructions": "Show the before/after for MarketServiceClient:\n1. BEFORE: @FeignClient with hardcoded url property\n2. AFTER: @FeignClient with only name= (Eureka discovers the URL)\n3. What additional dependency is needed for load balancing?\n4. What must match between the Feign client name and market-service?",
+      "starter_code": "// BEFORE — hardcoded URL:\n// @FeignClient(...)\n\n// AFTER — Eureka discovery:\n// @FeignClient(...)\n\n// Required dependency:\n// ...\n\n// What must match?\n// ...\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\n\n// BEFORE — hardcoded URL:\n// @FeignClient(name = \"market-service\", url = \"${market.service.url:http://localhost:8081}\")\n// public interface MarketServiceClientBefore { ... }\n\n// AFTER — Eureka discovery (no url=):\n@FeignClient(name = \"market-service\")  // Eureka finds the host:port\npublic interface MarketServiceClient {\n    @GetMapping(\"/api/stocks/{symbol}/quote\")\n    Object getQuote(@PathVariable String symbol);\n}\n\n// Required additional dependency:\n// <dependency>\n//   <groupId>org.springframework.cloud</groupId>\n//   <artifactId>spring-cloud-starter-loadbalancer</artifactId>\n// </dependency>\n// (Spring Cloud LoadBalancer picks from registered instances)\n\n// What must match:\n// @FeignClient(name=\"market-service\")  ← this name\n// spring.application.name=market-service  ← must equal this in market-service\n// (Eureka is case-insensitive, but by convention both should be kebab-case)\n\npublic class Explanation {\n    public static void main(String[] args) {\n        System.out.println(\"Feign name must match spring.application.name\");\n        System.out.println(\"LoadBalancer dependency required for url-less Feign\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Feign name must match"] }
+      ],
+      "hints": [
+        "Remove url= entirely: Feign uses Eureka for discovery",
+        "spring-cloud-starter-loadbalancer: picks one instance from the Eureka list",
+        "@FeignClient(name=) must equal spring.application.name (case-insensitive)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "DiscoveryClient — list registered instances",
+      "scenario": "DiscoveryClient programmatically queries the Eureka registry.",
+      "instructions": "Write a `ServiceDiscoveryController` that:\n1. @Autowired DiscoveryClient\n2. GET /discovery/services → List<String> of all registered service names\n3. GET /discovery/services/{name} → List of service instance URIs for that service\n4. GET /discovery/services/{name}/count → instance count",
+      "starter_code": "import org.springframework.cloud.client.discovery.DiscoveryClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.*;\n// ServiceDiscoveryController\n",
+      "expected_solution": "import org.springframework.cloud.client.ServiceInstance;\nimport org.springframework.cloud.client.discovery.DiscoveryClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.net.URI;\nimport java.util.*;\nimport java.util.stream.Collectors;\nimport org.springframework.stereotype.Component;\n\n@RestController\n@RequestMapping(\"/discovery\")\npublic class ServiceDiscoveryController {\n    private final DiscoveryClient discoveryClient;\n    \n    ServiceDiscoveryController(DiscoveryClient discoveryClient) {\n        this.discoveryClient = discoveryClient;\n    }\n    \n    @GetMapping(\"/services\")\n    public List<String> listServices() {\n        return discoveryClient.getServices();\n        // Returns: [\"market-service\", \"order-service\", \"eureka-server\"]\n    }\n    \n    @GetMapping(\"/services/{name}\")\n    public List<String> getServiceInstances(@PathVariable String name) {\n        return discoveryClient.getInstances(name).stream()\n            .map(instance -> instance.getUri().toString())\n            .collect(Collectors.toList());\n        // Returns: [\"http://10.0.1.45:8081\", \"http://10.0.1.67:8082\"]\n    }\n    \n    @GetMapping(\"/services/{name}/count\")\n    public Map<String, Object> getInstanceCount(@PathVariable String name) {\n        int count = discoveryClient.getInstances(name).size();\n        return Map.of(\"service\", name, \"instances\", count);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "DiscoveryClient.getServices(): all registered service names",
+        "DiscoveryClient.getInstances('name'): List<ServiceInstance> for that service",
+        "instance.getUri(): the base URI (http://host:port)"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m15_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Load balancing observation — round-robin across instances",
+      "scenario": "Two instances registered; requests alternate between them.",
+      "instructions": "Write a `LoadBalancedClient` @Component that:\n1. Injects a Feign client WITHOUT url= (uses Eureka)\n2. Calls the service 6 times\n3. Each service instance logs its port: System.out.println('Request handled by port: ' + serverPort)\n4. Expected: alternating between the two instances (round-robin)\n5. Show the application.properties needed to run two instances",
+      "starter_code": "// LoadBalancedCallsDemo\n// + application.properties for 2 instances\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.stereotype.Component;\nimport org.springframework.beans.factory.annotation.Value;\nimport javax.annotation.PostConstruct;\n\n// In market-service — endpoint showing which instance handled the request:\n@RestController class InstanceController {\n    @Value(\"${server.port}\") int port;\n    @GetMapping(\"/api/instance\") Map<String,Object> whoAmI() {\n        return Map.of(\"port\", port, \"handledBy\", \"market-service:\" + port);\n    }\n}\n\n// Feign client in order-service (no url= — uses Eureka):\n@FeignClient(name = \"market-service\")\ninterface MarketInstanceClient {\n    @GetMapping(\"/api/instance\") java.util.Map<String,Object> getInstance();\n}\n\n// Demo component in order-service:\n@Component\npublic class LoadBalancedCallsDemo {\n    private final MarketInstanceClient client;\n    LoadBalancedCallsDemo(MarketInstanceClient c) { client = c; }\n    \n    @PostConstruct\n    public void demonstrateRoundRobin() {\n        System.out.println(\"=== Load Balancing Demo ===\");\n        for (int i = 1; i <= 6; i++) {\n            var result = client.getInstance();\n            System.out.println(\"Call \" + i + \" → \" + result.get(\"handledBy\"));\n        }\n    }\n}\n\n// To run 2 market-service instances:\n// $ java -jar market-service.jar --server.port=8081\n// $ java -jar market-service.jar --server.port=8082\n// Both register as 'market-service'\n\n// eureka.instance.instance-id=${spring.application.name}:${server.port}\n// (prevents instance ID collision when running on same machine)\n\n// Expected output:\n// Call 1 → market-service:8081\n// Call 2 → market-service:8082\n// Call 3 → market-service:8081\n// Call 4 → market-service:8082\n// Call 5 → market-service:8081\n// Call 6 → market-service:8082",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Value('${server.port}') int port: shows which instance handled the request",
+        "instance-id=name:port: prevents instance collision running 2 instances locally",
+        "@PostConstruct: runs after Feign client is injected and ready"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Complete three-service setup with Eureka",
+      "scenario": "Eureka server + two microservices discovering each other.",
+      "instructions": "Write the complete configuration for a three-service setup:\n1. `eureka-server` (port 8761) — service registry\n2. `product-service` (port 8081) — registers with Eureka\n3. `order-service` (port 8082) — registers with Eureka + calls product-service via Feign\n\nFor each: Application class + application.properties. Feign client without url=.",
+      "starter_code": "// eureka-server:\n// EurekaServerApplication.java + application.properties\n\n// product-service:\n// ProductServiceApplication.java + application.properties\n\n// order-service:\n// OrderServiceApplication.java + application.properties\n// ProductServiceClient @FeignClient (no url=)\n",
+      "expected_solution": "// ── EUREKA SERVER ──────────────────────────────────────────\n@SpringBootApplication @EnableEurekaServer\npublic class EurekaServerApplication { public static void main(String[] args) { SpringApplication.run(EurekaServerApplication.class, args); } }\n// server.port=8761 | spring.application.name=eureka-server\n// eureka.client.register-with-eureka=false | eureka.client.fetch-registry=false\n// eureka.server.enable-self-preservation=false\n\n// ── PRODUCT SERVICE ────────────────────────────────────────\n@SpringBootApplication @EnableDiscoveryClient\npublic class ProductServiceApplication { public static void main(String[] args) { SpringApplication.run(ProductServiceApplication.class, args); } }\n// server.port=8081 | spring.application.name=product-service\n// eureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n// eureka.instance.prefer-ip-address=true\n// eureka.instance.instance-id=${spring.application.name}:${server.port}\n\n// ── ORDER SERVICE ──────────────────────────────────────────\n@SpringBootApplication @EnableDiscoveryClient @EnableFeignClients\npublic class OrderServiceApplication { public static void main(String[] args) { SpringApplication.run(OrderServiceApplication.class, args); } }\n// server.port=8082 | spring.application.name=order-service\n// eureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n\n// Feign client (NO url= — discovered from Eureka):\nimport org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n\n@FeignClient(name = \"product-service\")  // must match spring.application.name\npublic interface ProductServiceClient {\n    @GetMapping(\"/api/products\")      List<Object> getAll();\n    @GetMapping(\"/api/products/{id}\") Object getById(@PathVariable String id);\n}\n\n// pom.xml dependencies for order-service:\n// spring-cloud-starter-netflix-eureka-client\n// spring-cloud-starter-openfeign\n// spring-cloud-starter-loadbalancer  ← required for url-less Feign!",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Start order: eureka-server → product-service → order-service",
+        "All three need spring-cloud-dependencies BOM in dependencyManagement",
+        "LoadBalancer dependency required when @FeignClient has no url="
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m15_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@SpringBootTest with Eureka — use @EnableDiscoveryClient(autoRegister=false)",
+      "scenario": "Disable Eureka registration in tests to avoid failures.",
+      "instructions": "Write a @SpringBootTest for a service that has Eureka configured. Show how to:\n1. Disable Eureka registration in tests (don't start Eureka just for tests)\n2. Use WireMock for downstream service HTTP calls\n3. Override the Feign client URL with @TestPropertySource to point to WireMock\n4. Still test the business logic end-to-end",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.context.TestPropertySource;\n// @SpringBootTest with Eureka disabled for tests\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.context.TestPropertySource;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.github.tomakehurst.wiremock.*;\nimport static com.github.tomakehurst.wiremock.client.WireMock.*;\nimport static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// Key: override properties to disable Eureka + point Feign to WireMock:\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\n@TestPropertySource(properties = {\n    // Disable Eureka registration (no Eureka server in test environment):\n    \"eureka.client.enabled=false\",\n    \"spring.cloud.discovery.enabled=false\",\n    // Point the Feign client to WireMock instead of Eureka-discovered URL:\n    // (re-add url= for the test profile only)\n    \"product-service.url=http://localhost:9801\"\n})\nclass OrderServiceEurekaDisabledTest {\n    static WireMockServer wm = new WireMockServer(wireMockConfig().port(9801));\n    @Autowired TradeService tradeService;\n    \n    @BeforeAll static void startWireMock() { wm.start(); }\n    @AfterAll  static void stopWireMock()  { wm.stop();  }\n    @BeforeEach void reset()               { wm.resetAll(); }\n    \n    @Test\n    void executeTrade_withMockedProductService_succeeds() {\n        wm.stubFor(get(\"/api/products/P001\")\n            .willReturn(okJson(\"{\\\"id\\\":\\\"P001\\\",\\\"name\\\":\\\"Mouse\\\",\\\"price\\\":799,\\\"inStock\\\":true}\")));\n        \n        assertDoesNotThrow(() -> tradeService.executeTrade(\"U01\", \"P001\", 5));\n    }\n}\n\n// Note: for @FeignClient without url=, you may also use:\n// spring.cloud.loadbalancer.ribbon.enabled=false\n// spring.cloud.loadbalancer.retry.enabled=false\n// And mock the Feign client with @MockBean instead of WireMock",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "eureka.client.enabled=false: disables Eureka registration in tests",
+        "@TestPropertySource: test-only property overrides",
+        "Alternatively: @MockBean FeignClient replaces Feign with Mockito mock"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m15_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Eureka heartbeat — what happens when a service dies?",
+      "scenario": "Eureka deregisters services that stop sending heartbeats.",
+      "instructions": "market-service is running and registered with Eureka. The process is killed (no graceful shutdown). Eureka lease settings:\n- lease-renewal-interval-in-seconds=10\n- lease-expiration-duration-in-seconds=30\n\nDescribe the timeline:\n- t=0: market-service killed\n- t=10s: ?\n- t=30s: ?\n- t=31s: order-service calls Feign marketClient.getQuote() — what happens?",
+      "expected_solution": "t=0: market-service killed — stops sending heartbeats\nt=10s: Eureka expects heartbeat (lease-renewal-interval) — none arrives, marks as missed\nt=30s: Lease expiration — Eureka removes market-service from registry (lease-expiration-duration exceeded)\nt=31s: order-service calls marketClient.getQuote():\n  - Feign asks LoadBalancer for market-service instances\n  - Registry shows 0 instances\n  - LoadBalancer throws NoInstanceAvailableException\n  - → order-service gets an error (500)\n  - With Resilience4j circuit breaker (Topic 15.4): returns fallback instead",
+      "test_cases": [
+        { "type": "text_match", "expected": "t=0: market-service killed — stops sending heartbeats\nt=10s: Eureka expects heartbeat (lease-renewal-interval) — none arrives, marks as missed\nt=30s: Lease expiration — Eureka removes market-service from registry (lease-expiration-duration exceeded)\nt=31s: order-service calls marketClient.getQuote():\n  - Feign asks LoadBalancer for market-service instances\n  - Registry shows 0 instances\n  - LoadBalancer throws NoInstanceAvailableException\n  - → order-service gets an error (500)\n  - With Resilience4j circuit breaker (Topic 15.4): returns fallback instead" }
+      ],
+      "hints": [
+        "Eureka doesn't know immediately — it waits for heartbeat timeout",
+        "After lease-expiration-duration: instance removed from registry",
+        "NoInstanceAvailableException: no registered instances for that service name"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Eureka + Actuator health integration",
+      "scenario": "Eureka uses Actuator health to determine instance status.",
+      "instructions": "Configure order-service so that:\n1. Eureka uses the /actuator/health endpoint to determine instance health\n2. If the order DB goes DOWN, Eureka marks the instance as OUT_OF_SERVICE\n3. Write a custom HealthIndicator that checks DB connectivity\n4. Show the Eureka/Actuator application.properties needed",
+      "starter_code": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n// HealthIndicator + Eureka-Actuator integration properties\n",
+      "expected_solution": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport javax.sql.DataSource;\nimport java.sql.Connection;\n\n// Custom health indicator:\n@Component\npublic class OrderDatabaseHealthIndicator implements HealthIndicator {\n    private final DataSource dataSource;\n    OrderDatabaseHealthIndicator(DataSource ds) { dataSource = ds; }\n    \n    @Override\n    public Health health() {\n        try (Connection conn = dataSource.getConnection()) {\n            conn.isValid(2);  // 2 second timeout\n            return Health.up().withDetail(\"db\", \"Order database is reachable\").build();\n        } catch (Exception e) {\n            return Health.down()\n                .withDetail(\"db\", \"Order database unreachable: \" + e.getMessage())\n                .build();\n        }\n    }\n}\n\n// application.properties — Eureka uses Actuator health:\n// # Enable health check for Eureka:\n// eureka.client.healthcheck.enabled=true\n// # Expose health endpoint:\n// management.endpoints.web.exposure.include=health,info\n// management.endpoint.health.show-details=always\n// # When health is DOWN, Eureka marks instance as OUT_OF_SERVICE:\n// # (Eureka reads /actuator/health and maps DOWN → OUT_OF_SERVICE)\n// # Other services stop routing to OUT_OF_SERVICE instances\n\npublic class Main { public static void main(String[] args) { System.out.println(\"Eureka uses Actuator health for instance status\"); } }",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Eureka uses Actuator health"] }
+      ],
+      "hints": [
+        "eureka.client.healthcheck.enabled=true: Eureka reads /actuator/health",
+        "Health.down() → Eureka marks instance OUT_OF_SERVICE",
+        "OUT_OF_SERVICE instances get no traffic — effective automatic isolation"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multi-profile Eureka config — dev vs prod",
+      "scenario": "Dev uses local Eureka; prod uses the production registry.",
+      "instructions": "Write three property files for multi-environment Eureka:\n1. `application.properties` — shared: service name, heartbeat intervals\n2. `application-dev.properties` — local Eureka at localhost:8761\n3. `application-prod.properties` — production Eureka at eureka.internal.company.com:8761\n\nAlso show @Profile('dev') DevDiscoveryController that logs all registered services at startup.",
+      "starter_code": "# application.properties\n# application-dev.properties\n# application-prod.properties\n// DevDiscoveryController.java\n",
+      "expected_solution": "# application.properties (shared):\nspring.application.name=market-service\neureka.instance.lease-renewal-interval-in-seconds=10\neureka.instance.lease-expiration-duration-in-seconds=30\neureka.instance.prefer-ip-address=true\neureka.instance.instance-id=${spring.application.name}:${server.port}\neureka.client.healthcheck.enabled=true\n\n# application-dev.properties:\nserver.port=8081\neureka.client.service-url.defaultZone=http://localhost:8761/eureka/\neureka.server.enable-self-preservation=false\nlogging.level.com.netflix.eureka=WARN\nlogging.level.com.netflix.discovery=WARN\n\n# application-prod.properties:\nserver.port=8080\neureka.client.service-url.defaultZone=http://eureka-a.internal.company.com:8761/eureka/,http://eureka-b.internal.company.com:8761/eureka/\neureka.instance.lease-renewal-interval-in-seconds=30\neureka.instance.lease-expiration-duration-in-seconds=90\nlogging.level.root=WARN\n\n// DevDiscoveryController.java:\nimport org.springframework.cloud.client.discovery.DiscoveryClient;\nimport org.springframework.context.annotation.Profile;\nimport org.springframework.stereotype.Component;\nimport javax.annotation.PostConstruct;\nimport java.util.List;\n@Component @Profile(\"dev\")\npublic class DevDiscoveryController {\n    private final DiscoveryClient discoveryClient;\n    DevDiscoveryController(DiscoveryClient dc) { discoveryClient = dc; }\n    @PostConstruct\n    public void logRegisteredServices() {\n        // Wait for Eureka to fetch registry:\n        try { Thread.sleep(3000); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        System.out.println(\"[DEV] Registered services:\");\n        discoveryClient.getServices().forEach(svc -> {\n            List<?> instances = discoveryClient.getInstances(svc);\n            System.out.println(\"  \" + svc + \": \" + instances.size() + \" instance(s)\");\n        });\n    }\n}",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["application.properties", "application-dev.properties", "application-prod.properties"] }
+      ],
+      "hints": [
+        "Prod: two Eureka URLs separated by comma — high availability",
+        "Prod: longer lease intervals (30s/90s) to reduce churn",
+        "@Profile('dev') DevDiscoveryController: only in dev, never in prod"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Service registry client — build your own discovery endpoint",
+      "scenario": "Expose a /registry endpoint that shows all services and instances.",
+      "instructions": "Build a `RegistryController` in the Eureka-aware admin service:\n1. GET /admin/registry → map of {serviceName: [instances]} for all services\n2. GET /admin/registry/{service} → detailed info: host, port, status, metadata\n3. GET /admin/registry/{service}/count → count of UP instances only\n4. Uses DiscoveryClient and ServiceInstance\n\nTest with @SpringBootTest.",
+      "starter_code": "import org.springframework.cloud.client.*;\nimport org.springframework.cloud.client.discovery.DiscoveryClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.*;\n// RegistryController\n",
+      "expected_solution": "import org.springframework.cloud.client.*;\nimport org.springframework.cloud.client.discovery.DiscoveryClient;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport org.springframework.stereotype.Controller;\n\n@RestController @RequestMapping(\"/admin/registry\")\npublic class RegistryController {\n    private final DiscoveryClient discoveryClient;\n    RegistryController(DiscoveryClient dc) { discoveryClient = dc; }\n    \n    // All services and instance count:\n    @GetMapping\n    public Map<String, Object> getAllServices() {\n        Map<String, Object> result = new LinkedHashMap<>();\n        discoveryClient.getServices().forEach(svc -> {\n            List<ServiceInstance> instances = discoveryClient.getInstances(svc);\n            result.put(svc, Map.of(\n                \"count\", instances.size(),\n                \"uris\",  instances.stream().map(i -> i.getUri().toString()).toList()\n            ));\n        });\n        return result;\n    }\n    \n    // Detailed info for one service:\n    @GetMapping(\"/{service}\")\n    public ResponseEntity<List<Map<String,Object>>> getServiceDetails(\n            @PathVariable String service) {\n        List<ServiceInstance> instances = discoveryClient.getInstances(service);\n        if (instances.isEmpty()) return ResponseEntity.notFound().build();\n        \n        List<Map<String,Object>> details = instances.stream()\n            .map(i -> Map.of(\n                \"instanceId\", i.getInstanceId(),\n                \"host\",       i.getHost(),\n                \"port\",       i.getPort(),\n                \"uri\",        i.getUri().toString(),\n                \"metadata\",   i.getMetadata()\n            ))\n            .collect(Collectors.toList());\n        return ResponseEntity.ok(details);\n    }\n    \n    // Count UP instances (Eureka considers all registered instances UP):\n    @GetMapping(\"/{service}/count\")\n    public Map<String,Object> getInstanceCount(@PathVariable String service) {\n        int count = discoveryClient.getInstances(service).size();\n        return Map.of(\"service\", service, \"upInstances\", count);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "discoveryClient.getInstances('name'): List<ServiceInstance>",
+        "instance.getUri(): http://host:port",
+        "instance.getMetadata(): Map<String,String> custom metadata from client"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m15_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Instance metadata — pass environment info through Eureka",
+      "scenario": "Services can register custom metadata (version, region, color for blue-green).",
+      "instructions": "Configure order-service to register with custom metadata:\n- version: 2.0.1\n- environment: production\n- datacenter: ap-south-1\n\nWrite a `SmartLoadBalancerFilter` that prefers instances with matching version metadata. Show the application.properties for metadata.",
+      "starter_code": "import org.springframework.cloud.client.*;\nimport org.springframework.cloud.loadbalancer.core.*;\n// Custom metadata + SmartLoadBalancerFilter\n",
+      "expected_solution": "// application.properties — register with custom metadata:\n// eureka.instance.metadata-map.version=2.0.1\n// eureka.instance.metadata-map.environment=production\n// eureka.instance.metadata-map.datacenter=ap-south-1\n// eureka.instance.metadata-map.color=blue\n\n// Reading metadata in a service:\nimport org.springframework.cloud.client.ServiceInstance;\nimport org.springframework.cloud.client.discovery.DiscoveryClient;\nimport org.springframework.stereotype.Component;\nimport org.springframework.beans.factory.annotation.Value;\nimport javax.annotation.PostConstruct;\nimport java.util.*;\n\n@Component\npublic class VersionAwareRouter {\n    private final DiscoveryClient discoveryClient;\n    @Value(\"${app.preferred-version:2.0.1}\")\n    private String preferredVersion;\n    \n    VersionAwareRouter(DiscoveryClient dc) { discoveryClient = dc; }\n    \n    // Find instances of a service matching the preferred version:\n    public Optional<ServiceInstance> findCompatibleInstance(String serviceName) {\n        return discoveryClient.getInstances(serviceName).stream()\n            .filter(instance -> preferredVersion.equals(\n                instance.getMetadata().get(\"version\")))\n            .findFirst();  // pick first matching version\n    }\n    \n    @PostConstruct\n    public void logVersions() {\n        discoveryClient.getServices().forEach(svc ->\n            discoveryClient.getInstances(svc).forEach(instance ->\n                System.out.printf(\"  %s @ %s  version=%s%n\",\n                    svc,\n                    instance.getUri(),\n                    instance.getMetadata().getOrDefault(\"version\", \"unknown\"))\n            )\n        );\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "eureka.instance.metadata-map.KEY=VALUE: register custom metadata",
+        "instance.getMetadata().get('version'): read metadata from a discovered instance",
+        "This powers blue-green deployment, canary releases, version routing"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m15_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha trading platform — Eureka integrated",
+      "scenario": "Full microservices platform with Eureka discovery, no hardcoded URLs.",
+      "instructions": "Build the complete Zerodha trading platform with Eureka:\n1. `eureka-server` (port 8761): @EnableEurekaServer, full config\n2. `market-service` (port 8081): @EnableDiscoveryClient, stock quote endpoint\n3. `order-service` (port 8082): @EnableDiscoveryClient + @EnableFeignClients, MarketServiceClient (no url=)\n4. `TradeService.executeTrade()`: uses Feign to discover market-service\n5. Show all three application.properties\n6. Write test for order-service with Eureka disabled (use @MockBean MarketServiceClient)\n\nAll compile. Test passes.",
+      "starter_code": "// Complete Zerodha platform with Eureka\n// eureka-server, market-service, order-service\n// All configs + test\n",
+      "expected_solution": "// ── EUREKA SERVER ──────────────────────────────────────────\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;\n@SpringBootApplication @EnableEurekaServer\npublic class EurekaServerApplication { public static void main(String[] a){ SpringApplication.run(EurekaServerApplication.class,a); } }\n// server.port=8761 | register-with-eureka=false | fetch-registry=false\n\n// ── MARKET SERVICE ─────────────────────────────────────────\nimport org.springframework.cloud.client.discovery.EnableDiscoveryClient;\n@SpringBootApplication @EnableDiscoveryClient\npublic class MarketServiceApplication { public static void main(String[] a){ SpringApplication.run(MarketServiceApplication.class,a); } }\n\n@RestController @RequestMapping(\"/api/stocks\")\nclass StockController {\n    record StockQuote(String symbol, double price, boolean tradeable) {}\n    @GetMapping(\"/{symbol}/quote\")\n    StockQuote getQuote(@PathVariable String symbol) {\n        return new StockQuote(symbol, symbol.equals(\"TCS\") ? 3890.0 : 1560.0, true);\n    }\n}\n// server.port=8081 | spring.application.name=market-service\n// eureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n// eureka.instance.instance-id=${spring.application.name}:${server.port}\n\n// ── ORDER SERVICE ──────────────────────────────────────────\nimport org.springframework.cloud.openfeign.*;\nimport org.springframework.cloud.client.discovery.EnableDiscoveryClient;\n@SpringBootApplication @EnableDiscoveryClient @EnableFeignClients\npublic class OrderServiceApplication { public static void main(String[] a){ SpringApplication.run(OrderServiceApplication.class,a); } }\n\n@FeignClient(name=\"market-service\")  // NO url= — Eureka handles it\ninterface MarketServiceClient {\n    record StockQuote(String symbol, double price, boolean tradeable) {}\n    @GetMapping(\"/api/stocks/{symbol}/quote\") StockQuote getQuote(@PathVariable String symbol);\n}\n\nimport org.springframework.stereotype.Service;\n@Service class TradeService {\n    private final MarketServiceClient marketClient;\n    TradeService(MarketServiceClient mc) { marketClient=mc; }\n    public String executeTrade(String userId, String symbol, int qty) {\n        var quote = marketClient.getQuote(symbol);\n        if(!quote.tradeable()) throw new IllegalStateException(symbol+\" not tradeable\");\n        return \"TRD-\"+symbol+\"-\"+qty+\"@\"+quote.price();\n    }\n}\n// server.port=8082 | spring.application.name=order-service\n// eureka.client.service-url.defaultZone=http://localhost:8761/eureka/\n\n// ── TEST ───────────────────────────────────────────────────\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties={\"eureka.client.enabled=false\",\"spring.cloud.discovery.enabled=false\"})\nclass TradeServiceTest {\n    @MockBean MarketServiceClient marketClient;  // replaces Feign proxy\n    @Autowired TradeService tradeService;\n    @Test void executeTrade_success() {\n        when(marketClient.getQuote(\"TCS\")).thenReturn(new MarketServiceClient.StockQuote(\"TCS\",3890.0,true));\n        String result = tradeService.executeTrade(\"U01\",\"TCS\",10);\n        assertTrue(result.startsWith(\"TRD-TCS\"));\n    }\n    @Test void executeTrade_notTradeable_throws() {\n        when(marketClient.getQuote(\"PAYTM\")).thenReturn(new MarketServiceClient.StockQuote(\"PAYTM\",475.0,false));\n        assertThrows(IllegalStateException.class,()->tradeService.executeTrade(\"U01\",\"PAYTM\",10));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "eureka.client.enabled=false: disables Eureka completely for tests",
+        "@MockBean MarketServiceClient: replaces Feign proxy with Mockito mock",
+        "Test verifies business logic without any network calls"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 65
+  }
+}

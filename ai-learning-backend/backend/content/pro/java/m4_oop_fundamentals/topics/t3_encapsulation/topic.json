@@ -1,0 +1,245 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t3",
+  "language": "java",
+  "module_id": "m4",
+  "module_name": "Object-Oriented Programming Fundamentals",
+  "topic_number": 3,
+  "name": "Encapsulation",
+  "slug": "encapsulation",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m4_t1", "java_m4_t2"],
+    "concepts_taught": [
+      "encapsulation_principle",
+      "private_access_modifier",
+      "public_access_modifier",
+      "getter_methods",
+      "setter_methods",
+      "validation_in_setters",
+      "immutability_as_design_choice",
+      "javabean_naming_convention",
+      "default_access_briefly",
+      "encapsulation_benefits"
+    ],
+    "skills_developed": [
+      "designing_encapsulated_classes",
+      "writing_getters_and_setters",
+      "validating_in_setters",
+      "deciding_when_to_allow_modification",
+      "designing_immutable_classes",
+      "reading_encapsulated_code"
+    ],
+    "career_relevance": "Encapsulation is the FIRST PILLAR of OOP and the most consistently applied concept in production Java. Every Spring entity, JPA model, DTO, and Jackson-serialized class follows this pattern: private fields, public getters/setters. IDEs like IntelliJ have keyboard shortcuts dedicated to generating these. Frameworks (Hibernate, Jackson, Spring) require this convention. Plus, encapsulation enables refactoring freedom — you can change a class's internal implementation without breaking callers. After this topic, your code looks like real Java code.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Look at the Product class from last topic. The constructor validates beautifully:\n\n```java\nProduct p = new Product(101, \"Mouse\", 45, 599.99);  // validated, all good\np.price = -999;        // ...and now the price is negative\np.stock = -1000;       // ...and stock is negative\np.name = null;         // ...and name is null\n```\n\nAll the constructor's careful validation? Bypassed. Anyone with a reference can mutate fields to nonsense values. Now your 'valid' object is broken — and the bug appears later, far from where it was caused.\n\nThis is the missing piece: **encapsulation**. The constructor protects creation. Encapsulation protects EVERYTHING ELSE.\n\nBy making fields PRIVATE and exposing controlled access through methods, you lock down your objects:\n- Direct reads still work via getter methods: `p.getPrice()`\n- Modifications go through setter methods: `p.setPrice(99.99)` — which can VALIDATE just like the constructor\n- Outside code CANNOT touch the fields directly\n\nThis is THE most important OOP principle. Every professional Java codebase follows it. Every Spring entity, every JPA model, every DTO. After this topic, your classes look like real Java code.",
+    "what_you_will_build": "By the end of this topic, you'll understand encapsulation: WHY it matters, the `private` and `public` access modifiers, how to write getters and setters (with validation), the JavaBean naming convention, and when to make a class IMMUTABLE (no setters at all). You'll refactor your Product, Movie, and Book classes from previous topics to be production-quality encapsulated classes. This is the level of code real Java developers write daily."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**Encapsulation** is the practice of HIDING an object's internal data and exposing only controlled access through methods.\n\nThe key principle: **fields private, methods public**.\n\nThree benefits:\n1. **Validation**: every modification goes through code you write, which can reject bad data\n2. **Implementation freedom**: you can change HOW the class works internally without breaking callers\n3. **Documentation**: the public methods ARE the documented interface of the class\n\nIn pre-OOP code, data is exposed directly — anyone can read, anyone can write. In OOP, data is hidden — access only through the class's own methods. Think of it as the difference between leaving cash on a table vs. putting it in a vault with a controlled access procedure.\n\nThis is one of OOP's 'four pillars': Encapsulation, Inheritance, Polymorphism, Abstraction. Today we focus on Encapsulation — the most foundational.",
+      
+      "the_problem": "Let's see the problem with public fields concretely:\n\n```java\nclass BankAccount {\n    String holderName;\n    double balance;\n    \n    public BankAccount(String holderName, double balance) {\n        if (balance < 0) throw new IllegalArgumentException(\"Balance cannot be negative\");\n        this.holderName = holderName;\n        this.balance = balance;\n    }\n}\n\nBankAccount acc = new BankAccount(\"Aisha\", 1000);\nacc.balance = -50000;  // Hello, free money\n```\n\nThe constructor refused negative balances. But after creation, ANYONE can set the balance to anything. In a banking app, this is a CRITICAL bug. The validation was a fence — but the gate was wide open.\n\nReal-world impact:\n- Banking: invalid balances\n- E-commerce: negative prices, products with no name\n- Healthcare: patient records with invalid age (-5 or 350)\n- Configuration: app config silently overwritten\n\nAll these bugs come from the same root cause: public fields allow uncontrolled access.",
+      
+      "private_access": "The `private` access modifier restricts visibility. A `private` field can ONLY be accessed from INSIDE the class that defines it. Outside code can't see it.\n\n```java\nclass BankAccount {\n    private String holderName;   // private — outside code can't see this\n    private double balance;       // private — outside code can't see this\n}\n\nBankAccount acc = new BankAccount(\"Aisha\", 1000);\nSystem.out.println(acc.balance);  // COMPILATION ERROR!\nacc.balance = -50000;             // COMPILATION ERROR!\n```\n\nThe compiler refuses to access `acc.balance` because it's private. This is enforcement at compile time — not just a convention.\n\n**Inside the class itself**, you CAN access private fields freely:\n\n```java\nclass BankAccount {\n    private String holderName;\n    private double balance;\n    \n    public BankAccount(String holderName, double balance) {\n        this.holderName = holderName;\n        this.balance = balance;  // OK — we're inside the class\n    }\n    \n    public double doubleBalance() {\n        return balance * 2;  // OK — inside the class\n    }\n}\n```\n\nThe constructor and instance methods are part of the class, so they have access. Outside code does not.",
+      
+      "getters": "If fields are private, how does outside code READ values? Through **getter methods**.\n\nA getter is a method that returns the value of a private field. By convention:\n- Method name: `get` + FieldName (in PascalCase)\n- Takes no parameters\n- Returns the field's type\n\n```java\nclass BankAccount {\n    private String holderName;\n    private double balance;\n    \n    public String getHolderName() {\n        return holderName;\n    }\n    \n    public double getBalance() {\n        return balance;\n    }\n}\n\nBankAccount acc = new BankAccount(\"Aisha\", 1000);\nSystem.out.println(acc.getBalance());  // Works — uses the getter\nSystem.out.println(acc.balance);       // STILL a compilation error\n```\n\n**Why have a getter that just returns the field?** Three reasons:\n1. **Future-proofing**: today it's a simple return. Tomorrow you might add logging, caching, or computed values. Callers don't change.\n2. **Read-only access**: if you want callers to read but not write, provide a getter and NO setter.\n3. **JavaBean convention**: Java frameworks (Spring, Jackson, JPA) discover fields via getter naming.\n\n**Special case: boolean fields use `is` prefix**:\n\n```java\nprivate boolean active;\n\npublic boolean isActive() {  // 'is' instead of 'get' for booleans\n    return active;\n}\n```",
+      
+      "setters": "To MODIFY a private field, use a **setter method**. Convention:\n- Method name: `set` + FieldName\n- Takes one parameter of the field's type\n- Returns void (typically)\n\n```java\nclass BankAccount {\n    private String holderName;\n    private double balance;\n    \n    public void setHolderName(String holderName) {\n        this.holderName = holderName;\n    }\n    \n    public void setBalance(double balance) {\n        this.balance = balance;\n    }\n}\n\nBankAccount acc = new BankAccount(\"Aisha\", 1000);\nacc.setBalance(2000);  // OK, uses the setter\n```\n\nSo far this looks pointless — we removed direct field access, then provided a method that allows direct field access. The point is: **setters can VALIDATE**.",
+      
+      "validation_in_setters": "**The real power of setters is validation** — refusing to set invalid values.\n\n```java\nclass BankAccount {\n    private String holderName;\n    private double balance;\n    \n    public void setBalance(double balance) {\n        if (balance < 0) {\n            throw new IllegalArgumentException(\"Balance cannot be negative\");\n        }\n        this.balance = balance;\n    }\n    \n    public void setHolderName(String holderName) {\n        if (holderName == null || holderName.isBlank()) {\n            throw new IllegalArgumentException(\"Name cannot be empty\");\n        }\n        this.holderName = holderName;\n    }\n}\n\nBankAccount acc = new BankAccount(\"Aisha\", 1000);\nacc.setBalance(-50000);  // Throws IllegalArgumentException — REJECTED\n```\n\nNow:\n- Constructor validation prevents bad CREATION\n- Setter validation prevents bad MODIFICATION\n- Combined: the object is GUARANTEED valid at ALL times\n\nThis is the holy grail of object design. No external code can ever cause your object to be in an invalid state. Bugs caught at the source.",
+      
+      "deciding_what_to_expose": "**Not every field needs a setter.** Design choices:\n\n**Pattern 1: Read-only field** (getter, no setter)\n\n```java\nclass User {\n    private final String id;     // can't change after creation\n    private String name;          // can change\n    \n    public String getId() { return id; }\n    public String getName() { return name; }\n    public void setName(String name) { ... }\n    // No setId method!\n}\n```\n\nThe user's ID never changes after creation. We provide a getter (to read) but NO setter (can't modify). The `final` keyword on the field is a bonus — Java itself prevents reassignment.\n\n**Pattern 2: Computed field** (getter computes, no underlying field)\n\n```java\nclass Rectangle {\n    private double width;\n    private double height;\n    \n    public double getArea() {\n        return width * height;  // computed on demand\n    }\n}\n```\n\nNo `area` field — it's computed when asked. Callers don't know or care.\n\n**Pattern 3: Hidden internal state**\n\n```java\nclass StringBuffer {\n    private char[] internalArray;  // implementation detail\n    private int length;\n    \n    public int length() { return length; }\n    public void append(String s) { /* manages array internally */ }\n}\n```\n\nNo getter for the array. Callers can't see HOW data is stored — only the operations.",
+      
+      "immutable_classes": "**Immutable class**: an object whose state CANNOT change after creation. No setters. All fields are typically `final`.\n\n```java\nclass Money {\n    private final double amount;\n    private final String currency;\n    \n    public Money(double amount, String currency) {\n        this.amount = amount;\n        this.currency = currency;\n    }\n    \n    public double getAmount() { return amount; }\n    public String getCurrency() { return currency; }\n    \n    public Money add(Money other) {\n        if (!this.currency.equals(other.currency)) {\n            throw new IllegalArgumentException(\"Currency mismatch\");\n        }\n        return new Money(this.amount + other.amount, this.currency);  // NEW object\n    }\n}\n```\n\nNotice: `add` doesn't modify `this` — it returns a NEW Money object. Original is unchanged. This is how `String` works — every 'modification' returns a new String.\n\n**When to make immutable**:\n- Value objects (Money, Point, Date)\n- Configuration\n- Anything passed around heavily that shouldn't change\n- Anything that needs to be thread-safe (immutable = automatically thread-safe)\n\n**Modern Java preference**: lean toward immutable. Mutability creates bugs; immutability prevents them.",
+      
+      "access_modifiers_overview": "Java has FOUR access levels:\n\n| Modifier | Visible from |\n|----------|--------------|\n| `public` | Anywhere |\n| `private` | Same class only |\n| `protected` | Same package + subclasses (covered in inheritance) |\n| no modifier (default/package-private) | Same package only |\n\nFor Topic 4.3, focus on `public` and `private`. They're 95% of what you'll use:\n- Fields: almost always `private`\n- Methods that are the public interface: `public`\n- Helper methods inside the class: usually `private`\n\nWe'll cover `protected` and default access in Module 5 (Inheritance & Polymorphism)."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a BankAccount class as a 'safe' box. Inside: 'PRIVATE: holderName, balance' (locked vault). Outside: 'PUBLIC: getHolderName(), setBalance(amount), getBalance()' as labeled doors. Arrows from outside: external code can only enter through the public doors. Direct attempts to access private fields hit a wall labeled 'COMPILATION ERROR'. Side panel: comparison of public fields (arrows going in and out freely, including bad values like '-50000') vs encapsulated (arrows must pass through setter which has a validation gate that filters bad values).",
+      "alt_text": "Visual showing encapsulated class as a secure box with private fields and controlled access through public methods"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Time to complete the Product class transformation. We started in Module 3 with parallel arrays. Topic 4.1 introduced the Product class. Topic 4.2 added a validating constructor. Now Topic 4.3 makes it BULLETPROOF — fields private, all access controlled, validation enforced both at creation AND modification.",
+    
+    "problem_statement": "Refactor Product to be fully encapsulated:\n1. ALL fields private\n2. Getters for all fields (allow reading)\n3. Setters with validation for name, stock, price (allow controlled modification)\n4. NO setter for id (it's read-only — once assigned, never changes)\n5. Use final on id for extra protection\n6. Demonstrate: valid modifications work, invalid ones are rejected, direct field access is blocked",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Make fields private (and id final)",
+        "details": "```java\nclass Product {\n    private final int id;       // private + final — read-only forever\n    private String name;         // private — modifiable through setter\n    private int stock;\n    private double price;\n    \n    // constructor and methods below\n}\n```\n\nThree changes:\n- `private` keyword in front of each field\n- `final` on `id` — prevents even internal reassignment (extra safety)\n- All fields are private — outside code can't see them"
+      },
+      {
+        "step": 2,
+        "action": "Update the constructor (it still validates)",
+        "details": "Constructor unchanged from Topic 4.2 — validation logic stays:\n\n```java\npublic Product(int id, String name, int stock, double price) {\n    if (id <= 0) throw new IllegalArgumentException(\"ID must be positive\");\n    if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name cannot be empty\");\n    if (stock < 0) throw new IllegalArgumentException(\"Stock cannot be negative\");\n    if (price < 0) throw new IllegalArgumentException(\"Price cannot be negative\");\n    \n    this.id = id;\n    this.name = name;\n    this.stock = stock;\n    this.price = price;\n}\n```\n\nThe constructor CAN write to `final` fields (this is the one allowed assignment). After construction, `id` is locked."
+      },
+      {
+        "step": 3,
+        "action": "Add getters for all fields",
+        "details": "```java\npublic int getId() { return id; }\npublic String getName() { return name; }\npublic int getStock() { return stock; }\npublic double getPrice() { return price; }\n```\n\nFour one-liners. Outside code can READ any value. They just can't write directly."
+      },
+      {
+        "step": 4,
+        "action": "Add validating setters (except for id)",
+        "details": "```java\npublic void setName(String name) {\n    if (name == null || name.isBlank()) {\n        throw new IllegalArgumentException(\"Name cannot be empty\");\n    }\n    this.name = name;\n}\n\npublic void setStock(int stock) {\n    if (stock < 0) {\n        throw new IllegalArgumentException(\"Stock cannot be negative\");\n    }\n    this.stock = stock;\n}\n\npublic void setPrice(double price) {\n    if (price < 0) {\n        throw new IllegalArgumentException(\"Price cannot be negative\");\n    }\n    this.price = price;\n}\n\n// NO setId method! Id is read-only.\n```\n\nThree setters, each with the same validation the constructor uses. Note: NO `setId` because id should never change after creation."
+      },
+      {
+        "step": 5,
+        "action": "Keep the describe method (uses fields directly — internal access is fine)",
+        "details": "```java\npublic String describe() {\n    return \"#\" + id + \" \" + name + \" — Stock: \" + stock + \", Price: ₹\" + price;\n}\n```\n\nNo change. Inside the class, fields are directly accessible. We don't need to call getters from inside our own methods.\n\n(Some teams prefer using getters even internally — for consistency. Either way is fine. Direct is more common.)"
+      },
+      {
+        "step": 6,
+        "action": "Demonstrate in main: encapsulation in action",
+        "details": "```java\npublic static void main(String[] args) {\n    Product p = new Product(101, \"Wireless Mouse\", 45, 599.99);\n    System.out.println(p.describe());\n    \n    // Valid modifications via setters\n    p.setPrice(549.99);\n    p.setStock(38);\n    System.out.println(\"After updates: \" + p.describe());\n    \n    // Invalid modifications rejected\n    try {\n        p.setPrice(-100);\n    } catch (IllegalArgumentException e) {\n        System.out.println(\"Rejected: \" + e.getMessage());\n    }\n    \n    try {\n        p.setStock(-5);\n    } catch (IllegalArgumentException e) {\n        System.out.println(\"Rejected: \" + e.getMessage());\n    }\n    \n    // Direct field access fails AT COMPILE TIME (not shown — would block compilation)\n    // p.price = -999;  // COMPILE ERROR: price has private access\n    \n    // Reads work through getters\n    System.out.println(\"Final price: ₹\" + p.getPrice());\n    System.out.println(\"Final stock: \" + p.getStock());\n}\n```\n\nNotice the impossibility — `p.price = -999` is commented out because it WON'T COMPILE. The protection is enforced by the language."
+      }
+    ],
+    
+    "final_code": "class Product {\n    private final int id;\n    private String name;\n    private int stock;\n    private double price;\n    \n    public Product(int id, String name, int stock, double price) {\n        if (id <= 0) throw new IllegalArgumentException(\"ID must be positive\");\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name cannot be empty\");\n        if (stock < 0) throw new IllegalArgumentException(\"Stock cannot be negative\");\n        if (price < 0) throw new IllegalArgumentException(\"Price cannot be negative\");\n        \n        this.id = id;\n        this.name = name;\n        this.stock = stock;\n        this.price = price;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    public int getStock() { return stock; }\n    public double getPrice() { return price; }\n    \n    public void setName(String name) {\n        if (name == null || name.isBlank()) {\n            throw new IllegalArgumentException(\"Name cannot be empty\");\n        }\n        this.name = name;\n    }\n    \n    public void setStock(int stock) {\n        if (stock < 0) {\n            throw new IllegalArgumentException(\"Stock cannot be negative\");\n        }\n        this.stock = stock;\n    }\n    \n    public void setPrice(double price) {\n        if (price < 0) {\n            throw new IllegalArgumentException(\"Price cannot be negative\");\n        }\n        this.price = price;\n    }\n    \n    public String describe() {\n        return \"#\" + id + \" \" + name + \" — Stock: \" + stock + \", Price: ₹\" + price;\n    }\n}\n\npublic class ProductV3 {\n    public static void main(String[] args) {\n        Product p = new Product(101, \"Wireless Mouse\", 45, 599.99);\n        System.out.println(p.describe());\n        \n        p.setPrice(549.99);\n        p.setStock(38);\n        System.out.println(\"After updates: \" + p.describe());\n        \n        try {\n            p.setPrice(-100);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Rejected: \" + e.getMessage());\n        }\n        \n        try {\n            p.setStock(-5);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Rejected: \" + e.getMessage());\n        }\n        \n        System.out.println(\"Final price: ₹\" + p.getPrice());\n        System.out.println(\"Final stock: \" + p.getStock());\n    }\n}",
+    
+    "expected_output": "#101 Wireless Mouse — Stock: 45, Price: ₹599.99\nAfter updates: #101 Wireless Mouse — Stock: 38, Price: ₹549.99\nRejected: Price cannot be negative\nRejected: Stock cannot be negative\nFinal price: ₹549.99\nFinal stock: 38",
+    
+    "things_to_notice": [
+      "The Product class is now BULLETPROOF. Cannot create invalid (constructor catches). Cannot modify to invalid (setters catch). Cannot access fields directly (compiler prevents).",
+      "The `id` has no setter and is `final` — it's truly immutable after creation. Once assigned, no code anywhere can change it.",
+      "Validation logic is duplicated between constructor and setters. Real codebases often extract this into private helper methods. We're keeping it simple here.",
+      "Outside code is forced to use the API: getters to read, setters to write. The class controls everything.",
+      "Notice we still use fields directly inside `describe()` — internal access is fine. The encapsulation rule is about EXTERNAL access.",
+      "Compare to V1 (Topic 4.1): public fields, no validation anywhere. V2 (Topic 4.2): validating constructor, but still mutable public fields. V3 (today): properly encapsulated.",
+      "Real Spring/JPA entities look EXACTLY like this — private fields, public getters/setters with validation, often using annotations like `@NotNull` and `@Positive` (covered in advanced Spring topics)."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Framework entities (every modern Java backend)",
+        "use_case": "Every JPA `@Entity` follows this pattern: private fields, public getters/setters. Spring Data JPA uses reflection to read getters and writes via setters. Without encapsulation, the framework can't function. This is universal — billions of objects flow through this pattern daily."
+      },
+      {
+        "company_context": "Jackson JSON serialization (every REST API)",
+        "use_case": "When your Java object converts to JSON for an API response, Jackson finds the public getters and uses their names (minus 'get') as JSON field names. Private fields without getters? Invisible. The JavaBean naming convention is the API contract."
+      },
+      {
+        "company_context": "Banking & financial software",
+        "use_case": "Money objects are typically IMMUTABLE. Transaction objects are immutable. Account balances are private with controlled deposit/withdraw methods (not setBalance!). This isn't optional — auditors require it. Direct mutation of balance fields would fail compliance reviews."
+      },
+      {
+        "company_context": "Library API design (any open-source Java library)",
+        "use_case": "Apache Commons, Google Guava, Spring — millions of developers depend on these. If the library exposed public fields, every internal refactor would BREAK callers. Encapsulation lets libraries evolve internally while keeping their public API stable. This is professional library design."
+      }
+    ],
+    
+    "interview_relevance": "Encapsulation is a TOP interview topic:\n\n- **'What is encapsulation?'** — Definition question. Watch for: 'hiding internal data, exposing through methods.'\n- **'What's the purpose of getters and setters?'** — Beyond 'access private fields': validation, future-proofing, control.\n- **'When would you NOT provide a setter?'** — Read-only fields, immutable classes, computed properties.\n- **'How is encapsulation different from abstraction?'** — Encapsulation = HIDING, abstraction = SIMPLIFYING the interface. Often used together.\n- **'Design a class for X with proper encapsulation'** — System design staple.\n\nCode review red flags (real job feedback):\n- 'Don't make these fields public' — daily comment in code reviews\n- 'This setter needs validation'\n- 'This class should be immutable'\n- 'Why is there a setter for ID? IDs shouldn't change.'\n\nAfter this topic, you write classes that PASS code review.",
+    
+    "real_world_workflow": "Daily encapsulation:\n\n- Defining a new domain class: ALL fields private, getters where needed, setters only where mutation is allowed\n- Reading external code: getter/setter pattern is everywhere — Spring Beans, DTOs, JPA entities, Lombok @Data classes\n- Code review: enforcing 'no public fields' as a team rule\n- Refactoring: changing internal field representation without breaking callers (the encapsulation payoff)\n- API design: deciding 'is this field public-API or internal?'\n- IDE shortcuts: most IDEs have one-click generation of getters/setters (IntelliJ: Alt+Insert → Getter and Setter)\n\nLombok (a popular Java library) provides `@Getter`, `@Setter`, `@Data` annotations that auto-generate this boilerplate. But you must understand the pattern first — Lombok just saves typing."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "leaving_fields_public",
+      "what_students_get_wrong": "Forgetting to make fields private. Falling back to public fields out of habit from procedural code.",
+      "remediation": "DEFAULT: every field should be private. If you find yourself making a field public, ask 'why?' — usually the answer is 'I shouldn't have.'",
+      "detection_pattern": "Code reviews catching public fields"
+    },
+    {
+      "gap_id": "setter_without_validation",
+      "what_students_get_wrong": "Writing a setter that just assigns the parameter to the field — no validation. This is just as bad as a public field.",
+      "remediation": "If a setter just does `this.x = x;` you might as well have a public field. Add validation, or consider if a setter is even needed.",
+      "detection_pattern": "Setters with single assignment line"
+    },
+    {
+      "gap_id": "getter_for_mutable_field",
+      "what_students_get_wrong": "Returning a mutable object (array, list) from a getter — outside code can then mutate it and break encapsulation.",
+      "remediation": "For array/list fields, either return a COPY (`Arrays.copyOf`) or wrap in unmodifiable view. Otherwise, your private list is effectively public.",
+      "detection_pattern": "Outside code modifying 'private' lists/arrays"
+    },
+    {
+      "gap_id": "providing_setter_for_id",
+      "what_students_get_wrong": "Auto-generating a setter for id, then someone changes ID after creation — chaos.",
+      "remediation": "ID fields typically should NOT have setters. Once an object has an ID, it should be permanent. Skip the setter for any field that shouldn't change.",
+      "detection_pattern": "setId() methods in domain models"
+    },
+    {
+      "gap_id": "wrong_javabean_naming",
+      "what_students_get_wrong": "Naming a getter `name()` instead of `getName()`, or `bal()` instead of `getBalance()`.",
+      "remediation": "Follow JavaBean convention: get + PascalCase for getters, set + PascalCase for setters, is + PascalCase for boolean getters. Frameworks depend on this.",
+      "detection_pattern": "Spring/Jackson failing to find properties"
+    },
+    {
+      "gap_id": "boolean_using_get_prefix",
+      "what_students_get_wrong": "Naming boolean getter `getActive()` instead of `isActive()`.",
+      "remediation": "Boolean getters use `is` prefix: `isActive()`, `isEmpty()`, `isValid()`. Some frameworks accept both, but `is` is standard.",
+      "detection_pattern": "Inconsistent boolean naming"
+    },
+    {
+      "gap_id": "validating_in_getter",
+      "what_students_get_wrong": "Putting validation in getters. Getters should be cheap and side-effect-free.",
+      "remediation": "Getters READ. Setters/constructors VALIDATE. Mixing them confuses callers (who expect getters to be fast and pure).",
+      "detection_pattern": "Getters that throw exceptions or have complex logic"
+    },
+    {
+      "gap_id": "duplicating_validation_logic",
+      "what_students_get_wrong": "Constructor and setters both have identical validation code, copied. Bug-prone when rules change.",
+      "remediation": "Extract validation into a private helper method (e.g., `private void validatePrice(double price)`). Constructor and setter both call it. One source of truth.",
+      "detection_pattern": "Copy-pasted validation logic"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Encapsulation: hide internal data (fields private), expose controlled access (public methods)",
+      "Fields should ALMOST ALWAYS be private — public fields are a red flag",
+      "Getters read fields (convention: get + FieldName, or is + FieldName for booleans)",
+      "Setters modify fields (convention: set + FieldName)",
+      "Setters should VALIDATE — that's their real purpose",
+      "Not every field needs a setter — ID fields, computed values, immutable objects skip setters",
+      "Immutable classes: no setters, all fields final. Modern Java preference where applicable.",
+      "JavaBean convention (get/set/is prefixes) is required by Spring, Jackson, JPA, every framework",
+      "Inside a class, you can access your own private fields directly (no getter needed)",
+      "Encapsulation + constructor validation = bulletproof objects: never in an invalid state",
+      "This is the most important OOP pillar — every professional Java codebase follows it"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why does this not compile?\n```java\nclass Dog {\n    private String name;\n}\n\nDog d = new Dog();\nSystem.out.println(d.name);\n```",
+        "answer": "`name` is private — only accessible from inside the Dog class. The println line is in a different class (probably App or similar) and can't see `d.name`. To fix: either make name public (don't!) or add a `getName()` method to Dog and call `d.getName()`. The compile-time enforcement is a feature — private really means private."
+      },
+      {
+        "question": "Is this a useful setter? Why or why not?\n```java\npublic void setBalance(double balance) {\n    this.balance = balance;\n}\n```",
+        "answer": "Not particularly useful. It's functionally identical to a public field — there's no validation, no logging, no side effects. The reason to use a setter instead of a public field is to control modification. A setter without validation just adds boilerplate. EITHER add validation (e.g., `if (balance < 0) throw...`) OR consider if the field should even be mutable. If callers can set any value, why bother hiding the field?"
+      },
+      {
+        "question": "Why should an ID field typically NOT have a setter?",
+        "answer": "IDs are typically permanent identifiers. Once a User has ID 101, they ARE 101 — changing it would break references throughout the system (database foreign keys, caches, logs, audit trails). Making ID set-only at construction (no setter, possibly `final`) prevents accidental changes. If you need a different ID, you create a new object, not modify the existing one's identity."
+      },
+      {
+        "question": "What's the difference between encapsulation and immutability?",
+        "answer": "Encapsulation = hiding internal data behind methods. The object MAY allow modification through setters, but you control how. Immutability = no modification allowed after creation. No setters at all. Immutable objects are encapsulated (fields private). But encapsulated objects aren't necessarily immutable (they might allow controlled mutation). Immutability is a STRICTER form of encapsulation that's preferred for value objects like Money, Date, etc."
+      },
+      {
+        "question": "Why is the getter `isActive()` instead of `getActive()`?",
+        "answer": "JavaBean convention: boolean fields use the `is` prefix for getters, while other types use `get`. So `boolean active` → `isActive()`, but `String name` → `getName()`. This is by convention and many frameworks (Jackson, Spring) recognize both prefixes for booleans. Reading code aloud: 'is the user active?' flows better than 'get the user active?' — the convention captures natural language."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: `toString`, `equals`, and `hashCode`. Every object in Java inherits these methods from the Object class — but the defaults are usually useless. `System.out.println(myProduct)` prints something like `Product@1a2b3c4d` (memory address). And `myProduct1.equals(myProduct2)` returns false even if they have identical fields. We'll learn to OVERRIDE these methods to make our classes work properly with print statements, comparisons, and collections (HashMap, HashSet — covered later but essential)."
+  }
+}

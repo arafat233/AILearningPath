@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t4",
+  "language": "java",
+  "module_id": "m14",
+  "module_name": "Advanced Spring Boot",
+  "topic_number": 4,
+  "name": "@ConfigurationProperties and Profiles",
+  "slug": "configuration-properties-profiles",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m13_t1"],
+    "concepts_taught": [
+      "configuration_properties_annotation",
+      "configuration_properties_record",
+      "configuration_properties_class",
+      "enable_configuration_properties",
+      "configuration_properties_validation",
+      "configuration_properties_nested",
+      "spring_profiles",
+      "profile_specific_properties",
+      "profile_annotation_on_bean",
+      "active_profile_configuration",
+      "environment_variable_override",
+      "configuration_properties_vs_value"
+    ],
+    "skills_developed": [
+      "binding_property_groups_to_java_records",
+      "validating_configuration_at_startup",
+      "managing_environment_specific_configuration",
+      "using_spring_profiles_for_dev_vs_prod",
+      "testing_configuration_properties"
+    ],
+    "career_relevance": "Every production Spring Boot application runs in multiple environments — dev, staging, production. @ConfigurationProperties keeps configuration type-safe and grouped. Spring profiles switch config sets without code changes. When you join a company's backend team, understanding profiles (the distinction between dev and prod config) and @ConfigurationProperties (the type-safe alternative to scattered @Value) is expected day one.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your payment service has grown. Configuration is scattered across many classes:\n\n```java\n// PaymentService.java:\n@Value(\"${payment.gateway.url}\")      String url;\n@Value(\"${payment.gateway.timeout}\")  int timeoutMs;\n@Value(\"${payment.gateway.retries}\")  int retries;\n@Value(\"${payment.gateway.api-key}\")  String apiKey;\n\n// NotificationService.java:\n@Value(\"${notification.email.host}\")  String emailHost;\n@Value(\"${notification.email.port}\")  int emailPort;\n@Value(\"${notification.sms.url}\")     String smsUrl;\n@Value(\"${notification.sms.token}\")   String smsToken;\n\n// DatabaseConfig.java:\n@Value(\"${db.pool.min-size}\")  int minPoolSize;\n@Value(\"${db.pool.max-size}\")  int maxPoolSize;\n// ... 20 more @Value fields\n```\n\nProblems: no IDE autocomplete, no type-safe binding, no validation, scattered.\n\n**With @ConfigurationProperties:**\n```java\n@ConfigurationProperties(prefix = \"payment.gateway\")\npublic record PaymentGatewayProps(\n    String url,\n    Duration timeout,\n    int retries,\n    String apiKey\n) {}\n\n@ConfigurationProperties(prefix = \"notification.email\")\npublic record EmailProps(\n    String host,\n    int port,\n    String from\n) {}\n```\n\n```properties\n# Grouped, readable, IDE-autocomplete:\npayment.gateway.url=https://api.razorpay.com\npayment.gateway.timeout=5s\npayment.gateway.retries=3\npayment.gateway.api-key=${RAZORPAY_KEY}\n\nnotification.email.host=smtp.gmail.com\nnotification.email.port=587\n```\n\nAnd environment differences via profiles:\n```\napplication-dev.properties  → local URLs, H2 DB, DEBUG logging\napplication-prod.properties → real URLs, PostgreSQL, WARN logging\n```\n\nOne codebase, many environments. Zero conditional logic.",
+    "what_you_will_build": "By the end of this topic, you'll bind property groups to Java records with @ConfigurationProperties, add startup validation with @Validated, use Spring profiles for environment-specific config, and test configuration in isolation."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "config_properties_basics": "**@ConfigurationProperties — type-safe property binding:**\n\n```java\n// application.properties:\n// payment.gateway.url=https://api.razorpay.com\n// payment.gateway.timeout=5000\n// payment.gateway.max-retries=3\n// payment.gateway.api-key=rzp_test_abc123\n\n// Java record bound to these properties:\n@ConfigurationProperties(prefix = \"payment.gateway\")\npublic record PaymentGatewayProps(\n    String url,          // payment.gateway.url\n    int timeout,         // payment.gateway.timeout\n    int maxRetries,      // payment.gateway.max-retries (kebab-case → camelCase)\n    String apiKey        // payment.gateway.api-key\n) {}\n```\n\n**Enabling: two ways:**\n```java\n// Option 1: @EnableConfigurationProperties on any @Configuration:\n@SpringBootApplication\n@EnableConfigurationProperties(PaymentGatewayProps.class)\npublic class Application { ... }\n\n// Option 2: @ConfigurationPropertiesScan (scans for all in package):\n@SpringBootApplication\n@ConfigurationPropertiesScan\npublic class Application { ... }\n```\n\n**Inject and use:**\n```java\n@Service\npublic class PaymentService {\n    private final PaymentGatewayProps props;\n    \n    PaymentService(PaymentGatewayProps props) { this.props = props; }\n    \n    public void process(Payment payment) {\n        // Clean, typed access:\n        HttpClient.post(props.url())\n            .timeout(Duration.ofMillis(props.timeout()))\n            .retry(props.maxRetries())\n            .header(\"x-api-key\", props.apiKey());\n    }\n}\n```",
+
+      "validation": "**Validate configuration at startup with @Validated:**\n\n```java\nimport jakarta.validation.constraints.*;\nimport org.springframework.validation.annotation.Validated;\n\n@ConfigurationProperties(prefix = \"payment.gateway\")\n@Validated  // triggers Bean Validation on startup\npublic record PaymentGatewayProps(\n    @NotBlank(message = \"payment.gateway.url is required\")\n    @Pattern(regexp = \"https://.*\", message = \"URL must use HTTPS\")\n    String url,\n    \n    @Min(value = 1000, message = \"timeout must be at least 1000ms\")\n    @Max(value = 30000, message = \"timeout cannot exceed 30 seconds\")\n    int timeout,\n    \n    @Min(1) @Max(10)\n    int maxRetries,\n    \n    @NotBlank(message = \"API key is required — set PAYMENT_API_KEY env var\")\n    String apiKey\n) {}\n```\n\nIf any constraint fails at startup:\n```\nApplication context failed to start:\nConfiguration property 'payment.gateway.url' must use HTTPS\n```\n\nFail-fast: bad configuration is caught at startup, not at runtime.",
+
+      "nested_properties": "**Nested @ConfigurationProperties:**\n\n```java\n// Nested record for related sub-groups:\n@ConfigurationProperties(prefix = \"notification\")\npublic record NotificationProps(\n    Email email,\n    Sms sms,\n    boolean enabled\n) {\n    public record Email(\n        String host,\n        int port,\n        String from,\n        boolean tls\n    ) {}\n    \n    public record Sms(\n        String url,\n        String apiKey,\n        int rateLimit\n    ) {}\n}\n\n// application.properties:\n// notification.enabled=true\n// notification.email.host=smtp.gmail.com\n// notification.email.port=587\n// notification.email.from=noreply@codequest.in\n// notification.email.tls=true\n// notification.sms.url=https://api.sms.in\n// notification.sms.api-key=${SMS_API_KEY}\n// notification.sms.rate-limit=100\n\n// Injection:\n@Service class NotificationService {\n    private final NotificationProps props;\n    NotificationService(NotificationProps p) { props = p; }\n    void sendEmail(String to, String body) {\n        if (!props.enabled()) return;\n        mailer.send(props.email().host(), props.email().port(), to, body);\n    }\n}\n```",
+
+      "spring_profiles": "**Spring Profiles — environment-specific configuration:**\n\n```\nsrc/main/resources/\n  application.properties          ← shared (always loaded)\n  application-dev.properties      ← dev overrides\n  application-staging.properties  ← staging overrides\n  application-prod.properties     ← production overrides\n```\n\n```properties\n# application.properties (shared):\nspring.application.name=payment-service\nserver.port=8080\nlogging.pattern.console=%d{HH:mm:ss} [%thread] %-5level %msg%n\n\n# application-dev.properties:\nspring.datasource.url=jdbc:h2:mem:devdb\nspring.jpa.hibernate.ddl-auto=create-drop\nspring.jpa.show-sql=true\nlogging.level.root=DEBUG\npayment.gateway.url=https://sandbox.razorpay.com\npayment.gateway.api-key=rzp_test_abc123\n\n# application-prod.properties:\nspring.datasource.url=jdbc:postgresql://prod-db:5432/payments\nspring.datasource.username=${DB_USER}\nspring.datasource.password=${DB_PASSWORD}\nspring.jpa.hibernate.ddl-auto=validate\nlogging.level.root=WARN\npayment.gateway.url=https://api.razorpay.com\npayment.gateway.api-key=${RAZORPAY_KEY}\n```\n\n**Activating profiles:**\n```properties\n# In application.properties:\nspring.profiles.active=dev\n\n# Via command line:\njava -jar app.jar --spring.profiles.active=prod\n\n# Via environment variable:\nSPRING_PROFILES_ACTIVE=prod java -jar app.jar\n\n# In @SpringBootTest:\n@SpringBootTest\n@ActiveProfiles(\"dev\")\nclass MyTest { ... }\n```\n\n**@Profile on beans:**\n```java\n// Only instantiated when 'dev' profile is active:\n@Component @Profile(\"dev\")\npublic class DevDataSeeder implements CommandLineRunner {\n    @Override public void run(String... args) {\n        System.out.println(\"[DEV] Seeding test data...\");\n        repo.save(new Product(\"Test Mouse\", 1, \"Electronics\"));\n    }\n}\n\n// Only in prod:\n@Service @Profile(\"prod\")\npublic class RealEmailService implements EmailService {\n    // Uses real SMTP — don't call in dev/test\n}\n\n// In dev/test:\n@Service @Profile({\"dev\", \"test\"})\npublic class MockEmailService implements EmailService {\n    @Override public void send(String to, String body) {\n        System.out.println(\"[MOCK EMAIL] To: \" + to + \" Body: \" + body);\n    }\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) @Value vs @ConfigurationProperties comparison: Left column - @Value scattered, no autocomplete, string keys, no validation. Right column - @ConfigurationProperties record, IDE autocomplete (dropdown shown), type-safe, @Validated. (2) Profile loading diagram: Base application.properties always loaded. Active profile (dev/prod) overlays on top — profile properties override base. Environment variable SPRING_PROFILES_ACTIVE shown as the switch. Table of what differs: datasource URL, JPA ddl-auto, logging level, external API URL. (3) @ConfigurationProperties record anatomy: annotation prefix, record fields, kebab-to-camel mapping ('max-retries' → maxRetries), @Validated + @NotBlank constraints, injection via constructor.",
+      "alt_text": "@Value vs @ConfigurationProperties comparison, profile loading overlay, and record field mapping"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Refactor the payment service configuration from scattered @Value annotations to grouped @ConfigurationProperties records. Add environment profiles so dev uses a sandbox API and H2, while prod uses the real API and PostgreSQL.",
+
+    "problem_statement": "1. Create `PaymentGatewayProps` record binding `payment.gateway.*`\n2. Create `DatabaseProps` record binding `db.pool.*`\n3. Add @Validated with constraints on both\n4. Create dev and prod profile property files\n5. Add @Profile beans for MockEmailService (dev) and RealEmailService (prod)\n6. Test properties load correctly with @SpringBootTest @ActiveProfiles",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "PaymentGatewayProps record",
+        "details": "```java\nimport jakarta.validation.constraints.*;\nimport org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.validation.annotation.Validated;\n\n@ConfigurationProperties(prefix = \"payment.gateway\")\n@Validated\npublic record PaymentGatewayProps(\n    @NotBlank String url,\n    @Min(100) @Max(30000) int timeoutMs,\n    @Min(1) @Max(5) int maxRetries,\n    @NotBlank String apiKey\n) {}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Enable on Application class",
+        "details": "```java\n@SpringBootApplication\n@ConfigurationPropertiesScan  // finds all @ConfigurationProperties in package\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Profile-specific property files",
+        "details": "```properties\n# application.properties:\nspring.application.name=payment-service\nserver.port=8080\npayment.gateway.max-retries=3\npayment.gateway.timeout-ms=5000\n\n# application-dev.properties:\nspring.profiles.active=dev\nspring.datasource.url=jdbc:h2:mem:devdb\npayment.gateway.url=https://sandbox.razorpay.com\npayment.gateway.api-key=rzp_test_sandbox\nlogging.level.root=DEBUG\n\n# application-prod.properties:\nspring.datasource.url=${PROD_DB_URL}\npayment.gateway.url=https://api.razorpay.com\npayment.gateway.api-key=${RAZORPAY_LIVE_KEY}\nlogging.level.root=WARN\n```"
+      },
+      {
+        "step": 4,
+        "action": "@Profile beans",
+        "details": "```java\ninterface EmailService { void send(String to, String body); }\n\n@Service @Profile({\"dev\", \"test\"})\nclass MockEmailService implements EmailService {\n    @Override public void send(String to, String body) {\n        System.out.println(\"[MOCK] Email to \" + to + \": \" + body);\n    }\n}\n\n@Service @Profile(\"prod\")\nclass SmtpEmailService implements EmailService {\n    private final PaymentGatewayProps props;\n    SmtpEmailService(PaymentGatewayProps p) { props = p; }\n    @Override public void send(String to, String body) { /* real SMTP */ }\n}\n```"
+      },
+      {
+        "step": 5,
+        "action": "@SpringBootTest with profiles",
+        "details": "```java\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"dev\")\nclass PaymentGatewayPropsTest {\n    @Autowired PaymentGatewayProps props;\n    @Autowired EmailService emailService;\n    \n    @Test void props_loadedFromDevProfile() {\n        assertEquals(\"https://sandbox.razorpay.com\", props.url());\n        assertEquals(3, props.maxRetries());\n    }\n    \n    @Test void emailService_isDevMock() {\n        assertInstanceOf(MockEmailService.class, emailService);\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// PaymentGatewayProps.java:\n@ConfigurationProperties(prefix=\"payment.gateway\") @Validated\npublic record PaymentGatewayProps(\n    @NotBlank String url, @Min(100) int timeoutMs,\n    @Min(1)@Max(5) int maxRetries, @NotBlank String apiKey) {}\n\n// Application.java:\n@SpringBootApplication @ConfigurationPropertiesScan public class Application { ... }\n\n// application.properties: shared base\n// application-dev.properties: sandbox URL, H2, DEBUG\n// application-prod.properties: live URL, PostgreSQL, WARN\n\n// MockEmailService: @Profile({'dev','test'})\n// SmtpEmailService: @Profile('prod')\n\n// Test: @ActiveProfiles('dev') → sandbox URL, MockEmailService injected",
+
+    "expected_output": "# Application startup (dev profile):\n[main] Active profiles: dev\n[main] PaymentGatewayProps{url='https://sandbox.razorpay.com', timeoutMs=5000, maxRetries=3, ...}\n[MockEmailService] Email service: MOCK (dev mode)\n\n# Startup with missing required property:\n[main] APPLICATION FAILED TO START\n*** APPLICATION FAILED TO START ***\nConfiguration property 'payment.gateway.url' must not be blank",
+
+    "things_to_notice": [
+      "Kebab-case in properties maps to camelCase in records: `payment.gateway.max-retries=3` binds to `maxRetries` field. Spring handles this relaxed binding automatically. Both `max-retries` and `maxRetries` in properties work.",
+      "@ConfigurationPropertiesScan on the Application class automatically discovers all @ConfigurationProperties records in the package tree — no manual registration needed. Without it, you need @EnableConfigurationProperties(MyProps.class) for each class.",
+      "@Validated on the record class triggers Bean Validation at startup. If `payment.gateway.url` is blank in application.properties, the application REFUSES to start. This fail-fast behavior is a significant advantage over @Value — a missing @Value just injects null.",
+      "@Profile({\"dev\", \"test\"}): the MockEmailService is active in both dev and test profiles. This means your @SpringBootTest (which uses 'test' profile by default) gets the mock automatically — no @MockBean needed for the email service.",
+      "Environment variable override: in production, `SPRING_DATASOURCE_URL=jdbc:postgresql://...` overrides `spring.datasource.url` in the properties file. Spring Boot maps environment variable PAYMENT_GATEWAY_API_KEY to `payment.gateway.api-key`. This is how secret values are injected in Docker/Kubernetes without putting them in files."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay multi-environment deployment",
+        "use_case": "Razorpay runs dev, test, staging, and prod environments. @ConfigurationProperties binds all gateway configuration (API endpoints, timeouts, rate limits) into typed records. application-prod.properties contains no secrets — only property keys referencing env vars (${RAZORPAY_KEY}). Kubernetes injects the actual secrets as environment variables. Dev developers work with application-dev.properties pointing at sandboxes. Zero code changes between environments."
+      },
+      {
+        "company_context": "Flipkart feature flags via profiles",
+        "use_case": "@Profile('beta') activates beans for A/B test features. @Profile('prod') activates the default path. @Profile('load-test') activates mock external services so load testing doesn't call real APIs. Spring profiles make this conditional loading zero-code — no `if (System.getenv('ENV').equals('beta'))` scattered through the codebase."
+      },
+      {
+        "company_context": "Common industry config patterns",
+        "use_case": "Every mature Spring Boot codebase has @ConfigurationProperties records for: database pool settings, external API credentials, cache TTLs, feature flags, CORS config, rate limits. The pattern is always the same: `@ConfigurationProperties(prefix='my.service')` on a record or class, `@Validated` with constraints, and injection via constructor. It's so common that Spring Boot generates metadata (spring-configuration-metadata.json) enabling IDE autocomplete for custom properties."
+      }
+    ],
+
+    "interview_relevance": "@ConfigurationProperties and profiles interview questions:\n\n- **'What is @ConfigurationProperties and when do you use it?'** → Type-safe binding of a group of properties to a Java record/class. Use when you have 3+ related properties for one component. Better than @Value: grouped, validated, IDE autocomplete.\n- **'What are Spring profiles?'** → Named sets of beans and properties. Active profile determines which application-{profile}.properties is loaded and which @Profile beans are created.\n- **'How do you separate dev and prod configuration?'** → application-dev.properties + application-prod.properties. Activate with spring.profiles.active or env var SPRING_PROFILES_ACTIVE.\n- **'How do you prevent null @Value injection?'** → Use @ConfigurationProperties with @Validated @NotBlank — fails at startup if missing.",
+
+    "real_world_workflow": "Daily @ConfigurationProperties workflow:\n\n- New feature needs config: add @ConfigurationProperties record with @Validated\n- Add properties to application.properties (shared defaults)\n- Add overrides to application-dev.properties and application-prod.properties\n- In CI/CD: set environment variables for secrets\n- In @SpringBootTest: use @ActiveProfiles('test') to load test properties"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_enable",
+      "what_students_get_wrong": "Creating the @ConfigurationProperties record but not adding @ConfigurationPropertiesScan or @EnableConfigurationProperties — properties don't bind, fields stay null.",
+      "remediation": "Add @ConfigurationPropertiesScan to @SpringBootApplication, OR @EnableConfigurationProperties(MyProps.class). Without either, the record is not a Spring bean and cannot be injected. The @ConfigurationPropertiesScan approach is cleaner — one annotation on Application covers all records in the package.",
+      "detection_pattern": "NullPointerException on props.url() — the record was injected but fields are null"
+    },
+    {
+      "gap_id": "profile_not_active",
+      "what_students_get_wrong": "Creating application-prod.properties but the app still uses dev config — profile not activated.",
+      "remediation": "application-{profile}.properties is only loaded when that profile is active. Set `spring.profiles.active=prod` in application.properties, OR pass `--spring.profiles.active=prod` as a JVM arg, OR set `SPRING_PROFILES_ACTIVE=prod` as an env var. In production, env var is the standard.",
+      "detection_pattern": "Production app still connects to H2 — application-prod.properties exists but isn't loaded"
+    },
+    {
+      "gap_id": "validation_missing_validated",
+      "what_students_get_wrong": "Adding @NotBlank to @ConfigurationProperties fields but forgetting @Validated on the class — validation never runs.",
+      "remediation": "Bean Validation on @ConfigurationProperties requires @Validated on the class (not just @Valid). This is different from controller validation where @Valid on the parameter triggers it. Without @Validated, @NotBlank/@Positive etc. are compiled but never evaluated.",
+      "detection_pattern": "Application starts despite blank required properties — @NotBlank had no effect"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@ConfigurationProperties(prefix='my.service'): binds all my.service.* properties to a record",
+      "Kebab-case maps to camelCase: my.service.max-retries → maxRetries",
+      "@ConfigurationPropertiesScan on Application: auto-discovers all @ConfigurationProperties",
+      "@Validated on the record class: fail-fast validation at startup",
+      "@NotBlank/@Min/@Max on record fields: validated at startup with @Validated",
+      "application-{profile}.properties: loaded only when that profile is active",
+      "spring.profiles.active=dev: activate profile in properties",
+      "SPRING_PROFILES_ACTIVE=prod: production activation via env var",
+      "@Profile('dev') on a bean: created only when dev profile is active",
+      "@Profile({'dev','test'}): active in multiple profiles",
+      "@ActiveProfiles('dev') in tests: activate specific profile for a test class",
+      "@ConfigurationProperties vs @Value: prefer @ConfigurationProperties for 3+ related properties"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You create a `DatabasePoolProps` @ConfigurationProperties record with @NotBlank on the url field. The application starts even when the url property is missing. What's wrong?",
+        "answer": "@Validated is missing on the record class. Bean Validation annotations (@NotBlank, @Min etc.) on @ConfigurationProperties fields are only evaluated if the class is annotated with @Validated. Without it, the constraints are defined but never enforced. Fix: add @Validated to the record class. Also check that @ConfigurationPropertiesScan or @EnableConfigurationProperties is present — otherwise the record isn't a bean at all."
+      },
+      {
+        "question": "You have application-prod.properties with real database credentials. The application starts in dev mode and still connects to the prod DB. Why?",
+        "answer": "spring.profiles.active is set to 'prod' somewhere — possibly in application.properties. Check: (1) application.properties for `spring.profiles.active=prod` — change to dev. (2) Environment variable SPRING_PROFILES_ACTIVE=prod — override it. (3) A command-line argument --spring.profiles.active=prod. Profile-specific properties (application-prod.properties) are only loaded when that profile is active. To confirm which profile is active, check the startup log: '[main] Active profiles: prod'."
+      },
+      {
+        "question": "When should you prefer @ConfigurationProperties over @Value?",
+        "answer": "Prefer @ConfigurationProperties when: (1) you have 3 or more related properties for one component — grouped binding is cleaner than 3+ @Value fields, (2) you want startup validation — @Validated + @NotBlank fails fast, (3) you want type safety — Duration, List, nested objects bind automatically, (4) you want IDE autocomplete — Spring generates metadata for custom @ConfigurationProperties. Use @Value for: single one-off properties, simple defaults, or quick configuration reads. Rule of thumb: if you're @Value-ing more than 2 properties from the same prefix, switch to @ConfigurationProperties."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 14 topic: **Actuator and Production Observability** — when your application is running in production, you need to know: is it healthy? What's the memory usage? How many cache hits? Is the database connection pool saturated? Spring Boot Actuator exposes these as HTTP endpoints — health checks, metrics, thread dumps, environment info. After Topic 14.5, you deploy a production-observable application."
+  }
+}

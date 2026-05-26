@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m13_t5_proj",
+  "linked_topic": "java_m13_t5",
+  "level": "mini",
+  "name": "Payment Rules Engine — Complete Test Suite (Module 13 Capstone)",
+  "estimated_minutes": 60,
+  "difficulty": 8,
+
+  "scenario": "Write a complete, professional three-layer test suite for the Payment API built throughout Module 13. No new production code — pure testing. The goal: every layer tested with the right tool, every important scenario covered, fast CI-friendly test execution.",
+
+  "description": "Module 13 capstone: write the complete test pyramid for the Payment API. @WebMvcTest for the HTTP layer, @DataJpaTest for the repository layer, @SpringBootTest for the integration test. Minimum 12 test methods across all slices.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "@WebMvcTest tests (minimum 5): POST valid payment 201, POST invalid amount 400 with field error, POST invalid currency 400 with field error, GET by id found 200 with correct fields, GET by id not found 404 with structured error body.",
+        "weight": 25
+      },
+      {
+        "id": "req_2",
+        "description": "@WebMvcTest: DELETE payment 204, duplicate payment 409 with error message, filter by status (GET /api/payments?status=PENDING returns correct count).",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "@DataJpaTest tests (minimum 4): save+findById round trip, findByUserId derived query, findByStatusAndAmountGreaterThan combined derived query, custom @Query aggregation (sum amount by userId).",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "@SpringBootTest(RANDOM_PORT) integration test: POST to create payment, GET to verify created, verify persisted in DB via @Autowired repository, DELETE and verify 404.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "All 12+ tests pass. No @WebMvcTest test hits the real database. No @DataJpaTest test goes through HTTP. Clean separation of concerns.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @ParameterizedTest in @WebMvcTest testing 5 invalid amounts (0, -1, -999, null, over max limit) — all returning 400 with 'amount' error key.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a Testcontainers test: use @SpringBootTest with a real PostgreSQL Testcontainer instead of H2. Test the derived queries work with real Postgres SQL.",
+        "weight": 30
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add performance assertion: @SpringBootTest test that creates 100 payments in a loop and asserts the total time < 5 seconds (verifies no N+1 query problem).",
+        "weight": 15
+      }
+    ]
+  },
+
+  "data_to_use": "Payment API (from T13.4):\n- POST /api/payments: {userId, amount (>=100, <=10M), currency (INR|USD|EUR), orderId}\n- GET /api/payments/{id}: returns payment or 404\n- GET /api/payments?status=PENDING: filter by status\n- DELETE /api/payments/{id}: 204 or 404\n\nTest data:\nValid: userId='U01', amount=1500, currency='INR', orderId='ORD-001'\nInvalid amount: amount=50 (below @Min(100))\nInvalid currency: currency='GBP' (not in @Pattern)\nDuplicate: same orderId twice → 409",
+
+  "starter_code": "// Write ONLY the test classes — production code is provided:\n// - Payment @Entity (id, userId, amount, currency, orderId, status, createdAt)\n// - PaymentRepository extends JpaRepository with derived queries\n// - PaymentService (@Transactional)\n// - PaymentController (@RestController with @Valid)\n// - GlobalExceptionHandler\n\n// YOUR TASK: Write the test pyramid:\n// PaymentControllerTest.java    (@WebMvcTest — 8 tests)\n// PaymentRepositoryTest.java    (@DataJpaTest — 4 tests)\n// PaymentApiIntegrationTest.java (@SpringBootTest RANDOM_PORT — 1 test)",
+
+  "example_output": "PaymentControllerTest (@WebMvcTest):\n  ✓ create_validPayment_returns201\n  ✓ create_amountBelow100_returns400WithAmountError\n  ✓ create_invalidCurrency_returns400WithCurrencyError\n  ✓ getById_found_returns200WithAllFields\n  ✓ getById_notFound_returns404WithErrorBody\n  ✓ delete_existing_returns204\n  ✓ create_duplicateOrderId_returns409\n  ✓ getByStatus_pending_returnsCorrectCount\n\nPaymentRepositoryTest (@DataJpaTest):\n  ✓ save_assignsIdAndTimestamp\n  ✓ findByUserId_U01_returns2Payments\n  ✓ findByStatusAndAmountGreaterThan_returns1\n  ✓ sumAmountByUserId_returns8500\n\nPaymentApiIntegrationTest (@SpringBootTest):\n  ✓ fullPaymentLifecycle\n\n13 tests, 0 failures, 0 errors\nTotal time: 8.2 seconds",
+
+  "rubric": [
+    { "category": "@WebMvcTest — 5 core tests", "points": 25, "criteria": ["Each test correct (5 pts each)"] },
+    { "category": "@WebMvcTest — 3 additional tests", "points": 15, "criteria": ["DELETE, 409, status filter (5 pts each)"] },
+    { "category": "@DataJpaTest — 4 tests", "points": 20, "criteria": ["Each test correct (5 pts each)"] },
+    { "category": "@SpringBootTest", "points": 20, "criteria": ["Full lifecycle test (20 pts)"] },
+    { "category": "Slice separation", "points": 20, "criteria": ["No cross-slice pollution (20 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Parameterized (20 pts)", "Testcontainers (30 pts)", "Performance (15 pts)"] }
+  ],
+
+  "ai_policy": "no_ai",
+  "ai_policy_explanation": "Module 13 capstone — no AI. Testing is about understanding what each layer does. Key rules: @WebMvcTest = @MockBean for all service deps. @DataJpaTest = @BeforeEach seed + rollback per test. @SpringBootTest = repo.deleteAll() in @BeforeEach + TestRestTemplate. No cross-slice: @WebMvcTest NEVER hits the database; @DataJpaTest NEVER goes through HTTP.",
+
+  "submission_instructions": "Push three test files to GitHub. All 12+ tests must pass. CI-ready: tests should complete in < 15 seconds total.",
+
+  "tips_for_success": [
+    "@WebMvcTest: every service dep needs @MockBean — check controller constructor",
+    "DELETE test: doNothing().when(service).delete('ID') for void methods",
+    "409 test: when(service.create(any())).thenThrow(new DuplicateResourceException(...))",
+    "@DataJpaTest: @BeforeEach seeds, but each test is isolated (rollback)",
+    "@SpringBootTest: repo.deleteAll() in @BeforeEach; use TestRestTemplate not MockMvc"
+  ],
+
+  "concepts_reinforced": [
+    "@WebMvcTest with @MockBean and MockMvc",
+    "jsonPath assertions on status, fields, arrays",
+    "@DataJpaTest with rollback and @Import",
+    "@SpringBootTest RANDOM_PORT with TestRestTemplate",
+    "Test pyramid: @WebMvcTest (fast, many) > @DataJpaTest (medium) > @SpringBootTest (slow, few)"
+  ]
+}

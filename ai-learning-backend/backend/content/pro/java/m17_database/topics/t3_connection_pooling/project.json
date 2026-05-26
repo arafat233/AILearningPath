@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m17_t3_proj",
+  "linked_topic": "java_m17_t3",
+  "level": "mini",
+  "name": "Razorpay Payment Service — Pool Tuning & Query Optimization",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+
+  "scenario": "Razorpay's payment service hits connection pool exhaustion during payment spikes, and the merchant dashboard query takes 8 seconds. Diagnose both issues, configure HikariCP correctly, add targeted indexes via Flyway migration, and add monitoring.",
+
+  "description": "HikariCP configuration for 8-core server + 3 Flyway index migrations + EXPLAIN ANALYZE analysis (documented) + Actuator pool monitoring + @DataJpaTest verifying queries return correct results.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "application-prod.properties: HikariCP with maximum-pool-size=17 (8-core SSD formula), minimum-idle=4, connection-timeout=2000, max-lifetime=1200000, leak-detection-threshold=5000, pool-name='Razorpay-Payments-Pool'.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "V5__add_payment_indexes.sql: 3 indexes using CREATE INDEX CONCURRENTLY: (1) composite (merchant_id, status) with INCLUDE(total,created_at), (2) partial (merchant_id) WHERE status='AUTHORIZED', (3) (created_at DESC) for time-range queries.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "EXPLAIN_ANALYSIS.md in project: documents before (Seq Scan, ~9000ms) and after (Index Scan, ~0.4ms) for the merchant dashboard query. Explains why each index was chosen.",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "PaymentRepository: 3 query methods with derived queries or @Query that use the indexes: findByMerchantIdAndStatus, findByMerchantIdAndStatusOrderByCreatedAtDesc (paginated), findByCreatedAtBetween.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "PoolHealthMonitor @Service with @Scheduled: logs pool stats every 30s, logs CRITICAL if pending > 3, logs WARN if active/total > 0.85.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "@DataJpaTest (4 tests): findByMerchantIdAndStatus returns correct count, findByCreatedAtBetween returns correct range, duplicate merchant doesn't cause errors, total sum correct for merchant. All 4 pass.",
+        "weight": 25
+      },
+      {
+        "id": "req_7",
+        "description": "Actuator: management.endpoints.web.exposure.include=health,metrics,prometheus exposed in application.properties.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Programmatic HikariDataSource @Bean with @ConfigurationProperties AppDataSourceProperties POJO. Validates max-lifetime < 1800000 (30min DB timeout). Registers metrics via HikariDataSourceMetrics.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a read replica datasource ('ReplicaPool'): separate @Bean(\"replicaDataSource\") with pool-size=30, readOnly=true. PaymentReportService that injects the replica DataSource for analytics queries.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add P6Spy slow query logging: p6spy-spring-boot-starter dependency, jdbc:p6spy:postgresql URL, slow-query-threshold=100ms. Demonstrate that a findAll() without a WHERE clause triggers a slow-query log entry.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Payments seed data for @DataJpaTest:\n  M001: 3 AUTHORIZED payments (₹1000, ₹2500, ₹800)\n  M001: 2 CAPTURED payments (₹3000, ₹1500)\n  M002: 1 AUTHORIZED payment (₹500)\n  Date range: 2024-01 to 2024-03\n\nExpected query results:\n  findByMerchantIdAndStatus(M001, AUTHORIZED) → 3\n  findByCreatedAtBetween(Jan, Mar) → depends on seed dates\n  sum(total) for M001 = 1000+2500+800+3000+1500 = 8800",
+
+  "starter_code": "# application-prod.properties\n# application-test.properties (H2, no Flyway)\n# src/main/resources/db/migration/V5__add_payment_indexes.sql\n# EXPLAIN_ANALYSIS.md\n// Payment @Entity\n// PaymentRepository\n// PoolHealthMonitor @Service\n// PaymentRepositoryTest @DataJpaTest",
+
+  "example_output": "# Pool startup log:\n[Hikari] Razorpay-Payments-Pool - Starting...\n[Hikari] Razorpay-Payments-Pool - pool size is 17; idle connections is 4\n\n# Normal load:\n[Pool] total=17 active=4 idle=13 pending=0 — HEALTHY\n\n# Spike:\n[CRITICAL] Pool exhausted! pending=8 active=17/17 — INCREASE POOL OR FIX SLOW QUERIES\n\n# Leak detected:\n[WARN] Apparent connection leak detected:\n  at com.razorpay.PaymentService.processPayment(:142)\n\n# Tests:\n✓ findByMerchantAndStatus_returns3\n✓ findByDateRange_returnsCorrect\n✓ totalSum_correct\n✓ multiMerchantIsolation",
+
+  "rubric": [
+    { "category": "HikariCP config", "points": 15, "criteria": ["All 6 properties correct (15 pts)"] },
+    { "category": "V5 index migration", "points": 20, "criteria": ["3 indexes, CONCURRENTLY (20 pts)"] },
+    { "category": "EXPLAIN analysis doc", "points": 10, "criteria": ["Before/after + explanation (10 pts)"] },
+    { "category": "PaymentRepository (3 methods)", "points": 15, "criteria": ["3 correct query methods (15 pts)"] },
+    { "category": "PoolHealthMonitor", "points": 10, "criteria": ["@Scheduled + alert thresholds (10 pts)"] },
+    { "category": "@DataJpaTest (4 tests)", "points": 25, "criteria": ["4 tests × 6 pts each"] },
+    { "category": "Actuator config", "points": 5, "criteria": ["Endpoints exposed (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["@ConfigurationProperties bean (25 pts)", "Read replica (25 pts)", "P6Spy (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. CREATE INDEX CONCURRENTLY cannot be inside a transaction; add spring.flyway.mixed=true or use -- flyway:executeInTransaction=false comment at top of migration. INCLUDE columns: INCLUDE(total, created_at) — not part of index key, but included in leaf pages. Partial index WHERE status='AUTHORIZED': only indexes authorized payments. Pool size formula: (8 × 2) + 1 = 17. Actuator: management.endpoints.web.exposure.include=health,metrics,prometheus.",
+
+  "submission_instructions": "GitHub push. All 4 @DataJpaTest tests pass. EXPLAIN_ANALYSIS.md included in src/main/resources/docs/. README explains the pool sizing rationale.",
+
+  "tips_for_success": [
+    "Flyway + CONCURRENTLY: add 'spring.flyway.mixed=true' to properties or file comment -- flyway:executeInTransaction=false",
+    "Test properties: src/test/resources/application.properties must disable Flyway",
+    "Partial index: CREATE INDEX idx ON payments(merchant_id) WHERE status='AUTHORIZED' — only indexes that subset",
+    "INCLUDE for covering index: INCLUDE(total, created_at) avoids heap fetch for those columns",
+    "Pool formula: 8-core SSD = (8×2)+1 = 17 — document this in your README"
+  ],
+
+  "concepts_reinforced": [
+    "HikariCP production configuration with all key properties",
+    "Pool size formula: (cores × 2) + spindle_count",
+    "connection-timeout: fail fast (2s not 30s)",
+    "CREATE INDEX CONCURRENTLY for zero-downtime",
+    "Composite index with INCLUDE for covering queries",
+    "Partial index for selective access patterns",
+    "Actuator pool metrics for monitoring",
+    "@Scheduled pool health alert"
+  ]
+}

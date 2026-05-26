@@ -1,0 +1,29 @@
+{
+  "schema_version":"1.0","project_id":"java_m25_t2_proj","linked_topic":"java_m25_t2",
+  "level":"mini","name":"Razorpay Partner API — Pact Contract Testing",
+  "estimated_minutes":45,"difficulty":7,
+  "scenario":"Razorpay is refactoring its payment API. The team needs to ensure none of the 3 key partner integrations (Flipkart, Zomato, HDFC Bank webhook) break. Implement consumer-driven contract tests so any breaking change is caught in CI before deployment.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"PactStates class: static final String constants for all provider states used in tests. At least 3 constants (one per consumer).","weight":10},
+    {"id":"req_2","description":"FlipkartCheckoutConsumerTest: @Pact for POST /api/payments → 201 {paymentId:String, status:String, amountPaise:Number}. @Test verifies paymentId and status present.","weight":20},
+    {"id":"req_3","description":"ZomatoReconciliationConsumerTest: @Pact for GET /api/payments/{id} → 200 {paymentId:String, gateway:String, amountPaise:Number}. @Test verifies all 3 fields present.","weight":20},
+    {"id":"req_4","description":"PaymentErrorConsumerTest: @Pact for GET missing payment → 404 {error:String(exact='PAYMENT_NOT_FOUND'), message:String}. @Test verifies 404 status and error code.","weight":15},
+    {"id":"req_5","description":"All 4 @Test methods pass. Each consumer class uses @ExtendWith(PactConsumerTestExt.class) + unique port. MockServer used in each @Test.","weight":30},
+    {"id":"req_6","description":"README: explains can-i-deploy and why consumer-driven contracts prevent breaking changes.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"HdfcWebhookConsumerTest: @Pact for POST /api/webhooks → 200 {received:String}. Test: webhook acknowledged correctly.","weight":15},
+    {"id":"bonus_2","description":"MessagePact for Kafka: InventoryService expects PaymentCompletedEvent {paymentId, merchantId, amountPaise}. Uses @MessagePact and MessagePactBuilder.","weight":20},
+    {"id":"bonus_3","description":"Provider verification stub: @Provider('razorpay-payment-api') + @PactFolder + @State for each consumer state. @TestTemplate + PactVerificationInvocationContextProvider.","weight":20}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. Each @PactTestFor needs a unique port number: Pact starts a mock server on that port — if two test classes share a port, the second fails to bind. @PactTestFor(pactMethod='xxx'): the string must EXACTLY match the method name of the @Pact-annotated method in the same class. stringType vs stringValue: use stringType for IDs and dynamic values (any String accepted), stringValue for error codes that must be exact strings (PAYMENT_NOT_FOUND). PactStates constants: the @State string on the provider side must EXACTLY match the .given() string on the consumer side — use shared constants. .toPact(): always the terminal method — missing it causes compile error.",
+  "rubric":[
+    {"category":"PactStates constants","points":10},
+    {"category":"FlipkartCheckoutConsumerTest","points":20},
+    {"category":"ZomatoReconciliationConsumerTest","points":20},
+    {"category":"PaymentErrorConsumerTest","points":15},
+    {"category":"4 @Test methods (all pass)","points":30},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

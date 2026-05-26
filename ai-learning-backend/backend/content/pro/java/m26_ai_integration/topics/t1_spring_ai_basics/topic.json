@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m26_t1",
+  "language": "java",
+  "module_id": "m26",
+  "module_name": "AI-Powered Java Applications",
+  "topic_number": 1,
+  "name": "Spring AI Basics — Chat, Prompts & Models",
+  "slug": "spring-ai-basics-chat-prompts-models",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m13_t1", "java_m14_t4"],
+    "concepts_taught": [
+      "spring_ai_overview", "chat_client_api", "prompt_templates",
+      "system_messages", "user_messages", "streaming_responses",
+      "model_options", "ai_response_parsing", "spring_ai_autoconfigure",
+      "anthropic_claude_integration", "openai_integration", "structured_output"
+    ],
+    "skills_developed": [
+      "building_ai_chat_endpoints", "prompt_engineering_in_java",
+      "streaming_ai_responses_to_browser", "parsing_structured_ai_output"
+    ],
+    "career_relevance": "HDFC Bank's AI assistant answers 2 million customer queries per day — loan status, account balance, fraud alerts — without human agents. Razorpay's AI routes payment disputes to the right team and drafts resolution emails. These are built with Spring AI: the same Spring Boot you already know, extended with AI capabilities. After this topic, you can add AI features to any existing Spring Boot application within an afternoon.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "HDFC Bank customer support without AI:\n\n```\n2024: 10 million customers\n       5,000 support agents\n       Average wait: 12 minutes\n       Cost: ₹8,000/agent/month = ₹4 crore/month\n       Common questions (80% of volume):\n         'What is my loan EMI?'\n         'Why was my card declined?'\n         'How do I reset my PIN?'\n\n2026: Same 10 million customers\n       500 support agents (AI handles 80%)\n       Average wait: 0 seconds (AI instant)\n       Cost: 90% reduction\n       Spring AI + Claude API:\n         Customer: 'Why was my card declined?'\n         AI: 'Your card ending in 4521 was declined at Zomato'\n              'because your international transactions are disabled.'\n              'I can enable them now — shall I proceed?'\n         Human agent: handles only complex escalations\n```",
+    "what_you_will_build": "HDFC Bank customer support AI endpoint using Spring AI with Claude, with streaming and structured output."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "spring_ai_setup": "**Spring AI setup:**\n\n```xml\n<!-- pom.xml -->\n<dependency>\n  <groupId>org.springframework.ai</groupId>\n  <artifactId>spring-ai-anthropic-spring-boot-starter</artifactId>\n</dependency>\n<!-- OR for OpenAI: spring-ai-openai-spring-boot-starter -->\n\n<!-- BOM for version management -->\n<dependencyManagement>\n  <dependencies>\n    <dependency>\n      <groupId>org.springframework.ai</groupId>\n      <artifactId>spring-ai-bom</artifactId>\n      <version>1.0.0</version>\n      <type>pom</type>\n      <scope>import</scope>\n    </dependency>\n  </dependencies>\n</dependencyManagement>\n```\n\n```yaml\n# application.yml\nspring:\n  ai:\n    anthropic:\n      api-key: ${ANTHROPIC_API_KEY}\n      chat:\n        options:\n          model: claude-sonnet-4-20250514\n          max-tokens: 1000\n          temperature: 0.7\n```",
+      "chat_client": "**ChatClient — the main Spring AI API:**\n\n```java\n@Service\npublic class HdfcAiService {\n    private final ChatClient chatClient;\n\n    public HdfcAiService(ChatClient.Builder builder) {\n        this.chatClient = builder\n            .defaultSystem(\"\"\"\n                You are an HDFC Bank customer support assistant.\n                You are helpful, concise, and always professional.\n                Only discuss banking topics. Refuse non-banking queries politely.\n                Never reveal internal system details or account numbers fully.\n                \"\"\")\n            .build();\n    }\n\n    // Simple single-turn chat:\n    public String answer(String customerQuestion) {\n        return chatClient.prompt()\n            .user(customerQuestion)\n            .call()\n            .content();\n    }\n\n    // With prompt template (placeholders):\n    public String answerWithContext(String question, String accountType) {\n        return chatClient.prompt()\n            .user(u -> u.text(\"\"\"\n                Customer account type: {accountType}\n                Customer question: {question}\n                \"\"\")\n                .param(\"accountType\", accountType)\n                .param(\"question\", question))\n            .call()\n            .content();\n    }\n\n    // Streaming response (for real-time UI):\n    public Flux<String> streamAnswer(String question) {\n        return chatClient.prompt()\n            .user(question)\n            .stream()\n            .content();\n    }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Spring AI architecture diagram. Left: Spring Boot Controller (HTTP request). Center: ChatClient with arrows showing: (1) SystemMessage (static bank instructions), (2) UserMessage (customer question), (3) Model options (temperature, max-tokens). Right: AI Model (Claude/GPT-4). Response path: AI → ChatResponse → content() → HTTP response. Below: streaming variant showing Flux<String> flowing back to browser via SSE. Bottom row: three model boxes (Anthropic Claude, OpenAI GPT, local Ollama) showing same ChatClient works with all.",
+      "alt_text": "Spring AI ChatClient connecting Spring Boot to AI models with system/user messages"
+    },
+    "worked_example": {
+      "scenario": "HDFC Bank customer support AI with system prompt and structured routing.",
+      "problem_statement": "1. HdfcAiService: ChatClient with HDFC system prompt\n2. answer(question): simple call, return content\n3. CustomerSupportController: POST /api/ai/support\n4. @SpringBootTest (mock AI): endpoint returns AI response\n5. Prompt template with accountType context",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "System message: the AI's identity and constraints",
+          "details": "The system message defines the AI's role, constraints, and persona for every conversation. It's like giving the AI a job description. For HDFC: 'You are an HDFC Bank assistant. Only discuss banking topics. Never reveal account numbers. Always recommend calling 1800-XXX for sensitive operations.' This prevents prompt injection attacks (customer trying to make the AI do something else) and keeps responses on-brand."
+        }
+      ],
+      "final_code": "// ChatClient.Builder: auto-configured by Spring AI (inject it)\n// .defaultSystem(): applies to every conversation\n// .user(question): the specific customer message\n// .call().content(): get the text response\n// .stream().content(): get Flux<String> for SSE streaming",
+      "expected_output": "POST /api/ai/support\n{\"question\": \"Why was my card declined at Zomato?\"}\n\n→ 200 OK\n{\"answer\": \"Your HDFC credit card ending in 4521 may have been declined for several reasons: insufficient credit limit, international transaction block, or merchant category restriction. I can check your account — could you confirm your registered mobile number?\"}",
+      "things_to_notice": [
+        "ChatClient.Builder is auto-configured: Spring AI injects it automatically when you add the starter dependency and configure the API key. You don't create the HTTP client or authentication manually.",
+        "Temperature controls creativity: 0.0 = deterministic/factual (good for bank queries), 1.0 = creative/varied (good for marketing copy). For banking: use temperature=0.2 (factual but not robotic).",
+        "Prompt templates with .param(): prevents prompt injection. Never use String concatenation: `\"Answer this: \" + userInput` — user could inject instructions. Use `.text(template).param(key, value)` for safe parameterized prompts.",
+        "Streaming (.stream()): sends tokens as they're generated (lower perceived latency for users). For a banking chatbot: stream works great. For background batch processing: use .call() (simpler)."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "HDFC Bank AI customer support",
+          "use_case": "Spring AI + Claude API. System prompt: HDFC brand guidelines + compliance rules. User message: customer question + account context (retrieved from bank DB before AI call). Response: streamed via SSE to chat widget. 80% of queries resolved without human agent. Integration: existing Spring Boot backend adds ChatClient dependency — no architecture change needed."
+        }
+      ],
+      "interview_relevance": "'How would you add AI to our existing Spring Boot payment service?' → Spring AI starter + ChatClient. No need to rewrite — add dependency, configure API key, inject ChatClient.Builder, build ChatClient with system prompt. Single endpoint: POST /api/ai/support receives question, returns AI response. Key considerations: prompt injection prevention (parameterized templates), token limits (pricing), temperature for factual queries (low), streaming for user-facing chat (SSE).",
+      "real_world_workflow": "Spring AI integration workflow: (1) add spring-ai-anthropic-spring-boot-starter to pom.xml, (2) configure API key as environment variable (never in code), (3) inject ChatClient.Builder and build with defaultSystem(), (4) create endpoint that calls chatClient.prompt().user(q).call().content(), (5) add streaming endpoint for user-facing chat (Flux<String> + SSE), (6) add rate limiting (prevent token cost runaway), (7) log prompts and responses for audit (bank compliance)."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "hardcoding_api_key",
+        "what_students_get_wrong": "Putting the Anthropic API key directly in application.yml or source code: `api-key: sk-ant-abc123`. This gets committed to git, exposed in logs, and violates security policies.",
+        "remediation": "Always use environment variables: `api-key: ${ANTHROPIC_API_KEY}`. In production: store in Vault or AWS Secrets Manager (covered in M23.3). In CI: GitHub Actions secrets. Never, ever hardcode AI API keys — they're expensive if leaked (API key theft = unlimited billed calls).",
+        "detection_pattern": "api-key value starts with 'sk-' directly in yml file (not ${...} placeholder)"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Spring AI: same Spring Boot patterns — autoconfigured ChatClient.Builder",
+        "ChatClient.Builder: inject, call .defaultSystem() + .build()",
+        ".call().content(): synchronous single response (String)",
+        ".stream().content(): streaming Flux<String> (for real-time UI via SSE)",
+        "System message: AI's role, constraints, persona — defined once for all conversations",
+        "Prompt templates: .user(u -> u.text(template).param(k,v)) — prevents injection",
+        "Temperature: 0.0-0.3 for factual (banking), 0.7-1.0 for creative",
+        "API key: ALWAYS environment variable, NEVER in source code",
+        "Max tokens: controls response length and cost (billing per token)",
+        "One ChatClient, multiple models: swap Anthropic for OpenAI by changing starter"
+      ],
+      "self_check_questions": [
+        {
+          "question": "A Razorpay developer wants to add AI to their payment dispute endpoint. The AI should automatically classify disputes as 'fraud', 'merchant error', or 'customer error' based on the transaction details. How would you design this?",
+          "answer": "Design: (1) System prompt: 'You are a payment dispute classifier. Analyze the transaction and classify the dispute as exactly one of: FRAUD, MERCHANT_ERROR, CUSTOMER_ERROR. Respond ONLY with the classification label, nothing else.' (2) User message template: 'Transaction: amount={amount}, merchant={merchant}, reason={reason}, customer history: {history}'. (3) Use structured output: BeanOutputConverter<DisputeClassification> for type-safe parsing instead of raw String. (4) Temperature=0.0: deterministic classification. (5) Validate response: if AI returns something other than the 3 labels, treat as UNKNOWN and escalate to human. (6) Audit log: store prompt + response + classification for compliance (RBI audit trail). Key: the system prompt forces the AI into a specific role and output format — making it predictable and auditable."
+        }
+      ],
+      "next_topic_preview": "Next: RAG (Retrieval Augmented Generation) — connect your AI to your own data. Instead of training a model, you embed your bank's policy documents and retrieve relevant chunks before each AI call. The AI answers based on YOUR data, not just training data."
+    }
+  }
+}

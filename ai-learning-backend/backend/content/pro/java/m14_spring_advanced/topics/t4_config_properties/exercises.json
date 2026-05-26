@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t4",
+  "topic_name": "@ConfigurationProperties and Profiles",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m14_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "@Value vs @ConfigurationProperties — which is better?",
+      "scenario": "Choose the right binding approach for each situation.",
+      "instructions": "For each scenario, choose @Value or @ConfigurationProperties and justify:\n\nA. One property: `server.cors.allowed-origin=https://app.example.com`\nB. Five related properties: `payment.gateway.url`, `.timeout`, `.retries`, `.api-key`, `.currency`\nC. Properties needed in 3 different service classes\nD. Properties that must be validated at startup (e.g. URL must use HTTPS)\nE. A quick one-off property for a test",
+      "expected_solution": "A → @Value (single property, no grouping benefit)\nB → @ConfigurationProperties (5 related properties, one prefix)\nC → @ConfigurationProperties (inject one record everywhere)\nD → @ConfigurationProperties + @Validated (fail-fast validation)\nE → @Value (quick, test-only)",
+      "test_cases": [
+        { "type": "text_match", "expected": "A → @Value (single property, no grouping benefit)\nB → @ConfigurationProperties (5 related properties, one prefix)\nC → @ConfigurationProperties (inject one record everywhere)\nD → @ConfigurationProperties + @Validated (fail-fast validation)\nE → @Value (quick, test-only)" }
+      ],
+      "hints": [
+        "@ConfigurationProperties shines with 3+ related properties",
+        "@Validated only works on @ConfigurationProperties classes",
+        "@Value is fine for one-off properties"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete a @ConfigurationProperties record",
+      "scenario": "Property prefix and record fields must align.",
+      "instructions": "Fill in blanks to bind `sms.gateway.*` properties to a record.",
+      "starter_code": "# application.properties:\n# sms.gateway.url=https://api.sms.in\n# sms.gateway.api-key=sms_abc123\n# sms.gateway.rate-limit=100\n\n@_____________________(_______= \"sms.gateway\")\npublic record SmsGatewayProps(\n    String url,\n    String ______,     // sms.gateway.api-key\n    int ___________    // sms.gateway.rate-limit\n) {}",
+      "expected_solution": "@ConfigurationProperties(prefix = \"sms.gateway\")\npublic record SmsGatewayProps(\n    String url,\n    String apiKey,      // sms.gateway.api-key\n    int rateLimit       // sms.gateway.rate-limit\n) {}",
+      "blanks": [
+        { "position": 1, "answer": "ConfigurationProperties", "hint": "Annotation that binds property groups to Java classes" },
+        { "position": 2, "answer": "prefix",                  "hint": "Attribute specifying the property prefix" },
+        { "position": 3, "answer": "apiKey",                  "hint": "Kebab-case api-key maps to camelCase" },
+        { "position": 4, "answer": "rateLimit",               "hint": "Kebab-case rate-limit maps to camelCase" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@ConfigurationProperties(prefix='sms.gateway'): binds all sms.gateway.* props",
+        "Relaxed binding: api-key → apiKey, rate-limit → rateLimit"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Simple @ConfigurationProperties record",
+      "scenario": "Group related properties into a typed record.",
+      "instructions": "Write a `AppProps` @ConfigurationProperties record that binds:\n- `app.name` → String\n- `app.version` → String\n- `app.max-requests-per-minute` → int\n- `app.debug-mode` → boolean\n\nAlso write the matching application.properties entries.",
+      "starter_code": "// AppProps.java:\n// application.properties entries:\n",
+      "expected_solution": "import org.springframework.boot.context.properties.ConfigurationProperties;\n\n@ConfigurationProperties(prefix = \"app\")\npublic record AppProps(\n    String name,\n    String version,\n    int maxRequestsPerMinute,    // app.max-requests-per-minute\n    boolean debugMode            // app.debug-mode\n) {}\n\n// application.properties:\n// app.name=PaymentService\n// app.version=1.0.0\n// app.max-requests-per-minute=1000\n// app.debug-mode=false",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Prefix 'app' matches all app.* properties",
+        "max-requests-per-minute → maxRequestsPerMinute (relaxed binding)",
+        "debug-mode → debugMode"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m14_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Enable @ConfigurationProperties on Application class",
+      "scenario": "@ConfigurationPropertiesScan auto-discovers all @ConfigurationProperties.",
+      "instructions": "Write a complete Spring Boot Application class that:\n1. Has @ConfigurationPropertiesScan to enable all @ConfigurationProperties\n2. Has @EnableAsync and @EnableCaching for completeness\n3. Declare AppProps and PaymentGatewayProps records (show the structure)\n4. Show injection into a @Service via constructor",
+      "starter_code": "// Application.java with all necessary annotations\n// AppProps and PaymentGatewayProps\n// PaymentService using both\n",
+      "expected_solution": "import org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\nimport org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.boot.context.properties.ConfigurationPropertiesScan;\nimport org.springframework.cache.annotation.EnableCaching;\nimport org.springframework.scheduling.annotation.EnableAsync;\nimport org.springframework.stereotype.Service;\n\n@SpringBootApplication\n@ConfigurationPropertiesScan   // discovers all @ConfigurationProperties in package\n@EnableAsync\n@EnableCaching\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n\n@ConfigurationProperties(prefix = \"app\")\nrecord AppProps(String name, String version, int maxRequestsPerMinute) {}\n\n@ConfigurationProperties(prefix = \"payment.gateway\")\nrecord PaymentGatewayProps(String url, int timeoutMs, int maxRetries, String apiKey) {}\n\n@Service\nclass PaymentService {\n    private final AppProps appProps;\n    private final PaymentGatewayProps gwProps;\n    \n    PaymentService(AppProps a, PaymentGatewayProps g) { appProps = a; gwProps = g; }\n    \n    void describe() {\n        System.out.println(appProps.name() + \" v\" + appProps.version());\n        System.out.println(\"Gateway: \" + gwProps.url() + \" (timeout: \" + gwProps.timeoutMs() + \"ms)\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@ConfigurationPropertiesScan: one annotation discovers all @ConfigurationProperties in the package",
+        "Alternative: @EnableConfigurationProperties(AppProps.class, PaymentGatewayProps.class)",
+        "Record is injected like any Spring bean via constructor"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m14_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Validated constraints on @ConfigurationProperties",
+      "scenario": "Validation at startup prevents running with bad config.",
+      "instructions": "Write `PaymentGatewayProps` with @Validated and constraints:\n- url: @NotBlank + @Pattern (must start with https://)\n- timeoutMs: @Min(100) @Max(30000)\n- maxRetries: @Min(1) @Max(5)\n- apiKey: @NotBlank\n\nWrite one application.properties entry that would FAIL validation and explain why.",
+      "starter_code": "import jakarta.validation.constraints.*;\nimport org.springframework.validation.annotation.Validated;\n// Validated PaymentGatewayProps\n",
+      "expected_solution": "import jakarta.validation.constraints.*;\nimport org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.validation.annotation.Validated;\n\n@ConfigurationProperties(prefix = \"payment.gateway\")\n@Validated\npublic record PaymentGatewayProps(\n    @NotBlank(message = \"payment.gateway.url is required\")\n    @Pattern(regexp = \"https://.*\",\n             message = \"payment.gateway.url must use HTTPS\")\n    String url,\n    \n    @Min(value = 100, message = \"timeout must be at least 100ms\")\n    @Max(value = 30000, message = \"timeout cannot exceed 30 seconds\")\n    int timeoutMs,\n    \n    @Min(value = 1, message = \"maxRetries must be at least 1\")\n    @Max(value = 5, message = \"maxRetries cannot exceed 5\")\n    int maxRetries,\n    \n    @NotBlank(message = \"payment.gateway.api-key is required\")\n    String apiKey\n) {}\n\n// This application.properties would FAIL at startup:\n// payment.gateway.url=http://api.razorpay.com  ← doesn't match 'https://.*'\n// payment.gateway.timeout-ms=99               ← below @Min(100)\n// payment.gateway.api-key=                    ← blank string violates @NotBlank",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Validated on the class: triggers Bean Validation at startup",
+        "@Pattern(regexp='https://.*'): URL must start with https://",
+        "@NotBlank fails on empty string ('') as well as null"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Dev and prod profile property files",
+      "scenario": "Different environments need different property values.",
+      "instructions": "Write three property files for a payment service:\n1. `application.properties` — shared: app name, port 8080, retry count 3\n2. `application-dev.properties` — dev: H2 DB, sandbox API URL, DEBUG logging\n3. `application-prod.properties` — prod: env var DB URL, live API URL, WARN logging\n\nUse proper Spring Boot property names.",
+      "starter_code": "# application.properties:\n\n# application-dev.properties:\n\n# application-prod.properties:\n",
+      "expected_solution": "# application.properties:\nspring.application.name=payment-service\nserver.port=8080\npayment.gateway.max-retries=3\npayment.gateway.timeout-ms=5000\n\n# application-dev.properties:\nspring.datasource.url=jdbc:h2:mem:paymentdb\nspring.datasource.driver-class-name=org.h2.Driver\nspring.jpa.hibernate.ddl-auto=create-drop\nspring.jpa.show-sql=true\npayment.gateway.url=https://sandbox.razorpay.com\npayment.gateway.api-key=rzp_test_sandbox123\nlogging.level.root=DEBUG\n\n# application-prod.properties:\nspring.datasource.url=${PROD_DB_URL}\nspring.datasource.username=${PROD_DB_USER}\nspring.datasource.password=${PROD_DB_PASSWORD}\nspring.jpa.hibernate.ddl-auto=validate\npayment.gateway.url=https://api.razorpay.com\npayment.gateway.api-key=${RAZORPAY_LIVE_KEY}\nlogging.level.root=WARN",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["application.properties", "application-dev.properties", "application-prod.properties"] }
+      ],
+      "hints": [
+        "Shared properties go in application.properties",
+        "Profile files override the shared properties",
+        "${ENV_VAR}: reads from environment variable"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Profile beans — dev mock vs prod real",
+      "scenario": "@Profile controls which implementation is loaded per environment.",
+      "instructions": "Write:\n1. `EmailService` interface with `send(String to, String body)` \n2. `MockEmailService` @Profile({'dev','test'}) — prints to console\n3. `SmtpEmailService` @Profile('prod') — would connect to real SMTP\n4. @SpringBootTest @ActiveProfiles('dev') that verifies MockEmailService is injected",
+      "starter_code": "import org.springframework.context.annotation.Profile;\nimport org.springframework.stereotype.Service;\n// EmailService + two implementations + test\n",
+      "expected_solution": "import org.springframework.context.annotation.Profile;\nimport org.springframework.stereotype.Service;\n\ninterface EmailService {\n    void send(String to, String body);\n}\n\n@Service @Profile({\"dev\", \"test\"})\nclass MockEmailService implements EmailService {\n    @Override public void send(String to, String body) {\n        System.out.println(\"[MOCK EMAIL] To: \" + to + \" | Body: \" + body);\n    }\n}\n\n@Service @Profile(\"prod\")\nclass SmtpEmailService implements EmailService {\n    @Override public void send(String to, String body) {\n        // Real SMTP send — not called in dev/test\n        System.out.println(\"[SMTP] Sending to \" + to);\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.ActiveProfiles;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"dev\")\nclass EmailServiceProfileTest {\n    @Autowired EmailService emailService;\n    \n    @Test\n    void dev_profile_injectsMockEmailService() {\n        assertInstanceOf(MockEmailService.class, emailService);\n    }\n    \n    @Test\n    void send_doesNotThrow() {\n        assertDoesNotThrow(() -> emailService.send(\"test@example.com\", \"Hello!\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "@Profile({'dev','test'}): active in either profile",
+        "@ActiveProfiles('dev'): test runs with dev profile",
+        "assertInstanceOf: checks the concrete type of the injected bean"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m14_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Test @ConfigurationProperties loading",
+      "scenario": "Verify properties are correctly bound with @SpringBootTest.",
+      "instructions": "Write @SpringBootTest @ActiveProfiles('dev') tests that:\n1. Verify PaymentGatewayProps.url() equals 'https://sandbox.razorpay.com'\n2. Verify PaymentGatewayProps.maxRetries() equals 3\n3. Verify AppProps.name() is not null or blank\n4. Verify AppProps.debugMode() is true (in dev)",
+      "starter_code": "// application-dev.properties:\n// payment.gateway.url=https://sandbox.razorpay.com\n// payment.gateway.max-retries=3\n// payment.gateway.timeout-ms=5000\n// payment.gateway.api-key=rzp_test_123\n// app.name=PaymentService\n// app.version=1.0.0\n// app.debug-mode=true\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.context.ActiveProfiles;\n// @SpringBootTest with 4 property assertions\n",
+      "expected_solution": "// (application-dev.properties and records as above)\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.ActiveProfiles;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"dev\")\nclass ConfigPropertiesDevTest {\n    @Autowired PaymentGatewayProps gwProps;\n    @Autowired AppProps appProps;\n    \n    @Test void gateway_url_isSandbox() {\n        assertEquals(\"https://sandbox.razorpay.com\", gwProps.url());\n    }\n    @Test void gateway_maxRetries_isThree() {\n        assertEquals(3, gwProps.maxRetries());\n    }\n    @Test void app_name_isNotBlank() {\n        assertNotNull(appProps.name());\n        assertFalse(appProps.name().isBlank());\n    }\n    @Test void app_debugMode_trueInDev() {\n        assertTrue(appProps.debugMode());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@ActiveProfiles('dev'): loads application-dev.properties",
+        "@Autowired on @ConfigurationProperties record: Spring injects it like any bean",
+        "All 4 tests verify property values match the dev profile"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m14_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Nested @ConfigurationProperties record",
+      "scenario": "Nested records group sub-configs cleanly.",
+      "instructions": "Write a `NotificationProps` @ConfigurationProperties record with nested Email and Sms records. Bind:\n- notification.enabled (boolean)\n- notification.email.host, .port, .from, .tls-enabled\n- notification.sms.url, .api-key, .max-per-day\n\nWrite the application.properties entries and show injection into a service.",
+      "starter_code": "import org.springframework.boot.context.properties.ConfigurationProperties;\n// NotificationProps with nested Email and Sms records\n",
+      "expected_solution": "import org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.validation.annotation.Validated;\nimport org.springframework.stereotype.Service;\n\n@ConfigurationProperties(prefix = \"notification\")\npublic record NotificationProps(\n    boolean enabled,\n    Email email,\n    Sms sms\n) {\n    public record Email(\n        String host,\n        int port,\n        String from,\n        boolean tlsEnabled      // notification.email.tls-enabled\n    ) {}\n    \n    public record Sms(\n        String url,\n        String apiKey,          // notification.sms.api-key\n        int maxPerDay           // notification.sms.max-per-day\n    ) {}\n}\n\n// application.properties:\n// notification.enabled=true\n// notification.email.host=smtp.gmail.com\n// notification.email.port=587\n// notification.email.from=noreply@example.com\n// notification.email.tls-enabled=true\n// notification.sms.url=https://api.sms.in\n// notification.sms.api-key=${SMS_KEY}\n// notification.sms.max-per-day=1000\n\n@Service\nclass NotificationService {\n    private final NotificationProps props;\n    NotificationService(NotificationProps p) { props = p; }\n    \n    void sendEmail(String to, String body) {\n        if (!props.enabled()) return;\n        System.out.printf(\"Connecting to %s:%d (TLS:%b) from %s%n\",\n            props.email().host(), props.email().port(),\n            props.email().tlsEnabled(), props.email().from());\n    }\n    \n    void sendSms(String to, String msg) {\n        if (!props.enabled()) return;\n        System.out.printf(\"SMS via %s (limit %d/day)%n\",\n            props.sms().url(), props.sms().maxPerDay());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Nested record: fields bind to notification.email.* sub-prefix",
+        "Record within record: same relaxed binding rules (tls-enabled → tlsEnabled)",
+        "props.email().host(): access nested record fields via accessor methods"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m14_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Profile property override order",
+      "scenario": "Profile-specific properties override shared properties.",
+      "instructions": "Given these files, what is the effective value of each property when `spring.profiles.active=dev`?\n\n```properties\n# application.properties:\nserver.port=8080\nlogging.level.root=INFO\npayment.gateway.retries=3\npayment.gateway.url=NOT_SET\n\n# application-dev.properties:\nlogging.level.root=DEBUG\npayment.gateway.url=https://sandbox.razorpay.com\n```",
+      "expected_solution": "server.port = 8080 (from application.properties, not overridden)\nlogging.level.root = DEBUG (overridden by application-dev.properties)\npayment.gateway.retries = 3 (from application.properties, not overridden)\npayment.gateway.url = https://sandbox.razorpay.com (overridden by dev profile)",
+      "test_cases": [
+        { "type": "text_match", "expected": "server.port = 8080 (from application.properties, not overridden)\nlogging.level.root = DEBUG (overridden by application-dev.properties)\npayment.gateway.retries = 3 (from application.properties, not overridden)\npayment.gateway.url = https://sandbox.razorpay.com (overridden by dev profile)" }
+      ],
+      "hints": [
+        "application.properties always loads",
+        "application-dev.properties overlays on top, overriding matching keys",
+        "Properties not in the profile file keep their base values"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m14_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Zerodha-style trading config with profiles",
+      "scenario": "Dev uses NSE sandbox; prod uses live NSE feed.",
+      "instructions": "Build a complete configuration setup for a trading service:\n- `TradingProps` @ConfigurationProperties: marketFeedUrl, maxOrdersPerMinute, tradingHoursStart, tradingHoursEnd\n- `DatabaseProps`: url, username, password, poolSize\n- application.properties: shared config\n- application-dev.properties: sandbox, H2, small pool\n- application-prod.properties: env var DB, live NSE, larger pool\n- @SpringBootTest @ActiveProfiles('dev') with 3 assertions",
+      "starter_code": "// Complete Zerodha-style trading config\n// TradingProps, DatabaseProps, 3 property files, @SpringBootTest\n",
+      "expected_solution": "import org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.validation.annotation.Validated;\nimport jakarta.validation.constraints.*;\n\n@ConfigurationProperties(prefix = \"trading\") @Validated\nrecord TradingProps(\n    @NotBlank String marketFeedUrl,\n    @Min(1) @Max(1000) int maxOrdersPerMinute,\n    @NotBlank String tradingHoursStart,\n    @NotBlank String tradingHoursEnd\n) {}\n\n@ConfigurationProperties(prefix = \"database\")\nrecord DatabaseProps(\n    String url, String username, String password,\n    @Min(1) @Max(100) int poolSize\n) {}\n\n// application.properties:\n// spring.application.name=trading-service\n// server.port=8080\n// trading.max-orders-per-minute=100\n// trading.trading-hours-start=09:15\n// trading.trading-hours-end=15:30\n\n// application-dev.properties:\n// trading.market-feed-url=https://sandbox.nseindia.com\n// database.url=jdbc:h2:mem:tradingdb\n// database.username=sa\n// database.password=\n// database.pool-size=5\n// spring.jpa.hibernate.ddl-auto=create-drop\n// logging.level.root=DEBUG\n\n// application-prod.properties:\n// trading.market-feed-url=https://feed.nseindia.com\n// database.url=${DB_URL}\n// database.username=${DB_USER}\n// database.password=${DB_PASSWORD}\n// database.pool-size=30\n// spring.jpa.hibernate.ddl-auto=validate\n// logging.level.root=WARN\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.ActiveProfiles;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"dev\")\nclass TradingConfigDevTest {\n    @Autowired TradingProps trading;\n    @Autowired DatabaseProps db;\n    @Test void marketFeed_isSandbox()   { assertEquals(\"https://sandbox.nseindia.com\", trading.marketFeedUrl()); }\n    @Test void db_isH2()               { assertTrue(db.url().contains(\"h2\")); }\n    @Test void poolSize_isSmall_inDev(){ assertEquals(5, db.poolSize()); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Two separate @ConfigurationProperties records for different prefixes",
+        "@ActiveProfiles('dev'): loads application-dev.properties overlay",
+        "db.url().contains('h2'): H2 URL check without hardcoding"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m14_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@Profile conditional bean with CommandLineRunner",
+      "scenario": "@Profile('dev') beans seed test data only in dev.",
+      "instructions": "Write a `DevDataSeeder` @Component @Profile('dev') that:\n1. Implements CommandLineRunner\n2. Injects ProductRepository\n3. Seeds 3 test products on startup\n4. Prints '[DEV] Seeded X products'\n\nAlso write a @SpringBootTest @ActiveProfiles('dev') test verifying seeder ran.",
+      "starter_code": "import org.springframework.boot.CommandLineRunner;\nimport org.springframework.context.annotation.Profile;\nimport org.springframework.stereotype.Component;\n// DevDataSeeder + test\n",
+      "expected_solution": "import org.springframework.boot.CommandLineRunner;\nimport org.springframework.context.annotation.Profile;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Service;\n\n@Component @Profile(\"dev\")\npublic class DevDataSeeder implements CommandLineRunner {\n    private final ProductRepository repo;\n    DevDataSeeder(ProductRepository r) { repo = r; }\n    \n    @Override\n    public void run(String... args) {\n        if (repo.count() > 0) return;  // don't re-seed if already seeded\n        repo.save(new Product(\"Dev Mouse\",    799,  \"Electronics\"));\n        repo.save(new Product(\"Dev Keyboard\", 1999, \"Electronics\"));\n        repo.save(new Product(\"Dev Monitor\",  9999, \"Electronics\"));\n        System.out.println(\"[DEV] Seeded \" + repo.count() + \" products\");\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.ActiveProfiles;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"dev\")\nclass DevDataSeederTest {\n    @Autowired ProductRepository repo;\n    \n    @Test\n    void devSeeder_createsTestProducts() {\n        // DevDataSeeder.run() was called at startup\n        assertTrue(repo.count() >= 3, \"Dev seeder should have created 3+ products\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Profile('dev'): DevDataSeeder only runs when dev profile is active",
+        "CommandLineRunner.run() called after all beans are created",
+        "@ActiveProfiles('dev') in test: triggers the @Profile('dev') seeder"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m14_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Validated config that fails startup on bad values",
+      "scenario": "@Validated + @NotBlank causes fail-fast on missing config.",
+      "instructions": "Write a test that verifies your @ConfigurationProperties validation works:\n1. Create a @SpringBootTest that overrides a required property with an empty string\n2. Assert that the application context FAILS to load (ApplicationContextException)\n3. Use `assertThrows` with the `SpringApplication.run()` or test context failure\n\nAlternatively: demonstrate the validation works by showing a test that SUCCEEDS with valid properties and explain what would fail.",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.context.TestPropertySource;\n// Validation failure test\n",
+      "expected_solution": "// Approach: prove valid config loads correctly, explain what fails\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.ActiveProfiles;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// Test with VALID properties — should pass:\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties = {\n    \"payment.gateway.url=https://sandbox.razorpay.com\",\n    \"payment.gateway.timeout-ms=5000\",\n    \"payment.gateway.max-retries=3\",\n    \"payment.gateway.api-key=test_key_123\"\n})\nclass ValidConfigTest {\n    @Autowired PaymentGatewayProps props;\n    @Test void validConfig_loadsSuccessfully() {\n        assertEquals(\"https://sandbox.razorpay.com\", props.url());\n        assertEquals(3, props.maxRetries());\n    }\n}\n\n// Test with INVALID properties — context fails to start:\n// @SpringBootTest loads context; missing required property causes failure:\n// Cannot create test class because context initialization failed.\n// Error: payment.gateway.url must not be blank\n//\n// To verify programmatically:\nclass InvalidConfigExplained {\n    // When application.properties has: payment.gateway.url= (blank)\n    // And @Validated is on PaymentGatewayProps\n    // And @NotBlank is on url field\n    // → Application context fails with:\n    // 'payment.gateway.url' failed validation: must not be blank\n    // The @SpringBootTest would throw an exception during context init\n    void explanation() {\n        System.out.println(\"@Validated + @NotBlank on @ConfigurationProperties:\");\n        System.out.println(\"- Application REFUSES to start with blank/missing required properties\");\n        System.out.println(\"- Error shown at startup, not at first method call\");\n        System.out.println(\"- This is the fail-fast advantage over @Value\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@TestPropertySource(properties={...}): override specific properties in test",
+        "Context fails to start with @Validated + missing required property",
+        "Demonstrate with valid properties first, explain the failure scenario"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m14_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Feature flag system with profiles",
+      "scenario": "Profiles control which experimental features are active.",
+      "instructions": "Build a feature flag system:\n- `FeatureFlags` @ConfigurationProperties: enableNewCheckout (boolean), enableMlRecommendations (boolean), enableBetaSearch (boolean)\n- application-dev.properties: all flags = true (dev tries everything)\n- application-prod.properties: only enableNewCheckout = true (prod cautious)\n- `FeatureFlagService` that checks flags and routes accordingly\n- @SpringBootTest test comparing flag values between dev and prod profiles",
+      "starter_code": "// FeatureFlags @ConfigurationProperties\n// FeatureFlagService\n// application-dev.properties + application-prod.properties\n// @SpringBootTest tests for both profiles\n",
+      "expected_solution": "import org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.stereotype.Service;\n\n@ConfigurationProperties(prefix = \"feature\")\npublic record FeatureFlags(\n    boolean enableNewCheckout,\n    boolean enableMlRecommendations,\n    boolean enableBetaSearch\n) {}\n\n@Service\npublic class FeatureFlagService {\n    private final FeatureFlags flags;\n    FeatureFlagService(FeatureFlags f) { flags = f; }\n    \n    public String routeCheckout(String userId) {\n        return flags.enableNewCheckout() ? \"new-checkout\" : \"legacy-checkout\";\n    }\n    public boolean canUseRecommendations() { return flags.enableMlRecommendations(); }\n    public boolean canUseBetaSearch()      { return flags.enableBetaSearch(); }\n}\n\n// application-dev.properties:\n// feature.enable-new-checkout=true\n// feature.enable-ml-recommendations=true\n// feature.enable-beta-search=true\n\n// application-prod.properties:\n// feature.enable-new-checkout=true\n// feature.enable-ml-recommendations=false\n// feature.enable-beta-search=false\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.ActiveProfiles;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"dev\")\nclass FeatureFlagsDevTest {\n    @Autowired FeatureFlags flags;\n    @Test void allFlags_enabledInDev() {\n        assertTrue(flags.enableNewCheckout());\n        assertTrue(flags.enableMlRecommendations());\n        assertTrue(flags.enableBetaSearch());\n    }\n}\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"prod\")\nclass FeatureFlagsProdTest {\n    @Autowired FeatureFlags flags;\n    @Test void only_checkout_inProd() {\n        assertTrue(flags.enableNewCheckout());\n        assertFalse(flags.enableMlRecommendations());\n        assertFalse(flags.enableBetaSearch());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Two separate @SpringBootTest classes with different @ActiveProfiles",
+        "enable-new-checkout → enableNewCheckout (relaxed binding)",
+        "Feature flag pattern: check the flag, return different routes/implementations"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m14_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete payment service config — Module 14.4 synthesis",
+      "scenario": "Full type-safe, validated, multi-environment configuration.",
+      "instructions": "Build complete configuration for a Razorpay-style payment service:\n1. `PaymentProps` record: gateway (url, timeoutMs, maxRetries, apiKey @NotBlank), webhook (url, secret @NotBlank), limits (maxAmountInPaise @Max(10000000), minAmountInPaise @Min(100))\n2. Three property files: shared, dev, prod\n3. @Profile('dev') DevPaymentSeeder, @Profile('prod') LivePaymentMonitor\n4. @SpringBootTest dev profile: 4 assertions on props\n5. @SpringBootTest prod profile: verify different url\n\nAll tests pass.",
+      "starter_code": "// Full payment service configuration system\n// PaymentProps with nested records\n// 3 property files\n// 2 @Profile beans\n// 2 @SpringBootTest test classes\n",
+      "expected_solution": "import org.springframework.boot.context.properties.ConfigurationProperties;\nimport org.springframework.validation.annotation.Validated;\nimport jakarta.validation.constraints.*;\nimport jakarta.validation.Valid;\n\n@ConfigurationProperties(prefix=\"payment\") @Validated\npublic record PaymentProps(\n    @Valid Gateway gateway,\n    @Valid Webhook webhook,\n    @Valid Limits limits\n) {\n    public record Gateway(\n        @NotBlank String url,\n        @Min(100) @Max(30000) int timeoutMs,\n        @Min(1) @Max(5) int maxRetries,\n        @NotBlank String apiKey\n    ) {}\n    public record Webhook(@NotBlank String url, @NotBlank String secret) {}\n    public record Limits(@Max(10000000) int maxAmountInPaise, @Min(100) int minAmountInPaise) {}\n}\n\n// application.properties:\n// spring.application.name=payment-service\n// payment.gateway.max-retries=3\n// payment.gateway.timeout-ms=5000\n// payment.limits.max-amount-in-paise=10000000\n// payment.limits.min-amount-in-paise=100\n\n// application-dev.properties:\n// payment.gateway.url=https://sandbox.razorpay.com\n// payment.gateway.api-key=rzp_test_dev_key\n// payment.webhook.url=https://dev.example.com/webhook\n// payment.webhook.secret=dev_webhook_secret\n\n// application-prod.properties:\n// payment.gateway.url=https://api.razorpay.com\n// payment.gateway.api-key=${RAZORPAY_KEY}\n// payment.webhook.url=${WEBHOOK_URL}\n// payment.webhook.secret=${WEBHOOK_SECRET}\n\nimport org.springframework.context.annotation.Profile;\nimport org.springframework.stereotype.Component;\nimport org.springframework.boot.CommandLineRunner;\n@Component @Profile(\"dev\")\nclass DevPaymentSeeder implements CommandLineRunner {\n    public void run(String... args) { System.out.println(\"[DEV] Payment seeder activated\"); }\n}\n@Component @Profile(\"prod\")\nclass LivePaymentMonitor implements CommandLineRunner {\n    public void run(String... args) { System.out.println(\"[PROD] Payment monitor active\"); }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.ActiveProfiles;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@ActiveProfiles(\"dev\")\nclass PaymentPropsDevTest {\n    @Autowired PaymentProps props;\n    @org.junit.jupiter.api.Test void gateway_isSandbox()  { assertEquals(\"https://sandbox.razorpay.com\", props.gateway().url()); }\n    @org.junit.jupiter.api.Test void retries_isThree()    { assertEquals(3, props.gateway().maxRetries()); }\n    @org.junit.jupiter.api.Test void minAmount_is100()    { assertEquals(100, props.limits().minAmountInPaise()); }\n    @org.junit.jupiter.api.Test void webhook_hasSecret()  { assertNotNull(props.webhook().secret()); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Valid on nested record fields: propagates @Validated to nested records",
+        "Two @SpringBootTest classes, each with a different @ActiveProfiles",
+        "props.gateway().url(): access nested record through the outer record"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 710,
+    "estimated_completion_minutes": 60
+  }
+}

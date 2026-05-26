@@ -1,0 +1,195 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t4",
+  "language": "java",
+  "module_id": "m7",
+  "module_name": "Exception Handling",
+  "topic_number": 4,
+  "name": "Defensive Programming",
+  "slug": "defensive-programming",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m7_t1", "java_m7_t2", "java_m7_t3"],
+    "concepts_taught": [
+      "fail_fast_principle",
+      "input_validation_at_boundaries",
+      "null_checks_and_null_safety",
+      "objects_requirenonnull",
+      "guard_clauses",
+      "defensive_copies",
+      "precondition_pattern",
+      "immutable_design",
+      "optional_preview",
+      "when_to_validate_vs_trust"
+    ],
+    "skills_developed": [
+      "writing_input_validation_at_method_entry",
+      "using_objects_requirenonnull",
+      "applying_guard_clauses",
+      "making_defensive_copies",
+      "designing_fail_fast_methods",
+      "recognizing_validation_boundaries"
+    ],
+    "career_relevance": "Defensive programming is what separates code that 'works in testing' from code that 'works in production.' Bad input will arrive. Null will appear where it shouldn't. Data will be mutated after you stored a reference. Defensive code catches these problems at the entry point — with clear error messages — rather than letting them cause mysterious failures deep inside your logic. Senior engineers are judged partly on this: 'Does this code fail gracefully on unexpected input?' After this topic, your answer is yes — consistently.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Meet the two most common production bugs in Java:\n\n**Bug 1 — NullPointerException in the middle of logic:**\n```java\npublic double calculateDiscount(Order order) {\n    // 300 lines later...\n    return order.getCustomer().getLoyaltyLevel().getDiscountRate(); // NPE!\n    // Which one is null? No idea. Stack trace is 12 frames deep.\n}\n```\n\n**Bug 2 — Silent corruption from shared mutable state:**\n```java\npublic class Order {\n    private List<Item> items;\n    public Order(List<Item> items) {\n        this.items = items;  // BUG: stored reference to caller's list!\n    }\n}\n// Caller then modifies their list... and the order's items change too.\n```\n\nBoth bugs are preventable with defensive programming:\n\n**Fix 1 — Fail at the entry point:**\n```java\npublic double calculateDiscount(Order order) {\n    Objects.requireNonNull(order, \"order must not be null\");\n    Objects.requireNonNull(order.getCustomer(), \"order must have a customer\");\n    // Now you get a clear NPE with a message at the TOP, not buried in logic\n    return order.getCustomer().getLoyaltyLevel().getDiscountRate();\n}\n```\n\n**Fix 2 — Defensive copy:**\n```java\npublic Order(List<Item> items) {\n    Objects.requireNonNull(items, \"items must not be null\");\n    this.items = new ArrayList<>(items);  // defensive copy — we own our data\n}\n```\n\nDefensive programming is about catching problems at boundaries — the moment data enters your code — not hoping they don't cause damage later.",
+    "what_you_will_build": "By the end of this topic, you'll write fail-fast validation with guard clauses, use `Objects.requireNonNull()` idiomatically, make defensive copies of mutable data, understand the validation boundary principle, apply the precondition pattern, and preview Java's Optional for nullable return values."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "fail_fast_principle": "**Fail fast** — detect and report problems as early as possible.\n\nThe opposite is 'fail slow': accept bad input, pass it around, and crash mysteriously somewhere deep in your code hours or days later.\n\n```java\n// FAIL SLOW — bad input travels far:\npublic void processUser(User user) {\n    // No validation...\n    String email = user.getEmail();\n    sendConfirmation(email);  // NPE here — but user came from 10 layers up\n    saveToDatabase(user);     // IllegalArgumentException here — from somewhere else\n}\n\n// FAIL FAST — problem caught immediately:\npublic void processUser(User user) {\n    Objects.requireNonNull(user, \"user must not be null\");\n    if (user.getEmail() == null || user.getEmail().isBlank()) {\n        throw new IllegalArgumentException(\"user email is required\");\n    }\n    // Everything after here: guaranteed valid user with email\n    sendConfirmation(user.getEmail());\n    saveToDatabase(user);\n}\n```\n\n**Why fail fast wins**:\n- NullPointerException at line 2 (your validation) vs line 47 (somewhere in logic)\n- Clear error message: 'user email is required' vs 'NullPointerException'\n- Problem is at the ENTRY POINT where you can see which caller passed bad data\n- Subsequent code is simpler: no defensive null checks throughout",
+
+      "objects_requirenonnull": "**`Objects.requireNonNull()`** — the standard Java way to reject null:\n\n```java\nimport java.util.Objects;\n\npublic class PaymentService {\n    private final BankClient bank;\n    \n    public PaymentService(BankClient bank) {\n        // Fail if someone constructs this with null:\n        this.bank = Objects.requireNonNull(bank, \"bank client must not be null\");\n    }\n    \n    public void transfer(String from, String to, double amount) {\n        Objects.requireNonNull(from, \"source account id required\");\n        Objects.requireNonNull(to, \"destination account id required\");\n        // ... safe to use from and to here\n    }\n}\n```\n\n`Objects.requireNonNull(value, message)` returns the value if non-null, or throws `NullPointerException` with your message if null.\n\n**Inline assignment pattern** — use in constructors and setters:\n```java\nthis.bank = Objects.requireNonNull(bank, \"bank must not be null\");\n// Equivalent to:\nif (bank == null) throw new NullPointerException(\"bank must not be null\");\nthis.bank = bank;\n```\n\n**When to use it**:\n- Constructor parameters that must not be null\n- Method parameters where null would cause problems downstream\n- Before storing a reference in a field\n\n**Note**: `Objects.requireNonNull` throws `NullPointerException`. For public APIs where null is genuinely an invalid argument (not just missing), you might prefer `IllegalArgumentException` — more semantically clear. Both are fine; teams choose one convention and stick to it.",
+
+      "guard_clauses": "**Guard clauses** — validate at the TOP of a method, return or throw early:\n\n```java\n// WITHOUT guard clauses — deeply nested:\npublic String processOrder(Order order, User user) {\n    if (order != null) {\n        if (user != null) {\n            if (order.getItems() != null && !order.getItems().isEmpty()) {\n                if (user.isActive()) {\n                    // actual logic buried here\n                    return doProcess(order, user);\n                } else {\n                    return \"User inactive\";\n                }\n            } else {\n                return \"Empty order\";\n            }\n        } else {\n            return \"No user\";\n        }\n    } else {\n        return \"No order\";\n    }\n}\n```\n\n```java\n// WITH guard clauses — flat and readable:\npublic String processOrder(Order order, User user) {\n    if (order == null)                             return \"No order\";\n    if (user == null)                              return \"No user\";\n    if (order.getItems() == null || order.getItems().isEmpty()) return \"Empty order\";\n    if (!user.isActive())                          return \"User inactive\";\n    \n    // actual logic — no nesting:\n    return doProcess(order, user);\n}\n```\n\nGuard clauses:\n- Check INVALID conditions and return/throw early\n- Leave the main logic unindented and readable\n- Each guard expresses exactly ONE validation concern\n- After all guards pass: guaranteed all preconditions are met",
+
+      "defensive_copies": "**Defensive copies** — protect your state from external mutation:\n\n**On input (constructor/setter):**\n```java\npublic class Exam {\n    private final List<String> questions;\n    \n    public Exam(List<String> questions) {\n        Objects.requireNonNull(questions, \"questions required\");\n        // Defensive copy — we own our version:\n        this.questions = new ArrayList<>(questions);\n    }\n    // Now caller can modify their list — Exam is unaffected\n}\n```\n\n**On output (getter):**\n```java\npublic List<String> getQuestions() {\n    return Collections.unmodifiableList(questions);\n    // Or: return new ArrayList<>(questions);\n}\n// Caller can't modify the returned list to affect internal state\n```\n\n**On dates (Date is mutable — avoid in modern Java, but common in legacy):**\n```java\npublic Date getDeadline() {\n    return new Date(deadline.getTime());  // copy — not the internal object\n}\n```\n\n**When to make defensive copies**:\n- Constructor receives a mutable collection/array/Date: copy it\n- Getter returns a mutable internal field: return unmodifiable view or copy\n- No need for primitive types (int, double) — they're immutable by nature\n- Strings are immutable — no copy needed\n\n**The rule**: If you store someone else's mutable object, you own a copy. If you return your mutable internal object, return a copy or view.",
+
+      "precondition_pattern": "**Preconditions** — explicit contracts at the start of a method:\n\n```java\npublic double calculateEmi(double principal, double annualRate, int months) {\n    // State what THIS METHOD requires — its contract:\n    if (principal <= 0) \n        throw new IllegalArgumentException(\"principal must be positive, got: \" + principal);\n    if (annualRate < 0)\n        throw new IllegalArgumentException(\"annualRate cannot be negative, got: \" + annualRate);\n    if (months <= 0)\n        throw new IllegalArgumentException(\"months must be positive, got: \" + months);\n    \n    // Contract established — safe to compute:\n    double r = annualRate / 12 / 100;\n    if (r == 0) return principal / months;\n    double pow = Math.pow(1 + r, months);\n    return principal * r * pow / (pow - 1);\n}\n```\n\n**Guava's Preconditions class** (widely used in production):\n```java\nimport com.google.common.base.Preconditions;\n\nPreconditions.checkNotNull(user, \"user required\");\nPreconditions.checkArgument(age >= 0, \"age must be non-negative, got %s\", age);\nPreconditions.checkState(!isProcessed, \"order already processed\");\n```\n\nYou won't always have Guava, but recognizing the pattern matters. In standard Java, use `Objects.requireNonNull` for null checks and `if + throw IllegalArgumentException` for value checks.",
+
+      "immutable_design": "**Immutable objects — the ultimate defense:**\n\nAn immutable object cannot change after creation — no defensive copies needed, no unexpected mutation.\n\n```java\n// Mutable — requires defensive copies everywhere:\nclass MutablePoint {\n    int x, y;\n    void setX(int x) { this.x = x; }\n    void setY(int y) { this.y = y; }\n}\n\n// Immutable — safe to share, no copying needed:\nfinal class Point {  // final prevents subclassing\n    private final int x, y;  // final fields\n    \n    public Point(int x, int y) { this.x = x; this.y = y; }\n    \n    public int getX() { return x; }  // no setters\n    public int getY() { return y; }\n    \n    // Instead of mutation, return a NEW object:\n    public Point translate(int dx, int dy) { return new Point(x + dx, y + dy); }\n    \n    @Override public String toString() { return \"(\" + x + \",\" + y + \")\"; }\n}\n```\n\n**Rules for immutable classes**:\n1. All fields `final`\n2. No setters\n3. Class `final` (prevent subclass from breaking immutability)\n4. If fields are mutable types (List, Date), make defensive copies in constructor and getters\n\n`String`, `Integer`, `LocalDate` — Java's most-used immutable types.\n\nImmutable objects are automatically thread-safe, free of aliasing bugs, easy to reason about.",
+
+      "null_return_values": "**Avoiding null as a return value** — the root cause of most NPEs:\n\n**Problem**: returning null when 'nothing found':\n```java\npublic User findUserById(int id) {\n    return map.get(id);  // returns null if not found\n}\n\n// Caller forgets null check:\nString email = findUserById(42).getEmail();  // NPE if not found!\n```\n\n**Solution 1: Return Optional** (Java 8+):\n```java\npublic Optional<User> findUserById(int id) {\n    return Optional.ofNullable(map.get(id));\n}\n\n// Caller must handle the 'not found' case:\nOptional<User> user = findUserById(42);\nif (user.isPresent()) {\n    System.out.println(user.get().getEmail());\n}\n// Or:\nString email = findUserById(42)\n    .map(User::getEmail)\n    .orElse(\"unknown\");  // safe default\n```\n\n**Solution 2: Throw exception** (when absence is an error):\n```java\npublic User findUserById(int id) {\n    User user = map.get(id);\n    if (user == null) throw new UserNotFoundException(\"User \" + id + \" not found\");\n    return user;  // guaranteed non-null\n}\n```\n\n**When to use which**:\n- User might reasonably not exist (search result) → `Optional<User>`\n- User MUST exist (this is an error state) → throw exception\n- Internal-only method where caller knows it's valid → can return null (but document it)\n\nOptional will be covered in detail in Module 9 (Streams). For now: know it exists, understand `isPresent()`, `get()`, `orElse()`.",
+
+      "validation_boundary": "**The validation boundary** — WHERE to validate:\n\n```\n[External world] ──→ [YOUR BOUNDARY] ──→ [Internal logic]\n    Untrusted input  ↑                        Trusted data\n                     Validate HERE\n```\n\n**Public methods** = boundary. Validate all inputs.\n**Private methods** = internal. Trust the caller (usually you). Validate as documentation/safety.\n\n```java\npublic class OrderService {\n    // PUBLIC boundary — validate everything:\n    public Order placeOrder(String customerId, List<Item> items) {\n        Objects.requireNonNull(customerId, \"customerId required\");\n        Objects.requireNonNull(items, \"items required\");\n        if (items.isEmpty()) throw new IllegalArgumentException(\"order must have items\");\n        \n        return processValidatedOrder(customerId, new ArrayList<>(items));\n    }\n    \n    // PRIVATE internal — can trust inputs are valid:\n    private Order processValidatedOrder(String customerId, List<Item> items) {\n        // No need to re-validate — caller (placeOrder) guaranteed validity\n        // Still guard against truly impossible states with assert if desired\n    }\n}\n```\n\nDon't over-validate. Private methods called only by your own validated public methods don't need the full validation dance. Focus your defensive energy at the BOUNDARY where external data enters."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three diagrams: (1) 'Fail fast vs fail slow' — two call stacks side by side. Left (fail slow): arrow going through 10 methods before NPE. Right (fail fast): NPE at entry point with clear message. (2) 'Defensive copy' diagram: caller has list → passes reference to constructor → mutable object (WRONG: both point to same list). vs caller has list → passes to constructor → new ArrayList<>(items) creates new box → both lists independent (CORRECT). (3) 'Guard clause' refactoring: nested if/else pyramid (left) → flat guard clauses at top, main logic flat below (right). The validation boundary diagram: external world enters through a gate labeled 'VALIDATE HERE' into internal logic.",
+      "alt_text": "Fail fast vs fail slow stacks, defensive copy diagram, guard clause refactoring, validation boundary"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Refactor a poorly-written BankAccount class into a defensively-programmed version. The original has no validation, mutable internals exposed, and no fail-fast. The refactored version catches every problem at the boundary.",
+
+    "problem_statement": "Transform `BankAccount` from buggy-when-misused to defensively-correct:\n- Null account holder → NullPointerException\n- Negative initial balance → silent bug\n- Withdraw more than available → silent result\n- External modification of transaction history\n\nApply: Objects.requireNonNull, guard clauses, defensive copies, fail-fast validation.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Original buggy version",
+        "details": "```java\n// BUGGY:\npublic class BankAccount {\n    public String holder;\n    public double balance;\n    public List<String> transactions = new ArrayList<>();\n    \n    public BankAccount(String holder, double initialBalance) {\n        this.holder = holder;\n        this.balance = initialBalance;  // allows negative!\n    }\n    \n    public void deposit(double amount) {\n        balance += amount;  // allows negative deposit!\n    }\n    \n    public void withdraw(double amount) {\n        balance -= amount;  // allows overdraft!\n    }\n    \n    public List<String> getTransactions() {\n        return transactions;  // exposes internal list!\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Apply defensive design — constructor",
+        "details": "```java\npublic class BankAccount {\n    private final String holder;     // final — can't change account holder\n    private double balance;          // not final — balance changes\n    private final List<String> transactions = new ArrayList<>();\n    \n    public BankAccount(String holder, double initialBalance) {\n        // Guard clauses:\n        this.holder = Objects.requireNonNull(holder, \"Account holder name required\");\n        if (holder.isBlank()) throw new IllegalArgumentException(\"Holder name cannot be blank\");\n        if (initialBalance < 0) throw new IllegalArgumentException(\n            \"Initial balance cannot be negative: \" + initialBalance);\n        \n        this.balance = initialBalance;\n        transactions.add(\"Account opened with ₹\" + initialBalance);\n    }\n```"
+      },
+      {
+        "step": 3,
+        "action": "Validate deposit and withdraw",
+        "details": "```java\n    public void deposit(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\n            \"Deposit amount must be positive, got: \" + amount);\n        balance += amount;\n        transactions.add(\"Deposited ₹\" + amount + \" | Balance: ₹\" + balance);\n    }\n    \n    public void withdraw(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\n            \"Withdrawal amount must be positive, got: \" + amount);\n        if (amount > balance) throw new IllegalStateException(\n            \"Insufficient funds: balance ₹\" + balance + \", requested ₹\" + amount);\n        balance -= amount;\n        transactions.add(\"Withdrew ₹\" + amount + \" | Balance: ₹\" + balance);\n    }\n```"
+      },
+      {
+        "step": 4,
+        "action": "Safe getters — defensive copy for mutable field",
+        "details": "```java\n    public String getHolder() { return holder; }  // String is immutable — safe\n    \n    public double getBalance() { return balance; }  // double is primitive — safe\n    \n    public List<String> getTransactions() {\n        return Collections.unmodifiableList(transactions);  // read-only view\n    }\n    // Caller can't do: getTransactions().add(\"hacked!\") — UnsupportedOperationException\n}\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\n\npublic class BankAccount {\n    private final String holder;\n    private double balance;\n    private final List<String> transactions = new ArrayList<>();\n    \n    public BankAccount(String holder, double initialBalance) {\n        this.holder = Objects.requireNonNull(holder, \"Account holder name required\");\n        if (holder.isBlank()) throw new IllegalArgumentException(\"Holder name cannot be blank\");\n        if (initialBalance < 0) throw new IllegalArgumentException(\n            \"Initial balance cannot be negative: \" + initialBalance);\n        this.balance = initialBalance;\n        transactions.add(\"Account opened with ₹\" + initialBalance);\n    }\n    \n    public void deposit(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\n            \"Deposit must be positive, got: \" + amount);\n        balance += amount;\n        transactions.add(\"Deposited ₹\" + amount + \" | Balance: ₹\" + balance);\n    }\n    \n    public void withdraw(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\n            \"Withdrawal must be positive, got: \" + amount);\n        if (amount > balance) throw new IllegalStateException(\n            \"Insufficient: balance ₹\" + balance + \", requested ₹\" + amount);\n        balance -= amount;\n        transactions.add(\"Withdrew ₹\" + amount + \" | Balance: ₹\" + balance);\n    }\n    \n    public String getHolder() { return holder; }\n    public double getBalance() { return balance; }\n    public List<String> getTransactions() { return Collections.unmodifiableList(transactions); }\n    \n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount(\"Aisha\", 5000);\n        acc.deposit(2000);\n        acc.withdraw(1500);\n        System.out.println(\"Balance: ₹\" + acc.getBalance());\n        System.out.println(\"History: \" + acc.getTransactions());\n        \n        try { acc.withdraw(10000); } \n        catch (IllegalStateException e) { System.out.println(\"Caught: \" + e.getMessage()); }\n        \n        try { new BankAccount(null, 1000); }\n        catch (NullPointerException e) { System.out.println(\"Caught: \" + e.getMessage()); }\n        \n        try { acc.getTransactions().add(\"hacked\"); }\n        catch (UnsupportedOperationException e) { System.out.println(\"Cannot modify history!\"); }\n    }\n}",
+
+    "expected_output": "Balance: ₹5500.0\nHistory: [Account opened with ₹5000.0, Deposited ₹2000.0 | Balance: ₹7000.0, Withdrew ₹1500.0 | Balance: ₹5500.0]\nCaught: Insufficient: balance ₹5500.0, requested ₹10000.0\nCaught: Account holder name required\nCannot modify history!",
+
+    "things_to_notice": [
+      "The constructor validates ALL inputs BEFORE assigning any fields. If anything is wrong, the object never gets created in an invalid state.",
+      "Objects.requireNonNull is used inline in the assignment: `this.holder = Objects.requireNonNull(holder, ...)` — one line instead of two.",
+      "holder is `final` — can't be changed after construction. This is defensive design: if you can't change it, nobody can accidentally change it.",
+      "getTransactions() returns `Collections.unmodifiableList(transactions)` — the caller gets read-only access. The real list is hidden inside the class.",
+      "The IllegalStateException for overdraft carries the balance and requested amounts — actionable context, not just 'insufficient funds'.",
+      "Balance after: 5000 + 2000 - 1500 = 5500. Each transaction is logged with the new running balance."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Google's Java style guide (production standard)",
+        "use_case": "Google's Java codebase mandates Objects.requireNonNull for all constructor parameters and important method parameters. Their Guava library's Preconditions class provides checkNotNull, checkArgument, checkState — used millions of times across Google's Java code. The philosophy: make the contract explicit in code, not just in comments."
+      },
+      {
+        "company_context": "HDFC / Axis Bank — core banking system",
+        "use_case": "Every transaction method in banking systems validates before acting: amount > 0, accounts exist and are active, amounts don't exceed limits. Banks discovered decades ago that silent wrong behavior (negative balance, phantom transaction) is worse than a loud error. Fail fast principles are mandated in financial software."
+      },
+      {
+        "company_context": "Spring Framework internals",
+        "use_case": "Spring's source code is a masterclass in defensive programming. Every @Bean registration validates names. Every injection validates types. When you misconfigure a Spring bean, you get an immediate error at startup — not a mysterious NPE when the first request hits. This is Spring's deliberate fail-fast philosophy: catch configuration errors before serving any traffic."
+      }
+    ],
+
+    "interview_relevance": "Defensive programming comes up in code reviews and design discussions:\n\n- **'Review this method — what could go wrong?'** → Identify: null inputs, negative values, empty collections, wrong state.\n- **'Why is returning null bad practice?'** → Forces caller to null-check; one missed check = NPE far from the source.\n- **'What is a guard clause?'** → Early return for invalid inputs; reduces nesting; expresses preconditions clearly.\n- **'What is a defensive copy and when do you need it?'** → Copy mutable inputs in constructor; return unmodifiable or copies from getters.\n- **'What is fail-fast?'** → Detect and report problems immediately, at the source, rather than propagating bad state.",
+
+    "real_world_workflow": "Daily defensive programming habits:\n\n- All public constructor params: `Objects.requireNonNull(param, 'param required')`\n- Method receiving collection: `if (collection == null || collection.isEmpty()) throw new IllegalArgumentException(...)`\n- Constructor receiving List/array: `this.items = new ArrayList<>(items)` — defensive copy\n- Getter returning mutable collection: `return Collections.unmodifiableList(field)`\n- Any numeric input: range check before computation\n- Code review checklist: 'What happens if this is null?' 'What if this list is empty?' 'What if the caller modifies this after calling us?'"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "validating_after_using",
+      "what_students_get_wrong": "Checking null AFTER already using the value: `result = compute(value); if (result == null) throw ...`",
+      "remediation": "Validate BEFORE using. If compute() can return null and that's a problem, add the null check BEFORE calling compute(), or check the result before calling methods on it.",
+      "detection_pattern": "Null check comes after the line that would NPE"
+    },
+    {
+      "gap_id": "not_copying_constructor_list",
+      "what_students_get_wrong": "Storing `this.items = items` directly — now the caller's list and the object's list are the same object.",
+      "remediation": "Always copy mutable inputs: `this.items = new ArrayList<>(items)`. For arrays: `Arrays.copyOf(arr, arr.length)`.",
+      "detection_pattern": "External modification changes object's internal state"
+    },
+    {
+      "gap_id": "using_assert_for_validation",
+      "what_students_get_wrong": "Using Java's `assert` statement for input validation. Assertions are disabled by default at runtime.",
+      "remediation": "Use `if + throw` (or Objects.requireNonNull) for validation. `assert` is for debugging/testing internal invariants — it can be disabled with `-da` JVM flag.",
+      "detection_pattern": "assert used for public API validation"
+    },
+    {
+      "gap_id": "over_validating_private_methods",
+      "what_students_get_wrong": "Adding full validation to every private method — creates noise and gives false security.",
+      "remediation": "Validate at the PUBLIC boundary. Private methods should trust their own class's logic. Light assertions in private methods are fine for debugging; full validation is overkill.",
+      "detection_pattern": "Identical validation code repeated in public and private methods"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Fail fast: detect invalid input at the entry point, not deep in logic",
+      "Objects.requireNonNull(value, message): standard Java null check — returns value or throws NPE",
+      "Guard clauses: validate at the TOP of a method, return/throw early, keep main logic flat",
+      "Defensive copies: copy mutable inputs (List, Date) in constructors; return unmodifiable or copies from getters",
+      "Preconditions pattern: state what THIS method requires at the start — its contract",
+      "Immutable design: final fields + no setters = no defensive copies needed = thread-safe",
+      "Null returns: prefer Optional<T> for 'might not exist', throw for 'must exist'",
+      "Validation boundary: validate at public methods, trust at private methods",
+      "Error messages: include the invalid value and what was expected",
+      "Never use assert for production validation — it's disabled by default"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What is the defensive programming problem here?\n```java\npublic class Schedule {\n    private List<String> slots;\n    public Schedule(List<String> slots) {\n        this.slots = slots;\n    }\n    public List<String> getSlots() {\n        return slots;\n    }\n}\n```",
+        "answer": "Two problems: (1) Constructor stores the reference directly — caller can modify their list after creating the Schedule and slots changes. Fix: `this.slots = new ArrayList<>(slots)`. (2) Getter returns the internal list — any caller can add/remove slots: `schedule.getSlots().clear()`. Fix: `return Collections.unmodifiableList(slots)`. Also missing null check on the constructor parameter."
+      },
+      {
+        "question": "Why is `assert amount > 0 : 'amount must be positive'` a poor choice for public API validation?",
+        "answer": "Java assertions are DISABLED by default. Unless the JVM is launched with `-ea` (enable assertions), the assert statement does nothing at runtime. So this check doesn't run in production, giving false confidence. Use `if (amount <= 0) throw new IllegalArgumentException(...)` for production validation. Assertions are useful for internal consistency checks during development/testing."
+      },
+      {
+        "question": "Rewrite this method using guard clauses:\n```java\npublic void sendEmail(String to, String subject, String body) {\n    if (to != null) {\n        if (!to.isBlank()) {\n            if (subject != null) {\n                doSend(to, subject, body);\n            }\n        }\n    }\n}\n```",
+        "answer": "```java\npublic void sendEmail(String to, String subject, String body) {\n    Objects.requireNonNull(to, \"recipient address required\");\n    if (to.isBlank()) throw new IllegalArgumentException(\"recipient address cannot be blank\");\n    Objects.requireNonNull(subject, \"email subject required\");\n    doSend(to, subject, body);\n}\n```\nGuard clauses check invalid conditions early and throw, leaving the happy path flat and readable."
+      }
+    ],
+
+    "next_topic_preview": "Module 7's final topic: **Try-with-resources** — the modern way to handle Closeable resources (files, database connections, streams). Instead of complex finally blocks to close resources, Java 7+ syntax does it automatically. After this last topic, you'll have the complete exception handling toolkit: try/catch/finally, exception types, custom exceptions, defensive programming, and resource management."
+  }
+}

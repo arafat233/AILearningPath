@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m1_t5_proj",
+  "linked_topic": "java_m1_t5",
+  "level": "mini",
+  "name": "EMI Loan Amortization Calculator",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  
+  "scenario": "You're building a financial calculator for a fintech app like Bajaj Finserv, HDFC, or BankBazaar. When users apply for a loan, they want to see the full payment schedule — how much interest vs principal goes into each monthly payment, how the balance shrinks over time. This is called an 'amortization schedule.' Every loan EMI calculator on the internet uses this exact algorithm. Building this teaches you loops + accumulators + real business logic in one project.",
+  
+  "description": "Build a loan EMI (Equated Monthly Installment) calculator that produces a full amortization schedule. For each month, show: payment number, principal portion, interest portion, remaining balance. This is real production-quality logic.",
+  
+  "background_math": {
+    "emi_formula": "EMI = [P × r × (1+r)^n] / [(1+r)^n - 1]\n\nWhere:\nP = principal (loan amount)\nr = monthly interest rate (annual rate / 12 / 100)\nn = number of monthly installments",
+    "monthly_breakdown": "For each month:\n- Interest portion = current balance × monthly rate\n- Principal portion = EMI - interest portion\n- New balance = current balance - principal portion",
+    "use_math_pow": "Use Math.pow(base, exponent) for exponentiation:\nMath.pow(1 + monthlyRate, months) computes (1+r)^n",
+    "note": "Don't worry about understanding the EMI formula derivation — just use it. The interesting part is the LOOP that generates the schedule month by month."
+  },
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `EMICalculator` in file EMICalculator.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Calculates EMI using the formula correctly",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Uses a for loop to iterate through each month of the loan term",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Uses accumulator pattern to track total interest and total principal paid",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "For each month, displays: month number, principal portion, interest portion, remaining balance",
+        "weight": 20
+      },
+      {
+        "id": "req_7",
+        "description": "Final summary showing total interest paid, total amount, original principal",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Only displays first 3 and last 3 months (skip middle), to keep output readable for long loans. Use loop with conditional + continue.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Calculates and shows the milestone month when 50% of principal is paid off",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Compares two scenarios: shorter term (higher EMI, less interest) vs longer term (lower EMI, more interest)",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Output formatted professionally with aligned columns, currency symbols, separators",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Use these values (or your own — code should work for any reasonable loan):\n\n- Principal: ₹500,000 (5 lakh)\n- Annual interest rate: 9.5%\n- Loan term: 12 months (1 year, kept short for readable output)\n\nThe EMI should come out to approximately ₹43,810 per month.\n\nWhen you're done, try larger scenarios:\n- ₹50 lakh home loan @ 8.5% for 20 years (240 months)\n- ₹2 lakh car loan @ 11% for 60 months",
+  
+  "starter_code": "// Build your EMICalculator below\n// Algorithm:\n// 1. Calculate EMI using formula\n// 2. Loop through each month, tracking balance, interest, principal\n// 3. Display month-by-month breakdown\n// 4. Display summary\n\npublic class EMICalculator {\n    public static void main(String[] args) {\n        // Loan parameters\n        double principal = 500000.0;\n        double annualRate = 9.5;\n        int months = 12;\n        \n        // Calculate monthly rate\n        double monthlyRate = annualRate / 12 / 100;\n        \n        // Step 1: Calculate EMI using formula\n        // EMI = [P × r × (1+r)^n] / [(1+r)^n - 1]\n        // Use Math.pow(1 + monthlyRate, months)\n        \n        // Step 2: Set up accumulators and loop\n        // double remainingBalance = principal;\n        // double totalInterest = 0;\n        // double totalPrincipal = 0;\n        \n        // Step 3: Loop through each month\n        // for (int month = 1; month <= months; month++) {\n        //     double interestThisMonth = remainingBalance * monthlyRate;\n        //     double principalThisMonth = emi - interestThisMonth;\n        //     remainingBalance -= principalThisMonth;\n        //     ...accumulate, print...\n        // }\n        \n        // Step 4: Print summary\n        \n    }\n}",
+  
+  "example_output": "╔═══════════════════════════════════════════════╗\n║         LOAN AMORTIZATION SCHEDULE            ║\n╚═══════════════════════════════════════════════╝\nPrincipal:        ₹500000.0\nAnnual Rate:      9.5%\nLoan Term:        12 months\nMonthly EMI:      ₹43810.16\n-----------------------------------------------\nMonth | Principal  | Interest   | Balance\n-----------------------------------------------\n  1   |  39852.66  |   3957.50  | 460147.34\n  2   |  40167.05  |   3643.11  | 419980.29\n  3   |  40485.04  |   3325.18  | 379495.25\n  4   |  40806.49  |   3003.67  | 338688.76\n  5   |  41131.55  |   2678.62  | 297557.21\n  6   |  41459.25  |   2350.95  | 256097.96\n  7   |  41789.93  |   2020.27  | 214308.03\n  8   |  42123.66  |   1686.50  | 172184.37\n  9   |  42460.50  |   1349.66  | 129723.87\n 10   |  42800.43  |   1009.73  |  86923.44\n 11   |  43143.50  |    666.66  |  43779.94\n 12   |  43489.75  |    320.41  |     -0.04\n-----------------------------------------------\nTotal Principal:  ₹500000.04\nTotal Interest:   ₹26012.27\nTotal Paid:       ₹525821.93\n===============================================\n\nNote: Tiny rounding errors (final balance -0.04, total principal +0.04) are normal with floating-point math. We'll address proper currency math in advanced topics.",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs and produces output (5 pts)"
+      ]
+    },
+    {
+      "category": "EMI Calculation",
+      "points": 15,
+      "criteria": [
+        "Correctly applies EMI formula (10 pts)",
+        "Uses Math.pow correctly (5 pts)"
+      ]
+    },
+    {
+      "category": "Loop Implementation",
+      "points": 20,
+      "criteria": [
+        "Uses for loop iterating through months (10 pts)",
+        "Correctly calculates interest each month (5 pts)",
+        "Correctly updates balance each month (5 pts)"
+      ]
+    },
+    {
+      "category": "Accumulator Pattern",
+      "points": 15,
+      "criteria": [
+        "Tracks total interest correctly (5 pts)",
+        "Tracks total principal correctly (5 pts)",
+        "Initializes accumulators before loop (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 20,
+      "criteria": [
+        "Each month's data displayed (10 pts)",
+        "Final summary present (5 pts)",
+        "Formatted clearly (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "Descriptive variable names (5 pts)",
+        "Comments explaining sections (5 pts)",
+        "Clean structure (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 60,
+      "criteria": [
+        "First-3-and-last-3 view for long loans (15 pts)",
+        "50% milestone calculation (15 pts)",
+        "Comparison of two scenarios (20 pts)",
+        "Professional formatting (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The EMI formula is given to you — your job is the LOOP logic. That's the engineering skill. If stuck on Math.pow syntax or string formatting, use a hint. If stuck on the algorithm, work it out on paper first.",
+  
+  "submission_instructions": "Save as EMICalculator.java. Run it. Verify monthly breakdown adds up correctly (final balance should be near 0). Test with a larger loan (5 years, 10 years). When happy, commit to GitHub portfolio — this is a real-world calculator that you could turn into a web app.",
+  
+  "tips_for_success": [
+    "Calculate EMI FIRST, before the loop. The EMI is constant — same every month.",
+    "Trace through 2-3 months manually with pencil to make sure you understand the algorithm.",
+    "Math.pow returns double. Make sure your variables are all double for the formula.",
+    "The interest part DECREASES each month (because balance shrinks). The principal part INCREASES.",
+    "Print as you go inside the loop. Don't try to save everything for the end.",
+    "Use printf or String.format for clean column alignment (optional but nice).",
+    "Tiny rounding errors at the end are normal — don't try to fix them with extra logic for now."
+  ],
+  
+  "concepts_reinforced": [
+    "for loop with fixed iteration count",
+    "Accumulator pattern (multiple accumulators: total interest, total principal)",
+    "State that persists across iterations (remaining balance)",
+    "Combining loops with arithmetic operators",
+    "Math library usage (Math.pow)",
+    "Real business logic implementation",
+    "Output formatting and structure"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond loops, you learn THINKING IN ITERATIONS. The loan calculation isn't just 'compute EMI' — it's 'compute one month, then the next, then the next.' This iterative mindset — handle one case, repeat — is the foundation of every algorithm, every data processing job, every batch job, every animation, every game frame. You're now thinking like a software engineer. Real loan calculators on bank websites use this exact algorithm. You just wrote real fintech code.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a 'prepayment' feature: at month 6, simulate paying extra ₹50,000 — see how much interest is saved",
+    "Compare 'fixed' vs 'floating' rate scenarios",
+    "Add 'tenure reduction' calculation: if user pays extra each month, how many months do they save?",
+    "Save the schedule to a CSV file (preview of file I/O)",
+    "Calculate the 'sweet spot': what monthly payment balances time vs interest cost?"
+  ]
+}

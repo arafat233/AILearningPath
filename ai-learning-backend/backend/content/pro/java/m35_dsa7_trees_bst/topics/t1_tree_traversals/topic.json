@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t1",
+  "module_id": "m35",
+  "topic_number": 1,
+  "name": "Tree Traversals \u2014 Inorder, Level-Order, Zigzag, Diameter",
+  "slug": "tree-traversals-all-orders",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m34_t1"
+    ],
+    "concepts_taught": [
+      "inorder",
+      "preorder",
+      "postorder",
+      "level_order",
+      "zigzag",
+      "symmetric",
+      "diameter"
+    ],
+    "career_relevance": "Tree traversals appear in every Flipkart/Amazon interview. Inorder BST = sorted. Level-order BFS = shortest path. Diameter/LCA are top-5 tree questions.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "// Tree traversal orders:\n// Inorder (L-N-R): BST \u2192 sorted. Preorder (N-L-R): copy tree. Post (L-R-N): delete tree. Level: BFS.\n",
+    "what_you_will_build": "All 4 traversals + diameter + symmetric + flatten."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "inorder": "L-N-R for BST gives sorted output.",
+      "level": "BFS with size snapshot for level boundaries."
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Inorder recursive: dfs(left), visit, dfs(right)",
+        "Inorder iterative: push lefts, pop, visit, go right",
+        "Level order: size snapshot before inner for-loop",
+        "Diameter = max(leftH+rightH) across all nodes",
+        "Symmetric: mirror(l.left,r.right) && mirror(l.right,r.left)",
+        "Zigzag: addFirst/addLast toggle by boolean flag"
+      ],
+      "next_topic_preview": "Next: Binary Tree Problems \u2014 depth, LCA, balance, path sum."
+    }
+  }
+}

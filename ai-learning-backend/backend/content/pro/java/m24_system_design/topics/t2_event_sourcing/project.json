@@ -1,0 +1,31 @@
+{
+  "schema_version":"1.0","project_id":"java_m24_t2_proj","linked_topic":"java_m24_t2",
+  "level":"mini","name":"Razorpay Payment — Event Sourcing",
+  "estimated_minutes":45,"difficulty":8,
+  "scenario":"Razorpay needs a complete audit trail for all payment events (RBI compliance). Replace the current CRUD payment table with an event-sourced model where every state change is stored as an immutable event.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"DomainEvent sealed interface with 4 records: PaymentInitiatedEvent, ProcessingStartedEvent, BankTimeoutEvent, PaymentFailedEvent. All immutable, with relevant fields.","weight":15},
+    {"id":"req_2","description":"PaymentAggregate: reconstruct(List<DomainEvent>) static factory replays events into state. Separate apply(XxxEvent) methods. getStatus(), getAmount() accessors.","weight":20},
+    {"id":"req_3","description":"EventStore @Service: append(aggregateId, event), loadEvents(aggregateId) → ordered List<StoredEvent>. Append-only (no update methods).","weight":15},
+    {"id":"req_4","description":"TemporalQuery: reconstructUpTo(events, N) → state at event N. Used for dispute resolution.","weight":10},
+    {"id":"req_5","description":"PaymentStatusProjection: rebuild from event store, getStatus(paymentId) → current status.","weight":10},
+    {"id":"req_6","description":"@SpringBootTest (4 tests): full lifecycle events → status FAILED, temporal query at event 1 → INITIATED, projection index correct, snapshot stores/loads correctly. All 4 pass.","weight":25},
+    {"id":"req_7","description":"README: explain why event sourcing for payments and not for shopping carts (audit + regulatory requirement).","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"JPA-backed EventStore: EventRecord entity with unique constraint on (aggregate_id, sequence). @DataJpaTest: append + load from H2.","weight":20},
+    {"id":"bonus_2","description":"Optimistic concurrency: append with expectedVersion parameter. ConcurrentModificationException if version mismatch. Test: wrong version throws.","weight":20},
+    {"id":"bonus_3","description":"EventUpcaster: PaymentFailedEvent V1 → V2 (add retryable field). Test: TIMEOUT → retryable=true, FRAUD → retryable=false.","weight":15}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. Events are past tense: PaymentInitiatedEvent (not InitiatePaymentEvent). Reconstruct via fold: create empty aggregate, apply each event in order — each event mutates one or more fields. Sealed interface: compiler verifies all subtypes handled in switch. Append-only: EventStore has no update() or delete() methods — only append() and load(). Temporal query: stream().limit(N) — apply only first N events to get state at that point in time.",
+  "rubric":[
+    {"category":"DomainEvent sealed hierarchy (4 records)","points":15},
+    {"category":"PaymentAggregate reconstruct+apply","points":20},
+    {"category":"EventStore append-only","points":15},
+    {"category":"TemporalQuery","points":10},
+    {"category":"PaymentStatusProjection","points":10},
+    {"category":"4 tests (all pass)","points":25},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

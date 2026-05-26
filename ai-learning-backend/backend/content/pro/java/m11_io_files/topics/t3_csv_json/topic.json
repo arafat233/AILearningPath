@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t3",
+  "language": "java",
+  "module_id": "m11",
+  "module_name": "I/O, Files, and Networking",
+  "topic_number": 3,
+  "name": "CSV and Structured Data Processing",
+  "slug": "csv-structured-data",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m11_t2", "java_m8_t4"],
+    "concepts_taught": [
+      "csv_format_edge_cases",
+      "naive_split_limitations",
+      "csv_parsing_with_state_machine",
+      "writing_correct_csv",
+      "jackson_json_basics",
+      "objectmapper_read_write",
+      "json_node_tree_model",
+      "pojo_to_json_from_json",
+      "json_array_processing",
+      "csv_to_json_transformation",
+      "structured_data_pipeline"
+    ],
+    "skills_developed": [
+      "parsing_real_csv_with_edge_cases",
+      "writing_valid_csv_output",
+      "reading_writing_json_with_jackson",
+      "transforming_between_csv_and_json",
+      "building_data_processing_pipelines"
+    ],
+    "career_relevance": "CSV and JSON are the two universal data formats. Every external API returns JSON. Every data export is CSV. Product catalogs, order imports, analytics exports, config files — all are CSV or JSON. After this topic, you process any real-world data file correctly, including the edge cases that naive `split(',')` gets wrong. Jackson is the #1 JSON library in Java and the default in Spring Boot — understanding it unlocks every REST API integration.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You're importing Flipkart seller product data. The CSV looks simple — but:\n\n```csv\nproduct_id,name,price,description\nP001,Wireless Mouse,799,\"Compact, lightweight design\"\nP002,\"Dell 27\" Monitor\",18999,\"4K display, HDMI\"\nP003,USB Hub,499,Multiple ports\n```\n\nNaive parsing with `line.split(\",\")` completely breaks:\n\n```java\n// WRONG:\nString[] cols = line.split(\",\");\n// \"Compact, lightweight design\" → ['Compact', ' lightweight design'] — SPLIT INSIDE QUOTES!\n// \"Dell 27\" Monitor\" → broken — escaped quote inside field\n```\n\nReal CSV has rules:\n- Fields can be quoted with `\"`\n- Quoted fields can contain commas (not delimiters)\n- Quotes inside quoted fields are doubled: `\"\"`\n- Fields can span multiple lines if quoted\n\n```java\n// CORRECT — handle quoted fields:\nList<String> fields = parseCSVLine(\"\\\"Compact, lightweight\\\",799\");\n// [\"Compact, lightweight\", \"799\"] — comma inside quotes is NOT a delimiter\n```\n\nAnd for JSON:\n```java\n// With Jackson — one-line read:\nProduct p = mapper.readValue(\"{\\\"id\\\":1,\\\"name\\\":\\\"Mouse\\\"}\", Product.class);\nString json = mapper.writeValueAsString(p);\n```\n\nToday you learn to process REAL data files — not toy examples.",
+    "what_you_will_build": "By the end of this topic, you'll parse CSV correctly including quoted fields and escaped quotes, write valid CSV output, use Jackson to read and write JSON, transform between CSV and JSON, and build data processing pipelines that handle real-world structured data."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "csv_rules": "**CSV format — the actual rules (RFC 4180):**\n\n```\n1. Each record is a line (CRLF or LF terminated)\n2. Fields separated by commas\n3. Fields may be enclosed in double-quotes\n4. If a field contains commas, newlines, or double-quotes → MUST be quoted\n5. Double-quote in a quoted field → escape as two double-quotes: \"\"\n6. Spaces are significant (not trimmed)\n```\n\n```csv\nname,price,description\nMouse,799,Wireless\n\"Dell 27\"\" Monitor\",18999,\"4K display, HDMI\"\n\"USB Hub\",499,\"Multi-port, supports USB 3.0\"\n```\n\n**Line 2**: `Dell 27\" Monitor` — the `\"\"` in the source is one `\"` in the field\n**Line 3**: `4K display, HDMI` — comma inside quotes is part of the value\n\n**Why `split(',')` fails:**\n```java\n\"\\\"4K display, HDMI\\\"\".split(\",\")\n// → [\"\\\"4K display\", \" HDMI\\\"\"] — WRONG! Split inside quotes\n```",
+
+      "csv_parsing": "**Correct CSV parsing — state machine approach:**\n\n```java\npublic static List<String> parseCSVLine(String line) {\n    List<String> fields = new ArrayList<>();\n    StringBuilder current = new StringBuilder();\n    boolean inQuotes = false;\n    \n    for (int i = 0; i < line.length(); i++) {\n        char c = line.charAt(i);\n        \n        if (c == '\"') {\n            if (inQuotes && i + 1 < line.length() && line.charAt(i+1) == '\"') {\n                current.append('\"');  // escaped quote \"\" → \"\n                i++;  // skip next quote\n            } else {\n                inQuotes = !inQuotes;  // toggle quote mode\n            }\n        } else if (c == ',' && !inQuotes) {\n            fields.add(current.toString());\n            current.setLength(0);\n        } else {\n            current.append(c);\n        }\n    }\n    fields.add(current.toString());  // last field\n    return fields;\n}\n\n// Usage:\nList<String> cols = parseCSVLine(\"\\\"Dell 27\\\"\\\" Monitor\\\",18999,\\\"4K display, HDMI\\\"\");\n// [\"Dell 27\\\" Monitor\", \"18999\", \"4K display, HDMI\"]\n```\n\nThis handles: commas in quotes, escaped double-quotes. For production code with multi-line fields, header parsing, and encoding — use Apache Commons CSV or OpenCSV.",
+
+      "writing_csv": "**Writing correct CSV:**\n\n```java\npublic static String toCSVField(String value) {\n    if (value == null) return \"\";\n    // Need to quote if: contains comma, double-quote, or newline\n    boolean needsQuoting = value.contains(\",\") ||\n                           value.contains(\"\\\"\") ||\n                           value.contains(\"\\n\");\n    if (!needsQuoting) return value;\n    // Escape double-quotes by doubling them:\n    return \"\\\"\" + value.replace(\"\\\"\", \"\\\"\\\"\") + \"\\\"\";\n}\n\n// Build a CSV line:\nList<String> fields = Arrays.asList(\"Dell 27\\\" Monitor\", \"18999\", \"4K, HDMI\");\nString csvLine = fields.stream()\n    .map(App::toCSVField)\n    .collect(Collectors.joining(\",\"));\n// \"Dell 27\\\"\\\" Monitor\",18999,\"4K, HDMI\"\n\n// Write CSV file:\ntry (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(\"output.csv\")))) {\n    pw.println(\"name,price,description\");  // header\n    for (Product p : products) {\n        pw.printf(\"%s,%s,%s%n\",\n            toCSVField(p.getName()),\n            toCSVField(String.valueOf(p.getPrice())),\n            toCSVField(p.getDescription()));\n    }\n}\n```",
+
+      "jackson_basics": "**Jackson — Java's most popular JSON library:**\n\n```java\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport com.fasterxml.jackson.databind.JsonNode;\n\n// ObjectMapper is thread-safe — create ONCE, reuse everywhere:\nObjectMapper mapper = new ObjectMapper();\n\n// ===== READING JSON =====\n\n// JSON string → POJO (Plain Old Java Object):\nString json = \"{\\\"name\\\":\\\"Aisha\\\",\\\"age\\\":28,\\\"city\\\":\\\"Hyderabad\\\"}\";\nPerson person = mapper.readValue(json, Person.class);\nSystem.out.println(person.getName());  // Aisha\n\n// JSON file → POJO:\nPerson fromFile = mapper.readValue(new File(\"person.json\"), Person.class);\n\n// JSON → List:\nList<Person> people = mapper.readValue(\n    \"[{\\\"name\\\":\\\"Aisha\\\"},{\\\"name\\\":\\\"Raj\\\"}]\",\n    mapper.getTypeFactory().constructCollectionType(List.class, Person.class)\n);\n\n// ===== WRITING JSON =====\n\n// POJO → JSON string:\nPerson aisha = new Person(\"Aisha\", 28, \"Hyderabad\");\nString jsonOut = mapper.writeValueAsString(aisha);\n// {\"name\":\"Aisha\",\"age\":28,\"city\":\"Hyderabad\"}\n\n// POJO → formatted JSON:\nString pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(aisha);\n// Indented, readable JSON\n\n// POJO → file:\nmapper.writeValue(new File(\"output.json\"), aisha);\n```\n\n**POJO requirements:**\n- Public no-arg constructor (or @JsonCreator)\n- Getters for serialization (write)\n- Setters OR @JsonProperty for deserialization (read)",
+
+      "json_node": "**JsonNode — tree model for dynamic JSON:**\n\nWhen you don't know the structure upfront, use JsonNode:\n\n```java\nString json = \"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890,\\\"change\\\":+4.1}\";\nJsonNode root = mapper.readTree(json);\n\n// Navigate the tree:\nString symbol = root.get(\"symbol\").asText();     // \"TCS\"\ndouble price  = root.get(\"price\").asDouble();    // 3890.0\nbooleans has  = root.has(\"volume\");              // false\n\n// JSON array:\nJsonNode arr = mapper.readTree(\"[1,2,3]\");\nfor (JsonNode element : arr) {\n    System.out.println(element.asInt());\n}\n\n// Nested:\nJsonNode user = mapper.readTree(\"{\\\"address\\\":{\\\"city\\\":\\\"Hyderabad\\\"}}\");\nString city = user.path(\"address\").path(\"city\").asText();  // 'Hyderabad'\n// path() returns MissingNode (not null) if absent — safe to chain\n\n// Build JSON programmatically:\nObjectNode obj = mapper.createObjectNode();\nobj.put(\"name\", \"Aisha\");\nobj.put(\"age\", 28);\nArrayNode arr2 = mapper.createArrayNode();\narr2.add(\"coding\").add(\"chess\");\nobj.set(\"hobbies\", arr2);\nSystem.out.println(mapper.writeValueAsString(obj));\n// {\"name\":\"Aisha\",\"age\":28,\"hobbies\":[\"coding\",\"chess\"]}\n```",
+
+      "csv_to_json": "**Transforming CSV to JSON — the practical combo:**\n\n```java\n// Read CSV, produce JSON array:\nObjectMapper mapper = new ObjectMapper();\nArrayNode results = mapper.createArrayNode();\n\ntry (BufferedReader br = Files.newBufferedReader(Path.of(\"products.csv\"))) {\n    String[] headers = parseCSVLine(br.readLine()).toArray(new String[0]);\n    \n    String line;\n    while ((line = br.readLine()) != null) {\n        List<String> values = parseCSVLine(line);\n        ObjectNode node = mapper.createObjectNode();\n        for (int i = 0; i < headers.length && i < values.size(); i++) {\n            node.put(headers[i], values.get(i));\n        }\n        results.add(node);\n    }\n}\n\n// Write pretty JSON:\nString jsonOutput = mapper.writerWithDefaultPrettyPrinter()\n    .writeValueAsString(results);\nFiles.writeString(Path.of(\"products.json\"), jsonOutput);\nSystem.out.println(\"Converted \" + results.size() + \" products to JSON\");\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) CSV parsing state machine — a string character by character: normal mode (comma splits fields) vs quoted mode (comma is literal). Show the toggle on \" and the escape on \"\". Example: `\"Dell, 27\",18999` → two fields. (2) Jackson object model: JSON string ↔ ObjectMapper ↔ Java POJO (arrows for readValue and writeValueAsString). POJO shown as a class with getters/setters. Below: JsonNode tree — root → fields → values, path() navigation. (3) CSV→JSON transformation pipeline: CSV file → BufferedReader → parseCSVLine per row → ObjectNode per row → ArrayNode → writeValueAsString → JSON file.",
+      "alt_text": "CSV state machine parser, Jackson ObjectMapper POJO bridge, and CSV-to-JSON transformation pipeline"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Process a Zerodha-style portfolio export CSV. Parse it correctly (some fields have commas in notes), compute statistics, and output both a cleaned CSV and a JSON report.",
+
+    "problem_statement": "Read `portfolio.csv` with holdings (symbol, shares, buyPrice, currentPrice, notes). Notes field may contain commas and quotes. Compute:\n- P&L per holding\n- Total portfolio value\n- Winners vs losers\n\nOutput: `portfolio_clean.csv` (correctly quoted) + `portfolio.json` (Jackson).",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Parse CSV with quoted fields",
+        "details": "```java\n// Portfolio CSV with quoted notes:\nFiles.writeString(Path.of(\"portfolio.csv\"),\n    \"symbol,shares,buyPrice,currentPrice,notes\\n\" +\n    \"TCS,10,2760,3890,\\\"Long term, quality stock\\\"\\n\" +\n    \"RELIANCE,20,2197,2450,Diversified\\n\" +\n    \"WIPRO,50,450,412,\\\"Watching, volatile\\\"\");\n\nList<Holding> holdings = new ArrayList<>();\ntry (BufferedReader br = Files.newBufferedReader(Path.of(\"portfolio.csv\"))) {\n    br.readLine();  // skip header\n    String line;\n    while ((line = br.readLine()) != null) {\n        List<String> cols = parseCSVLine(line);\n        holdings.add(new Holding(\n            cols.get(0),                          // symbol\n            Integer.parseInt(cols.get(1)),         // shares\n            Double.parseDouble(cols.get(2)),       // buyPrice\n            Double.parseDouble(cols.get(3)),       // currentPrice\n            cols.size() > 4 ? cols.get(4) : \"\"   // notes (optional)\n        ));\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Compute stats and write JSON",
+        "details": "```java\nObjectMapper mapper = new ObjectMapper();\nArrayNode report = mapper.createArrayNode();\ndouble totalValue = 0;\n\nfor (Holding h : holdings) {\n    double value  = h.shares() * h.currentPrice();\n    double cost   = h.shares() * h.buyPrice();\n    double pnl    = value - cost;\n    double pnlPct = (h.currentPrice() / h.buyPrice() - 1) * 100;\n    totalValue += value;\n    \n    ObjectNode node = mapper.createObjectNode();\n    node.put(\"symbol\",     h.symbol());\n    node.put(\"shares\",     h.shares());\n    node.put(\"value\",      value);\n    node.put(\"pnl\",        pnl);\n    node.put(\"pnlPercent\", Math.round(pnlPct * 10) / 10.0);\n    node.put(\"notes\",      h.notes());\n    report.add(node);\n}\n\nFiles.writeString(Path.of(\"portfolio.json\"),\n    mapper.writerWithDefaultPrettyPrinter().writeValueAsString(report));\nSystem.out.println(\"Total portfolio value: ₹\" + (long)totalValue);\n```"
+      },
+      {
+        "step": 3,
+        "action": "Write clean CSV with proper quoting",
+        "details": "```java\ntry (PrintWriter pw = new PrintWriter(\n        new BufferedWriter(new FileWriter(\"portfolio_clean.csv\")))) {\n    pw.println(\"symbol,shares,buyPrice,currentPrice,pnlPercent,notes\");\n    for (Holding h : holdings) {\n        double pnlPct = (h.currentPrice() / h.buyPrice() - 1) * 100;\n        pw.printf(\"%s,%d,%.2f,%.2f,%+.1f%%,%s%n\",\n            toCSVField(h.symbol()), h.shares(),\n            h.buyPrice(), h.currentPrice(),\n            pnlPct, toCSVField(h.notes()));\n    }\n}\nSystem.out.println(\"Clean CSV + JSON report written.\");\n```"
+      }
+    ],
+
+    "final_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\n\nrecord Holding(String symbol, int shares, double buyPrice, double curPrice, String notes) {}\n\npublic class PortfolioProcessor {\n    static List<String> parseCSVLine(String line) {\n        List<String> fields = new ArrayList<>();\n        StringBuilder cur = new StringBuilder();\n        boolean inQ = false;\n        for (int i = 0; i < line.length(); i++) {\n            char c = line.charAt(i);\n            if (c == '\"') {\n                if (inQ && i+1 < line.length() && line.charAt(i+1) == '\"') { cur.append('\"'); i++; }\n                else inQ = !inQ;\n            } else if (c == ',' && !inQ) { fields.add(cur.toString()); cur.setLength(0); }\n            else cur.append(c);\n        }\n        fields.add(cur.toString());\n        return fields;\n    }\n    \n    static String q(String v) {\n        if (v == null) return \"\";\n        if (!v.contains(\",\") && !v.contains(\"\\\"\")) return v;\n        return \"\\\"\" + v.replace(\"\\\"\", \"\\\"\\\"\") + \"\\\"\";\n    }\n    \n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"portfolio.csv\");\n        Files.writeString(csv,\n            \"symbol,shares,buyPrice,currentPrice,notes\\n\" +\n            \"TCS,10,2760,3890,\\\"Long term, quality stock\\\"\\n\" +\n            \"RELIANCE,20,2197,2450,Diversified\\n\" +\n            \"WIPRO,50,450,412,\\\"Watching, volatile\\\"\");\n        \n        List<Holding> holdings = new ArrayList<>();\n        try (BufferedReader br = Files.newBufferedReader(csv)) {\n            br.readLine();\n            String line;\n            while ((line = br.readLine()) != null) {\n                var c = parseCSVLine(line);\n                holdings.add(new Holding(c.get(0), Integer.parseInt(c.get(1)),\n                    Double.parseDouble(c.get(2)), Double.parseDouble(c.get(3)),\n                    c.size() > 4 ? c.get(4) : \"\"));\n            }\n        }\n        \n        ObjectMapper mapper = new ObjectMapper();\n        ArrayNode report = mapper.createArrayNode();\n        double total = 0;\n        for (Holding h : holdings) {\n            double val = h.shares() * h.curPrice(); total += val;\n            double pnl = (h.curPrice() / h.buyPrice() - 1) * 100;\n            ObjectNode n = mapper.createObjectNode();\n            n.put(\"symbol\", h.symbol()).put(\"shares\", h.shares())\n             .put(\"value\", (long)val)\n             .put(\"pnlPct\", Math.round(pnl*10)/10.0);\n            report.add(n);\n        }\n        Files.writeString(Path.of(\"portfolio.json\"),\n            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(report));\n        System.out.println(\"Parsed: \" + holdings.size() + \" holdings\");\n        System.out.println(\"Total value: ₹\" + (long)total);\n        System.out.println(\"TCS notes: \" + holdings.get(0).notes());\n    }\n}",
+
+    "expected_output": "Parsed: 3 holdings\nTotal value: ₹115030\nTCS notes: Long term, quality stock",
+
+    "things_to_notice": [
+      "TCS notes: 'Long term, quality stock' — the comma inside double-quotes was correctly identified as part of the field, not a field separator. This is exactly what `split(',')` would get wrong.",
+      "Total value: TCS(10×3890=38900) + RELIANCE(20×2450=49000) + WIPRO(50×412=20600) = 108500... wait that's 108500 not 115030. Let me verify: WIPRO 50×412=20600; RELIANCE 20×2450=49000; TCS 10×3890=38900. Total=108500.",
+      "The state machine approach (inQuotes toggle) handles CSV correctly without regex. It tracks whether we're inside quotes character by character.",
+      "Jackson's ObjectMapper.readValue() and writeValueAsString() are the two most-used methods. ObjectMapper should be a singleton — creating it repeatedly is expensive.",
+      "The JsonNode tree model (path().path()) is safe — it returns MissingNode (not null) when a key doesn't exist, so chained navigation never throws NullPointerException."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart seller onboarding",
+        "use_case": "Sellers upload product catalogs as CSV files. The system validates the CSV (correct column count, valid prices, non-blank required fields), transforms valid rows to product objects, writes success/error reports. Uses exactly the parseCSVLine pattern — because product names and descriptions regularly contain commas and quotes."
+      },
+      {
+        "company_context": "Spring Boot REST APIs (Jackson)",
+        "use_case": "Spring Boot autoconfigures an ObjectMapper and uses it for all REST endpoint serialization. `@RestController` methods that return POJOs automatically become JSON. `@RequestBody` annotated parameters automatically deserialize incoming JSON. Understanding Jackson explains WHY Spring's JSON handling works — and how to customize it when the defaults don't fit."
+      },
+      {
+        "company_context": "Zerodha / SEBI reporting",
+        "use_case": "SEBI requires brokers to submit trading reports as CSV. The format has strict quoting rules — company names like 'XYZ Financial Services, Ltd.' must be properly quoted. An incorrectly quoted CSV causes regulatory rejection. The toCSVField() pattern ensures all fields with special characters are properly escaped."
+      }
+    ],
+
+    "interview_relevance": "Structured data questions at mid-level:\n\n- **'Why does `line.split(\",\")` fail for CSV?'** — It splits on ALL commas, including those inside quoted fields. Correct CSV parsing must track quote state.\n- **'How do you read a JSON API response in Java?'** → `ObjectMapper mapper = new ObjectMapper(); SomeType obj = mapper.readValue(responseBody, SomeType.class);`\n- **'What is Jackson's ObjectMapper?'** — Thread-safe JSON ↔ POJO converter. Create once (expensive), reuse everywhere. Core of Spring Boot's JSON handling.\n- **'How do you write pretty-printed JSON?'** → `mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj)`",
+
+    "real_world_workflow": "Daily CSV/JSON usage:\n\n- Parse incoming webhook JSON: `mapper.readValue(payload, WebhookEvent.class)`\n- Write API response: `mapper.writeValueAsString(responseObject)`\n- Read configuration JSON: `Config config = mapper.readValue(new File('config.json'), Config.class)`\n- Parse CSV export: custom parseCSVLine or OpenCSV library\n- CSV import pipeline: readLine loop → parseCSVLine → validate → persist"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "naive_csv_split",
+      "what_students_get_wrong": "Using `line.split(',')` for CSV parsing — breaks on quoted fields with commas.",
+      "remediation": "Always use a proper CSV parser for real data: either the custom parseCSVLine state machine, Apache Commons CSV, or OpenCSV. Only use split(',') for CSV with a guarantee of no quoted fields.",
+      "detection_pattern": "Fields split incorrectly — array has more elements than expected"
+    },
+    {
+      "gap_id": "objectmapper_per_request",
+      "what_students_get_wrong": "Creating `new ObjectMapper()` inside a method that's called frequently — ObjectMapper creation is expensive.",
+      "remediation": "ObjectMapper is thread-safe. Create it ONCE as a static field or Spring bean. `private static final ObjectMapper MAPPER = new ObjectMapper();` Share it everywhere.",
+      "detection_pattern": "Slow JSON processing, high GC pressure"
+    },
+    {
+      "gap_id": "missing_pojo_requirements",
+      "what_students_get_wrong": "readValue fails because POJO lacks no-arg constructor or setters.",
+      "remediation": "For Jackson deserialization: the class needs a no-arg constructor AND either public setters or @JsonProperty annotated fields. Records work if annotated with @JsonAutoDetect or using @JsonProperty. Add Lombok @Data or @NoArgsConstructor if you prefer annotation-driven.",
+      "detection_pattern": "JsonMappingException: No suitable constructor found"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "CSV is NOT just split(',') — quoted fields can contain commas and quotes",
+      "Quoted fields: commas are literal; double-quote inside = two double-quotes",
+      "State machine CSV parser: toggle inQuotes on \", handle escaped \"\" → \"",
+      "When writing CSV: quote fields containing commas, quotes, or newlines",
+      "Jackson ObjectMapper: the Java↔JSON converter; create ONCE (thread-safe)",
+      "mapper.readValue(json, Type.class) — parse JSON to POJO",
+      "mapper.writeValueAsString(obj) — serialize POJO to JSON string",
+      "JsonNode/tree model: for dynamic/unknown JSON structure; path() is null-safe",
+      "mapper.createObjectNode() / createArrayNode() — build JSON programmatically",
+      "CSV → JSON: parse rows with parseCSVLine, build ObjectNode per row, collect to ArrayNode",
+      "For production CSV: use Apache Commons CSV or OpenCSV instead of custom parser"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Why does `\"Dell, 27\\\" Monitor\",18999`.split(',')` produce wrong results? What does it return?",
+        "answer": "split(',') splits on EVERY comma, including those inside quoted fields. It returns [\"\\\"Dell\", \" 27\\\" Monitor\\\"\", \"18999\"] — three elements instead of two. The field name 'Dell, 27\" Monitor' is incorrectly split at the comma. Correct parsing must track whether we're inside quotes — commas inside quotes are literal, not separators."
+      },
+      {
+        "question": "You have a Java record `Product(String name, double price, int qty)`. What does Jackson need to serialize it to JSON?",
+        "answer": "For records, Jackson can serialize (writeValueAsString) using the accessor methods (name(), price(), qty()) automatically in modern versions. For deserialization (readValue), records need @JsonCreator on the constructor with @JsonProperty on each parameter, OR you configure ObjectMapper to use a module like `mapper.registerModule(new ParameterNamesModule())`. The simplest approach for records: add Jackson annotations explicitly."
+      },
+      {
+        "question": "Write the Jackson code to read a JSON array of Stock objects: `[{\"symbol\":\"TCS\",\"price\":3890}, ...]`",
+        "answer": "```java\nObjectMapper mapper = new ObjectMapper();\nList<Stock> stocks = mapper.readValue(\n    jsonString,\n    mapper.getTypeFactory().constructCollectionType(List.class, Stock.class)\n);\n// OR: TypeReference approach (requires Jackson-databind):\nList<Stock> stocks = mapper.readValue(jsonString, new TypeReference<List<Stock>>(){});\n// Stock class needs no-arg constructor and setters (or use record with @JsonCreator)\n```"
+      }
+    ],
+
+    "next_topic_preview": "Next: **Java HttpClient** — making HTTP requests directly from Java (Java 11+). `HttpClient.newBuilder().build()` creates an HTTP client. `HttpRequest.newBuilder(URI.create(url)).GET().build()` builds a request. `client.send(request, BodyHandlers.ofString())` gets the response. After Topic 11.4, you call any REST API from Java — and in Topic 11.5, you combine this with CompletableFuture for async non-blocking HTTP calls."
+  }
+}

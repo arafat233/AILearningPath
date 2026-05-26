@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m8_t4_proj",
+  "linked_topic": "java_m8_t4",
+  "level": "mini",
+  "name": "Stock Watchlist Analytics — Collectors Edition",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "You're building the analytics backend for a stock watchlist app (Zerodha/Groww style). Traders add stocks and the system must answer: which sector has the most gainers today? What's the average change per sector? Which stocks hit the price target? Which sector has the best overall performance? All solved with Collectors — no manual loops.",
+
+  "description": "Analytics system for a stock watchlist using groupingBy, partitioningBy, toMap, summarizingDouble and joining collectors. Replaces all the manual Map-building patterns from Module 6.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Stock` class: symbol, sector, price (double), dailyChange (double, % gain/loss), targetPrice (double). Getters + toString.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`WatchlistAnalytics.groupBySector(List<Stock>)` — returns `Map<String, List<Stock>>` using groupingBy.",
+        "weight": 12
+      },
+      {
+        "id": "req_3",
+        "description": "`avgChangePerSector(List<Stock>)` — returns `Map<String, Double>` of average dailyChange per sector using groupingBy + averagingDouble.",
+        "weight": 12
+      },
+      {
+        "id": "req_4",
+        "description": "`gainersAndLosers(List<Stock>)` — returns `Map<Boolean, List<Stock>>` using partitioningBy (true=gainer: dailyChange > 0).",
+        "weight": 12
+      },
+      {
+        "id": "req_5",
+        "description": "`buildLookup(List<Stock>)` — returns `Map<String, Stock>` of symbol → Stock using toMap.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`sectorStats(List<Stock>)` — returns `Map<String, DoubleSummaryStatistics>` of price stats per sector using groupingBy + summarizingDouble.",
+        "weight": 12
+      },
+      {
+        "id": "req_7",
+        "description": "`hitTarget(List<Stock>)` — returns `Map<Boolean, List<String>>` (symbol lists) — partitioningBy price >= targetPrice, downstream Collectors.mapping(Stock::getSymbol, toList()).",
+        "weight": 12
+      },
+      {
+        "id": "req_8",
+        "description": "main() demonstrates all 6 methods. Print formatted output.",
+        "weight": 12
+      },
+      {
+        "id": "req_9",
+        "description": "Zero manual Map-building loops. All grouping done via Collectors.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `topSymbolPerSector(List<Stock>)` using groupingBy + maxBy(dailyChange) — best performer per sector.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `sectorReport(List<Stock>)` — returns Map<String, String> where value is a formatted string: 'N stocks, avg change: X%, range: ₹min-₹max'. Uses collectingAndThen or mapping+joining.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `joinedSymbolsPerSector(List<Stock>)` using groupingBy + mapping + joining(', ') — produces Map<String, String> of sector → 'SYM1, SYM2, ...'",
+        "weight": 15
+      }
+    ]
+  },
+
+  "data_to_use": "Stocks (symbol, sector, price, dailyChange%, targetPrice):\n- RELIANCE, Energy, ₹2450, +1.2%, ₹2600\n- TCS, IT, ₹3890, +4.1%, ₹4000\n- INFY, IT, ₹1560, -3.8%, ₹1700\n- WIPRO, IT, ₹412, +5.2%, ₹450\n- HDFC, Finance, ₹1678, +0.5%, ₹1800\n- SBIN, Finance, ₹620, -1.2%, ₹700\n- ZOMATO, Consumer, ₹184, -1.3%, ₹200\n- NYKAA, Consumer, ₹156, +3.1%, ₹180",
+
+  "starter_code": "import java.util.*;\nimport java.util.stream.*;\n\npublic class WatchlistAnalytics {\n    public static void main(String[] args) {\n        // Build stock list\n        // Call all 6 methods\n        // Print formatted results\n    }\n    // Define: Stock, WatchlistAnalytics methods\n}",
+
+  "example_output": "=== Sector Groups ===\nConsumer: [ZOMATO, NYKAA]\nEnergy: [RELIANCE]\nFinance: [HDFC, SBIN]\nIT: [TCS, INFY, WIPRO]\n\n=== Avg Change/Sector ===\nConsumer: +0.90%\nEnergy: +1.20%\nFinance: -0.35%\nIT: +1.83%\n\n=== Gainers / Losers ===\nGainers (5): [RELIANCE, TCS, WIPRO, HDFC, NYKAA]\nLosers (3): [INFY, SBIN, ZOMATO]\n\n=== Hit Price Target ===\nYes: [] | No: [HDFC, INFY, NYKAA, RELIANCE, SBIN, TCS, WIPRO, ZOMATO]",
+
+  "rubric": [
+    { "category": "Collector Methods", "points": 40, "criteria": ["All 6 methods use correct collectors (30 pts)", "Zero manual loops (10 pts)"] },
+    { "category": "Correctness", "points": 25, "criteria": ["Results match expected (25 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Formatting", "points": 10, "criteria": ["Readable output (10 pts)"] },
+    { "category": "Code Quality", "points": 10, "criteria": ["Method references where appropriate (10 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["topSymbolPerSector (20 pts)", "sectorReport string (25 pts)", "joinedSymbolsPerSector (15 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The key design: every method body is a single stream.collect() call. hitTarget uses partitioningBy with mapping downstream. sectorStats uses groupingBy + summarizingDouble. No for-loops anywhere.",
+
+  "submission_instructions": "Save as WatchlistAnalytics.java. Push to GitHub — this is real financial analytics code using the same patterns used in production trading dashboards.",
+
+  "tips_for_success": [
+    "groupBySector: Collectors.groupingBy(Stock::getSector)",
+    "avgChangePerSector: groupingBy(sector, Collectors.averagingDouble(Stock::getDailyChange))",
+    "hitTarget: partitioningBy(s -> s.getPrice() >= s.getTargetPrice(), Collectors.mapping(Stock::getSymbol, Collectors.toList()))",
+    "sectorStats: groupingBy(sector, Collectors.summarizingDouble(Stock::getPrice))",
+    "buildLookup: Collectors.toMap(Stock::getSymbol, s -> s) — no duplicates so no merge function needed"
+  ],
+
+  "concepts_reinforced": [
+    "groupingBy for bucketing data",
+    "averagingDouble as downstream collector",
+    "partitioningBy for binary split",
+    "mapping as downstream transformer",
+    "summarizingDouble for full statistics",
+    "toMap for O(1) lookup maps",
+    "Zero manual loops — fully declarative"
+  ]
+}

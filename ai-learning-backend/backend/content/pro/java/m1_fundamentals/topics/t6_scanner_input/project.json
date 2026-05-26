@@ -1,0 +1,131 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m1_t6_proj",
+  "linked_topic": "java_m1_t6",
+  "level": "mini",
+  "name": "Build an Interactive Quiz Game",
+  "estimated_minutes": 35,
+  "difficulty": 4,
+
+  "scenario": "You're building a mini quiz game for a coding bootcamp's onboarding website. New students take a 5-question Java quiz on day one to gauge their starting level. The questions are multiple choice (a/b/c/d). Your program asks each question, reads the answer, tracks the score, then prints a final report with the score, percentage, and a level recommendation.",
+
+  "description": "Build a console quiz game that uses Scanner for all input. This project ties together everything from Module 1: variables, operators, if/else, loops, and Scanner. The output should feel like a real product — clear prompts, clear feedback, clear summary.",
+
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "Class named `QuizGame` in file QuizGame.java", "weight": 5 },
+      { "id": "req_2", "description": "Compiles and runs without errors", "weight": 10 },
+      { "id": "req_3", "description": "Imports and uses Scanner for ALL input", "weight": 10 },
+      { "id": "req_4", "description": "Asks the user their name BEFORE starting the quiz, then greets them", "weight": 10 },
+      { "id": "req_5", "description": "Has at least 5 quiz questions, each with 4 options (a/b/c/d)", "weight": 15 },
+      { "id": "req_6", "description": "Reads each answer as a single-character or single-token input", "weight": 10 },
+      { "id": "req_7", "description": "Tracks the score using a counter variable", "weight": 10 },
+      { "id": "req_8", "description": "After each question, prints whether the answer was correct (and the correct answer if wrong)", "weight": 10 },
+      { "id": "req_9", "description": "At the end, prints final score, percentage, and a level recommendation based on score", "weight": 15 },
+      { "id": "req_10", "description": "Scanner is closed before the program ends (sc.close())", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Handles both uppercase and lowercase answers (e.g., 'A' and 'a' both valid)", "weight": 10 },
+      { "id": "bonus_2", "description": "Adds a confirmation prompt before starting ('Ready? y/n')", "weight": 10 },
+      { "id": "bonus_3", "description": "Includes ASCII banner/border for the start and end screens", "weight": 5 },
+      { "id": "bonus_4", "description": "Question loop is driven by a counter so you could easily add more questions", "weight": 10 }
+    ]
+  },
+
+  "data_to_use": "Sample questions (use these or invent your own — keep them Java-related):\n\n1. Which keyword declares a constant in Java?\n   a) const  b) final  c) static  d) immutable\n   Correct: b\n\n2. What's the integer range of `int` in Java?\n   a) ±32,767  b) ±2 billion (approx)  c) ±9 quintillion  d) unlimited\n   Correct: b\n\n3. Which method reads a whole line from Scanner?\n   a) sc.next()  b) sc.nextLine()  c) sc.readLine()  d) sc.getLine()\n   Correct: b\n\n4. What does `i++` do?\n   a) Increments i by 1  b) Decrements i  c) Doubles i  d) Resets i to 0\n   Correct: a\n\n5. Which keyword starts a method that returns nothing?\n   a) null  b) void  c) empty  d) none\n   Correct: b\n\nLevel thresholds:\n- 5/5: 'Java Pro — skip to Module 4!'\n- 3-4/5: 'Solid foundation — start at Module 2'\n- 0-2/5: 'Welcome aboard — Module 1 is where you begin'",
+
+  "starter_code": "// Build your QuizGame class below\n// Goal: 5-question Java quiz with Scanner input and a final score report\n\nimport java.util.Scanner;\n\npublic class QuizGame {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        // Step 1: Welcome + read name\n        \n        // Step 2: Question 1\n        \n        // Step 3: Question 2\n        \n        // ... continue for all 5 questions\n        \n        // Step 4: Final report\n        \n        sc.close();\n    }\n}",
+
+  "example_output": "=== JAVA QUIZ ===\nWhat's your name? Aisha\nHi Aisha — 5 questions coming up.\n\nQ1: Which keyword declares a constant in Java?\n  a) const  b) final  c) static  d) immutable\nYour answer: b\n✓ Correct!\n\nQ2: What's the integer range of `int` in Java?\n  a) ±32,767  b) ±2 billion  c) ±9 quintillion  d) unlimited\nYour answer: c\n✗ Wrong. Correct answer: b\n\n... (Q3-Q5)\n\n=== FINAL RESULT ===\nName: Aisha\nScore: 4/5 (80%)\nRecommendation: Solid foundation — start at Module 2",
+
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs and completes all 5 questions (5 pts)"
+      ]
+    },
+    {
+      "category": "Scanner Usage",
+      "points": 25,
+      "criteria": [
+        "Scanner imported and created correctly (5 pts)",
+        "All input goes through Scanner — no hardcoded user data (10 pts)",
+        "Right Scanner method for each input type (5 pts)",
+        "Scanner closed at end (5 pts)"
+      ]
+    },
+    {
+      "category": "Quiz Logic",
+      "points": 25,
+      "criteria": [
+        "5 questions with 4 options each (10 pts)",
+        "Score correctly incremented for right answers (5 pts)",
+        "Feedback after each question is clear (5 pts)",
+        "Final report shows score, %, and level (5 pts)"
+      ]
+    },
+    {
+      "category": "User Experience",
+      "points": 15,
+      "criteria": [
+        "Prompts use print (not println) so cursor sits inline (5 pts)",
+        "Output is readable — clear sections, blank lines where appropriate (5 pts)",
+        "Welcome and end screens feel polished (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 10,
+      "criteria": [
+        "Descriptive variable names (5 pts)",
+        "Consistent indentation and spacing (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 35,
+      "criteria": [
+        "Case-insensitive answers (10 pts)",
+        "Confirmation prompt at start (10 pts)",
+        "ASCII banners (5 pts)",
+        "Loop-driven question dispatch (10 pts)"
+      ]
+    }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "AI hints are limited to 5 for this project. The whole point is to internalise the Scanner pattern by writing it yourself. Use AI to debug specific errors, not to generate the full quiz.",
+
+  "submission_instructions": "Save your code in QuizGame.java. Run locally and test all 5 questions, including the case where you get them all wrong and the case where you get them all right. Verify the final score and percentage are correct. Submit through the platform for grading.",
+
+  "tips_for_success": [
+    "Write ONE question fully (prompt → read → check → feedback → score++) before duplicating the pattern for the rest.",
+    "Use sc.next() for answers — it grabs ONE token like 'a' or 'b' without the newline issues nextLine has after numeric reads.",
+    "Test the wrong-answer path too — does the program still report the correct answer cleanly?",
+    "For the percentage: (score * 100.0) / 5 — the 100.0 (with decimal) forces double math, avoiding integer division.",
+    "Add a blank println between sections so output doesn't feel cramped."
+  ],
+
+  "concepts_reinforced": [
+    "Scanner import and instantiation",
+    "Reading text input with next() and nextLine()",
+    "Prompt-then-read pattern using print",
+    "Conditional logic (if/else) for answer checking",
+    "Counter pattern for score tracking",
+    "String concatenation in output",
+    "Proper resource cleanup (sc.close)"
+  ],
+
+  "what_youll_learn_by_doing_this": "Quizzes look simple but contain the core loop of every interactive application: prompt → read → validate → react → update state → repeat. Once you can do this cleanly, you can build CLI tools, chat bots, console games, internal IT scripts — anything with a textual interface. This project also forces you to think about USER EXPERIENCE in plain text: where the cursor sits, how feedback is phrased, how the final summary lands. Production engineers care about this. It's not just 'does it work' — it's 'is it pleasant to use.'",
+
+  "extensions_for_advanced_learners": [
+    "Read questions from a file (preview of Module 11 I/O)",
+    "Randomise the question order (preview of Random class)",
+    "Add a timer per question — show how many seconds the user took",
+    "Multi-round mode: 'Want to play again? (y/n)' with a loop wrapping the whole quiz",
+    "Different difficulty bands of questions, picked based on user-chosen mode"
+  ]
+}

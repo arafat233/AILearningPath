@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t2",
+  "language": "java",
+  "module_id": "m6",
+  "module_name": "Collections Framework",
+  "topic_number": 2,
+  "name": "HashMap",
+  "slug": "hashmap",
+  
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m6_t1", "java_m4_t4"],
+    "concepts_taught": [
+      "hashmap_declaration",
+      "put_get_operations",
+      "containskey_containsvalue",
+      "getordefault",
+      "remove_from_map",
+      "iterating_entries_keys_values",
+      "hashmap_vs_arraylist",
+      "frequency_counting_pattern",
+      "grouping_pattern",
+      "map_as_lookup_table",
+      "map_interface_type",
+      "null_keys_values",
+      "when_hashcode_matters"
+    ],
+    "skills_developed": [
+      "declaring_using_hashmap",
+      "performing_o1_lookup",
+      "counting_frequencies",
+      "grouping_data_by_key",
+      "building_lookup_tables",
+      "iterating_over_entries_keys_values"
+    ],
+    "career_relevance": "HashMap is the most versatile data structure in Java — after ArrayList, it's what you reach for most. Caching (userId → User), counting (word → frequency), grouping (category → List<Product>), configuration (key → value), routing (URL → handler) — all HashMap. Spring's application context is essentially a HashMap. HTTP sessions are backed by HashMaps. Every API that maps IDs to objects uses a HashMap. And critically: HashMap's O(1) average lookup is what makes applications fast. A list-based lookup of 1 million records takes 1 million comparisons; HashMap takes 1. This is the performance difference that separates professional code from naive code.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "You have a product catalog with 100,000 items. A customer scans a barcode (SKU) and you need to find that product instantly. With ArrayList:\n\n```java\nList<Product> catalog = new ArrayList<>();  // 100,000 products\n// ...\n// Find product by SKU:\nProduct found = null;\nfor (Product p : catalog) {            // scans ALL 100,000 on average\n    if (p.getSku().equals(scannedSku)) {\n        found = p;\n        break;\n    }\n}\n```\n\nAt best, the product is first and you check once. At worst (or average), you check 50,000 items. That's slow. At 10,000 scans per minute in a busy store? Your app lags.\n\nWith HashMap:\n\n```java\nMap<String, Product> catalog = new HashMap<>();\n// Build once:\nfor (Product p : allProducts) catalog.put(p.getSku(), p);\n\n// Lookup — EVERY TIME:\nProduct found = catalog.get(scannedSku);  // O(1) — one operation\n```\n\n**One operation.** No loop. No matter how big the catalog.\n\nThis is what HashMap does: it trades a bit of memory for instant key-based lookup. It's one of the most important data structure decisions you'll make as a developer — and after today, you'll know when and how to use it.",
+    "what_you_will_build": "By the end of this topic, you'll know how to declare and use HashMap, put/get/remove entries, check containsKey, use getOrDefault for frequency counting, iterate over keys/values/entries, and apply the two most common HashMap patterns: frequency counting and grouping. You'll implement a word counter, a product lookup catalog, and a data grouper — real patterns from production code."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A **HashMap** stores **key-value pairs**. Given a key, you retrieve the corresponding value — in O(1) average time.\n\n```java\nimport java.util.HashMap;\nimport java.util.Map;\n\n// Declare\nMap<String, Integer> scores = new HashMap<>();\n\n// Put (key, value)\nscores.put(\"Aisha\", 95);\nscores.put(\"Raj\", 87);\nscores.put(\"Priya\", 92);\n\n// Get by key\nint aishaScore = scores.get(\"Aisha\");  // 95\n\n// Check key exists\nboolean hasRaj = scores.containsKey(\"Raj\");  // true\n\n// Size\nint count = scores.size();  // 3\n\n// Update (same key → overwrites)\nscores.put(\"Raj\", 89);  // Raj's score is now 89\n\n// Remove\nscores.remove(\"Priya\");\n\n// Default if missing\nint vikramScore = scores.getOrDefault(\"Vikram\", 0);  // 0 (not in map)\n```\n\nThree things to note:\n- Declare as `Map<K,V>` (interface), create with `new HashMap<>()`\n- Keys are UNIQUE — putting same key twice OVERWRITES the value\n- Keys and values are both objects (use Integer not int)",
+      
+      "map_vs_list": "Quick comparison to know when to reach for which:\n\n| Question | Use |\n|----------|-----|\n| Need elements in ORDER? | `List<T>` |\n| Need fast LOOKUP by a key? | `Map<K,V>` |\n| Need to COUNT occurrences? | `Map<Item,Integer>` |\n| Need to GROUP items? | `Map<Key,List<Item>>` |\n| Need fast EXISTENCE CHECK? | `Set<T>` (Topic 6.3) |\n\n**Rule of thumb**: if you find yourself searching a list by ID, name, or any unique attribute — that's HashMap territory.\n\n```java\n// ArrayList approach: O(n) search\nfor (User u : users) {\n    if (u.getId() == targetId) return u;\n}\n\n// HashMap approach: O(1)\nMap<Integer, User> userById = new HashMap<>();\nreturn userById.get(targetId);\n```",
+      
+      "iterating_maps": "Three ways to iterate a HashMap:\n\n**1. Keys only**:\n```java\nfor (String key : scores.keySet()) {\n    System.out.println(key);\n}\n```\n\n**2. Values only**:\n```java\nfor (int score : scores.values()) {\n    System.out.println(score);\n}\n```\n\n**3. Key + Value pairs (most common)**:\n```java\nfor (Map.Entry<String, Integer> entry : scores.entrySet()) {\n    System.out.println(entry.getKey() + \": \" + entry.getValue());\n}\n```\n\n`entrySet()` gives you a Set of `Map.Entry` objects, each holding a key-value pair. This is the standard way to iterate when you need both.\n\n**⚠️ HashMap order**: HashMap does NOT guarantee any iteration order. If you need sorted output, sort the keys: `new ArrayList<>(scores.keySet())` then `Collections.sort()`. Or use `TreeMap` (which keeps keys sorted) — covered briefly later.",
+      
+      "frequency_counting": "**Pattern 1: Frequency counting** — the most common HashMap use case.\n\nCount occurrences of each item:\n\n```java\nString text = \"apple banana apple cherry banana apple\";\nString[] words = text.split(\" \");\nMap<String, Integer> freq = new HashMap<>();\n\nfor (String word : words) {\n    freq.put(word, freq.getOrDefault(word, 0) + 1);\n}\n\n// Results: {apple=3, banana=2, cherry=1}\nfor (Map.Entry<String, Integer> e : freq.entrySet()) {\n    System.out.println(e.getKey() + \": \" + e.getValue());\n}\n```\n\n**`getOrDefault(key, defaultValue)`** is the key to frequency counting:\n- If the word is already in the map: get its current count\n- If not: use 0 as the default\n- Add 1 and put back\n\nOne-liner pattern: `freq.put(word, freq.getOrDefault(word, 0) + 1)`\n\nThis replaces what would have been a linear scan: for each word, search the list for it, increment if found, add if not. O(n²) → O(n).",
+      
+      "grouping_pattern": "**Pattern 2: Grouping** — collect items into categories.\n\n```java\n// Group students by grade\nList<Student> students = ...;\nMap<String, List<Student>> byGrade = new HashMap<>();\n\nfor (Student s : students) {\n    String grade = s.getGrade();\n    \n    // Get existing list for this grade, or create new one\n    if (!byGrade.containsKey(grade)) {\n        byGrade.put(grade, new ArrayList<>());\n    }\n    byGrade.get(grade).add(s);\n}\n\n// Shorter with computeIfAbsent (Java 8+):\nbyGrade.computeIfAbsent(grade, k -> new ArrayList<>()).add(s);\n```\n\nResult: `{\"A\": [Aisha, Priya], \"B\": [Raj, Vikram], \"C\": [Anita]}`\n\n**`computeIfAbsent(key, mappingFunction)`**: if key isn't in the map, apply the function to create the value and put it. Returns the (existing or new) value. Cleans up the if-containsKey check.\n\n**Real-world applications of grouping**:\n- Products by category\n- Orders by status (OPEN, PROCESSING, SHIPPED)\n- Employees by department\n- Sales by month",
+      
+      "lookup_table": "**Pattern 3: Lookup table** — pre-build a map once, query many times.\n\n```java\n// Build once (e.g., at startup):\nMap<String, Product> productBySku = new HashMap<>();\nfor (Product p : loadAllProducts()) {\n    productBySku.put(p.getSku(), p);\n}\n\n// Query many times — O(1) each:\nProduct p1 = productBySku.get(\"SKU-001\");\nProduct p2 = productBySku.get(\"SKU-542\");\nProduct p3 = productBySku.get(\"SKU-999\");\n```\n\nThis pattern is EVERYWHERE:\n- User sessions: `Map<String, Session> sessionById`\n- HTTP routing: `Map<String, Handler> routes`\n- Database caches: `Map<Integer, User> userCache`\n- Config: `Map<String, String> properties`\n\n**Handling missing keys**:\n```java\nProduct p = productBySku.get(\"INVALID\");  // returns null\nif (p == null) { throw new NotFoundException(...); }\n\n// Or with getOrDefault:\nProduct p = productBySku.getOrDefault(sku, DEFAULT_PRODUCT);\n```",
+      
+      "hashmap_mechanics": "**Why is HashMap O(1)?**\n\nHash maps work by computing a `hashCode()` from the key, then using it as an array index. Finding the slot is instant — no searching.\n\n```\nkey.hashCode() → 857403 → bucket[857403 % capacity] → your value\n```\n\nThis is why **`hashCode()` must be overridden** (Topic 4.4!) for objects used as HashMap KEYS. If two equal objects have different hashCodes, the HashMap puts them in different buckets — and can't find them:\n\n```java\nMap<Product, Integer> quantities = new HashMap<>();\nProduct p1 = new Product(101, \"Mouse\");\nquantities.put(p1, 5);\n\nProduct p2 = new Product(101, \"Mouse\");  // same data, different object\nquantities.get(p2);  // NULL if hashCode/equals not overridden!\n```\n\n**Rule**: if you use your class as a HashMap KEY, you MUST properly override both `equals()` AND `hashCode()`. This is exactly the contract from Topic 4.4. Now you see why it matters.\n\nFor VALUES (not keys), hashCode doesn't matter — the lookup key is what hashes.",
+      
+      "common_operations": "Quick reference:\n\n```java\nMap<String, Integer> map = new HashMap<>();\n\n// Check if map has no entries\nmap.isEmpty()                      // true if size == 0\n\n// Check if key exists\nmap.containsKey(\"someKey\")         // O(1)\n\n// Check if value exists (not recommended — O(n))\nmap.containsValue(42)              // searches all values\n\n// Merge or update\nmap.merge(\"key\", 1, Integer::sum); // if key exists, apply sum; else put 1\n// Great for frequency counting: merge(word, 1, Integer::sum)\n\n// Put if absent\nmap.putIfAbsent(\"key\", \"value\");   // only puts if key doesn't exist\n\n// Remove with value check\nmap.remove(\"key\", \"value\");        // only removes if key maps to value\n\n// Clear all\nmap.clear();\n\n// Get all keys as Set\nSet<String> keys = map.keySet();\n\n// Get all values as Collection\nCollection<Integer> vals = map.values();\n\n// Iterate entries\nfor (Map.Entry<String, Integer> e : map.entrySet()) {\n    String key = e.getKey();\n    Integer val = e.getValue();\n    e.setValue(val * 2);  // can modify value via entry!\n}\n```"
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three diagrams: (1) HashMap internal structure — array of 'buckets', each bucket is a linked list. Key's hashCode() maps to a bucket index. Arrows showing put('Mouse', product) → hash → bucket. (2) Side-by-side performance: ArrayList.contains() — O(n) linear scan animation. HashMap.get() — O(1) hash jump. For n=1000: 500 avg comparisons vs 1. (3) Three common patterns: Frequency counting (word→count table being built word by word), Grouping (products flowing into category buckets), Lookup table (barcode → product one-step). All three with code snippets alongside.",
+      "alt_text": "Visual showing HashMap internals, O(1) vs O(n) lookup comparison, and three common HashMap patterns"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Build a complete inventory management system for Zerodha's trading platform (adapted for products). We need: fast stock lookup by symbol, counting trade volume by symbol, and grouping stocks by sector. Three HashMap patterns in one real-world system.",
+    
+    "problem_statement": "Build an `InventorySystem` with three components:\n1. **Product catalog** (lookup by SKU) — O(1) product retrieval\n2. **Word frequency counter** — demonstrate the counting pattern\n3. **Category grouper** — group products by category for display\n\nAll three use HashMap as the core data structure.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Product lookup by SKU",
+        "details": "```java\nclass Product {\n    private String sku;\n    private String name;\n    private String category;\n    private double price;\n    private int stock;\n    \n    public Product(String sku, String name, String category, double price, int stock) {\n        this.sku = sku; this.name = name; this.category = category;\n        this.price = price; this.stock = stock;\n    }\n    \n    // getters...\n    public String toString() {\n        return \"[\" + sku + \"] \" + name + \" (\" + category + \") ₹\" + price + \" stock=\" + stock;\n    }\n}\n\nclass ProductCatalog {\n    private Map<String, Product> bySku = new HashMap<>();\n    \n    public void add(Product p) {\n        bySku.put(p.getSku(), p);\n    }\n    \n    public Product findBySku(String sku) {\n        return bySku.get(sku);  // null if not found\n    }\n    \n    public boolean hasSku(String sku) {\n        return bySku.containsKey(sku);\n    }\n    \n    public int size() { return bySku.size(); }\n}\n```\n\nPut once at startup. Query instantly forever."
+      },
+      {
+        "step": 2,
+        "action": "Frequency counting — stock quantity by category",
+        "details": "```java\npublic Map<String, Integer> totalStockByCategory(ProductCatalog catalog) {\n    Map<String, Integer> stockByCategory = new HashMap<>();\n    \n    for (Product p : catalog.bySku.values()) {\n        stockByCategory.put(\n            p.getCategory(),\n            stockByCategory.getOrDefault(p.getCategory(), 0) + p.getStock()\n        );\n    }\n    \n    return stockByCategory;\n}\n```\n\nThe classic `getOrDefault(key, 0) + amount` pattern — accumulating totals by group."
+      },
+      {
+        "step": 3,
+        "action": "Grouping — products by category",
+        "details": "```java\npublic Map<String, List<Product>> groupByCategory(ProductCatalog catalog) {\n    Map<String, List<Product>> groups = new HashMap<>();\n    \n    for (Product p : catalog.bySku.values()) {\n        groups.computeIfAbsent(p.getCategory(), k -> new ArrayList<>()).add(p);\n    }\n    \n    return groups;\n}\n```\n\n`computeIfAbsent` creates the list if the category key is new, then adds the product. Clean and idiomatic."
+      },
+      {
+        "step": 4,
+        "action": "Demonstrate in main",
+        "details": "```java\npublic static void main(String[] args) {\n    ProductCatalog catalog = new ProductCatalog();\n    catalog.add(new Product(\"SKU-001\", \"Wireless Mouse\", \"Electronics\", 799, 45));\n    catalog.add(new Product(\"SKU-002\", \"Keyboard\", \"Electronics\", 1999, 12));\n    catalog.add(new Product(\"SKU-003\", \"Java Programming\", \"Books\", 649, 30));\n    catalog.add(new Product(\"SKU-004\", \"USB Hub\", \"Electronics\", 499, 60));\n    catalog.add(new Product(\"SKU-005\", \"Python Cookbook\", \"Books\", 549, 20));\n    \n    // O(1) lookup\n    System.out.println(\"Found: \" + catalog.findBySku(\"SKU-003\"));\n    System.out.println(\"Has SKU-099: \" + catalog.hasSku(\"SKU-099\"));\n    \n    // Stock by category\n    Map<String, Integer> stockByCat = groupedCatalog.totalStockByCategory(catalog);\n    for (Map.Entry<String, Integer> e : stockByCat.entrySet()) {\n        System.out.println(e.getKey() + \" total stock: \" + e.getValue());\n    }\n    \n    // Grouped\n    Map<String, List<Product>> groups = groupedCatalog.groupByCategory(catalog);\n    for (Map.Entry<String, List<Product>> e : groups.entrySet()) {\n        System.out.println(e.getKey() + \" (\" + e.getValue().size() + \" products)\");\n    }\n}\n```"
+      }
+    ],
+    
+    "final_code": "import java.util.*;\n\nclass Product {\n    private String sku, name, category;\n    private double price;\n    private int stock;\n    \n    public Product(String sku, String name, String category, double price, int stock) {\n        this.sku = sku; this.name = name; this.category = category;\n        this.price = price; this.stock = stock;\n    }\n    \n    public String getSku()      { return sku; }\n    public String getName()     { return name; }\n    public String getCategory() { return category; }\n    public double getPrice()    { return price; }\n    public int getStock()       { return stock; }\n    \n    @Override public String toString() {\n        return \"[\" + sku + \"] \" + name + \" (\" + category + \") ₹\" + price + \" stock=\" + stock;\n    }\n}\n\nclass ProductCatalog {\n    private final Map<String, Product> bySku = new HashMap<>();\n    \n    public void add(Product p) { bySku.put(p.getSku(), p); }\n    \n    public Product findBySku(String sku) { return bySku.get(sku); }\n    \n    public boolean hasSku(String sku) { return bySku.containsKey(sku); }\n    \n    public Map<String, Integer> stockByCategory() {\n        Map<String, Integer> result = new HashMap<>();\n        for (Product p : bySku.values()) {\n            result.put(p.getCategory(),\n                result.getOrDefault(p.getCategory(), 0) + p.getStock());\n        }\n        return result;\n    }\n    \n    public Map<String, List<Product>> groupByCategory() {\n        Map<String, List<Product>> groups = new HashMap<>();\n        for (Product p : bySku.values()) {\n            groups.computeIfAbsent(p.getCategory(), k -> new ArrayList<>()).add(p);\n        }\n        return groups;\n    }\n    \n    public int size() { return bySku.size(); }\n}\n\npublic class InventorySystem {\n    public static void main(String[] args) {\n        ProductCatalog catalog = new ProductCatalog();\n        catalog.add(new Product(\"SKU-001\", \"Wireless Mouse\", \"Electronics\", 799, 45));\n        catalog.add(new Product(\"SKU-002\", \"Keyboard\", \"Electronics\", 1999, 12));\n        catalog.add(new Product(\"SKU-003\", \"Java Programming\", \"Books\", 649, 30));\n        catalog.add(new Product(\"SKU-004\", \"USB Hub\", \"Electronics\", 499, 60));\n        catalog.add(new Product(\"SKU-005\", \"Python Cookbook\", \"Books\", 549, 20));\n        \n        System.out.println(\"=== LOOKUP ===\");\n        System.out.println(\"SKU-003: \" + catalog.findBySku(\"SKU-003\"));\n        System.out.println(\"SKU-099: \" + catalog.findBySku(\"SKU-099\"));\n        \n        System.out.println(\"\\n=== STOCK BY CATEGORY ===\");\n        Map<String, Integer> stockByCat = catalog.stockByCategory();\n        // Sort keys for deterministic output\n        List<String> cats = new ArrayList<>(stockByCat.keySet());\n        Collections.sort(cats);\n        for (String cat : cats) {\n            System.out.println(cat + \": \" + stockByCat.get(cat) + \" units\");\n        }\n        \n        System.out.println(\"\\n=== BY CATEGORY ===\");\n        Map<String, List<Product>> groups = catalog.groupByCategory();\n        for (String cat : cats) {\n            System.out.println(cat + \": \" + groups.get(cat).size() + \" products\");\n        }\n    }\n}",
+    
+    "expected_output": "=== LOOKUP ===\nSKU-003: [SKU-003] Java Programming (Books) ₹649.0 stock=30\nSKU-099: null\n\n=== STOCK BY CATEGORY ===\nBooks: 50 units\nElectronics: 117 units\n\n=== BY CATEGORY ===\nBooks: 2 products\nElectronics: 3 products",
+    
+    "things_to_notice": [
+      "findBySku('SKU-099') returns null — key doesn't exist. Check for null or use getOrDefault. This is a design choice: some APIs throw exceptions, others return null. Document which.",
+      "stockByCategory() uses getOrDefault(cat, 0) + stock. The first time a category appears it gets 0+stock. The second time it gets existing+stock. Elegant accumulation.",
+      "We sorted the keys for deterministic output (HashMap doesn't guarantee order). This is important for tests and display: `new ArrayList<>(keySet())` then sort.",
+      "groupByCategory() uses computeIfAbsent — creates an ArrayList when the category is first seen, then adds the product. Much cleaner than the if-containsKey pattern.",
+      "Both stockByCategory and groupByCategory iterate `bySku.values()` — all the products. The VALUES in the SKU map are the source; the output maps are computed views.",
+      "Catalog.size() returns bySku.size() — the number of unique SKUs. If you tried to add the same SKU twice, the second put() would overwrite the first."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot web applications (every Java backend)",
+        "use_case": "Spring's ApplicationContext is a giant HashMap from bean name/type to instance. `@Autowired` looks up beans by type. Spring MVC's request mapping is `Map<String, HandlerMethod>`. Every Spring configuration is stored as a `Map<String, Object>`. Understanding HashMap makes Spring's internals comprehensible."
+      },
+      {
+        "company_context": "Zerodha / Groww — real-time trading",
+        "use_case": "Stock ticker data: `Map<String, StockQuote>` keyed by symbol (RELIANCE, TCS, INFY). When a new tick arrives, `map.put(symbol, newQuote)`. When the UI asks for HDFC's price: `map.get('HDFC')` — instant. Millions of ticks per second need O(1) access, not linear scan."
+      },
+      {
+        "company_context": "Flipkart / Amazon search and filtering",
+        "use_case": "Search facets (filter by category, brand, price range) are computed using grouping: `Map<String, List<Product>>` by category, `Map<String, Long>` for count by brand. These aggregations power the filter sidebar. Pre-computed into HashMaps at indexing time, served instantly on query."
+      },
+      {
+        "company_context": "URL shortener services (Bitly, Razorpay payment links)",
+        "use_case": "Razorpay's payment links map a short code to a full payment page URL: `Map<String, PaymentLink>`. When someone visits a short URL, one map lookup retrieves the full link. Billions of lookups per day — only O(1) is viable. HashMap is literally the core of the business."
+      }
+    ],
+    
+    "interview_relevance": "HashMap is the most interview-tested Java data structure:\n\n- **'What is HashMap and how does it work?'** — Key-value pairs, hashCode + equals for key, O(1) average.\n- **'HashMap vs ArrayList?'** — Map for keyed lookup; List for ordered sequence.\n- **'What happens when you put a duplicate key?'** — Overwrites the value, returns old value.\n- **'Why must equals and hashCode be consistent?'** — HashMap uses hash to find bucket, then equals to confirm. Inconsistent → lost keys.\n- **'What is getOrDefault?'** — Return the value, or a default if key is absent.\n- **Frequency counting live coding**: 'Count characters in a string' → `Map<Character, Integer>`, getOrDefault.\n- **Grouping live coding**: 'Group employees by department' → `Map<String, List<Employee>>`, computeIfAbsent.\n\nIf you can implement these two patterns fluently and explain why HashMap works, you're ahead of most candidates.",
+    
+    "real_world_workflow": "Daily HashMap work:\n\n- Session cache: `Map<String, UserSession>` — look up logged-in user by token\n- Config: `Map<String, String>` properties loaded from file\n- Frequency counting: analytics, word counts, event tracking\n- Group-by: any time data needs to be categorized/aggregated\n- Lookup table: the 'build once, query many' pattern\n- Result aggregation: combining multiple data sources keyed by common ID\n- Memoization (caching function results): `Map<Input, Output>`"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "null_key_from_get",
+      "what_students_get_wrong": "Calling map.get(key) and using the result without null check when key might not exist.",
+      "remediation": "Always handle potential null: check with containsKey first, use getOrDefault, or null-check the result. Document which missing-key behavior your API provides.",
+      "detection_pattern": "NullPointerException when using map.get() result"
+    },
+    {
+      "gap_id": "duplicate_key_overwrites",
+      "what_students_get_wrong": "Expecting map.put(key, val) on a duplicate key to add a second entry. It overwrites.",
+      "remediation": "HashMap keys are unique. If you need multiple values per key: use `Map<Key, List<Value>>` (grouping pattern). If you want to protect against overwrite: use putIfAbsent().",
+      "detection_pattern": "Missing entries in map; previous values disappearing"
+    },
+    {
+      "gap_id": "iteration_order_dependency",
+      "what_students_get_wrong": "Expecting HashMap to return entries in insertion order or sorted order. It doesn't.",
+      "remediation": "HashMap order is unpredictable. For insertion order: use LinkedHashMap. For sorted key order: use TreeMap. For specific tests: sort the keySet() first.",
+      "detection_pattern": "Tests failing intermittently due to unexpected key order"
+    },
+    {
+      "gap_id": "modifying_map_during_entrySet_iteration",
+      "what_students_get_wrong": "Calling map.put() or map.remove() while iterating entrySet() — ConcurrentModificationException.",
+      "remediation": "Build a list of keys to modify, then modify after the loop. Or use entrySet().removeIf().",
+      "detection_pattern": "ConcurrentModificationException on map iteration"
+    },
+    {
+      "gap_id": "using_mutable_object_as_key",
+      "what_students_get_wrong": "Using a mutable object as a HashMap key, then modifying it after putting. The hash changes → lookup fails.",
+      "remediation": "HashMap keys should be immutable (String, Integer, UUID) or never modified after use as a key. Mutable keys break the O(1) guarantee.",
+      "detection_pattern": "map.get(key) returns null even though key was put()"
+    },
+    {
+      "gap_id": "forgetting_hashcode_for_custom_key",
+      "what_students_get_wrong": "Using a custom object as a map key without overriding hashCode(). Two 'equal' objects land in different buckets.",
+      "remediation": "If your class is used as a Map KEY, it MUST properly override both hashCode() and equals(). This is the exact equals/hashCode contract from Topic 4.4.",
+      "detection_pattern": "map.get(new MyObject(sameData)) returns null after put"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "HashMap: key-value pairs. O(1) average get/put/remove.",
+      "Always declare as `Map<K,V>` not `HashMap<K,V>` (programming to interface)",
+      "Keys are UNIQUE — put with existing key OVERWRITES",
+      "get() returns null if key doesn't exist — always handle this",
+      "getOrDefault(key, default) — safe fallback for missing keys",
+      "Pattern 1 — Frequency counting: `map.put(key, map.getOrDefault(key, 0) + 1)`",
+      "Pattern 2 — Grouping: `map.computeIfAbsent(key, k -> new ArrayList<>()).add(item)`",
+      "Pattern 3 — Lookup table: build once (startup), query many times (O(1))",
+      "Iterating: keySet() for keys, values() for values, entrySet() for both",
+      "HashMap does NOT preserve insertion order (use LinkedHashMap if you need it)",
+      "Custom objects as KEYS must properly override equals() AND hashCode()"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What does `map.put(\"key\", 99)` do if 'key' already exists with value 50?",
+        "answer": "It OVERWRITES — the old value 50 is replaced with 99. put() returns the OLD value (50) if you want it: `int old = map.put('key', 99)`. This is why HashMap keys are unique: you can't have two entries with the same key."
+      },
+      {
+        "question": "Why might `map.get(myProduct)` return null even though you put that product in?",
+        "answer": "HashMap uses hashCode() to find the bucket, then equals() to confirm. If Product doesn't override hashCode(), two Product objects with the same data have DIFFERENT hash codes → they land in different buckets. The map can't find the object even though it 'looks' equal. Fix: override both hashCode() AND equals() in Product (Topic 4.4)."
+      },
+      {
+        "question": "Count character frequencies in 'banana'. Trace the map state after each character.",
+        "answer": "'b': map.put('b', 0+1) → {b=1}\n'a': map.put('a', 0+1) → {b=1, a=1}\n'n': map.put('n', 0+1) → {b=1, a=1, n=1}\n'a': map.put('a', 1+1) → {b=1, a=2, n=1}\n'n': map.put('n', 1+1) → {b=1, a=2, n=2}\n'a': map.put('a', 2+1) → {b=1, a=3, n=2}\nFinal: {b=1, a=3, n=2}"
+      },
+      {
+        "question": "What's computeIfAbsent for, and why is it better than the containsKey check?",
+        "answer": "computeIfAbsent(key, creator) checks if the key exists; if not, creates and puts the value using the creator function, then returns the (new or existing) value. Better than containsKey because it's one operation instead of two (check + put), and it's cleaner. Example: `map.computeIfAbsent('Electronics', k -> new ArrayList<>()).add(product)` — if 'Electronics' isn't a key, creates a new empty list and puts it, then adds the product. Otherwise just adds to the existing list."
+      }
+    ],
+    
+    "next_topic_preview": "Next: **HashSet** — a HashMap without values. When you only need to know WHETHER something exists (not retrieve a value), HashSet is faster and cleaner. Deduplication, membership testing, set operations (union, intersection, difference). `set.contains(item)` is O(1), while `list.contains(item)` is O(n). After HashSet, you'll know all three foundational collections: List (ordered sequence), Map (keyed lookup), Set (unique membership)."
+  }
+}

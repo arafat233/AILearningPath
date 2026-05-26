@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m35_t2_proj",
+  "linked_topic": "java_m35_t2",
+  "level": "mini",
+  "name": "Flipkart Category Tree Analyzer",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Analyze product category tree: LCA, balance check, max revenue path.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "lca, isBalanced, hasPathSum, maxPathSum",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "serialize/deserialize, allPaths, countComplete",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "LCA: return root if null/p/q; both subtrees non-null \u2192 root is LCA. Balanced: return -1 to propagate imbalance. Max Path: max(0,child) ignores negatives; update global=max(global, node+l+r).",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

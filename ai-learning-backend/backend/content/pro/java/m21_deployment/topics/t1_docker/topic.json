@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m21_t1",
+  "language": "java",
+  "module_id": "m21",
+  "module_name": "Production Deployment",
+  "topic_number": 1,
+  "name": "Dockerfile & Docker Compose for Spring Boot",
+  "slug": "dockerfile-docker-compose",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m20_t1"],
+    "concepts_taught": [
+      "docker_overview",
+      "dockerfile_for_spring_boot",
+      "multi_stage_builds",
+      "jre_vs_jdk_image",
+      "layered_jar",
+      "docker_build_cache",
+      "non_root_user",
+      "jvm_container_flags",
+      "docker_compose",
+      "compose_services",
+      "compose_health_checks",
+      "compose_depends_on",
+      "compose_volumes",
+      "compose_environment",
+      "spring_profiles_in_docker"
+    ],
+    "skills_developed": [
+      "writing_production_dockerfile",
+      "using_multi_stage_builds",
+      "configuring_docker_compose_for_spring_stack",
+      "tuning_jvm_for_containers",
+      "building_and_running_spring_boot_container"
+    ],
+    "career_relevance": "Every Java backend role in 2024 requires Docker fluency. Razorpay, Zerodha, Flipkart — they all containerize services for consistent, reproducible deployments. After this topic, you can take any Spring Boot app, containerize it correctly, and run the full stack (app + DB + Redis + observability) locally with one command: `docker compose up`.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+
+  "hook": {
+    "real_world_problem": "The classic 'works on my machine' problem:\n\n```\nDev environment: Java 21, Postgres 15.2, Redis 7.0\nStaging server:  Java 17, Postgres 14.8, Redis 6.2\nProduction:      Java 21, Postgres 15.1, Redis 7.0\n\nBug in staging: query behaves differently in Postgres 14 vs 15\nHours debugging before realizing: environment mismatch\n```\n\nWith Docker:\n```\nAll environments: same container image → same JVM, same OS, same dependencies\ndev$ docker compose up\n→ Spring Boot app + Postgres 15.2 + Redis 7.0 → identical to production\n\nCode review: reviewer runs docker compose up → identical environment\nCI pipeline: docker build → test → push → pull → same image everywhere\n```",
+    "what_you_will_build": "A production-grade Dockerfile with multi-stage build and JVM container flags, plus a docker-compose.yml running the full Razorpay payment stack: Spring Boot + PostgreSQL + Redis + Zipkin."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "production_dockerfile": "**Production-grade Dockerfile:**\n\n```dockerfile\n# Stage 1: Build (JDK needed for compilation)\nFROM eclipse-temurin:21-jdk-alpine AS builder\nWORKDIR /build\nCOPY pom.xml .\nCOPY src ./src\nRUN ./mvnw clean package -DskipTests\n\n# Extract layered jar (better Docker cache)\nRUN java -Djarmode=layertools -jar target/app.jar extract\n\n# Stage 2: Runtime (JRE only — smaller image)\nFROM eclipse-temurin:21-jre-alpine\n\n# Non-root user (security best practice):\nRUN addgroup --system razorpay && adduser --system --ingroup razorpay razorpay\nUSER razorpay\nWORKDIR /app\n\n# Copy layered jar (dependencies change rarely → cached):\nCOPY --from=builder /build/dependencies/ ./\nCOPY --from=builder /build/spring-boot-loader/ ./\nCOPY --from=builder /build/snapshot-dependencies/ ./\nCOPY --from=builder /build/application/ ./\n\nEXPOSE 8080\n\nENTRYPOINT [\"java\",\n  \"-XX:MaxRAMPercentage=75.0\",\n  \"-XX:+UseContainerSupport\",\n  \"-Djava.security.egd=file:/dev/./urandom\",\n  \"-cp\",\"@cp.idx\",\n  \"org.springframework.boot.loader.launch.JarLauncher\"\n]\n```",
+      "compose": "**Docker Compose for full Razorpay stack:**\n\n```yaml\n# docker-compose.yml\nservices:\n  app:\n    build: .\n    ports: ['8080:8080']\n    environment:\n      SPRING_PROFILES_ACTIVE: docker\n      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/payments\n      SPRING_DATASOURCE_USERNAME: payments_user\n      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-changeme}\n      SPRING_REDIS_HOST: redis\n    depends_on:\n      postgres: { condition: service_healthy }\n      redis:    { condition: service_healthy }\n\n  postgres:\n    image: postgres:15-alpine\n    environment:\n      POSTGRES_DB: payments\n      POSTGRES_USER: payments_user\n      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}\n    volumes: ['pgdata:/var/lib/postgresql/data']\n    healthcheck:\n      test: ['CMD-SHELL', 'pg_isready -U payments_user -d payments']\n      interval: 10s\n      timeout: 5s\n      retries: 5\n\n  redis:\n    image: redis:7-alpine\n    healthcheck:\n      test: ['CMD', 'redis-cli', 'ping']\n      interval: 10s\n\nvolumes:\n  pgdata:\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Multi-stage Docker build: Stage 1 (builder, JDK 21): Maven compiles JAR → layertools extracts layers. Stage 2 (runtime, JRE 21-alpine): 4 COPY commands for dependency/loader/snapshot/app layers. Final image: 180MB (vs 450MB with JDK). Docker Compose: app → depends_on → postgres (healthcheck) + redis (healthcheck) + zipkin. Arrows showing TCP connections between services.",
+      "alt_text": "Multi-stage Dockerfile with layered Spring Boot JAR and Docker Compose service topology"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Containerize Razorpay's payment service with production-grade Dockerfile and full-stack docker-compose.",
+    "problem_statement": "1. Multi-stage Dockerfile with layered jar\n2. JVM container flags (-XX:MaxRAMPercentage, +UseContainerSupport)\n3. Non-root user\n4. docker-compose.yml: app + postgres + redis + healthchecks\n5. application-docker.yml: override URLs for docker network",
+    "step_by_step_solution": [
+      { "step": 1, "action": "Why multi-stage + layered jar?", "details": "Multi-stage: builder stage uses JDK (needed for compilation); runtime stage uses JRE only (smaller image, smaller attack surface). Layered jar: Spring Boot unpacks the jar into layers: dependencies (rarely change) / spring-boot-loader / snapshot-dependencies / application (changes every build). Docker caches each COPY layer independently — rebuilding after a code change only rebuilds the 'application' layer (seconds vs full rebuild)." },
+      { "step": 2, "action": "JVM container flags", "details": "`-XX:MaxRAMPercentage=75.0`: JVM heap = 75% of container memory limit. Without this: JVM reads /proc/meminfo (host RAM, not container limit) → heap might exceed container limit → OOMKilled.\n`-XX:+UseContainerSupport`: enables container-aware memory/CPU detection. On by default in Java 11+, explicit flag is safe documentation.\n`-Djava.security.egd=file:/dev/./urandom`: Docker containers often have low entropy — /dev/random blocks. urandom is non-blocking, still cryptographically safe for JVM session tokens." }
+    ],
+    "final_code": "# Build: docker build -t razorpay-payments .\n# Run stack: docker compose up --build\n# Logs: docker compose logs -f app\n# Stop: docker compose down -v (removes volumes)",
+    "expected_output": "✅ payment-service: 1 instance(s). [db-migrations] Applied 3 migrations.\n✅ postgres:        1 instance(s). Ready to accept connections.\n✅ redis:           1 instance(s). Ready to serve.\nApplication started on port 8080.",
+    "things_to_notice": [
+      "`condition: service_healthy` in depends_on: waits for the healthcheck to pass before starting the app. Without this: app starts before Postgres is ready → connection refused on startup → app crashes.",
+      "Non-root user: running as root in a container means any code execution vulnerability has full container privileges. Non-root limits the blast radius.",
+      "Environment variable for DB password: `${DB_PASSWORD:-changeme}` — reads from host env or uses default. Never hardcode passwords in docker-compose.yml (it goes to Git).",
+      "Volume for Postgres data: `pgdata:/var/lib/postgresql/data` — persists DB data across `docker compose down`. Without volume: data is lost on every restart.",
+      "Spring profile `SPRING_PROFILES_ACTIVE: docker`: loads application-docker.yml which overrides `localhost` URLs to Docker service names (`postgres`, `redis`) — Docker's built-in DNS resolution."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay local dev", "use_case": "Every developer runs `docker compose up` to get Postgres + Redis + Zipkin locally. Same versions as production. Onboarding a new engineer: `git clone && docker compose up` — fully working environment in 5 minutes." },
+      { "company_context": "Zerodha CI/CD", "use_case": "GitHub Actions: `docker build` → `docker push` to ECR → k8s pull image. Identical image from dev laptop to production. No more 'works on my machine' — the container IS the machine." }
+    ],
+    "interview_relevance": "'Walk me through how you'd containerize a Spring Boot service.' → Multi-stage Dockerfile (JDK builder, JRE runtime), layered jar for cache efficiency, non-root user, JVM container flags (-XX:MaxRAMPercentage). Docker Compose for local dev with healthchecks. Registry push → Kubernetes pull.",
+    "real_world_workflow": "Docker workflow: local dev → CI build → push to registry → Kubernetes deployment pulls image. Same image everywhere ensures consistency."
+  },
+
+  "common_gaps": [
+    { "gap_id": "no_container_support_flag", "what_students_get_wrong": "Not setting -XX:MaxRAMPercentage or relying on JVM to auto-detect container memory. JVM allocates heap based on total host RAM, not container limit.", "remediation": "Always set -XX:MaxRAMPercentage=75.0 in container deployments. This tells JVM to use 75% of container memory limit as heap. Leave 25% for JVM overhead (Metaspace, thread stacks, JIT compiled code).", "detection_pattern": "Container gets OOMKilled; heap is much larger than container memory limit; `docker stats` shows memory usage > limit" }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Multi-stage build: JDK for compile (builder), JRE for runtime (smaller image)",
+      "Layered jar: dependencies layer cached separately → fast rebuilds on code changes",
+      "Non-root user: security best practice — `adduser` + `USER` in Dockerfile",
+      "-XX:MaxRAMPercentage=75.0: JVM heap = 75% of container limit (not host RAM!)",
+      "-XX:+UseContainerSupport: enables container-aware resource detection",
+      "docker-compose `depends_on + healthcheck`: ensures DB ready before app starts",
+      "Spring profile: `SPRING_PROFILES_ACTIVE: docker` → overrides localhost with service names",
+      "${VAR:-default}: environment variable with fallback — never hardcode passwords in compose"
+    ],
+    "self_check_questions": [
+      { "question": "Why does a layered Dockerfile rebuild faster than a single-stage one after a code change?", "answer": "Docker builds images as layers. Each instruction (FROM, COPY, RUN) creates a layer. Docker caches layers that haven't changed. Layered jar unpacks into 4 directories: dependencies (Maven libs, rarely change), spring-boot-loader (framework code, rarely), snapshot-dependencies (snapshot libs), application (your code, changes every build). In the Dockerfile, each is a separate COPY instruction. When you change application code, only the 'application' COPY layer is cache-invalidated — the heavy 'dependencies' layer (200MB+) is reused from cache. Result: rebuild after code change takes ~5 seconds instead of ~60 seconds." }
+    ],
+    "next_topic_preview": "Next: Kubernetes Deployments & Services — scaling from 1 Docker container to multiple replicas with automatic load balancing, health checks, and zero-downtime restarts."
+  }
+}

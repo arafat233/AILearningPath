@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m13_t2_proj",
+  "linked_topic": "java_m13_t2",
+  "level": "mini",
+  "name": "Zerodha-Style Stock Portfolio REST API",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Build a complete REST API for a stock portfolio management system. Users can manage their stock positions: add holdings, view portfolio, update quantities, remove positions, and get summary statistics. Full CRUD with correct HTTP status codes, request/response DTOs, and @WebMvcTest coverage.",
+
+  "description": "A production-style Spring Boot REST API with @RestController, all HTTP methods, ResponseEntity, request/response records, and @WebMvcTest tests. No database yet — in-memory storage via a service layer.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Request and response records: `PositionRequest(String symbol, int shares, double avgBuyPrice)` and `Position(String id, String symbol, int shares, double avgBuyPrice, double currentPrice, double unrealizedPnL)`.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`PortfolioService` (@Service): in-memory Map storage. Methods: findAll(), findById(String), addPosition(PositionRequest), updateShares(String id, int shares) → Optional, removePosition(String id) → boolean, getSummary() returning PortfolioSummary(totalValue, totalPnL, positionCount).",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`PortfolioController` (@RestController at /api/portfolio): GET all positions (200), GET /positions/{id} (200 or 404), POST /positions (201), PUT /positions/{id}/shares (200 or 404), DELETE /positions/{id} (204 or 404), GET /summary (200).",
+        "weight": 25
+      },
+      {
+        "id": "req_4",
+        "description": "All correct HTTP status codes: 200 GET, 201 POST, 204 DELETE, 404 not found. All 404 cases return empty body.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "GET /api/portfolio/positions with optional query params: `?symbol=TCS` (filter by symbol) and `?profitable=true` (only positions with positive PnL).",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "@WebMvcTest suite: minimum 5 tests — GET all, POST 201, GET by ID found, GET by ID 404, DELETE 204. Use @MockBean PortfolioService.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add PUT /api/portfolio/positions/{id} for full position update (all fields). Test with MockMvc: found returns 200 with updated data, not-found returns 404.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add GET /api/portfolio/positions/search?q={text} searching across symbol names. Return list of matching positions. Verify with jsonPath in @WebMvcTest.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add PATCH /api/portfolio/positions/{id}/price to update currentPrice for a position (simulating a price feed update). Return 200 with recalculated PnL.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Sample portfolio:\nTCS: 10 shares, avgBuy=₹2760, current=₹3890 → PnL=+₹11300 (+40.9%)\nRELIANCE: 20 shares, avgBuy=₹2450, current=₹2450 → PnL=₹0 (0%)\nINFY: 30 shares, avgBuy=₹1600, current=₹1560 → PnL=-₹1200 (-2.5%)\n\nSummary: totalValue=₹159700, totalPnL=+₹10100, positions=3\n\ncurl examples:\nPOST /api/portfolio/positions\n  body: {\"symbol\":\"TCS\",\"shares\":10,\"avgBuyPrice\":2760}\n  → 201 + {\"id\":\"POS-001\",\"symbol\":\"TCS\",...}\n\nGET /api/portfolio/positions/POS-001 → 200 + position\nGET /api/portfolio/positions/POS-999 → 404\nDELETE /api/portfolio/positions/POS-001 → 204",
+
+  "starter_code": "// src/main/java/com/codequest/portfolio/\n//   Application.java\n//   model/Position.java, PositionRequest.java, PortfolioSummary.java\n//   service/PortfolioService.java\n//   controller/PortfolioController.java\n// src/test/java/com/codequest/portfolio/\n//   PortfolioControllerTest.java\n\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}",
+
+  "example_output": "$ mvn spring-boot:run\n...\nStarted Application in 2.1 seconds\n\n# Test with curl:\n$ curl -X POST http://localhost:8080/api/portfolio/positions \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"symbol\":\"TCS\",\"shares\":10,\"avgBuyPrice\":2760}'\n{\"id\":\"POS-001\",\"symbol\":\"TCS\",\"shares\":10,\"avgBuyPrice\":2760.0,\n \"currentPrice\":2760.0,\"unrealizedPnL\":0.0}  [201]\n\n$ curl http://localhost:8080/api/portfolio/positions\n[{\"id\":\"POS-001\",\"symbol\":\"TCS\",...}]  [200]\n\n$ curl http://localhost:8080/api/portfolio/summary\n{\"totalValue\":27600.0,\"totalPnL\":0.0,\"positionCount\":1}  [200]\n\n# Test results:\n✓ getAll_returns200WithPositions\n✓ addPosition_returns201WithId\n✓ getById_found_returns200\n✓ getById_notFound_returns404\n✓ deletePosition_returns204",
+
+  "rubric": [
+    { "category": "Records", "points": 10, "criteria": ["PositionRequest + Position + PortfolioSummary (10 pts)"] },
+    { "category": "Service Layer", "points": 20, "criteria": ["@Service with Map storage (10 pts)", "All methods correct (10 pts)"] },
+    { "category": "Controller Endpoints", "points": 25, "criteria": ["6 endpoints (20 pts)", "Request/response DTOs (5 pts)"] },
+    { "category": "Status Codes", "points": 15, "criteria": ["200/201/204/404 all correct (15 pts)"] },
+    { "category": "Query Params", "points": 10, "criteria": ["symbol filter (5 pts)", "profitable filter (5 pts)"] },
+    { "category": "@WebMvcTest", "points": 20, "criteria": ["5 tests (15 pts)", "jsonPath assertions (5 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["Full PUT (15 pts)", "Search (20 pts)", "PATCH price (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: GET by ID → Optional.map(ResponseEntity::ok).orElse(notFound). DELETE → boolean ? noContent : notFound. @WebMvcTest: @MockBean for service, MockMvc.perform(get/post/put/delete). Content type header on POST: .contentType(MediaType.APPLICATION_JSON). jsonPath assertions: jsonPath('$.id').value('POS-001').",
+
+  "submission_instructions": "Push to GitHub. Include a README with curl commands demonstrating all endpoints.",
+
+  "tips_for_success": [
+    "PortfolioSummary: sum all (shares × currentPrice) for totalValue",
+    "GET all with filters: @RequestParam(required=false) String symbol, Boolean profitable",
+    "@WebMvcTest: one test per HTTP scenario, not per endpoint",
+    "MockMvc POST: .content('{\"symbol\":\"TCS\",\"shares\":10,\"avgBuyPrice\":2760}') with MediaType.APPLICATION_JSON",
+    "jsonPath length: .andExpect(jsonPath('$').isArray()).andExpect(jsonPath('$.length()').value(1))"
+  ],
+
+  "concepts_reinforced": [
+    "@RestController with @RequestMapping base URL",
+    "@GetMapping, @PostMapping, @PutMapping, @DeleteMapping",
+    "@PathVariable for URL segments",
+    "@RequestParam optional/required/default",
+    "@RequestBody JSON deserialization",
+    "ResponseEntity status codes: 200, 201, 204, 404",
+    "@WebMvcTest with @MockBean and MockMvc"
+  ]
+}

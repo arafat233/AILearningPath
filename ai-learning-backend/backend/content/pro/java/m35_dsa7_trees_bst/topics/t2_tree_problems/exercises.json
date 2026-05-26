@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t2",
+  "topic_name": "Binary Tree Problems",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m35_t2_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "LCA of Binary Tree (LeetCode #236)",
+      "instructions": "Implement: LCA of Binary Tree (LeetCode #236).",
+      "starter_code": "",
+      "expected_solution": "public class LCA {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode lca(TreeNode root, TreeNode p, TreeNode q){\n        if(root==null||root==p||root==q)return root;\n        TreeNode l=lca(root.left,p,q), r=lca(root.right,p,q);\n        return l!=null&&r!=null?root:l!=null?l:r;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(5);r.right=new TreeNode(1);\n        r.left.left=new TreeNode(6);r.left.right=new TreeNode(2);\n        System.out.println(lca(r,r.left,r.right).val);   // 3\n        System.out.println(lca(r,r.left,r.left.right).val); // 5\n        System.out.println(\"Both non-null from subtrees \u2192 current node is LCA\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "5",
+            "Both non-null"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t2_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Balanced binary tree (LeetCode #110)",
+      "instructions": "Implement: Balanced binary tree (LeetCode #110).",
+      "starter_code": "",
+      "expected_solution": "public class Balanced {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int height(TreeNode r){\n        if(r==null)return 0;\n        int l=height(r.left);if(l==-1)return -1;\n        int ri=height(r.right);if(ri==-1)return -1;\n        return Math.abs(l-ri)>1?-1:1+Math.max(l,ri);}\n    static boolean isBalanced(TreeNode r){return height(r)!=-1;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(9);r.right=new TreeNode(20);\n        r.right.left=new TreeNode(15);r.right.right=new TreeNode(7);\n        System.out.println(isBalanced(r)); // true\n        TreeNode r2=new TreeNode(1);r2.left=new TreeNode(2);r2.left.left=new TreeNode(3);r2.left.left.left=new TreeNode(4);\n        System.out.println(isBalanced(r2)); // false\n        System.out.println(\"Return -1 from height to signal imbalance early \u2014 O(n) not O(n\u00b2)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Return -1 from height"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Path Sum (LeetCode #112)",
+      "instructions": "Implement: Path Sum (LeetCode #112).",
+      "starter_code": "",
+      "expected_solution": "public class PathSum {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static boolean hasPathSum(TreeNode r, int target){\n        if(r==null)return false;\n        target-=r.val;\n        if(r.left==null&&r.right==null)return target==0;\n        return hasPathSum(r.left,target)||hasPathSum(r.right,target);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(5);r.left=new TreeNode(4);r.right=new TreeNode(8);\n        r.left.left=new TreeNode(11);r.left.left.left=new TreeNode(7);r.left.left.right=new TreeNode(2);\n        System.out.println(hasPathSum(r,22)); // true (5+4+11+2)\n        System.out.println(hasPathSum(r,27)); // false\n        System.out.println(\"Subtract at each node; check at leaf. O(n)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Subtract at each node"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m35_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Max path sum (LeetCode #124)",
+      "instructions": "Implement: Max path sum (LeetCode #124).",
+      "starter_code": "",
+      "expected_solution": "public class MaxPathSum {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int maxSum=Integer.MIN_VALUE;\n    static int dfs(TreeNode r){\n        if(r==null)return 0;\n        int l=Math.max(dfs(r.left),0), ri=Math.max(dfs(r.right),0);\n        maxSum=Math.max(maxSum,r.val+l+ri); // path through current node\n        return r.val+Math.max(l,ri);        // best single branch upward\n    }\n    static int maxPathSum(TreeNode r){maxSum=Integer.MIN_VALUE;dfs(r);return maxSum;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(-10);r.left=new TreeNode(9);r.right=new TreeNode(20);\n        r.right.left=new TreeNode(15);r.right.right=new TreeNode(7);\n        System.out.println(maxPathSum(r)); // 42 (15+20+7)\n        System.out.println(\"max(0,child) ignores negative branches. Update global with l+node+r.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "42",
+            "max(0,child) ignores negative"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m35_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Binary tree cameras (LeetCode #968)",
+      "instructions": "Implement: Binary tree cameras (LeetCode #968).",
+      "starter_code": "",
+      "expected_solution": "public class Cameras {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int cams=0;\n    // 0=uncovered, 1=has camera, 2=covered by child camera\n    static int dfs(TreeNode r){\n        if(r==null)return 2;\n        int l=dfs(r.left), ri=dfs(r.right);\n        if(l==0||ri==0){cams++;return 1;}        // child uncovered: place camera\n        if(l==1||ri==1)return 2;                  // child has camera: covered\n        return 0;                                   // both children covered: uncovered\n    }\n    static int minCams(TreeNode r){cams=0;if(dfs(r)==0)cams++;return cams;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(0);r.left=new TreeNode(0);r.left.left=new TreeNode(0);r.left.right=new TreeNode(0);\n        System.out.println(minCams(r)); // 1\n        System.out.println(\"Greedy postorder: place camera at parent when child is uncovered. O(n)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "Greedy postorder"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m35_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Invert binary tree (LeetCode #226)",
+      "instructions": "Implement: Invert binary tree (LeetCode #226).",
+      "starter_code": "",
+      "expected_solution": "public class Invert {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode invert(TreeNode r){\n        if(r==null)return null;\n        TreeNode tmp=r.left;r.left=invert(r.right);r.right=invert(tmp);\n        return r;}\n    static String str(TreeNode r){if(r==null)return\"#\";return r.val+\"(\"+str(r.left)+\",\"+str(r.right)+\")\";}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(4);r.left=new TreeNode(2);r.right=new TreeNode(7);\n        r.left.left=new TreeNode(1);r.left.right=new TreeNode(3);r.right.left=new TreeNode(6);r.right.right=new TreeNode(9);\n        TreeNode inv=invert(r);\n        System.out.println(inv.left.val); // 7\n        System.out.println(inv.right.val); // 2\n        System.out.println(\"Swap children at every node. tmp=left; left=invert(right); right=invert(tmp)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "7",
+            "2",
+            "Swap children at every node"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m35_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Serialize/Deserialize Binary Tree (LeetCode #297)",
+      "instructions": "Implement: Serialize/Deserialize Binary Tree (LeetCode #297).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SerDeser {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static String serialize(TreeNode r){\n        if(r==null)return\"null\";\n        return r.val+\",\"+serialize(r.left)+\",\"+serialize(r.right);}\n    static TreeNode deserialize(String s){\n        return deH(new ArrayDeque<>(Arrays.asList(s.split(\",\"))));}\n    static TreeNode deH(Deque<String> q){\n        String v=q.poll();if(v.equals(\"null\"))return null;\n        TreeNode n=new TreeNode(Integer.parseInt(v));n.left=deH(q);n.right=deH(q);return n;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);\n        r.right.left=new TreeNode(4);r.right.right=new TreeNode(5);\n        String s=serialize(r);System.out.println(s.startsWith(\"1,2,null\"));\n        TreeNode back=deserialize(s);System.out.println(back.right.left.val);\n        System.out.println(\"Preorder serialize with 'null' markers. Deserialize: use queue, consume front.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "4",
+            "Preorder serialize"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "All paths root-to-leaf (LeetCode #257)",
+      "instructions": "Implement: All paths root-to-leaf (LeetCode #257).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class AllPaths {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static List<String> paths=new ArrayList<>();\n    static void dfs(TreeNode r, String path){\n        if(r==null)return;\n        path+=r.val;\n        if(r.left==null&&r.right==null){paths.add(path);return;}\n        dfs(r.left,path+\"->\");dfs(r.right,path+\"->\");}\n    static List<String> binaryTreePaths(TreeNode r){paths=new ArrayList<>();dfs(r,\"\");return paths;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);r.left.right=new TreeNode(5);\n        System.out.println(binaryTreePaths(r)); // [1->2->5, 1->3]\n        System.out.println(\"DFS with path string; add on leaf. O(n) time O(n*h) space\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1->2->5, 1->3]",
+            "DFS with path string"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Lowest Common Ancestor BST (LeetCode #235)",
+      "instructions": "Implement: Lowest Common Ancestor BST (LeetCode #235).",
+      "starter_code": "",
+      "expected_solution": "public class LCABST {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode lcaBST(TreeNode r, int p, int q){\n        if(p<r.val&&q<r.val)return lcaBST(r.left,p,q);\n        if(p>r.val&&q>r.val)return lcaBST(r.right,p,q);\n        return r;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(6);r.left=new TreeNode(2);r.right=new TreeNode(8);\n        r.left.left=new TreeNode(0);r.left.right=new TreeNode(4);r.left.right.left=new TreeNode(3);\n        System.out.println(lcaBST(r,2,8).val); // 6\n        System.out.println(lcaBST(r,2,4).val); // 2\n        System.out.println(\"BST LCA: both < root \u2192 go left; both > root \u2192 go right; else root is LCA\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "2",
+            "BST LCA"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Count nodes in complete binary tree O(log\u00b2n)",
+      "instructions": "Implement: Count nodes in complete binary tree O(log\u00b2n).",
+      "starter_code": "",
+      "expected_solution": "public class CountComplete {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int leftH(TreeNode r){int h=0;while(r!=null){h++;r=r.left;}return h;}\n    static int rightH(TreeNode r){int h=0;while(r!=null){h++;r=r.right;}return h;}\n    static int count(TreeNode r){\n        if(r==null)return 0;\n        int l=leftH(r),ri=rightH(r);\n        if(l==ri)return(1<<l)-1; // perfect subtree\n        return 1+count(r.left)+count(r.right);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(2);r.right=new TreeNode(3);\n        r.left.left=new TreeNode(4);r.left.right=new TreeNode(5);r.right.left=new TreeNode(6);\n        System.out.println(count(r)); // 6\n        System.out.println(\"O(log\u00b2n): compare left/right heights. If equal: full subtree = 2^h-1\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "O(log\u00b2n)",
+            "2^h-1"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Tree problems synthesis",
+      "instructions": "Implement: Tree problems synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class T2Synth {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode lca(TreeNode r,TreeNode p,TreeNode q){if(r==null||r==p||r==q)return r;TreeNode l=lca(r.left,p,q),ri=lca(r.right,p,q);return l!=null&&ri!=null?r:l!=null?l:ri;}\n    static boolean bal(TreeNode r){return h(r)!=-1;}\n    static int h(TreeNode r){if(r==null)return 0;int l=h(r.left);if(l<0)return-1;int ri=h(r.right);if(ri<0)return-1;return Math.abs(l-ri)>1?-1:1+Math.max(l,ri);}\n    static boolean ps(TreeNode r,int t){if(r==null)return false;t-=r.val;if(r.left==null&&r.right==null)return t==0;return ps(r.left,t)||ps(r.right,t);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(5);r.right=new TreeNode(1);r.left.left=new TreeNode(6);r.left.right=new TreeNode(2);\n        System.out.println(\"lca=\"+lca(r,r.left,r.right).val);\n        System.out.println(\"bal=\"+bal(r));\n        TreeNode ps_r=new TreeNode(5);ps_r.left=new TreeNode(4);ps_r.left.left=new TreeNode(11);ps_r.left.left.right=new TreeNode(2);\n        System.out.println(\"pathSum22=\"+ps(ps_r,22));\n        boolean ok=lca(r,r.left,r.right).val==3&&bal(r)&&ps(ps_r,22);\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "lca=3",
+            "bal=true",
+            "pathSum22=true"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M35 T2 Synthesis",
+      "instructions": "Implement: Complete M35 T2 Synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class T2Final {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode lca(TreeNode r,TreeNode p,TreeNode q){if(r==null||r==p||r==q)return r;TreeNode l=lca(r.left,p,q),ri=lca(r.right,p,q);return l!=null&&ri!=null?r:l!=null?l:ri;}\n    static int maxPathSum(TreeNode r){int[]m={Integer.MIN_VALUE};mps(r,m);return m[0];}\n    static int mps(TreeNode r,int[]m){if(r==null)return 0;int l=Math.max(mps(r.left,m),0),ri=Math.max(mps(r.right,m),0);m[0]=Math.max(m[0],r.val+l+ri);return r.val+Math.max(l,ri);}\n    static boolean pathSum(TreeNode r,int t){if(r==null)return false;t-=r.val;if(r.left==null&&r.right==null)return t==0;return pathSum(r.left,t)||pathSum(r.right,t);}\n    static int depth(TreeNode r){return r==null?0:1+Math.max(depth(r.left),depth(r.right));}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(-10);r.left=new TreeNode(9);r.right=new TreeNode(20);r.right.left=new TreeNode(15);r.right.right=new TreeNode(7);\n        System.out.println(\"maxPath=\"+maxPathSum(r));\n        System.out.println(\"depth=\"+depth(r));\n        TreeNode r2=new TreeNode(3);r2.left=new TreeNode(5);r2.right=new TreeNode(1);\n        System.out.println(\"lca=\"+lca(r2,r2.left,r2.right).val);\n        boolean ok=maxPathSum(r)==42&&depth(r)==3&&lca(r2,r2.left,r2.right).val==3;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "maxPath=42",
+            "depth=3",
+            "lca=3"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

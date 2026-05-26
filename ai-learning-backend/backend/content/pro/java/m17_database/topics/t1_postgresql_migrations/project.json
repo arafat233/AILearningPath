@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m17_t1_proj",
+  "linked_topic": "java_m17_t1",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — PostgreSQL & Flyway Migration Setup",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Upgrade the Zerodha trading platform from H2 in-memory development to production-ready PostgreSQL with Flyway schema management. Create the complete migration history for the trading platform's schema and configure environment-specific datasources.",
+
+  "description": "Docker Compose PostgreSQL + 4 Flyway migrations (users, trades, portfolio, indexes) + Spring Boot profile configuration (local H2 vs prod PostgreSQL) + @DataJpaTest that works without PostgreSQL.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "docker-compose.yml: PostgreSQL 16-alpine, container 'zerodha-db', database/user/password=zerodha, port 5432, named volume 'zerodha-data'.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "V1__create_users_table.sql: users (id UUID default gen_random_uuid(), email UNIQUE NOT NULL, full_name NOT NULL, phone nullable, created_at). Index on email.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "V2__create_trades_table.sql: trades (id, user_id FK→users, symbol, qty INT, price DECIMAL, trade_type CHECK IN ('BUY','SELL'), executed_at). Indexes on user_id and symbol.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "V3__create_portfolio_holdings.sql: portfolio_holdings (id, user_id FK, symbol, total_qty, avg_price, updated_at). UNIQUE constraint on (user_id, symbol). Index on user_id.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "V4__add_constraints.sql: adds CHECK constraints (qty>0, price>0) to trades + index on executed_at. Demonstrates adding constraints to existing table.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "application-local.properties: H2, no Flyway, create-drop, h2-console enabled. application-prod.properties: PostgreSQL, Flyway enabled, ddl-auto=validate. src/test/resources/application.properties: H2, no Flyway, create-drop.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "@DataJpaTest (3 tests): save Trade entity, findByUserId, findBySymbol. All 3 pass using H2 (no PostgreSQL connection needed). Trade @Entity + TradeRepository.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "V5 data migration: insert 3 seed users and 5 seed trades into the production schema. Show how seed data migrations work (INSERT statements in SQL file).",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "MigrationVerificationTest @SpringBootTest: starts full context with CI profile pointing to local PostgreSQL (via docker compose). Verifies flyway_schema_history has 4 rows. Verifies 3 tables exist.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add V6 to rename 'price' column to 'execution_price' using the safe 3-step approach: add new column, backfill, drop old. Document why direct RENAME is risky during zero-downtime deploys.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "PostgreSQL connection (local):\n  URL: jdbc:postgresql://localhost:5432/zerodha\n  User: zerodha\n  Password: zerodha\n\nSchema evolution order:\n  V1: users (foundation)\n  V2: trades (depends on users)\n  V3: portfolio_holdings (depends on users)\n  V4: constraints on trades\n\nTest data for @DataJpaTest:\n  User U01, symbol TCS, qty 10, price ₹3890, BUY\n  User U01, symbol INFY, qty 5, price ₹1560, SELL\n  User U02, symbol TCS, qty 3, price ₹3895, BUY",
+
+  "starter_code": "# Files to create:\n# docker-compose.yml\n# src/main/resources/db/migration/V1__create_users_table.sql\n# src/main/resources/db/migration/V2__create_trades_table.sql\n# src/main/resources/db/migration/V3__create_portfolio_holdings.sql\n# src/main/resources/db/migration/V4__add_constraints.sql\n# src/main/resources/application-local.properties\n# src/main/resources/application-prod.properties\n# src/test/resources/application.properties\n# src/main/java/com/zerodha/Trade.java (@Entity)\n# src/main/java/com/zerodha/TradeRepository.java\n# src/test/java/com/zerodha/TradeRepositoryTest.java (@DataJpaTest)",
+
+  "example_output": "# docker compose up -d\n# mvn spring-boot:run -Dspring.profiles.active=prod\n\n[Flyway] Database: jdbc:postgresql://localhost:5432/zerodha\n[Flyway] Migrating schema to version 1 - create users table\n[Flyway] Migrating schema to version 2 - create trades table\n[Flyway] Migrating schema to version 3 - create portfolio holdings\n[Flyway] Migrating schema to version 4 - add constraints\n[Flyway] Successfully applied 4 migrations\n\n# mvn test (uses H2, no PostgreSQL needed)\n[DataJpaTest] Running TradeRepositoryTest with H2\n✓ save_assignsId\n✓ findByUserId_returnsCorrect\n✓ findBySymbol_returnsCorrect\n3 tests passed",
+
+  "rubric": [
+    { "category": "docker-compose.yml", "points": 10, "criteria": ["Correct image, env, port, volume (10 pts)"] },
+    { "category": "V1 users migration", "points": 15, "criteria": ["All columns + constraints (10 pts)", "Index on email (5 pts)"] },
+    { "category": "V2 trades migration", "points": 15, "criteria": ["FK to users (7 pts)", "CHECK trade_type (4 pts)", "Indexes (4 pts)"] },
+    { "category": "V3 portfolio_holdings", "points": 15, "criteria": ["FK to users (5 pts)", "UNIQUE(user_id, symbol) (7 pts)", "Index (3 pts)"] },
+    { "category": "V4 constraints", "points": 10, "criteria": ["CHECK constraints (7 pts)", "Index on executed_at (3 pts)"] },
+    { "category": "Properties files", "points": 15, "criteria": ["local H2 + no Flyway (5 pts)", "prod PostgreSQL + Flyway (5 pts)", "test H2 (5 pts)"] },
+    { "category": "@DataJpaTest tests", "points": 20, "criteria": ["3 tests pass (20 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Seed migration V5 (15 pts)", "Migration verification test (25 pts)", "Safe column rename V6 (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. gen_random_uuid(): PostgreSQL 13+ built-in; no extension needed. Foreign key syntax: REFERENCES users(id) in the column definition or as separate CONSTRAINT. UNIQUE constraint on multiple columns: UNIQUE(user_id, symbol) at table level. test application.properties must be in src/test/resources (not src/main/resources). flyway-database-postgresql: required Spring Boot 3+ dependency alongside flyway-core.",
+
+  "submission_instructions": "GitHub push. Include all SQL migration files. README explains how to start PostgreSQL (docker compose up -d) and run the app. All 3 @DataJpaTest tests pass without PostgreSQL running.",
+
+  "tips_for_success": [
+    "Start with V1 (simplest, no FK dependencies), then build V2 and V3 on top",
+    "CHECK constraint in CREATE TABLE: price DECIMAL(12,2) NOT NULL CHECK (price > 0)",
+    "UNIQUE on multiple columns: add at end of CREATE TABLE: UNIQUE(user_id, symbol)",
+    "src/test/resources/application.properties: completely overrides src/main/resources for tests",
+    "flyway.enabled=false in tests: critical, or Flyway tries to connect to PostgreSQL"
+  ],
+
+  "concepts_reinforced": [
+    "PostgreSQL via Docker Compose for local development",
+    "Flyway migration file naming and versioning",
+    "CREATE TABLE with CHECK, UNIQUE, REFERENCES constraints",
+    "Multi-file migration set with FK dependencies",
+    "Spring Boot profile-based datasource configuration",
+    "@DataJpaTest isolation from PostgreSQL using H2"
+  ]
+}

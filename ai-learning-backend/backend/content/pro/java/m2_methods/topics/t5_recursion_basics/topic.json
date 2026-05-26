@@ -1,0 +1,210 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t5",
+  "language": "java",
+  "module_id": "m2",
+  "module_name": "Methods & Code Organization",
+  "topic_number": 5,
+  "name": "Recursion Basics",
+  "slug": "recursion-basics",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": [
+      "java_m2_t1",
+      "java_m2_t2",
+      "java_m2_t3",
+      "java_m2_t4"
+    ],
+    "concepts_taught": [
+      "recursion_definition",
+      "base_case",
+      "recursive_case",
+      "call_stack",
+      "recursive_thinking",
+      "factorial_pattern",
+      "fibonacci_recursive",
+      "stack_overflow",
+      "recursion_vs_iteration",
+      "tail_recursion_intro"
+    ],
+    "skills_developed": [
+      "identifying_recursive_problems",
+      "designing_base_cases",
+      "tracing_recursive_calls",
+      "avoiding_stack_overflow",
+      "choosing_recursion_vs_loops"
+    ],
+    "career_relevance": "Recursion is fundamental for: tree/graph algorithms, parsing (compilers, JSON, XML), divide-and-conquer algorithms (mergesort, quicksort), and most interview problems involving 'find all paths' or 'explore all possibilities.' That said, in PRODUCTION business code, loops are often preferred over recursion for performance. Understanding when each is better is the senior-engineer skill. After this topic, students can write recursive solutions, but also know when NOT to use them.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "Open any file explorer (Windows Explorer, Mac Finder). When you search 'find all .txt files in this folder and ALL its subfolders' — that's recursion. The search function checks the current folder, then for each subfolder, calls itself on that subfolder. There's no way to know in advance how deep folders nest, so a loop would be awkward. A recursive function naturally handles any depth.\n\nSame story for JSON parsing (a value can be an object containing more objects), for traversing organization charts (a manager has reports who are also managers), and for many interview problems. Recursion is when a method calls ITSELF. It's powerful, sometimes essential — and often misunderstood.",
+    "what_you_will_build": "By the end of this topic, you'll understand recursion: when a method calls itself, the role of the base case, the call stack, and why recursive functions are sometimes the cleanest solution. You'll build factorial, Fibonacci, and a 'count down' function recursively. You'll also understand the trade-offs — when to use recursion vs loops in production. After this topic, Module 2 is complete."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**Recursion**: a method that CALLS ITSELF.\n\nSimple example — count down from N to 1:\n\n```java\npublic static void countDown(int n) {\n    if (n == 0) {\n        return;  // Base case: stop\n    }\n    System.out.println(n);\n    countDown(n - 1);  // Recursive call with smaller input\n}\n\n// Call:\ncountDown(3);\n// Prints: 3, 2, 1\n```\n\nHow does this work? Trace it:\n\n1. `countDown(3)` — prints 3, calls `countDown(2)`\n2. `countDown(2)` — prints 2, calls `countDown(1)`\n3. `countDown(1)` — prints 1, calls `countDown(0)`\n4. `countDown(0)` — base case! Returns immediately.\n5. Each previous call also returns.\n\nNotice: the method calls itself with a SMALLER input each time, eventually reaching a value that triggers the BASE CASE — the condition that stops the recursion.",
+      "two_parts_of_recursion": "Every recursive function has TWO essential parts:\n\n**1. Base case**: the condition where recursion STOPS. Without this, the function calls itself forever (eventually crashing with `StackOverflowError`).\n\n**2. Recursive case**: the part where the function calls itself with a smaller/simpler input.\n\nThe MAGIC: the recursive case must move TOWARD the base case. Otherwise infinite recursion.\n\nBroken example (no base case):\n```java\npublic static void broken(int n) {\n    System.out.println(n);\n    broken(n - 1);  // Forever! No base case to stop.\n}\n// broken(5) → 5, 4, 3, 2, 1, 0, -1, -2, ... → StackOverflowError\n```\n\nBroken example (recursive case moves AWAY from base case):\n```java\npublic static void alsoBroken(int n) {\n    if (n == 0) return;  // base case\n    System.out.println(n);\n    alsoBroken(n + 1);  // WRONG: moves AWAY from 0\n}\n// alsoBroken(5) → 5, 6, 7, ... → StackOverflowError\n```\n\nThe right pattern: base case + recursive call that moves toward it.",
+      "factorial_example": "Classic recursion example: factorial.\n\n`n!` (n factorial) = n × (n-1) × (n-2) × ... × 1\n\nMathematical definition (notice it's RECURSIVE):\n- 0! = 1 (by definition)\n- n! = n × (n-1)!\n\nDirect Java translation:\n\n```java\npublic static long factorial(int n) {\n    if (n == 0) {\n        return 1;  // Base case\n    }\n    return n * factorial(n - 1);  // Recursive case\n}\n```\n\nThat's it. The mathematical definition becomes the code, line by line.\n\nLet's trace `factorial(4)`:\n\n```\nfactorial(4)\n= 4 * factorial(3)\n= 4 * (3 * factorial(2))\n= 4 * (3 * (2 * factorial(1)))\n= 4 * (3 * (2 * (1 * factorial(0))))\n= 4 * (3 * (2 * (1 * 1)))\n= 4 * (3 * (2 * 1))\n= 4 * (3 * 2)\n= 4 * 6\n= 24\n```\n\nNotice how the recursive calls 'pause' until the inner one returns. The 4 has to wait for 3, which waits for 2, etc. When 0 returns 1, the chain unwinds, each previous call completing its multiplication.\n\nThis is what the **call stack** does — keeps track of all pending calls.",
+      "call_stack_explained": "Every time a method is called, Java puts a 'frame' on the **call stack**. The frame holds:\n- Local variables\n- Parameters\n- Where to return to when this call finishes\n\nWhen the method returns, its frame is removed (popped).\n\nFor recursion, this means N frames get stacked up before any return. For `factorial(4)`:\n\n```\nSTACK (after all calls pile up, before any return):\n┌──────────────────┐\n│ factorial(0): n=0│  ← top of stack, executing now\n├──────────────────┤\n│ factorial(1): n=1│\n├──────────────────┤\n│ factorial(2): n=2│\n├──────────────────┤\n│ factorial(3): n=3│\n├──────────────────┤\n│ factorial(4): n=4│\n├──────────────────┤\n│ main             │  ← bottom of stack\n└──────────────────┘\n```\n\nEach frame has its own `n`. When `factorial(0)` returns 1, its frame is removed and control goes back to `factorial(1)`, which finishes its multiplication, returns 1, etc.\n\n**Key insight**: each recursive call gets its OWN scope (its own `n`, its own locals). They don't conflict. Scope chapter from Topic 2.4 directly applies here.\n\n**Limitation**: stacks have limited size (a few thousand frames typically). If recursion goes too deep — `factorial(1000000)` — you get **StackOverflowError**. We'll see when this matters.",
+      "fibonacci_example": "Another famous one: Fibonacci sequence. Each number is the sum of the two before.\n\n```\n0, 1, 1, 2, 3, 5, 8, 13, 21, 34, ...\n```\n\nMathematical definition:\n- fib(0) = 0\n- fib(1) = 1\n- fib(n) = fib(n-1) + fib(n-2) for n >= 2\n\nNotice: TWO base cases (0 and 1). And the recursive case calls itself TWICE.\n\n```java\npublic static long fib(int n) {\n    if (n == 0) return 0;\n    if (n == 1) return 1;\n    return fib(n - 1) + fib(n - 2);\n}\n```\n\nClean, elegant, matches the math. But here's a problem:\n\n```java\nfib(5) = fib(4) + fib(3)\n       = (fib(3) + fib(2)) + (fib(2) + fib(1))\n       = ((fib(2) + fib(1)) + (fib(1) + fib(0))) + ((fib(1) + fib(0)) + 1)\n       ...\n```\n\nWe compute `fib(2)` MULTIPLE TIMES. For `fib(30)`, we'd compute `fib(5)` thousands of times. This recursive solution is exponentially slow.\n\n**In production, you'd use an iterative version with a loop** (which is O(n) instead of O(2^n)). Or 'memoize' — cache results. Or use dynamic programming.\n\nFibonacci shows: recursion is sometimes clean BUT SLOW. Senior engineers know to convert recursive solutions to iterative when performance matters.",
+      "when_to_use_recursion": "**Recursion shines for**:\n\n1. **Tree/graph traversal**: hierarchical data (file systems, org charts, HTML DOM, JSON). Each node may have children which are also nodes. Recursion handles 'any depth' naturally.\n\n2. **Divide-and-conquer algorithms**: mergesort, quicksort, binary search. Split problem in half, solve each half, combine.\n\n3. **Backtracking problems**: 'find all paths,' 'try every combination,' 'sudoku solver.' Try a choice; if it fails, undo and try the next.\n\n4. **Mathematical definitions that ARE recursive**: factorial, Fibonacci, towers of Hanoi, Ackermann function. The code mirrors the math.\n\n**Iteration is better for**:\n\n1. **Linear processing**: summing an array, finding max, basic counting. A loop is simpler and faster.\n\n2. **Known fixed depth**: if you only need to iterate N times, a for loop is more efficient.\n\n3. **Performance-critical code**: recursion adds overhead (each call creates a stack frame). Loops have less overhead.\n\n4. **Avoiding StackOverflow**: deep recursion crashes. Loops don't.\n\n**Rule of thumb**: in business logic, prefer loops. In algorithm-heavy code (DSA, parsers, tree operations), recursion is often natural.",
+      "recursion_vs_iteration_example": "Same problem, two ways. Sum 1 through N.\n\n**Iterative**:\n```java\npublic static int sumIterative(int n) {\n    int total = 0;\n    for (int i = 1; i <= n; i++) {\n        total += i;\n    }\n    return total;\n}\n```\n\n**Recursive**:\n```java\npublic static int sumRecursive(int n) {\n    if (n == 0) return 0;\n    return n + sumRecursive(n - 1);\n}\n```\n\nBoth produce the same result. The iterative version is faster and won't blow up the stack for large N. The recursive version is shorter but slower and crashes for huge N.\n\nFor THIS problem (linear sum), iteration wins. For factorial — recursion is fine because factorials grow huge before depth becomes a problem (20! already exceeds int range). For Fibonacci — recursion is short but exponentially slow (use iteration in real code).\n\n**Lesson**: same logic, two implementations. Choose based on what matters.",
+      "tail_recursion_intro": "Brief mention of a topic for the curious: **tail recursion**.\n\nA recursive call is 'tail recursive' if it's the LAST thing the method does:\n\n```java\npublic static int tailSum(int n, int accumulator) {\n    if (n == 0) return accumulator;\n    return tailSum(n - 1, accumulator + n);  // tail call\n}\n```\n\nSome languages (Scala, Scheme) optimize tail recursion — replacing the call stack growth with a loop. **Java does NOT do this**. Every recursive call still uses a stack frame.\n\nThis matters because some recursive solutions that work in other languages crash in Java with StackOverflowError. The fix in Java: rewrite as a loop.\n\nFor now: just know that Java doesn't optimize tail calls. If recursion is deep, convert to iteration."
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a call stack diagram for factorial(4). Visualize 5 stacked frames: factorial(4), factorial(3), factorial(2), factorial(1), factorial(0). Each labeled with its parameter value. Show factorial(0) at top (currently executing). Annotate: 'When factorial(0) returns 1, this frame is removed. factorial(1) gets the result and completes its multiplication...' Continue showing frames being popped as values bubble up. Final result: 24. Right side shows the SAME calculation done iteratively with a single loop — no stack growth.",
+      "alt_text": "Call stack visualization showing recursive factorial frames building up and unwinding, contrasted with iterative loop approach"
+    }
+  },
+  "worked_example": {
+    "scenario": "Let's solve the classic interview problem: 'Calculate the sum of digits of a number recursively.' For 12345, the answer is 1+2+3+4+5 = 15. We solved this iteratively in Module 1 with a while loop. Now let's do it recursively to compare. This shows how the same problem can be approached two ways — and you'll see the recursive version is SHORTER but uses the call stack.",
+    "problem_statement": "Write a recursive method `sumOfDigits(int n)` that returns the sum of n's digits.\n\nFor n = 12345: returns 15\nFor n = 9: returns 9 (single digit)\nFor n = 0: returns 0",
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Identify the base case",
+        "details": "The simplest case where recursion STOPS:\n\n- If n is a single digit (n < 10), return n itself. Sum of one digit is the digit.\n- Alternatively: if n == 0, return 0.\n\nWe'll use `if (n < 10) return n;` — handles both single digits and the n=0 case naturally."
+      },
+      {
+        "step": 2,
+        "action": "Identify the recursive case",
+        "details": "How to break down a multi-digit number:\n\n- Last digit: `n % 10`\n- All other digits combined: `n / 10`\n\nFor 12345:\n- Last digit: 5\n- Rest: 1234\n\nSum = last digit + sum of rest = `5 + sumOfDigits(1234)`\n\nNotice: the recursive call works on a SMALLER number (1234 < 12345), moving toward the base case (a single digit)."
+      },
+      {
+        "step": 3,
+        "action": "Combine into the method",
+        "details": "```java\npublic static int sumOfDigits(int n) {\n    if (n < 10) {\n        return n;  // Base case\n    }\n    return (n % 10) + sumOfDigits(n / 10);  // Recursive case\n}\n```\n\nThat's it. 4 lines of code. Compare to the iterative version (8+ lines).\n\nThe recursive version is more concise BECAUSE it directly expresses the structure: 'the sum is the last digit plus the sum of the rest.'"
+      },
+      {
+        "step": 4,
+        "action": "Trace through sumOfDigits(123)",
+        "details": "Let's verify by tracing:\n\n```\nsumOfDigits(123)\n→ 123 >= 10, recursive case\n→ return (123 % 10) + sumOfDigits(123 / 10)\n→ return 3 + sumOfDigits(12)\n\nsumOfDigits(12)\n→ 12 >= 10, recursive case\n→ return (12 % 10) + sumOfDigits(12 / 10)\n→ return 2 + sumOfDigits(1)\n\nsumOfDigits(1)\n→ 1 < 10, BASE CASE\n→ return 1\n\nUnwinding:\nsumOfDigits(12) → 2 + 1 = 3\nsumOfDigits(123) → 3 + 3 = 6\n\nFinal answer: 6 (which is 1+2+3 ✓)\n```\n\nThree recursive calls. Three stack frames. The base case returns 1; that bubbles up, each level adding its digit."
+      },
+      {
+        "step": 5,
+        "action": "When to use this vs the iterative version",
+        "details": "Both work. Both produce the same answer.\n\n**Recursive version**:\n- ✅ Shorter, more elegant\n- ✅ Directly mirrors the mathematical structure\n- ❌ Uses stack (limited to ~10K deep before crash)\n- ❌ Slight overhead per call\n\n**Iterative version**:\n- ✅ No stack issues\n- ✅ Slightly faster (no call overhead)\n- ❌ Longer code\n- ❌ Less obvious structure\n\nFor sum of digits: stack depth = number of digits. Even a 100-digit number wouldn't crash the stack. Recursion is FINE here.\n\nFor processing a billion items: iteration is required. Recursion would crash.\n\n**The principle**: recursion is a TOOL. Use it when it makes the code clearer, AVOID it when depth or performance is a concern."
+      }
+    ],
+    "final_code": "public class DigitSummer {\n    public static void main(String[] args) {\n        System.out.println(\"sumOfDigits(12345) = \" + sumOfDigits(12345));\n        System.out.println(\"sumOfDigits(9) = \" + sumOfDigits(9));\n        System.out.println(\"sumOfDigits(0) = \" + sumOfDigits(0));\n        System.out.println(\"sumOfDigits(100) = \" + sumOfDigits(100));\n        System.out.println(\"sumOfDigits(999999) = \" + sumOfDigits(999999));\n    }\n    \n    public static int sumOfDigits(int n) {\n        if (n < 10) {\n            return n;  // Base case\n        }\n        return (n % 10) + sumOfDigits(n / 10);  // Recursive case\n    }\n}",
+    "expected_output": "sumOfDigits(12345) = 15\nsumOfDigits(9) = 9\nsumOfDigits(0) = 0\nsumOfDigits(100) = 1\nsumOfDigits(999999) = 54",
+    "things_to_notice": [
+      "The recursive method is 4 lines. The iterative version (Module 1 Topic 5) was 8+ lines. Often, recursion is more concise.",
+      "The base case (`n < 10`) handles single digits AND zero — one condition, two cases covered.",
+      "Each recursive call reduces n by 'shaving off the last digit' (n / 10). This guarantees we eventually reach the base case.",
+      "If we forgot the base case, sumOfDigits(0) would call sumOfDigits(0) forever → StackOverflowError.",
+      "The call stack stores one frame per digit. For a 5-digit number, 5 frames stack up before any return. For a 100-digit number, 100 frames. Java handles this easily.",
+      "Compare structure: in iteration, you maintain state (sum) across loop iterations. In recursion, the call stack maintains state implicitly — each frame has its own 'partial sum' in its return value."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "File systems & search (Windows Explorer, macOS Finder, IDEs)",
+        "use_case": "'Find all files matching X in this folder' uses recursion — for each subfolder, recursively call the same search function. Folder depth is unknown. Recursion handles arbitrary depth naturally. Every major OS file explorer does this."
+      },
+      {
+        "company_context": "JSON parsers (Jackson, Gson, JavaScript JSON.parse)",
+        "use_case": "JSON values can contain other JSON values (objects, arrays). Parsing a JSON object recursively parses its values. No way to know depth in advance. Every API your apps consume relies on this."
+      },
+      {
+        "company_context": "Compilers and language tools",
+        "use_case": "Programming language syntax is naturally recursive — an expression can contain other expressions, a statement can contain other statements. Java compilers, JS/TypeScript engines, syntax highlighters — all use recursive descent parsing internally."
+      },
+      {
+        "company_context": "Algorithm interviews (FAANG, top fintech, top product companies)",
+        "use_case": "Recursion appears constantly: traverse a binary tree, generate permutations, solve Sudoku, validate balanced parentheses. Senior interviews especially test recursion comfort. Inability to think recursively = limited algorithm performance."
+      }
+    ],
+    "interview_relevance": "Recursion is HEAVILY tested in coding interviews:\n\n- **Easy**: 'Print numbers 1 to N recursively' (warmup question)\n- **Medium**: 'Calculate Nth Fibonacci' (with discussion of efficiency)\n- **Medium**: 'Sum of digits,' 'Reverse a string,' 'Power function'\n- **Hard**: 'Generate all subsets,' 'N-Queens problem,' 'Solve maze'\n- **Tree problems** (almost always recursive): 'Tree height,' 'In-order traversal,' 'Path sum'\n\nInterviewers often ask the SAME problem two ways: 'Now solve it iteratively' or 'Now solve it recursively.' Knowing both approaches is critical.\n\nKey interview skill: identifying the base case + recursive case quickly. With practice, this becomes instinctive.",
+    "real_world_workflow": "Daily life with recursion:\n\n- Reading codebases that use tree structures (rare day-to-day, common in compilers/parsers)\n- Writing recursive algorithms during interviews (very common)\n- Converting recursive solutions to iterative ones for performance\n- Debugging StackOverflowError (someone forgot a base case)\n- Writing tree-walking code in test frameworks, ORMs, or data processing\n\nMost backend business logic uses loops over recursion. Most algorithm code uses recursion when natural. Knowing the difference is key."
+  },
+  "common_gaps": [
+    {
+      "gap_id": "missing_base_case",
+      "what_students_get_wrong": "Writing a recursive function without a base case (or with wrong base case). Result: infinite recursion → StackOverflowError.",
+      "remediation": "Every recursive method MUST have a base case. Always write it FIRST. Ask: 'For what input does this NOT need to recurse?'",
+      "detection_pattern": "Runtime StackOverflowError"
+    },
+    {
+      "gap_id": "recursive_case_not_moving_toward_base",
+      "what_students_get_wrong": "Calling the function with same or 'larger' input, so base case is never reached. Even with a base case present.",
+      "remediation": "The recursive call must use a SMALLER/SIMPLER input. Check: is each call closer to the base case?",
+      "detection_pattern": "StackOverflowError even with base case present"
+    },
+    {
+      "gap_id": "thinking_about_all_recursive_levels",
+      "what_students_get_wrong": "Trying to trace what happens for every recursive level mentally before writing the code. Gets overwhelming for non-trivial cases.",
+      "remediation": "TRUST the recursion. Assume sumOfDigits(n/10) works (returns correct sum of those digits). Then just write 'return last digit + that result.' Don't trace 5 levels deep in your head.",
+      "detection_pattern": "Student gets stuck designing recursive solutions"
+    },
+    {
+      "gap_id": "stack_overflow_for_deep_recursion",
+      "what_students_get_wrong": "Using recursion for problems with very deep nesting (e.g., a list of 100,000 items processed recursively).",
+      "remediation": "Java has a stack limit (~10K-50K frames). If your recursion goes deeper, convert to iteration.",
+      "detection_pattern": "Code works for small inputs, crashes for large"
+    },
+    {
+      "gap_id": "inefficient_recursion",
+      "what_students_get_wrong": "Using naive recursion for problems like Fibonacci that recompute subproblems exponentially.",
+      "remediation": "Recognize when recursion has overlapping subproblems. Either memoize or convert to iteration.",
+      "detection_pattern": "Code works but is extremely slow for moderate inputs"
+    },
+    {
+      "gap_id": "forgetting_to_return_recursive_call",
+      "what_students_get_wrong": "Calling the recursive function without using its return value. E.g., `factorial(n - 1);` instead of `return n * factorial(n - 1);`.",
+      "remediation": "The recursive CALL produces a value. You usually need to USE it. Always check: am I USING the return value of the recursive call?",
+      "detection_pattern": "Method returns wrong value or 0"
+    },
+    {
+      "gap_id": "using_recursion_when_iteration_better",
+      "what_students_get_wrong": "Defaulting to recursion for simple linear problems (sum, max, count). Iteration is usually cleaner.",
+      "remediation": "Recursion shines for: trees, divide-and-conquer, backtracking. For linear processing, prefer loops.",
+      "detection_pattern": "Code reviews suggesting iterative refactor"
+    }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "Recursion: a method that calls itself, used to solve problems that have recursive structure",
+      "Every recursive function has: a BASE CASE (stops recursion) and a RECURSIVE CASE (calls itself with smaller input)",
+      "The recursive case MUST move toward the base case — otherwise infinite recursion → StackOverflowError",
+      "Each recursive call gets its own stack frame with its own locals/parameters",
+      "Recursion is natural for: trees, graphs, parsers, divide-and-conquer algorithms",
+      "Iteration is better for: linear processing, deep recursion, performance-critical code",
+      "Fibonacci is the classic example of inefficient recursion (exponential subproblem repetition)",
+      "Java does NOT optimize tail recursion — deep recursion will crash regardless of structure",
+      "Trust the recursion: don't trace all levels in your head. Assume recursive calls work.",
+      "Recursion is a TOOL, not always the right choice. Senior engineers know when to convert."
+    ],
+    "self_check_questions": [
+      {
+        "question": "What's the base case for this method? What's the recursive case?\n```java\npublic static int factorial(int n) {\n    if (n == 0) return 1;\n    return n * factorial(n - 1);\n}\n```",
+        "answer": "Base case: `if (n == 0) return 1;` — stops recursion when n reaches 0. Recursive case: `return n * factorial(n - 1);` — calls itself with smaller input (n-1), moving toward the base case."
+      },
+      {
+        "question": "Why does this crash?\n```java\npublic static void countdown(int n) {\n    System.out.println(n);\n    countdown(n - 1);\n}\n```",
+        "answer": "No base case. The method calls itself forever, decrementing n past 0 into negatives indefinitely. The call stack grows until Java can't allocate more frames → StackOverflowError. Fix: add `if (n == 0) return;` at the top."
+      },
+      {
+        "question": "What does this print for n = 4?\n```java\npublic static void mystery(int n) {\n    if (n == 0) return;\n    mystery(n - 1);\n    System.out.println(n);\n}\n```",
+        "answer": "1, 2, 3, 4 (each on own line). Each call recurses FIRST, then prints. So the deepest call (mystery(0)) returns immediately. Then mystery(1) prints 1. Then mystery(2) prints 2. Etc. The prints happen during the UNWIND of the stack — in reverse order from the calls. This is the key insight: when you print BEFORE recursing, you get descending order. When you print AFTER, you get ascending."
+      },
+      {
+        "question": "Is recursion always better than iteration?",
+        "answer": "No. Recursion is BETTER for: tree/graph traversal, divide-and-conquer, problems with recursive structure. Iteration is BETTER for: linear processing, deep nesting (avoids stack overflow), performance-critical code. In production business logic, iteration is more common. In algorithm-heavy code, recursion appears often. Senior engineers know both and pick based on the problem."
+      },
+      {
+        "question": "Why is naive recursive Fibonacci slow?",
+        "answer": "It computes the same subproblem MANY times. fib(5) needs fib(4) and fib(3). fib(4) ALSO needs fib(3) and fib(2). So fib(3) is computed twice. This duplication grows exponentially — fib(30) takes millions of operations, fib(50) takes BILLIONS. The fix: memoize (cache results) or convert to iteration (O(n) instead of O(2^n)). This is a classic example of why recursive code isn't always efficient."
+      }
+    ],
+    "next_topic_preview": "🎉 You've completed Module 2! You now know everything about methods: definition, parameters, returns, overloading, scope, and recursion. You can structure programs like a professional Java developer. Next module: Arrays & Strings. We'll cover how to work with collections of values — the data structures that loops were designed for. After Module 3, you'll be able to process data, not just compute single values."
+  }
+}

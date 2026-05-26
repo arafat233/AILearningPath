@@ -1,0 +1,348 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t4",
+  "topic_name": "Defensive Programming",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m7_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace Objects.requireNonNull",
+      "scenario": "requireNonNull returns value if non-null, throws if null.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.Objects;\n\npublic class App {\n    public static void main(String[] args) {\n        String s = Objects.requireNonNull(\"hello\", \"s must not be null\");\n        System.out.println(s.toUpperCase());\n        \n        try {\n            Objects.requireNonNull(null, \"value required\");\n        } catch (NullPointerException e) {\n            System.out.println(\"NPE: \" + e.getMessage());\n        }\n    }\n}\n```",
+      "expected_solution": "HELLO\nNPE: value required",
+      "test_cases": [
+        { "type": "text_match", "expected": "HELLO\nNPE: value required" }
+      ],
+      "hints": [
+        "requireNonNull returns 'hello' when non-null",
+        "requireNonNull throws NullPointerException with the message when null"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add requireNonNull to constructor",
+      "scenario": "Standard pattern for null-safe constructors.",
+      "instructions": "Fill in the blanks to add null-safe validation.",
+      "starter_code": "import java.util.Objects;\n\npublic class Product {\n    private final String name;\n    \n    public Product(String name) {\n        this.name = Objects.______(name, \"name must not be null\");\n    }\n    \n    public String getName() { return name; }\n}",
+      "expected_solution": "import java.util.Objects;\n\npublic class Product {\n    private final String name;\n    \n    public Product(String name) {\n        this.name = Objects.requireNonNull(name, \"name must not be null\");\n    }\n    \n    public String getName() { return name; }\n}",
+      "blanks": [
+        { "position": 1, "answer": "requireNonNull", "hint": "The Objects method that throws NPE if null" }
+      ],
+      "test_cases": [
+        { "type": "compile_check", "must_compile": true }
+      ],
+      "hints": [
+        "Objects.requireNonNull(value, message)",
+        "Returns value if non-null; throws NullPointerException with message if null"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Guard clauses — early returns",
+      "scenario": "Rewrite nested if-else as flat guard clauses.",
+      "instructions": "Rewrite this as flat guard clauses that throw IllegalArgumentException for invalid inputs:\n\n```java\n// Rewrite this:\npublic double discount(double price, int loyaltyYears) {\n    if (price > 0) {\n        if (loyaltyYears >= 0) {\n            return price * (1 - Math.min(loyaltyYears * 0.05, 0.30));\n        } else {\n            throw new IllegalArgumentException(\"negative years\");\n        }\n    } else {\n        throw new IllegalArgumentException(\"negative price\");\n    }\n}\n```\n\nExpected output:\n₹700.0\nInvalid price: -100.0\nInvalid years: -1",
+      "starter_code": "// Rewrite discount() using guard clauses at the top\n",
+      "expected_solution": "public class App {\n    static double discount(double price, int loyaltyYears) {\n        if (price <= 0) throw new IllegalArgumentException(\"Invalid price: \" + price);\n        if (loyaltyYears < 0) throw new IllegalArgumentException(\"Invalid years: \" + loyaltyYears);\n        return price * (1 - Math.min(loyaltyYears * 0.05, 0.30));\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"₹\" + discount(1000, 4));  // 1000 * (1 - 0.20) = 800? No: 4*0.05=0.20, 1000*0.80=800\n        // Wait: 4 years = 20% off: 1000 * 0.80 = 800. Expected shows 700 — 6 years? Let me use 6.\n        System.out.println(\"₹\" + discount(1000, 6));  // 6*0.05=0.30 cap, 1000*0.70=700 ✓\n        try { discount(-100, 2); } catch (IllegalArgumentException e) { System.out.println(e.getMessage()); }\n        try { discount(500, -1); } catch (IllegalArgumentException e) { System.out.println(e.getMessage()); }\n    }\n}",
+      "expected_solution": "public class App {\n    static double discount(double price, int loyaltyYears) {\n        if (price <= 0) throw new IllegalArgumentException(\"Invalid price: \" + price);\n        if (loyaltyYears < 0) throw new IllegalArgumentException(\"Invalid years: \" + loyaltyYears);\n        return price * (1 - Math.min(loyaltyYears * 0.05, 0.30));\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"₹\" + discount(1000, 6));\n        try { discount(-100, 2); } catch (IllegalArgumentException e) { System.out.println(e.getMessage()); }\n        try { discount(500, -1); } catch (IllegalArgumentException e) { System.out.println(e.getMessage()); }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "₹700.0\nInvalid price: -100.0\nInvalid years: -1" }
+      ],
+      "hints": [
+        "Guard clauses: if (invalid condition) throw early",
+        "Two guards at the top: price <= 0 and loyaltyYears < 0",
+        "Main logic follows with no nesting"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m7_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Defensive copy in constructor",
+      "scenario": "Protect internal state from external mutation.",
+      "instructions": "Demonstrate that WITHOUT a defensive copy, the external list can corrupt internal state. Then FIX it with a defensive copy.\n\nExpected output:\nWithout copy — corrupted: [A, B, HACKED]\nWith copy — protected: [A, B]",
+      "starter_code": "import java.util.*;\n\n// Demonstrate corruption then fix with defensive copy\n",
+      "expected_solution": "import java.util.*;\n\nclass BadConfig {\n    private List<String> settings;\n    BadConfig(List<String> s) { this.settings = s; }  // no copy!\n    List<String> getSettings() { return settings; }\n}\n\nclass GoodConfig {\n    private final List<String> settings;\n    GoodConfig(List<String> s) { this.settings = new ArrayList<>(s); }  // defensive copy\n    List<String> getSettings() { return Collections.unmodifiableList(settings); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> original = new ArrayList<>(Arrays.asList(\"A\", \"B\"));\n        \n        BadConfig bad = new BadConfig(original);\n        original.add(\"HACKED\");  // mutates bad's settings too!\n        System.out.println(\"Without copy — corrupted: \" + bad.getSettings());\n        \n        original.remove(\"HACKED\");  // restore\n        GoodConfig good = new GoodConfig(original);\n        original.add(\"HACKED\");  // good is protected\n        System.out.println(\"With copy — protected: \" + good.getSettings());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Without copy — corrupted: [A, B, HACKED]\nWith copy — protected: [A, B]" }
+      ],
+      "hints": [
+        "BadConfig: this.settings = s — same object, caller can corrupt it",
+        "GoodConfig: this.settings = new ArrayList<>(s) — independent copy",
+        "Shows exactly why defensive copies matter"
+      ],
+      "xp_reward": 35,
+      "concept_tested": "defensive_copy"
+    },
+
+    {
+      "id": "java_m7_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Full defensive constructor",
+      "scenario": "All three defenses: null check, value validation, defensive copy.",
+      "instructions": "Write a defensive `Playlist` constructor:\n- `Objects.requireNonNull` for name and songs\n- `if name.isBlank()` → IllegalArgumentException\n- Defensive copy of songs list\n- Getter returns unmodifiable view\n\nExpected output:\nPlaylist 'Rock Hits' with 2 songs\nCannot modify: yes",
+      "starter_code": "import java.util.*;\n\n// Defensive Playlist with null check + value validation + defensive copy\n",
+      "expected_solution": "import java.util.*;\n\nclass Playlist {\n    private final String name;\n    private final List<String> songs;\n    \n    Playlist(String name, List<String> songs) {\n        this.name  = Objects.requireNonNull(name, \"name required\");\n        if (name.isBlank()) throw new IllegalArgumentException(\"name cannot be blank\");\n        Objects.requireNonNull(songs, \"songs required\");\n        this.songs = new ArrayList<>(songs);  // defensive copy\n    }\n    \n    String getName() { return name; }\n    List<String> getSongs() { return Collections.unmodifiableList(songs); }\n    \n    @Override public String toString() {\n        return \"Playlist '\" + name + \"' with \" + songs.size() + \" songs\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> tracks = new ArrayList<>(Arrays.asList(\"Bohemian Rhapsody\", \"Stairway to Heaven\"));\n        Playlist pl = new Playlist(\"Rock Hits\", tracks);\n        System.out.println(pl);\n        \n        tracks.add(\"HACKED\");  // doesn't affect Playlist\n        \n        try {\n            pl.getSongs().add(\"hacked via getter\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"Cannot modify: yes\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Playlist 'Rock Hits' with 2 songs\nCannot modify: yes" }
+      ],
+      "hints": [
+        "requireNonNull for name AND songs",
+        "isBlank() check after requireNonNull",
+        "new ArrayList<>(songs) in constructor, Collections.unmodifiableList in getter"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m7_t4_ex_6",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix validation after usage",
+      "scenario": "Null check must come BEFORE using the value.",
+      "instructions": "This code validates too late — the null check comes after a method call that will NPE. Fix it.\n\nExpected output:\nProcessed: HELLO WORLD\nError: input must not be null",
+      "starter_code": "public class Broken {\n    static String process(String input) {\n        String result = input.toUpperCase();  // NPE if input is null!\n        if (input == null) throw new IllegalArgumentException(\"input must not be null\");\n        return result;\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"Processed: \" + process(\"hello world\"));\n        try {\n            process(null);\n        } catch (Exception e) {\n            System.out.println(\"Error: \" + e.getMessage());\n        }\n    }\n}",
+      "expected_solution": "public class Broken {\n    static String process(String input) {\n        if (input == null) throw new IllegalArgumentException(\"input must not be null\");\n        return input.toUpperCase();\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"Processed: \" + process(\"hello world\"));\n        try {\n            process(null);\n        } catch (Exception e) {\n            System.out.println(\"Error: \" + e.getMessage());\n        }\n    }\n}",
+      "bugs": [
+        { "issue": "Null check comes AFTER input.toUpperCase() — will NPE before reaching the check", "fix": "Move null check to BEFORE using input" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Processed: HELLO WORLD\nError: input must not be null", "must_compile": true }
+      ],
+      "hints": [
+        "The null check must come BEFORE any use of input",
+        "Move the if-null check to be the first line",
+        "The toUpperCase call must only happen after confirming input is non-null"
+      ],
+      "xp_reward": 30,
+      "concept_tested": "validating_after_using"
+    },
+
+    {
+      "id": "java_m7_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Fail-fast method validation",
+      "scenario": "Validate all inputs before any computation.",
+      "instructions": "Write `createLoan(String borrower, double principal, double annualRate, int months)` that:\n- requireNonNull borrower, not blank\n- principal > 0\n- annualRate 0-100\n- months 1-360\n\nFails immediately on first bad input with specific message.\n\nExpected output:\nLoan: Aisha ₹100000 @ 8.5% for 24m\nError: annualRate must be 0-100, got: 150.0\nError: borrower must not be blank",
+      "starter_code": "import java.util.Objects;\n\n// createLoan with full fail-fast validation\n",
+      "expected_solution": "import java.util.Objects;\n\npublic class App {\n    record Loan(String borrower, double principal, double rate, int months) {\n        public String toString() { return \"Loan: \" + borrower + \" ₹\" + principal + \" @ \" + rate + \"% for \" + months + \"m\"; }\n    }\n    \n    static Loan createLoan(String borrower, double principal, double annualRate, int months) {\n        Objects.requireNonNull(borrower, \"borrower required\");\n        if (borrower.isBlank()) throw new IllegalArgumentException(\"borrower must not be blank\");\n        if (principal <= 0) throw new IllegalArgumentException(\"principal must be positive, got: \" + principal);\n        if (annualRate < 0 || annualRate > 100) throw new IllegalArgumentException(\"annualRate must be 0-100, got: \" + annualRate);\n        if (months < 1 || months > 360) throw new IllegalArgumentException(\"months must be 1-360, got: \" + months);\n        return new Loan(borrower, principal, annualRate, months);\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(createLoan(\"Aisha\", 100000, 8.5, 24));\n        try { createLoan(\"Raj\", 50000, 150, 12); } \n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n        try { createLoan(\"\", 50000, 8.5, 12); } \n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Loan: Aisha ₹100000.0 @ 8.5% for 24m\nError: annualRate must be 0-100, got: 150.0\nError: borrower must not be blank" }
+      ],
+      "hints": [
+        "requireNonNull first, then isBlank, then numeric range checks",
+        "Each check with specific message including the invalid value",
+        "record creates a compact immutable data class"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m7_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Immutable class design",
+      "scenario": "Build a fully immutable value class.",
+      "instructions": "Design an immutable `Money` class:\n- `final` fields: amount (double), currency (String)\n- `final` class\n- No setters\n- Arithmetic returns NEW Money objects\n- Defensive: amount must be >= 0, currency not blank\n\nExpected output:\n₹500.00 INR\n₹1500.00 INR\n₹300.00 INR",
+      "starter_code": "// Immutable Money class\n",
+      "expected_solution": "import java.util.Objects;\n\nfinal class Money {\n    private final double amount;\n    private final String currency;\n    \n    Money(double amount, String currency) {\n        if (amount < 0) throw new IllegalArgumentException(\"amount cannot be negative: \" + amount);\n        this.currency = Objects.requireNonNull(currency, \"currency required\");\n        if (currency.isBlank()) throw new IllegalArgumentException(\"currency cannot be blank\");\n        this.amount = amount;\n    }\n    \n    double getAmount() { return amount; }\n    String getCurrency() { return currency; }\n    \n    Money add(Money other) {\n        Objects.requireNonNull(other, \"other required\");\n        if (!this.currency.equals(other.currency))\n            throw new IllegalArgumentException(\"Cannot add different currencies: \" + currency + \" vs \" + other.currency);\n        return new Money(this.amount + other.amount, this.currency);\n    }\n    \n    Money subtract(Money other) {\n        Objects.requireNonNull(other, \"other required\");\n        if (!this.currency.equals(other.currency))\n            throw new IllegalArgumentException(\"Cannot subtract different currencies\");\n        if (other.amount > this.amount)\n            throw new IllegalArgumentException(\"Result would be negative\");\n        return new Money(this.amount - other.amount, this.currency);\n    }\n    \n    @Override public String toString() {\n        return String.format(\"₹%.2f %s\", amount, currency);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Money price  = new Money(500, \"INR\");\n        Money wallet = new Money(1000, \"INR\");\n        \n        System.out.println(price);\n        System.out.println(price.add(wallet));\n        System.out.println(wallet.subtract(price).subtract(new Money(200, \"INR\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "₹500.00 INR\n₹1500.00 INR\n₹300.00 INR" }
+      ],
+      "hints": [
+        "final class prevents subclassing",
+        "final fields prevent reassignment",
+        "add/subtract return NEW Money objects — original unchanged",
+        "1000 - 500 = 500, 500 - 200 = 300"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "immutable_design"
+    },
+
+    {
+      "id": "java_m7_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Optional for nullable find",
+      "scenario": "Return Optional instead of null for 'might not exist' results.",
+      "instructions": "Implement `findEmployee(Map<String, String> employees, String id)` returning `Optional<String>`. Demonstrate isPresent(), orElse(), map().\n\nExpected output:\nFound: Aisha Khan\nNot found: No employee\nEmail: aisha.khan@company.com",
+      "starter_code": "import java.util.*;\n\n// findEmployee returning Optional<String>\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    static Optional<String> findEmployee(Map<String, String> employees, String id) {\n        Objects.requireNonNull(id, \"id required\");\n        return Optional.ofNullable(employees.get(id));\n    }\n    \n    public static void main(String[] args) {\n        Map<String, String> employees = new HashMap<>();\n        employees.put(\"E001\", \"Aisha Khan\");\n        employees.put(\"E002\", \"Raj Patel\");\n        \n        Optional<String> found = findEmployee(employees, \"E001\");\n        System.out.println(\"Found: \" + found.orElse(\"No employee\"));\n        \n        Optional<String> missing = findEmployee(employees, \"E999\");\n        System.out.println(\"Not found: \" + missing.orElse(\"No employee\"));\n        \n        // map() transforms the value if present\n        String email = findEmployee(employees, \"E001\")\n            .map(name -> name.toLowerCase().replace(\" \", \".\") + \"@company.com\")\n            .orElse(\"unknown@company.com\");\n        System.out.println(\"Email: \" + email);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found: Aisha Khan\nNot found: No employee\nEmail: aisha.khan@company.com" }
+      ],
+      "hints": [
+        "Optional.ofNullable(value) wraps nullable — returns Optional.empty() for null",
+        "orElse(default) returns value or default",
+        "map(transform) applies function if present"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m7_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace defensive copy protection",
+      "scenario": "Understand what happens with and without defensive copy.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\n\nclass Team {\n    private final List<String> members;\n    Team(List<String> members) {\n        this.members = new ArrayList<>(members);  // defensive copy\n    }\n    List<String> getMembers() { return Collections.unmodifiableList(members); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>(Arrays.asList(\"Alice\", \"Bob\"));\n        Team team = new Team(list);\n        list.add(\"Hacker\");\n        System.out.println(\"Team: \" + team.getMembers());\n        System.out.println(\"List: \" + list);\n        try {\n            team.getMembers().add(\"Direct\");\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"Blocked!\");\n        }\n    }\n}\n```",
+      "expected_solution": "Team: [Alice, Bob]\nList: [Alice, Bob, Hacker]\nBlocked!",
+      "test_cases": [
+        { "type": "text_match", "expected": "Team: [Alice, Bob]\nList: [Alice, Bob, Hacker]\nBlocked!" }
+      ],
+      "hints": [
+        "Defensive copy: team.members is an independent copy",
+        "Adding to original list doesn't affect team",
+        "getMembers() returns unmodifiable — add throws"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m7_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Validation boundary — public vs private",
+      "scenario": "Validate at the public boundary, trust in private.",
+      "instructions": "Design `ReportService` with:\n- `public generateReport(String title, List<String> sections)` — validates everything\n- `private formatSection(String section)` — trusts input (private, called only from validated path)\n\nShow public validates, private just processes.\n\nExpected output:\n=== Sales Q1 ===\n• REVENUE\n• EXPENSES\nError: title required\nError: sections cannot be empty",
+      "starter_code": "import java.util.*;\n\n// Public validates, private trusts\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    static String formatSection(String section) {\n        // Private — trusts caller. No null check.\n        return \"• \" + section.toUpperCase();\n    }\n    \n    static String generateReport(String title, List<String> sections) {\n        // Public boundary — validate everything\n        Objects.requireNonNull(title, \"title required\");\n        if (title.isBlank()) throw new IllegalArgumentException(\"title required\");\n        Objects.requireNonNull(sections, \"sections required\");\n        if (sections.isEmpty()) throw new IllegalArgumentException(\"sections cannot be empty\");\n        \n        StringBuilder sb = new StringBuilder(\"=== \" + title + \" ===\\n\");\n        for (String s : sections) sb.append(formatSection(s)).append(\"\\n\");\n        return sb.toString().trim();\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(generateReport(\"Sales Q1\", Arrays.asList(\"Revenue\", \"Expenses\")));\n        \n        try { generateReport(\"\", Arrays.asList(\"A\")); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n        \n        try { generateReport(\"Test\", new ArrayList<>()); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "=== Sales Q1 ===\n• REVENUE\n• EXPENSES\nError: title required\nError: sections cannot be empty" }
+      ],
+      "hints": [
+        "Public method: Objects.requireNonNull + isBlank + isEmpty checks",
+        "Private method: no validation — trusts it's called with valid data",
+        "This is the validation boundary principle"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m7_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "UserProfile — full defensive class",
+      "scenario": "Combine all defensive patterns in one class.",
+      "instructions": "Build a defensively programmed `UserProfile`:\n- requireNonNull + isBlank on name, email\n- email must contain '@'\n- age must be 13-120\n- List<String> interests — defensive copy in/out\n- All fields final except interests (can addInterest)\n- addInterest validates non-null, non-blank\n\nExpected output:\nProfile: Aisha (28) aisha@test.com\nInterests: [coding, reading]\nError: email must contain @\nError: age must be 13-120, got: 200",
+      "starter_code": "import java.util.*;\n\n// Full defensive UserProfile class\n",
+      "expected_solution": "import java.util.*;\n\nclass UserProfile {\n    private final String name;\n    private final String email;\n    private final int age;\n    private final List<String> interests;\n    \n    UserProfile(String name, String email, int age, List<String> interests) {\n        this.name  = Objects.requireNonNull(name, \"name required\");\n        if (name.isBlank())  throw new IllegalArgumentException(\"name cannot be blank\");\n        this.email = Objects.requireNonNull(email, \"email required\");\n        if (!email.contains(\"@\")) throw new IllegalArgumentException(\"email must contain @\");\n        if (age < 13 || age > 120) throw new IllegalArgumentException(\"age must be 13-120, got: \" + age);\n        this.age = age;\n        this.interests = new ArrayList<>(Objects.requireNonNull(interests, \"interests required\"));\n    }\n    \n    void addInterest(String interest) {\n        Objects.requireNonNull(interest, \"interest required\");\n        if (interest.isBlank()) throw new IllegalArgumentException(\"interest cannot be blank\");\n        interests.add(interest);\n    }\n    \n    List<String> getInterests() { return Collections.unmodifiableList(interests); }\n    \n    @Override public String toString() {\n        return \"Profile: \" + name + \" (\" + age + \") \" + email;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> interests = new ArrayList<>(Arrays.asList(\"coding\", \"reading\"));\n        UserProfile p = new UserProfile(\"Aisha\", \"aisha@test.com\", 28, interests);\n        interests.add(\"HACKED\");  // doesn't affect profile\n        System.out.println(p);\n        System.out.println(\"Interests: \" + p.getInterests());\n        \n        try { new UserProfile(\"Raj\", \"noemail\", 25, new ArrayList<>()); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n        \n        try { new UserProfile(\"Priya\", \"p@x.com\", 200, new ArrayList<>()); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Profile: Aisha (28) aisha@test.com\nInterests: [coding, reading]\nError: email must contain @\nError: age must be 13-120, got: 200" }
+      ],
+      "hints": [
+        "Defensive copy of interests list in constructor",
+        "getInterests() returns unmodifiable view",
+        "Adding 'HACKED' to original list doesn't affect profile — defensive copy works"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m7_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "ProductCatalog with full defensive design",
+      "scenario": "All defensive patterns in a multi-method class.",
+      "instructions": "Build `ProductCatalog` with full defensive design:\n- `addProduct(String sku, String name, double price)` — validates all, no duplicates\n- `updatePrice(String sku, double newPrice)` — validates sku exists, price > 0\n- `getCatalog()` — returns unmodifiable Map\n- `productsUnder(double maxPrice)` — returns defensive List (not internal refs)\n\nExpected output:\nAdded: MOUSE-01 Mouse ₹599.0\nAdded: KB-01 Keyboard ₹1999.0\nUpdated MOUSE-01 → ₹549.0\nError: SKU already exists: MOUSE-01\nError: SKU not found: GHOST-99\nUnder ₹1000: [MOUSE-01: ₹549.0]",
+      "starter_code": "import java.util.*;\n\n// Defensive ProductCatalog\n",
+      "expected_solution": "import java.util.*;\n\nclass ProductCatalog {\n    private final Map<String, double[]> catalog = new LinkedHashMap<>();\n    // double[]: [0]=price. String: name. Using Map<sku, {name, price}> parallel maps for simplicity.\n    private final Map<String, String>  names  = new LinkedHashMap<>();\n    private final Map<String, Double>  prices = new LinkedHashMap<>();\n    \n    void addProduct(String sku, String name, double price) {\n        Objects.requireNonNull(sku,  \"sku required\");\n        Objects.requireNonNull(name, \"name required\");\n        if (sku.isBlank())  throw new IllegalArgumentException(\"sku cannot be blank\");\n        if (name.isBlank()) throw new IllegalArgumentException(\"name cannot be blank\");\n        if (price <= 0)     throw new IllegalArgumentException(\"price must be positive, got: \" + price);\n        if (prices.containsKey(sku)) throw new IllegalArgumentException(\"SKU already exists: \" + sku);\n        names.put(sku, name);\n        prices.put(sku, price);\n        System.out.println(\"Added: \" + sku + \" \" + name + \" ₹\" + price);\n    }\n    \n    void updatePrice(String sku, double newPrice) {\n        Objects.requireNonNull(sku, \"sku required\");\n        if (!prices.containsKey(sku)) throw new IllegalArgumentException(\"SKU not found: \" + sku);\n        if (newPrice <= 0) throw new IllegalArgumentException(\"price must be positive, got: \" + newPrice);\n        prices.put(sku, newPrice);\n        System.out.println(\"Updated \" + sku + \" → ₹\" + newPrice);\n    }\n    \n    List<String> productsUnder(double maxPrice) {\n        List<String> result = new ArrayList<>();\n        for (String sku : prices.keySet()) {\n            if (prices.get(sku) <= maxPrice) {\n                result.add(sku + \": ₹\" + prices.get(sku));\n            }\n        }\n        return Collections.unmodifiableList(result);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        ProductCatalog cat = new ProductCatalog();\n        cat.addProduct(\"MOUSE-01\", \"Mouse\", 599);\n        cat.addProduct(\"KB-01\", \"Keyboard\", 1999);\n        cat.updatePrice(\"MOUSE-01\", 549);\n        \n        try { cat.addProduct(\"MOUSE-01\", \"Mouse2\", 699); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n        \n        try { cat.updatePrice(\"GHOST-99\", 100); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n        \n        System.out.println(\"Under ₹1000: \" + cat.productsUnder(1000));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Added: MOUSE-01 Mouse ₹599.0\nAdded: KB-01 Keyboard ₹1999.0\nUpdated MOUSE-01 → ₹549.0\nError: SKU already exists: MOUSE-01\nError: SKU not found: GHOST-99\nUnder ₹1000: [MOUSE-01: ₹549.0]" }
+      ],
+      "hints": [
+        "addProduct: null checks, blank checks, price > 0, duplicate SKU check",
+        "updatePrice: null check, existence check, price > 0",
+        "productsUnder returns new unmodifiable list — not internal refs"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m7_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Transaction validator — fail-fast pipeline",
+      "scenario": "Validate before processing — fail at first invalid step.",
+      "instructions": "Build `TransactionValidator.validate(Transaction t)` — validates in order:\n1. null check on transaction\n2. fromAccountId not blank\n3. toAccountId not blank, not same as from\n4. amount 1.0 to 1,000,000\n5. description not over 200 chars\n\nReturn a `ValidationResult(boolean valid, String error)`. Use fail-fast: return first error found.\n\nExpected output:\nvalid=true\nvalid=false error=fromAccountId required\nvalid=false error=cannot transfer to same account\nvalid=false error=amount must be 1.0-1000000.0, got: 0.5",
+      "starter_code": "// TransactionValidator with fail-fast validation chain\n",
+      "expected_solution": "record Transaction(String fromAccountId, String toAccountId, double amount, String description) {}\n\nrecord ValidationResult(boolean valid, String error) {\n    static ValidationResult ok() { return new ValidationResult(true, null); }\n    static ValidationResult fail(String error) { return new ValidationResult(false, error); }\n    public String toString() { return valid ? \"valid=true\" : \"valid=false error=\" + error; }\n}\n\nclass TransactionValidator {\n    static ValidationResult validate(Transaction t) {\n        if (t == null) return ValidationResult.fail(\"transaction required\");\n        if (t.fromAccountId() == null || t.fromAccountId().isBlank())\n            return ValidationResult.fail(\"fromAccountId required\");\n        if (t.toAccountId() == null || t.toAccountId().isBlank())\n            return ValidationResult.fail(\"toAccountId required\");\n        if (t.fromAccountId().equals(t.toAccountId()))\n            return ValidationResult.fail(\"cannot transfer to same account\");\n        if (t.amount() < 1.0 || t.amount() > 1_000_000)\n            return ValidationResult.fail(\"amount must be 1.0-1000000.0, got: \" + t.amount());\n        if (t.description() != null && t.description().length() > 200)\n            return ValidationResult.fail(\"description too long (max 200)\");\n        return ValidationResult.ok();\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(TransactionValidator.validate(new Transaction(\"A1\", \"A2\", 5000, \"payment\")));\n        System.out.println(TransactionValidator.validate(new Transaction(\"\", \"A2\", 5000, \"\")));\n        System.out.println(TransactionValidator.validate(new Transaction(\"A1\", \"A1\", 5000, \"\")));\n        System.out.println(TransactionValidator.validate(new Transaction(\"A1\", \"A2\", 0.5, \"\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "valid=true\nvalid=false error=fromAccountId required\nvalid=false error=cannot transfer to same account\nvalid=false error=amount must be 1.0-1000000.0, got: 0.5" }
+      ],
+      "hints": [
+        "Return ValidationResult.fail(message) on first invalid — don't continue",
+        "Fail-fast: each check returns immediately on failure",
+        "record is a compact Java 16+ data class"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m7_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete defensive service — all patterns",
+      "scenario": "Full defensive class combining every pattern from this topic.",
+      "instructions": "Build `AuditedPaymentService` with EVERY defensive pattern:\n1. Constructor: requireNonNull + isBlank for serviceName, defensive copy of allowedCurrencies Set\n2. `transfer(from, to, amount, currency)`: null checks, blank checks, amount > 0, currency in allowedSet, from != to\n3. `getTransactionHistory()`: returns unmodifiable List\n4. `getAllowedCurrencies()`: returns unmodifiable Set\n5. Optional return: `findLastTransfer(String accountId)` returns Optional<String>\n\nExpected output:\nTransfer complete: A001→A002 ₹5000.0 INR\nError: currency not supported: USD\nError: cannot transfer to same account\nAllowed: [INR, SGD]\nLast for A001: A001→A002 ₹5000.0 INR",
+      "starter_code": "import java.util.*;\n\n// AuditedPaymentService — all defensive patterns\n",
+      "expected_solution": "import java.util.*;\n\nclass AuditedPaymentService {\n    private final String serviceName;\n    private final Set<String> allowedCurrencies;\n    private final List<String> history = new ArrayList<>();\n    \n    AuditedPaymentService(String serviceName, Set<String> allowedCurrencies) {\n        this.serviceName = Objects.requireNonNull(serviceName, \"serviceName required\");\n        if (serviceName.isBlank()) throw new IllegalArgumentException(\"serviceName cannot be blank\");\n        this.allowedCurrencies = new HashSet<>(Objects.requireNonNull(allowedCurrencies, \"currencies required\"));\n    }\n    \n    void transfer(String from, String to, double amount, String currency) {\n        Objects.requireNonNull(from,     \"from required\");\n        Objects.requireNonNull(to,       \"to required\");\n        Objects.requireNonNull(currency, \"currency required\");\n        if (from.isBlank()) throw new IllegalArgumentException(\"from cannot be blank\");\n        if (to.isBlank())   throw new IllegalArgumentException(\"to cannot be blank\");\n        if (from.equals(to))     throw new IllegalArgumentException(\"cannot transfer to same account\");\n        if (amount <= 0)         throw new IllegalArgumentException(\"amount must be positive, got: \" + amount);\n        if (!allowedCurrencies.contains(currency))\n            throw new IllegalArgumentException(\"currency not supported: \" + currency);\n        String record = from + \"→\" + to + \" ₹\" + amount + \" \" + currency;\n        history.add(record);\n        System.out.println(\"Transfer complete: \" + record);\n    }\n    \n    List<String> getTransactionHistory() { return Collections.unmodifiableList(history); }\n    Set<String> getAllowedCurrencies() { return Collections.unmodifiableSet(allowedCurrencies); }\n    \n    Optional<String> findLastTransfer(String accountId) {\n        Objects.requireNonNull(accountId, \"accountId required\");\n        for (int i = history.size() - 1; i >= 0; i--) {\n            if (history.get(i).startsWith(accountId)) return Optional.of(history.get(i));\n        }\n        return Optional.empty();\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Set<String> currencies = new HashSet<>(Arrays.asList(\"INR\", \"SGD\"));\n        AuditedPaymentService svc = new AuditedPaymentService(\"RazorpayService\", currencies);\n        currencies.add(\"USD\");  // external mutation — doesn't affect service!\n        \n        svc.transfer(\"A001\", \"A002\", 5000, \"INR\");\n        \n        try { svc.transfer(\"A001\", \"A002\", 100, \"USD\"); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n        \n        try { svc.transfer(\"A001\", \"A001\", 100, \"INR\"); }\n        catch (IllegalArgumentException e) { System.out.println(\"Error: \" + e.getMessage()); }\n        \n        List<String> sorted = new ArrayList<>(svc.getAllowedCurrencies());\n        Collections.sort(sorted);\n        System.out.println(\"Allowed: \" + sorted);\n        \n        System.out.println(\"Last for A001: \" + svc.findLastTransfer(\"A001\").orElse(\"none\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Transfer complete: A001→A002 ₹5000.0 INR\nError: currency not supported: USD\nError: cannot transfer to same account\nAllowed: [INR, SGD]\nLast for A001: A001→A002 ₹5000.0 INR" }
+      ],
+      "hints": [
+        "Defensive copy of Set: new HashSet<>(currencies) — adding USD to original doesn't affect service",
+        "currencies is [INR, SGD] in constructor — USD is added AFTER, so not in service's copy",
+        "Optional.of() when found, Optional.empty() when not",
+        "getAllowedCurrencies() returns unmodifiable set — sort a copy for display"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "debug": 1,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

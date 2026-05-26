@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m8_t2_proj",
+  "linked_topic": "java_m8_t2",
+  "level": "mini",
+  "name": "Flipkart-Style Product Search Engine",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+
+  "scenario": "Build the backend of Flipkart's product search and recommendation system using all four functional interfaces. Products are filtered with Predicates, transformed with Functions, displayed with Consumers, and fetched lazily with Suppliers. The design makes the search engine configurable — you swap the filter/sorter/formatter without changing the core logic. This is the Strategy Pattern expressed through functional interfaces.",
+
+  "description": "A configurable product search engine where all search criteria, transformations, and output formatting are injected as functional interfaces. Demonstrates the real-world power of Predicate, Function, Consumer, Supplier and their compositions.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Product` class: id, name, category, price (double), rating (double), inStock (boolean). All getters.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`SearchCriteria` class with Predicate fields: `inStockOnly` (filters out-of-stock), `minRating(double r)` (rating >= r), `maxPrice(double p)` (price <= p), `byCategory(String c)` (case-insensitive). Each as a static factory method returning a Predicate.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`ProductFormatter` class with Function<Product, String> fields (as static factory methods): `brief()` returns 'name ₹price', `detailed()` returns 'name | category | ₹price | rating★ | stock-status'.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "`SearchEngine.search(Supplier<List<Product>> catalog, Predicate<Product> filter, Function<Product, String> formatter, Consumer<String> output)` — runs the search pipeline: fetch catalog (Supplier), filter (Predicate), format (Function), output (Consumer).",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "Demonstrate three searches: (1) all Electronics in-stock ≤₹2000 brief, (2) Books with rating ≥4.0 detailed, (3) combined predicate: in-stock AND rating ≥4.0 AND price ≤₹5000.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "Supplier is used for the catalog — the search() method calls supplier.get() when it needs data, demonstrating lazy access.",
+        "weight": 12
+      },
+      {
+        "id": "req_7",
+        "description": "Use method references where appropriate (`System.out::println` for Consumer, `String::toUpperCase` etc.).",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `SearchCriteria.nameContains(String keyword)` — case-insensitive keyword in name. Combine with .and() for multi-keyword search.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `Comparator<Product>` via lambda to the search engine — results sorted before output.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `Function<List<Product>, String> summaryFormatter` — takes the final result list and produces a one-line summary: 'Found N products. Price range: ₹min-₹max. Avg rating: X.X'",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Products (8 items):\n- Electronics: Mouse ₹799 ★4.2 in-stock, Keyboard ₹1999 ★4.5 in-stock, Monitor ₹18999 ★4.7 out-of-stock, Headphones ₹2999 ★4.1 in-stock\n- Books: Java Guide ₹649 ★4.3 in-stock, Python Cookbook ₹549 ★4.0 in-stock, Design Patterns ₹899 ★4.6 in-stock, Microservices ₹749 ★3.8 out-of-stock",
+
+  "starter_code": "import java.util.*;\nimport java.util.function.*;\n\npublic class ProductSearch {\n    public static void main(String[] args) {\n        // Create product catalog\n        // Run 3 searches with different criteria + formatters\n    }\n    \n    // Define: Product, SearchCriteria, ProductFormatter, SearchEngine\n}",
+
+  "example_output": "=== Electronics in-stock ≤₹2000 ===\nMouse ₹799\nKeyboard ₹1999\n\n=== Books with rating ≥4.0 (detailed) ===\nJava Guide | Books | ₹649 | 4.3★ | In Stock\nPython Cookbook | Books | ₹549 | 4.0★ | In Stock\nDesign Patterns | Books | ₹899 | 4.6★ | In Stock\n\n=== In-stock, rating≥4.0, price≤₹5000 ===\nMouse ₹799\nKeyboard ₹1999\nHeadphones ₹2999\nJava Guide ₹649\nPython Cookbook ₹549\nDesign Patterns ₹899",
+
+  "rubric": [
+    { "category": "SearchCriteria Predicates", "points": 25, "criteria": ["4 factory methods returning Predicates (15 pts)", "Composed with .and() for multi-criteria (10 pts)"] },
+    { "category": "ProductFormatter Functions", "points": 20, "criteria": ["brief() and detailed() as Function<Product, String> (20 pts)"] },
+    { "category": "SearchEngine.search()", "points": 20, "criteria": ["Takes all 4 FI types (10 pts)", "Supplier.get() for lazy fetch (10 pts)"] },
+    { "category": "3 Demonstrations", "points": 15, "criteria": ["All three searches produce correct results (15 pts)"] },
+    { "category": "Method References", "points": 10, "criteria": ["At least 2 method references used (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 10, "criteria": ["Compiles (7 pts)", "Runs (3 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["nameContains + multi-keyword (15 pts)", "Comparator sort (15 pts)", "summaryFormatter Function<List,String> (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The key design: SearchCriteria methods return `Predicate<Product>` (not `boolean`). The caller composes them: `SearchCriteria.inStockOnly().and(SearchCriteria.maxPrice(2000)).and(SearchCriteria.byCategory('Electronics'))`. The search() method signature uses all four interfaces.",
+
+  "submission_instructions": "Save as ProductSearch.java. Run all 3 searches. Push to GitHub — this is real search engine architecture built from functional interfaces.",
+
+  "tips_for_success": [
+    "SearchCriteria methods: `static Predicate<Product> inStockOnly() { return p -> p.isInStock(); }`",
+    "Compose in main: `SearchCriteria.inStockOnly().and(SearchCriteria.maxPrice(2000)).and(SearchCriteria.byCategory('Electronics'))`",
+    "SearchEngine.search(): loop catalog from supplier.get(), test each with filter.test(), format with formatter.apply(), output with output.accept()",
+    "ProductFormatter: `static Function<Product, String> brief() { return p -> p.getName() + ' ₹' + p.getPrice(); }`",
+    "Consumer: `System.out::println` — a method reference!"
+  ],
+
+  "concepts_reinforced": [
+    "Predicate as configurable filter condition (factory methods)",
+    "Predicate.and() for multi-criteria search",
+    "Function for formatting/transformation",
+    "Consumer for output (with method reference)",
+    "Supplier for lazy data access",
+    "All four interfaces composing in a search pipeline"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m39_t4_proj",
+  "linked_topic": "java_m39_t4",
+  "level": "mini",
+  "name": "2D Binary Search \u2014 Matrix Search, Search Space",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Build 2D Binary Search \u2014 Matrix Search, Search Space.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Core algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Classic BS: lo+(hi-lo)/2; return lo for insert position. Rotated: check if left half sorted (a[lo]<=a[m]). Search on answer: feasibility check, lo<hi loop, return lo.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

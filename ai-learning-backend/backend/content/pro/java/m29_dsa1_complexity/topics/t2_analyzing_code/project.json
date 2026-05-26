@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m29_t2_proj",
+  "linked_topic": "java_m29_t2",
+  "level": "mini",
+  "name": "Razorpay Code Complexity Reviewer",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Razorpay's engineering blog is publishing 'Code Review: Complexity Edition' — a guide showing developers how to identify and fix complexity issues. Build a code complexity analyzer that identifies patterns and suggests improvements.",
+  "requirements": {
+    "core": [
+      {"id":"req_1","description":"Implement 3 versions of 'find duplicates': O(n³) naive (ArrayList.contains inside nested loop), O(n) HashSet. Print complexity for each.","weight":20},
+      {"id":"req_2","description":"Implement and benchmark string concatenation O(n²) vs StringBuilder O(n). n=5000. Show timing difference.","weight":15},
+      {"id":"req_3","description":"Analyze a provided 5-line code snippet: sort + loop + HashMap build + scan. Write full step-by-step analysis with labelled Big-O per line. Conclude with total.","weight":20},
+      {"id":"req_4","description":"Implement and compare naive Fibonacci O(2ⁿ) vs memoized O(n) vs iterative O(n). Verify same results for fib(10)..fib(30).","weight":20},
+      {"id":"req_5","description":"(4 tests): findDups O(n) faster than O(n³) at n=5000, String O(n) faster at n=5000, fib(30) all methods agree, analysis prints correct Big-O labels.","weight":20},
+      {"id":"req_6","description":"README: explains 'method calls inside loops' with 3 concrete examples (ArrayList.contains vs HashSet.contains, String += vs StringBuilder).","weight":5}
+    ],
+    "bonus": [
+      {"id":"bonus_1","description":"Group Anagrams: implement O(n×m log m) sorted-key and O(n×m) freq-key. Test with ['eat','tea','tan','ate','nat','bat']. Verify both group correctly.","weight":20},
+      {"id":"bonus_2","description":"Merge sort from scratch with comparison counter. Verify at n=1024: comparisons ≈ 1024×10 = 10240 (±20%). Print ratio comparisons/nlogn.","weight":20},
+      {"id":"bonus_3","description":"Inversion count: O(n²) brute force + O(n log n) merge sort variant. Verify same count. Benchmark at n=5000.","weight":15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Method calls inside loops: analyze EACH method call's complexity. ArrayList.contains = O(n), HashSet.contains = O(1), TreeMap.get = O(log n). Multiply with outer loop. String immutability: result += x creates new String object — copies all existing characters each time. n steps × n characters = O(n²). Use StringBuilder.append() instead — O(1) amortized. Memoization: store results in array/Map, check before recursing. Each of n subproblems solved once = O(n). Recurrence T(n) = 2T(n/2) + O(n) solves to O(n log n) — expand tree: n work at each of log n levels.",
+  "rubric": [
+    {"category":"3 findDups implementations","points":20},
+    {"category":"String vs StringBuilder benchmark","points":15},
+    {"category":"5-line code analysis","points":20},
+    {"category":"3 Fibonacci implementations","points":20},
+    {"category":"4 tests pass","points":20},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

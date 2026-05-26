@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t5",
+  "language": "java",
+  "module_id": "m15",
+  "module_name": "Microservices Architecture",
+  "topic_number": 5,
+  "name": "Distributed Tracing",
+  "slug": "distributed-tracing",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m15_t4"],
+    "concepts_taught": [
+      "distributed_tracing_concept",
+      "trace_id_and_span_id",
+      "micrometer_tracing",
+      "micrometer_tracing_bridge_brave",
+      "zipkin_server",
+      "trace_propagation_across_services",
+      "mdc_logging_with_trace_id",
+      "custom_spans",
+      "baggage",
+      "zipkin_ui_reading",
+      "log_correlation",
+      "sampling_rate",
+      "spring_cloud_sleuth_successor"
+    ],
+    "skills_developed": [
+      "adding_distributed_tracing_to_spring_boot",
+      "reading_zipkin_trace_ui",
+      "correlating_logs_across_services_with_trace_id",
+      "creating_custom_spans",
+      "configuring_sampling_rate"
+    ],
+    "career_relevance": "When something is slow in production, distributed tracing is how you find it. In 5 minutes, a senior engineer opens Zipkin, finds the slow span, and knows exactly which service and which method caused the latency. Without tracing, this takes hours. Micrometer Tracing (the Spring Boot 3.x successor to Spring Cloud Sleuth) is the standard. Every company that runs microservices uses distributed tracing. After this topic, you can diagnose production latency issues in minutes.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "A trade takes 3 seconds. Users complain. You have 5 microservices. Where's the bottleneck?\n\n**Without distributed tracing:**\n```\nYou → SSH into order-service log → grep for the trade ID\n     → find a log line at 10:15:32\n     → SSH into market-service log → grep for something around 10:15:32\n     → SSH into payment-service log → repeat\n     → SSH into DB server → look at slow query log\n     → 45 minutes later: 'maybe market-service is slow?'\n```\n\n**With Micrometer Tracing + Zipkin:**\n```\nEvery service propagates the same traceId automatically:\n\n# order-service log:\n[traceId=abc123, spanId=001] POST /api/trades started\n[traceId=abc123, spanId=001] POST /api/trades completed in 3050ms\n\n# market-service log (same traceId!):\n[traceId=abc123, spanId=002] GET /api/stocks/TCS started\n[traceId=abc123, spanId=002] DB query: 2800ms  ← FOUND IT\n[traceId=abc123, spanId=002] completed in 2850ms\n\n# Zipkin UI: search traceId=abc123:\n┌──────────────────────────────────────────────────────┐\n│ order-service       │██░░░░░░░░░░░░░░░░░░░ 3050ms   │\n│   market-service    │   ██████████████████ 2850ms   │\n│     db-query        │   ████████████████  2800ms    │\n│   payment-service   │                    ███ 150ms  │\n└──────────────────────────────────────────────────────┘\nTotal: 3050ms | Bottleneck: DB query in market-service (2800ms)\n```\n\n2 minutes to find it vs 45 minutes. That's distributed tracing.",
+    "what_you_will_build": "By the end of this topic, you'll add Micrometer Tracing to Spring Boot services, run Zipkin to visualize traces, see traceId automatically appear in logs, create custom spans for business operations, and read the Zipkin UI to diagnose latency."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "tracing_concepts": "**Key concepts: TraceId, SpanId, and Spans:**\n\n```\nA single user request creates ONE trace:\n\nTrace: abc123\n├── Span 001: order-service POST /api/trades      [0ms → 3050ms]\n│   ├── Span 002: HTTP call to market-service      [10ms → 2860ms]\n│   │   ├── Span 003: market-service GET /api/stocks [10ms → 2860ms]\n│   │   │   └── Span 004: DB query to stocks_db    [20ms → 2820ms]\n│   └── Span 005: HTTP call to payment-service    [2870ms → 3020ms]\n│       └── Span 006: payment-service POST /pay   [2870ms → 3020ms]\n```\n\n- **TraceId**: unique identifier for the entire request flow (same across all services)\n- **SpanId**: unique identifier for one operation (each service/operation gets its own)\n- **Parent SpanId**: links child spans to parent spans (builds the tree)\n- **Baggage**: key-value pairs that propagate with the trace (e.g., userId, sessionId)\n\n**How traceId propagates:**\n```\norder-service makes Feign call to market-service:\n→ Feign adds headers: X-B3-TraceId: abc123, X-B3-SpanId: new-span-id\nmarket-service receives request:\n→ reads X-B3-TraceId from headers\n→ creates child span with same traceId\n→ all logs tagged with traceId=abc123\n```",
+
+      "setup": "**Adding Micrometer Tracing to Spring Boot 3.x:**\n\n```xml\n<!-- pom.xml: -->\n<dependency>\n    <groupId>io.micrometer</groupId>\n    <artifactId>micrometer-tracing-bridge-brave</artifactId>\n</dependency>\n<dependency>\n    <groupId>io.zipkin.reporter2</groupId>\n    <artifactId>zipkin-reporter-brave</artifactId>\n</dependency>\n<!-- For Feign trace propagation: -->\n<dependency>\n    <groupId>io.github.openfeign</groupId>\n    <artifactId>feign-micrometer</artifactId>\n</dependency>\n```\n\n```properties\n# application.properties:\n# Where to send traces:\nmanagement.tracing.sampling.probability=1.0  # 100% in dev; 0.1 (10%) in prod\nmanagement.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans\n\n# Include traceId in log output:\nlogging.pattern.console=%d{HH:mm:ss} [%X{traceId},%X{spanId}] %-5level %msg%n\n```\n\n**Start Zipkin (in dev):**\n```bash\n# Docker:\ndocker run -d -p 9411:9411 openzipkin/zipkin\n\n# Or Java:\ncurl -sSL https://zipkin.io/quickstart.sh | bash -s\njava -jar zipkin.jar\n# Dashboard: http://localhost:9411\n```",
+
+      "trace_in_logs": "**TraceId in logs — automatic correlation:**\n\n```\n# With logging.pattern including %X{traceId}:\n\n# order-service log:\n10:15:32 [abc123,001] INFO  POST /api/trades received\n10:15:32 [abc123,001] INFO  Checking market quote for TCS\n10:15:35 [abc123,001] INFO  Trade executed, orderId=ORD-789\n\n# market-service log (same traceId!):\n10:15:32 [abc123,002] INFO  GET /api/stocks/TCS received\n10:15:32 [abc123,002] INFO  Querying database for TCS\n10:15:35 [abc123,002] INFO  Query complete: TCS=3890.00\n\n# Log aggregation (ELK/Loki): search 'traceId=abc123'\n→ shows ALL log lines from ALL services for this one request\n→ complete request story in chronological order\n```\n\n**This is the breakthrough:** instead of grepping 5 service logs separately and correlating by timestamp, you search by traceId and get the complete story in one query.",
+
+      "custom_spans": "**Creating custom spans for business operations:**\n\n```java\nimport io.micrometer.tracing.Tracer;\nimport io.micrometer.tracing.Span;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class TradeService {\n    private final Tracer tracer;\n    private final MarketServiceClient marketClient;\n    \n    TradeService(Tracer tracer, MarketServiceClient marketClient) {\n        this.tracer = tracer;\n        this.marketClient = marketClient;\n    }\n    \n    public TradeResult executeTrade(String userId, String symbol, int qty) {\n        // Create a custom span for the business operation:\n        Span span = tracer.nextSpan().name(\"execute-trade\")\n            .tag(\"symbol\", symbol)\n            .tag(\"userId\", userId)\n            .tag(\"qty\", String.valueOf(qty))\n            .start();\n        \n        try (Tracer.SpanInScope ignored = tracer.withSpan(span)) {\n            // Everything inside this block is part of the span:\n            StockQuote quote = marketClient.getQuote(symbol);  // creates child span\n            double total = quote.price() * qty;\n            \n            // Add events to the span:\n            span.event(\"quote-fetched\")\n                .tag(\"price\", String.valueOf(quote.price()));\n            \n            TradeResult result = saveOrder(userId, symbol, qty, total);\n            span.event(\"order-saved\");\n            return result;\n            \n        } catch (Exception e) {\n            span.error(e);\n            throw e;\n        } finally {\n            span.end();  // always end the span!\n        }\n    }\n}\n```\n\nIn Zipkin: 'execute-trade' span appears with symbol/userId/qty tags. Drill into it to see the child spans (marketClient.getQuote, saveOrder).",
+
+      "baggage": "**Baggage — propagate values across the entire trace:**\n\n```java\nimport io.micrometer.tracing.Tracer;\nimport io.micrometer.tracing.propagation.Propagator;\n\n// In a filter or interceptor — set baggage at the entry point:\n@Component\npublic class RequestContextFilter implements Filter {\n    private final Tracer tracer;\n    RequestContextFilter(Tracer tracer) { this.tracer = tracer; }\n    \n    @Override\n    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)\n            throws IOException, ServletException {\n        // Put userId in baggage — propagates to ALL downstream services:\n        // (requires spring.cloud.sleuth.baggage.remote-fields=userId in older versions)\n        // In Micrometer Tracing, use MDC:\n        String userId = ((HttpServletRequest)req).getHeader(\"X-User-Id\");\n        if (userId != null) MDC.put(\"userId\", userId);\n        \n        try { chain.doFilter(req, res); }\n        finally { MDC.remove(\"userId\"); }\n    }\n}\n\n// Now log patterns include userId:\nlogging.pattern.console=%d{HH:mm} [%X{traceId}] userId=%X{userId} %msg%n\n\n// Every service in the trace can log:\n// 10:15:32 [abc123] userId=U001 Trade executed\n// 10:15:32 [abc123] userId=U001 Payment charged\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Trace structure diagram: horizontal timeline. Top bar: order-service, spans entire width (3050ms). Below: market-service bar starting at 10ms (2850ms wide). Below market: db-query bar (2800ms wide, labeled 'BOTTLENECK'). Below market: payment-service bar starting at 2860ms (150ms wide). Each bar labeled with spanId. traceId=abc123 shown at top connecting all bars. (2) Log correlation: two log files (order-service left, market-service right) both showing [abc123] in the brackets. Arrow labeled 'search by traceId' pointing to aggregated log view showing both services' logs interleaved in time order. (3) Zipkin UI mockup: search box with traceId entered, result showing the waterfall chart with labeled spans and durations. Mouse hovering over db-query span showing tooltip: duration=2800ms, service=market-service, tags={query=SELECT * FROM stocks}.",
+      "alt_text": "Trace waterfall diagram, log correlation across services, and Zipkin UI search interface"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add distributed tracing to the complete Zerodha trading platform. Each service emits traces to Zipkin. Logs include traceId. A slow database query in market-service is diagnosed in 2 minutes using the Zipkin UI.",
+
+    "problem_statement": "1. Add Micrometer Tracing to market-service and order-service\n2. Configure logging pattern to include traceId\n3. Start Zipkin locally\n4. Place a trade via order-service\n5. Find the trace in Zipkin → see which service was slow\n6. Add a custom span around the DB query in market-service",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Add dependencies to each service",
+        "details": "```xml\n<!-- Add to BOTH market-service and order-service pom.xml -->\n<dependency>\n    <groupId>io.micrometer</groupId>\n    <artifactId>micrometer-tracing-bridge-brave</artifactId>\n</dependency>\n<dependency>\n    <groupId>io.zipkin.reporter2</groupId>\n    <artifactId>zipkin-reporter-brave</artifactId>\n</dependency>\n<!-- For Feign HTTP propagation: -->\n<dependency>\n    <groupId>io.github.openfeign</groupId>\n    <artifactId>feign-micrometer</artifactId>\n</dependency>\n```"
+      },
+      {
+        "step": 2,
+        "action": "Configure tracing in application.properties",
+        "details": "```properties\n# Both services:\nmanagement.tracing.sampling.probability=1.0\nmanagement.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans\n\n# Include traceId in every log line:\nlogging.pattern.console=%d{HH:mm:ss.SSS} [%-12.12traceId] %-5level %msg%n\n```"
+      },
+      {
+        "step": 3,
+        "action": "Custom span in market-service StockController",
+        "details": "```java\n@RestController\n@RequestMapping(\"/api/stocks\")\npublic class StockController {\n    private final Tracer tracer;\n    private final StockRepository repo;\n    \n    StockController(Tracer tracer, StockRepository repo) {\n        this.tracer = tracer; this.repo = repo;\n    }\n    \n    @GetMapping(\"/{symbol}/quote\")\n    public StockQuote getQuote(@PathVariable String symbol) {\n        // Custom span for the DB query:\n        Span dbSpan = tracer.nextSpan().name(\"stock-db-query\")\n            .tag(\"symbol\", symbol).start();\n        \n        try (Tracer.SpanInScope s = tracer.withSpan(dbSpan)) {\n            // Simulate slow DB query:\n            Stock stock = repo.findBySymbol(symbol);\n            return new StockQuote(symbol, stock.price(), stock.tradeable());\n        } finally {\n            dbSpan.end();\n        }\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "Zipkin UI — reading the trace",
+        "details": "```\n# After placing a trade:\n\n1. Open http://localhost:9411\n2. Click 'Search' → recent traces\n3. Find the trade trace (longest duration)\n4. Click on it → waterfall chart:\n\norder-service: POST /api/trades     [3050ms]\n  ├── feign: market-service           [2850ms]\n  │   ├── market-service: GET /api/stocks/TCS [2850ms]\n  │   │   └── stock-db-query (custom) [2800ms] ← BOTTLENECK\n  └── feign: payment-service           [150ms]\n      └── payment-service: POST /pay  [150ms]\n\n5. Click on 'stock-db-query' span:\n   Tags: {symbol: TCS}\n   Duration: 2800ms\n   → Add DB index on symbol column!\n```"
+      }
+    ],
+
+    "final_code": "// pom.xml: micrometer-tracing-bridge-brave + zipkin-reporter-brave + feign-micrometer\n// application.properties:\n//   management.tracing.sampling.probability=1.0\n//   management.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans\n//   logging.pattern.console=%d{HH:mm:ss.SSS} [%-12.12traceId] %-5level %msg%n\n// StockController: custom Span around DB query\n// TradeService: trace propagated automatically through Feign\n// Zipkin: http://localhost:9411 — search, find trace, see waterfall",
+
+    "expected_output": "# order-service log:\n10:15:32.001 [abc123      ] INFO  POST /api/trades {symbol=TCS, qty=10}\n10:15:32.010 [abc123      ] INFO  Calling market-service for TCS\n10:15:35.001 [abc123      ] INFO  Trade ORD-789 executed, total=₹38900\n\n# market-service log (SAME traceId!):\n10:15:32.011 [abc123      ] INFO  GET /api/stocks/TCS/quote received\n10:15:32.012 [abc123      ] INFO  Starting DB query for TCS\n10:15:34.812 [abc123      ] INFO  DB query complete, duration=2800ms\n10:15:34.812 [abc123      ] INFO  Returning TCS quote: 3890.00\n\n# Zipkin UI: search traceId=abc123\n# → waterfall shows stock-db-query span: 2800ms\n# → clear bottleneck: DB query needs an index on symbol column",
+
+    "things_to_notice": [
+      "The traceId is the same (abc123) in BOTH service logs. This is the magic — without any code change in the logging, Micrometer Tracing populates the traceId in the MDC (Mapped Diagnostic Context) which the logging pattern reads via %X{traceId}.",
+      "Feign propagates the trace automatically. When order-service makes a Feign call to market-service, Micrometer Tracing adds the traceId and spanId as HTTP headers (B3 format: X-B3-TraceId, X-B3-SpanId). market-service reads these headers and continues the same trace.",
+      "sampling.probability=1.0: send 100% of traces to Zipkin. In production with 1000 requests/second, this would overwhelm Zipkin — use 0.1 (10%) or 0.01 (1%). You still get enough data to analyze latency patterns. Use 1.0 only in dev/test.",
+      "Custom spans (Span dbSpan = tracer.nextSpan()...): always call span.end() in a finally block. A span that never ends stays open in Zipkin until it times out. The try-with-resources pattern (Tracer.SpanInScope) helps ensure the scope is closed, but the span itself must be explicitly ended.",
+      "The stock-db-query span is a child of the GET /api/stocks/{symbol}/quote span, which is a child of the Feign call, which is a child of the POST /api/trades span. This tree structure is the 'trace' — every operation nested under its parent."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart production diagnosis",
+        "use_case": "During Big Billion Days sale, checkout latency spikes. SRE opens Jaeger (Flipkart's tracing backend), searches by high-latency traces, finds: all slow traces have a 4-second span in inventory-service for 'reserve-stock'. Drilling in: the stock reservation DB query is unindexed on productId. Fix: add index. Deployed in 10 minutes. Latency back to normal. Total diagnosis time: 8 minutes."
+      },
+      {
+        "company_context": "Razorpay payment tracing",
+        "use_case": "Every Razorpay payment carries a payment_id that's also used as baggage in the trace. If a payment fails, the support team uses the payment_id to find the trace in Zipkin — instantly sees which service failed and at what step. 'Risk check returned DECLINED at 10:15:32.450, payment flow aborted at 10:15:32.451'. Before tracing: this investigation took 2 hours. Now: 2 minutes."
+      },
+      {
+        "company_context": "Distributed tracing at scale",
+        "use_case": "Google's Dapper (2010) pioneered distributed tracing. Uber's Jaeger (open source, CNCF project) is widely used. AWS X-Ray, Azure Monitor, Datadog APM all implement the same concept. OpenTelemetry is the emerging standard — vendor-neutral traces, metrics, and logs. Micrometer Tracing in Spring Boot supports OpenTelemetry. The concept is universal; the tools vary."
+      }
+    ],
+
+    "interview_relevance": "Distributed tracing interview questions:\n\n- **'What is distributed tracing?'** → A technique for tracking a request as it flows through multiple services. Each request gets a unique traceId that propagates across all services, enabling end-to-end latency analysis.\n- **'What is a span?'** → The representation of one operation (one service call, one DB query). Has a spanId, parent spanId, start time, duration, and tags.\n- **'How does Micrometer Tracing differ from Spring Cloud Sleuth?'** → Spring Cloud Sleuth was the auto-configuration. Micrometer Tracing is its successor (Spring Boot 3.x). Functionally similar — auto-propagation, Zipkin integration — just updated to use Micrometer APIs.\n- **'What is sampling rate?'** → The percentage of traces actually sent to Zipkin. 1.0 = 100%, 0.1 = 10%. Reduces Zipkin load in production. Statistical sampling still gives useful latency data.",
+
+    "real_world_workflow": "Daily distributed tracing workflow:\n\n- User reports slowness: search by timeframe or by user's traceId in Zipkin\n- Find the slow trace: sort by duration, open the longest one\n- Read the waterfall: the longest span is the bottleneck service/operation\n- Add a custom span around the specific operation to get more detail\n- Add tags to spans for business context (userId, orderId, symbol)"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_span_end",
+      "what_students_get_wrong": "Creating a custom span with tracer.nextSpan()...start() but forgetting span.end() — span stays open in Zipkin indefinitely.",
+      "remediation": "Always end spans in a finally block. Use try-with-resources for SpanInScope (auto-closes the scope), but the span itself needs explicit span.end() in finally. Pattern: `try { ... } catch(Exception e) { span.error(e); throw e; } finally { span.end(); }`",
+      "detection_pattern": "Spans appearing in Zipkin with very long or never-ending durations"
+    },
+    {
+      "gap_id": "high_sampling_in_production",
+      "what_students_get_wrong": "Leaving sampling.probability=1.0 in production — sends millions of traces/day, overwhelming Zipkin.",
+      "remediation": "Profile: dev=1.0 (all traces), staging=0.5, production=0.01-0.1 (1-10%). Use different values per profile: application-dev.properties has 1.0, application-prod.properties has 0.05. Store in @ConfigurationProperties for clean management.",
+      "detection_pattern": "Zipkin storage growing rapidly; Zipkin slow or OOM in production"
+    },
+    {
+      "gap_id": "tracing_log_pattern_missing",
+      "what_students_get_wrong": "Micrometer Tracing is configured but traceId doesn't appear in logs — forgot to add %X{traceId} to the logging pattern.",
+      "remediation": "Add to application.properties: `logging.pattern.console=%d{HH:mm:ss} [%X{traceId}] %-5level %msg%n`. The %X{traceId} reads from MDC (Mapped Diagnostic Context) which Micrometer Tracing populates automatically. Without this, traceId is sent to Zipkin but not in logs.",
+      "detection_pattern": "Traces visible in Zipkin but logs don't show traceId for correlation"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "TraceId: unique ID for one request's journey across all services",
+      "SpanId: unique ID for one operation within the trace",
+      "micrometer-tracing-bridge-brave + zipkin-reporter-brave: the two dependencies",
+      "feign-micrometer: required for Feign to propagate trace headers",
+      "management.tracing.sampling.probability=1.0: 100% tracing (dev only)",
+      "management.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans",
+      "logging.pattern with %X{traceId}: shows traceId in every log line",
+      "Feign propagates traceId automatically via B3 headers",
+      "Tracer.nextSpan().name('name').tag('k','v').start(): custom span",
+      "Always span.end() in finally block — no leaking spans",
+      "Zipkin UI: search by traceId, read waterfall, find slowest span",
+      "Production sampling: 0.01-0.1 (not 1.0) to reduce Zipkin load"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You search Zipkin by traceId but only see spans from order-service. market-service spans are missing. What's the likely cause?",
+        "answer": "Most likely: feign-micrometer dependency is missing from order-service. Without it, Feign doesn't add the B3 trace headers (X-B3-TraceId, X-B3-SpanId) when making HTTP calls to market-service. market-service receives the request but starts a NEW trace (no parent trace). The spans don't join — they're in separate traces. Fix: add feign-micrometer to order-service's pom.xml. Another cause: market-service doesn't have micrometer-tracing configured at all — it accepts the trace headers but doesn't report spans to Zipkin."
+      },
+      {
+        "question": "A custom span is created in the service but never ends. What shows up in Zipkin?",
+        "answer": "The span appears in Zipkin with an unusually long duration — it stays 'open' from the start time until Zipkin times it out (typically after several minutes or longer depending on Zipkin config). In the Zipkin waterfall view, it appears as a very long bar extending well beyond when the request completed. This can make the trace look much longer than it was. It also wastes memory in the Zipkin reporter's buffer. Fix: always call span.end() in a finally block to guarantee it closes even if exceptions are thrown."
+      },
+      {
+        "question": "Why is sampling.probability=1.0 a problem in production at 500 req/second?",
+        "answer": "500 req/sec × 60 sec × 60 min × 24 hr = 43 million traces per day. Each trace has multiple spans (order-service, market-service, payment-service = ~10 spans per trace). That's 430 million spans per day sent to Zipkin. Zipkin needs to store, index, and make them searchable. This overwhelms most Zipkin deployments. Fix: use 0.1 (10% sampling) = 4.3 million spans/day — manageable. You lose granularity but still get statistical latency data. For debugging a specific user/transaction, you can temporarily increase sampling or force-sample specific traces (using 'debug=true' flag in baggage)."
+      }
+    ],
+
+    "next_topic_preview": "Module 15: Microservices Architecture is complete! You now have the full microservices toolkit: service decomposition (T15.1), declarative HTTP with Feign (T15.2), service discovery with Eureka (T15.3), resilience with circuit breakers (T15.4), and production diagnostics with distributed tracing (T15.5). The next module applies these skills at scale, or moves to a complementary domain. Every remaining module in the course builds on this microservices foundation."
+  }
+}

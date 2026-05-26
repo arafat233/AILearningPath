@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0", "project_id": "java_m23_t1_proj", "linked_topic": "java_m23_t1",
+  "level": "mini", "name": "Razorpay Merchant API — JWT Authentication",
+  "estimated_minutes": 50, "difficulty": 7,
+  "scenario": "Razorpay's payment API currently has no authentication. Any request can access any merchant's payments. Secure it with JWT authentication so merchants can only see their own data.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "SecurityConfig @Configuration: @EnableWebSecurity, @EnableMethodSecurity. SecurityFilterChain: STATELESS session, CSRF disabled, /actuator/health permitAll, /api/admin/** requires ADMIN, all others authenticated. JWT resource server configured.", "weight": 20 },
+      { "id": "req_2", "description": "Custom JwtAuthenticationConverter: merchant_id as principal name, 'roles' claim → ROLE_{role} authorities.", "weight": 15 },
+      { "id": "req_3", "description": "PaymentController: GET /api/payments — @PreAuthorize('hasRole(MERCHANT)'), merchant_id from jwt claim (not request param). GET /api/admin/payments — @PreAuthorize('hasRole(ADMIN)').", "weight": 15 },
+      { "id": "req_4", "description": "JwtAuditFilter OncePerRequestFilter: MDC with merchant_id + path + method, audit log after response, MDC.clear() in finally.", "weight": 10 },
+      { "id": "req_5", "description": "@WebMvcTest (4 tests): MERCHANT→GET /payments=200, no JWT→401, VIEWER→GET /payments=403, ADMIN→GET /admin/payments=200. All 4 pass.", "weight": 35 },
+      { "id": "req_6", "description": "README: explain 401 vs 403 difference and why merchant_id must come from JWT claim.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Custom JWT validator: validates 'audience' claim includes 'razorpay-api' and 'merchant_id' claim is present. JwtValidationException on missing claims.", "weight": 20 },
+      { "id": "bonus_2", "description": "GET /api/auth/me: returns sub, merchant_id, roles, expiresAt. Test: response contains merchantId claim.", "weight": 15 },
+      { "id": "bonus_3", "description": "MerchantRateLimitFilter: 100 req/min per merchant_id using ConcurrentHashMap<String, AtomicInteger>. Returns 429 with Retry-After header when exceeded.", "weight": 25 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. @EnableMethodSecurity: REQUIRED annotation on @Configuration for @PreAuthorize to fire. Without it, @PreAuthorize is silently ignored and all requests pass through. CSRF disable: safe for stateless REST APIs — CSRF requires session-based authentication. jwt() MockMvc processor: .with(jwt().claim(\"key\",\"val\").authorities(new SimpleGrantedAuthority(\"ROLE_MERCHANT\"))) — need to explicitly set authorities for role checks. 401 vs 403: 401=unauthenticated (missing/invalid JWT), 403=authenticated but forbidden (valid JWT, wrong role). merchant_id from JWT claim: jwt.getClaimAsString(\"merchant_id\") is tamper-proof (signed); request params are forgeable.",
+  "rubric": [
+    { "category": "SecurityConfig (FilterChain + JwtConverter)", "points": 35 },
+    { "category": "PaymentController (2 endpoints + @PreAuthorize)", "points": 15 },
+    { "category": "JwtAuditFilter", "points": 10 },
+    { "category": "@WebMvcTest (4 tests)", "points": 35 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 60 }
+  ]
+}

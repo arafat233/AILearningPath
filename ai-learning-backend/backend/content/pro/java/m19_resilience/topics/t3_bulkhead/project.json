@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m19_t3_proj",
+  "linked_topic": "java_m19_t3",
+  "level": "mini",
+  "name": "Swiggy Order Service — Bulkhead Feature Isolation",
+  "estimated_minutes": 45,
+  "difficulty": 8,
+  "scenario": "Swiggy's order service handles live tracking (50 concurrent max), restaurant search (30 max), and payment processing (20 max) in parallel. Without bulkheads, a surge in tracking requests starves payment threads. Add @Bulkhead isolation to each feature.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "application.yml: 3 bulkhead configs — order-tracking (max=50, wait=200ms), restaurant-search (max=30, wait=100ms), payment-processing (max=20, wait=500ms).", "weight": 20 },
+      { "id": "req_2", "description": "SwiggyOrderService: three @Bulkhead-annotated methods with appropriate fallbacks. Tracking: cached data. Search: pre-loaded top restaurants. Payment: QUEUED status.", "weight": 30 },
+      { "id": "req_3", "description": "BulkheadSaturationMonitor @Service: event listeners on all three bulkheads. @Scheduled every minute: log rejection counts, alert if > 50 rejections/min.", "weight": 15 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): payment works normally, tracking fallback returns cached data, search fallback returns default list. All 3 pass.", "weight": 30 },
+      { "id": "req_5", "description": "README: explains bulkhead analogy (ship compartments) and why isolation matters.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Add THREADPOOL bulkhead for a 4th feature: report generation (max 5 threads, returns CompletableFuture). Test async report generation.", "weight": 25 },
+      { "id": "bonus_2", "description": "Full stack: add @CircuitBreaker inside each @Bulkhead. Both fallbacks. Test: circuit opens, then bulkhead full.", "weight": 25 },
+      { "id": "bonus_3", "description": "BulkheadDashboard @RestController: /admin/bulkheads returns all bulkhead names, available slots, utilization %. MockMvc test.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. BulkheadFullException: import io.github.resilience4j.bulkhead.BulkheadFullException — use as last fallback parameter (or Exception). THREADPOOL bulkhead requires CompletableFuture return type. @Bulkhead OUTER when combined with @CircuitBreaker: concurrent slot check happens before circuit check. maxWaitDuration: how long to wait for a slot — 0ms = fail immediately, longer = queue briefly. Separate bulkhead instances are completely independent: filling tracking slots has zero effect on payment slots.",
+  "rubric": [
+    { "category": "application.yml 3 configs", "points": 20 },
+    { "category": "SwiggyOrderService (3 bulkheads)", "points": 30 },
+    { "category": "BulkheadSaturationMonitor", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 30 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 70 }
+  ]
+}

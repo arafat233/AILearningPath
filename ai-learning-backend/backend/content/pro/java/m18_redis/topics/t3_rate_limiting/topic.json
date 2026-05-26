@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t3",
+  "language": "java",
+  "module_id": "m18",
+  "module_name": "Redis Caching & Rate Limiting",
+  "topic_number": 3,
+  "name": "Redis Rate Limiting",
+  "slug": "redis-rate-limiting",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m18_t2"],
+    "concepts_taught": [
+      "rate_limiting_problem",
+      "fixed_window_counter",
+      "sliding_window_log",
+      "token_bucket_concept",
+      "redis_incr_expire_pattern",
+      "atomic_increment",
+      "per_user_rate_limiting",
+      "per_ip_rate_limiting",
+      "spring_filter_for_rate_limiting",
+      "http_429_too_many_requests",
+      "retry_after_header",
+      "rate_limiter_in_api_gateway",
+      "bucket4j_with_redis",
+      "distributed_rate_limiting",
+      "rate_limit_keys_by_endpoint"
+    ],
+    "skills_developed": [
+      "implementing_fixed_window_rate_limiter_with_redis",
+      "building_spring_filter_for_rate_limiting",
+      "returning_429_with_retry_after",
+      "applying_per_user_per_ip_limits",
+      "testing_rate_limiter_behavior"
+    ],
+    "career_relevance": "Every public API needs rate limiting. Razorpay limits payments to 100 req/min per merchant. Zerodha limits orders to 3/second per user. Without rate limiting: one bot can exhaust your entire connection pool. Redis INCR is the atomic counter that makes distributed rate limiting possible across multiple app instances. After this topic, you protect any Spring Boot API from abuse with a few dozen lines of code.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "A competitor discovers Razorpay's payment status API and writes a scraper:\n\n```\n10:00:00 — bot fires 1,000 requests/second to GET /api/payments/{id}\n10:00:01 — HikariCP pool (20 connections) exhausted\n10:00:01 — real payment processing requests start timing out\n10:00:02 — merchants begin calling support: 'payments not working'\n10:00:30 — engineers page: DB at 100% CPU, 503s everywhere\n```\n\nThe scraper costs ₹0. The damage: hours of downtime.\n\n**The fix — Redis INCR rate limiting:**\n```java\n// Every request: INCR rate:merchant:{id}:minute:{currentMinute}\n// If counter > 100: return HTTP 429 Too Many Requests\n\n@Component\npublic class RateLimitFilter implements Filter {\n    @Override\n    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {\n        String merchantId = extractMerchantId(req);\n        if (!rateLimiter.isAllowed(merchantId)) {\n            HttpServletResponse http = (HttpServletResponse) res;\n            http.setStatus(429);\n            http.setHeader(\"Retry-After\", \"60\");  // try again in 60 seconds\n            http.getWriter().write(\"{\\\"error\\\": \\\"Rate limit exceeded\\\"}\");\n            return;\n        }\n        chain.doFilter(req, res);\n    }\n}\n```\n\n```\nWith rate limiting:\n  Legitimate merchant: 50 req/min → all pass through\n  Scraper bot: 1,000 req/min → first 100 pass, 900 get 429\n  DB load: protected\n  Real users: unaffected\n```\n\nOne filter. Zero performance impact on legitimate traffic.",
+    "what_you_will_build": "By the end of this topic, you'll implement a fixed-window Redis rate limiter, wrap it in a Spring Filter that returns 429 with Retry-After, and apply per-user and per-IP limits to protect any endpoint."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "fixed_window_counter": "**Fixed window counter — the simplest Redis rate limiter:**\n\n```java\n@Service\npublic class FixedWindowRateLimiter {\n    private final RedisTemplate<String, String> redis;\n    \n    FixedWindowRateLimiter(RedisTemplate<String,String> r) { redis = r; }\n    \n    /**\n     * Returns true if the request is allowed.\n     * Key: rate:{identifier}:{windowMinute}\n     * Example: rate:merchant:M001:2024-06-15-14-23\n     *          rate:ip:192.168.1.1:2024-06-15-14-23\n     */\n    public boolean isAllowed(String identifier, int maxRequests) {\n        // Build key: unique per identifier per minute window\n        long minuteWindow = System.currentTimeMillis() / 60_000;  // minute number since epoch\n        String key = \"rate:\" + identifier + \":\" + minuteWindow;\n        \n        // Atomic INCR: increment and get new count in one operation\n        Long count = redis.opsForValue().increment(key);\n        \n        if (count == 1) {\n            // First request in this window — set TTL so key auto-cleans\n            redis.expire(key, Duration.ofMinutes(2));  // 2 min: covers edge case at window boundary\n        }\n        \n        return count <= maxRequests;\n    }\n    \n    // Remaining requests in current window:\n    public long getRemainingRequests(String identifier, int maxRequests) {\n        long minuteWindow = System.currentTimeMillis() / 60_000;\n        String key = \"rate:\" + identifier + \":\" + minuteWindow;\n        Object current = redis.opsForValue().get(key);\n        long used = current != null ? Long.parseLong(current.toString()) : 0;\n        return Math.max(0, maxRequests - used);\n    }\n    \n    // Time until window resets (in seconds):\n    public long secondsUntilReset(String identifier) {\n        long now = System.currentTimeMillis();\n        long nextWindowStart = (now / 60_000 + 1) * 60_000;\n        return (nextWindowStart - now) / 1000;\n    }\n}\n```\n\n**Key anatomy:**\n```\nrate : merchant : M001 : 28543210\n  ↑       ↑        ↑        ↑\nprefix  type    entity   minute number since epoch\n\n'rate:ip:192.168.1.1:28543210'\n'rate:user:U001:28543210'\n'rate:endpoint:search:28543210'\n```\n\n**Why INCR is atomic:**\n```\nThread A: INCR rate:M001:28543210  → 1\nThread B: INCR rate:M001:28543210  → 2 (not 1 again!)\nThread C: INCR rate:M001:28543210  → 3\n// Redis is single-threaded: INCRs are serialized\n// No two threads can both get the same count\n// Compare: if you read-then-increment in Java, TWO threads can both read 0 and both get 1\n```",
+
+      "spring_filter": "**Spring Filter for rate limiting:**\n\n```java\nimport jakarta.servlet.*;\nimport jakarta.servlet.http.*;\nimport org.springframework.core.annotation.Order;\nimport org.springframework.stereotype.Component;\n\n@Component\n@Order(1)  // run before other filters\npublic class RateLimitFilter implements Filter {\n    \n    private final FixedWindowRateLimiter limiter;\n    \n    RateLimitFilter(FixedWindowRateLimiter l) { limiter = l; }\n    \n    @Override\n    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)\n            throws IOException, ServletException {\n        \n        HttpServletRequest  httpReq = (HttpServletRequest)  req;\n        HttpServletResponse httpRes = (HttpServletResponse) res;\n        \n        // Extract identifier (user ID, API key, or IP):\n        String apiKey = httpReq.getHeader(\"X-API-Key\");\n        String identifier = apiKey != null ? \"apikey:\" + apiKey\n                                           : \"ip:\" + getClientIp(httpReq);\n        \n        // Check rate limit (100 req/min for API keys, 20/min for IP):\n        int limit = apiKey != null ? 100 : 20;\n        \n        if (!limiter.isAllowed(identifier, limit)) {\n            // HTTP 429 Too Many Requests:\n            httpRes.setStatus(429);\n            httpRes.setContentType(\"application/json\");\n            httpRes.setHeader(\"Retry-After\",         String.valueOf(limiter.secondsUntilReset(identifier)));\n            httpRes.setHeader(\"X-RateLimit-Limit\",   String.valueOf(limit));\n            httpRes.setHeader(\"X-RateLimit-Remaining\",\"0\");\n            httpRes.getWriter().write(\n                \"{\\\"error\\\":\\\"Rate limit exceeded\\\",\" +\n                \"\\\"limit\\\":\" + limit + \",\" +\n                \"\\\"retryAfterSeconds\\\":\" + limiter.secondsUntilReset(identifier) + \"}\"\n            );\n            return;  // stop filter chain — don't forward to controller!\n        }\n        \n        // Add remaining quota headers to successful responses:\n        long remaining = limiter.getRemainingRequests(identifier, limit);\n        httpRes.setHeader(\"X-RateLimit-Limit\",     String.valueOf(limit));\n        httpRes.setHeader(\"X-RateLimit-Remaining\", String.valueOf(remaining));\n        \n        chain.doFilter(req, res);  // forward to controller\n    }\n    \n    private String getClientIp(HttpServletRequest req) {\n        // Check X-Forwarded-For for reverse proxy setups:\n        String forwarded = req.getHeader(\"X-Forwarded-For\");\n        if (forwarded != null && !forwarded.isBlank()) {\n            return forwarded.split(\",\")[0].trim();\n        }\n        return req.getRemoteAddr();\n    }\n}",
+
+      "per_endpoint_limits": "**Per-endpoint rate limiting — different limits for different APIs:**\n\n```java\n@Service\npublic class TieredRateLimiter {\n    private final RedisTemplate<String, String> redis;\n    \n    // Different limits per endpoint type:\n    private static final Map<String, Integer> ENDPOINT_LIMITS = Map.of(\n        \"/api/payments\",        50,   // payment creation: 50/min (sensitive)\n        \"/api/payments/status\", 200,  // status check: 200/min (read-only)\n        \"/api/search\",          100,  // search: 100/min\n        \"/api/reports\",         10    // reports: 10/min (expensive)\n    );\n    \n    public boolean isAllowed(String userId, String endpoint) {\n        // Find matching limit (prefix match for parameterized routes):\n        int limit = ENDPOINT_LIMITS.entrySet().stream()\n            .filter(e -> endpoint.startsWith(e.getKey()))\n            .mapToInt(Map.Entry::getValue)\n            .findFirst()\n            .orElse(200);  // default: 200/min\n        \n        long window = System.currentTimeMillis() / 60_000;\n        // Key includes ENDPOINT: different limits per path!\n        String key = \"rate:\" + userId + \":\" + endpoint.replace('/', ':') + \":\" + window;\n        \n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) redis.expire(key, Duration.ofMinutes(2));\n        \n        return count <= limit;\n    }\n    \n    // Razorpay-style: also limit per merchant per operation:\n    public boolean isPaymentAllowed(String merchantId) {\n        return isAllowed(\"merchant:\" + merchantId, \"/api/payments\");\n    }\n    \n    public boolean isRefundAllowed(String merchantId) {\n        long window = System.currentTimeMillis() / 60_000;\n        String key = \"rate:refund:\" + merchantId + \":\" + window;\n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) redis.expire(key, Duration.ofMinutes(2));\n        return count <= 10;  // 10 refunds per minute max\n    }\n}\n```",
+
+      "sliding_window_log": "**Sliding window log — more accurate, higher memory cost:**\n\n```java\n// Fixed window problem:\n// Window 1: 00:00 - 00:59 — user makes 100 requests at 00:58\n// Window 2: 01:00 - 01:59 — user makes 100 requests at 01:01\n// In the 4 seconds between 00:58 and 01:01: 200 requests!\n// Fixed window can't see across window boundaries.\n\n// Sliding window with Redis ZSet:\n@Service\npublic class SlidingWindowRateLimiter {\n    private final RedisTemplate<String, String> redis;\n    \n    SlidingWindowRateLimiter(RedisTemplate<String,String> r) { redis = r; }\n    \n    public boolean isAllowed(String identifier, int maxRequests, Duration window) {\n        String key = \"sw:\" + identifier;\n        long now = System.currentTimeMillis();\n        long windowStart = now - window.toMillis();\n        \n        // Remove requests older than the window:\n        redis.opsForZSet().removeRangeByScore(key, 0, windowStart);\n        \n        // Count requests in the current window:\n        Long count = redis.opsForZSet().zCard(key);\n        \n        if (count != null && count >= maxRequests) {\n            return false;  // rate limit exceeded\n        }\n        \n        // Add this request with current timestamp as score:\n        redis.opsForZSet().add(key, String.valueOf(now), now);\n        redis.expire(key, window.multipliedBy(2));  // cleanup\n        \n        return true;\n    }\n    // Tradeoff: more memory (stores every request timestamp)\n    // vs Fixed window: O(1) per request, no cross-boundary spike issue\n    // For most APIs: fixed window is sufficient\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Fixed window counter: horizontal timeline showing minute windows (0:00-0:59, 1:00-1:59). For window 0:00-0:59: 80 requests shown as green bars. Counter in Redis: 'rate:M001:28543210 = 80'. At request 101: counter hits limit → 429 returned. Counter auto-expires at end of window. Window resets at 1:00. (2) Filter architecture: HTTP request → RateLimitFilter → check Redis counter → if allowed: add X-RateLimit headers → Controller. If not allowed: return 429 with Retry-After header, filter chain stops. Shows Redis key: 'rate:apikey:rz_M001:28543210 = 47/100'. (3) Per-endpoint limits table: /api/payments = 50/min, /api/payments/status = 200/min, /api/search = 100/min, /api/reports = 10/min. Shows how different endpoints have different keys: rate:M001:/api/payments:window vs rate:M001:/api/search:window.",
+      "alt_text": "Fixed window counter lifecycle, Spring filter architecture for rate limiting, and per-endpoint limit configuration"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add rate limiting to Razorpay's payment API: 100 requests/minute per merchant for payment creation, 500/minute for status checks, with 429 responses and Retry-After headers.",
+
+    "problem_statement": "1. FixedWindowRateLimiter service with Redis INCR\n2. RateLimitConfig: limits per endpoint type\n3. RateLimitFilter implementing Jakarta Filter\n4. Returns 429 with Retry-After + X-RateLimit headers\n5. Test: 101st request in a window returns 429",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Core rate limiter with Redis INCR",
+        "details": "```java\n@Service\npublic class RazorpayRateLimiter {\n    private final RedisTemplate<String, String> redis;\n    \n    RazorpayRateLimiter(RedisTemplate<String,String> r) { redis = r; }\n    \n    public RateLimitResult check(String merchantId, String endpoint) {\n        int limit = endpointLimit(endpoint);\n        long window = System.currentTimeMillis() / 60_000;\n        String key = \"rate:\" + merchantId + \":\" + endpoint + \":\" + window;\n        \n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) redis.expire(key, Duration.ofMinutes(2));\n        \n        long remaining = Math.max(0, limit - count);\n        long resetIn   = secondsUntilNextMinute();\n        \n        return new RateLimitResult(count <= limit, count, limit, remaining, resetIn);\n    }\n    \n    private int endpointLimit(String ep) {\n        if (ep.contains(\"/payments\") && !ep.contains(\"/status\")) return 100;\n        if (ep.contains(\"/status\")) return 500;\n        if (ep.contains(\"/refunds\")) return 20;\n        return 200;\n    }\n    \n    private long secondsUntilNextMinute() {\n        long now = System.currentTimeMillis();\n        return ((now / 60_000 + 1) * 60_000 - now) / 1000;\n    }\n    \n    public record RateLimitResult(\n        boolean allowed, long count, int limit, long remaining, long resetInSeconds) {}\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Spring Filter returning 429",
+        "details": "```java\n@Component @Order(1)\npublic class RazorpayRateLimitFilter implements Filter {\n    private final RazorpayRateLimiter limiter;\n    RazorpayRateLimitFilter(RazorpayRateLimiter l) { limiter = l; }\n    \n    @Override\n    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)\n            throws IOException, ServletException {\n        HttpServletRequest  rq = (HttpServletRequest)  req;\n        HttpServletResponse rs = (HttpServletResponse) res;\n        \n        String merchantId = rq.getHeader(\"X-Merchant-Id\");\n        if (merchantId == null) { chain.doFilter(req, res); return; }\n        \n        var result = limiter.check(merchantId, rq.getRequestURI());\n        \n        rs.setHeader(\"X-RateLimit-Limit\",     String.valueOf(result.limit()));\n        rs.setHeader(\"X-RateLimit-Remaining\", String.valueOf(result.remaining()));\n        rs.setHeader(\"X-RateLimit-Reset\",     String.valueOf(result.resetInSeconds()));\n        \n        if (!result.allowed()) {\n            rs.setStatus(429);\n            rs.setContentType(\"application/json\");\n            rs.setHeader(\"Retry-After\", String.valueOf(result.resetInSeconds()));\n            rs.getWriter().write(\n                String.format(\"{\\\"error\\\":\\\"Rate limit exceeded\\\"\" +\n                    \",\\\"limit\\\":%d,\\\"retryAfterSeconds\\\":%d}\",\n                    result.limit(), result.resetInSeconds()));\n            return;\n        }\n        chain.doFilter(req, res);\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// INCR + EXPIRE: atomic counter that auto-cleans\n// Filter @Order(1): runs before controllers; chain.doFilter proceeds or 429 returned\n// RateLimitResult record: clean return type with all limit info\n// X-RateLimit-Remaining: lets clients self-throttle before hitting limit",
+
+    "expected_output": "# Request 1-100 for merchant M001 in one minute:\nHTTP 200 OK\nX-RateLimit-Limit: 100\nX-RateLimit-Remaining: 99  (decreasing with each request)\nX-RateLimit-Reset: 42\n\n# Request 101:\nHTTP 429 Too Many Requests\nRetry-After: 42\nX-RateLimit-Limit: 100\nX-RateLimit-Remaining: 0\n{\"error\":\"Rate limit exceeded\",\"limit\":100,\"retryAfterSeconds\":42}\n\n# Next minute (window resets):\nHTTP 200 OK\nX-RateLimit-Remaining: 99  (fresh window)",
+
+    "things_to_notice": [
+      "Redis INCR is atomic: in a multi-threaded environment, two threads cannot both get the same count. Redis executes all commands in a single thread — no race condition on the counter. If you instead read-then-write in Java (count = get(); if count < limit: set(count+1)), two threads can both read 0 and both think they're the first request.",
+      "Setting TTL only on the first request (count == 1): efficient — one EXPIRE call per window per identifier instead of one per request. The TTL is set to 2 minutes (not 1) to handle the edge case where a request arrives at 00:59 and the TTL of 1 minute might expire before the window ends.",
+      "X-RateLimit-Remaining header: well-behaved API clients use this to self-throttle. If remaining=5, a smart client can slow down its request rate to avoid hitting 429. This is the difference between a scraper (ignores headers) and a well-designed SDK.",
+      "Per-endpoint keys: 'rate:M001:/api/payments:window' and 'rate:M001:/api/search:window' are separate keys with separate counters. A merchant exhausting their search limit doesn't affect their payment creation limit. Design your keys to match the granularity of your limits.",
+      "Filter vs Interceptor vs AOP: Spring Filter runs at the Servlet level (before DispatcherServlet), making it the earliest possible interception point. This means the rate limit check runs before Spring parses the request body, authenticates, or routes — cheapest possible enforcement. For per-controller or per-method limits, Spring HandlerInterceptor or AOP is more appropriate."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment API limits",
+        "use_case": "Razorpay enforces rate limits per merchant API key: payment creation (100/min), payment status (500/min), refund creation (20/min). The limits are stored in a Redis Hash (merchant config), and counters use INCR + EXPIRE per merchant+endpoint+minute. When a merchant exceeds the limit, they receive 429 with Retry-After=seconds until next window. SDKs (razorpay-java, razorpay-python) automatically retry after Retry-After seconds. The rate limiter is the first filter in the chain — it rejects abusive traffic before any DB query."
+      },
+      {
+        "company_context": "Zerodha order throttling",
+        "use_case": "SEBI regulations require Zerodha to limit order placement to prevent market manipulation. Zerodha enforces 3 orders/second per user. The counter key includes a second window: 'rate:order:U001:{second}'. Each order increments the counter, and if count > 3, the order is rejected with HTTP 429 and 'order_throttle' error code. The Redis TTL is 2 seconds. This prevents algorithmic traders from accidentally violating SEBI limits while still allowing high-frequency strategy traders to place orders up to the limit."
+      },
+      {
+        "company_context": "Swiggy search API protection",
+        "use_case": "Swiggy's restaurant search endpoint is expensive (full-text search + geo-distance calculation). Without rate limiting, one user running a data harvesting script brought down search for 5 minutes. Now: 10 search requests/minute per IP (unauthenticated), 30/minute per user ID (authenticated). The filter checks authentication first — if authenticated, use user ID as key; else use IP. Authenticated users get 3× the limit to reward login. Redis key: 'rate:search:ip:203.0.113.1:minute' or 'rate:search:user:U001:minute'."
+      }
+    ],
+
+    "interview_relevance": "Rate limiting interview questions:\n\n- **'How would you implement distributed rate limiting across multiple app instances?'** → Redis INCR: atomic counter shared across all instances. Each instance increments the same Redis key. One instance can't 'use up' the quota silently.\n- **'What is the difference between fixed window and sliding window rate limiting?'** → Fixed window: simple counter per minute. Problem: 200 requests possible at the minute boundary (100 at end + 100 at start). Sliding window: tracks exact timestamps with a ZSet, no boundary spike. Tradeoff: more memory.\n- **'Why use Redis INCR instead of reading and writing a counter?'** → INCR is atomic. Read-then-write has a race condition: two threads can both read 0 and both increment to 1. Redis serializes INCR — no two callers get the same value.\n- **'What HTTP status code for rate limiting, and what headers?'** → 429 Too Many Requests. Headers: Retry-After (seconds until reset), X-RateLimit-Limit (max), X-RateLimit-Remaining (requests left in current window).",
+
+    "real_world_workflow": "Rate limiting deployment workflow:\n\n- Monitor first: log request rates per user/IP/endpoint before enforcing limits\n- Set limits conservatively: start with 10× normal usage, tighten if needed\n- Inform clients: document rate limits in API docs, return Retry-After header\n- Whitelist: add whitelist for internal services and monitoring tools\n- Graceful degradation: rate-limited requests return 429 immediately, not after timeout\n- Alert on spikes: @Scheduled job alerts if any identifier exceeds 80% of limit"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "expire_on_every_increment",
+      "what_students_get_wrong": "Calling redis.expire() on every INCR, not just the first — this resets the window every time a request is made, so limits are never actually enforced.",
+      "remediation": "Set TTL only when count == 1 (the first request in the window). On subsequent requests, the TTL is already set — don't reset it. If you reset TTL on every request, the window never expires while traffic is active — a client making 200 requests/minute gets unlimited requests. The check: if (count == 1) { redis.expire(key, Duration.ofMinutes(2)); }",
+      "detection_pattern": "Rate limiter never triggers 429 even with thousands of requests; key TTL keeps resetting"
+    },
+    {
+      "gap_id": "filter_not_returning_early",
+      "what_students_get_wrong": "Writing the 429 response but not returning early — chain.doFilter() is still called, sending the request to the controller despite the rate limit being exceeded.",
+      "remediation": "After writing the 429 response, always return immediately: httpRes.setStatus(429); httpRes.getWriter().write(...); return; /* CRITICAL */. Without the return, chain.doFilter() continues executing, the controller processes the request AND a 429 is also sent, causing undefined behavior (two responses or duplicate processing).",
+      "detection_pattern": "Controller executes despite 429 being sent; DB queries still happening for rate-limited requests"
+    },
+    {
+      "gap_id": "per_user_key_collision",
+      "what_students_get_wrong": "Using a rate limit key that doesn't include enough context — e.g., 'rate:{userId}' without the endpoint or window, causing all requests to share one counter.",
+      "remediation": "Include at minimum: identifier + time window. Ideally: identifier + endpoint + time window. Key example: 'rate:user:U001:/api/search:28543210'. Without the endpoint: searching and paying share the same counter — a user can't search if they've made too many payment calls. Without the window: the counter never resets (grows forever).",
+      "detection_pattern": "Users rate-limited on endpoint A because of traffic on endpoint B; limits never reset"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Rate limiting: reject excessive requests before they hit your DB or service",
+      "Redis INCR: atomic counter — no two callers get the same value",
+      "Fixed window: INCR key per identifier per minute window; EXPIRE on first request only",
+      "Key structure: 'rate:{type}:{identifier}:{windowBucket}' — unique per entity per window",
+      "count == 1: set TTL only on first request — don't reset TTL on every request!",
+      "HTTP 429 Too Many Requests: correct status code for rate limiting",
+      "Retry-After header: seconds until window resets — lets clients back off gracefully",
+      "X-RateLimit-Remaining: lets well-behaved clients self-throttle",
+      "Spring Filter @Order(1): earliest interception, before DB hit",
+      "return after 429: CRITICAL — chain.doFilter() must NOT be called after 429 response",
+      "Per-endpoint limits: different keys = different counters per path",
+      "Distributed: Redis is shared across all app instances — counters are global",
+      "Sliding window: ZSet with timestamps — no boundary spike but more memory",
+      "Fixed window boundary: 2× requests possible at window edge (tradeoff)",
+      "IP vs user-based: authenticated users get higher limits; IP-based for anonymous"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Why is Redis INCR safer than a Java synchronized counter for rate limiting?",
+        "answer": "Two reasons: (1) Redis INCR is atomic at the server level. Redis processes commands in a single thread — no two clients can receive the same value from INCR. In contrast, even with Java's synchronized or AtomicLong, these are per-JVM — in a multi-instance deployment (3 Spring Boot instances), each has its own counter. Three instances each allowing 100 requests = 300 total allowed. Redis is shared: one INCR key, all instances increment the same counter. (2) Redis INCR survives app restarts. If one instance crashes, the rate limit state in Redis is preserved for the remaining instances. A Java in-memory counter is lost on restart."
+      },
+      {
+        "question": "Your rate limiter is set to 100 requests/minute. At 12:00:58, user A makes 100 requests. At 12:01:02, they make 100 more. Have they violated the limit? Why is this the fixed window problem?",
+        "answer": "In a fixed window system: No violation detected. The first 100 requests (12:00:58-12:00:59) fall in window 12:00-12:00:59 and the counter reaches exactly 100. The second 100 requests (12:01:02-12:01:05) fall in window 12:01-12:01:59 — a fresh window, fresh counter. Both windows show 100 requests — within the 100/min limit. But from the perspective of your server, in the 7-second span between 12:00:58 and 12:01:05, the user made 200 requests. The fixed window doesn't see across boundaries. The sliding window fix: uses a ZSet of timestamps over the last 60 seconds. At 12:01:02, the window covers 12:00:02 to 12:01:02 — includes all 100 requests from 12:00:58. Adding 100 more would push the 60-second count to 200 → rejected. The tradeoff: sliding window uses more Redis memory."
+      },
+      {
+        "question": "A user makes request #100 at 12:00:58 (the limit is 100/min). The Spring Filter runs. The INCR returns 100 — exactly at the limit. The controller processes the request. Three seconds later at 12:01:01, the same user makes request #101. What does the Redis key look like at 12:01:01?",
+        "answer": "At 12:01:01, a new minute window has started. The INCR key includes the minute bucket: rate:user:U001:28543211 (the new minute number). This is a brand new key — the counter starts at 1. Request #101 is the FIRST request in the new window. The INCR returns 1, and since count == 1, TTL is set. The request is allowed. The old key rate:user:U001:28543210 still exists in Redis with count=100, but it will expire within 2 minutes (the TTL set on first request). This is correct behavior: each minute window gets exactly 100 requests, and the window resets automatically when a new minute starts. The user gets 100 requests in minute 12:00, and another 100 in minute 12:01."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Redis Distributed Locks** — you've solved rate limiting (how many times can you do X?). Now solve coordination: how do you ensure only ONE service instance performs a critical operation at a time? Zerodha's end-of-day settlement must run exactly once across 5 instances. Razorpay's payment idempotency key must be processed by exactly one thread. Topic 18.4 covers SETNX-based distributed locks, lock expiry, Redlock algorithm, and @Scheduled task coordination."
+  }
+}

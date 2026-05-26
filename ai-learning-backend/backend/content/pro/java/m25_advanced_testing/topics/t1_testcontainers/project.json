@@ -1,0 +1,31 @@
+{
+  "schema_version":"1.0","project_id":"java_m25_t1_proj","linked_topic":"java_m25_t1",
+  "level":"mini","name":"Razorpay Payment — Testcontainers Integration Suite",
+  "estimated_minutes":45,"difficulty":6,
+  "scenario":"Razorpay's payment service has 400 passing H2 tests, but 3 production bugs slipped through: JSONB type mismatch, ON CONFLICT syntax failure, and Redis TTL not behaving as expected. Migrate the critical integration tests to Testcontainers with real PostgreSQL and Redis.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"PostgreSQLContainer static @Container + @Testcontainers at class level. @DynamicPropertySource: url, username, password. @AutoConfigureTestDatabase(replace=NONE) to prevent H2 substitution.","weight":15},
+    {"id":"req_2","description":"Payment entity with JSONB metadata field (@Column(columnDefinition='jsonb')). PaymentRepository: findByMerchantId, findByStatus, sumByMerchant (JPQL SUM).","weight":20},
+    {"id":"req_3","description":"Redis GenericContainer static. @DynamicPropertySource: host + getMappedPort(6379). Redis tests: set/get, TTL expiry (1s TTL + 2s sleep + assertNull).","weight":15},
+    {"id":"req_4","description":"Abstract base class PostgresRedisTestBase with both static containers and shared @DynamicPropertySource. At least 2 test classes extend it.","weight":10},
+    {"id":"req_5","description":"@BeforeEach: repo.deleteAll() + redis.flushAll(). Ensures test isolation without restarting containers.","weight":10},
+    {"id":"req_6","description":"@SpringBootTest (5 tests): DB save+find, JSONB valid JSON saves, findByMerchant count correct, Redis cache hit, Redis TTL expires. All 5 pass.","weight":25},
+    {"id":"req_7","description":"README: table comparing H2 vs Testcontainers (pros/cons, speed, accuracy, use cases).","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"KafkaContainer integration: producer sends PaymentCreatedEvent, consumer receives it within 10 seconds. CountDownLatch for async waiting.","weight":20},
+    {"id":"bonus_2","description":"ON CONFLICT DO UPDATE (upsert) native query — test proves it works with PostgreSQL (fails on H2). UpsertRepository with custom native query.","weight":20},
+    {"id":"bonus_3","description":"GitHub Actions workflow YAML (.github/workflows/integration-tests.yml) with ubuntu-latest, Java 21, maven verify with IT profile.","weight":15}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. @AutoConfigureTestDatabase(replace=NONE) with @DataJpaTest: critical — without this, Spring replaces the datasource with H2 even though you configured a container. @DynamicPropertySource must be static: Spring calls it before application context loads, so non-static methods are not accessible. getMappedPort(6379): Testcontainers maps container ports to random host ports — never hardcode 6379 for the host port. @BeforeEach TRUNCATE or deleteAll(): much faster than restarting the container — containers should be static and shared. TTL test: use at least 1s TTL and 2s sleep — smaller values are flaky on CI due to timing variations.",
+  "rubric":[
+    {"category":"PostgreSQLContainer setup","points":15},
+    {"category":"Payment entity + repository","points":20},
+    {"category":"Redis container + tests","points":15},
+    {"category":"Abstract base class","points":10},
+    {"category":"@BeforeEach isolation","points":10},
+    {"category":"5 tests (all pass)","points":25},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

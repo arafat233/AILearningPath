@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t3",
+  "module_id": "m32",
+  "topic_number": 3,
+  "name": "Linked List Reversal \u2014 Full, Partial, K-Groups",
+  "slug": "linked-list-reversal-full-partial-k-groups",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m32_t1",
+      "java_m32_t2"
+    ],
+    "concepts_taught": [
+      "full_reversal",
+      "reverse_between_positions",
+      "reverse_k_group",
+      "recursive_reversal",
+      "iterative_reversal",
+      "reverse_pairs"
+    ],
+    "skills_developed": [
+      "in_place_linked_list_reversal",
+      "partial_reversal",
+      "k_group_reversal",
+      "recursive_vs_iterative_reversal"
+    ],
+    "career_relevance": "Reverse Linked List is the #1 most common linked list interview question. Reverse in K-Groups (LeetCode #25) is a Flipkart/Amazon favourite for mid-level SDE roles. Mastering reversal unlocks reorder list, palindrome check, and many other problems.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha batch order processing:\nOrders arrive: A\u2192B\u2192C\u2192D\u2192E\nProcess in reverse (LIFO): E\u2192D\u2192C\u2192B\u2192A\n\n3-pointer reversal \u2014 O(n) O(1):\n  prev=null, curr=head, next=null\n  while curr\u2260null:\n    next = curr.next    (save)\n    curr.next = prev    (reverse)\n    prev = curr         (advance prev)\n    curr = next         (advance curr)\n  return prev  \u2190 new head\n```",
+    "what_you_will_build": "Full reversal, reverse between positions, reverse in k-groups \u2014 all in O(n) O(1)."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "three_pointer": "**3-pointer iterative reversal \u2014 memorize this:**\n\n```java\nListNode reverse(ListNode head) {\n    ListNode prev = null, curr = head, next;\n    while (curr != null) {\n        next = curr.next;  // 1. save next\n        curr.next = prev;  // 2. reverse link\n        prev = curr;       // 3. advance prev\n        curr = next;       // 4. advance curr\n    }\n    return prev; // new head\n}\n// O(n) time, O(1) space\n// Trace: null\u21901\u21902\u21903 (prev=3, curr=null \u2192 return prev=3)\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Step-by-step reversal of 1\u21922\u21923\u2192null. State at each step: prev/curr/next arrows. Step 0: prev=null,curr=1,next=?. Step 1: save next=2, reverse 1.next=null, prev=1,curr=2. Step 2: save next=3, reverse 2.next=1, prev=2,curr=3. Step 3: save next=null, reverse 3.next=2, prev=3,curr=null. Return prev=3. Result: 3\u21922\u21921\u2192null.",
+      "alt_text": "Three-pointer linked list reversal step by step"
+    },
+    "worked_example": {
+      "scenario": "Reverse Nodes in K-Groups (LeetCode #25).",
+      "problem_statement": "Reverse every k nodes. If remaining < k, leave as is.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Count k nodes, then reverse",
+          "details": "Check if k nodes remain. If yes: reverse k nodes, connect tail to result of recursive call. If no: return head as is."
+        }
+      ],
+      "final_code": "ListNode reverseKGroup(ListNode head, int k) {\n    ListNode curr=head; int count=0;\n    while(curr!=null&&count<k){curr=curr.next;count++;}\n    if(count<k) return head; // fewer than k remaining\n    ListNode prev=null,c=head,next;\n    for(int i=0;i<k;i++){next=c.next;c.next=prev;prev=c;c=next;}\n    head.next=reverseKGroup(c,k); // head is now the tail of reversed group\n    return prev; // prev is new head of reversed group\n}",
+      "expected_output": "[1,2,3,4,5] k=2 \u2192 [2,1,4,3,5]. k=3 \u2192 [3,2,1,4,5]",
+      "things_to_notice": [
+        "head becomes tail after reversal \u2014 connect it to next group",
+        "prev becomes the new head of the reversed group",
+        "Recursion depth: O(n/k) levels \u2014 not O(n) like naive recursion",
+        "count<k check: leave partial group unchanged"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Flipkart batch processing",
+          "use_case": "Process orders in batches of k, each batch in reverse priority. Reverse K-Group in O(n) O(1) space."
+        }
+      ],
+      "interview_relevance": "'Reverse a LL' in 5 minutes: 3-pointer, O(n) O(1). 'Reverse between positions': use dummy + reversal on sublist. 'K-Group': count + reverse + recurse.",
+      "real_world_workflow": "Reversal blueprint: (1) identify reversal range, (2) save connection points (prev of start, next of end), (3) reverse the sublist, (4) reconnect."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "losing_tail_reference",
+        "what_students_get_wrong": "After reversing, forgetting to connect the old head (new tail) to the rest of the list. head.next = nextGroup is essential.",
+        "remediation": "Before reversing: save tail = head (the current head becomes the tail after reversal). After reversing: tail.next = nextGroup. The head-becomes-tail pattern is the key connection point.",
+        "detection_pattern": "Student reverses correctly but produces disconnected list"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "3-pointer reversal: next=curr.next; curr.next=prev; prev=curr; curr=next",
+        "Return prev (new head), not curr (null)",
+        "head becomes tail after reversal \u2014 always connect it",
+        "Reverse between [m,n]: dummy head + reverse [m..n] sublist",
+        "K-Group: count k, reverse, head.next = reverseKGroup(rest, k)"
+      ],
+      "self_check_questions": [
+        {
+          "question": "After reversing a linked list, why do we return prev and not curr?",
+          "answer": "At the end of the while loop, curr is null (we've processed all nodes). prev holds the last node we processed \u2014 which is the original LAST node of the list. That last node is now the NEW HEAD because all pointers have been reversed. curr is null so returning it would give us nothing. Returning prev gives us the new head of the reversed list."
+        }
+      ],
+      "next_topic_preview": "Next: Cycle Detection \u2014 Floyd's algorithm, finding cycle length, finding cycle entry point."
+    }
+  }
+}

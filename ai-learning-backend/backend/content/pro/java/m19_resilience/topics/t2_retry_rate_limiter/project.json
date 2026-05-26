@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m19_t2_proj",
+  "linked_topic": "java_m19_t2",
+  "level": "mini",
+  "name": "Zerodha Order Router — Retry & Rate Limiter Protection",
+  "estimated_minutes": 45,
+  "difficulty": 8,
+
+  "scenario": "Zerodha's order router calls the NSE trading engine. NSE has transient connection failures during market open and imposes a 200-orders/second rate limit. Add @Retry for transient failures and @RateLimiter to self-throttle within NSE's quota.",
+
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "application.yml: retry config (maxAttempts=3, 100ms exponential, retryExceptions=IOException, ignoreExceptions=InvalidOrderException). RateLimiter config (200/s, 1s refresh, 200ms timeout).", "weight": 20 },
+      { "id": "req_2", "description": "OrderRouterService.submitOrder(): @RateLimiter (outer) → @CircuitBreaker → @Retry (inner). Three separate fallback methods with appropriate return values.", "weight": 25 },
+      { "id": "req_3", "description": "IdempotentOrderService.submitIdempotent(idempotencyKey, order): @Retry with same idempotency key on all attempts. Result cache prevents double submission.", "weight": 15 },
+      { "id": "req_4", "description": "RetryEventMonitor: counts retry attempts via RetryRegistry event listener. @Scheduled logs stats every minute.", "weight": 10 },
+      { "id": "req_5", "description": "@SpringBootTest (4 tests): retry succeeds on 3rd attempt (verify 3 calls), fallback on all-fail, InvalidOrder not retried (verify 1 call), rate limit triggers fallback. All 4 pass.", "weight": 25 },
+      { "id": "req_6", "description": "README documents: annotation stack order rationale, retryExceptions vs ignoreExceptions choices.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "RateLimiterDashboard @RestController /admin/rate-limits: returns current rate limiter metrics (available permits, waiting threads). @SpringBootTest MockMvc test.", "weight": 20 },
+      { "id": "bonus_2", "description": "RetryWithCircuitBreakerComparison: two @SpringBootTest tests proving annotation order matters — wrong order opens CB 3× faster than correct order.", "weight": 25 },
+      { "id": "bonus_3", "description": "SEBI Order Throttle: second @RateLimiter 'sebi-limit' of 3 orders/second (per-user) combined with the 200/s global NSE limit. Both must pass for order to proceed.", "weight": 25 }
+    ]
+  },
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Annotation stack order: @RateLimiter (outermost) > @CircuitBreaker > @Retry (innermost). Each fallback must match the original method's return type and parameters + Exception/RequestNotPermittedException last. ignoreExceptions in application.yml prevents retry on business exceptions (InvalidOrderException). RetryRegistry is a Spring bean — inject like CircuitBreakerRegistry. @BeforeEach: reset CB + clear retry counters between tests.",
+
+  "rubric": [
+    { "category": "application.yml configs", "points": 20 },
+    { "category": "OrderRouterService (3-layer)", "points": 25 },
+    { "category": "IdempotentOrderService", "points": 15 },
+    { "category": "RetryEventMonitor", "points": 10 },
+    { "category": "@SpringBootTest (4 tests)", "points": 25 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 70 }
+  ]
+}

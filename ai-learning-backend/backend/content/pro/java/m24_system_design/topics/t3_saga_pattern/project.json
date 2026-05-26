@@ -1,0 +1,29 @@
+{
+  "schema_version":"1.0","project_id":"java_m24_t3_proj","linked_topic":"java_m24_t3",
+  "level":"mini","name":"Razorpay Checkout — Saga Pattern",
+  "estimated_minutes":45,"difficulty":8,
+  "scenario":"Razorpay's checkout flow spans 4 microservices. A bug in NotificationService is leaving payments charged with no order created. Implement an orchestration Saga with compensating transactions.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"SagaStep enum (INVENTORY_RESERVED, ORDER_CREATED, PAYMENT_CHARGED, NOTIFICATION_SENT) and SagaState class: mark(step), is(step), getCompletedSteps(). LinkedHashSet for ordering.","weight":10},
+    {"id":"req_2","description":"CheckoutSagaOrchestrator @Service: 4 steps with compensation in REVERSE order on any failure. Catches all exceptions from any step.","weight":20},
+    {"id":"req_3","description":"Idempotent compensations: ReleaseInventory, CancelOrder, RefundPayment — all check Set<String> before acting (ALREADY_DONE vs DONE result).","weight":20},
+    {"id":"req_4","description":"SagaLog JPA entity + repository: persist STARTED before step, COMPLETED after, COMPENSATED on undo. Crash recovery reads log to find last known state.","weight":15},
+    {"id":"req_5","description":"@SpringBootTest (4 tests): success=all 4 steps, step2 fail=inventory released, step3 fail=order+inventory compensated, double-compensate=idempotent. All 4 pass.","weight":30},
+    {"id":"req_6","description":"README: explains why compensations must be idempotent and in reverse order.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"SagaStateMachine: Map<SagaStatus,Set<SagaStatus>> allowed transitions. Transition throws IllegalStateException for invalid moves. Tests: valid path, skip-step throws.","weight":20},
+    {"id":"bonus_2","description":"Choreography alternative: Spring ApplicationEvents replacing the orchestrator. OrderCreatedEvent → InventoryService reserves → PaymentFailedEvent → all services compensate.","weight":20},
+    {"id":"bonus_3","description":"Micrometer: saga.completed counter (outcome tag), saga.duration timer, saga.compensation.triggered counter (step tag). Test: metrics recorded correctly.","weight":15}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. Compensate only COMPLETED steps: use state.is(step) before each compensation — don't compensate a step that never ran. Compensation in REVERSE order: if steps 1,2,3 ran and step 3 failed, compensate 2 then 1 (never 1 then 2 — dependencies). Idempotency: check Set<String> processedIds before acting; return ALREADY_DONE if already compensated. SagaLog: save STARTED BEFORE executing the step (if crash during step, log shows step was started). 2PC alternative: impossible for cross-service sagas — payment gateways don't support distributed locks.",
+  "rubric":[
+    {"category":"SagaStep + SagaState","points":10},
+    {"category":"CheckoutSagaOrchestrator","points":20},
+    {"category":"Idempotent compensations","points":20},
+    {"category":"SagaLog JPA","points":15},
+    {"category":"4 tests (all pass)","points":30},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

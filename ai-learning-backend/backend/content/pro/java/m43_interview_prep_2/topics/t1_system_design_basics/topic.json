@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m43_t1",
+  "module_id": "m43",
+  "topic_number": 1,
+  "name": "System Design Basics \u2014 Framework and Estimation",
+  "slug": "sd-basics-framework",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t5"
+    ],
+    "concepts_taught": [
+      "sd-basics-framework"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "System Design Basics \u2014 Framework and Estimation"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "SD Framework: Requirements\u2192Estimation\u2192API\u2192Data Model\u2192Core Algorithm\u2192Scale",
+        "Capacity estimation: daily\u00f786400=per-second; add 10x peak buffer",
+        "Always ask functional vs non-functional requirements",
+        "CAP theorem: choose CP or AP; CA = single node",
+        "Start with 1-server design, identify bottlenecks, scale each layer"
+      ],
+      "next_topic_preview": "Next: Scalability Patterns."
+    }
+  }
+}

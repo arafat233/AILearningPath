@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m34_t2_proj",
+  "linked_topic": "java_m34_t2",
+  "level": "mini",
+  "name": "Flipkart Search Analytics",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Build search analytics: group queries, find top-K, detect min coverage window.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "groupAnagrams, topKFrequent, minWindowSubstring, wordPattern",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests all pass",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README: O(m log m) vs O(m) anagram keys",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Bonus: maxPoints, brickWall, isomorphic",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Group anagrams: sort chars as key. Top K: min-heap size k comparator (a,b)->freq.get(a)-freq.get(b). Min Window: required counter \u2014 decrement only when window[c]<=need[c].",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

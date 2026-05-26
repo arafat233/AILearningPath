@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m26_t5_proj",
+  "linked_topic": "java_m26_t5",
+  "level": "mini",
+  "name": "HDFC Bank AI Test Suite",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "The HDFC Bank AI support system is going to CI. Every test calls the real Anthropic API, costing ₹5,000/run and taking 10 minutes. Build a proper AI test suite: deterministic unit tests with FakeAiService, integration tests with WireMock, and weekly evaluation tests with real AI.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "FakeAiService @Service: Map<String, String> keyword→response. answer(question) scans keywords. Default: 'Service temporarily unavailable.' addResponse(key, value) for test customization.", "weight": 15},
+      {"id": "req_2", "description": "AiResponseAssertions @Service: containsFact(response, fact) — assertTrue with meaningful message. doesNotHallucinate(response, List<String>) — assertFalse for each banned term.", "weight": 10},
+      {"id": "req_3", "description": "HdfcAiServiceWithFallback @Service: try { chatClient.call() } catch (Exception) { return cached fallback }. Fallback Map<String, String> for 'balance', 'loan', 'card', 'default'.", "weight": 15},
+      {"id": "req_4", "description": "EvalDataset @Service: List of 5 EvalCase records (question, List<String> expectedFacts, List<String> bannedTerms). Cases cover: CIBIL, refund, EMI, documents, interest rate.", "weight": 10},
+      {"id": "req_5", "description": "EvalRunner @Service: run(cases, aiService). Returns EvalResult (total, passed, accuracy %). Passes case when all expectedFacts present AND no bannedTerms present.", "weight": 10},
+      {"id": "req_6", "description": "@SpringBootTest (5 tests): FakeAi returns scripted response, factual assertion passes, hallucination assertion fails when present, fallback on AI error, eval accuracy > 60% with matching FakeAi. All pass.", "weight": 35},
+      {"id": "req_7", "description": "README: AI test pyramid — unit (mock/fake), integration (WireMock), evaluation (real AI weekly). Include cost estimate per layer.", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "WireMock integration test: stub /v1/messages → returns scripted JSON. @DynamicPropertySource redirects spring.ai.anthropic.base-url to WireMock. Verify service returns correct response from stub.", "weight": 20},
+      {"id": "bonus_2", "description": "LlmAsJudge @Service: evaluate(question, answer, referenceDoc) → EvaluationResult(score 1-5, feedback, isAcceptable). Score ≥ 3 = acceptable. Test: good response scores ≥ 3, hallucinated response scores < 3.", "weight": 20},
+      {"id": "bonus_3", "description": "AiLatencyTracker @Service: record(latencyMs), p50(), p95(), p99(). AiBaselineComparator: alert if p99 regresses > 20%. Tests: percentiles correct, regression detected, no-regression passes.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. FakeAiService vs Mock: FakeAiService has real keyword-matching logic (a Fake) — better for testing multiple scenarios than configuring a Mockito mock chain every test. @MockBean ChatClient.Builder: mocking the builder is the easiest way to control ChatClient in @SpringBootTest — it prevents Spring AI from trying to contact the real API. Factual assertions: use assertTrue(response.contains(fact)) not assertEquals(exactText, response) — AI wording varies, facts don't. WireMock base-url override: spring.ai.anthropic.base-url can be overridden via @DynamicPropertySource to redirect API calls to WireMock. Evaluation accuracy: don't aim for 100% — AI is probabilistic. 80%+ accuracy on your evaluation dataset is a good target.",
+  "rubric": [
+    {"category": "FakeAiService", "points": 15},
+    {"category": "AiResponseAssertions", "points": 10},
+    {"category": "HdfcAiServiceWithFallback", "points": 15},
+    {"category": "EvalDataset (5 cases)", "points": 10},
+    {"category": "EvalRunner", "points": 10},
+    {"category": "5 tests (all pass)", "points": 35},
+    {"category": "README (test pyramid)", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

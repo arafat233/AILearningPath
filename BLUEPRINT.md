@@ -1,7 +1,7 @@
 # AILearningPath — Complete Project Blueprint
 > Paste this into Claude.ai so it has full context without needing the zip.
 >
-> **Track expansion:** Stellar now spans three tracks — `school` (K-12, LIVE), `professional` (Java pilot, **CODE COMPLETE** awaiting Docker spin-up), `competitive` (IIT/NEET/UPSC/USMLE/GRE/TOEFL, planned). See `PROFESSIONAL_TRACKS_BLUEPRINT.md` for the master multi-track checklist and `PRO_TRACK_PLAN.md` for the Java pilot integration plan (§9 build completion log).
+> **Track expansion:** Stellar now spans three tracks — `school` (K-12, LIVE), `professional` (Java **ALL 46 modules LIVE**: 232 topics / 3311 exercises / 232 projects / 168,365 XP), `competitive` (IIT/NEET/UPSC/USMLE/GRE/TOEFL, planned). See `PROFESSIONAL_TRACKS_BLUEPRINT.md` for the master multi-track checklist and `PRO_TRACK_PLAN.md` for the Java pilot integration plan (§9 build completion log).
 >
 > Last updated: 2026-05-25 — Professional & competitive track blueprint added (PROFESSIONAL_TRACKS_BLUEPRINT.md + PRO_TRACK_PLAN.md). Previous: ICSE Math 9 + Math 10 Ph1 NcertChapter docs added (seedIcseMath9NcertChapters.js: 28 chapters icse_math9_ch1–ch28, board=ICSE, grade=9; seedIcseMath10NcertChapters.js: 25 chapters icse_math10_ch1–ch25, board=ICSE, grade=10; npm scripts seed:icse-math9-chapters + seed:icse-math10-chapters; both prepended to seed:xxx-all). Previous: AP SSC Math 9 + Math 10 Ph1 NcertChapter docs added (seedApSscMath9NcertChapters.js: 12 chapters ap_ssc_math9_ch1–ch12; seedApSscMath10NcertChapters.js: 14 chapters ap_ssc_math10_ch1–ch14; board=AP_SSC; npm scripts seed:ap-ssc-math9-chapters + seed:ap-ssc-math10-chapters; both prepended to seed:xxx-all). AP SSC Math 9 Ph4 SVG diagrams: 35 DIAGRAM_MAP entries (27 reused from CBSE Math 9 / ICSE 9 / ICSE 10 + 8 new SVG component functions for Ch4 linear equations, Ch5 Euclid's geometry, Ch6 lines & angles). CBSE Math 9 Ph4 SVG diagrams: 32 DIAGRAM_MAP entries (8 reused ICSE 9 + 24 new SVG fns, Ch1–Ch8 fully covered). DiagramLibrary total entries: ~502 across all boards. AP SSC Math 9 + 10: ALL PHASES COMPLETE. CBSE Math 9: ALL PHASES COMPLETE. ICSE Math 9 + 10: ALL PHASES COMPLETE.
 
@@ -1387,7 +1387,7 @@ canonical reference for the Java pilot.
 | Track key      | Audience          | Status (2026-05-25) | Where it lives                       |
 |----------------|-------------------|---------------------|--------------------------------------|
 | `school`       | K-12 (CBSE/ICSE/AP_SSC/...) | LIVE     | NcertChapter / NcertTopicContent / Question + Lessons, Practice, Analytics … |
-| `pro_java`     | Adult professional | **Code complete; pilot awaiting Judge0 install** | ProTrack/ProModule/ProTopic/ProExercise/ProProject/ProSubmission/ProProgress + `/api/v1/pro/*` + `/pro/*` frontend |
+| `pro_java`     | Adult professional | 🎉 **ALL 46 MODULES LIVE** (46 mod / 232 topics / 3311 exercises / 232 projects, 168,365 XP) | ProTrack/ProModule/ProTopic/ProExercise/ProProject/ProSubmission/ProProgress + `/api/v1/pro/*` + `/pro/*` frontend |
 | `pro_<lang>`   | Future languages   | not yet built       | Same shape as pro_java               |
 | `competitive`  | JEE/NEET/UPSC/…    | not yet built       | TBD                                  |
 
@@ -1410,8 +1410,17 @@ Backend
   controllers/proController.js                thin HTTP delegators
   validators/proValidator.js                  Joi schemas (strict snake_case IDs)
   routes/proRoutes.js                         /api/v1/pro/* — mounted in server.js
-  config/seedJavaPilot.js                     idempotent pilot content seed
-  content/pro/java/m1_fundamentals/topics/t1_hello_world/  source-of-truth JSONs
+  config/seedJavaPilot.js                     idempotent seed — walks content/pro/java/m*/topics/t*/
+  content/pro/java/m{1..46}_*/topics/t*/      source-of-truth JSONs (ALL 46 MODULES LIVE 2026-05-26)
+    └── topic.json + exercises.json + project.json per topic
+    └── m1 fundamentals has 6 topics incl. authored M1-T6 Scanner Basics (closes Module 1 beginner-input gap)
+    └── m7 exception_handling: try/catch, exception types, custom exceptions, defensive programming, try-with-resources
+    └── m8 lambdas_streams: lambda expressions, functional interfaces, Stream API, Collectors, Optional
+    └── m9 generics: generic classes, generic methods, bounded type params, wildcards (PECS), generic interfaces
+    └── m10 concurrency: thread basics, synchronization, ExecutorService, concurrent collections, CompletableFuture
+    └── m11 io_files: NIO file API, buffered I/O, CSV/JSON, HttpClient, async HTTP+CompletableFuture
+    └── m12 testing: JUnit 5 basics, parameterized tests, Mockito, testing I/O+HTTP, TDD (Red/Green/Refactor)
+    └── m13 spring_boot: Spring Boot intro, REST controllers, Spring Data JPA, validation/exceptions, Spring Boot testing
   infra/judge0/                                Docker Compose + judge0.conf.example
                                                 + README runbook
 

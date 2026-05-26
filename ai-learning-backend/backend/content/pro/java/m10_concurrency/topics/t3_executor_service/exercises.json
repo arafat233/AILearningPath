@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t3",
+  "topic_name": "ExecutorService and Thread Pools",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m10_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace ExecutorService submit and get",
+      "scenario": "Future.get() blocks until the task finishes.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(2);\n        Future<Integer> f1 = pool.submit(() -> 3 + 4);\n        Future<Integer> f2 = pool.submit(() -> 10 * 2);\n        System.out.println(f1.get());\n        System.out.println(f2.get());\n        pool.shutdown();\n    }\n}\n```",
+      "expected_solution": "7\n20",
+      "test_cases": [
+        { "type": "text_match", "expected": "7\n20" }
+      ],
+      "hints": [
+        "f1.get() blocks until (3+4) completes → 7",
+        "f2.get() blocks until (10*2) completes → 20"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Submit Callable and retrieve result",
+      "scenario": "Callable returns a value; Future wraps it.",
+      "instructions": "Fill in the blanks to submit a Callable and print its result.",
+      "starter_code": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(1);\n        Future<String> future = pool.______(______ -> \"Hello from pool!\");\n        System.out.println(future.______());\n        pool.shutdown();\n    }\n}",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(1);\n        Future<String> future = pool.submit(() -> \"Hello from pool!\");\n        System.out.println(future.get());\n        pool.shutdown();\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "submit", "hint": "Method to submit a Callable" },
+        { "position": 2, "answer": "()", "hint": "No-arg lambda" },
+        { "position": 3, "answer": "get", "hint": "Blocks until result is available" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Hello from pool!" }
+      ],
+      "hints": [
+        "pool.submit(callable) returns Future<T>",
+        "future.get() blocks and returns the result"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Basic thread pool — 3 tasks",
+      "scenario": "Submit 3 tasks to a fixed pool and wait for all.",
+      "instructions": "Create a 2-thread pool. Submit 3 Runnable tasks each printing 'Task N done'. Shutdown properly.\n\nExpected output (order of tasks may vary):\nTask 1 done\nTask 2 done\nTask 3 done\nAll tasks finished",
+      "starter_code": "import java.util.concurrent.*;\n// 2-thread pool, 3 tasks\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        ExecutorService pool = Executors.newFixedThreadPool(2);\n        pool.submit(() -> System.out.println(\"Task 1 done\"));\n        pool.submit(() -> System.out.println(\"Task 2 done\"));\n        pool.submit(() -> System.out.println(\"Task 3 done\"));\n        pool.shutdown();\n        pool.awaitTermination(10, TimeUnit.SECONDS);\n        System.out.println(\"All tasks finished\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Task 1 done", "Task 2 done", "Task 3 done", "All tasks finished"] }
+      ],
+      "hints": [
+        "pool.shutdown() stops accepting new tasks",
+        "awaitTermination waits for all submitted tasks to finish"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m10_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Callable returning computed value",
+      "scenario": "Callable<T> returns T; Future<T>.get() retrieves it.",
+      "instructions": "Submit a Callable that computes the sum of 1 to 100. Print the result via Future.get().\n\nExpected output:\nSum 1-100 = 5050",
+      "starter_code": "import java.util.concurrent.*;\n// Callable computing sum 1-100\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newSingleThreadExecutor();\n        Future<Integer> future = pool.submit(() -> {\n            int sum = 0;\n            for (int i = 1; i <= 100; i++) sum += i;\n            return sum;\n        });\n        System.out.println(\"Sum 1-100 = \" + future.get());\n        pool.shutdown();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Sum 1-100 = 5050" }
+      ],
+      "hints": [
+        "Callable<Integer> returns Integer",
+        "future.get() blocks and returns the sum",
+        "Gauss formula: n*(n+1)/2 = 100*101/2 = 5050"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m10_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Multiple Futures — parallel computation",
+      "scenario": "Submit multiple Callables, collect all results.",
+      "instructions": "Submit 4 Callable tasks to a 4-thread pool. Each computes the square of its index (1-4). Collect via Future.get(), sum the squares, print total.\n\nExpected output:\nSquares: [1, 4, 9, 16]\nTotal: 30",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// 4 parallel square computations\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(4);\n        List<Future<Integer>> futures = new ArrayList<>();\n        for (int i = 1; i <= 4; i++) {\n            final int n = i;\n            futures.add(pool.submit(() -> n * n));\n        }\n        List<Integer> results = new ArrayList<>();\n        for (Future<Integer> f : futures) results.add(f.get());\n        System.out.println(\"Squares: \" + results);\n        System.out.println(\"Total: \" + results.stream().mapToInt(x -> x).sum());\n        pool.shutdown();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Squares: [1, 4, 9, 16]\nTotal: 30" }
+      ],
+      "hints": [
+        "Submit all futures first, then collect in order",
+        "futures.get(0), get(1)... preserves submission order",
+        "1²+2²+3²+4² = 1+4+9+16 = 30"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m10_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Handle ExecutionException from Callable",
+      "scenario": "Task exceptions are wrapped in ExecutionException.",
+      "instructions": "Submit a Callable that throws ArithmeticException (divide by zero). Catch ExecutionException and print the cause.\n\nExpected output:\nTask failed: / by zero",
+      "starter_code": "import java.util.concurrent.*;\n// Handle task exception via ExecutionException\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) {\n        ExecutorService pool = Executors.newSingleThreadExecutor();\n        Future<Integer> future = pool.submit(() -> 10 / 0);\n        try {\n            System.out.println(future.get());\n        } catch (ExecutionException e) {\n            System.out.println(\"Task failed: \" + e.getCause().getMessage());\n        } catch (InterruptedException e) {\n            Thread.currentThread().interrupt();\n        } finally {\n            pool.shutdown();\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Task failed: / by zero" }
+      ],
+      "hints": [
+        "ExecutionException wraps the actual exception",
+        "e.getCause() is the original ArithmeticException",
+        "ArithmeticException.getMessage() = '/ by zero'"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m10_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "invokeAll — wait for all tasks",
+      "scenario": "invokeAll submits and waits for all tasks.",
+      "instructions": "Use invokeAll to submit 5 tasks computing factorials (1! through 5!). Collect and print all results.\n\nExpected output:\n1! = 1\n2! = 2\n3! = 6\n4! = 24\n5! = 120",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// invokeAll for parallel factorial computation\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    static int factorial(int n) { int r=1; for (int i=2;i<=n;i++) r*=i; return r; }\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(5);\n        List<Callable<String>> tasks = new ArrayList<>();\n        for (int i = 1; i <= 5; i++) {\n            final int n = i;\n            tasks.add(() -> n + \"! = \" + factorial(n));\n        }\n        List<Future<String>> futures = pool.invokeAll(tasks);\n        for (Future<String> f : futures) System.out.println(f.get());\n        pool.shutdown();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "1! = 1\n2! = 2\n3! = 6\n4! = 24\n5! = 120" }
+      ],
+      "hints": [
+        "invokeAll returns List<Future<T>> in submission order",
+        "All futures are done when invokeAll returns — get() won't block",
+        "Results are in original submission order despite concurrent execution"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m10_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "invokeAny — fastest response wins",
+      "scenario": "invokeAny returns the first successful result.",
+      "instructions": "Submit 3 tasks with different delays (800ms, 200ms, 500ms) returning the delay as a string. Use invokeAny — should return '200ms' (fastest).\n\nExpected output:\nFastest: 200ms responded first",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// invokeAny for fastest-wins pattern\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        List<Callable<String>> tasks = Arrays.asList(\n            () -> { Thread.sleep(800); return \"800ms responded first\"; },\n            () -> { Thread.sleep(200); return \"200ms responded first\"; },\n            () -> { Thread.sleep(500); return \"500ms responded first\"; }\n        );\n        String fastest = pool.invokeAny(tasks);\n        System.out.println(\"Fastest: \" + fastest);\n        pool.shutdown();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Fastest: 200ms responded first" }
+      ],
+      "hints": [
+        "invokeAny returns first successful result, cancels others",
+        "200ms task finishes first among 800/200/500",
+        "Useful for redundant requests to multiple replicas"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m10_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Future.get with timeout",
+      "scenario": "Timeout prevents blocking forever on a slow task.",
+      "instructions": "Submit a slow task (sleeps 2000ms). Use future.get(500, TimeUnit.MILLISECONDS). Catch TimeoutException and print message. Then cancel the future.\n\nExpected output:\nTask timed out after 500ms\nCancelled: true",
+      "starter_code": "import java.util.concurrent.*;\n// Future.get with timeout and cancellation\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) {\n        ExecutorService pool = Executors.newSingleThreadExecutor();\n        Future<String> future = pool.submit(() -> {\n            Thread.sleep(2000);\n            return \"Done\";\n        });\n        try {\n            String result = future.get(500, TimeUnit.MILLISECONDS);\n            System.out.println(result);\n        } catch (TimeoutException e) {\n            System.out.println(\"Task timed out after 500ms\");\n            boolean cancelled = future.cancel(true);\n            System.out.println(\"Cancelled: \" + cancelled);\n        } catch (ExecutionException | InterruptedException e) {\n            Thread.currentThread().interrupt();\n        } finally {\n            pool.shutdownNow();\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Task timed out after 500ms\nCancelled: true" }
+      ],
+      "hints": [
+        "get(500, MILLISECONDS) throws TimeoutException after 500ms if not done",
+        "future.cancel(true) interrupts the running thread",
+        "shutdownNow() after cancel to clean up the pool"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m10_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "ScheduledExecutorService — delayed and periodic",
+      "scenario": "Schedule tasks with delays and fixed rates.",
+      "instructions": "Create a ScheduledExecutorService. Schedule: (1) a one-time task after 200ms printing 'Delayed', (2) a periodic task every 300ms printing 'Tick N'. Run for 1 second, then shutdown.\n\nExpected output:\nDelayed\nTick 1\nTick 2\nTick 3\nDone",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n// ScheduledExecutorService: delay + periodic\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);\n        AtomicInteger tick = new AtomicInteger(0);\n        \n        scheduler.schedule(\n            () -> System.out.println(\"Delayed\"),\n            200, TimeUnit.MILLISECONDS);\n        \n        scheduler.scheduleAtFixedRate(\n            () -> System.out.println(\"Tick \" + tick.incrementAndGet()),\n            300, 300, TimeUnit.MILLISECONDS);\n        \n        Thread.sleep(1000);\n        scheduler.shutdown();\n        scheduler.awaitTermination(5, TimeUnit.SECONDS);\n        System.out.println(\"Done\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Delayed", "Tick 1", "Tick 2", "Done"] }
+      ],
+      "hints": [
+        "schedule() for one-time delayed task",
+        "scheduleAtFixedRate(task, initialDelay, period, unit) for repeating",
+        "AtomicInteger for thread-safe counter increment"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m10_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Parallel stock price fetcher",
+      "scenario": "Fan-out pattern: submit N tasks, collect all results.",
+      "instructions": "Simulate fetching prices for 6 stocks in parallel using a 3-thread pool. Each fetch takes 100-300ms. Collect all results and print sorted by price descending.\n\nStocks: TCS(3890), RELIANCE(2450), INFY(1560), HDFC(1678), WIPRO(412), ZOMATO(184)\n\nExpected output (sorted desc by price):\nTCS: ₹3890\nRELIANCE: ₹2450\n...",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// Parallel stock fetch with 3-thread pool\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.stream.*;\nrecord Stock(String name, int price) {}\npublic class App {\n    static Callable<Stock> fetchStock(String name, int price) {\n        return () -> {\n            Thread.sleep(100 + (int)(Math.random() * 200));\n            return new Stock(name, price);\n        };\n    }\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        List<Callable<Stock>> tasks = Arrays.asList(\n            fetchStock(\"TCS\",     3890), fetchStock(\"RELIANCE\", 2450),\n            fetchStock(\"INFY\",    1560), fetchStock(\"HDFC\",     1678),\n            fetchStock(\"WIPRO\",    412), fetchStock(\"ZOMATO\",    184)\n        );\n        List<Stock> stocks = pool.invokeAll(tasks).stream()\n            .map(f -> { try { return f.get(); } catch (Exception e) { return null; } })\n            .filter(Objects::nonNull)\n            .sorted((a,b) -> Integer.compare(b.price(), a.price()))\n            .collect(Collectors.toList());\n        stocks.forEach(s -> System.out.printf(\"%s: ₹%d%n\", s.name(), s.price()));\n        pool.shutdown();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "TCS: ₹3890\nRELIANCE: ₹2450\nHDFC: ₹1678\nINFY: ₹1560\nWIPRO: ₹412\nZOMATO: ₹184" }
+      ],
+      "hints": [
+        "invokeAll returns futures in submission order",
+        "Stream over futures: f -> f.get() wrapped in try-catch",
+        "Sort descending: Integer.compare(b.price(), a.price())"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m10_t3_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Pool size and task ordering",
+      "scenario": "Single-thread pool guarantees sequential order.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ExecutorService pool = Executors.newSingleThreadExecutor();\n        pool.submit(() -> System.out.println(\"A\"));\n        pool.submit(() -> System.out.println(\"B\"));\n        pool.submit(() -> System.out.println(\"C\"));\n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n        System.out.println(\"Done\");\n    }\n}\n```",
+      "expected_solution": "A\nB\nC\nDone",
+      "test_cases": [
+        { "type": "text_match", "expected": "A\nB\nC\nDone" }
+      ],
+      "hints": [
+        "Single-thread executor: tasks run sequentially in submission order",
+        "Only one thread — no concurrency — FIFO queue",
+        "This is NOT the case with fixedThreadPool(2+) — order could vary"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m10_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Order processing pipeline — parallel validation",
+      "scenario": "Validate an order against multiple services concurrently.",
+      "instructions": "Process an order through 3 parallel validation checks:\n1. Stock availability (150ms)\n2. Payment authorization (200ms)\n3. Address validation (100ms)\n\nAll must pass. If any fails (throw exception), report failure.\n\nExpected output:\nStock: OK\nPayment: OK\nAddress: OK\nOrder accepted!\n(or 'Order rejected: [reason]' for failures)",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// Parallel order validation — all must pass\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    static Callable<String> checkStock()   { return () -> { Thread.sleep(150); return \"OK\"; }; }\n    static Callable<String> checkPayment() { return () -> { Thread.sleep(200); return \"OK\"; }; }\n    static Callable<String> checkAddress() { return () -> { Thread.sleep(100); return \"OK\"; }; }\n    \n    public static void main(String[] args) throws InterruptedException {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        \n        List<Callable<String>> checks = Arrays.asList(\n            checkStock(), checkPayment(), checkAddress());\n        String[] names = {\"Stock\", \"Payment\", \"Address\"};\n        \n        List<Future<String>> futures = pool.invokeAll(checks);\n        \n        boolean passed = true;\n        for (int i = 0; i < futures.size(); i++) {\n            try {\n                String result = futures.get(i).get();\n                System.out.println(names[i] + \": \" + result);\n            } catch (ExecutionException e) {\n                System.out.println(names[i] + \": FAILED — \" + e.getCause().getMessage());\n                passed = false;\n            }\n        }\n        System.out.println(passed ? \"Order accepted!\" : \"Order rejected.\");\n        pool.shutdown();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Stock: OK\nPayment: OK\nAddress: OK\nOrder accepted!" }
+      ],
+      "hints": [
+        "invokeAll(3 tasks) on 3-thread pool = all run in parallel",
+        "Total time ~200ms (longest check) not 450ms sequential",
+        "Each Future.get() can throw ExecutionException on failure"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m10_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Batch processing with thread pool",
+      "scenario": "Process records in parallel batches.",
+      "instructions": "Process a list of 20 integer values (squaring each) using a 4-thread pool. Batch into groups of 5, submit each batch as one task. Collect all results.\n\nExpected output:\nBatch 1: [1, 4, 9, 16, 25]\nBatch 2: [36, 49, 64, 81, 100]\nBatch 3: [121, 144, 169, 196, 225]\nBatch 4: [256, 289, 324, 361, 400]\nTotal processed: 20",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.stream.*;\n// Batch processing with thread pool\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        List<Integer> data = IntStream.rangeClosed(1, 20).boxed().collect(Collectors.toList());\n        int batchSize = 5;\n        ExecutorService pool = Executors.newFixedThreadPool(4);\n        \n        List<Future<List<Integer>>> futures = new ArrayList<>();\n        for (int i = 0; i < data.size(); i += batchSize) {\n            List<Integer> batch = data.subList(i, Math.min(i + batchSize, data.size()));\n            futures.add(pool.submit(() ->\n                batch.stream().map(n -> n * n).collect(Collectors.toList())));\n        }\n        \n        int batchNum = 1;\n        int total = 0;\n        for (Future<List<Integer>> f : futures) {\n            List<Integer> result = f.get();\n            System.out.println(\"Batch \" + batchNum++ + \": \" + result);\n            total += result.size();\n        }\n        System.out.println(\"Total processed: \" + total);\n        pool.shutdown();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Batch 1: [1, 4, 9, 16, 25]\nBatch 2: [36, 49, 64, 81, 100]\nBatch 3: [121, 144, 169, 196, 225]\nBatch 4: [256, 289, 324, 361, 400]\nTotal processed: 20" }
+      ],
+      "hints": [
+        "Partition list into sublists of size 5",
+        "Submit each sublist as a Callable that maps elements",
+        "Futures in submission order — results in correct order"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m10_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete async payment processing system",
+      "scenario": "Production-style payment processing with thread pool, timeouts, and fallback.",
+      "instructions": "Process 5 payment requests concurrently using a 3-thread pool. Each payment:\n- Validates (50ms)\n- Processes (100-300ms, random)\n- May fail (20% chance)\n\nFor each: print SUCCESS with amount, or FAILED with reason.\nFor timed-out payments (>400ms): TIMEOUT and cancel.\nPrint summary: X succeeded, Y failed, Z timed out.\n\nExpected output (values vary):\nPAY-001: SUCCESS ₹1500\nPAY-002: FAILED card declined\nPAY-003: SUCCESS ₹2200\n...\nSummary: 3 succeeded, 1 failed, 1 timed out",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// Async payment processor with timeout and fallback\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    static final Random rnd = new Random(42);\n    \n    static Callable<String> processPayment(String id, int amount) {\n        return () -> {\n            Thread.sleep(50);  // validation\n            if (rnd.nextDouble() < 0.2) throw new RuntimeException(\"card declined\");\n            Thread.sleep(100 + rnd.nextInt(200));  // processing\n            return \"SUCCESS ₹\" + amount;\n        };\n    }\n    \n    public static void main(String[] args) throws InterruptedException {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        int[] amounts = {1500, 800, 2200, 500, 3000};\n        String[] ids   = {\"PAY-001\", \"PAY-002\", \"PAY-003\", \"PAY-004\", \"PAY-005\"};\n        \n        List<Future<String>> futures = new ArrayList<>();\n        for (int i = 0; i < ids.length; i++)\n            futures.add(pool.submit(processPayment(ids[i], amounts[i])));\n        \n        int succeeded = 0, failed = 0, timedOut = 0;\n        for (int i = 0; i < futures.size(); i++) {\n            Future<String> f = futures.get(i);\n            try {\n                String result = f.get(400, TimeUnit.MILLISECONDS);\n                System.out.println(ids[i] + \": \" + result);\n                succeeded++;\n            } catch (TimeoutException e) {\n                System.out.println(ids[i] + \": TIMEOUT\");\n                f.cancel(true);\n                timedOut++;\n            } catch (ExecutionException e) {\n                System.out.println(ids[i] + \": FAILED \" + e.getCause().getMessage());\n                failed++;\n            }\n        }\n        System.out.printf(\"Summary: %d succeeded, %d failed, %d timed out%n\",\n            succeeded, failed, timedOut);\n        pool.shutdownNow();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Summary:"] }
+      ],
+      "hints": [
+        "get(400, MILLISECONDS) with TimeoutException for slow payments",
+        "ExecutionException for declined cards",
+        "Track counts with succeeded/failed/timedOut counters"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 715,
+    "estimated_completion_minutes": 65
+  }
+}

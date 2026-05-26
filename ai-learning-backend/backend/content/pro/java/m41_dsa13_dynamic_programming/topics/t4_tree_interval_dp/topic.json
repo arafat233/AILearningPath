@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m41_t4",
+  "module_id": "m41",
+  "topic_number": 4,
+  "name": "Tree DP, Interval DP \u2014 Burst Balloons, Matrix Chain",
+  "slug": "tree-interval-dp-burst-balloons",
+  "metadata": {
+    "difficulty": 8,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m41_t3",
+      "java_m35_t2"
+    ],
+    "concepts_taught": [
+      "tree-interval-dp-burst-balloons"
+    ],
+    "career_relevance": "Core DP patterns \u2014 highest-value DSA topic in senior interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Tree DP, Interval DP \u2014 Burst Balloons, Matrix Chain"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Interval DP: dp[i][j] = optimal for range [i,j]",
+        "Burst Balloons: dp[i][j] = max coins from last balloon in [i,j]",
+        "Matrix Chain: dp[i][j] = min multiplications for matrices i..j",
+        "Palindrome Partitioning II: dp[i] = min cuts for s[0..i]",
+        "Tree DP: dp on tree nodes; combine children results",
+        "Diameter = max(leftH+rightH) across all nodes \u2014 classic tree DP"
+      ],
+      "next_topic_preview": "Next: DP synthesis."
+    }
+  }
+}

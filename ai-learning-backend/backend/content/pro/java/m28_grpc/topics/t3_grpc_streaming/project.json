@@ -1,0 +1,32 @@
+{
+  "schema_version":"1.0","project_id":"java_m28_t3_proj","linked_topic":"java_m28_t3",
+  "level":"mini","name":"Zerodha Live Market Data — gRPC Streaming",
+  "estimated_minutes":45,"difficulty":8,
+  "scenario":"Zerodha's Kite app needs real-time stock prices for 3 million users. Polling REST every second creates 3M req/s and 1-second stale data. Implement gRPC server streaming for live prices, client streaming for batch trade upload, and bidirectional streaming for the interactive order book.",
+  "requirements":{
+    "core":[
+      {"id":"req_1","description":"ZerodhaPriceFeed @GrpcService: server streaming watchPrices(PriceFeedReq, StreamObserver<NseQuote>). Cast to ServerCallStreamObserver. setOnCancelHandler() for cleanup. isCancelled() check in loop.","weight":20},
+      {"id":"req_2","description":"SymbolRegistry @Service: ConcurrentHashMap<symbol, Set<clientId>>. add(), remove(), subscriptionCount(). Used by watchPrices to track active subscriptions.","weight":10},
+      {"id":"req_3","description":"BatchTradeService @GrpcService: client streaming uploadTrades returns StreamObserver<TradeRecord>. Accumulate in onNext(). Send UploadSummary in onCompleted().","weight":20},
+      {"id":"req_4","description":"OrderBookBidiService @GrpcService: bidi streaming liveOrderBook. ConcurrentSkipListMap for bids (reverseOrder) and asks. Respond with BookUpdate after each incoming order.","weight":15},
+      {"id":"req_5","description":"@SpringBootTest (4 tests): server streaming sends N quotes, cancel cleanup removes subscription, client streaming correct BatchSummary, bidi book update after BUY order. All pass.","weight":30},
+      {"id":"req_6","description":"README: explains why isCancelled() is critical for server streaming resource management (memory leak prevention).","weight":5}
+    ],
+    "bonus":[
+      {"id":"bonus_1","description":"Back-pressure: BackPressureStreamService uses isReady() + setOnReadyHandler(). Queue messages when not ready. Test: all N messages sent (direct or queued).","weight":20},
+      {"id":"bonus_2","description":"RazorpayBulkPayout: client streaming with fatal (null merchantId → DATA_LOSS) vs non-fatal (invalid amount → failedIds) error differentiation. Test: fatal stops stream, non-fatal accumulated.","weight":20},
+      {"id":"bonus_3","description":"MarketSubscriptionService: broadcast(symbol, quote) sends to all active subscribers. Test: broadcast reaches 2 subscribers, not a 3rd on different symbol.","weight":15}
+    ]
+  },
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. isCancelled() in server streaming: check BEFORE each onNext() call in a loop — not just once at the start. Client streaming return type: the service method returns StreamObserver<RequestType>, not StreamObserver<ResponseType>. The responseObserver (for the final response) is a parameter, not the return value. Client streaming response timing: call responseObserver.onNext() only inside the client's onCompleted() callback — not in onNext(). The client may still be sending messages. Cast to ServerCallStreamObserver: responseObserver.getClass() alone doesn't give access to isCancelled() and setOnCancelHandler() — must cast: (ServerCallStreamObserver<T>) responseObserver. Bidi: both sides stream independently — don't wait for client to finish before responding.",
+  "rubric":[
+    {"category":"ZerodhaPriceFeed server streaming","points":20},
+    {"category":"SymbolRegistry","points":10},
+    {"category":"BatchTradeService client streaming","points":20},
+    {"category":"OrderBookBidiService bidirectional","points":15},
+    {"category":"4 tests (all pass)","points":30},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

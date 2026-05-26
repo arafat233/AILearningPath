@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t2",
+  "language": "java",
+  "module_id": "m15",
+  "module_name": "Microservices Architecture",
+  "topic_number": 2,
+  "name": "Feign Client",
+  "slug": "feign-client",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m15_t1"],
+    "concepts_taught": [
+      "feign_client_annotation",
+      "enable_feign_clients",
+      "feign_interface_declaration",
+      "feign_get_post_put_delete",
+      "feign_path_variable",
+      "feign_request_param",
+      "feign_request_body",
+      "feign_headers",
+      "feign_error_handling",
+      "feign_exception_mapping",
+      "feign_configuration",
+      "feign_fallback_concept",
+      "testing_feign_with_wiremock",
+      "resttemplate_vs_feign"
+    ],
+    "skills_developed": [
+      "declaring_feign_clients_as_interfaces",
+      "mapping_http_methods_to_feign_methods",
+      "handling_feign_errors",
+      "testing_feign_clients_with_wiremock",
+      "comparing_feign_vs_resttemplate"
+    ],
+    "career_relevance": "Feign Client is the standard for inter-service HTTP in Spring Cloud microservices. It's used at Flipkart, Swiggy, PhonePe, and every major Java microservices deployment. In interviews: 'How do you call another service?' → Feign Client. It works alongside Eureka (automatic service discovery) and Resilience4j (circuit breakers). After this topic, inter-service calls are clean, type-safe, and testable.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "RestTemplate inter-service calls accumulate friction:\n\n```java\n// RestTemplate approach — fragile, verbose:\npublic StockQuote getQuote(String symbol, String currency) {\n    try {\n        return restTemplate.getForObject(\n            \"http://market-service/api/stocks/\" + symbol\n                + \"/quote?currency=\" + currency,\n            StockQuote.class);\n    } catch (HttpClientErrorException.NotFound e) {\n        throw new SymbolNotFoundException(symbol);\n    } catch (HttpClientErrorException e) {\n        throw new MarketServiceException(\"Error: \" + e.getStatusCode());\n    } catch (ResourceAccessException e) {\n        throw new MarketServiceException(\"Market service unreachable\");\n    }\n}\n\npublic Order placeOrder(OrderRequest req) {\n    try {\n        return restTemplate.postForObject(\n            \"http://market-service/api/orders\", req, Order.class);\n    } catch (Exception e) { ... }\n}\n// Every method: URL string building, try-catch, manual mapping\n```\n\n**With Feign Client — the whole client in a few lines:**\n\n```java\n@FeignClient(name = \"market-service\")\npublic interface MarketServiceClient {\n    \n    @GetMapping(\"/api/stocks/{symbol}/quote\")\n    StockQuote getQuote(@PathVariable String symbol,\n                        @RequestParam String currency);\n    \n    @PostMapping(\"/api/orders\")\n    Order placeOrder(@RequestBody OrderRequest request);\n    \n    @GetMapping(\"/api/stocks\")\n    List<Stock> listAll();\n    \n    @DeleteMapping(\"/api/orders/{id}\")\n    void cancelOrder(@PathVariable String id);\n}\n\n// Use it — looks like a local method call:\nStockQuote quote = marketServiceClient.getQuote(\"TCS\", \"INR\");\nOrder order = marketServiceClient.placeOrder(new OrderRequest(...));\n```\n\nSpring generates the HTTP implementation at startup. No URL building. No try-catch per method. No response parsing. Same Spring MVC annotations you already know.",
+    "what_you_will_build": "By the end of this topic, you'll declare Feign Clients as annotated interfaces, handle Feign errors with custom decoders, configure timeouts, and test Feign clients with WireMock."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "feign_setup": "**Setting up Spring Cloud OpenFeign:**\n\n```xml\n<!-- pom.xml — Spring Cloud dependency management: -->\n<dependencyManagement>\n    <dependencies>\n        <dependency>\n            <groupId>org.springframework.cloud</groupId>\n            <artifactId>spring-cloud-dependencies</artifactId>\n            <version>2023.0.0</version>\n            <type>pom</type>\n            <scope>import</scope>\n        </dependency>\n    </dependencies>\n</dependencyManagement>\n\n<dependencies>\n    <dependency>\n        <groupId>org.springframework.cloud</groupId>\n        <artifactId>spring-cloud-starter-openfeign</artifactId>\n    </dependency>\n</dependencies>\n```\n\n```java\n// Enable on the Application class:\n@SpringBootApplication\n@EnableFeignClients  // activates Feign client generation\npublic class OrderServiceApplication {\n    public static void main(String[] args) { SpringApplication.run(OrderServiceApplication.class, args); }\n}\n```",
+
+      "feign_interface": "**Declaring a Feign Client interface:**\n\n```java\nimport org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n\n@FeignClient(name = \"market-service\",          // service name (matches spring.application.name)\n             url = \"${market.service.url}\")      // URL (hardcoded until Eureka in T15.3)\npublic interface MarketServiceClient {\n    \n    // GET /api/stocks — returns all stocks\n    @GetMapping(\"/api/stocks\")\n    List<StockDto> getAllStocks();\n    \n    // GET /api/stocks/{symbol} — path variable\n    @GetMapping(\"/api/stocks/{symbol}\")\n    StockDto getStock(@PathVariable String symbol);\n    \n    // GET /api/stocks/search?q=tata&limit=10 — query parameters\n    @GetMapping(\"/api/stocks/search\")\n    List<StockDto> searchStocks(@RequestParam String q,\n                                 @RequestParam(defaultValue = \"10\") int limit);\n    \n    // POST /api/orders — request body\n    @PostMapping(\"/api/orders\")\n    OrderDto placeOrder(@RequestBody PlaceOrderRequest request);\n    \n    // PUT /api/orders/{id} — path variable + body\n    @PutMapping(\"/api/orders/{id}\")\n    OrderDto updateOrder(@PathVariable String id,\n                          @RequestBody UpdateOrderRequest request);\n    \n    // DELETE /api/orders/{id} — path variable, void return\n    @DeleteMapping(\"/api/orders/{id}\")\n    void cancelOrder(@PathVariable String id);\n    \n    // Custom headers via @RequestHeader:\n    @GetMapping(\"/api/portfolio\")\n    PortfolioDto getPortfolio(@RequestHeader(\"X-User-Id\") String userId);\n}\n```\n\n**Configuration property:**\n```properties\n# application.properties:\nmarket.service.url=http://localhost:8081\n# In prod with Eureka: omit url= and let discovery handle it\n```",
+
+      "feign_error_handling": "**Handling Feign errors — the right way:**\n\n```java\nimport feign.Response;\nimport feign.codec.ErrorDecoder;\nimport org.springframework.http.HttpStatus;\n\n// Custom error decoder — maps HTTP status codes to exceptions:\npublic class MarketServiceErrorDecoder implements ErrorDecoder {\n    \n    @Override\n    public Exception decode(String methodKey, Response response) {\n        HttpStatus status = HttpStatus.resolve(response.status());\n        \n        if (status == null) return new RuntimeException(\"Unknown error: \" + response.status());\n        \n        return switch (status) {\n            case NOT_FOUND -> new SymbolNotFoundException(\n                \"Symbol not found (from market-service)\");\n            case CONFLICT -> new OrderConflictException(\n                \"Order conflict in market-service\");\n            case BAD_REQUEST -> new IllegalArgumentException(\n                \"Invalid request to market-service\");\n            case SERVICE_UNAVAILABLE -> new MarketServiceUnavailableException(\n                \"Market service is unavailable\");\n            default -> new RuntimeException(\n                \"Market service error: \" + response.status());\n        };\n    }\n}\n\n// Register in @Configuration:\n@Configuration\npublic class FeignConfig {\n    @Bean\n    public ErrorDecoder marketServiceErrorDecoder() {\n        return new MarketServiceErrorDecoder();\n    }\n}\n```\n\n**Or simpler — per-client configuration:**\n```java\n@FeignClient(name = \"market-service\",\n             url = \"${market.service.url}\",\n             configuration = FeignConfig.class)  // apply to this client only\npublic interface MarketServiceClient { ... }\n```",
+
+      "feign_configuration": "**Feign timeouts and logging:**\n\n```properties\n# application.properties — global Feign settings:\n# Connect timeout (ms):\nspring.cloud.openfeign.client.config.default.connect-timeout=5000\n# Read timeout (ms):\nspring.cloud.openfeign.client.config.default.read-timeout=5000\n\n# Per-client timeout (overrides default):\nspring.cloud.openfeign.client.config.market-service.connect-timeout=2000\nspring.cloud.openfeign.client.config.market-service.read-timeout=3000\n\n# Feign logging level (shows full request/response in DEBUG):\nspring.cloud.openfeign.client.config.market-service.logger-level=FULL\nlogging.level.com.codequest.order.client.MarketServiceClient=DEBUG\n```\n\n**Feign logging levels:**\n- `NONE`: no logging (default)\n- `BASIC`: method, URL, status, time\n- `HEADERS`: + request/response headers\n- `FULL`: + request/response body (development only — verbose!)",
+
+      "feign_vs_resttemplate": "**Feign vs RestTemplate — when to use which:**\n\n```\n╔══════════════════╦═══════════════════════╦═════════════════════════╗\n║                  ║  RestTemplate         ║  Feign Client           ║\n╠══════════════════╬═══════════════════════╬═════════════════════════╣\n║ Code style       ║ Imperative (write the ║ Declarative (declare    ║\n║                  ║ HTTP call)            ║ the contract)           ║\n╠══════════════════╬═══════════════════════╬═════════════════════════╣\n║ URL building     ║ Manual string concat  ║ @PathVariable,          ║\n║                  ║                       ║ @RequestParam — auto    ║\n╠══════════════════╬═══════════════════════╬═════════════════════════╣\n║ Error handling   ║ try-catch per method  ║ ErrorDecoder (once)     ║\n╠══════════════════╬═══════════════════════╬═════════════════════════╣\n║ Eureka discovery ║ Manual URL            ║ name= → automatic       ║\n╠══════════════════╬═══════════════════════╬═════════════════════════╣\n║ Testing          ║ MockRestServiceServer ║ WireMock (any HTTP)     ║\n╠══════════════════╬═══════════════════════╬═════════════════════════╣\n║ Best for         ║ Simple, few calls,    ║ Multiple endpoints,     ║\n║                  ║ non-standard HTTP     ║ standard REST           ║\n╚══════════════════╩═══════════════════════╩═════════════════════════╝\n\nRecommendation: use Feign for most inter-service calls in microservices.\nKeep RestTemplate for complex, non-standard HTTP interactions.\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) Feign Client generation at startup: Developer writes @FeignClient interface with @GetMapping methods. Feign reads annotations at runtime → generates proxy class that makes real HTTP calls. Proxy implements the interface. OrderService injects the interface and calls methods as if local. Spring Cloud OpenFeign shown as the generator. (2) Feign request lifecycle: OrderService calls marketClient.getQuote('TCS','INR') → Feign proxy intercepts → builds URL (http://market-service/api/stocks/TCS/quote?currency=INR) → sends HTTP GET → receives JSON response → Jackson deserializes to StockQuote → returned to OrderService. Error path: 404 response → ErrorDecoder → SymbolNotFoundException thrown.",
+      "alt_text": "Feign Client proxy generation and request lifecycle diagram"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Replace the RestTemplate calls in order-service with a Feign Client. The Feign interface declares the same operations with clean Spring MVC annotations. Add custom error handling.",
+
+    "problem_statement": "Refactor order-service to use Feign:\n1. Declare `MarketServiceClient` @FeignClient interface\n2. Add @EnableFeignClients to Application\n3. Write custom `MarketServiceErrorDecoder`\n4. Update `TradeService` to use the Feign client (inject interface, not RestTemplate)\n5. Test with WireMock",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Feign Client interface",
+        "details": "```java\nimport org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\n\n@FeignClient(\n    name = \"market-service\",\n    url = \"${market.service.url:http://localhost:8081}\",\n    configuration = MarketFeignConfig.class\n)\npublic interface MarketServiceClient {\n    \n    @GetMapping(\"/api/stocks/{symbol}/quote\")\n    StockQuote getQuote(@PathVariable String symbol,\n                         @RequestParam String currency);\n    \n    @GetMapping(\"/api/stocks\")\n    List<StockDto> listAll();\n    \n    @PostMapping(\"/api/market/orders\")\n    MarketOrderResult submitOrder(@RequestBody MarketOrderRequest req);\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Custom error decoder",
+        "details": "```java\n@Configuration\npublic class MarketFeignConfig {\n    @Bean\n    ErrorDecoder errorDecoder() {\n        return (methodKey, response) -> {\n            int status = response.status();\n            if (status == 404) return new SymbolNotFoundException(\"Symbol not found\");\n            if (status == 503) return new ServiceUnavailableException(\"Market service down\");\n            return new RuntimeException(\"Market service error: \" + status);\n        };\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "TradeService uses the interface",
+        "details": "```java\n@Service\npublic class TradeService {\n    private final MarketServiceClient marketClient;  // Feign interface injected\n    private final TradeOrderRepository repo;\n    \n    TradeService(MarketServiceClient marketClient, TradeOrderRepository repo) {\n        this.marketClient = marketClient; this.repo = repo;\n    }\n    \n    public TradeOrder executeTrade(String symbol, int qty) {\n        // Clean, no URL building, no try-catch per call:\n        StockQuote quote = marketClient.getQuote(symbol, \"INR\");\n        if (!quote.tradeable()) throw new IllegalStateException(symbol + \" not tradeable\");\n        return repo.save(new TradeOrder(symbol, qty, quote.price()));\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Application.java: @EnableFeignClients\n// MarketServiceClient.java: @FeignClient interface with 3 methods\n// MarketFeignConfig.java: custom ErrorDecoder\n// TradeService.java: injects MarketServiceClient, calls like local methods\n// application.properties: market.service.url=http://localhost:8081",
+
+    "expected_output": "# Startup:\nINFO  - Generating Feign client for MarketServiceClient\n\n# TradeService.executeTrade('TCS', 10):\n# Feign proxy calls: GET http://localhost:8081/api/stocks/TCS/quote?currency=INR\n# Receives: {\"symbol\":\"TCS\",\"price\":3890.0,\"tradeable\":true}\n# TradeOrder saved\n\n# Error case (symbol not found):\n# Feign receives 404 → MarketFeignConfig.errorDecoder → SymbolNotFoundException",
+
+    "things_to_notice": [
+      "@FeignClient(name='market-service', url='${market.service.url}') — the name is used by Eureka in Topic 15.3. When url= is omitted and Eureka is on the classpath, Feign asks Eureka for the URL of 'market-service'. In this topic, url= overrides with a hardcoded URL.",
+      "The Feign interface uses the exact same Spring MVC annotations as @RestController — @GetMapping, @PathVariable, @RequestParam, @RequestBody. If you know how to write a controller, you know how to write a Feign client. The annotations have the same meaning but from the CALLER's perspective.",
+      "TradeService injects MarketServiceClient — an interface. Spring generates the implementation at startup (like how JpaRepository generates SQL from method names). The Feign proxy is a Spring bean, injected by type, tested with mocks.",
+      "The custom ErrorDecoder handles ALL errors for this client in ONE place. Compare to RestTemplate: try-catch per method, same exception handling repeated everywhere. ErrorDecoder: write once, applies to all methods of this @FeignClient.",
+      "WireMock (used in tests) is an HTTP mock server — it starts a real HTTP server on a test port and returns pre-configured responses. Unlike MockRestServiceServer (which intercepts RestTemplate), WireMock works at the HTTP level — compatible with Feign, RestTemplate, or any HTTP client."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy order service",
+        "use_case": "Swiggy's order-service uses Feign clients to call restaurant-service, delivery-service, payment-service, and notification-service. The entire inter-service API for each downstream service is declared as a @FeignClient interface. When a new endpoint is added to restaurant-service, the order-service team adds one method to the RestaurantServiceClient interface. Clean, version-controlled contract in code."
+      },
+      {
+        "company_context": "PhonePe payment gateway",
+        "use_case": "PhonePe has separate services for fraud detection, bank routing, and reconciliation. Each is called via Feign. FraudServiceClient.checkTransaction(txnId) → @GetMapping('/fraud/{id}') — looks like a local method. The ErrorDecoder maps FRAUD_DETECTED (409) to FraudException, DOWN (503) to FraudServiceUnavailableException. Circuit breaker (Resilience4j, Topic 15.4) handles the 503 case with a fallback."
+      },
+      {
+        "company_context": "API versioning with Feign",
+        "use_case": "When market-service moves from v1 to v2 API, the MarketServiceClient interface changes the URL: `@GetMapping('/api/v2/stocks/{symbol}')`. All callers update their Feign interface — the change is explicit, in one place, tracked in Git. With RestTemplate, the URL string might be scattered across multiple service methods — harder to find and update consistently."
+      }
+    ],
+
+    "interview_relevance": "Feign Client interview questions:\n\n- **'What is Feign Client and why use it?'** → Declarative HTTP client. You declare a Java interface with Spring MVC annotations; Feign generates the HTTP implementation. Cleaner than RestTemplate for inter-service calls.\n- **'How do you handle errors in Feign?'** → Custom ErrorDecoder that maps HTTP status codes to exceptions. One class handles all errors for a client.\n- **'What is @FeignClient(name=...) vs url=...?'** → name is the service name registered in Eureka (used for discovery). url overrides Eureka with a specific URL (useful in dev or when not using discovery).\n- **'How do you test a Feign client?'** → WireMock: starts a real HTTP stub server. Point the @FeignClient url to localhost:WireMockPort.",
+
+    "real_world_workflow": "Daily Feign Client workflow:\n\n- New inter-service call: add a method to the existing @FeignClient interface\n- New error scenario: add a case to the ErrorDecoder\n- New service: create new @FeignClient interface\n- Test: add WireMock stub for the new endpoint"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_enable_feign_clients",
+      "what_students_get_wrong": "Declaring @FeignClient interfaces without @EnableFeignClients — Spring doesn't generate the implementations, injection fails.",
+      "remediation": "Add @EnableFeignClients to @SpringBootApplication (or a @Configuration class). Without it, Spring doesn't scan for @FeignClient interfaces and doesn't create the proxy beans. NoSuchBeanDefinitionException when trying to inject the interface.",
+      "detection_pattern": "NoSuchBeanDefinitionException for the @FeignClient interface type"
+    },
+    {
+      "gap_id": "feign_interface_not_public",
+      "what_students_get_wrong": "Declaring the @FeignClient interface without public visibility — Feign can't generate a proxy for package-private interfaces.",
+      "remediation": "Always declare @FeignClient interfaces as public. Package-private interfaces prevent Spring Cloud Feign from generating the proxy implementation.",
+      "detection_pattern": "Application context fails to load; FeignException or BeanCreationException"
+    },
+    {
+      "gap_id": "no_error_decoder",
+      "what_students_get_wrong": "Not handling Feign errors — a 404 from the downstream service causes FeignException (not a meaningful exception) that propagates as 500 to the caller.",
+      "remediation": "Always add an ErrorDecoder for production @FeignClient interfaces. Map common status codes (404, 409, 503) to meaningful domain exceptions. The ErrorDecoder is registered in a @Configuration class and applied via the `configuration=` attribute on @FeignClient.",
+      "detection_pattern": "FeignException.NotFound propagates to the HTTP response as 500"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@EnableFeignClients on @SpringBootApplication: activates Feign client generation",
+      "@FeignClient(name='svc', url='${svc.url}'): declare the interface for a downstream service",
+      "Same Spring MVC annotations as @RestController: @GetMapping, @PathVariable, @RequestParam, @RequestBody",
+      "@RequestHeader: add custom headers to Feign calls",
+      "Spring generates the proxy implementation at startup — inject interface by type",
+      "ErrorDecoder: maps HTTP status codes to domain exceptions — write once, covers all methods",
+      "configure via @FeignClient(configuration=FeignConfig.class): per-client settings",
+      "spring.cloud.openfeign.client.config.{name}.connect-timeout=5000",
+      "spring.cloud.openfeign.client.config.{name}.logger-level=FULL (for debugging)",
+      "WireMock: HTTP stub server for testing Feign (and any HTTP client)",
+      "Feign > RestTemplate for: standard REST, many endpoints, Eureka integration",
+      "RestTemplate > Feign for: complex non-standard HTTP, reactive code"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You call userClient.getUser('U999') via Feign. user-service returns 404. Your API returns 500. How do you fix it?",
+        "answer": "Add an ErrorDecoder to the Feign configuration: `if (status == 404) return new UserNotFoundException('User not found: U999')`. Then add @ExceptionHandler(UserNotFoundException.class) in @RestControllerAdvice to return 404 with a structured error body. Without ErrorDecoder, Feign wraps the 404 in a FeignException which propagates as 500. The ErrorDecoder translates HTTP status codes into meaningful domain exceptions — then your GlobalExceptionHandler handles them."
+      },
+      {
+        "question": "MarketServiceClient is a @FeignClient interface. Can you inject it directly into a test as @Autowired? What do you need in the test configuration?",
+        "answer": "Yes — Feign generates a concrete implementation at startup, which is a regular Spring bean. In @SpringBootTest, @Autowired MarketServiceClient works. But the Feign client will try to call the real URL (localhost:8081). For tests, either: (1) use WireMock to start a stub HTTP server and point @FeignClient url= to the WireMock port, (2) use @MockBean MarketServiceClient in @WebMvcTest (replaces Feign with a Mockito mock), or (3) override the url in test application.properties. @SpringBootTest(NONE) with WireMock is the most realistic."
+      },
+      {
+        "question": "What is the difference between @FeignClient(name='market-service') and @FeignClient(name='market-service', url='http://localhost:8081')?",
+        "answer": "Without url=: Feign uses Eureka (service discovery) to find the URL for 'market-service'. It queries Eureka registry for instances of the service named 'market-service' and load-balances across them. With url=: Feign uses the hardcoded URL, bypassing service discovery entirely. url= is used in development (no Eureka set up yet) or for services external to the cluster. In Topic 15.3 (Eureka), you'll remove url= and let Feign find services by name automatically."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Eureka Service Discovery** — right now, Feign client URLs are hardcoded (url='http://localhost:8081'). In production, services run on dynamic IPs in Kubernetes — you can't hardcode addresses. Eureka is a service registry: each microservice registers itself on startup ('I'm market-service at 10.0.1.45:8081'). Feign clients query Eureka: 'Where is market-service?' → gets the IP. When services scale to multiple instances, Feign load-balances across them automatically. After Topic 15.3, services find each other by name — no hardcoded URLs anywhere."
+  }
+}

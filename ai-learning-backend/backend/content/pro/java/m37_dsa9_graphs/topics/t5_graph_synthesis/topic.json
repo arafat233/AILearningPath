@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m37_t5",
+  "module_id": "m37",
+  "topic_number": 5,
+  "name": "Graph Synthesis \u2014 MST, Kruskal, Union-Find Applications",
+  "slug": "graph-synthesis-mst-union-find",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m37_t1",
+      "java_m37_t4"
+    ],
+    "concepts_taught": [
+      "graph-synthesis-mst-union-find"
+    ],
+    "career_relevance": "Core Graph Synthesis \u2014 MST, Kruskal, Union-Find Applications patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Graph Synthesis \u2014 MST, Kruskal, Union-Find Applications"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Kruskal MST: sort edges by weight; union-find to avoid cycles; O(E log E)",
+        "Prim MST: min-heap of (cost, node); O((V+E) log V)",
+        "Redundant Connection: union-find; first edge where both endpoints already connected",
+        "Number of Operations to Make Network Connected: union-find + count extra edges",
+        "Critical Connections: Tarjan's bridge finding with disc/low arrays",
+        "Swim in Rising Water: Dijkstra on grid (level = max cell value on path)",
+        "Accounts Merge: union-find on emails; group by root"
+      ],
+      "next_topic_preview": "Module 37 complete! Next: M38 Sorting."
+    }
+  }
+}

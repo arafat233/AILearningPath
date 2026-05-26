@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m31_t5",
+  "language": "java",
+  "module_id": "m31",
+  "topic_number": 5,
+  "name": "String DP \u2014 LCS, Edit Distance, Palindromic Subsequence",
+  "slug": "string-dp-lcs-edit-distance",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 65,
+    "prerequisites": [
+      "java_m31_t1",
+      "java_m30_t3"
+    ],
+    "concepts_taught": [
+      "longest_common_subsequence",
+      "edit_distance",
+      "longest_palindromic_subsequence",
+      "minimum_insertions_palindrome",
+      "wildcard_matching",
+      "string_dp_pattern"
+    ],
+    "skills_developed": [
+      "2d_dp_for_strings",
+      "state_definition_for_strings",
+      "lcs_dp_table",
+      "edit_distance_operations"
+    ],
+    "career_relevance": "Edit distance powers Zerodha's typo correction in stock search. LCS underlies diff tools and version control. These 2D DP problems appear in senior engineering interviews at Flipkart, Amazon, and FAANG India.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha stock search typo correction:\nUser types: 'RELINCE' (misspelled)\nCorrect: 'RELIANCE'\n\nEdit distance: 2 operations (insert 'A', insert 'A')\nTop matches by edit distance \u2264 3 shown as suggestions\n\nEdit distance O(mn) DP:\n  m=7, n=8: 56 cells\n  For 100K stocks: 56 \u00d7 100K = 5.6M ops\n  Fast enough for real-time suggestions\n```",
+    "what_you_will_build": "LCS, Edit Distance, Longest Palindromic Subsequence \u2014 3 core string DP patterns."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "lcs": "**Longest Common Subsequence \u2014 2D DP:**\n\n```java\n// dp[i][j] = LCS length of s1[0..i-1] and s2[0..j-1]\nint[][] dp = new int[m+1][n+1];\nfor(int i=1;i<=m;i++) for(int j=1;j<=n;j++) {\n    if(s1.charAt(i-1)==s2.charAt(j-1))\n        dp[i][j]=dp[i-1][j-1]+1;    // match: extend\n    else\n        dp[i][j]=Math.max(dp[i-1][j],dp[i][j-1]); // skip one\n}\n// dp[m][n] = LCS length\n// O(mn) time, O(mn) space (or O(n) with rolling rows)\n```",
+      "edit_distance": "**Edit Distance \u2014 3 operations:**\n\n```java\n// dp[i][j] = min edits to convert s1[0..i-1] to s2[0..j-1]\n// Operations: insert, delete, replace (all cost 1)\nfor(int i=1;i<=m;i++) for(int j=1;j<=n;j++) {\n    if(s1.charAt(i-1)==s2.charAt(j-1))\n        dp[i][j]=dp[i-1][j-1];              // same char: no cost\n    else\n        dp[i][j]=1+Math.min(dp[i-1][j-1],  // replace\n                   Math.min(dp[i-1][j],     // delete from s1\n                            dp[i][j-1]));   // insert into s1\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "LCS DP table for s1='ABCBDAB' and s2='BDCAB'. 8\u00d76 table (including row/col 0). Filled cell by cell: match diagonal+1, no-match max(above,left). Arrows show the optimal alignment traced back. Answer: dp[7][5]=4 (BCAB or BDAB). Second diagram: Edit distance table for 'horse' to 'ros'.",
+      "alt_text": "LCS and edit distance DP tables with fill order"
+    },
+    "worked_example": {
+      "scenario": "Compute edit distance: 'horse' \u2192 'ros'",
+      "problem_statement": "Minimum operations (insert, delete, replace) to convert 'horse' to 'ros'. Answer: 3.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Base cases",
+          "details": "dp[i][0]=i: delete all i chars. dp[0][j]=j: insert all j chars. Fill row by row."
+        }
+      ],
+      "final_code": "int[][] dp=new int[m+1][n+1]; for(int i=0;i<=m;i++)dp[i][0]=i; for(int j=0;j<=n;j++)dp[0][j]=j; for(int i=1;i<=m;i++) for(int j=1;j<=n;j++) dp[i][j]=s1.charAt(i-1)==s2.charAt(j-1)?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],Math.min(dp[i-1][j],dp[i][j-1]));",
+      "expected_output": "distance('horse','ros')=3",
+      "things_to_notice": [
+        "dp[i][0]=i: need i deletions to go from s1[0..i-1] to empty",
+        "Three operations: replace (diagonal), delete (from above), insert (from left)",
+        "LCS and edit distance are related: editDist = m + n - 2\u00d7LCS for unit costs"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha",
+          "use_case": "Autocomplete and spell correction for stock tickers. Edit distance \u2264 2 \u2192 show suggestion. LCS-based diff for trade record comparison."
+        }
+      ],
+      "interview_relevance": "LCS and edit distance are the two canonical 2D string DP problems. Know: state definition, recurrence, base cases. Mention O(n) space optimization (rolling rows) for bonus points.",
+      "real_world_workflow": "String DP pattern: (1) define dp[i][j] clearly, (2) identify base cases (empty string), (3) write recurrence (match vs no-match), (4) fill bottom-up, (5) read answer from dp[m][n]."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "dp_state_definition",
+        "what_students_get_wrong": "Not clearly defining what dp[i][j] represents. For LCS: dp[i][j] = LCS of s1[0..i-1] and s2[0..j-1] \u2014 note the 1-indexing. dp[0][j]=0 (empty s1), dp[i][0]=0 (empty s2). Students often index from 0 without the +1 buffer row/column.",
+        "remediation": "Always use size (m+1)\u00d7(n+1) for string DP. Row 0 = empty s1 (base case). Column 0 = empty s2. s1[0..i-1] represented by dp[i]. Index i means we've considered i characters of s1.",
+        "detection_pattern": "Student uses dp[m][n] array (not m+1, n+1) and gets ArrayIndexOutOfBounds or wrong answer"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "LCS dp[i][j]: match\u2192diagonal+1; no-match\u2192max(above,left)",
+        "Edit distance dp[i][j]: match\u2192diagonal; no-match\u21921+min(diag,above,left)",
+        "Base cases: dp[0][j]=j (edit dist) or 0 (LCS). dp[i][0]=i or 0",
+        "Space O(n): only need previous row \u2192 rolling array optimization",
+        "Palindromic subsequence: LCS(s, reverse(s))",
+        "Min insertions for palindrome: n - LPS(s) (= n - LCS(s, rev(s)))"
+      ],
+      "self_check_questions": [
+        {
+          "question": "How are LCS and Edit Distance related?",
+          "answer": "For unit operation costs (insert, delete, replace all cost 1): editDistance(s1, s2) = m + n - 2\u00d7LCS(s1, s2). Intuition: the longest common subsequence represents characters we don't need to change. The remaining characters in s1 (m - LCS) need to be deleted, and the remaining in s2 (n - LCS) need to be inserted. That's (m-LCS) + (n-LCS) = m+n-2\u00d7LCS total operations. This is only for unit costs without replacement \u2014 Levenshtein distance with replacement has a different formula."
+        }
+      ],
+      "next_topic_preview": "Module 31 complete! Next: M32 DSA4 \u2014 Linked Lists."
+    }
+  }
+}

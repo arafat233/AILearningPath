@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m21_t3",
+  "language": "java",
+  "module_id": "m21",
+  "module_name": "Production Deployment",
+  "topic_number": 3,
+  "name": "Kubernetes ConfigMaps, Secrets & Probes",
+  "slug": "k8s-configmaps-secrets-probes",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m21_t2"],
+    "concepts_taught": ["configmap_overview","secret_overview","configmap_env_vars","configmap_volume_mount","secret_env","secret_volume","spring_boot_configmap_integration","graceful_shutdown","preStop_hook","terminationGracePeriodSeconds"],
+    "skills_developed": ["creating_configmap_for_spring_boot","creating_k8s_secret","mounting_config_as_volume","configuring_graceful_shutdown"],
+    "career_relevance": "One Docker image should run everywhere — dev, staging, prod — with different configs. ConfigMaps and Secrets externalize configuration from the image. After this topic: same image tag deployed to 3 environments, each using its own ConfigMap for database URLs and Secrets for passwords.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Without ConfigMaps: separate Docker images for each environment (dev/staging/prod) with hardcoded URLs. A code change requires 3 builds. Secret accidentally included in image.\n\nWith ConfigMaps + Secrets:\n```\nSame image: razorpay/payment-service:v2.1\nDev:     ConfigMap → db=dev-postgres:5432   Secret → db_password=dev123\nStaging: ConfigMap → db=staging-postgres:5432 Secret → db_password=staging456  \nProd:    ConfigMap → db=prod-postgres:5432  Secret → db_password=${vault}\n```",
+    "what_you_will_build": "ConfigMap for Spring Boot application properties, Secret for database credentials, and graceful shutdown configuration."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "configmap": "**ConfigMap for Spring Boot:**\n\n```yaml\napiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: payment-config\n  namespace: payments\ndata:\n  application.yml: |\n    spring:\n      datasource:\n        url: jdbc:postgresql://prod-postgres:5432/payments\n    management:\n      tracing.sampling.probability: '0.1'\n    logging.level.com.razorpay: INFO\n```\n\n```yaml\n# In Deployment:\nvolumeMounts:\n- name: config\n  mountPath: /app/config\nvolumes:\n- name: config\n  configMap:\n    name: payment-config\n\n# Spring Boot picks up: /app/config/application.yml automatically\n# (Spring Boot searches config/ directory by default)\n```",
+      "secret": "**Secret for credentials:**\n\n```yaml\napiVersion: v1\nkind: Secret\nmetadata:\n  name: payment-secrets\n  namespace: payments\ntype: Opaque\ndata:\n  db_password: cGF5bWVudHMxMjM=  # base64: payments123\n  redis_password: cmVkaXMxMjM=   # base64: redis123\n```\n\n```yaml\n# In Deployment env:\n- name: SPRING_DATASOURCE_PASSWORD\n  valueFrom:\n    secretKeyRef:\n      name: payment-secrets\n      key: db_password\n```",
+      "graceful_shutdown": "**Graceful shutdown for k8s:**\n\n```yaml\n# Deployment spec:\nterminationGracePeriodSeconds: 60\ncontainers:\n- lifecycle:\n    preStop:\n      exec:\n        command: ['/bin/sleep', '5']  # wait for load balancer to remove pod\n\n# application.yml:\n# server.shutdown: graceful\n# spring.lifecycle.timeout-per-shutdown-phase: 50s\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "ConfigMap and Secret flow: ConfigMap mounted as file at /app/config/application.yml → Spring Boot reads it. Secret injected as env var SPRING_DATASOURCE_PASSWORD. Both separate from Docker image. Three environments shown with same image tag but different ConfigMap/Secret values.", "alt_text": "ConfigMap as volume mount and Secret as env var for Spring Boot deployment" }
+  },
+  "worked_example": {
+    "scenario": "Configure Razorpay payment service with ConfigMap for app config and Secret for DB password.",
+    "problem_statement": "1. ConfigMap: application.yml with prod DB URL, log level, sampling\n2. Secret: db_password and redis_password (base64)\n3. Deployment: volume mount for ConfigMap, env from Secret\n4. Graceful shutdown: preStop + terminationGracePeriod",
+    "step_by_step_solution": [{ "step": 1, "action": "Why mount as file not env vars?", "details": "Spring Boot reads application.yml from config/ directory — full YAML file as ConfigMap is the most natural mapping. Env vars work too but are limited to simple key=value. Complex nested YAML config (spring.datasource.hikari.maximumPoolSize etc.) is easier as file mount." }],
+    "final_code": "# Apply: kubectl apply -f configmap.yml -f secrets.yml -f deployment.yml",
+    "expected_output": "configmap/payment-config created\nsecret/payment-secrets created\ndeployment.apps/payment-service configured",
+    "things_to_notice": [
+      "base64 encoding: Secrets are base64-encoded, not encrypted! They're still accessible to anyone with RBAC access to the namespace. For true encryption: use external secret managers (Vault, AWS Secrets Manager).",
+      "preStop sleep: When k8s terminates a pod, it updates iptables rules to stop routing traffic — but this takes ~2-5 seconds. Without preStop sleep: app stops receiving traffic abruptly while some requests are in-flight. 5-second sleep: allows load balancer to remove pod from rotation before app shutdown begins.",
+      "server.shutdown=graceful: tells Spring Boot's embedded Tomcat to finish processing current requests before shutting down. Without this: in-flight requests get a connection reset mid-response.",
+      "ConfigMap live update: if you update a ConfigMap and it's mounted as a volume, the file updates within ~1 minute. Spring Boot won't automatically reload unless you use Spring Cloud Config or have @RefreshScope beans."
+    ]
+  },
+  "applications": {
+    "industry_examples": [{ "company_context": "Razorpay multi-environment config", "use_case": "Same Docker image deployed to 3 environments. Each environment has its own ConfigMap (different DB URLs, log levels, tracing rates) and Secret (different DB passwords). Jenkins pipeline applies the correct ConfigMap for each environment." }],
+    "interview_relevance": "'How do you configure a Spring Boot service differently in different k8s environments?' → ConfigMaps for non-sensitive config (DB URLs, log levels, feature flags). Secrets for sensitive values (passwords, API keys). Same Docker image, different ConfigMaps/Secrets per namespace. Mount ConfigMap as application.yml file in config/ directory.",
+    "real_world_workflow": "Workflow: build image → push to registry → update ConfigMap in target environment → kubectl apply → rolling update picks up new config."
+  },
+  "common_gaps": [
+    { "gap_id": "secrets_not_encrypted", "what_students_get_wrong": "Treating k8s Secrets as secure because they're 'secret'. k8s Secrets are base64 encoded (not encrypted) by default.", "remediation": "Enable etcd encryption at rest (k8s cluster config). Use external secret managers (HashiCorp Vault, AWS Secrets Manager, GCP Secret Manager) for production. Never commit Secret YAML with actual values to Git.", "detection_pattern": "kubectl get secret payment-secrets -o yaml → reveals base64 values → decode to plaintext" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "ConfigMap: non-sensitive config (URLs, levels, rates). Secret: sensitive (passwords, API keys).",
+      "Base64 ≠ encryption: k8s Secrets are encoded, not secure without etcd encryption at rest",
+      "Volume mount: best for YAML config files. Env vars: best for individual values.",
+      "preStop sleep 5s: allows load balancer to drain before Spring Boot shutdown",
+      "server.shutdown=graceful: finishes in-flight requests before JVM exits",
+      "terminationGracePeriodSeconds: k8s hard timeout after SIGTERM is sent"
+    ],
+    "self_check_questions": [
+      { "question": "Why use preStop sleep AND server.shutdown=graceful together?", "answer": "They solve two different race conditions. preStop sleep (5s): when k8s sends SIGTERM, it simultaneously starts removing the pod from the Service endpoint list. But iptables/load balancer updates take ~2-5s. Without preStop, new requests arrive at the pod for ~5s after SIGTERM. The sleep ensures no new requests arrive during Spring Boot shutdown. server.shutdown=graceful: handles in-flight requests that were already in-flight when SIGTERM arrived. It lets Spring Boot's embedded Tomcat finish processing existing requests instead of dropping them. Together: new requests stop arriving (preStop), existing requests complete (graceful shutdown), then JVM exits cleanly." }
+    ],
+    "next_topic_preview": "Next: CI/CD with GitHub Actions — automatically building, testing, and deploying the payment service on every code push."
+  }
+}

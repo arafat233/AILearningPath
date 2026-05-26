@@ -1,0 +1,49 @@
+{
+  "schema_version":"1.0","topic_id":"java_m23_t3","language":"java",
+  "module_id":"m23","module_name":"Security","topic_number":3,
+  "name":"Secrets Management (HashiCorp Vault)",
+  "slug":"secrets-management-vault",
+  "metadata":{
+    "difficulty":7,"estimated_minutes":50,
+    "prerequisites":["java_m21_t3","java_m23_t2"],
+    "concepts_taught":["vault_overview","dynamic_secrets","vault_kv_store","spring_cloud_vault","vault_database_secrets","vault_pki","secret_rotation","vault_kubernetes_auth","vault_leases","approle_auth"],
+    "skills_developed":["connecting_spring_boot_to_vault","dynamic_db_credentials","secret_rotation_zero_downtime","vault_kubernetes_integration"],
+    "career_relevance":"k8s Secrets are base64 (not encrypted). Razorpay stores all production credentials in HashiCorp Vault — DB passwords, API keys, TLS certificates. Vault generates short-lived database credentials per service instance. If a credential leaks: it expires in 1 hour automatically. After this topic, you can replace every hardcoded secret with a Vault-managed dynamic credential.",
+    "tone_profile":{"primary":"professional_friendly","intensity":"encouraging","formality":"modern_casual"}
+  },
+  "hook":{
+    "real_world_problem":"Razorpay: 50 microservices, each needs a DB password. Without Vault:\n```\nDB password in application.yml (committed to git) → credential leak\nSame password used everywhere → one leak = all services compromised\nPassword rotation: update 50 services simultaneously → downtime risk\n```\n\nWith Vault Dynamic Secrets:\n```\nVault generates: unique DB password per service instance (1-hour TTL)\nLeak of one credential: expires in 1 hour, affects only that instance\nRotation: Vault rotates root DB password → all dynamic creds also rotate\nZero git commits containing any credentials → zero credential leaks\n```",
+    "what_you_will_build":"Spring Boot application reading secrets from Vault via Spring Cloud Vault, with dynamic database credentials."
+  },
+  "teaching":{
+    "concept_explanation":{
+      "spring_cloud_vault":"**Spring Cloud Vault configuration:**\n\n```yaml\n# bootstrap.yml (loads before application.yml):\nspring:\n  cloud:\n    vault:\n      uri: https://vault.razorpay.internal:8200\n      authentication: KUBERNETES   # use k8s ServiceAccount token\n      kubernetes:\n        role: payment-service       # Vault role bound to this k8s SA\n        service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token\n      kv:\n        enabled: true\n        backend: secret             # KV v2 backend\n        application-name: payment-service\n      database:\n        enabled: true\n        role: payment-service-db    # Vault role for dynamic DB creds\n        backend: database           # database secrets engine\n```\n\n```java\n// Secrets from Vault KV: available as @Value or @ConfigurationProperties:\n// Path: secret/payment-service → Spring Cloud Vault maps to Spring properties\n@Value(\"${payment.visa.api-key}\")\nprivate String visaApiKey;  // fetched from Vault, not application.yml\n\n// Dynamic DB credentials: HikariCP auto-configured with Vault-issued password:\n// Vault generates: username=v-k8s-payment-abc123, password=random-32-chars, TTL=1h\n// Spring Cloud Vault: sets spring.datasource.username + password from Vault lease\n```",
+      "dynamic_secrets":"**Vault Dynamic DB Secrets:**\n```\nVault database engine:\n  Connected to PostgreSQL with admin credentials (stored in Vault, never in code)\n  \nWhen payment-service starts:\n  1. Authenticates to Vault via k8s ServiceAccount\n  2. Requests DB credentials: vault read database/creds/payment-service-db\n  3. Vault: CREATE ROLE v-k8s-payment-abc123 WITH LOGIN PASSWORD 'x' VALID UNTIL NOW()+1h\n  4. Returns: username, password, lease_id, lease_duration=3600\n  5. Spring Boot: uses these credentials for HikariCP\n  6. Before expiry (at 80%): Vault renews the lease\n  7. Pod restart: gets fresh credentials (old ones expire automatically)\n```"
+    },
+    "visual_aid":{"type":"diagram","description":"Vault architecture: payment-service pod → k8s ServiceAccount token → Vault Kubernetes Auth → Vault issues lease → returns credentials. Vault Database Engine: connected to PostgreSQL, generates short-lived user per request. Key comparison: left side shows static credentials in git (red: dangerous), right side shows dynamic Vault credentials (green: safe). Lease timeline showing auto-renewal at 80% TTL.","alt_text":"HashiCorp Vault dynamic secrets for Spring Boot: k8s auth → dynamic DB credentials"},
+    "worked_example":{
+      "scenario":"Configure Razorpay payment service to get all secrets from Vault.",
+      "problem_statement":"1. bootstrap.yml with Vault k8s auth\n2. Dynamic DB credentials via database secrets engine\n3. KV secrets: Visa API key, Redis password\n4. @SpringBootTest: @Value reads from mock Vault",
+      "step_by_step_solution":[{"step":1,"action":"Why dynamic secrets?","details":"Static password: same value forever → if leaked, attacker has permanent access.\nDynamic: Vault generates a unique password per deployment with 1-hour TTL.\nLeak: credential expires in max 1 hour. Blast radius: only that one instance.\nAudit: every credential use is logged in Vault → know exactly when and where a secret was used."}],
+      "final_code":"# vault/policies/payment-service.hcl:\n# path 'secret/data/payment-service' { capabilities = ['read'] }\n# path 'database/creds/payment-service-db' { capabilities = ['read'] }",
+      "expected_output":"[Spring Boot startup] Fetching secrets from Vault...\n[Vault] Authenticated via Kubernetes: role=payment-service\n[Vault] DB credentials issued: username=v-k8s-payment-8a3f, TTL=3600s\n[HikariCP] Using dynamic credentials (expires 2024-06-15 20:00:00)\n[Vault] Renewing lease at 80% (2880s remaining)",
+      "things_to_notice":[
+        "bootstrap.yml vs application.yml: Spring Cloud Vault must load in the bootstrap phase (before application context). bootstrap.yml is processed first. If using Spring Boot 2.4+: use spring.config.import=vault:// instead.",
+        "KUBERNETES auth: most secure for k8s deployments — no static token needed. The pod's ServiceAccount token (auto-mounted by k8s) authenticates to Vault. No secrets needed to GET secrets!",
+        "Lease renewal: Vault leases (dynamic secrets) must be renewed before they expire. Spring Cloud Vault does this automatically. If the service is down longer than the TTL: restart gets new credentials (old ones expired).",
+        "VaultTemplate: programmatic Vault access for writing secrets, rotating, or reading arbitrary paths. Use for secrets that don't map cleanly to Spring properties."
+      ]
+    },
+    "applications":{
+      "industry_examples":[{"company_context":"Razorpay production secrets","use_case":"500+ Vault leases active at any time (50 services × ~10 secrets each). Each lease has TTL 1-24 hours. Vault audit log: every secret access recorded with pod name, timestamp, and lease ID. Security incident: revoke all leases for compromised service in seconds via `vault revoke -prefix service/payment-service`."}],
+      "interview_relevance":"'How do you manage secrets in production?' → HashiCorp Vault with dynamic secrets. Database passwords are unique per pod instance with 1-hour TTL. API keys stored in Vault KV. Service authenticates via Kubernetes ServiceAccount (no static token needed). Secret rotation happens automatically via Vault lease mechanism.",
+      "real_world_workflow":"Vault workflow: (1) developer stores secret in Vault (not git), (2) service authenticates to Vault via k8s SA, (3) Vault issues short-lived credentials, (4) Spring Boot uses credentials, (5) Vault auto-renews before expiry, (6) rotation: update root credential in Vault → all dynamic creds rotate."
+    },
+    "common_gaps":[{"gap_id":"bootstrap_vs_application","what_students_get_wrong":"Putting Vault config in application.yml instead of bootstrap.yml. Vault properties aren't loaded because the application context starts before Vault integration.","remediation":"Spring Cloud Vault config goes in bootstrap.yml (or spring.config.import=vault:// in Spring Boot 2.4+). Vault must be initialized before any @Value injection happens. Test: add spring-cloud-starter-bootstrap dependency if using bootstrap.yml approach.","detection_pattern":"@Value injects empty strings or defaults; application starts but secrets not fetched from Vault"}],
+    "reflection":{
+      "key_takeaways":["Dynamic secrets: unique credential per service instance, short TTL","Vault k8s auth: no static tokens — uses pod's SA token (most secure)","bootstrap.yml: Vault config must load before application context","VaultTemplate: programmatic secret access for advanced scenarios","Lease renewal: auto-managed by Spring Cloud Vault","Revoke prefix: instantly revoke all credentials for a compromised service","Vault audit log: every secret access recorded with full context"],
+      "self_check_questions":[{"question":"Why is Vault's dynamic secret safer than a static DB password, even if both are stored securely?","answer":"Static password: if compromised (memory dump, log file, network sniff), the attacker has permanent access until the password is manually rotated. Manual rotation: requires coordinating all services simultaneously (downtime risk). Dynamic Vault secret: unique per pod instance, expires in 1 hour. If compromised: the attacker has at most 1 hour of access. No coordination needed for rotation — Vault handles it. Additionally: Vault audit log records every secret fetch with the pod name and timestamp, so you know exactly which instance was compromised and when. Static secrets have no such audit trail."}],
+      "next_topic_preview":"Next: Input Validation & OWASP — preventing SQL injection, XSS, path traversal, and mass assignment vulnerabilities in Spring Boot."
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m22_t2_proj",
+  "linked_topic": "java_m22_t2",
+  "level": "mini",
+  "name": "Razorpay Payment Search — Database Query Optimization",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+  "scenario": "Razorpay's payment search API takes 4.2 seconds for merchant dashboard queries. EXPLAIN ANALYZE shows a sequential scan of 50M rows. Add targeted indexes, optimize JPA queries, and add query metrics.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "V8__payment_search_indexes.sql: CREATE INDEX CONCURRENTLY for (merchant_id, created_at DESC) and partial index WHERE status='PENDING'. Both with IF NOT EXISTS.", "weight": 20 },
+      { "id": "req_2", "description": "PaymentRepository: findWithMerchant using JOIN FETCH + HINT_READONLY + HINT_FETCH_SIZE. keysetPage with cursor-based WHERE id > :cursor.", "weight": 20 },
+      { "id": "req_3", "description": "QueryMetricsService: Timer 'db.query.duration' wrapping query calls. Counter 'db.query.slow' for queries > 100ms.", "weight": 15 },
+      { "id": "req_4", "description": "@DataJpaTest (3 tests): JOIN FETCH fires 1 query (Statistics assertion), keyset returns ≤ pageSize results, timer records after each timed call. All 3 pass.", "weight": 40 },
+      { "id": "req_5", "description": "README: EXPLAIN ANALYZE output before/after showing Seq Scan → Index Scan improvement.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "pg_stat_statements SQL queries: top 10 by mean_exec_time, queries with most shared_blks_read. Document in src/main/resources/sql/slow-query-analysis.sql.", "weight": 15 },
+      { "id": "bonus_2", "description": "Batch insert: PaymentBatchService.saveBatch() with hibernate.jdbc.batch_size=50. Test: 500 inserts complete in < 2s.", "weight": 20 },
+      { "id": "bonus_3", "description": "Read replica routing: AbstractRoutingDataSource + @Transactional(readOnly=true) → replica. Test: routing lookup key is REPLICA for readOnly transaction.", "weight": 25 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. CONCURRENTLY index creation: cannot run inside a transaction; add spring.flyway.mixed=true OR split into separate migration file. Composite index column order: equality columns (merchant_id) before range column (created_at). HINT_READONLY='true': use the string 'true', not boolean. Statistics.getQueryExecutionCount(): returns total query count since last clear() — call clear() in @BeforeEach for isolation. Keyset cursor: WHERE p.id > :cursor ORDER BY p.id ASC — cursor is the last seen ID from the previous page.",
+  "rubric": [
+    { "category": "V8__payment_search_indexes.sql", "points": 20 },
+    { "category": "PaymentRepository (JOIN FETCH + keyset)", "points": 20 },
+    { "category": "QueryMetricsService (Timer + Counter)", "points": 15 },
+    { "category": "@DataJpaTest (3 tests)", "points": 40 },
+    { "category": "README EXPLAIN output", "points": 5 },
+    { "category": "Bonus", "points": 60 }
+  ]
+}

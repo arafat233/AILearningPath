@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t1",
+  "language": "java",
+  "module_id": "m8",
+  "module_name": "Lambda Expressions & Streams",
+  "topic_number": 1,
+  "name": "Lambda Expressions",
+  "slug": "lambda-expressions",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m5_t4", "java_m6_t1", "java_m5_t5"],
+    "concepts_taught": [
+      "what_are_lambdas",
+      "functional_interface_concept",
+      "lambda_syntax_forms",
+      "lambda_as_anonymous_function",
+      "lambda_vs_anonymous_class",
+      "effectively_final_variables",
+      "lambdas_with_comparator",
+      "lambdas_with_list_sort_and_foreach",
+      "lambda_type_inference",
+      "method_references_preview"
+    ],
+    "skills_developed": [
+      "writing_lambda_expressions",
+      "using_lambdas_with_comparator",
+      "using_lambdas_with_foreach",
+      "replacing_anonymous_classes_with_lambdas",
+      "reading_lambda_syntax_confidently"
+    ],
+    "career_relevance": "Lambdas are the most important syntax change in Java 8 — and Java 8 is still the most widely deployed version in enterprise backends. Every modern Java codebase uses lambdas constantly: list.sort(comparator), list.forEach(action), stream.filter(predicate). You cannot read a modern Spring Boot codebase without understanding lambdas. Before lambdas, Comparator required 5 lines of anonymous class boilerplate. After lambdas: one line. After this topic, you read and write lambdas fluently — the foundation for streams in Topics 8.3-8.5.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "From Topic 5.5, you wrote Comparators like this:\n\n```java\nCollections.sort(products, new Comparator<Product>() {\n    @Override\n    public int compare(Product a, Product b) {\n        return Double.compare(a.getPrice(), b.getPrice());\n    }\n});\n```\n\n5 lines. For something that could be expressed as: *'compare two products by price.'*\n\nWith a lambda:\n\n```java\nCollections.sort(products, (a, b) -> Double.compare(a.getPrice(), b.getPrice()));\n```\n\nOne line. Same logic. No boilerplate.\n\nBefore Java 8, every Comparator, every Runnable, every ActionListener required a full anonymous class. Java 8 introduced lambdas — a concise way to pass a FUNCTION as a value. The anonymous class boilerplate collapses to an arrow `->` and the actual logic.\n\nBut lambdas aren't just syntactic sugar. They're a fundamental shift: **treating functions as values** — passing them around, storing them in variables, returning them from methods. This unlocks an entire functional programming paradigm in Java. Today you learn the syntax. Starting Topic 8.3, you use them to transform data in powerful ways.",
+    "what_you_will_build": "By the end of this topic, you'll write lambdas in all their forms (single expression, block body, no parameters, multiple parameters), understand what a functional interface is, use lambdas with Comparator and forEach, understand variable capture (effectively final), and be ready for the Stream API."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "what_are_lambdas": "A **lambda expression** is an anonymous function — a function without a name that can be passed as a value.\n\n```java\n// Lambda: (parameters) -> body\n(int x, int y) -> x + y          // takes two ints, returns sum\n(String s)     -> s.toUpperCase() // takes String, returns uppercase\n()             -> System.out.println(\"hello\")  // no params, no return\n(Product p)    -> p.getPrice() > 1000  // returns boolean\n```\n\nA lambda is NOT a method — it has no name, no access modifier, no return type declared. It's a value you can pass to a method or store in a variable.\n\n**What can lambdas replace?** Any place Java expected an object whose class has exactly ONE abstract method — a **functional interface**. The lambda IS that one method's implementation.",
+
+      "functional_interface": "A **functional interface** is an interface with exactly one abstract method:\n\n```java\n// These are all functional interfaces:\n@FunctionalInterface\ninterface Comparator<T> { int compare(T a, T b); }  // one abstract method\n\n@FunctionalInterface\ninterface Runnable { void run(); }  // one abstract method\n\n@FunctionalInterface\ninterface Predicate<T> { boolean test(T t); }  // one abstract method\n```\n\n`@FunctionalInterface` is an optional annotation — it tells the compiler to enforce that there's only one abstract method. You can omit it, but it's good documentation.\n\n**Why does this matter?** When Java sees a lambda being passed where a functional interface is expected, it uses the lambda as the implementation of that single abstract method:\n\n```java\nComparator<String> byLength = (a, b) -> Integer.compare(a.length(), b.length());\n// Java knows: Comparator has one method: compare(T a, T b)\n// The lambda IS that compare method\n```",
+
+      "syntax_forms": "**Lambda syntax — three forms:**\n\n**Form 1: Expression lambda** (most common — single expression that IS the return value)\n```java\n(int x) -> x * 2          // returns x * 2\n(String s) -> s.length()  // returns length\n(a, b) -> a + b           // type inferred, returns sum\n```\n\n**Form 2: Block lambda** (when you need multiple statements — explicit return required)\n```java\n(String s) -> {\n    String upper = s.toUpperCase();\n    return upper + \"!\";\n}\n\n(int a, int b) -> {\n    if (a > b) return a;\n    return b;\n}\n```\n\n**Form 3: No parameters**\n```java\n() -> System.out.println(\"hello\")\n() -> 42  // returns 42\n() -> Math.random()\n```\n\n**Type inference**: Java infers parameter types from the functional interface context:\n```java\nComparator<String> byLen = (a, b) -> Integer.compare(a.length(), b.length());\n//                          ↑ ↑ — Java knows these are Strings from Comparator<String>\n\n// Optional: explicit types (only when inference is ambiguous):\nComparator<String> byLen = (String a, String b) -> Integer.compare(a.length(), b.length());\n```\n\n**Single parameter — parentheses optional**:\n```java\n(s) -> s.toUpperCase()  // OK\ns -> s.toUpperCase()    // also OK — parens optional for single param\n```",
+
+      "lambda_vs_anonymous": "**Lambda vs anonymous class — they're equivalent, lambda is cleaner:**\n\n```java\n// Anonymous class (old way):\nComparator<String> byLen = new Comparator<String>() {\n    @Override\n    public int compare(String a, String b) {\n        return Integer.compare(a.length(), b.length());\n    }\n};\n\n// Lambda (new way — same effect):\nComparator<String> byLen = (a, b) -> Integer.compare(a.length(), b.length());\n```\n\nLambda is:\n- Shorter (1 line vs 5)\n- No `@Override`, no return type, no `new Comparator<>(){}` noise\n- Just the logic that matters\n\n**One important difference**: lambdas don't create a new `this` reference. Inside an anonymous class, `this` refers to the anonymous class instance. Inside a lambda, `this` refers to the enclosing class. This rarely matters but can come up.",
+
+      "lambdas_with_sort": "**Lambda with sort — the most common use:**\n\n```java\nList<String> names = Arrays.asList(\"Priya\", \"Aisha\", \"Raj\");\n\n// Sort alphabetically\nnames.sort((a, b) -> a.compareTo(b));\n\n// Sort by length ascending\nnames.sort((a, b) -> Integer.compare(a.length(), b.length()));\n\n// Sort by length descending\nnames.sort((a, b) -> Integer.compare(b.length(), a.length()));\n\n// Multi-criteria: length asc, then alpha for ties\nnames.sort((a, b) -> {\n    int cmp = Integer.compare(a.length(), b.length());\n    return cmp != 0 ? cmp : a.compareTo(b);\n});\n\n// Even shorter with Comparator factory methods:\nnames.sort(Comparator.comparingInt(String::length));\nnames.sort(Comparator.comparing(s -> s));\n```",
+
+      "lambdas_with_foreach": "**Lambda with forEach — iterate and act:**\n\n```java\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n\n// Print each\nnames.forEach(name -> System.out.println(name));\n\n// Transform and print\nnames.forEach(name -> System.out.println(name.toUpperCase()));\n\n// With Map\nMap<String, Integer> scores = new HashMap<>();\nscores.put(\"Aisha\", 95);\nscores.put(\"Raj\", 87);\nscores.forEach((name, score) -> \n    System.out.println(name + \": \" + score));\n```\n\n`forEach` takes a `Consumer<T>` — a functional interface with one method `accept(T t)`. The lambda IS the accept implementation.\n\n`Map.forEach` takes a `BiConsumer<K, V>` — two parameters, no return.",
+
+      "variable_capture": "**Variable capture** — lambdas can use variables from their enclosing scope:\n\n```java\nString prefix = \"Hello\";\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\");\n\n// Lambda captures 'prefix' from outer scope\nnames.forEach(name -> System.out.println(prefix + \", \" + name));\n```\n\n**The rule**: captured variables must be **effectively final** — either declared `final` or never modified after initial assignment:\n\n```java\nString prefix = \"Hello\";    // effectively final (never reassigned)\nnames.forEach(name -> System.out.println(prefix + \", \" + name));  // OK\n\nprefix = \"Hi\";              // NOT effectively final (reassigned)\nnames.forEach(name -> System.out.println(prefix + \", \" + name));  // COMPILE ERROR\n```\n\n**Why**: lambdas might execute later (in another thread). If the variable could change, the lambda would see an inconsistent value. Java enforces effectively-final to prevent this subtle bug.",
+
+      "method_references_preview": "**Method references** — even shorter lambda syntax (when the lambda just calls one method):\n\n```java\n// Lambda calling a method:\nnames.forEach(name -> System.out.println(name));\n// Method reference — same thing:\nnames.forEach(System.out::println);\n\n// Lambda calling instance method on the parameter:\nnames.sort((a, b) -> a.compareTo(b));\n// Method reference:\nnames.sort(String::compareTo);\n\n// Lambda calling static method:\nList<String> strings = Arrays.asList(\"1\", \"2\", \"3\");\nstrings.stream().map(s -> Integer.parseInt(s))...\n// Method reference:\nstrings.stream().map(Integer::parseInt)...\n```\n\n`ClassName::methodName` or `object::methodName`. We'll use these throughout Module 8. For now, recognize the pattern: if the lambda just calls one method, you can shorten it to a method reference."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three things: (1) Lambda syntax breakdown — annotated arrow diagram: (params) -> body. Parameters on left, arrow in middle, body on right. Three forms shown: no-params `() -> ...`, single-param `x -> ...`, block `(x,y) -> { ...; return ...; }`. (2) Functional interface + lambda connection — interface box with one abstract method, arrow labeled 'lambda IS this method'. (3) Before/after comparison: 5-line anonymous Comparator vs 1-line lambda. Side arrows pointing to the same output (they're equivalent). Bottom: variable capture — effectively final rule with visual of variable being 'locked' after first assignment.",
+      "alt_text": "Lambda syntax forms, functional interface connection, and before/after anonymous class comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Upgrade the Product catalog sort system from Topic 5.5 (which used anonymous class Comparators) to use lambdas. Show every anonymous class being collapsed to a lambda, and demonstrate the power of composing Comparators with lambda-based expressions.",
+
+    "problem_statement": "Refactor `ProductSorter` from anonymous classes to lambdas. Show 5 sort variations:\n1. By price ascending\n2. By price descending\n3. By name alphabetical\n4. By category then price\n5. By discounted price (computed field — shows lambda calling method)",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Before: anonymous class comparators",
+        "details": "```java\n// OLD WAY — each is 5 lines\nComparator<Product> byPrice = new Comparator<Product>() {\n    @Override\n    public int compare(Product a, Product b) {\n        return Double.compare(a.getPrice(), b.getPrice());\n    }\n};\n```"
+      },
+      {
+        "step": 2,
+        "action": "After: lambda comparators — all 5",
+        "details": "```java\n// LAMBDA WAY — each is 1 line\nComparator<Product> byPriceAsc    = (a, b) -> Double.compare(a.getPrice(), b.getPrice());\nComparator<Product> byPriceDesc   = (a, b) -> Double.compare(b.getPrice(), a.getPrice());\nComparator<Product> byName        = (a, b) -> a.getName().compareTo(b.getName());\nComparator<Product> byCatThenPrice = (a, b) -> {\n    int cat = a.getCategory().compareTo(b.getCategory());\n    return cat != 0 ? cat : Double.compare(a.getPrice(), b.getPrice());\n};\nComparator<Product> byFinalPrice  = (a, b) -> Double.compare(a.finalPrice(), b.finalPrice());\n```\n\nThe block lambda for byCatThenPrice has two lines — requires `{...}` and explicit `return`."
+      },
+      {
+        "step": 3,
+        "action": "Using the lambdas with list.sort() and forEach",
+        "details": "```java\nList<Product> catalog = new ArrayList<>(Arrays.asList(\n    new Product(\"Mouse\",    \"Electronics\", 799,  10),\n    new Product(\"Keyboard\", \"Electronics\", 1999, 20),\n    new Product(\"Java Book\",\"Books\",        649,  15),\n    new Product(\"USB Hub\",  \"Electronics\",  499,  25)\n));\n\n// Sort by price, print with forEach\ncatalog.sort(byPriceAsc);\nSystem.out.println(\"=== By Price ===\");\ncatalog.forEach(p -> System.out.printf(\"%-12s ₹%.0f%n\", p.getName(), p.getPrice()));\n\n// Sort by final price (after discount)\ncatalog.sort(byFinalPrice);\nSystem.out.println(\"\\n=== By Final Price ===\");\ncatalog.forEach(p -> System.out.printf(\"%-12s ₹%.2f (%.0f%% off)%n\",\n    p.getName(), p.finalPrice(), p.getDiscount()));\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\n\nclass Product {\n    private String name, category;\n    private double price, discount;\n    \n    Product(String name, String category, double price, double discount) {\n        this.name = name; this.category = category;\n        this.price = price; this.discount = discount;\n    }\n    \n    public String getName()     { return name; }\n    public String getCategory() { return category; }\n    public double getPrice()    { return price; }\n    public double getDiscount() { return discount; }\n    public double finalPrice()  { return price * (1 - discount / 100); }\n    public String toString()    { return name; }\n}\n\npublic class LambdaSort {\n    public static void main(String[] args) {\n        List<Product> catalog = new ArrayList<>(Arrays.asList(\n            new Product(\"Mouse\",     \"Electronics\", 799,  10),\n            new Product(\"Keyboard\",  \"Electronics\", 1999, 20),\n            new Product(\"Java Book\", \"Books\",        649,  15),\n            new Product(\"USB Hub\",   \"Electronics\",  499,  25)\n        ));\n        \n        // Lambda Comparators\n        Comparator<Product> byPrice     = (a, b) -> Double.compare(a.getPrice(), b.getPrice());\n        Comparator<Product> byFinalPrice = (a, b) -> Double.compare(a.finalPrice(), b.finalPrice());\n        Comparator<Product> byName       = (a, b) -> a.getName().compareTo(b.getName());\n        \n        // Sort and print with lambda forEach\n        catalog.sort(byPrice);\n        System.out.println(\"=== By Price ===\");\n        catalog.forEach(p -> System.out.printf(\"%-12s ₹%.0f%n\", p.getName(), p.getPrice()));\n        \n        catalog.sort(byFinalPrice);\n        System.out.println(\"\\n=== By Final Price ===\");\n        catalog.forEach(p -> System.out.printf(\"%-12s ₹%.2f (%.0f%% off)%n\",\n            p.getName(), p.finalPrice(), p.getDiscount()));\n        \n        catalog.sort(byName);\n        System.out.println(\"\\n=== Alphabetical ===\");\n        catalog.forEach(p -> System.out.println(p.getName()));\n    }\n}",
+
+    "expected_output": "=== By Price ===\nUSB Hub      ₹499\nJava Book    ₹649\nMouse        ₹799\nKeyboard     ₹1999\n\n=== By Final Price ===\nUSB Hub      ₹374.25 (25% off)\nJava Book    ₹551.65 (15% off)\nMouse        ₹719.10 (10% off)\nKeyboard     ₹1599.20 (20% off)\n\n=== Alphabetical ===\nJava Book\nKeyboard\nMouse\nUSB Hub",
+
+    "things_to_notice": [
+      "Each Comparator went from 5 lines (anonymous class) to 1 line (lambda). The logic is IDENTICAL — the boilerplate simply vanished.",
+      "`byFinalPrice` calls `a.finalPrice()` — a method on the Product object. The lambda has full access to all Product methods via the parameter.",
+      "`catalog.forEach(p -> ...)` replaces `for (Product p : catalog)`. Cleaner for simple iteration. The `p ->` names the variable, just like a for-each loop variable.",
+      "`System.out.printf` inside forEach: the lambda body can be any valid Java expression or block.",
+      "All three sort criteria produce different orderings of the same 4 products — same objects, same list, different Comparators. This is the power of passing behavior as a value.",
+      "The sort results are cumulative — each `catalog.sort()` reorders the existing list."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot web applications",
+        "use_case": "Spring Boot uses lambdas everywhere: routing (`.route(GET('/users'), req -> ...)` in functional endpoints), security configuration (`.authorizeRequests(auth -> auth.antMatchers('/admin').hasRole('ADMIN'))`), reactive programming (`.flatMap(user -> fetchOrders(user))`). You cannot read a modern Spring Boot codebase without lambda fluency."
+      },
+      {
+        "company_context": "Android UI programming",
+        "use_case": "Android button click handlers went from 5-line anonymous classes to one-line lambdas: `button.setOnClickListener(view -> startActivity(intent))`. Adapter ViewHolder bind methods: `items.forEach(item -> holder.bind(item))`. Lambdas are the standard Android style since SDK 24+."
+      },
+      {
+        "company_context": "Flipkart / e-commerce sort and filter",
+        "use_case": "Search result sorting: `results.sort((a, b) -> Double.compare(b.getRelevanceScore(), a.getRelevanceScore()))`. Filter pipelines: `products.removeIf(p -> !p.isInStock())`. These one-liners replace what used to be separate method implementations."
+      }
+    ],
+
+    "interview_relevance": "Lambda questions at every Java developer level:\n\n- **'What is a lambda expression?'** — Anonymous function; syntactic shorthand for implementing a functional interface.\n- **'What is a functional interface?'** — Interface with exactly one abstract method. `@FunctionalInterface` annotation enforces it.\n- **'What is effectively final?'** — Variable never reassigned after initial assignment. Required for lambda capture.\n- **'How do you sort a List<Employee> by salary descending?'** → `list.sort((a, b) -> Double.compare(b.getSalary(), a.getSalary()))`\n- **'How is a lambda different from an anonymous class?'** → Lambda has no `this`, no new instance, concise syntax. Functionally equivalent for single-method interfaces.",
+
+    "real_world_workflow": "Daily lambda usage:\n\n- Every list sort: `list.sort((a, b) -> ...)`\n- forEach for side effects: `list.forEach(item -> process(item))`\n- removeIf: `list.removeIf(item -> condition)` (from Topic 6.1 — now you know WHY it takes a lambda)\n- Map.forEach: `map.forEach((k, v) -> ...)`\n- Event handlers, callbacks, Spring security config\n- Reading code: every `->` in a codebase is a lambda — fluent reading is critical"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "not_effectively_final",
+      "what_students_get_wrong": "Trying to modify a captured variable inside a lambda — compile error.",
+      "remediation": "Variables captured by lambdas must be effectively final (never reassigned). To accumulate values, use an array trick (`int[] count = {0}; list.forEach(x -> count[0]++)`) or use streams with reduction.",
+      "detection_pattern": "Compile error: 'Local variable X defined in an enclosing scope must be final or effectively final'"
+    },
+    {
+      "gap_id": "block_lambda_missing_return",
+      "what_students_get_wrong": "Using block lambda `{...}` but forgetting the explicit `return` statement.",
+      "remediation": "Expression lambda (`(a,b) -> expr`) — implicit return. Block lambda (`(a,b) -> { ...; }`) — must have explicit `return`. Compile error if missing.",
+      "detection_pattern": "Compile error: 'Missing return statement'"
+    },
+    {
+      "gap_id": "lambda_without_functional_interface",
+      "what_students_get_wrong": "Trying to assign a lambda to a non-functional interface type.",
+      "remediation": "Lambdas only work with functional interfaces (exactly one abstract method). The type on the left side determines which functional interface the lambda implements.",
+      "detection_pattern": "Compile error: 'The target type of this expression must be a functional interface'"
+    },
+    {
+      "gap_id": "parentheses_confusion",
+      "what_students_get_wrong": "Not knowing when to include/omit parentheses around parameters.",
+      "remediation": "Zero or two+ parameters → always parentheses: `() -> ...`, `(a, b) -> ...`. Single parameter → optional: `x -> ...` or `(x) -> ...`. Both forms work.",
+      "detection_pattern": "Syntax confusion in writing lambdas"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Lambda: anonymous function passed as a value. Syntax: `(params) -> body`",
+      "Functional interface: exactly one abstract method. Lambda = implementation of that method.",
+      "Three forms: expression `(a,b) -> a+b`, block `(a,b) -> { ...; return ...; }`, no-params `() -> expr`",
+      "Type inferred from context — don't need to declare parameter types in most cases",
+      "Single parameter: parentheses optional (`x -> expr` or `(x) -> expr`)",
+      "Block body requires explicit `return`. Expression body: implicit return.",
+      "Lambda vs anonymous class: equivalent, lambda is cleaner, lambda's `this` = enclosing class",
+      "Variable capture: captured variables must be effectively final (never reassigned)",
+      "`list.sort(lambda)`, `list.forEach(lambda)`, `map.forEach(lambda)` — daily usage",
+      "Method reference `::` is even shorter when lambda just calls one method (Topic 8.2)"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What does this lambda do and what type is it?\n`(String s) -> s.length() > 5`",
+        "answer": "It takes a String parameter and returns a boolean — whether the string length is greater than 5. The type is `Predicate<String>` (functional interface with `boolean test(T t)`). It could also be used anywhere a functional interface with `boolean f(String s)` signature is expected."
+      },
+      {
+        "question": "Why does this fail to compile?\n```java\nint count = 0;\nlist.forEach(item -> count++);  // compile error\n```",
+        "answer": "The lambda tries to modify `count`, making it NOT effectively final. Lambdas can only capture variables that are never reassigned after initial assignment. Fix 1: use an array: `int[] count = {0}; list.forEach(item -> count[0]++)`. Fix 2: use Stream.count() or Collectors.counting() (covered in Topics 8.3-8.4) which don't require a mutable variable."
+      },
+      {
+        "question": "Convert to a lambda:\n```java\nnew Runnable() {\n    @Override\n    public void run() {\n        System.out.println(\"Hello\");\n    }\n}\n```",
+        "answer": "`() -> System.out.println('Hello')`\n\nRunnable has one abstract method: `void run()`. No parameters, no return value. The lambda body is the print statement. No parentheses around the body since it's a single statement (though `() -> { System.out.println('Hello'); }` also works)."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Functional Interfaces** — the four standard functional interfaces Java provides: `Predicate<T>` (boolean test), `Function<T,R>` (transform), `Consumer<T>` (act, no return), `Supplier<T>` (produce, no input). Once you know these, you can use lambdas in ANY context, not just Comparator and forEach. Then Topic 8.3 opens the Stream API — where all of this comes together into a powerful data processing pipeline."
+  }
+}

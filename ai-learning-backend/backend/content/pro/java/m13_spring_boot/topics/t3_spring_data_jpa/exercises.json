@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t3",
+  "topic_name": "Spring Data JPA",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m13_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What SQL does JpaRepository.findAll() generate?",
+      "scenario": "JpaRepository translates Java calls to SQL automatically.",
+      "instructions": "Given this entity and repository, what SQL is executed for each call?\n\n```java\n@Entity class Order { @Id String id; String status; double amount; }\ninterface OrderRepo extends JpaRepository<Order, String> {}\n\n// In a service:\norderRepo.save(new Order(\"O1\", \"PENDING\", 1500));\norderRepo.findById(\"O1\");\norderRepo.findAll();\norderRepo.deleteById(\"O1\");\norderRepo.count();\n```",
+      "expected_solution": "INSERT INTO order (status, amount, id) VALUES (?,?,?)\nSELECT ... FROM order WHERE id=?\nSELECT ... FROM order\nDELETE FROM order WHERE id=?\nSELECT COUNT(*) FROM order",
+      "test_cases": [
+        { "type": "text_match", "expected": "INSERT INTO order (status, amount, id) VALUES (?,?,?)\nSELECT ... FROM order WHERE id=?\nSELECT ... FROM order\nDELETE FROM order WHERE id=?\nSELECT COUNT(*) FROM order" }
+      ],
+      "hints": [
+        "save() → INSERT (new) or UPDATE (existing)",
+        "findById() → SELECT WHERE id = ?",
+        "count() → SELECT COUNT(*)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the @Entity class",
+      "scenario": "JPA requires @Entity, @Id, and no-arg constructor.",
+      "instructions": "Fill in the blanks to make this a valid JPA entity.",
+      "starter_code": "@_______\n@Table(name = \"orders\")\npublic class Order {\n    @__\n    @GeneratedValue(strategy = GenerationType.UUID)\n    private String id;\n    private String status;\n    private double amount;\n    \n    protected ______() {}  // required by JPA\n    \n    public Order(String status, double amount) {\n        this.status = status; this.amount = amount;\n    }\n}",
+      "expected_solution": "@Entity\n@Table(name = \"orders\")\npublic class Order {\n    @Id\n    @GeneratedValue(strategy = GenerationType.UUID)\n    private String id;\n    private String status;\n    private double amount;\n    \n    protected Order() {}\n    \n    public Order(String status, double amount) {\n        this.status = status; this.amount = amount;\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Entity",  "hint": "Marks class as a JPA-managed table" },
+        { "position": 2, "answer": "Id",      "hint": "Marks the primary key field" },
+        { "position": 3, "answer": "Order",   "hint": "The no-arg constructor must match the class name" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Entity + @Table: declare this class as a JPA entity",
+        "@Id: the primary key",
+        "protected no-arg constructor: Hibernate requirement"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal @Entity and JpaRepository",
+      "scenario": "The simplest possible JPA entity + repository.",
+      "instructions": "Write a minimal @Entity `StockItem` (fields: id String, symbol String, qty int) and its `StockItemRepository` extending JpaRepository. Include the no-arg constructor.",
+      "starter_code": "// @Entity StockItem + StockItemRepository\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.JpaRepository;\n\n@Entity\npublic class StockItem {\n    @Id @GeneratedValue(strategy = GenerationType.UUID)\n    private String id;\n    private String symbol;\n    private int qty;\n    \n    protected StockItem() {}\n    public StockItem(String symbol, int qty) { this.symbol=symbol; this.qty=qty; }\n    public String getId()     { return id; }\n    public String getSymbol() { return symbol; }\n    public int    getQty()    { return qty; }\n}\n\npublic interface StockItemRepository extends JpaRepository<StockItem, String> {}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Id @GeneratedValue on the id field",
+        "protected no-arg constructor is mandatory",
+        "JpaRepository<EntityType, IdType>"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m13_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Derived query methods — name parsing",
+      "scenario": "Spring generates SQL from method names.",
+      "instructions": "Add 5 derived query methods to `ProductRepository`:\n1. Find products by category\n2. Find products cheaper than a max price\n3. Find products whose name contains a search string (case-insensitive)\n4. Check if a product with a given name exists\n5. Count products by category",
+      "starter_code": "import org.springframework.data.jpa.repository.JpaRepository;\nimport java.util.*;\n// ProductRepository with 5 derived query methods\n",
+      "expected_solution": "import org.springframework.data.jpa.repository.JpaRepository;\nimport java.util.*;\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    List<Product> findByCategory(String category);\n    List<Product> findByPriceLessThan(double maxPrice);\n    List<Product> findByNameContainingIgnoreCase(String query);\n    boolean existsByName(String name);\n    long countByCategory(String category);\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "findBy + FieldName → WHERE field = ?",
+        "LessThan → <, ContainingIgnoreCase → LIKE %?% case-insensitive",
+        "existsBy returns boolean; countBy returns long"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m13_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@DataJpaTest — test save and findById",
+      "scenario": "@DataJpaTest loads H2 + JPA only — fast repository testing.",
+      "instructions": "Write a @DataJpaTest for `StockItemRepository`:\n1. Save a StockItem → id is assigned\n2. findById returns the saved item\n3. findById for non-existent id → empty Optional",
+      "starter_code": "// StockItem @Entity and StockItemRepository as in Ex 3\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nclass StockItemRepositoryTest {\n    // Write @DataJpaTest tests\n}",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@DataJpaTest\nclass StockItemRepositoryTest {\n    @Autowired StockItemRepository repo;\n    \n    @Test void save_assignsId() {\n        StockItem item = repo.save(new StockItem(\"TCS\", 100));\n        assertNotNull(item.getId());\n    }\n    @Test void findById_savedItem_returnsItem() {\n        StockItem saved = repo.save(new StockItem(\"RELIANCE\", 50));\n        var found = repo.findById(saved.getId());\n        assertTrue(found.isPresent());\n        assertEquals(\"RELIANCE\", found.get().getSymbol());\n    }\n    @Test void findById_unknownId_returnsEmpty() {\n        assertTrue(repo.findById(\"UNKNOWN-ID\").isEmpty());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@DataJpaTest loads H2 + JPA in-memory, no full Spring context",
+        "@Autowired StockItemRepository — Spring injects it",
+        "Each test runs in a rollback transaction — clean state"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Column customization",
+      "scenario": "@Column lets you customize the database column.",
+      "instructions": "Write an @Entity `Employee` with:\n- `id` (UUID, auto-generated)\n- `fullName` → column 'full_name', not null, max 100 chars\n- `email` → unique, not null\n- `salary` → not null, column 'monthly_salary'\n- `active` → default true (handled in Java constructor)\n- Required no-arg constructor and all-field constructor",
+      "starter_code": "// @Entity Employee with custom @Column annotations\n",
+      "expected_solution": "import jakarta.persistence.*;\n@Entity\npublic class Employee {\n    @Id @GeneratedValue(strategy=GenerationType.UUID)\n    private String id;\n    \n    @Column(name=\"full_name\", nullable=false, length=100)\n    private String fullName;\n    \n    @Column(unique=true, nullable=false)\n    private String email;\n    \n    @Column(name=\"monthly_salary\", nullable=false)\n    private double salary;\n    \n    private boolean active = true;\n    \n    protected Employee() {}\n    public Employee(String fullName, String email, double salary) {\n        this.fullName=fullName; this.email=email; this.salary=salary;\n    }\n    public String getId()       { return id; }\n    public String getFullName() { return fullName; }\n    public String getEmail()    { return email; }\n    public double getSalary()   { return salary; }\n    public boolean isActive()   { return active; }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Column(name='col_name', nullable=false, length=100, unique=true)",
+        "active=true in field declaration: Java default, not DB constraint",
+        "No @Column on id: @Id + @GeneratedValue handles it"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@DataJpaTest — test derived queries",
+      "scenario": "Test that derived query methods return the right data.",
+      "instructions": "Write @DataJpaTest tests for `ProductRepository`:\n1. findByCategory('Electronics') returns 2 of 3 saved products\n2. findByPriceLessThan(1000) returns only the cheap product\n3. findByNameContainingIgnoreCase('mouse') finds case-insensitively\n4. existsByName returns true/false correctly",
+      "starter_code": "// Product @Entity with name, price, category fields\n// ProductRepository with findByCategory, findByPriceLessThan,\n//   findByNameContainingIgnoreCase, existsByName\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@DataJpaTest\nclass ProductRepositoryTest {\n    @Autowired ProductRepository repo;\n    // 4 tests\n}",
+      "expected_solution": "@DataJpaTest\nclass ProductRepositoryTest {\n    @Autowired ProductRepository repo;\n    \n    @BeforeEach void seed() {\n        repo.save(new Product(\"Wireless Mouse\", 799,   \"Electronics\"));\n        repo.save(new Product(\"Keyboard\",       1999,  \"Electronics\"));\n        repo.save(new Product(\"Office Chair\",   5000,  \"Furniture\"));\n    }\n    @Test void findByCategory_electronics_returns2() {\n        assertEquals(2, repo.findByCategory(\"Electronics\").size());\n    }\n    @Test void findByPriceLessThan_1000_returnsMouse() {\n        var cheap = repo.findByPriceLessThan(1000);\n        assertEquals(1, cheap.size());\n        assertEquals(\"Wireless Mouse\", cheap.get(0).getName());\n    }\n    @Test void findByNameContaining_mouse_caseInsensitive() {\n        var results = repo.findByNameContainingIgnoreCase(\"MOUSE\");\n        assertEquals(1, results.size());\n    }\n    @Test void existsByName_correctBooleans() {\n        assertTrue(repo.existsByName(\"Keyboard\"));\n        assertFalse(repo.existsByName(\"Monitor\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "@BeforeEach seed() adds test data — each test gets a fresh transaction",
+        "@DataJpaTest rolls back each test — seed() re-runs before each",
+        "findByPriceLessThan(1000): only Mouse at 799 qualifies"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@Query — custom JPQL",
+      "scenario": "@Query writes JPQL when derived names aren't expressive enough.",
+      "instructions": "Add two @Query methods to `OrderRepository`:\n1. Find orders by userId with amount above a threshold (JPQL)\n2. Find total amount by userId (JPQL aggregation returning Double)\n\nTest both with @DataJpaTest.",
+      "starter_code": "@Entity class Order {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String userId; String status; double amount;\n    protected Order() {}\n    Order(String userId, String status, double amount) { this.userId=userId; this.status=status; this.amount=amount; }\n    String getId()     { return id; }\n    String getUserId() { return userId; }\n    double getAmount() { return amount; }\n}\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport java.util.*;\n// OrderRepository with 2 @Query methods\n// @DataJpaTest class\n",
+      "expected_solution": "// (Order entity as above)\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport java.util.*;\npublic interface OrderRepository extends JpaRepository<Order, String> {\n    @Query(\"SELECT o FROM Order o WHERE o.userId = :uid AND o.amount > :min\")\n    List<Order> findLargeOrdersByUser(@Param(\"uid\") String userId, @Param(\"min\") double minAmount);\n    \n    @Query(\"SELECT SUM(o.amount) FROM Order o WHERE o.userId = :uid\")\n    Double sumAmountByUser(@Param(\"uid\") String userId);\n}\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@DataJpaTest\nclass OrderRepositoryTest {\n    @Autowired OrderRepository repo;\n    @BeforeEach void seed() {\n        repo.save(new Order(\"U01\",\"PAID\",500));\n        repo.save(new Order(\"U01\",\"PAID\",8000));\n        repo.save(new Order(\"U02\",\"PAID\",300));\n    }\n    @Test void findLargeOrdersByUser_U01_above1000() {\n        var large = repo.findLargeOrdersByUser(\"U01\", 1000);\n        assertEquals(1, large.size());\n        assertEquals(8000, large.get(0).getAmount(), 0.01);\n    }\n    @Test void sumAmountByUser_U01_returns8500() {\n        assertEquals(8500, repo.sumAmountByUser(\"U01\"), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "@Query uses JPQL: entity names (Order), field names (o.amount), not table/column names",
+        "@Param('uid') links :uid placeholder to method parameter",
+        "SUM returns null if no rows — return type Double (nullable)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m13_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@Transactional service with JPA",
+      "scenario": "@Transactional ensures all-or-nothing database operations.",
+      "instructions": "Write `TransferService.transfer(fromId, toId, amount)` that:\n1. Loads both accounts from AccountRepository\n2. Throws if either doesn't exist or insufficient balance\n3. Deducts from sender, credits receiver, saves both\n4. If any step fails, whole transaction rolls back\n\nAnnotate correctly. Test with @DataJpaTest.",
+      "starter_code": "@Entity class Account {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String owner; double balance;\n    protected Account() {}\n    Account(String owner, double balance) { this.owner=owner; this.balance=balance; }\n    String getId()     { return id; }\n    String getOwner()  { return owner; }\n    double getBalance(){ return balance; }\n    void debit(double a)  { if(a>balance) throw new IllegalStateException(\"Insufficient\"); balance-=a; }\n    void credit(double a) { balance+=a; }\n}\npublic interface AccountRepository extends JpaRepository<Account, String> {}\n// Write TransferService + test\n",
+      "expected_solution": "// (Account and AccountRepository as above)\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n@Service\n@Transactional\npublic class TransferService {\n    private final AccountRepository repo;\n    TransferService(AccountRepository repo) { this.repo=repo; }\n    \n    public void transfer(String fromId, String toId, double amount) {\n        Account from = repo.findById(fromId).orElseThrow(() -> new IllegalArgumentException(\"Not found: \" + fromId));\n        Account to   = repo.findById(toId).orElseThrow(() -> new IllegalArgumentException(\"Not found: \" + toId));\n        from.debit(amount);\n        to.credit(amount);\n        repo.save(from);\n        repo.save(to);\n    }\n}\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@DataJpaTest\n@Import(TransferService.class)\nclass TransferServiceTest {\n    @Autowired AccountRepository repo;\n    @Autowired TransferService service;\n    Account a, b;\n    @BeforeEach void seed() {\n        a = repo.save(new Account(\"Aisha\", 1000));\n        b = repo.save(new Account(\"Raj\",   500));\n    }\n    @Test void transfer_validAmount_movesBalance() {\n        service.transfer(a.getId(), b.getId(), 300);\n        assertEquals(700, repo.findById(a.getId()).get().getBalance(), 0.01);\n        assertEquals(800, repo.findById(b.getId()).get().getBalance(), 0.01);\n    }\n    @Test void transfer_insufficientFunds_throws() {\n        assertThrows(IllegalStateException.class, () -> service.transfer(a.getId(), b.getId(), 2000));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "@DataJpaTest + @Import(TransferService.class): import service bean into slice test",
+        "@Transactional on service: both saves in same transaction",
+        "Insufficient funds: debit throws → transaction rolls back"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m13_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "JPQL vs SQL — field names vs column names",
+      "scenario": "JPQL uses Java entity field names, not database column names.",
+      "instructions": "Given this entity, identify which @Query is correct:\n\n```java\n@Entity @Table(name=\"employees\")\nclass Employee {\n    @Id String id;\n    @Column(name=\"full_name\") String fullName;\n    @Column(name=\"dept_code\") String department;\n    double salary;\n}\n```\n\nQuery A: `'SELECT e FROM Employee e WHERE e.full_name = :name'`\nQuery B: `'SELECT e FROM Employee e WHERE e.fullName = :name'`\nQuery C: `'SELECT * FROM employees WHERE dept_code = :dept'` (no nativeQuery=true)\nQuery D: `'SELECT e FROM Employee e WHERE e.department = :dept'`",
+      "expected_solution": "Correct: B and D\nWrong: A (uses column name full_name, not field name fullName)\nWrong: C (native SQL syntax without nativeQuery=true; also uses column name)",
+      "test_cases": [
+        { "type": "text_match", "expected": "Correct: B and D\nWrong: A (uses column name full_name, not field name fullName)\nWrong: C (native SQL syntax without nativeQuery=true; also uses column name)" }
+      ],
+      "hints": [
+        "JPQL: use Java field names (fullName, department)",
+        "@Column(name='full_name') changes the column but NOT the JPQL name",
+        "Native SQL: needs nativeQuery=true AND uses column names"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete product CRUD with JPA",
+      "scenario": "Full CRUD service backed by JPA repository.",
+      "instructions": "Build a complete `ProductService` (@Service @Transactional) with JPA:\n- create(name, price, category): throws if name exists\n- findById(id): returns Optional\n- findAll(): returns all\n- update(id, name, price): throws if not found\n- delete(id): throws if not found\n- search(query): findByNameContainingIgnoreCase\n\nTest all 6 operations with @DataJpaTest + @Import.",
+      "starter_code": "// Product @Entity, ProductRepository, ProductService, ProductServiceTest\n",
+      "expected_solution": "// Product @Entity:\n@Entity public class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String name;\n    @Column(nullable=false) private double price;\n    @Column(nullable=false) private String category;\n    protected Product() {}\n    public Product(String n, double p, String c) { name=n; price=p; category=c; }\n    public String getId()    { return id; } public String getName()   { return name; }\n    public double getPrice() { return price; } public String getCategory(){ return category; }\n    public void setName(String n){ name=n; } public void setPrice(double p){ price=p; }\n}\n// ProductRepository:\npublic interface ProductRepository extends JpaRepository<Product,String> {\n    boolean existsByName(String name);\n    List<Product> findByNameContainingIgnoreCase(String q);\n}\n// ProductService:\n@Service @Transactional\npublic class ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository r) { repo=r; }\n    public Product create(String n, double p, String c) {\n        if (repo.existsByName(n)) throw new IllegalStateException(\"Exists: \"+n);\n        return repo.save(new Product(n,p,c));\n    }\n    public Optional<Product> findById(String id) { return repo.findById(id); }\n    public List<Product> findAll() { return repo.findAll(); }\n    public Product update(String id, String n, double p) {\n        Product pr = repo.findById(id).orElseThrow(()-> new IllegalArgumentException(\"Not found\"));\n        pr.setName(n); pr.setPrice(p); return repo.save(pr);\n    }\n    public void delete(String id) {\n        if (!repo.existsById(id)) throw new IllegalArgumentException(\"Not found\");\n        repo.deleteById(id);\n    }\n    public List<Product> search(String q) { return repo.findByNameContainingIgnoreCase(q); }\n}\n// Test:\n@DataJpaTest @Import(ProductService.class)\nclass ProductServiceTest {\n    @Autowired ProductRepository repo; @Autowired ProductService service;\n    @Test void create_newProduct_assignsId()   { assertNotNull(service.create(\"Mouse\",799,\"Elec\").getId()); }\n    @Test void create_duplicate_throws()       { service.create(\"Mouse\",799,\"Elec\"); assertThrows(IllegalStateException.class,()->service.create(\"Mouse\",999,\"Elec\")); }\n    @Test void findById_afterCreate_returns()  { var p=service.create(\"Mouse\",799,\"Elec\"); assertTrue(service.findById(p.getId()).isPresent()); }\n    @Test void update_changesName()            { var p=service.create(\"Mouse\",799,\"Elec\"); var u=service.update(p.getId(),\"MegaMouse\",899); assertEquals(\"MegaMouse\",u.getName()); }\n    @Test void delete_removesProduct()         { var p=service.create(\"Mouse\",799,\"Elec\"); service.delete(p.getId()); assertTrue(service.findById(p.getId()).isEmpty()); }\n    @Test void search_caseInsensitive()        { service.create(\"Wireless Mouse\",799,\"Elec\"); assertEquals(1,service.search(\"MOUSE\").size()); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "6 tests pass" }
+      ],
+      "hints": [
+        "@DataJpaTest + @Import(ProductService.class): service needs to be imported",
+        "create duplicate: existsByName returns true → throw",
+        "update: load entity, mutate fields, save → Hibernate detects changes"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complex derived queries with sorting and limits",
+      "scenario": "Spring Data supports ordering and limiting in method names.",
+      "instructions": "Add 4 complex derived queries to `OrderRepository`:\n1. Find top 5 orders by amount descending for a userId\n2. Find all COMPLETED orders after a date, sorted by date desc\n3. Count orders by userId and status\n4. Find orders with amount between min and max\n\nTest at least 2 with @DataJpaTest.",
+      "starter_code": "@Entity class Order {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String userId; String status; double amount;\n    java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();\n    protected Order() {}\n    Order(String uid, String st, double amt) { userId=uid; status=st; amount=amt; }\n    // getters...\n}\nimport java.util.*; import java.time.*;\nimport org.springframework.data.jpa.repository.*;\n// OrderRepository + @DataJpaTest\n",
+      "expected_solution": "// (Order as above)\nimport java.util.*; import java.time.*;\nimport org.springframework.data.jpa.repository.*;\npublic interface OrderRepository extends JpaRepository<Order,String> {\n    List<Order> findTop5ByUserIdOrderByAmountDesc(String userId);\n    List<Order> findByStatusAndCreatedAtAfterOrderByCreatedAtDesc(String status, LocalDateTime since);\n    long countByUserIdAndStatus(String userId, String status);\n    List<Order> findByAmountBetween(double min, double max);\n}\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@DataJpaTest\nclass OrderRepositoryTest {\n    @Autowired OrderRepository repo;\n    @BeforeEach void seed() {\n        repo.save(new Order(\"U01\",\"PAID\",100));\n        repo.save(new Order(\"U01\",\"PAID\",500));\n        repo.save(new Order(\"U01\",\"PAID\",300));\n        repo.save(new Order(\"U01\",\"CANCELLED\",200));\n        repo.save(new Order(\"U02\",\"PAID\",8000));\n    }\n    @Test void countByUserIdAndStatus_U01_PAID() {\n        assertEquals(3, repo.countByUserIdAndStatus(\"U01\",\"PAID\"));\n    }\n    @Test void findByAmountBetween_200and400() {\n        assertEquals(2, repo.findByAmountBetween(200,400).size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "findTop5By: LIMIT 5; OrderByAmountDesc: ORDER BY amount DESC",
+        "Between: BETWEEN ? AND ? (inclusive on both ends)",
+        "countByUserIdAndStatus: COUNT WHERE user_id=? AND status=?"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m13_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full REST + JPA — products CRUD endpoint",
+      "scenario": "Connect the REST controller from T13.2 to real JPA persistence.",
+      "instructions": "Build a complete stack: @Entity Product + ProductRepository + ProductService (@Transactional) + ProductController (@RestController). Test with @DataJpaTest for the repository layer.\n\nEndpoints:\n- GET /api/products → 200 list\n- GET /api/products/{id} → 200 or 404\n- POST /api/products → 201\n- DELETE /api/products/{id} → 204 or 404",
+      "starter_code": "// Full stack: Entity → Repository → Service → Controller\n// + @DataJpaTest for repository\n",
+      "expected_solution": "// Product.java:\n@Entity public class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String name;\n    @Column(nullable=false) private double price;\n    protected Product() {}\n    public Product(String n, double p) { name=n; price=p; }\n    public String getId()    { return id; }\n    public String getName()  { return name; }\n    public double getPrice() { return price; }\n}\n// ProductRepository:\npublic interface ProductRepository extends JpaRepository<Product,String> {}\n// ProductService:\n@Service @Transactional\npublic class ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository r) { repo=r; }\n    public List<Product> findAll() { return repo.findAll(); }\n    public Optional<Product> findById(String id) { return repo.findById(id); }\n    public Product create(Product p) { return repo.save(p); }\n    public boolean delete(String id) { if(!repo.existsById(id)) return false; repo.deleteById(id); return true; }\n}\n// ProductController:\n@RestController @RequestMapping(\"/api/products\")\npublic class ProductController {\n    private final ProductService service;\n    ProductController(ProductService s) { service=s; }\n    @GetMapping public List<Product> getAll() { return service.findAll(); }\n    @GetMapping(\"/{id}\") public ResponseEntity<Product> getById(@PathVariable String id) {\n        return service.findById(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build()); }\n    @PostMapping public ResponseEntity<Product> create(@RequestBody Product p) {\n        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(p)); }\n    @DeleteMapping(\"/{id}\") public ResponseEntity<Void> delete(@PathVariable String id) {\n        return service.delete(id) ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build(); }\n}\n// @DataJpaTest:\n@DataJpaTest\nclass ProductRepositoryTest {\n    @Autowired ProductRepository repo;\n    @Test void save_findById_roundTrip() {\n        Product saved = repo.save(new Product(\"Mouse\",799));\n        assertTrue(repo.findById(saved.getId()).isPresent());\n    }\n    @Test void delete_removesEntity() {\n        Product saved = repo.save(new Product(\"Mouse\",799));\n        repo.deleteById(saved.getId());\n        assertTrue(repo.findById(saved.getId()).isEmpty());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Controller calls Service; Service calls Repository — layer by layer",
+        "@Transactional on Service: all repo calls in one transaction",
+        "@DataJpaTest tests only the repository layer"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m13_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "application.properties — full JPA configuration",
+      "scenario": "Configure H2, Hibernate, logging, and schema creation.",
+      "instructions": "Write a complete `application.properties` for a dev environment:\n- H2 in-memory database enabled with console\n- Schema: create-drop\n- Show SQL: true, formatted\n- JPA dialect: H2\n- App name: inventory-service, port: 8090\n- Two custom properties: inventory.low-stock=5, inventory.max-items=1000\n\nThen write a @Service that reads both custom properties and a @DataJpaTest showing H2 is active.",
+      "starter_code": "# application.properties\n\n// InventoryConfigService.java\n\n// H2ActiveTest.java\n",
+      "expected_solution": "# application.properties:\nspring.application.name=inventory-service\nserver.port=8090\n\nspring.datasource.url=jdbc:h2:mem:inventorydb\nspring.datasource.driver-class-name=org.h2.Driver\nspring.datasource.username=sa\nspring.datasource.password=\n\nspring.h2.console.enabled=true\nspring.h2.console.path=/h2-console\n\nspring.jpa.hibernate.ddl-auto=create-drop\nspring.jpa.database-platform=org.hibernate.dialect.H2Dialect\nspring.jpa.show-sql=true\nspring.jpa.properties.hibernate.format_sql=true\n\ninventory.low-stock=5\ninventory.max-items=1000\n\n// InventoryConfigService.java:\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\nimport javax.annotation.PostConstruct;\n@Service\npublic class InventoryConfigService {\n    @Value(\"${inventory.low-stock:10}\") private int lowStock;\n    @Value(\"${inventory.max-items:500}\") private int maxItems;\n    @PostConstruct void log() { System.out.println(\"Config: low=\"+lowStock+\", max=\"+maxItems); }\n    public int getLowStock() { return lowStock; }\n    public int getMaxItems() { return maxItems; }\n}\n\n// H2ActiveTest.java:\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport javax.sql.DataSource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@DataJpaTest\nclass H2ActiveTest {\n    @Autowired DataSource dataSource;\n    @Test void h2_isActive() throws Exception {\n        assertNotNull(dataSource);\n        assertTrue(dataSource.getConnection().getMetaData().getDatabaseProductName().contains(\"H2\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "spring.datasource.url=jdbc:h2:mem:dbname",
+        "spring.jpa.hibernate.ddl-auto=create-drop: tables created on start, dropped on stop",
+        "@DataJpaTest auto-configures H2 — no application.properties needed for tests"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Zerodha-style portfolio tracker — JPA synthesis",
+      "scenario": "Complete JPA-backed portfolio management system.",
+      "instructions": "Build a `PortfolioService` with full JPA backing:\n- `Holding` @Entity: id, userId, symbol, qty, avgBuyPrice\n- `HoldingRepository`: findByUserId, findByUserIdAndSymbol, sumQtyByUserIdAndSymbol (@Query)\n- `PortfolioService` (@Service @Transactional): addHolding, getPortfolio(userId), getTotalValue(userId, Map<symbol,currentPrice>), removeHolding\n- 5 @DataJpaTest tests\n\nAll tests must pass.",
+      "starter_code": "// Complete Zerodha-style portfolio tracker with JPA\n",
+      "expected_solution": "@Entity public class Holding {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String userId;\n    @Column(nullable=false) private String symbol;\n    @Column(nullable=false) private int qty;\n    @Column(nullable=false) private double avgBuyPrice;\n    protected Holding() {}\n    public Holding(String uid, String sym, int qty, double price) { userId=uid; symbol=sym; this.qty=qty; avgBuyPrice=price; }\n    public String getId()       { return id; } public String getUserId()   { return userId; }\n    public String getSymbol()   { return symbol; } public int    getQty()      { return qty; }\n    public double getAvgBuyPrice(){ return avgBuyPrice; }\n}\npublic interface HoldingRepository extends JpaRepository<Holding,String> {\n    List<Holding> findByUserId(String uid);\n    Optional<Holding> findByUserIdAndSymbol(String uid, String sym);\n    @Query(\"SELECT SUM(h.qty) FROM Holding h WHERE h.userId=:uid AND h.symbol=:sym\")\n    Integer sumQtyByUserIdAndSymbol(@Param(\"uid\") String uid, @Param(\"sym\") String sym);\n}\n@Service @Transactional\npublic class PortfolioService {\n    private final HoldingRepository repo;\n    PortfolioService(HoldingRepository r) { repo=r; }\n    public Holding addHolding(String uid, String sym, int qty, double price) {\n        return repo.save(new Holding(uid, sym, qty, price));\n    }\n    public List<Holding> getPortfolio(String uid) { return repo.findByUserId(uid); }\n    public double getTotalValue(String uid, java.util.Map<String,Double> prices) {\n        return repo.findByUserId(uid).stream()\n            .mapToDouble(h -> h.getQty() * prices.getOrDefault(h.getSymbol(), h.getAvgBuyPrice()))\n            .sum();\n    }\n    public void removeHolding(String id) {\n        if (!repo.existsById(id)) throw new IllegalArgumentException(\"Not found: \"+id);\n        repo.deleteById(id);\n    }\n}\n@DataJpaTest @Import(PortfolioService.class)\nclass PortfolioServiceTest {\n    @Autowired HoldingRepository repo; @Autowired PortfolioService service;\n    @Test void addHolding_assignsId() { assertNotNull(service.addHolding(\"U01\",\"TCS\",10,2760).getId()); }\n    @Test void getPortfolio_returnsOnlyUsersHoldings() {\n        service.addHolding(\"U01\",\"TCS\",10,2760); service.addHolding(\"U02\",\"INFY\",5,1560);\n        assertEquals(1, service.getPortfolio(\"U01\").size());\n    }\n    @Test void getTotalValue_withCurrentPrices() {\n        service.addHolding(\"U01\",\"TCS\",10,2760);\n        double val = service.getTotalValue(\"U01\", java.util.Map.of(\"TCS\",3890.0));\n        assertEquals(38900, val, 0.01);\n    }\n    @Test void removeHolding_removesFromDB() {\n        Holding h = service.addHolding(\"U01\",\"TCS\",10,2760);\n        service.removeHolding(h.getId());\n        assertEquals(0, service.getPortfolio(\"U01\").size());\n    }\n    @Test void sumQtyBySymbol_aggregates() {\n        service.addHolding(\"U01\",\"TCS\",10,2760); service.addHolding(\"U01\",\"TCS\",5,2800);\n        assertEquals(15, repo.sumQtyByUserIdAndSymbol(\"U01\",\"TCS\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "@DataJpaTest + @Import(PortfolioService.class): both beans available",
+        "sumQty @Query: SUM() returns null if no rows — use Integer not int",
+        "getTotalValue: stream holdings, price from map or fallback to avgBuyPrice"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  }
+}

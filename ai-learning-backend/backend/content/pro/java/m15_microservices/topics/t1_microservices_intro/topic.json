@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t1",
+  "language": "java",
+  "module_id": "m15",
+  "module_name": "Microservices Architecture",
+  "topic_number": 1,
+  "name": "Introduction to Microservices Architecture",
+  "slug": "microservices-intro",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m14_t5"],
+    "concepts_taught": [
+      "monolith_vs_microservices",
+      "microservice_definition",
+      "service_boundaries_domain_driven",
+      "inter_service_communication",
+      "synchronous_vs_asynchronous_communication",
+      "rest_over_http_for_services",
+      "service_discovery_concept",
+      "api_gateway_concept",
+      "data_isolation_per_service",
+      "microservices_tradeoffs",
+      "spring_boot_as_microservice",
+      "resttemplate_for_http_calls",
+      "common_microservice_patterns"
+    ],
+    "skills_developed": [
+      "understanding_microservice_decomposition",
+      "identifying_service_boundaries",
+      "calling_other_services_with_resttemplate",
+      "designing_inter_service_apis",
+      "understanding_tradeoffs"
+    ],
+    "career_relevance": "Microservices is the dominant architecture at every large Indian tech company — Flipkart, Swiggy, Zomato, Zerodha, PhonePe, Razorpay all run hundreds of microservices. Senior engineers design them. Mid-level engineers work within them daily. Even as a junior developer, understanding the architecture of the system you're working in is expected. After this module, you can contribute to and reason about microservices systems — a key differentiator in interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "The Flipkart monolith of 2010: one giant Spring application with inventory, orders, payments, search, recommendations, user accounts, notifications — all in the same codebase. Every deploy required deploying everything. One bug in recommendations could crash payments. Scaling search required scaling everything. 500 developers trying to merge code into the same repo daily.\n\n**The microservices migration (2012-2015):**\n```\nBEFORE (monolith):\n┌──────────────────────────────────────────────────────┐\n│                   flipkart-app (1 deployable)         │\n│  [Orders] [Inventory] [Search] [Payment] [Users] ... │\n└──────────────────────────────────────────────────────┘\n     ↓ one bug crashes everything\n     ↓ can't scale search independently\n     ↓ 500 devs fighting over one codebase\n\nAFTER (microservices):\n┌──────────┐  ┌───────────┐  ┌──────────┐  ┌─────────┐\n│  Order   │  │ Inventory │  │  Search  │  │ Payment │\n│ Service  │  │  Service  │  │  Service │  │ Service │\n│ (50 devs)│  │ (30 devs) │  │ (80 devs)│  │(40 devs)│\n└──────────┘  └───────────┘  └──────────┘  └─────────┘\n     ↓ each team deploys independently\n     ↓ scale only what's under load\n     ↓ Search bug doesn't affect Payment\n```\n\nEach service is a separate Spring Boot application. They communicate over HTTP (REST). Each has its own database. Teams are independent. This is microservices — and it's how India's major tech companies are built.",
+    "what_you_will_build": "By the end of this topic, you'll understand microservices vs monolith tradeoffs, how to decompose a system by domain, how services communicate with HTTP, and how to make inter-service HTTP calls from a Spring Boot service using RestTemplate."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "monolith_vs_microservices": "**Monolith vs Microservices — the core distinction:**\n\n```\n═══════════════════════════════════════════════════════════\n   MONOLITH                    MICROSERVICES\n═══════════════════════════════════════════════════════════\n One deployable unit           Many small deployables\n One database                  One database per service\n One codebase                  One repo per service (usually)\n Scale everything together      Scale individual services\n Simple local method calls      Network calls (HTTP/messaging)\n Easy to develop initially      Complex distributed system\n Hard to scale teams            Teams own their service\n Deploy all or nothing          Deploy services independently\n One technology stack           Different stack per service\n═══════════════════════════════════════════════════════════\n\nWhen to use microservices:\n✓ Large team (> 20-30 developers)\n✓ Different scaling needs per component\n✓ Independent release cadence needed\n✓ Long-term product with clear domain boundaries\n\nWhen NOT to use:\n✗ Small team (< 10 developers)\n✗ Early-stage product (domains not yet clear)\n✗ Simple CRUD application\n✗ When operational complexity would dominate\n```",
+
+      "service_decomposition": "**How to decompose: Domain-Driven Design (DDD):**\n\nFor a Swiggy-style food delivery app:\n\n```\nDomain Boundaries → Services:\n\n┌────────────────────────────────────────────────────┐\n│ User Domain      → user-service                    │\n│  (register, login, profile, addresses)             │\n├────────────────────────────────────────────────────┤\n│ Restaurant Domain → restaurant-service             │\n│  (menus, availability, ratings)                    │\n├────────────────────────────────────────────────────┤\n│ Order Domain     → order-service                   │\n│  (cart, checkout, order lifecycle)                 │\n├────────────────────────────────────────────────────┤\n│ Payment Domain   → payment-service                 │\n│  (payment processing, refunds, history)            │\n├────────────────────────────────────────────────────┤\n│ Delivery Domain  → delivery-service                │\n│  (driver assignment, tracking, ETA)                │\n├────────────────────────────────────────────────────┤\n│ Notification Domain → notification-service         │\n│  (SMS, email, push notifications)                  │\n└────────────────────────────────────────────────────┘\n\nEach service:\n- Owns its own database\n- Has its own team\n- Deploys on its own schedule\n- Exposes REST APIs for other services\n```\n\n**Key decomposition principles:**\n1. Services own their data — no shared database\n2. Communicate via APIs (HTTP or events), not shared code\n3. Single responsibility — one domain per service\n4. Independently deployable",
+
+      "inter_service_communication": "**How services talk to each other:**\n\n**Synchronous (request-response):**\n```\nOrder Service → HTTP GET → Inventory Service → 200 {inStock: true}\n                    ↑ waits for response (blocking)\n```\n\n**Asynchronous (events):**\n```\nOrder Service → publishes 'order.created' event → message queue\n                    ↑ doesn't wait\nInventory Service reads 'order.created' → decrements stock\nNotification Service reads 'order.created' → sends SMS\n```\n\n**Which to use:**\n- Synchronous HTTP: when you need the response to continue (check inventory before confirming order)\n- Asynchronous events: when you can proceed without waiting (send notification after order is placed)\n\nThis topic covers synchronous HTTP. Topic 15.4 covers async with events.",
+
+      "resttemplate_http_calls": "**RestTemplate — calling another service:**\n\n```java\n// In order-service, calling inventory-service:\n\n@Service\npublic class OrderService {\n    private final RestTemplate restTemplate;\n    \n    OrderService(RestTemplate restTemplate) {\n        this.restTemplate = restTemplate;\n    }\n    \n    public Order placeOrder(OrderRequest req) {\n        // 1. Check inventory in inventory-service:\n        String inventoryUrl = \"http://inventory-service/api/inventory/\" + req.productId();\n        InventoryResponse inventory = restTemplate.getForObject(\n            inventoryUrl, InventoryResponse.class);\n        \n        if (inventory == null || inventory.stock() < req.quantity()) {\n            throw new InsufficientStockException(\"Not enough stock\");\n        }\n        \n        // 2. Reserve stock:\n        restTemplate.postForObject(\n            \"http://inventory-service/api/inventory/reserve\",\n            new ReserveRequest(req.productId(), req.quantity()),\n            ReserveResponse.class);\n        \n        // 3. Create order:\n        return orderRepository.save(new Order(req));\n    }\n}\n\n// Configuration:\n@Configuration\nclass AppConfig {\n    @Bean\n    RestTemplate restTemplate() {\n        return new RestTemplate();\n    }\n}\n```\n\n**RestTemplate common methods:**\n```java\n// GET:\nT getForObject(url, ResponseClass.class)\nResponseEntity<T> getForEntity(url, ResponseClass.class)\n\n// POST:\nT postForObject(url, requestBody, ResponseClass.class)\nResponseEntity<T> postForEntity(url, requestBody, ResponseClass.class)\n\n// PUT:\nvoid put(url, requestBody)\n\n// DELETE:\nvoid delete(url)\n\n// Generic (any method, headers, body):\nResponseEntity<T> exchange(url, HttpMethod.POST, HttpEntity<Body>, ResponseClass.class)\n```\n\n**Note**: RestTemplate is the classic approach. Topic 15.2 covers Feign Client — a declarative, cleaner alternative.",
+
+      "data_isolation": "**Each service owns its own data — the most important rule:**\n\n```\n✅ CORRECT — data isolation:\n┌──────────────────────┐    ┌──────────────────────┐\n│   order-service      │    │  inventory-service    │\n│   ┌──────────┐       │    │   ┌──────────┐       │\n│   │orders_db │       │    │   │inventory │       │\n│   │(PostgreSQL)      │    │   │  _db     │       │\n│   └──────────┘       │    │   └──────────┘       │\n└──────────────────────┘    └──────────────────────┘\n  Communicates via REST API only\n\n❌ WRONG — shared database:\n┌──────────────────────┐    ┌──────────────────────┐\n│   order-service      │    │  inventory-service    │\n└──────────┬───────────┘    └──────────┬───────────┘\n           └────────────┬──────────────┘\n                   ┌────┴────┐\n                   │shared_db│  ← antipattern\n                   └─────────┘\n  Both services can now see each other's tables.\n  Schema changes in one break the other.\n  Services are tightly coupled — defeats the purpose.\n```\n\nWhen order-service needs inventory data: it calls the inventory-service REST API. It never reaches directly into the inventory database."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Swiggy-style system diagram: Mobile App → API Gateway → fan-out to User Service, Restaurant Service, Order Service, Payment Service, Delivery Service, Notification Service. Each service has its own database cylinder. Services communicate to each other with HTTP arrows (Order→Inventory, Order→Payment, Order→Notification). (2) HTTP inter-service call flow: OrderService.placeOrder() → RestTemplate.getForObject('http://inventory-service/...') → HTTP GET → InventoryController.checkStock() → 200 {stock:50} → back to OrderService. (3) Monolith vs microservices scaling: monolith needs to scale all components; microservices shows only Search Service scaled (3 instances) while others stay at 1, demonstrating independent scaling.",
+      "alt_text": "Swiggy-style microservices diagram, HTTP inter-service call sequence, and independent scaling comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build two collaborating Spring Boot microservices: product-service (manages products) and order-service (places orders, calling product-service to check availability). Each runs on a different port, has its own H2 database.",
+
+    "problem_statement": "Build:\n1. `product-service` on port 8081: @Entity Product, GET /api/products/{id}, GET /api/products/{id}/availability\n2. `order-service` on port 8082: calls product-service via RestTemplate before placing order\n3. If product-service returns unavailable → order-service returns 409\n4. Each service has its own H2 database (no shared state)",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "product-service — standalone Spring Boot app",
+        "details": "```java\n// product-service (port 8081, separate Maven project)\n@SpringBootApplication\npublic class ProductServiceApplication {\n    public static void main(String[] args) { SpringApplication.run(ProductServiceApplication.class, args); }\n}\n\n@Entity class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String name; double price; int stock;\n    protected Product(){}\n    Product(String n, double p, int s) { name=n; price=p; stock=s; }\n    // getters...\n}\n\n@RestController @RequestMapping(\"/api/products\")\nclass ProductController {\n    private final ProductRepository repo;\n    ProductController(ProductRepository r) { repo=r; }\n    \n    @GetMapping(\"/{id}\")\n    ResponseEntity<Product> getById(@PathVariable String id) {\n        return repo.findById(id).map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    \n    @GetMapping(\"/{id}/availability\")\n    Map<String,Object> checkAvailability(@PathVariable String id,\n                                          @RequestParam int quantity) {\n        return repo.findById(id)\n            .map(p -> Map.of(\n                \"available\", p.getStock() >= quantity,\n                \"stock\", p.getStock()))\n            .orElse(Map.of(\"available\", false, \"stock\", 0));\n    }\n}\n// application.properties: server.port=8081\n```"
+      },
+      {
+        "step": 2,
+        "action": "order-service — calls product-service via RestTemplate",
+        "details": "```java\n// order-service (port 8082, separate Maven project)\n@SpringBootApplication\npublic class OrderServiceApplication {\n    public static void main(String[] args) { SpringApplication.run(OrderServiceApplication.class, args); }\n}\n\n@Configuration\nclass AppConfig {\n    @Bean RestTemplate restTemplate() { return new RestTemplate(); }\n}\n\n@Service\nclass OrderService {\n    private final RestTemplate restTemplate;\n    private final OrderRepository orderRepo;\n    private static final String PRODUCT_SERVICE_URL = \"http://localhost:8081\";\n    \n    OrderService(RestTemplate rt, OrderRepository r) { restTemplate=rt; orderRepo=r; }\n    \n    public Order placeOrder(String productId, int quantity) {\n        // Call product-service to check availability:\n        @SuppressWarnings(\"unchecked\")\n        Map<String,Object> availability = restTemplate.getForObject(\n            PRODUCT_SERVICE_URL + \"/api/products/\" + productId + \"/availability?quantity=\" + quantity,\n            Map.class);\n        \n        boolean available = Boolean.TRUE.equals(availability.get(\"available\"));\n        if (!available) {\n            throw new InsufficientStockException(\n                \"Product \" + productId + \" has insufficient stock\");\n        }\n        return orderRepo.save(new Order(productId, quantity));\n    }\n}\n// application.properties: server.port=8082\n```"
+      }
+    ],
+
+    "final_code": "// Two Spring Boot apps:\n// product-service (port 8081): Product @Entity, availability endpoint\n// order-service (port 8082): OrderService calls product-service via RestTemplate\n\n// Run both: java -jar product-service.jar & java -jar order-service.jar\n\n// Test:\n// POST http://localhost:8082/api/orders {productId: 'P001', quantity: 5}\n// → order-service calls localhost:8081/api/products/P001/availability?quantity=5\n// → if available: 201 Order created\n// → if not: 409 Insufficient stock",
+
+    "expected_output": "# product-service log (port 8081):\nStarted ProductServiceApplication on port 8081\nGET /api/products/P001/availability?quantity=5 → 200 {available:true,stock:50}\n\n# order-service log (port 8082):\nStarted OrderServiceApplication on port 8082\nPOST /api/orders {productId:P001, quantity:5}\n  → calling http://localhost:8081/api/products/P001/availability?quantity=5\n  → received {available:true, stock:50}\n  → order saved: ORD-001\n← 201 {id:ORD-001, productId:P001, quantity:5}",
+
+    "things_to_notice": [
+      "Two completely separate Spring Boot applications — separate pom.xml, separate main class, separate application.properties, different ports. They don't share any code or database. This is the key difference from a modular monolith.",
+      "The product-service URL is hardcoded as `http://localhost:8081`. This works locally but fails in production where services might move or have multiple instances. Topic 15.2 introduces service discovery (Eureka) to solve this — services register themselves and are discovered by name, not hardcoded URL.",
+      "When product-service is down, the RestTemplate.getForObject() call throws ResourceAccessException. The order-service has no fallback — the entire placeOrder() fails. Topic 15.3 covers circuit breakers (Resilience4j) which handle this gracefully.",
+      "Each service has its own H2 database. The order-service only stores orders — it never directly reads or writes to product-service's tables. It gets product info through the API. This is data isolation — each service's database schema is its private implementation detail.",
+      "RestTemplate makes a synchronous HTTP call — the order-service thread blocks until product-service responds. For high-throughput services, WebClient (reactive) or Feign with async support is preferred. For this pattern: if product-service is slow, order-service is slow."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy order flow",
+        "use_case": "When a user places an order: (1) order-service creates the order, (2) calls restaurant-service to confirm the restaurant is open, (3) calls payment-service to charge the user, (4) calls delivery-service to assign a driver, (5) publishes 'order.placed' event — notification-service sends SMS/push. Steps 1-4 are synchronous (need confirmation). Step 5 is asynchronous (notification can be slightly delayed). The same architecture you built — at Swiggy scale."
+      },
+      {
+        "company_context": "Zerodha trade execution",
+        "use_case": "When a user places a trade: order-service calls account-service (margin check), calls market-service (price fetch), calls risk-service (limit check). All synchronous — you need all answers before executing. Then calls audit-service (async — record for compliance). Then notification-service (async — 'Your order for TCS has been placed'). This layering of sync + async is the standard microservices pattern."
+      },
+      {
+        "company_context": "Monolith to microservices migration",
+        "use_case": "Most companies don't start with microservices — they start as a monolith and extract services as the team and system grows. The 'strangler fig' pattern: add a new feature as a standalone microservice instead of adding to the monolith. Over time, extract existing monolith features into services. Flipkart, Swiggy, Zomato all did this. You start with a Spring Boot monolith (Modules 13-14), then split it (Module 15)."
+      }
+    ],
+
+    "interview_relevance": "Microservices interview questions — must know:\n\n- **'What is a microservice?'** → A small, independently deployable service that owns one domain (bounded context), has its own database, and communicates with other services via APIs.\n- **'What are the advantages of microservices?'** → Independent deployment, independent scaling, team autonomy, technology flexibility, fault isolation.\n- **'What are the disadvantages?'** → Network latency, distributed systems complexity, data consistency challenges, operational overhead, harder to debug.\n- **'How do microservices communicate?'** → Synchronous: REST (HTTP) or gRPC. Asynchronous: message queues (Kafka, RabbitMQ).\n- **'What is data isolation?'** → Each service has its own database. No service directly accesses another service's database — only via APIs.",
+
+    "real_world_workflow": "Daily microservices development workflow:\n\n- Work on one service at a time — your team's service\n- Run dependent services locally (or use stubs/mocks)\n- Make REST API calls to other services\n- Check API contracts (Swagger/OpenAPI docs)\n- Deploy your service independently when ready\n- Monitor with distributed tracing to track requests across services"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "shared_database",
+      "what_students_get_wrong": "Having two services connect to the same database — defeats the purpose of microservices.",
+      "remediation": "Each service must own its own database. If service A needs data that belongs to service B, it calls service B's REST API. Service A never directly queries service B's database tables. This is the most important microservices rule.",
+      "detection_pattern": "Both services use the same spring.datasource.url"
+    },
+    {
+      "gap_id": "too_fine_grained",
+      "what_students_get_wrong": "Making every class a service — 'nanoservices' with 50 services for a 5-person team.",
+      "remediation": "Decompose by domain (bounded context), not by class. A 'Product' service and a 'ProductImage' service for a small team is too granular. Rule of thumb: 5-15 services for a team of 50 engineers. Services should be owned by one team and have meaningful, testable domain logic.",
+      "detection_pattern": "More services than developers; trivial single-endpoint services"
+    },
+    {
+      "gap_id": "synchronous_for_everything",
+      "what_students_get_wrong": "Using synchronous REST for all inter-service communication, even for non-critical notifications.",
+      "remediation": "If service A calls service B synchronously but doesn't need the response to proceed, that's a candidate for async messaging. Sending a welcome email after user registration doesn't need to block the registration response. Use async (Kafka/RabbitMQ) for notifications, logging, analytics — anything where eventual consistency is acceptable.",
+      "detection_pattern": "Response time = sum of all downstream service response times"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Microservice: small, independently deployable, owns one domain, has its own database",
+      "Key benefits: independent deployment, scaling, team autonomy, fault isolation",
+      "Key costs: network latency, distributed complexity, operational overhead",
+      "Decompose by domain (DDD bounded context), not by technical layer",
+      "Each service owns its own database — no shared database tables",
+      "Communication: synchronous REST for immediate responses, async events for non-critical",
+      "RestTemplate: makes HTTP calls to other services (getForObject, postForObject)",
+      "Hardcoded URLs → use service discovery (Eureka) to find services by name",
+      "No response handling → use circuit breakers (Resilience4j) for fault tolerance",
+      "Module 15 progression: RestTemplate → Feign → Eureka → Resilience4j → Tracing"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "An order-service needs the current price of a product before creating an order. Should this call be synchronous or asynchronous? Explain.",
+        "answer": "Synchronous. The order-service cannot proceed with creating the order without knowing the product price — it needs the response to calculate the order total and confirm the order. Synchronous REST call to product-service: `GET /api/products/{id}/price` → 200 {price: 3890}. The order-service blocks until product-service responds. Async would not work here because the order-service needs the price BEFORE it can save the order."
+      },
+      {
+        "question": "You want to notify customers via SMS when their order ships. Should the order-service call notification-service synchronously or asynchronously? Why?",
+        "answer": "Asynchronously. The order-service doesn't need the SMS to be sent before it can mark the order as shipped and respond to the user. If notification-service is slow or down, the shipment confirmation shouldn't fail. Async: order-service publishes an 'order.shipped' event to a queue. Notification-service reads from the queue and sends SMS — maybe 1-2 seconds later. Eventual consistency is acceptable for notifications. Using synchronous REST here would make the shipment confirmation as slow as the SMS delivery."
+      },
+      {
+        "question": "Order-service and inventory-service both need to store product IDs. Should they share a products database table?",
+        "answer": "No. Sharing a database table violates data isolation — the most important microservices principle. Each service should have its own copy of the data it needs: order-service stores productId (a foreign key by convention, not enforced by DB), inventory-service manages the full product inventory record. If order-service needs product details, it calls product-service via REST API. The services may both store a productId, but they never share the same database schema. Schema changes in one service would break the other — exactly what microservices isolation prevents."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Feign Client** — RestTemplate works but requires boilerplate URL building, response handling, and error management. Feign Client is a declarative HTTP client: you declare a Java interface with Spring MVC annotations and Feign generates the implementation. `@FeignClient('inventory-service')` + `@GetMapping('/api/inventory/{id}')` = a method that calls inventory-service as if it were a local call. Cleaner, type-safe, and integrates with Eureka service discovery automatically."
+  }
+}

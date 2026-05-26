@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m20_t4_proj",
+  "linked_topic": "java_m20_t4",
+  "level": "mini",
+  "name": "Razorpay SRE Dashboard — Prometheus & Grafana",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "Razorpay's on-call team has no visibility into payment service health. Build a Prometheus + Grafana observability stack: scrape configuration, 5 key PromQL queries, Grafana dashboard design, and alerting rules.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "prometheus.yml: scrape payment-service from 2 instances every 15s. Add labels: app, team, environment.", "weight": 15 },
+      { "id": "req_2", "description": "Timer with publishPercentileHistogram=true. Counter with status+gateway tags. Gauge for retry queue depth.", "weight": 20 },
+      { "id": "req_3", "description": "5 PromQL queries: success rate, error%, correct multi-instance p99, queue depth, circuit breaker state.", "weight": 20 },
+      { "id": "req_4", "description": "prometheus/rules.yml: 2 alert rules — PaymentP99Spike (> 500ms for 5m) and PaymentErrorRate (> 1% for 5m). With for: duration and runbook_url.", "weight": 15 },
+      { "id": "req_5", "description": "@SpringBootTest (3 tests): timer bucket count > 0, counter increments correctly, gauge reflects queue size. All 3 pass.", "weight": 25 },
+      { "id": "req_6", "description": "README: ASCII dashboard layout with 4 panel descriptions.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Recording rules: pre-compute error rate and p99. Verify they're faster than raw histogram_quantile.", "weight": 20 },
+      { "id": "bonus_2", "description": "SLI computation: availability%, latency SLI (% < 500ms), throughput SLI. Dashboard stat panels.", "weight": 20 },
+      { "id": "bonus_3", "description": "Error budget gauge: Grafana panel showing % of 30-day budget remaining. Alert: burn rate > 5×.", "weight": 25 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. publishPercentileHistogram() generates _bucket metrics required by histogram_quantile(). histogram_quantile(0.99, sum(rate(metric_bucket[5m])) by (le)): the 'by (le)' is required — le is the less-than-or-equal bucket label. rate() requires a counter, not a gauge — queue depth (gauge) has no rate(), use the raw value. for: 5m in alert rules: prevents alerting on momentary spikes. Prometheus scrape_interval: 15s globally, override per job with scrape_interval: inside the job.",
+  "rubric": [
+    { "category": "prometheus.yml", "points": 15 },
+    { "category": "Meter setup (Timer+Counter+Gauge)", "points": 20 },
+    { "category": "5 PromQL queries", "points": 20 },
+    { "category": "prometheus/rules.yml", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 25 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 65 }
+  ]
+}

@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m3_t2_proj",
+  "linked_topic": "java_m3_t2",
+  "level": "mini",
+  "name": "Inventory Manager",
+  "estimated_minutes": 50,
+  "difficulty": 5,
+  
+  "scenario": "You're building the backend logic for an inventory management system used by a small e-commerce store. The store has 15 products, each with: a product ID, current stock level, and price. The owner needs to: see all products, find products with low stock (need reordering), search by ID, sort by various criteria (price, stock), and identify the most/least expensive items. This is real warehouse logic — the kind that runs in Flipkart's seller hub, Amazon's vendor portal, or any e-commerce backend.",
+  
+  "description": "Build an `InventoryManager` class with methods for inventory queries and reports. Uses parallel arrays (product IDs, stocks, prices) — a stepping stone before learning objects in Module 4. Practices the full toolkit from this topic: Arrays utility methods, custom search/sort, in-place vs new-array operations, two-pointer technique.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `InventoryManager` in file InventoryManager.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Three parallel arrays at class-level: productIds (int[]), stocks (int[]), prices (double[]) — at least 10 products",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`printInventory()` method — uses Arrays.toString to display all arrays",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`findById(int targetId)` method — uses linear search, returns INDEX of matching product or -1",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "`countLowStock(int threshold)` method — returns count of products with stock <= threshold",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`getSortedPrices()` method — returns NEW array with prices sorted ascending (original unchanged)",
+        "weight": 15
+      },
+      {
+        "id": "req_8",
+        "description": "`getMostExpensivePrice()` method — returns highest price (don't modify the array)",
+        "weight": 10
+      },
+      {
+        "id": "req_9",
+        "description": "main() demonstrates ALL methods with a complete inventory report",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `getTotalInventoryValue()` — sum of (stock × price) for all products",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `findCheapestProductId()` — find product ID of cheapest product (must track index of min)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `getProductIdsWithLowStock(int threshold)` — returns NEW array of product IDs (just IDs) that need reorder",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add `binarySearchProductId(int[] sortedIds, int targetId)` — implement binary search for product IDs (after sorting them)",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Use these 12 products:\n\n```java\nstatic int[] productIds = {101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112};\nstatic int[] stocks =     {  45,  12,  67,   3,  28,  91,   8,  53,  19,   2,  74,  35};\nstatic double[] prices =  {249.99, 1499.0, 89.50, 349.0, 599.99, 19.99, 1999.0, 449.99, 79.99, 2999.0, 124.50, 199.0};\n```\n\nExpected results:\n- Most expensive: 2999.0 (Product 110)\n- Cheapest: 19.99 (Product 106)\n- Low stock (<= 10): Products 104, 107, 110 (count: 3)\n- Total inventory value: sum of stock × price for all 12",
+  
+  "starter_code": "import java.util.Arrays;\n\npublic class InventoryManager {\n    // Parallel arrays — index i refers to the same product across all three\n    static int[] productIds = {101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112};\n    static int[] stocks =     {  45,  12,  67,   3,  28,  91,   8,  53,  19,   2,  74,  35};\n    static double[] prices =  {249.99, 1499.0, 89.50, 349.0, 599.99, 19.99, 1999.0, 449.99, 79.99, 2999.0, 124.50, 199.0};\n    \n    public static void main(String[] args) {\n        // TODO: Demonstrate all methods\n        // Example structure:\n        // printInventory();\n        // System.out.println(\"Product 105 at index: \" + findById(105));\n        // System.out.println(\"Low stock count (≤ 10): \" + countLowStock(10));\n        // ... etc\n    }\n    \n    // TODO: Define all required methods\n}",
+  
+  "example_output": "===================================\n         INVENTORY REPORT\n===================================\nProduct IDs: [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112]\nStocks:      [45, 12, 67, 3, 28, 91, 8, 53, 19, 2, 74, 35]\nPrices:      [249.99, 1499.0, 89.5, 349.0, 599.99, 19.99, 1999.0, 449.99, 79.99, 2999.0, 124.5, 199.0]\n-----------------------------------\nSearching for Product 105: found at index 4\nSearching for Product 999: not found (-1)\nLow stock items (≤ 10): 3 products need reorder\nSorted prices (ascending): [19.99, 79.99, 89.5, 124.5, 199.0, 249.99, 349.0, 449.99, 599.99, 1499.0, 1999.0, 2999.0]\nMost expensive: ₹2999.0\nOriginal prices unchanged: [249.99, 1499.0, 89.5, 349.0, 599.99, 19.99, 1999.0, 449.99, 79.99, 2999.0, 124.5, 199.0]\n-----------------------------------\n(Bonus) Total inventory value: ₹ ...\n(Bonus) Cheapest product ID: 106\n(Bonus) Low stock product IDs: [104, 107, 110]\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Required Methods Implementation",
+      "points": 60,
+      "criteria": [
+        "printInventory using Arrays.toString (10 pts)",
+        "findById linear search with -1 sentinel (15 pts)",
+        "countLowStock (10 pts)",
+        "getSortedPrices returns new sorted array, original unchanged (15 pts)",
+        "getMostExpensivePrice (10 pts)"
+      ]
+    },
+    {
+      "category": "main Method Demonstration",
+      "points": 15,
+      "criteria": [
+        "All methods called (10 pts)",
+        "Output is clear and well-formatted (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 10,
+      "criteria": [
+        "Uses Arrays utility methods appropriately (5 pts)",
+        "No modification of class-level arrays where 'new' is expected (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 65,
+      "criteria": [
+        "Total inventory value calculation (15 pts)",
+        "Cheapest product ID (15 pts)",
+        "Low stock IDs returned as new array (20 pts)",
+        "Binary search implementation (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. You have all the patterns from the topic — search, sort, copy, find extreme with index, iterate parallel arrays. The trickiest pieces are: parallel array iteration (index i in productIds matches index i in stocks/prices) and getSortedPrices NOT modifying the original (must copy first).",
+  
+  "submission_instructions": "Save as InventoryManager.java. Run it. Verify the original arrays are unchanged after running getSortedPrices. Push to GitHub portfolio — this is foundational e-commerce backend logic.",
+  
+  "tips_for_success": [
+    "Parallel arrays: think of them as columns of a spreadsheet. Row i has matching info in all three arrays.",
+    "When sorting prices, COPY first, then sort the copy. Use Arrays.copyOf(prices, prices.length).",
+    "For findById: linear search through productIds. Return the INDEX (not the ID).",
+    "For most expensive: just iterate prices, track max. Don't sort — that's overkill.",
+    "For cheapest product ID: track index of minimum price, then look up productIds[that index].",
+    "For low stock IDs (bonus): two-pass approach OK — first count, then create array of right size and fill it. Or use a generous array and trim with copyOf."
+  ],
+  
+  "concepts_reinforced": [
+    "Arrays.toString for debugging output",
+    "Arrays.copyOf to preserve originals",
+    "Arrays.sort modifies in-place — use on copies when needed",
+    "Linear search with -1 sentinel",
+    "Finding extreme values + their index",
+    "Parallel arrays as a pre-OOP pattern",
+    "Methods that return new arrays",
+    "Combining multiple Arrays operations"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond practicing array operations, you experience PARALLEL ARRAYS — a pattern that predates object-oriented programming. In real Java code (Module 4+), you'd use a Product CLASS to bundle id/stock/price together. But seeing the parallel-arrays approach makes you appreciate why OOP exists: keeping related data in sync across multiple arrays is error-prone. This project intentionally feels a bit clunky in that respect — that's the lesson that motivates OOP. By the time you're learning classes next module, you'll viscerally understand why they're an improvement.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a method to UPDATE stock for a product by ID (find + modify)",
+    "Add a method to find the product with the BEST stock-to-price ratio (value)",
+    "Implement insertion of a new product (requires creating larger arrays — preview of ArrayList motivation)",
+    "Sort products by price (must sort all three arrays in sync — tricky! This is the OOP motivation)",
+    "Add a 'restock recommendation' that calculates how many units of each low-stock item to order based on average demand"
+  ]
+}

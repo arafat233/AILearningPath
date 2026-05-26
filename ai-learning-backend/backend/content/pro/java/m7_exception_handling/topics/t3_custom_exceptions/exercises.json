@@ -1,0 +1,348 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t3",
+  "topic_name": "Custom Exceptions",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m7_t3_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Minimal custom exception",
+      "scenario": "Build the skeleton of a custom exception class.",
+      "instructions": "Fill in the blanks to complete a minimal `ProductNotFoundException`.",
+      "starter_code": "public class ProductNotFoundException extends ______ {\n    public ProductNotFoundException(String ______) {\n        ______(message);\n    }\n}",
+      "expected_solution": "public class ProductNotFoundException extends RuntimeException {\n    public ProductNotFoundException(String message) {\n        super(message);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "RuntimeException", "hint": "Unchecked parent class" },
+        { "position": 2, "answer": "message", "hint": "Parameter name for the error message" },
+        { "position": 3, "answer": "super", "hint": "Call parent constructor" }
+      ],
+      "test_cases": [
+        { "type": "compile_check", "must_compile": true }
+      ],
+      "hints": [
+        "Unchecked: extends RuntimeException",
+        "Constructor takes a String message",
+        "super(message) passes message to RuntimeException"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t3_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace custom exception message",
+      "scenario": "getMessage() returns what was passed to super().",
+      "instructions": "What does this print?\n\n```java\nclass TooYoungException extends RuntimeException {\n    TooYoungException(int age, int required) {\n        super(\"Age \" + age + \" below required \" + required);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try {\n            throw new TooYoungException(16, 18);\n        } catch (TooYoungException e) {\n            System.out.println(e.getMessage());\n        }\n    }\n}\n```",
+      "expected_solution": "Age 16 below required 18",
+      "test_cases": [
+        { "type": "text_match", "expected": "Age 16 below required 18" }
+      ],
+      "hints": [
+        "super(message) in constructor sets the message",
+        "e.getMessage() returns what was passed to super()",
+        "Message is built in the constructor: 'Age 16 below required 18'"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Create and throw a custom exception",
+      "scenario": "Define, throw, and catch your own exception.",
+      "instructions": "Create `ScoreOutOfRangeException extends RuntimeException`. Throw it if score is not 0-100. Catch it in main.\n\nExpected output:\nScore 75 is valid\nScoreOutOfRangeException: Score 150 is out of range (0-100)",
+      "starter_code": "// Define ScoreOutOfRangeException, throw for invalid scores\n",
+      "expected_solution": "class ScoreOutOfRangeException extends RuntimeException {\n    ScoreOutOfRangeException(int score) {\n        super(\"Score \" + score + \" is out of range (0-100)\");\n    }\n}\n\npublic class App {\n    static void setScore(int score) {\n        if (score < 0 || score > 100)\n            throw new ScoreOutOfRangeException(score);\n        System.out.println(\"Score \" + score + \" is valid\");\n    }\n    \n    public static void main(String[] args) {\n        setScore(75);\n        try {\n            setScore(150);\n        } catch (ScoreOutOfRangeException e) {\n            System.out.println(\"ScoreOutOfRangeException: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Score 75 is valid\nScoreOutOfRangeException: Score 150 is out of range (0-100)" }
+      ],
+      "hints": [
+        "class ScoreOutOfRangeException extends RuntimeException",
+        "Constructor takes int score, calls super('Score ' + score + ' is out of range (0-100)')",
+        "throw new ScoreOutOfRangeException(score) when out of range"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m7_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Custom exception with domain fields",
+      "scenario": "Carry structured data in the exception.",
+      "instructions": "Create `InsufficientStockException` with fields: `productName` and `requested` and `available`. Message: 'productName: requested N but only M available'.\n\nExpected output:\nInsufficientStockException: Keyboard: requested 5 but only 2 available\nProduct name: Keyboard\nRequested: 5, Available: 2",
+      "starter_code": "// Custom exception with productName, requested, available fields\n",
+      "expected_solution": "class InsufficientStockException extends RuntimeException {\n    private final String productName;\n    private final int requested;\n    private final int available;\n    \n    InsufficientStockException(String productName, int requested, int available) {\n        super(productName + \": requested \" + requested + \" but only \" + available + \" available\");\n        this.productName = productName;\n        this.requested = requested;\n        this.available = available;\n    }\n    \n    String getProductName() { return productName; }\n    int getRequested() { return requested; }\n    int getAvailable() { return available; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try {\n            throw new InsufficientStockException(\"Keyboard\", 5, 2);\n        } catch (InsufficientStockException e) {\n            System.out.println(\"InsufficientStockException: \" + e.getMessage());\n            System.out.println(\"Product name: \" + e.getProductName());\n            System.out.println(\"Requested: \" + e.getRequested() + \", Available: \" + e.getAvailable());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "InsufficientStockException: Keyboard: requested 5 but only 2 available\nProduct name: Keyboard\nRequested: 5, Available: 2" }
+      ],
+      "hints": [
+        "Three final fields: productName, requested, available",
+        "super(productName + ': requested ' + requested + ' but only ' + available + ' available')",
+        "Getters for each field"
+      ],
+      "xp_reward": 35,
+      "concept_tested": "domain_fields_in_exception"
+    },
+
+    {
+      "id": "java_m7_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Two-constructor pattern",
+      "scenario": "Both constructors — standalone and wrapping.",
+      "instructions": "Create `DatabaseException extends RuntimeException` with BOTH constructors. Show the wrapping constructor being used.\n\nExpected output:\nDirect: Connection pool exhausted\nWrapped: Query failed: original: timeout after 3000ms",
+      "starter_code": "// DatabaseException with both constructors\n",
+      "expected_solution": "class DatabaseException extends RuntimeException {\n    DatabaseException(String message) {\n        super(message);\n    }\n    DatabaseException(String message, Throwable cause) {\n        super(message, cause);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        // Direct constructor\n        try {\n            throw new DatabaseException(\"Connection pool exhausted\");\n        } catch (DatabaseException e) {\n            System.out.println(\"Direct: \" + e.getMessage());\n        }\n        \n        // Wrapping constructor\n        try {\n            RuntimeException original = new RuntimeException(\"timeout after 3000ms\");\n            throw new DatabaseException(\"Query failed\", original);\n        } catch (DatabaseException e) {\n            System.out.println(\"Wrapped: \" + e.getMessage() + \": original: \" + e.getCause().getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Direct: Connection pool exhausted\nWrapped: Query failed: original: timeout after 3000ms" }
+      ],
+      "hints": [
+        "Constructor 1: (String message) calls super(message)",
+        "Constructor 2: (String message, Throwable cause) calls super(message, cause)",
+        "e.getCause() retrieves the wrapped exception"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m7_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Checked custom exception with throws",
+      "scenario": "Custom checked exception in method signature.",
+      "instructions": "Create `FileParseException extends Exception` (checked). Use it in `parseConfig(String content)` which throws it if content is empty. Declare in method signature.\n\nExpected output:\nConfig: debug=true, timeout=30\nFileParseException: Config content is empty",
+      "starter_code": "// Checked custom exception\n",
+      "expected_solution": "class FileParseException extends Exception {\n    FileParseException(String message) { super(message); }\n    FileParseException(String message, Throwable cause) { super(message, cause); }\n}\n\npublic class App {\n    static String parseConfig(String content) throws FileParseException {\n        if (content == null || content.isBlank())\n            throw new FileParseException(\"Config content is empty\");\n        return \"Config: \" + content.strip();\n    }\n    \n    public static void main(String[] args) {\n        String[] inputs = {\"debug=true, timeout=30\", \"\"};\n        for (String input : inputs) {\n            try {\n                System.out.println(parseConfig(input));\n            } catch (FileParseException e) {\n                System.out.println(\"FileParseException: \" + e.getMessage());\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Config: debug=true, timeout=30\nFileParseException: Config content is empty" }
+      ],
+      "hints": [
+        "FileParseException extends Exception — checked",
+        "Method declares throws FileParseException",
+        "Caller must catch (or re-declare)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m7_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Exception hierarchy — base + two subclasses",
+      "scenario": "Group related failures under a base exception.",
+      "instructions": "Create:\n- `LoginException extends RuntimeException` (base)\n- `AccountLockedException extends LoginException` — includes lockDuration (minutes)\n- `InvalidCredentialsException extends LoginException` — includes attemptNumber\n\nHandle each differently in main.\n\nExpected output:\nLocked! Account locked for 30 minutes\nWrong password (attempt 2 of 3)",
+      "starter_code": "// Login exception hierarchy: base + 2 specific subclasses\n",
+      "expected_solution": "class LoginException extends RuntimeException {\n    LoginException(String msg) { super(msg); }\n}\n\nclass AccountLockedException extends LoginException {\n    private final int lockDuration;\n    AccountLockedException(int lockDuration) {\n        super(\"Account locked for \" + lockDuration + \" minutes\");\n        this.lockDuration = lockDuration;\n    }\n    int getLockDuration() { return lockDuration; }\n}\n\nclass InvalidCredentialsException extends LoginException {\n    private final int attempt;\n    InvalidCredentialsException(int attempt) {\n        super(\"Invalid credentials (attempt \" + attempt + \")\");\n        this.attempt = attempt;\n    }\n    int getAttemptNumber() { return attempt; }\n}\n\npublic class App {\n    static void login(String user, String pass, int attempt) {\n        if (attempt > 3) throw new AccountLockedException(30);\n        if (!pass.equals(\"correct\")) throw new InvalidCredentialsException(attempt);\n    }\n    \n    public static void main(String[] args) {\n        // Locked account\n        try { login(\"aisha\", \"wrong\", 4); }\n        catch (AccountLockedException e) { System.out.println(\"Locked! \" + e.getMessage()); }\n        catch (InvalidCredentialsException e) { System.out.println(\"Wrong password (attempt \" + e.getAttemptNumber() + \" of 3)\"); }\n        \n        // Wrong password\n        try { login(\"raj\", \"wrong\", 2); }\n        catch (AccountLockedException e) { System.out.println(\"Locked! \" + e.getMessage()); }\n        catch (InvalidCredentialsException e) { System.out.println(\"Wrong password (attempt \" + e.getAttemptNumber() + \" of 3)\"); }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Locked! Account locked for 30 minutes\nWrong password (attempt 2 of 3)" }
+      ],
+      "hints": [
+        "AccountLockedException and InvalidCredentialsException both extend LoginException",
+        "Catch specific subclasses first",
+        "Each subclass carries different domain data"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m7_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "OrderException with item details",
+      "scenario": "Rich domain exception for an e-commerce order.",
+      "instructions": "Create `OrderException extends RuntimeException` with:\n- `orderId` (String)\n- `reason` (String)\n- `failedItem` (String, may be null)\n\nMessage: 'Order #orderId failed: reason [item: failedItem]' (skip item part if null).\n\nThrow it for: out-of-stock item, payment declined.\n\nExpected output:\nOrder #ORD-001 failed: Item 'Headphones' is out of stock [item: Headphones]\nOrder #ORD-002 failed: Payment declined by bank",
+      "starter_code": "// OrderException with orderId, reason, failedItem fields\n",
+      "expected_solution": "class OrderException extends RuntimeException {\n    private final String orderId;\n    private final String reason;\n    private final String failedItem;\n    \n    OrderException(String orderId, String reason, String failedItem) {\n        super(buildMessage(orderId, reason, failedItem));\n        this.orderId = orderId;\n        this.reason = reason;\n        this.failedItem = failedItem;\n    }\n    \n    private static String buildMessage(String orderId, String reason, String item) {\n        String msg = \"Order #\" + orderId + \" failed: \" + reason;\n        if (item != null) msg += \" [item: \" + item + \"]\";\n        return msg;\n    }\n    \n    String getOrderId() { return orderId; }\n    String getReason() { return reason; }\n    String getFailedItem() { return failedItem; }\n}\n\npublic class App {\n    static void placeOrder(String orderId, String item, boolean inStock, boolean paymentOk) {\n        if (!inStock)\n            throw new OrderException(orderId, \"Item '\" + item + \"' is out of stock\", item);\n        if (!paymentOk)\n            throw new OrderException(orderId, \"Payment declined by bank\", null);\n    }\n    \n    public static void main(String[] args) {\n        String[][] tests = {{\"ORD-001\", \"Headphones\"}, {\"ORD-002\", \"Mouse\"}};\n        boolean[] inStock = {false, true};\n        boolean[] payOk = {true, false};\n        \n        for (int i = 0; i < tests.length; i++) {\n            try {\n                placeOrder(tests[i][0], tests[i][1], inStock[i], payOk[i]);\n            } catch (OrderException e) {\n                System.out.println(e.getMessage());\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Order #ORD-001 failed: Item 'Headphones' is out of stock [item: Headphones]\nOrder #ORD-002 failed: Payment declined by bank" }
+      ],
+      "hints": [
+        "Build message in a static helper method called from super()",
+        "Null check on failedItem for optional message part",
+        "Three final fields with getters"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m7_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Wrap third-party exception in custom",
+      "scenario": "Convert library exception into domain exception.",
+      "instructions": "Simulate wrapping: a data parsing library throws `java.text.ParseException` (checked). Wrap it in unchecked `DataImportException` that also carries the input string that failed.\n\nExpected output:\nImported: ₹5000.0 on 2024-01-15\nDataImportException: Failed to import '2024-99-99' — caused by: Unparseable date: \"2024-99-99\"",
+      "starter_code": "import java.text.*;\n\n// DataImportException wraps ParseException, adds failedInput field\n",
+      "expected_solution": "import java.text.*;\n\nclass DataImportException extends RuntimeException {\n    private final String failedInput;\n    \n    DataImportException(String failedInput, Throwable cause) {\n        super(\"Failed to import '\" + failedInput + \"'\", cause);\n        this.failedInput = failedInput;\n    }\n    \n    String getFailedInput() { return failedInput; }\n}\n\npublic class App {\n    static String importRecord(String dateStr, String amountStr) {\n        SimpleDateFormat sdf = new SimpleDateFormat(\"yyyy-MM-dd\");\n        sdf.setLenient(false);\n        try {\n            sdf.parse(dateStr);  // throws ParseException for invalid dates\n            double amount = Double.parseDouble(amountStr);\n            return \"₹\" + amount + \" on \" + dateStr;\n        } catch (ParseException e) {\n            throw new DataImportException(dateStr, e);\n        }\n    }\n    \n    public static void main(String[] args) {\n        String[] dates = {\"2024-01-15\", \"2024-99-99\"};\n        for (String d : dates) {\n            try {\n                System.out.println(\"Imported: \" + importRecord(d, \"5000\"));\n            } catch (DataImportException e) {\n                System.out.println(\"DataImportException: \" + e.getMessage() +\n                    \" — caused by: \" + e.getCause().getMessage());\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Imported: ₹5000.0 on 2024-01-15\nDataImportException: Failed to import '2024-99-99' — caused by: Unparseable date: \"2024-99-99\"" }
+      ],
+      "hints": [
+        "DataImportException extends RuntimeException — unchecked",
+        "Constructor takes failedInput + cause: super('Failed to import ...' , cause)",
+        "Catch ParseException (checked), throw DataImportException (unchecked)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m7_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Hierarchy catch order with custom exceptions",
+      "scenario": "Specific subclass caught before base class.",
+      "instructions": "What does this print?\n\n```java\nclass AppException extends RuntimeException {\n    AppException(String msg) { super(msg); }\n}\nclass NotFoundException extends AppException {\n    NotFoundException(String msg) { super(msg); }\n}\n\npublic class App {\n    static void doIt(boolean specific) {\n        if (specific) throw new NotFoundException(\"item gone\");\n        else throw new AppException(\"general failure\");\n    }\n    \n    public static void main(String[] args) {\n        for (boolean b : new boolean[]{true, false}) {\n            try { doIt(b); }\n            catch (NotFoundException e) { System.out.println(\"NOT_FOUND: \" + e.getMessage()); }\n            catch (AppException e)      { System.out.println(\"APP: \" + e.getMessage()); }\n        }\n    }\n}\n```",
+      "expected_solution": "NOT_FOUND: item gone\nAPP: general failure",
+      "test_cases": [
+        { "type": "text_match", "expected": "NOT_FOUND: item gone\nAPP: general failure" }
+      ],
+      "hints": [
+        "NotFoundException extends AppException",
+        "Specific catch (NotFoundException) first — catches the subtype",
+        "Base catch (AppException) second — catches any other AppException"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m7_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full inventory exception system",
+      "scenario": "Complete exception design for an inventory domain.",
+      "instructions": "Build an inventory exception system:\n- `InventoryException extends RuntimeException` — base\n- `ProductNotFoundException extends InventoryException` — productId field\n- `InsufficientQuantityException extends InventoryException` — productId, requested, available\n\nInventory.remove(productId, qty) throws the right exception:\n\nExpected output:\nRemoved 3 x Mouse (32 left)\nProductNotFoundException: Product 'TABLET-01' not found\nInsufficientQuantityException: Mouse: requested 50, only 35 available",
+      "starter_code": "import java.util.*;\n\n// Inventory exception hierarchy and Inventory class\n",
+      "expected_solution": "import java.util.*;\n\nclass InventoryException extends RuntimeException {\n    InventoryException(String msg) { super(msg); }\n}\n\nclass ProductNotFoundException extends InventoryException {\n    private final String productId;\n    ProductNotFoundException(String productId) {\n        super(\"Product '\" + productId + \"' not found\");\n        this.productId = productId;\n    }\n    String getProductId() { return productId; }\n}\n\nclass InsufficientQuantityException extends InventoryException {\n    private final String productId;\n    private final int requested, available;\n    InsufficientQuantityException(String productId, int requested, int available) {\n        super(productId + \": requested \" + requested + \", only \" + available + \" available\");\n        this.productId = productId; this.requested = requested; this.available = available;\n    }\n}\n\nclass Inventory {\n    private Map<String, Integer> stock = new HashMap<>();\n    \n    Inventory() {\n        stock.put(\"Mouse\", 35);\n        stock.put(\"Keyboard\", 12);\n    }\n    \n    void remove(String productId, int qty) {\n        Integer current = stock.get(productId);\n        if (current == null) throw new ProductNotFoundException(productId);\n        if (current < qty)   throw new InsufficientQuantityException(productId, qty, current);\n        stock.put(productId, current - qty);\n        System.out.println(\"Removed \" + qty + \" x \" + productId + \" (\" + (current - qty) + \" left)\");\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Inventory inv = new Inventory();\n        String[][] tests = {{\"Mouse\",\"3\"},{\"TABLET-01\",\"1\"},{\"Mouse\",\"50\"}};\n        for (String[] t : tests) {\n            try {\n                inv.remove(t[0], Integer.parseInt(t[1]));\n            } catch (ProductNotFoundException e) {\n                System.out.println(\"ProductNotFoundException: \" + e.getMessage());\n            } catch (InsufficientQuantityException e) {\n                System.out.println(\"InsufficientQuantityException: \" + e.getMessage());\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Removed 3 x Mouse (32 left)\nProductNotFoundException: Product 'TABLET-01' not found\nInsufficientQuantityException: Mouse: requested 50, only 35 available" }
+      ],
+      "hints": [
+        "After removing 3 Mice, 35-3=32 remain",
+        "Second test: TABLET-01 not in stock map → ProductNotFoundException",
+        "Third test: Mouse has 32, need 50 → InsufficientQuantityException"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m7_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Exception message quality",
+      "scenario": "Good vs bad exception messages — context matters.",
+      "instructions": "Same exception thrown with different message quality. Create `ValidationException`. Demonstrate: bad message (vague), good message (with entity ID and constraint).\n\nExpected output:\nBad: invalid\nGood: User ID-42: email 'notAnEmail' is not valid (must contain @)",
+      "starter_code": "// ValidationException — demonstrate message quality difference\n",
+      "expected_solution": "class ValidationException extends RuntimeException {\n    ValidationException(String message) { super(message); }\n}\n\npublic class App {\n    static void validateBad(String value) {\n        if (!value.contains(\"@\")) throw new ValidationException(\"invalid\");\n    }\n    \n    static void validateGood(String userId, String field, String value) {\n        if (!value.contains(\"@\"))\n            throw new ValidationException(\n                \"User \" + userId + \": \" + field + \" '\" + value + \"' is not valid (must contain @)\");\n    }\n    \n    public static void main(String[] args) {\n        try { validateBad(\"notAnEmail\"); }\n        catch (ValidationException e) { System.out.println(\"Bad: \" + e.getMessage()); }\n        \n        try { validateGood(\"ID-42\", \"email\", \"notAnEmail\"); }\n        catch (ValidationException e) { System.out.println(\"Good: \" + e.getMessage()); }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Bad: invalid\nGood: User ID-42: email 'notAnEmail' is not valid (must contain @)" }
+      ],
+      "hints": [
+        "Both throw ValidationException — difference is only the message",
+        "Good message: entity ID + field name + actual value + constraint",
+        "Shows why context in messages matters for debugging"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m7_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "E-commerce order exception hierarchy",
+      "scenario": "Design a complete exception hierarchy for an order domain.",
+      "instructions": "Design exception hierarchy:\n```\nOrderException extends RuntimeException (base)\n├── CartException (items issues)\n│   └── OutOfStockException — itemId, requested, available\n└── CheckoutException (checkout failures)\n    ├── PaymentDeclinedException — cardLast4, declineReason\n    └── AddressUnserviceableException — pincode\n```\n\nTest all four exception types.\n\nExpected output:\nOutOfStockException: Item 'MOUSE-01' requested 3 but only 1 in stock\nPaymentDeclinedException: Card ending 4242 declined: insufficient_funds\nAddressUnserviceableException: Pincode 999999 is not serviceable\nBase CartException: Cart validation failed",
+      "starter_code": "// Full e-commerce order exception hierarchy\n",
+      "expected_solution": "class OrderException extends RuntimeException {\n    OrderException(String msg) { super(msg); }\n}\n\nclass CartException extends OrderException {\n    CartException(String msg) { super(msg); }\n}\n\nclass OutOfStockException extends CartException {\n    private final String itemId;\n    private final int requested, available;\n    OutOfStockException(String itemId, int req, int avail) {\n        super(\"Item '\" + itemId + \"' requested \" + req + \" but only \" + avail + \" in stock\");\n        this.itemId = itemId; this.requested = req; this.available = avail;\n    }\n    String getItemId() { return itemId; }\n}\n\nclass CheckoutException extends OrderException {\n    CheckoutException(String msg) { super(msg); }\n}\n\nclass PaymentDeclinedException extends CheckoutException {\n    private final String cardLast4, declineReason;\n    PaymentDeclinedException(String last4, String reason) {\n        super(\"Card ending \" + last4 + \" declined: \" + reason);\n        this.cardLast4 = last4; this.declineReason = reason;\n    }\n    String getCardLast4() { return cardLast4; }\n    String getDeclineReason() { return declineReason; }\n}\n\nclass AddressUnserviceableException extends CheckoutException {\n    private final String pincode;\n    AddressUnserviceableException(String pin) {\n        super(\"Pincode \" + pin + \" is not serviceable\");\n        this.pincode = pin;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        OrderException[] errors = {\n            new OutOfStockException(\"MOUSE-01\", 3, 1),\n            new PaymentDeclinedException(\"4242\", \"insufficient_funds\"),\n            new AddressUnserviceableException(\"999999\"),\n            new CartException(\"Cart validation failed\")\n        };\n        \n        for (OrderException e : errors) {\n            if (e instanceof OutOfStockException ose)\n                System.out.println(\"OutOfStockException: \" + ose.getMessage());\n            else if (e instanceof PaymentDeclinedException pde)\n                System.out.println(\"PaymentDeclinedException: \" + pde.getMessage());\n            else if (e instanceof AddressUnserviceableException ae)\n                System.out.println(\"AddressUnserviceableException: \" + ae.getMessage());\n            else\n                System.out.println(\"Base CartException: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "OutOfStockException: Item 'MOUSE-01' requested 3 but only 1 in stock\nPaymentDeclinedException: Card ending 4242 declined: insufficient_funds\nAddressUnserviceableException: Pincode 999999 is not serviceable\nBase CartException: Cart validation failed" }
+      ],
+      "hints": [
+        "Two branches: CartException and CheckoutException under OrderException",
+        "Each leaf has domain-specific fields",
+        "instanceof pattern matching to identify which subtype",
+        "CartException (base) catches only when no specific type matched"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m7_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Custom exception in REST API response simulation",
+      "scenario": "Translate exceptions into HTTP-like responses.",
+      "instructions": "Build an `ApiException` hierarchy where each exception maps to an HTTP status code.\n\n- `ApiException extends RuntimeException` — base, with `httpStatus` field\n- `NotFoundException extends ApiException` — status 404, resourceId field\n- `UnauthorizedException extends ApiException` — status 401\n- `ValidationException extends ApiException` — status 400, fieldErrors List<String>\n\n`ApiController.process(String action)` throws appropriate exception per action. A `handleRequest` method returns a formatted response string.\n\nExpected output:\n200: OK — User profile loaded\n404: NOT FOUND — Resource 'user-999' not found\n401: UNAUTHORIZED — Authentication required\n400: BAD REQUEST — Field errors: [name is required, email is invalid]",
+      "starter_code": "import java.util.*;\n\n// ApiException hierarchy with HTTP status codes\n",
+      "expected_solution": "import java.util.*;\n\nclass ApiException extends RuntimeException {\n    private final int httpStatus;\n    ApiException(int status, String msg) { super(msg); this.httpStatus = status; }\n    int getHttpStatus() { return httpStatus; }\n}\n\nclass NotFoundException extends ApiException {\n    private final String resourceId;\n    NotFoundException(String resourceId) {\n        super(404, \"Resource '\" + resourceId + \"' not found\");\n        this.resourceId = resourceId;\n    }\n    String getResourceId() { return resourceId; }\n}\n\nclass UnauthorizedException extends ApiException {\n    UnauthorizedException() { super(401, \"Authentication required\"); }\n}\n\nclass ValidationException extends ApiException {\n    private final List<String> fieldErrors;\n    ValidationException(List<String> errors) {\n        super(400, \"Field errors: \" + errors);\n        this.fieldErrors = errors;\n    }\n    List<String> getFieldErrors() { return fieldErrors; }\n}\n\npublic class App {\n    static void process(String action) {\n        switch (action) {\n            case \"ok\"         -> System.out.println(\"200: OK — User profile loaded\");\n            case \"notfound\"   -> throw new NotFoundException(\"user-999\");\n            case \"auth\"       -> throw new UnauthorizedException();\n            case \"validation\" -> throw new ValidationException(List.of(\"name is required\", \"email is invalid\"));\n        }\n    }\n    \n    static String handleRequest(String action) {\n        try {\n            process(action);\n            return null;\n        } catch (NotFoundException e) {\n            return e.getHttpStatus() + \": NOT FOUND — \" + e.getMessage();\n        } catch (UnauthorizedException e) {\n            return e.getHttpStatus() + \": UNAUTHORIZED — \" + e.getMessage();\n        } catch (ValidationException e) {\n            return e.getHttpStatus() + \": BAD REQUEST — Field errors: \" + e.getFieldErrors();\n        } catch (ApiException e) {\n            return e.getHttpStatus() + \": ERROR — \" + e.getMessage();\n        }\n    }\n    \n    public static void main(String[] args) {\n        String[] actions = {\"ok\", \"notfound\", \"auth\", \"validation\"};\n        for (String a : actions) {\n            String result = handleRequest(a);\n            if (result != null) System.out.println(result);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "200: OK — User profile loaded\n404: NOT FOUND — Resource 'user-999' not found\n401: UNAUTHORIZED — Authentication required\n400: BAD REQUEST — Field errors: [name is required, email is invalid]" }
+      ],
+      "hints": [
+        "ApiException has httpStatus field — passed to super(status, msg)",
+        "Each subclass sets its own status code via super(statusCode, message)",
+        "ValidationException carries a List<String> of errors",
+        "handleRequest catches specific types to get structured data"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m7_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Razorpay-style payment exception system",
+      "scenario": "Production-grade exception design for a payment service.",
+      "instructions": "Design the exception system for a payment processor:\n\nUnchecked hierarchy:\n```\nRazorpayException (base, has: errorCode, description)\n├── PaymentException (has: paymentId)\n│   ├── CardDeclinedException (has: declineCode: insufficient_funds/stolen_card/expired_card)\n│   └── PaymentGatewayException (has: gatewayId)\n└── RefundException (has: refundId, reason)\n```\n\nProcess 4 transactions and handle each specifically.\n\nExpected output:\nPAY-001 success: ₹5000.0\nPAY-002 DECLINED (insufficient_funds): Ask user to add funds or try another card\nPAY-003 GATEWAY ERROR (HDFC-GW): Retry in 30s or contact support\nREFUND-001 FAILED: Refund deadline exceeded",
+      "starter_code": "// Complete Razorpay-style payment exception hierarchy\n",
+      "expected_solution": "class RazorpayException extends RuntimeException {\n    private final String errorCode, description;\n    RazorpayException(String errorCode, String description) {\n        super(\"[\" + errorCode + \"] \" + description);\n        this.errorCode = errorCode; this.description = description;\n    }\n    String getErrorCode() { return errorCode; }\n    String getDescription() { return description; }\n}\n\nclass PaymentException extends RazorpayException {\n    private final String paymentId;\n    PaymentException(String paymentId, String errorCode, String desc) {\n        super(errorCode, desc);\n        this.paymentId = paymentId;\n    }\n    String getPaymentId() { return paymentId; }\n}\n\nclass CardDeclinedException extends PaymentException {\n    private final String declineCode;\n    CardDeclinedException(String paymentId, String declineCode) {\n        super(paymentId, \"CARD_DECLINED\", \"Card declined: \" + declineCode);\n        this.declineCode = declineCode;\n    }\n    String getDeclineCode() { return declineCode; }\n}\n\nclass PaymentGatewayException extends PaymentException {\n    private final String gatewayId;\n    PaymentGatewayException(String paymentId, String gatewayId) {\n        super(paymentId, \"GATEWAY_ERROR\", \"Gateway \" + gatewayId + \" unreachable\");\n        this.gatewayId = gatewayId;\n    }\n    String getGatewayId() { return gatewayId; }\n}\n\nclass RefundException extends RazorpayException {\n    private final String refundId, reason;\n    RefundException(String refundId, String reason) {\n        super(\"REFUND_FAILED\", reason);\n        this.refundId = refundId; this.reason = reason;\n    }\n    String getReason() { return reason; }\n}\n\npublic class App {\n    static double processPayment(String id, double amount, String scenario) {\n        switch (scenario) {\n            case \"decline\" -> throw new CardDeclinedException(id, \"insufficient_funds\");\n            case \"gateway\" -> throw new PaymentGatewayException(id, \"HDFC-GW\");\n            default -> { return amount; }\n        }\n    }\n    \n    static void processRefund(String refundId, String scenario) {\n        if (\"expired\".equals(scenario)) throw new RefundException(refundId, \"Refund deadline exceeded\");\n    }\n    \n    public static void main(String[] args) {\n        // PAY-001 success\n        try {\n            double amt = processPayment(\"PAY-001\", 5000, \"ok\");\n            System.out.println(\"PAY-001 success: ₹\" + amt);\n        } catch (CardDeclinedException e) {\n            System.out.println(e.getPaymentId() + \" DECLINED (\" + e.getDeclineCode() + \"): Ask user to add funds or try another card\");\n        } catch (PaymentGatewayException e) {\n            System.out.println(e.getPaymentId() + \" GATEWAY ERROR (\" + e.getGatewayId() + \"): Retry in 30s or contact support\");\n        }\n        \n        // PAY-002 declined\n        try {\n            processPayment(\"PAY-002\", 2000, \"decline\");\n        } catch (CardDeclinedException e) {\n            System.out.println(e.getPaymentId() + \" DECLINED (\" + e.getDeclineCode() + \"): Ask user to add funds or try another card\");\n        } catch (PaymentGatewayException e) {\n            System.out.println(e.getPaymentId() + \" GATEWAY ERROR (\" + e.getGatewayId() + \"): Retry in 30s or contact support\");\n        }\n        \n        // PAY-003 gateway error\n        try {\n            processPayment(\"PAY-003\", 1500, \"gateway\");\n        } catch (CardDeclinedException e) {\n            System.out.println(e.getPaymentId() + \" DECLINED (\" + e.getDeclineCode() + \"): Ask user to add funds or try another card\");\n        } catch (PaymentGatewayException e) {\n            System.out.println(e.getPaymentId() + \" GATEWAY ERROR (\" + e.getGatewayId() + \"): Retry in 30s or contact support\");\n        }\n        \n        // REFUND-001\n        try {\n            processRefund(\"REFUND-001\", \"expired\");\n        } catch (RefundException e) {\n            System.out.println(\"REFUND-001 FAILED: \" + e.getReason());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "PAY-001 success: ₹5000.0\nPAY-002 DECLINED (insufficient_funds): Ask user to add funds or try another card\nPAY-003 GATEWAY ERROR (HDFC-GW): Retry in 30s or contact support\nREFUND-001 FAILED: Refund deadline exceeded" }
+      ],
+      "hints": [
+        "RazorpayException base carries errorCode and description",
+        "PaymentException extends RazorpayException — adds paymentId",
+        "CardDeclinedException and PaymentGatewayException extend PaymentException",
+        "RefundException is separate branch under RazorpayException",
+        "Each catch block uses the specific type's getter methods"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "debug": 0,
+      "predict_output": 1
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 65
+  }
+}

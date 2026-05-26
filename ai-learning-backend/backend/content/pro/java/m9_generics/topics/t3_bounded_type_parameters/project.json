@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m9_t3_proj",
+  "linked_topic": "java_m9_t3",
+  "level": "mini",
+  "name": "Batch Data Processor V2 — Bounded Generic Statistics",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Upgrade the Batch Data Processor from Topic 7.4 (defensive programming) with a fully generic statistics engine. The new engine uses `<T extends Number & Comparable<T>>` to compute statistics on any numeric type — salary data, stock prices, order amounts, scores — all with the same generic code.",
+
+  "description": "A generic statistics library for numeric data processing. `DataBatch<T extends Number & Comparable<T>>` holds a batch of numbers and computes comprehensive statistics. `BatchProcessor` runs multiple batches and produces reports.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`DataBatch<T extends Number & Comparable<T>>` class:\n- Stores a named batch of values (List<T>, String batchName)\n- `add(T)`, `addAll(List<T>)`\n- `count()`, `sum()`, `average()`, `min()`, `max()`, `range()` — all properly typed\n- `isBetween(T value)` — is value within [min, max]?\n- `percentile(double p)` — return the pth percentile element (sort, get index p/100 * count)\n- `toString()` — formatted summary",
+        "weight": 30
+      },
+      {
+        "id": "req_2",
+        "description": "Generic static `BatchProcessor` methods:\n- `<T extends Number & Comparable<T>> DataBatch<T> merge(List<DataBatch<T>> batches, String name)` — combine all batches into one\n- `<T extends Number & Comparable<T>> List<T> outliers(DataBatch<T> batch, double threshold)` — values where |value - avg| > threshold\n- `<T extends Comparable<T>> T maxAcrossBatches(List<DataBatch<T>> batches)` — global max across all batches",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "Demonstrate with three use cases:\n1. Exam scores (Integer) — 3 batches (classes), merged, outliers, 75th percentile\n2. Stock prices (Double) — 2 batches, merged, global max\n3. Same DataBatch<Integer> and DataBatch<Double> coexist — showing type safety",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Each DataBatch.toString() prints: 'BatchName: count=N, avg=X.X, min=Y, max=Z'",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Zero casts. All generic. Null-safe (return Optional or throw for empty batches).",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `<T extends Number & Comparable<T>> boolean isNormal(T value, DataBatch<T> batch, double sigmas)` — is value within sigmas standard deviations of mean? Requires computing std dev.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `<T extends Number & Comparable<T>> Map<String, Double> summary(List<DataBatch<T>> batches)` — returns Map<batchName, average> for all batches using generic methods.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `<T extends Comparable<T>> DataBatch<T> topN(DataBatch<T> batch, int n)` — new batch with just the top N elements by value.",
+        "weight": 15
+      }
+    ]
+  },
+
+  "data_to_use": "Exam scores:\n- Class A: [85, 92, 78, 95, 68, 88, 91, 73]\n- Class B: [79, 84, 71, 96, 88, 62, 77, 85]\n- Class C: [88, 91, 95, 87, 92, 89, 93, 86]\n\nStock prices (Doubles):\n- Tech stocks: [2450.0, 3890.0, 1560.0, 412.0]\n- Finance stocks: [1678.0, 620.0, 2200.0, 890.0]",
+
+  "starter_code": "import java.util.*;\nimport java.util.stream.*;\n\npublic class BatchProcessor {\n    public static void main(String[] args) {\n        // Exam score batches (Integer)\n        // Stock price batches (Double)\n        // Demonstrate DataBatch<T> + BatchProcessor methods\n    }\n    // Define: DataBatch<T>, BatchProcessor static methods\n}",
+
+  "example_output": "=== Exam Score Analysis ===\nClass A: count=8, avg=83.75, min=68, max=95\nClass B: count=8, avg=80.25, min=62, max=96\nClass C: count=8, avg=90.13, min=86, max=95\nAll Classes: count=24, avg=84.71, min=62, max=96\n75th percentile: 92\nOutliers (threshold=15): [62, 96]\n\n=== Stock Price Analysis ===\nTech: count=4, avg=2078.0, min=412.0, max=3890.0\nFinance: count=4, avg=1347.0, min=620.0, max=2200.0\nGlobal max price: 3890.0",
+
+  "rubric": [
+    { "category": "DataBatch<T>", "points": 30, "criteria": ["Dual bound (10 pts)", "All 8 methods correct (15 pts)", "toString (5 pts)"] },
+    { "category": "BatchProcessor methods", "points": 25, "criteria": ["merge (10 pts)", "outliers (10 pts)", "maxAcrossBatches (5 pts)"] },
+    { "category": "Three Use Cases", "points": 20, "criteria": ["Integer and Double batches (10 pts)", "Merge and stats (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Zero casts (10 pts)", "Runs (5 pts)"] },
+    { "category": "Formatting", "points": 10, "criteria": ["Readable output (10 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["isNormal with std dev (20 pts)", "summary map (20 pts)", "topN (15 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The dual bound `<T extends Number & Comparable<T>>` is the core challenge. percentile(): sort a copy, return element at index (int)(p/100 * count). outliers(): |item.doubleValue() - average()| > threshold. merge(): create new DataBatch, addAll from each batch in list.",
+
+  "submission_instructions": "Save as BatchProcessor.java. Push to GitHub. Comment: 'Generic statistics engine — works for any numeric type'.",
+
+  "tips_for_success": [
+    "DataBatch<T extends Number & Comparable<T>> — declare both bounds on the class",
+    "percentile(double p): sort a copy, index = (int)(p / 100.0 * count()), return sorted.get(index)",
+    "outliers: |item.doubleValue() - average()| > threshold — use Math.abs()",
+    "merge: new DataBatch<>(name), then for each batch call result.addAll(batch.data)",
+    "maxAcrossBatches: find max element across all batches — only needs Comparable (not Number)"
+  ],
+
+  "concepts_reinforced": [
+    "Dual bound: Number AND Comparable",
+    "Methods available from each bound",
+    "Generic static methods on non-generic utility class",
+    "Same generic class serving Integer and Double",
+    "Type safety across batch operations"
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m4_t4_proj",
+  "linked_topic": "java_m4_t4",
+  "level": "mini",
+  "name": "Contact Deduplication System",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "You're building a contact-management tool for a CRM system (think Salesforce, HubSpot, Zoho CRM). Sales reps add contacts constantly, and duplicates creep in: same person added with slightly different details, same phone number with different email addresses, etc. Your job: build the deduplication engine that identifies and merges duplicates. This requires PROPERLY implementing equals/hashCode — which is exactly the topic you just learned. CRM dedup logic is real production code worth millions to companies (data quality is a key business asset).",
+  
+  "description": "Build a `Contact` class with full Object method overrides, then a `ContactBook` that detects duplicates. Demonstrates real-world use of equals/hashCode for finding duplicates and managing collections of objects.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Contact` class with private fields: name (String), email (String), phone (String)",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "Constructor takes all three; validates none are null/empty",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Getters for all three fields",
+        "weight": 5
+      },
+      {
+        "id": "req_4",
+        "description": "Override toString: 'Contact[name=<name>, email=<email>, phone=<phone>]'",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Override equals: two contacts are equal if EMAIL matches (case-insensitive) — emails are the unique identifier",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "Override hashCode: based on email (lowercase to match equals)",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "`ContactBook` class with private Contact[] contacts field and an int count of how many are actually filled",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "Constructor takes initial capacity (Contact[] of that size, count = 0)",
+        "weight": 5
+      },
+      {
+        "id": "req_9",
+        "description": "`addContact(Contact c)`: if a duplicate (by email) already exists, print 'Duplicate ignored' and don't add. Otherwise add.",
+        "weight": 15
+      },
+      {
+        "id": "req_10",
+        "description": "main() demonstrates: adding 5 contacts (some duplicates), final count, printing all contacts",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `findByEmail(String email)`: returns Contact or null. Uses equals for matching.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `removeByEmail(String email)`: removes contact if found. Returns boolean for success.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a `mergeContact(Contact incoming)` method: if email matches existing contact, UPDATE that contact's name and phone with new values (the latest data wins). Otherwise add as new.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add `countByDomain(String domain)`: count contacts whose email ends with @domain",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Test scenario in main():\n\n1. Create ContactBook with capacity 10\n\n2. Try to add 5 contacts:\n   - Aisha Khan, aisha@gmail.com, 9876543210\n   - Raj Patel, raj@company.com, 8765432109\n   - Aisha K., AISHA@GMAIL.COM, 9876543210  ← duplicate (case-insensitive email match)\n   - Priya Sharma, priya@yahoo.com, 7654321098\n   - Raj Patel Sr., raj@company.com, 8765432109  ← duplicate\n\n3. Print: count of unique contacts (should be 3), all contacts via toString\n\n4. Bonus operations if implemented:\n   - findByEmail('priya@yahoo.com') → returns Priya's contact\n   - countByDomain('gmail.com') → 1\n   - removeByEmail('raj@company.com') → true, count = 2\n   - Try removeByEmail('notfound@x.com') → false",
+  
+  "starter_code": "import java.util.Objects;\n\npublic class ContactDedup {\n    public static void main(String[] args) {\n        // Create ContactBook\n        // Try adding 5 contacts (some duplicates)\n        // Verify final count and contents\n    }\n    \n    // Define Contact class\n    // Define ContactBook class\n}",
+  
+  "example_output": "===================================\n      CONTACT DEDUPLICATION\n===================================\nAdded: Contact[name=Aisha Khan, email=aisha@gmail.com, phone=9876543210]\nAdded: Contact[name=Raj Patel, email=raj@company.com, phone=8765432109]\nDuplicate ignored: aisha@gmail.com\nAdded: Contact[name=Priya Sharma, email=priya@yahoo.com, phone=7654321098]\nDuplicate ignored: raj@company.com\n\nFinal count: 3\n\nAll contacts:\nContact[name=Aisha Khan, email=aisha@gmail.com, phone=9876543210]\nContact[name=Raj Patel, email=raj@company.com, phone=8765432109]\nContact[name=Priya Sharma, email=priya@yahoo.com, phone=7654321098]\n\n(Bonus) Find priya@yahoo.com:\n  Contact[name=Priya Sharma, email=priya@yahoo.com, phone=7654321098]\n(Bonus) Gmail.com count: 1\n(Bonus) Removed raj@company.com: true\n(Bonus) Final count: 2\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Contact Class Design",
+      "points": 25,
+      "criteria": [
+        "Fields private, constructor validates (5 pts)",
+        "toString format correct (5 pts)",
+        "equals compares email case-insensitively (10 pts)",
+        "hashCode uses same field (email lowercase) (5 pts)"
+      ]
+    },
+    {
+      "category": "ContactBook Design",
+      "points": 30,
+      "criteria": [
+        "Internal Contact[] array (5 pts)",
+        "Count tracking (5 pts)",
+        "addContact uses equals to detect duplicates (15 pts)",
+        "Duplicate handling correct (5 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration",
+      "points": 15,
+      "criteria": [
+        "All test cases shown (10 pts)",
+        "Clear output formatting (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "@Override annotations present (5 pts)",
+        "Validation logic clean (5 pts)",
+        "Method names descriptive (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 75,
+      "criteria": [
+        "findByEmail (15 pts)",
+        "removeByEmail (20 pts)",
+        "mergeContact update logic (25 pts)",
+        "countByDomain (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The key design choice: equals compares emails CASE-INSENSITIVELY. This means: (1) equals lowercases both, OR (2) the field is stored lowercased on creation. Either approach works. hashCode must use the SAME comparison logic.",
+  
+  "submission_instructions": "Save as ContactDedup.java. Run it. Push to GitHub portfolio. This is REAL CRM deduplication logic — Salesforce/HubSpot/Zoho all have similar engines (with more sophisticated fuzzy matching).",
+  
+  "tips_for_success": [
+    "For case-insensitive email equality: use `this.email.equalsIgnoreCase(other.email)` in equals",
+    "Or simpler: in constructor, store email lowercased. Then equals can use normal Objects.equals.",
+    "Whatever equals does, hashCode must match. If equals lowercases for comparison, hashCode must use the lowercase value.",
+    "addContact: loop through current contacts (0 to count-1), check if any .equals() the new one",
+    "Don't iterate to contacts.length — many slots are null. Iterate to count.",
+    "For removeByEmail: find index, shift remaining contacts down, decrement count, set last slot to null.",
+    "mergeContact: find existing by email, if found update name/phone (need setters or new constructor), if not add new"
+  ],
+  
+  "concepts_reinforced": [
+    "Override toString, equals, hashCode",
+    "@Override annotation",
+    "Objects.hash and Objects.equals",
+    "instanceof for type checking",
+    "Casting in equals",
+    "Case-insensitive String comparison (equalsIgnoreCase)",
+    "Using equals for duplicate detection",
+    "Multi-class system design",
+    "Array management with count tracking (pre-ArrayList pattern)"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond practicing Object method overrides, you build REAL CRM functionality. Deduplication is a HUGE pain point in data systems — bad CRM data costs companies millions. Your engine uses email as the unique key (case-insensitive — because users type 'aisha@gmail.com' and 'Aisha@Gmail.COM' interchangeably).\n\nThe equals/hashCode contract becomes practical here: if you put these Contacts in a HashSet (next module), your dedup logic happens automatically. The custom array-based dedup you're writing now will be one-line `Set<Contact> uniqueContacts = new HashSet<>(allContacts)` later. But understanding the underlying mechanism is essential.\n\nReal CRMs go further: 'fuzzy matching' (Levenshtein distance for typos), phone number normalization (strip non-digits), name variants ('Robert' = 'Bob'). But the FOUNDATION is exactly what you're building.",
+  
+  "extensions_for_advanced_learners": [
+    "Add fuzzy email matching (ignore dots in local part: john.smith@gmail.com = johnsmith@gmail.com)",
+    "Normalize phone numbers (strip spaces, dashes, +91 prefix)",
+    "Implement contact merging that COMBINES info (longer name wins, both phones kept)",
+    "Add a 'last updated' timestamp to track when contacts were modified",
+    "Convert internal storage from Contact[] to HashSet<Contact> when Collections module hits — dedup becomes automatic",
+    "Add Levenshtein distance check for name typos"
+  ]
+}

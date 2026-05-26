@@ -1,0 +1,225 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t3",
+  "language": "java",
+  "module_id": "m2",
+  "module_name": "Methods & Code Organization",
+  "topic_number": 3,
+  "name": "Method Overloading",
+  "slug": "method-overloading",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 45,
+    "prerequisites": ["java_m2_t1", "java_m2_t2"],
+    "concepts_taught": [
+      "method_overloading",
+      "method_signature_uniqueness",
+      "compile_time_resolution",
+      "type_promotion_in_overloading",
+      "overloading_vs_overriding",
+      "varargs_introduction",
+      "constructor_overloading_preview"
+    ],
+    "skills_developed": [
+      "recognizing_overload_opportunities",
+      "designing_overload_families",
+      "avoiding_overload_overkill",
+      "predicting_which_overload_called",
+      "reading_overloaded_apis"
+    ],
+    "career_relevance": "Overloading is everywhere in real Java. `System.out.println()` has 10+ overloads (one for each primitive type, plus String and Object). Same method name, different inputs — that's overloading. Understanding it lets you READ the Java standard library, modern libraries like Spring, and design clean APIs yourself. More importantly, knowing when NOT to overload (and just rename instead) is what separates engineers from over-engineers.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "When you write `System.out.println(42)`, you're calling a method. When you write `System.out.println(\"Hello\")`, you're ALSO calling a method called println. When you write `System.out.println(3.14)`, same name, called again. How does Java know which one to use?\n\nIt doesn't — there are TEN different `println` methods. One for int, one for double, one for String, one for boolean, one for char, one for long, one for float, one for Object, one for char arrays, and one with no arguments. Java picks the right one based on what you pass in. That's **method overloading** — multiple methods with the same name, different parameters. It's used so heavily that you've been using it since Hello World without realizing.",
+    "what_you_will_build": "By the end of this topic, you'll know how to define multiple methods with the same name (overloads) and Java's rules for picking which one runs. You'll build an overloaded math utility — same operation, multiple parameter types. You'll also recognize when overloading helps (clarity) vs hurts (confusion), because over-overloading is a real anti-pattern in messy codebases."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**Method overloading**: defining multiple methods in the same class with the SAME NAME but DIFFERENT parameter signatures.\n\nSimple example:\n\n```java\npublic class Calculator {\n    public static int add(int a, int b) {\n        return a + b;\n    }\n    \n    public static double add(double a, double b) {\n        return a + b;\n    }\n    \n    public static int add(int a, int b, int c) {\n        return a + b + c;\n    }\n}\n```\n\nThree methods, all named `add`. Java picks which one based on arguments:\n\n```java\nadd(5, 3);          // calls add(int, int) → 8\nadd(2.5, 1.5);      // calls add(double, double) → 4.0\nadd(1, 2, 3);       // calls add(int, int, int) → 6\n```\n\nThis is legal Java. It's also DRY — three methods, one concept, one name.",
+      
+      "what_makes_overload_legal": "Overloads must differ in their **parameter list** (the signature). They can differ by:\n\n1. **Number of parameters**:\n```java\nint multiply(int a, int b)\nint multiply(int a, int b, int c)\n```\n\n2. **Types of parameters**:\n```java\nint add(int a, int b)\ndouble add(double a, double b)\nString add(String a, String b)  // concatenates\n```\n\n3. **Order of parameter types** (different combinations):\n```java\nvoid log(String message, int code)\nvoid log(int code, String message)\n```\n\nThis last one works but is **a bad idea** — confusing for users. Stick to clear distinctions.\n\n**What does NOT make overloads**:\n\n```java\nint calculate(int a, int b)\ndouble calculate(int a, int b)  // ERROR — same signature\n```\n\nReturn type alone doesn't differentiate. The compiler can't tell which to call based on what you're assigning to.\n\n```java\nint sum(int a, int b)\nint sum(int x, int y)  // ERROR — parameter NAMES don't matter\n```\n\nThe NAMES of parameters (a vs x) don't differentiate either. Only types and counts.",
+      
+      "how_java_picks": "Java resolves overloads at **compile time** based on the argument types.\n\n```java\nadd(5, 3);  // Both args are int → calls add(int, int)\nadd(2.5, 1.5);  // Both are double → calls add(double, double)\n```\n\nWhen there's no exact match, Java uses **type promotion**:\n\n```java\npublic static int add(int a, int b) { return a + b; }\npublic static double add(double a, double b) { return a + b; }\n\nadd(5, 3.0);  // int + double — Java promotes 5 to 5.0, calls add(double, double)\n```\n\nThe promotion rules: `byte` → `short` → `int` → `long` → `float` → `double`. Java picks the closest match, promoting smaller types if needed.\n\n**Ambiguity is an error**:\n\n```java\npublic static void show(int a, double b) { ... }\npublic static void show(double a, int b) { ... }\n\nshow(5, 5);  // ERROR — could promote either way. Compiler refuses to guess.\n```\n\nFix: cast explicitly. `show((double) 5, 5)` or `show(5, (int) 5)`.\n\nUseful general rule: avoid creating ambiguous overloads. If two overloads could both match a call (after promotion), Java fails. Better not to design APIs that way.",
+      
+      "real_world_overloading": "Where you've seen overloading already:\n\n**System.out.println**:\n```java\nprintln()                  // no arg — just newline\nprintln(int x)\nprintln(long x)\nprintln(double x)\nprintln(boolean x)\nprintln(char x)\nprintln(String x)\nprintln(Object x)\nprintln(char[] x)\n```\n\nAll do similar things (print + newline). Different inputs, same intent. Perfect overloading.\n\n**Math.max**:\n```java\nMath.max(int a, int b)\nMath.max(long a, long b)\nMath.max(float a, float b)\nMath.max(double a, double b)\n```\n\nSame conceptual operation (return the larger), different types.\n\n**Math.abs**:\n```java\nMath.abs(int x)\nMath.abs(long x)\nMath.abs(float x)\nMath.abs(double x)\n```\n\n**StringBuilder.append**:\n```java\nappend(String s)\nappend(int i)\nappend(double d)\nappend(boolean b)\nappend(char c)\n// ... many more\n```\n\nNotice the pattern: overloads exist when the OPERATION is the same but inputs vary. They share a NAME because they share an INTENT.",
+      
+      "when_to_overload": "**Good reasons to overload**:\n\n1. **Same operation, different parameter types**:\n   - `print(int)`, `print(String)`, `print(double)` — same intent\n\n2. **Same operation, optional parameters** (Java's way around default parameters):\n   - `connect(String host)` — uses default port\n   - `connect(String host, int port)` — explicit port\n\n3. **Convenience methods**:\n   - `format(String template, Object arg)`\n   - `format(String template, Object arg1, Object arg2)`\n   - `format(String template, Object arg1, Object arg2, Object arg3)`\n\n**Bad reasons to overload**:\n\n1. **Different operations** — if methods do different things, give them different names!\n```java\n// BAD — these don't do the same thing\nvoid process(User user) { /* save to db */ }\nvoid process(Order order) { /* send email */ }\n\n// GOOD — different names for different operations\nvoid saveUser(User user) { ... }\nvoid sendOrderConfirmation(Order order) { ... }\n```\n\n2. **To avoid passing null** — better to use Optional or different names\n\n3. **Showing off** — if a single method with optional logic is clearer, don't overload",
+      
+      "overloading_vs_overriding": "Two terms that sound similar but are different:\n\n**Overloading** (this topic): Multiple methods with SAME name, DIFFERENT parameters, in the SAME class. Resolved at compile time.\n\n**Overriding** (OOP module): A subclass providing its own version of a method inherited from a parent class. Same name, same parameters. Resolved at runtime.\n\nIf you encounter the word 'overriding,' it means inheritance — completely different concept. We'll cover overriding in the OOP module.\n\nFor now: overloading = same class, different signatures.",
+      
+      "varargs_brief_intro": "**Varargs** (variable-length arguments) is related to overloading. Lets you accept ANY number of arguments of the same type:\n\n```java\npublic static int sum(int... numbers) {\n    int total = 0;\n    for (int n : numbers) {\n        total += n;\n    }\n    return total;\n}\n\n// Call with any number of ints:\nsum(1, 2);              // 3\nsum(1, 2, 3, 4);        // 10\nsum(5);                 // 5\nsum();                  // 0\n```\n\nThe `int...` syntax means 'zero or more int arguments.' Inside the method, `numbers` is treated like an array (we'll cover arrays in next module).\n\n**When to use varargs**: when the number of arguments is genuinely unknown. Common in: printf-style formatting, building collections, logging.\n\n**Caveats**:\n- Only ONE varargs parameter per method (and must be LAST)\n- Can clash with overloading — Java may struggle to pick between `sum(int, int)` and `sum(int...)` for `sum(1, 2)`. It will prefer the specific overload, but be careful.\n\nWe'll see more of varargs when we hit collections and Strings. For now, just know it exists.",
+      
+      "constructor_overloading_preview": "Constructors (covered in OOP module) are special methods for creating objects. They can be overloaded just like regular methods:\n\n```java\npublic class User {\n    // Constructor with all fields\n    public User(String name, int age, String email) { ... }\n    \n    // Constructor with just name (defaults age and email)\n    public User(String name) { ... }\n    \n    // Empty constructor\n    public User() { ... }\n}\n```\n\nThis lets users create objects in different ways:\n\n```java\nUser u1 = new User(\"Aisha\", 28, \"aisha@example.com\");\nUser u2 = new User(\"Raj\");\nUser u3 = new User();\n```\n\nWe'll fully cover this in OOP. Mentioned now because constructor overloading is the most common form of overloading you'll see in real codebases."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three method boxes labeled 'add(int, int)', 'add(double, double)', 'add(int, int, int)' — all in the same class, all named 'add'. Three call examples below: add(5,3) with arrow pointing to int,int version; add(2.5, 1.5) pointing to double,double; add(1,2,3) pointing to triple-int version. Below: a 'NOT VALID' section showing two methods that ONLY differ in return type — with a red X showing the compiler rejects this. Annotation: 'Java picks the overload based on argument TYPES and COUNT, never return type.'",
+      "alt_text": "Diagram showing method overloading resolution and what makes overloads legal vs invalid"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a logging utility for a microservice. Engineers across the team want to log different things: simple messages, messages with severity levels, messages with timestamps, error messages with stack info. Instead of forcing them to remember 5 different method names like `logSimple`, `logWithLevel`, `logWithTime` — you'll overload one name: `log`. They call `log(...)` with whatever they have, and Java picks the right one. This is exactly how production logging libraries (Log4j, SLF4J) work.",
+    
+    "problem_statement": "Build a `Logger` class with overloaded `log()` methods:\n\n1. `log(String message)` — simple message, prefixed with [INFO]\n2. `log(String level, String message)` — message with custom level like [WARN]\n3. `log(String message, int errorCode)` — message with error code\n4. `log(String level, String message, int errorCode)` — full version\n\nmain() demonstrates all four overloads.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Identify what stays the same and what varies",
+        "details": "All overloads do the same conceptual thing: print a log line. They differ in:\n- How much information they accept\n- The format of the output\n\nThis is the textbook case for overloading: same intent (log something), different inputs. Sharing the name `log` makes the API intuitive."
+      },
+      {
+        "step": 2,
+        "action": "Write the simplest overload first",
+        "details": "Start with the most basic:\n\n```java\npublic static void log(String message) {\n    System.out.println(\"[INFO] \" + message);\n}\n```\n\nUsage: `log(\"Server started\")` → prints `[INFO] Server started`\n\nThe default level is INFO. This is the convenience overload — for the common case."
+      },
+      {
+        "step": 3,
+        "action": "Add the level-aware overload",
+        "details": "Custom level support:\n\n```java\npublic static void log(String level, String message) {\n    System.out.println(\"[\" + level + \"] \" + message);\n}\n```\n\nUsage: `log(\"WARN\", \"Disk space low\")` → prints `[WARN] Disk space low`\n\n**Notice**: the parameter ORDER. We chose (level, message) — level first because it's the modifier. Java standard library convention: 'qualifier first, content last.'"
+      },
+      {
+        "step": 4,
+        "action": "Add the error-code overload",
+        "details": "For errors with codes:\n\n```java\npublic static void log(String message, int errorCode) {\n    System.out.println(\"[ERROR \" + errorCode + \"] \" + message);\n}\n```\n\nUsage: `log(\"Database timeout\", 504)` → prints `[ERROR 504] Database timeout`\n\nNotice this overload assumes errors. The presence of an `int errorCode` parameter signals 'this is an error log.' Reasonable shortcut."
+      },
+      {
+        "step": 5,
+        "action": "Add the most-complete overload",
+        "details": "The full version with everything:\n\n```java\npublic static void log(String level, String message, int errorCode) {\n    System.out.println(\"[\" + level + \" \" + errorCode + \"] \" + message);\n}\n```\n\nUsage: `log(\"FATAL\", \"System crash\", 500)` → prints `[FATAL 500] System crash`\n\nThis is the most flexible. The other overloads are conveniences for common cases."
+      },
+      {
+        "step": 6,
+        "action": "Test all four overloads",
+        "details": "main() exercises every overload to confirm Java picks the right one:\n\n```java\npublic static void main(String[] args) {\n    log(\"Server started\");                          // 1 arg\n    log(\"WARN\", \"Disk space low\");                  // 2 args (Strings)\n    log(\"Database timeout\", 504);                   // 2 args (String, int)\n    log(\"FATAL\", \"System crash\", 500);              // 3 args\n}\n```\n\nJava resolves each call:\n- 1 arg → `log(String)` — only one matches\n- 2 String args → `log(String, String)` — exact type match\n- (String, int) → `log(String, int)` — exact type match\n- 3 args → `log(String, String, int)` — only one with 3 args\n\nNotice the second and third calls are NOT ambiguous because they have different parameter types in the second position (String vs int)."
+      }
+    ],
+    
+    "final_code": "public class Logger {\n    public static void main(String[] args) {\n        log(\"Server started\");\n        log(\"WARN\", \"Disk space low\");\n        log(\"Database timeout\", 504);\n        log(\"FATAL\", \"System crash\", 500);\n    }\n    \n    public static void log(String message) {\n        System.out.println(\"[INFO] \" + message);\n    }\n    \n    public static void log(String level, String message) {\n        System.out.println(\"[\" + level + \"] \" + message);\n    }\n    \n    public static void log(String message, int errorCode) {\n        System.out.println(\"[ERROR \" + errorCode + \"] \" + message);\n    }\n    \n    public static void log(String level, String message, int errorCode) {\n        System.out.println(\"[\" + level + \" \" + errorCode + \"] \" + message);\n    }\n}",
+    
+    "expected_output": "[INFO] Server started\n[WARN] Disk space low\n[ERROR 504] Database timeout\n[FATAL 500] System crash",
+    
+    "things_to_notice": [
+      "Same method NAME (`log`) used 4 different ways. Easier for callers — they don't need to remember 4 different names.",
+      "Java resolves each call at compile time. There's no runtime overhead.",
+      "Without overloading, you'd need `logSimple`, `logWithLevel`, `logError`, `logFull` — 4 names to remember. With overloading, 1 name, 4 ways.",
+      "This pattern is exactly how real loggers work: SLF4J's `logger.info()`, `logger.warn()`, etc., are all overloaded with different parameter types and counts.",
+      "**Important**: the second overload `log(String, String)` and the third overload `log(String, int)` differ in the type of the second parameter. If they had the same type, Java couldn't distinguish them.",
+      "We didn't have ambiguity to worry about — but in larger overload sets, you have to design carefully."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Java Standard Library (System, Math, String)",
+        "use_case": "`System.out.println` has ~10 overloads (one per primitive type + String + Object + char[]). `Math.max` has 4 overloads. `String.valueOf` has overloads for every primitive type. Overloading isn't a fancy technique — it's how Java's core library is built."
+      },
+      {
+        "company_context": "Logging libraries (Log4j, SLF4J, used in every Java service)",
+        "use_case": "Logger interfaces have overloaded methods: `info(String)`, `info(String, Object)`, `info(String, Object, Object)`, `info(String, Throwable)`. Each variant supports a different logging pattern. Every backend Java service uses this."
+      },
+      {
+        "company_context": "Spring Framework",
+        "use_case": "Spring's `JdbcTemplate.query()` has many overloads — different parameter combinations for executing SQL queries. Java developers calling Spring use whichever overload matches their needs. The Spring documentation is essentially a catalog of overloads."
+      },
+      {
+        "company_context": "JSON libraries (Jackson, Gson)",
+        "use_case": "ObjectMapper's `readValue` method has multiple overloads to accept JSON from String, File, InputStream, byte array, etc. Same operation (parse JSON), different input sources. Without overloading, you'd have `readValueFromString`, `readValueFromFile`, etc. — uglier API."
+      }
+    ],
+    
+    "interview_relevance": "Overloading questions in interviews:\n\n- **'What is method overloading?'** — Definition question. Same name, different signatures, same class.\n- **'What's the difference between overloading and overriding?'** — Common trick question. Overloading = same class. Overriding = subclass.\n- **'Can two methods differ only in return type?'** — NO. They must differ in parameters.\n- **'What is the output of this code?'** — Often shows ambiguous calls where you need to predict which overload runs (with type promotion).\n- **'Design an API for X'** — Senior-level. Good answers include thoughtful overload design.\n\nKnowing overloading is required for reading any non-trivial Java API. If you can't read overloads, you can't read documentation.",
+    
+    "real_world_workflow": "Daily life with overloading:\n\n- Reading new library docs: you scan a list of overloads, pick the one matching your inputs\n- Designing APIs for your team: you decide whether to overload or provide separate methods\n- IDE autocomplete: when you type `logger.info(` and pause, the IDE shows you all overloads — you pick one and fill in\n- Debugging: when a wrong overload gets picked due to type promotion, you cast explicitly to force the right one\n\nIt's not glamorous, but it's constant. Every JAR you import contains overloaded methods you'll call."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "differ_by_return_type_only",
+      "what_students_get_wrong": "Trying to overload by changing only the return type. Compiler rejects.",
+      "remediation": "Method signature = name + parameter types. Return type is NOT part of signature. Overloads must differ in parameters.",
+      "detection_pattern": "Compilation error: 'method X is already defined in class'"
+    },
+    {
+      "gap_id": "differ_by_parameter_name_only",
+      "what_students_get_wrong": "Thinking parameter names matter. `add(int a, int b)` and `add(int x, int y)` are the SAME signature.",
+      "remediation": "Parameter NAMES are for readability only. Types determine signature.",
+      "detection_pattern": "Compilation error: 'method already defined'"
+    },
+    {
+      "gap_id": "ambiguous_overloads",
+      "what_students_get_wrong": "Creating overloads where a call could match multiple after type promotion. Java refuses to choose.",
+      "remediation": "Design overloads to be unambiguous. If ambiguous calls exist, fix by casting at call site.",
+      "detection_pattern": "Compilation error: 'reference is ambiguous'"
+    },
+    {
+      "gap_id": "overloading_unrelated_operations",
+      "what_students_get_wrong": "Using overloading for methods that do conceptually different things. Bad API design.",
+      "remediation": "Rule: overloads should do the SAME thing, just with different inputs. Different operations need different names.",
+      "detection_pattern": "Confusing method names in code reviews"
+    },
+    {
+      "gap_id": "confusing_overloading_with_overriding",
+      "what_students_get_wrong": "Mixing up the two terms. Overloading is within one class. Overriding involves inheritance (subclasses).",
+      "remediation": "Mnemonic: 'Overloading is in-class (more methods); Overriding is across-classes (replacing methods).' We'll cover overriding in OOP.",
+      "detection_pattern": "Verbal confusion when explaining concepts"
+    },
+    {
+      "gap_id": "too_many_overloads",
+      "what_students_get_wrong": "Creating 10+ overloads when 2-3 well-designed ones plus default parameters would be cleaner.",
+      "remediation": "Less is more. If you have many overloads, consider whether a single method with optional logic (or varargs) is clearer.",
+      "detection_pattern": "Bloated API surfaces"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Overloading = multiple methods with SAME name, DIFFERENT parameter signatures, in the SAME class",
+      "Overloads must differ in: number of parameters, types of parameters, or order of types",
+      "Return type alone does NOT differentiate overloads",
+      "Parameter NAMES don't matter for overload distinction — only types and counts",
+      "Java resolves overloads at compile time based on argument types",
+      "Type promotion applies: `byte → short → int → long → float → double`",
+      "Ambiguous calls (multiple matching overloads after promotion) are compile errors",
+      "Use overloading for SAME operation with different inputs — never for different operations",
+      "Varargs (`int... numbers`) lets methods accept any number of args of the same type",
+      "Constructor overloading is heavily used in OOP (covered later)"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why doesn't this code compile?\n```java\npublic static int sum(int a, int b) { return a + b; }\npublic static double sum(int a, int b) { return a + b; }\n```",
+        "answer": "Both methods have the same signature: `sum(int, int)`. Return type doesn't differentiate. The compiler can't tell which to call from `sum(5, 3)`. To make this valid, parameters must differ in type or count."
+      },
+      {
+        "question": "Which overload does Java call for `print(5)`?\n```java\npublic static void print(int n) { ... }\npublic static void print(double n) { ... }\npublic static void print(long n) { ... }\n```",
+        "answer": "`print(int n)`. The literal 5 is an int — exact match. Java prefers exact matches over promotions. If the int overload didn't exist, Java would promote to long first (cheaper), then float, then double."
+      },
+      {
+        "question": "When should you NOT use overloading?",
+        "answer": "When methods do DIFFERENT things. Overloading is for same operation with different inputs. If `process(User)` saves to database and `process(Order)` sends email, those are different operations — they should have different names: `saveUser(User)` and `sendOrderEmail(Order)`. Overloading them is confusing."
+      },
+      {
+        "question": "What's the difference between overloading and overriding?",
+        "answer": "Overloading: same class, multiple methods with same name but different parameters. Resolved at compile time. Overriding: subclass redefines an inherited method (same name, same parameters). Resolved at runtime. Overloading is about variation in inputs; overriding is about variation in behavior across class hierarchies. Overriding is an OOP concept covered later."
+      },
+      {
+        "question": "Is the following overloading?\n```java\npublic static void show(int x, int y) { ... }\npublic static void show(int y, int x) { ... }\n```",
+        "answer": "No. The signatures are IDENTICAL: `show(int, int)`. Parameter NAMES (x, y vs y, x) don't matter. The compiler rejects this as duplicate method definition."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Variable Scope & Lifetime. We've been declaring variables inside methods, loops, and at the class level — but where exactly are they visible? When are they destroyed? Understanding scope prevents whole categories of bugs: shadowing (when local variables hide class-level ones), accidental capture, and 'why doesn't this variable exist here?' errors. This is the last conceptual piece before recursion."
+  }
+}

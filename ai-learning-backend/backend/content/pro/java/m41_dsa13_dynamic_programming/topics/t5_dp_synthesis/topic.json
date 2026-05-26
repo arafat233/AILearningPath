@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m41_t5",
+  "module_id": "m41",
+  "topic_number": 5,
+  "name": "DP Synthesis \u2014 Patterns, Optimization, Interview Strategy",
+  "slug": "dp-synthesis-patterns-optimization",
+  "metadata": {
+    "difficulty": 8,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m41_t1",
+      "java_m41_t3"
+    ],
+    "concepts_taught": [
+      "dp-synthesis-patterns-optimization"
+    ],
+    "career_relevance": "Core DP patterns \u2014 highest-value DSA topic in senior interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "DP Synthesis \u2014 Patterns, Optimization, Interview Strategy"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "1D sequences: House Robber, LIS, Coin Change, Jump Game",
+        "2D grids: Unique Paths, Minimum Path Sum",
+        "2 strings: Edit Distance, LCS, Wildcard Match",
+        "Knapsack: 0/1 (backwards) vs Unbounded (forwards)",
+        "Space opt: rolling array reduces O(mn) to O(n)",
+        "Interview tip: state DP[i] meaning first, then recurrence, then base case",
+        "Hard DPs: Burst Balloons (reversed thinking), Strange Printer, Strange Coin"
+      ],
+      "next_topic_preview": "Module 41 complete! Track 3 DSA DONE. Next: M42-M46 Interview Prep."
+    }
+  }
+}

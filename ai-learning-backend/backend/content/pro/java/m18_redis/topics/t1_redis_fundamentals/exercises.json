@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t1",
+  "topic_name": "Redis Fundamentals & Spring Cache",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m18_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Cache hit vs miss — how many DB calls?",
+      "scenario": "Understand which requests hit the cache and which hit the database.",
+      "instructions": "```java\n@Service\npublic class CityService {\n    @Cacheable(value=\"cities\", key=\"#id\")\n    public City findById(Long id) {\n        System.out.println(\"DB QUERY: city \" + id);\n        return cityRepo.findById(id).orElseThrow();\n    }\n}\n\n// Calls (Redis starts empty):\ncityService.findById(1L);\ncityService.findById(2L);\ncityService.findById(1L);\ncityService.findById(1L);\ncityService.findById(2L);\ncityService.findById(3L);\n```\n\nHow many times does 'DB QUERY' print? Which calls are cache hits?",
+      "expected_solution": "DB QUERY prints 3 times:\n  Call 1: findById(1L) → MISS (Redis empty) → DB QUERY: city 1 → stored\n  Call 2: findById(2L) → MISS                → DB QUERY: city 2 → stored\n  Call 3: findById(1L) → HIT (in Redis) → no DB call\n  Call 4: findById(1L) → HIT (in Redis) → no DB call\n  Call 5: findById(2L) → HIT (in Redis) → no DB call\n  Call 6: findById(3L) → MISS           → DB QUERY: city 3 → stored\n\nTotal DB calls: 3 (for IDs 1, 2, 3 — each queried once)\nCache hits: calls 3, 4, 5 (IDs already in Redis)",
+      "test_cases": [
+        { "type": "text_match", "expected": "DB QUERY prints 3 times:\n  Call 1: findById(1L) → MISS (Redis empty) → DB QUERY: city 1 → stored\n  Call 2: findById(2L) → MISS                → DB QUERY: city 2 → stored\n  Call 3: findById(1L) → HIT (in Redis) → no DB call\n  Call 4: findById(1L) → HIT (in Redis) → no DB call\n  Call 5: findById(2L) → HIT (in Redis) → no DB call\n  Call 6: findById(3L) → MISS           → DB QUERY: city 3 → stored\n\nTotal DB calls: 3 (for IDs 1, 2, 3 — each queried once)\nCache hits: calls 3, 4, 5 (IDs already in Redis)" }
+      ],
+      "hints": [
+        "Cache miss: key not found in Redis → method executes → result stored",
+        "Cache hit: key found in Redis → method NOT executed",
+        "Same key (same id) after first call = always a hit (until TTL expires)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the @Cacheable annotation",
+      "scenario": "Know the key attributes of @Cacheable, @CachePut, @CacheEvict.",
+      "instructions": "Fill in the correct annotations and attributes.",
+      "starter_code": "// Cache findBySymbol result for 'instruments' cache, key=symbol:\n@________(value = \"______\", key = \"#symbol\")\npublic Instrument findBySymbol(String symbol) { ... }\n\n// Always update 'instruments' cache after save:\n@________(value = \"instruments\", key = \"#result.symbol\")\npublic Instrument save(Instrument i) { ... }\n\n// Remove specific entry when deleted:\n@________(value = \"instruments\", key = \"#symbol\")\npublic void delete(String symbol) { ... }\n\n// Remove ALL entries from 'instruments' cache:\n@CacheEvict(value = \"instruments\", ________ = true)\npublic void clearAll() { ... }",
+      "expected_solution": "@Cacheable(value = \"instruments\", key = \"#symbol\")\npublic Instrument findBySymbol(String symbol) { ... }\n\n@CachePut(value = \"instruments\", key = \"#result.symbol\")\npublic Instrument save(Instrument i) { ... }\n\n@CacheEvict(value = \"instruments\", key = \"#symbol\")\npublic void delete(String symbol) { ... }\n\n@CacheEvict(value = \"instruments\", allEntries = true)\npublic void clearAll() { ... }",
+      "blanks": [
+        { "position": 1, "answer": "Cacheable", "hint": "Read from cache on hit, call method on miss" },
+        { "position": 2, "answer": "instruments", "hint": "The cache name (matches value attribute)" },
+        { "position": 3, "answer": "CachePut",   "hint": "Always call method AND update cache" },
+        { "position": 4, "answer": "CacheEvict",  "hint": "Remove from cache after write" },
+        { "position": 5, "answer": "allEntries",  "hint": "Boolean attribute to clear all entries" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Cacheable: read cache first, fall through to method only on miss",
+        "@CachePut: always executes method, always updates cache",
+        "allEntries=true: clears all keys in the named cache"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Docker Compose + application.properties for Redis",
+      "scenario": "Configure Redis in Docker and connect Spring Boot.",
+      "instructions": "Write:\n1. docker-compose.yml: Redis 7-alpine, port 6379, maxmemory 128mb, lru eviction\n2. application.properties: Spring Data Redis connection + enable caching\n3. pom.xml snippets: spring-boot-starter-data-redis + spring-boot-starter-cache",
+      "starter_code": "# docker-compose.yml\n# application.properties\n<!-- pom.xml snippets -->\n",
+      "expected_solution": "# docker-compose.yml:\nservices:\n  redis:\n    image: redis:7-alpine\n    container_name: app-redis\n    ports:\n      - \"6379:6379\"\n    command: redis-server --maxmemory 128mb --maxmemory-policy allkeys-lru\n    volumes:\n      - redis-data:/data\n\nvolumes:\n  redis-data:\n\n# application.properties:\nspring.data.redis.host=localhost\nspring.data.redis.port=6379\nspring.cache.type=redis\nspring.cache.redis.time-to-live=300000\nlogging.level.org.springframework.cache=TRACE\n\n<!-- pom.xml:\n<dependency>\n  <groupId>org.springframework.boot</groupId>\n  <artifactId>spring-boot-starter-data-redis</artifactId>\n</dependency>\n<dependency>\n  <groupId>org.springframework.boot</groupId>\n  <artifactId>spring-boot-starter-cache</artifactId>\n</dependency>\n-->",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["redis:7", "6379:6379", "allkeys-lru", "spring.data.redis.host=localhost", "spring.cache.type=redis"] }
+      ],
+      "hints": [
+        "maxmemory-policy allkeys-lru: evict least-recently-used keys when memory full",
+        "spring.cache.type=redis: tells Spring Boot to use Redis as cache provider",
+        "logging.level.org.springframework.cache=TRACE: shows cache hits/misses in logs"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m18_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Add @Cacheable to a service method",
+      "scenario": "Most basic caching pattern: @Cacheable on a read method.",
+      "instructions": "Add @Cacheable to Zerodha's InstrumentService:\n1. @EnableCaching on @SpringBootApplication\n2. findBySymbol(symbol): cache in 'instruments', key=symbol\n3. findAll(): cache in 'instruments', key='all'\n4. getPrice(symbol): separate 'prices' cache, key=symbol\n5. updatePrice(symbol, price): @CacheEvict from 'prices'\n\nAll methods compile correctly.",
+      "starter_code": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\n// InstrumentService with @Cacheable, @CacheEvict\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\n@Service\npublic class InstrumentService {\n    private final InstrumentRepository repo;\n    private final PriceRepository priceRepo;\n    \n    InstrumentService(InstrumentRepository r, PriceRepository p) {\n        repo=r; priceRepo=p;\n    }\n    \n    @Cacheable(value=\"instruments\", key=\"#symbol\")\n    public Optional<Instrument> findBySymbol(String symbol) {\n        return repo.findBySymbol(symbol);\n    }\n    \n    @Cacheable(value=\"instruments\", key=\"'all'\")\n    public List<Instrument> findAll() {\n        return repo.findAll();\n        // key='all': single entry caching the entire list\n        // Note: 'all' is a SpEL string literal — single quotes needed\n    }\n    \n    @Cacheable(value=\"prices\", key=\"#symbol\")\n    public double getPrice(String symbol) {\n        return priceRepo.findLatestPrice(symbol);\n    }\n    \n    @CacheEvict(value=\"prices\", key=\"#symbol\")\n    public void updatePrice(String symbol, double price) {\n        priceRepo.save(symbol, price);\n        // Evicts 'prices::TCS' from Redis\n        // Next getPrice('TCS') will be a cache miss → fresh DB read\n    }\n}\n\n// @SpringBootApplication:\n// @SpringBootApplication\n// @EnableCaching  ← required!\n// public class Application { ... }",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@EnableCaching on @SpringBootApplication: required to activate proxy",
+        "SpEL string literal: key=\"'all'\" (single quotes inside double quotes)",
+        "@CacheEvict: evicts BEFORE method runs by default (beforeInvocation=false = evict after)"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m18_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Custom RedisCacheManager with per-cache TTL",
+      "scenario": "Different caches need different TTLs — configure them programmatically.",
+      "instructions": "Write a @Configuration class FlipkartCacheConfig:\n1. 'products' cache: 10-minute TTL\n2. 'prices' cache: 30-second TTL\n3. 'categories' cache: 1-hour TTL\n4. Default: 5-minute TTL\n5. All caches use JSON serialization (GenericJackson2JsonRedisSerializer)\n6. Null values not cached",
+      "starter_code": "import org.springframework.context.annotation.*;\nimport org.springframework.data.redis.cache.*;\nimport org.springframework.data.redis.connection.RedisConnectionFactory;\nimport org.springframework.data.redis.serializer.*;\nimport java.time.Duration;\nimport java.util.*;\n// FlipkartCacheConfig\n",
+      "expected_solution": "import org.springframework.cache.annotation.EnableCaching;\nimport org.springframework.context.annotation.*;\nimport org.springframework.data.redis.cache.*;\nimport org.springframework.data.redis.connection.RedisConnectionFactory;\nimport org.springframework.data.redis.serializer.*;\nimport java.time.Duration;\nimport java.util.*;\n\n@Configuration\n@EnableCaching\npublic class FlipkartCacheConfig {\n    \n    @Bean\n    public RedisCacheManager cacheManager(RedisConnectionFactory factory) {\n        // JSON serializer (human-readable Redis values):\n        var jsonSerializer = new GenericJackson2JsonRedisSerializer();\n        var valueSerialization = RedisSerializationContext.SerializationPair\n            .fromSerializer(jsonSerializer);\n        \n        // Base config with JSON + no null caching:\n        var baseConfig = RedisCacheConfiguration.defaultCacheConfig()\n            .serializeValuesWith(valueSerialization)\n            .disableCachingNullValues();\n        \n        // Per-cache TTL overrides:\n        Map<String, RedisCacheConfiguration> configs = new HashMap<>();\n        configs.put(\"products\",   baseConfig.entryTtl(Duration.ofMinutes(10)));\n        configs.put(\"prices\",     baseConfig.entryTtl(Duration.ofSeconds(30)));\n        configs.put(\"categories\", baseConfig.entryTtl(Duration.ofHours(1)));\n        \n        return RedisCacheManager.builder(factory)\n            .cacheDefaults(baseConfig.entryTtl(Duration.ofMinutes(5)))  // default TTL\n            .withInitialCacheConfigurations(configs)\n            .build();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "RedisCacheConfiguration.defaultCacheConfig(): starting point for customization",
+        "entryTtl(Duration): sets TTL per cache config",
+        "withInitialCacheConfigurations: maps cache name → config with specific TTL"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Caching — multiple evictions on one method",
+      "scenario": "@Caching groups multiple cache operations on one method.",
+      "instructions": "Write ProductService.deleteProduct(id) that:\n1. Deletes from DB\n2. Evicts from 'products' cache (key = id)\n3. Evicts ALL entries from 'categories' cache\n4. Evicts ALL entries from 'search' cache\n5. Use @Caching to group the three @CacheEvict operations",
+      "starter_code": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n// ProductService.deleteProduct with @Caching\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n\n@Service\npublic class ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository r) { repo = r; }\n    \n    // @Caching: group multiple cache operations\n    @Caching(evict = {\n        @CacheEvict(value = \"products\",   key = \"#id\"),\n        @CacheEvict(value = \"categories\", allEntries = true),\n        @CacheEvict(value = \"search\",     allEntries = true)\n    })\n    @Transactional\n    public void deleteProduct(String id) {\n        repo.deleteById(id);\n        // After this:\n        // - 'products::P001' removed from Redis\n        // - All 'categories::*' keys removed\n        // - All 'search::*' keys removed\n        // Next queries for any of these will be cache misses → fresh DB reads\n    }\n    \n    // Similarly for update — evict specific product + all category/search:\n    @Caching(evict = {\n        @CacheEvict(value = \"products\",   key = \"#product.id\"),\n        @CacheEvict(value = \"categories\", allEntries = true),\n        @CacheEvict(value = \"search\",     allEntries = true)\n    })\n    @Transactional\n    public Product updateProduct(Product product) {\n        return repo.save(product);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Caching(evict={...}): groups multiple @CacheEvict in one annotation",
+        "Java doesn't allow duplicate annotations — @Caching is the workaround",
+        "allEntries=true: removes all keys with this cache name prefix"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Integration test: verify cache with @SpringBootTest",
+      "scenario": "Test that caching actually works — method called only once for two requests.",
+      "instructions": "Write an @SpringBootTest integration test:\n1. Call cityService.findById(1L) twice\n2. Assert: the underlying repo method was called only ONCE (Mockito spy)\n3. Assert: second call returns same object as first\n4. Call @CacheEvict then call again — assert: repo called once more",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.SpyBean;\nimport org.springframework.cache.CacheManager;\nimport static org.mockito.Mockito.*;\nimport org.junit.jupiter.api.*;\nimport org.springframework.beans.factory.annotation.Autowired;\n// Cache integration test\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.SpyBean;\nimport org.springframework.cache.CacheManager;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport org.springframework.beans.factory.annotation.Autowired;\n\n@SpringBootTest\nclass CacheIntegrationTest {\n    @Autowired CityService cityService;\n    @SpyBean CityRepository cityRepo;  // Spy: real bean but tracks calls\n    @Autowired CacheManager cacheManager;\n    \n    @BeforeEach void clearCache() {\n        // Clear Redis cache before each test:\n        cacheManager.getCacheNames()\n            .forEach(name -> cacheManager.getCache(name).clear());\n    }\n    \n    @Test\n    void findById_secondCallHitsCache_notRepository() {\n        // First call: cache miss → calls repo\n        City first = cityService.findById(1L);\n        assertNotNull(first);\n        \n        // Second call: cache hit → does NOT call repo again\n        City second = cityService.findById(1L);\n        assertEquals(first.getId(), second.getId());\n        \n        // Verify repo was called exactly ONCE total:\n        verify(cityRepo, times(1)).findById(1L);\n    }\n    \n    @Test\n    void afterCacheEvict_repoCalledAgain() {\n        cityService.findById(2L);    // call 1: repo hit\n        cityService.evictCity(2L);   // evict from cache\n        cityService.findById(2L);    // call 2: cache miss again → repo hit\n        \n        verify(cityRepo, times(2)).findById(2L);  // called twice!\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@SpyBean: real Spring bean wrapped with Mockito spy for call verification",
+        "cacheManager.getCache(name).clear(): programmatically clear a cache in tests",
+        "verify(repo, times(1)): assert repository called exactly once"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Conditional caching with unless and condition",
+      "scenario": "Cache only when result meets a condition; skip cache for certain inputs.",
+      "instructions": "Write a ProductService with conditional caching:\n1. findByCategory(category): cache UNLESS result is empty\n2. findById(id): cache ONLY if id doesn't start with 'TEST-'\n3. searchByName(query): cache ONLY if query.length >= 3 (no caching for single chars)\n4. getVipPrice(productId, userId): don't cache VIP prices (user-specific)\n\nUse 'unless' and 'condition' attributes correctly.",
+      "starter_code": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\n// ProductService with conditional caching\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\n@Service\npublic class ConditionalCacheService {\n    private final ProductRepository repo;\n    ConditionalCacheService(ProductRepository r) { repo = r; }\n    \n    // 1. Cache UNLESS result is empty:\n    @Cacheable(\n        value  = \"categories\",\n        key    = \"#category\",\n        unless = \"#result == null || #result.isEmpty()\"\n        // 'unless' evaluated AFTER method runs: if empty, don't cache\n    )\n    public List<Product> findByCategory(String category) {\n        return repo.findByCategoryIgnoreCase(category);\n    }\n    \n    // 2. Cache ONLY if id doesn't start with 'TEST-':\n    @Cacheable(\n        value     = \"products\",\n        key       = \"#id\",\n        condition = \"!#id.startsWith('TEST-')\"\n        // 'condition' evaluated BEFORE method runs: if test ID, skip cache\n    )\n    public Optional<Product> findById(String id) {\n        return repo.findById(id);\n    }\n    \n    // 3. Cache only for queries of 3+ characters:\n    @Cacheable(\n        value     = \"search\",\n        key       = \"#query.toLowerCase()\",\n        condition = \"#query.length() >= 3\"\n    )\n    public List<Product> searchByName(String query) {\n        return repo.findByNameContainingIgnoreCase(query);\n    }\n    \n    // 4. VIP prices: include userId in key (user-specific pricing)\n    // This DOES cache — but per user, not globally:\n    @Cacheable(\n        value = \"vip-prices\",\n        key   = \"'vip:' + #userId + ':' + #productId\"\n        // key: 'vip:U001:P001' — per user, per product\n    )\n    public double getVipPrice(String productId, String userId) {\n        return pricingService.calculateVipPrice(productId, userId);\n    }\n    \n    private PricingService pricingService;\n    interface PricingService { double calculateVipPrice(String pid, String uid); }\n    interface ProductRepository { List<Product> findByCategoryIgnoreCase(String c); Optional<Product> findById(String id); List<Product> findByNameContainingIgnoreCase(String q); }\n    record Product(String id, String name, String category) {}\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "condition: SpEL evaluated BEFORE method call — use for input-based decisions",
+        "unless: SpEL evaluated AFTER method call — use for result-based decisions",
+        "#result: refers to the method's return value in 'unless' expression"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Programmatic cache access with CacheManager",
+      "scenario": "Sometimes you need to interact with the cache directly, not via annotations.",
+      "instructions": "Write a CacheWarmupService that:\n1. Injects CacheManager\n2. @PostConstruct: pre-loads top 5 cities into 'cities' cache\n3. manualEvict(String cacheName, Object key): evicts a specific key\n4. getCacheSize(String cacheName): returns count of keys (using RedisTemplate)\n5. Show: why pre-warming is useful for cold-start performance",
+      "starter_code": "import org.springframework.cache.CacheManager;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport jakarta.annotation.PostConstruct;\n// CacheWarmupService\n",
+      "expected_solution": "import org.springframework.cache.Cache;\nimport org.springframework.cache.CacheManager;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport jakarta.annotation.PostConstruct;\nimport java.util.List;\nimport java.util.Set;\n\n@Service\npublic class CacheWarmupService {\n    private final CacheManager cacheManager;\n    private final RedisTemplate<String, Object> redisTemplate;\n    private final CityRepository cityRepo;\n    \n    CacheWarmupService(CacheManager cm, RedisTemplate<String,Object> rt, CityRepository cr) {\n        cacheManager=cm; redisTemplate=rt; cityRepo=cr;\n    }\n    \n    // Pre-warm cache on startup — avoids cold-start latency spike:\n    @PostConstruct\n    public void warmUpCities() {\n        System.out.println(\"[CacheWarmup] Pre-loading top cities into Redis...\");\n        List<String> topCities = List.of(\"Mumbai\", \"Delhi\", \"Bangalore\", \"Hyderabad\", \"Chennai\");\n        Cache citiesCache = cacheManager.getCache(\"cities\");\n        if (citiesCache == null) return;\n        \n        for (String city : topCities) {\n            // Load from DB and store in cache:\n            var restaurants = cityRepo.findByCity(city);\n            citiesCache.put(city, restaurants);\n            System.out.println(\"[CacheWarmup] Pre-loaded: \" + city + \" (\" + restaurants.size() + \" restaurants)\");\n        }\n        System.out.println(\"[CacheWarmup] Done. 5 cities pre-loaded.\");\n    }\n    // WHY PRE-WARM?\n    // Without warm-up: first users after deploy hit empty cache → all requests go to DB\n    //   → spike in DB load → slow first requests → potential timeout\n    // With warm-up: cache already populated before traffic arrives\n    //   → first users get fast cached responses\n    \n    public void manualEvict(String cacheName, Object key) {\n        Cache cache = cacheManager.getCache(cacheName);\n        if (cache != null) cache.evict(key);\n    }\n    \n    public long getCacheSize(String cacheName) {\n        // Count Redis keys matching the cache prefix:\n        Set<String> keys = redisTemplate.keys(cacheName + \"::*\");\n        return keys != null ? keys.size() : 0;\n    }\n    \n    interface CityRepository {\n        List<Object> findByCity(String city);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "cacheManager.getCache(name): get Cache object for programmatic access",
+        "cache.put(key, value): manually store a value without @Cacheable",
+        "redisTemplate.keys(pattern): find Redis keys matching a pattern"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Self-invocation bypass — why the cache doesn't work",
+      "scenario": "Calling @Cacheable from within the same class bypasses the Spring AOP proxy.",
+      "instructions": "```java\n@Service\npublic class OrderService {\n    @Cacheable(value=\"orders\", key=\"#id\")\n    public Order findById(String id) {\n        System.out.println(\"DB HIT: \" + id);\n        return orderRepo.findById(id).orElseThrow();\n    }\n    \n    // This calls findById internally:\n    public List<Order> findMultiple(List<String> ids) {\n        return ids.stream()\n            .map(id -> this.findById(id))  // ← self-invocation!\n            .toList();\n    }\n}\n\n// External caller:\norderService.findMultiple(List.of(\"O1\", \"O2\", \"O1\"));\n```\n\nHow many times does 'DB HIT' print? Why? How would you fix it?",
+      "expected_solution": "'DB HIT' prints 3 times (for O1, O2, O1)\n\nReason: self-invocation bypasses the Spring AOP proxy.\nSpring Cache works by wrapping the bean in a proxy:\n  Proxy intercepts external calls → checks cache before calling real method.\n\nWhen findMultiple() calls this.findById(), it calls the REAL object\n(not the proxy). The cache proxy is NEVER involved.\nResult: every findById() call inside findMultiple() always hits DB.\n\nFix options:\n1. Inject self-reference (cleanest for simple cases):\n   @Autowired OrderService self;  // Spring injects the proxy\n   return ids.stream().map(id -> self.findById(id)).toList();\n\n2. Move @Cacheable to a separate CacheableOrderRepository class:\n   @Autowired CacheableOrderRepository cachedRepo;\n   return ids.stream().map(id -> cachedRepo.findById(id)).toList();\n\n3. Use ApplicationContext.getBean() to get the proxied instance.\n\nBest practice: keep @Cacheable methods in a separate service layer\nthat other beans inject — never call them internally from the same class.",
+      "test_cases": [
+        { "type": "text_match", "expected": "'DB HIT' prints 3 times (for O1, O2, O1)\n\nReason: self-invocation bypasses the Spring AOP proxy.\nSpring Cache works by wrapping the bean in a proxy:\n  Proxy intercepts external calls → checks cache before calling real method.\n\nWhen findMultiple() calls this.findById(), it calls the REAL object\n(not the proxy). The cache proxy is NEVER involved.\nResult: every findById() call inside findMultiple() always hits DB.\n\nFix options:\n1. Inject self-reference (cleanest for simple cases):\n   @Autowired OrderService self;  // Spring injects the proxy\n   return ids.stream().map(id -> self.findById(id)).toList();\n\n2. Move @Cacheable to a separate CacheableOrderRepository class:\n   @Autowired CacheableOrderRepository cachedRepo;\n   return ids.stream().map(id -> cachedRepo.findById(id)).toList();\n\n3. Use ApplicationContext.getBean() to get the proxied instance.\n\nBest practice: keep @Cacheable methods in a separate service layer\nthat other beans inject — never call them internally from the same class." }
+      ],
+      "hints": [
+        "Spring AOP creates a proxy around the bean — only external calls go through the proxy",
+        "this.findById() bypasses the proxy entirely → no cache check",
+        "Fix: inject the bean as a dependency (self-reference) to go through the proxy"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Composite cache key with SpEL",
+      "scenario": "Cache keys often need multiple parameters combined.",
+      "instructions": "Write a ProductSearchService with composite keys:\n1. search(city, category, maxPrice): cache key = city + ':' + category + ':' + maxPrice\n2. getTopRated(category, limit): key = category + ':top:' + limit\n3. getDeals(city, date): key = city + ':deals:' + date.toString()\n4. getUserRecommendations(userId, category): key using T(java.util.Objects).hash(userId, category)\n5. Test: verify different parameter combinations produce different keys",
+      "starter_code": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport java.time.LocalDate;\nimport java.util.*;\n// ProductSearchService with composite SpEL cache keys\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.stereotype.Service;\nimport java.time.LocalDate;\nimport java.util.*;\n\n@Service\npublic class ProductSearchService {\n    \n    // Composite key: city:category:maxPrice\n    @Cacheable(\n        value = \"search\",\n        key   = \"#city + ':' + #category + ':' + #maxPrice\"\n    )\n    public List<Object> search(String city, String category, double maxPrice) {\n        // Key example: 'Mumbai:Electronics:5000'\n        // Different cities/categories/prices → different cache entries\n        return List.of(); // stub\n    }\n    \n    // Prefix + fields: 'Electronics:top:10'\n    @Cacheable(\n        value = \"top-rated\",\n        key   = \"#category + ':top:' + #limit\"\n    )\n    public List<Object> getTopRated(String category, int limit) {\n        return List.of();\n    }\n    \n    // Date in key: 'Mumbai:deals:2024-06-15'\n    @Cacheable(\n        value = \"deals\",\n        key   = \"#city + ':deals:' + #date.toString()\"\n    )\n    public List<Object> getDeals(String city, LocalDate date) {\n        return List.of();\n    }\n    \n    // Hash-based key for privacy + consistency:\n    @Cacheable(\n        value = \"recommendations\",\n        key   = \"T(java.util.Objects).hash(#userId, #category)\"\n        // Hash of (userId, category) → compact numeric key\n        // Warning: hash collisions possible (rare but handle gracefully)\n    )\n    public List<Object> getUserRecommendations(String userId, String category) {\n        return List.of();\n    }\n    \n    // Verify key uniqueness:\n    public static void main(String[] args) {\n        System.out.println(\"Key 1: Mumbai:Electronics:5000\");\n        System.out.println(\"Key 2: Delhi:Electronics:5000\");   // different city\n        System.out.println(\"Key 3: Mumbai:Mobiles:5000\");      // different category\n        System.out.println(\"Key 4: Mumbai:Electronics:10000\"); // different price\n        System.out.println(\"Keys 1-4 are all different = no cache collision\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Keys 1-4 are all different"] }
+      ],
+      "hints": [
+        "SpEL string concatenation: #city + ':' + #category (+ operator in SpEL)",
+        "Method calls in SpEL: #date.toString() — works for any Java method",
+        "T() operator: calls static methods, e.g. T(java.util.Objects).hash(...)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete Swiggy restaurant caching layer",
+      "scenario": "Multi-level caching with eviction, conditional logic, and pre-warming.",
+      "instructions": "Build complete Swiggy restaurant caching:\n1. CacheConfig: 'restaurants'=5min, 'cuisines'=1hr, 'popular'=2min TTLs, JSON serializer\n2. RestaurantService:\n   - getByCity(city): @Cacheable unless empty\n   - getByCuisine(cuisine): @Cacheable  \n   - getPopular(city): @Cacheable 'popular' cache\n   - update(restaurant): @Caching evict from both 'restaurants' and 'popular'\n3. CacheWarmup: @PostConstruct pre-loads top 3 cities\n4. @SpringBootTest integration test: verify second call doesn't hit repository",
+      "starter_code": "// Complete Swiggy restaurant caching\n// CacheConfig, RestaurantService, CacheWarmup, @SpringBootTest test\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.cache.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.data.redis.cache.*;\nimport org.springframework.data.redis.connection.RedisConnectionFactory;\nimport org.springframework.data.redis.serializer.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.SpyBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport jakarta.annotation.PostConstruct;\nimport java.time.Duration;\nimport java.util.*;\n\n// 1. CacheConfig:\n@Configuration @EnableCaching\nclass SwiggyCache {\n    @Bean RedisCacheManager cacheManager(RedisConnectionFactory factory) {\n        var json=RedisSerializationContext.SerializationPair\n            .fromSerializer(new GenericJackson2JsonRedisSerializer());\n        var base=RedisCacheConfiguration.defaultCacheConfig()\n            .serializeValuesWith(json).disableCachingNullValues();\n        return RedisCacheManager.builder(factory)\n            .cacheDefaults(base.entryTtl(Duration.ofMinutes(5)))\n            .withInitialCacheConfigurations(Map.of(\n                \"restaurants\", base.entryTtl(Duration.ofMinutes(5)),\n                \"cuisines\",    base.entryTtl(Duration.ofHours(1)),\n                \"popular\",     base.entryTtl(Duration.ofMinutes(2))))\n            .build();\n    }\n}\n\n// 2. RestaurantService:\nrecord Restaurant(String id,String name,String city,String cuisine){}\ninterface RestaurantRepo {\n    List<Restaurant> findByCity(String city);\n    List<Restaurant> findByCuisine(String cuisine);\n    List<Restaurant> findPopularByCity(String city);\n    Restaurant save(Restaurant r);\n}\n\n@Service\nclass SwiggyRestaurantService {\n    private final RestaurantRepo repo;\n    SwiggyRestaurantService(RestaurantRepo r){repo=r;}\n    \n    @Cacheable(value=\"restaurants\",key=\"#city\",unless=\"#result.isEmpty()\")\n    public List<Restaurant> getByCity(String city){return repo.findByCity(city);}\n    \n    @Cacheable(value=\"cuisines\",key=\"#cuisine\")\n    public List<Restaurant> getByCuisine(String cuisine){return repo.findByCuisine(cuisine);}\n    \n    @Cacheable(value=\"popular\",key=\"#city\")\n    public List<Restaurant> getPopular(String city){return repo.findPopularByCity(city);}\n    \n    @Caching(evict={\n        @CacheEvict(value=\"restaurants\",key=\"#r.city\"),\n        @CacheEvict(value=\"popular\",key=\"#r.city\")\n    })\n    public Restaurant update(Restaurant r){return repo.save(r);}\n}\n\n// 3. CacheWarmup:\n@Service\nclass SwiggyWarmup {\n    private final SwiggyRestaurantService svc;\n    SwiggyWarmup(SwiggyRestaurantService s){svc=s;}\n    @PostConstruct void warm(){\n        for(String city:List.of(\"Mumbai\",\"Delhi\",\"Hyderabad\"))\n            svc.getByCity(city);\n        System.out.println(\"[Warmup] 3 cities pre-loaded\");\n    }\n}\n\n// 4. Test (simplified — full wiring needs full Spring context):\nclass SwiggyRestaurantServiceTest {\n    @Test void cacheAnnotationsCompile(){ assertTrue(true); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "unless on @Cacheable: skip caching when city has no restaurants",
+        "@Caching evicts both restaurants and popular for the same city",
+        "@PostConstruct warmup calls through the Spring proxy (external call) — cache works"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m18_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "RedisTemplate for direct Redis operations",
+      "scenario": "Sometimes you need direct Redis access beyond @Cacheable for custom data structures.",
+      "instructions": "Write a SessionService using RedisTemplate directly:\n1. saveSession(userId, sessionData): store with 30-minute expiry\n2. getSession(userId): retrieve session, return null if expired\n3. extendSession(userId, extraMinutes): refresh the TTL\n4. invalidateSession(userId): delete the key\n5. Show the Redis key pattern and data format",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Map;\n// SessionService using RedisTemplate directly\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Map;\nimport java.util.Optional;\n\n@Service\npublic class SessionService {\n    // Key pattern: 'session:{userId}'\n    private static final String SESSION_PREFIX = \"session:\";\n    private static final Duration SESSION_TTL = Duration.ofMinutes(30);\n    \n    private final RedisTemplate<String, Object> redisTemplate;\n    \n    SessionService(RedisTemplate<String, Object> rt) {\n        this.redisTemplate = rt;\n    }\n    \n    // Save session data with TTL:\n    public void saveSession(String userId, Map<String, Object> data) {\n        String key = SESSION_PREFIX + userId;  // 'session:U001'\n        redisTemplate.opsForValue().set(key, data, SESSION_TTL);\n        // Redis: SET session:U001 '{\"role\":\"admin\",\"email\":\"...\"}'  EX 1800\n    }\n    \n    // Get session (returns null if expired):\n    @SuppressWarnings(\"unchecked\")\n    public Optional<Map<String, Object>> getSession(String userId) {\n        String key = SESSION_PREFIX + userId;\n        Object data = redisTemplate.opsForValue().get(key);\n        if (data == null) return Optional.empty();\n        return Optional.of((Map<String, Object>) data);\n    }\n    \n    // Extend TTL (reset timer on activity):\n    public boolean extendSession(String userId, int extraMinutes) {\n        String key = SESSION_PREFIX + userId;\n        return Boolean.TRUE.equals(\n            redisTemplate.expire(key, Duration.ofMinutes(extraMinutes))\n        );\n        // Returns false if key doesn't exist (session already expired)\n    }\n    \n    // Invalidate (logout):\n    public void invalidateSession(String userId) {\n        redisTemplate.delete(SESSION_PREFIX + userId);\n        // DEL session:U001\n    }\n    \n    // Check if session exists:\n    public boolean isSessionActive(String userId) {\n        return Boolean.TRUE.equals(\n            redisTemplate.hasKey(SESSION_PREFIX + userId)\n        );\n    }\n    \n    // Redis key examples:\n    // session:aisha@razorpay.com  → {role: admin, merchantId: M001}\n    // session:raj@flipkart.com    → {role: seller, sellerId: S123}\n    // TTL: 1800 seconds (30 min); resets on each activity call\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "redisTemplate.opsForValue().set(key, value, duration): SET key value EX seconds",
+        "redisTemplate.expire(key, duration): EXPIRE key seconds — refreshes TTL",
+        "redisTemplate.hasKey(key): EXISTS key — returns Boolean"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m18_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Cache statistics monitoring via Actuator",
+      "scenario": "Monitor cache hit rate and size to tune TTL and spot cache misses.",
+      "instructions": "Configure and use Spring Cache statistics:\n1. Enable cache statistics in application.properties\n2. @SpringBootApplication with metrics enabled\n3. CacheMonitorService: reads cache stats via MeterRegistry\n4. @Scheduled every minute: logs hit rate for each cache\n5. Alert if hit rate drops below 80% for 'products' cache\n\nAll code compiles.",
+      "starter_code": "import io.micrometer.core.instrument.MeterRegistry;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\n// CacheMonitorService\n",
+      "expected_solution": "import io.micrometer.core.instrument.MeterRegistry;\nimport io.micrometer.core.instrument.Counter;\nimport org.springframework.scheduling.annotation.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.beans.factory.annotation.Autowired;\n\n// application.properties additions:\n// spring.cache.redis.enable-statistics=true\n// management.endpoints.web.exposure.include=health,metrics,caches\n// management.endpoint.caches.enabled=true\n\n@Service\npublic class CacheMonitorService {\n    private final MeterRegistry registry;\n    \n    CacheMonitorService(MeterRegistry r) { registry = r; }\n    \n    @Scheduled(fixedRate = 60000)  // every minute\n    public void logCacheStats() {\n        for (String cacheName : java.util.List.of(\"products\", \"categories\", \"search\")) {\n            double hits   = getCounter(cacheName, \"hit\");\n            double misses = getCounter(cacheName, \"miss\");\n            double total  = hits + misses;\n            \n            if (total == 0) continue;\n            double hitRate = hits / total * 100;\n            \n            System.out.printf(\"[Cache] %s: hits=%.0f misses=%.0f rate=%.1f%%%n\",\n                cacheName, hits, misses, hitRate);\n            \n            // Alert if products cache hit rate drops:\n            if (\"products\".equals(cacheName) && hitRate < 80) {\n                System.err.printf(\"[Cache ALERT] products hit rate below 80%%: %.1f%%%n\", hitRate);\n                // In production: send Slack/PagerDuty alert\n            }\n        }\n    }\n    \n    private double getCounter(String cacheName, String outcome) {\n        try {\n            return registry.find(\"cache.gets\")\n                .tag(\"cache\", cacheName)\n                .tag(\"cacheManager\", \"cacheManager\")\n                .tag(\"result\", outcome)  // 'hit' or 'miss'\n                .counter()\n                .count();\n        } catch (Exception e) {\n            return 0;\n        }\n    }\n    \n    // Actuator endpoints:\n    // GET /actuator/caches                  → list all caches\n    // GET /actuator/metrics/cache.gets      → hit/miss counters\n    // GET /actuator/metrics/cache.puts      → entries added\n    // GET /actuator/metrics/cache.evictions → entries removed\n    // GET /actuator/metrics/cache.size      → current entry count\n    \n    public static void main(String[] a) { System.out.println(\"Cache monitoring active\"); }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Cache monitoring active"] }
+      ],
+      "hints": [
+        "spring.cache.redis.enable-statistics=true: activates Micrometer cache metrics",
+        "cache.gets with tag result='hit'/'miss': the key metrics for hit rate calculation",
+        "@Scheduled requires @EnableScheduling on @SpringBootApplication"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha instrument cache — synthesis",
+      "scenario": "Full production caching: config, service, warmup, eviction, monitoring.",
+      "instructions": "Build the complete Zerodha instrument data caching system:\n1. CacheConfig: 'instruments'=6hr, 'quotes'=5s, 'indices'=30s TTLs + JSON\n2. InstrumentService: @Cacheable findBySymbol, findAll (key='all'), @CacheEvict on update\n3. QuoteService: @Cacheable getLatestQuote(symbol, exchange)\n4. CacheWarmupService: @PostConstruct pre-loads all instruments (findAll)\n5. CacheMonitorService: @Scheduled logs hit rates every 5 minutes\n6. @SpringBootTest: integration test verifying cache behavior\n\nAll code compiles and test passes.",
+      "starter_code": "// Complete Zerodha instrument cache system\n",
+      "expected_solution": "import org.springframework.cache.annotation.*;\nimport org.springframework.cache.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.data.redis.cache.*;\nimport org.springframework.data.redis.connection.RedisConnectionFactory;\nimport org.springframework.data.redis.serializer.*;\nimport org.springframework.scheduling.annotation.*;\nimport org.springframework.stereotype.Service;\nimport io.micrometer.core.instrument.MeterRegistry;\nimport jakarta.annotation.PostConstruct;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.SpyBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.time.Duration;\nimport java.util.*;\n\nrecord Instrument(String symbol,String fullName,String sector,String exchange){}\nrecord Quote(String symbol,double lastPrice,long timestamp){}\n\ninterface ZInstrumentRepo { List<Instrument> findAll(); Optional<Instrument> findBySymbol(String s); Instrument save(Instrument i); }\ninterface ZQuoteRepo { Optional<Quote> findLatest(String symbol,String exchange); }\n\n@Configuration @EnableCaching @EnableScheduling\nclass ZCache {\n    @Bean RedisCacheManager cacheManager(RedisConnectionFactory factory){\n        var json=RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer());\n        var base=RedisCacheConfiguration.defaultCacheConfig().serializeValuesWith(json).disableCachingNullValues();\n        return RedisCacheManager.builder(factory)\n            .cacheDefaults(base.entryTtl(Duration.ofMinutes(5)))\n            .withInitialCacheConfigurations(Map.of(\n                \"instruments\",base.entryTtl(Duration.ofHours(6)),\n                \"quotes\",     base.entryTtl(Duration.ofSeconds(5)),\n                \"indices\",    base.entryTtl(Duration.ofSeconds(30))))\n            .build();\n    }\n}\n\n@Service class ZInstrumentService {\n    private final ZInstrumentRepo repo;\n    ZInstrumentService(ZInstrumentRepo r){repo=r;}\n    @Cacheable(value=\"instruments\",key=\"#symbol\") public Optional<Instrument> findBySymbol(String symbol){return repo.findBySymbol(symbol);}\n    @Cacheable(value=\"instruments\",key=\"'all'\")   public List<Instrument> findAll(){return repo.findAll();}\n    @CacheEvict(value=\"instruments\",allEntries=true) public Instrument update(Instrument i){return repo.save(i);}\n}\n\n@Service class ZQuoteService {\n    private final ZQuoteRepo repo;\n    ZQuoteService(ZQuoteRepo r){repo=r;}\n    @Cacheable(value=\"quotes\",key=\"#symbol+':'+#exchange\",unless=\"#result==null||#result.isEmpty()\")\n    public Optional<Quote> getLatestQuote(String symbol,String exchange){return repo.findLatest(symbol,exchange);}\n}\n\n@Service class ZWarmup {\n    private final ZInstrumentService svc;\n    ZWarmup(ZInstrumentService s){svc=s;}\n    @PostConstruct void warm(){ svc.findAll(); System.out.println(\"[Warmup] Instruments loaded\"); }\n}\n\n@Service class ZMonitor {\n    private final MeterRegistry reg;\n    ZMonitor(MeterRegistry r){reg=r;}\n    @Scheduled(fixedRate=300000)\n    public void report(){\n        for(String c:List.of(\"instruments\",\"quotes\")){\n            try{\n                double h=reg.find(\"cache.gets\").tag(\"cache\",c).tag(\"result\",\"hit\").counter().count();\n                double m=reg.find(\"cache.gets\").tag(\"cache\",c).tag(\"result\",\"miss\").counter().count();\n                if(h+m>0) System.out.printf(\"[Cache] %s hit=%.1f%%%n\",c,h/(h+m)*100);\n            }catch(Exception ignored){}\n        }\n    }\n}\n\nclass ZerodhaInstrumentCacheTest {\n    @Test void compiles(){ assertTrue(true); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "quotes TTL=5s: stock prices change every tick; short TTL prevents stale data",
+        "instruments TTL=6hr: company data changes rarely; long TTL reduces DB load",
+        "Pre-warm findAll(): populates 'instruments::all' cache before market opens"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m37_t2",
+  "module_id": "m37",
+  "topic_number": 2,
+  "name": "BFS/DFS Applications \u2014 Islands, Clone Graph, Walls and Gates",
+  "slug": "bfs-dfs-graph-applications",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m37_t1"
+    ],
+    "concepts_taught": [
+      "bfs-dfs-graph-applications"
+    ],
+    "career_relevance": "Core BFS/DFS Applications \u2014 Islands, Clone Graph, Walls and Gates patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "BFS/DFS Applications \u2014 Islands, Clone Graph, Walls and Gates"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "BFS = FIFO \u2014 level by level \u2014 shortest path in unweighted graph",
+        "DFS = LIFO/recursion \u2014 explore depth first \u2014 cycle detection, topo order",
+        "Islands: BFS/DFS flooding O(m*n)",
+        "Clone Graph: DFS + HashMap for node mapping",
+        "Walls & Gates: multi-source BFS from all gates simultaneously",
+        "Cycle in directed: DFS with 3-state color (0=white, 1=gray, 2=black). Gray neighbor = cycle.",
+        "Bipartite: 2-color BFS; same color neighbor = not bipartite"
+      ],
+      "next_topic_preview": "Next: Topological sort."
+    }
+  }
+}

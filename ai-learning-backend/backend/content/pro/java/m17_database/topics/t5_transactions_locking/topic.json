@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t5",
+  "language": "java",
+  "module_id": "m17",
+  "module_name": "Advanced Database Engineering",
+  "topic_number": 5,
+  "name": "Database Transactions & Locking",
+  "slug": "database-transactions-locking",
+
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m17_t4"],
+    "concepts_taught": [
+      "transaction_isolation_levels",
+      "read_uncommitted",
+      "read_committed",
+      "repeatable_read",
+      "serializable",
+      "dirty_read",
+      "non_repeatable_read",
+      "phantom_read",
+      "optimistic_locking",
+      "version_annotation",
+      "optimistic_lock_exception",
+      "pessimistic_locking",
+      "pessimistic_write",
+      "pessimistic_read",
+      "select_for_update",
+      "lock_timeout",
+      "transactional_propagation",
+      "required_vs_requires_new",
+      "rollback_for_checked_exceptions"
+    ],
+    "skills_developed": [
+      "detecting_lost_updates_in_concurrent_code",
+      "implementing_optimistic_locking_with_version",
+      "implementing_pessimistic_locking_for_critical_sections",
+      "handling_optimistic_lock_exceptions_with_retry",
+      "choosing_correct_transaction_isolation_level"
+    ],
+    "career_relevance": "Concurrency bugs are the hardest to reproduce and the most dangerous in production. Zerodha's trading engine, Razorpay's payment processor, BookMyShow's ticket booking — all require careful transaction management to prevent double-charging, overselling, or lost updates. Optimistic vs pessimistic locking is asked in every senior Java interview. After this topic, you write concurrent-safe database operations.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "BookMyShow releases 1,000 concert tickets. Within milliseconds, 5,000 users click 'Book'. Without locking:\n\n```java\n// THE BUG — runs concurrently on 5000 threads:\n@Transactional\npublic BookingResult bookTicket(String eventId, String userId) {\n    Event event = eventRepo.findById(eventId).orElseThrow();\n    \n    if (event.getAvailableTickets() <= 0) {\n        return BookingResult.SOLD_OUT;\n    }\n    \n    // RACE CONDITION: two threads both read 1 ticket available!\n    // Thread A: reads available=1, proceeds\n    // Thread B: reads available=1, proceeds — at the SAME time!\n    \n    event.setAvailableTickets(event.getAvailableTickets() - 1);\n    // Thread A saves: available=0\n    // Thread B saves: available=0 (OVERWRITES Thread A!)\n    // Both bookings succeed — 2 people hold the same ticket!\n    \n    return BookingResult.success(createBooking(event, userId));\n}\n// Result: 1000 tickets sold 2× = 2000 bookings! Chaos!\n```\n\n**Fix with Optimistic Locking:**\n```java\n@Entity class Event {\n    @Id Long id;\n    @Version int version;  // ← auto-incremented by Hibernate\n    int availableTickets;\n}\n\n// Thread A: UPDATE events SET available=0, version=2 WHERE id=? AND version=1  → 1 row\n// Thread B: UPDATE events SET available=0, version=2 WHERE id=? AND version=1  → 0 rows!\n// Thread B gets OptimisticLockException → BookMyShow retries or shows 'Sold Out'\n```\n\n**Fix with Pessimistic Locking (SELECT FOR UPDATE):**\n```java\n@Lock(LockModeType.PESSIMISTIC_WRITE)\nOptional<Event> findByIdForUpdate(Long id);\n\n// Thread A: SELECT ... FOR UPDATE → acquires row lock\n// Thread B: SELECT ... FOR UPDATE → WAITS until Thread A commits\n// Serialized: Thread A books, Thread B then checks (0 tickets) → Sold Out\n```\n\nLocking is the difference between 'it works in testing' and 'it works at 5000 concurrent users'.",
+    "what_you_will_build": "By the end of this topic, you'll implement optimistic locking with @Version to handle concurrent updates without blocking, pessimistic locking with @Lock for critical sections, handle OptimisticLockException with retry, and understand when to use each approach."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "transaction_isolation": "**Transaction isolation levels — what they prevent:**\n\n```\nLevel              | Dirty Read | Non-repeatable Read | Phantom Read\n-------------------+-----------+--------------------+--------------\nREAD_UNCOMMITTED   |  possible  |      possible      |   possible\nREAD_COMMITTED     |  PREVENTED |      possible      |   possible  ← PostgreSQL default\nREPEATABLE_READ    |  PREVENTED |     PREVENTED      |   possible\nSERIALIZABLE       |  PREVENTED |     PREVENTED      |  PREVENTED\n```\n\n**What each anomaly means:**\n```\nDirty Read: reading data another transaction hasn't committed yet\n  → Transaction A writes userId='hacker' but hasn't committed\n  → Transaction B reads userId='hacker' (uncommitted!)\n  → Transaction A rolls back — B made decisions on ghost data\n\nNon-repeatable Read: same query returns different data in same transaction\n  → Transaction A reads ticket.available=10\n  → Transaction B updates available=5 AND COMMITS\n  → Transaction A reads ticket.available=5 again ← different result!\n\nPhantom Read: same query returns different ROWS in same transaction\n  → Transaction A: SELECT * FROM orders WHERE status='PLACED' → 5 rows\n  → Transaction B: INSERT new PLACED order + COMMITS\n  → Transaction A: same query → 6 rows! New row appeared (phantom)\n```\n\n**Spring @Transactional isolation:**\n```java\n@Transactional(isolation = Isolation.READ_COMMITTED)  // default for PostgreSQL\n@Transactional(isolation = Isolation.REPEATABLE_READ)  // prevents non-repeatable reads\n@Transactional(isolation = Isolation.SERIALIZABLE)     // prevents all anomalies (slow)\n```",
+
+      "optimistic_locking": "**Optimistic Locking — @Version:**\n\n```java\n@Entity @Table(name = \"tickets\")\npublic class Ticket {\n    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    \n    private String eventId;\n    private int available;\n    \n    @Version\n    private int version;   // ← Hibernate manages this automatically\n    \n    // @Version: Hibernate adds 'AND version = ?' to every UPDATE\n    // UPDATE tickets SET available=?, version=? WHERE id=? AND version=?\n    // If 0 rows updated → another transaction already changed this row\n    // → Hibernate throws OptimisticLockException!\n}\n\n// Service using optimistic locking:\n@Service\npublic class TicketService {\n    private final TicketRepository repo;\n    \n    @Retryable(\n        value = OptimisticLockException.class,\n        maxAttempts = 3,\n        backoff = @Backoff(delay = 100)\n    )\n    @Transactional\n    public BookingResult book(Long ticketId, String userId) {\n        Ticket ticket = repo.findById(ticketId).orElseThrow();\n        \n        if (ticket.getAvailable() <= 0) {\n            return BookingResult.SOLD_OUT;\n        }\n        \n        ticket.setAvailable(ticket.getAvailable() - 1);\n        repo.save(ticket);\n        // Hibernate: UPDATE tickets SET available=N-1, version=V+1\n        //            WHERE id=? AND version=V\n        // If another transaction won: 0 rows updated → OptimisticLockException\n        // @Retryable: retries up to 3 times automatically\n        \n        return BookingResult.success(createBooking(ticket, userId));\n    }\n}\n```\n\n**When @Version fails (conflict detection):**\n```\nThread A: reads version=1, available=1\nThread B: reads version=1, available=1\nThread A: UPDATE ... version=2 WHERE version=1 → 1 row updated ✓\nThread B: UPDATE ... version=2 WHERE version=1 → 0 rows updated!\n          → StaleObjectStateException (wraps OptimisticLockException)\n          → Retry: re-read ticket → version=2, available=0 → SOLD_OUT\n```",
+
+      "pessimistic_locking": "**Pessimistic Locking — @Lock / SELECT FOR UPDATE:**\n\n```java\nimport org.springframework.data.jpa.repository.Lock;\nimport jakarta.persistence.LockModeType;\n\n// In Repository:\npublic interface TicketRepository extends JpaRepository<Ticket, Long> {\n    \n    // PESSIMISTIC_WRITE: SELECT ... FOR UPDATE\n    // Other transactions trying to SELECT FOR UPDATE will WAIT\n    @Lock(LockModeType.PESSIMISTIC_WRITE)\n    @Query(\"SELECT t FROM Ticket t WHERE t.id = :id\")\n    Optional<Ticket> findByIdWithLock(@Param(\"id\") Long id);\n    \n    // PESSIMISTIC_READ: SELECT ... FOR SHARE\n    // Allows other reads, blocks writes\n    @Lock(LockModeType.PESSIMISTIC_READ)\n    Optional<Ticket> findById(Long id);  // override default\n    \n    // With timeout (don't wait more than 3 seconds):\n    @Lock(LockModeType.PESSIMISTIC_WRITE)\n    @QueryHints(@QueryHint(name=\"jakarta.persistence.lock.timeout\", value=\"3000\"))\n    @Query(\"SELECT t FROM Ticket t WHERE t.id = :id\")\n    Optional<Ticket> findByIdWithLockTimeout(@Param(\"id\") Long id);\n}\n\n// Service using pessimistic locking:\n@Transactional\npublic BookingResult bookWithPessimisticLock(Long ticketId, String userId) {\n    // Acquire lock BEFORE reading:\n    Ticket ticket = repo.findByIdWithLock(ticketId).orElseThrow();\n    // SQL: SELECT * FROM tickets WHERE id=? FOR UPDATE\n    // Other threads trying to SELECT FOR UPDATE will block here!\n    \n    if (ticket.getAvailable() <= 0) return BookingResult.SOLD_OUT;\n    ticket.setAvailable(ticket.getAvailable() - 1);\n    // On transaction commit: lock released, waiting threads unblock\n    return BookingResult.success(createBooking(ticket, userId));\n}\n```",
+
+      "transactional_propagation": "**@Transactional propagation — nested transactions:**\n\n```java\n// Propagation.REQUIRED (default): join existing transaction or create new\n@Transactional(propagation = Propagation.REQUIRED)\npublic void processOrder(Order order) {\n    // If called from within a transaction: joins it\n    // If called standalone: creates new transaction\n    orderRepo.save(order);  // participates in same transaction as caller\n}\n\n// Propagation.REQUIRES_NEW: always create NEW transaction (suspends current)\n@Transactional(propagation = Propagation.REQUIRES_NEW)\npublic void sendNotification(String userId, String message) {\n    // Always runs in its own transaction\n    // If the OUTER transaction rolls back, this STILL commits!\n    notificationRepo.save(new Notification(userId, message));\n}\n// USE CASE: audit log that must be saved even if order fails\n@Transactional\npublic void placeOrder(Order order) {\n    try {\n        orderService.save(order);      // in main transaction\n        paymentService.charge(order);  // in main transaction\n    } catch (Exception e) {\n        auditService.logFailure(order); // in NEW transaction (still commits!)\n        throw e;                        // main transaction rolls back\n    }\n}\n\n// rollbackFor: @Transactional only rolls back on RuntimeException by default!\n@Transactional(rollbackFor = Exception.class)  // roll back on ANY exception\npublic void saveAndNotify() throws Exception {\n    repo.save(entity);\n    emailService.send();  // throws checked IOException → ROLLED BACK with this setting\n}\n// Without rollbackFor: checked exception doesn't roll back → entity saved, email failed!\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Optimistic locking timeline: Two threads A and B on a horizontal timeline. Both read version=1 at t=0. Thread A updates at t=1 (version becomes 2, 1 row affected → success). Thread B updates at t=2 (WHERE version=1 but it's now 2 → 0 rows affected → OptimisticLockException → retry reads version=2). Labels: 'No DB lock, detect conflict at commit time'. (2) Pessimistic locking timeline: Thread A issues SELECT FOR UPDATE at t=0 → acquires row lock. Thread B issues SELECT FOR UPDATE at t=1 → BLOCKED (shows waiting indicator). Thread A commits at t=2 → releases lock. Thread B unblocks at t=2, reads fresh data, proceeds. Label: 'DB lock held during entire transaction'. (3) Isolation levels table: 4 rows (READ_UNCOMMITTED, READ_COMMITTED, REPEATABLE_READ, SERIALIZABLE) × 3 columns (prevents: dirty read, non-repeatable read, phantom read). Green checkmarks for prevented, red X for possible. PostgreSQL default (READ_COMMITTED) highlighted.",
+      "alt_text": "Optimistic locking: conflict at commit vs pessimistic locking: block at read, plus isolation levels comparison table"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Zerodha trading engine: two orders trying to update the same portfolio position simultaneously. Implement optimistic locking to prevent lost updates, add retry, and test with concurrent threads.",
+
+    "problem_statement": "1. PortfolioPosition @Entity with @Version field\n2. PositionService.updatePosition(): optimistic locked update\n3. @Retryable on OptimisticLockException\n4. Pessimistic lock alternative for high-contention positions\n5. @DataJpaTest: simulate concurrent update conflict",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "PortfolioPosition @Entity with @Version",
+        "details": "```java\n@Entity @Table(name = \"portfolio_positions\")\npublic class PortfolioPosition {\n    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)\n    private Long id;\n    \n    @Column(nullable = false) private String userId;\n    @Column(nullable = false) private String symbol;\n    @Column(nullable = false) private int totalQty;\n    @Column(nullable = false) private java.math.BigDecimal avgPrice;\n    \n    @Version\n    private int version;  // ← optimistic lock\n    \n    protected PortfolioPosition() {}\n    public PortfolioPosition(String userId, String symbol, int qty, java.math.BigDecimal price) {\n        this.userId=userId; this.symbol=symbol; this.totalQty=qty; this.avgPrice=price;\n    }\n    \n    public void applyTrade(int tradedQty, java.math.BigDecimal tradePrice, String type) {\n        if (\"BUY\".equals(type)) {\n            // Weighted average price:\n            java.math.BigDecimal totalValue = avgPrice.multiply(java.math.BigDecimal.valueOf(totalQty))\n                .add(tradePrice.multiply(java.math.BigDecimal.valueOf(tradedQty)));\n            totalQty += tradedQty;\n            avgPrice = totalValue.divide(java.math.BigDecimal.valueOf(totalQty), 2, java.math.RoundingMode.HALF_UP);\n        } else {  // SELL\n            totalQty -= tradedQty;\n        }\n    }\n    \n    public Long getId()                      { return id; }\n    public int getTotalQty()                  { return totalQty; }\n    public java.math.BigDecimal getAvgPrice() { return avgPrice; }\n    public int getVersion()                   { return version; }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "PositionRepository with pessimistic lock option",
+        "details": "```java\npublic interface PositionRepository extends JpaRepository<PortfolioPosition, Long> {\n    Optional<PortfolioPosition> findByUserIdAndSymbol(String userId, String symbol);\n    \n    // Pessimistic alternative for high-contention symbols:\n    @Lock(LockModeType.PESSIMISTIC_WRITE)\n    @Query(\"SELECT p FROM PortfolioPosition p \" +\n           \"WHERE p.userId = :uid AND p.symbol = :sym\")\n    Optional<PortfolioPosition> findForUpdate(\n            @Param(\"uid\") String userId,\n            @Param(\"sym\") String symbol);\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "PositionService with @Retryable",
+        "details": "```java\nimport org.springframework.retry.annotation.Backoff;\nimport org.springframework.retry.annotation.Retryable;\nimport jakarta.persistence.OptimisticLockException;\nimport org.springframework.orm.ObjectOptimisticLockingFailureException;\n\n@Service\npublic class PositionService {\n    private final PositionRepository repo;\n    PositionService(PositionRepository r) { repo = r; }\n    \n    @Retryable(\n        value = {OptimisticLockException.class,\n                 ObjectOptimisticLockingFailureException.class},\n        maxAttempts = 5,\n        backoff = @Backoff(delay = 50, multiplier = 2.0)\n    )\n    @Transactional\n    public PortfolioPosition applyTrade(String userId, String symbol,\n                                         int qty, java.math.BigDecimal price,\n                                         String type) {\n        PortfolioPosition pos = repo\n            .findByUserIdAndSymbol(userId, symbol)\n            .orElseGet(() -> new PortfolioPosition(userId, symbol, 0, price));\n        \n        pos.applyTrade(qty, price, type);\n        return repo.save(pos);\n        // Hibernate: UPDATE portfolio_positions\n        //            SET total_qty=?, avg_price=?, version=?\n        //            WHERE id=? AND version=?  ← optimistic check\n        // If version mismatch: 0 rows → OptimisticLockException → @Retryable kicks in\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// @Version: Hibernate adds AND version=? to UPDATE; 0 rows → OptimisticLockException\n// @Retryable: Spring Retry retries the method on OptimisticLockException\n// @Lock(PESSIMISTIC_WRITE): SELECT ... FOR UPDATE; blocks other writers\n// Choose: optimistic for low contention, pessimistic for high contention (hot stocks)",
+
+    "expected_output": "# Normal case (no conflict):\nHibernate: SELECT id, user_id, symbol, total_qty, avg_price, version FROM portfolio_positions\n           WHERE user_id=? AND symbol=?\nHibernate: UPDATE portfolio_positions SET total_qty=10, avg_price=3890.00, version=2\n           WHERE id=1 AND version=1   ← 1 row updated ✓\n\n# Conflict case (Thread B loses):\nHibernate: UPDATE portfolio_positions SET total_qty=10, version=2 WHERE id=1 AND version=1\n           → 0 rows updated (Thread A already changed version to 2!)\n[WARN] ObjectOptimisticLockingFailureException for entity [PortfolioPosition#1]\n[INFO] @Retryable: attempt 2/5 — re-reading entity...\nHibernate: SELECT ... version=2, total_qty=10\nHibernate: UPDATE ... total_qty=15, version=3 WHERE id=1 AND version=2\n           → 1 row updated ✓ (Thread B succeeds on retry)",
+
+    "things_to_notice": [
+      "ObjectOptimisticLockingFailureException is Spring's wrapper around Hibernate's StaleObjectStateException and Jakarta's OptimisticLockException. Your @Retryable should catch both to be safe: value={OptimisticLockException.class, ObjectOptimisticLockingFailureException.class}.",
+      "@Retryable with exponential backoff: delay=50ms × multiplier=2.0 → retries at 50ms, 100ms, 200ms, 400ms, 800ms. This prevents a thundering herd — when many threads fail simultaneously, they retry at slightly different times, reducing contention.",
+      "Optimistic vs pessimistic: optimistic is faster under low contention (no blocking, retries are rare). Pessimistic is safer under high contention (a hot stock like INFY during earnings release where thousands of trades per second update the same position — retries waste time). Choose based on expected concurrency.",
+      "@Version field type: use int or Integer (not long for most cases). Hibernate increments it on every UPDATE. If you're migrating an existing table: add a version column with DEFAULT 0 and update all existing rows to 0 before enabling @Version.",
+      "Transaction isolation and locking are orthogonal: isolation level controls what concurrent transactions can READ. Locking controls concurrent WRITEs. For most lost-update problems: READ_COMMITTED isolation (PostgreSQL default) + optimistic or pessimistic locking is the right combination."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "BookMyShow seat booking",
+        "use_case": "BookMyShow uses pessimistic locking (SELECT FOR UPDATE) for seat booking. When a user selects a seat, the seat row is locked for 10 minutes (the time to complete payment). Other users trying to book the same seat are told 'seat in hold'. After payment completes (or 10 minutes expires), the lock is released. Pessimistic locking is appropriate here: seat booking is high-value, contention is extremely high for popular events, and a blocked user is acceptable (they see 'processing')."
+      },
+      {
+        "company_context": "Razorpay payment idempotency",
+        "use_case": "Razorpay's payment API uses optimistic locking on the PaymentOrder entity with @Version. Each payment attempt increments the version. If a network retry causes a duplicate payment request, the second request reads version=N but another thread already processed it (version=N+1). The second request gets OptimisticLockException, checks the idempotency key, and returns the already-processed result. This prevents double-charging without blocking legitimate concurrent payments."
+      },
+      {
+        "company_context": "Zerodha margin calculation",
+        "use_case": "Zerodha's margin calculation updates the same portfolio margin account for every trade. During market hours: hundreds of trades per second. Pessimistic locking would serialize all margin updates for a user → too slow. Solution: optimistic locking with @Version + Spring Retry (3 attempts with 10ms backoff). Most trades succeed immediately; conflict resolution takes under 30ms. For risk-critical final margin calculations (end-of-day settlement), Zerodha uses SERIALIZABLE isolation to guarantee exact numbers."
+      }
+    ],
+
+    "interview_relevance": "Transaction and locking interview questions:\n\n- **'What is a lost update and how do you prevent it?'** → Two transactions read the same row, both modify it, and one overwrites the other's change. Prevention: optimistic locking (@Version) or pessimistic locking (@Lock PESSIMISTIC_WRITE).\n- **'When would you use optimistic vs pessimistic locking?'** → Optimistic: low contention, fast reads, occasional conflicts acceptable (retry on failure). Pessimistic: high contention, must not waste work on retries (e.g., seat booking).\n- **'What transaction isolation level does PostgreSQL use by default?'** → READ_COMMITTED. Prevents dirty reads, allows non-repeatable reads.\n- **'What does @Transactional(propagation=REQUIRES_NEW) do?'** → Suspends the current transaction and creates a new one. The new transaction commits/rolls back independently. Used for audit logs, notifications that must be saved even if the main transaction rolls back.",
+
+    "real_world_workflow": "Concurrency workflow:\n\n- Identify race condition: two operations on the same row from different threads\n- Choose strategy: low contention → @Version, high contention → @Lock PESSIMISTIC_WRITE\n- Add @Retryable for optimistic locking (3-5 retries with backoff)\n- Test: use two @Transactional threads in @DataJpaTest to verify conflict handling\n- Monitor: log OptimisticLockException count via Actuator counter to track contention"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "optimistic_lock_not_retried",
+      "what_students_get_wrong": "Catching OptimisticLockException and returning 'error' instead of retrying — this gives a bad user experience when a simple retry would succeed.",
+      "remediation": "OptimisticLockException means a conflict occurred — it's transient, not a permanent error. The correct response is retry: read the latest data, reapply the change, try to save again. Use @Retryable(value=OptimisticLockException.class, maxAttempts=3). Only after exhausting retries return an error to the user. Spring Retry adds this with a simple annotation.",
+      "detection_pattern": "Users see 'error' messages under moderate load; logs show repeated OptimisticLockException without retry attempts"
+    },
+    {
+      "gap_id": "pessimistic_lock_without_transaction",
+      "what_students_get_wrong": "Using @Lock(PESSIMISTIC_WRITE) on a repository method but calling it outside a @Transactional method — the lock is acquired and immediately released.",
+      "remediation": "Pessimistic locks (SELECT FOR UPDATE) are held until the transaction COMMITS or ROLLS BACK. If there's no transaction, the lock is released immediately after the query, before any business logic runs — providing no protection. Always call @Lock methods from within a @Transactional method. The lock must span the read → check → update sequence.",
+      "detection_pattern": "Race conditions persist even after adding @Lock; no LockTimeoutException is thrown but concurrent updates still overwrite each other"
+    },
+    {
+      "gap_id": "transactional_no_rollback_for_checked",
+      "what_students_get_wrong": "@Transactional only rolls back on RuntimeException by default — a checked exception (IOException, SQLException) does NOT trigger rollback.",
+      "remediation": "Add rollbackFor = Exception.class to roll back on checked exceptions too: @Transactional(rollbackFor = Exception.class). Or re-throw checked exceptions as RuntimeException. Without this: if a service method saves to DB and then throws a checked exception (e.g., sending email fails with IOException), the DB save is COMMITTED — partial transaction committed.",
+      "detection_pattern": "DB has records but operation 'failed'; checked exception thrown but data was saved anyway"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Lost update: two transactions read, modify, save same row — second write overwrites first",
+      "Optimistic locking: @Version field; Hibernate adds AND version=? to UPDATE",
+      "Optimistic lock failure: 0 rows updated → StaleObjectStateException / OptimisticLockException",
+      "@Retryable(value=OptimisticLockException.class): Spring Retry retries the method",
+      "Pessimistic locking: @Lock(PESSIMISTIC_WRITE) → SELECT ... FOR UPDATE",
+      "Pessimistic lock held until transaction commits — MUST be in @Transactional method",
+      "Lock timeout: @QueryHints(@QueryHint(name='jakarta.persistence.lock.timeout', value='3000'))",
+      "Optimistic: low contention, no blocking; Pessimistic: high contention, blocks concurrent writers",
+      "Isolation levels: READ_COMMITTED (PostgreSQL default) prevents dirty reads",
+      "REPEATABLE_READ: prevents non-repeatable reads (same query, different results in same txn)",
+      "SERIALIZABLE: prevents phantom reads (new rows appearing in same txn)",
+      "Propagation.REQUIRED: join existing transaction (default)",
+      "Propagation.REQUIRES_NEW: always new transaction, commits independently of caller",
+      "rollbackFor = Exception.class: roll back on checked exceptions (not default!)",
+      "Default: @Transactional only rolls back RuntimeException and Error"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You have @Version int version on an entity. Two users simultaneously update the entity's name. Describe exactly what SQL Hibernate sends for each user and what happens to the 'loser'.",
+        "answer": "Both transactions start by loading the entity: SELECT * FROM entities WHERE id=? → both get version=1. User A saves first: UPDATE entities SET name='Alice', version=2 WHERE id=? AND version=1 → 1 row updated (success). User B saves: UPDATE entities SET name='Bob', version=2 WHERE id=? AND version=1 → 0 rows updated (version is now 2, not 1). Hibernate detects 0 rows affected → throws StaleObjectStateException (wraps OptimisticLockException). The @Transactional method rolls back. If @Retryable is configured: User B's service retries, reloads entity (version=2, name='Alice'), applies the change to name='Bob', saves: UPDATE entities SET name='Bob', version=3 WHERE id=? AND version=2 → 1 row updated (success)."
+      },
+      {
+        "question": "A TicketService method calls findByIdWithLock() (@Lock PESSIMISTIC_WRITE) but it's NOT annotated with @Transactional. Thread A and Thread B both call it simultaneously. Are they protected from race conditions?",
+        "answer": "No — they're NOT protected. SELECT ... FOR UPDATE acquires a database row lock, but the lock is held only for the duration of the transaction. Without @Transactional on the calling method, Spring/Hibernate creates a transaction just for the findByIdWithLock() query, commits it immediately after, and releases the lock. Thread A's lock is released before it reads or modifies available tickets. Thread B acquires the lock (nothing to contend with) and both proceed concurrently — race condition still exists. Fix: add @Transactional to the service method that calls findByIdWithLock(). The lock must span the entire read → check → decrement → save sequence."
+      },
+      {
+        "question": "Your service method processes an order (saves to DB) and then sends an email notification. The email sending throws a checked IOException. Without rollbackFor: what happens? With rollbackFor=Exception.class: what happens?",
+        "answer": "Without rollbackFor (default): @Transactional only rolls back RuntimeException and Error. A checked IOException does NOT trigger rollback. The order is SAVED to the database, but the email failed. The caller receives the IOException, but the transaction was already committed — partial work done. With rollbackFor=Exception.class: the IOException triggers @Transactional to roll back. The order is NOT saved. The caller receives the IOException AND the database is clean. For most payment/order processing: use rollbackFor=Exception.class to ensure either the entire operation succeeds (order saved + email sent) or nothing persists."
+      }
+    ],
+
+    "next_topic_preview": "Module 17: Advanced Database Engineering is complete! You've covered production database engineering from migrations (T17.1) through N+1 fixes (T17.2), connection pooling and indexing (T17.3), complex relationships (T17.4), and concurrent transaction safety (T17.5). The next module applies distributed systems thinking: Module 18 — Redis Caching & Rate Limiting. Why query PostgreSQL for the same data 10,000 times per second when you can cache it in Redis for 1ms reads?"
+  }
+}

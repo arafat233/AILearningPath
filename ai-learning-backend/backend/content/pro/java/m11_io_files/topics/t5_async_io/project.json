@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m11_t5_proj",
+  "linked_topic": "java_m11_t5",
+  "level": "mini",
+  "name": "Razorpay-Style Async Payment Dashboard",
+  "estimated_minutes": 55,
+  "difficulty": 8,
+
+  "scenario": "Build an async payment analytics dashboard that fetches transaction data from multiple regional payment APIs in parallel, processes the responses with Jackson, aggregates statistics, and persists results using NIO file I/O. This project synthesises the entire Module 11 arc: NIO files (T11.1), buffered I/O (T11.2), JSON processing (T11.3), HTTP client patterns (T11.4), and async parallel HTTP (T11.5).",
+
+  "description": "A non-blocking payment aggregation system. Three regional APIs return JSON transaction arrays. sendAsync fires all three simultaneously. thenApply chains parse each response. allOf waits for all. Results are combined, validated, aggregated into per-status and per-region breakdowns, written to files using NIO, and displayed as a formatted PrintWriter report.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Static final HttpClient (sendAsync-ready) and ObjectMapper singletons. Define `Payment` record: id, region, status (SUCCESS/FAILED/PENDING), amount, currency, timestamp.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`fetchPaymentsAsync(String region)` → `CompletableFuture<List<Payment>>`: simulates sendAsync for that region, returns JSON array, parses with `TypeReference<List<Payment>>`. Each region has at least 4 payments and different delays (50-200ms).",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "Fan-out to 3 regions simultaneously. `allOf` waits for all. Inside `thenRun`: flatMap results into single list, compute: totalCount, successCount, failedCount, pendingCount, totalAmount (SUCCESS only), perRegionBreakdown.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Per-request error handling: each regional CF has `exceptionally(ex -> emptyList())` — one region failing doesn't break the others.",
+        "weight": 12
+      },
+      {
+        "id": "req_5",
+        "description": "Write results using Module 11 I/O: (a) `Files.writeString` for JSON summary (Jackson ObjectNode), (b) `PrintWriter` wrapping `BufferedWriter` for formatted CSV of all payments, (c) NIO directory creation for output folder.",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "Print formatted console report using printf. Show timing: total async time vs estimated sequential time.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Total time should be approx max(region delays), not sum. Print the speedup ratio.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `thenCompose` chaining: after fetching all payments, fire a second async call to a 'reconciliation API' (simulated) that takes the failed payment IDs and returns a retry result. Chain: allOf → reconcile → finalReport.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add retry with exponential backoff: if a regional API fails (throw exception in simulate), automatically retry up to 3 times with 100ms/200ms/400ms waits before falling back to empty list.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Read previous report from file (if exists) and compare: print delta in total payments, delta in success rate, and any new failed payment IDs since last run. Use Jackson to read old report.json.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "3 regions with payments:\nNorth: PAY-001(SUCCESS, ₹1500), PAY-002(FAILED, ₹800), PAY-003(SUCCESS, ₹2200), PAY-004(PENDING, ₹650)\nSouth: PAY-005(SUCCESS, ₹3500), PAY-006(FAILED, ₹450), PAY-007(SUCCESS, ₹999), PAY-008(SUCCESS, ₹1800)\nWest:  PAY-009(PENDING, ₹2200), PAY-010(SUCCESS, ₹750), PAY-011(FAILED, ₹1200), PAY-012(SUCCESS, ₹4999)\n\nDelays: North=150ms, South=200ms, West=100ms\nExpected total: 12 payments\nExpected successful: 7 of 12\nExpected total (SUCCESS only): 1500+2200+3500+999+1800+750+4999 = 15748",
+
+  "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport java.nio.file.*;\nimport java.io.*;\nimport com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport com.fasterxml.jackson.core.type.*;\n\n/**\n * Async Payment Dashboard — Module 11 Synthesis\n * Uses: sendAsync (T11.5) + JSON/Jackson (T11.3) + NIO files (T11.1) + PrintWriter (T11.2)\n */\npublic class PaymentDashboard {\n    public static void main(String[] args) throws Exception {\n        // Fan-out to 3 regions\n        // allOf to wait\n        // Process, aggregate\n        // Write files\n        // Print report\n    }\n    // Define: Payment record, fetchPaymentsAsync, MockPaymentApi\n}",
+
+  "example_output": "=== Async Payment Dashboard ===\nQuerying 3 regional APIs in parallel...\n[North API] → 4 payments in 151ms\n[West API]  → 4 payments in 103ms\n[South API] → 4 payments in 202ms\n\n=== Aggregation Results ===\nTotal payments: 12\nSuccessful:  7 (58.3%)\nFailed:      3 (25.0%)\nPending:     2 (16.7%)\nSuccess amount: ₹15,748\n\n=== Regional Breakdown ===\nNorth:  4 payments | 2 success | 1 failed | ₹3,700 success\nSouth:  4 payments | 3 success | 1 failed | ₹6,299 success\nWest:   4 payments | 2 success | 1 failed | ₹5,749 success\n\nAsync time:       ~202ms\nEstimated sequential: ~450ms\nSpeedup: 2.2x\n\nFiles written:\n  output/summary.json\n  output/payments.csv",
+
+  "rubric": [
+    { "category": "Async Setup", "points": 15, "criteria": ["HttpClient singleton (5 pts)", "sendAsync simulation (10 pts)"] },
+    { "category": "JSON Parse + TypeReference", "points": 15, "criteria": ["TypeReference<List<Payment>> (10 pts)", "thenApply parse chain (5 pts)"] },
+    { "category": "Fan-out + allOf", "points": 20, "criteria": ["3 CFs fire simultaneously (10 pts)", "allOf + thenRun collect (10 pts)"] },
+    { "category": "Error Handling", "points": 10, "criteria": ["exceptionally per region (10 pts)"] },
+    { "category": "File Output", "points": 15, "criteria": ["Files.writeString JSON (8 pts)", "PrintWriter CSV (7 pts)"] },
+    { "category": "Report + Timing", "points": 10, "criteria": ["Formatted console report (5 pts)", "Speedup printed (5 pts)"] },
+    { "category": "Compiles & Correct", "points": 15, "criteria": ["Compiles (8 pts)", "Correct payment totals (7 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Reconciliation thenCompose (20 pts)", "Retry backoff (25 pts)", "Delta comparison (20 pts)"] }
+  ],
+
+  "ai_policy": "no_ai",
+  "ai_policy_explanation": "Module 11 capstone — no AI assistance. All patterns covered in T11.1–T11.5. Key: fetchPaymentsAsync returns CF from supplyAsync simulating delay + JSON parse. exceptionally returns empty list. allOf.thenRun: flatMap three lists → aggregate. Files.writeString for JSON; PrintWriter for CSV.",
+
+  "submission_instructions": "Save as PaymentDashboard.java. Push to GitHub. Commit message: 'Module 11 capstone: async payment dashboard (sendAsync + Jackson + NIO)'.",
+
+  "tips_for_success": [
+    "fetchPaymentsAsync: `return CompletableFuture.supplyAsync(() -> { sleep(delay); return MAPPER.readValue(json, new TypeReference<List<Payment>>(){}); }).exceptionally(ex -> List.of())`",
+    "Fan-out: `List<CF<List<Payment>>> futures = regions.stream().map(r -> fetchPaymentsAsync(r)).collect(Collectors.toList())`",
+    "Aggregate inside thenRun: `all = futures.stream().map(CF::join).flatMap(List::stream).collect()`",
+    "CSV output: PrintWriter prints one row per payment — wrap IOException as RuntimeException inside thenRun",
+    "Timing: record millis before firing futures, compute delta inside thenRun"
+  ],
+
+  "concepts_reinforced": [
+    "sendAsync → CompletableFuture<HttpResponse<T>>",
+    "thenApply for JSON parsing in async chain",
+    "allOf for parallel fan-out",
+    "exceptionally per CF for graceful degradation",
+    "TypeReference for JSON array deserialization",
+    "Files.writeString and PrintWriter from Module 11",
+    "flatMap to merge parallel results"
+  ]
+}

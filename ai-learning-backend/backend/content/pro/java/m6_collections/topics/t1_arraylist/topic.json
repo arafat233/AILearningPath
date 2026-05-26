@@ -1,0 +1,215 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t1",
+  "language": "java",
+  "module_id": "m6",
+  "module_name": "Collections Framework",
+  "topic_number": 1,
+  "name": "ArrayList",
+  "slug": "arraylist",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m3_t1", "java_m4_t1", "java_m5_t4"],
+    "concepts_taught": [
+      "arraylist_declaration",
+      "arraylist_vs_array",
+      "generics_basics",
+      "arraylist_methods",
+      "adding_removing_elements",
+      "accessing_elements",
+      "iterating_arraylist",
+      "arraylist_of_objects",
+      "autoboxing_unboxing",
+      "arraylist_size_vs_capacity",
+      "list_interface_type",
+      "converting_array_to_arraylist"
+    ],
+    "skills_developed": [
+      "declaring_and_using_arraylist",
+      "adding_removing_accessing_elements",
+      "iterating_with_foreach",
+      "using_generics_with_arraylist",
+      "replacing_manual_arrays_with_arraylist",
+      "choosing_arraylist_over_raw_array"
+    ],
+    "career_relevance": "ArrayList is THE most used data structure in Java. Every backend REST API returns ArrayList (or the List interface) of objects. Every database query result is converted to a List. Every shopping cart, every search result, every notification list — ArrayList. Before this topic, students have been manually managing arrays with index counters, resizing issues, and null slots. After today, that's gone. Every `Product[] products; int count;` pattern you've been writing becomes `ArrayList<Product>`. This one class removes an entire category of bugs from your code.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Look at every array-based class you've written in Modules 3-5:\n\n```java\nclass Library {\n    private Book[] books;    // fixed size\n    private int count;        // must track manually\n    \n    public Library(int capacity) {\n        books = new Book[capacity];  // must guess right size\n        count = 0;\n    }\n    \n    public void addBook(Book b) {\n        if (count < books.length) {  // must check — what if full?\n            books[count++] = b;\n        }\n    }\n    \n    public Book[] getBooks() {\n        return Arrays.copyOf(books, count);  // defensive copy!\n    }\n}\n```\n\nFive problems:\n1. **Fixed capacity** — guess wrong and you can't add more books\n2. **Manual count** — forget to increment, or increment wrong, and it's a bug\n3. **Null slots** — `books[count]` through `books.length-1` are null and must never be accessed\n4. **Removal is painful** — you have to shift elements manually\n5. **Defensive copies** — needed everywhere\n\nNow watch this:\n\n```java\nclass Library {\n    private List<Book> books = new ArrayList<>();\n    \n    public void addBook(Book b) { books.add(b); }\n    public void removeBook(Book b) { books.remove(b); }\n    public List<Book> getBooks() { return books; }\n    public int bookCount() { return books.size(); }\n}\n```\n\nNo capacity. No count. No null slots. No shifts. No defensive copies. Just clean, readable code.\n\nWelcome to `ArrayList` — your new default data structure.",
+    "what_you_will_build": "By the end of this topic, you'll know how to declare and use ArrayList (with generics), add/remove/access/iterate elements, store objects in ArrayList, understand autoboxing (int→Integer), use the List interface type, and replace every manual array-with-count pattern you've been writing. You'll also refactor the Product catalog and Library projects to use ArrayList — and feel the difference immediately."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**ArrayList** is a resizable array — it grows automatically as you add elements. It's part of the Java Collections Framework and lives in `java.util`.\n\n```java\nimport java.util.ArrayList;\nimport java.util.List;\n\n// Declare\nList<String> names = new ArrayList<>();\n\n// Add\nnames.add(\"Aisha\");\nnames.add(\"Raj\");\nnames.add(\"Priya\");\n\n// Size\nSystem.out.println(names.size());    // 3\n\n// Access by index\nSystem.out.println(names.get(0));    // \"Aisha\"\nSystem.out.println(names.get(2));    // \"Priya\"\n\n// Modify\nnames.set(1, \"Vikram\");              // replace index 1\n\n// Remove\nnames.remove(\"Raj\");                 // remove by value\nnames.remove(0);                     // remove by index\n\n// Iterate\nfor (String name : names) {\n    System.out.println(name);\n}\n```\n\nThree things to note immediately:\n- `List<String>` — declaring with the INTERFACE type (programming to interfaces from Topic 5.4)\n- `<String>` — generics, tells the list what type it holds\n- `new ArrayList<>()` — `<>` is the diamond operator, type is inferred",
+      
+      "arraylist_vs_array": "When to choose ArrayList over arrays:\n\n| Feature | Array `String[]` | ArrayList `ArrayList<String>` |\n|---------|-------------------|--------------------------------|\n| Size | Fixed — set at creation | Dynamic — grows/shrinks |\n| Syntax | `arr[i]` | `.get(i)` |\n| Add element | Manual shift + resize | `.add(element)` |\n| Remove element | Manual shift | `.remove(index)` |\n| Contains check | Manual loop | `.contains(value)` |\n| Size | `.length` | `.size()` |\n| Works with generics | Arrays of generics are tricky | Perfect |\n| Performance | Slightly faster for fixed-size | Negligible difference in practice |\n\n**Prefer ArrayList** when:\n- Size is not known in advance\n- You'll add/remove elements during runtime\n- You want convenient methods (contains, indexOf, etc.)\n\n**Prefer arrays** when:\n- Size is fixed (performance-critical code)\n- You're working with primitives heavily (int[], double[])\n- The API requires an array\n\n**Real-world rule**: use ArrayList as your DEFAULT. Switch to arrays only when you have a specific reason.",
+      
+      "generics_basics": "The `<Type>` after ArrayList is called a **generic type parameter** — it specifies what type of elements the list holds.\n\n```java\nList<String>  names   = new ArrayList<>();  // holds Strings\nList<Integer> numbers = new ArrayList<>();  // holds Integers\nList<Product> catalog = new ArrayList<>();  // holds Products\nList<Double>  prices  = new ArrayList<>();  // holds Doubles\n```\n\nThe compiler enforces this at compile time:\n\n```java\nList<String> names = new ArrayList<>();\nnames.add(\"Aisha\");    // OK\nnames.add(42);          // COMPILE ERROR — can't add int to List<String>\n\nString s = names.get(0);  // OK — compiler knows it returns String\nInteger n = names.get(0); // COMPILE ERROR — it's a String\n```\n\nGenerics prevent ClassCastException at runtime. Before generics (pre-Java 5), collections held `Object` and you'd crash at runtime. With generics, type errors are caught at COMPILE TIME.\n\n**The diamond operator `<>`**: In `new ArrayList<>()`, the `<>` means 'infer the type from the left side.' You could write `new ArrayList<String>()`, but that's redundant — Java can figure it out. Modern Java always uses `<>`.\n\n**Raw types** (avoid): `ArrayList list = new ArrayList()` — no generic. Compiles with warnings, loses type safety. Never do this in modern Java.",
+      
+      "core_methods": "**ArrayList's essential API**:\n\n```java\nList<String> list = new ArrayList<>();\n\n// Adding\nlist.add(\"first\");            // appends to end\nlist.add(0, \"zeroth\");        // insert at index — shifts others right\nlist.addAll(otherList);       // append all from another collection\n\n// Reading\nString s = list.get(0);       // get by index (0-based)\nint n = list.size();           // number of elements\nboolean empty = list.isEmpty(); // equivalent to list.size() == 0\n\n// Checking\nboolean found = list.contains(\"Aisha\");  // linear search using .equals()\nint i = list.indexOf(\"Raj\");            // first index, -1 if not found\n\n// Modifying\nlist.set(1, \"updated\");        // replace element at index\nString removed = list.remove(0);  // remove by index, returns removed\nboolean didRemove = list.remove(\"name\"); // remove first occurrence by value\nlist.clear();                   // remove all elements\n\n// Sublist\nList<String> sub = list.subList(1, 3);  // elements at index 1, 2 (exclusive end)\n\n// Convert to array\nString[] arr = list.toArray(new String[0]);\n```\n\n**Key detail on remove**: `list.remove(1)` removes the element at INDEX 1. `list.remove(\"text\")` removes the first element EQUAL TO 'text'. When the list holds Integers, `list.remove(1)` is ambiguous — use `list.remove(Integer.valueOf(1))` to remove by value.",
+      
+      "iterating": "Three ways to iterate an ArrayList (in order of preference):\n\n**1. Enhanced for-each (preferred for simple iteration)**:\n```java\nfor (String name : names) {\n    System.out.println(name);\n}\n```\n\n**2. Index-based for loop (when you need the index)**:\n```java\nfor (int i = 0; i < names.size(); i++) {\n    System.out.println(i + \": \" + names.get(i));\n}\n```\n\n**3. forEach with lambda (Java 8+, covered in Streams module)**:\n```java\nnames.forEach(name -> System.out.println(name));\n// Or with method reference:\nnames.forEach(System.out::println);\n```\n\n**⚠️ Don't modify while iterating with for-each** — ConcurrentModificationException:\n```java\n// WRONG — throws ConcurrentModificationException\nfor (String name : names) {\n    if (name.startsWith(\"A\")) names.remove(name);\n}\n\n// RIGHT — iterate by index backwards, or collect then remove\nfor (int i = names.size() - 1; i >= 0; i--) {\n    if (names.get(i).startsWith(\"A\")) names.remove(i);\n}\n// Or: use removeIf (Java 8+)\nnames.removeIf(name -> name.startsWith(\"A\"));\n```",
+      
+      "autoboxing": "ArrayList works with OBJECTS only — not primitives. For primitive types, you use **wrapper classes**:\n\n| Primitive | Wrapper class |\n|-----------|---------------|\n| `int` | `Integer` |\n| `double` | `Double` |\n| `boolean` | `Boolean` |\n| `char` | `Character` |\n| `long` | `Long` |\n\n```java\nList<Integer> scores = new ArrayList<>();\nscores.add(95);      // Java auto-boxes 95 → new Integer(95)\nscores.add(87);\nint first = scores.get(0);  // Java auto-unboxes Integer → int\n```\n\n**Autoboxing**: Java automatically converts `int` → `Integer` when adding to a List.\n**Unboxing**: Java automatically converts `Integer` → `int` when reading from a List.\n\nYou write `int` everywhere — Java handles the conversion silently. Just be aware:\n- `List<int>` is ILLEGAL — must use `List<Integer>`\n- Null values in Integer list → NullPointerException on unboxing\n- Tiny performance cost (boxing creates new objects)\n\nFor heavy numeric computation with ArrayLists of numbers, the performance difference vs int[] is negligible in most cases. Don't worry about it.",
+      
+      "list_interface": "Always declare as `List<T>`, not `ArrayList<T>` — programming to the interface:\n\n```java\n// WRONG: bound to ArrayList\nArrayList<String> names = new ArrayList<>();\n\n// RIGHT: programmed to List interface\nList<String> names = new ArrayList<>();\n\n// Later can swap to LinkedList with ONE change:\nList<String> names = new LinkedList<>();  // works everywhere\n```\n\nBenefits covered in Topic 5.4 — flexibility, testability, decoupling. Apply it automatically.\n\n**Method signatures** — take List, not ArrayList:\n\n```java\n// Flexible — works with any List implementation\npublic void printAll(List<String> items) { ... }\n\n// Restrictive — only ArrayList\npublic void printAll(ArrayList<String> items) { ... }\n```\n\nThis is the most important daily habit from Topic 5.4: `List<T>` everywhere you declare, `new ArrayList<>()` when you create.",
+      
+      "sorting_arraylist": "Sort an ArrayList:\n\n```java\nimport java.util.Collections;\n\nList<String> names = new ArrayList<>(Arrays.asList(\"Raj\", \"Aisha\", \"Priya\"));\nCollections.sort(names);         // ascending (uses natural Comparable order)\n\nList<Product> products = new ArrayList<>();\n// ...\nCollections.sort(products);                      // uses Product's Comparable\nCollections.sort(products, ProductSorter.BY_NAME);  // uses Comparator\n// or:\nproducts.sort(ProductSorter.BY_NAME);            // List.sort() — same effect\n```\n\n`Collections.sort` and `list.sort` both work. `list.sort(comparator)` is the more modern style (Java 8+).\n\n**Collections utility class** has many more methods (covered fully in Topic 6.5): `Collections.min`, `Collections.max`, `Collections.shuffle`, `Collections.reverse`, etc.",
+      
+      "arraylist_of_objects": "ArrayList shines with objects:\n\n```java\nList<Product> catalog = new ArrayList<>();\ncatalog.add(new Product(\"Mouse\", 599.0));\ncatalog.add(new Product(\"Keyboard\", 1999.0));\ncatalog.add(new Product(\"Monitor\", 18999.0));\n\n// Direct access\nProduct p = catalog.get(0);  // returns Product object\nSystem.out.println(p.getName());\n\n// Search (uses Product.equals() — from Topic 4.4!)\nProduct target = new Product(\"Mouse\", 599.0);\nboolean found = catalog.contains(target);  // uses equals()\nint idx = catalog.indexOf(target);\n\n// Remove (uses equals())\ncatalog.remove(target);\n\n// Iterate and process\ndouble total = 0;\nfor (Product prod : catalog) {\n    total += prod.getPrice();\n}\nSystem.out.println(\"Total: ₹\" + total);\n```\n\nThis is why Topic 4.4 (equals/hashCode) matters — `contains()` and `remove()` use `.equals()` to find elements. Without proper equals(), these methods don't work correctly."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show side-by-side: LEFT — manual array approach with array of 5 slots, count=3 pointer, null slots shown, arrows showing pain points (null slots, manual count, fixed size). RIGHT — ArrayList: dynamic, no null slots, size() method, clean. CENTER: ArrayList internal model showing 'backing array' that doubles when full (resizing diagram). Below: autoboxing diagram showing 'scores.add(95)' → Java auto-wraps to Integer(95). Bottom: class hierarchy diagram: Iterable → Collection → List → ArrayList (and also LinkedList, Vector). Shows 'List<String> names' as interface reference type pointing to ArrayList implementation.",
+      "alt_text": "Visual comparing manual array tracking vs ArrayList, showing ArrayList's dynamic resizing and the List interface hierarchy"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "The Library project from Topic 5.3 used `Book[] books; int bookCount`. Time to upgrade it completely. We'll refactor Library to use ArrayList, enabling proper add/remove/search with no manual counting, no fixed capacity, no defensive copies.",
+    
+    "problem_statement": "Refactor `Library` from:\n- `private Book[] books; private int count;`\n- Manual count tracking in every method\n\nTo:\n- `private List<Book> books = new ArrayList<>();`\n- Clean add/remove/search using ArrayList's API\n\nThen add features that would have been PAINFUL with arrays but are trivial with ArrayList:\n- `findByTitle(String)` — find first book with matching title\n- `getBooksInStock()` — returns only available books\n- `sortByTitle()` — sort the collection",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "The Book class (with proper equals for remove/contains)",
+        "details": "```java\nimport java.util.Objects;\n\nclass Book {\n    private final String isbn;\n    private String title;\n    private String author;\n    private boolean available;\n    \n    public Book(String isbn, String title, String author) {\n        this.isbn = isbn;\n        this.title = title;\n        this.author = author;\n        this.available = true;\n    }\n    \n    public String getIsbn() { return isbn; }\n    public String getTitle() { return title; }\n    public String getAuthor() { return author; }\n    public boolean isAvailable() { return available; }\n    public void checkOut() { available = false; }\n    public void returnBook() { available = true; }\n    \n    @Override\n    public boolean equals(Object o) {\n        if (!(o instanceof Book b)) return false;\n        return Objects.equals(isbn, b.isbn);  // books equal by ISBN\n    }\n    \n    @Override public int hashCode() { return Objects.hash(isbn); }\n    \n    @Override public String toString() {\n        return '\"' + title + '\"' + \" by \" + author + (available ? \" [Available]\" : \" [Checked Out]\");\n    }\n}\n```\n\nBook has proper equals by ISBN. This means `library.contains(book)` and `library.remove(book)` will work correctly."
+      },
+      {
+        "step": 2,
+        "action": "Library with ArrayList — the upgrade",
+        "details": "```java\nimport java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.List;\n\nclass Library {\n    private final String name;\n    private final List<Book> books = new ArrayList<>();\n    \n    public Library(String name) {\n        this.name = name;\n    }\n    \n    // Add — no capacity check, no count++\n    public void addBook(Book book) {\n        books.add(book);\n    }\n    \n    // Remove by book object — uses Book.equals()\n    public boolean removeBook(Book book) {\n        return books.remove(book);\n    }\n    \n    // Find by title — iterate and check\n    public Book findByTitle(String title) {\n        for (Book b : books) {\n            if (b.getTitle().equalsIgnoreCase(title)) {\n                return b;\n            }\n        }\n        return null;\n    }\n    \n    // Get only available books\n    public List<Book> getBooksInStock() {\n        List<Book> available = new ArrayList<>();\n        for (Book b : books) {\n            if (b.isAvailable()) {\n                available.add(b);\n            }\n        }\n        return available;\n    }\n    \n    // Sort by title\n    public void sortByTitle() {\n        books.sort((a, b) -> a.getTitle().compareTo(b.getTitle()));\n    }\n    \n    public int size() { return books.size(); }\n    \n    public void printAll() {\n        System.out.println(\"=== \" + name + \" (\" + books.size() + \" books) ===\");\n        for (Book b : books) {\n            System.out.println(\"  \" + b);\n        }\n    }\n}\n```\n\nEvery method is clean. No count tracking. No null checks. No capacity issues."
+      },
+      {
+        "step": 3,
+        "action": "Show the power in main",
+        "details": "```java\npublic static void main(String[] args) {\n    Library lib = new Library(\"Hyderabad City Library\");\n    \n    Book b1 = new Book(\"ISBN-001\", \"Dune\", \"Frank Herbert\");\n    Book b2 = new Book(\"ISBN-002\", \"Foundation\", \"Isaac Asimov\");\n    Book b3 = new Book(\"ISBN-003\", \"1984\", \"George Orwell\");\n    Book b4 = new Book(\"ISBN-004\", \"Clean Code\", \"Robert Martin\");\n    \n    lib.addBook(b1);\n    lib.addBook(b2);\n    lib.addBook(b3);\n    lib.addBook(b4);\n    \n    lib.printAll();\n    \n    // Check out some books\n    b1.checkOut();\n    b3.checkOut();\n    \n    System.out.println(\"\\nIn stock: \" + lib.getBooksInStock().size());\n    for (Book b : lib.getBooksInStock()) {\n        System.out.println(\"  \" + b);\n    }\n    \n    // Find by title\n    Book found = lib.findByTitle(\"foundation\");  // case-insensitive\n    System.out.println(\"\\nFound: \" + found);\n    \n    // Sort and print\n    lib.sortByTitle();\n    System.out.println(\"\\nSorted:\");\n    lib.printAll();\n    \n    // Remove a book\n    lib.removeBook(b2);\n    System.out.println(\"\\nAfter removing Foundation: \" + lib.size() + \" books\");\n}\n```"
+      }
+    ],
+    
+    "final_code": "import java.util.ArrayList;\nimport java.util.List;\nimport java.util.Objects;\n\nclass Book {\n    private final String isbn;\n    private String title;\n    private String author;\n    private boolean available;\n    \n    public Book(String isbn, String title, String author) {\n        this.isbn = isbn; this.title = title; this.author = author; this.available = true;\n    }\n    \n    public String getIsbn() { return isbn; }\n    public String getTitle() { return title; }\n    public String getAuthor() { return author; }\n    public boolean isAvailable() { return available; }\n    public void checkOut() { available = false; }\n    public void returnBook() { available = true; }\n    \n    @Override public boolean equals(Object o) {\n        if (!(o instanceof Book b)) return false;\n        return Objects.equals(isbn, b.isbn);\n    }\n    @Override public int hashCode() { return Objects.hash(isbn); }\n    @Override public String toString() {\n        return '\"' + title + '\"' + \" by \" + author + (available ? \" [Available]\" : \" [Checked Out]\");\n    }\n}\n\nclass Library {\n    private final String name;\n    private final List<Book> books = new ArrayList<>();\n    \n    public Library(String name) { this.name = name; }\n    \n    public void addBook(Book book) { books.add(book); }\n    \n    public boolean removeBook(Book book) { return books.remove(book); }\n    \n    public Book findByTitle(String title) {\n        for (Book b : books) {\n            if (b.getTitle().equalsIgnoreCase(title)) return b;\n        }\n        return null;\n    }\n    \n    public List<Book> getBooksInStock() {\n        List<Book> available = new ArrayList<>();\n        for (Book b : books) if (b.isAvailable()) available.add(b);\n        return available;\n    }\n    \n    public void sortByTitle() {\n        books.sort((a, b) -> a.getTitle().compareTo(b.getTitle()));\n    }\n    \n    public int size() { return books.size(); }\n    \n    public void printAll() {\n        System.out.println(\"=== \" + name + \" (\" + books.size() + \" books) ===\");\n        for (Book b : books) System.out.println(\"  \" + b);\n    }\n}\n\npublic class LibrarySystem {\n    public static void main(String[] args) {\n        Library lib = new Library(\"Hyderabad City Library\");\n        Book b1 = new Book(\"ISBN-001\", \"Dune\", \"Frank Herbert\");\n        Book b2 = new Book(\"ISBN-002\", \"Foundation\", \"Isaac Asimov\");\n        Book b3 = new Book(\"ISBN-003\", \"1984\", \"George Orwell\");\n        Book b4 = new Book(\"ISBN-004\", \"Clean Code\", \"Robert Martin\");\n        lib.addBook(b1); lib.addBook(b2); lib.addBook(b3); lib.addBook(b4);\n        lib.printAll();\n        \n        b1.checkOut(); b3.checkOut();\n        System.out.println(\"\\nIn stock: \" + lib.getBooksInStock().size());\n        for (Book b : lib.getBooksInStock()) System.out.println(\"  \" + b);\n        \n        Book found = lib.findByTitle(\"foundation\");\n        System.out.println(\"\\nFound: \" + found);\n        \n        lib.sortByTitle();\n        System.out.println(\"\\nSorted:\");\n        lib.printAll();\n        \n        lib.removeBook(b2);\n        System.out.println(\"\\nAfter removing Foundation: \" + lib.size() + \" books\");\n    }\n}",
+    
+    "expected_output": "=== Hyderabad City Library (4 books) ===\n  \"Dune\" by Frank Herbert [Available]\n  \"Foundation\" by Isaac Asimov [Available]\n  \"1984\" by George Orwell [Available]\n  \"Clean Code\" by Robert Martin [Available]\n\nIn stock: 2\n  \"Foundation\" by Isaac Asimov [Available]\n  \"Clean Code\" by Robert Martin [Available]\n\nFound: \"Foundation\" by Isaac Asimov [Available]\n\nSorted:\n=== Hyderabad City Library (4 books) ===\n  \"1984\" by George Orwell [Available]\n  \"Clean Code\" by Robert Martin [Available]\n  \"Dune\" by Frank Herbert [Checked Out]\n  \"Foundation\" by Isaac Asimov [Available]\n\nAfter removing Foundation: 3 books",
+    
+    "things_to_notice": [
+      "The Library class has NO array capacity, NO count field, NO null-slot handling. Just a clean ArrayList.",
+      "getBooksInStock() creates a NEW ArrayList, adds matching books, returns it. The calling code gets a clean list — no null entries, no manual size.",
+      "findByTitle uses equalsIgnoreCase — 'foundation' finds 'Foundation'. Case-insensitive search was painful with raw arrays; trivial here.",
+      "sortByTitle uses a lambda `(a, b) -> a.getTitle().compareTo(b.getTitle())` — a Comparator inline (Comparator from Topic 5.5 but as a lambda).",
+      "lib.removeBook(b2) uses Book.equals() — it finds the book with ISBN-002 and removes it. This is why proper equals() in Book (Topic 4.4) matters here.",
+      "The Library itself doesn't know or care how many books there are — books.size() handles it.",
+      "Compare to the Topic 5.3 Library that had `private Book[] books; private int bookCount;` — this is dramatically cleaner."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot REST APIs (every Java backend)",
+        "use_case": "Every `@GetMapping` endpoint returns a `List<T>` of objects. `productRepository.findAll()` returns `List<Product>`. The repository query builds an ArrayList under the hood. When you see `ResponseEntity<List<Product>>` in a Spring controller, that's ArrayList in action — it powers every REST API response."
+      },
+      {
+        "company_context": "Zerodha / Groww — portfolio management",
+        "use_case": "A user's portfolio of stocks is a List<StockHolding>. The watchlist is a List<Stock>. Trade history is a List<Trade>. These are built from database query results (JDBC ResultSet → ArrayList) and sent to the frontend. Dynamic — stocks are added/removed at runtime, size isn't known ahead."
+      },
+      {
+        "company_context": "Android app development",
+        "use_case": "RecyclerView adapters (the standard way to show lists in Android) take a `List<T>` of items. When the data changes, you add/remove from the ArrayList and notify the adapter. Contact lists, message threads, product listings — all ArrayList-backed RecyclerViews."
+      },
+      {
+        "company_context": "Search and recommendation systems",
+        "use_case": "Search results from Flipkart, YouTube, Netflix are built as ArrayList. Each matching result is added iteratively. The list is then sorted (by relevance, date, etc.) and returned. The unknown result count before the search completes is why ArrayList is used — you don't know the size upfront."
+      }
+    ],
+    
+    "interview_relevance": "ArrayList questions are at EVERY interview level:\n\n- **'What's the difference between Array and ArrayList?'** — Size (fixed vs dynamic), methods, primitives vs objects.\n- **'Why declare as List instead of ArrayList?'** — Programming to interface, flexibility to swap implementations.\n- **'How does ArrayList resize?'** — Backing array doubles when full (~1.5x). O(1) amortized add.\n- **'What happens if you modify a list while iterating?'** — ConcurrentModificationException. Use indexed loop or removeIf.\n- **'How do you sort an ArrayList?'** — list.sort(comparator) or Collections.sort(list).\n- **'What is autoboxing?'** — Auto-converting between primitive (int) and wrapper (Integer).\n\nSystem design: 'How would you store a user's cart items?' → `List<CartItem>`. 'How would you process search results?' → build ArrayList iteratively, sort, paginate.",
+    
+    "real_world_workflow": "Daily ArrayList work:\n\n- Every repository query: `List<Entity> results = entityRepository.findAll()`\n- Building filtered subsets: iterate, check condition, add to new ArrayList\n- Method return types: always `List<T>`, never `ArrayList<T>` in signatures\n- Sorting: `list.sort(comparator)` before returning\n- Conversion: `Arrays.asList(array)` when you get an array but need a list\n- Checking emptiness: `list.isEmpty()` not `list.size() == 0`\n- Never exposing internal list directly — return `Collections.unmodifiableList(list)` or a copy"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "declaring_as_arraylist_not_list",
+      "what_students_get_wrong": "Writing `ArrayList<String> list = new ArrayList<>()` instead of `List<String> list = new ArrayList<>()`.",
+      "remediation": "Always declare as the interface type (List). Use ArrayList only in the constructor. From Topic 5.4: programming to interfaces.",
+      "detection_pattern": "Code review feedback; method parameters that only accept ArrayList"
+    },
+    {
+      "gap_id": "using_list_int_not_integer",
+      "what_students_get_wrong": "`List<int>` — primitives can't be generic type parameters.",
+      "remediation": "Use wrapper types: `List<Integer>`, `List<Double>`, `List<Boolean>`. Java autoboxes when you add/get.",
+      "detection_pattern": "Compilation error: 'type argument int cannot be primitive'"
+    },
+    {
+      "gap_id": "index_out_of_bounds",
+      "what_students_get_wrong": "Accessing `list.get(list.size())` — valid array index pattern but off-by-one for lists (last index is `size() - 1`).",
+      "remediation": "Last element: `list.get(list.size() - 1)`. Valid range: 0 to size()-1.",
+      "detection_pattern": "IndexOutOfBoundsException at runtime"
+    },
+    {
+      "gap_id": "modifying_during_iteration",
+      "what_students_get_wrong": "Removing elements from a list while iterating with for-each.",
+      "remediation": "Iterate by index backwards, or collect elements to remove first, or use `list.removeIf(condition)`.",
+      "detection_pattern": "ConcurrentModificationException"
+    },
+    {
+      "gap_id": "confusing_remove_by_index_vs_value",
+      "what_students_get_wrong": "On `List<Integer>`, `list.remove(1)` removes the element AT index 1, not the element with VALUE 1.",
+      "remediation": "To remove value: `list.remove(Integer.valueOf(1))`. To remove index: `list.remove(1)`. For strings, `remove('text')` removes by value. For Integer lists, be explicit.",
+      "detection_pattern": "Wrong element removed from integer list"
+    },
+    {
+      "gap_id": "contains_without_equals",
+      "what_students_get_wrong": "`catalog.contains(product)` returns false even though product is in the list — because equals() wasn't overridden in Product.",
+      "remediation": "ArrayList.contains() uses equals(). If equals() isn't overridden, it uses reference equality (same object). Always override equals/hashCode (Topic 4.4) for objects used in collections.",
+      "detection_pattern": "contains() returning false for what looks like a matching object"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "ArrayList: dynamic resizable list — no fixed capacity, no manual count",
+      "Always declare as `List<T>`, create with `new ArrayList<>()`",
+      "Generics `<Type>` specify what the list holds — enforced at compile time",
+      "Core methods: add(), get(), set(), remove(), contains(), size(), isEmpty()",
+      "Cannot use primitives: `List<Integer>` not `List<int>`. Autoboxing handles conversion.",
+      "For-each loop is the cleanest way to iterate",
+      "Don't modify a list while iterating with for-each (ConcurrentModificationException)",
+      "contains() and remove() use equals() — must be overridden in stored objects",
+      "Sort: `list.sort(comparator)` or `Collections.sort(list)`",
+      "ArrayList replaces the `Type[] array; int count` pattern completely"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's wrong with this?\n```java\nList<int> scores = new ArrayList<>();\n```",
+        "answer": "Primitives cannot be generic type parameters. Must use wrapper: `List<Integer> scores = new ArrayList<>();`. Java will autobox `int` values when you add them: `scores.add(95)` → autoboxes to `Integer.valueOf(95)`."
+      },
+      {
+        "question": "Why does `catalog.contains(product)` return false even though you added that exact product?",
+        "answer": "ArrayList.contains() uses .equals() to compare. If Product doesn't override equals(), it uses reference equality (same as ==). Two separate Product objects with identical fields are NOT equal by default. Fix: override equals() in Product (using ISBN or ID as the key) — covered in Topic 4.4. This is the direct application of why Object methods matter."
+      },
+      {
+        "question": "What is the difference between `list.remove(2)` and `list.remove(Integer.valueOf(2))` on a `List<Integer>`?",
+        "answer": "`list.remove(2)` calls remove(int index) — removes the element at index 2 (regardless of its value). `list.remove(Integer.valueOf(2))` calls remove(Object o) — searches for and removes the element with value 2. When the list holds Integers, the two overloads look the same but behave very differently. For clarity with integer lists, always be explicit about which you mean."
+      },
+      {
+        "question": "What replaces this pattern?\n```java\nProduct[] items = new Product[50];\nint count = 0;\n// ...\nif (count < items.length) items[count++] = product;\n```",
+        "answer": "```java\nList<Product> items = new ArrayList<>();\n// ...\nitems.add(product);  // no capacity check, no count increment\n```\nArrayList handles growing automatically. The `count` variable disappears entirely. No capacity worries."
+      }
+    ],
+    
+    "next_topic_preview": "Next topic: **HashMap** — the key-value powerhouse. Need to look up a user by their ID? A product by SKU? Count word frequencies? Map city names to populations? HashMap gives O(1) average lookup, insertion, and deletion. It's the most commonly used data structure after ArrayList. After HashMap, you'll wonder how you ever wrote code without it."
+  }
+}

@@ -1,0 +1,450 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t4",
+  "topic_name": "Object Methods (toString, equals, hashCode)",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m4_t4_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add toString to a class",
+      "scenario": "Override toString for readable output.",
+      "instructions": "Fill in the blanks to override toString.",
+      "starter_code": "class Cat {\n    private String name;\n    \n    public Cat(String name) {\n        this.name = name;\n    }\n    \n    @______\n    public ______ toString() {\n        return \"Cat[\" + name + \"]\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new Cat(\"Whiskers\");\n        System.out.println(c);\n    }\n}",
+      "expected_solution": "class Cat {\n    private String name;\n    \n    public Cat(String name) {\n        this.name = name;\n    }\n    \n    @Override\n    public String toString() {\n        return \"Cat[\" + name + \"]\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new Cat(\"Whiskers\");\n        System.out.println(c);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Override", "hint": "Annotation that catches override errors" },
+        { "position": 2, "answer": "String", "hint": "Return type of toString" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Cat[Whiskers]"
+        }
+      ],
+      "hints": [
+        "@Override annotation tells compiler 'this overrides an inherited method'",
+        "toString returns String",
+        "println(c) calls c.toString() implicitly"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m4_t4_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Default vs overridden toString",
+      "scenario": "Understand what default toString produces.",
+      "instructions": "What does this print? (Note: 'XXXXXX' represents a memory address; replace with that pattern.)\n\n```java\nclass A {\n    // No toString override\n}\n\nclass B {\n    @Override\n    public String toString() { return \"Hello from B\"; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(new B());\n    }\n}\n```",
+      "expected_solution": "Hello from B",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Hello from B"
+        }
+      ],
+      "hints": [
+        "println calls toString implicitly",
+        "B overrides toString, returns custom message",
+        "Output: 'Hello from B'"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m4_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Person with toString",
+      "scenario": "Override toString in a multi-field class.",
+      "instructions": "Create a `Person` class with private fields name (String) and age (int). Constructor takes both. Override toString to return 'Person[name=<name>, age=<age>]'.\n\nIn main, print 2 persons.\n\nExpected output:\nPerson[name=Aisha, age=28]\nPerson[name=Raj, age=35]",
+      "starter_code": "// Build Person class with toString override\n",
+      "expected_solution": "class Person {\n    private String name;\n    private int age;\n    \n    public Person(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n    \n    @Override\n    public String toString() {\n        return \"Person[name=\" + name + \", age=\" + age + \"]\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Person p1 = new Person(\"Aisha\", 28);\n        Person p2 = new Person(\"Raj\", 35);\n        System.out.println(p1);\n        System.out.println(p2);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Person[name=Aisha, age=28]\nPerson[name=Raj, age=35]"
+        }
+      ],
+      "hints": [
+        "toString returns String with field values",
+        "Use string concatenation: 'Person[name=' + name + ', age=' + age + ']'",
+        "@Override annotation on the method"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m4_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Override equals (single field)",
+      "scenario": "Implement equals using the standard pattern.",
+      "instructions": "Create a `Product` class with private final int id and private String name. Override equals to compare by id only. Don't worry about hashCode yet — we'll cover the contract next.\n\nIn main, create two products with same id (different names), verify equals returns true.\n\nExpected output:\nSame id: true\nDifferent id: false",
+      "starter_code": "// Build Product class with equals override\n// Compare by id only\n",
+      "expected_solution": "class Product {\n    private final int id;\n    private String name;\n    \n    public Product(int id, String name) {\n        this.id = id;\n        this.name = name;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Product)) return false;\n        Product p = (Product) other;\n        return this.id == p.id;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Product p1 = new Product(101, \"Mouse\");\n        Product p2 = new Product(101, \"Wireless Mouse\");\n        Product p3 = new Product(102, \"Mouse\");\n        \n        System.out.println(\"Same id: \" + p1.equals(p2));\n        System.out.println(\"Different id: \" + p1.equals(p3));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Same id: true\nDifferent id: false"
+        }
+      ],
+      "hints": [
+        "Follow the template: == check, instanceof check, cast, compare",
+        "Parameter type is Object (not Product)",
+        "Use instanceof to check type AND handle null",
+        "Cast: Product p = (Product) other",
+        "Compare: this.id == p.id"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "equals_basic"
+    },
+    
+    {
+      "id": "java_m4_t4_ex_5",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the wrong equals signature",
+      "scenario": "equals must take Object, not specific type.",
+      "instructions": "This code COMPILES but equals doesn't work. Fix the signature.\n\nExpected output:\nEquals: true",
+      "starter_code": "class Box {\n    private int value;\n    \n    public Box(int value) {\n        this.value = value;\n    }\n    \n    public boolean equals(Box other) {\n        return this.value == other.value;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Box b1 = new Box(10);\n        Box b2 = new Box(10);\n        \n        Object asObject = b2;\n        System.out.println(\"Equals: \" + b1.equals(asObject));\n    }\n}",
+      "expected_solution": "class Box {\n    private int value;\n    \n    public Box(int value) {\n        this.value = value;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Box)) return false;\n        Box b = (Box) other;\n        return this.value == b.value;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Box b1 = new Box(10);\n        Box b2 = new Box(10);\n        \n        Object asObject = b2;\n        System.out.println(\"Equals: \" + b1.equals(asObject));\n    }\n}",
+      "bugs": [
+        {
+          "line": "7",
+          "issue": "equals(Box other) doesn't override Object.equals(Object). When called with Object reference, the inherited method is used (reference equality).",
+          "fix": "Change parameter to Object, add instanceof check, cast inside"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Equals: true",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Original equals takes Box — this is a NEW method, not an override",
+        "Without @Override annotation, the bug isn't caught at compile time",
+        "When called via Object reference, default equals is used (returns false)",
+        "Fix: parameter must be Object, add @Override, instanceof check, cast"
+      ],
+      "xp_reward": 50,
+      "common_misconceptions_tested": ["equals_wrong_signature"]
+    },
+    
+    {
+      "id": "java_m4_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Override hashCode with Objects.hash",
+      "scenario": "Maintain the equals/hashCode contract.",
+      "instructions": "Take the Product class from earlier exercises. Override hashCode using Objects.hash(id). Test that two equal Products have equal hashCodes.\n\nExpected output:\nEquals: true\nSame hashCode: true",
+      "starter_code": "import java.util.Objects;\n\n// Build Product class with equals AND hashCode\n// Use Objects.hash(id) for hashCode\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Product {\n    private final int id;\n    private String name;\n    \n    public Product(int id, String name) {\n        this.id = id;\n        this.name = name;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Product)) return false;\n        Product p = (Product) other;\n        return this.id == p.id;\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(id);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Product p1 = new Product(101, \"Mouse\");\n        Product p2 = new Product(101, \"Keyboard\");\n        \n        System.out.println(\"Equals: \" + p1.equals(p2));\n        System.out.println(\"Same hashCode: \" + (p1.hashCode() == p2.hashCode()));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Equals: true\nSame hashCode: true"
+        }
+      ],
+      "hints": [
+        "Import java.util.Objects at top",
+        "hashCode returns int, no parameters",
+        "Use @Override annotation",
+        "Return Objects.hash(id) — same field as equals uses",
+        "Two products with same id → equal AND same hashCode"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m4_t4_ex_7",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the missing hashCode",
+      "scenario": "Equals overridden without hashCode — contract violated.",
+      "instructions": "This class overrides equals but NOT hashCode. Fix it.\n\nExpected output:\nEqual: true\nSame hashCode: true",
+      "starter_code": "import java.util.Objects;\n\nclass Coord {\n    private int x;\n    private int y;\n    \n    public Coord(int x, int y) {\n        this.x = x;\n        this.y = y;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Coord)) return false;\n        Coord c = (Coord) other;\n        return this.x == c.x && this.y == c.y;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Coord c1 = new Coord(3, 4);\n        Coord c2 = new Coord(3, 4);\n        System.out.println(\"Equal: \" + c1.equals(c2));\n        System.out.println(\"Same hashCode: \" + (c1.hashCode() == c2.hashCode()));\n    }\n}",
+      "expected_solution": "import java.util.Objects;\n\nclass Coord {\n    private int x;\n    private int y;\n    \n    public Coord(int x, int y) {\n        this.x = x;\n        this.y = y;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Coord)) return false;\n        Coord c = (Coord) other;\n        return this.x == c.x && this.y == c.y;\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(x, y);\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Coord c1 = new Coord(3, 4);\n        Coord c2 = new Coord(3, 4);\n        System.out.println(\"Equal: \" + c1.equals(c2));\n        System.out.println(\"Same hashCode: \" + (c1.hashCode() == c2.hashCode()));\n    }\n}",
+      "bugs": [
+        {
+          "line": "missing",
+          "issue": "equals is overridden but hashCode is not. The contract is violated — equal objects have different hashCodes (from default Object.hashCode based on memory address).",
+          "fix": "Add hashCode() using the same fields as equals: Objects.hash(x, y)"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Equal: true\nSame hashCode: true",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Equals returns true for equal objects",
+        "But hashCode returns different values (default implementation uses memory address)",
+        "This violates the contract",
+        "Add @Override public int hashCode() { return Objects.hash(x, y); }",
+        "Same fields as equals: x and y"
+      ],
+      "xp_reward": 60,
+      "common_misconceptions_tested": ["overriding_equals_not_hashcode"]
+    },
+    
+    {
+      "id": "java_m4_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multi-field equals with Objects.equals",
+      "scenario": "Compare multiple fields safely (including String).",
+      "instructions": "Create a `Book` class with private fields title (String) and author (String). Override equals to compare BOTH fields. Use Objects.equals for null-safe String comparison. Also override hashCode.\n\nIn main:\n- 2 books with same title/author → equals true, same hashCode\n- 2 books with different titles → equals false\n\nExpected output:\nSame data: true / same hash: true\nDifferent data: false",
+      "starter_code": "import java.util.Objects;\n\n// Build Book class with equals/hashCode using BOTH title and author\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Book {\n    private String title;\n    private String author;\n    \n    public Book(String title, String author) {\n        this.title = title;\n        this.author = author;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Book)) return false;\n        Book b = (Book) other;\n        return Objects.equals(this.title, b.title)\n            && Objects.equals(this.author, b.author);\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(title, author);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Book b1 = new Book(\"Dune\", \"Herbert\");\n        Book b2 = new Book(\"Dune\", \"Herbert\");\n        Book b3 = new Book(\"Foundation\", \"Asimov\");\n        \n        System.out.println(\"Same data: \" + b1.equals(b2) + \" / same hash: \" + (b1.hashCode() == b2.hashCode()));\n        System.out.println(\"Different data: \" + b1.equals(b3));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Same data: true / same hash: true\nDifferent data: false"
+        }
+      ],
+      "hints": [
+        "Compare both title AND author using Objects.equals (null-safe)",
+        "Use && to combine the two checks",
+        "Why Objects.equals not .equals()? Because if title is null, this.title.equals(...) crashes. Objects.equals handles null.",
+        "hashCode uses BOTH fields: Objects.hash(title, author)"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "multi_field_equals"
+    },
+    
+    {
+      "id": "java_m4_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Complete value class with all three methods",
+      "scenario": "Put it all together: toString, equals, hashCode.",
+      "instructions": "Create a `Money` class with private final double amount and private final String currency. Add a constructor, then override all THREE methods:\n- toString: returns 'amount currency' like '100.0 USD'\n- equals: same amount AND same currency\n- hashCode: based on both\n\nIn main, create two equal Money objects and one different. Print all three results.\n\nExpected output:\n100.0 USD\nm1.equals(m2): true\nm1.hashCode == m2.hashCode: true\nm1.equals(m3): false",
+      "starter_code": "import java.util.Objects;\n\n// Build complete Money class with toString, equals, hashCode\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Money {\n    private final double amount;\n    private final String currency;\n    \n    public Money(double amount, String currency) {\n        this.amount = amount;\n        this.currency = currency;\n    }\n    \n    @Override\n    public String toString() {\n        return amount + \" \" + currency;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Money)) return false;\n        Money m = (Money) other;\n        return Double.compare(this.amount, m.amount) == 0\n            && Objects.equals(this.currency, m.currency);\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(amount, currency);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Money m1 = new Money(100.0, \"USD\");\n        Money m2 = new Money(100.0, \"USD\");\n        Money m3 = new Money(100.0, \"EUR\");\n        \n        System.out.println(m1);\n        System.out.println(\"m1.equals(m2): \" + m1.equals(m2));\n        System.out.println(\"m1.hashCode == m2.hashCode: \" + (m1.hashCode() == m2.hashCode()));\n        System.out.println(\"m1.equals(m3): \" + m1.equals(m3));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "100.0 USD\nm1.equals(m2): true\nm1.hashCode == m2.hashCode: true\nm1.equals(m3): false"
+        }
+      ],
+      "hints": [
+        "toString: amount + ' ' + currency",
+        "equals: check amount (use Double.compare for safety) AND currency (Objects.equals)",
+        "hashCode: Objects.hash(amount, currency)",
+        "Three @Override annotations",
+        "Same currency string ↔ same comparison"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "complete_value_class"
+    },
+    
+    {
+      "id": "java_m4_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace the equals template",
+      "scenario": "Predict the result of various equals comparisons.",
+      "instructions": "Given this class:\n\n```java\nclass Item {\n    private int id;\n    \n    public Item(int id) { this.id = id; }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Item)) return false;\n        Item i = (Item) other;\n        return this.id == i.id;\n    }\n}\n```\n\nWhat does this print?\n\n```java\nItem a = new Item(1);\nItem b = new Item(1);\nItem c = a;\n\nSystem.out.println(a.equals(b));\nSystem.out.println(a.equals(c));\nSystem.out.println(a.equals(null));\nSystem.out.println(a.equals(\"hello\"));\n```",
+      "expected_solution": "true\ntrue\nfalse\nfalse",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "true\ntrue\nfalse\nfalse"
+        }
+      ],
+      "hints": [
+        "a.equals(b): different objects, same id → true (id comparison)",
+        "a.equals(c): same reference → true (early return)",
+        "a.equals(null): instanceof null is always false → false",
+        "a.equals(\"hello\"): \"hello\" is not an Item → false"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m4_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Find duplicates in object array",
+      "scenario": "Use equals to find duplicate objects.",
+      "instructions": "Create a `User` class with private final int id and private String name. Override equals (compare by id only) and hashCode.\n\nThen write a method `countUnique(User[] users)` that returns the count of unique users (by id).\n\nIn main, create an array with some duplicates and print count.\n\nUsers: ids 1, 2, 1, 3, 2, 4 → unique count = 4 (ids 1, 2, 3, 4)\n\nExpected output:\nUnique count: 4",
+      "starter_code": "import java.util.Objects;\n\n// Build User class with equals/hashCode\n// Then countUnique method that uses equals\n",
+      "expected_solution": "import java.util.Objects;\n\nclass User {\n    private final int id;\n    private String name;\n    \n    public User(int id, String name) {\n        this.id = id;\n        this.name = name;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof User)) return false;\n        User u = (User) other;\n        return this.id == u.id;\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(id);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        User[] users = {\n            new User(1, \"Aisha\"),\n            new User(2, \"Raj\"),\n            new User(1, \"Aisha\"),\n            new User(3, \"Priya\"),\n            new User(2, \"Raj\"),\n            new User(4, \"Vikram\")\n        };\n        \n        System.out.println(\"Unique count: \" + countUnique(users));\n    }\n    \n    public static int countUnique(User[] users) {\n        int count = 0;\n        for (int i = 0; i < users.length; i++) {\n            boolean isDuplicate = false;\n            for (int j = 0; j < i; j++) {\n                if (users[i].equals(users[j])) {\n                    isDuplicate = true;\n                    break;\n                }\n            }\n            if (!isDuplicate) count++;\n        }\n        return count;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Unique count: 4"
+        }
+      ],
+      "hints": [
+        "User equals compares by id only",
+        "For each user, check if any EARLIER user equals it",
+        "If no earlier match, it's unique → count++",
+        "Use .equals() for User comparison",
+        "ids: 1, 2, 1(dup), 3, 2(dup), 4 → 4 unique",
+        "Later in Collections module, use HashSet — much easier"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m4_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "toString with all fields and computed value",
+      "scenario": "Detailed toString showing computed information.",
+      "instructions": "Create a `Rectangle` class with private final double width and height. Override toString to show width, height, AND the area (width × height).\n\nFormat: 'Rectangle[5.0 x 3.0, area=15.0]'\n\nIn main, create and print two rectangles.\n\nExpected output:\nRectangle[5.0 x 3.0, area=15.0]\nRectangle[2.0 x 4.0, area=8.0]",
+      "starter_code": "// Build Rectangle with toString that includes computed area\n",
+      "expected_solution": "class Rectangle {\n    private final double width;\n    private final double height;\n    \n    public Rectangle(double width, double height) {\n        this.width = width;\n        this.height = height;\n    }\n    \n    public double area() {\n        return width * height;\n    }\n    \n    @Override\n    public String toString() {\n        return \"Rectangle[\" + width + \" x \" + height + \", area=\" + area() + \"]\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Rectangle r1 = new Rectangle(5, 3);\n        Rectangle r2 = new Rectangle(2, 4);\n        System.out.println(r1);\n        System.out.println(r2);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rectangle[5.0 x 3.0, area=15.0]\nRectangle[2.0 x 4.0, area=8.0]"
+        }
+      ],
+      "hints": [
+        "Method area() computes width * height",
+        "toString calls area() to include in output",
+        "Format: 'Rectangle[' + width + ' x ' + height + ', area=' + area() + ']'",
+        "Methods can call other methods of the same object freely"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m4_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Coordinate class — full implementation",
+      "scenario": "Real value class with all three methods + extras.",
+      "instructions": "Create a `Coordinate` class for 2D points:\n- Private final fields: x (double), y (double)\n- Constructor takes both\n- Getters\n- toString: '(x, y)' format\n- equals: same x AND same y (use Double.compare)\n- hashCode: Objects.hash(x, y)\n- Method `distanceTo(Coordinate other)`: Euclidean distance using Math.sqrt and Math.pow\n\nIn main:\n- Create 3 coordinates\n- Print each\n- Show equals comparison\n- Print distance from (0,0) to (3,4) — should be 5.0\n\nExpected output:\n(0.0, 0.0)\n(3.0, 4.0)\n(0.0, 0.0)\nc1.equals(c2): false\nc1.equals(c3): true\nDistance c1 to c2: 5.0",
+      "starter_code": "import java.util.Objects;\n\n// Full Coordinate class with toString, equals, hashCode, distanceTo\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Coordinate {\n    private final double x;\n    private final double y;\n    \n    public Coordinate(double x, double y) {\n        this.x = x;\n        this.y = y;\n    }\n    \n    public double getX() { return x; }\n    public double getY() { return y; }\n    \n    @Override\n    public String toString() {\n        return \"(\" + x + \", \" + y + \")\";\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Coordinate)) return false;\n        Coordinate c = (Coordinate) other;\n        return Double.compare(this.x, c.x) == 0\n            && Double.compare(this.y, c.y) == 0;\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(x, y);\n    }\n    \n    public double distanceTo(Coordinate other) {\n        double dx = this.x - other.x;\n        double dy = this.y - other.y;\n        return Math.sqrt(dx * dx + dy * dy);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Coordinate c1 = new Coordinate(0, 0);\n        Coordinate c2 = new Coordinate(3, 4);\n        Coordinate c3 = new Coordinate(0, 0);\n        \n        System.out.println(c1);\n        System.out.println(c2);\n        System.out.println(c3);\n        System.out.println(\"c1.equals(c2): \" + c1.equals(c2));\n        System.out.println(\"c1.equals(c3): \" + c1.equals(c3));\n        System.out.println(\"Distance c1 to c2: \" + c1.distanceTo(c2));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "(0.0, 0.0)\n(3.0, 4.0)\n(0.0, 0.0)\nc1.equals(c2): false\nc1.equals(c3): true\nDistance c1 to c2: 5.0"
+        }
+      ],
+      "hints": [
+        "All three Object methods overridden",
+        "equals uses Double.compare for floating-point safety",
+        "Distance: √(dx² + dy²)",
+        "3-4-5 right triangle: distance is 5",
+        "This is a complete production-quality value class"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "complete_implementation"
+    },
+    
+    {
+      "id": "java_m4_t4_ex_14",
+      "level": "hard",
+      "type": "debug",
+      "difficulty": 5,
+      "title": "Fix the equals/hashCode mismatch",
+      "scenario": "equals and hashCode use different fields — contract violation.",
+      "instructions": "This class has a subtle bug — equals checks two fields, but hashCode uses one. Fix it so both use the same fields.\n\nExpected output:\nEqual: true\nSame hashCode: true",
+      "starter_code": "import java.util.Objects;\n\nclass Employee {\n    private int id;\n    private String department;\n    \n    public Employee(int id, String department) {\n        this.id = id;\n        this.department = department;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Employee)) return false;\n        Employee e = (Employee) other;\n        return this.id == e.id && Objects.equals(this.department, e.department);\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(id);\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Employee e1 = new Employee(101, \"Engineering\");\n        Employee e2 = new Employee(101, \"Engineering\");\n        \n        System.out.println(\"Equal: \" + e1.equals(e2));\n        System.out.println(\"Same hashCode: \" + (e1.hashCode() == e2.hashCode()));\n    }\n}",
+      "expected_solution": "import java.util.Objects;\n\nclass Employee {\n    private int id;\n    private String department;\n    \n    public Employee(int id, String department) {\n        this.id = id;\n        this.department = department;\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Employee)) return false;\n        Employee e = (Employee) other;\n        return this.id == e.id && Objects.equals(this.department, e.department);\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(id, department);\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Employee e1 = new Employee(101, \"Engineering\");\n        Employee e2 = new Employee(101, \"Engineering\");\n        \n        System.out.println(\"Equal: \" + e1.equals(e2));\n        System.out.println(\"Same hashCode: \" + (e1.hashCode() == e2.hashCode()));\n    }\n}",
+      "bugs": [
+        {
+          "line": "21",
+          "issue": "equals uses BOTH id and department, but hashCode uses ONLY id. While THIS test case happens to work (same id), the bug strikes when two employees have same id but different departments — equal by mistake but with same hashCode.",
+          "fix": "hashCode must use the SAME fields as equals: Objects.hash(id, department)"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Equal: true\nSame hashCode: true",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "equals checks id AND department",
+        "hashCode uses only id — this is the violation",
+        "Rule: same fields in equals and hashCode",
+        "Change hashCode to: Objects.hash(id, department)",
+        "Both methods now consistent"
+      ],
+      "xp_reward": 60,
+      "common_misconceptions_tested": ["inconsistent_fields_equals_hashcode"]
+    },
+    
+    {
+      "id": "java_m4_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Address class with composition",
+      "scenario": "Multi-field equals where some fields are objects.",
+      "instructions": "Create an `Address` class:\n- Private fields: street (String), city (String), zip (String)\n- Constructor + getters\n- Full toString, equals, hashCode using ALL three fields\n\nThen create a `Person` class:\n- Private fields: name (String), address (Address)\n- Constructor + getters\n- toString, equals, hashCode using BOTH fields (note: address is an Object — Objects.equals handles it)\n\nIn main:\n- Create 2 persons with identical name and identical addresses\n- Verify they're equal AND have same hashCode\n- Create a 3rd person with same name but different address — should NOT be equal\n\nExpected output:\nPerson[name=Aisha, address=Address[123 MG Road, Hyderabad, 500001]]\np1.equals(p2): true\nSame hashCode: true\np1.equals(p3): false",
+      "starter_code": "import java.util.Objects;\n\n// Build Address and Person — both with full Object methods\n// Person CONTAINS an Address (composition)\n// Use Objects.equals for the address field in Person's equals\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Address {\n    private String street;\n    private String city;\n    private String zip;\n    \n    public Address(String street, String city, String zip) {\n        this.street = street;\n        this.city = city;\n        this.zip = zip;\n    }\n    \n    @Override\n    public String toString() {\n        return \"Address[\" + street + \", \" + city + \", \" + zip + \"]\";\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Address)) return false;\n        Address a = (Address) other;\n        return Objects.equals(street, a.street)\n            && Objects.equals(city, a.city)\n            && Objects.equals(zip, a.zip);\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(street, city, zip);\n    }\n}\n\nclass Person {\n    private String name;\n    private Address address;\n    \n    public Person(String name, Address address) {\n        this.name = name;\n        this.address = address;\n    }\n    \n    @Override\n    public String toString() {\n        return \"Person[name=\" + name + \", address=\" + address + \"]\";\n    }\n    \n    @Override\n    public boolean equals(Object other) {\n        if (this == other) return true;\n        if (!(other instanceof Person)) return false;\n        Person p = (Person) other;\n        return Objects.equals(name, p.name)\n            && Objects.equals(address, p.address);\n    }\n    \n    @Override\n    public int hashCode() {\n        return Objects.hash(name, address);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Address addr1 = new Address(\"123 MG Road\", \"Hyderabad\", \"500001\");\n        Address addr2 = new Address(\"123 MG Road\", \"Hyderabad\", \"500001\");\n        Address addr3 = new Address(\"456 Park Lane\", \"Mumbai\", \"400001\");\n        \n        Person p1 = new Person(\"Aisha\", addr1);\n        Person p2 = new Person(\"Aisha\", addr2);\n        Person p3 = new Person(\"Aisha\", addr3);\n        \n        System.out.println(p1);\n        System.out.println(\"p1.equals(p2): \" + p1.equals(p2));\n        System.out.println(\"Same hashCode: \" + (p1.hashCode() == p2.hashCode()));\n        System.out.println(\"p1.equals(p3): \" + p1.equals(p3));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Person[name=Aisha, address=Address[123 MG Road, Hyderabad, 500001]]\np1.equals(p2): true\nSame hashCode: true\np1.equals(p3): false"
+        }
+      ],
+      "hints": [
+        "Both classes need full Object methods",
+        "Address.equals uses all 3 fields",
+        "Person.equals uses name and address (Object — use Objects.equals)",
+        "p1.equals(p2) works because Address.equals is properly overridden",
+        "Without Address.equals, Person.equals would compare by reference and fail",
+        "Composition: Person CONTAINS an Address — common pattern"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 10,
+      "debug": 3,
+      "predict_output": 2
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  },
+  
+  "gap_detection_map": {
+    "equals_basic": ["ex_4"],
+    "equals_wrong_signature": ["ex_5"],
+    "overriding_equals_not_hashcode": ["ex_7"],
+    "multi_field_equals": ["ex_8"],
+    "complete_value_class": ["ex_9"],
+    "complete_implementation": ["ex_13"],
+    "inconsistent_fields_equals_hashcode": ["ex_14"]
+  }
+}

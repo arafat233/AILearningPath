@@ -1,0 +1,338 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t4",
+  "topic_name": "Java HttpClient",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m11_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace HttpRequest builder chain",
+      "scenario": "HttpRequest is built with a fluent builder.",
+      "instructions": "What does this print? What HTTP method and URI does it use?\n\n```java\nimport java.net.http.*;\nimport java.net.URI;\npublic class App {\n    public static void main(String[] args) {\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/v1/users/42\"))\n            .GET()\n            .header(\"Accept\", \"application/json\")\n            .build();\n        System.out.println(req.method());\n        System.out.println(req.uri().getHost());\n        System.out.println(req.headers().firstValue(\"Accept\").orElse(\"none\"));\n    }\n}\n```",
+      "expected_solution": "GET\napi.example.com\napplication/json",
+      "test_cases": [
+        { "type": "text_match", "expected": "GET\napi.example.com\napplication/json" }
+      ],
+      "hints": [
+        "req.method() returns the HTTP method: 'GET'",
+        "req.uri().getHost() returns the hostname only",
+        "req.headers().firstValue('Accept') returns Optional"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Build a GET request with Bearer auth",
+      "scenario": "Authorization header with Bearer token.",
+      "instructions": "Fill in the blank to add a Bearer token authorization header.",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\npublic class App {\n    public static void main(String[] args) {\n        String token = \"eyJhbGciOiJIUzI1NiJ9\";\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.razorpay.com/v1/orders\"))\n            .GET()\n            .header(\"Authorization\", \"______ \" + token)\n            .build();\n        System.out.println(req.headers().firstValue(\"Authorization\").orElse(\"none\"));\n    }\n}",
+      "expected_solution": "import java.net.http.*;\nimport java.net.URI;\npublic class App {\n    public static void main(String[] args) {\n        String token = \"eyJhbGciOiJIUzI1NiJ9\";\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.razorpay.com/v1/orders\"))\n            .GET()\n            .header(\"Authorization\", \"Bearer \" + token)\n            .build();\n        System.out.println(req.headers().firstValue(\"Authorization\").orElse(\"none\"));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Bearer", "hint": "The standard prefix for JWT token auth" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Bearer eyJhbGciOiJIUzI1NiJ9" }
+      ],
+      "hints": [
+        "Bearer token format: 'Bearer [token]'",
+        "This is the most common REST API authentication scheme"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Parse mock HTTP response with Jackson",
+      "scenario": "Simulate what response.body() returns and parse it.",
+      "instructions": "Given a simulated response body string (as would come from response.body()), parse it with Jackson and print product details.\n\nExpected output:\nProduct: Wireless Mouse\nPrice: ₹799\nIn stock: true",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\n// Simulate response.body() parsing\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        // Simulate what response.body() returns:\n        String responseBody = \"{\\\"name\\\":\\\"Wireless Mouse\\\",\\\"price\\\":799,\\\"inStock\\\":true}\";\n        \n        ObjectMapper mapper = new ObjectMapper();\n        JsonNode product = mapper.readTree(responseBody);\n        \n        System.out.println(\"Product: \" + product.path(\"name\").asText());\n        System.out.println(\"Price: ₹\" + product.path(\"price\").asInt());\n        System.out.println(\"In stock: \" + product.path(\"inStock\").asBoolean());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Product: Wireless Mouse\nPrice: ₹799\nIn stock: true" }
+      ],
+      "hints": [
+        "In real code: String body = response.body();",
+        "mapper.readTree(body) → JsonNode",
+        "path('key').asText() / .asInt() / .asBoolean()"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m11_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Build POST request with JSON body",
+      "scenario": "POST request with Content-Type and JSON body.",
+      "instructions": "Build a POST HttpRequest for creating an order. Print the method, URI, Content-Type header, and body.\n\nExpected output:\nMethod: POST\nURI: https://api.example.com/v1/orders\nContent-Type: application/json\nBody present: true",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\npublic class App {\n    public static void main(String[] args) {\n        // Build POST request with JSON body\n    }\n}",
+      "expected_solution": "import java.net.http.*;\nimport java.net.URI;\npublic class App {\n    public static void main(String[] args) {\n        String jsonBody = \"{\\\"product\\\":\\\"Mouse\\\",\\\"qty\\\":2,\\\"price\\\":799}\";\n        HttpRequest request = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/v1/orders\"))\n            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))\n            .header(\"Content-Type\", \"application/json\")\n            .header(\"Accept\",       \"application/json\")\n            .build();\n        System.out.println(\"Method: \"       + request.method());\n        System.out.println(\"URI: \"          + request.uri());\n        System.out.println(\"Content-Type: \" + request.headers().firstValue(\"Content-Type\").orElse(\"none\"));\n        System.out.println(\"Body present: \" + request.bodyPublisher().isPresent());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Method: POST\nURI: https://api.example.com/v1/orders\nContent-Type: application/json\nBody present: true" }
+      ],
+      "hints": [
+        ".POST(HttpRequest.BodyPublishers.ofString(json))",
+        "Content-Type must be set manually for JSON",
+        "request.bodyPublisher() returns Optional"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m11_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Status code handling with switch",
+      "scenario": "Different responses require different handling.",
+      "instructions": "Write a `handleResponse(int statusCode, String body)` method using switch. Test with 200, 201, 404, 500.\n\nExpected output:\n200: OK — parsing body\n201: Created — new resource id extracted\n404: Not found — returning empty\n500: Server error — retry later",
+      "starter_code": "// handleResponse: switch on HTTP status code\n",
+      "expected_solution": "public class App {\n    static String handleResponse(int statusCode, String body) {\n        return switch (statusCode) {\n            case 200 -> \"OK — parsing body\";\n            case 201 -> \"Created — new resource id extracted\";\n            case 404 -> \"Not found — returning empty\";\n            case 429 -> \"Rate limited — retry later\";\n            case 500, 502, 503 -> \"Server error — retry later\";\n            default  -> \"Unexpected status: \" + statusCode;\n        };\n    }\n    public static void main(String[] args) {\n        for (int code : new int[]{200, 201, 404, 500}) {\n            System.out.println(code + \": \" + handleResponse(code, \"{}\"));\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "200: OK — parsing body\n201: Created — new resource id extracted\n404: Not found — returning empty\n500: Server error — retry later" }
+      ],
+      "hints": [
+        "switch expression (Java 14+): `return switch (code) { case 200 -> ...; }`",
+        "case 500, 502, 503 -> multiple values in one case"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m11_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Build Basic Auth header",
+      "scenario": "Basic auth encodes username:password in base64.",
+      "instructions": "Build an HttpRequest with Basic auth (username:password base64 encoded). Print the Authorization header value.\n\nExpected output:\nAuthorization: Basic cmF6b3JwYXk6c2VjcmV0MTIz",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\nimport java.util.Base64;\n// Basic auth header\n",
+      "expected_solution": "import java.net.http.*;\nimport java.net.URI;\nimport java.util.Base64;\npublic class App {\n    public static void main(String[] args) {\n        String username = \"razorpay\", password = \"secret123\";\n        String credentials = Base64.getEncoder()\n            .encodeToString((username + \":\" + password).getBytes());\n        HttpRequest request = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.razorpay.com/v1/payments\"))\n            .GET()\n            .header(\"Authorization\", \"Basic \" + credentials)\n            .build();\n        System.out.println(\"Authorization: \" +\n            request.headers().firstValue(\"Authorization\").orElse(\"none\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Authorization: Basic cmF6b3JwYXk6c2VjcmV0MTIz" }
+      ],
+      "hints": [
+        "Base64.getEncoder().encodeToString(bytes)",
+        "Format: 'razorpay:secret123' → base64",
+        "'razorpay:secret123' base64 = cmF6b3JwYXk6c2VjcmV0MTIz"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m11_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Simulate and parse GET response",
+      "scenario": "Full GET → parse → display pipeline (simulated response).",
+      "instructions": "Simulate an HTTP GET for stock quotes. For each symbol, parse the simulated JSON response and print a formatted dashboard.\n\nExpected output:\n=== Stock Dashboard ===\nTCS          ₹3,890  +4.1%\nRELIANCE     ₹2,450  +1.2%\nINFY         ₹1,560  -3.8%",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport java.util.*;\n// Simulated GET response → parse → format\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport java.util.*;\npublic class App {\n    static final ObjectMapper MAPPER = new ObjectMapper();\n    \n    // Simulate what response.body() would return from a real API:\n    static Map<String, String> MOCK_API = Map.of(\n        \"TCS\",      \"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890,\\\"changePercent\\\":4.1}\",\n        \"RELIANCE\", \"{\\\"symbol\\\":\\\"RELIANCE\\\",\\\"price\\\":2450,\\\"changePercent\\\":1.2}\",\n        \"INFY\",     \"{\\\"symbol\\\":\\\"INFY\\\",\\\"price\\\":1560,\\\"changePercent\\\":-3.8}\"\n    );\n    \n    static void fetchAndDisplay(String symbol) throws Exception {\n        String body = MOCK_API.get(symbol);  // In real code: response.body()\n        JsonNode json = MAPPER.readTree(body);\n        System.out.printf(\"%-12s ₹%,d  %+.1f%%%n\",\n            json.path(\"symbol\").asText(),\n            json.path(\"price\").asInt(),\n            json.path(\"changePercent\").asDouble());\n    }\n    \n    public static void main(String[] args) throws Exception {\n        System.out.println(\"=== Stock Dashboard ===\");\n        for (String sym : new String[]{\"TCS\", \"RELIANCE\", \"INFY\"}) {\n            fetchAndDisplay(sym);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "=== Stock Dashboard ===\nTCS          ₹3,890  +4.1%\nRELIANCE     ₹2,450  +1.2%\nINFY         ₹1,560  -3.8%" }
+      ],
+      "hints": [
+        "%-12s: left-align 12 chars; %,d: comma-formatted integer",
+        "%+.1f: always show sign, 1 decimal place",
+        "MAPPER is a static singleton — not created per call"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m11_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Build POST request with Jackson body",
+      "scenario": "Serialize request body with Jackson before sending.",
+      "instructions": "Build a POST request to create an order. Use Jackson to serialize the OrderRequest POJO as the request body. Print the request details.\n\nExpected output:\nMethod: POST\nContent-Type: application/json\nBody: {\"productId\":\"P001\",\"quantity\":2,\"unitPrice\":799.0}",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\nimport com.fasterxml.jackson.databind.*;\n// Jackson-serialized POST body\n",
+      "expected_solution": "import java.net.http.*;\nimport java.net.URI;\nimport com.fasterxml.jackson.databind.*;\npublic class App {\n    static class OrderRequest {\n        public String productId; public int quantity; public double unitPrice;\n        OrderRequest(String pid, int q, double up) { productId=pid; quantity=q; unitPrice=up; }\n    }\n    public static void main(String[] args) throws Exception {\n        ObjectMapper mapper = new ObjectMapper();\n        OrderRequest order = new OrderRequest(\"P001\", 2, 799.0);\n        String jsonBody = mapper.writeValueAsString(order);\n        \n        HttpRequest request = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/v1/orders\"))\n            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))\n            .header(\"Content-Type\", \"application/json\")\n            .build();\n        \n        System.out.println(\"Method: \" + request.method());\n        System.out.println(\"Content-Type: \" +\n            request.headers().firstValue(\"Content-Type\").get());\n        System.out.println(\"Body: \" + jsonBody);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Method: POST\nContent-Type: application/json\nBody: {\"productId\":\"P001\",\"quantity\":2,\"unitPrice\":799.0}" }
+      ],
+      "hints": [
+        "mapper.writeValueAsString(order) → JSON string",
+        "BodyPublishers.ofString(jsonBody) wraps the string as body",
+        "OrderRequest needs public fields for Jackson serialization"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Simulate REST CRUD operations",
+      "scenario": "GET, POST, PUT, DELETE — all four HTTP methods.",
+      "instructions": "Simulate four REST operations with mock responses. Show what each operation does and its simulated status code.\n\nExpected output:\nGET    /api/products/P001 → 200 Found: Wireless Mouse\nPOST   /api/products       → 201 Created: P099\nPUT    /api/products/P001 → 200 Updated: new price ₹699\nDELETE /api/products/P001 → 204 Deleted",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\n// Simulate all four HTTP methods\n",
+      "expected_solution": "import java.net.http.*;\nimport java.net.URI;\npublic class App {\n    public static void main(String[] args) {\n        // Build (not send) the four request types:\n        HttpRequest get = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/api/products/P001\"))\n            .GET().build();\n        \n        HttpRequest post = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/api/products\"))\n            .POST(HttpRequest.BodyPublishers.ofString(\"{\\\"name\\\":\\\"Hub\\\"}\"))\n            .header(\"Content-Type\", \"application/json\").build();\n        \n        HttpRequest put = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/api/products/P001\"))\n            .PUT(HttpRequest.BodyPublishers.ofString(\"{\\\"price\\\":699}\"))\n            .header(\"Content-Type\", \"application/json\").build();\n        \n        HttpRequest delete = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/api/products/P001\"))\n            .DELETE().build();\n        \n        // Simulate responses:\n        System.out.println(\"GET    /api/products/P001 → 200 Found: Wireless Mouse\");\n        System.out.println(\"POST   /api/products       → 201 Created: P099\");\n        System.out.println(\"PUT    /api/products/P001 → 200 Updated: new price ₹699\");\n        System.out.println(\"DELETE /api/products/P001 → 204 Deleted\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "GET    /api/products/P001 → 200 Found: Wireless Mouse\nPOST   /api/products       → 201 Created: P099\nPUT    /api/products/P001 → 200 Updated: new price ₹699\nDELETE /api/products/P001 → 204 Deleted" }
+      ],
+      "hints": [
+        ".GET(), .POST(body), .PUT(body), .DELETE() — four methods",
+        "204 No Content is standard for DELETE",
+        "201 Created is standard for successful POST"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m11_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Response header parsing",
+      "scenario": "HTTP response headers provide metadata about the response.",
+      "instructions": "What does this print? (Simulates parsing response headers.)\n\n```java\nimport java.net.http.*;\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        // Simulate response headers as would be returned by client.send():\n        Map<String, List<String>> headerMap = Map.of(\n            \"content-type\",   List.of(\"application/json; charset=UTF-8\"),\n            \"x-rate-limit\",   List.of(\"100\"),\n            \"x-rate-remaining\", List.of(\"97\")\n        );\n        HttpHeaders headers = HttpHeaders.of(headerMap, (k, v) -> true);\n        System.out.println(headers.firstValue(\"content-type\").orElse(\"none\"));\n        System.out.println(headers.firstValue(\"x-rate-remaining\").map(Integer::parseInt).orElse(-1));\n        System.out.println(headers.firstValue(\"x-correlation-id\").orElse(\"no-id\"));\n    }\n}\n```",
+      "expected_solution": "application/json; charset=UTF-8\n97\nno-id",
+      "test_cases": [
+        { "type": "text_match", "expected": "application/json; charset=UTF-8\n97\nno-id" }
+      ],
+      "hints": [
+        "firstValue returns Optional<String>",
+        ".map(Integer::parseInt) transforms the string to int inside Optional",
+        "Missing header → .orElse('no-id')"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m11_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "API client class with error handling",
+      "scenario": "Encapsulate HTTP operations in a client class.",
+      "instructions": "Create `ProductApiClient` with:\n- Singleton HttpClient and ObjectMapper\n- `getProduct(String id)` → Optional<Product> (empty on 404)\n- Handles 404 gracefully, other errors logged\n\nTest with simulated responses.\n\nExpected output:\nFound P001: Wireless Mouse ₹799\nP999: not found\nFetch P002 error: HTTP 500",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport java.net.http.*;\nimport java.net.URI;\nimport java.util.*;\n// ProductApiClient with singleton pattern and error handling\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport java.util.*;\npublic class App {\n    record Product(String id, String name, int price) {}\n    \n    static class ProductApiClient {\n        private static final ObjectMapper MAPPER = new ObjectMapper();\n        // In real code: private static final HttpClient HTTP = HttpClient.newBuilder()...\n        \n        // Simulate different API responses:\n        static Optional<Product> getProduct(String id) {\n            // Mock different scenarios:\n            if (id.equals(\"P001\")) {\n                try {\n                    String json = \"{\\\"id\\\":\\\"P001\\\",\\\"name\\\":\\\"Wireless Mouse\\\",\\\"price\\\":799}\";\n                    // In real code: check response.statusCode() == 200\n                    Product p = MAPPER.readValue(json, Product.class);\n                    return Optional.of(p);\n                } catch (Exception e) { return Optional.empty(); }\n            } else if (id.equals(\"P999\")) {\n                return Optional.empty();  // Simulates HTTP 404\n            } else {\n                System.err.println(\"Fetch \" + id + \" error: HTTP 500\");\n                return Optional.empty();\n            }\n        }\n    }\n    \n    public static void main(String[] args) {\n        ProductApiClient.getProduct(\"P001\")\n            .ifPresentOrElse(\n                p -> System.out.printf(\"Found %s: %s ₹%d%n\", p.id(), p.name(), p.price()),\n                () -> System.out.println(\"P001: not found\"));\n        ProductApiClient.getProduct(\"P999\")\n            .ifPresentOrElse(\n                p -> System.out.println(\"Found: \" + p.name()),\n                () -> System.out.println(\"P999: not found\"));\n        ProductApiClient.getProduct(\"P002\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found P001: Wireless Mouse ₹799\nP999: not found" }
+      ],
+      "hints": [
+        "Optional.empty() on 404; log on 500",
+        "ifPresentOrElse handles both present and absent cases",
+        "In real code: check response.statusCode() before parsing"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Build URL with query parameters",
+      "scenario": "Query parameters are part of the URI string.",
+      "instructions": "Build GET requests with query parameters for a product search API. Show two searches: by category and by price range.\n\nExpected output:\nSearch 1: GET /api/products?category=Electronics&limit=10\nSearch 2: GET /api/products?minPrice=500&maxPrice=2000&sortBy=price",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\n// Build GET requests with query parameters\n",
+      "expected_solution": "import java.net.http.*;\nimport java.net.URI;\npublic class App {\n    static String buildUrl(String base, String... params) {\n        StringBuilder sb = new StringBuilder(base + \"?\");\n        for (int i = 0; i < params.length - 1; i += 2) {\n            if (i > 0) sb.append(\"&\");\n            sb.append(params[i]).append(\"=\").append(params[i+1]);\n        }\n        return sb.toString();\n    }\n    \n    public static void main(String[] args) {\n        String base = \"https://api.example.com/api/products\";\n        \n        String url1 = buildUrl(base, \"category\",\"Electronics\", \"limit\",\"10\");\n        HttpRequest req1 = HttpRequest.newBuilder().uri(URI.create(url1)).GET().build();\n        System.out.println(\"Search 1: \" + req1.method() + \" \" + req1.uri().getRawPath() + \"?\" + req1.uri().getRawQuery());\n        \n        String url2 = buildUrl(base, \"minPrice\",\"500\", \"maxPrice\",\"2000\", \"sortBy\",\"price\");\n        HttpRequest req2 = HttpRequest.newBuilder().uri(URI.create(url2)).GET().build();\n        System.out.println(\"Search 2: \" + req2.method() + \" \" + req2.uri().getRawPath() + \"?\" + req2.uri().getRawQuery());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Search 1: GET /api/products?category=Electronics&limit=10\nSearch 2: GET /api/products?minPrice=500&maxPrice=2000&sortBy=price" }
+      ],
+      "hints": [
+        "Query params go in the URL: ?key=value&key2=value2",
+        "URI.create() accepts the full URL including query string",
+        "uri.getRawPath() = path only; uri.getRawQuery() = query string only"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Retry on rate limit (429 response)",
+      "scenario": "Rate limiting (429) requires waiting and retrying.",
+      "instructions": "Implement `fetchWithRetry(String url, int maxRetries)` that retries on simulated 429 responses (rate limited). Wait 100ms between retries. Give up after maxRetries.\n\nExpected output:\nAttempt 1: 429 Rate limited, waiting 100ms...\nAttempt 2: 429 Rate limited, waiting 100ms...\nAttempt 3: 200 OK — got response\nFetch succeeded after 3 attempts",
+      "starter_code": "// Retry logic for rate-limited HTTP responses\n",
+      "expected_solution": "public class App {\n    static int attempt = 0;\n    \n    // Simulates HTTP response codes:\n    static int simulatedStatusCode() {\n        attempt++;\n        return attempt < 3 ? 429 : 200;\n    }\n    \n    static String fetchWithRetry(String url, int maxRetries) throws InterruptedException {\n        for (int i = 1; i <= maxRetries; i++) {\n            // In real code: HttpResponse<String> response = HTTP.send(request, ...);\n            int status = simulatedStatusCode();\n            if (status == 200) {\n                System.out.println(\"Attempt \" + i + \": 200 OK — got response\");\n                return \"response data\";\n            } else if (status == 429) {\n                System.out.println(\"Attempt \" + i + \": 429 Rate limited, waiting 100ms...\");\n                Thread.sleep(100);\n            } else {\n                throw new RuntimeException(\"Unrecoverable error: \" + status);\n            }\n        }\n        throw new RuntimeException(\"Max retries exceeded\");\n    }\n    \n    public static void main(String[] args) throws Exception {\n        String result = fetchWithRetry(\"https://api.example.com/data\", 5);\n        System.out.println(\"Fetch succeeded after \" + attempt + \" attempts\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Attempt 1: 429 Rate limited, waiting 100ms...\nAttempt 2: 429 Rate limited, waiting 100ms...\nAttempt 3: 200 OK — got response\nFetch succeeded after 3 attempts" }
+      ],
+      "hints": [
+        "Loop up to maxRetries; break on 200; sleep on 429",
+        "In real code: response.headers().firstValue('Retry-After') for wait time",
+        "Throw after max retries exhausted"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Weather API client — parse nested JSON",
+      "scenario": "Parse deeply nested JSON response from weather API.",
+      "instructions": "Simulate a weather API response. Parse: city name, temperature (from nested main.temp), weather description (from weather[0].description), humidity.\n\nExpected output:\nCity: Hyderabad\nTemp: 32°C\nCondition: partly cloudy\nHumidity: 65%",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\n// Parse nested weather API JSON\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        // Simulates OpenWeatherMap API response:\n        String weatherJson = \"{\" +\n            \"\\\"name\\\":\\\"Hyderabad\\\",\" +\n            \"\\\"main\\\":{\\\"temp\\\":32,\\\"humidity\\\":65},\" +\n            \"\\\"weather\\\":[{\\\"description\\\":\\\"partly cloudy\\\",\\\"icon\\\":\\\"03d\\\"}]\" +\n            \"}\";\n        \n        ObjectMapper mapper = new ObjectMapper();\n        JsonNode root = mapper.readTree(weatherJson);\n        \n        System.out.println(\"City: \"     + root.path(\"name\").asText());\n        System.out.println(\"Temp: \"     + root.path(\"main\").path(\"temp\").asInt() + \"°C\");\n        System.out.println(\"Condition: \"+ root.path(\"weather\").get(0).path(\"description\").asText());\n        System.out.println(\"Humidity: \" + root.path(\"main\").path(\"humidity\").asInt() + \"%\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "City: Hyderabad\nTemp: 32°C\nCondition: partly cloudy\nHumidity: 65%" }
+      ],
+      "hints": [
+        "Nested: root.path('main').path('temp')",
+        "Array: root.path('weather').get(0) → first element",
+        "path() is null-safe; get() can return null for arrays"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Payment gateway client — full POST/GET cycle",
+      "scenario": "Complete API integration: POST to create, GET to verify.",
+      "instructions": "Simulate a Razorpay-style payment flow:\n1. POST to create payment order (returns orderId)\n2. GET to fetch order status (using orderId)\n3. Parse and display full payment details\n\nExpected output:\nCreating order for ₹1500...\nOrder created: ord_ABC123\nFetching status for ord_ABC123...\nPayment Status: CREATED\nAmount: ₹1500\nCustomer: Aisha (aisha@example.com)\nValid until: 2024-03-15T11:00:00",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.net.http.*;\nimport java.net.URI;\n// Payment gateway: POST create + GET verify\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\npublic class App {\n    static final ObjectMapper MAPPER = new ObjectMapper();\n    \n    // Simulate POST /v1/orders response:\n    static String simulateCreateOrder(int amount, String currency) throws Exception {\n        ObjectNode resp = MAPPER.createObjectNode();\n        resp.put(\"id\",       \"ord_ABC123\");\n        resp.put(\"amount\",   amount);\n        resp.put(\"currency\", currency);\n        resp.put(\"status\",   \"created\");\n        return MAPPER.writeValueAsString(resp);\n    }\n    \n    // Simulate GET /v1/orders/{id} response:\n    static String simulateGetOrder(String orderId) throws Exception {\n        ObjectNode resp = MAPPER.createObjectNode();\n        resp.put(\"id\",       orderId);\n        resp.put(\"status\",   \"CREATED\");\n        resp.put(\"amount\",   1500);\n        ObjectNode customer = MAPPER.createObjectNode();\n        customer.put(\"name\", \"Aisha\").put(\"email\", \"aisha@example.com\");\n        resp.set(\"customer\", customer);\n        resp.put(\"expiresAt\", \"2024-03-15T11:00:00\");\n        return MAPPER.writeValueAsString(resp);\n    }\n    \n    public static void main(String[] args) throws Exception {\n        // Step 1: Create order (POST)\n        System.out.println(\"Creating order for ₹1500...\");\n        String createBody = simulateCreateOrder(1500, \"INR\");\n        JsonNode createResp = MAPPER.readTree(createBody);\n        // (HTTP 201 in real code)\n        String orderId = createResp.path(\"id\").asText();\n        System.out.println(\"Order created: \" + orderId);\n        \n        // Step 2: Fetch status (GET)\n        System.out.println(\"Fetching status for \" + orderId + \"...\");\n        String getBody = simulateGetOrder(orderId);\n        JsonNode order = MAPPER.readTree(getBody);\n        // (HTTP 200 in real code)\n        System.out.println(\"Payment Status: \" + order.path(\"status\").asText());\n        System.out.println(\"Amount: ₹\" + order.path(\"amount\").asInt());\n        System.out.println(\"Customer: \" +\n            order.path(\"customer\").path(\"name\").asText() + \" (\" +\n            order.path(\"customer\").path(\"email\").asText() + \")\");\n        System.out.println(\"Valid until: \" + order.path(\"expiresAt\").asText());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Creating order for ₹1500...\nOrder created: ord_ABC123\nFetching status for ord_ABC123...\nPayment Status: CREATED\nAmount: ₹1500\nCustomer: Aisha (aisha@example.com)\nValid until: 2024-03-15T11:00:00" }
+      ],
+      "hints": [
+        "POST response → parse orderId → use in GET request URL",
+        "Nested customer: order.path('customer').path('name')",
+        "In real code: replace simulate* with actual HTTP calls"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 690,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,451 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t2",
+  "topic_name": "Constructors",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m4_t2_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Your first constructor",
+      "scenario": "Add a basic constructor to a class.",
+      "instructions": "Fill in the blanks to define a Cat class with a constructor that takes a name.",
+      "starter_code": "class Cat {\n    String name;\n    \n    public ______(String name) {\n        ______.name = name;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new ______(\"Whiskers\");\n        System.out.println(c.name);\n    }\n}",
+      "expected_solution": "class Cat {\n    String name;\n    \n    public Cat(String name) {\n        this.name = name;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new Cat(\"Whiskers\");\n        System.out.println(c.name);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Cat", "hint": "Constructor name = class name" },
+        { "position": 2, "answer": "this", "hint": "Refers to current object" },
+        { "position": 3, "answer": "Cat", "hint": "Class to instantiate" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Whiskers"
+        }
+      ],
+      "hints": [
+        "Constructor name matches class name exactly",
+        "No return type (not even void)",
+        "this.name distinguishes field from parameter",
+        "Called via new ClassName(args)"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m4_t2_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Trace constructor execution",
+      "scenario": "Understand when constructor runs.",
+      "instructions": "What does this print?\n\n```java\nclass Person {\n    String name;\n    \n    public Person(String name) {\n        System.out.println(\"Creating person: \" + name);\n        this.name = name;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Person p = new Person(\"Aisha\");\n        System.out.println(\"Done. Name is: \" + p.name);\n    }\n}\n```",
+      "expected_solution": "Creating person: Aisha\nDone. Name is: Aisha",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Creating person: Aisha\nDone. Name is: Aisha"
+        }
+      ],
+      "hints": [
+        "Constructor runs FIRST when `new` is called",
+        "Then code after `new` continues",
+        "Order: constructor body → assignment → next line"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m4_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Person with constructor",
+      "scenario": "Build a class that initializes via constructor.",
+      "instructions": "Create a `Person` class with fields name (String) and age (int). Write a constructor that takes both. In main, create 2 people in one line each.\n\nExpected output:\nAisha is 28 years old\nRaj is 35 years old",
+      "starter_code": "// Write your Person class with constructor\n// Then create two Person objects in main\n",
+      "expected_solution": "class Person {\n    String name;\n    int age;\n    \n    public Person(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Person p1 = new Person(\"Aisha\", 28);\n        Person p2 = new Person(\"Raj\", 35);\n        System.out.println(p1.name + \" is \" + p1.age + \" years old\");\n        System.out.println(p2.name + \" is \" + p2.age + \" years old\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha is 28 years old\nRaj is 35 years old"
+        }
+      ],
+      "hints": [
+        "Constructor: public Person(String name, int age)",
+        "Use this.name = name and this.age = age",
+        "Create with: new Person(\"Aisha\", 28)",
+        "Each object initialized in one line — way cleaner!"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m4_t2_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the void constructor",
+      "scenario": "Common mistake — adding void makes it a method, not a constructor.",
+      "instructions": "This code doesn't work as expected. The 'constructor' isn't being called. Fix it.\n\nExpected output:\nName: Rex",
+      "starter_code": "class Dog {\n    String name;\n    \n    public void Dog(String name) {\n        this.name = name;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\");\n        System.out.println(\"Name: \" + d.name);\n    }\n}",
+      "expected_solution": "class Dog {\n    String name;\n    \n    public Dog(String name) {\n        this.name = name;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\");\n        System.out.println(\"Name: \" + d.name);\n    }\n}",
+      "bugs": [
+        {
+          "line": "4",
+          "issue": "`public void Dog(...)` is a method, not a constructor. Constructors have NO return type. With void, this is just a method named Dog that never gets called by `new`.",
+          "fix": "Remove the `void` keyword"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Name: Rex",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Constructors have NO return type, not even void",
+        "With void, this is a regular method, not a constructor",
+        "Result: new Dog(...) won't compile OR uses default constructor",
+        "Fix: remove `void` — make it `public Dog(String name)`"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["adding_return_type_to_constructor"]
+    },
+    
+    {
+      "id": "java_m4_t2_ex_5",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the shadowed parameter",
+      "scenario": "Missing `this.` causes silent bug.",
+      "instructions": "This code COMPILES but the fields stay null/0. Fix it.\n\nExpected output:\nName: Rex, Age: 5",
+      "starter_code": "class Dog {\n    String name;\n    int age;\n    \n    public Dog(String name, int age) {\n        name = name;\n        age = age;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\", 5);\n        System.out.println(\"Name: \" + d.name + \", Age: \" + d.age);\n    }\n}",
+      "expected_solution": "class Dog {\n    String name;\n    int age;\n    \n    public Dog(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\", 5);\n        System.out.println(\"Name: \" + d.name + \", Age: \" + d.age);\n    }\n}",
+      "bugs": [
+        {
+          "line": "6-7",
+          "issue": "`name = name` assigns the parameter to itself (closer scope wins). The field stays null. Same for age.",
+          "fix": "Use this.name = name and this.age = age to specify the field"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Name: Rex, Age: 5",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "When parameter and field have same name, Java picks the parameter",
+        "`name = name` is parameter = parameter — does nothing useful",
+        "Use this.name to reference the field",
+        "this.name = name means 'set field name to parameter name'"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["shadowed_field_without_this"]
+    },
+    
+    {
+      "id": "java_m4_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Refactor Rectangle to use constructor",
+      "scenario": "Move the manual field setup into a constructor.",
+      "instructions": "Refactor the Rectangle class to have a constructor that takes width and height. Replace the manual field setup in main with constructor call.\n\nExpected output:\nArea: 15.0",
+      "starter_code": "class Rectangle {\n    double width;\n    double height;\n    \n    double area() {\n        return width * height;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Rectangle r = new Rectangle();\n        r.width = 5;\n        r.height = 3;\n        System.out.println(\"Area: \" + r.area());\n    }\n}",
+      "expected_solution": "class Rectangle {\n    double width;\n    double height;\n    \n    public Rectangle(double width, double height) {\n        this.width = width;\n        this.height = height;\n    }\n    \n    double area() {\n        return width * height;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Rectangle r = new Rectangle(5, 3);\n        System.out.println(\"Area: \" + r.area());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Area: 15.0"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["public Rectangle("]
+        }
+      ],
+      "hints": [
+        "Add constructor: public Rectangle(double width, double height)",
+        "Body: this.width = width; this.height = height;",
+        "In main: new Rectangle(5, 3) instead of 3 lines"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m4_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Constructor with validation",
+      "scenario": "Reject invalid input during construction.",
+      "instructions": "Create a `BankAccount` class:\n- Fields: holderName (String), balance (double)\n- Constructor: takes name and initial balance\n- VALIDATION: throw IllegalArgumentException if balance < 0 or name is null/empty\n\nIn main:\n1. Create valid account (Aisha, 1000.0) — print 'Created'\n2. Try invalid (empty name, 100.0) — wrap in try/catch, print 'Rejected: <message>'\n\nExpected output:\nCreated: Aisha with balance ₹1000.0\nRejected: Name cannot be empty",
+      "starter_code": "// Write BankAccount class with validating constructor\n// Use try/catch in main for the invalid case\n",
+      "expected_solution": "class BankAccount {\n    String holderName;\n    double balance;\n    \n    public BankAccount(String holderName, double balance) {\n        if (holderName == null || holderName.isBlank()) {\n            throw new IllegalArgumentException(\"Name cannot be empty\");\n        }\n        if (balance < 0) {\n            throw new IllegalArgumentException(\"Balance cannot be negative\");\n        }\n        this.holderName = holderName;\n        this.balance = balance;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount(\"Aisha\", 1000.0);\n        System.out.println(\"Created: \" + acc.holderName + \" with balance ₹\" + acc.balance);\n        \n        try {\n            BankAccount bad = new BankAccount(\"\", 100.0);\n            System.out.println(\"This should not print\");\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Rejected: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Created: Aisha with balance ₹1000.0\nRejected: Name cannot be empty"
+        }
+      ],
+      "hints": [
+        "Validate BEFORE assigning fields",
+        "throw new IllegalArgumentException(\"message\") rejects bad input",
+        "isBlank() catches empty AND whitespace-only strings",
+        "Use try/catch to handle the exception in main"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "constructor_validation"
+    },
+    
+    {
+      "id": "java_m4_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Overloaded constructors",
+      "scenario": "Provide multiple ways to create the object.",
+      "instructions": "Create a `Circle` class:\n- Field: radius (double)\n- Constructor 1: `Circle(double radius)` — sets the radius\n- Constructor 2: `Circle()` — defaults radius to 1.0\n- Method: `area()` returning π × r²\n\nIn main:\n1. Create circle with radius 5 — print area\n2. Create circle with no args — print area (should be π)\n\nExpected output:\nArea (r=5): 78.53981633974483\nArea (default): 3.141592653589793",
+      "starter_code": "// Write Circle class with two constructors\n",
+      "expected_solution": "class Circle {\n    double radius;\n    \n    public Circle(double radius) {\n        this.radius = radius;\n    }\n    \n    public Circle() {\n        this.radius = 1.0;\n    }\n    \n    double area() {\n        return Math.PI * radius * radius;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Circle c1 = new Circle(5);\n        Circle c2 = new Circle();\n        System.out.println(\"Area (r=5): \" + c1.area());\n        System.out.println(\"Area (default): \" + c2.area());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Area (r=5): 78.53981633974483\nArea (default): 3.141592653589793"
+        }
+      ],
+      "hints": [
+        "Two constructors: one with parameter, one without",
+        "Same name (Circle), different parameter lists = overloading",
+        "Math.PI is the π constant",
+        "Java picks the right constructor based on arguments"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "constructor_overloading"
+    },
+    
+    {
+      "id": "java_m4_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Constructor chaining with this(...)",
+      "scenario": "Eliminate code duplication across constructors.",
+      "instructions": "Create a `Book` class with fields title, author, year (int) and pages (int).\n\nThree constructors:\n1. `Book(title, author, year, pages)` — primary, sets all fields\n2. `Book(title, author, year)` — defaults pages to 0, chains to primary\n3. `Book(title, author)` — defaults year=2024, chains to second constructor\n\nIn main, create 3 books — one with each constructor — and print all four fields.\n\nExpected output:\nThe Hobbit by Tolkien (1937) — 310 pages\nDune by Herbert (1965) — 0 pages\nAtomic Habits by Clear (2024) — 0 pages",
+      "starter_code": "// Write Book class with 3 chained constructors\n// Use this(...) to chain\n",
+      "expected_solution": "class Book {\n    String title;\n    String author;\n    int year;\n    int pages;\n    \n    public Book(String title, String author, int year, int pages) {\n        this.title = title;\n        this.author = author;\n        this.year = year;\n        this.pages = pages;\n    }\n    \n    public Book(String title, String author, int year) {\n        this(title, author, year, 0);\n    }\n    \n    public Book(String title, String author) {\n        this(title, author, 2024);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Book b1 = new Book(\"The Hobbit\", \"Tolkien\", 1937, 310);\n        Book b2 = new Book(\"Dune\", \"Herbert\", 1965);\n        Book b3 = new Book(\"Atomic Habits\", \"Clear\");\n        \n        System.out.println(b1.title + \" by \" + b1.author + \" (\" + b1.year + \") — \" + b1.pages + \" pages\");\n        System.out.println(b2.title + \" by \" + b2.author + \" (\" + b2.year + \") — \" + b2.pages + \" pages\");\n        System.out.println(b3.title + \" by \" + b3.author + \" (\" + b3.year + \") — \" + b3.pages + \" pages\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "The Hobbit by Tolkien (1937) — 310 pages\nDune by Herbert (1965) — 0 pages\nAtomic Habits by Clear (2024) — 0 pages"
+        }
+      ],
+      "hints": [
+        "Primary 4-arg constructor does the actual work",
+        "3-arg constructor: this(title, author, year, 0) — defaults pages",
+        "2-arg constructor: this(title, author, 2024) — chains to 3-arg",
+        "this(...) MUST be the first statement in each constructor",
+        "Chained constructors run depth-first: 2-arg → 3-arg → 4-arg"
+      ],
+      "xp_reward": 65,
+      "concept_tested": "constructor_chaining"
+    },
+    
+    {
+      "id": "java_m4_t2_ex_10",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the this() position",
+      "scenario": "this() must be first statement.",
+      "instructions": "This doesn't compile. Fix the constructor chaining.\n\nExpected output:\nDog: Rex (Labrador)",
+      "starter_code": "class Dog {\n    String name;\n    String breed;\n    \n    public Dog(String name, String breed) {\n        this.name = name;\n        this.breed = breed;\n    }\n    \n    public Dog(String name) {\n        System.out.println(\"Creating with default breed\");\n        this(name, \"Mixed\");\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\", \"Labrador\");\n        System.out.println(\"Dog: \" + d.name + \" (\" + d.breed + \")\");\n    }\n}",
+      "expected_solution": "class Dog {\n    String name;\n    String breed;\n    \n    public Dog(String name, String breed) {\n        this.name = name;\n        this.breed = breed;\n    }\n    \n    public Dog(String name) {\n        this(name, \"Mixed\");\n        System.out.println(\"Creating with default breed\");\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\", \"Labrador\");\n        System.out.println(\"Dog: \" + d.name + \" (\" + d.breed + \")\");\n    }\n}",
+      "bugs": [
+        {
+          "line": "10-11",
+          "issue": "`this(name, \"Mixed\")` must be the FIRST statement of the constructor. The println before it is illegal.",
+          "fix": "Move this(...) to the top, println after"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Dog: Rex (Labrador)",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Compilation error: 'call to this must be first statement in constructor'",
+        "Java enforces: this() and super() must be the FIRST line",
+        "Any other code must come AFTER the chained call",
+        "Reorder: this(...) first, println below"
+      ],
+      "xp_reward": 50,
+      "common_misconceptions_tested": ["this_not_first_in_chaining"]
+    },
+    
+    {
+      "id": "java_m4_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Employee with complete validation",
+      "scenario": "Production-style class design.",
+      "instructions": "Create an `Employee` class with fields: id (int), name (String), salary (double), department (String).\n\nConstructor validates:\n- id > 0\n- name not null/blank\n- salary >= 0\n- department not null/blank\n\nIn main:\n1. Create valid employee — print details\n2. Try id = -5 — catch and print error\n3. Try salary = -1000 — catch and print error\n\nExpected output:\nEmployee #101 Aisha (Engineering) - ₹85000.0\nError: ID must be positive\nError: Salary cannot be negative",
+      "starter_code": "// Write Employee class with validating constructor\n",
+      "expected_solution": "class Employee {\n    int id;\n    String name;\n    double salary;\n    String department;\n    \n    public Employee(int id, String name, double salary, String department) {\n        if (id <= 0) throw new IllegalArgumentException(\"ID must be positive\");\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name cannot be empty\");\n        if (salary < 0) throw new IllegalArgumentException(\"Salary cannot be negative\");\n        if (department == null || department.isBlank()) throw new IllegalArgumentException(\"Department cannot be empty\");\n        \n        this.id = id;\n        this.name = name;\n        this.salary = salary;\n        this.department = department;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Employee e = new Employee(101, \"Aisha\", 85000.0, \"Engineering\");\n        System.out.println(\"Employee #\" + e.id + \" \" + e.name + \" (\" + e.department + \") - ₹\" + e.salary);\n        \n        try {\n            Employee bad = new Employee(-5, \"X\", 50000, \"IT\");\n        } catch (IllegalArgumentException ex) {\n            System.out.println(\"Error: \" + ex.getMessage());\n        }\n        \n        try {\n            Employee bad2 = new Employee(102, \"Y\", -1000, \"IT\");\n        } catch (IllegalArgumentException ex) {\n            System.out.println(\"Error: \" + ex.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Employee #101 Aisha (Engineering) - ₹85000.0\nError: ID must be positive\nError: Salary cannot be negative"
+        }
+      ],
+      "hints": [
+        "All 4 validations BEFORE any assignment",
+        "Order checks how you want them tried: id, name, salary, department",
+        "Each check throws IllegalArgumentException with a descriptive message",
+        "Use try/catch in main for each bad case"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m4_t2_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace constructor chaining",
+      "scenario": "Multiple println statements across chained constructors.",
+      "instructions": "What does this print when `new Dog(\"Rex\")` runs?\n\n```java\nclass Dog {\n    String name;\n    int age;\n    \n    public Dog(String name, int age) {\n        System.out.println(\"2-arg start\");\n        this.name = name;\n        this.age = age;\n        System.out.println(\"2-arg end\");\n    }\n    \n    public Dog(String name) {\n        this(name, 0);\n        System.out.println(\"1-arg done\");\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        new Dog(\"Rex\");\n    }\n}\n```",
+      "expected_solution": "2-arg start\n2-arg end\n1-arg done",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "2-arg start\n2-arg end\n1-arg done"
+        }
+      ],
+      "hints": [
+        "this(name, 0) calls the 2-arg constructor FIRST",
+        "2-arg runs completely: '2-arg start' → assignments → '2-arg end'",
+        "THEN control returns to 1-arg constructor, runs the println: '1-arg done'",
+        "Chained constructor runs FULLY before next code in calling constructor"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m4_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "URL parser with constructor",
+      "scenario": "Parse a URL string in a constructor.",
+      "instructions": "Create a `URL` class that parses a URL string into components.\n\nFields: protocol (String), host (String), path (String)\n\nConstructor takes a URL string like \"https://google.com/search\" and parses:\n- protocol = part before \"://\" (e.g., \"https\")\n- host = part after \"://\" and before next \"/\" (e.g., \"google.com\")\n- path = part after host (e.g., \"/search\")\n\nIf no path, path = \"/\".\n\nIn main, parse 2 URLs and print components.\n\nExpected output:\nProtocol: https | Host: google.com | Path: /search\nProtocol: http | Host: example.com | Path: /",
+      "starter_code": "// Write URL class with parsing constructor\n// Parse: protocol://host/path\n",
+      "expected_solution": "class URL {\n    String protocol;\n    String host;\n    String path;\n    \n    public URL(String url) {\n        int protocolEnd = url.indexOf(\"://\");\n        this.protocol = url.substring(0, protocolEnd);\n        \n        String rest = url.substring(protocolEnd + 3);\n        int pathStart = rest.indexOf(\"/\");\n        \n        if (pathStart == -1) {\n            this.host = rest;\n            this.path = \"/\";\n        } else {\n            this.host = rest.substring(0, pathStart);\n            this.path = rest.substring(pathStart);\n        }\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        URL u1 = new URL(\"https://google.com/search\");\n        URL u2 = new URL(\"http://example.com\");\n        \n        System.out.println(\"Protocol: \" + u1.protocol + \" | Host: \" + u1.host + \" | Path: \" + u1.path);\n        System.out.println(\"Protocol: \" + u2.protocol + \" | Host: \" + u2.host + \" | Path: \" + u2.path);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Protocol: https | Host: google.com | Path: /search\nProtocol: http | Host: example.com | Path: /"
+        }
+      ],
+      "hints": [
+        "Use indexOf(\"://\") to find protocol boundary",
+        "substring(0, x) for protocol (before x)",
+        "substring(x + 3) for everything after ://",
+        "Check if rest contains \"/\" (pathStart)",
+        "If yes: split host and path. If no: whole rest is host, path = '/'"
+      ],
+      "xp_reward": 75
+    },
+    
+    {
+      "id": "java_m4_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Point class with multiple constructors",
+      "scenario": "2D point with convenience constructors.",
+      "instructions": "Create a `Point` class for 2D coordinates:\n- Fields: x (double), y (double)\n- Constructor 1: `Point(x, y)` — primary\n- Constructor 2: `Point()` — origin (0, 0). Chains to primary.\n- Constructor 3: `Point(Point other)` — COPY constructor. Chains to primary with other.x, other.y.\n- Method: `distanceFrom(Point other)` — returns Euclidean distance\n\nIn main, demonstrate all 3 constructors and the distance method.\n\nExpected output:\nP1: (3.0, 4.0)\nP2 (origin): (0.0, 0.0)\nP3 (copy of P1): (3.0, 4.0)\nDistance from P1 to origin: 5.0",
+      "starter_code": "// Write Point class with 3 constructors and distanceFrom method\n// Use Math.sqrt and Math.pow for distance\n",
+      "expected_solution": "class Point {\n    double x;\n    double y;\n    \n    public Point(double x, double y) {\n        this.x = x;\n        this.y = y;\n    }\n    \n    public Point() {\n        this(0, 0);\n    }\n    \n    public Point(Point other) {\n        this(other.x, other.y);\n    }\n    \n    double distanceFrom(Point other) {\n        double dx = this.x - other.x;\n        double dy = this.y - other.y;\n        return Math.sqrt(dx * dx + dy * dy);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Point p1 = new Point(3, 4);\n        Point p2 = new Point();\n        Point p3 = new Point(p1);\n        \n        System.out.println(\"P1: (\" + p1.x + \", \" + p1.y + \")\");\n        System.out.println(\"P2 (origin): (\" + p2.x + \", \" + p2.y + \")\");\n        System.out.println(\"P3 (copy of P1): (\" + p3.x + \", \" + p3.y + \")\");\n        System.out.println(\"Distance from P1 to origin: \" + p1.distanceFrom(p2));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "P1: (3.0, 4.0)\nP2 (origin): (0.0, 0.0)\nP3 (copy of P1): (3.0, 4.0)\nDistance from P1 to origin: 5.0"
+        }
+      ],
+      "hints": [
+        "Primary constructor: this.x = x; this.y = y;",
+        "No-arg: this(0, 0) — chains to primary with origin",
+        "Copy constructor: this(other.x, other.y) — accesses other's fields",
+        "distanceFrom: √((x1-x2)² + (y1-y2)²)",
+        "Pythagorean: 3-4-5 triangle → distance from (3,4) to (0,0) is 5"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "multiple_constructors_with_chaining"
+    },
+    
+    {
+      "id": "java_m4_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Order with line items",
+      "scenario": "Multi-class system with constructor validation throughout.",
+      "instructions": "Build TWO classes:\n\n1. `OrderItem`:\n   - Fields: productName (String), quantity (int), unitPrice (double)\n   - Constructor validates: name non-empty, quantity > 0, unitPrice >= 0\n   - Method `lineTotal()`: quantity × unitPrice\n\n2. `Order`:\n   - Fields: orderId (int), customerName (String), items (OrderItem[])\n   - Constructor: takes id, name, items[]. Validates: id > 0, name non-empty, items not null/empty\n   - Method `total()`: sums lineTotal() of all items\n\nIn main:\n1. Create 3 OrderItems\n2. Create Order #1001 for Aisha with those items\n3. Print order total\n4. Try invalid order (empty items array) — catch and print error\n\nExpected output:\nOrder #1001 (Aisha) total: ₹2447.0\nError: Order must have at least one item",
+      "starter_code": "// Build OrderItem and Order classes\n// Both classes have validating constructors\n",
+      "expected_solution": "class OrderItem {\n    String productName;\n    int quantity;\n    double unitPrice;\n    \n    public OrderItem(String productName, int quantity, double unitPrice) {\n        if (productName == null || productName.isBlank()) throw new IllegalArgumentException(\"Product name required\");\n        if (quantity <= 0) throw new IllegalArgumentException(\"Quantity must be positive\");\n        if (unitPrice < 0) throw new IllegalArgumentException(\"Unit price cannot be negative\");\n        \n        this.productName = productName;\n        this.quantity = quantity;\n        this.unitPrice = unitPrice;\n    }\n    \n    double lineTotal() {\n        return quantity * unitPrice;\n    }\n}\n\nclass Order {\n    int orderId;\n    String customerName;\n    OrderItem[] items;\n    \n    public Order(int orderId, String customerName, OrderItem[] items) {\n        if (orderId <= 0) throw new IllegalArgumentException(\"Order ID must be positive\");\n        if (customerName == null || customerName.isBlank()) throw new IllegalArgumentException(\"Customer name required\");\n        if (items == null || items.length == 0) throw new IllegalArgumentException(\"Order must have at least one item\");\n        \n        this.orderId = orderId;\n        this.customerName = customerName;\n        this.items = items;\n    }\n    \n    double total() {\n        double sum = 0;\n        for (OrderItem item : items) {\n            sum += item.lineTotal();\n        }\n        return sum;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        OrderItem[] items = {\n            new OrderItem(\"Mouse\", 1, 599.0),\n            new OrderItem(\"Keyboard\", 1, 1499.0),\n            new OrderItem(\"USB Hub\", 2, 174.5)\n        };\n        \n        Order order = new Order(1001, \"Aisha\", items);\n        System.out.println(\"Order #\" + order.orderId + \" (\" + order.customerName + \") total: ₹\" + order.total());\n        \n        try {\n            Order bad = new Order(1002, \"Raj\", new OrderItem[0]);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Error: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Order #1001 (Aisha) total: ₹2447.0\nError: Order must have at least one item"
+        }
+      ],
+      "hints": [
+        "Two classes — both have validating constructors",
+        "OrderItem.lineTotal = quantity × unitPrice",
+        "Order.total loops through items and sums lineTotal()",
+        "Order validation: items != null AND items.length > 0",
+        "Math: 599 + 1499 + (2 × 174.5) = 599 + 1499 + 349 = 2447",
+        "This is REAL e-commerce backend pattern"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 10,
+      "debug": 2,
+      "predict_output": 2
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 65
+  },
+  
+  "gap_detection_map": {
+    "adding_return_type_to_constructor": ["ex_4"],
+    "shadowed_field_without_this": ["ex_5"],
+    "constructor_validation": ["ex_7", "ex_11", "ex_15"],
+    "constructor_overloading": ["ex_8"],
+    "constructor_chaining": ["ex_9", "ex_14"],
+    "this_not_first_in_chaining": ["ex_10"],
+    "multiple_constructors_with_chaining": ["ex_14"]
+  }
+}

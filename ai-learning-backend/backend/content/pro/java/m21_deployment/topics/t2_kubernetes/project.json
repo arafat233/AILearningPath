@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m21_t2_proj",
+  "linked_topic": "java_m21_t2",
+  "level": "mini",
+  "name": "Zerodha Order Service — Kubernetes Deployment",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Zerodha needs to deploy order-service to Kubernetes for market-open traffic handling. Write all required k8s manifests and Spring Boot probe configuration for zero-downtime deployments.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "k8s/deployment.yml: 3 replicas, resources (512Mi/768Mi, 250m/500m), rolling update (maxSurge=1, maxUnavailable=0), readiness+liveness probes.", "weight": 30 },
+      { "id": "req_2", "description": "k8s/service.yml: ClusterIP, port 80 → 8080, selector app: order-service, namespace: trading.", "weight": 10 },
+      { "id": "req_3", "description": "k8s/hpa.yml: CPU target 60%, min 2, max 20 replicas.", "weight": 10 },
+      { "id": "req_4", "description": "application.yml: management.health.probes.enabled=true. Liveness: livenessState only. Readiness: readinessState + db.", "weight": 15 },
+      { "id": "req_5", "description": "@SpringBootTest (3 tests): readiness endpoint 2xx, liveness returns UP status, /actuator/prometheus contains jvm_memory. All 3 pass.", "weight": 30 },
+      { "id": "req_6", "description": "README: kubectl commands to deploy, scale, and rollback.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "PodDisruptionBudget: minAvailable=2. Document how it prevents downtime during node drain.", "weight": 15 },
+      { "id": "bonus_2", "description": "PodAntiAffinity: distribute pods across different nodes (preferredDuringScheduling). Explain HA benefit.", "weight": 20 },
+      { "id": "bonus_3", "description": "NetworkPolicy: order-service can only be called from specific source labels. Block all other ingress.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. management.health.probes.enabled=true: required for /actuator/health/readiness and /liveness (without this, both are the same as /health). Readiness probe initialDelaySeconds should be >= Spring Boot startup time (~25-30s); liveness initialDelaySeconds should be longer (60s) to avoid restarting a healthy but slow-starting app. Never include DB in liveness group — DB failure → liveness failure → restart → DB still down → infinite CrashLoopBackOff. maxUnavailable=0: zero downtime guarantee (k8s never terminates an old pod until a new one is ready). Resources: requests = scheduling guarantee; limits = hard ceiling. 250m CPU = 0.25 cores.",
+  "rubric": [
+    { "category": "k8s/deployment.yml", "points": 30 },
+    { "category": "k8s/service.yml", "points": 10 },
+    { "category": "k8s/hpa.yml", "points": 10 },
+    { "category": "application.yml probes", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 30 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

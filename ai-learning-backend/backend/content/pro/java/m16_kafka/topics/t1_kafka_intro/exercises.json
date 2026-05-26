@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t1",
+  "topic_name": "Introduction to Apache Kafka",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m16_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Kafka vs REST — which to use?",
+      "scenario": "Different scenarios call for different communication patterns.",
+      "instructions": "For each scenario, choose Kafka or REST and give one reason:\n\nA. order-service needs current stock price before confirming a trade\nB. A trade executes → SMS sent to user\nC. A new user registers → welcome email sent\nD. payment-service needs to verify a user account before charging\nE. Order placed → 5 different services update their state\nF. API Gateway routes an incoming request to the correct microservice",
+      "expected_solution": "A → REST (need price synchronously before trade can proceed)\nB → Kafka (SMS is async — trade already confirmed, notification follows)\nC → Kafka (welcome email doesn't block registration response)\nD → REST (need verification before charging — can't proceed without it)\nE → Kafka (one event, 5 listeners — perfect Kafka use case)\nF → REST (real-time routing; synchronous by nature)",
+      "test_cases": [
+        { "type": "text_match", "expected": "A → REST (need price synchronously before trade can proceed)\nB → Kafka (SMS is async — trade already confirmed, notification follows)\nC → Kafka (welcome email doesn't block registration response)\nD → REST (need verification before charging — can't proceed without it)\nE → Kafka (one event, 5 listeners — perfect Kafka use case)\nF → REST (real-time routing; synchronous by nature)" }
+      ],
+      "hints": [
+        "REST: you need the response to proceed",
+        "Kafka: you don't need to wait; or multiple services need the same event"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Kafka terminology — match the definition",
+      "scenario": "Core Kafka vocabulary used in every interview and project.",
+      "instructions": "Fill in the Kafka term for each definition.",
+      "starter_code": "// A named stream of messages — like a channel: _______\n// A ordered, immutable log within a topic: _______\n// Position of a message within a partition: _______\n// Writes messages to a topic: _______\n// Reads messages from a topic: _______\n// A set of consumers sharing partitions: _______\n// A Kafka server storing messages: _______",
+      "expected_solution": "// A named stream of messages — like a channel: Topic\n// A ordered, immutable log within a topic: Partition\n// Position of a message within a partition: Offset\n// Writes messages to a topic: Producer\n// Reads messages from a topic: Consumer\n// A set of consumers sharing partitions: Consumer Group\n// A Kafka server storing messages: Broker",
+      "blanks": [
+        { "position": 1, "answer": "Topic",          "hint": "The 'subject' that producers write to and consumers read from" },
+        { "position": 2, "answer": "Partition",      "hint": "Topics are split into these for parallelism" },
+        { "position": 3, "answer": "Offset",         "hint": "Monotonically increasing integer per partition" },
+        { "position": 4, "answer": "Producer",       "hint": "Sends/publishes messages" },
+        { "position": 5, "answer": "Consumer",       "hint": "Receives/subscribes to messages" },
+        { "position": 6, "answer": "Consumer Group", "hint": "Consumers collaborating on a topic" },
+        { "position": 7, "answer": "Broker",         "hint": "Kafka server node" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected": "// A named stream of messages — like a channel: Topic\n// A ordered, immutable log within a topic: Partition\n// Position of a message within a partition: Offset\n// Writes messages to a topic: Producer\n// Reads messages from a topic: Consumer\n// A set of consumers sharing partitions: Consumer Group\n// A Kafka server storing messages: Broker" }
+      ],
+      "hints": [
+        "Topic → Partition → Offset: three levels of hierarchy",
+        "Producer writes, Consumer reads, Broker stores"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t1_ex_3",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Consumers vs partitions — how many are active?",
+      "scenario": "A consumer group assigns one consumer per partition at most.",
+      "instructions": "For each scenario, how many consumers are actively consuming? How many are idle?\n\nA. Topic: 4 partitions. Consumer group: 2 consumers.\nB. Topic: 4 partitions. Consumer group: 4 consumers.\nC. Topic: 4 partitions. Consumer group: 6 consumers.\nD. Topic: 1 partition. Consumer group: 3 consumers.",
+      "expected_solution": "A. 2 active (each handles 2 partitions), 0 idle\nB. 4 active (each handles 1 partition), 0 idle — maximum parallelism\nC. 4 active (each handles 1 partition), 2 idle (no partition to assign)\nD. 1 active (handles the 1 partition), 2 idle",
+      "test_cases": [
+        { "type": "text_match", "expected": "A. 2 active (each handles 2 partitions), 0 idle\nB. 4 active (each handles 1 partition), 0 idle — maximum parallelism\nC. 4 active (each handles 1 partition), 2 idle (no partition to assign)\nD. 1 active (handles the 1 partition), 2 idle" }
+      ],
+      "hints": [
+        "Max active consumers = number of partitions",
+        "Extra consumers beyond partition count are idle standby"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m16_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Design a Kafka topic for the Swiggy order system",
+      "scenario": "Topic design is the foundational architecture decision.",
+      "instructions": "Design the Kafka topic structure for Swiggy:\n1. List 3 topics with: name, partitions, retention, key strategy, reasoning\n2. For each topic, list 2-3 consumer services\n3. Which communication should remain as REST (not Kafka)?",
+      "starter_code": "// Swiggy Kafka topic design:\n// Topic 1: ...\n// Topic 2: ...\n// Topic 3: ...\n// REST remains for: ...\n",
+      "expected_solution": "// Topic 1: order-events\n//   Partitions: 12 (peak: ~12 concurrent consumers)\n//   Retention: 7 days\n//   Key: orderId (ordering per order important for status tracking)\n//   Events: ORDER_PLACED, ORDER_ACCEPTED, COOKING, OUT_FOR_DELIVERY, DELIVERED, CANCELLED\n//   Consumers: notification-svc (SMS/push), tracking-svc (live map), analytics-svc\n\n// Topic 2: restaurant-events\n//   Partitions: 6\n//   Retention: 3 days\n//   Key: restaurantId (per-restaurant ordering)\n//   Events: MENU_UPDATED, RESTAURANT_OPEN, RESTAURANT_CLOSED, RATING_CHANGED\n//   Consumers: search-svc (updates search index), recommendation-svc\n\n// Topic 3: audit-log\n//   Partitions: 6\n//   Retention: 365 days (compliance requirement)\n//   Key: userId (per-user audit trail)\n//   Events: all user actions (order, payment, review, refund)\n//   Consumers: compliance-svc, fraud-detection-svc\n\n// REST remains for:\n//   order-service → payment-service: charging must be synchronous\n//   order-service → restaurant-service: confirm availability before accepting\n//   API gateway → any service: routing is synchronous by nature\n\npublic class SwiggyKafkaDesign {\n    public static void main(String[] args) {\n        System.out.println(\"3 topics: order-events, restaurant-events, audit-log\");\n        System.out.println(\"REST: payment charging and restaurant availability\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["order-events", "REST"] }
+      ],
+      "hints": [
+        "Group related event types in one topic (status changes = one topic)",
+        "Partition key = the entity you need ordering for",
+        "Audit/compliance topics: longer retention (months/years)"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m16_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Docker Compose for local Kafka",
+      "scenario": "Kafka runs locally via Docker for development.",
+      "instructions": "Write a complete docker-compose.yml for a local Kafka setup:\n1. Single broker in KRaft mode (no Zookeeper)\n2. Port 9092 exposed\n3. A CLUSTER_ID set\n4. replication factor 1 (single node dev)\n5. Show the CLI commands to: create a topic 'trade-events' with 3 partitions, produce a test message, consume from the beginning",
+      "starter_code": "# docker-compose.yml\n# CLI commands\n",
+      "expected_solution": "# docker-compose.yml:\nversion: '3'\nservices:\n  kafka:\n    image: confluentinc/cp-kafka:7.5.0\n    hostname: kafka\n    container_name: kafka\n    ports:\n      - '9092:9092'\n    environment:\n      KAFKA_NODE_ID: 1\n      KAFKA_PROCESS_ROLES: broker,controller\n      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093\n      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092\n      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT\n      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093\n      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER\n      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1\n      KAFKA_DEFAULT_REPLICATION_FACTOR: 1\n      KAFKA_MIN_INSYNC_REPLICAS: 1\n      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk\n\n# CLI commands:\n# Start:\n# docker compose up -d\n\n# Create topic:\n# docker exec kafka kafka-topics --bootstrap-server localhost:9092 \\\n#   --create --topic trade-events --partitions 3 --replication-factor 1\n\n# Describe topic:\n# docker exec kafka kafka-topics --bootstrap-server localhost:9092 \\\n#   --describe --topic trade-events\n\n# Produce a message:\n# docker exec -it kafka kafka-console-producer \\\n#   --bootstrap-server localhost:9092 --topic trade-events\n# > {\"tradeId\":\"TRD-001\",\"symbol\":\"TCS\",\"qty\":10}\n\n# Consume from beginning:\n# docker exec kafka kafka-console-consumer \\\n#   --bootstrap-server localhost:9092 --topic trade-events \\\n#   --from-beginning --group test-consumer-group\n\npublic class KafkaSetup {\n    public static void main(String[] args) {\n        System.out.println(\"Kafka: KRaft mode, port 9092, no Zookeeper\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Kafka"] }
+      ],
+      "hints": [
+        "KRaft mode: KAFKA_PROCESS_ROLES=broker,controller (no Zookeeper needed)",
+        "CLUSTER_ID: required for KRaft initialization",
+        "--from-beginning: read all messages from offset 0"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Message ordering and partition keys",
+      "scenario": "Same key = same partition = ordering preserved.",
+      "instructions": "For each scenario, what partition key should be used and why?\n\n1. trade-events: preserving per-user trade order for portfolio updates\n2. nse-tick-data: stock price updates needing per-symbol ordering\n3. audit-log: all events, no ordering requirement between users\n4. notification-events: SMS/email, no ordering needed\n\nShow how key assignment affects partitioning with an example.",
+      "starter_code": "// Partition key choices + reasoning:\n// 1. trade-events: key=_____ reason=____\n// 2. nse-tick-data: key=_____ reason=____\n// 3. audit-log: key=_____ reason=____\n// 4. notification-events: key=_____ reason=____\n\n// Example: 3 partitions, key routing:\n",
+      "expected_solution": "// 1. trade-events: key=userId\n//    Reason: portfolio-service must process U01's trades in order.\n//    All U01 trades → Partition 0 (always). Ordering guaranteed per user.\n\n// 2. nse-tick-data: key=symbol\n//    Reason: charting needs TCS ticks in time order.\n//    All TCS ticks → Partition 1. Ordering preserved per stock.\n\n// 3. audit-log: key=userId\n//    Reason: auditors review per-user activity. Key=userId groups\n//    one user's events together for efficient per-user queries.\n\n// 4. notification-events: key=null (no key)\n//    Reason: no ordering needed. Round-robin across partitions\n//    for maximum throughput distribution.\n\n// Example — 3 partitions, hash(key) % 3:\npublic class PartitionKeyExample {\n    static int partition(String key, int numPartitions) {\n        return Math.abs(key.hashCode()) % numPartitions;\n    }\n    public static void main(String[] args) {\n        System.out.println(\"U01 → P\" + partition(\"U01\", 3));\n        System.out.println(\"U02 → P\" + partition(\"U02\", 3));\n        System.out.println(\"U01 (again) → P\" + partition(\"U01\", 3));  // same!\n        System.out.println(\"TCS → P\" + partition(\"TCS\", 3));\n        System.out.println(\"INFY → P\" + partition(\"INFY\", 3));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["U01", "same"] }
+      ],
+      "hints": [
+        "Key = same key → same partition (hash(key) % numPartitions)",
+        "null key → round-robin (no ordering guarantee)",
+        "Choose key based on what needs ordering, not what's unique"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m16_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Design Kafka architecture for Zerodha trading",
+      "scenario": "Apply Kafka topic design to a complete trading platform.",
+      "instructions": "Design the full Kafka architecture for Zerodha:\n1. Identify 4 Kafka topics (trade-events, market-ticks, notification-events, audit-log)\n2. For each: partitions, key, retention, what events it carries\n3. Draw (in text) the producer → topic → consumer groups flow\n4. Identify what stays as REST (synchronous calls)\n5. Show as a Java enum the event types for 'trade-events'",
+      "starter_code": "// Zerodha Kafka Architecture:\n// 4 topics + enum + flow diagram\n",
+      "expected_solution": "// ── TRADE EVENTS ─────────────────────────────────────────────────\n// Topic: trade-events\n// Partitions: 6 (supports 6 concurrent notification-svc instances)\n// Key: userId (preserves per-user trade sequence)\n// Retention: 30 days\n// Events: TRADE_PLACED, TRADE_EXECUTED, TRADE_CANCELLED, TRADE_MODIFIED\n// Producer: order-service\n// Consumers: portfolio-svc, notification-svc, analytics-svc, tax-svc\n\n// ── MARKET TICKS ─────────────────────────────────────────────────\n// Topic: market-ticks\n// Partitions: 24 (one per major index sector)\n// Key: symbol (per-symbol ordering for charts)\n// Retention: 24 hours (ticks are high-volume, stale quickly)\n// Events: {symbol, price, volume, change%, timestamp}\n// Producer: market-data-ingestion-svc\n// Consumers: trading-engine-svc, charting-svc, alert-svc\n\n// ── NOTIFICATION EVENTS ──────────────────────────────────────────\n// Topic: notification-events\n// Partitions: 3\n// Key: null (no ordering needed)\n// Retention: 1 day\n// Events: {userId, channel(SMS/EMAIL/PUSH), template, params}\n// Producer: order-svc, payment-svc, etc.\n// Consumers: sms-gateway-svc, email-svc, push-svc\n\n// ── AUDIT LOG ────────────────────────────────────────────────────\n// Topic: audit-log\n// Partitions: 6\n// Key: userId\n// Retention: 365 days (SEBI requirement)\n// Events: all user actions\n// Producer: ALL services\n// Consumers: compliance-svc, fraud-detection-svc\n\n// Event types enum:\npublic enum TradeEventType {\n    TRADE_PLACED,      // order submitted by user\n    TRADE_EXECUTED,    // order matched at exchange\n    TRADE_CANCELLED,   // order cancelled\n    TRADE_MODIFIED,    // order quantity/price changed\n    TRADE_REJECTED     // order rejected (insufficient margin etc)\n}\n\n// Flow (text diagram):\n// order-service ─────► trade-events ─► portfolio-svc (group: portfolio)\n//                                   ─► notification-svc (group: notify)\n//                                   ─► analytics-svc   (group: analytics)\n//                                   ─► tax-svc         (group: tax)\n\n// REST stays for:\n//   order-svc → market-svc: price fetch (synchronous, critical path)\n//   order-svc → account-svc: margin check (synchronous, must approve)\n//   order-svc → risk-svc: position limit (synchronous, must pass)\n\npublic class ZerodhaKafkaDesign {\n    public static void main(String[] args) {\n        System.out.println(\"4 topics: trade-events, market-ticks, notification-events, audit-log\");\n        for (TradeEventType t : TradeEventType.values()) System.out.println(t);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["trade-events", "TRADE_PLACED"] }
+      ],
+      "hints": [
+        "Group related events (PLACED, EXECUTED, CANCELLED) in ONE topic with event type field",
+        "market-ticks: high volume, short retention; audit-log: low volume, long retention",
+        "REST = critical path (needs answer); Kafka = side effects (don't need answer)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t1_ex_8",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Consumer group rebalancing — who reads what?",
+      "scenario": "When a consumer joins or leaves, Kafka rebalances partition assignments.",
+      "instructions": "Topic 'order-events' has 4 partitions (P0, P1, P2, P3).\nConsumer group 'notification-svc' starts with 2 consumers (C1, C2).\n\nDescribe partition assignments at each step:\n1. Initial state with C1, C2\n2. C3 joins\n3. C4 joins\n4. C5 joins\n5. C2 crashes (rebalance after C2 leaves)",
+      "expected_solution": "1. Initial (C1, C2):\n   C1: P0, P1\n   C2: P2, P3\n\n2. C3 joins (rebalance):\n   C1: P0, P1\n   C2: P2\n   C3: P3\n\n3. C4 joins (rebalance):\n   C1: P0\n   C2: P1\n   C3: P2\n   C4: P3\n   (Maximum parallelism: 4 consumers, 4 partitions)\n\n4. C5 joins (rebalance):\n   C1: P0\n   C2: P1\n   C3: P2\n   C4: P3\n   C5: idle (no partition to assign)\n\n5. C2 crashes (rebalance):\n   C1: P0, P1\n   C3: P2\n   C4: P3\n   C5: now active (takes P1 from C1 actually — depends on Kafka's assignment)\n   More precisely: P1 is reassigned to C5 (the standby consumer)\n   C1: P0, C3: P2, C4: P3, C5: P1",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["Maximum parallelism", "idle", "crashes"] }
+      ],
+      "hints": [
+        "Max active = num partitions. Extra consumers = standby.",
+        "Rebalance: all partitions redistributed when group membership changes",
+        "Crashed consumer: its partitions go to remaining consumers"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Message retention — what can be replayed?",
+      "scenario": "Kafka retains messages for a configured period — enabling replay.",
+      "instructions": "Write a diagram (in text/comments) and explanation for:\n1. Topic 'trade-events' with 7-day retention\n2. notification-svc (current offset: 5000) crashes on day 3\n3. notification-svc restarts on day 5 — where does it resume?\n4. New service 'tax-svc' starts on day 6 with '--from-beginning'\n5. What happens to notification-svc messages from days 1-3 after day 10?\n\nInclude a Java class explaining offset management.",
+      "starter_code": "// Message retention and replay explanation\n",
+      "expected_solution": "// ── RETENTION DIAGRAM ────────────────────────────────────────────\n// Day 1:  [0][1][2]...[1000] messages\n// Day 3:  [0][1]...[5000] messages | notification-svc crashes at offset 5000\n// Day 5:  [0][1]...[7500] messages | notification-svc restarts\n//         → resumes from offset 5001 (committed offset saved in Kafka)\n//         → catches up: processes 5001-7500 (2500 messages)\n// Day 6:  [0][1]...[9000] messages | tax-svc starts with --from-beginning\n//         → reads from offset 0: ALL 9000 messages (full history)\n// Day 10: messages from Day 1-3 (offsets 0-3000) DELETED by retention\n//         → notification-svc: fine (already processed them, at offset 9000+)\n//         → if tax-svc hadn't caught up, it would LOSE days 1-3\n\n// Answer to each question:\n// 2. notification-svc crashes at offset 5000 (Kafka has committed this)\n// 3. Restarts at offset 5001 — the committed offset is persisted in Kafka\n//    (stored in __consumer_offsets internal topic)\n// 4. tax-svc with --from-beginning: starts at offset 0, reads all available\n// 5. Day 10: offsets 0-~3000 (Day 1-3 messages) deleted by 7-day retention\n//    notification-svc is fine — it processed them before deletion\n//    tax-svc: if it hadn't reached offset 3000 by day 10, those messages are GONE\n\npublic class OffsetExplanation {\n    // Kafka stores committed offsets in: __consumer_offsets topic\n    // Consumer group = 'notification-svc'\n    // Committed offset = last successfully processed offset + 1\n    // On restart: consumer reads committed offset from __consumer_offsets\n    // and resumes from there — no message loss (if within retention period)\n    public static void main(String[] args) {\n        System.out.println(\"Committed offset 5000 → restart from 5001\");\n        System.out.println(\"--from-beginning → offset 0 for that consumer group\");\n        System.out.println(\"After retention expires: messages gone, offset still valid\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["5001", "--from-beginning"] }
+      ],
+      "hints": [
+        "Kafka stores committed offsets in __consumer_offsets topic",
+        "Restart: consumer resumes from last committed offset",
+        "--from-beginning: resets group offset to 0 (reads all retained messages)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Topic naming conventions and schemas",
+      "scenario": "Consistent naming and schemas make Kafka maintainable at scale.",
+      "instructions": "Define naming conventions and event schema for a Razorpay-style payment Kafka system:\n1. Topic naming: pattern for {domain}-{entity}-{action}s\n2. Event schema as Java record: include eventId, eventType, timestamp, payload\n3. Show 3 concrete topics with 2 example event types each\n4. Explain why eventId is important for idempotency",
+      "starter_code": "// Topic naming convention + event schema\n",
+      "expected_solution": "// Topic naming convention: {domain}.{entity}.{action}s (dot-separated)\n// Examples:\n// payment.transaction.events    (payment domain, transaction entity)\n// payment.refund.events\n// user.account.events\n// merchant.settlement.events\n\n// Base event schema (all events extend/include):\nrecord KafkaEvent<T>(\n    String eventId,       // UUID — for idempotency (deduplication)\n    String eventType,     // e.g., 'PAYMENT_CAPTURED', 'REFUND_INITIATED'\n    String sourceService, // e.g., 'payment-service'\n    java.time.Instant timestamp,\n    String traceId,       // distributed tracing correlation\n    T payload             // domain-specific data\n) {}\n\n// Concrete events:\nrecord PaymentPayload(String paymentId, double amount, String currency, String merchantId) {}\nrecord RefundPayload(String refundId, String paymentId, double amount, String reason) {}\nrecord AccountPayload(String userId, String eventType, java.util.Map<String,Object> changes) {}\n\n// Topic: payment.transaction.events\n// Event types: PAYMENT_INITIATED, PAYMENT_CAPTURED, PAYMENT_FAILED\n\n// Topic: payment.refund.events\n// Event types: REFUND_INITIATED, REFUND_PROCESSED, REFUND_FAILED\n\n// Topic: user.account.events\n// Event types: USER_REGISTERED, USER_KYC_VERIFIED, USER_SUSPENDED\n\n// Why eventId (UUID) matters for idempotency:\n// Consumer might process a message twice (network error, retry).\n// Consumers store: Set<String> processedEventIds\n// If processedEventIds.contains(event.eventId()) → skip (already processed)\n// Prevents: double-charging, double-refunding, duplicate notifications\n\npublic class EventIdExplanation {\n    public static void main(String[] args) {\n        System.out.println(\"eventId: deduplication key for idempotent consumers\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["eventId"] }
+      ],
+      "hints": [
+        "eventId: UUID allows consumers to detect and skip duplicates",
+        "traceId: links Kafka messages to distributed traces (M15)",
+        "Generic KafkaEvent<T>: reusable wrapper for all event types"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Kafka topic planner — throughput calculation",
+      "scenario": "Partition count is derived from throughput requirements.",
+      "instructions": "Zerodha has these requirements:\n- trade-events: 50,000 trades/hour peak, each notification takes 10ms to process\n- market-ticks: 5 million ticks/hour, each takes 2ms\n\nCalculate:\n1. How many notification-svc instances are needed for trade-events?\n2. How many partitions are needed?\n3. How many market-data-processor instances for market-ticks?\n4. How many partitions for market-ticks?\n5. Show the calculation as Java code",
+      "starter_code": "// Throughput calculation for Kafka partition sizing\n",
+      "expected_solution": "public class KafkaThroughputCalc {\n    public static void main(String[] args) {\n        // ── TRADE-EVENTS ──────────────────────────────────────────\n        int tradesPerHour = 50_000;\n        double processingTimeMs = 10.0;  // 10ms per notification\n        \n        // Throughput per consumer instance:\n        // 1 second / 10ms = 100 messages/second\n        // 100 * 3600 = 360,000 messages/hour per consumer\n        double messagesPerSecondPerConsumer = 1000.0 / processingTimeMs;\n        double messagesPerHourPerConsumer = messagesPerSecondPerConsumer * 3600;\n        \n        // Consumers needed:\n        int consumersNeeded = (int) Math.ceil(tradesPerHour / messagesPerHourPerConsumer);\n        System.out.println(\"=== TRADE-EVENTS ===\");\n        System.out.printf(\"Throughput/consumer: %.0f msg/hr%n\", messagesPerHourPerConsumer);\n        System.out.printf(\"Consumers needed: %d%n\", consumersNeeded);\n        System.out.printf(\"Partitions needed: %d (at least equal to consumers)%n%n\",\n            Math.max(consumersNeeded, 3));  // min 3 for replication/HA\n        \n        // ── MARKET-TICKS ──────────────────────────────────────────\n        int ticksPerHour = 5_000_000;\n        double tickProcessingMs = 2.0;\n        \n        double tickPerSecondPerConsumer = 1000.0 / tickProcessingMs;\n        double tickPerHourPerConsumer = tickPerSecondPerConsumer * 3600;\n        int tickConsumersNeeded = (int) Math.ceil(ticksPerHour / tickPerHourPerConsumer);\n        \n        System.out.println(\"=== MARKET-TICKS ===\");\n        System.out.printf(\"Throughput/consumer: %.0f ticks/hr%n\", tickPerHourPerConsumer);\n        System.out.printf(\"Consumers needed: %d%n\", tickConsumersNeeded);\n        System.out.printf(\"Partitions needed: %d (round up to 4 for clean assignment)%n\",\n            Math.max(tickConsumersNeeded, 4));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["TRADE-EVENTS", "MARKET-TICKS", "Consumers needed"] }
+      ],
+      "hints": [
+        "Throughput per consumer = 1000ms / processingTimeMs * 3600s",
+        "Consumers needed = total throughput / throughput per consumer (ceiling)",
+        "Partitions >= consumers needed (one consumer per partition max)"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Event-driven refactor — order service",
+      "scenario": "Refactor synchronous calls to Kafka events where appropriate.",
+      "instructions": "Show the before (all synchronous) and after (Kafka for async parts) for `OrderService.placeOrder()`:\n\nBEFORE: synchronous calls to 5 services (restaurant check, payment, notification, analytics, portfolio)\nAFTER: synchronous for restaurant + payment; Kafka for notification, analytics, portfolio\n\nShow the structure clearly with comments on what changed and why.",
+      "starter_code": "// BEFORE: all synchronous\n// AFTER: hybrid — sync for critical path, Kafka for side effects\n",
+      "expected_solution": "import org.springframework.stereotype.Service;\n\n// ── BEFORE: All synchronous (slow, brittle) ──────────────────────\nclass OrderServiceBefore {\n    RestaurantClient restaurantClient;\n    PaymentClient paymentClient;\n    NotificationClient notificationClient;  // slow, might fail\n    AnalyticsClient analyticsClient;         // slow, might fail\n    PortfolioClient portfolioClient;          // slow, might fail\n    \n    Order placeOrder(OrderRequest req) {\n        // Must wait for ALL of these:\n        restaurantClient.checkAvailability(req);  // ~100ms — MUST wait\n        paymentClient.charge(req);                // ~200ms — MUST wait\n        notificationClient.sendSms(req);          // ~150ms — DON'T need to wait\n        analyticsClient.logEvent(req);            // ~100ms — DON'T need to wait\n        portfolioClient.update(req);              // ~80ms  — DON'T need to wait\n        // Total: 630ms — user waits for ALL\n        // Risk: if notificationClient down → ORDER FAILS!\n    }\n}\n\n// ── AFTER: Hybrid — sync critical path, Kafka for side effects ───\n@Service\nclass OrderServiceAfter {\n    RestaurantClient restaurantClient;    // SYNC — must know if open\n    PaymentClient paymentClient;           // SYNC — must succeed before confirming\n    KafkaTemplate<String, Object> kafka;   // ASYNC — side effects via Kafka\n    \n    Order placeOrder(OrderRequest req) {\n        // SYNC: critical path — need answers to proceed:\n        restaurantClient.checkAvailability(req);  // ~100ms SYNC\n        paymentClient.charge(req);                // ~200ms SYNC\n        \n        // Save order:\n        Order saved = orderRepo.save(req);        // ~20ms\n        \n        // ASYNC: publish ONE event — all side effects listen:\n        kafka.send(\"order-events\", req.userId(),\n            new OrderEvent(saved.id(), req.restaurantId(), \"PLACED\"));\n        // ↑ 5ms — publish and return!\n        \n        return saved;  // Total: ~325ms (vs 630ms before)\n        \n        // notification-svc consumes order-events → sends SMS\n        // analytics-svc consumes order-events → logs event\n        // portfolio-svc consumes order-events → updates holdings\n        // All happen AFTER the response, in parallel, independent\n    }\n}\n\nrecord OrderEvent(String orderId, String restaurantId, String status) {}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "SYNC: restaurant check (is it open?) + payment (must succeed first)",
+        "ASYNC: notification, analytics, portfolio — don't block the user",
+        "ONE Kafka event, MANY consumers — removes N synchronous calls"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete Kafka architecture document",
+      "scenario": "Design the full Kafka topology for a fintech system.",
+      "instructions": "Write a complete Kafka architecture document for PhonePe-style UPI payments:\n1. 4 topics (upi.payment.events, upi.fraud.events, upi.notification.events, upi.audit.log)\n2. Full event schema as Java records for each\n3. Producer-topic-consumer mapping\n4. Partition strategy and retention for each\n5. What stays as REST (UPI requires sync approval)\n\nAll records must compile.",
+      "starter_code": "// PhonePe UPI Kafka Architecture\n// Complete records + topology\n",
+      "expected_solution": "import java.time.Instant;\nimport java.util.*;\n\n// ── EVENT RECORDS ─────────────────────────────────────────────────\nrecord PaymentEvent(\n    String eventId,            // UUID for idempotency\n    String eventType,          // PAYMENT_INITIATED, AUTHORIZED, CAPTURED, FAILED\n    String traceId,\n    Instant timestamp,\n    PaymentDetails payload\n) {}\nrecord PaymentDetails(String paymentId, String fromVpa, String toVpa,\n                       double amount, String utrNumber) {}\n\nrecord FraudEvent(\n    String eventId, String paymentId,\n    String riskLevel,          // LOW, MEDIUM, HIGH, BLOCKED\n    List<String> signals,\n    Instant detectedAt\n) {}\n\nrecord NotificationEvent(\n    String eventId, String userId,\n    String channel,            // SMS, WHATSAPP, PUSH\n    String template, Map<String,String> params\n) {}\n\nrecord AuditEvent(\n    String eventId, String entityId, String action,\n    String actorService, String ipAddress,\n    Instant timestamp, Map<String,Object> before, Map<String,Object> after\n) {}\n\n// ── KAFKA TOPOLOGY ────────────────────────────────────────────────\nclass UpiKafkaTopology {\n    /*\n    Topic: upi.payment.events\n      Partitions: 12 (high throughput: ~1M payments/day)\n      Key: paymentId (ordering per payment, e.g., INITIATED → AUTHORIZED → CAPTURED)\n      Retention: 30 days\n      Producer: payment-service\n      Consumers:\n        - fraud-detection-svc (group: fraud-detect) — checks signals\n        - settlement-svc (group: settlement) — batches for bank settlement\n        - analytics-svc (group: analytics) — dashboards\n\n    Topic: upi.fraud.events\n      Partitions: 6\n      Key: userId\n      Retention: 90 days\n      Producer: fraud-detection-svc\n      Consumers:\n        - notification-svc (group: fraud-notify) — alert user on HIGH risk\n        - risk-engine-svc (group: risk-engine) — update user risk profile\n        - compliance-svc (group: compliance) — regulatory reporting\n\n    Topic: upi.notification.events\n      Partitions: 6\n      Key: null (no ordering needed)\n      Retention: 3 days\n      Producer: payment-svc, fraud-svc\n      Consumers:\n        - sms-gateway (group: sms)\n        - whatsapp-gateway (group: whatsapp)\n        - push-gateway (group: push)\n\n    Topic: upi.audit.log\n      Partitions: 6\n      Key: userId\n      Retention: 7 years (RBI compliance)\n      Producer: ALL services\n      Consumers:\n        - compliance-svc, audit-reporting-svc\n\n    REST stays for:\n      - UPI PIN verification (bank server sync call — mandatory RBI flow)\n      - Account balance check before payment\n      - Payment authorization (NPCI sync approval needed)\n    */\n    public static void main(String[] args) {\n        System.out.println(\"4 topics: payment, fraud, notification, audit\");\n        System.out.println(\"REST: UPI PIN, balance check, NPCI authorization\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["4 topics", "REST"] }
+      ],
+      "hints": [
+        "Payment events: high partition count for throughput; INITIATED→CAPTURED ordering per paymentId",
+        "Audit log: 7 years retention for financial compliance",
+        "REST for UPI: NPCI requires synchronous authorization before payment completes"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m16_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Kafka vs RabbitMQ — when to choose what",
+      "scenario": "Different message systems suit different use cases.",
+      "instructions": "Write a `MessageSystemAdvisor` class with a method `recommend(requirements)` that:\n1. Takes: throughput (HIGH/MEDIUM/LOW), ordering required (boolean), replay needed (boolean), multiple consumers (boolean)\n2. Returns recommendation: KAFKA or RABBITMQ with justification\n3. Hardcode recommendations for 4 scenarios: audit logs, notification queue, trade events, simple task queue",
+      "starter_code": "// MessageSystemAdvisor — Kafka vs RabbitMQ recommendation\n",
+      "expected_solution": "import java.util.*;\n\npublic class MessageSystemAdvisor {\n    enum Throughput { HIGH, MEDIUM, LOW }\n    enum Recommendation { KAFKA, RABBITMQ }\n    \n    record Requirements(\n        Throughput throughput,\n        boolean orderingRequired,\n        boolean replayNeeded,\n        boolean multipleConsumers\n    ) {}\n    \n    public static String recommend(Requirements req) {\n        boolean preferKafka = false;\n        List<String> reasons = new ArrayList<>();\n        \n        if (req.throughput() == Throughput.HIGH) { preferKafka = true; reasons.add(\"High throughput → Kafka handles millions/sec\"); }\n        if (req.replayNeeded()) { preferKafka = true; reasons.add(\"Replay needed → Kafka retains messages (RabbitMQ deletes after ack)\"); }\n        if (req.multipleConsumers()) { preferKafka = true; reasons.add(\"Multiple consumers → Kafka consumer groups; RabbitMQ needs queue per consumer\"); }\n        if (!req.orderingRequired()) { /* both work */ }\n        \n        String system = preferKafka ? \"KAFKA\" : \"RABBITMQ\";\n        if (!preferKafka) reasons.add(\"Low throughput, single consumer, no replay → RabbitMQ simpler\");\n        \n        return system + \": \" + String.join(\" | \", reasons);\n    }\n    \n    public static void main(String[] args) {\n        // Audit logs:\n        System.out.println(\"Audit logs: \" + recommend(new Requirements(Throughput.MEDIUM, true, true, true)));\n        // Notification queue:\n        System.out.println(\"Notifications: \" + recommend(new Requirements(Throughput.HIGH, false, false, true)));\n        // Trade events:\n        System.out.println(\"Trade events: \" + recommend(new Requirements(Throughput.HIGH, true, true, true)));\n        // Simple task queue:\n        System.out.println(\"Task queue: \" + recommend(new Requirements(Throughput.LOW, false, false, false)));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["KAFKA", "RABBITMQ", "Trade events"] }
+      ],
+      "hints": [
+        "Kafka: replay, multiple independent consumers, high throughput",
+        "RabbitMQ: simple task queue, single consumer, message TTL after ack",
+        "Both handle ordering within a queue/partition"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m16_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Zerodha full Kafka topology — Topic 16.1 synthesis",
+      "scenario": "Design and document the complete event-driven Zerodha platform.",
+      "instructions": "Create the complete Kafka topology for Zerodha's trading platform:\n1. TradeEvent, MarketTickEvent, NotificationEvent, AuditEvent records (full fields)\n2. 4 Kafka topics defined as constants with partition/retention metadata\n3. Producer-consumer mapping as a documented class\n4. Throughput calculation: trade-events at 100K trades/hour, 5ms processing\n5. Hybrid architecture: sync (market quote, account verify) + async (everything else)\n6. main() proves all records are instantiable\n\nAll must compile.",
+      "starter_code": "// Complete Zerodha Kafka topology — Topic 16.1 synthesis\n",
+      "expected_solution": "import java.time.Instant;\nimport java.util.*;\n\n// ── EVENT RECORDS ────────────────────────────────────────────────\nrecord TradeEvent(\n    String eventId, String tradeId, String userId,\n    String symbol, int qty, double price,\n    String type,   // BUY/SELL\n    String status, // PLACED/EXECUTED/CANCELLED\n    String traceId, Instant timestamp\n) {}\n\nrecord MarketTickEvent(\n    String eventId, String symbol, double price,\n    double change, long volume, Instant timestamp\n) {}\n\nrecord NotificationEvent(\n    String eventId, String userId, String channel,\n    String template, Map<String,String> params, Instant timestamp\n) {}\n\nrecord AuditEvent(\n    String eventId, String userId, String action,\n    String resource, String sourceService,\n    String traceId, Instant timestamp\n) {}\n\n// ── TOPIC CONSTANTS ───────────────────────────────────────────────\nclass ZerodhaTopics {\n    // trade-events: 6 partitions, key=userId, 30-day retention\n    static final String TRADE_EVENTS    = \"zerodha.trade.events\";\n    // market-ticks: 24 partitions (one per sector), key=symbol, 1-day retention\n    static final String MARKET_TICKS    = \"zerodha.market.ticks\";\n    // notification-events: 3 partitions, no key, 1-day retention\n    static final String NOTIFICATIONS   = \"zerodha.notification.events\";\n    // audit-log: 6 partitions, key=userId, 365-day retention\n    static final String AUDIT_LOG       = \"zerodha.audit.log\";\n}\n\n// ── THROUGHPUT CALCULATION ────────────────────────────────────────\nclass ThroughputCalc {\n    static void calculate() {\n        int tradesPerHour = 100_000;\n        double processingMs = 5.0;\n        double msgPerSecPerConsumer = 1000.0 / processingMs;  // 200 msg/s\n        double msgPerHourPerConsumer = msgPerSecPerConsumer * 3600;  // 720,000\n        int consumersNeeded = (int) Math.ceil(tradesPerHour / msgPerHourPerConsumer); // 1\n        System.out.printf(\"trade-events: %d consumers needed, %d partitions minimum%n\",\n            consumersNeeded, Math.max(consumersNeeded * 2, 6));  // 2x headroom\n    }\n}\n\n// ── HYBRID ARCHITECTURE ───────────────────────────────────────────\nclass ZerodhaArchitecture {\n    /*\n    SYNC (REST/Feign — critical path, blocking):\n      order-svc → market-svc: GET current stock price\n      order-svc → account-svc: Verify margin & account status\n      order-svc → risk-svc: Check position limits\n\n    ASYNC (Kafka — side effects, non-blocking):\n      trade executed → zerodha.trade.events\n        ← portfolio-svc: update holdings\n        ← notification-svc: SMS 'TCS bought at ₹3890'\n        ← analytics-svc: update dashboards\n        ← tax-svc: calculate tax impact\n        ← audit-svc: compliance log\n\n    Result: trade API: ~120ms (3 sync calls)\n            Side effects: async in parallel\n    */\n}\n\npublic class ZerodhaKafkaSynthesis {\n    public static void main(String[] args) {\n        var trade = new TradeEvent(UUID.randomUUID().toString(), \"TRD-001\", \"U01\",\n            \"TCS\", 10, 3890.0, \"BUY\", \"EXECUTED\", \"abc123\", Instant.now());\n        var tick  = new MarketTickEvent(UUID.randomUUID().toString(), \"TCS\", 3890.0, 0.5, 100000L, Instant.now());\n        var notif = new NotificationEvent(UUID.randomUUID().toString(), \"U01\", \"SMS\",\n            \"TRADE_EXECUTED\", Map.of(\"symbol\",\"TCS\",\"qty\",\"10\"), Instant.now());\n        var audit = new AuditEvent(UUID.randomUUID().toString(), \"U01\", \"TRADE_PLACED\",\n            \"order\", \"order-service\", \"abc123\", Instant.now());\n\n        System.out.println(\"Topics: \" + ZerodhaTopics.TRADE_EVENTS + \", \"\n            + ZerodhaTopics.MARKET_TICKS);\n        System.out.println(\"Trade: \" + trade.symbol() + \" qty=\" + trade.qty());\n        ThroughputCalc.calculate();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["zerodha.trade.events", "TCS", "consumers needed"] }
+      ],
+      "hints": [
+        "200 msg/s per consumer × 3600s = 720K per hour; 100K/720K = 1 consumer (with headroom → 6 partitions)",
+        "SYNC = critical path (can't proceed without answer); ASYNC = side effects",
+        "All 4 records must have eventId (UUID) for idempotency"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 745,
+    "estimated_completion_minutes": 70
+  }
+}

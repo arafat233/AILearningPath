@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m2_t5_proj",
+  "linked_topic": "java_m2_t5",
+  "level": "mini",
+  "name": "Recursive Math Library",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  
+  "scenario": "You're building a 'pure math' utility library for a data science startup. The data scientists need recursively-defined mathematical functions: factorial, combinations, GCD, power, digit operations. They've specifically asked for recursive implementations because they want the code to MATCH the mathematical definitions — easier to verify mathematical correctness. Your job: build a comprehensive RecursiveMath utility class. After this project, you understand recursion deeply through varied applications.",
+  
+  "description": "Build a `RecursiveMath` class with multiple recursive methods covering common mathematical operations. Each method MUST use recursion (no loops). Each method demonstrates a different recursive pattern.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `RecursiveMath` in file RecursiveMath.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`factorial(int n)` — returns n! recursively",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`power(int base, int exponent)` — returns base^exponent recursively",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`gcd(int a, int b)` — returns greatest common divisor using Euclidean algorithm",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "`sumOfDigits(int n)` — returns sum of n's digits recursively",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`countDigits(int n)` — returns number of digits in n recursively",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "`isPalindrome(int n)` — returns true if n is a palindrome (e.g., 12321) — use sumOfDigits-like decomposition",
+        "weight": 15
+      },
+      {
+        "id": "req_9",
+        "description": "main() tests EVERY method with sample inputs and prints results",
+        "weight": 10
+      },
+      {
+        "id": "req_10",
+        "description": "NO loops anywhere — only recursion",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `fibonacci(int n)` with two base cases (n=0 returns 0, n=1 returns 1)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `isPrime(int n, int divisor)` — checks if n is prime by trying divisors recursively (starting at 2)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `multiply(int a, int b)` — multiplies WITHOUT using `*` operator (use repeated addition recursively)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add `combinations(int n, int r)` — returns C(n,r) = n! / (r! * (n-r)!). Uses factorial method.",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Demonstrate each method with these inputs:\n- factorial: 5, 10\n- power: 2^10, 3^5\n- gcd: (48, 36), (100, 75)\n- sumOfDigits: 12345, 9876\n- countDigits: 12345, 7\n- isPalindrome: 12321 (true), 12345 (false)\n\nBonus inputs:\n- fibonacci: 10\n- isPrime: 7, 9\n- multiply: 4 * 5\n- combinations: C(5, 2) = 10",
+  
+  "starter_code": "// Build your RecursiveMath class below\n// Every method MUST be recursive (no loops allowed)\n\npublic class RecursiveMath {\n    public static void main(String[] args) {\n        // Test every method\n        System.out.println(\"factorial(5) = \" + factorial(5));\n        // ... add tests for all required methods\n    }\n    \n    public static int factorial(int n) {\n        // TODO\n        return 0;\n    }\n    \n    // TODO: Define all other required methods\n}",
+  
+  "example_output": "===================================\n      RECURSIVE MATH LIBRARY\n===================================\nfactorial(5) = 120\nfactorial(10) = 3628800\npower(2, 10) = 1024\npower(3, 5) = 243\ngcd(48, 36) = 12\ngcd(100, 75) = 25\nsumOfDigits(12345) = 15\nsumOfDigits(9876) = 30\ncountDigits(12345) = 5\ncountDigits(7) = 1\nisPalindrome(12321) = true\nisPalindrome(12345) = false\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Required Methods Present",
+      "points": 50,
+      "criteria": [
+        "factorial implemented correctly (10 pts)",
+        "power implemented correctly (10 pts)",
+        "gcd implemented correctly (10 pts)",
+        "sumOfDigits implemented correctly (5 pts)",
+        "countDigits implemented correctly (5 pts)",
+        "isPalindrome implemented correctly (10 pts)"
+      ]
+    },
+    {
+      "category": "Recursion Quality",
+      "points": 25,
+      "criteria": [
+        "All methods are recursive — no loops (10 pts)",
+        "Base cases correctly identified (10 pts)",
+        "Recursive cases move toward base case (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration",
+      "points": 10,
+      "criteria": [
+        "main tests every method (5 pts)",
+        "Output is clear (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 55,
+      "criteria": [
+        "fibonacci with two base cases (10 pts)",
+        "isPrime recursive (15 pts)",
+        "multiply without * (15 pts)",
+        "combinations using factorial (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. Each method has a clear mathematical definition — translate the math to code. The trickiest one is isPalindrome — you might need a helper method or a clever approach. Think before coding.",
+  
+  "submission_instructions": "Save as RecursiveMath.java. Run it. Try inputs that would crash with iteration (factorial(20)) and try inputs that might crash with recursion (factorial(100000)). Push to GitHub portfolio.",
+  
+  "tips_for_success": [
+    "Write base case FIRST for every method. If you can't identify the base case, you don't understand the problem yet.",
+    "For each method, ask: 'how does this problem reduce to a smaller version of itself?'",
+    "For isPalindrome: reverse the number recursively, then compare original to reversed.",
+    "For countDigits: base case is n < 10 returns 1. Recursive: 1 + countDigits(n/10).",
+    "Trust the recursion — assume the recursive call works correctly. Don't trace 10 levels deep.",
+    "Test each method individually before adding the next. Build incrementally."
+  ],
+  
+  "concepts_reinforced": [
+    "Base case identification (different for each method)",
+    "Recursive case (different decomposition each time)",
+    "Helper methods (for power, isPrime, multiply with accumulators)",
+    "Two base cases (Fibonacci)",
+    "Two-parameter recursion (gcd, power, isPrime)",
+    "Mathematical thinking translated to code"
+  ],
+  
+  "what_youll_learn_by_doing_this": "After 7+ recursive methods, recursion stops feeling magical and starts feeling natural. You see that every method has the same structure: base case + smaller version of itself. The variety of problems shows recursion's range — it's not just for factorial. By the end, you can look at a recursive mathematical definition and translate it to Java in 30 seconds. This skill matters in DSA, in competitive programming, and in any algorithm-heavy work.",
+  
+  "extensions_for_advanced_learners": [
+    "Add memoization to fibonacci (cache results in a class-level array)",
+    "Implement an iterative version of EACH method side-by-side; compare line counts",
+    "Try huge inputs and observe when StackOverflowError occurs",
+    "Implement Ackermann function (extremely deep recursion)",
+    "Build mergesort recursively (preview of DSA module)"
+  ]
+}

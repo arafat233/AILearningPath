@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t5",
+  "module_id": "m34",
+  "topic_number": 5,
+  "name": "Hash Table Synthesis \u2014 LRU, Random Set, SnapshotArray",
+  "slug": "t5_hash_synthesis",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m34_t4"
+    ],
+    "concepts_taught": [
+      "t5_hash_synthesis"
+    ],
+    "career_relevance": "Core Hash Table Synthesis \u2014 LRU, Random Set, SnapshotArray patterns \u2014 critical for FAANG interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Hash Table Synthesis \u2014 LRU, Random Set, SnapshotArray"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "- **LRU Cache**: HashMap<key\u2192node> + DLL. O(1) get+put.\n- **LFU Cache**: HashMap<key\u2192val> + HashMap<key\u2192freq> + HashMap<freq\u2192LinkedHashSet>\n- **RandomizedSet**: HashMap<val\u2192index> + ArrayList<val>. O(1) insert/remove/random\n- **SnapshotArray**: List<TreeMap<snap_id,val>> per index. Binary search for snap.\n- **All O(1)**: the hallmark of HashMap-based designs\n- **RandomizedSet remove**: swap with last element in ArrayList \u2192 O(1) remove\n- **Insert-delete-getrand O(1)**: standard FAANG design question\n- **Design patterns**: HashMap for O(1) lookup; ArrayList for O(1) random access; DLL for O(1) reorder"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "- **LRU Cache**: HashMap<key\u2192node> + DLL. O(1) get+put.",
+        "- **LFU Cache**: HashMap<key\u2192val> + HashMap<key\u2192freq> + HashMap<freq\u2192LinkedHashSet>",
+        "- **RandomizedSet**: HashMap<val\u2192index> + ArrayList<val>. O(1) insert/remove/random",
+        "- **SnapshotArray**: List<TreeMap<snap_id,val>> per index. Binary search for snap.",
+        "- **All O(1)**: the hallmark of HashMap-based designs",
+        "- **RandomizedSet remove**: swap with last element in ArrayList \u2192 O(1) remove"
+      ],
+      "next_topic_preview": "Next topic"
+    }
+  }
+}

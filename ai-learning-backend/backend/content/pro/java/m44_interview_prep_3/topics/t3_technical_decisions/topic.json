@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m44_t3",
+  "module_id": "m44",
+  "topic_number": 3,
+  "name": "Technical Decision and Architecture Stories",
+  "slug": "technical-decisions",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m43_t5"
+    ],
+    "concepts_taught": [
+      "technical-decisions"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Technical Decision and Architecture Stories"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Tradeoff language: 'We chose X over Y because Z, accepting trade-off W'",
+        "Performance stories: profile\u2192measure\u2192implement\u2192validate. Always in that order.",
+        "Build vs buy: cost/time/control/maintenance framework",
+        "Technical debt: quantify cost of inaction; propose incremental paydown",
+        "Architecture stories: show you understand system-level impact of decisions",
+        "Data-driven: always back technical decisions with measurements"
+      ],
+      "next_topic_preview": "Next: Career narrative."
+    }
+  }
+}

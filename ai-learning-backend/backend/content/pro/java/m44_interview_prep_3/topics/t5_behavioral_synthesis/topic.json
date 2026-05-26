@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m44_t5",
+  "module_id": "m44",
+  "topic_number": 5,
+  "name": "Behavioral Synthesis \u2014 Full Practice Rounds",
+  "slug": "behavioral-synthesis",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m43_t5"
+    ],
+    "concepts_taught": [
+      "behavioral-synthesis"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Behavioral Synthesis \u2014 Full Practice Rounds"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Map your 5 stories to 30+ potential questions \u2014 one story, many applications",
+        "Leadership principles: Amazon 14, Flipkart equivalents \u2014 know which ones are weighted",
+        "Practice aloud: recording > writing. Timing matters: 2-3 min each, not 5+",
+        "After answer: pivot to this role \u2014 'This is why I'm excited about [company]'",
+        "Research: read company blog, recent news, team structure before interview",
+        "'Tell me about yourself' is your brand statement \u2014 make it compelling and specific"
+      ],
+      "next_topic_preview": "Module 44 done! Next: M45 Mock Interviews."
+    }
+  }
+}

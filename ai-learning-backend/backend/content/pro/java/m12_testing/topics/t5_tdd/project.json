@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m12_t5_proj",
+  "linked_topic": "java_m12_t5",
+  "level": "mini",
+  "name": "Payment Rules Engine — Built with Full TDD",
+  "estimated_minutes": 55,
+  "difficulty": 8,
+
+  "scenario": "Build a payment rules engine from scratch using strict TDD discipline. The engine processes payment requests and applies business rules: fraud detection, limit checks, fee calculation, and retry logic. Every class and method is written after a failing test. No production code without a test.",
+
+  "description": "Students build PaymentRulesEngine test-first, showing each TDD cycle explicitly: the failing test, the minimum implementation, and the refactor step where needed. The final system has full test coverage because tests drove every line of production code.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "At least 6 TDD cycles documented in comments: `// RED: test name`, `// GREEN: implementation`, `// REFACTOR: description`. Each cycle adds one behaviour to PaymentRulesEngine.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "Tests cover all rules: (1) valid payment accepted, (2) amount <= 0 → REJECTED, (3) amount > 100000 → REQUIRES_REVIEW, (4) fraudScore > 0.8 → BLOCKED, (5) daily limit exceeded → REJECTED, (6) fee calculation (1% of amount, min ₹10).",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "Triangulation demonstrated: at least two boundary tests for the amount limit rule (99999 → ACCEPTED, 100000 → REQUIRES_REVIEW, 100001 → REQUIRES_REVIEW).",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Exception test included: null PaymentRequest throws NullPointerException before any processing.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "At least one Refactor step shown: code improved between two cycles without changing behavior (rename, extract method, remove duplication). Tests must remain GREEN before and after.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "All tests pass. No production code exists without a corresponding test.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add retry logic with TDD: PaymentRulesEngine.processWithRetry(request, maxRetries) — if first attempt returns REQUIRES_REVIEW, retry up to maxRetries times. Write failing test, implement, triangulate.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add accumulator with TDD: track daily totals per user (Map). processDailyLimit(userId, amount) — fails if would exceed ₹500,000 daily limit. Three test cycles: under limit, at limit, over limit.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a parameterized test (@CsvSource) that validates all boundary values for the amount limit in one test method. Demonstrate that TDD + parameterized tests work well together.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Payment rules:\n- amount <= 0 → REJECTED (invalid)\n- amount > 100,000 → REQUIRES_REVIEW (large transaction)\n- fraudScore > 0.8 → BLOCKED (fraud detected)\n- User has exceeded daily limit → REJECTED\n- Otherwise → ACCEPTED\n\nFee: max(amount × 0.01, 10.0)\n\nTest data:\nSmall payment: amount=500, fraudScore=0.2 → ACCEPTED, fee=10.0\nLarge payment: amount=150000, fraudScore=0.3 → REQUIRES_REVIEW, fee=1500.0\nFraud: amount=5000, fraudScore=0.9 → BLOCKED\nLimit exceeded: amount=1000, user at limit → REJECTED",
+
+  "starter_code": "// Build everything test-first!\n// Show each TDD cycle:\n\n// ==================\n// CYCLE 1\n// ==================\n// RED: Write this test first:\n// @Test\n// void process_validSmallPayment_isAccepted() { ... }\n\n// GREEN: Write minimum code to pass it:\n// class PaymentRulesEngine { ... }\n\n// CYCLE 2, 3, 4... continue\n\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n// Your tests here:\nclass PaymentRulesEngineTest {\n}\n\n// Your production code here (built cycle by cycle):\nrecord PaymentRequest(String userId, double amount, double fraudScore) {}\nrecord PaymentDecision(String status, String reason, double fee) {}\nclass PaymentRulesEngine { \n    // Build this method-by-method, test first\n    PaymentDecision process(PaymentRequest req) { return null; }\n}",
+
+  "example_output": "// === TDD SESSION LOG ===\n// CYCLE 1 - RED → GREEN\n// Test: validPayment_accepted\n// Implementation: always return ACCEPTED (minimum!)\n\n// CYCLE 2 - RED → GREEN\n// Test: zeroAmount_rejected\n// Implementation: add null/zero check\n\n// CYCLE 3 - RED → GREEN + REFACTOR\n// Test: fraudScore09_blocked\n// Implementation: add fraud check\n// REFACTOR: extract validateAmount() method\n\n// ... 3 more cycles ...\n\n// ALL TESTS:\n✓ validSmallPayment_accepted_withMinFee\n✓ zeroAmount_rejected\n✓ negativeAmount_rejected\n✓ largeAmount_requiresReview\n✓ boundaryAmount_99999_accepted\n✓ boundaryAmount_100000_requiresReview\n✓ highFraudScore_blocked\n✓ feeCalculation_1percent\n✓ feeCalculation_belowMinimum_useMinFee\n✓ nullRequest_throwsNPE\n\n10 tests passed, 0 failed",
+
+  "rubric": [
+    { "category": "TDD Cycles Documented", "points": 20, "criteria": ["6+ RED/GREEN/REFACTOR comments (20 pts)"] },
+    { "category": "All 6 Rules Tested", "points": 25, "criteria": ["Each rule has its own test (25 pts)"] },
+    { "category": "Triangulation", "points": 15, "criteria": ["Boundary values for amount limit (15 pts)"] },
+    { "category": "Exception Test", "points": 10, "criteria": ["null → NPE tested and implemented (10 pts)"] },
+    { "category": "Refactor Shown", "points": 10, "criteria": ["One refactor step documented and safe (10 pts)"] },
+    { "category": "All Tests Pass", "points": 20, "criteria": ["10+ tests all GREEN (20 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Retry logic TDD (20 pts)", "Daily accumulator (25 pts)", "Parameterized boundary (20 pts)"] }
+  ],
+
+  "ai_policy": "no_ai",
+  "ai_policy_explanation": "Module 12 capstone — no AI. TDD is a discipline, not just a technique. Each cycle must be documented. Key reminder: Green phase = minimum code. If you can return a hardcoded value and pass the test, do that — then triangulate. Don't skip to the final implementation.",
+
+  "submission_instructions": "Save as PaymentRulesEngineTest.java + PaymentRulesEngine.java. Push to GitHub with commit message: 'Module 12 TDD capstone: payment rules engine'. The commit history ideally shows one commit per TDD cycle.",
+
+  "tips_for_success": [
+    "Start with the simplest possible test: valid payment → ACCEPTED",
+    "Minimum GREEN: return new PaymentDecision('ACCEPTED', 'OK', 10.0) — hardcoded!",
+    "Second test: zero amount → REJECTED. This forces the real if-else",
+    "Boundary triangulation: test 99999 AND 100000 — they must return different statuses",
+    "Fee: Math.max(amount * 0.01, 10.0) — test both above and below the ₹10 minimum"
+  ],
+
+  "concepts_reinforced": [
+    "Red-Green-Refactor cycle",
+    "Write test before code — always",
+    "Minimum code in Green phase",
+    "Triangulation for boundary logic",
+    "Refactor in Green zone",
+    "Exception paths tested first-class"
+  ]
+}

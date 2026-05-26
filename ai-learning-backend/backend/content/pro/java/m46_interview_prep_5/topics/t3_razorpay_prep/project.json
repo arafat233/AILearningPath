@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m46_t3_proj",
+  "linked_topic": "java_m46_t3",
+  "level": "mini",
+  "name": "Razorpay Preparation \u2014 Payments, Reliability, Compliance",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  "scenario": "Build Razorpay Preparation \u2014 Payments, Reliability, Compliance.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "All exercises.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 timed sessions.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "Reflection.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Peer review.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Company research: read their tech blog, know their products, understand their scale. Tailor your STAR stories to their specific challenges. Know what you'd work on in the first 90 days.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Timed",
+      "points": 35
+    },
+    {
+      "category": "Reflection",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

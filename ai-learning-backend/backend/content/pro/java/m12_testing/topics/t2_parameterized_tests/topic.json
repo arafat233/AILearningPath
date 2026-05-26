@@ -1,0 +1,181 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t2",
+  "language": "java",
+  "module_id": "m12",
+  "module_name": "Unit Testing with JUnit 5",
+  "topic_number": 2,
+  "name": "Parameterized Tests and Edge Cases",
+  "slug": "parameterized-tests-edge-cases",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m12_t1"],
+    "concepts_taught": [
+      "parameterized_test_annotation",
+      "value_source",
+      "csv_source",
+      "method_source",
+      "enum_source",
+      "null_and_empty_source",
+      "arguments_provider",
+      "boundary_value_testing",
+      "equivalence_partitioning",
+      "null_edge_case_testing",
+      "empty_collection_edge_cases",
+      "min_max_boundary_values"
+    ],
+    "skills_developed": [
+      "writing_parameterized_tests",
+      "testing_boundary_values",
+      "testing_null_and_empty_inputs",
+      "systematic_equivalence_partitioning",
+      "reducing_test_duplication_with_parameters"
+    ],
+    "career_relevance": "Parameterized tests are how professional teams achieve thorough test coverage efficiently. Instead of writing 10 identical test methods that differ only in input, you write one test that runs against 10 inputs. This is how boundary bugs are caught — the off-by-one in a discount tier, the null handling in a parser, the empty-list edge case in a search. After this topic, your tests are exhaustive without being repetitive.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You're testing a discount calculator:\n\n```java\ndouble getDiscount(int qty) {\n    if (qty >= 50) return 0.20;\n    if (qty >= 10) return 0.10;\n    return 0.0;\n}\n```\n\nNaive approach — four separate tests, almost identical:\n```java\n@Test void qty1_noDiscount()  { assertEquals(0.0,  calc.getDiscount(1));  }\n@Test void qty9_noDiscount()  { assertEquals(0.0,  calc.getDiscount(9));  }\n@Test void qty10_10percent()  { assertEquals(0.10, calc.getDiscount(10)); }\n@Test void qty50_20percent()  { assertEquals(0.20, calc.getDiscount(50)); }\n```\n\nBut wait — what about qty=0? qty=-1? qty=49? qty=51? qty=Integer.MAX_VALUE?\n\n**The professional approach — one parameterized test:**\n```java\n@ParameterizedTest\n@CsvSource({\n    \"1,  0.00\",  // below threshold\n    \"9,  0.00\",  // boundary - 1\n    \"10, 0.10\",  // boundary exactly\n    \"11, 0.10\",  // boundary + 1\n    \"49, 0.10\",  // second boundary - 1\n    \"50, 0.20\",  // second boundary exactly\n    \"51, 0.20\",  // second boundary + 1\n    \"100,0.20\"   // well above\n})\nvoid getDiscount_variousQuantities_returnsCorrectDiscount(int qty, double expected) {\n    assertEquals(expected, calc.getDiscount(qty), 0.001);\n}\n```\n\nEight test cases. One test method. Every boundary covered. Every off-by-one would be caught. This is parameterized testing.",
+    "what_you_will_build": "By the end of this topic, you'll use @ValueSource, @CsvSource, @MethodSource, @NullAndEmptySource, and @EnumSource to run tests against many inputs, systematically test boundary values and edge cases, and write exhaustive test coverage without duplication."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "value_source": "**`@ValueSource` — single values of one type:**\n\n```java\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n// Test a single int parameter:\n@ParameterizedTest\n@ValueSource(ints = {1, 9, 10, 49, 50, 100})\nvoid getDiscount_variousQtys_returnExpected(int qty) {\n    // One test method, 6 executions\n    double result = calc.getDiscount(qty);\n    assertTrue(result >= 0 && result <= 1.0, \"Discount must be between 0 and 1\");\n}\n\n// String inputs:\n@ParameterizedTest\n@ValueSource(strings = {\"Aisha\", \"Raj\", \"Priya\", \"Vikram\"})\nvoid greet_anyName_returnsHello(String name) {\n    assertTrue(greeter.greet(name).startsWith(\"Hello, \"));\n}\n\n// Other supported types:\n@ValueSource(longs  = {1L, 100L, Long.MAX_VALUE})\n@ValueSource(doubles = {0.1, 1.0, 99.9})\n@ValueSource(booleans = {true, false})\n@ValueSource(chars  = {'a', 'z', '0', ' '})\n@ValueSource(classes = {String.class, Integer.class})\n```",
+
+      "csv_source": "**`@CsvSource` — multiple parameters per test:**\n\n```java\n// Multiple columns: 'input, expected'\n@ParameterizedTest\n@CsvSource({\n    \"Mouse,       799, true\",\n    \"Keyboard,   1999, true\",\n    \"'',          799, false\",   // empty string — use single quotes in CSV\n    \"Monitor,       0, false\",   // zero price\n    \"Headphones, -100, false\"    // negative price\n})\nvoid isValidProduct_variousInputs(String name, int price, boolean expected) {\n    assertEquals(expected, validator.isValid(new Product(name, price)));\n}\n\n// Null values in CsvSource:\n@ParameterizedTest\n@CsvSource(value = {\n    \"Aisha, 28\",\n    \"Raj,   25\",\n    \", 28\"    // first param will be null\n})\nvoid processUser_variousInputs(String name, int age) {\n    // name is null in the third case\n    assertDoesNotThrow(() -> userService.process(name, age));\n}\n\n// @CsvFileSource for reading from a file:\n@ParameterizedTest\n@CsvFileSource(resources = \"/test-data.csv\", numLinesToSkip = 1)\nvoid loadFromFile(String input, String expected) { ... }\n```",
+
+      "method_source": "**`@MethodSource` — complex objects and streams:**\n\n```java\nimport java.util.stream.Stream;\nimport org.junit.jupiter.params.provider.Arguments;\n\n@ParameterizedTest\n@MethodSource(\"validProducts\")  // method name in same class\nvoid processProduct_validInputs_succeeds(Product product) {\n    assertDoesNotThrow(() -> service.process(product));\n}\n\n// Supplier method — must be static, returns Stream:\nstatic Stream<Product> validProducts() {\n    return Stream.of(\n        new Product(\"Mouse\",     799),\n        new Product(\"Keyboard\", 1999),\n        new Product(\"Monitor\", 18999)\n    );\n}\n\n// Multiple arguments — use Arguments.of():\n@ParameterizedTest\n@MethodSource(\"discountScenarios\")\nvoid getDiscount_scenarios(int qty, double expected, String description) {\n    assertEquals(expected, calc.getDiscount(qty), 0.001, description);\n}\n\nstatic Stream<Arguments> discountScenarios() {\n    return Stream.of(\n        Arguments.of(1,  0.00, \"no discount below 10\"),\n        Arguments.of(10, 0.10, \"10% at boundary\"),\n        Arguments.of(50, 0.20, \"20% at boundary\")\n    );\n}\n```",
+
+      "null_empty_source": "**`@NullAndEmptySource` — null and empty inputs:**\n\n```java\n// Most methods should handle null/empty gracefully:\n@ParameterizedTest\n@NullAndEmptySource  // runs twice: once with null, once with empty string\nvoid search_nullOrEmpty_returnsEmptyList(String query) {\n    List<Product> result = search.find(query);\n    assertNotNull(result);\n    assertTrue(result.isEmpty());\n}\n\n// Combine with @ValueSource:\n@ParameterizedTest\n@NullAndEmptySource\n@ValueSource(strings = {\" \", \"  \", \"\\t\"})  // blank strings too\nvoid search_blankInput_returnsEmptyList(String query) {\n    assertTrue(search.find(query).isEmpty());\n}\n```",
+
+      "enum_source": "**`@EnumSource` — test against enum values:**\n\n```java\nenum PaymentMethod { CARD, UPI, NET_BANKING, WALLET }\n\n// Test all enum values:\n@ParameterizedTest\n@EnumSource(PaymentMethod.class)\nvoid processPayment_allMethods_returnsSuccess(PaymentMethod method) {\n    PaymentResult result = processor.process(100.0, method);\n    assertEquals(\"SUCCESS\", result.status());\n}\n\n// Test specific values only:\n@ParameterizedTest\n@EnumSource(value = PaymentMethod.class, names = {\"CARD\", \"UPI\"})\nvoid processPayment_onlineMethod_chargesFee(PaymentMethod method) {\n    assertTrue(processor.getFee(method) > 0);\n}\n\n// Exclude specific values:\n@ParameterizedTest\n@EnumSource(value = PaymentMethod.class, names = {\"WALLET\"}, mode = EnumSource.Mode.EXCLUDE)\nvoid processPayment_nonWallet_requiresAuth(PaymentMethod method) {\n    assertTrue(processor.requiresAuthentication(method));\n}\n```",
+
+      "boundary_value_testing": "**Boundary value analysis — the systematic approach:**\n\nFor any range `[min, max]`, test: below min, at min, just above min, middle, just below max, at max, above max.\n\n```java\n// Discount rule: qty < 10 → 0%, qty >= 10 → 10%, qty >= 50 → 20%\n// Boundaries: 10 and 50\n// Test: 9 (below), 10 (at), 11 (above), 49 (below), 50 (at), 51 (above)\n\n@ParameterizedTest\n@CsvSource({\n    \"0,  0.00\",   // zero\n    \"1,  0.00\",   // just above zero\n    \"9,  0.00\",   // boundary 1 - 1\n    \"10, 0.10\",   // boundary 1 exactly\n    \"11, 0.10\",   // boundary 1 + 1\n    \"49, 0.10\",   // boundary 2 - 1\n    \"50, 0.20\",   // boundary 2 exactly\n    \"51, 0.20\",   // boundary 2 + 1\n    \"-1, 0.00\"    // below zero (or should throw)\n})\nvoid discount_boundaryValues(int qty, double expected) {\n    assertEquals(expected, calc.getDiscount(qty), 0.001);\n}\n\n// Equivalence partitioning: group inputs with the same expected behaviour:\n// Partition 1: qty < 10 → 0% (test any value: 1, 5, 9)\n// Partition 2: 10 <= qty < 50 → 10% (test: 10, 25, 49)\n// Partition 3: qty >= 50 → 20% (test: 50, 75, 100)\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) @CsvSource structure: table with header row (param1 | param2 | expected) and 5 data rows, arrow pointing to one test method with those parameters. JUnit expands to 5 test runs shown as 5 green check marks. (2) Boundary value diagram: number line showing 0→9 (no discount zone), 10→49 (10% zone), 50+ (20% zone). Red X marks at: 9, 10, 49, 50 labeled as boundary values to test. Green check marks at: 1 (middle of zone 1), 25 (middle of zone 2), 75 (middle of zone 3). (3) @MethodSource: static method returning Stream<Arguments> arrow into @ParameterizedTest, which fans out to N test executions.",
+      "alt_text": "CsvSource table to parameterized test, boundary value zones on number line, MethodSource stream to test executions"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Test an `OrderValidator` class that validates Flipkart-style orders. Uses @CsvSource for multiple input combinations, @MethodSource for complex Product objects, @NullAndEmptySource for null handling, and boundary value analysis for quantity limits.",
+
+    "problem_statement": "Test `OrderValidator.validate(Order order)` which validates:\n- Order must not be null\n- Product name must not be blank\n- Quantity must be 1–999\n- Price must be > 0 and < 1,000,000\n- For quantity >= 10, a discount tier must be specified",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Class under test",
+        "details": "```java\nrecord Order(String productName, int qty, double price, String discountTier) {}\n\nclass OrderValidator {\n    void validate(Order order) {\n        if (order == null) throw new NullPointerException(\"Order cannot be null\");\n        if (order.productName() == null || order.productName().isBlank())\n            throw new IllegalArgumentException(\"Product name cannot be blank\");\n        if (order.qty() < 1 || order.qty() > 999)\n            throw new IllegalArgumentException(\"Qty must be 1-999, got: \" + order.qty());\n        if (order.price() <= 0 || order.price() >= 1_000_000)\n            throw new IllegalArgumentException(\"Invalid price: \" + order.price());\n        if (order.qty() >= 10 && (order.discountTier() == null || order.discountTier().isBlank()))\n            throw new IllegalArgumentException(\"Discount tier required for qty >= 10\");\n    }\n    boolean isValid(Order order) {\n        try { validate(order); return true; } catch (Exception e) { return false; }\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "@CsvSource for valid/invalid combinations",
+        "details": "```java\n@ParameterizedTest(name = \"[{index}] {0} qty={1} price={2} → valid={4}\")\n@CsvSource({\n    \"Mouse,     1,    799,   '',  true\",   // minimum valid\n    \"Keyboard, 10,   1999, BULK, true\",    // needs discount tier\n    \"Monitor,  50,  18999, BULK, true\",    // higher bulk\n    \"'',        1,    799,   '',  false\",  // blank name\n    \"Mouse,     0,    799,   '',  false\",  // zero qty\n    \"Mouse,  1000,    799,   '',  false\",  // qty too high\n    \"Mouse,     1,      0,   '',  false\",  // zero price\n    \"Mouse,    10,    799,   '',  false\"   // bulk without tier\n})\nvoid isValid_csvCases(String name, int qty, double price,\n                       String tier, boolean expected) {\n    Order order = new Order(name, qty, price, tier.isBlank() ? null : tier);\n    assertEquals(expected, validator.isValid(order));\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Boundary values for quantity",
+        "details": "```java\n@ParameterizedTest(name = \"qty={0} should be valid={1}\")\n@CsvSource({\n    \"0,   false\",  // below minimum\n    \"1,   true\",   // at minimum\n    \"2,   true\",   // above minimum\n    \"998, true\",   // below maximum\n    \"999, true\",   // at maximum\n    \"1000,false\"   // above maximum\n})\nvoid validate_qtyBoundaryValues(int qty, boolean expected) {\n    Order order = new Order(\"Mouse\", qty, 799, qty >= 10 ? \"BULK\" : null);\n    assertEquals(expected, validator.isValid(order));\n}\n```"
+      }
+    ],
+
+    "final_code": "import org.junit.jupiter.api.*;\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\n\nrecord Order(String productName, int qty, double price, String discountTier) {}\nclass OrderValidator {\n    void validate(Order o) {\n        if (o == null) throw new NullPointerException(\"Order cannot be null\");\n        if (o.productName() == null || o.productName().isBlank())\n            throw new IllegalArgumentException(\"Product name blank\");\n        if (o.qty() < 1 || o.qty() > 999)\n            throw new IllegalArgumentException(\"Qty out of range: \" + o.qty());\n        if (o.price() <= 0 || o.price() >= 1_000_000)\n            throw new IllegalArgumentException(\"Invalid price: \" + o.price());\n        if (o.qty() >= 10 && (o.discountTier() == null || o.discountTier().isBlank()))\n            throw new IllegalArgumentException(\"Discount tier required for qty >= 10\");\n    }\n    boolean isValid(Order o) {\n        try { validate(o); return true; } catch (Exception e) { return false; }\n    }\n}\n\nclass OrderValidatorTest {\n    OrderValidator validator = new OrderValidator();\n    \n    @ParameterizedTest @CsvSource({\n        \"Mouse,     1,  799,   '',  true\",\n        \"Keyboard, 10, 1999, BULK, true\",\n        \"'',        1,  799,   '',  false\",\n        \"Mouse,     0,  799,   '',  false\",\n        \"Mouse,  1000,  799,   '',  false\",\n        \"Mouse,     1,    0,   '',  false\",\n        \"Mouse,    10,  799,   '',  false\"\n    })\n    void isValid_csvCases(String name, int qty, double price,\n                           String tier, boolean expected) {\n        Order o = new Order(name, qty, price, tier.isBlank() ? null : tier);\n        assertEquals(expected, validator.isValid(o));\n    }\n    \n    @ParameterizedTest @CsvSource({\"0,false\",\"1,true\",\"2,true\",\"998,true\",\"999,true\",\"1000,false\"})\n    void validate_qtyBoundary(int qty, boolean expected) {\n        Order o = new Order(\"Mouse\", qty, 799, qty >= 10 ? \"BULK\" : null);\n        assertEquals(expected, validator.isValid(o));\n    }\n    \n    @ParameterizedTest @NullAndEmptySource\n    void validate_nullOrEmptyProductName_fails(String name) {\n        assertFalse(validator.isValid(new Order(name, 1, 799, null)));\n    }\n    \n    @Test\n    void validate_nullOrder_throwsNPE() {\n        assertThrows(NullPointerException.class, () -> validator.validate(null));\n    }\n}",
+
+    "expected_output": "Test Results:\n✓ isValid_csvCases (7 cases)\n✓ validate_qtyBoundary (6 cases)\n✓ validate_nullOrEmptyProductName_fails (2 cases — null and empty)\n✓ validate_nullOrder_throwsNPE\n\n16 test executions, all passed",
+
+    "things_to_notice": [
+      "@ParameterizedTest expands to N individual test executions — each shows in the test report separately. If case 5 fails, JUnit tells you exactly which input caused it.",
+      "@CsvSource uses comma as separator. If a field itself contains a comma, wrap it in single quotes: `'Smith, John'`. Empty strings in CSV: `''` (two single quotes).",
+      "@NullAndEmptySource is two executions: one with null, one with empty string `\"\"`. It's shorthand for `@ValueSource(strings = {null, \"\"})`. Combine with @ValueSource(strings = {\" \", \"  \"}) for blank strings too.",
+      "The parameterized test name: `@ParameterizedTest(name = \"[{index}] qty={0}\")` makes the test report say 'qty=10' instead of '[2]'. {0} refers to the first parameter, {1} to the second, etc. Clear names help when a specific case fails.",
+      "Boundary value testing (0, 1, 998, 999, 1000 for a 1-999 range) catches off-by-one errors that are extremely common in production code. The boundary values ALWAYS catch if a developer wrote `> 999` instead of `>= 1000`."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment amount validation",
+        "use_case": "Razorpay's API validates payment amounts in paise (₹1 = 100 paise). A @CsvSource test covers: 0 (invalid), 1 (minimum valid), 100 (₹1), 100000000 (₹10 lakh — maximum), 100000001 (above max — invalid), -1 (negative). Six cases, one test method. Every boundary covered. The off-by-one in the maximum check would be caught immediately."
+      },
+      {
+        "company_context": "Flipkart product search",
+        "use_case": "@NullAndEmptySource + @ValueSource(strings = {\" \", \"\\t\"}) tests that blank searches return empty results gracefully instead of throwing or returning random products. @MethodSource provides complex Product objects for filter tests. @CsvSource maps category + price range → expected result count. These tests run on every commit."
+      },
+      {
+        "company_context": "GST rate calculation",
+        "use_case": "India has multiple GST slabs: 0%, 5%, 12%, 18%, 28%. @EnumSource(GSTCategory.class) tests that every category maps to a valid rate. @CsvSource tests that the correct rate is applied for each category. Boundary tests verify that the rate changes exactly at category boundaries, not one item off."
+      }
+    ],
+
+    "interview_relevance": "Parameterized testing questions in senior interviews:\n\n- **'How do you test boundary values?'** — Test: just below boundary, at boundary exactly, just above boundary. For 1-999 range: 0, 1, 2, 998, 999, 1000.\n- **'How do you avoid writing the same test 10 times?'** → @ParameterizedTest with @CsvSource — one test method, many inputs.\n- **'What is equivalence partitioning?'** → Group inputs that produce the same output (partition). Test one input from each partition. Boundaries between partitions are critical.\n- **'How do you test null handling?'** → @NullAndEmptySource + assertDoesNotThrow or assertThrows.",
+
+    "real_world_workflow": "Daily parameterized testing patterns:\n\n- Input validation: @CsvSource with valid/invalid values + expected boolean\n- Boundary analysis: @ValueSource with n-1, n, n+1 at each boundary\n- Null/empty: @NullAndEmptySource on any method accepting String\n- Complex objects: @MethodSource returning Stream<Arguments>\n- All enum values: @EnumSource for exhaustive enum coverage"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "csvSource_comma_in_field",
+      "what_students_get_wrong": "Writing `\"Smith, John\",95000` in @CsvSource — the comma inside Smith, John splits it into two fields.",
+      "remediation": "Use single quotes for fields containing commas: `\"'Smith, John',95000\"`. Single quotes inside @CsvSource strings wrap a field that contains the CSV delimiter.",
+      "detection_pattern": "Too many parameters error; parameter types don't match"
+    },
+    {
+      "gap_id": "missing_null_in_valueSource",
+      "what_students_get_wrong": "Using @ValueSource(strings = {\"a\", \"b\"}) and forgetting null is a valid input — missing null test coverage.",
+      "remediation": "Add @NullAndEmptySource alongside @ValueSource, or use @ValueSource with `{null, \"\", \"valid\"}` (null literal allowed). Never assume callers won't pass null — always test null explicitly.",
+      "detection_pattern": "NullPointerException in production from null input that wasn't tested"
+    },
+    {
+      "gap_id": "too_few_boundary_values",
+      "what_students_get_wrong": "Testing only one value from each partition instead of at boundaries — missing the exact boundary value.",
+      "remediation": "For every rule `qty >= N`, test N-1 (fails), N (passes), N+1 (passes). For `qty < M`, test M-1 (passes), M (fails), M+1 (fails). The boundary value itself is the most likely bug location.",
+      "detection_pattern": "Test passes with value 11 but would fail at exactly 10 (or vice versa)"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@ParameterizedTest: one test method, N executions with different inputs",
+      "@ValueSource: single parameter of one type (int, String, double...)",
+      "@CsvSource: multiple parameters per row; use single quotes for comma-containing fields",
+      "@MethodSource: complex objects; static method returning Stream<Arguments>",
+      "@NullAndEmptySource: two executions — null and empty string",
+      "@EnumSource: one execution per enum value (or subset)",
+      "Boundary value analysis: test n-1, n, n+1 at every boundary",
+      "Equivalence partitioning: one test per partition; test boundaries between partitions",
+      "Always test null inputs on methods that accept reference types",
+      "Empty collection and empty string are different edge cases from null",
+      "@ParameterizedTest(name = '...{0}...') for readable test names in reports"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A method accepts `String city`. What inputs should you test with @NullAndEmptySource and @ValueSource combined?",
+        "answer": "Use both annotations together: null (NullAndEmptySource), empty string '' (NullAndEmptySource), ' ' (single space — ValueSource), 'Hyderabad' (valid, ValueSource), 'New Delhi' (space in name), 'Mumbai' (valid). These cover: null reference, empty string, blank string, normal input, input with special characters. All should be handled gracefully — either processed correctly or throwing a clear exception."
+      },
+      {
+        "question": "For a discount rule 'GOLD if spending > ₹10,000, SILVER if > ₹5,000, BRONZE otherwise', what are the boundary values to test?",
+        "answer": "At boundary 5000: test 4999 (BRONZE), 5000 (SILVER — careful: > not >=), 5001 (SILVER). At boundary 10000: test 9999 (SILVER), 10000 (SILVER — still <= 10000), 10001 (GOLD). Plus: 0 (minimum), 1 (just above 0), negative (should it throw?), very large value (Integer.MAX_VALUE). @CsvSource handles all 8+ cases in one test method."
+      },
+      {
+        "question": "When would you use @MethodSource instead of @CsvSource?",
+        "answer": "@MethodSource when: (1) parameters are complex objects that can't be expressed as strings (e.g., a Product record with nested objects), (2) test data is computed programmatically (e.g., all pairs from a list), (3) the same data source is reused across test methods, (4) you need more than a few parameters and the CSV string would become unreadable. @CsvSource is simpler and preferred for basic primitive/string parameters. @MethodSource is more powerful but more verbose."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Mocking with Mockito** — unit tests should test ONE class in isolation. But most classes depend on others (a service calls a repository, a controller calls a service). Mockito creates fake implementations of dependencies that return controlled values. `when(repo.findById('U01')).thenReturn(Optional.of(user))` — no real database needed. After Topic 12.3, you test any class in isolation regardless of its dependencies."
+  }
+}

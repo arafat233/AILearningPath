@@ -1,0 +1,315 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m42_t1",
+  "topic_name": "Interview Mindset",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m42_t1_ex_1",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "The 5 minutes before you code",
+      "instructions": "What should you do in the first 5 minutes of a coding interview before writing any code?",
+      "expected_solution": "5 minutes before coding:\n1. CLARIFY the problem (2 min):\n   - Restate in your own words: 'So I need to...'\n   - Ask about input constraints: size, range, null/empty?\n   - Ask about edge cases: duplicates? negative numbers?\n   - Ask about expected output format\n\n2. EXAMPLES (1 min):\n   - Walk through the given example\n   - Create your own example (small, simple)\n   - Think about edge cases\n\n3. APPROACH (2 min):\n   - State your approach BEFORE coding: 'I'm thinking of using...'\n   - State time and space complexity\n   - Get buy-in: 'Does this approach make sense?'\n   - Consider alternatives if time allows\n\nWhy this matters: Interviewers evaluate your THINKING not just code.\nCoding the wrong solution perfectly = worse than coding the right solution slowly.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "5 minutes before coding:\n1. CLARIFY the problem (2 min):\n   - Restate in your own words: 'So I need to...'\n   - Ask about input constraints: size, range, null/empty?\n   - Ask about edge cases: duplicates? negative numbers?\n   - Ask about expected output format\n\n2. EXAMPLES (1 min):\n   - Walk through the given example\n   - Create your own example (small, simple)\n   - Think about edge cases\n\n3. APPROACH (2 min):\n   - State your approach BEFORE coding: 'I'm thinking of using...'\n   - State time and space complexity\n   - Get buy-in: 'Does this approach make sense?'\n   - Consider alternatives if time allows\n\nWhy this matters: Interviewers evaluate your THINKING not just code.\nCoding the wrong solution perfectly = worse than coding the right solution slowly."
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m42_t1_ex_2",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "Complexity communication script",
+      "instructions": "Write a 30-second script you would say aloud to communicate the time/space complexity of your solution.",
+      "expected_solution": "Complexity communication script (30 seconds):\n\n'Let me analyze the complexity of this solution.\n\nTime complexity: This is O(n log n) because we sort the array once which takes O(n log n),\nand then we do a single pass through the array which is O(n). The dominant term is n log n.\n\nSpace complexity: This is O(n) because we use a HashMap to store at most n key-value pairs\nin the worst case where all elements are unique.\n\nCould we do better? We could reduce time to O(n) using a counting sort since values are\nbounded, but that would increase our space from O(n) to O(max_value). Given the constraints\nmentioned, O(n log n) is acceptable here.'\n\nKey pattern: [Complexity] because [reason]. Could we do better? [alternative + tradeoff]",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Complexity communication script (30 seconds):\n\n'Let me analyze the complexity of this solution.\n\nTime complexity: This is O(n log n) because we sort the array once which takes O(n log n),\nand then we do a single pass through the array which is O(n). The dominant term is n log n.\n\nSpace complexity: This is O(n) because we use a HashMap to store at most n key-value pairs\nin the worst case where all elements are unique.\n\nCould we do better? We could reduce time to O(n) using a counting sort since values are\nbounded, but that would increase our space from O(n) to O(max_value). Given the constraints\nmentioned, O(n log n) is acceptable here.'\n\nKey pattern: [Complexity] because [reason]. Could we do better? [alternative + tradeoff]"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m42_t1_ex_3",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "What to say when you're stuck",
+      "instructions": "Script: You've been working on a problem for 8 minutes and are stuck. What do you say?",
+      "expected_solution": "When stuck: the 'stuck script'\n\nStep 1: Acknowledge and verbalize (don't go silent):\n'I want to think out loud for a moment. I'm exploring a brute force approach first...'\n\nStep 2: Start with naive solution:\n'The brute force here would be O(n\u00b2) \u2014 for each element, scan all others. Let me code this \nand then optimize.'\n\nStep 3: Ask targeted questions (not 'give me a hint'):\n'I'm thinking about using a HashMap for O(1) lookup \u2014 does that direction make sense?'\nor 'I know this feels like a sliding window problem \u2014 am I on the right track?'\n\nStep 4: Think aloud about patterns:\n'This reminds me of [problem X]. The key insight there was [Y]. Let me see if that applies here.'\n\nStep 5: Smaller example:\n'Let me trace through a tiny example to build intuition: [1,2] with target 3...'\n\nNEVER: Go silent for >90 seconds. Say 'I don't know' without elaborating.\nALWAYS: Keep talking, even if it's 'I'm stuck on X because of Y.'",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "When stuck: the 'stuck script'\n\nStep 1: Acknowledge and verbalize (don't go silent):\n'I want to think out loud for a moment. I'm exploring a brute force approach first...'\n\nStep 2: Start with naive solution:\n'The brute force here would be O(n\u00b2) \u2014 for each element, scan all others. Let me code this \nand then optimize.'\n\nStep 3: Ask targeted questions (not 'give me a hint'):\n'I'm thinking about using a HashMap for O(1) lookup \u2014 does that direction make sense?'\nor 'I know this feels like a sliding window problem \u2014 am I on the right track?'\n\nStep 4: Think aloud about patterns:\n'This reminds me of [problem X]. The key insight there was [Y]. Let me see if that applies here.'\n\nStep 5: Smaller example:\n'Let me trace through a tiny example to build intuition: [1,2] with target 3...'\n\nNEVER: Go silent for >90 seconds. Say 'I don't know' without elaborating.\nALWAYS: Keep talking, even if it's 'I'm stuck on X because of Y.'"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m42_t1_ex_4",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Naming and code style in interviews",
+      "instructions": "What are the 5 most important code style rules for coding interviews?",
+      "expected_solution": "5 Code Style Rules for Interviews:\n\n1. MEANINGFUL VARIABLE NAMES (never a, b, c except loop indices):\n   Bad:  int x = ..., Map<Integer,Integer> m = ...\n   Good: int complement = ..., Map<Integer,Integer> freqMap = ...\n\n2. EXPLAIN EACH MAJOR STEP with a comment:\n   // Step 1: Build frequency map\n   // Step 2: Find first character with count == 1\n\n3. HANDLE EDGE CASES FIRST (shows foresight):\n   if (s == null || s.isEmpty()) return -1;\n   if (k <= 0 || k > nums.length) return -1;\n\n4. NO MAGIC NUMBERS \u2014 use named constants or explain inline:\n   if (freq[c - 'a'] == 1)  // map char to 0-25 index\n\n5. TEST YOUR CODE ALOUD before saying 'done':\n   'Let me trace through with [1,2,3]: first iteration...'\n   'Edge case: empty array \u2014 we return -1 due to the guard clause.'\n\nBonus: Write modular code \u2014 extract helper methods with clear names.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "5 Code Style Rules for Interviews:\n\n1. MEANINGFUL VARIABLE NAMES (never a, b, c except loop indices):\n   Bad:  int x = ..., Map<Integer,Integer> m = ...\n   Good: int complement = ..., Map<Integer,Integer> freqMap = ...\n\n2. EXPLAIN EACH MAJOR STEP with a comment:\n   // Step 1: Build frequency map\n   // Step 2: Find first character with count == 1\n\n3. HANDLE EDGE CASES FIRST (shows foresight):\n   if (s == null || s.isEmpty()) return -1;\n   if (k <= 0 || k > nums.length) return -1;\n\n4. NO MAGIC NUMBERS \u2014 use named constants or explain inline:\n   if (freq[c - 'a'] == 1)  // map char to 0-25 index\n\n5. TEST YOUR CODE ALOUD before saying 'done':\n   'Let me trace through with [1,2,3]: first iteration...'\n   'Edge case: empty array \u2014 we return -1 due to the guard clause.'\n\nBonus: Write modular code \u2014 extract helper methods with clear names."
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m42_t1_ex_5",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "The clarification question bank",
+      "instructions": "List 10 clarification questions you should ask at the start of a problem. Categorize them.",
+      "expected_solution": "10 Clarification Questions by Category:\n\nINPUT CONSTRAINTS:\n1. 'What is the range/size of the input? 10^3? 10^5? 10^9?'\n   \u2192 Determines if O(n\u00b2) is acceptable or need O(n log n)\n2. 'Are inputs always valid, or should I handle invalid inputs?'\n3. 'Can the array be empty or null?'\n\nDATA RANGE:\n4. 'Are values positive only, or can they be negative/zero?'\n   \u2192 Critical for sliding window (negatives break it), two pointers\n5. 'Can there be duplicate values?'\n   \u2192 Affects set/map logic\n\nOUTPUT FORMAT:\n6. 'Should I return indices or values?'\n7. 'If multiple answers exist, which one do I return?'\n8. 'Is the output sorted?'\n\nPROBLEM SPECIFICS:\n9. 'Can I modify the input array in-place?'\n   \u2192 O(1) space vs O(n) space solutions\n10. 'Is this a streaming problem (one element at a time) or batch?'\n\nPro tip: You don't need to ask ALL 10. Pick the 2-3 most relevant to this problem.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "10 Clarification Questions by Category:\n\nINPUT CONSTRAINTS:\n1. 'What is the range/size of the input? 10^3? 10^5? 10^9?'\n   \u2192 Determines if O(n\u00b2) is acceptable or need O(n log n)\n2. 'Are inputs always valid, or should I handle invalid inputs?'\n3. 'Can the array be empty or null?'\n\nDATA RANGE:\n4. 'Are values positive only, or can they be negative/zero?'\n   \u2192 Critical for sliding window (negatives break it), two pointers\n5. 'Can there be duplicate values?'\n   \u2192 Affects set/map logic\n\nOUTPUT FORMAT:\n6. 'Should I return indices or values?'\n7. 'If multiple answers exist, which one do I return?'\n8. 'Is the output sorted?'\n\nPROBLEM SPECIFICS:\n9. 'Can I modify the input array in-place?'\n   \u2192 O(1) space vs O(n) space solutions\n10. 'Is this a streaming problem (one element at a time) or batch?'\n\nPro tip: You don't need to ask ALL 10. Pick the 2-3 most relevant to this problem."
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m42_t1_ex_6",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Pattern recognition in 2 minutes",
+      "instructions": "List the 8 most common interview problem patterns and their key signal words.",
+      "expected_solution": "8 Patterns and Their Signals:\n\n1. TWO POINTERS:\n   Signals: sorted array, palindrome, pair sum, remove duplicates\n   \u2192 Start lo=0, hi=n-1 or both at 0 moving right\n\n2. SLIDING WINDOW:\n   Signals: subarray/substring, 'at most k distinct', 'longest without repeating'\n   \u2192 Variable window: expand right, shrink left when invalid\n\n3. FAST/SLOW POINTERS:\n   Signals: linked list, cycle, middle, palindrome LL\n   \u2192 slow=1 step, fast=2 steps\n\n4. PREFIX SUM:\n   Signals: subarray sum, range query, 'count subarrays with sum k'\n   \u2192 prefix[i] = sum[0..i-1]; put 0\u2192-1 in HashMap\n\n5. MONOTONIC STACK:\n   Signals: 'next greater element', histogram, daily temperatures\n   \u2192 Maintain increasing or decreasing stack\n\n6. BFS/DFS:\n   Signals: tree traversal, shortest path, connected components, grid\n   \u2192 BFS=queue+level, DFS=stack/recursion\n\n7. DYNAMIC PROGRAMMING:\n   Signals: 'minimum cost', 'maximum profit', 'how many ways', 'can you reach'\n   \u2192 Optimal substructure + overlapping subproblems\n\n8. BINARY SEARCH:\n   Signals: sorted array, 'find minimum such that', rotated array\n   \u2192 Binary search on answer space if feasibility is monotonic",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "8 Patterns and Their Signals:\n\n1. TWO POINTERS:\n   Signals: sorted array, palindrome, pair sum, remove duplicates\n   \u2192 Start lo=0, hi=n-1 or both at 0 moving right\n\n2. SLIDING WINDOW:\n   Signals: subarray/substring, 'at most k distinct', 'longest without repeating'\n   \u2192 Variable window: expand right, shrink left when invalid\n\n3. FAST/SLOW POINTERS:\n   Signals: linked list, cycle, middle, palindrome LL\n   \u2192 slow=1 step, fast=2 steps\n\n4. PREFIX SUM:\n   Signals: subarray sum, range query, 'count subarrays with sum k'\n   \u2192 prefix[i] = sum[0..i-1]; put 0\u2192-1 in HashMap\n\n5. MONOTONIC STACK:\n   Signals: 'next greater element', histogram, daily temperatures\n   \u2192 Maintain increasing or decreasing stack\n\n6. BFS/DFS:\n   Signals: tree traversal, shortest path, connected components, grid\n   \u2192 BFS=queue+level, DFS=stack/recursion\n\n7. DYNAMIC PROGRAMMING:\n   Signals: 'minimum cost', 'maximum profit', 'how many ways', 'can you reach'\n   \u2192 Optimal substructure + overlapping subproblems\n\n8. BINARY SEARCH:\n   Signals: sorted array, 'find minimum such that', rotated array\n   \u2192 Binary search on answer space if feasibility is monotonic"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m42_t1_ex_7",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Time management in a 45-minute interview",
+      "instructions": "Create a time budget for a 45-minute coding interview with one medium problem.",
+      "expected_solution": "45-Minute Interview Time Budget:\n\n0:00\u20132:00 (2 min) \u2014 CLARIFY\n- Restate problem, ask 2-3 targeted clarifying questions\n- Confirm input/output format and constraints\n\n2:00\u20135:00 (3 min) \u2014 PLAN\n- State your approach: 'I'll use X because Y'\n- State complexity: 'This should be O(n log n) time, O(n) space'\n- Get interviewer buy-in before coding\n\n5:00\u201325:00 (20 min) \u2014 CODE\n- Write clean, commented code\n- Narrate what you're doing: 'Now I'm building the frequency map...'\n- At 15-min mark: if not done, ask 'Am I on track for time?'\n\n25:00\u201330:00 (5 min) \u2014 TEST\n- Trace through your example manually\n- Check edge cases: empty input, single element, all same\n- Fix bugs you find\n\n30:00\u201340:00 (10 min) \u2014 OPTIMIZE + DISCUSS\n- Discuss time/space complexity\n- Propose optimizations if time allows\n- Discuss trade-offs: 'We could use X to get O(n) but it uses more memory'\n\n40:00\u201345:00 (5 min) \u2014 QUESTIONS FOR INTERVIEWER\n- Prepare 2-3 thoughtful questions about the team/product",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "45-Minute Interview Time Budget:\n\n0:00\u20132:00 (2 min) \u2014 CLARIFY\n- Restate problem, ask 2-3 targeted clarifying questions\n- Confirm input/output format and constraints\n\n2:00\u20135:00 (3 min) \u2014 PLAN\n- State your approach: 'I'll use X because Y'\n- State complexity: 'This should be O(n log n) time, O(n) space'\n- Get interviewer buy-in before coding\n\n5:00\u201325:00 (20 min) \u2014 CODE\n- Write clean, commented code\n- Narrate what you're doing: 'Now I'm building the frequency map...'\n- At 15-min mark: if not done, ask 'Am I on track for time?'\n\n25:00\u201330:00 (5 min) \u2014 TEST\n- Trace through your example manually\n- Check edge cases: empty input, single element, all same\n- Fix bugs you find\n\n30:00\u201340:00 (10 min) \u2014 OPTIMIZE + DISCUSS\n- Discuss time/space complexity\n- Propose optimizations if time allows\n- Discuss trade-offs: 'We could use X to get O(n) but it uses more memory'\n\n40:00\u201345:00 (5 min) \u2014 QUESTIONS FOR INTERVIEWER\n- Prepare 2-3 thoughtful questions about the team/product"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m42_t1_ex_8",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Mock problem: Two Sum under timed conditions",
+      "instructions": "Solve Two Sum as if in an interview. Write everything you would say aloud AND the code.",
+      "expected_solution": "Two Sum \u2014 Interview Simulation:\n\n[CLARIFY]\n'So I need to find two numbers in the array that add up to the target and return their indices.\nA few questions: Can there be duplicate values? Can the same element be used twice? \nIs there always exactly one solution? Ok, assuming exactly one solution, no self-use.'\n\n[APPROACH]\n'I'll use a HashMap: for each element, I'll check if its complement (target - nums[i])\nalready exists in the map. If yes, return [map.get(complement), i].\nIf not, add nums[i] \u2192 i to the map.\nThis is O(n) time and O(n) space. One pass.'\n\n[CODE]\nimport java.util.*;\npublic class TwoSum {\n    public static int[] twoSum(int[] nums, int target) {\n        Map<Integer,Integer> seen = new HashMap<>(); // val \u2192 index\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (seen.containsKey(complement))\n                return new int[]{seen.get(complement), i};\n            seen.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n}\n\n[TEST ALOUD]\n'Input [2,7,11,15], target 9:\ni=0: complement=7, not in map. Add 2\u21920.\ni=1: complement=2, found at map[2]=0. Return [0,1]. Correct!'\n\n[COMPLEXITY]\n'O(n) time \u2014 one pass. O(n) space \u2014 HashMap stores n entries worst case.'",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Two Sum \u2014 Interview Simulation:\n\n[CLARIFY]\n'So I need to find two numbers in the array that add up to the target and return their indices.\nA few questions: Can there be duplicate values? Can the same element be used twice? \nIs there always exactly one solution? Ok, assuming exactly one solution, no self-use.'\n\n[APPROACH]\n'I'll use a HashMap: for each element, I'll check if its complement (target - nums[i])\nalready exists in the map. If yes, return [map.get(complement), i].\nIf not, add nums[i] \u2192 i to the map.\nThis is O(n) time and O(n) space. One pass.'\n\n[CODE]\nimport java.util.*;\npublic class TwoSum {\n    public static int[] twoSum(int[] nums, int target) {\n        Map<Integer,Integer> seen = new HashMap<>(); // val \u2192 index\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (seen.containsKey(complement))\n                return new int[]{seen.get(complement), i};\n            seen.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n}\n\n[TEST ALOUD]\n'Input [2,7,11,15], target 9:\ni=0: complement=7, not in map. Add 2\u21920.\ni=1: complement=2, found at map[2]=0. Return [0,1]. Correct!'\n\n[COMPLEXITY]\n'O(n) time \u2014 one pass. O(n) space \u2014 HashMap stores n entries worst case.'"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m42_t1_ex_9",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Handling follow-up questions",
+      "instructions": "The interviewer asks 'Can you do this in O(1) space?' \u2014 how do you respond?",
+      "expected_solution": "Responding to 'Can you do this in O(1) space?':\n\nStep 1: THINK ALOUD (don't panic):\n'Good question. Let me think about whether O(1) space is possible...'\n\nStep 2: ANALYZE CONSTRAINTS:\n'Currently I use a HashMap for O(n) space. To get O(1) space, I'd need to either:\n(a) Modify the input array in-place (is that allowed?)\n(b) Use a mathematical property instead of storing values\n(c) Use the array itself as a hash map (negative marking, etc.)'\n\nStep 3: EXPLORE AND BE HONEST:\n'For Two Sum with arbitrary values, I don't think O(1) space is possible in general\nbecause we need to remember which values we've seen. If the array were sorted, \nwe could use two pointers: O(1) space, O(n) time \u2014 but we'd need to track original indices.'\n\nStep 4: OFFER ALTERNATIVES:\n'We could sort first + two pointers: O(n log n) time O(1) space (or O(n) for sorted copy).\nThe trade-off is we lose the O(n) time guarantee.'\n\nStep 5: ASK CLARIFYING QUESTION:\n'Is modifying the input array acceptable? That opens up some in-place approaches.'\n\nKey: Interviewers often ask impossible follow-ups to see HOW you think under pressure.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Responding to 'Can you do this in O(1) space?':\n\nStep 1: THINK ALOUD (don't panic):\n'Good question. Let me think about whether O(1) space is possible...'\n\nStep 2: ANALYZE CONSTRAINTS:\n'Currently I use a HashMap for O(n) space. To get O(1) space, I'd need to either:\n(a) Modify the input array in-place (is that allowed?)\n(b) Use a mathematical property instead of storing values\n(c) Use the array itself as a hash map (negative marking, etc.)'\n\nStep 3: EXPLORE AND BE HONEST:\n'For Two Sum with arbitrary values, I don't think O(1) space is possible in general\nbecause we need to remember which values we've seen. If the array were sorted, \nwe could use two pointers: O(1) space, O(n) time \u2014 but we'd need to track original indices.'\n\nStep 4: OFFER ALTERNATIVES:\n'We could sort first + two pointers: O(n log n) time O(1) space (or O(n) for sorted copy).\nThe trade-off is we lose the O(n) time guarantee.'\n\nStep 5: ASK CLARIFYING QUESTION:\n'Is modifying the input array acceptable? That opens up some in-place approaches.'\n\nKey: Interviewers often ask impossible follow-ups to see HOW you think under pressure."
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m42_t1_ex_10",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Debugging live: wrong answer",
+      "instructions": "Your code produces wrong output for the test case [3,3] target=6. Walk through debugging.",
+      "expected_solution": "Debugging Live \u2014 Wrong Answer:\n\n[STEP 1: Don't panic, narrate]\n'Interesting \u2014 let me trace through [3,3] with target=6.'\n\n[STEP 2: Trace manually]\n'i=0: complement = 6-3 = 3. Is 3 in seen? No (map is empty). Add 3\u21920 to map.\ni=1: complement = 6-3 = 3. Is 3 in seen? Yes, at index 0. Return [0,1].'\n\n[STEP 3: Compare with actual output]\n'Wait, my code returns... let me check. Oh! I'm using seen.containsKey(nums[i])\ninstead of seen.containsKey(complement). That's the bug \u2014 I was looking up the\nwrong value.'\n\n[STEP 4: Fix and re-verify]\n'Fix: change seen.containsKey(nums[i]) to seen.containsKey(complement).\nNow trace again:\ni=0: complement=3. seen.containsKey(3)? No. Put nums[0]=3\u21920.\ni=1: complement=3. seen.containsKey(3)? Yes! Return [0,1]. Correct!'\n\n[STEP 5: Check original test cases still pass]\n'Let me verify [2,7,11,15] target=9 still works:\ni=0: complement=7, not in map. Add 2\u21920.\ni=1: complement=2, in map at 0. Return [0,1]. Correct!'\n\nLesson: When debugging, trace the exact code line-by-line, not what you THINK it does.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Debugging Live \u2014 Wrong Answer:\n\n[STEP 1: Don't panic, narrate]\n'Interesting \u2014 let me trace through [3,3] with target=6.'\n\n[STEP 2: Trace manually]\n'i=0: complement = 6-3 = 3. Is 3 in seen? No (map is empty). Add 3\u21920 to map.\ni=1: complement = 6-3 = 3. Is 3 in seen? Yes, at index 0. Return [0,1].'\n\n[STEP 3: Compare with actual output]\n'Wait, my code returns... let me check. Oh! I'm using seen.containsKey(nums[i])\ninstead of seen.containsKey(complement). That's the bug \u2014 I was looking up the\nwrong value.'\n\n[STEP 4: Fix and re-verify]\n'Fix: change seen.containsKey(nums[i]) to seen.containsKey(complement).\nNow trace again:\ni=0: complement=3. seen.containsKey(3)? No. Put nums[0]=3\u21920.\ni=1: complement=3. seen.containsKey(3)? Yes! Return [0,1]. Correct!'\n\n[STEP 5: Check original test cases still pass]\n'Let me verify [2,7,11,15] target=9 still works:\ni=0: complement=7, not in map. Add 2\u21920.\ni=1: complement=2, in map at 0. Return [0,1]. Correct!'\n\nLesson: When debugging, trace the exact code line-by-line, not what you THINK it does."
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m42_t1_ex_11",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Optimize from O(n\u00b2) to O(n): live narration",
+      "instructions": "Starting from an O(n\u00b2) brute force for 'find all pairs with sum k', optimize to O(n) while narrating.",
+      "expected_solution": "Live Optimization \u2014 Pairs with Sum K:\n\n[BRUTE FORCE O(n\u00b2)]\n'Starting simple: for every pair i,j check if nums[i]+nums[j]==k.\nThat's O(n\u00b2) \u2014 nested loops.'\n\npublic static int countPairs(int[] nums, int k) {\n    int count = 0;\n    for (int i = 0; i < nums.length; i++)\n        for (int j = i+1; j < nums.length; j++)\n            if (nums[i] + nums[j] == k) count++;\n    return count;\n}\n\n[OPTIMIZE \u2014 recognize the pattern]\n'The bottleneck is the inner loop: we're checking if complement exists.\nIf we pre-store all values in a HashMap, we can do this lookup in O(1).'\n\n[O(n) SOLUTION]\npublic static int countPairsOptimal(int[] nums, int k) {\n    Map<Integer,Integer> freq = new HashMap<>();\n    for (int n : nums) freq.merge(n, 1, Integer::sum);\n    int count = 0;\n    for (int n : nums) {\n        int complement = k - n;\n        count += freq.getOrDefault(complement, 0);\n        if (complement == n) count--; // subtract self-pairing\n    }\n    return count / 2; // each pair counted twice\n}\n\n[COMPLEXITY COMPARISON]\n'Brute force: O(n\u00b2) time O(1) space.\nOptimized: O(n) time O(n) space.\nTrade-off: we use O(n) extra memory to save O(n\u00b2) \u2192 O(n) time.'",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Live Optimization \u2014 Pairs with Sum K:\n\n[BRUTE FORCE O(n\u00b2)]\n'Starting simple: for every pair i,j check if nums[i]+nums[j]==k.\nThat's O(n\u00b2) \u2014 nested loops.'\n\npublic static int countPairs(int[] nums, int k) {\n    int count = 0;\n    for (int i = 0; i < nums.length; i++)\n        for (int j = i+1; j < nums.length; j++)\n            if (nums[i] + nums[j] == k) count++;\n    return count;\n}\n\n[OPTIMIZE \u2014 recognize the pattern]\n'The bottleneck is the inner loop: we're checking if complement exists.\nIf we pre-store all values in a HashMap, we can do this lookup in O(1).'\n\n[O(n) SOLUTION]\npublic static int countPairsOptimal(int[] nums, int k) {\n    Map<Integer,Integer> freq = new HashMap<>();\n    for (int n : nums) freq.merge(n, 1, Integer::sum);\n    int count = 0;\n    for (int n : nums) {\n        int complement = k - n;\n        count += freq.getOrDefault(complement, 0);\n        if (complement == n) count--; // subtract self-pairing\n    }\n    return count / 2; // each pair counted twice\n}\n\n[COMPLEXITY COMPARISON]\n'Brute force: O(n\u00b2) time O(1) space.\nOptimized: O(n) time O(n) space.\nTrade-off: we use O(n) extra memory to save O(n\u00b2) \u2192 O(n) time.'"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m42_t1_ex_12",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "The 'I don't know the optimal solution' script",
+      "instructions": "How do you handle it when you genuinely don't know the optimal solution to a problem?",
+      "expected_solution": "'I Don't Know the Optimal' Script:\n\n[STEP 1: Show what you DO know]\n'I can see a brute force solution that's O(n\u00b2). Let me code that first to show I \nunderstand the problem correctly, then we can optimize.'\n\n[STEP 2: Think aloud about bottlenecks]\n'The bottleneck is [X]. To optimize, I'd want to eliminate [X] by... \nHmm, could I precompute [Y]? Or use a different data structure for [Z]?'\n\n[STEP 3: Pattern-match honestly]\n'This feels similar to a sliding window problem, but I'm not sure how to apply it here \nbecause of the [complication]. Could you confirm if I'm in the right direction?'\n\n[STEP 4: Implement partial solution]\n'I know how to handle the case where [simpler version]. Let me implement that,\nand then we can extend it.'\n\n[STEP 5: Ask for a nudge (gracefully)]\n'I have a feeling there's an O(n) approach using [HashMap/Stack/DP], but I'm not \nseeing the connection. Is there a key insight I'm missing?'\n\nWhat NOT to do:\n- Go silent for more than 90 seconds\n- Say 'I give up'\n- Google on your phone\n- Pretend you know when you don't\n\nInterviewers respect intellectual honesty over false confidence.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "'I Don't Know the Optimal' Script:\n\n[STEP 1: Show what you DO know]\n'I can see a brute force solution that's O(n\u00b2). Let me code that first to show I \nunderstand the problem correctly, then we can optimize.'\n\n[STEP 2: Think aloud about bottlenecks]\n'The bottleneck is [X]. To optimize, I'd want to eliminate [X] by... \nHmm, could I precompute [Y]? Or use a different data structure for [Z]?'\n\n[STEP 3: Pattern-match honestly]\n'This feels similar to a sliding window problem, but I'm not sure how to apply it here \nbecause of the [complication]. Could you confirm if I'm in the right direction?'\n\n[STEP 4: Implement partial solution]\n'I know how to handle the case where [simpler version]. Let me implement that,\nand then we can extend it.'\n\n[STEP 5: Ask for a nudge (gracefully)]\n'I have a feeling there's an O(n) approach using [HashMap/Stack/DP], but I'm not \nseeing the connection. Is there a key insight I'm missing?'\n\nWhat NOT to do:\n- Go silent for more than 90 seconds\n- Say 'I give up'\n- Google on your phone\n- Pretend you know when you don't\n\nInterviewers respect intellectual honesty over false confidence."
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m42_t1_ex_13",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Speed coding 10 classics in 20 minutes",
+      "instructions": "Write the minimal correct Java code for: Two Sum, Reverse String, FizzBuzz, Palindrome, Valid Parentheses, Fibonacci, Binary Search, Merge Sorted Arrays, Contains Duplicate, Missing Number.",
+      "expected_solution": "10 Classics \u2014 Minimal Correct Java:\n\n// 1. Two Sum O(n)\nMap<Integer,Integer> m=new HashMap<>();for(int i=0;i<nums.length;i++){int c=t-nums[i];if(m.containsKey(c))return new int[]{m.get(c),i};m.put(nums[i],i);}return null;\n\n// 2. Reverse String O(n)\nint l=0,r=s.length-1;while(l<r){char t=s[l];s[l++]=s[r];s[r--]=t;}\n\n// 3. FizzBuzz\nfor(int i=1;i<=n;i++){if(i%15==0)System.out.println(\"FizzBuzz\");else if(i%3==0)System.out.println(\"Fizz\");else if(i%5==0)System.out.println(\"Buzz\");else System.out.println(i);}\n\n// 4. Is Palindrome O(n)\nint l=0,r=s.length()-1;while(l<r)if(s.charAt(l++)!=s.charAt(r--))return false;return true;\n\n// 5. Valid Parentheses O(n)\nDeque<Character> st=new ArrayDeque<>();for(char c:s.toCharArray()){if(c=='('||c=='['||c=='{')st.push(c);else{if(st.isEmpty())return false;char top=st.pop();if(c==')'&&top!='('||c==']'&&top!='['||c=='}'&&top!='{')return false;}}return st.isEmpty();\n\n// 6. Fibonacci O(n) O(1)\nlong a=0,b=1;for(int i=2;i<=n;i++){long c=a+b;a=b;b=c;}return n==0?0:b;\n\n// 7. Binary Search O(log n)\nint lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[m]<t)lo=m+1;else hi=m-1;}return -1;\n\n// 8. Merge Sorted Arrays O(m+n)\nint i=0,j=0,k=0;while(i<m&&j<n){if(nums1[i]<=nums2[j])nums1[k++]=nums1[i++];else nums1[k++]=nums2[j++];}while(i<m)nums1[k++]=nums1[i++];while(j<n)nums1[k++]=nums2[j++];\n\n// 9. Contains Duplicate O(n)\nSet<Integer> s=new HashSet<>();for(int n:nums)if(!s.add(n))return true;return false;\n\n// 10. Missing Number O(n) O(1)\nint sum=nums.length*(nums.length+1)/2;for(int n:nums)sum-=n;return sum;",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "10 Classics \u2014 Minimal Correct Java:\n\n// 1. Two Sum O(n)\nMap<Integer,Integer> m=new HashMap<>();for(int i=0;i<nums.length;i++){int c=t-nums[i];if(m.containsKey(c))return new int[]{m.get(c),i};m.put(nums[i],i);}return null;\n\n// 2. Reverse String O(n)\nint l=0,r=s.length-1;while(l<r){char t=s[l];s[l++]=s[r];s[r--]=t;}\n\n// 3. FizzBuzz\nfor(int i=1;i<=n;i++){if(i%15==0)System.out.println(\"FizzBuzz\");else if(i%3==0)System.out.println(\"Fizz\");else if(i%5==0)System.out.println(\"Buzz\");else System.out.println(i);}\n\n// 4. Is Palindrome O(n)\nint l=0,r=s.length()-1;while(l<r)if(s.charAt(l++)!=s.charAt(r--))return false;return true;\n\n// 5. Valid Parentheses O(n)\nDeque<Character> st=new ArrayDeque<>();for(char c:s.toCharArray()){if(c=='('||c=='['||c=='{')st.push(c);else{if(st.isEmpty())return false;char top=st.pop();if(c==')'&&top!='('||c==']'&&top!='['||c=='}'&&top!='{')return false;}}return st.isEmpty();\n\n// 6. Fibonacci O(n) O(1)\nlong a=0,b=1;for(int i=2;i<=n;i++){long c=a+b;a=b;b=c;}return n==0?0:b;\n\n// 7. Binary Search O(log n)\nint lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[m]<t)lo=m+1;else hi=m-1;}return -1;\n\n// 8. Merge Sorted Arrays O(m+n)\nint i=0,j=0,k=0;while(i<m&&j<n){if(nums1[i]<=nums2[j])nums1[k++]=nums1[i++];else nums1[k++]=nums2[j++];}while(i<m)nums1[k++]=nums1[i++];while(j<n)nums1[k++]=nums2[j++];\n\n// 9. Contains Duplicate O(n)\nSet<Integer> s=new HashSet<>();for(int n:nums)if(!s.add(n))return true;return false;\n\n// 10. Missing Number O(n) O(1)\nint sum=nums.length*(nums.length+1)/2;for(int n:nums)sum-=n;return sum;"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m42_t1_ex_14",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Final coding interview checklist",
+      "instructions": "Create a 20-point pre-interview checklist for a Java coding interview at Zerodha/Flipkart.",
+      "expected_solution": "20-Point Pre-Interview Checklist:\n\nKNOWLEDGE CHECK (verify you can code in 5 min):\n\u2705 1. Two Sum (HashMap approach)\n\u2705 2. Reverse linked list (3-pointer)\n\u2705 3. Valid parentheses (stack)\n\u2705 4. Level-order BFS (queue + size snapshot)\n\u2705 5. Binary search (lo+(hi-lo)/2 template)\n\u2705 6. Merge sort / quicksort\n\u2705 7. Dynamic programming (coin change, LIS)\n\u2705 8. DFS/BFS on grid (islands)\n\nPATTERN READINESS:\n\u2705 9. Two pointers, sliding window, prefix sum\n\u2705 10. Fast/slow pointers, monotonic stack\n\u2705 11. Union-Find with path compression\n\u2705 12. Dijkstra with min-heap\n\u2705 13. Backtracking template (choose\u2192recurse\u2192undo)\n\nCOMMUNICATION SKILLS:\n\u2705 14. Clarification questions rehearsed (5 good ones)\n\u2705 15. Complexity communication script ready\n\u2705 16. 'Stuck script' ready\n\u2705 17. 3 behavioral stories prepared (STAR format)\n\nLOGISTICS:\n\u2705 18. IDE ready (IntelliJ) OR LeetCode playground tested\n\u2705 19. Distraction-free environment confirmed\n\u2705 20. Pen + paper ready for whiteboarding if needed\n\nDAY OF:\n- Sleep 7+ hours\n- Eat before interview\n- Join 5 min early\n- Take a breath before starting",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "20-Point Pre-Interview Checklist:\n\nKNOWLEDGE CHECK (verify you can code in 5 min):\n\u2705 1. Two Sum (HashMap approach)\n\u2705 2. Reverse linked list (3-pointer)\n\u2705 3. Valid parentheses (stack)\n\u2705 4. Level-order BFS (queue + size snapshot)\n\u2705 5. Binary search (lo+(hi-lo)/2 template)\n\u2705 6. Merge sort / quicksort\n\u2705 7. Dynamic programming (coin change, LIS)\n\u2705 8. DFS/BFS on grid (islands)\n\nPATTERN READINESS:\n\u2705 9. Two pointers, sliding window, prefix sum\n\u2705 10. Fast/slow pointers, monotonic stack\n\u2705 11. Union-Find with path compression\n\u2705 12. Dijkstra with min-heap\n\u2705 13. Backtracking template (choose\u2192recurse\u2192undo)\n\nCOMMUNICATION SKILLS:\n\u2705 14. Clarification questions rehearsed (5 good ones)\n\u2705 15. Complexity communication script ready\n\u2705 16. 'Stuck script' ready\n\u2705 17. 3 behavioral stories prepared (STAR format)\n\nLOGISTICS:\n\u2705 18. IDE ready (IntelliJ) OR LeetCode playground tested\n\u2705 19. Distraction-free environment confirmed\n\u2705 20. Pen + paper ready for whiteboarding if needed\n\nDAY OF:\n- Sleep 7+ hours\n- Eat before interview\n- Join 5 min early\n- Take a breath before starting"
+        }
+      ],
+      "hints": [
+        "Be specific and concrete",
+        "Use the STAR method where applicable",
+        "Practice aloud"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "written_response": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 60
+  }
+}

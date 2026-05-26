@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m33_t2_proj",
+  "linked_topic": "java_m33_t2",
+  "level": "mini",
+  "name": "Flipkart Stock Analytics Engine",
+  "estimated_minutes": 40,
+  "difficulty": 7,
+  "scenario": "Build Flipkart Stock Analytics Engine using NGE, Daily Temps, Histogram, Trapping Rain Water, Sum Subarray Mins.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Implement core algorithms: NGE, Daily Temps, Histogram, Trapping Rain Water, Sum Subarray Mins. All O(n) unless stated.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 @SpringBootTest tests all pass.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README: key insight for the hardest algorithm.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 additional bonus algorithms with tests.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Key hints for t2_monotonic_stack: nge+temps+histogram+rain+subarrayMins. See topic README for patterns.",
+  "rubric": [
+    {
+      "category": "Core algorithms",
+      "points": 50
+    },
+    {
+      "category": "4 tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

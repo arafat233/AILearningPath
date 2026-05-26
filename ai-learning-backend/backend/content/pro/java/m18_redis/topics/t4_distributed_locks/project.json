@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m18_t4_proj",
+  "linked_topic": "java_m18_t4",
+  "level": "mini",
+  "name": "Zerodha Settlement Engine — Distributed Lock Coordination",
+  "estimated_minutes": 50,
+  "difficulty": 9,
+
+  "scenario": "Zerodha's settlement service runs on 5 instances. End-of-day settlement at 3:30pm must run exactly once. Payment confirmations must be idempotent. Monthly statements must be generated exactly once per month. Build the distributed lock infrastructure that makes all three work correctly.",
+
+  "description": "RedisDistributedLock service (SETNX + UUID + Lua release) + SettlementJob @Scheduled + PaymentIdempotency service + 4 @SpringBootTest tests verifying mutual exclusion and idempotency.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "RedisDistributedLock @Service: tryAcquire(key, ttl) returns UUID or null. release(key, uuid) with GET+compare+DEL (owner check). runOnce(key, ttl, Runnable) returns boolean. All methods handle null returns from Redis safely.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "DailySettlementJob @Scheduled (3:30pm MON-FRI): lock key 'lock:settlement:{LocalDate}', TTL=15min. Logs instance ID (8-char UUID prefix), whether it ran or skipped. AtomicInteger runCount for test verification.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "PaymentIdempotencyService.processPayment(idempotencyKey, amount): 3-state (CACHED→return, IN_PROGRESS→throw, NOT_STARTED→process+cache). Result key 'pay:result:{key}' with 24h TTL. Lock key 'pay:lock:{key}' with 30s TTL. AtomicInteger processCount.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "MonthlyStatementJob @Scheduled (1st of month, midnight): lock key 'lock:statement:{YearMonth}', TTL=2h. Logs year-month being processed.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest (4 tests): (1) settlement runOnce returns true first time, false second time, (2) runCount=1 after two attempts, (3) processPayment with same key twice: processCount=1, second returns cached, (4) isDone() after settlement=true. All 4 pass.",
+        "weight": 30
+      },
+      {
+        "id": "req_6",
+        "description": "application.properties: Redis config. docker-compose.yml: Redis 7.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Lua atomic release: replace GET+compare+DEL with DefaultRedisScript for true atomic compare-and-delete. Test verifying atomicRelease returns false when value doesn't match.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "LeaderElectionService: tryBecomeLeader(), isLeader(), renewLeadership() @Scheduled every 20s, stepDown(). @SpringBootTest: two services → one becomes leader, other returns false. Use unique keys per test run.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "LockWithRetry.tryAcquireWithWait(key, ttl, maxWaitMs): polling retry every 50ms up to maxWaitMs. Throws LockTimeoutException if not acquired. Test: second thread acquires after first releases.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Test setup:\n  today = LocalDate.now()\n  lockKey = 'lock:settlement:{today}'\n  idempotencyKey = 'IDEM-TEST-' + UUID\n\nExpected behaviors:\n  Settlement attempt 1 (lock free): runs, runCount=1\n  Settlement attempt 2 (lock held): skipped, runCount still 1\n  processPayment(KEY1, 999.0) call 1: processes, processCount=1\n  processPayment(KEY1, 999.0) call 2: returns cached, processCount still 1",
+
+  "starter_code": "// RedisDistributedLock.java\n// DailySettlementJob.java (@Scheduled)\n// PaymentIdempotencyService.java\n// MonthlyStatementJob.java (@Scheduled)\n// SettlementCoordinationTest.java (4 tests)\n// docker-compose.yml\n// application.properties",
+
+  "example_output": "# Test output:\n[Instance a1b2c3d4] Running settlement for 2024-06-15...\n[Instance a1b2c3d4] Settlement complete.\n[Instance e5f6g7h8] Skipped — settlement for 2024-06-15 already running.\n\n[PROCESS] IDEM-TEST-1234 → PAY-1718476842000 (₹999.00)\n[CACHED] IDEM-TEST-1234 → {\"id\":\"PAY-1718476842000\",\"status\":\"captured\"}\n\n# Tests:\n✓ settlement_runsOnceReturnsTrueFalse\n✓ settlement_runCountIsOne\n✓ idempotency_processesOnlyOnce\n✓ isDone_trueAfterSettlement",
+
+  "rubric": [
+    { "category": "RedisDistributedLock", "points": 20, "criteria": ["tryAcquire + UUID (8 pts)", "release owner check (7 pts)", "runOnce try-finally (5 pts)"] },
+    { "category": "DailySettlementJob", "points": 15, "criteria": ["Correct lock key + TTL (8 pts)", "runOnce usage (7 pts)"] },
+    { "category": "PaymentIdempotency", "points": 20, "criteria": ["3-state logic (12 pts)", "24h result TTL (8 pts)"] },
+    { "category": "MonthlyStatementJob", "points": 10, "criteria": ["YearMonth key + 2h TTL (10 pts)"] },
+    { "category": "@SpringBootTest (4 tests)", "points": 30, "criteria": ["4 tests × 7-8 pts each"] },
+    { "category": "Config", "points": 5, "criteria": ["Docker + properties (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["Lua atomic release (20 pts)", "Leader election (25 pts)", "Lock with retry (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. setIfAbsent three-argument version: CRITICAL — must include Duration. Two-argument version has no TTL → permanent lock on crash. UUID lock value: store it to use for ownership check on release. @BeforeEach test cleanup: delete both the lock key AND the completion/result key (two separate keys). runOnce try-finally: exception in task still releases the lock. AtomicInteger runCount: thread-safe counter for test verification of exactly-once semantics.",
+
+  "submission_instructions": "GitHub push. All 4 @SpringBootTest tests pass. README explains: (1) why TTL is mandatory, (2) why UUID value prevents wrong-instance release, (3) idempotency key flow diagram.",
+
+  "tips_for_success": [
+    "Three-argument setIfAbsent: setIfAbsent(key, value, Duration) — always use this form",
+    "Test isolation: include UUID or timestamp in test lock keys to prevent test interference",
+    "@BeforeEach: delete BOTH lock key AND completion/result key separately",
+    "runCount AtomicInteger: thread-safe, reset in @BeforeEach",
+    "PaymentIdempotency: on exception, delete LOCK but NOT result — allows clean retry"
+  ],
+
+  "concepts_reinforced": [
+    "SETNX atomic acquisition with TTL (crash safety)",
+    "UUID lock value for ownership verification on release",
+    "try-finally for guaranteed lock release",
+    "Date/period in key for natural single-use per time period",
+    "Idempotency key: 3-state pattern (cached/in-progress/not-started)",
+    "Failure handling: don't cache error, allow retry"
+  ]
+}

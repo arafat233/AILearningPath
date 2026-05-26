@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m41_t2",
+  "module_id": "m41",
+  "topic_number": 2,
+  "name": "1D DP \u2014 House Robber, Coin Change, LIS, Jump Game",
+  "slug": "1d-dp-house-robber-coin-change",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m41_t1"
+    ],
+    "concepts_taught": [
+      "1d-dp-house-robber-coin-change"
+    ],
+    "career_relevance": "Core DP patterns \u2014 highest-value DSA topic in senior interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "1D DP \u2014 House Robber, Coin Change, LIS, Jump Game"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "House Robber: dp[i]=max(dp[i-1], dp[i-2]+nums[i]) \u2192 O(n) O(1)",
+        "Coin Change: dp[0]=0; dp[i]=min(dp[i-c]+1); init dp[amt+1]",
+        "LIS: O(n\u00b2) DP; O(n log n) patience sort (tails array)",
+        "Jump Game: greedy \u2014 track max_reach; if i>max_reach: stuck",
+        "Jump Game II: BFS layers \u2014 currEnd + farthest",
+        "Best Time to Buy/Sell Stock: min_so_far + max_profit"
+      ],
+      "next_topic_preview": "Next: 2D DP."
+    }
+  }
+}

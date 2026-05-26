@@ -1,0 +1,31 @@
+{
+  "schema_version":"1.0","project_id":"java_m23_t4_proj","linked_topic":"java_m23_t4",
+  "level":"mini","name":"Zerodha Trading API — OWASP Input Validation",
+  "estimated_minutes":45,"difficulty":7,
+  "scenario":"Zerodha's trading API has a mass assignment vulnerability (users can set their own account balance) and accepts unsanitized input. Fix with DTO pattern, Bean Validation, SQL injection prevention, and security headers.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"OrderRequest record: @ValidTicker symbol, @Positive @Max(10000) quantity, @Size(max=500) description. Separate from JPA Entity (DTO pattern).","weight":15},
+    {"id":"req_2","description":"Custom @ValidTicker ConstraintValidator: checks against NSE symbol allowlist. Returns 'Invalid stock ticker symbol' on failure.","weight":15},
+    {"id":"req_3","description":"OrderController: @Valid @RequestBody + @PreAuthorize('hasRole(TRADER)'). @RestControllerAdvice exception handler returning 400 with field errors map.","weight":20},
+    {"id":"req_4","description":"FileSafetyService: getSafeReportPath(filename) — rejects '..' and '/', resolves against base dir, throws SecurityException if path escapes.","weight":15},
+    {"id":"req_5","description":"SecurityFilterChain: CSP header (default-src 'self'), X-Frame-Options DENY, HSTS.","weight":5},
+    {"id":"req_6","description":"@WebMvcTest+@SpringBootTest (4 tests): valid order→200, invalid symbol→400 with field error, no auth→401, path traversal throws SecurityException. All 4 pass.","weight":25},
+    {"id":"req_7","description":"README: OWASP A04 mass assignment explained with vulnerable vs safe code example.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"XSSProtectionService: sanitizeHtml() using Jsoup Safelist.basic(). Test: <script> stripped, safe HTML preserved.","weight":15},
+    {"id":"bonus_2","description":"Add @Pattern to merchantId in PaymentRequest: only allow alphanumeric + dash. Test: invalid pattern → 400.","weight":10},
+    {"id":"bonus_3","description":"@SpringBootTest SQL injection test: verify JPA @Query with @Param returns empty list for SQL injection string input (not all records).","weight":25}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. @Valid on @RequestBody: constraint violations throw MethodArgumentNotValidException — handle in @RestControllerAdvice. ConstraintValidator.isValid(): return true=valid, false=invalid — do NOT throw exception. @JsonIgnoreProperties(ignoreUnknown=true): silently ignore JSON fields not in DTO (mass assignment prevention). Path traversal check: Path.resolve(filename).normalize().startsWith(BASE_DIR) — always normalize before checking. @WebMvcTest: needs both the controller and the @RestControllerAdvice class listed to handle validation errors.",
+  "rubric":[
+    {"category":"OrderRequest DTO with constraints","points":15},
+    {"category":"Custom @ValidTicker validator","points":15},
+    {"category":"Controller + exception handler","points":20},
+    {"category":"FileSafetyService","points":15},
+    {"category":"SecurityFilterChain headers","points":5},
+    {"category":"4 tests (all pass)","points":25},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":50}
+  ]
+}

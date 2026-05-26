@@ -1,0 +1,238 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t4",
+  "language": "java",
+  "module_id": "m3",
+  "module_name": "Arrays & Strings",
+  "topic_number": 4,
+  "name": "Introduction to Strings",
+  "slug": "introduction-to-strings",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m3_t1", "java_m3_t2"],
+    "concepts_taught": [
+      "string_immutability",
+      "string_methods",
+      "length_method_vs_field",
+      "charAt",
+      "indexOf",
+      "substring",
+      "toLowerCase_toUpperCase",
+      "trim",
+      "split",
+      "replace",
+      "string_concatenation",
+      "string_comparison_equals_vs_doubleequals",
+      "string_pool_intro",
+      "char_vs_string"
+    ],
+    "skills_developed": [
+      "manipulating_text_data",
+      "parsing_strings",
+      "comparing_strings_correctly",
+      "avoiding_immutability_traps",
+      "using_string_api_fluently"
+    ],
+    "career_relevance": "Strings are the most-used data type in real-world programming after numbers. User input, file content, API responses, database fields, log messages, URLs, emails, configuration — all text. Every web request involves dozens of string operations. Every data file is parsed string-by-string. Every UI displays text. The String class has ~50 methods and you'll use most of them across your career. Plus: string comparison with `==` vs `.equals()` is THE most common Java bug, costing developers hours when not understood.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Imagine debugging this bug in production: a payment API checks `userPlan == \"premium\"` to decide whether to apply a discount. It works in testing. It fails in production — premium users aren't getting their discount. What's wrong?\n\nIn Java, `==` doesn't compare String CONTENTS. It compares whether two variables point to the same object in memory. Sometimes that happens to coincide with content equality (due to string interning), sometimes it doesn't. The correct way: `userPlan.equals(\"premium\")`.\n\nThis bug has happened at real companies. It's the #1 Java gotcha. Today you're going to learn it once and never make it.\n\nStrings are also IMMUTABLE — once created, they can't be changed. Every 'modification' creates a new String. This has performance implications and conceptual ones. After this topic, you'll handle strings the way professional Java developers do.",
+    "what_you_will_build": "By the end of this topic, you'll understand: how strings work in Java (immutable, special objects), how to compare them correctly (`.equals()`, NEVER `==`), and the ~10 most-used String methods (`charAt`, `length()`, `indexOf`, `substring`, `toLowerCase`, `trim`, `split`, `replace`). You'll build a complete email validator that uses real-world string operations — the kind of code every signup form in the world runs."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A **String** is a sequence of characters. In Java, Strings are special — they're so commonly used that Java gives them privileged syntax:\n\n```java\nString name = \"Aisha\";  // Literal syntax (no `new` needed)\nString empty = \"\";       // Empty string\n```\n\nUnder the hood, a String is an OBJECT (capital S, not a primitive like int). But the literal syntax makes them feel built-in.\n\nKey things to know upfront:\n1. Strings are **immutable** — can't be changed after creation\n2. `.length()` is a METHOD (with parens), unlike array's `.length`\n3. Compare with `.equals()`, NEVER `==`\n4. Access individual characters with `.charAt(index)`",
+      
+      "immutability": "**Strings are immutable**. Once created, the character sequence cannot be changed.\n\n```java\nString s = \"hello\";\ns = s.toUpperCase();  // This DOESN'T modify the original \"hello\"\nSystem.out.println(s);  // \"HELLO\" — but it's a NEW string!\n```\n\nWhat actually happened:\n1. `\"hello\"` was created\n2. `s` pointed to it\n3. `toUpperCase()` created a NEW string `\"HELLO\"`\n4. `s` was reassigned to point to the new string\n5. The original `\"hello\"` still exists in memory (until garbage collected)\n\n**Implication**: Every String method that 'modifies' actually returns a NEW string. The original is unchanged.\n\n```java\nString a = \"hello\";\nString b = a.toUpperCase();  // b = \"HELLO\"\nSystem.out.println(a);  // Still \"hello\"! Original unchanged.\nSystem.out.println(b);  // \"HELLO\"\n```\n\n**Why immutable?** Three reasons:\n1. **Thread safety**: Multiple threads can share strings without locking\n2. **Performance**: Java can intern strings (more on this below)\n3. **Security**: Methods that take strings (like file paths) can't be tampered with after passed in\n\n**The trap**: trying to modify in place. `s.toUpperCase()` does NOTHING unless you capture the result. Always assign: `s = s.toUpperCase()`.",
+      
+      "length_method": "Arrays use `.length` (field, no parens). Strings use `.length()` (method, with parens).\n\n```java\nString s = \"Hello\";\nint len = s.length();  // 5 — METHOD call, parens required\n\nint[] arr = {1, 2, 3};\nint arrLen = arr.length;  // 3 — FIELD, no parens\n```\n\nThis inconsistency is a Java quirk. **Memorize it**: arrays = field (no parens), strings = method (with parens). Most beginners confuse this for months.\n\nWhy the difference? Arrays are language-level constructs. Strings are objects whose internals we don't expose directly. Methods give Java's String class control over the implementation.",
+      
+      "string_comparison": "**The big one**: NEVER use `==` to compare String contents.\n\n```java\nString a = \"hello\";\nString b = \"hello\";\nString c = new String(\"hello\");\n\nSystem.out.println(a == b);          // true (often) — but unreliable!\nSystem.out.println(a == c);          // FALSE — different objects\nSystem.out.println(a.equals(b));     // true — correct way\nSystem.out.println(a.equals(c));     // true — correct way\n```\n\nWhat's happening:\n- `==` compares OBJECT REFERENCES (memory addresses)\n- `.equals()` compares the actual character sequence\n\nWhy does `a == b` return true? Java has a **String pool** — for string literals, identical text values share the same object. So `a` and `b` happen to point to the same object. But this is an OPTIMIZATION, not a guarantee.\n\nWhen you create with `new String(\"hello\")`, you force a new object (`c` is a separate object). Now `a == c` is false even though contents match.\n\n**Practical rule**: For Strings, ALWAYS use `.equals()`. Never `==`. There are zero exceptions for beginners.\n\nFor case-insensitive comparison:\n\n```java\nString s = \"HELLO\";\nSystem.out.println(s.equalsIgnoreCase(\"hello\"));  // true\n```",
+      
+      "common_methods": "**Top 10 most-used String methods**:\n\n**1. `length()`** — number of characters\n\n```java\n\"Hello\".length()  // 5\n```\n\n**2. `charAt(index)`** — character at position (zero-indexed)\n\n```java\n\"Hello\".charAt(0)  // 'H'\n\"Hello\".charAt(4)  // 'o'\n\"Hello\".charAt(5)  // CRASH: StringIndexOutOfBoundsException\n```\n\nReturns `char` (a primitive), not String.\n\n**3. `indexOf(substring)`** — position of first occurrence, or -1 if not found\n\n```java\n\"hello world\".indexOf(\"o\")     // 4 (first 'o')\n\"hello world\".indexOf(\"world\") // 6\n\"hello world\".indexOf(\"xyz\")   // -1 (not found)\n\"hello world\".indexOf(\"o\", 5)  // 7 (search starting from index 5)\n```\n\nSecond form is useful for finding multiple occurrences.\n\n**4. `substring(start)` or `substring(start, end)`** — extract a portion\n\n```java\n\"hello world\".substring(6)        // \"world\" (from index 6 to end)\n\"hello world\".substring(0, 5)     // \"hello\" (from 0 to 5 exclusive)\n\"hello world\".substring(6, 11)    // \"world\"\n```\n\n**Important**: end index is EXCLUSIVE. `substring(0, 5)` gives indices 0, 1, 2, 3, 4 — characters at those positions.\n\n**5. `toLowerCase()` / `toUpperCase()`** — change case\n\n```java\n\"Hello\".toLowerCase()  // \"hello\"\n\"Hello\".toUpperCase()  // \"HELLO\"\n```\n\nReturn NEW strings (immutability — original unchanged).\n\n**6. `trim()`** — remove leading/trailing whitespace\n\n```java\n\"  hello  \".trim()  // \"hello\"\n```\n\nUseful for cleaning user input (people accidentally add spaces).\n\n**7. `contains(substring)`** — check if string contains substring\n\n```java\n\"hello world\".contains(\"world\")  // true\n\"hello world\".contains(\"xyz\")    // false\n```\n\nReturns boolean. Cleaner than `indexOf(...) != -1`.\n\n**8. `startsWith(prefix)` / `endsWith(suffix)`** — check beginnings/endings\n\n```java\n\"hello.txt\".endsWith(\".txt\")     // true\n\"https://google.com\".startsWith(\"https://\")  // true\n```\n\n**9. `replace(old, new)`** — replace all occurrences\n\n```java\n\"hello world\".replace(\"world\", \"Java\")   // \"hello Java\"\n\"a-b-c-d\".replace(\"-\", \"_\")              // \"a_b_c_d\"\n```\n\nReturns a NEW string with replacements (immutability strikes again).\n\n**10. `split(separator)`** — split into array of strings\n\n```java\nString csv = \"Aisha,Raj,Priya\";\nString[] names = csv.split(\",\");\n// names = [\"Aisha\", \"Raj\", \"Priya\"]\n```\n\nUseful for parsing CSV, URL parameters, paths. Returns String[].",
+      
+      "concatenation": "Joining strings with `+`:\n\n```java\nString first = \"Aisha\";\nString last = \"Khan\";\nString full = first + \" \" + last;  // \"Aisha Khan\"\n```\n\n`+` with a String anywhere becomes string concatenation:\n\n```java\nString message = \"Score: \" + 95;       // \"Score: 95\"\nString result = \"x = \" + 5 + \", y = \" + 10;  // \"x = 5, y = 10\"\n```\n\nNumbers get converted to strings automatically.\n\n**Watch out for arithmetic + string concatenation order**:\n\n```java\nint a = 5, b = 10;\nString s1 = \"Sum: \" + a + b;         // \"Sum: 510\"  — concat order!\nString s2 = \"Sum: \" + (a + b);       // \"Sum: 15\"   — parens force math first\n```\n\nIn `s1`, left-to-right: `\"Sum: \" + a` becomes `\"Sum: 5\"`, then `\"Sum: 5\" + b` becomes `\"Sum: 510\"`. The `+` is concatenation once a String appears.\n\nUse parens to force math first.\n\n**Performance warning**: Concatenating many strings in a loop is SLOW because each `+` creates a new String (immutability). For loops, use **StringBuilder** (next topic). For a few concatenations, `+` is fine.",
+      
+      "char_vs_string": "Java has two types for text:\n\n**`char`** — single character, primitive type, uses single quotes:\n\n```java\nchar c = 'A';  // single quotes for char literals\nchar digit = '5';\n```\n\n**`String`** — sequence of characters, object, uses double quotes:\n\n```java\nString s = \"A\";   // double quotes for String literals\nString name = \"Aisha\";\n```\n\nThey're DIFFERENT TYPES. You can't directly assign one to the other.\n\n**Conversions**:\n\n```java\n// char to String\nchar c = 'A';\nString s = String.valueOf(c);  // \"A\"\nString s2 = \"\" + c;            // \"A\" (concatenation trick)\n\n// String to char (first character)\nString s = \"Hello\";\nchar first = s.charAt(0);  // 'H'\n```\n\n**When to use each**:\n- char: a single letter/digit (e.g., grade letter 'A', menu choice 'Y')\n- String: anything longer than one character",
+      
+      "iterating_string": "To iterate characters of a String, you can't use for-each directly. Use `charAt` with index:\n\n```java\nString s = \"Hello\";\nfor (int i = 0; i < s.length(); i++) {\n    char c = s.charAt(i);\n    System.out.println(c);\n}\n```\n\nPrints `H, e, l, l, o` on separate lines.\n\n**Alternative**: convert to char array first\n\n```java\nString s = \"Hello\";\nchar[] chars = s.toCharArray();\nfor (char c : chars) {\n    System.out.println(c);\n}\n```\n\nBoth approaches work. `charAt` is more direct; `toCharArray` allows for-each.",
+      
+      "string_pool_brief": "**Brief mention** (full coverage in OOP module):\n\nJava maintains a **String Pool** — a special area of memory where String literals are stored. Identical literals point to the same object.\n\n```java\nString a = \"hello\";\nString b = \"hello\";\n// Both point to the SAME object in the string pool\n\nString c = new String(\"hello\");\n// Forces a NEW object outside the pool\n```\n\nThis is why `a == b` is often true for literals (same object) but is NOT something to rely on. The interning optimization is real but unpredictable.\n\n**Bottom line**: still use `.equals()` for comparison. The pool is an implementation detail you shouldn't depend on."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three boxes representing Strings. Top: 'String a = \"hello\";' and 'String b = \"hello\";' both pointing to a single string \"hello\" in a 'String Pool' area. Below: 'String c = new String(\"hello\");' pointing to a SEPARATE \"hello\" object outside the pool. Arrows show: a == b is true (same object), a == c is false (different objects), but a.equals(c) is true (same content). Side panel: visualize immutability — show 's = \"hello\"' becoming 's = s.toUpperCase()' as creating a NEW \"HELLO\" object, with the original \"hello\" still existing (greyed out, awaiting garbage collection).",
+      "alt_text": "Visual showing String pool, reference equality vs content equality, and immutability creating new objects on modification"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building the signup validation logic for a SaaS product. New users register with an email. Your job: validate the email is well-formed. NOT regex-strict (that's a whole separate topic), but reasonable: has an @, has a dot in the domain, no spaces, both sides non-empty, common typos handled (uppercase, leading/trailing space). This is real production code — every signup form on the internet does this kind of validation.",
+    
+    "problem_statement": "Build an `EmailValidator` class with these methods:\n\n1. `normalize(String email)` — trims whitespace, converts to lowercase, returns cleaned version\n2. `isValidFormat(String email)` — returns true if email has reasonable structure:\n   - Contains exactly one '@'\n   - Local part (before @) is non-empty, has no spaces\n   - Domain part (after @) is non-empty, contains a dot\n   - No characters before '@' is empty after trim\n3. `getDomain(String email)` — extracts the domain portion (after @)\n4. main() tests with several email examples (valid and invalid)",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Implement normalize (use trim, toLowerCase)",
+        "details": "Cleaning input is step 1 of every input validation:\n\n```java\npublic static String normalize(String email) {\n    if (email == null) return \"\";\n    return email.trim().toLowerCase();\n}\n```\n\n**Notice**:\n- Null check: defensive. Many APIs return null for missing data.\n- `.trim()` removes leading/trailing whitespace (`\"  aisha@example.com  \"` → `\"aisha@example.com\"`)\n- `.toLowerCase()` standardizes case (`\"AISHA@example.com\"` → `\"aisha@example.com\"`)\n- We CHAIN method calls: `.trim().toLowerCase()` works because each method returns a new String we can call methods on.\n- Returns a NEW String (original unchanged — strings are immutable)."
+      },
+      {
+        "step": 2,
+        "action": "Implement isValidFormat (multiple checks)",
+        "details": "Check structure with String methods:\n\n```java\npublic static boolean isValidFormat(String email) {\n    String e = normalize(email);\n    \n    if (e.isEmpty()) return false;\n    \n    // Must have exactly one @\n    int atIndex = e.indexOf('@');\n    if (atIndex == -1) return false;  // no @\n    if (e.indexOf('@', atIndex + 1) != -1) return false;  // multiple @\n    \n    // Local part (before @)\n    String local = e.substring(0, atIndex);\n    if (local.isEmpty()) return false;\n    if (local.contains(\" \")) return false;\n    \n    // Domain part (after @)\n    String domain = e.substring(atIndex + 1);\n    if (domain.isEmpty()) return false;\n    if (!domain.contains(\".\")) return false;\n    if (domain.contains(\" \")) return false;\n    \n    return true;\n}\n```\n\n**Notice the multiple String methods**:\n- `.isEmpty()` — checks for empty string\n- `.indexOf('@')` — finds @ position, -1 if missing\n- `.indexOf('@', atIndex + 1)` — searches for second @\n- `.substring(0, atIndex)` — extracts local part\n- `.substring(atIndex + 1)` — extracts domain (from atIndex+1 to end)\n- `.contains(\" \")` — checks for spaces\n- `.contains(\".\")` — checks for the required dot in domain\n\nEach check is one early return — easy to read, easy to add new checks."
+      },
+      {
+        "step": 3,
+        "action": "Implement getDomain",
+        "details": "Just extract the part after @:\n\n```java\npublic static String getDomain(String email) {\n    String e = normalize(email);\n    int atIndex = e.indexOf('@');\n    if (atIndex == -1) return \"\";\n    return e.substring(atIndex + 1);\n}\n```\n\nFor `\"aisha@gmail.com\"` → returns `\"gmail.com\"`.\n\nNotice we call `normalize` first — consistency with isValidFormat. Caller's email is unchanged (immutability)."
+      },
+      {
+        "step": 4,
+        "action": "Test in main() with various inputs",
+        "details": "Test cases covering valid emails, edge cases, and invalid ones:\n\n```java\npublic static void main(String[] args) {\n    String[] testEmails = {\n        \"aisha@gmail.com\",\n        \"RAJ.PATEL@hdfc.co.in\",\n        \"  vikram@example.com  \",\n        \"not-an-email\",\n        \"@nodomain.com\",\n        \"nolocal@\",\n        \"two@@signs.com\",\n        \"spaces in@local.com\",\n        \"missing-dot@domain\",\n        \"\"\n    };\n    \n    for (String email : testEmails) {\n        boolean valid = isValidFormat(email);\n        String domain = getDomain(email);\n        String normalized = normalize(email);\n        \n        System.out.println(\"'\" + email + \"' → valid: \" + valid \n            + \", domain: '\" + domain + \"', normalized: '\" + normalized + \"'\");\n    }\n}\n```\n\nNotice we use single quotes (within strings) around values for clarity in output."
+      }
+    ],
+    
+    "final_code": "public class EmailValidator {\n    public static void main(String[] args) {\n        String[] testEmails = {\n            \"aisha@gmail.com\",\n            \"RAJ.PATEL@hdfc.co.in\",\n            \"  vikram@example.com  \",\n            \"not-an-email\",\n            \"@nodomain.com\",\n            \"nolocal@\",\n            \"two@@signs.com\",\n            \"spaces in@local.com\",\n            \"missing-dot@domain\",\n            \"\"\n        };\n        \n        for (String email : testEmails) {\n            boolean valid = isValidFormat(email);\n            String domain = getDomain(email);\n            String normalized = normalize(email);\n            \n            System.out.println(\"'\" + email + \"' → valid: \" + valid \n                + \", domain: '\" + domain + \"', normalized: '\" + normalized + \"'\");\n        }\n    }\n    \n    public static String normalize(String email) {\n        if (email == null) return \"\";\n        return email.trim().toLowerCase();\n    }\n    \n    public static boolean isValidFormat(String email) {\n        String e = normalize(email);\n        \n        if (e.isEmpty()) return false;\n        \n        int atIndex = e.indexOf('@');\n        if (atIndex == -1) return false;\n        if (e.indexOf('@', atIndex + 1) != -1) return false;\n        \n        String local = e.substring(0, atIndex);\n        if (local.isEmpty()) return false;\n        if (local.contains(\" \")) return false;\n        \n        String domain = e.substring(atIndex + 1);\n        if (domain.isEmpty()) return false;\n        if (!domain.contains(\".\")) return false;\n        if (domain.contains(\" \")) return false;\n        \n        return true;\n    }\n    \n    public static String getDomain(String email) {\n        String e = normalize(email);\n        int atIndex = e.indexOf('@');\n        if (atIndex == -1) return \"\";\n        return e.substring(atIndex + 1);\n    }\n}",
+    
+    "expected_output": "'aisha@gmail.com' → valid: true, domain: 'gmail.com', normalized: 'aisha@gmail.com'\n'RAJ.PATEL@hdfc.co.in' → valid: true, domain: 'hdfc.co.in', normalized: 'raj.patel@hdfc.co.in'\n'  vikram@example.com  ' → valid: true, domain: 'example.com', normalized: 'vikram@example.com'\n'not-an-email' → valid: false, domain: '', normalized: 'not-an-email'\n'@nodomain.com' → valid: false, domain: 'nodomain.com', normalized: '@nodomain.com'\n'nolocal@' → valid: false, domain: '', normalized: 'nolocal@'\n'two@@signs.com' → valid: false, domain: '@signs.com', normalized: 'two@@signs.com'\n'spaces in@local.com' → valid: false, domain: 'local.com', normalized: 'spaces in@local.com'\n'missing-dot@domain' → valid: false, domain: 'domain', normalized: 'missing-dot@domain'\n'' → valid: false, domain: '', normalized: ''",
+    
+    "things_to_notice": [
+      "Five different String methods used: `trim`, `toLowerCase`, `indexOf`, `substring`, `contains`. Each does ONE thing well — that's good design.",
+      "Immutability in action: `email.trim().toLowerCase()` is method chaining. Each method returns a NEW String. The original `email` is unchanged.",
+      "Defensive null check at the top of `normalize`. Many real APIs return null for missing fields.",
+      "Notice we use `.isEmpty()` not `.length() == 0`. Both work, but isEmpty is more readable.",
+      "Multiple early returns make the validation logic crystal clear — each line is one rule.",
+      "For real email validation, you'd use a regex library or a dedicated validator (Apache Commons, javax.validation). This simple version teaches String operations, not production email rules.",
+      "Production note: 'spaces in@local.com' getting normalized to itself (with the space) shows that trim only removes LEADING and TRAILING whitespace, not internal. That's the desired behavior here."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Authentication systems (every login form)",
+        "use_case": "Login flows: trim whitespace from email, lowercase for case-insensitive lookup, validate format. The classic Java bug — comparing password with `==` instead of `.equals()` — has been responsible for actual security incidents. Password comparison MUST use `.equals()` (or better, `MessageDigest.isEqual` for timing-attack resistance)."
+      },
+      {
+        "company_context": "Search engines (Google, internal company search)",
+        "use_case": "Every search query is a string. Normalize (lowercase, trim), tokenize (split), match against index. `String.indexOf` and `contains` underpin search highlighting, autocomplete, suggestions. Google's search starts with String operations on your query."
+      },
+      {
+        "company_context": "CSV/JSON parsing (data engineering, ETL)",
+        "use_case": "Every data file is parsed as strings. CSV: `line.split(\",\")` to get fields. JSON: more complex but still string operations underneath. ETL pipelines (data movement between systems) are heavily string-processing-heavy."
+      },
+      {
+        "company_context": "URL routing (Spring, every web framework)",
+        "use_case": "When a request hits `/api/users/123`, the framework splits the URL by '/' and matches parts. Path parameters extracted with substring. Query strings parsed with split. Every HTTP request triggers dozens of String operations."
+      }
+    ],
+    
+    "interview_relevance": "String questions are CONSTANT in interviews:\n\n- **Easy**: 'Reverse a string,' 'Check palindrome,' 'Count vowels'\n- **Medium**: 'First non-repeating character,' 'Group anagrams,' 'Longest common prefix'\n- **Hard**: 'Longest palindromic substring,' 'Regex matching,' 'String compression'\n\nKey patterns:\n- **Two-pointer** (from Topic 3.2) on string characters: palindrome, reverse\n- **Sliding window**: longest substring without repeats\n- **Hashing**: anagrams, character counts\n- **Parsing**: split, substring, indexOf\n\n**Compromising bug**: Almost every senior interviewer will trip up candidates with `==` vs `.equals()` somewhere. Getting this right is the FIRST signal you understand Java.\n\nThe whole 'Strings are immutable' point also comes up frequently. 'What's wrong with concatenating strings in a loop?' (Answer: each + creates a new object — covered next topic with StringBuilder.)",
+    
+    "real_world_workflow": "Daily String operations:\n\n- Validating user inputs (forms, API requests)\n- Parsing data files (CSV, JSON, XML)\n- Building log messages\n- Formatting output for users\n- URL construction and parsing\n- Error message construction\n- Database query building (with parameters — never via concatenation due to SQL injection!)\n- Comparing inputs (always `.equals()`!)\n- Converting between types (String → int with `Integer.parseInt`, etc.)\n\nIf you can't manipulate strings fluently, you can't write modern Java. Some say 80% of a backend developer's time is moving and transforming strings between systems."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "string_equality_with_double_equals",
+      "what_students_get_wrong": "Using `==` to compare strings. Sometimes works (due to string pool), sometimes doesn't. Unreliable.",
+      "remediation": "ALWAYS use `.equals()` for String comparison. For case-insensitive: `.equalsIgnoreCase()`. There is NEVER a beginner reason to use `==` on strings.",
+      "detection_pattern": "Strings 'sometimes' equal, intermittent test failures"
+    },
+    {
+      "gap_id": "trying_to_modify_string",
+      "what_students_get_wrong": "Calling `s.toUpperCase()` expecting `s` to change. It doesn't — must capture return value.",
+      "remediation": "Strings are IMMUTABLE. Methods return NEW strings. Always assign: `s = s.toUpperCase();`.",
+      "detection_pattern": "String unchanged despite method call"
+    },
+    {
+      "gap_id": "length_method_vs_field_confusion",
+      "what_students_get_wrong": "Writing `string.length` (no parens) or `array.length()` (with parens). Both are compilation errors.",
+      "remediation": "Array: `.length` (FIELD, no parens). String: `.length()` (METHOD, with parens). Memorize this distinction.",
+      "detection_pattern": "Compilation error mentioning length"
+    },
+    {
+      "gap_id": "substring_end_index_misunderstood",
+      "what_students_get_wrong": "Thinking `substring(start, end)` includes the character at `end`. It doesn't — end is EXCLUSIVE.",
+      "remediation": "`substring(0, 5)` returns chars at indices 0, 1, 2, 3, 4 — NOT 0-5 inclusive. To include character at index n, use `substring(n, n+1)`.",
+      "detection_pattern": "Wrong-length substring extraction"
+    },
+    {
+      "gap_id": "char_vs_string_confusion",
+      "what_students_get_wrong": "Using double quotes when single quotes needed (or vice versa). `char c = \"A\"` is an error.",
+      "remediation": "char uses single quotes ('A'). String uses double quotes (\"A\"). Different types, different syntax.",
+      "detection_pattern": "Type mismatch errors involving char/String"
+    },
+    {
+      "gap_id": "expecting_indexof_to_return_boolean",
+      "what_students_get_wrong": "Treating `indexOf` result as boolean. `if (s.indexOf(\"x\"))` doesn't compile.",
+      "remediation": "indexOf returns int (-1 if not found). Use `if (s.indexOf(\"x\") != -1)` or `if (s.contains(\"x\"))`.",
+      "detection_pattern": "Compilation error: int can't be converted to boolean"
+    },
+    {
+      "gap_id": "null_string_npe",
+      "what_students_get_wrong": "Calling methods on null String — NullPointerException at runtime.",
+      "remediation": "Check for null before calling methods on Strings that might be null. Or use Objects.requireNonNullElse to provide a default.",
+      "detection_pattern": "NullPointerException on String operations"
+    },
+    {
+      "gap_id": "concatenation_with_arithmetic_order",
+      "what_students_get_wrong": "`\"Sum: \" + 5 + 3` gives `\"Sum: 53\"` instead of `\"Sum: 8\"`.",
+      "remediation": "Once + sees a String, it concatenates. Use parens for math first: `\"Sum: \" + (5 + 3)`.",
+      "detection_pattern": "Wrong arithmetic appearing in string output"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Strings are OBJECTS (capital S), but Java gives them special literal syntax with double quotes",
+      "Strings are IMMUTABLE — methods return NEW strings, original unchanged",
+      "`.length()` is a METHOD (with parens), unlike array's `.length` field",
+      "ALWAYS use `.equals()` for String comparison. NEVER `==` (compares references, unreliable)",
+      "For case-insensitive: `.equalsIgnoreCase()`",
+      "Top methods: charAt, indexOf, substring, toLowerCase/Upper, trim, contains, startsWith/endsWith, replace, split",
+      "`indexOf` returns int (-1 if not found); use `contains` for boolean checks",
+      "`substring(start, end)` — start INCLUSIVE, end EXCLUSIVE",
+      "char (single quotes, primitive) vs String (double quotes, object) are different",
+      "`+` with any String becomes concatenation; use parens to force math first",
+      "String concatenation in loops is slow due to immutability — use StringBuilder (next topic)"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why does this print false?\n```java\nString a = new String(\"hello\");\nString b = \"hello\";\nSystem.out.println(a == b);\n```",
+        "answer": "`==` compares references, not contents. `new String(\"hello\")` forces a new object. `b = \"hello\"` (literal) uses the String pool. They're separate objects, so `a == b` is false even though contents are identical. Use `.equals()`: `a.equals(b)` returns true. Lesson: NEVER use `==` for String comparison."
+      },
+      {
+        "question": "What does this print?\n```java\nString s = \"hello\";\ns.toUpperCase();\nSystem.out.println(s);\n```",
+        "answer": "`hello` (lowercase, unchanged). Strings are IMMUTABLE. `toUpperCase()` returns a NEW string `\"HELLO\"` but we don't capture it. The reference `s` still points to the original `\"hello\"`. To actually change s: `s = s.toUpperCase();`."
+      },
+      {
+        "question": "What does `\"javacode\".substring(4, 7)` return?",
+        "answer": "`\"cod\"`. start=4 inclusive, end=7 exclusive. Characters at indices 4, 5, 6 are 'c', 'o', 'd'. The 'e' at index 7 is NOT included. Substring end is always exclusive — same convention as for loops `i < n`."
+      },
+      {
+        "question": "What's wrong with this?\n```java\nString name = null;\nint len = name.length();\n```",
+        "answer": "NullPointerException at runtime. `name` is null — there's no object to call `.length()` on. Defensive code: check `if (name != null)` first, or use `Optional`, or initialize to empty string. Calling any method on null throws NPE."
+      },
+      {
+        "question": "Why is `\"score: \" + 5 + 3` equal to `\"score: 53\"` instead of `\"score: 8\"`?",
+        "answer": "Left-to-right evaluation. First: `\"score: \" + 5` becomes `\"score: 5\"` (string concatenation since left operand is String). Then `\"score: 5\" + 3` becomes `\"score: 53\"`. The `+` is concatenation, not addition. To get \"score: 8\", use parens: `\"score: \" + (5 + 3)`. Parens force math first."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: String Manipulation & StringBuilder. We mentioned that concatenating strings in loops is slow due to immutability. StringBuilder fixes that — it's a MUTABLE companion to String, designed for building strings efficiently. You'll learn when to use StringBuilder (loops, building strings piece by piece) vs String (most other cases). Plus advanced parsing patterns: tokenization, formatted output with printf, useful String methods we didn't cover today."
+  }
+}

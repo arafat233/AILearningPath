@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t5",
+  "topic_name": "Hash Table Synthesis",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m34_t5_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Randomized Set (LeetCode #380)",
+      "instructions": "Implement: Randomized Set (LeetCode #380).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class RandSet {\n    static class RandomizedSet {\n        Map<Integer,Integer> map=new HashMap<>(); List<Integer> list=new ArrayList<>(); Random rnd=new Random();\n        boolean insert(int v){if(map.containsKey(v))return false;map.put(v,list.size());list.add(v);return true;}\n        boolean remove(int v){if(!map.containsKey(v))return false;\n            int idx=map.get(v),last=list.get(list.size()-1);\n            list.set(idx,last);map.put(last,idx);list.remove(list.size()-1);map.remove(v);return true;}\n        int getRandom(){return list.get(rnd.nextInt(list.size()));}\n    }\n    public static void main(String[] a){\n        RandomizedSet rs=new RandomizedSet();\n        System.out.println(rs.insert(1)); // true\n        System.out.println(rs.remove(2)); // false\n        System.out.println(rs.insert(2)); // true\n        boolean r=rs.getRandom()==1||rs.getRandom()==2;System.out.println(r); // true\n        System.out.println(\"O(1) insert/remove/getRandom \u2014 HashMap+ArrayList swap trick\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "O(1) insert/remove/getRandom"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t5_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "LRU Cache (review \u2014 HashMap + DLL)",
+      "instructions": "Implement: LRU Cache (review \u2014 HashMap + DLL).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LRUCache2 {\n    static class LRU {\n        class N{int k,v;N p,n;N(int k,int v){this.k=k;this.v=v;}}\n        Map<Integer,N> m=new HashMap<>();N h=new N(0,0),t=new N(0,0);int c;\n        LRU(int cap){c=cap;h.n=t;t.p=h;}\n        void rm(N n){n.p.n=n.n;n.n.p=n.p;}void af(N n){n.n=h.n;n.p=h;h.n.p=n;h.n=n;}\n        int get(int k){if(!m.containsKey(k))return -1;N n=m.get(k);rm(n);af(n);return n.v;}\n        void put(int k,int v){if(m.containsKey(k)){N n=m.get(k);n.v=v;rm(n);af(n);return;}if(m.size()==c){m.remove(t.p.k);rm(t.p);}N n=new N(k,v);af(n);m.put(k,n);}\n    }\n    public static void main(String[] a){LRU l=new LRU(2);l.put(1,1);l.put(2,2);System.out.println(l.get(1));l.put(3,3);System.out.println(l.get(2));System.out.println(l.get(3));System.out.println(\"O(1) get+put: HashMap lookup + DLL reorder\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "3",
+            "O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Hash set with manual chaining",
+      "instructions": "Implement: Hash set with manual chaining.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MySet {\n    List<Integer>[] buckets=(List<Integer>[])new List[128];\n    int hash(int k){return Math.abs(k)%128;}\n    boolean add(int k){int h=hash(k);if(buckets[h]==null)buckets[h]=new ArrayList<>();if(buckets[h].contains(k))return false;buckets[h].add(k);return true;}\n    boolean contains(int k){int h=hash(k);return buckets[h]!=null&&buckets[h].contains(k);}\n    boolean remove(int k){int h=hash(k);if(buckets[h]==null)return false;return buckets[h].remove(Integer.valueOf(k));}\n    public static void main(String[] a){MySet s=new MySet();System.out.println(s.add(1));System.out.println(s.add(2));System.out.println(s.contains(1));System.out.println(s.remove(2));System.out.println(s.contains(2));System.out.println(\"Chaining HashSet: O(1) avg \u2014 bucket list for collision handling\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "true",
+            "true",
+            "false",
+            "Chaining HashSet"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m34_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "All O(1) data structure \u2014 Insert Delete GetRandom",
+      "instructions": "Implement: All O(1) data structure \u2014 Insert Delete GetRandom.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class InsDelRand {\n    Map<Integer,Integer> idx=new HashMap<>();List<Integer> list=new ArrayList<>();Random r=new Random();\n    boolean insert(int v){if(idx.containsKey(v))return false;idx.put(v,list.size());list.add(v);return true;}\n    boolean delete(int v){if(!idx.containsKey(v))return false;\n        int i=idx.get(v),last=list.get(list.size()-1);\n        list.set(i,last);idx.put(last,i);list.remove(list.size()-1);idx.remove(v);return true;}\n    int getRandom(){return list.get(r.nextInt(list.size()));}\n    public static void main(String[] a){InsDelRand s=new InsDelRand();s.insert(1);s.insert(2);s.insert(3);System.out.println(s.delete(2));System.out.println(s.getRandom()!=2);System.out.println(\"Swap-with-last: O(1) delete from ArrayList by avoiding O(n) shift\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "Swap-with-last"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m34_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Word Frequency Map + Top K",
+      "instructions": "Implement: Word Frequency Map + Top K.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class WordFreq {\n    public static String[] topKWords(String[] words, int k) {\n        Map<String,Integer> freq=new HashMap<>();for(String w:words)freq.merge(w,1,Integer::sum);\n        PriorityQueue<String> pq=new PriorityQueue<>((a,b)->freq.get(a).equals(freq.get(b))?b.compareTo(a):freq.get(a)-freq.get(b));\n        for(String w:freq.keySet()){pq.offer(w);if(pq.size()>k)pq.poll();}\n        String[] res=new String[k];for(int i=k-1;i>=0;i--)res[i]=pq.poll();return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(topKWords(new String[]{\"i\",\"love\",\"leetcode\",\"i\",\"love\",\"coding\"},2)));\n        System.out.println(Arrays.toString(topKWords(new String[]{\"the\",\"day\",\"is\",\"sunny\",\"the\",\"the\",\"the\",\"sunny\",\"is\",\"is\"},4)));\n        System.out.println(\"O(n log k) \u2014 freq map + min-heap (lex ascending for ties)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[i, love]",
+            "[the, is, sunny, day]",
+            "O(n log k)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m34_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "LFU Cache (LeetCode #460)",
+      "instructions": "Implement: LFU Cache (LeetCode #460).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LFU {\n    Map<Integer,Integer> kv=new HashMap<>(),kf=new HashMap<>();Map<Integer,LinkedHashSet<Integer>> fk=new HashMap<>();int cap,minF;\n    LFU(int c){cap=c;}\n    void upd(int k){int f=kf.get(k);kf.put(k,f+1);fk.computeIfAbsent(f,x->new LinkedHashSet<>()).remove(k);if(fk.get(f).isEmpty()&&f==minF)minF++;fk.computeIfAbsent(f+1,x->new LinkedHashSet<>()).add(k);}\n    int get(int k){if(!kv.containsKey(k))return -1;upd(k);return kv.get(k);}\n    void put(int k,int v){if(cap==0)return;if(kv.containsKey(k)){kv.put(k,v);upd(k);return;}if(kv.size()==cap){int e=fk.get(minF).iterator().next();fk.get(minF).remove(e);kv.remove(e);kf.remove(e);}kv.put(k,v);kf.put(k,1);fk.computeIfAbsent(1,x->new LinkedHashSet<>()).add(k);minF=1;}\n    public static void main(String[] a){LFU l=new LFU(2);l.put(1,1);l.put(2,2);System.out.println(l.get(1));l.put(3,3);System.out.println(l.get(2));System.out.println(l.get(3));System.out.println(\"O(1) all ops: kv+kf+fk(LinkedHashSet for LRU within freq)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "3",
+            "O(1) all ops"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m34_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Snapshot Array (LeetCode #1146) revisited",
+      "instructions": "Implement: Snapshot Array (LeetCode #1146) revisited.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SnapArr {\n    List<TreeMap<Integer,Integer>> d=new ArrayList<>();int sid=0;\n    SnapArr(int n){for(int i=0;i<n;i++){TreeMap<Integer,Integer> m=new TreeMap<>();m.put(0,0);d.add(m);}}\n    void set(int i,int v){d.get(i).put(sid,v);}\n    int snap(){return sid++;}\n    int get(int i,int snap_id){return d.get(i).floorEntry(snap_id).getValue();}\n    public static void main(String[] a){SnapArr sa=new SnapArr(3);sa.set(0,5);System.out.println(sa.snap());sa.set(0,6);System.out.println(sa.get(0,0));System.out.println(sa.get(0,1));System.out.println(\"TreeMap+floorEntry: binary search for snap_id. O(log s) get, O(log s) set\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "0",
+            "5",
+            "6",
+            "floorEntry"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Design HashMap with O(1) ops",
+      "instructions": "Implement: Design HashMap with O(1) ops.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DesignHM {\n    private static final int BUCKETS=1024;\n    List<int[]>[] table=(List<int[]>[])new List[BUCKETS];\n    int hash(int k){return k%BUCKETS;}\n    void put(int k,int v){int h=hash(k);if(table[h]==null)table[h]=new ArrayList<>();for(int[] p:table[h])if(p[0]==k){p[1]=v;return;}table[h].add(new int[]{k,v});}\n    int get(int k){int h=hash(k);if(table[h]==null)return -1;for(int[] p:table[h])if(p[0]==k)return p[1];return -1;}\n    void remove(int k){int h=hash(k);if(table[h]!=null)table[h].removeIf(p->p[0]==k);}\n    public static void main(String[] a){DesignHM hm=new DesignHM();hm.put(1,1);hm.put(2,2);System.out.println(hm.get(1));System.out.println(hm.get(3));hm.put(2,1);System.out.println(hm.get(2));hm.remove(2);System.out.println(hm.get(2));System.out.println(\"Chaining with 1024 buckets: O(1) avg, O(n/1024) worst with good hash\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "1",
+            "-1",
+            "O(1) avg"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Encode and Decode TinyURL (HashMap design)",
+      "instructions": "Implement: Encode and Decode TinyURL (HashMap design).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TinyURL {\n    Map<String,String> enc=new HashMap<>(),dec=new HashMap<>();int id=0;\n    static final String BASE=\"http://tinyurl.com/\";\n    String encode(String longUrl){String key=BASE+(id++);enc.put(longUrl,key);dec.put(key,longUrl);return key;}\n    String decode(String shortUrl){return dec.get(shortUrl);}\n    public static void main(String[] a){TinyURL t=new TinyURL();String short1=t.encode(\"https://leetcode.com/problems/design-tinyurl\");System.out.println(short1.startsWith(\"http://tinyurl.com/\"));System.out.println(t.decode(short1).equals(\"https://leetcode.com/problems/design-tinyurl\"));System.out.println(\"Two maps: url\u2192short and short\u2192url. O(1) encode/decode\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "Two maps"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Time Based Key-Value Store (LeetCode #981)",
+      "instructions": "Implement: Time Based Key-Value Store (LeetCode #981).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TimeMap {\n    Map<String,TreeMap<Integer,String>> store=new HashMap<>();\n    void set(String k,String v,int ts){store.computeIfAbsent(k,x->new TreeMap<>()).put(ts,v);}\n    String get(String k,int ts){if(!store.containsKey(k))return \"\";Map.Entry<Integer,String> e=store.get(k).floorEntry(ts);return e==null?\"\":e.getValue();}\n    public static void main(String[] a){TimeMap tm=new TimeMap();tm.set(\"foo\",\"bar\",1);System.out.println(tm.get(\"foo\",1));System.out.println(tm.get(\"foo\",3));tm.set(\"foo\",\"bar2\",4);System.out.println(tm.get(\"foo\",4));System.out.println(tm.get(\"foo\",5));System.out.println(\"HashMap<key,TreeMap<ts,val>>: O(log n) get, O(log n) set\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "bar",
+            "bar",
+            "bar2",
+            "bar2",
+            "O(log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Hash synthesis \u2014 all designs",
+      "instructions": "Implement: Hash synthesis \u2014 all designs.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HashSynth {\n    static class RS{Map<Integer,Integer> idx=new HashMap<>();List<Integer> l=new ArrayList<>();Random r=new Random();boolean ins(int v){if(idx.containsKey(v))return false;idx.put(v,l.size());l.add(v);return true;}boolean del(int v){if(!idx.containsKey(v))return false;int i=idx.get(v),la=l.get(l.size()-1);l.set(i,la);idx.put(la,i);l.remove(l.size()-1);idx.remove(v);return true;}int rand(){return l.get(r.nextInt(l.size()));}}\n    public static void main(String[] a){\n        RS rs=new RS();rs.ins(1);rs.ins(2);rs.ins(3);rs.del(2);\n        boolean ok=!rs.idx.containsKey(2)&&rs.l.size()==2;\n        System.out.println(\"RandomizedSet del(2)=\"+rs.del(2)+\" after already deleted: \"+!rs.idx.containsKey(2));\n        System.out.println(\"size: \"+rs.l.size()); // 2\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "size: 2"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M34 T5 Hash Synthesis",
+      "instructions": "Implement: Complete M34 T5 Hash Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T5Final {\n    static class RS{Map<Integer,Integer> idx=new HashMap<>();List<Integer> l=new ArrayList<>();Random r=new Random();boolean ins(int v){if(idx.containsKey(v))return false;idx.put(v,l.size());l.add(v);return true;}boolean del(int v){if(!idx.containsKey(v))return false;int i=idx.get(v),la=l.get(l.size()-1);l.set(i,la);idx.put(la,i);l.remove(l.size()-1);idx.remove(v);return true;}int rand(){return l.get(r.nextInt(l.size()));}}\n    static class LRU2{class N{int k,v;N p,n;N(int k,int v){this.k=k;this.v=v;}}Map<Integer,N> m=new HashMap<>();N h=new N(0,0),t=new N(0,0);int c;LRU2(int cap){c=cap;h.n=t;t.p=h;}void rm(N n){n.p.n=n.n;n.n.p=n.p;}void af(N n){n.n=h.n;n.p=h;h.n.p=n;h.n=n;}int get(int k){if(!m.containsKey(k))return -1;N n=m.get(k);rm(n);af(n);return n.v;}void put(int k,int v){if(m.containsKey(k)){N n=m.get(k);n.v=v;rm(n);af(n);return;}if(m.size()==c){m.remove(t.p.k);rm(t.p);}N n=new N(k,v);af(n);m.put(k,n);}}\n    public static void main(String[] a){\n        RS rs=new RS();rs.ins(1);rs.ins(2);System.out.println(\"RS del=\"+rs.del(1));System.out.println(\"RS has1=\"+rs.idx.containsKey(1));\n        LRU2 lru=new LRU2(2);lru.put(1,1);lru.put(2,2);System.out.println(\"LRU get1=\"+lru.get(1));lru.put(3,3);System.out.println(\"LRU get2=\"+lru.get(2));\n        boolean ok=rs.del(2)&&!rs.idx.containsKey(2)&&lru.get(1)==1&&lru.get(2)==-1;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "RS del=true",
+            "LRU get1=1",
+            "LRU get2=-1"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

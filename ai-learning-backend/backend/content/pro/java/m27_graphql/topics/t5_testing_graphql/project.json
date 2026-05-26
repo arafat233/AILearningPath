@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m27_t5_proj",
+  "linked_topic": "java_m27_t5",
+  "level": "mini",
+  "name": "Zerodha GraphQL Test Suite",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "The Zerodha GraphQL API has zero tests. Any schema change risks breaking client apps. Build a comprehensive GraphQL test suite using @GraphQlTest and GraphQlTester covering queries, mutations, subscriptions, and error scenarios.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "@GraphQlTest(ZerodhaController.class) test class. @Autowired GraphQlTester. @MockBean for StockService and OrderService.", "weight": 10},
+      {"id": "req_2", "description": "stockBySymbol query test: .variable('symbol', 'RELIANCE').execute().errors().verify().path('stockBySymbol.price').entity(BigDecimal.class).isEqualByComparingTo(new BigDecimal('2800')).", "weight": 15},
+      {"id": "req_3", "description": "createOrder mutation test: .variable('input', Map.of(...)).execute().errors().verify().path('createOrder.orderId').entity(String.class).matches(id -> id.startsWith('ORD-')).", "weight": 15},
+      {"id": "req_4", "description": "Error test: unknown stock → .execute().errors().satisfy(errors -> assertThat(errors).isNotEmpty()). No .errors().verify() on error tests.", "weight": 10},
+      {"id": "req_5", "description": "allStocks list test: .execute().errors().verify().path('allStocks').entityList(Stock.class).hasSize(N).", "weight": 10},
+      {"id": "req_6", "description": "Subscription test: livePrice subscription → .executeSubscription().toFlux().take(3).mapNotNull(r -> r.toEntity(PriceUpdate.class)).collectList().block(Duration.ofSeconds(5)). Assert size=3.", "weight": 20},
+      {"id": "req_7", "description": "GraphQL test documents in src/test/resources/graphql-test/: stockBySymbol.graphql, createOrder.graphql, allStocks.graphql, livePrice.graphql.", "weight": 10},
+      {"id": "req_8", "description": "README: explains @GraphQlTest vs HttpGraphQlTester (unit vs integration), and why .errors().verify() must come before .path() assertions.", "weight": 10}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "HttpGraphQlTester integration test: @SpringBootTest(RANDOM_PORT). WebTestClient + HttpGraphQlTester.create(). At least 2 tests using real HTTP stack.", "weight": 20},
+      {"id": "bonus_2", "description": "Security test: @WithMockUser for authenticated query. Anonymous user query returns error. Public query passes without auth.", "weight": 15},
+      {"id": "bonus_3", "description": "DataLoader test: verify(@MockBean TradeRepository, atMost(1)).findBySymbols(argThat(list -> list.size() == 3)) — one batch call for 3 positions.", "weight": 20}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. errors().verify(): ALWAYS call this before any .path() assertions — without it, GraphQL errors are silently ignored and the test passes even when the resolver threw an exception. documentName('name'): maps to src/test/resources/graphql-test/name.graphql — the file must exist. Use inline .document(gqlString) for quick tests without files. Subscription test: .executeSubscription().toFlux().take(N) is required — without .take(N), the Flux never completes (subscriptions are infinite streams). .variable() for every required argument: GraphQL will reject the request with a validation error if required variables are missing. entityList(Type.class) for list responses: .path('fieldName').entityList(Type.class).hasSize(N).",
+  "rubric": [
+    {"category": "@GraphQlTest setup", "points": 10},
+    {"category": "stockBySymbol query test", "points": 15},
+    {"category": "createOrder mutation test", "points": 15},
+    {"category": "Error test", "points": 10},
+    {"category": "List query test", "points": 10},
+    {"category": "Subscription test", "points": 20},
+    {"category": "GraphQL test .graphql files", "points": 10},
+    {"category": "README", "points": 10},
+    {"category": "Bonus", "points": 55}
+  ]
+}

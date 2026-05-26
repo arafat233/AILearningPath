@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m15_t1_proj",
+  "linked_topic": "java_m15_t1",
+  "level": "mini",
+  "name": "Zerodha-Style Trading Platform — Two-Service Architecture",
+  "estimated_minutes": 55,
+  "difficulty": 7,
+
+  "scenario": "Build two collaborating microservices for a stock trading platform: market-service (provides stock prices and availability) and order-service (places buy/sell orders, calling market-service synchronously for price validation). Each is a separate Spring Boot application with its own database.",
+
+  "description": "Two independent Spring Boot applications. market-service (port 8081): stocks with current prices. order-service (port 8082): calls market-service via RestTemplate before placing orders. Each with its own H2 database. MockRestServiceServer tests covering success and error scenarios.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`market-service` (port 8081, spring.application.name=market-service): Stock @Entity (symbol, companyName, currentPrice, availableShares). StockRepository. StockController: GET /api/stocks/{symbol}, GET /api/stocks/{symbol}/quote (returns {symbol, price, availableShares, tradeable}).",
+        "weight": 22
+      },
+      {
+        "id": "req_2",
+        "description": "`order-service` (port 8082, spring.application.name=order-service): TradeOrder @Entity (id, userId, symbol, quantity, price, type BUY/SELL, status). TradeOrderRepository. RestTemplate @Bean.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`TradeService.executeTrade(userId, symbol, quantity, type)`: calls market-service GET /api/stocks/{symbol}/quote (RestTemplate). Validates: stock tradeable, sufficient shares for BUY. Saves order with current price. Returns the saved order.",
+        "weight": 25
+      },
+      {
+        "id": "req_4",
+        "description": "`TradeController` (order-service): POST /api/trades {userId, symbol, quantity, type} → 201 with order, 400/409 on validation failure.",
+        "weight": 13
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest tests with MockRestServiceServer (5 tests): successful BUY, successful SELL, stock not tradeable (reject), insufficient shares (reject), market-service down (RuntimeException).",
+        "weight": 25
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a @CommandLineRunner to market-service that seeds 5 real NSE stocks (TCS, RELIANCE, INFY, HDFC, ICICI) with realistic prices. Add GET /api/stocks to list all.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add transaction history: after a successful trade, order-service calls a (mocked) portfolio-service to update holdings. Mock this call in tests.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add inter-service authentication: RestTemplate @Bean in order-service is configured with a ClientHttpRequestInterceptor that adds X-Service-Name=order-service header to all outgoing calls. market-service validates this header.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "market-service seed data:\nTCS:       ₹3890, 1000000 shares, tradeable=true\nRELIANCE:  ₹2450, 2000000 shares, tradeable=true\nINFY:      ₹1560, 1500000 shares, tradeable=true\nHDFC:      ₹1670, 800000 shares,  tradeable=true\nPAYTM:     ₹475,  500000 shares,  tradeable=false (suspended)\n\nTest scenarios:\nBUY 10 TCS at ₹3890 → success\nSELL 5 RELIANCE → success (no share count check on SELL)\nBUY 10 PAYTM → reject (tradeable=false)\nBUY 2000000 HDFC → reject (insufficient shares)\nBUY TCS (market-service down) → RuntimeException",
+
+  "starter_code": "// market-service/\n//   src/main/java/com/codequest/market/\n//     MarketServiceApplication.java\n//     model/Stock.java\n//     repository/StockRepository.java\n//     controller/StockController.java\n//   src/main/resources/application.properties\n\n// order-service/\n//   src/main/java/com/codequest/order/\n//     OrderServiceApplication.java\n//     model/TradeOrder.java\n//     service/TradeService.java\n//     controller/TradeController.java\n//     config/AppConfig.java (RestTemplate @Bean)\n//   src/main/resources/application.properties\n//   src/test/java/.../TradeServiceTest.java",
+
+  "example_output": "# market-service (port 8081):\nGET /api/stocks/TCS/quote\n→ {\"symbol\":\"TCS\",\"price\":3890.0,\"availableShares\":1000000,\"tradeable\":true}\n\n# order-service (port 8082):\nPOST /api/trades {\"userId\":\"U01\",\"symbol\":\"TCS\",\"quantity\":10,\"type\":\"BUY\"}\n  → calling http://localhost:8081/api/stocks/TCS/quote\n  → received {symbol:TCS, price:3890, tradeable:true}\n  → order saved\n← 201 {\"id\":\"ORD-001\",\"symbol\":\"TCS\",\"quantity\":10,\"price\":3890.0,\"type\":\"BUY\",\"status\":\"EXECUTED\"}\n\nPOST /api/trades {\"userId\":\"U01\",\"symbol\":\"PAYTM\",\"quantity\":100,\"type\":\"BUY\"}\n← 409 {\"error\":\"PAYTM is not currently tradeable\"}\n\n# Test results:\n✓ executeTrade_BUY_TCS_success\n✓ executeTrade_SELL_RELIANCE_success\n✓ executeTrade_notTradeable_rejects\n✓ executeTrade_insufficientShares_rejects\n✓ executeTrade_marketDown_throws",
+
+  "rubric": [
+    { "category": "market-service", "points": 22, "criteria": ["@Entity + @Controller (12 pts)", "/quote endpoint (10 pts)"] },
+    { "category": "order-service setup", "points": 15, "criteria": ["TradeOrder @Entity (8 pts)", "RestTemplate @Bean (7 pts)"] },
+    { "category": "TradeService.executeTrade()", "points": 25, "criteria": ["HTTP call to market-service (10 pts)", "Validation logic (10 pts)", "Save + return (5 pts)"] },
+    { "category": "TradeController", "points": 13, "criteria": ["POST /api/trades correct (13 pts)"] },
+    { "category": "@SpringBootTest tests", "points": 25, "criteria": ["5 MockRestServiceServer tests (5 pts each)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["Seed data (15 pts)", "Portfolio call (20 pts)", "Service auth header (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Two separate Spring Boot apps, different ports. market-service /quote: returns {symbol, price, availableShares, tradeable}. MockRestServiceServer: server.expect(requestTo(url)).andRespond(withSuccess(json, APPLICATION_JSON)). withException(new IOException()) for service-down test. @BeforeEach server = MockRestServiceServer.createServer(restTemplate).",
+
+  "submission_instructions": "Two separate GitHub repos (or subdirectories). Both Spring Boot apps run simultaneously. README shows how to start both. All 5 tests pass.",
+
+  "tips_for_success": [
+    "Two pom.xml files, two Application.java classes, two application.properties — truly separate",
+    "market-service quote endpoint: map Stock entity to a QuoteDto (don't return @Entity directly to other services)",
+    "TradeService: catch HttpClientErrorException.NotFound for unknown symbol",
+    "Test: server.expect() calls must match the ORDER of RestTemplate calls in the service method",
+    "withException(new IOException('Connection refused')): simulates network failure"
+  ],
+
+  "concepts_reinforced": [
+    "Two independent Spring Boot applications",
+    "Each service has its own database",
+    "RestTemplate for inter-service HTTP calls",
+    "MockRestServiceServer for testing without real HTTP",
+    "Service decomposition by domain",
+    "Synchronous REST for critical path validation"
+  ]
+}

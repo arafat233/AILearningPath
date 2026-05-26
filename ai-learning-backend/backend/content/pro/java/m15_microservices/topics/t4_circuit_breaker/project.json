@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m15_t4_proj",
+  "linked_topic": "java_m15_t4",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — Resilient Inter-Service Calls",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+
+  "scenario": "Add Resilience4j circuit breakers to the Zerodha trading platform. When market-service goes down, trades shouldn't fail completely — return cached prices with tradeable=false. When payment-service is overloaded, throw a meaningful exception instead of waiting 30 seconds. Test all resilience patterns.",
+
+  "description": "Add @CircuitBreaker, @Retry, and @RateLimiter to order-service's downstream calls. Configure meaningful fallbacks. Test circuit state transitions. Verify /actuator/health shows circuit state.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`MarketService.getStockQuote(symbol)` with @CircuitBreaker('market-service') + @Retry('market-service'). Fallback: return cached quote (ConcurrentHashMap) with tradeable=false. Update cache on successful calls.",
+        "weight": 22
+      },
+      {
+        "id": "req_2",
+        "description": "`PaymentService.processPayment(userId, amount)` with @CircuitBreaker('payment-service'). Fallback throws `PaymentServiceUnavailableException` (don't silently accept — payments must work or fail explicitly).",
+        "weight": 18
+      },
+      {
+        "id": "req_3",
+        "description": "application.properties: market-service CB (sliding-window=10, min-calls=5, threshold=50%, wait=60s), market-service Retry (max-attempts=3, wait=500ms). payment-service CB (threshold=60%, wait=30s). register-health-indicator=true for both.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "`TradeService.executeTrade(userId, symbol, qty)`: calls MarketService.getStockQuote() and PaymentService.processPayment(). Handles MarketUnavailableException (from fallback) and PaymentServiceUnavailableException separately.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest tests (5 tests): success, market fallback returns cached price (tradeable=false → trade not executed), market circuit OPENS after 6 failures, payment CB open → PaymentServiceUnavailableException, circuit OPEN shows in /actuator/health.",
+        "weight": 25
+      },
+      {
+        "id": "req_6",
+        "description": "management.health.circuitbreakers.enabled=true. Actuator health test verifies OPEN state appears in /actuator/health response.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @TimeLimiter to market-service call: max 2 seconds wait before fallback. Test: mock market-service to sleep 3s, verify TimeLimiter triggers fallback before 2s.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add @Bulkhead to payment-service: max 5 concurrent calls. Test: start 10 concurrent threads calling processPayment(); assert at least 5 get BulkheadFullException.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add custom event listeners: on circuit OPEN → log 'CIRCUIT OPENED for {service} — alerting on-call team'. On circuit CLOSE → log 'CIRCUIT CLOSED for {service} — service recovered'. Use CircuitBreaker.EventPublisher.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Circuit breaker test scenarios:\n- Normal: getQuote('TCS') → market-service returns {price:3890, tradeable:true} → trade executes\n- Market down (1 failure): fallback returns cached price with tradeable=false → 'market data unavailable'\n- Market CB opens (6 failures): all subsequent calls use cached fallback immediately\n- Payment CB opens: PaymentServiceUnavailableException thrown → 503 response\n\nConfig thresholds for tests:\n- sliding-window-size=5, minimum-calls=3, failure-rate-threshold=60%\n- wait-duration=2s (short for testing)",
+
+  "starter_code": "// Add resilience to order-service from Topic 15.3:\n\n// MarketService.java (new @Service wrapper around Feign call):\n// @CircuitBreaker + @Retry + priceCache\n\n// PaymentService.java:\n// @CircuitBreaker + fallback throws PaymentServiceUnavailableException\n\n// application.properties additions:\n// resilience4j.circuitbreaker.instances.market-service.*\n// resilience4j.retry.instances.market-service.*\n// management.health.circuitbreakers.enabled=true\n\n// TradeResilienceTest.java (@SpringBootTest, 5 tests)",
+
+  "example_output": "# Normal trade:\nGET /api/stocks/TCS/quote → {price:3890, tradeable:true}\nTrade executed: TRD-TCS-10@3890\n\n# market-service DOWN (fallback):\n[FALLBACK] TCS: cached price 3890.00 (tradeable=false)\nTrade rejected: market data unavailable for TCS\n\n# After 6 failures (circuit OPEN):\nCircuit market-service: OPEN\n[CIRCUIT OPEN] Fallback immediately for TCS\n\n# /actuator/health:\n{\"circuitBreakers\":{\"market-service\":{\"state\":\"OPEN\",\"failureRate\":\"60.0%\"}}}\n\n# Tests:\n✓ executeTrade_success\n✓ marketFallback_tradeable_false\n✓ marketCircuit_opensAfter6Failures\n✓ paymentCircuit_throwsUnavailable\n✓ openCircuit_showsInActuatorHealth",
+
+  "rubric": [
+    { "category": "MarketService @CB + @Retry + cache", "points": 22, "criteria": ["@CB + fallback (12 pts)", "@Retry (5 pts)", "Cache on success (5 pts)"] },
+    { "category": "PaymentService @CB + exception fallback", "points": 18, "criteria": ["@CB (8 pts)", "Throws exception in fallback (10 pts)"] },
+    { "category": "application.properties", "points": 15, "criteria": ["CB config (10 pts)", "Retry config (5 pts)"] },
+    { "category": "TradeService orchestration", "points": 15, "criteria": ["Calls both services (8 pts)", "Handles exceptions (7 pts)"] },
+    { "category": "@SpringBootTest tests", "points": 25, "criteria": ["5 tests (5 pts each)"] },
+    { "category": "Actuator health", "points": 5, "criteria": ["CB state visible (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["TimeLimiter (20 pts)", "Bulkhead (25 pts)", "Event listeners (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Fallback signature: same return type + same params + Exception. Reset circuit in @BeforeEach: registry.circuitBreaker('name').reset(). For circuit open test: use @TestPropertySource to set low thresholds (sliding-window=5, min-calls=3, threshold=60%). cb.transitionToHalfOpenState() for HALF-OPEN tests (avoids Thread.sleep).",
+
+  "submission_instructions": "Push to GitHub. All 5 @SpringBootTest tests pass. README explains the resilience strategy for each service call.",
+
+  "tips_for_success": [
+    "Wrap Feign calls in a @Service method — @CircuitBreaker doesn't work on @FeignClient interfaces",
+    "Fallback must have same return type and parameters + Exception at end",
+    "@TestPropertySource low thresholds: sliding-window=5, min-calls=3, threshold=60% — triggers CB in fewer calls",
+    "registry.circuitBreaker('name').reset() in @BeforeEach: prevent test state bleed",
+    "Payment fallback that throws: the fallback method can throw an exception — just declare the throws clause"
+  ],
+
+  "concepts_reinforced": [
+    "@CircuitBreaker with fallback method",
+    "@Retry for transient errors",
+    "CLOSED → OPEN → HALF-OPEN → CLOSED state machine",
+    "Cached fallback values (price cache)",
+    "Exception-throwing fallbacks for critical operations",
+    "Actuator health with circuit breaker state"
+  ]
+}

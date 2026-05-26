@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m6_t1_proj",
+  "linked_topic": "java_m6_t1",
+  "level": "mini",
+  "name": "Restaurant Order System — ArrayList Edition",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "Remember the Restaurant Order System from Module 4 (Topic 4.6)? It used arrays everywhere: `OrderItem[] items; int itemCount`. You've learned ArrayList. Time to refactor and dramatically improve it. This project takes a system you already understand and makes it production-quality — a skill you'll use constantly as you maintain and improve real codebases.",
+  
+  "description": "Refactor the Restaurant Order System from Topic 4.6 to use ArrayList throughout, then add features that would have been painful with arrays: order history, menu search, and sales reporting. Notice how much cleaner the code becomes.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`MenuItem` (immutable value class): name, price, category. As before.",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "`OrderItem`: MenuItem + quantity. lineTotal(). As before.",
+        "weight": 5
+      },
+      {
+        "id": "req_3",
+        "description": "`Order` (REFACTORED): Use `List<OrderItem>` instead of OrderItem[]. Auto-assigned ID (static counter). status (OPEN/SERVED). Methods: addItem(), removeLastItem() (removes last added), orderTotal(), markServed(), getItems().",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`Restaurant` (REFACTORED): Use `List<Order>` instead of Order[]. Methods: placeOrder(tableNo), getOpenOrders(), getServedOrders(), totalRevenue() (sum of served orders).",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "`Menu` class (NEW): `List<MenuItem>` internally. addItem(), searchByName(String) — case-insensitive partial match returning List<MenuItem>, filterByCategory(String) returning List<MenuItem>.",
+        "weight": 25
+      },
+      {
+        "id": "req_6",
+        "description": "main() demonstrates: full meal ordering + searching + revenue report.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "getItems() on Order returns the list; getOpenOrders()/getServedOrders() return filtered lists.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `popularItems(int topN)` to Restaurant — across all served orders, find the N most-ordered MenuItems by total quantity. Return as List<MenuItem>.",
+        "weight": 30
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `sortOrdersByTotal()` to Restaurant — sort open orders by total descending (highest table bill first).",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `averageOrderValue()` to Restaurant — average of all served order totals.",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Setup:\nMenu items:\n- Dal Makhani, ₹320, Main Course\n- Naan, ₹50, Bread\n- Paneer Butter Masala, ₹380, Main Course\n- Jeera Rice, ₹180, Rice\n- Mango Lassi, ₹120, Beverages\n- Tandoori Chicken, ₹450, Starters\n\nOrders:\n- Table 5: Dal Makhani×2, Naan×4 → serve\n- Table 3: Paneer Butter Masala×1, Jeera Rice×2, Mango Lassi×2 → serve\n- Table 7: Tandoori Chicken×1, Naan×3 → keep open\n\nExpected:\n- Open orders: 1 (Table 7)\n- Total revenue (served only): (320×2 + 50×4) + (380 + 180×2 + 120×2) = 840 + 980 = ₹1820",
+  
+  "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class RestaurantV2 {\n    public static void main(String[] args) {\n        // Create Menu, add items\n        // Create Restaurant, place orders\n        // Add items to orders\n        // Serve some orders\n        // Demonstrate: getOpenOrders, totalRevenue, menu search\n    }\n    \n    // Define: MenuItem, OrderItem, Order, Restaurant, Menu\n}",
+  
+  "example_output": "=== Spice Garden Restaurant ===\n\n--- Menu: 'Dal' search ---\nDal Makhani (Main Course) ₹320.0\n\n--- Open Orders ---\nOrder #3 [Table 7 - OPEN] ₹630.0\n\n--- Revenue from served orders ---\n₹1820.0\n\n--- Main Course items ---\nDal Makhani, Paneer Butter Masala",
+  
+  "rubric": [
+    { "category": "ArrayList Refactor", "points": 30, "criteria": ["Order uses List<OrderItem> (15 pts)", "Restaurant uses List<Order> (15 pts)"] },
+    { "category": "Menu Class", "points": 25, "criteria": ["searchByName partial match (15 pts)", "filterByCategory (10 pts)"] },
+    { "category": "Filtered Views", "points": 20, "criteria": ["getOpenOrders() (10 pts)", "getServedOrders() / totalRevenue() (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 10, "criteria": ["All operations shown (10 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["popularItems (30 pts)", "sortOrdersByTotal (15 pts)", "averageOrderValue (15 pts)"] }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The key insight is how ArrayList replaces every array+count field. getOpenOrders() creates a new ArrayList, loops existing orders, adds matching ones. Notice how much simpler this is than manually tracking a separate open-order count.",
+  
+  "submission_instructions": "Save as RestaurantV2.java. Compare it side-by-side with your Topic 4.6 version — count how many lines shorter and more readable it is. Push to GitHub with note 'Refactored from array-based to ArrayList — cleaner, no fixed capacity, better readability.'",
+  
+  "tips_for_success": [
+    "Start with Order: replace OrderItem[] items + int itemCount with List<OrderItem> items = new ArrayList<>(). Remove all capacity checks.",
+    "removeLastItem(): items.remove(items.size() - 1) — last element.",
+    "getOpenOrders(): create new ArrayList, loop all orders, add where !isServed. Return it.",
+    "Menu.searchByName: loop all items, check item.getName().toLowerCase().contains(query.toLowerCase()).",
+    "totalRevenue: loop getServedOrders(), sum orderTotal() for each."
+  ],
+  
+  "concepts_reinforced": [
+    "ArrayList replacing array+count pattern",
+    "Filtered list creation (loop + condition + new ArrayList)",
+    "removeIf for conditional removal",
+    "list.get(list.size() - 1) for last element",
+    "Programming to List interface",
+    "Connecting Module 5 (polymorphism) with Module 6 (collections)"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Refactoring existing code to use better data structures is a core professional skill. Production codebases evolve — what was written with arrays three years ago gets upgraded to ArrayList. You'll feel concretely how ArrayList removes entire categories of code (capacity checks, count management, null slots, painful removal). This is also proof that understanding the PREVIOUS approach makes you appreciate the BETTER one.",
+  
+  "extensions_for_advanced_learners": [
+    "Use Collections.unmodifiableList() for getItems() to prevent external modification",
+    "Track time of order placement; sort open orders by wait time",
+    "Add a VIP table concept: getVIPOrders() where tableNumber <= 5",
+    "Implement order merging: combine two open orders from different tables into one"
+  ]
+}

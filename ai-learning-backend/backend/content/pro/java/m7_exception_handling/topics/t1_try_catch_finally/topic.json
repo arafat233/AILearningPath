@@ -1,0 +1,207 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t1",
+  "language": "java",
+  "module_id": "m7",
+  "module_name": "Exception Handling",
+  "topic_number": 1,
+  "name": "try / catch / finally",
+  "slug": "try-catch-finally",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m3_t4", "java_m4_t1", "java_m6_t1"],
+    "concepts_taught": [
+      "what_exceptions_are",
+      "try_catch_syntax",
+      "exception_object",
+      "multiple_catch_blocks",
+      "catch_order_matters",
+      "finally_block",
+      "finally_always_runs",
+      "exception_message_and_stacktrace",
+      "common_runtime_exceptions",
+      "rethrowing_exceptions",
+      "exception_vs_error"
+    ],
+    "skills_developed": [
+      "writing_try_catch_blocks",
+      "catching_specific_exceptions",
+      "using_finally_for_cleanup",
+      "reading_stack_traces",
+      "handling_multiple_exception_types",
+      "understanding_exception_propagation"
+    ],
+    "career_relevance": "Every production Java application uses exception handling constantly. Parsing user input (NumberFormatException), accessing files (IOException), querying databases (SQLException), calling APIs (various network exceptions) — all need to be handled gracefully. Without try/catch, one bad input crashes the entire program. With it, your code recovers, logs the error, and continues. After this topic, your programs stop dying on bad input and start responding to it professionally.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "This code runs fine in testing. Then a user types 'abc' where you expected a number:\n\n```java\nScanner sc = new Scanner(System.in);\nSystem.out.print(\"Enter your age: \");\nint age = sc.nextInt();  // user types 'abc'\nSystem.out.println(\"You are \" + age + \" years old.\");\n```\n\nResult:\n```\nException in thread \"main\" java.util.InputMismatchException\n    at java.util.Scanner.throwFor(Scanner.java:939)\n    at java.util.Scanner.next(Scanner.java:1594)\n    ...\n```\n\nProgram dead. Stack trace on screen. User confused. Not acceptable.\n\nWith exception handling:\n\n```java\ntry {\n    int age = Integer.parseInt(input);\n    System.out.println(\"You are \" + age + \" years old.\");\n} catch (NumberFormatException e) {\n    System.out.println(\"Please enter a valid number for your age.\");\n}\n```\n\nUser sees a helpful message. Program continues. This is the difference between amateur and professional code.\n\nException handling is Java's built-in mechanism for dealing with things that go wrong at runtime — bad input, missing files, network failures. Today you learn the full syntax and the right mental model for using it.",
+    "what_you_will_build": "By the end of this topic, you'll write try/catch/finally confidently, catch specific exception types, understand why catch order matters, use finally for guaranteed cleanup, read stack traces to debug problems, and handle multiple exceptions cleanly. Your programs will stop crashing on bad input and start responding gracefully."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "what_is_an_exception": "An **exception** is an object that represents something going wrong at runtime. When Java encounters a problem it can't handle (dividing by zero, parsing 'abc' as an int, accessing index 10 of a 5-element array), it **throws** an exception — creates that object and propagates it up the call stack.\n\nIf nothing catches it, the program prints a stack trace and terminates.\n\nIf you **catch** it, you handle the problem and the program continues.\n\nExceptions are objects. They extend the `Throwable` class. They carry:\n- A **message** describing what went wrong\n- A **stack trace** showing where the exception occurred\n- Sometimes a **cause** (the original exception that triggered this one)\n\n```java\ntry {\n    int result = 10 / 0;       // throws ArithmeticException\n} catch (ArithmeticException e) {\n    System.out.println(\"Error: \" + e.getMessage());  // 'Error: / by zero'\n}\n```",
+
+      "try_catch_syntax": "**Basic syntax**:\n\n```java\ntry {\n    // code that might throw an exception\n    // if an exception is thrown, execution jumps to the catch block\n    // remaining lines in try block are SKIPPED\n} catch (ExceptionType e) {\n    // handle the exception\n    // e is the exception object\n    // execution continues here after handling\n}\n// execution continues here after the try-catch\n```\n\n**What happens line by line**:\n\n```java\nString input = \"abc\";\ntry {\n    int number = Integer.parseInt(input);  // throws NumberFormatException\n    System.out.println(\"Parsed: \" + number);  // SKIPPED\n    System.out.println(\"Success!\");            // SKIPPED\n} catch (NumberFormatException e) {\n    System.out.println(\"Bad input: \" + input); // runs\n}\nSystem.out.println(\"After try-catch\");  // runs regardless\n```\n\nOutput: `Bad input: abc` then `After try-catch`.\n\nThe key: once an exception is thrown, execution **immediately** jumps to the matching catch. Everything between the throw point and the catch is skipped.",
+
+      "exception_object": "The exception object `e` gives you information:\n\n```java\ntry {\n    int[] arr = new int[3];\n    arr[10] = 5;  // throws ArrayIndexOutOfBoundsException\n} catch (ArrayIndexOutOfBoundsException e) {\n    System.out.println(\"Message: \" + e.getMessage());      // 'Index 10 out of bounds for length 3'\n    System.out.println(\"Type: \" + e.getClass().getName()); // full class name\n    e.printStackTrace();  // prints full stack trace to stderr\n}\n```\n\n**`e.getMessage()`** — the human-readable description.\n**`e.getClass().getName()`** — the exception class name.\n**`e.printStackTrace()`** — prints the full call stack to stderr. Vital for debugging.\n\n**Naming convention**: the caught exception is almost always named `e` (short). For nested catches of different types, use descriptive names: `nfe`, `ioe`, `e`.",
+
+      "multiple_catch_blocks": "Code can throw different exception types — catch each specifically:\n\n```java\nstatic int divide(String a, String b) {\n    try {\n        int num = Integer.parseInt(a);   // could throw NumberFormatException\n        int den = Integer.parseInt(b);   // could throw NumberFormatException\n        return num / den;                // could throw ArithmeticException\n    } catch (NumberFormatException e) {\n        System.out.println(\"Not a number: \" + e.getMessage());\n        return -1;\n    } catch (ArithmeticException e) {\n        System.out.println(\"Cannot divide by zero\");\n        return -1;\n    }\n}\n```\n\nEach catch handles a specific type. The first matching catch wins — subsequent catches are skipped.\n\n**Java 7+ multi-catch** — catch multiple types in one block with `|`:\n\n```java\ntry {\n    // ...\n} catch (NumberFormatException | ArithmeticException e) {\n    System.out.println(\"Math error: \" + e.getMessage());\n}\n```\n\nClean when the handling logic is the same for multiple exception types.",
+
+      "catch_order_matters": "**Catch order matters** — more specific first, more general last:\n\n```java\ntry {\n    // ...\n} catch (ArithmeticException e) {  // specific first\n    System.out.println(\"Arithmetic: \" + e.getMessage());\n} catch (RuntimeException e) {     // more general\n    System.out.println(\"Runtime: \" + e.getMessage());\n} catch (Exception e) {            // most general last\n    System.out.println(\"Exception: \" + e.getMessage());\n}\n```\n\n**Why**: `ArithmeticException` extends `RuntimeException` extends `Exception`. If you put `Exception` first, it catches EVERYTHING — the specific catches below are dead code.\n\n```java\n// COMPILE ERROR — unreachable catch:\ntry { ... }\ncatch (Exception e) { ... }       // catches everything\ncatch (ArithmeticException e) { ... }  // COMPILE ERROR: already caught above\n```\n\nJava enforces this at compile time — unreachable catch blocks are a compile error.",
+
+      "finally_block": "**`finally`** — code that ALWAYS runs, whether an exception was thrown or not:\n\n```java\ntry {\n    openConnection();\n    doWork();\n    // if doWork() throws, we still need to close\n} catch (Exception e) {\n    System.out.println(\"Error: \" + e.getMessage());\n} finally {\n    closeConnection();  // ALWAYS runs — exception or not\n}\n```\n\n**Finally always runs**:\n- No exception → try block runs → finally runs\n- Exception caught → try (partial) → catch → finally runs\n- Exception NOT caught → try (partial) → finally runs → exception propagates\n- Even with `return` in try/catch → finally still runs before returning\n\n```java\nstatic String test() {\n    try {\n        return \"from try\";   // finally still runs before this return\n    } finally {\n        System.out.println(\"finally!\");  // runs even with return\n    }\n}\n// Output: 'finally!' then returns 'from try'\n```\n\n**Use finally for**: closing files, releasing database connections, releasing locks — any resource that MUST be released regardless of what happened.\n\n**Note**: try-with-resources (Topic 7.5) replaces most finally usage for resource cleanup. Finally is still essential for non-resource cleanup.",
+
+      "common_exceptions": "**Common runtime exceptions** you'll encounter constantly:\n\n| Exception | When it's thrown |\n|-----------|------------------|\n| `NullPointerException` | Calling method on null reference |\n| `ArrayIndexOutOfBoundsException` | Accessing index outside array bounds |\n| `IndexOutOfBoundsException` | Index outside List bounds |\n| `NumberFormatException` | Parsing 'abc' as int/double |\n| `ArithmeticException` | Division by zero |\n| `ClassCastException` | Invalid cast: `(String) integerObject` |\n| `StackOverflowError` | Infinite recursion |\n| `IllegalArgumentException` | Bad argument to a method |\n| `IllegalStateException` | Method called at wrong time |\n| `UnsupportedOperationException` | Operation not supported (e.g. unmodifiableList) |\n\nNote: `StackOverflowError` is an **Error**, not an Exception (covered in Topic 7.2). Don't catch Errors in normal code.",
+
+      "exception_propagation": "**Propagation** — exceptions travel up the call stack until caught:\n\n```java\npublic static void main(String[] args) {\n    processPayment(\"abc\");  // exception propagates here\n}\n\nstatic void processPayment(String amountStr) {\n    double amount = parseAmount(amountStr);  // propagates from here\n    // ...\n}\n\nstatic double parseAmount(String s) {\n    return Double.parseDouble(s);  // throws NumberFormatException here\n    // not caught → propagates to processPayment\n    // not caught there → propagates to main\n    // not caught in main → program crashes with stack trace\n}\n```\n\nStack trace shows the full propagation path, bottom up:\n```\nException in thread \"main\" java.lang.NumberFormatException: For input string: \"abc\"\n    at java.lang.Double.parseDouble(Double.java:...)\n    at App.parseAmount(App.java:15)   ← thrown here\n    at App.processPayment(App.java:10) ← propagated through\n    at App.main(App.java:5)           ← propagated through\n```\n\nRead stack traces bottom-up to find where YOUR code is in the chain.",
+
+      "rethrowing": "**Rethrowing** — catch, do something, then rethrow:\n\n```java\ntry {\n    processData(input);\n} catch (NumberFormatException e) {\n    logger.error(\"Bad input: \" + input, e);  // log it\n    throw e;  // rethrow — let the caller handle it\n}\n\n// Or wrap in a different exception:\ntry {\n    db.executeQuery(sql);\n} catch (SQLException e) {\n    throw new RuntimeException(\"Database error processing query\", e);  // wrap with cause\n}\n```\n\n`new RuntimeException(message, cause)` — the second argument is the **cause**, the original exception. When printed, you see both the wrapper and the original. This is how lower-level exceptions become domain exceptions."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three flow diagrams: (1) try-catch happy path — try block runs fully, catch is skipped, execution continues. (2) try-catch exception path — exception thrown mid-try, arrow jumps to catch, remaining try lines grayed out, execution continues after catch. (3) finally — three scenarios side-by-side: no exception (try→finally→continue), caught exception (try-partial→catch→finally→continue), uncaught exception (try-partial→finally→program crash). Below: Java exception hierarchy teaser — Throwable → Error | Exception, with common examples under each. Stack trace reading guide: arrow pointing upward through method calls labeled 'read bottom-up to find YOUR code'.",
+      "alt_text": "try-catch-finally flow diagrams and exception propagation path"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a robust EMI (Equated Monthly Installment) calculator — the classic loan calculator used by every bank and fintech app in India. Raw user input (principal, rate, tenure) can be invalid in many ways. Exception handling makes the calculator professional-grade.",
+    
+    "problem_statement": "Create `EmiCalculator.calculate(String principalStr, String rateStr, String tenureMonthsStr)` that:\n1. Parses all three inputs (NumberFormatException possible)\n2. Validates values (negative/zero principal or tenure is illegal → IllegalArgumentException)\n3. Computes EMI = P × r × (1+r)^n / ((1+r)^n - 1) where r = annual_rate/12/100\n4. Returns the EMI as a String formatted to 2 decimal places\n5. Handles all error cases without crashing",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Parse inputs with NumberFormatException handling",
+        "details": "```java\npublic static String calculate(String principalStr, String rateStr, String tenureStr) {\n    double principal, annualRate;\n    int tenureMonths;\n    \n    try {\n        principal    = Double.parseDouble(principalStr);\n        annualRate   = Double.parseDouble(rateStr);\n        tenureMonths = Integer.parseInt(tenureStr);\n    } catch (NumberFormatException e) {\n        return \"Error: All inputs must be valid numbers. Got: '\" + e.getMessage() + \"'\";\n    }\n    \n    // If we reach here, all three parsed successfully\n```\nParsing all three in one try block — if ANY throws, we catch it together and report."
+      },
+      {
+        "step": 2,
+        "action": "Validate business rules",
+        "details": "```java\n    // Validate\n    if (principal <= 0)    return \"Error: Principal must be positive.\";\n    if (annualRate < 0)    return \"Error: Rate cannot be negative.\";\n    if (tenureMonths <= 0) return \"Error: Tenure must be at least 1 month.\";\n    \n    // Edge case: 0% interest — simple division\n    if (annualRate == 0) {\n        return String.format(\"EMI: ₹%.2f\", principal / tenureMonths);\n    }\n```\nValidation AFTER parsing — values must be numbers before we can compare them to 0."
+      },
+      {
+        "step": 3,
+        "action": "Compute EMI and return",
+        "details": "```java\n    double r   = annualRate / 12 / 100;  // monthly rate\n    double pow = Math.pow(1 + r, tenureMonths);\n    double emi = principal * r * pow / (pow - 1);\n    \n    return String.format(\"EMI: ₹%.2f/month for %d months (total ₹%.2f)\",\n        emi, tenureMonths, emi * tenureMonths);\n}\n```\nStandard EMI formula. Math.pow won't throw here — already validated inputs."
+      },
+      {
+        "step": 4,
+        "action": "Test all paths in main",
+        "details": "```java\npublic static void main(String[] args) {\n    // Normal case\n    System.out.println(calculate(\"500000\", \"8.5\", \"24\"));\n    \n    // Bad input — not a number\n    System.out.println(calculate(\"5lakhs\", \"8.5\", \"24\"));\n    \n    // Zero tenure\n    System.out.println(calculate(\"500000\", \"8.5\", \"0\"));\n    \n    // Zero rate (edge case)\n    System.out.println(calculate(\"120000\", \"0\", \"12\"));\n}\n```"
+      }
+    ],
+
+    "final_code": "public class EmiCalculator {\n    public static String calculate(String principalStr, String rateStr, String tenureStr) {\n        double principal, annualRate;\n        int tenureMonths;\n        \n        try {\n            principal    = Double.parseDouble(principalStr);\n            annualRate   = Double.parseDouble(rateStr);\n            tenureMonths = Integer.parseInt(tenureStr);\n        } catch (NumberFormatException e) {\n            return \"Error: All inputs must be valid numbers.\";\n        }\n        \n        if (principal <= 0)    return \"Error: Principal must be positive.\";\n        if (annualRate < 0)    return \"Error: Rate cannot be negative.\";\n        if (tenureMonths <= 0) return \"Error: Tenure must be at least 1 month.\";\n        \n        if (annualRate == 0) {\n            return String.format(\"EMI: ₹%.2f/month (0%% interest)\", principal / tenureMonths);\n        }\n        \n        double r   = annualRate / 12 / 100;\n        double pow = Math.pow(1 + r, tenureMonths);\n        double emi = principal * r * pow / (pow - 1);\n        \n        return String.format(\"EMI: ₹%.2f/month for %d months (total ₹%.2f)\",\n            emi, tenureMonths, emi * tenureMonths);\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(calculate(\"500000\", \"8.5\", \"24\"));\n        System.out.println(calculate(\"5lakhs\", \"8.5\", \"24\"));\n        System.out.println(calculate(\"500000\", \"8.5\", \"0\"));\n        System.out.println(calculate(\"120000\", \"0\", \"12\"));\n    }\n}",
+
+    "expected_output": "EMI: ₹22683.94/month for 24 months (total ₹544174.56)\nError: All inputs must be valid numbers.\nError: Tenure must be at least 1 month.\nEMI: ₹10000.00/month (0% interest)",
+
+    "things_to_notice": [
+      "All three parseDouble/parseInt calls are in ONE try block. If any one of them fails, we catch it. No need for three separate try-catch blocks — the error message is the same regardless of which field fails.",
+      "Validation happens AFTER parsing. You can only check 'is principal <= 0' after you know principal is a number. The catch handles 'not a number'; the if-checks handle 'wrong number'.",
+      "Zero-rate edge case handled separately — the standard formula would divide by zero if r=0.",
+      "The method returns a String in all paths — the catch block returns an error String, not null. This is a clean API design choice: caller always gets a String, never crashes.",
+      "No stack trace is printed. The exception is caught, handled gracefully, and the program moves on. This is professional behavior."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment processing",
+        "use_case": "Every payment form parses user-entered amounts (NumberFormatException), looks up bank codes (NullPointerException from missing data), calls network APIs (IOException from timeouts). Each path has specific exception handling: bad amount → prompt to re-enter; missing bank → show dropdown; network timeout → retry with backoff. Without per-exception handling, one network hiccup crashes the payment."
+      },
+      {
+        "company_context": "HDFC NetBanking / mobile app",
+        "use_case": "Banking apps must NEVER crash on user input. Every parseInt, every file read, every database query is wrapped in try/catch. The finally block closes database connections — a connection leak is a severe production issue. The catch block logs the exception (never visible to user) and shows a friendly 'Please try again' message."
+      },
+      {
+        "company_context": "Zerodha trading platform",
+        "use_case": "Stock orders involve parsing price/quantity from user input. NumberFormatException → show validation error. During market hours, partial data can cause NullPointerException. Database calls can fail with SQLException. Each exception type gets specific handling: validation errors redirect the user; database errors trigger automatic retry; unknown errors are logged and alert the on-call team."
+      },
+      {
+        "company_context": "Android app development",
+        "use_case": "Every Android API call that touches the network, storage, or camera requires exception handling by design. The ActivityNotFoundException (no app to handle intent), IOException (file storage full), SecurityException (permission denied) — Android's architecture forces correct exception handling patterns."
+      }
+    ],
+
+    "interview_relevance": "Exception handling questions are universal:\n\n- **'What is the difference between checked and unchecked exceptions?'** — covered in Topic 7.2, but knowing the hierarchy here sets up the answer.\n- **'What does finally do?'** — always runs, used for cleanup.\n- **'When would you NOT use try/catch?'** — when you want exceptions to propagate to the caller.\n- **'What's wrong with catching Exception everywhere?'** — swallows all exceptions including ones you should handle specifically.\n- **'How do you log exceptions properly?'** — log the full exception (message + stack trace), not just `e.getMessage()`.\n- **Live coding**: 'Parse this input safely.' Students who handle the exception first (rather than validating after) often struggle — the worked example pattern (catch parsing, then validate values) is the standard.",
+
+    "real_world_workflow": "Daily exception handling:\n\n- Parsing user/API input: wrap in try-catch NumberFormatException\n- Map.get() that might return null: null check or handle downstream NPE\n- File/database operations: catch IOException/SQLException in finally or try-with-resources\n- External API calls: catch IOException, add retry logic\n- Logging: always log the full exception object, not just message\n- Never swallow exceptions silently: at minimum log them"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "catching_exception_too_broadly",
+      "what_students_get_wrong": "Catching `Exception` (or even `Throwable`) for everything instead of specific types.",
+      "remediation": "Catch the MOST SPECIFIC exception type possible. `catch (Exception e)` hides bugs — a NullPointerException from your own code gets swallowed. Catch specific types; let unexpected exceptions propagate.",
+      "detection_pattern": "catch (Exception e) { /* ignore */ } or catch (Throwable t)"
+    },
+    {
+      "gap_id": "swallowing_exceptions_silently",
+      "what_students_get_wrong": "Empty catch blocks: `catch (IOException e) {}` — exception swallowed, no indication anything went wrong.",
+      "remediation": "At minimum, log the exception: `System.err.println(e)` or `e.printStackTrace()`. Production code uses a logger. An empty catch block is almost always a bug.",
+      "detection_pattern": "Empty catch body"
+    },
+    {
+      "gap_id": "wrong_catch_order",
+      "what_students_get_wrong": "Putting a parent exception type before a child type — compile error, or swallowing the specific handler.",
+      "remediation": "Specific (child) exceptions FIRST, general (parent) exceptions LAST. Java enforces this with compile errors for unreachable catches.",
+      "detection_pattern": "Compile error: 'Exception has already been caught'"
+    },
+    {
+      "gap_id": "validating_before_parsing",
+      "what_students_get_wrong": "Trying to validate string input before parsing: checking `if (input.contains('a'))` instead of just catching NumberFormatException.",
+      "remediation": "Parse first (in try block), validate the resulting number after. String-level validation is brittle. Let the parser throw and catch its exception.",
+      "detection_pattern": "Brittle regex or character checks before parseInt"
+    },
+    {
+      "gap_id": "using_exceptions_for_control_flow",
+      "what_students_get_wrong": "Using try/catch as an if/else substitute — writing code that throws on purpose as a signal.",
+      "remediation": "Exceptions are for EXCEPTIONAL (unexpected) conditions, not normal flow. If a condition is expected (user might enter a blank field), use an if-check. If unexpected (database down), use exceptions.",
+      "detection_pattern": "throw inside a loop used as a break mechanism; catch used like an else branch"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Exceptions are objects thrown when something goes wrong at runtime — they propagate up the call stack until caught",
+      "try block: code that might throw. catch block: handles the thrown exception. finally: ALWAYS runs.",
+      "Execution jumps IMMEDIATELY to catch when exception thrown — remaining try lines are skipped",
+      "Catch most-specific first, most-general last — wrong order = compile error",
+      "Multi-catch: `catch (TypeA | TypeB e)` when handling is identical for both",
+      "finally: guaranteed cleanup — runs even with return, even with uncaught exception",
+      "`e.getMessage()` = description. `e.printStackTrace()` = full call stack (for debugging)",
+      "Read stack traces bottom-up to find where YOUR code triggered the problem",
+      "Catch specific types, not Exception. Never swallow exceptions silently.",
+      "Pattern: parse in try-catch → validate values → compute"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What does this print?\n```java\ntry {\n    System.out.println(\"A\");\n    int x = 1 / 0;\n    System.out.println(\"B\");\n} catch (ArithmeticException e) {\n    System.out.println(\"C\");\n} finally {\n    System.out.println(\"D\");\n}\nSystem.out.println(\"E\");\n```",
+        "answer": "A, C, D, E. 'A' prints (before exception). Division by zero throws ArithmeticException. 'B' is SKIPPED (after throw point). 'C' prints (catch runs). 'D' prints (finally always runs). 'E' prints (execution continues after try-catch-finally). Order: A → C → D → E."
+      },
+      {
+        "question": "What's wrong with this code?\n```java\ntry {\n    processFile(file);\n} catch (Exception e) {\n    // do nothing\n}\n```",
+        "answer": "The exception is SWALLOWED silently. If processFile() throws, no one knows — no log, no error message, no retry. Bugs become invisible. At minimum: `e.printStackTrace()` or log the exception. Better: either handle it meaningfully (retry, show error to user) or rethrow it. Silent catch blocks are considered a code smell and a major bug source."
+      },
+      {
+        "question": "Why does this code fail to compile?\n```java\ntry { ... }\ncatch (Exception e) { ... }\ncatch (IOException e) { ... }```",
+        "answer": "IOException extends Exception. Since `catch (Exception e)` comes first, it catches ALL exceptions including IOException. The `catch (IOException e)` block is unreachable — Java detects this and gives a compile error: 'Exception has already been caught.' Fix: put IOException (more specific) FIRST, Exception (more general) LAST."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Exception Types** — the full Java exception hierarchy. Checked exceptions (must be declared or caught — IOException, SQLException) vs unchecked exceptions (optional to catch — RuntimeException and its subclasses). Why does Java have both? When should you catch vs declare? And what are Errors (OutOfMemoryError, StackOverflowError) and why you never catch them? After Topic 7.2, you understand every exception you'll ever encounter."
+  }
+}

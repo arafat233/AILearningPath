@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m16_t4_proj",
+  "linked_topic": "java_m16_t4",
+  "level": "mini",
+  "name": "Zerodha Real-Time Trading Analytics — Kafka Streams",
+  "estimated_minutes": 55,
+  "difficulty": 8,
+
+  "scenario": "Build a real-time analytics service for the Zerodha trading platform using Kafka Streams. Consumes 'trade-executed' events and produces: live trade counts per symbol, 5-minute rolling volume, large trade alerts, and a fraud detection stream for rapid-fire accounts.",
+
+  "description": "Kafka Streams analytics topology with 4 output branches. TopologyTestDriver tests for each branch. Simulates the real-time analytics that power trading dashboards.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "@EnableKafkaStreams + spring.kafka.streams.application-id configured. StreamsBuilder @Bean defines the full topology.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "Branch 1: filter large trades (totalValue > ₹1,00,000) → 'large-trades'. Branch 2: running count per symbol → 'symbol-count' (Long). Branch 3: 5-min tumbling volume per symbol → 'symbol-5min-volume' (Double). Branch 4: flag symbols with > 10 trades in any 5-min window → 'high-frequency-alerts'.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "All branches re-key by symbol using .selectKey((k, e) -> e.symbol()) before grouping.",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "TopologyTestDriver tests (4): (1) large trades filtered correctly, (2) TCS count = N after N trades, (3) 5-min volume accumulates correctly, (4) high-frequency alert fires when count > 10. All 4 pass.",
+        "weight": 40
+      },
+      {
+        "id": "req_5",
+        "description": "Use Materialized.as('store-name') for all aggregations to enable named state stores.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a KStream-KTable join: join 'trade-executed' with 'stock-info' KTable to produce enriched trades (symbol, companyName, sector, qty, total). TopologyTestDriver test with both input topics piped.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add hopping window (size=5min, advance=1min) for rolling volume. Show the difference in output frequency vs tumbling window. TopologyTestDriver test: pipe events across two windows, verify rolling window emits more records.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a state store query endpoint: @GetMapping('/analytics/volume/{symbol}') that reads from the Kafka Streams state store directly (ReadOnlyKeyValueStore) without consuming from an output topic.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Test trades for TopologyTestDriver:\nTCS BUY 10 @ ₹3890 = ₹38,900 (medium)\nTCS BUY 30 @ ₹3890 = ₹1,16,700 (large)\nINFY SELL 100 @ ₹1560 = ₹1,56,000 (large)\nRELIANCE BUY 2 @ ₹2450 = ₹4,900 (small)\n\nHigh-frequency test: pipe 12 trades for 'UNKNOWN-CARD' in same window → alert fires\n\nExpected outputs:\nlarge-trades: TCS-large, INFY (2 records)\nsymbol-count: TCS=2, INFY=1, RELIANCE=1\nsymbol-5min-volume: TCS=₹1,55,600, INFY=₹1,56,000, RELIANCE=₹4,900",
+
+  "starter_code": "// TradeAnalyticsConfig.java:\n@Configuration\n@EnableKafkaStreams\npublic class TradeAnalyticsConfig {\n    @Bean\n    public KStream<String, TradeEvent> analyticsTopology(StreamsBuilder builder) {\n        KStream<String, TradeEvent> trades = builder.stream(\"trade-executed\");\n        KStream<String, TradeEvent> bySymbol = trades.selectKey((k, e) -> e.symbol());\n        \n        // TODO: Branch 1: large trades\n        // TODO: Branch 2: running count\n        // TODO: Branch 3: 5-min volume\n        // TODO: Branch 4: high-frequency alert\n        \n        return trades;\n    }\n}\n\n// TradeAnalyticsTopologyTest.java (TopologyTestDriver):\nclass TradeAnalyticsTopologyTest {\n    TopologyTestDriver driver;\n    TestInputTopic<...> input;\n    TestOutputTopic<...> largeTrades;\n    TestOutputTopic<...> symbolCount;\n    TestOutputTopic<...> symbolVolume;\n    TestOutputTopic<...> hfAlerts;\n    // 4 @Test methods\n}",
+
+  "example_output": "# trade-executed events:\n[TCS, BUY 10@3890=₹38,900]\n[TCS, BUY 30@3890=₹1,16,700] ← large!\n[INFY, SELL 100@1560=₹1,56,000] ← large!\n\n# large-trades output:\nTCS  → {symbol:TCS, qty:30, totalValue:116700}\nINFY → {symbol:INFY, qty:100, totalValue:156000}\n\n# symbol-count output:\nTCS  → 1, TCS → 2 (updates)\nINFY → 1\n\n# symbol-5min-volume output:\nTCS  → 38900.0 (after T1), TCS → 155600.0 (after T2)\nINFY → 156000.0\n\n# TopologyTestDriver tests:\n✓ largeTrades_filteredCorrectly\n✓ symbolCount_accumulatesCorrectly\n✓ symbolVolume_sumsCorrectly\n✓ highFrequency_alertFires",
+
+  "rubric": [
+    { "category": "@EnableKafkaStreams + config", "points": 10, "criteria": ["Application-id + bootstrap-servers (10 pts)"] },
+    { "category": "4 output branches", "points": 35, "criteria": ["Large filter (8 pts)", "Count (9 pts)", "5-min volume (9 pts)", "HF alert (9 pts)"] },
+    { "category": "selectKey(symbol) on all branches", "points": 10, "criteria": ["Correct re-keying (10 pts)"] },
+    { "category": "TopologyTestDriver tests", "points": 40, "criteria": ["4 tests × 10 pts each"] },
+    { "category": "Named state stores", "points": 5, "criteria": ["Materialized.as('name') (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["KStream-KTable join (25 pts)", "Hopping window (20 pts)", "State store query API (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. @EnableKafkaStreams required on @Configuration. TopologyTestDriver: set APPLICATION_ID_CONFIG and BOOTSTRAP_SERVERS_CONFIG to any dummy value. selectKey() before groupByKey() for symbol-based grouping. Windowed count: .map((windowed, count) -> KeyValue.pair(windowed.key(), count)) to extract plain String key. Materialized.<String, Double, KeyValueStore<Bytes, byte[]>>as('name').withValueSerde(Serdes.Double()) for typed state stores.",
+
+  "submission_instructions": "GitHub push. All 4 TopologyTestDriver tests pass. README explains each of the 4 output streams and what they represent.",
+
+  "tips_for_success": [
+    "Build the topology in a @Configuration class, NOT in a @Service — Spring Kafka needs the @Bean to register it",
+    "selectKey() re-keys: causes repartition (internal topic created); key changes to symbol",
+    "TopologyTestDriver props: APPLICATION_ID + BOOTSTRAP_SERVERS must be set (any dummy string)",
+    "Windowed key: Windowed<String> — use windowed.key() to get the plain symbol",
+    "readKeyValuesToMap(): gets last value per key — correct for KTable-derived output"
+  ],
+
+  "concepts_reinforced": [
+    "@EnableKafkaStreams for topology activation",
+    "KStream.filter + mapValues + to for basic transformations",
+    "selectKey before groupByKey for symbol-based aggregation",
+    "count() and aggregate() with Materialized state stores",
+    "windowedBy(TimeWindows) for tumbling windows",
+    "TopologyTestDriver for synchronous, in-process Streams testing"
+  ]
+}

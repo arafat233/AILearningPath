@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m12_t1_proj",
+  "linked_topic": "java_m12_t1",
+  "level": "mini",
+  "name": "Layered Banking System — Complete Test Suite",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+
+  "scenario": "Write a complete JUnit 5 test suite for a layered banking system. The system has BankAccount, Transaction, and AccountService classes. You write tests from scratch following the Arrange-Act-Assert pattern, using all lifecycle annotations, and achieving thorough coverage of all business rules — including happy paths, edge cases, and error conditions.",
+
+  "description": "Build comprehensive tests for a banking system. The production code is provided; your job is to write the test suite. Tests must cover all business rules, use @BeforeEach correctly for isolation, name tests descriptively, and test all exception paths.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`BankAccountTest` with @BeforeEach creating a fresh account. Minimum 6 tests: constructor, deposit, withdraw, insufficient funds (with message check), negative deposit, getBalance after close.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "`TransactionTest` — tests for Transaction record: creation with correct fields, immutability, and the `isDebit()` / `isCredit()` methods. Minimum 4 tests.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`AccountServiceTest` with @BeforeEach creating fresh service. Tests: createAccount returns with ID, findAccount by ID, findAccount unknown (empty Optional), transfer moves funds both ways, transfer insufficient throws, total accounts count.",
+        "weight": 25
+      },
+      {
+        "id": "req_4",
+        "description": "At least one use of `assertAll` (for testing multiple fields on a returned object simultaneously).",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "At least two uses of `assertThrows` with message verification (`assertTrue(ex.getMessage().contains(...)`).",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "At least one @DisplayName with a human-readable description. At least one @Disabled with a reason.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "All tests pass. No test shares mutable state incorrectly across test methods.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `@BeforeAll` for a global audit logger (just a string list). After all account service tests complete, verify the log has expected entries.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Write a test for concurrency safety: deposit from 5 threads simultaneously, assert final balance is exactly startBalance + (5 × depositAmount). Demonstrates a race condition if account is not thread-safe.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a `TransactionHistoryTest`: after deposits and withdrawals, verify the transaction history list has the correct entries in order, with correct amounts and types.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "BankAccount(String id, double balance): deposit/withdraw/getBalance/close/transfer\nTransaction(String id, String type, double amount, LocalDateTime timestamp)\nAccountService: createAccount(String ownerId, double balance), findById, transfer, totalAccounts\n\nTest data:\nAccount A: ACC-A, ₹5000\nAccount B: ACC-B, ₹2000\nTransfer ₹1000 from A to B → A=₹4000, B=₹3000\nUnknown ID: 'ACC-UNKNOWN'",
+
+  "starter_code": "// Production code (provided — DO NOT MODIFY):\npublic class BankAccount { /* ... as in worked example ... */ }\nrecord Transaction(String id, String type, double amount) {\n    boolean isDebit()  { return \"DEBIT\".equals(type); }\n    boolean isCredit() { return \"CREDIT\".equals(type); }\n}\npublic class AccountService {\n    // createAccount, findById, transfer, totalAccounts\n}\n\n// YOUR TASK: write the test classes\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass BankAccountTest {    /* your tests */ }\nclass TransactionTest {    /* your tests */ }\nclass AccountServiceTest { /* your tests */ }",
+
+  "example_output": "Test Results:\nBankAccountTest:\n  ✓ constructor_setsInitialBalance\n  ✓ deposit_validAmount_increasesBalance\n  ✓ withdraw_validAmount_decreasesBalance\n  ✓ withdraw_insufficientFunds_throwsWithMessage\n  ✓ deposit_negativeAmount_throws\n  ✓ closedAccount_getBalance_throws\nTransactionTest:\n  ✓ transaction_debitType_isDebitTrue\n  ✓ transaction_creditType_isCreditTrue\n  ✓ transaction_amount_isCorrect\n  ✓ transaction_fields_areCorrect\nAccountServiceTest:\n  ✓ createAccount_returnsAccountWithId\n  ✓ findAccount_validId_returnsAccount\n  ✓ findAccount_unknownId_returnsEmpty\n  ✓ transfer_movesBalance_both_accounts\n  ✓ transfer_insufficient_throwsIllegalState\n  ✓ totalAccounts_updatesAfterCreate\n\n16 tests passed, 0 failed",
+
+  "rubric": [
+    { "category": "BankAccountTest", "points": 20, "criteria": ["6+ tests (10 pts)", "@BeforeEach fresh account (5 pts)", "Exception message checked (5 pts)"] },
+    { "category": "TransactionTest", "points": 15, "criteria": ["4+ tests (10 pts)", "isDebit/isCredit tested (5 pts)"] },
+    { "category": "AccountServiceTest", "points": 25, "criteria": ["6+ tests (15 pts)", "Transfer both-ways checked (10 pts)"] },
+    { "category": "assertAll usage", "points": 10, "criteria": ["Used in at least one test (10 pts)"] },
+    { "category": "assertThrows + message", "points": 10, "criteria": ["Used twice with message check (10 pts)"] },
+    { "category": "@DisplayName + @Disabled", "points": 10, "criteria": ["Both used at least once (10 pts)"] },
+    { "category": "All Tests Pass", "points": 10, "criteria": ["Zero failing tests (10 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["@BeforeAll logger (15 pts)", "Concurrency test (25 pts)", "TransactionHistory (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Testing is about understanding the code's contract. Read each production class's public API carefully, then write tests for each public method: the happy path, null inputs, invalid inputs, and error conditions. Use assertEquals(expected, actual) — EXPECTED FIRST.",
+
+  "submission_instructions": "Save test classes as BankAccountTest.java, TransactionTest.java, AccountServiceTest.java. Push to GitHub. Tests go in src/test/java (Maven convention).",
+
+  "tips_for_success": [
+    "@BeforeEach: `service = new AccountService()` — fresh state for each test",
+    "Test name format: `methodName_scenario_expectedBehavior`",
+    "For Optional returns: `assertTrue(result.isEmpty())` or `assertEquals('value', result.orElseThrow())`",
+    "Transfer test: assert BOTH accounts' balances after transfer",
+    "assertThrows: `IllegalStateException ex = assertThrows(ISE.class, () -> method()); assertTrue(ex.getMessage().contains('key phrase'))`"
+  ],
+
+  "concepts_reinforced": [
+    "@Test, @BeforeEach, @BeforeAll, @AfterEach",
+    "assertEquals, assertTrue, assertFalse, assertThrows, assertAll",
+    "Arrange-Act-Assert pattern",
+    "Test isolation via @BeforeEach",
+    "Exception testing with assertThrows",
+    "Descriptive test naming"
+  ]
+}

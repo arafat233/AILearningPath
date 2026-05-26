@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m41_t3",
+  "module_id": "m41",
+  "topic_number": 3,
+  "name": "2D DP \u2014 Grid Paths, Edit Distance, Knapsack",
+  "slug": "2d-dp-grid-edit-distance-knapsack",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m41_t2",
+      "java_m31_t5"
+    ],
+    "concepts_taught": [
+      "2d-dp-grid-edit-distance-knapsack"
+    ],
+    "career_relevance": "Core DP patterns \u2014 highest-value DSA topic in senior interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "2D DP \u2014 Grid Paths, Edit Distance, Knapsack"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Unique Paths: dp[j]+=dp[j-1]; O(n) rolling row",
+        "Edit Distance: match\u2192dp[i-1][j-1]; mismatch\u21921+min(3 neighbors)",
+        "0/1 Knapsack: iterate j BACKWARDS; dp[j]=max(dp[j], dp[j-w]+v)",
+        "Unbounded Knapsack: iterate j FORWARDS; allows reuse",
+        "Partition Equal Subset: knapsack variant; boolean dp[target+1]",
+        "Longest Common Subsequence: review from M31 T5"
+      ],
+      "next_topic_preview": "Next: Tree and Interval DP."
+    }
+  }
+}

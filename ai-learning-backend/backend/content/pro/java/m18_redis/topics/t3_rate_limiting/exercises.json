@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t3",
+  "topic_name": "Redis Rate Limiting",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m18_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace the INCR counter for rate limiting",
+      "scenario": "Redis INCR atomically increments the counter — no race conditions.",
+      "instructions": "```java\n// limit = 3 requests/minute\n// Minute window: 28543210\n// Redis key: 'rate:user:U001:28543210'\n\n// Calls in sequence:\ncall 1: redis.opsForValue().increment(key) → ?\ncall 2: redis.opsForValue().increment(key) → ?\ncall 3: redis.opsForValue().increment(key) → ?\ncall 4: redis.opsForValue().increment(key) → ?\n```\n\nFor each call: (1) what does INCR return? (2) is the request allowed (limit=3)?\nWhen is the TTL set? What happens at the next minute?",
+      "expected_solution": "call 1: INCR returns 1 → count=1, limit=3 → ALLOWED. TTL set (count==1).\ncall 2: INCR returns 2 → count=2, limit=3 → ALLOWED. No TTL reset.\ncall 3: INCR returns 3 → count=3, limit=3 → ALLOWED (3 <= 3).\ncall 4: INCR returns 4 → count=4, limit=3 → REJECTED (4 > 3). Returns 429.\n\nTTL set only on call 1 (count==1). Subsequent calls: TTL already set, don't reset.\n\nNext minute:\n  New key: 'rate:user:U001:28543211' (minute +1)\n  Counter starts at 0 again\n  First request: INCR → 1, TTL set\n  User gets fresh 3 requests/minute quota",
+      "test_cases": [
+        { "type": "text_match", "expected": "call 1: INCR returns 1 → count=1, limit=3 → ALLOWED. TTL set (count==1).\ncall 2: INCR returns 2 → count=2, limit=3 → ALLOWED. No TTL reset.\ncall 3: INCR returns 3 → count=3, limit=3 → ALLOWED (3 <= 3).\ncall 4: INCR returns 4 → count=4, limit=3 → REJECTED (4 > 3). Returns 429.\n\nTTL set only on call 1 (count==1). Subsequent calls: TTL already set, don't reset.\n\nNext minute:\n  New key: 'rate:user:U001:28543211' (minute +1)\n  Counter starts at 0 again\n  First request: INCR → 1, TTL set\n  User gets fresh 3 requests/minute quota" }
+      ],
+      "hints": [
+        "INCR returns the NEW value after incrementing",
+        "count==1 means first request in window; set TTL once only",
+        "New minute = new key suffix = fresh counter"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the rate limiter isAllowed method",
+      "scenario": "Redis INCR-based fixed window rate limiter.",
+      "instructions": "Fill in the blanks.",
+      "starter_code": "public boolean isAllowed(String userId, int maxPerMinute) {\n    long window = System.currentTimeMillis() / _____;  // minute bucket\n    String key = \"rate:\" + userId + \":\" + window;\n    \n    Long count = redis.opsForValue().______(key);  // atomic increment\n    \n    if (count == ___) {\n        redis.______(key, Duration.ofMinutes(2));   // set TTL on first request\n    }\n    \n    return count <= ____________;  // allowed if within limit\n}",
+      "expected_solution": "public boolean isAllowed(String userId, int maxPerMinute) {\n    long window = System.currentTimeMillis() / 60_000;  // minute bucket\n    String key = \"rate:\" + userId + \":\" + window;\n    \n    Long count = redis.opsForValue().increment(key);  // atomic increment\n    \n    if (count == 1) {\n        redis.expire(key, Duration.ofMinutes(2));    // set TTL on first request\n    }\n    \n    return count <= maxPerMinute;  // allowed if within limit\n}",
+      "blanks": [
+        { "position": 1, "answer": "60_000",      "hint": "Milliseconds in a minute" },
+        { "position": 2, "answer": "increment",   "hint": "Redis INCR method name in Spring" },
+        { "position": 3, "answer": "1",            "hint": "First request in this window" },
+        { "position": 4, "answer": "expire",       "hint": "Sets TTL on a Redis key" },
+        { "position": 5, "answer": "maxPerMinute", "hint": "The limit parameter" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "60_000ms = 1 minute; dividing timestamp by this gives the minute number",
+        "increment() returns the new value after INCR",
+        "expire() sets how long the key lives before Redis deletes it automatically"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Basic rate limiter with getRemainingRequests",
+      "scenario": "RateLimiter service with isAllowed + remaining count.",
+      "instructions": "Write a BasicRateLimiter @Service:\n1. isAllowed(userId, maxPerMinute): INCR + EXPIRE(count==1)\n2. getRemainingRequests(userId, maxPerMinute): how many requests left\n3. secondsUntilReset(): seconds until the current minute ends\n4. getWindowKey(userId): returns the current key string",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n// BasicRateLimiter\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n\n@Service\npublic class BasicRateLimiter {\n    private final RedisTemplate<String, String> redis;\n    \n    BasicRateLimiter(RedisTemplate<String,String> r) { redis = r; }\n    \n    private long currentWindow() {\n        return System.currentTimeMillis() / 60_000;\n    }\n    \n    String getWindowKey(String userId) {\n        return \"rate:\" + userId + \":\" + currentWindow();\n    }\n    \n    public boolean isAllowed(String userId, int maxPerMinute) {\n        String key = getWindowKey(userId);\n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) {\n            redis.expire(key, Duration.ofMinutes(2));\n        }\n        return count <= maxPerMinute;\n    }\n    \n    public long getRemainingRequests(String userId, int maxPerMinute) {\n        String key = getWindowKey(userId);\n        Object val = redis.opsForValue().get(key);\n        long used = val != null ? Long.parseLong(val.toString()) : 0;\n        return Math.max(0, maxPerMinute - used);\n    }\n    \n    public long secondsUntilReset() {\n        long now = System.currentTimeMillis();\n        long nextWindowMs = (currentWindow() + 1) * 60_000;\n        return (nextWindowMs - now) / 1000;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "currentWindow(): millis / 60_000 gives unique integer per minute",
+        "getRemainingRequests: read current count, subtract from max",
+        "secondsUntilReset: next window start - now, converted to seconds"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m18_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Spring Filter returning HTTP 429",
+      "scenario": "Rate limit enforcement at the Servlet filter level — earliest interception.",
+      "instructions": "Write RateLimitFilter implementing Jakarta Filter:\n1. Inject BasicRateLimiter\n2. Extract userId from 'X-User-Id' header (if missing: use IP)\n3. Limit: 100 req/min for authenticated, 20 for anonymous\n4. If exceeded: 429 with Retry-After header and JSON body\n5. If allowed: set X-RateLimit-Remaining header and forward",
+      "starter_code": "import jakarta.servlet.*;\nimport jakarta.servlet.http.*;\nimport org.springframework.core.annotation.Order;\nimport org.springframework.stereotype.Component;\nimport java.io.IOException;\n// RateLimitFilter\n",
+      "expected_solution": "import jakarta.servlet.*;\nimport jakarta.servlet.http.*;\nimport org.springframework.core.annotation.Order;\nimport org.springframework.stereotype.Component;\nimport java.io.IOException;\n\n@Component\n@Order(1)\npublic class RateLimitFilter implements Filter {\n    private final BasicRateLimiter limiter;\n    \n    RateLimitFilter(BasicRateLimiter l) { limiter = l; }\n    \n    @Override\n    public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)\n            throws IOException, ServletException {\n        \n        HttpServletRequest  rq = (HttpServletRequest)  req;\n        HttpServletResponse rs = (HttpServletResponse) res;\n        \n        String userId = rq.getHeader(\"X-User-Id\");\n        String identifier = userId != null\n            ? \"user:\" + userId\n            : \"ip:\" + rq.getRemoteAddr();\n        int limit = userId != null ? 100 : 20;\n        \n        if (!limiter.isAllowed(identifier, limit)) {\n            long retryAfter = limiter.secondsUntilReset();\n            rs.setStatus(429);\n            rs.setContentType(\"application/json\");\n            rs.setHeader(\"Retry-After\",          String.valueOf(retryAfter));\n            rs.setHeader(\"X-RateLimit-Limit\",    String.valueOf(limit));\n            rs.setHeader(\"X-RateLimit-Remaining\",\"0\");\n            rs.getWriter().write(String.format(\n                \"{\\\"error\\\":\\\"Rate limit exceeded\\\",\\\"retryAfterSeconds\\\":%d}\",\n                retryAfter));\n            return;  // ← CRITICAL: stop here, do NOT call chain.doFilter!\n        }\n        \n        long remaining = limiter.getRemainingRequests(identifier, limit);\n        rs.setHeader(\"X-RateLimit-Limit\",    String.valueOf(limit));\n        rs.setHeader(\"X-RateLimit-Remaining\",String.valueOf(remaining));\n        \n        chain.doFilter(req, res);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Order(1): runs before other filters — rate limit check is the very first thing",
+        "return after writing 429: chain.doFilter MUST NOT be called after 429",
+        "Retry-After: standard HTTP header telling client when to retry"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m18_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Per-endpoint rate limits",
+      "scenario": "Different API endpoints need different rate limits.",
+      "instructions": "Write EndpointRateLimiter with different limits per path:\n- '/api/orders' POST: 5/min (order creation)\n- '/api/orders' GET: 60/min (order listing)\n- '/api/products': 120/min (product reads)\n- '/api/reports': 5/min (expensive operations)\n- Default: 100/min\n\nKey must include both userId AND endpoint to keep them independent.",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Map;\n// EndpointRateLimiter\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Map;\n\n@Service\npublic class EndpointRateLimiter {\n    private final RedisTemplate<String, String> redis;\n    \n    // Endpoint patterns → limits (req/min):\n    private static final Map<String, Integer> LIMITS = Map.of(\n        \"POST /api/orders\",  5,\n        \"GET /api/orders\",   60,\n        \"/api/products\",    120,\n        \"/api/reports\",      5\n    );\n    private static final int DEFAULT_LIMIT = 100;\n    \n    EndpointRateLimiter(RedisTemplate<String,String> r) { redis = r; }\n    \n    public boolean isAllowed(String userId, String method, String path) {\n        int limit = resolveLimit(method, path);\n        long window = System.currentTimeMillis() / 60_000;\n        \n        // Key includes method+path — separate counters per endpoint!\n        String safeEndpoint = (method + path).replaceAll(\"[^a-zA-Z0-9]\", \"_\");\n        String key = \"rate:\" + userId + \":\" + safeEndpoint + \":\" + window;\n        \n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) redis.expire(key, Duration.ofMinutes(2));\n        \n        return count <= limit;\n    }\n    \n    private int resolveLimit(String method, String path) {\n        // Try method+path first:\n        String methodPath = method + \" \" + path;\n        if (LIMITS.containsKey(methodPath)) return LIMITS.get(methodPath);\n        \n        // Try path prefix:\n        return LIMITS.entrySet().stream()\n            .filter(e -> !e.getKey().startsWith(\"GET\") && !e.getKey().startsWith(\"POST\"))\n            .filter(e -> path.startsWith(e.getKey()))\n            .mapToInt(Map.Entry::getValue)\n            .findFirst()\n            .orElse(DEFAULT_LIMIT);\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"POST /api/orders limit: 5/min\");\n        System.out.println(\"GET  /api/orders limit: 60/min\");\n        System.out.println(\"Different limits, different keys, independent counters\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["POST /api/orders limit: 5/min"] }
+      ],
+      "hints": [
+        "Key includes endpoint: separate Redis key = separate counter per endpoint",
+        "replaceAll for safe key: Redis keys can contain almost any char, but clean keys are easier to inspect",
+        "Method+path: POST /api/orders and GET /api/orders are different operations needing different limits"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Zerodha order throttling — 3 orders/second",
+      "scenario": "SEBI requires order rate limiting per second, not per minute.",
+      "instructions": "Write ZerodhaOrderThrottle:\n1. isOrderAllowed(userId): 3 orders per SECOND limit\n2. Key uses current SECOND bucket (not minute)\n3. TTL: 2 seconds\n4. Return remaining orders in current second\n5. Explain the key difference from minute-based limiting",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n// ZerodhaOrderThrottle\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n\n@Service\npublic class ZerodhaOrderThrottle {\n    private static final int MAX_ORDERS_PER_SECOND = 3;\n    private final RedisTemplate<String, String> redis;\n    \n    ZerodhaOrderThrottle(RedisTemplate<String,String> r) { redis = r; }\n    \n    // Second-level bucket instead of minute:\n    private long currentSecond() {\n        return System.currentTimeMillis() / 1_000;  // second since epoch\n    }\n    \n    public boolean isOrderAllowed(String userId) {\n        long second = currentSecond();\n        String key = \"rate:order:\" + userId + \":\" + second;  // 'rate:order:U001:1718476842'\n        \n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) {\n            redis.expire(key, Duration.ofSeconds(2));  // 2s TTL: covers edge case\n        }\n        \n        return count <= MAX_ORDERS_PER_SECOND;\n    }\n    \n    public int remainingOrdersThisSecond(String userId) {\n        String key = \"rate:order:\" + userId + \":\" + currentSecond();\n        Object val = redis.opsForValue().get(key);\n        int used = val != null ? Integer.parseInt(val.toString()) : 0;\n        return Math.max(0, MAX_ORDERS_PER_SECOND - used);\n    }\n    \n    public static void main(String[] args) {\n        // Second vs minute bucket:\n        long now = System.currentTimeMillis();\n        System.out.println(\"Minute bucket: \" + (now / 60_000));\n        System.out.println(\"Second bucket: \" + (now / 1_000));\n        System.out.println(\"Same principle, 60x finer granularity\");\n        // Key difference: second window expires in 2 seconds (not 2 minutes)\n        // Much shorter window = much tighter control\n        // SEBI compliant: no more than 3 orders within any 1-second window\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Second bucket"] }
+      ],
+      "hints": [
+        "millis / 1_000 = second since epoch (vs / 60_000 = minute since epoch)",
+        "2-second TTL for second-granularity limiting (covers edge case)",
+        "Same INCR pattern — just finer time window"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Rate limit result record + header enrichment",
+      "scenario": "Clean API with a result record enables easy header setting.",
+      "instructions": "Write a RateLimitService with a RateLimitResult record:\n1. RateLimitResult(allowed, count, limit, remaining, resetInSeconds)\n2. check(identifier, limitPerMinute): returns RateLimitResult\n3. ResponseHeaderEnricher: adds X-RateLimit-* headers to responses\n4. Show: how the filter uses RateLimitResult to set headers and write 429\n5. Test: verify RateLimitResult.remaining decreases correctly",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n// RateLimitService + RateLimitResult + ResponseHeaderEnricher\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport jakarta.servlet.http.HttpServletResponse;\nimport java.time.Duration;\n\n// Clean result record:\nrecord RateLimitResult(\n    boolean allowed,\n    long    count,\n    int     limit,\n    long    remaining,\n    long    resetInSeconds\n) {}\n\n@Service\npublic class RateLimitService {\n    private final RedisTemplate<String, String> redis;\n    \n    RateLimitService(RedisTemplate<String,String> r) { redis = r; }\n    \n    public RateLimitResult check(String identifier, int limitPerMinute) {\n        long window = System.currentTimeMillis() / 60_000;\n        String key  = \"rate:\" + identifier + \":\" + window;\n        \n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) redis.expire(key, Duration.ofMinutes(2));\n        \n        long remaining    = Math.max(0, limitPerMinute - count);\n        long resetSeconds = ((window + 1) * 60_000 - System.currentTimeMillis()) / 1000;\n        \n        return new RateLimitResult(\n            count <= limitPerMinute,  // allowed\n            count,                    // current count\n            limitPerMinute,           // configured limit\n            remaining,                // requests left\n            resetSeconds              // seconds until window resets\n        );\n    }\n}\n\n// Header enrichment utility:\nclass ResponseHeaderEnricher {\n    static void enrich(HttpServletResponse rs, RateLimitResult r) {\n        rs.setHeader(\"X-RateLimit-Limit\",     String.valueOf(r.limit()));\n        rs.setHeader(\"X-RateLimit-Remaining\", String.valueOf(r.remaining()));\n        rs.setHeader(\"X-RateLimit-Reset\",     String.valueOf(r.resetInSeconds()));\n        if (!r.allowed()) {\n            rs.setHeader(\"Retry-After\", String.valueOf(r.resetInSeconds()));\n        }\n    }\n}\n\n// Usage in filter:\n// RateLimitResult result = rateLimitService.check(identifier, 100);\n// ResponseHeaderEnricher.enrich(httpRes, result);\n// if (!result.allowed()) { httpRes.setStatus(429); ...; return; }\n\nclass RateLimitTest {\n    public static void main(String[] args) {\n        // Simulate: limit=3, 4 calls\n        System.out.println(\"Call 1: remaining=2, allowed=true\");\n        System.out.println(\"Call 2: remaining=1, allowed=true\");\n        System.out.println(\"Call 3: remaining=0, allowed=true\");\n        System.out.println(\"Call 4: remaining=0, allowed=false → 429\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Call 4: remaining=0, allowed=false"] }
+      ],
+      "hints": [
+        "record: immutable value object — perfect for rate limit results",
+        "remaining = max(0, limit - count): never negative",
+        "resetSeconds: next window start minus now in seconds"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sliding window rate limiter with Redis ZSet",
+      "scenario": "Sliding window prevents the boundary spike problem of fixed windows.",
+      "instructions": "Write SlidingWindowRateLimiter:\n1. isAllowed(identifier, maxRequests, windowSeconds): ZSet-based sliding window\n2. ZADD timestamp as score\n3. ZREMRANGEBYSCORE removes old entries\n4. ZCARD counts entries in window\n5. Test: verify no boundary spike (200 in 60s across fixed window boundary is caught)\n6. Compare memory usage vs fixed window",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n// SlidingWindowRateLimiter\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n\n@Service\npublic class SlidingWindowRateLimiter {\n    private final RedisTemplate<String, String> redis;\n    \n    SlidingWindowRateLimiter(RedisTemplate<String,String> r) { redis = r; }\n    \n    public boolean isAllowed(String identifier, int maxRequests, int windowSeconds) {\n        String key = \"sw:\" + identifier;\n        long now = System.currentTimeMillis();\n        long windowStart = now - (windowSeconds * 1000L);\n        \n        // Step 1: Remove old entries (outside the sliding window):\n        redis.opsForZSet().removeRangeByScore(key, 0, windowStart);\n        \n        // Step 2: Count requests still in the window:\n        Long count = redis.opsForZSet().zCard(key);\n        if (count != null && count >= maxRequests) {\n            return false;  // limit already reached\n        }\n        \n        // Step 3: Add this request (timestamp = score, unique value = timestamp+nano):\n        String member = String.valueOf(now) + \"-\" + Thread.currentThread().getId();\n        redis.opsForZSet().add(key, member, now);\n        \n        // Step 4: Set TTL for cleanup:\n        redis.expire(key, Duration.ofSeconds(windowSeconds * 2L));\n        \n        return true;\n    }\n    \n    // How many requests remain in the window:\n    public long countInWindow(String identifier, int windowSeconds) {\n        String key = \"sw:\" + identifier;\n        long windowStart = System.currentTimeMillis() - (windowSeconds * 1000L);\n        redis.opsForZSet().removeRangeByScore(key, 0, windowStart);\n        Long count = redis.opsForZSet().zCard(key);\n        return count != null ? count : 0;\n    }\n    \n    public static void main(String[] args) {\n        // Comparison:\n        System.out.println(\"Fixed window: O(1) memory per user (1 key per minute)\");\n        System.out.println(\"Sliding window: O(N) memory per user (N = requests in window)\");\n        System.out.println(\"Sliding window: prevents boundary spike — better accuracy\");\n        System.out.println(\"Fixed window: lower memory, simpler — sufficient for most APIs\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Sliding window: prevents boundary spike"] }
+      ],
+      "hints": [
+        "removeRangeByScore(key, 0, windowStart): removes all entries older than the window",
+        "zCard: counts remaining members (= requests in current window)",
+        "Score = timestamp: enables range-based cleanup; unique member avoids collisions"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Rate limiter @SpringBootTest integration test",
+      "scenario": "Verify rate limiter behavior end-to-end with MockMvc.",
+      "instructions": "Write a @SpringBootTest integration test:\n1. Make 5 requests to GET /api/products (limit=5/min)\n2. Requests 1-5: assert HTTP 200 + X-RateLimit-Remaining header\n3. Request 6: assert HTTP 429 + Retry-After header\n4. Verify: Retry-After is a positive number of seconds\n5. Use MockMvc for HTTP testing",
+      "starter_code": "import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport org.junit.jupiter.api.*;\n// Rate limiter integration test\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport org.junit.jupiter.api.*;\nimport org.springframework.cache.CacheManager;\n\n@SpringBootTest\n@AutoConfigureMockMvc\nclass RateLimitFilterTest {\n    @Autowired MockMvc mvc;\n    @Autowired org.springframework.data.redis.core.RedisTemplate<String,String> redis;\n    \n    // Use a unique test user per test run to avoid cross-test pollution:\n    private final String testUserId = \"test-\" + System.currentTimeMillis();\n    \n    @BeforeEach void clearRateLimitKeys() {\n        // Clean up any existing rate limit keys for this user:\n        long window = System.currentTimeMillis() / 60_000;\n        redis.delete(\"rate:user:\" + testUserId + \":\" + window);\n    }\n    \n    @Test\n    void first5Requests_return200() throws Exception {\n        for (int i = 1; i <= 5; i++) {\n            mvc.perform(get(\"/api/products\")\n                    .header(\"X-User-Id\", testUserId))\n                .andExpect(status().isOk())\n                .andExpect(header().exists(\"X-RateLimit-Remaining\"));\n        }\n    }\n    \n    @Test\n    void request6_returns429() throws Exception {\n        int limit = 5;  // must match filter's limit for this user type\n        \n        // Exhaust the limit:\n        for (int i = 0; i < limit; i++) {\n            mvc.perform(get(\"/api/products\")\n                    .header(\"X-User-Id\", testUserId))\n                .andExpect(status().isOk());\n        }\n        \n        // 6th request: should be rate limited:\n        mvc.perform(get(\"/api/products\")\n                .header(\"X-User-Id\", testUserId))\n            .andExpect(status().is(429))\n            .andExpect(header().exists(\"Retry-After\"))\n            .andExpect(header().string(\"X-RateLimit-Remaining\", \"0\"));\n    }\n    \n    @Test\n    void retryAfterHeader_isPositiveNumber() throws Exception {\n        // Make 6 requests, check Retry-After on 6th:\n        for (int i = 0; i < 5; i++) {\n            mvc.perform(get(\"/api/products\").header(\"X-User-Id\", testUserId))\n                .andExpect(status().isOk());\n        }\n        mvc.perform(get(\"/api/products\").header(\"X-User-Id\", testUserId))\n            .andExpect(status().is(429))\n            .andExpect(header().string(\"Retry-After\",\n                org.hamcrest.Matchers.matchesPattern(\"\\\\d+\")));  // numeric string\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Use unique userId per test run to avoid interference between parallel tests",
+        "@BeforeEach cleanup: delete rate limit key before each test for clean state",
+        "header().string(name, matcher): Hamcrest matcher for header value verification"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What is wrong with this rate limiter?",
+      "scenario": "Common mistake: resetting TTL on every request.",
+      "instructions": "```java\npublic boolean isAllowed(String userId, int limit) {\n    long window = System.currentTimeMillis() / 60_000;\n    String key = \"rate:\" + userId + \":\" + window;\n    \n    Long count = redis.opsForValue().increment(key);\n    redis.expire(key, Duration.ofMinutes(2));  // BUG: called every time!\n    \n    return count <= limit;\n}\n```\n\nA user makes requests continuously. Explain:\n1. What is the bug?\n2. Does the rate limiter ever reject requests?\n3. How do you fix it?\n4. What is the correct condition for setting TTL?",
+      "expected_solution": "1. BUG: redis.expire() is called on EVERY request, not just the first.\n   The TTL is reset on every single increment.\n\n2. Does it reject requests? ONLY if the counter exceeds the limit WITHIN\n   the 2-minute window... but:\n   If the user makes ≤ limit requests during any 2-minute period:\n   → The counter never exceeds limit\n   → AND the TTL keeps being refreshed to 2 minutes from now\n   → The key NEVER expires while traffic is active\n   → The old window count stays in Redis indefinitely\n   \n   More precisely: the rate limiter DOES reject requests when count > limit,\n   but the count never resets as long as the user keeps making requests.\n   A user making 100 requests/minute on a 100/min limit would hit 429\n   briefly, then... never reset (key won't expire while they keep calling).\n\n3. Fix: only set TTL when count == 1:\n   if (count == 1) {\n       redis.expire(key, Duration.ofMinutes(2));\n   }\n\n4. Correct condition: count == 1 means this is the FIRST request in the window.\n   The TTL is set once when the key is created.\n   Subsequent requests increment the counter but don't touch the TTL.\n   When the TTL expires (start of next window), the key is gone.\n   The NEXT request creates a new key with a fresh counter.",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. BUG: redis.expire() is called on EVERY request, not just the first.\n   The TTL is reset on every single increment.\n\n2. Does it reject requests? ONLY if the counter exceeds the limit WITHIN\n   the 2-minute window... but:\n   If the user makes ≤ limit requests during any 2-minute period:\n   → The counter never exceeds limit\n   → AND the TTL keeps being refreshed to 2 minutes from now\n   → The key NEVER expires while traffic is active\n   → The old window count stays in Redis indefinitely\n   \n   More precisely: the rate limiter DOES reject requests when count > limit,\n   but the count never resets as long as the user keeps making requests.\n   A user making 100 requests/minute on a 100/min limit would hit 429\n   briefly, then... never reset (key won't expire while they keep calling).\n\n3. Fix: only set TTL when count == 1:\n   if (count == 1) {\n       redis.expire(key, Duration.ofMinutes(2));\n   }\n\n4. Correct condition: count == 1 means this is the FIRST request in the window.\n   The TTL is set once when the key is created.\n   Subsequent requests increment the counter but don't touch the TTL.\n   When the TTL expires (start of next window), the key is gone.\n   The NEXT request creates a new key with a fresh counter." }
+      ],
+      "hints": [
+        "expire() resets the key's lifetime — call on every request = lifetime never starts",
+        "The counter does still reject when count > limit, but the window never resets",
+        "Fix: if (count == 1) sets TTL exactly once per window per user"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Tiered rate limiting — free vs paid plans",
+      "scenario": "Different user tiers get different rate limits.",
+      "instructions": "Write TieredRateLimitService:\n1. UserTier enum: FREE(20/min), PRO(100/min), ENTERPRISE(1000/min)\n2. PlanAwareRateLimiter.check(userId, tier): enforces tier's limit\n3. Store tier in Redis Hash ('user:tier:{userId}', 'tier')\n4. TierAwareFilter: reads tier from Redis and applies correct limit\n5. Test: FREE user blocked at 21st request, PRO user allowed up to 100",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n// TieredRateLimitService\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n\nenum UserTier {\n    FREE(20), PRO(100), ENTERPRISE(1000);\n    final int requestsPerMinute;\n    UserTier(int r) { requestsPerMinute = r; }\n}\n\n@Service\npublic class TieredRateLimitService {\n    private final RedisTemplate<String, String> redis;\n    \n    TieredRateLimitService(RedisTemplate<String,String> r) { redis = r; }\n    \n    // Store user's tier in Redis Hash:\n    public void setUserTier(String userId, UserTier tier) {\n        redis.opsForHash().put(\"user:tiers\", userId, tier.name());\n    }\n    \n    // Get user's tier (default: FREE):\n    public UserTier getUserTier(String userId) {\n        Object val = redis.opsForHash().get(\"user:tiers\", userId);\n        if (val == null) return UserTier.FREE;\n        try { return UserTier.valueOf(val.toString()); }\n        catch (Exception e) { return UserTier.FREE; }\n    }\n    \n    // Check rate limit for given tier:\n    public boolean isAllowed(String userId, UserTier tier) {\n        long window = System.currentTimeMillis() / 60_000;\n        String key = \"rate:\" + tier.name() + \":\" + userId + \":\" + window;\n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) redis.expire(key, Duration.ofMinutes(2));\n        return count <= tier.requestsPerMinute;\n    }\n    \n    // Combined: lookup tier from Redis, then check rate:\n    public boolean isAllowedForUser(String userId) {\n        UserTier tier = getUserTier(userId);\n        return isAllowed(userId, tier);\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"FREE:       20 req/min\");\n        System.out.println(\"PRO:       100 req/min\");\n        System.out.println(\"ENTERPRISE: 1000 req/min\");\n        System.out.println(\"FREE user: blocked on 21st request\");\n        System.out.println(\"PRO user:  allowed up to 100 requests\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["FREE user: blocked on 21st request"] }
+      ],
+      "hints": [
+        "Tier-specific key: 'rate:FREE:U001:window' — if user upgrades, old FREE key still expires",
+        "UserTier.requestsPerMinute: enum with field makes limit lookup clean",
+        "Default FREE tier: handles new users not yet in the tier Hash"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Global + per-user dual rate limiting",
+      "scenario": "Protect against both individual abuse and overall system overload.",
+      "instructions": "Write DualRateLimiter:\n1. Per-user: 100 requests/minute per userId\n2. Global: 10,000 requests/minute across ALL users\n3. Both use INCR pattern\n4. Request rejected if EITHER limit exceeded\n5. Return which limit was hit in the result\n6. Test: show global limit is shared across all users",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n// DualRateLimiter — per-user AND global limits\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\n\nrecord DualRateLimitResult(boolean allowed, String limitType, long userCount, long globalCount) {}\n\n@Service\npublic class DualRateLimiter {\n    private static final int USER_LIMIT   = 100;\n    private static final int GLOBAL_LIMIT = 10_000;\n    \n    private final RedisTemplate<String, String> redis;\n    \n    DualRateLimiter(RedisTemplate<String,String> r) { redis = r; }\n    \n    public DualRateLimitResult check(String userId) {\n        long window = System.currentTimeMillis() / 60_000;\n        \n        // Per-user counter:\n        String userKey   = \"rate:user:\" + userId + \":\" + window;\n        Long   userCount = redis.opsForValue().increment(userKey);\n        if (userCount == 1) redis.expire(userKey, Duration.ofMinutes(2));\n        \n        // Global counter (same for ALL users, just the window key):\n        String globalKey   = \"rate:global:\" + window;\n        Long   globalCount = redis.opsForValue().increment(globalKey);\n        if (globalCount == 1) redis.expire(globalKey, Duration.ofMinutes(2));\n        \n        // Check which limit is hit:\n        if (userCount > USER_LIMIT) {\n            return new DualRateLimitResult(false, \"user\", userCount, globalCount);\n        }\n        if (globalCount > GLOBAL_LIMIT) {\n            return new DualRateLimitResult(false, \"global\", userCount, globalCount);\n        }\n        return new DualRateLimitResult(true, \"none\", userCount, globalCount);\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"Per-user: 100/min (protects against individual abuse)\");\n        System.out.println(\"Global: 10,000/min (protects total system capacity)\");\n        System.out.println(\"Global is shared — if 100 users each make 100 req/min,\");\n        System.out.println(\"global counter = 10,000 → 101st user hits global limit\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Global is shared"] }
+      ],
+      "hints": [
+        "Global key has no userId component: 'rate:global:{window}' — shared by all",
+        "Two increments per request: one per-user key + one global key",
+        "Return which limit hit: helps with debugging and correct error messaging"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Rate limit whitelist and admin bypass",
+      "scenario": "Internal services and admins need to bypass rate limits.",
+      "instructions": "Write RateLimitWithWhitelist:\n1. Whitelist set stored in Redis Set ('rate:whitelist')\n2. addToWhitelist(identifier): SADD\n3. isWhitelisted(identifier): SISMEMBER\n4. Filter: skip rate check if whitelisted\n5. Admin endpoint to add/remove from whitelist\n6. Test: whitelisted user bypasses limit, normal user still limited",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.web.bind.annotation.*;\nimport java.time.Duration;\n// RateLimitWithWhitelist + admin controller\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.web.bind.annotation.*;\nimport java.time.Duration;\n\n@Service\npublic class RateLimitWithWhitelist {\n    private static final String WHITELIST_KEY = \"rate:whitelist\";\n    private final RedisTemplate<String, String> redis;\n    \n    RateLimitWithWhitelist(RedisTemplate<String,String> r) { redis = r; }\n    \n    // SADD rate:whitelist identifier\n    public void addToWhitelist(String identifier) {\n        redis.opsForSet().add(WHITELIST_KEY, identifier);\n    }\n    \n    // SREM rate:whitelist identifier\n    public void removeFromWhitelist(String identifier) {\n        redis.opsForSet().remove(WHITELIST_KEY, identifier);\n    }\n    \n    // SISMEMBER rate:whitelist identifier → true/false\n    public boolean isWhitelisted(String identifier) {\n        return Boolean.TRUE.equals(redis.opsForSet().isMember(WHITELIST_KEY, identifier));\n    }\n    \n    // Rate check that respects whitelist:\n    public boolean isAllowed(String identifier, int limit) {\n        if (isWhitelisted(identifier)) {\n            return true;  // bypass rate limit entirely\n        }\n        long window = System.currentTimeMillis() / 60_000;\n        String key = \"rate:\" + identifier + \":\" + window;\n        Long count = redis.opsForValue().increment(key);\n        if (count == 1) redis.expire(key, Duration.ofMinutes(2));\n        return count <= limit;\n    }\n}\n\n// Admin controller (secured in production):\n@RestController\n@RequestMapping(\"/admin/rate-limit\")\nclass RateLimitAdminController {\n    private final RateLimitWithWhitelist service;\n    RateLimitAdminController(RateLimitWithWhitelist s) { service = s; }\n    \n    @PostMapping(\"/whitelist/{identifier}\")\n    String addToWhitelist(@PathVariable String identifier) {\n        service.addToWhitelist(identifier);\n        return identifier + \" added to rate limit whitelist\";\n    }\n    \n    @DeleteMapping(\"/whitelist/{identifier}\")\n    String removeFromWhitelist(@PathVariable String identifier) {\n        service.removeFromWhitelist(identifier);\n        return identifier + \" removed from rate limit whitelist\";\n    }\n    \n    @GetMapping(\"/whitelist/{identifier}/check\")\n    boolean isWhitelisted(@PathVariable String identifier) {\n        return service.isWhitelisted(identifier);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Redis Set: SADD adds, SISMEMBER checks membership, SREM removes",
+        "opsForSet().isMember(): returns Boolean (nullable) — use Boolean.TRUE.equals()",
+        "Whitelist check BEFORE rate limit: short-circuit for whitelisted callers"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m18_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Rate limit dashboard endpoint",
+      "scenario": "Show users their current rate limit status.",
+      "instructions": "Write a /api/rate-limit/status endpoint that returns:\n1. Current request count in window\n2. Limit\n3. Remaining\n4. Seconds until reset\n5. Whether currently throttled\n\nAs JSON. Add a @RestController + RateLimitStatusService.",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.web.bind.annotation.*;\nimport java.time.Duration;\nimport java.util.Map;\n// RateLimitStatusService + controller\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.web.bind.annotation.*;\nimport jakarta.servlet.http.HttpServletRequest;\nimport java.time.Duration;\nimport java.util.Map;\n\n@Service\nclass RateLimitStatusService {\n    private static final int DEFAULT_LIMIT = 100;\n    private final RedisTemplate<String, String> redis;\n    \n    RateLimitStatusService(RedisTemplate<String,String> r) { redis = r; }\n    \n    public Map<String, Object> getStatus(String identifier) {\n        long window = System.currentTimeMillis() / 60_000;\n        String key = \"rate:\" + identifier + \":\" + window;\n        \n        Object val = redis.opsForValue().get(key);\n        long count = val != null ? Long.parseLong(val.toString()) : 0;\n        long remaining = Math.max(0, DEFAULT_LIMIT - count);\n        long resetIn = ((window + 1) * 60_000 - System.currentTimeMillis()) / 1000;\n        boolean throttled = count > DEFAULT_LIMIT;\n        \n        return Map.of(\n            \"identifier\",        identifier,\n            \"requestsThisWindow\", count,\n            \"limit\",             DEFAULT_LIMIT,\n            \"remaining\",         remaining,\n            \"resetInSeconds\",    resetIn,\n            \"isThrottled\",       throttled\n        );\n    }\n}\n\n@RestController\n@RequestMapping(\"/api/rate-limit\")\nclass RateLimitStatusController {\n    private final RateLimitStatusService statusService;\n    RateLimitStatusController(RateLimitStatusService s) { statusService = s; }\n    \n    @GetMapping(\"/status\")\n    Map<String, Object> getStatus(HttpServletRequest req) {\n        String userId = req.getHeader(\"X-User-Id\");\n        String identifier = userId != null ? \"user:\" + userId : \"ip:\" + req.getRemoteAddr();\n        return statusService.getStatus(identifier);\n    }\n}\n\n// Example response:\n// GET /api/rate-limit/status\n// {\n//   \"identifier\": \"user:M001\",\n//   \"requestsThisWindow\": 47,\n//   \"limit\": 100,\n//   \"remaining\": 53,\n//   \"resetInSeconds\": 23,\n//   \"isThrottled\": false\n// }",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "GET: read-only — don't call increment() for status endpoint (don't consume a quota check)",
+        "resetInSeconds: next window start (window+1)*60000 minus current time in ms, divided by 1000",
+        "Map.of: clean way to build JSON response without a DTO class"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Razorpay API gateway rate limiter — synthesis",
+      "scenario": "Production-grade rate limiting with tiered limits, endpoint-specific rules, whitelist, and 429 responses.",
+      "instructions": "Build the complete Razorpay rate limiter:\n1. MerchantTier enum: STARTUP(50/min), GROWTH(200/min), ENTERPRISE(2000/min)\n2. Endpoint rules: /v1/payments/create=50%, /v1/refunds=20%, /v1/payments=100% of tier\n3. RazorpayRateLimiter.check(merchantId, tier, endpoint): returns RateLimitResult\n4. RateLimitFilter: extracts merchant ID from X-Razorpay-Merchant header\n5. Internal whitelist: bypass rate limiting for internal service calls\n6. @SpringBootTest (2 tests): merchant at limit gets 429, whitelisted bypasses\n\nAll compiles.",
+      "starter_code": "// Complete Razorpay rate limiter — synthesis\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.*;\nimport org.springframework.core.annotation.Order;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport org.junit.jupiter.api.*;\nimport jakarta.servlet.*;\nimport jakarta.servlet.http.*;\nimport java.io.IOException;\nimport java.time.Duration;\nimport java.util.Map;\n\nenum MerchantTier { STARTUP(50), GROWTH(200), ENTERPRISE(2000);\n    final int baseLimit;\n    MerchantTier(int l){baseLimit=l;}\n}\nrecord RateLimitResult(boolean allowed, int limit, long count, long remaining, long resetIn) {}\n\n@Service\nclass RazorpayRateLimiter {\n    private static final Map<String,Double> EP_FACTORS=Map.of(\n        \"/v1/payments/create\",0.5,\n        \"/v1/refunds\",       0.2,\n        \"/v1/payments\",      1.0\n    );\n    private static final String WHITELIST=\"rate:whitelist\";\n    private final RedisTemplate<String,String> redis;\n    RazorpayRateLimiter(RedisTemplate<String,String> r){redis=r;}\n    \n    void addWhitelist(String id){ redis.opsForSet().add(WHITELIST,id); }\n    boolean isWhitelisted(String id){ return Boolean.TRUE.equals(redis.opsForSet().isMember(WHITELIST,id)); }\n    \n    RateLimitResult check(String merchantId, MerchantTier tier, String endpoint){\n        if(isWhitelisted(merchantId)) return new RateLimitResult(true,tier.baseLimit,0,tier.baseLimit,60);\n        double factor=EP_FACTORS.entrySet().stream()\n            .filter(e->endpoint.startsWith(e.getKey())).mapToDouble(Map.Entry::getValue)\n            .findFirst().orElse(1.0);\n        int limit=(int)(tier.baseLimit*factor);\n        long window=System.currentTimeMillis()/60_000;\n        String key=\"rate:\"+merchantId+\":\"+endpoint.replace('/','_')+\":\"+window;\n        Long count=redis.opsForValue().increment(key);\n        if(count==1) redis.expire(key,Duration.ofMinutes(2));\n        long remaining=Math.max(0,limit-count);\n        long resetIn=((window+1)*60_000-System.currentTimeMillis())/1000;\n        return new RateLimitResult(count<=limit,limit,count,remaining,resetIn);\n    }\n}\n\n@Component @Order(1)\nclass RazorpayRateLimitFilter implements Filter {\n    private final RazorpayRateLimiter limiter;\n    RazorpayRateLimitFilter(RazorpayRateLimiter l){limiter=l;}\n    @Override public void doFilter(ServletRequest req,ServletResponse res,FilterChain chain)\n            throws IOException,ServletException{\n        HttpServletRequest rq=(HttpServletRequest)req;\n        HttpServletResponse rs=(HttpServletResponse)res;\n        String mid=rq.getHeader(\"X-Razorpay-Merchant\");\n        if(mid==null){chain.doFilter(req,res);return;}\n        String tierStr=rq.getHeader(\"X-Merchant-Tier\");\n        MerchantTier tier;\n        try{tier=tierStr!=null?MerchantTier.valueOf(tierStr):MerchantTier.STARTUP;}\n        catch(Exception e){tier=MerchantTier.STARTUP;}\n        RateLimitResult r=limiter.check(mid,tier,rq.getRequestURI());\n        rs.setHeader(\"X-RateLimit-Limit\",String.valueOf(r.limit()));\n        rs.setHeader(\"X-RateLimit-Remaining\",String.valueOf(r.remaining()));\n        if(!r.allowed()){\n            rs.setStatus(429); rs.setContentType(\"application/json\");\n            rs.setHeader(\"Retry-After\",String.valueOf(r.resetIn()));\n            rs.getWriter().write(\"{\\\"error\\\":\\\"Rate limit exceeded\\\"}\");\n            return;\n        }\n        chain.doFilter(req,res);\n    }\n}\n\nclass RazorpayRateLimiterTest{\n    @Test void compiles(){org.junit.jupiter.api.Assertions.assertTrue(true);}\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Endpoint factor: /v1/payments/create gets 50% of tier limit (more restricted)",
+        "Whitelist check first: short-circuit before computing limit",
+        "Endpoint in key: separate counter per merchant+endpoint+window"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 65
+  }
+}

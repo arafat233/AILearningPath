@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t1",
+  "language": "java",
+  "module_id": "m14",
+  "module_name": "Advanced Spring Boot",
+  "topic_number": 1,
+  "name": "Spring Security and JWT Authentication",
+  "slug": "spring-security-jwt",
+
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m13_t5"],
+    "concepts_taught": [
+      "spring_security_filter_chain",
+      "security_config_class",
+      "http_security_dsl",
+      "jwt_what_and_why",
+      "jwt_structure_header_payload_signature",
+      "generating_jwt_tokens",
+      "validating_jwt_tokens",
+      "jwt_filter",
+      "authentication_provider",
+      "user_details_service",
+      "password_encoder",
+      "security_context_holder",
+      "permit_all_vs_authenticated",
+      "role_based_access"
+    ],
+    "skills_developed": [
+      "configuring_spring_security",
+      "implementing_jwt_token_generation",
+      "implementing_jwt_token_validation",
+      "writing_jwt_filter",
+      "securing_rest_endpoints",
+      "testing_secured_endpoints"
+    ],
+    "career_relevance": "Every production API is secured. JWT authentication is the industry standard for stateless REST APIs — Razorpay, Zerodha, Flipkart, and every fintech uses it. Spring Security is the most-used Java security framework, and 'Spring Security + JWT' appears in almost every senior Java backend job description. After this topic, you implement the exact security pattern used in production microservices.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your product API is running. Anyone on the internet can create, update, and delete products. No authentication, no authorization. That's not production code.\n\n```bash\n# Right now, anyone can do:\ncurl -X DELETE https://api.yourcompany.com/api/products/P001\n# → 204 — product deleted. No login needed. No check.\n```\n\nWith JWT authentication:\n```bash\n# Step 1: Login to get a token:\ncurl -X POST /api/auth/login \\\n  -d '{\"username\":\"aisha\",\"password\":\"secure123\"}'\n→ {\"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhaXNoYSIsInJvbGUiOiJBRE1JTiJ9...\"}\n\n# Step 2: Use the token for protected endpoints:\ncurl -H 'Authorization: Bearer eyJhbGc...' \\\n  -X DELETE /api/products/P001\n→ 204 (if Aisha has ADMIN role)\n\n# Without the token:\ncurl -X DELETE /api/products/P001\n→ 401 Unauthorized\n\n# With wrong role:\ncurl -H 'Authorization: Bearer [viewer-token]' -X DELETE /api/products/P001\n→ 403 Forbidden\n```\n\n**JWT (JSON Web Token)** = a signed token the server issues at login. The client sends it on every request. The server verifies the signature — no database lookup needed per request. This is stateless authentication.",
+    "what_you_will_build": "By the end of this topic, you'll configure Spring Security with a SecurityFilterChain, implement JWT token generation and validation using the `jjwt` library, write a `JwtAuthFilter` that intercepts every request, protect endpoints with role-based access, and test secured endpoints."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "jwt_basics": "**JWT — JSON Web Token:**\n\nA JWT is a compact, self-contained token with three parts, separated by dots:\n\n```\neyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhaXNoYSIsInJvbGVzIjpbIkFETUlOIl0sImlhdCI6MTcxMDQ5NTIwMCwiZXhwIjoxNzEwNTgxNjAwfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\n   HEADER                              PAYLOAD                                        SIGNATURE\n```\n\n- **Header**: `{\"alg\":\"HS256\",\"typ\":\"JWT\"}` — algorithm used\n- **Payload**: `{\"sub\":\"aisha\",\"roles\":[\"ADMIN\"],\"iat\":1710495200,\"exp\":1710581600}` — the claims (who, roles, expiry)\n- **Signature**: HMAC-SHA256(header + '.' + payload, secretKey) — proves authenticity\n\n**How it works:**\n```\nClient          Server\n  │─── POST /login ──────────────────→│\n  │         {username, password}       │  validates credentials\n  │←── 200 {token: eyJ...} ──────────│  generates JWT, returns it\n  │                                    │\n  │─── GET /api/products ────────────→│\n  │    Authorization: Bearer eyJ...    │  verifies JWT signature\n  │←── 200 [{products}] ────────────│  no DB lookup needed!\n```\n\nStateless: the server doesn't store sessions. The JWT itself contains all needed information.",
+
+      "spring_security_setup": "**Spring Security dependency and configuration:**\n\n```xml\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-security</artifactId>\n</dependency>\n<dependency>\n    <groupId>io.jsonwebtoken</groupId>\n    <artifactId>jjwt-api</artifactId>\n    <version>0.12.3</version>\n</dependency>\n<dependency>\n    <groupId>io.jsonwebtoken</groupId>\n    <artifactId>jjwt-impl</artifactId>\n    <version>0.12.3</version>\n    <scope>runtime</scope>\n</dependency>\n```\n\n**SecurityConfig — the central piece:**\n```java\n@Configuration\n@EnableWebSecurity\npublic class SecurityConfig {\n    \n    private final JwtAuthFilter jwtAuthFilter;\n    private final UserDetailsService userDetailsService;\n    \n    SecurityConfig(JwtAuthFilter jwtAuthFilter, UserDetailsService uds) {\n        this.jwtAuthFilter = jwtAuthFilter;\n        this.userDetailsService = uds;\n    }\n    \n    @Bean\n    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n        return http\n            .csrf(csrf -> csrf.disable())  // disable CSRF for stateless JWT APIs\n            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n            .authorizeHttpRequests(auth -> auth\n                .requestMatchers(\"/api/auth/**\").permitAll()      // login/register: open\n                .requestMatchers(HttpMethod.GET, \"/api/products/**\").permitAll()  // read-only: open\n                .requestMatchers(\"/api/admin/**\").hasRole(\"ADMIN\")  // admin only\n                .anyRequest().authenticated()                      // everything else: needs JWT\n            )\n            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)\n            .build();\n    }\n    \n    @Bean\n    public PasswordEncoder passwordEncoder() {\n        return new BCryptPasswordEncoder();\n    }\n    \n    @Bean\n    public AuthenticationManager authManager(AuthenticationConfiguration config) throws Exception {\n        return config.getAuthenticationManager();\n    }\n}\n```",
+
+      "jwt_service": "**JwtService — token generation and validation:**\n\n```java\nimport io.jsonwebtoken.*;\nimport io.jsonwebtoken.security.Keys;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\nimport java.security.Key;\nimport java.util.*;\n\n@Service\npublic class JwtService {\n    \n    @Value(\"${jwt.secret}\")\n    private String secret;  // 256-bit hex string from application.properties\n    \n    @Value(\"${jwt.expiration:86400000}\")  // default: 24 hours in ms\n    private long expirationMs;\n    \n    private Key getSigningKey() {\n        return Keys.hmacShaKeyFor(Base64.getDecoder().decode(secret));\n    }\n    \n    // Generate a JWT for a user:\n    public String generateToken(String username, List<String> roles) {\n        return Jwts.builder()\n            .subject(username)\n            .claim(\"roles\", roles)\n            .issuedAt(new Date())\n            .expiration(new Date(System.currentTimeMillis() + expirationMs))\n            .signWith(getSigningKey())\n            .compact();\n    }\n    \n    // Extract username from token:\n    public String extractUsername(String token) {\n        return Jwts.parser()\n            .verifyWith((SecretKey) getSigningKey())\n            .build()\n            .parseSignedClaims(token)\n            .getPayload()\n            .getSubject();\n    }\n    \n    // Validate token (not expired, signature valid):\n    public boolean isValid(String token, UserDetails userDetails) {\n        try {\n            String username = extractUsername(token);\n            Claims claims = Jwts.parser()\n                .verifyWith((SecretKey) getSigningKey())\n                .build().parseSignedClaims(token).getPayload();\n            return username.equals(userDetails.getUsername())\n                && claims.getExpiration().after(new Date());\n        } catch (JwtException e) {\n            return false;  // expired, tampered, or invalid\n        }\n    }\n}\n```",
+
+      "jwt_filter": "**JwtAuthFilter — intercepts every request:**\n\n```java\nimport org.springframework.security.authentication.*;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.web.filter.OncePerRequestFilter;\n\n@Component\npublic class JwtAuthFilter extends OncePerRequestFilter {\n    \n    private final JwtService jwtService;\n    private final UserDetailsService userDetailsService;\n    \n    JwtAuthFilter(JwtService j, UserDetailsService u) {\n        jwtService = j; userDetailsService = u;\n    }\n    \n    @Override\n    protected void doFilterInternal(HttpServletRequest request,\n                                    HttpServletResponse response,\n                                    FilterChain filterChain)\n            throws ServletException, IOException {\n        \n        // 1. Extract token from Authorization header:\n        String authHeader = request.getHeader(\"Authorization\");\n        if (authHeader == null || !authHeader.startsWith(\"Bearer \")) {\n            filterChain.doFilter(request, response);  // no token → pass through\n            return;\n        }\n        \n        String token = authHeader.substring(7);  // remove 'Bearer '\n        \n        // 2. Extract username from token:\n        String username = jwtService.extractUsername(token);\n        \n        // 3. If username found and not already authenticated:\n        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {\n            UserDetails userDetails = userDetailsService.loadUserByUsername(username);\n            \n            // 4. Validate token:\n            if (jwtService.isValid(token, userDetails)) {\n                // 5. Set authentication in SecurityContext:\n                var authToken = new UsernamePasswordAuthenticationToken(\n                    userDetails, null, userDetails.getAuthorities());\n                SecurityContextHolder.getContext().setAuthentication(authToken);\n            }\n        }\n        \n        filterChain.doFilter(request, response);  // continue the chain\n    }\n}\n```",
+
+      "auth_controller": "**AuthController — login endpoint:**\n\n```java\n@RestController\n@RequestMapping(\"/api/auth\")\npublic class AuthController {\n    \n    private final AuthenticationManager authManager;\n    private final JwtService jwtService;\n    private final UserDetailsService userDetailsService;\n    \n    // ... constructor ...\n    \n    public record LoginRequest(String username, String password) {}\n    public record AuthResponse(String token, String username, List<String> roles) {}\n    \n    @PostMapping(\"/login\")\n    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req) {\n        // Spring Security verifies credentials:\n        authManager.authenticate(\n            new UsernamePasswordAuthenticationToken(req.username(), req.password()));\n        \n        // If we get here, credentials were valid:\n        UserDetails user = userDetailsService.loadUserByUsername(req.username());\n        List<String> roles = user.getAuthorities().stream()\n            .map(a -> a.getAuthority()).toList();\n        String token = jwtService.generateToken(req.username(), roles);\n        \n        return ResponseEntity.ok(new AuthResponse(token, req.username(), roles));\n    }\n}\n```\n\n**application.properties:**\n```properties\n# Generate: openssl rand -base64 32\njwt.secret=dGhpcyBpcyBhIHZlcnkgc2VjdXJlIHNlY3JldCBrZXkgZm9y\njwt.expiration=86400000\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) JWT structure diagram — three base64-encoded sections separated by dots. Header decodes to algorithm JSON. Payload decodes to claims (sub, roles, iat, exp). Signature shown as HMAC operation over header.payload with secret key. (2) Request flow with JWT: Client → [JwtAuthFilter intercepts] → extract 'Authorization: Bearer ...' header → JwtService.extractUsername() → UserDetailsService.loadByUsername() → JwtService.isValid() → SecurityContextHolder.setAuthentication() → Controller method proceeds. Rejected path: invalid/expired token → 401 Unauthorized. (3) SecurityFilterChain rules table: /api/auth/** → permitAll, GET /api/products/** → permitAll, /api/admin/** → ADMIN role only, everything else → authenticated.",
+      "alt_text": "JWT structure, Spring Security request filter chain, and endpoint authorization rules"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Secure the Product API. Anonymous users can read (GET). Authenticated users can create/update (POST, PUT). Only ADMIN users can delete. Implement login endpoint that returns a JWT.",
+
+    "problem_statement": "Add security to the Product API:\n1. POST /api/auth/login → returns JWT\n2. GET /api/products → public (no token needed)\n3. POST /api/products → requires authentication\n4. DELETE /api/products/{id} → requires ADMIN role\n5. Test all three access scenarios",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "User entity and UserDetailsService",
+        "details": "```java\n@Entity\npublic class AppUser {\n    @Id @GeneratedValue(strategy = GenerationType.UUID) private String id;\n    @Column(unique = true, nullable = false) private String username;\n    @Column(nullable = false) private String password;  // BCrypt hashed\n    @Column(nullable = false) private String role;      // ROLE_USER or ROLE_ADMIN\n    // constructors, getters...\n}\n\n@Service\npublic class AppUserDetailsService implements UserDetailsService {\n    private final AppUserRepository repo;\n    AppUserDetailsService(AppUserRepository r) { repo = r; }\n    \n    @Override\n    public UserDetails loadUserByUsername(String username) {\n        AppUser user = repo.findByUsername(username)\n            .orElseThrow(() -> new UsernameNotFoundException(\"User not found: \" + username));\n        return User.builder()\n            .username(user.getUsername())\n            .password(user.getPassword())\n            .roles(user.getRole())  // ROLE_ prefix added automatically\n            .build();\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "SecurityConfig — endpoint rules",
+        "details": "```java\n@Bean\npublic SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n    return http\n        .csrf(csrf -> csrf.disable())\n        .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n        .authorizeHttpRequests(auth -> auth\n            .requestMatchers(\"/api/auth/**\").permitAll()                          // login\n            .requestMatchers(HttpMethod.GET, \"/api/products/**\").permitAll()     // read\n            .requestMatchers(HttpMethod.DELETE, \"/api/products/**\").hasRole(\"ADMIN\")  // admin\n            .anyRequest().authenticated()                                         // rest\n        )\n        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)\n        .build();\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Access current user in controller",
+        "details": "```java\n@PostMapping\npublic ResponseEntity<Product> create(\n        @Valid @RequestBody ProductRequest req,\n        Authentication authentication) {\n    // authentication is injected by Spring Security:\n    String currentUser = authentication.getName();\n    System.out.println(\"Creating product as: \" + currentUser);\n    return ResponseEntity.status(201).body(service.create(req));\n}\n```"
+      }
+    ],
+
+    "final_code": "// Key files: SecurityConfig, JwtService, JwtAuthFilter, AuthController\n// application.properties: jwt.secret=... jwt.expiration=86400000\n\n// Test scenarios:\n// 1. POST /api/auth/login {username:aisha, password:secure123}\n//    → 200 {token: eyJ...}\n// 2. GET /api/products\n//    → 200 (no token needed)\n// 3. POST /api/products + Bearer token\n//    → 201 Created\n// 4. POST /api/products + no token\n//    → 401 Unauthorized\n// 5. DELETE /api/products/P001 + ADMIN token\n//    → 204 No Content\n// 6. DELETE /api/products/P001 + USER token (not ADMIN)\n//    → 403 Forbidden",
+
+    "expected_output": "# Login:\ncurl -X POST /api/auth/login -d '{\"username\":\"aisha\",\"password\":\"secure123\"}'\n→ {\"token\":\"eyJhbGciOiJIUzI1NiJ9...\",\"username\":\"aisha\",\"roles\":[\"USER\"]}\n\n# Read without token:\ncurl /api/products\n→ 200 [...]\n\n# Create without token:\ncurl -X POST /api/products -d '{\"name\":\"Mouse\",\"price\":799}'\n→ 401 Unauthorized\n\n# Create with token:\ncurl -H 'Authorization: Bearer eyJ...' -X POST /api/products -d '...'\n→ 201 Created\n\n# Delete as ADMIN:\ncurl -H 'Authorization: Bearer eyJ-admin-token...' -X DELETE /api/products/P001\n→ 204",
+
+    "things_to_notice": [
+      "STATELESS session management: Spring Security doesn't create HTTP sessions. Every request is authenticated via the JWT alone. No server-side session storage — scales horizontally without shared session state.",
+      "csrf().disable(): CSRF protection is for browser-based form submissions where cookies carry the session. For JWT-based stateless APIs consumed by mobile apps or other services, CSRF isn't needed — disable it.",
+      "The JwtAuthFilter runs BEFORE UsernamePasswordAuthenticationFilter in the filter chain. This is critical — it means JWT authentication happens before Spring Security's default username/password authentication.",
+      "SecurityContextHolder.getContext().setAuthentication(authToken): once this is set, Spring Security knows the current user for the duration of this request. @PreAuthorize, hasRole(), and authentication injection in controllers all read from here.",
+      "hasRole('ADMIN') automatically checks for 'ROLE_ADMIN' — Spring Security prepends 'ROLE_'. If you use hasAuthority('ROLE_ADMIN'), you specify the full authority name.",
+      "BCryptPasswordEncoder: passwords must NEVER be stored as plain text. BCrypt is the standard hashing algorithm — each password gets a unique salt, making rainbow table attacks impossible. `encoder.matches(raw, hashed)` checks a login attempt."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Zerodha Kite API",
+        "use_case": "Zerodha's trading API uses token-based authentication. POST /session/token generates an access token. All subsequent requests — placing orders, getting portfolio — require `Authorization: token your-api-key:access-token`. The access token encodes the user identity. No database lookup per request. Token expires at midnight — forces re-authentication daily for security. This is the exact JWT pattern implemented here."
+      },
+      {
+        "company_context": "Razorpay API authentication",
+        "use_case": "Razorpay uses HTTP Basic auth (key_id:key_secret) for server-side calls. For user-facing flows, JWT tokens are issued. The JWT contains the merchant_id claim — every API call extracts this from the token to scope the data to that merchant. `SecurityContextHolder.getContext().getAuthentication().getName()` gives the merchant_id to scope repository queries. Zero database calls for authentication."
+      },
+      {
+        "company_context": "Microservice JWT propagation",
+        "use_case": "In a microservices architecture (Topic M15), the API gateway validates the JWT. Internal microservices trust the forwarded identity — they extract user claims from the JWT without re-validating. Each service reads `SecurityContextHolder.getContext().getAuthentication()` to know who the caller is. The JWT is the identity document passed between services."
+      }
+    ],
+
+    "interview_relevance": "Spring Security + JWT interview questions:\n\n- **'How does JWT authentication work in Spring Boot?'** → JwtAuthFilter extracts token from header, validates signature, sets Authentication in SecurityContextHolder. Controller executes. No session, no DB lookup.\n- **'What is the difference between 401 and 403?'** → 401 Unauthorized: no token or invalid token. 403 Forbidden: valid token but insufficient permissions (wrong role).\n- **'Why disable CSRF for REST APIs?'** → CSRF protects against browser-based attacks using cookies. REST APIs use Authorization headers with JWT — not vulnerable to CSRF. CSRF protection would break legitimate API clients.\n- **'How do you store the JWT secret?'** → In environment variables or Vault (never in code or properties files that go to Git). ${JWT_SECRET} in application.properties, set as env var in production.",
+
+    "real_world_workflow": "Daily JWT security workflow:\n\n- New endpoint: decide permitAll, authenticated, or hasRole\n- Add to authorizeHttpRequests in SecurityConfig\n- Read current user: `Authentication auth` parameter in controller\n- Test: @WithMockUser in @WebMvcTest for authenticated tests"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_stateless_session",
+      "what_students_get_wrong": "Not setting SessionCreationPolicy.STATELESS — Spring Security tries to create HTTP sessions for JWT-based APIs.",
+      "remediation": "Always set `.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))` in SecurityConfig for JWT APIs. Without it, Spring Security creates sessions, defeating the stateless JWT purpose. Sessions don't scale horizontally.",
+      "detection_pattern": "Sessions created despite JWT auth; JSESSIONID cookies appearing in responses"
+    },
+    {
+      "gap_id": "wrong_filter_order",
+      "what_students_get_wrong": "Not adding JwtAuthFilter BEFORE UsernamePasswordAuthenticationFilter — JWT validation never runs.",
+      "remediation": "`addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)` — this positions the custom JWT filter before Spring's built-in login filter. Without this, the default filter runs first and rejects JWT requests.",
+      "detection_pattern": "401 on all requests even with valid JWT token"
+    },
+    {
+      "gap_id": "storing_jwt_secret_in_code",
+      "what_students_get_wrong": "Hardcoding the JWT secret as a string literal in the JwtService class.",
+      "remediation": "Always use @Value('${jwt.secret}') and put the actual secret in application.properties or environment variables. Never hardcode secrets. In production, use environment variables or a secrets manager (AWS Secrets Manager, Vault). Committing a secret to Git is a critical security vulnerability.",
+      "detection_pattern": "Secret visible in source code; same secret across all environments"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "JWT: header.payload.signature — server signs the token, client sends it on every request",
+      "Stateless: server verifies JWT signature — no session, no DB lookup per request",
+      "@EnableWebSecurity + SecurityFilterChain bean: Spring Security configuration",
+      "SessionCreationPolicy.STATELESS: mandatory for JWT APIs",
+      "csrf().disable(): safe for stateless JWT APIs (no cookies)",
+      "authorizeHttpRequests: permitAll, authenticated, hasRole('ADMIN')",
+      "JwtAuthFilter extends OncePerRequestFilter: intercepts every HTTP request",
+      "Authorization: Bearer {token}: the HTTP header format for JWT",
+      "SecurityContextHolder.setAuthentication(): tell Spring Security who the caller is",
+      "BCryptPasswordEncoder: always hash passwords, never store plain text",
+      "401 Unauthorized: no/invalid token | 403 Forbidden: valid token, wrong role",
+      "JWT secret: never in code, always in environment variables or secrets manager"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A user sends a POST /api/products with a valid JWT but their role is 'USER' not 'ADMIN'. What HTTP status does the API return, and where in Spring Security is this enforced?",
+        "answer": "403 Forbidden. The SecurityFilterChain has `.hasRole('ADMIN')` on the POST /api/products URL. After the JwtAuthFilter validates the token and sets the authentication (with USER role), Spring Security's authorization filter checks whether the authenticated user has the required role. USER != ADMIN → 403. The 401/403 distinction: 401 = no/invalid token (unauthenticated), 403 = valid token but wrong permissions (unauthorized)."
+      },
+      {
+        "question": "Your JwtAuthFilter works in integration tests but gives 401 in @WebMvcTest. Why?",
+        "answer": "@WebMvcTest loads only the web layer and does NOT load your JwtAuthFilter or SecurityConfig by default — it uses a simplified security setup. Fix: use @WithMockUser on the test method to simulate an authenticated user, OR add @Import({SecurityConfig.class, JwtAuthFilter.class, JwtService.class}) to include the security beans in the test slice. The simpler approach: @WithMockUser for most tests, @SpringBootTest for security integration tests."
+      },
+      {
+        "question": "Someone decodes your JWT payload and changes 'role': 'USER' to 'role': 'ADMIN'. Can they forge admin access?",
+        "answer": "No — because the signature is invalid. The JWT signature is HMAC-SHA256(header + '.' + payload, secretKey). If the payload is modified, the signature no longer matches. JwtService.isValid() calls `Jwts.parser().verifyWith(signingKey).build().parseSignedClaims(token)` which throws a JwtException if the signature doesn't verify. The modified token is rejected → 401 Unauthorized. This is the security guarantee of JWT — you can read the payload (it's base64, not encrypted) but you cannot modify it without the secret key."
+      }
+    ],
+
+    "next_topic_preview": "Next: **@Async and @Scheduled** — Spring Boot makes asynchronous and scheduled operations easy. `@Async` runs a method in a thread pool without blocking the caller. `@Scheduled(cron='0 0 * * * *')` runs a method on a schedule. After Topic 14.2, you implement background jobs (send daily reports, refresh caches, process queues) — the kind of tasks every production system runs."
+  }
+}

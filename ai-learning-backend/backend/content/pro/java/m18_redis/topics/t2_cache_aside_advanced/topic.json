@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t2",
+  "language": "java",
+  "module_id": "m18",
+  "module_name": "Redis Caching & Rate Limiting",
+  "topic_number": 2,
+  "name": "Cache-Aside Pattern & Advanced Strategies",
+  "slug": "cache-aside-advanced-strategies",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m18_t1"],
+    "concepts_taught": [
+      "cache_aside_pattern",
+      "read_through_vs_write_through",
+      "redis_template_programmatic_cache",
+      "redis_hash_operations",
+      "redis_list_operations",
+      "redis_sorted_set",
+      "cache_stampede_thundering_herd",
+      "mutex_lock_for_stampede",
+      "probabilistic_early_expiration",
+      "cache_aside_with_ttl_refresh",
+      "redis_pipeline_for_bulk",
+      "serialization_strategies",
+      "cache_null_object_pattern",
+      "multi_level_caching",
+      "redis_cluster_considerations"
+    ],
+    "skills_developed": [
+      "implementing_manual_cache_aside_with_redistemplate",
+      "using_redis_hashes_for_structured_data",
+      "preventing_cache_stampede",
+      "building_leaderboards_with_sorted_sets",
+      "reading_redis_data_structures_from_java"
+    ],
+    "career_relevance": "Cache-aside is the most important caching pattern in production systems. @Cacheable handles the simple case, but Swiggy's search cache, Zerodha's real-time leaderboard, and Razorpay's idempotency keys all require direct RedisTemplate access and advanced patterns. After this topic, you build caches that survive thundering herds, use Redis data structures beyond key-value, and implement multi-level caching.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Flipkart sale day at midnight. The 'Big Billion Day' banner cache expires simultaneously for millions of users:\n\n```\nT=0:00:00 — TTL expires for 'homepage::deals'\nT=0:00:00 — 50,000 users load the homepage simultaneously\nT=0:00:00 — ALL 50,000 find cache MISS\nT=0:00:00 — ALL 50,000 query PostgreSQL for the same data\nT=0:00:01 — PostgreSQL connection pool exhausted (pool=20)\nT=0:00:01 — 49,980 requests queue, timeout, 503 errors\nT=0:00:02 — Site appears DOWN for 2 seconds\n```\n\n**This is the cache stampede (thundering herd) problem.**\n\n```java\n// BROKEN: every miss queries DB\n@Cacheable(value=\"deals\", key=\"#date\")\npublic List<Deal> getDeals(LocalDate date) {\n    return dealRepo.findByDate(date);  // 50,000 concurrent hits!\n}\n\n// FIX 1: Mutex lock — only ONE thread rebuilds the cache:\npublic List<Deal> getDealsWithMutex(LocalDate date) {\n    String key = \"deals::\" + date;\n    List<Deal> cached = getFromRedis(key);\n    if (cached != null) return cached;\n    \n    // Try to acquire a short-lived lock:\n    String lockKey = key + \"::lock\";\n    Boolean locked = redisTemplate.opsForValue()\n        .setIfAbsent(lockKey, \"1\", Duration.ofSeconds(10));  // SETNX\n    \n    if (Boolean.TRUE.equals(locked)) {\n        // WE hold the lock — query DB and fill cache:\n        List<Deal> fresh = dealRepo.findByDate(date);\n        storeInRedis(key, fresh, Duration.ofMinutes(10));\n        redisTemplate.delete(lockKey);\n        return fresh;\n    } else {\n        // Another thread is rebuilding — wait briefly + return stale:\n        Thread.sleep(50);\n        return getFromRedis(key);\n    }\n}\n```\n\nOne pattern, thousands fewer failed requests during your next sale.",
+    "what_you_will_build": "By the end of this topic, you'll implement manual cache-aside with RedisTemplate, use Redis Hashes for structured data storage, prevent cache stampede with mutex locks, and build a real-time leaderboard with Redis Sorted Sets."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "cache_aside_manual": "**Manual cache-aside with RedisTemplate:**\n\n```java\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Optional;\n\n@Service\npublic class ProductCacheService {\n    private static final String PREFIX = \"product:\";\n    private static final Duration TTL = Duration.ofMinutes(10);\n    \n    private final RedisTemplate<String, Object> redisTemplate;\n    private final ProductRepository productRepo;\n    \n    // Manual cache-aside pattern:\n    public Optional<Product> findById(String id) {\n        String key = PREFIX + id;  // 'product:P001'\n        \n        // 1. Check cache:\n        Object cached = redisTemplate.opsForValue().get(key);\n        if (cached != null) {\n            return Optional.of((Product) cached);  // CACHE HIT\n        }\n        \n        // 2. Cache miss — query DB:\n        Optional<Product> product = productRepo.findById(id);\n        \n        // 3. Store in cache (with TTL):\n        product.ifPresent(p -> redisTemplate.opsForValue().set(key, p, TTL));\n        \n        return product;\n    }\n    \n    // Write-through: update both DB and cache:\n    public Product save(Product product) {\n        Product saved = productRepo.save(product);\n        String key = PREFIX + saved.getId();\n        redisTemplate.opsForValue().set(key, saved, TTL);\n        return saved;\n    }\n    \n    // Cache aside on delete:\n    public void delete(String id) {\n        productRepo.deleteById(id);\n        redisTemplate.delete(PREFIX + id);\n    }\n    \n    // Null object pattern — cache 'not found' to avoid DB hits for missing keys:\n    private static final String NULL_SENTINEL = \"__NULL__\";\n    \n    public Optional<Product> findByIdWithNullCache(String id) {\n        String key = PREFIX + id;\n        Object cached = redisTemplate.opsForValue().get(key);\n        \n        if (NULL_SENTINEL.equals(cached)) {\n            return Optional.empty();  // cached 'not found'\n        }\n        if (cached != null) {\n            return Optional.of((Product) cached);\n        }\n        \n        Optional<Product> result = productRepo.findById(id);\n        if (result.isPresent()) {\n            redisTemplate.opsForValue().set(key, result.get(), TTL);\n        } else {\n            // Cache the miss with SHORT TTL (1 min) to prevent repeated DB hits:\n            redisTemplate.opsForValue().set(key, NULL_SENTINEL, Duration.ofMinutes(1));\n        }\n        return result;\n    }\n}\n```",
+
+      "redis_hash": "**Redis Hash — store structured objects efficiently:**\n\n```java\n// Redis Hash: store multiple fields for one key\n// Like a Map<String, String> stored at a single Redis key\n// Efficient: HGET instead of GET + JSON parse for individual fields\n\n@Service\npublic class UserProfileService {\n    private final RedisTemplate<String, String> stringRedisTemplate;\n    \n    private String hashKey(String userId) { return \"user:profile:\" + userId; }\n    \n    // Store profile fields as Redis Hash:\n    public void cacheProfile(UserProfile profile) {\n        String key = hashKey(profile.getUserId());\n        Map<String, String> fields = Map.of(\n            \"name\",     profile.getName(),\n            \"email\",    profile.getEmail(),\n            \"city\",     profile.getCity(),\n            \"plan\",     profile.getPlan()\n        );\n        stringRedisTemplate.opsForHash().putAll(key, fields);\n        stringRedisTemplate.expire(key, Duration.ofHours(1));\n        // Redis: HSET user:profile:U001 name 'Aisha' email 'aisha@...' city 'Mumbai' plan 'Pro'\n    }\n    \n    // Get full profile:\n    public Optional<UserProfile> getProfile(String userId) {\n        String key = hashKey(userId);\n        Map<Object, Object> fields = stringRedisTemplate.opsForHash().entries(key);\n        if (fields.isEmpty()) return Optional.empty();\n        \n        return Optional.of(new UserProfile(\n            userId,\n            (String) fields.get(\"name\"),\n            (String) fields.get(\"email\"),\n            (String) fields.get(\"city\"),\n            (String) fields.get(\"plan\")\n        ));\n    }\n    \n    // Update single field (no need to re-cache entire object):\n    public void updateCity(String userId, String newCity) {\n        // HSET user:profile:U001 city 'Delhi'\n        stringRedisTemplate.opsForHash().put(hashKey(userId), \"city\", newCity);\n    }\n    \n    // Get single field (HGET — more efficient than GET + parse):\n    public String getPlan(String userId) {\n        return (String) stringRedisTemplate.opsForHash()\n            .get(hashKey(userId), \"plan\");\n    }\n}\n```",
+
+      "sorted_set_leaderboard": "**Redis Sorted Set — real-time leaderboard:**\n\n```java\n// Sorted Set: members with scores, kept in sorted order\n// Operations: ZADD, ZRANK, ZREVRANK, ZRANGE, ZINCRBY — all O(log N)\n\n@Service\npublic class LeaderboardService {\n    private final RedisTemplate<String, String> redis;\n    \n    private static final String BOARD = \"leaderboard:traders\";\n    \n    // Record a trade profit:\n    public void recordProfit(String traderId, double profit) {\n        // ZINCRBY leaderboard:traders +profit traderId\n        redis.opsForZSet().incrementScore(BOARD, traderId, profit);\n    }\n    \n    // Get rank (0-indexed, highest score first):\n    public Long getRank(String traderId) {\n        // ZREVRANK: rank from highest → lowest\n        return redis.opsForZSet().reverseRank(BOARD, traderId);\n        // Returns 0 for #1, 1 for #2, null if not in leaderboard\n    }\n    \n    // Get top N traders:\n    public List<String> getTopN(int n) {\n        // ZREVRANGE: returns members from highest to lowest score\n        var topSet = redis.opsForZSet().reverseRange(BOARD, 0, n - 1);\n        return topSet != null ? new ArrayList<>(topSet) : List.of();\n    }\n    \n    // Get trader's current score:\n    public double getScore(String traderId) {\n        Double score = redis.opsForZSet().score(BOARD, traderId);\n        return score != null ? score : 0.0;\n    }\n    \n    // Get top N with scores:\n    public List<Map<String, Object>> getTopNWithScores(int n) {\n        var topWithScores = redis.opsForZSet()\n            .reverseRangeWithScores(BOARD, 0, n - 1);\n        if (topWithScores == null) return List.of();\n        \n        return topWithScores.stream()\n            .map(entry -> Map.of(\n                \"traderId\", entry.getValue(),\n                \"profit\",   entry.getScore()\n            ))\n            .collect(java.util.stream.Collectors.toList());\n    }\n    \n    // Reset leaderboard at end of day:\n    public void resetLeaderboard() {\n        redis.delete(BOARD);\n    }\n}\n```",
+
+      "cache_stampede": "**Cache stampede prevention:**\n\n```java\n// PROBLEM: When a popular cache key expires, thousands of threads\n// all miss simultaneously and all query the DB.\n\n// SOLUTION 1: Mutex lock (SETNX pattern):\n@Service\npublic class StampedeSafeService {\n    private final RedisTemplate<String, Object> redis;\n    private final DealRepository dealRepo;\n    \n    @SuppressWarnings(\"unchecked\")\n    public List<Deal> getDeals(String city) {\n        String key  = \"deals:\" + city;\n        String lock = key + \":lock\";\n        \n        // Fast path: try cache first\n        Object cached = redis.opsForValue().get(key);\n        if (cached != null) return (List<Deal>) cached;\n        \n        // Slow path: acquire lock to rebuild\n        Boolean acquired = redis.opsForValue()\n            .setIfAbsent(lock, \"1\", Duration.ofSeconds(10));\n        \n        if (Boolean.TRUE.equals(acquired)) {\n            try {\n                // Double-check: another thread may have filled cache while we acquired lock\n                Object refetch = redis.opsForValue().get(key);\n                if (refetch != null) return (List<Deal>) refetch;\n                \n                // We own the lock — build the cache:\n                List<Deal> fresh = dealRepo.findByCity(city);\n                redis.opsForValue().set(key, fresh, Duration.ofMinutes(5));\n                return fresh;\n            } finally {\n                redis.delete(lock);\n            }\n        } else {\n            // Another thread is building — wait briefly, return stale or empty:\n            try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            Object refetch = redis.opsForValue().get(key);\n            return refetch != null ? (List<Deal>) refetch : dealRepo.findByCity(city);\n        }\n    }\n    \n    // SOLUTION 2: Serve stale while revalidating (background refresh):\n    // Keep the stale entry alive, trigger async refresh before TTL expires\n    // → users always get a response, never a miss penalty\n    // Implementation: @Scheduled job refreshes before TTL expires\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Cache stampede: timeline showing TTL=0 at T=0. Before: 1 steady request/second hitting cache. At T=0: 50,000 simultaneous cache misses all hitting DB. DB connection pool (20 connections) shown saturating. 49,980 requests queue up. 'Thundering herd' label. After mutex fix: only 1 thread rebuilds (gets SETNX lock), other threads wait 50ms then get cached result. (2) Redis data structure usage guide: String → single values (product JSON), Hash → multiple fields per key (user profile), List → ordered sequence (activity feed), Sorted Set → ranked data (leaderboard), Set → unique members (session IDs). (3) Multi-level cache diagram: Request → L1 (JVM heap, Caffeine, 1ms, 100 entries) → L2 (Redis, 0.3ms, 1M entries) → L3 (PostgreSQL, 15ms, unlimited). On hit: return from L1. L1 miss: check L2, populate L1. L2 miss: check DB, populate L2+L1.",
+      "alt_text": "Cache stampede problem and mutex fix, Redis data structure guide, and multi-level cache hierarchy"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a Zerodha trader leaderboard: real-time ranking of top traders by daily P&L, with manual cache-aside for instrument prices, and stampede-safe product details loading.",
+
+    "problem_statement": "1. LeaderboardService: Redis Sorted Set for daily trader P&L ranking\n2. InstrumentCacheService: manual cache-aside for instrument data with null-object caching\n3. StampedeSafeDealsService: mutex-protected cache rebuild\n4. Integration test: verify leaderboard rankings update correctly",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "LeaderboardService with Sorted Set",
+        "details": "```java\n@Service\npublic class TraderLeaderboard {\n    private final RedisTemplate<String, String> redis;\n    private static final String KEY = \"leaderboard:daily-pnl\";\n    \n    TraderLeaderboard(RedisTemplate<String,String> r) { redis = r; }\n    \n    public void recordTrade(String traderId, double pnl) {\n        redis.opsForZSet().incrementScore(KEY, traderId, pnl);\n    }\n    \n    public Long getRank(String traderId) {\n        return redis.opsForZSet().reverseRank(KEY, traderId);\n    }\n    \n    public List<String> getTopTraders(int n) {\n        var top = redis.opsForZSet().reverseRange(KEY, 0, n - 1);\n        return top != null ? new ArrayList<>(top) : List.of();\n    }\n    \n    public double getPnL(String traderId) {\n        Double score = redis.opsForZSet().score(KEY, traderId);\n        return score != null ? score : 0.0;\n    }\n    \n    public void resetDailyLeaderboard() { redis.delete(KEY); }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Manual cache-aside with null-object pattern",
+        "details": "```java\n@Service\npublic class InstrumentCacheService {\n    private final RedisTemplate<String, Object> redis;\n    private final InstrumentRepository repo;\n    private static final String NULL_MARKER = \"__NONE__\";\n    \n    public Optional<Instrument> findBySymbol(String symbol) {\n        String key = \"instrument:\" + symbol;\n        Object cached = redis.opsForValue().get(key);\n        \n        if (NULL_MARKER.equals(cached))  return Optional.empty();  // cached miss\n        if (cached instanceof Instrument i) return Optional.of(i); // cache hit\n        \n        Optional<Instrument> result = repo.findBySymbol(symbol);\n        if (result.isPresent()) {\n            redis.opsForValue().set(key, result.get(), Duration.ofHours(6));\n        } else {\n            redis.opsForValue().set(key, NULL_MARKER, Duration.ofMinutes(5));\n        }\n        return result;\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Sorted Set: ZINCRBY adds to score; ZREVRANK gives 0-based rank from top\n// Manual cache-aside: get → miss → DB → store → return\n// Null-object pattern: cache '__NONE__' for not-found to prevent DB hammering\n// Stampede: SETNX acquires mutex; only one thread rebuilds; others wait or get stale",
+
+    "expected_output": "# Leaderboard test:\nrecordTrade('Aisha', 5000)\nrecordTrade('Raj',   3000)\nrecordTrade('Aisha', 2000)  // Aisha total: 7000\n\ngetTopTraders(2) → ['Aisha', 'Raj']\ngetRank('Aisha') → 0  (rank 1, 0-indexed)\ngetRank('Raj')   → 1  (rank 2)\ngetPnL('Aisha')  → 7000.0",
+
+    "things_to_notice": [
+      "Redis Sorted Set is perfect for real-time leaderboards: ZINCRBY atomically increments a member's score; ZREVRANK gives rank in O(log N). No locking needed — Redis is single-threaded for data operations. At Zerodha during market hours, thousands of trades per second update the leaderboard atomically.",
+      "The null-object pattern (caching NULL_MARKER for 'not found') prevents cache miss amplification. Without it: every request for a non-existent symbol like 'INVALID' would go to DB. With it: after the first DB hit confirms it doesn't exist, the next 5 minutes of requests for 'INVALID' return immediately from Redis.",
+      "Double-check after acquiring mutex lock: while Thread A was waiting for the lock, Thread B built the cache. Thread A should re-check before querying the DB. Without double-check: two threads both query DB (just sequentially, not concurrently). The double-check is the 'check-lock-check' pattern.",
+      "RedisTemplate<String, Object> for complex objects vs RedisTemplate<String, String> for string operations: if you're storing Java objects (Products, Instruments), use Object template with Jackson serialization. For simple strings (counters, flags, session tokens), String template is cleaner and faster.",
+      "Sorted Set vs counter: use ZSet when you need ranking/ordering. Use String INCR when you just need a count. Don't use ZSet for rate limiting (use String INCR) — it's heavier. ZSet shines when you need ZREVRANGE to list top-N or ZREVRANK to get a member's position."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Zerodha real-time leaderboard",
+        "use_case": "Zerodha's 'Trading Challenge' feature shows a live leaderboard of top traders by daily P&L. Every trade execution calls ZINCRBY on a Redis Sorted Set with the trade's P&L contribution. The leaderboard page calls ZREVRANGE to get the top 100 traders in microseconds. At market close, ZRANGEBYSCORE exports the final standings to PostgreSQL for permanent storage. The Redis leaderboard resets via DEL at 9:15 AM each morning."
+      },
+      {
+        "company_context": "Swiggy search stampede prevention",
+        "use_case": "Swiggy's restaurant search cache expires every 2 minutes. During the evening rush, popular search terms (e.g., 'Biryani' in Hyderabad) have cache entries expiring while thousands of users are actively searching. Swiggy uses a mutex lock pattern (SETNX with 5-second TTL) to ensure only one search backend worker rebuilds the cache for each city+cuisine combination. Other requests wait up to 5 seconds for the lock, then serve the freshly cached result. This reduces peak DB load from 500 queries/second to under 10."
+      },
+      {
+        "company_context": "Flipkart user profile caching",
+        "use_case": "Flipkart stores user profile fields as Redis Hashes (HSET). Accessing just the user's city (for local search) uses HGET — much faster than fetching the entire serialized JSON and parsing it. When the user updates their address, only the 'city' field is updated (HSET key city 'new-city') without invalidating the entire profile cache. The null-object pattern prevents repeated DB queries for deactivated user IDs that occasionally appear in old logs."
+      }
+    ],
+
+    "interview_relevance": "Advanced Redis interview questions:\n\n- **'What is the thundering herd problem in caching?'** → When a popular cache key expires, all concurrent requests miss simultaneously and all hit the DB. Prevention: mutex lock (SETNX), probabilistic early expiration, or background refresh.\n- **'What Redis data structure would you use for a leaderboard?'** → Sorted Set (ZADD/ZINCRBY for adding/updating scores, ZREVRANK for rank, ZREVRANGE for top-N). O(log N) for all operations.\n- **'When would you use Redis Hash vs storing a JSON string?'** → Hash: when you need to update individual fields without re-reading the whole object (HSET single field). JSON string: when you always need the entire object.\n- **'What is the null-object pattern in caching?'** → Caching a sentinel value for 'not found' results to prevent repeated DB queries for non-existent keys. Use short TTL (1 min) for the null sentinel.",
+
+    "real_world_workflow": "Advanced cache workflow:\n\n- Identify access patterns: full-object reads → String cache; partial field updates → Hash\n- Identify hotspots: same key hit millions of times → stampede risk → add mutex\n- Identify null amplification: frequent queries for non-existent IDs → null-object pattern\n- Ranked data: leaderboards, top-N → Sorted Set (ZINCRBY + ZREVRANGE)\n- Multi-level: add Caffeine L1 cache (JVM heap) in front of Redis for ultra-hot data"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "stampede_without_double_check",
+      "what_students_get_wrong": "Acquiring the mutex lock but not double-checking the cache after acquiring — the previous lock holder may have filled the cache while waiting.",
+      "remediation": "After acquiring the SETNX lock, always re-check the cache before querying the DB. This is the 'check-lock-check' (double-checked locking) pattern. Without the second check: if Thread A acquires the lock while Thread B was just finishing the DB query and storing the result, Thread A would query DB unnecessarily. With double-check: Thread A sees the filled cache and returns immediately.",
+      "detection_pattern": "DB hit count is higher than expected after mutex implementation; multiple threads all query DB when lock expires"
+    },
+    {
+      "gap_id": "sorted_set_wrong_direction",
+      "what_students_get_wrong": "Using ZRANK instead of ZREVRANK for leaderboards — ZRANK returns rank from lowest to highest score (ascending), giving rank 0 to the player with the lowest score.",
+      "remediation": "For leaderboards where higher score = better rank: use reverseRank() (ZREVRANK). reverseRank returns 0 for the highest-scoring member. For ascending leaderboards (lowest time wins, like golf or racing): use rank() (ZRANK). Verify: after adding scores, confirm the player with the highest score has reverseRank=0.",
+      "detection_pattern": "Top player appears at bottom of leaderboard; rank 0 is the worst performer"
+    },
+    {
+      "gap_id": "null_sentinel_wrong_ttl",
+      "what_students_get_wrong": "Caching null sentinel with the same long TTL as real data — a temporarily missing entity remains 'not found' in cache for hours.",
+      "remediation": "Always use a SHORT TTL for null sentinels — typically 1-5 minutes. The entity might be created soon (race condition) or might have been missing due to a transient DB issue. Long null TTL means 'not found' is cached for too long. If a product is created 30 seconds after a null sentinel is cached with 10-minute TTL, users won't see it for 10 minutes.",
+      "detection_pattern": "Newly created entities not visible despite being in DB; null sentinel key has same TTL as real entries"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Cache-aside pattern: check cache → miss → query DB → store in cache → return",
+      "Write-through: update DB AND cache in same operation (always fresh)",
+      "Null-object pattern: cache __NULL__ sentinel with SHORT TTL to prevent repeated DB misses",
+      "Redis Hash: multiple fields under one key; HGET for single field, HGETALL for all",
+      "Redis Sorted Set: ZINCRBY (atomic increment), ZREVRANK (rank), ZREVRANGE (top-N)",
+      "Sorted Set for leaderboards: O(log N) insert and rank lookup",
+      "Cache stampede: many threads miss simultaneously → DB overload",
+      "Stampede fix: SETNX mutex; only one thread rebuilds; others wait or get stale",
+      "Double-check after acquiring mutex: cache may be filled while waiting for lock",
+      "setIfAbsent(key, value, ttl): Spring's SETNX with expiry (atomic)",
+      "Multi-level cache: L1 (Caffeine, JVM, 1ms) → L2 (Redis, 0.3ms) → DB (15ms)",
+      "Background refresh: @Scheduled refreshes cache before TTL expires → zero miss latency",
+      "null sentinel TTL: MUCH shorter than real data TTL (1-5 min vs 10-60 min)",
+      "Redis is single-threaded: ZINCRBY and SETNX are atomic — no concurrent mutation bugs",
+      "RedisTemplate<String, Object> for complex types; <String, String> for string ops"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A Redis key for 'top-products::Electronics' expires at 2pm. At exactly 2pm, 10,000 users request the Electronics product list. What happens without stampede protection, and how does the mutex pattern fix it?",
+        "answer": "Without protection: all 10,000 requests get a cache miss simultaneously. All 10,000 query PostgreSQL. PostgreSQL has 20 connections (HikariCP pool). 9,980 requests queue up → connection timeout → HTTP 503 errors for users. The page appears down for 2-4 seconds while the pool drains and the cache is rebuilt. With mutex (SETNX): Thread 1 acquires the lock (setIfAbsent returns true). Threads 2-9,999 fail to acquire the lock (setIfAbsent returns false) → they wait 50ms and retry the cache read. Thread 1 queries DB, stores result in Redis, releases lock. Threads 2-9,999 retry → find the key in Redis → serve from cache. Total DB queries: 1. Outcome: 10,000 requests handled, 1 DB hit, no timeouts."
+      },
+      {
+        "question": "You use Redis Hash to cache user profiles. A user updates their email address. How do you update the cache without invalidating the entire profile entry?",
+        "answer": "HSET (opsForHash().put(key, field, value)) updates a single field in a Redis Hash without affecting other fields. The operation: redisTemplate.opsForHash().put('user:profile:U001', 'email', 'newemail@test.com'). This changes only the 'email' field in the hash. Other fields (name, city, plan) remain unchanged in Redis — no need to re-read the entire profile from DB and re-cache it. Compare with String cache (storing serialized JSON): to update email, you'd have to read the full JSON, parse it, update email, serialize again, and re-store. Hash update is atomic, field-level, and much more efficient for partial updates."
+      },
+      {
+        "question": "Why should a null sentinel (cached 'not found' result) have a much shorter TTL than the real data?",
+        "answer": "Null sentinels protect against cache miss amplification for non-existent keys. But entities CAN be created: (1) Race condition: a product was being created when the first 'not found' hit happened, and will exist in DB within seconds. (2) Developer creates test data. (3) Async creation pipeline: the entity exists in a queue but hasn't been committed yet. If the null sentinel has a 10-minute TTL (same as real products), a newly created product would appear as 'not found' to all users for up to 10 minutes — terrible UX for a product just added by a seller. Short TTL (1-5 minutes): limits the window of incorrectness to an acceptable duration while still preventing DB hammering."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Redis Rate Limiting** — every API you build needs protection against abuse. Without rate limiting: a single bot can fire 10,000 requests/second, exhausting your connection pool and blocking real users. Topic 18.3 covers Redis INCR/EXPIRE for sliding window rate limiting, Spring filter-based enforcement, per-user and per-IP limits, and returning 429 Too Many Requests with Retry-After headers."
+  }
+}

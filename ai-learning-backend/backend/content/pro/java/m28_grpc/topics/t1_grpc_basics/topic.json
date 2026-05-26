@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m28_t1",
+  "language": "java",
+  "module_id": "m28",
+  "module_name": "gRPC with Spring Boot",
+  "topic_number": 1,
+  "name": "gRPC Basics — Protocol Buffers & Service Definitions",
+  "slug": "grpc-basics-protocol-buffers-service-definitions",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m13_t2", "java_m15_t1"],
+    "concepts_taught": [
+      "grpc_overview", "protobuf_basics", "proto_file_syntax",
+      "message_types", "service_definition", "rpc_types",
+      "grpc_vs_rest", "grpc_vs_graphql", "protobuf_java_codegen",
+      "scalar_types", "nested_messages", "enums_in_proto"
+    ],
+    "skills_developed": [
+      "writing_proto_files", "defining_grpc_services",
+      "understanding_protobuf_encoding", "choosing_grpc_vs_rest_vs_graphql"
+    ],
+    "career_relevance": "Zerodha's trading engine calls 15 downstream microservices (risk engine, order matching, position calculator) with sub-millisecond latency requirements. REST with JSON: 1-2ms overhead per call (JSON serialization + HTTP/1.1). gRPC with Protobuf: 50-100μs per call (binary encoding + HTTP/2 multiplexing). At 10M trades/day, that's 10-20 billion milliseconds saved daily. After this topic, you can define gRPC services that are 5-10x faster than REST for inter-service communication.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Zerodha inter-service latency problem:\n\n```\nREST/JSON between microservices:\n  Order → RiskService: POST /api/risk/check {orderJson}\n  Serialization: Java object → JSON string: 0.5ms\n  HTTP overhead: headers, connection: 0.5ms\n  Deserialization: JSON → Java object: 0.3ms\n  Total: ~1.3ms per call\n  At 10M orders/day: 1.3ms × 10M = 13,000 seconds of pure overhead\n\ngRPC/Protobuf:\n  Order → RiskService: RiskCheckRequest (binary)\n  Protobuf encoding: Java → binary bytes: 0.05ms\n  HTTP/2 multiplexed: near-zero overhead: 0.02ms\n  Protobuf decoding: 0.03ms\n  Total: ~0.1ms per call\n  10x faster: enables real-time risk calculation at Zerodha scale\n```",
+    "what_you_will_build": "Proto file defining Zerodha payment service, with Java code generation."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "protobuf": "**Protocol Buffers — binary serialization:**\n\n```protobuf\n// payment.proto\nsyntax = \"proto3\";\n\npackage com.razorpay.payment;\noption java_package = \"com.razorpay.payment.grpc\";\noption java_outer_classname = \"PaymentProto\";\n\n// Message: like a Java record\nmessage PaymentRequest {\n  string merchant_id = 1;   // field number (unique, immutable)\n  int64 amount_paise = 2;\n  string gateway = 3;\n  PaymentType type = 4;\n}\n\n// Enum:\nenum PaymentType {\n  PAYMENT_TYPE_UNSPECIFIED = 0;  // proto3: always a 0 default\n  CREDIT_CARD = 1;\n  UPI = 2;\n  NETBANKING = 3;\n}\n\n// Nested message:\nmessage PaymentResponse {\n  string payment_id = 1;\n  PaymentStatus status = 2;\n  string error_message = 3;     // empty if success\n\n  message Metadata {\n    string gateway_ref = 1;\n    int64 processed_at = 2;     // Unix timestamp\n  }\n  Metadata metadata = 4;\n}\n\n// Service definition:\nservice PaymentService {\n  rpc CreatePayment (PaymentRequest) returns (PaymentResponse);\n  rpc GetPaymentStatus (PaymentStatusRequest) returns (PaymentResponse);\n}\n```",
+      "grpc_types": "**4 gRPC call types:**\n\n```protobuf\nservice TradeService {\n  // 1. Unary: one request → one response (like REST)\n  rpc PlaceOrder (OrderRequest) returns (OrderResponse);\n\n  // 2. Server streaming: one request → multiple responses\n  rpc WatchPrices (WatchRequest) returns (stream PriceUpdate);\n\n  // 3. Client streaming: multiple requests → one response\n  rpc UploadTrades (stream TradeRecord) returns (UploadSummary);\n\n  // 4. Bidirectional streaming: multiple ↔ multiple\n  rpc OrderBook (stream OrderUpdate) returns (stream BookSnapshot);\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "gRPC flow diagram. Left: Java client code. Center-left: Protobuf message (PaymentRequest). Center: wire format — binary bytes over HTTP/2 (much smaller than JSON). Center-right: Protobuf decode. Right: Java server code. Below: comparison table — REST/JSON vs gRPC/Protobuf: serialization speed, message size, HTTP version, type safety, browser support. Bottom: 4 RPC types shown as arrows: unary (single↔single), server-stream (single→multiple), client-stream (multiple→single), bidi (multiple↔multiple).",
+      "alt_text": "gRPC: protobuf binary over HTTP/2, 5-10x faster than REST/JSON"
+    },
+    "worked_example": {
+      "scenario": "Write a proto file for Razorpay payment service.",
+      "problem_statement": "1. payment.proto: PaymentRequest, PaymentResponse, PaymentStatus enum\n2. PaymentService with 2 RPCs: CreatePayment, GetStatus\n3. pom.xml: protobuf-maven-plugin for Java code generation\n4. Verify: generated Java classes have expected methods",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Field numbers are forever",
+          "details": "Field numbers (= 1, = 2, = 3) uniquely identify fields in the binary format. Once deployed, NEVER change a field number — doing so breaks backward compatibility (existing clients will misread the data). Adding new fields: OK (give them new numbers). Removing fields: use 'reserved' keyword to prevent reuse. Field numbers 1-15: 1 byte encoding (use for frequent fields). 16-2047: 2 bytes."
+        }
+      ],
+      "final_code": "// payment.proto compiled → PaymentRequest.java, PaymentResponse.java, PaymentServiceGrpc.java\n// Generated classes: builder pattern, getters, serialization/deserialization\n// PaymentRequest req = PaymentRequest.newBuilder()\n//   .setMerchantId('MRC-001')\n//   .setAmountPaise(50000)\n//   .setGateway('HDFC')\n//   .build();",
+      "expected_output": "// Compiled protobuf → Java:\n// PaymentRequest.newBuilder().setMerchantId('MRC-001').build()\n// PaymentResponse.getPaymentId() → 'PAY-001'\n// PaymentServiceGrpc.PaymentServiceBlockingStub — client stub",
+      "things_to_notice": [
+        "Field numbers never change: the binary protocol uses field numbers (not names) to encode data. Changing number = breaking change. Adding fields with new numbers = backward compatible.",
+        "snake_case in proto → camelCase in Java: merchant_id in .proto becomes getMerchantId()/setMerchantId() in generated Java. The protobuf compiler handles this conversion automatically.",
+        "proto3 defaults: all fields have zero-value defaults (empty string, 0, false, UNSPECIFIED enum). No null in proto3 — use google.protobuf.StringValue wrapper if you need optional/nullable.",
+        "Generated code is immutable: PaymentRequest is immutable (like a record). To modify, use .toBuilder(), make changes, call .build(). This makes protobuf messages thread-safe."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha trading engine inter-service",
+          "use_case": "15 microservices communicate via gRPC: OrderService → RiskEngine (is this trade within limits?), RiskEngine → PositionService (what are current positions?), PositionService → PnLCalculator. All binary proto messages. Average latency: 0.1ms per call. Critical path: PlaceOrder → 5 gRPC calls → executed. Total: 0.5ms. With REST/JSON: same path would take 6.5ms (13x slower)."
+        }
+      ],
+      "interview_relevance": "'When would you use gRPC instead of REST?' → Inter-service communication where performance matters (microservices). gRPC advantages: binary (smaller, faster than JSON), HTTP/2 (multiplexing, no head-of-line blocking), streaming (server/client/bidi), strong typing (proto schema = contract). Disadvantages: not browser-friendly (needs grpc-web proxy), harder to debug (binary, not human-readable), proto schema changes require careful versioning. Use REST: for public APIs (browser clients), when human readability matters. Use gRPC: for internal microservice communication.",
+      "real_world_workflow": "gRPC workflow: (1) write .proto schema (message types + service), (2) compile with protobuf-maven-plugin → generates Java stubs, (3) implement the service interface on the server, (4) create client stub on the consumer, (5) connect via channel (host:port), (6) make RPC calls (blocking or async stubs)."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "reusing_field_numbers",
+        "what_students_get_wrong": "Removing a field from a proto message and then reusing the field number for a new field. Old clients still send the old data at that field number — the new field interprets it incorrectly (type mismatch = corrupted data).",
+        "remediation": "When removing a field: add `reserved 3;` and `reserved 'old_field_name';` to the message. This prevents accidental reuse. New fields must always get new, unused field numbers.",
+        "detection_pattern": "Adding a new field with the same field number as a recently-removed field"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "gRPC: binary proto over HTTP/2 — 5-10x faster than REST/JSON",
+        "protobuf: field numbers are permanent — never reuse them",
+        "snake_case in .proto → camelCase in generated Java (automatic)",
+        "4 RPC types: unary, server-stream, client-stream, bidirectional",
+        "Service definition: rpc MethodName(RequestType) returns (ResponseType)",
+        "proto3 defaults: no null — use wrapper types for optional fields",
+        "Generated code: immutable builder pattern (thread-safe)",
+        "reserved: prevents field number/name reuse after removal",
+        "Field numbers 1-15: 1 byte (use for most common fields)"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Razorpay is adding a 'currency' field to PaymentRequest. The old field 3 ('gateway') was removed last month. Can they use field number 3 for 'currency'?",
+          "answer": "NO. Field number 3 was used for 'gateway'. Even though it's removed from the schema, old client versions may still send field 3 as a string (the gateway name). If new servers now interpret field 3 as 'currency' (also a string), they'd mistakenly read 'HDFC' as the currency for old client requests. The correct approach: use a new, unused field number (e.g., field 5) for 'currency'. Add `reserved 3; reserved 'gateway';` to prevent anyone from accidentally reusing number 3. Old clients: field 3 is ignored by new servers (unknown fields are dropped in proto3). New clients: send field 5 for currency."
+        }
+      ],
+      "next_topic_preview": "Next: Spring Boot gRPC — implement the service interface with @GrpcService and create clients with @GrpcClient. Same Spring patterns you know, applied to gRPC."
+    }
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t2",
+  "language": "java",
+  "module_id": "m10",
+  "module_name": "Concurrency and Threads",
+  "topic_number": 2,
+  "name": "Synchronization",
+  "slug": "synchronization",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m10_t1"],
+    "concepts_taught": [
+      "race_conditions",
+      "shared_mutable_state",
+      "synchronized_keyword_method",
+      "synchronized_keyword_block",
+      "intrinsic_locks_monitors",
+      "volatile_keyword",
+      "visibility_problem",
+      "atomicity_problem",
+      "deadlock_intro",
+      "thread_safe_counter"
+    ],
+    "skills_developed": [
+      "identifying_race_conditions",
+      "applying_synchronized_to_methods",
+      "applying_synchronized_to_blocks",
+      "using_volatile_for_visibility",
+      "writing_thread_safe_classes",
+      "avoiding_common_concurrency_bugs"
+    ],
+    "career_relevance": "Every backend system that handles multiple requests has shared state — counters, caches, connection pools. Without synchronization, these produce silent, intermittent, production-only bugs that are nightmares to debug. After this topic, you write code that is correct under concurrent load — a fundamental senior engineering skill.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "10 threads all incrementing a shared counter 1000 times each. Expected result: 10,000.\n\n```java\nint counter = 0;\n\n// 10 threads, each runs this 1000 times:\ncounter++;  // looks atomic, but isn't!\n\n// Actual result: 8,743 (or 9,212, or 7,891 — different every run!)\n```\n\n**Why?** `counter++` is NOT one operation — it's three:\n1. READ: load current value of counter into CPU register\n2. ADD: add 1 to the register\n3. WRITE: store result back to counter\n\nWhen two threads interleave between steps:\n```\nThread A: READ (counter=5)\nThread B: READ (counter=5)   ← B reads before A writes!\nThread A: ADD → 6\nThread A: WRITE (counter=6)\nThread B: ADD → 6\nThread B: WRITE (counter=6)  ← overwrites A's update! Lost increment.\n```\n\nBoth threads incremented, but counter only went from 5 to 6, not to 7. One increment was **lost**. This is a **race condition** — one of the most dangerous bugs in software.\n\n**Real consequences**: Razorpay losing payment records. Zerodha double-charging traders. Flipkart selling products it doesn't have. Race conditions are invisible in testing (single-threaded), show up under production load, and are extremely hard to reproduce.\n\n**The fix: `synchronized`:**\n```java\nsynchronized void increment() {\n    counter++;  // only ONE thread can be here at a time\n}\n```\n\nToday you learn to identify, demonstrate, and fix race conditions.",
+    "what_you_will_build": "By the end of this topic, you'll demonstrate a race condition on a shared counter, fix it with synchronized methods and blocks, understand intrinsic locks, use volatile for visibility, and write a thread-safe counter class."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "race_condition_demo": "**Demonstrating a race condition:**\n\n```java\npublic class UnsafeCounter {\n    private int count = 0;\n    \n    void increment() { count++; }  // NOT thread-safe!\n    int getCount()   { return count; }\n}\n\npublic class RaceDemo {\n    public static void main(String[] args) throws InterruptedException {\n        UnsafeCounter counter = new UnsafeCounter();\n        \n        Thread[] threads = new Thread[10];\n        for (int i = 0; i < 10; i++) {\n            threads[i] = new Thread(() -> {\n                for (int j = 0; j < 1000; j++) counter.increment();\n            });\n        }\n        \n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        \n        System.out.println(\"Expected: 10000\");\n        System.out.println(\"Actual:   \" + counter.getCount()); // < 10000!\n    }\n}\n// Actual varies: 8391, 9642, 7829 — different every run\n```\n\nThe result is less than 10,000 because increments get lost when threads interleave at the READ-ADD-WRITE steps.",
+
+      "synchronized_method": "**`synchronized` on a method** — acquires the object's intrinsic lock:\n\n```java\npublic class SafeCounter {\n    private int count = 0;\n    \n    // synchronized ensures only ONE thread can execute this at a time\n    public synchronized void increment() {\n        count++;  // now atomic — no interleaving possible\n    }\n    \n    public synchronized int getCount() {\n        return count;\n    }\n}\n```\n\nWhen Thread A calls `increment()`, it acquires the lock on the `SafeCounter` object. Thread B trying to call ANY synchronized method on the same object BLOCKS until Thread A releases the lock (when the method returns).\n\n**Important**: `synchronized` applies PER OBJECT, not per class. Two different SafeCounter objects have different locks — threads on different objects don't block each other.\n\n**For static methods**: the lock is on the Class object:\n```java\npublic static synchronized void staticMethod() { ... }  // locks SafeCounter.class\n```",
+
+      "synchronized_block": "**`synchronized` block** — more granular than whole-method:\n\n```java\npublic class SafeCounter {\n    private final Object lock = new Object(); // dedicated lock object\n    private int count = 0;\n    \n    public void increment() {\n        // only the critical section needs synchronization:\n        synchronized (lock) {\n            count++;\n        }\n        // non-critical code can run concurrently here\n    }\n}\n\n// Common pattern: synchronize on 'this':\npublic void increment() {\n    synchronized (this) {\n        count++;\n    }\n}\n```\n\n**When to use blocks over whole-method sync:**\n- The method has expensive non-critical code (I/O, computation) that can run concurrently\n- You need finer-grained control with multiple locks\n- You need to synchronize on a specific object (not `this`)\n\n**Rule of thumb**: synchronize the MINIMUM code necessary. Long synchronized sections reduce parallelism.",
+
+      "intrinsic_locks": "**How locks work — the intrinsic monitor:**\n\nEvery Java object has an intrinsic lock (also called a monitor). When a thread enters a `synchronized` method or block, it ACQUIRES the lock. Other threads trying to acquire the same lock BLOCK until it's released.\n\n```java\nObject myLock = new Object();\n\n// Thread A:\nsynchronized (myLock) {\n    // A holds the lock\n    // B cannot enter here\n}\n// A releases lock — B can now proceed\n\n// Thread B (trying simultaneously):\nsynchronized (myLock) {\n    // B waits until A releases, then enters\n}\n```\n\n**Reentrant**: a thread that already holds a lock can re-enter a synchronized block/method on the same object without blocking:\n```java\nsynchronized void outer() {\n    inner();  // OK — same thread already holds this lock\n}\nsynchronized void inner() {\n    // same lock as outer — thread enters without blocking\n}\n```",
+
+      "volatile": "**`volatile` keyword** — visibility, not atomicity:\n\nWithout `volatile`, each thread may cache a variable in its CPU register. Changes by one thread may NOT be visible to another.\n\n```java\n// Problem: flag may never update for readThread:\nboolean running = true;  // not volatile — cached!\n\nThread readThread = new Thread(() -> {\n    while (running) {  // may loop forever — reads cached value!\n        // do work\n    }\n});\n\n// Fix: volatile forces all threads to read from main memory:\nvolatile boolean running = true;\n\n// Now when stopThread does running = false,\n// readThread immediately sees the change\n```\n\n**volatile guarantees:**\n1. **Visibility**: write by one thread is immediately visible to all others\n2. **Ordering**: prevents instruction reordering around the access\n\n**volatile does NOT guarantee:**\n1. **Atomicity**: `volatileCounter++` is still three operations — still a race condition!\n\n**Use volatile for**: simple flags, state indicators, references to immutable objects. NOT for counters or compound operations.",
+
+      "atomicity_vs_visibility": "**Two separate problems in concurrency:**\n\n**Visibility problem**: one thread's change not seen by another\n- Fix: `volatile` (or `synchronized`)\n\n**Atomicity problem**: compound operation interrupted mid-way\n- Fix: `synchronized` (or `AtomicInteger` — Topic 10.4)\n\n```java\n// volatile fixes VISIBILITY but not ATOMICITY:\nprivate volatile int count = 0;\ncount++;  // STILL a race condition!\n\n// synchronized fixes BOTH:\nprivate int count = 0;\nsynchronized void increment() {\n    count++;\n}\n```\n\n**Mnemonic:**\n- `volatile` → visible (changes seen immediately)\n- `synchronized` → safe (whole operation is atomic)",
+
+      "deadlock_intro": "**Deadlock** — when two threads each wait for a lock the other holds:\n\n```java\nObject lockA = new Object();\nObject lockB = new Object();\n\n// Thread 1:\nsynchronized (lockA) {\n    Thread.sleep(100);\n    synchronized (lockB) { ... }  // waits for B — but Thread 2 holds B!\n}\n\n// Thread 2:\nsynchronized (lockB) {\n    Thread.sleep(100);\n    synchronized (lockA) { ... }  // waits for A — but Thread 1 holds A!\n}\n```\n\nBoth threads wait forever. Program hangs.\n\n**Prevention strategies:**\n1. **Lock ordering**: always acquire locks in the same order (A before B, everywhere)\n2. **Try-lock with timeout**: use `tryLock(timeout)` from `java.util.concurrent.locks`\n3. **Minimize synchronized sections**: reduce scope and duration of locks\n4. **Avoid nested locks**: whenever possible\n\nFull concurrency utilities (locks, semaphores) are in `java.util.concurrent` — Topic 10.3."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three diagrams: (1) Race condition timeline — Thread A and Thread B both executing counter++ with READ/ADD/WRITE steps shown on a timeline; interleaving causes lost update. Arrow shows expected=7 but actual=6. (2) synchronized block diagram — Thread A holding lock (green), Thread B blocked (red with BLOCKED label), B enters only after A exits. (3) volatile memory model — without volatile: each thread has its own cached copy in CPU register, changes don't propagate. With volatile: all threads read/write main memory directly. Bottom: atomicity vs visibility table.",
+      "alt_text": "Race condition interleaving, synchronized lock diagram, volatile memory model"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a thread-safe bank account class. Multiple threads may deposit, withdraw, and check the balance simultaneously. Without synchronization: lost transactions, negative balances under concurrent access.",
+
+    "problem_statement": "Create `BankAccount` class with deposit(double), withdraw(double), getBalance(). Demonstrate the race condition on an unsafe version, then fix with synchronized. Test with 10 threads doing simultaneous deposits and withdrawals.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Unsafe version — shows the race condition",
+        "details": "```java\nclass UnsafeBankAccount {\n    private double balance;\n    \n    UnsafeBankAccount(double initial) { balance = initial; }\n    \n    void deposit(double amount)  { balance += amount; }  // NOT atomic\n    void withdraw(double amount) { balance -= amount; }  // NOT atomic\n    double getBalance()          { return balance; }\n}\n\n// Test: 5 threads each deposit 100, 5 threads each withdraw 100\n// Expected final balance: unchanged (same as initial)\n// Actual: probably different — lost updates!\n```"
+      },
+      {
+        "step": 2,
+        "action": "Safe version — synchronized methods",
+        "details": "```java\nclass BankAccount {\n    private double balance;\n    \n    BankAccount(double initial) { balance = initial; }\n    \n    public synchronized void deposit(double amount) {\n        double newBalance = balance + amount;\n        // simulate some processing time (makes race condition more likely without sync)\n        balance = newBalance;\n    }\n    \n    public synchronized void withdraw(double amount) {\n        if (balance < amount) throw new IllegalStateException(\"Insufficient funds: \" + balance);\n        balance -= amount;\n    }\n    \n    public synchronized double getBalance() { return balance; }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Test with concurrent threads",
+        "details": "```java\npublic static void main(String[] args) throws InterruptedException {\n    BankAccount account = new BankAccount(1000.0);\n    Thread[] threads = new Thread[10];\n    \n    for (int i = 0; i < 5; i++) {\n        threads[i]   = new Thread(() -> account.deposit(100.0));\n        threads[i+5] = new Thread(() -> account.withdraw(100.0));\n    }\n    \n    for (Thread t : threads) t.start();\n    for (Thread t : threads) t.join();\n    \n    System.out.printf(\"Final balance: %.2f (expected 1000.00)%n\", account.getBalance());\n    // With synchronized: always exactly 1000.00\n    // Without synchronized: varies — 800, 1200, etc.\n}\n```"
+      }
+    ],
+
+    "final_code": "public class BankAccount {\n    private double balance;\n    \n    public BankAccount(double initial) { balance = initial; }\n    \n    public synchronized void deposit(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Deposit must be positive\");\n        balance += amount;\n    }\n    \n    public synchronized boolean withdraw(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Withdrawal must be positive\");\n        if (balance < amount) return false;  // insufficient funds\n        balance -= amount;\n        return true;\n    }\n    \n    public synchronized double getBalance() { return balance; }\n    \n    public static void main(String[] args) throws InterruptedException {\n        BankAccount account = new BankAccount(1000.0);\n        Thread[] threads = new Thread[10];\n        \n        for (int i = 0; i < 5; i++) {\n            threads[i]   = new Thread(() -> account.deposit(100.0));\n            threads[i+5] = new Thread(() -> account.withdraw(100.0));\n        }\n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        \n        System.out.printf(\"Final balance: ₹%.2f%n\", account.getBalance());\n        // Always ₹1000.00 with synchronized\n    }\n}",
+
+    "expected_output": "Final balance: ₹1000.00",
+
+    "things_to_notice": [
+      "`synchronized` on all three methods (deposit, withdraw, getBalance) — ALL access to balance is protected. If getBalance() were unsynchronized, a thread could read a partially updated value.",
+      "withdraw() returns boolean instead of throwing an exception for insufficient funds. In a concurrent system, checking balance then withdrawing as two operations could have another thread drain the account between the check and the withdrawal. The synchronized method makes this atomic.",
+      "The lock is on the account object. 5 deposit threads and 5 withdraw threads all contend for the SAME lock. Only one thread at a time proceeds — the others block. This eliminates lost updates.",
+      "Without synchronized, balance += amount is three operations (READ-ADD-WRITE). Two threads interleaving there cause lost updates. The final balance could be anywhere from 600 to 1400.",
+      "Real banking systems use database transactions (which have their own ACID guarantees) but the synchronized pattern here is exactly what in-memory caches, counters, and shared state managers use."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart inventory management",
+        "use_case": "When a product is 'sold', its stock count decrements. Without synchronization, two simultaneous purchases of the last item could both pass the 'stock > 0' check and both decrement — resulting in stock = -1 and two order confirmations for one item. `synchronized` on the checkout method prevents this."
+      },
+      {
+        "company_context": "Razorpay payment processing",
+        "use_case": "Payment processing updates ledger balances. If two payment requests arrive simultaneously for the same account, both must see the correct balance before updating it. Synchronized methods (or database-level locks) ensure exactly-once credit/debit semantics — preventing double-credits or lost payments."
+      },
+      {
+        "company_context": "Any web server — hit counter, session state",
+        "use_case": "Page hit counters increment on every request. Without synchronization, high-traffic pages lose counts (race conditions). Session state (shopping cart, user preferences) shared across threads must be protected. Spring's `@Service` beans are singletons shared across all threads — any mutable state in them needs synchronization."
+      }
+    ],
+
+    "interview_relevance": "Synchronization questions at every senior interview:\n\n- **'What is a race condition?'** — When two threads access shared mutable data concurrently, and the result depends on timing.\n- **'What is the difference between synchronized and volatile?'** → synchronized: atomicity + visibility. volatile: visibility only, no atomicity.\n- **'What is a deadlock?'** → Two threads each waiting for a lock the other holds. Prevention: consistent lock ordering.\n- **'Is `count++` thread-safe?'** → No — it's READ-ADD-WRITE, three operations. Use synchronized or AtomicInteger.\n- **'How does synchronized work internally?'** → Acquires the object's intrinsic monitor (lock). Only one thread can hold a lock at a time.",
+
+    "real_world_workflow": "Daily synchronization patterns:\n\n- Thread-safe singleton: double-checked locking with `volatile` + `synchronized`\n- Shared counter: `synchronized increment()` or `AtomicInteger.getAndIncrement()`\n- Cache with lazy initialization: `synchronized` check-then-set\n- Simple flags between threads: `volatile boolean shutdown = false`\n- Stop a background thread: `volatile boolean running = true` → set to false from outside"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "volatile_for_compound_ops",
+      "what_students_get_wrong": "Using `volatile` for compound operations like `counter++` and thinking it's thread-safe.",
+      "remediation": "volatile gives VISIBILITY but not ATOMICITY. counter++ is still READ-ADD-WRITE — three operations — still a race condition even with volatile. Use synchronized or AtomicInteger for counters.",
+      "detection_pattern": "Race condition persists despite volatile — counter shows wrong value"
+    },
+    {
+      "gap_id": "synchronizing_different_objects",
+      "what_students_get_wrong": "Synchronizing on different objects and expecting mutual exclusion.",
+      "remediation": "synchronized(obj) acquires the lock for THAT SPECIFIC OBJECT. Two threads on two different objects don't block each other. To protect shared state, all threads must synchronize on the SAME object.",
+      "detection_pattern": "Race condition persists despite synchronized — threads using different lock objects"
+    },
+    {
+      "gap_id": "partial_synchronization",
+      "what_students_get_wrong": "Synchronizing writes but not reads (or vice versa) — readers see stale data.",
+      "remediation": "Both reads AND writes of shared mutable state must be synchronized. If increment() is synchronized but getCount() is not, readers may see inconsistent values. Synchronize ALL access to shared mutable state.",
+      "detection_pattern": "getCount() returns wrong value despite synchronized writes"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Race condition: two threads access shared mutable data; result depends on timing",
+      "counter++ is three operations (READ-ADD-WRITE) — not atomic, always needs protection",
+      "synchronized method: lock on the object; only one thread at a time",
+      "synchronized block: lock on any object; prefer smallest critical section",
+      "volatile: visibility only (changes immediately visible); NOT atomicity",
+      "synchronized: BOTH atomicity AND visibility",
+      "All access (read AND write) to shared mutable state must be synchronized",
+      "Deadlock: two threads each waiting for a lock the other holds",
+      "Deadlock prevention: consistent lock ordering (always A before B)",
+      "synchronized is reentrant — a thread can re-acquire its own lock"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Two threads share `volatile int count = 0`. Thread A runs `count++` 1000 times. Thread B runs `count++` 1000 times. What is the final value of count?",
+        "answer": "Less than 2000 — possibly much less. `volatile` ensures visibility (each thread sees the latest value) but NOT atomicity. `count++` is still READ-ADD-WRITE — three operations. Two threads can both read the same value, both add 1, and both write back the same incremented value — losing one update. To fix: use `synchronized` or `AtomicInteger`."
+      },
+      {
+        "question": "What is wrong with this code?\n```java\nclass Singleton {\n    private static Singleton instance;\n    static Singleton getInstance() {\n        if (instance == null) instance = new Singleton();\n        return instance;\n    }\n}\n```",
+        "answer": "Race condition in getInstance(). Two threads can both check `instance == null` simultaneously (both see null), both create a new Singleton, and each return a different instance. The singleton contract is violated. Fix: synchronize the method, or use the initialization-on-demand holder pattern, or make instance `volatile` with double-checked locking."
+      },
+      {
+        "question": "Thread A holds lock X and waits for lock Y. Thread B holds lock Y and waits for lock X. What is this called and how do you prevent it?",
+        "answer": "Deadlock. Both threads wait forever — neither can proceed. Prevention: always acquire locks in a consistent global order. If both threads always acquire X before Y (never Y before X), deadlock is impossible. Other approaches: tryLock() with timeout, or restructure to avoid nested locks entirely."
+      }
+    ],
+
+    "next_topic_preview": "Next: **ExecutorService** — instead of creating raw threads (which is expensive), Java's `ExecutorService` manages a pool of reusable threads. `Executors.newFixedThreadPool(4)` creates 4 threads that handle any number of submitted tasks. `Future<T>` represents a result that will be available later. After Topic 10.3, you write production-grade concurrent code with proper resource management."
+  }
+}

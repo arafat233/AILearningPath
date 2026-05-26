@@ -1,0 +1,226 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t4",
+  "language": "java",
+  "module_id": "m1",
+  "module_name": "Java Fundamentals",
+  "topic_number": 4,
+  "name": "Control Flow: if/else & switch",
+  "slug": "control-flow-conditionals",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m1_t1", "java_m1_t2", "java_m1_t3"],
+    "concepts_taught": [
+      "if_statement",
+      "else_statement",
+      "else_if_chain",
+      "nested_conditionals",
+      "ternary_operator",
+      "switch_statement",
+      "switch_expression_modern",
+      "boolean_in_conditions",
+      "block_scope"
+    ],
+    "skills_developed": [
+      "writing_decision_logic",
+      "structuring_conditional_code",
+      "choosing_if_vs_switch",
+      "avoiding_dangling_else",
+      "refactoring_nested_conditions"
+    ],
+    "career_relevance": "Conditionals are how software thinks. Every login check, every form validation, every business rule, every workflow decision — they're all conditional logic. A senior engineer's code is distinguished not by what conditions it checks, but by HOW. Clear conditionals are readable, maintainable, and bug-resistant. Messy conditionals breed bugs. This topic is where you start writing code that makes decisions — and where you build the habits that separate junior code from senior code.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Every app you use makes thousands of decisions per second. When you open Instagram: is your token valid? Are you over 13? Are you in a region where the app is available? Are there new posts to show? Is your data plan low so we should serve smaller images? Every one of these is a conditional. The code you'll write in this topic — `if`, `else`, `switch` — is what makes software RESPONSIVE to context. Without conditionals, programs just blindly do the same thing every time. With them, programs adapt.",
+    "what_you_will_build": "By the end of this topic, you'll know every way Java handles decisions: simple `if`, `if-else`, `else if` chains, nested conditions, the ternary `? :` shortcut, and `switch` statements (both classic and modern Java 14+ expression form). You'll refactor the BMI calculator from Topic 3 — instead of printing all four category booleans, it'll print only the one that applies. Then you'll build a tax bracket calculator that uses real Indian income tax slabs to determine someone's tax liability."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "Until now, your programs execute every line in order, top to bottom. Conditionals let you SKIP code or CHOOSE between paths based on a boolean expression.\n\nThe basic structure:\n\n```java\nif (condition) {\n    // run this if condition is true\n}\n```\n\nThe condition must be a `boolean` expression (true or false). Unlike Python or JavaScript, Java doesn't have 'truthy' values. `if (5)` is a compilation error. `if (someString)` is a compilation error. Only booleans work.\n\nThis strictness prevents a class of bugs that haunt loosely-typed languages.",
+      
+      "if_else": "Add `else` to handle the false case:\n\n```java\nif (age >= 18) {\n    System.out.println(\"You can vote\");\n} else {\n    System.out.println(\"Too young to vote\");\n}\n```\n\nExactly one of the two blocks runs. Never both. Never neither.\n\nThe braces `{ }` define a BLOCK. Variables declared inside a block only exist inside that block — this is called **block scope**. We'll see why this matters in exercises.\n\nFor single-statement blocks, braces are optional:\n\n```java\nif (age >= 18)\n    System.out.println(\"Adult\");\nelse\n    System.out.println(\"Minor\");\n```\n\n**Strong recommendation: always use braces, even for single statements.** Why? It prevents one of the most famous bugs in software history (Apple's 'goto fail' SSL vulnerability — caused by missing braces). Some teams enforce this with linters. Modern codebases use braces always.",
+      
+      "else_if_chains": "For multiple mutually-exclusive conditions, chain with `else if`:\n\n```java\nif (score >= 90) {\n    System.out.println(\"Grade: A\");\n} else if (score >= 80) {\n    System.out.println(\"Grade: B\");\n} else if (score >= 70) {\n    System.out.println(\"Grade: C\");\n} else if (score >= 60) {\n    System.out.println(\"Grade: D\");\n} else {\n    System.out.println(\"Grade: F\");\n}\n```\n\nJava checks conditions TOP TO BOTTOM and STOPS at the first true one. Order matters!\n\nIf score is 95:\n- `>= 90`? Yes → print 'A' → DONE. Doesn't check the rest.\n\nIf you reverse the order, it breaks:\n\n```java\n// BUG: This always prints 'F' for anyone passing!\nif (score >= 60) {\n    System.out.println(\"Grade: D\");  // 95 matches this first!\n}\n```\n\nRule: For `else if` chains with ranges, go from MOST SPECIFIC to LEAST SPECIFIC (highest to lowest threshold).",
+      
+      "nested_conditions": "You can put `if` inside `if`:\n\n```java\nif (isLoggedIn) {\n    if (hasAdminRole) {\n        System.out.println(\"Show admin panel\");\n    } else {\n        System.out.println(\"Show user dashboard\");\n    }\n} else {\n    System.out.println(\"Show login page\");\n}\n```\n\nNesting works, but DEEP nesting (3+ levels) is a code smell. It's hard to read and reason about.\n\nOften, nested conditions can be flattened with logical operators:\n\n```java\n// Nested — okay but verbose\nif (isLoggedIn) {\n    if (hasAdminRole) {\n        showAdminPanel();\n    }\n}\n\n// Flattened — cleaner\nif (isLoggedIn && hasAdminRole) {\n    showAdminPanel();\n}\n```\n\nUse nesting when the inner logic only makes sense given the outer condition. Use AND when both must be true for the same action.",
+      
+      "ternary_operator": "Java has ONE ternary operator: `? :` for inline conditionals.\n\n```java\nString status = (age >= 18) ? \"Adult\" : \"Minor\";\n\n// Equivalent to:\nString status;\nif (age >= 18) {\n    status = \"Adult\";\n} else {\n    status = \"Minor\";\n}\n```\n\nFormat: `condition ? valueIfTrue : valueIfFalse`\n\n**When to use ternary**:\n- Single, simple assignment based on condition\n- Short, readable expression\n\n**When NOT to use ternary**:\n- Multiple statements (use if/else)\n- Complex conditions (becomes unreadable)\n- Nested ternaries (`a ? b : c ? d : e` is hard to read — avoid)\n\nGood:\n```java\nint absoluteValue = (x >= 0) ? x : -x;\nString message = isError ? \"Failed\" : \"Success\";\n```\n\nBad:\n```java\n// Nested ternary — DON'T do this\nString grade = (s >= 90) ? \"A\" : (s >= 80) ? \"B\" : (s >= 70) ? \"C\" : \"F\";\n// Use if/else chain instead — much more readable\n```",
+      
+      "switch_statement": "When checking ONE variable against MANY specific values, `switch` is cleaner than long `else if` chains.\n\nClassic switch (Java 7+):\n\n```java\nswitch (dayOfWeek) {\n    case 1:\n        System.out.println(\"Monday\");\n        break;\n    case 2:\n        System.out.println(\"Tuesday\");\n        break;\n    case 3:\n        System.out.println(\"Wednesday\");\n        break;\n    default:\n        System.out.println(\"Unknown day\");\n        break;\n}\n```\n\n**Critical**: Always include `break` at the end of each case. Without it, execution 'falls through' to the next case (a feature, but usually causes bugs).\n\n```java\nswitch (x) {\n    case 1:\n        System.out.println(\"One\");\n        // No break — FALLS THROUGH to case 2\n    case 2:\n        System.out.println(\"Two\");  // Runs for both x=1 AND x=2!\n        break;\n}\n```\n\nIntentional fall-through is sometimes useful (case 1, 2, 3 all do the same thing), but write comments to make it obvious.",
+      
+      "modern_switch_expression": "Java 14+ added a cleaner switch syntax — the **switch expression** with arrow syntax:\n\n```java\nString dayName = switch (dayOfWeek) {\n    case 1 -> \"Monday\";\n    case 2 -> \"Tuesday\";\n    case 3 -> \"Wednesday\";\n    case 4, 5 -> \"Mid-week\";  // Multiple values, same result\n    default -> \"Other\";\n};\n```\n\nBenefits:\n- No `break` needed (no fall-through)\n- Returns a value directly\n- Cleaner syntax\n- Multiple values per case: `case 1, 2, 3 ->`\n- Exhaustiveness check (compiler warns if cases are missing)\n\nUse classic switch only when working with old Java versions or legacy code. For modern Java (14+), prefer switch expressions.\n\n**What switches can match**: `int`, `byte`, `short`, `char`, `String`, `enum` (and starting Java 21, patterns and types). NOT: `double`, `long`, `boolean`, objects (without patterns).",
+      
+      "if_vs_switch": "When to use which:\n\n**Use `if/else if`**:\n- Checking ranges: `score >= 90`, `bmi < 18.5`\n- Different variables in different conditions\n- Complex boolean expressions\n- Few options (2-3)\n\n**Use `switch`**:\n- Checking ONE variable against many exact values\n- Days of week, menu options, status codes, enum values\n- 4+ options to compare\n- All checks against same variable\n\nExample:\n\n```java\n// if/else (good — comparing ranges)\nif (temperature < 0) coldWarning();\nelse if (temperature < 20) cool();\nelse if (temperature < 30) mild();\nelse hot();\n\n// switch (good — comparing exact values)\nswitch (httpStatusCode) {\n    case 200 -> \"OK\";\n    case 404 -> \"Not Found\";\n    case 500 -> \"Server Error\";\n    default -> \"Unknown\";\n}\n```"
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a flowchart with diamond decision boxes. Left side: a simple if/else (one diamond, two paths). Middle: an if/else if chain (cascade of diamonds, with arrows showing only first-true gets executed). Right side: a switch (single value entering, multiple parallel cases, default at bottom). Each example labeled with when to use it.",
+      "alt_text": "Decision flow diagrams comparing if/else, if-else-if chain, and switch"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a tax calculator for an Indian fintech app. India has a 'tax slab' system — different income brackets pay different rates. Your job: given someone's annual income, calculate which tax bracket they fall in and how much tax they owe. This is a perfect use case for else-if chains because the brackets are ranges, not exact values.",
+    
+    "problem_statement": "Using the 2024 'New Regime' Indian tax slabs:\n- Up to ₹3,00,000: No tax (0%)\n- ₹3,00,001 to ₹6,00,000: 5%\n- ₹6,00,001 to ₹9,00,000: 10%\n- ₹9,00,001 to ₹12,00,000: 15%\n- ₹12,00,001 to ₹15,00,000: 20%\n- Above ₹15,00,000: 30%\n\nWrite a program that takes an annual income, determines the highest applicable tax bracket, and prints the tax slab + estimated tax (using just the rate of the highest bracket for simplicity — real tax is calculated cumulatively, which we'll do in a future topic).",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Set up variables",
+        "details": "Start with the standard structure and our test income:\n\n```java\npublic class TaxCalculator {\n    public static void main(String[] args) {\n        double annualIncome = 850000;  // 8.5 lakh\n        String taxBracket;\n        double taxRate;\n    }\n}\n```\n\nNote: `taxBracket` and `taxRate` are declared but not initialized. We'll set them in the if/else chain."
+      },
+      {
+        "step": 2,
+        "action": "Plan the conditional logic",
+        "details": "We have 6 brackets (5 with tax + 1 with no tax). This is a classic else-if chain situation.\n\n**Critical: order matters.** Check from highest threshold downward. Why?\n\nIf we wrote `if (income >= 300001)` first, that would match for ANY income above 3 lakh — including 50 lakh. We need to check the highest brackets first.\n\nOR — and this is cleaner — check from LOWEST upward, using strict less-than:\n\n```java\nif (income <= 300000) {\n    // 0% bracket\n} else if (income <= 600000) {\n    // 5% bracket — must be between 300001 and 600000\n} else if (income <= 900000) {\n    // 10% bracket\n}\n// etc.\n```\n\nThis works because each later condition only runs if the previous one was false. Once you're past 300000, you ARE in the 5% bracket (or higher). The chain naturally narrows down."
+      },
+      {
+        "step": 3,
+        "action": "Write the if/else if chain",
+        "details": "Implement the logic:\n\n```java\nif (annualIncome <= 300000) {\n    taxBracket = \"Up to ₹3,00,000\";\n    taxRate = 0.0;\n} else if (annualIncome <= 600000) {\n    taxBracket = \"₹3,00,001 to ₹6,00,000\";\n    taxRate = 5.0;\n} else if (annualIncome <= 900000) {\n    taxBracket = \"₹6,00,001 to ₹9,00,000\";\n    taxRate = 10.0;\n} else if (annualIncome <= 1200000) {\n    taxBracket = \"₹9,00,001 to ₹12,00,000\";\n    taxRate = 15.0;\n} else if (annualIncome <= 1500000) {\n    taxBracket = \"₹12,00,001 to ₹15,00,000\";\n    taxRate = 20.0;\n} else {\n    taxBracket = \"Above ₹15,00,000\";\n    taxRate = 30.0;\n}\n```\n\nNotice: no condition needed on the final `else` — if you didn't fit any other bracket, you're in this one."
+      },
+      {
+        "step": 4,
+        "action": "Calculate simplified tax",
+        "details": "Compute estimated tax (simplified — uses single-rate, not cumulative):\n\n```java\ndouble estimatedTax = annualIncome * (taxRate / 100);\n```\n\nNote: this isn't how Indian tax actually works — real tax is calculated bracket by bracket (cumulative). We'll do that properly later. For now, this gives a rough estimate."
+      },
+      {
+        "step": 5,
+        "action": "Display the result",
+        "details": "Print a clean tax summary:\n\n```java\nSystem.out.println(\"=========================================\");\nSystem.out.println(\"          TAX CALCULATION\");\nSystem.out.println(\"=========================================\");\nSystem.out.println(\"Annual Income:    ₹\" + annualIncome);\nSystem.out.println(\"Tax Bracket:      \" + taxBracket);\nSystem.out.println(\"Tax Rate:         \" + taxRate + \"%\");\nSystem.out.println(\"Estimated Tax:    ₹\" + estimatedTax);\nSystem.out.println(\"=========================================\");\n```\n\nThis works because `taxBracket` and `taxRate` are guaranteed to be set — every possible income value matches exactly one branch."
+      }
+    ],
+    
+    "final_code": "public class TaxCalculator {\n    public static void main(String[] args) {\n        double annualIncome = 850000;  // 8.5 lakh\n        String taxBracket;\n        double taxRate;\n        \n        // Determine bracket\n        if (annualIncome <= 300000) {\n            taxBracket = \"Up to ₹3,00,000\";\n            taxRate = 0.0;\n        } else if (annualIncome <= 600000) {\n            taxBracket = \"₹3,00,001 to ₹6,00,000\";\n            taxRate = 5.0;\n        } else if (annualIncome <= 900000) {\n            taxBracket = \"₹6,00,001 to ₹9,00,000\";\n            taxRate = 10.0;\n        } else if (annualIncome <= 1200000) {\n            taxBracket = \"₹9,00,001 to ₹12,00,000\";\n            taxRate = 15.0;\n        } else if (annualIncome <= 1500000) {\n            taxBracket = \"₹12,00,001 to ₹15,00,000\";\n            taxRate = 20.0;\n        } else {\n            taxBracket = \"Above ₹15,00,000\";\n            taxRate = 30.0;\n        }\n        \n        // Calculate tax (simplified)\n        double estimatedTax = annualIncome * (taxRate / 100);\n        \n        // Display result\n        System.out.println(\"=========================================\");\n        System.out.println(\"          TAX CALCULATION\");\n        System.out.println(\"=========================================\");\n        System.out.println(\"Annual Income:    ₹\" + annualIncome);\n        System.out.println(\"Tax Bracket:      \" + taxBracket);\n        System.out.println(\"Tax Rate:         \" + taxRate + \"%\");\n        System.out.println(\"Estimated Tax:    ₹\" + estimatedTax);\n        System.out.println(\"=========================================\");\n    }\n}",
+    
+    "expected_output": "=========================================\n          TAX CALCULATION\n=========================================\nAnnual Income:    ₹850000.0\nTax Bracket:      ₹6,00,001 to ₹9,00,000\nTax Rate:         10.0%\nEstimated Tax:    ₹85000.0\n=========================================",
+    
+    "things_to_notice": [
+      "8.5 lakh fell into the 10% bracket — third branch matched, so the chain stopped checking.",
+      "Each branch handles BOTH the bracket label AND the rate. Keep related logic together.",
+      "The final `else` (no condition) catches all remaining cases — like a 'default' value.",
+      "The compiler is smart: even though we declared `taxBracket` and `taxRate` without initial values, it doesn't complain because EVERY possible execution path through the if/else assigns them. If we had `if/else if` without final `else`, the compiler would error: 'variable might not be initialized'.",
+      "This logic could be written as a switch on `(int)(annualIncome / 100000)`, but if/else is clearer for range checks."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Authentication systems (Auth0, Firebase, every app)",
+        "use_case": "Login flow has nested conditionals: `if user exists`, then `if password matches`, then `if account not locked`, then `if 2FA not required or already verified`, then `if region allowed`, then `create session`. Each check protects the next. Order matters for both correctness AND security (cheap checks first to fail fast, sensitive operations last)."
+      },
+      {
+        "company_context": "Payment processing (Razorpay, Stripe)",
+        "use_case": "Every transaction passes through 10+ conditionals: amount valid, merchant active, currency supported, customer not on blocklist, sufficient balance, fraud score acceptable, daily limit not exceeded, KYC verified... Each is an if. Misordering or missing one is how money laundering happens."
+      },
+      {
+        "company_context": "API routing (Spring Boot, Express, every backend framework)",
+        "use_case": "Every API endpoint starts with conditional checks: if request method correct, if auth token valid, if user has permission, if rate limit not exceeded, if input format valid. The conditions in your code mirror your business rules."
+      },
+      {
+        "company_context": "Game development (decisions per frame)",
+        "use_case": "In a game, hundreds of conditionals run per frame: `if player.health <= 0 → game over`, `if collisionDetected && !player.invincible → take damage`, `if enemy.spotted && distance < 10 → attack`. Switch statements are common for state machines: `switch (gameState) { PLAYING, PAUSED, MENU, GAME_OVER }`."
+      }
+    ],
+    
+    "interview_relevance": "Interview questions involving conditionals:\n\n- 'Write a function to determine if a year is a leap year' (uses nested if with %)\n- 'FizzBuzz' (classic: if divisible by 15 → FizzBuzz, by 3 → Fizz, by 5 → Buzz, else number)\n- 'Determine grade from score' (else-if chain)\n- 'Validate this input' (multiple conditions)\n- 'Implement a state machine for an order' (switch on enum)\n\nFizzBuzz alone has eliminated countless candidates in interviews. It tests: understanding of modulo, order of conditions, proper else-if usage. Don't get it wrong.\n\nAlso common: 'Refactor this nested if into something cleaner' — tests your judgment, not just syntax.",
+    
+    "real_world_workflow": "Production code is mostly conditionals and method calls. A typical method in a real codebase has 5-15 conditional checks: input validation, business rules, error handling, edge cases. Strong engineers structure these well — guard clauses at the top, happy path in the middle, fallbacks at the bottom. Weak engineers create deeply nested conditional pyramids that nobody can maintain. The patterns you learn here become muscle memory."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "missing_braces_dangling_else",
+      "what_students_get_wrong": "Skipping braces on if statements. Especially with else, this leads to the 'dangling else' problem where else binds to the wrong if.",
+      "remediation": "Always use braces. Show concrete bugs caused by missing braces (Apple's goto fail SSL bug). Use IDE auto-format to enforce.",
+      "detection_pattern": "Single-line if statements, indentation that doesn't match logic"
+    },
+    {
+      "gap_id": "assignment_in_condition",
+      "what_students_get_wrong": "Writing `if (x = 5)` (assignment) instead of `if (x == 5)` (comparison). In Java this is actually a compilation error for non-boolean types — but for booleans (`if (isActive = true)`) it compiles and silently sets isActive to true.",
+      "remediation": "Show the difference. For booleans especially, IDE warnings catch this. Habit: read 'if' conditions out loud — 'if x equals 5' should be `==`, not `=`.",
+      "detection_pattern": "Using = where == intended"
+    },
+    {
+      "gap_id": "missing_break_in_switch",
+      "what_students_get_wrong": "Forgetting `break` statements in switch cases, causing unintended fall-through.",
+      "remediation": "Two options: (a) discipline to add break every time, (b) use modern switch expressions (Java 14+) which don't need break. Recommend (b) for new code.",
+      "detection_pattern": "Multiple case outputs appearing when only one expected"
+    },
+    {
+      "gap_id": "wrong_order_in_if_else_chain",
+      "what_students_get_wrong": "Putting broader conditions before narrower ones, causing the broader case to always match. E.g., checking `age > 0` before `age > 18`.",
+      "remediation": "Rule: in else-if chains with ranges, go from most specific to least specific. For thresholds, top-down or bottom-up — but be consistent and explicit about ranges.",
+      "detection_pattern": "Logic that always falls into the first branch despite expected to be more specific"
+    },
+    {
+      "gap_id": "redundant_else_after_return",
+      "what_students_get_wrong": "Writing else after if-return, which is unnecessary noise.",
+      "remediation": "Show: if you `return` inside an `if`, the `else` is implicit. Code is cleaner without the else block. (Note: we haven't covered methods yet — this comes later.)",
+      "detection_pattern": "Code with unnecessary else following return"
+    },
+    {
+      "gap_id": "deep_nesting",
+      "what_students_get_wrong": "Creating 3+ levels of nested if statements, which become unreadable.",
+      "remediation": "Show refactoring patterns: combine with &&, extract methods (later), use guard clauses. As a rule: if you're 3 levels deep, stop and refactor.",
+      "detection_pattern": "Heavily indented code with multiple nested if blocks"
+    },
+    {
+      "gap_id": "incomplete_initialization",
+      "what_students_get_wrong": "Declaring a variable, assigning it in some branches but not others, then trying to use it. Compiler error: 'might not have been initialized'.",
+      "remediation": "Every code path through if/else chain must initialize the variable, OR initialize at declaration with a default value, OR ensure a final `else` exists.",
+      "detection_pattern": "Compilation error about uninitialized variable"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "`if`, `else if`, `else` let your code make decisions based on boolean conditions",
+      "Java is strict — only `boolean` works in conditions, never numbers or strings as truthy",
+      "Always use braces, even for single-statement blocks (prevents dangling else bugs)",
+      "Conditions evaluate top-to-bottom, stopping at the first true one",
+      "Use `switch` (or modern switch expression) for many exact-value checks on one variable",
+      "Modern switch (Java 14+): `case x -> result;` — no break needed",
+      "Ternary `? :` is for simple single-line value selection — don't nest them",
+      "Deep nesting (3+ levels) is a smell — refactor with && or extract logic",
+      "Every code path must initialize variables before they're used"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's wrong with this code?\n```java\nif (score >= 60)\n    System.out.println(\"Pass\");\n    System.out.println(\"Continue\");\n```",
+        "answer": "The second println is NOT inside the if (no braces). It runs ALWAYS, regardless of score. The indentation is misleading. Fix: add braces. This is why teams enforce braces always."
+      },
+      {
+        "question": "Which is better: `if (isActive == true)` or `if (isActive)`?",
+        "answer": "`if (isActive)` is better. `isActive` is already a boolean — comparing it to `true` is redundant. Worse, typos like `if (isActive = true)` (assignment) can silently set isActive to true. Just use the boolean directly."
+      },
+      {
+        "question": "Why might this code be problematic?\n```java\nswitch (status) {\n    case 1: System.out.println(\"Active\");\n    case 2: System.out.println(\"Pending\");\n    case 3: System.out.println(\"Closed\");\n}\n```",
+        "answer": "Missing `break` statements. If status is 1, ALL three messages print (fall-through). Fix: add break after each case, OR use modern switch expressions which don't fall through."
+      },
+      {
+        "question": "When should you use a switch instead of else-if chain?",
+        "answer": "When you're comparing ONE variable to many EXACT values (4+). For ranges (>=, <), use if/else. For different variables in different conditions, use if/else. Switch shines for: enums, status codes, menu options, day/month names."
+      },
+      {
+        "question": "What does this print?\n```java\nint x = 10;\nString result = (x > 0) ? \"Positive\" : (x == 0) ? \"Zero\" : \"Negative\";\nSystem.out.println(result);\n```",
+        "answer": "'Positive'. The first ternary evaluates: x > 0 is true → 'Positive'. But this nested ternary is hard to read and should be refactored to if-else-if for clarity. Even though it works."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Loops. So far, every statement runs once. Loops let you REPEAT code — print 100 numbers, process 1000 records, retry failed operations. We'll cover `for`, `while`, `do-while`, the enhanced for-each loop, and how to break out of loops early. Combined with conditionals, loops are 90% of what business logic looks like."
+  }
+}

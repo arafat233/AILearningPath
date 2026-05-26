@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m41_t1",
+  "topic_name": "DP Fundamentals \u2014 Memoization, Tabulation, Optimal Substructure",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m41_t1_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Fibonacci memoization vs tabulation",
+      "instructions": "Implement: Fibonacci memoization vs tabulation.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Fibonacci {\n    static Map<Integer,Long> memo=new HashMap<>();\n    static long fib_memo(int n){if(n<=1)return n;if(memo.containsKey(n))return memo.get(n);long r=fib_memo(n-1)+fib_memo(n-2);memo.put(n,r);return r;}\n    static long fib_tab(int n){if(n<=1)return n;long[] dp=new long[n+1];dp[1]=1;for(int i=2;i<=n;i++)dp[i]=dp[i-1]+dp[i-2];return dp[n];}\n    static long fib_opt(int n){if(n<=1)return n;long a=0,b=1;for(int i=2;i<=n;i++){long c=a+b;a=b;b=c;}return b;}\n    public static void main(String[] a){System.out.println(fib_memo(10));System.out.println(fib_tab(10));System.out.println(fib_opt(10));System.out.println(\"Memo: top-down recursive+cache. Tab: bottom-up table. Opt: O(1) space rolling.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "55",
+            "55",
+            "55",
+            "Memo: top-down"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m41_t1_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Climbing stairs (LeetCode #70)",
+      "instructions": "Implement: Climbing stairs (LeetCode #70).",
+      "starter_code": "",
+      "expected_solution": "public class ClimbStairs {\n    static int climbStairs(int n){if(n<=2)return n;int a=1,b=2;for(int i=3;i<=n;i++){int c=a+b;a=b;b=c;}return b;}\n    public static void main(String[] a){System.out.println(climbStairs(2));System.out.println(climbStairs(3));System.out.println(climbStairs(10));System.out.println(\"dp[i]=dp[i-1]+dp[i-2]. Same as Fibonacci. O(n) O(1).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "3",
+            "89",
+            "dp[i]=dp[i-1]+dp[i-2]"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m41_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Coin Change (LeetCode #322)",
+      "instructions": "Implement: Coin Change (LeetCode #322).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CoinChange {\n    static int coinChange(int[] coins, int amount){int[] dp=new int[amount+1];Arrays.fill(dp,amount+1);dp[0]=0;for(int i=1;i<=amount;i++)for(int c:coins)if(c<=i)dp[i]=Math.min(dp[i],dp[i-c]+1);return dp[amount]>amount?-1:dp[amount];}\n    public static void main(String[] a){System.out.println(coinChange(new int[]{1,5,11},15));System.out.println(coinChange(new int[]{2},3));System.out.println(coinChange(new int[]{1,5,11},11));System.out.println(\"dp[i]=min(dp[i-c]+1) for each coin c. Init dp[amount+1]. O(n*m).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "3",
+            "1",
+            "O(n*m)"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m41_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "House Robber (LeetCode #198)",
+      "instructions": "Implement: House Robber (LeetCode #198).",
+      "starter_code": "",
+      "expected_solution": "public class HouseRobber {\n    static int rob(int[] nums){if(nums.length==1)return nums[0];int prev2=nums[0],prev1=Math.max(nums[0],nums[1]);for(int i=2;i<nums.length;i++){int curr=Math.max(prev1,prev2+nums[i]);prev2=prev1;prev1=curr;}return prev1;}\n    public static void main(String[] a){System.out.println(rob(new int[]{1,2,3,1}));System.out.println(rob(new int[]{2,7,9,3,1}));System.out.println(\"dp[i]=max(dp[i-1], dp[i-2]+nums[i]). O(n) O(1) rolling vars.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "12",
+            "dp[i]=max(dp[i-1], dp[i-2]+nums[i])"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m41_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Longest Increasing Subsequence (LeetCode #300)",
+      "instructions": "Implement: Longest Increasing Subsequence (LeetCode #300).",
+      "starter_code": "",
+      "expected_solution": "public class LIS {\n    static int lengthOfLIS(int[] nums){int n=nums.length,maxLen=1;int[] dp=new int[n];java.util.Arrays.fill(dp,1);for(int i=1;i<n;i++)for(int j=0;j<i;j++)if(nums[j]<nums[i])dp[i]=Math.max(dp[i],dp[j]+1);for(int x:dp)maxLen=Math.max(maxLen,x);return maxLen;}\n    public static void main(String[] a){System.out.println(lengthOfLIS(new int[]{10,9,2,5,3,7,101,18}));System.out.println(lengthOfLIS(new int[]{0,1,0,3,2,3}));System.out.println(\"O(n\u00b2) DP. O(n log n) patience sort alternative.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "4",
+            "O(n\u00b2) DP"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m41_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "0/1 Knapsack",
+      "instructions": "Implement: 0/1 Knapsack.",
+      "starter_code": "",
+      "expected_solution": "public class Knapsack {\n    static int knapsack(int[] w, int[] v, int cap){int n=w.length;int[] dp=new int[cap+1];for(int i=0;i<n;i++)for(int j=cap;j>=w[i];j--)dp[j]=Math.max(dp[j],dp[j-w[i]]+v[i]);return dp[cap];}\n    public static void main(String[] a){System.out.println(knapsack(new int[]{1,3,4,5},new int[]{1,4,5,7},7));System.out.println(knapsack(new int[]{2,3,4,5},new int[]{3,4,5,6},5));System.out.println(\"0/1 knapsack O(n*W). Iterate j backwards to avoid using item twice.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "9",
+            "7",
+            "backwards to avoid using item twice"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m41_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Edit Distance (LeetCode #72)",
+      "instructions": "Implement: Edit Distance (LeetCode #72).",
+      "starter_code": "",
+      "expected_solution": "public class EditDist {\n    static int minDistance(String s1, String s2){int m=s1.length(),n=s2.length();int[][] dp=new int[m+1][n+1];for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(s1.charAt(i-1)==s2.charAt(j-1))dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+Math.min(dp[i-1][j-1],Math.min(dp[i-1][j],dp[i][j-1]));}return dp[m][n];}\n    public static void main(String[] a){System.out.println(minDistance(\"horse\",\"ros\"));System.out.println(minDistance(\"intention\",\"execution\"));System.out.println(\"O(m*n). Match: dp[i-1][j-1]. Mismatch: 1+min(replace,delete,insert).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "5",
+            "1+min(replace,delete,insert)"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m41_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Unique Paths (LeetCode #62)",
+      "instructions": "Implement: Unique Paths (LeetCode #62).",
+      "starter_code": "",
+      "expected_solution": "public class UniquePaths {\n    static int uniquePaths(int m, int n){int[] dp=new int[n];java.util.Arrays.fill(dp,1);for(int i=1;i<m;i++)for(int j=1;j<n;j++)dp[j]+=dp[j-1];return dp[n-1];}\n    public static void main(String[] a){System.out.println(uniquePaths(3,7));System.out.println(uniquePaths(3,2));System.out.println(\"O(m*n) O(n). dp[j]=dp[j]+dp[j-1] (right+above). Math: C(m+n-2,m-1).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "28",
+            "3",
+            "O(m*n) O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m41_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Partition Equal Subset Sum (LeetCode #416)",
+      "instructions": "Implement: Partition Equal Subset Sum (LeetCode #416).",
+      "starter_code": "",
+      "expected_solution": "public class PartitionSubset {\n    static boolean canPartition(int[] nums){int total=0;for(int n:nums)total+=n;if(total%2!=0)return false;int target=total/2;boolean[] dp=new boolean[target+1];dp[0]=true;for(int n:nums)for(int j=target;j>=n;j--)dp[j]=dp[j]||dp[j-n];return dp[target];}\n    public static void main(String[] a){System.out.println(canPartition(new int[]{1,5,11,5}));System.out.println(canPartition(new int[]{1,2,3,5}));System.out.println(\"0/1 knapsack variant. dp[j]=dp[j]||dp[j-n]. Iterate j backwards. O(n*sum).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "0/1 knapsack variant. dp[j]=dp[j]||dp[j-n]"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m41_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Maximum Product Subarray (LeetCode #152)",
+      "instructions": "Implement: Maximum Product Subarray (LeetCode #152).",
+      "starter_code": "",
+      "expected_solution": "public class MaxProduct {\n    static int maxProduct(int[] nums){int maxP=nums[0],minP=nums[0],res=nums[0];for(int i=1;i<nums.length;i++){int tmp=maxP;maxP=Math.max(nums[i],Math.max(maxP*nums[i],minP*nums[i]));minP=Math.min(nums[i],Math.min(tmp*nums[i],minP*nums[i]));res=Math.max(res,maxP);}return res;}\n    public static void main(String[] a){System.out.println(maxProduct(new int[]{2,3,-2,4}));System.out.println(maxProduct(new int[]{-2,0,-1}));System.out.println(\"Track both max and min (negatives flip). O(n) O(1).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "0",
+            "Track both max and min (negatives flip)"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m41_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "DP synthesis \u2014 classic 1D problems",
+      "instructions": "Implement: DP synthesis \u2014 classic 1D problems.",
+      "starter_code": "",
+      "expected_solution": "public class DPSynth {\n    static int coins(int[] c,int amt){int[] dp=new int[amt+1];java.util.Arrays.fill(dp,amt+1);dp[0]=0;for(int i=1;i<=amt;i++)for(int x:c)if(x<=i)dp[i]=Math.min(dp[i],dp[i-x]+1);return dp[amt]>amt?-1:dp[amt];}\n    static int rob(int[] n){if(n.length==1)return n[0];int a=n[0],b=Math.max(n[0],n[1]);for(int i=2;i<n.length;i++){int c=Math.max(b,a+n[i]);a=b;b=c;}return b;}\n    static int lis(int[] n){int[] dp=new int[n.length];java.util.Arrays.fill(dp,1);int max=1;for(int i=1;i<n.length;i++){for(int j=0;j<i;j++)if(n[j]<n[i])dp[i]=Math.max(dp[i],dp[j]+1);max=Math.max(max,dp[i]);}return max;}\n    public static void main(String[] a){System.out.println(\"coins=\"+coins(new int[]{1,5,11},15));System.out.println(\"rob=\"+rob(new int[]{2,7,9,3,1}));System.out.println(\"lis=\"+lis(new int[]{10,9,2,5,3,7,101,18}));boolean ok=coins(new int[]{1,5,11},15)==1&&rob(new int[]{2,7,9,3,1})==12&&lis(new int[]{10,9,2,5,3,7,101,18})==4;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "coins=1",
+            "rob=12",
+            "lis=4"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m41_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M41 DP Synthesis",
+      "instructions": "Implement: Complete M41 DP Synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class M41Final {\n    static int climbStairs(int n){if(n<=2)return n;int a=1,b=2;for(int i=3;i<=n;i++){int c=a+b;a=b;b=c;}return b;}\n    static int coinChange(int[] coins,int amt){int[] dp=new int[amt+1];java.util.Arrays.fill(dp,amt+1);dp[0]=0;for(int i=1;i<=amt;i++)for(int c:coins)if(c<=i)dp[i]=Math.min(dp[i],dp[i-c]+1);return dp[amt]>amt?-1:dp[amt];}\n    static int rob(int[] n){if(n.length==1)return n[0];int a=n[0],b=Math.max(n[0],n[1]);for(int i=2;i<n.length;i++){int c=Math.max(b,a+n[i]);a=b;b=c;}return b;}\n    static int editDist(String s1,String s2){int m=s1.length(),n=s2.length();int[][] dp=new int[m+1][n+1];for(int i=0;i<=m;i++)dp[i][0]=i;for(int j=0;j<=n;j++)dp[0][j]=j;for(int i=1;i<=m;i++)for(int j=1;j<=n;j++){if(s1.charAt(i-1)==s2.charAt(j-1))dp[i][j]=dp[i-1][j-1];else dp[i][j]=1+Math.min(dp[i-1][j-1],Math.min(dp[i-1][j],dp[i][j-1]));}return dp[m][n];}\n    public static void main(String[] a){System.out.println(\"climbStairs(10)=\"+climbStairs(10));System.out.println(\"coinChange=\"+coinChange(new int[]{1,5,11},15));System.out.println(\"rob=\"+rob(new int[]{2,7,9,3,1}));System.out.println(\"editDist=\"+editDist(\"horse\",\"ros\"));boolean ok=climbStairs(10)==89&&coinChange(new int[]{1,5,11},15)==1&&rob(new int[]{2,7,9,3,1})==12&&editDist(\"horse\",\"ros\")==3;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "climbStairs(10)=89",
+            "coinChange=1",
+            "rob=12",
+            "editDist=3"
+          ]
+        }
+      ],
+      "hints": [
+        "dp[i] depends on smaller subproblems",
+        "Base case first",
+        "Memoization: HashMap or array"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

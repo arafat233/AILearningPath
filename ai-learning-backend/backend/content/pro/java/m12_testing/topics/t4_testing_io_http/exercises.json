@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t4",
+  "topic_name": "Testing I/O and HTTP",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m12_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "@TempDir lifecycle",
+      "scenario": "@TempDir is auto-created and auto-deleted by JUnit.",
+      "instructions": "What does this test do, and is it safe? Trace the lifecycle.\n\n```java\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\n\nclass TempDirTest {\n    @Test\n    void demo(@TempDir Path tempDir) throws Exception {\n        Path file = tempDir.resolve(\"data.txt\");\n        Files.writeString(file, \"hello\");\n        System.out.println(Files.exists(file));\n        System.out.println(Files.readString(file));\n    }\n    // After this test: does data.txt still exist?\n}\n```",
+      "expected_solution": "true\nhello\nFile is deleted after test (no manual cleanup needed)",
+      "test_cases": [
+        { "type": "text_match", "expected": "true\nhello\nFile is deleted after test (no manual cleanup needed)" }
+      ],
+      "hints": [
+        "Files.writeString writes to the temp directory",
+        "tempDir and all its contents are auto-deleted after the test",
+        "Safe: no cleanup code needed, no leftover files"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Write and assert a test file",
+      "scenario": "Write CSV to @TempDir, read result, assert count.",
+      "instructions": "Fill in the blanks to complete this file-based test.",
+      "starter_code": "import org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass LineCounterTest {\n    @Test\n    void countLines_threeLines_returns3(@_____ Path tempDir) throws Exception {\n        Path file = tempDir._______(\"data.txt\");\n        Files.writeString(file, \"a\\nb\\nc\");\n        long count = Files.readAllLines(file).stream().count();\n        assertEquals(__, count);\n    }\n}",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass LineCounterTest {\n    @Test\n    void countLines_threeLines_returns3(@TempDir Path tempDir) throws Exception {\n        Path file = tempDir.resolve(\"data.txt\");\n        Files.writeString(file, \"a\\nb\\nc\");\n        long count = Files.readAllLines(file).stream().count();\n        assertEquals(3, count);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "TempDir", "hint": "JUnit annotation for temporary directory injection" },
+        { "position": 2, "answer": "resolve",  "hint": "Creates a path inside the temp dir" },
+        { "position": 3, "answer": "3",        "hint": "Three lines: a, b, c" }
+      ],
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@TempDir Path tempDir — inject the temp dir",
+        "tempDir.resolve('filename') — path inside the dir",
+        "Files.writeString(path, content)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "StringReader for BufferedReader-accepting methods",
+      "scenario": "StringReader simulates a file without touching the filesystem.",
+      "instructions": "Write a test for `WordCounter.count(BufferedReader reader)` that counts non-blank lines. Use StringReader — no file needed.\n\nExpected test input: 'hello\\n\\nworld\\nfoo'\nExpected: 3 non-blank lines",
+      "starter_code": "import java.io.*;\nclass WordCounter {\n    int count(BufferedReader reader) throws IOException {\n        int count = 0;\n        String line;\n        while ((line = reader.readLine()) != null) {\n            if (!line.isBlank()) count++;\n        }\n        return count;\n    }\n}\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass WordCounterTest {\n    WordCounter counter = new WordCounter();\n    // Test using StringReader\n}",
+      "expected_solution": "// (WordCounter as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.io.*;\nclass WordCounterTest {\n    WordCounter counter = new WordCounter();\n    @Test\n    void count_3nonBlankLines_returns3() throws Exception {\n        String input = \"hello\\n\\nworld\\nfoo\";\n        try (BufferedReader reader = new BufferedReader(new StringReader(input))) {\n            assertEquals(3, counter.count(reader));\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "new BufferedReader(new StringReader(text)) — no file needed",
+        "try-with-resources to properly close the reader",
+        "Input 'hello\\n\\nworld\\nfoo' has 4 lines, 1 blank → 3 non-blank"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m12_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Test file writer — assert output content",
+      "scenario": "Write content via service, read back from @TempDir, assert.",
+      "instructions": "Test `LogWriter.writeLines(Path file, List<String> lines)` appends each line. Verify file has correct content.\n\nExpected: written lines match read lines.",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\nclass LogWriter {\n    void writeLines(Path file, List<String> lines) throws Exception {\n        Files.write(file, lines);\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport static org.junit.jupiter.api.Assertions.*;\nclass LogWriterTest {\n    LogWriter writer = new LogWriter();\n    @Test\n    void writeLines_3lines_fileHasCorrectContent(@TempDir Path tempDir) throws Exception {\n        // Write, then read back and assert\n    }\n}",
+      "expected_solution": "// (LogWriter as above)\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass LogWriterTest {\n    LogWriter writer = new LogWriter();\n    @Test\n    void writeLines_3lines_fileHasCorrectContent(@TempDir Path tempDir) throws Exception {\n        Path logFile = tempDir.resolve(\"app.log\");\n        List<String> lines = List.of(\"INFO started\", \"INFO running\", \"WARN slow response\");\n        writer.writeLines(logFile, lines);\n        List<String> result = Files.readAllLines(logFile);\n        assertEquals(3, result.size());\n        assertEquals(\"INFO started\",     result.get(0));\n        assertEquals(\"WARN slow response\", result.get(2));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "Files.readAllLines(logFile) after writing",
+        "assert count then specific lines",
+        "assertTrue(Files.exists(logFile)) first if defensive"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m12_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Mock HttpResponse and HttpClient",
+      "scenario": "Stub HttpClient to return a mock response without a server.",
+      "instructions": "Write a test for `StockService.fetchPrice(String symbol)` which calls `httpClient.send()` and parses the JSON body. Mock both HttpClient and HttpResponse.\n\nExpected: fetchPrice('TCS') returns 3890.",
+      "starter_code": "import java.net.http.*;\nimport com.fasterxml.jackson.databind.*;\nclass StockService {\n    private final HttpClient httpClient;\n    private final ObjectMapper mapper = new ObjectMapper();\n    StockService(HttpClient client) { this.httpClient = client; }\n    int fetchPrice(String symbol) throws Exception {\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(java.net.URI.create(\"https://api.example.com/\" + symbol))\n            .build();\n        HttpResponse<String> resp = httpClient.send(req, HttpResponse.BodyHandlers.ofString());\n        return mapper.readTree(resp.body()).path(\"price\").asInt();\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass StockServiceTest {\n    @Mock HttpClient httpClient;\n    @Mock HttpResponse<String> httpResponse;\n    // Test fetchPrice returns correct int\n}",
+      "expected_solution": "// (StockService as above)\n@ExtendWith(MockitoExtension.class)\nclass StockServiceTest {\n    @Mock HttpClient httpClient;\n    @Mock HttpResponse<String> httpResponse;\n    \n    @Test\n    void fetchPrice_TCS_returns3890() throws Exception {\n        when(httpResponse.body()).thenReturn(\"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890}\");\n        when(httpClient.send(any(HttpRequest.class), any())).thenReturn(httpResponse);\n        \n        StockService service = new StockService(httpClient);\n        assertEquals(3890, service.fetchPrice(\"TCS\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "when(httpResponse.body()).thenReturn(jsonString)",
+        "when(httpClient.send(any(), any())).thenReturn(httpResponse)",
+        "No statusCode stub needed if service doesn't check it"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m12_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test all HTTP status codes",
+      "scenario": "Test 200, 404, and 500 responses with different mock stubs.",
+      "instructions": "Write 3 tests for `UserApiClient.getUser(String id)` that returns Optional<String> (name) or Optional.empty() on 404, and throws RuntimeException on 500.\n\nMock all three scenarios.",
+      "starter_code": "import java.net.http.*;\nclass UserApiClient {\n    HttpClient client;\n    UserApiClient(HttpClient c) { client = c; }\n    java.util.Optional<String> getUser(String id) throws Exception {\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(java.net.URI.create(\"https://api.example.com/users/\" + id)).build();\n        HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());\n        return switch (resp.statusCode()) {\n            case 200 -> java.util.Optional.of(resp.body());\n            case 404 -> java.util.Optional.empty();\n            default  -> throw new RuntimeException(\"HTTP \" + resp.statusCode());\n        };\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass UserApiClientTest {\n    @Mock HttpClient client;\n    @Mock HttpResponse<String> response;\n    // 3 tests for 200, 404, 500\n}",
+      "expected_solution": "// (UserApiClient as above)\n@ExtendWith(MockitoExtension.class)\nclass UserApiClientTest {\n    @Mock HttpClient client;\n    @Mock HttpResponse<String> response;\n    \n    UserApiClient apiClient() { return new UserApiClient(client); }\n    \n    @Test void getUser_200_returnsName() throws Exception {\n        when(response.statusCode()).thenReturn(200);\n        when(response.body()).thenReturn(\"Aisha\");\n        when(client.send(any(), any())).thenReturn(response);\n        assertEquals(\"Aisha\", apiClient().getUser(\"U01\").orElseThrow());\n    }\n    @Test void getUser_404_returnsEmpty() throws Exception {\n        when(response.statusCode()).thenReturn(404);\n        when(client.send(any(), any())).thenReturn(response);\n        assertTrue(apiClient().getUser(\"U99\").isEmpty());\n    }\n    @Test void getUser_500_throwsRuntimeException() throws Exception {\n        when(response.statusCode()).thenReturn(500);\n        when(client.send(any(), any())).thenReturn(response);\n        assertThrows(RuntimeException.class, () -> apiClient().getUser(\"U01\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Stub statusCode first, body for 200 only",
+        "Each test creates a fresh UserApiClient",
+        "404 doesn't need body stub — switch returns empty before reading body"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m12_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test CSV parser with real file in @TempDir",
+      "scenario": "Full CSV parsing test: write file, parse, assert result.",
+      "instructions": "Write 4 tests for `CSVImporter.importProducts(Path)` using @TempDir:\n1. Valid CSV → correct products\n2. Header-only → empty list\n3. Non-existent file → IOException\n4. Quoted field with comma → parsed correctly",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\npublic record Product(String name, double price) {}\nclass CSVImporter {\n    List<Product> importProducts(Path path) throws Exception {\n        List<String> lines = Files.readAllLines(path);\n        List<Product> products = new ArrayList<>();\n        for (int i = 1; i < lines.size(); i++) {\n            if (lines.get(i).isBlank()) continue;\n            String[] cols = lines.get(i).split(\",(?=(?:[^\\\"]*\\\"[^\\\"]*\\\")*[^\\\"]*$)\");\n            products.add(new Product(cols[0].replace(\"\\\"\",\"\").trim(),\n                Double.parseDouble(cols[1].trim())));\n        }\n        return products;\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CSVImporterTest {\n    CSVImporter importer = new CSVImporter();\n    // 4 tests\n}",
+      "expected_solution": "// (Product and CSVImporter as above)\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CSVImporterTest {\n    CSVImporter importer = new CSVImporter();\n    @Test void importProducts_validCsv_returns2Products(@TempDir Path dir) throws Exception {\n        Path f = dir.resolve(\"p.csv\");\n        Files.writeString(f, \"name,price\\nMouse,799\\nKeyboard,1999\");\n        var result = importer.importProducts(f);\n        assertEquals(2, result.size());\n        assertEquals(\"Mouse\", result.get(0).name());\n        assertEquals(799, result.get(0).price(), 0.01);\n    }\n    @Test void importProducts_headerOnly_returnsEmpty(@TempDir Path dir) throws Exception {\n        Path f = dir.resolve(\"empty.csv\");\n        Files.writeString(f, \"name,price\\n\");\n        assertTrue(importer.importProducts(f).isEmpty());\n    }\n    @Test void importProducts_nonExistent_throwsIOException(@TempDir Path dir) {\n        assertThrows(Exception.class, () -> importer.importProducts(dir.resolve(\"missing.csv\")));\n    }\n    @Test void importProducts_quotedField_parsedCorrectly(@TempDir Path dir) throws Exception {\n        Path f = dir.resolve(\"quoted.csv\");\n        Files.writeString(f, \"name,price\\n\\\"Dell 27, Monitor\\\",18999\");\n        var result = importer.importProducts(f);\n        assertEquals(1, result.size());\n        assertEquals(\"Dell 27, Monitor\", result.get(0).name());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "One @TempDir per test method — each gets its own clean dir",
+        "Files.writeString(f, csvContent) to set up test data",
+        "assertThrows for non-existent file (IOException or NoSuchFileException)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "StringWriter for report generator test",
+      "scenario": "Test formatted output without creating files.",
+      "instructions": "Test `InvoiceGenerator.generate(PrintWriter writer, List<Order> orders)` using StringWriter. Assert the output contains header, order lines, and total.\n\nExpected output contains:\n=== Invoice ===\nTotal: ₹[sum]\n[order lines]",
+      "starter_code": "import java.io.*;\nimport java.util.*;\nrecord Order(String id, String product, int qty, double price) {\n    double total() { return qty * price; }\n}\nclass InvoiceGenerator {\n    void generate(PrintWriter pw, List<Order> orders) {\n        pw.println(\"=== Invoice ===\");\n        orders.forEach(o -> pw.printf(\"%s | %s | %d × ₹%.0f = ₹%.0f%n\",\n            o.id(), o.product(), o.qty(), o.price(), o.total()));\n        double total = orders.stream().mapToDouble(Order::total).sum();\n        pw.printf(\"Total: ₹%.0f%n\", total);\n    }\n}\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass InvoiceGeneratorTest {\n    InvoiceGenerator gen = new InvoiceGenerator();\n    // Test using StringWriter\n}",
+      "expected_solution": "// (Order and InvoiceGenerator as above)\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.io.*;\nimport java.util.*;\nclass InvoiceGeneratorTest {\n    InvoiceGenerator gen = new InvoiceGenerator();\n    @Test\n    void generate_2orders_correctContent() throws Exception {\n        List<Order> orders = List.of(\n            new Order(\"ORD-001\", \"Mouse\",    2, 799),\n            new Order(\"ORD-002\", \"Keyboard\", 1, 1999));\n        StringWriter sw = new StringWriter();\n        try (PrintWriter pw = new PrintWriter(sw)) {\n            gen.generate(pw, orders);\n        }\n        String output = sw.toString();\n        assertTrue(output.contains(\"=== Invoice ===\"));\n        assertTrue(output.contains(\"ORD-001\"));\n        assertTrue(output.contains(\"ORD-002\"));\n        assertTrue(output.contains(\"Total: ₹3597\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "StringWriter sw = new StringWriter(); PrintWriter pw = new PrintWriter(sw)",
+        "After gen.generate(pw, orders): sw.toString() has full output",
+        "Total: 2×799 + 1×1999 = 1598 + 1999 = 3597"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Test HTTP network error path",
+      "scenario": "Mock HttpClient to throw IOException for network failures.",
+      "instructions": "Write a test for `WeatherClient.getTemperature(String city)` that returns -1 on IOException (network failure). Mock the client to throw.\n\nExpected: IOException → returns -1",
+      "starter_code": "import java.net.http.*;\nimport java.io.*;\nclass WeatherClient {\n    HttpClient client;\n    WeatherClient(HttpClient c) { client = c; }\n    int getTemperature(String city) {\n        try {\n            HttpRequest req = HttpRequest.newBuilder()\n                .uri(java.net.URI.create(\"https://api.weather.com/\" + city)).build();\n            HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());\n            return Integer.parseInt(resp.body());\n        } catch (IOException | InterruptedException e) {\n            return -1;\n        }\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass WeatherClientTest {\n    @Mock HttpClient client;\n    // Test network error returns -1\n}",
+      "expected_solution": "// (WeatherClient as above)\n@ExtendWith(MockitoExtension.class)\nclass WeatherClientTest {\n    @Mock HttpClient client;\n    \n    @Test\n    void getTemperature_networkError_returnsMinusOne() throws Exception {\n        when(client.send(any(), any())).thenThrow(new IOException(\"Connection refused\"));\n        WeatherClient wc = new WeatherClient(client);\n        assertEquals(-1, wc.getTemperature(\"Hyderabad\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "when(client.send(any(), any())).thenThrow(new IOException())",
+        "Service catches IOException and returns -1",
+        "Test verifies graceful degradation"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m12_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "@TempDir scope — per-test vs shared",
+      "scenario": "Per-method @TempDir is isolated; shared (static) @TempDir persists across tests.",
+      "instructions": "How many different tempDir paths do the two test methods receive?\n\n```java\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\n\nclass TempDirScopeTest {\n    @TempDir static Path classDir;  // shared\n    \n    @Test void test1(@TempDir Path methodDir) {\n        System.out.println(methodDir.equals(classDir));\n    }\n    @Test void test2(@TempDir Path methodDir) {\n        System.out.println(methodDir.equals(classDir));\n    }\n}\n```",
+      "expected_solution": "false\nfalse",
+      "test_cases": [
+        { "type": "text_match", "expected": "false\nfalse" }
+      ],
+      "hints": [
+        "static @TempDir: one directory for the whole class",
+        "method @TempDir: unique directory per test method",
+        "The two methodDirs are also different from each other"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m12_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Test a full log analyser — read file, write report",
+      "scenario": "Full read → process → write pipeline test.",
+      "instructions": "Write 3 tests for `LogAnalyser.analyse(Path logFile, Path reportFile)`:\n1. 3 ERROR lines → report contains 'ERROR count: 3'\n2. No errors → report contains 'ERROR count: 0'\n3. Empty log → report still created with header",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\nclass LogAnalyser {\n    void analyse(Path logFile, Path reportFile) throws Exception {\n        List<String> lines = Files.readAllLines(logFile);\n        long errorCount = lines.stream().filter(l -> l.contains(\"ERROR\")).count();\n        List<String> report = List.of(\n            \"Log Analysis Report\",\n            \"ERROR count: \" + errorCount,\n            \"Total lines: \" + lines.size()\n        );\n        Files.write(reportFile, report);\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass LogAnalyserTest {\n    LogAnalyser analyser = new LogAnalyser();\n    // 3 tests using @TempDir\n}",
+      "expected_solution": "// (LogAnalyser as above)\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass LogAnalyserTest {\n    LogAnalyser analyser = new LogAnalyser();\n    @Test void analyse_3errors_reportSays3(@TempDir Path dir) throws Exception {\n        Path log = dir.resolve(\"app.log\"), report = dir.resolve(\"report.txt\");\n        Files.writeString(log, \"INFO ok\\nERROR bad\\nINFO ok\\nERROR bad\\nERROR bad\");\n        analyser.analyse(log, report);\n        String content = Files.readString(report);\n        assertTrue(content.contains(\"ERROR count: 3\"));\n        assertTrue(content.contains(\"Total lines: 5\"));\n    }\n    @Test void analyse_noErrors_reportSays0(@TempDir Path dir) throws Exception {\n        Path log = dir.resolve(\"app.log\"), report = dir.resolve(\"report.txt\");\n        Files.writeString(log, \"INFO started\\nINFO running\");\n        analyser.analyse(log, report);\n        assertTrue(Files.readString(report).contains(\"ERROR count: 0\"));\n    }\n    @Test void analyse_emptyLog_reportCreated(@TempDir Path dir) throws Exception {\n        Path log = dir.resolve(\"empty.log\"), report = dir.resolve(\"report.txt\");\n        Files.createFile(log);\n        analyser.analyse(log, report);\n        assertTrue(Files.exists(report));\n        assertTrue(Files.readString(report).contains(\"Log Analysis Report\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Both input and output files in same @TempDir",
+        "Files.createFile(path) creates an empty file",
+        "Files.readString(report) for full content assertion"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m12_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Test API client with ArgumentCaptor — verify URL",
+      "scenario": "Capture the HttpRequest to verify the correct URL was used.",
+      "instructions": "Test that `ProductApiClient.searchProducts(String query, int limit)` builds the correct URL: `/api/products?q={query}&limit={limit}`.\n\nUse ArgumentCaptor to capture the HttpRequest and assert its URI.",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\nclass ProductApiClient {\n    HttpClient client;\n    ProductApiClient(HttpClient c) { client = c; }\n    String searchProducts(String query, int limit) throws Exception {\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.flipkart.com/products?q=\" + query + \"&limit=\" + limit))\n            .GET().build();\n        HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());\n        return resp.body();\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass ProductApiClientTest {\n    @Mock HttpClient client;\n    @Mock HttpResponse<String> response;\n    @Captor ArgumentCaptor<HttpRequest> requestCaptor;\n    // Test: verify URL contains correct query and limit\n}",
+      "expected_solution": "// (ProductApiClient as above)\n@ExtendWith(MockitoExtension.class)\nclass ProductApiClientTest {\n    @Mock HttpClient client;\n    @Mock HttpResponse<String> response;\n    @Captor ArgumentCaptor<HttpRequest> requestCaptor;\n    \n    @Test\n    void searchProducts_buildsCorrectUrl() throws Exception {\n        when(response.body()).thenReturn(\"[]\");\n        when(client.send(any(), any())).thenReturn(response);\n        \n        new ProductApiClient(client).searchProducts(\"mouse\", 10);\n        \n        verify(client).send(requestCaptor.capture(), any());\n        URI uri = requestCaptor.getValue().uri();\n        assertTrue(uri.toString().contains(\"q=mouse\"));\n        assertTrue(uri.toString().contains(\"limit=10\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@Captor ArgumentCaptor<HttpRequest> — capture the request",
+        "verify(client).send(captor.capture(), any())",
+        "captor.getValue().uri().toString() for URL assertion"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m12_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete CSV processor test suite",
+      "scenario": "Full test coverage for a CSV-to-JSON transformer.",
+      "instructions": "Write 5 tests for `CSVToJSONConverter.convert(Path csvPath, Path jsonPath)` using @TempDir:\n1. Valid 3-row CSV → JSON array with 3 objects\n2. Header-only → empty JSON array\n3. Missing input file → IOException\n4. Quoted fields with commas → correctly in JSON\n5. Round-trip: convert CSV → read JSON back → assert data matches",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nclass CSVToJSONConverter {\n    private final ObjectMapper mapper = new ObjectMapper();\n    void convert(Path csvPath, Path jsonPath) throws Exception {\n        List<String> lines = Files.readAllLines(csvPath);\n        if (lines.isEmpty()) { Files.writeString(jsonPath, \"[]\"); return; }\n        String[] headers = lines.get(0).split(\",\");\n        ArrayNode arr = mapper.createArrayNode();\n        for (int i = 1; i < lines.size(); i++) {\n            if (lines.get(i).isBlank()) continue;\n            String[] vals = lines.get(i).split(\",\");\n            ObjectNode n = mapper.createObjectNode();\n            for (int j = 0; j < headers.length && j < vals.length; j++)\n                n.put(headers[j].trim(), vals[j].trim().replace(\"\\\"\", \"\"));\n            arr.add(n);\n        }\n        Files.writeString(jsonPath, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arr));\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CSVToJSONConverterTest {\n    CSVToJSONConverter converter = new CSVToJSONConverter();\n    // 5 tests\n}",
+      "expected_solution": "// (CSVToJSONConverter as above)\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport com.fasterxml.jackson.databind.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass CSVToJSONConverterTest {\n    CSVToJSONConverter converter = new CSVToJSONConverter();\n    ObjectMapper mapper = new ObjectMapper();\n    \n    @Test void convert_3rows_jsonArrayWith3Objects(@TempDir Path dir) throws Exception {\n        Files.writeString(dir.resolve(\"in.csv\"), \"name,price\\nMouse,799\\nKeyboard,1999\\nMonitor,18999\");\n        converter.convert(dir.resolve(\"in.csv\"), dir.resolve(\"out.json\"));\n        var arr = mapper.readTree(Files.readString(dir.resolve(\"out.json\")));\n        assertEquals(3, arr.size());\n        assertEquals(\"Mouse\", arr.get(0).path(\"name\").asText());\n    }\n    @Test void convert_headerOnly_emptyJsonArray(@TempDir Path dir) throws Exception {\n        Files.writeString(dir.resolve(\"in.csv\"), \"name,price\\n\");\n        converter.convert(dir.resolve(\"in.csv\"), dir.resolve(\"out.json\"));\n        assertEquals(0, mapper.readTree(Files.readString(dir.resolve(\"out.json\"))).size());\n    }\n    @Test void convert_missingInput_throwsException(@TempDir Path dir) {\n        assertThrows(Exception.class, () ->\n            converter.convert(dir.resolve(\"missing.csv\"), dir.resolve(\"out.json\")));\n    }\n    @Test void convert_quotedField_parsedCorrectly(@TempDir Path dir) throws Exception {\n        Files.writeString(dir.resolve(\"in.csv\"), \"name,price\\n\\\"Mouse Pro\\\",1299\");\n        converter.convert(dir.resolve(\"in.csv\"), dir.resolve(\"out.json\"));\n        var arr = mapper.readTree(Files.readString(dir.resolve(\"out.json\")));\n        assertEquals(\"Mouse Pro\", arr.get(0).path(\"name\").asText());\n    }\n    @Test void convert_roundTrip_dataMatchesOriginal(@TempDir Path dir) throws Exception {\n        Files.writeString(dir.resolve(\"in.csv\"), \"sku,name,qty\\nP001,Mouse,50\\nP002,Keyboard,12\");\n        converter.convert(dir.resolve(\"in.csv\"), dir.resolve(\"out.json\"));\n        var arr = mapper.readTree(Files.readString(dir.resolve(\"out.json\")));\n        assertEquals(\"P001\", arr.get(0).path(\"sku\").asText());\n        assertEquals(\"50\",   arr.get(0).path(\"qty\").asText());\n        assertEquals(2, arr.size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "mapper.readTree(Files.readString(jsonPath)) to parse output",
+        "arr.size() for count, arr.get(0).path('name').asText() for field",
+        "Empty CSV produces '[]' — size() = 0"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m12_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Test stock API client — full mock suite",
+      "scenario": "Complete HTTP client test coverage with 5 scenarios.",
+      "instructions": "Write 5 tests for `ZerodhaStockClient.getQuote(String symbol)` returning `Optional<StockQuote>`:\n1. HTTP 200 → parse JSON → return quote\n2. HTTP 404 → empty Optional\n3. HTTP 429 → throw RateLimitException\n4. IOException → empty Optional (graceful)\n5. Verify correct URL contains the symbol",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\nimport java.io.IOException;\nimport java.util.Optional;\nimport com.fasterxml.jackson.databind.*;\nrecord StockQuote(String symbol, double price, double changePercent) {}\nclass RateLimitException extends RuntimeException { RateLimitException(String m) { super(m); } }\nclass ZerodhaStockClient {\n    HttpClient client; ObjectMapper mapper = new ObjectMapper();\n    ZerodhaStockClient(HttpClient c) { client = c; }\n    Optional<StockQuote> getQuote(String symbol) {\n        try {\n            HttpRequest req = HttpRequest.newBuilder()\n                .uri(URI.create(\"https://api.zerodha.com/quotes/\" + symbol))\n                .GET().build();\n            HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());\n            return switch (resp.statusCode()) {\n                case 200 -> {\n                    JsonNode n = mapper.readTree(resp.body());\n                    yield Optional.of(new StockQuote(n.path(\"symbol\").asText(),\n                        n.path(\"price\").asDouble(), n.path(\"change\").asDouble()));\n                }\n                case 404 -> Optional.empty();\n                case 429 -> throw new RateLimitException(\"Rate limit exceeded\");\n                default  -> Optional.empty();\n            };\n        } catch (IOException | InterruptedException e) { return Optional.empty(); }\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass ZerodhaStockClientTest {\n    @Mock HttpClient client;\n    @Mock HttpResponse<String> response;\n    @Captor ArgumentCaptor<HttpRequest> requestCaptor;\n    // 5 tests\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass ZerodhaStockClientTest {\n    @Mock HttpClient client; @Mock HttpResponse<String> response;\n    @Captor ArgumentCaptor<HttpRequest> requestCaptor;\n    ZerodhaStockClient stockClient() { return new ZerodhaStockClient(client); }\n    \n    @Test void getQuote_200_returnsQuote() throws Exception {\n        when(response.statusCode()).thenReturn(200);\n        when(response.body()).thenReturn(\"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890,\\\"change\\\":4.1}\");\n        when(client.send(any(), any())).thenReturn(response);\n        Optional<StockQuote> q = stockClient().getQuote(\"TCS\");\n        assertTrue(q.isPresent()); assertEquals(\"TCS\", q.get().symbol()); assertEquals(3890, q.get().price(), 0.01);\n    }\n    @Test void getQuote_404_returnsEmpty() throws Exception {\n        when(response.statusCode()).thenReturn(404);\n        when(client.send(any(), any())).thenReturn(response);\n        assertTrue(stockClient().getQuote(\"UNKNOWN\").isEmpty());\n    }\n    @Test void getQuote_429_throwsRateLimit() throws Exception {\n        when(response.statusCode()).thenReturn(429);\n        when(client.send(any(), any())).thenReturn(response);\n        assertThrows(RateLimitException.class, () -> stockClient().getQuote(\"TCS\"));\n    }\n    @Test void getQuote_IOException_returnsEmpty() throws Exception {\n        when(client.send(any(), any())).thenThrow(new IOException(\"Network error\"));\n        assertTrue(stockClient().getQuote(\"TCS\").isEmpty());\n    }\n    @Test void getQuote_urlContainsSymbol() throws Exception {\n        when(response.statusCode()).thenReturn(200);\n        when(response.body()).thenReturn(\"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890,\\\"change\\\":4.1}\");\n        when(client.send(any(), any())).thenReturn(response);\n        stockClient().getQuote(\"TCS\");\n        verify(client).send(requestCaptor.capture(), any());\n        assertTrue(requestCaptor.getValue().uri().toString().contains(\"TCS\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "each test creates new ZerodhaStockClient(client) to avoid state",
+        "429 bypasses try-catch so the exception propagates",
+        "IOException caught inside getQuote() → returns empty"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m12_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Module 12.4 synthesis — inventory sync system",
+      "scenario": "File I/O + HTTP client in one test suite.",
+      "instructions": "Build and test `InventorySyncService.sync(Path csvPath)` which:\n1. Reads product CSV from csvPath\n2. For each product, POSTs to an API to update inventory\n3. Writes a sync report to a 'sync-report.txt' file next to the CSV\n4. Returns count of successfully synced products\n\nWrite 4 tests using @TempDir + mocked HttpClient:\n- Valid CSV → correct count, report written, API called per product\n- Empty CSV → 0 synced, report with 0 count\n- API returns 500 → product counted as failed, continues others\n- Verify correct API endpoint URL contains product SKU",
+      "starter_code": "import java.net.http.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.concurrent.atomic.*;\nclass InventorySyncService {\n    HttpClient client;\n    InventorySyncService(HttpClient c) { client = c; }\n    int sync(Path csvPath) throws Exception {\n        List<String> lines = Files.readAllLines(csvPath);\n        AtomicInteger synced = new AtomicInteger();\n        List<String> report = new ArrayList<>();\n        report.add(\"Inventory Sync Report\");\n        for (int i = 1; i < lines.size(); i++) {\n            if (lines.get(i).isBlank()) continue;\n            String[] cols = lines.get(i).split(\",\");\n            String sku = cols[0].trim(), qty = cols[1].trim();\n            try {\n                HttpRequest req = HttpRequest.newBuilder()\n                    .uri(java.net.URI.create(\"https://api.inventory.com/products/\" + sku + \"/stock\"))\n                    .POST(HttpRequest.BodyPublishers.ofString(\"{\\\"qty\\\":\" + qty + \"}\"))\n                    .header(\"Content-Type\", \"application/json\").build();\n                HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString());\n                if (resp.statusCode() == 200) { synced.incrementAndGet(); report.add(\"OK: \" + sku); }\n                else report.add(\"FAIL: \" + sku + \" HTTP \" + resp.statusCode());\n            } catch (Exception e) { report.add(\"ERROR: \" + sku); }\n        }\n        report.add(\"Synced: \" + synced.get() + \"/\" + (lines.size() - 1));\n        Files.write(csvPath.getParent().resolve(\"sync-report.txt\"), report);\n        return synced.get();\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport java.nio.file.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass InventorySyncServiceTest {\n    @Mock HttpClient client;\n    @Mock HttpResponse<String> response;\n    @Captor ArgumentCaptor<HttpRequest> requestCaptor;\n    // 4 tests: valid, empty, 500 partial, URL verification\n}",
+      "expected_solution": "// (InventorySyncService as above)\n@ExtendWith(MockitoExtension.class)\nclass InventorySyncServiceTest {\n    @Mock HttpClient client; @Mock HttpResponse<String> response;\n    @Captor ArgumentCaptor<HttpRequest> requestCaptor;\n    InventorySyncService svc() { return new InventorySyncService(client); }\n    \n    @Test void sync_3products_syncs3AndWritesReport(@TempDir Path dir) throws Exception {\n        Path csv = dir.resolve(\"stock.csv\");\n        Files.writeString(csv, \"sku,qty\\nP001,50\\nP002,12\\nP003,60\");\n        when(response.statusCode()).thenReturn(200);\n        when(client.send(any(), any())).thenReturn(response);\n        int count = svc().sync(csv);\n        assertEquals(3, count);\n        Path report = dir.resolve(\"sync-report.txt\");\n        assertTrue(Files.exists(report));\n        String content = Files.readString(report);\n        assertTrue(content.contains(\"Synced: 3/3\"));\n    }\n    @Test void sync_emptyCSV_syncs0(@TempDir Path dir) throws Exception {\n        Path csv = dir.resolve(\"empty.csv\");\n        Files.writeString(csv, \"sku,qty\\n\");\n        assertEquals(0, svc().sync(csv));\n        assertTrue(Files.readString(dir.resolve(\"sync-report.txt\")).contains(\"Synced: 0/0\"));\n    }\n    @Test void sync_apiReturns500_countsAsFailed(@TempDir Path dir) throws Exception {\n        Path csv = dir.resolve(\"stock.csv\");\n        Files.writeString(csv, \"sku,qty\\nP001,50\\nP002,12\");\n        when(response.statusCode()).thenReturn(200, 500);\n        when(client.send(any(), any())).thenReturn(response);\n        assertEquals(1, svc().sync(csv));  // only P001 succeeds\n        assertTrue(Files.readString(dir.resolve(\"sync-report.txt\")).contains(\"FAIL: P002\"));\n    }\n    @Test void sync_urlContainsSku(@TempDir Path dir) throws Exception {\n        Path csv = dir.resolve(\"stock.csv\");\n        Files.writeString(csv, \"sku,qty\\nTCS-P001,50\");\n        when(response.statusCode()).thenReturn(200);\n        when(client.send(any(), any())).thenReturn(response);\n        svc().sync(csv);\n        verify(client).send(requestCaptor.capture(), any());\n        assertTrue(requestCaptor.getValue().uri().toString().contains(\"TCS-P001\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "when(response.statusCode()).thenReturn(200, 500) — first call 200, second 500",
+        "csvPath.getParent().resolve('sync-report.txt') — report next to CSV",
+        "Both @TempDir and @Mock in the same test — they compose naturally"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 65
+  }
+}

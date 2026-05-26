@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "description": "Module + topic outlines for the Java pro-track. Drives generateProTopic.mjs. Each topic's `concepts` list is the brief the generator gets — keep them concrete and assessment-friendly (a thing to teach AND to test).",
+  "modules": {
+    "m2_variables": {
+      "module_number": 2,
+      "name": "Variables & Data Types",
+      "slug": "variables-and-data-types",
+      "summary": "How Java stores data. Primitive types, strings, operators, input, type casting. Foundation for every program that does anything other than print Hello World.",
+      "estimated_hours": 10,
+      "prerequisites": ["m1_fundamentals"],
+      "topics": [
+        {
+          "topic_id": "java_m2_t1",
+          "topic_number": 1,
+          "name": "Variables & Primitive Types",
+          "slug": "variables-and-primitive-types",
+          "concepts": [
+            "variable declaration syntax: <type> <name> = <value>;",
+            "the 8 primitive types: byte, short, int, long, float, double, boolean, char",
+            "default values and the difference between declaration vs initialization",
+            "naming conventions: camelCase, descriptive names, no reserved keywords",
+            "int vs long: when to choose each (memory + range tradeoff)",
+            "float vs double: precision tradeoff, why double is default in Java",
+            "primitives store values, not references — copy-by-value behaviour",
+            "reading variables back: System.out.println with concatenation"
+          ],
+          "estimated_minutes": 40
+        },
+        {
+          "topic_id": "java_m2_t2",
+          "topic_number": 2,
+          "name": "Strings: Java's Special Type",
+          "slug": "strings-javas-special-type",
+          "concepts": [
+            "String is an OBJECT not a primitive — capital S is the giveaway",
+            "string literals: \"text in double quotes\"",
+            "concatenation with + operator (works with any type on the other side)",
+            "string immutability — every operation returns a NEW string",
+            "common methods: length(), toUpperCase(), toLowerCase(), trim(), substring()",
+            "comparing strings: == vs .equals() — the most common Java beginner bug",
+            "escape characters: \\n, \\t, \\\", \\\\"
+          ],
+          "estimated_minutes": 35
+        },
+        {
+          "topic_id": "java_m2_t3",
+          "topic_number": 3,
+          "name": "Arithmetic Operators & Type Promotion",
+          "slug": "arithmetic-operators-and-type-promotion",
+          "concepts": [
+            "the 5 arithmetic operators: +, -, *, /, %",
+            "integer division: 7 / 2 == 3 (not 3.5) — discards the remainder",
+            "modulo % for remainders: 7 % 2 == 1; common use cases (even/odd, wraparound)",
+            "type promotion: int + double → double automatically",
+            "operator precedence: * and / and % bind tighter than + and -",
+            "compound assignment operators: +=, -=, *=, /=, %=",
+            "increment/decrement: i++ vs ++i (pre vs post)",
+            "integer overflow: Integer.MAX_VALUE + 1 wraps to a negative number"
+          ],
+          "estimated_minutes": 40
+        },
+        {
+          "topic_id": "java_m2_t4",
+          "topic_number": 4,
+          "name": "Reading User Input with Scanner",
+          "slug": "reading-user-input-with-scanner",
+          "concepts": [
+            "import java.util.Scanner — the import statement and why it exists",
+            "creating a Scanner: Scanner sc = new Scanner(System.in);",
+            "reading strings: sc.nextLine() vs sc.next() (one returns whole line, one returns one token)",
+            "reading numbers: sc.nextInt(), sc.nextDouble()",
+            "the newline-consumption gotcha: nextInt() leaves \\n in the buffer, nextLine() then returns empty",
+            "always sc.close() (or use try-with-resources) to release System.in",
+            "input prompts: print() the prompt without a newline so the cursor sits next to it"
+          ],
+          "estimated_minutes": 35
+        }
+      ]
+    }
+  }
+}

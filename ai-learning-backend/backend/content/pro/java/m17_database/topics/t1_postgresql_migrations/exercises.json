@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t1",
+  "topic_name": "PostgreSQL & Flyway Migrations",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m17_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What happens to H2 data on restart?",
+      "scenario": "H2 in-memory vs PostgreSQL with volumes — data persistence behavior.",
+      "instructions": "```properties\n# Config A: H2 in-memory\nspring.datasource.url=jdbc:h2:mem:testdb\nspring.jpa.hibernate.ddl-auto=create-drop\n\n# Config B: H2 file-based\nspring.datasource.url=jdbc:h2:file:./data/testdb\nspring.jpa.hibernate.ddl-auto=update\n\n# Config C: PostgreSQL with Docker volume\nspring.datasource.url=jdbc:postgresql://localhost:5432/orders\n```\n\nFor each config, what happens to saved data after:\n1. Application restart\n2. `docker compose down` (Config C)\n3. `docker compose down -v` (Config C)?",
+      "expected_solution": "Config A (H2 in-memory, create-drop):\n  App restart → all data LOST (in-memory + schema dropped on stop, recreated on start)\n\nConfig B (H2 file, update):\n  App restart → data PRESERVED (file survives restart; schema updated not dropped)\n\nConfig C (PostgreSQL + Docker volume):\n  App restart → data PRESERVED (PostgreSQL process restarts, data in volume)\n  docker compose down → data PRESERVED (containers stopped, volume untouched)\n  docker compose down -v → data LOST (-v flag deletes volumes)",
+      "test_cases": [
+        { "type": "text_match", "expected": "Config A (H2 in-memory, create-drop):\n  App restart → all data LOST (in-memory + schema dropped on stop, recreated on start)\n\nConfig B (H2 file, update):\n  App restart → data PRESERVED (file survives restart; schema updated not dropped)\n\nConfig C (PostgreSQL + Docker volume):\n  App restart → data PRESERVED (PostgreSQL process restarts, data in volume)\n  docker compose down → data PRESERVED (containers stopped, volume untouched)\n  docker compose down -v → data LOST (-v flag deletes volumes)" }
+      ],
+      "hints": [
+        "mem: = in-memory, gone on JVM exit",
+        "Docker volumes persist independently of containers",
+        "docker compose down only stops containers; -v also removes volumes"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Name a Flyway migration file correctly",
+      "scenario": "Flyway file naming: V + version + __ + description + .sql",
+      "instructions": "Fill in the correct Flyway migration file names for each task.",
+      "starter_code": "# Task 1: First migration, creates users table\n___1__create_users_table.sql\n\n# Task 2: Second migration, adds email_verified column\nV2____add_email_verified_to_users.sql\n\n# Task 3: Version 1.1, adds phone column (between V1 and V2)\nV1.__1____add_phone_to_users.sql\n\n# Task 4: Repeatable migration, refreshes a view\n___refresh_user_stats_view.sql",
+      "expected_solution": "# Task 1:\nV1__create_users_table.sql\n\n# Task 2:\nV2__add_email_verified_to_users.sql\n\n# Task 3:\nV1.1__add_phone_to_users.sql\n\n# Task 4:\nR__refresh_user_stats_view.sql",
+      "blanks": [
+        { "position": 1, "answer": "V",  "hint": "Versioned migrations start with uppercase V" },
+        { "position": 2, "answer": "__", "hint": "Double underscore separates version from description" },
+        { "position": 3, "answer": "1.", "hint": "Sub-version using dot notation" },
+        { "position": 4, "answer": "R", "hint": "Repeatable migrations start with R (not V)" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["V1__create_users_table.sql", "V2__add_email_verified", "R__refresh_user_stats_view.sql"] }
+      ],
+      "hints": [
+        "V = versioned (runs once), R = repeatable (re-runs when checksum changes)",
+        "Double underscore __ is the separator between version and description",
+        "Sub-versions: V1.1 runs between V1 and V2"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write docker-compose.yml for PostgreSQL",
+      "scenario": "Docker Compose runs PostgreSQL locally for Spring Boot development.",
+      "instructions": "Write a docker-compose.yml that:\n1. Uses postgres:16-alpine image\n2. Container name: app-db\n3. Database: flipkart, User: flipkart, Password: flipkartpass\n4. Exposes port 5432\n5. Uses a named volume 'flipkart-data' for persistence",
+      "starter_code": "# docker-compose.yml for Flipkart local PostgreSQL\n",
+      "expected_solution": "services:\n  postgres:\n    image: postgres:16-alpine\n    container_name: app-db\n    environment:\n      POSTGRES_DB: flipkart\n      POSTGRES_USER: flipkart\n      POSTGRES_PASSWORD: flipkartpass\n    ports:\n      - \"5432:5432\"\n    volumes:\n      - flipkart-data:/var/lib/postgresql/data\n\nvolumes:\n  flipkart-data:",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["postgres:16", "POSTGRES_DB: flipkart", "flipkart-data"] }
+      ],
+      "hints": [
+        "POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD: environment variables",
+        "/var/lib/postgresql/data: where PostgreSQL stores data files",
+        "Named volumes: declare them under 'volumes:' at the bottom"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m17_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Spring Boot application.properties for PostgreSQL + Flyway",
+      "scenario": "Connect Spring Boot to PostgreSQL with Flyway managing the schema.",
+      "instructions": "Write application.properties for a production PostgreSQL connection:\n1. JDBC URL: localhost:5432/orders\n2. User: ordersuser, Password: from env var ${DB_PASSWORD}\n3. Flyway enabled\n4. ddl-auto=validate (Flyway owns schema)\n5. Show SQL in logs\n6. Connection pool max size: 10",
+      "starter_code": "# application.properties — PostgreSQL + Flyway production config\n",
+      "expected_solution": "spring.datasource.url=jdbc:postgresql://localhost:5432/orders\nspring.datasource.username=ordersuser\nspring.datasource.password=${DB_PASSWORD}\nspring.datasource.driver-class-name=org.postgresql.Driver\n\n# Connection pool (HikariCP default):\nspring.datasource.hikari.maximum-pool-size=10\n\n# Flyway manages schema:\nspring.flyway.enabled=true\n\n# Hibernate validates but doesn't modify schema:\nspring.jpa.hibernate.ddl-auto=validate\n\n# Debug SQL:\nspring.jpa.show-sql=true\nspring.jpa.properties.hibernate.format_sql=true",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["jdbc:postgresql", "spring.flyway.enabled=true", "ddl-auto=validate"] }
+      ],
+      "hints": [
+        "driver-class-name: org.postgresql.Driver (different from H2)",
+        "ddl-auto=validate: Hibernate checks schema matches entities but doesn't change it",
+        "${DB_PASSWORD}: Spring reads from environment variable — secure, no hardcoded passwords"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m17_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Write V1 migration: create products table",
+      "scenario": "First Flyway migration creates the initial schema.",
+      "instructions": "Write V1__create_products_table.sql for a Flipkart products table with:\n- id: UUID primary key (auto-generated)\n- name: VARCHAR(200), NOT NULL\n- price: DECIMAL(12,2), NOT NULL, must be > 0\n- category: VARCHAR(100), NOT NULL\n- stock_qty: INTEGER, NOT NULL, must be >= 0\n- active: BOOLEAN, NOT NULL, default true\n- created_at: TIMESTAMP, NOT NULL, default NOW()\n\nAlso create an index on category.",
+      "starter_code": "-- V1__create_products_table.sql\n",
+      "expected_solution": "-- V1__create_products_table.sql\nCREATE TABLE products (\n    id          VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    name        VARCHAR(200)  NOT NULL,\n    price       DECIMAL(12,2) NOT NULL CHECK (price > 0),\n    category    VARCHAR(100)  NOT NULL,\n    stock_qty   INTEGER       NOT NULL CHECK (stock_qty >= 0),\n    active      BOOLEAN       NOT NULL DEFAULT true,\n    created_at  TIMESTAMP     NOT NULL DEFAULT NOW()\n);\n\nCREATE INDEX idx_products_category ON products(category);\nCREATE INDEX idx_products_active   ON products(active);",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["CREATE TABLE products", "DECIMAL(12,2)", "CHECK (price > 0)", "CREATE INDEX"] }
+      ],
+      "hints": [
+        "gen_random_uuid(): PostgreSQL function to generate UUID v4",
+        "CHECK constraints enforce data integrity at the database level",
+        "CREATE INDEX: always index columns used in WHERE clauses"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m17_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Write V2 migration: add column safely",
+      "scenario": "Adding a column to an existing table without breaking running services.",
+      "instructions": "The products table exists (V1). Write V2__add_seller_to_products.sql that:\n1. Adds seller_id VARCHAR(36), nullable (existing rows have no seller)\n2. Adds seller_name VARCHAR(200), nullable\n3. Adds a comment explaining seller_id purpose\n4. Adds an index on seller_id\n\nExplain why the columns must be nullable when added to an existing table.",
+      "starter_code": "-- V2__add_seller_to_products.sql\n-- Adding seller fields to existing products table\n-- IMPORTANT: columns must be nullable because...\n",
+      "expected_solution": "-- V2__add_seller_to_products.sql\n-- Adding seller fields to existing products table.\n-- Columns are nullable because existing rows have no seller data.\n-- Making them NOT NULL without a DEFAULT would fail for existing rows.\nALTER TABLE products\n    ADD COLUMN seller_id    VARCHAR(36),\n    ADD COLUMN seller_name  VARCHAR(200);\n\nCOMMENT ON COLUMN products.seller_id\n    IS 'References sellers table; null for Flipkart-direct products';\n\nCREATE INDEX idx_products_seller_id ON products(seller_id);\n\n-- After this migration: backfill existing products with seller data\n-- (done in application code or a separate V3 data migration)",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["ALTER TABLE products", "ADD COLUMN seller_id", "ADD COLUMN seller_name", "CREATE INDEX"] }
+      ],
+      "hints": [
+        "ALTER TABLE ... ADD COLUMN: adds column to existing table without losing data",
+        "Nullable columns safe for existing rows: no value needed for rows added before migration",
+        "NOT NULL without DEFAULT would fail: existing rows can't satisfy the constraint"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Multi-table Flyway migration set",
+      "scenario": "Three related migrations for a complete order management schema.",
+      "instructions": "Write 3 migration files for a Swiggy order system:\n1. V1: users table (id UUID, name VARCHAR, email UNIQUE, phone VARCHAR, created_at)\n2. V2: orders table (id UUID, user_id FK→users.id, status, total DECIMAL, created_at)\n3. V3: order_items (id UUID, order_id FK→orders.id, item_name, qty, price)\n\nEach migration in a separate file. Include appropriate indexes and constraints.",
+      "starter_code": "-- V1__create_users_table.sql\n\n-- V2__create_orders_table.sql\n\n-- V3__create_order_items_table.sql\n",
+      "expected_solution": "-- V1__create_users_table.sql\nCREATE TABLE users (\n    id         VARCHAR(36)  PRIMARY KEY DEFAULT gen_random_uuid(),\n    name       VARCHAR(200) NOT NULL,\n    email      VARCHAR(300) NOT NULL UNIQUE,\n    phone      VARCHAR(15),\n    created_at TIMESTAMP    NOT NULL DEFAULT NOW()\n);\n\n-- V2__create_orders_table.sql\nCREATE TABLE orders (\n    id         VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    user_id    VARCHAR(36)   NOT NULL REFERENCES users(id),\n    status     VARCHAR(20)   NOT NULL DEFAULT 'PLACED'\n               CHECK (status IN ('PLACED','CONFIRMED','DELIVERED','CANCELLED')),\n    total      DECIMAL(12,2) NOT NULL CHECK (total >= 0),\n    created_at TIMESTAMP     NOT NULL DEFAULT NOW()\n);\nCREATE INDEX idx_orders_user_id ON orders(user_id);\nCREATE INDEX idx_orders_status  ON orders(status);\n\n-- V3__create_order_items_table.sql\nCREATE TABLE order_items (\n    id         VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    order_id   VARCHAR(36)   NOT NULL REFERENCES orders(id) ON DELETE CASCADE,\n    item_name  VARCHAR(200)  NOT NULL,\n    qty        INTEGER       NOT NULL CHECK (qty > 0),\n    price      DECIMAL(10,2) NOT NULL CHECK (price >= 0)\n);\nCREATE INDEX idx_order_items_order_id ON order_items(order_id);",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["REFERENCES users(id)", "REFERENCES orders(id)", "ON DELETE CASCADE"] }
+      ],
+      "hints": [
+        "REFERENCES: creates a foreign key constraint",
+        "ON DELETE CASCADE: deleting an order auto-deletes its items",
+        "CHECK constraint for status: only valid values allowed"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m17_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Spring Boot profile-based datasource configuration",
+      "scenario": "H2 in development, PostgreSQL in production — Spring profiles.",
+      "instructions": "Write two property files for a trading platform:\n1. application-local.properties: H2 in-memory, no Flyway, create-drop\n2. application-prod.properties: PostgreSQL, Flyway enabled, validate\n3. application.properties: shared settings (app name, JPA show-sql)\n\nAlso show: how to activate 'prod' profile on startup.",
+      "starter_code": "# application.properties (shared base)\n# application-local.properties (developer machine)\n# application-prod.properties (production server)\n# How to activate prod profile:\n",
+      "expected_solution": "# application.properties (shared base):\nspring.application.name=zerodha-trading\nspring.jpa.show-sql=false\nspring.jpa.properties.hibernate.format_sql=true\n\n# application-local.properties:\nspring.datasource.url=jdbc:h2:mem:tradedb\nspring.datasource.username=sa\nspring.datasource.password=\nspring.h2.console.enabled=true\nspring.jpa.hibernate.ddl-auto=create-drop\nspring.flyway.enabled=false\nspring.jpa.show-sql=true\n\n# application-prod.properties:\nspring.datasource.url=jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:zerodha}\nspring.datasource.username=${DB_USER}\nspring.datasource.password=${DB_PASSWORD}\nspring.datasource.hikari.maximum-pool-size=20\nspring.jpa.hibernate.ddl-auto=validate\nspring.flyway.enabled=true\nspring.flyway.locations=classpath:db/migration\n\n# Activate prod profile:\n# java -jar app.jar --spring.profiles.active=prod\n# Or: SPRING_PROFILES_ACTIVE=prod java -jar app.jar",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["spring.flyway.enabled=false", "ddl-auto=create-drop", "ddl-auto=validate"] }
+      ],
+      "hints": [
+        "${DB_HOST:localhost}: Spring property with fallback default",
+        "Profile file named application-{profile}.properties overrides application.properties",
+        "--spring.profiles.active=prod: command line activation"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m17_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Data migration script — backfill existing rows",
+      "scenario": "Sometimes Flyway migrations include data changes, not just schema changes.",
+      "instructions": "V3 added a 'category_code' column to products (nullable). Now write V4 that:\n1. Creates a categories table (code, name)\n2. Inserts 3 categories (ELECTRONICS, FASHION, GROCERY)\n3. Backfills category_code for existing products based on their category text\n4. Then makes category_code NOT NULL\n\nThis is a 4-step data migration in one SQL file.",
+      "starter_code": "-- V4__create_categories_and_backfill.sql\n-- Migration: create categories table and backfill product category_code\n",
+      "expected_solution": "-- V4__create_categories_and_backfill.sql\n\n-- Step 1: Create categories table\nCREATE TABLE categories (\n    code VARCHAR(50) PRIMARY KEY,\n    name VARCHAR(100) NOT NULL\n);\n\n-- Step 2: Seed categories\nINSERT INTO categories (code, name) VALUES\n    ('ELECTRONICS', 'Electronics'),\n    ('FASHION',     'Fashion & Clothing'),\n    ('GROCERY',     'Grocery & Food');\n\n-- Step 3: Backfill category_code for existing products\nUPDATE products SET category_code = 'ELECTRONICS'\n    WHERE LOWER(category) LIKE '%electron%'\n       OR LOWER(category) LIKE '%mobile%'\n       OR LOWER(category) LIKE '%laptop%';\n\nUPDATE products SET category_code = 'FASHION'\n    WHERE LOWER(category) LIKE '%fashion%'\n       OR LOWER(category) LIKE '%clothing%'\n       OR LOWER(category) LIKE '%apparel%';\n\nUPDATE products SET category_code = 'GROCERY'\n    WHERE LOWER(category) LIKE '%grocer%'\n       OR LOWER(category) LIKE '%food%';\n\n-- Default for any unmatched:\nUPDATE products SET category_code = 'ELECTRONICS'\n    WHERE category_code IS NULL;\n\n-- Step 4: Now safe to add NOT NULL constraint\nALTER TABLE products ALTER COLUMN category_code SET NOT NULL;\nALTER TABLE products ADD CONSTRAINT fk_product_category\n    FOREIGN KEY (category_code) REFERENCES categories(code);",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["CREATE TABLE categories", "INSERT INTO categories", "UPDATE products SET category_code", "SET NOT NULL"] }
+      ],
+      "hints": [
+        "4-step pattern: create table → seed data → backfill → add NOT NULL",
+        "Add NOT NULL AFTER backfilling — can't add NOT NULL when NULLs exist",
+        "LOWER() + LIKE '%...%' for flexible matching of existing text data"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What does Flyway do with this scenario?",
+      "scenario": "Trace Flyway behavior across deployments.",
+      "instructions": "Migration files in git:\n```\nV1__create_orders.sql\nV2__add_discount.sql\nV3__create_items.sql\n```\n\nflyway_schema_history after Deploy 1:\n```\nversion=1, success=true\nversion=2, success=true\n```\n\nDeploy 2: team adds V4 to git, but accidentally edits V2 (fixes a comment).\n\nWhat happens when the app starts on Deploy 2? In what order? What error if any?",
+      "expected_solution": "Deploy 2 startup sequence:\n1. Flyway connects to database\n2. Reads flyway_schema_history: V1 (applied), V2 (applied)\n3. Finds V3 not in history → queued to run\n4. Finds V4 not in history → queued to run\n5. Checks checksums of already-applied V1 and V2\n6. V2 checksum MISMATCH (file was edited)\n7. Flyway throws: FlywayException: Migration checksum mismatch\n   for migration version 2!\n8. App FAILS TO START\n9. V3 and V4 are NOT applied\n\nFix: revert V2 to original (undo the accidental edit). Never edit applied migrations.",
+      "test_cases": [
+        { "type": "text_match", "expected": "Deploy 2 startup sequence:\n1. Flyway connects to database\n2. Reads flyway_schema_history: V1 (applied), V2 (applied)\n3. Finds V3 not in history → queued to run\n4. Finds V4 not in history → queued to run\n5. Checks checksums of already-applied V1 and V2\n6. V2 checksum MISMATCH (file was edited)\n7. Flyway throws: FlywayException: Migration checksum mismatch\n   for migration version 2!\n8. App FAILS TO START\n9. V3 and V4 are NOT applied\n\nFix: revert V2 to original (undo the accidental edit). Never edit applied migrations." }
+      ],
+      "hints": [
+        "Flyway checksums ALL applied migrations on each startup",
+        "App fails fast: startup failure prevents serving broken traffic",
+        "Fix: revert the file (git checkout V2), never repair by editing"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full Spring Boot + PostgreSQL + Flyway setup",
+      "scenario": "Complete configuration for a production-ready Spring Boot service.",
+      "instructions": "Write the complete setup for a Razorpay payment-service:\n1. pom.xml dependencies: postgresql, flyway-core, flyway-database-postgresql\n2. V1__create_payments_table.sql: payments with id, merchant_id, amount, status, created_at\n3. application.properties: PostgreSQL + Flyway + validate\n4. application-test.properties: H2 + flyway=false + create-drop\n5. PaymentService @Service with @Transactional that saves a Payment @Entity",
+      "starter_code": "<!-- pom.xml snippets -->\n\n-- V1__create_payments_table.sql\n\n# application.properties\n\n# application-test.properties\n\n// Payment @Entity + PaymentService\n",
+      "expected_solution": "<!-- pom.xml:\n<dependency>\n  <groupId>org.postgresql</groupId>\n  <artifactId>postgresql</artifactId>\n  <scope>runtime</scope>\n</dependency>\n<dependency>\n  <groupId>org.flywaydb</groupId>\n  <artifactId>flyway-core</artifactId>\n</dependency>\n<dependency>\n  <groupId>org.flywaydb</groupId>\n  <artifactId>flyway-database-postgresql</artifactId>\n</dependency>\n-->\n\n-- V1__create_payments_table.sql:\nCREATE TABLE payments (\n    id          VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    merchant_id VARCHAR(36)   NOT NULL,\n    amount      DECIMAL(14,2) NOT NULL CHECK (amount > 0),\n    currency    VARCHAR(3)    NOT NULL DEFAULT 'INR',\n    status      VARCHAR(20)   NOT NULL DEFAULT 'CREATED'\n                CHECK (status IN ('CREATED','AUTHORIZED','CAPTURED','FAILED','REFUNDED')),\n    created_at  TIMESTAMP     NOT NULL DEFAULT NOW()\n);\nCREATE INDEX idx_payments_merchant ON payments(merchant_id);\nCREATE INDEX idx_payments_status   ON payments(status);\n\n# application.properties:\nspring.datasource.url=jdbc:postgresql://localhost:5432/razorpay\nspring.datasource.username=${DB_USER}\nspring.datasource.password=${DB_PASSWORD}\nspring.jpa.hibernate.ddl-auto=validate\nspring.flyway.enabled=true\n\n# application-test.properties:\nspring.datasource.url=jdbc:h2:mem:testdb\nspring.datasource.username=sa\nspring.datasource.password=\nspring.jpa.hibernate.ddl-auto=create-drop\nspring.flyway.enabled=false\n\n// Payment.java:\nimport jakarta.persistence.*;\n@Entity @Table(name=\"payments\")\npublic class Payment {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(name=\"merchant_id\",nullable=false) private String merchantId;\n    @Column(nullable=false) private java.math.BigDecimal amount;\n    @Column(nullable=false) private String currency = \"INR\";\n    @Column(nullable=false) private String status = \"CREATED\";\n    protected Payment() {}\n    public Payment(String merchantId, java.math.BigDecimal amount) {\n        this.merchantId=merchantId; this.amount=amount;\n    }\n    public String getId() { return id; }\n    public String getStatus() { return status; }\n    public void setStatus(String s) { status=s; }\n}\n\n// PaymentService.java:\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\n@Service @Transactional\npublic class PaymentService {\n    private final org.springframework.data.jpa.repository.JpaRepository<Payment,String> repo;\n    PaymentService(org.springframework.data.jpa.repository.JpaRepository<Payment,String> r){repo=r;}\n    public Payment create(String merchantId, java.math.BigDecimal amount) {\n        return repo.save(new Payment(merchantId, amount));\n    }\n    public void capture(String id) {\n        Payment p=repo.findById(id).orElseThrow();\n        p.setStatus(\"CAPTURED\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "flyway-database-postgresql: Spring Boot 3+ needs this alongside flyway-core",
+        "BigDecimal for money: never use double for financial calculations",
+        "application-test.properties: overrides application.properties for tests"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m17_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Safe schema evolution — rename a column",
+      "scenario": "Renaming a column requires a multi-step migration to avoid downtime.",
+      "instructions": "Column 'qty' in order_items needs to be renamed to 'quantity'.\nBut the app has running instances reading 'qty'. Write a 3-migration plan:\n1. V5: add 'quantity' column (copies data from qty)\n2. V6: update app code (handled by developer — not a SQL file)\n3. V7: drop old 'qty' column (after all instances use 'quantity')\n\nWrite V5 and V7 SQL. Explain why V6 is not a SQL migration.",
+      "starter_code": "-- V5__add_quantity_column_to_order_items.sql\n\n-- V7__drop_qty_from_order_items.sql\n-- (V6 is an application code change, not a SQL migration)\n",
+      "expected_solution": "-- V5__add_quantity_column_to_order_items.sql\n-- Step 1: add new column alongside old one\n-- Both columns exist during the transition period (zero-downtime deploy)\nALTER TABLE order_items ADD COLUMN quantity INTEGER;\n\n-- Copy existing data to new column:\nUPDATE order_items SET quantity = qty;\n\n-- Make new column NOT NULL now that data is populated:\nALTER TABLE order_items ALTER COLUMN quantity SET NOT NULL;\nALTER TABLE order_items ADD CONSTRAINT chk_quantity_positive\n    CHECK (quantity > 0);\n\n-- At this point: both 'qty' and 'quantity' exist.\n-- App code is updated (V6 = code change, not SQL) to use 'quantity'.\n-- Old app instances still read 'qty' — that still exists.\n\n-- V7__drop_qty_from_order_items.sql\n-- Step 3: once ALL app instances use 'quantity', drop 'qty'\n-- Deploy V7 only AFTER all instances updated to V6 code\nALTER TABLE order_items DROP COLUMN qty;\n\n-- V6 is not a SQL migration because:\n-- It's a Java code change: @Column mapping qty→quantity in OrderItem entity\n-- Migrations manage SCHEMA; application code manages HOW to read/write that schema\n-- Separating code and schema changes allows zero-downtime deploys",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["ADD COLUMN quantity", "UPDATE order_items SET quantity = qty", "DROP COLUMN qty"] }
+      ],
+      "hints": [
+        "Zero-downtime rename: add new → copy data → update app → drop old",
+        "Never rename directly: ALTER TABLE ... RENAME COLUMN breaks running instances",
+        "V6 is application code: @Column(name='quantity') on the Java field"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Test configuration: @DataJpaTest with H2, not PostgreSQL",
+      "scenario": "Tests must use H2 even when production uses PostgreSQL.",
+      "instructions": "Write a @DataJpaTest for a PaymentRepository that:\n1. Works with H2 (no real PostgreSQL needed)\n2. application-test.properties configures H2 + flyway=false\n3. Tests: save payment, findByMerchantId, findByStatus\n4. Verify the test doesn't try to connect to PostgreSQL\n\nInclude the @Entity, Repository, and 3 test methods.",
+      "starter_code": "// Payment @Entity (simplified)\n// PaymentRepository\n// src/test/resources/application.properties (H2 config)\n// @DataJpaTest PaymentRepositoryTest\n",
+      "expected_solution": "// Payment.java:\nimport jakarta.persistence.*;\n@Entity @Table(name=\"payments\")\npublic class Payment {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(name=\"merchant_id\", nullable=false) private String merchantId;\n    @Column(nullable=false) private java.math.BigDecimal amount;\n    @Column(nullable=false) private String status = \"CREATED\";\n    protected Payment(){}\n    public Payment(String m, java.math.BigDecimal a){merchantId=m; amount=a;}\n    public String getId(){return id;} public String getMerchantId(){return merchantId;}\n    public String getStatus(){return status;} public void setStatus(String s){status=s;}\n}\n\n// PaymentRepository.java:\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport java.util.*;\npublic interface PaymentRepository extends JpaRepository<Payment,String> {\n    List<Payment> findByMerchantId(String merchantId);\n    List<Payment> findByStatus(String status);\n}\n\n// src/test/resources/application.properties:\n// spring.datasource.url=jdbc:h2:mem:testdb\n// spring.datasource.username=sa\n// spring.datasource.password=\n// spring.jpa.hibernate.ddl-auto=create-drop\n// spring.flyway.enabled=false\n// (No PostgreSQL connection attempted!)\n\n// PaymentRepositoryTest.java:\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.math.BigDecimal;\n\n@DataJpaTest  // loads H2 + JPA only, no web layer, no real DB\nclass PaymentRepositoryTest {\n    @Autowired PaymentRepository repo;\n    \n    @Test void save_assignsId() {\n        Payment p = repo.save(new Payment(\"M001\", new BigDecimal(\"999.00\")));\n        assertNotNull(p.getId());\n        assertEquals(\"CREATED\", p.getStatus());\n    }\n    @Test void findByMerchantId_returnsPayments() {\n        repo.save(new Payment(\"M001\", new BigDecimal(\"500.00\")));\n        repo.save(new Payment(\"M001\", new BigDecimal(\"200.00\")));\n        repo.save(new Payment(\"M002\", new BigDecimal(\"100.00\")));\n        assertEquals(2, repo.findByMerchantId(\"M001\").size());\n    }\n    @Test void findByStatus_returnsCorrect() {\n        Payment p = repo.save(new Payment(\"M001\", new BigDecimal(\"500.00\")));\n        p.setStatus(\"CAPTURED\");\n        repo.save(p);\n        repo.save(new Payment(\"M002\", new BigDecimal(\"100.00\")));\n        assertEquals(1, repo.findByStatus(\"CAPTURED\").size());\n        assertEquals(1, repo.findByStatus(\"CREATED\").size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "src/test/resources/application.properties: test-only overrides; spring.flyway.enabled=false",
+        "@DataJpaTest: narrow slice, no web/service beans, uses H2 auto-configured",
+        "BigDecimal for money: BigDecimal(\"999.00\") not BigDecimal(999.00)"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m17_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Flyway in CI/CD — migration verification",
+      "scenario": "CI pipeline runs Flyway against a test PostgreSQL to verify migrations before deploy.",
+      "instructions": "Write the complete Flyway + test PostgreSQL setup for CI:\n1. docker-compose-ci.yml: a temporary PostgreSQL for CI (no volume needed)\n2. application-ci.properties: points to CI PostgreSQL, Flyway enabled, ddl-auto=validate\n3. A MigrationVerificationTest @SpringBootTest that:\n   - Starts with full Spring context (not @DataJpaTest)\n   - Verifies flyway_schema_history has rows\n   - Verifies the orders table exists by counting rows\n4. Show how to run this in CI before deploying to production",
+      "starter_code": "# docker-compose-ci.yml\n# application-ci.properties\n// MigrationVerificationTest.java\n",
+      "expected_solution": "# docker-compose-ci.yml:\nservices:\n  postgres-ci:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_DB: ci_test\n      POSTGRES_USER: ci\n      POSTGRES_PASSWORD: ci\n    ports: [\"5432:5432\"]\n    # No volume: CI containers are ephemeral\n\n# application-ci.properties:\nspring.datasource.url=jdbc:postgresql://localhost:5432/ci_test\nspring.datasource.username=ci\nspring.datasource.password=ci\nspring.jpa.hibernate.ddl-auto=validate\nspring.flyway.enabled=true\nspring.flyway.locations=classpath:db/migration\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport javax.sql.DataSource;\nimport java.sql.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest  // full context + Flyway runs migrations against CI PostgreSQL\n@org.springframework.test.context.ActiveProfiles(\"ci\")\nclass MigrationVerificationTest {\n    @Autowired DataSource dataSource;\n    \n    @Test void flyway_appliedAllMigrations() throws Exception {\n        try (Connection conn = dataSource.getConnection();\n             ResultSet rs = conn.createStatement().executeQuery(\n                 \"SELECT COUNT(*) FROM flyway_schema_history WHERE success = true\")) {\n            rs.next();\n            assertTrue(rs.getInt(1) >= 3, \"Expected at least 3 applied migrations\");\n        }\n    }\n    \n    @Test void orders_tableExists() throws Exception {\n        try (Connection conn = dataSource.getConnection();\n             ResultSet rs = conn.createStatement().executeQuery(\n                 \"SELECT COUNT(*) FROM orders\")) {\n            rs.next();\n            assertEquals(0, rs.getInt(1)); // empty but table exists\n        }\n    }\n}\n\n// CI pipeline (GitHub Actions):\n// 1. docker compose -f docker-compose-ci.yml up -d\n// 2. mvn test -Dspring.profiles.active=ci   (runs MigrationVerificationTest)\n// 3. docker compose -f docker-compose-ci.yml down\n// 4. If tests pass → deploy to production (Flyway runs V4+ there)",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@SpringBootTest with CI profile: full Spring context runs Flyway against real PostgreSQL",
+        "flyway_schema_history: COUNT(*)>= expected migrations proves schema is correct",
+        "CI has no volume: ephemeral, clean database for every CI run"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m17_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha trading database migration — Topic 17.1 synthesis",
+      "scenario": "Full Flyway migration set + Spring Boot configuration for the Zerodha trading platform.",
+      "instructions": "Build the complete database migration setup for Zerodha:\n1. docker-compose.yml: PostgreSQL 16 with volume\n2. V1: users table (id, email UNIQUE, full_name, phone, created_at)\n3. V2: trades table (id, user_id FK, symbol, qty, price, type BUY/SELL, executed_at)\n4. V3: portfolio_holdings (id, user_id, symbol, total_qty, avg_price, updated_at)\n5. V4: add index and constraint to trades (CHECK qty > 0, CHECK price > 0)\n6. application-local.properties: H2 + no Flyway\n7. application-prod.properties: PostgreSQL + Flyway\n8. src/test/resources/application.properties: H2 + no Flyway\n9. @DataJpaTest that verifies a Trade @Entity can be saved and found by userId\n\nAll 2 @DataJpaTest tests pass.",
+      "starter_code": "// Complete Zerodha database migration setup\n",
+      "expected_solution": "# docker-compose.yml:\n# services:\n#   postgres:\n#     image: postgres:16-alpine\n#     environment: { POSTGRES_DB: zerodha, POSTGRES_USER: zerodha, POSTGRES_PASSWORD: zerodhapass }\n#     ports: [\"5432:5432\"]\n#     volumes: [zerodha-data:/var/lib/postgresql/data]\n# volumes:\n#   zerodha-data:\n\n-- V1__create_users_table.sql:\n-- CREATE TABLE users (\n--   id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid(),\n--   email VARCHAR(300) NOT NULL UNIQUE,\n--   full_name VARCHAR(200) NOT NULL,\n--   phone VARCHAR(15),\n--   created_at TIMESTAMP NOT NULL DEFAULT NOW()\n-- );\n-- CREATE INDEX idx_users_email ON users(email);\n\n-- V2__create_trades_table.sql:\n-- CREATE TABLE trades (\n--   id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid(),\n--   user_id VARCHAR(36) NOT NULL REFERENCES users(id),\n--   symbol VARCHAR(20) NOT NULL,\n--   qty INTEGER NOT NULL,\n--   price DECIMAL(12,2) NOT NULL,\n--   trade_type VARCHAR(4) NOT NULL CHECK (trade_type IN ('BUY','SELL')),\n--   executed_at TIMESTAMP NOT NULL DEFAULT NOW()\n-- );\n-- CREATE INDEX idx_trades_user_id ON trades(user_id);\n-- CREATE INDEX idx_trades_symbol ON trades(symbol);\n\n-- V3__create_portfolio_holdings.sql:\n-- CREATE TABLE portfolio_holdings (\n--   id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid(),\n--   user_id VARCHAR(36) NOT NULL REFERENCES users(id),\n--   symbol VARCHAR(20) NOT NULL,\n--   total_qty INTEGER NOT NULL DEFAULT 0,\n--   avg_price DECIMAL(12,2) NOT NULL,\n--   updated_at TIMESTAMP NOT NULL DEFAULT NOW(),\n--   UNIQUE (user_id, symbol)\n-- );\n\n-- V4__add_trade_constraints.sql:\n-- ALTER TABLE trades ADD CONSTRAINT chk_qty_positive CHECK (qty > 0);\n-- ALTER TABLE trades ADD CONSTRAINT chk_price_positive CHECK (price > 0);\n-- CREATE INDEX idx_trades_executed_at ON trades(executed_at);\n\nimport jakarta.persistence.*;\n@Entity @Table(name=\"trades\")\npublic class Trade {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(name=\"user_id\",nullable=false) private String userId;\n    @Column(nullable=false) private String symbol;\n    @Column(nullable=false) private int qty;\n    @Column(nullable=false) private java.math.BigDecimal price;\n    @Column(name=\"trade_type\",nullable=false) private String tradeType;\n    protected Trade(){}\n    public Trade(String uid,String sym,int qty,java.math.BigDecimal price,String type){\n        userId=uid;symbol=sym;this.qty=qty;this.price=price;tradeType=type;\n    }\n    public String getId(){return id;} public String getUserId(){return userId;}\n    public String getSymbol(){return symbol;}\n}\n\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport java.util.*;\npublic interface TradeRepository extends JpaRepository<Trade,String>{\n    List<Trade> findByUserId(String userId);\n}\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.math.BigDecimal;\n\n@DataJpaTest\nclass TradeRepositoryTest {\n    @Autowired TradeRepository repo;\n    @Test void save_assignsId(){\n        Trade t=repo.save(new Trade(\"U01\",\"TCS\",10,new BigDecimal(\"3890\"),\"BUY\"));\n        assertNotNull(t.getId());\n    }\n    @Test void findByUserId_returnsCorrect(){\n        repo.save(new Trade(\"U01\",\"TCS\",10,new BigDecimal(\"3890\"),\"BUY\"));\n        repo.save(new Trade(\"U01\",\"INFY\",5,new BigDecimal(\"1560\"),\"SELL\"));\n        repo.save(new Trade(\"U02\",\"TCS\",3,new BigDecimal(\"3895\"),\"BUY\"));\n        assertEquals(2,repo.findByUserId(\"U01\").size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "src/test/resources/application.properties: flyway=false + H2 for all @DataJpaTest",
+        "UNIQUE(user_id, symbol): composite unique constraint on portfolio_holdings",
+        "BigDecimal for price: avoids floating-point precision errors in financial data"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 65
+  }
+}

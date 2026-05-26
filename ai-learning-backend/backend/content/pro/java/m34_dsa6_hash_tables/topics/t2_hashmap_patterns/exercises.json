@@ -1,0 +1,331 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t2",
+  "topic_name": "HashMap Patterns",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m34_t2_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Group Anagrams (LeetCode #49)",
+      "instructions": "Implement: Group Anagrams (LeetCode #49).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class GroupAna {\n    public static List<List<String>> groupAnagrams(String[] strs) {\n        Map<String,List<String>> m=new HashMap<>();\n        for(String s:strs){char[] c=s.toCharArray();Arrays.sort(c);m.computeIfAbsent(new String(c),k->new ArrayList<>()).add(s);}\n        return new ArrayList<>(m.values());\n    }\n    public static void main(String[] a){\n        var r=groupAnagrams(new String[]{\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"});\n        System.out.println(r.size()); // 3 groups\n        System.out.println(\"O(n*m log m) \u2014 sort each word as key\");\n        System.out.println(\"Faster: O(n*m) using int[26] frequency as key\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "O(n*m log m)",
+            "Faster"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t2_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Top K Frequent Elements (LeetCode #347)",
+      "instructions": "Implement: Top K Frequent Elements (LeetCode #347).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TopKFreq {\n    public static int[] topKFrequent(int[] nums, int k) {\n        Map<Integer,Integer> freq=new HashMap<>();\n        for(int n:nums) freq.merge(n,1,Integer::sum);\n        PriorityQueue<Integer> pq=new PriorityQueue<>(Comparator.comparingInt(freq::get));\n        for(int n:freq.keySet()){pq.offer(n);if(pq.size()>k)pq.poll();}\n        int[] res=new int[k]; for(int i=k-1;i>=0;i--) res[i]=pq.poll();\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(topKFrequent(new int[]{1,1,1,2,2,3},2)));\n        System.out.println(Arrays.toString(topKFrequent(new int[]{1},1)));\n        System.out.println(\"O(n log k) \u2014 freq map + min-heap of size k\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 2]",
+            "[1]",
+            "O(n log k)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Word Pattern (LeetCode #290)",
+      "instructions": "Implement: Word Pattern (LeetCode #290).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class WordPat {\n    public static boolean wordPattern(String pattern, String s) {\n        String[] words=s.split(\" \");\n        if(pattern.length()!=words.length) return false;\n        Map<Character,String> c2w=new HashMap<>();Map<String,Character> w2c=new HashMap<>();\n        for(int i=0;i<pattern.length();i++){\n            char p=pattern.charAt(i); String w=words[i];\n            if(c2w.containsKey(p)&&!c2w.get(p).equals(w)) return false;\n            if(w2c.containsKey(w)&&w2c.get(w)!=p) return false;\n            c2w.put(p,w); w2c.put(w,p);\n        }\n        return true;\n    }\n    public static void main(String[] a){\n        System.out.println(wordPattern(\"abba\",\"dog cat cat dog\")); // true\n        System.out.println(wordPattern(\"abba\",\"dog cat cat fish\")); // false\n        System.out.println(wordPattern(\"aaaa\",\"dog cat cat dog\")); // false\n        System.out.println(\"Bijection: two maps for both directions\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "false",
+            "Bijection"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m34_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Isomorphic Strings (LeetCode #205)",
+      "instructions": "Implement: Isomorphic Strings (LeetCode #205).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Isomorphic {\n    public static boolean isIsomorphic(String s, String t) {\n        int[] s2t=new int[128], t2s=new int[128];\n        for(int i=0;i<s.length();i++){\n            char sc=s.charAt(i), tc=t.charAt(i);\n            if(s2t[sc]!=t2s[tc]) return false;\n            s2t[sc]=t2s[tc]=i+1; // i+1 so 0 means unmapped\n        }\n        return true;\n    }\n    public static void main(String[] a){\n        System.out.println(isIsomorphic(\"egg\",\"add\"));   // true\n        System.out.println(isIsomorphic(\"foo\",\"bar\"));   // false\n        System.out.println(isIsomorphic(\"paper\",\"title\")); // true\n        System.out.println(\"O(n) O(1) \u2014 int[128] mapping instead of HashMap\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "O(n) O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m34_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Number of Subarrays with Bounded Max (sliding window + freq)",
+      "instructions": "Implement: Number of Subarrays with Bounded Max (sliding window + freq).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SubLen {\n    // Longest subarray with all elements \u2264 maxVal\n    public static int lengthOfLongestSubarrayWithMax(int[] nums, int maxVal) {\n        Map<Integer,Integer> freq=new HashMap<>(); int lo=0, maxLen=0;\n        for(int hi=0;hi<nums.length;hi++){\n            freq.merge(nums[hi],1,Integer::sum);\n            while(nums[hi]>maxVal||(freq.containsKey(nums[hi])&&nums[hi]>maxVal)){\n                freq.merge(nums[lo],-1,Integer::sum);if(freq.get(nums[lo])==0)freq.remove(nums[lo]);lo++;\n            }\n            maxLen=Math.max(maxLen,hi-lo+1);\n        }\n        return maxLen;\n    }\n    // Simpler: find longest subarray with sum \u2264 k (variant)\n    public static int longestSubarrayWithAllBelowK(int[] nums, int k) {\n        int lo=0,maxLen=0;\n        for(int hi=0;hi<nums.length;hi++){while(nums[hi]>k)lo++;maxLen=Math.max(maxLen,hi-lo+1);}\n        return maxLen;\n    }\n    public static void main(String[] a){\n        System.out.println(longestSubarrayWithAllBelowK(new int[]{2,1,4,3,5},3)); // 3 ([2,1,_,3,_])\n        System.out.println(\"O(n) sliding window with frequency map\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "O(n) sliding window"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m34_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Brick Wall (LeetCode #554)",
+      "instructions": "Implement: Brick Wall (LeetCode #554).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class BrickWall {\n    public static int leastBricks(List<List<Integer>> wall) {\n        Map<Integer,Integer> edgeCount=new HashMap<>(); int maxEdges=0;\n        for(List<Integer> row:wall){\n            int pos=0;\n            for(int i=0;i<row.size()-1;i++){pos+=row.get(i);edgeCount.merge(pos,1,Integer::sum);maxEdges=Math.max(maxEdges,edgeCount.get(pos));}\n        }\n        return wall.size()-maxEdges;\n    }\n    public static void main(String[] a){\n        List<List<Integer>> wall=Arrays.asList(Arrays.asList(1,2,2,1),Arrays.asList(3,1,2),Arrays.asList(1,3,2),Arrays.asList(2,4),Arrays.asList(3,1,2),Arrays.asList(1,3,1,1));\n        System.out.println(leastBricks(wall)); // 2\n        System.out.println(\"O(n*w) \u2014 count edge positions, answer=rows-maxEdges\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "O(n*w)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m34_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Minimum Window Substring (LeetCode #76)",
+      "instructions": "Implement: Minimum Window Substring (LeetCode #76).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MinWin {\n    public static String minWindow(String s, String t) {\n        int[] need=new int[128],window=new int[128];\n        for(char c:t.toCharArray()) need[c]++;\n        int req=t.length(),lo=0,minL=Integer.MAX_VALUE,ms=0;\n        for(int hi=0;hi<s.length();hi++){\n            char c=s.charAt(hi); window[c]++;\n            if(need[c]>0&&window[c]<=need[c]) req--;\n            while(req==0){if(hi-lo+1<minL){minL=hi-lo+1;ms=lo;}\n                char l=s.charAt(lo);window[l]--;if(need[l]>0&&window[l]<need[l])req++;lo++;}\n        }\n        return minL==Integer.MAX_VALUE?\"\":s.substring(ms,ms+minL);\n    }\n    public static void main(String[] a){\n        System.out.println(minWindow(\"ADOBECODEBANC\",\"ABC\")); // BANC\n        System.out.println(minWindow(\"a\",\"a\")); // a\n        System.out.println(minWindow(\"a\",\"aa\")); // (empty)\n        System.out.println(\"O(|s|+|t|) \u2014 required counter, shrink when satisfied\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "BANC",
+            "O(|s|+|t|)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Alien Dictionary (topological sort via HashMap)",
+      "instructions": "Implement: Alien Dictionary (topological sort via HashMap).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class AlienDict {\n    public static String alienOrder(String[] words) {\n        Map<Character,Set<Character>> adj=new HashMap<>();Map<Character,Integer> indegree=new HashMap<>();\n        for(String w:words) for(char c:w.toCharArray()){adj.putIfAbsent(c,new HashSet<>());indegree.putIfAbsent(c,0);}\n        for(int i=0;i<words.length-1;i++){String a=words[i],b=words[i+1];int len=Math.min(a.length(),b.length());boolean found=false;\n            for(int j=0;j<len;j++){if(a.charAt(j)!=b.charAt(j)){if(!adj.get(a.charAt(j)).contains(b.charAt(j))){adj.get(a.charAt(j)).add(b.charAt(j));indegree.merge(b.charAt(j),1,Integer::sum);}found=true;break;}}\n            if(!found&&a.length()>b.length()) return \"\";}\n        Queue<Character> q=new ArrayDeque<>();for(char c:indegree.keySet())if(indegree.get(c)==0)q.offer(c);\n        StringBuilder sb=new StringBuilder();while(!q.isEmpty()){char c=q.poll();sb.append(c);for(char nb:adj.get(c)){indegree.merge(nb,-1,Integer::sum);if(indegree.get(nb)==0)q.offer(nb);}}\n        return sb.length()==indegree.size()?sb.toString():\"\";\n    }\n    public static void main(String[] a){\n        System.out.println(alienOrder(new String[]{\"wrt\",\"wrf\",\"er\",\"ett\",\"rftt\"})); // wertf\n        System.out.println(\"O(C) \u2014 C total characters. Topological sort + HashMap adjacency\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "wertf",
+            "Topological sort"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Shortest Path in Binary Matrix (BFS + visited set)",
+      "instructions": "Implement: Shortest Path in Binary Matrix (BFS + visited set).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ShortestBinary {\n    public static int shortestPathBinaryMatrix(int[][] grid) {\n        int n=grid.length;\n        if(grid[0][0]==1||grid[n-1][n-1]==1) return -1;\n        Queue<int[]> q=new ArrayDeque<>();q.offer(new int[]{0,0,1});grid[0][0]=1;\n        int[][] dirs={{-1,-1},{-1,0},{-1,1},{0,-1},{0,1},{1,-1},{1,0},{1,1}};\n        while(!q.isEmpty()){int[] cur=q.poll();int r=cur[0],c=cur[1],d=cur[2];\n            if(r==n-1&&c==n-1) return d;\n            for(int[] dir:dirs){int nr=r+dir[0],nc=c+dir[1];if(nr>=0&&nr<n&&nc>=0&&nc<n&&grid[nr][nc]==0){grid[nr][nc]=1;q.offer(new int[]{nr,nc,d+1});}}}\n        return -1;\n    }\n    public static void main(String[] a){\n        System.out.println(shortestPathBinaryMatrix(new int[][]{{0,1},{1,0}})); // 2\n        System.out.println(shortestPathBinaryMatrix(new int[][]{{0,0,0},{1,1,0},{1,1,0}})); // 4\n        System.out.println(\"O(n\u00b2) BFS \u2014 modify grid as visited to avoid HashSet\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "4",
+            "O(n\u00b2)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Max Points on a Line (LeetCode #149)",
+      "instructions": "Implement: Max Points on a Line (LeetCode #149).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MaxPoints {\n    public static int maxPoints(int[][] points) {\n        int n=points.length, max=1;\n        for(int i=0;i<n;i++){\n            Map<String,Integer> slopes=new HashMap<>();int same=1;\n            for(int j=i+1;j<n;j++){\n                int dx=points[j][0]-points[i][0],dy=points[j][1]-points[i][1];\n                if(dx==0&&dy==0){same++;continue;}\n                int g=gcd(Math.abs(dx),Math.abs(dy));dx/=g;dy/=g;\n                if(dx<0){dx=-dx;dy=-dy;}\n                String key=dx+\",\"+dy; slopes.merge(key,1,Integer::sum);\n                max=Math.max(max,slopes.get(key)+same);\n            }\n            max=Math.max(max,same);\n        }\n        return max;\n    }\n    static int gcd(int a,int b){return b==0?a:gcd(b,a%b);}\n    public static void main(String[] a){\n        System.out.println(maxPoints(new int[][]{{1,1},{2,2},{3,3}})); // 3\n        System.out.println(maxPoints(new int[][]{{1,1},{3,2},{5,3},{4,1},{2,3},{1,4}})); // 4\n        System.out.println(\"O(n\u00b2) \u2014 for each point, count slopes to others\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "4",
+            "O(n\u00b2)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "HashMap patterns synthesis",
+      "instructions": "Implement: HashMap patterns synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HMPatSynth {\n    static List<List<String>> groupAna(String[] s){Map<String,List<String>> m=new HashMap<>();for(String w:s){char[]c=w.toCharArray();Arrays.sort(c);m.computeIfAbsent(new String(c),k->new ArrayList<>()).add(w);}return new ArrayList<>(m.values());}\n    static int[] topK(int[] n,int k){Map<Integer,Integer> f=new HashMap<>();for(int x:n)f.merge(x,1,Integer::sum);PriorityQueue<Integer> pq=new PriorityQueue<>(Comparator.comparingInt(f::get));for(int x:f.keySet()){pq.offer(x);if(pq.size()>k)pq.poll();}int[]r=new int[k];for(int i=k-1;i>=0;i--)r[i]=pq.poll();return r;}\n    static boolean isoStr(String s,String t){int[]a=new int[128],b=new int[128];for(int i=0;i<s.length();i++){char sc=s.charAt(i),tc=t.charAt(i);if(a[sc]!=b[tc])return false;a[sc]=b[tc]=i+1;}return true;}\n    public static void main(String[] a2){\n        System.out.println(groupAna(new String[]{\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"}).size());\n        System.out.println(Arrays.toString(topK(new int[]{1,1,1,2,2,3},2)));\n        System.out.println(isoStr(\"egg\",\"add\"));\n        boolean ok=groupAna(new String[]{\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"}).size()==3&&Arrays.toString(topK(new int[]{1,1,1,2,2,3},2)).equals(\"[2, 1]\")&&isoStr(\"egg\",\"add\");\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "3",
+            "[2, 1]",
+            "true"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M34 T2 HashMap Patterns Synthesis",
+      "instructions": "Implement: Complete M34 T2 HashMap Patterns Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T2Final {\n    static List<List<String>> grp(String[] s){Map<String,List<String>> m=new HashMap<>();for(String w:s){char[]c=w.toCharArray();Arrays.sort(c);m.computeIfAbsent(new String(c),k->new ArrayList<>()).add(w);}return new ArrayList<>(m.values());}\n    static int[] topK(int[] n,int k){Map<Integer,Integer> f=new HashMap<>();for(int x:n)f.merge(x,1,Integer::sum);PriorityQueue<Integer> pq=new PriorityQueue<>(Comparator.comparingInt(f::get));for(int x:f.keySet()){pq.offer(x);if(pq.size()>k)pq.poll();}int[]r=new int[k];for(int i=k-1;i>=0;i--)r[i]=pq.poll();return r;}\n    static String minWin(String s,String t){int[] nd=new int[128],wd=new int[128];for(char c:t.toCharArray())nd[c]++;int req=t.length(),lo=0,ml=Integer.MAX_VALUE,ms=0;for(int hi=0;hi<s.length();hi++){char c=s.charAt(hi);wd[c]++;if(nd[c]>0&&wd[c]<=nd[c])req--;while(req==0){if(hi-lo+1<ml){ml=hi-lo+1;ms=lo;}char l=s.charAt(lo);wd[l]--;if(nd[l]>0&&wd[l]<nd[l])req++;lo++;}}return ml==Integer.MAX_VALUE?\"\":s.substring(ms,ms+ml);}\n    public static void main(String[] a){\n        System.out.println(\"grpAna=\"+grp(new String[]{\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"}).size());\n        System.out.println(\"topK=\"+Arrays.toString(topK(new int[]{1,1,1,2,2,3},2)));\n        System.out.println(\"minWin=\"+minWin(\"ADOBECODEBANC\",\"ABC\"));\n        boolean ok=grp(new String[]{\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"}).size()==3&&minWin(\"ADOBECODEBANC\",\"ABC\").equals(\"BANC\");\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "grpAna=3",
+            "minWin=BANC"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

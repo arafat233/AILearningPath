@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m45_t5_proj",
+  "linked_topic": "java_m45_t5",
+  "level": "mini",
+  "name": "Mock Round Synthesis \u2014 Full Interview Simulations",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Build Mock Round Synthesis \u2014 Full Interview Simulations.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "All exercises.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 timed sessions.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "Reflection.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Peer review.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Mock interview: set timer. No IDE hints. Communicate every decision. Test before saying done. Rate yourself on: correctness, communication, time, edge cases.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Timed",
+      "points": 35
+    },
+    {
+      "category": "Reflection",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

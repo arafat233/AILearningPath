@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m1_t4_proj",
+  "linked_topic": "java_m1_t4",
+  "level": "mini",
+  "name": "ATM Withdrawal System",
+  "estimated_minutes": 40,
+  "difficulty": 4,
+  
+  "scenario": "You're building part of the backend for an ATM system. When a customer requests a withdrawal, multiple checks must pass before money is dispensed: is the amount valid, does the account have enough balance, hasn't the daily limit been exceeded, are the requested denominations available, is the card not blocked, is the account active? This is a perfect use case for conditional logic — and a slightly intimidating one because real ATMs handle real money. You're going to write production-quality logic.",
+  
+  "description": "Build a Java program that processes an ATM withdrawal request using if/else if chains for validation and switch (or modern switch expression) for routing decisions. Output a detailed transaction log showing which checks passed, which failed, and the final result.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `ATMWithdrawal` in file ATMWithdrawal.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Implements at least 5 validation checks using if-else if chain",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Uses a switch statement (classic or modern) at least once",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Uses the ternary operator at least once",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Always uses braces (no single-line if statements)",
+        "weight": 5
+      },
+      {
+        "id": "req_7",
+        "description": "Output shows status of each check + final result",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Calculates remaining daily limit using ternary",
+        "weight": 10
+      },
+      {
+        "id": "bonus_2",
+        "description": "Uses modern switch expression (Java 14+ arrow syntax) for transaction fees by account type",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Handles 'denomination' check: amount must be divisible by 100 (ATM dispenses ₹100 notes minimum)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Output styled professionally with sections, status indicators (✓ / ✗), and a final TRANSACTION APPROVED or DENIED banner",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Use these realistic ATM scenario values:\n\nCUSTOMER DATA:\n- accountNumber: 'AC4729384726'\n- accountType: 'Savings' (could be 'Savings', 'Current', 'Salary', 'NRI')\n- currentBalance: 25000.0\n- accountActive: true\n- cardBlocked: false\n\nDAILY USAGE:\n- todayWithdrawals: 8000.0 (already withdrawn today)\n- DAILY_LIMIT: 25000.0 (constant)\n\nREQUEST:\n- requestedAmount: 5000.0\n- isATMOwner: true (their bank's ATM = no fee, other banks = fee)\n\nTry these scenarios after the first works:\n- amount = 30000 (exceeds balance)\n- amount = 750 (not divisible by 100)\n- cardBlocked = true\n- todayWithdrawals = 24000 (would exceed daily limit)\n- accountType = 'NRI' with non-owner ATM (fee differs)",
+  
+  "starter_code": "// Build your ATMWithdrawal program below\n// Must validate: card not blocked, account active, sufficient balance,\n// daily limit not exceeded, valid denomination, etc.\n\npublic class ATMWithdrawal {\n    public static void main(String[] args) {\n        // Customer data\n        String accountNumber = \"AC4729384726\";\n        String accountType = \"Savings\";\n        double currentBalance = 25000.0;\n        boolean accountActive = true;\n        boolean cardBlocked = false;\n        \n        // Daily usage\n        double todayWithdrawals = 8000.0;\n        final double DAILY_LIMIT = 25000.0;\n        \n        // Withdrawal request\n        double requestedAmount = 5000.0;\n        boolean isATMOwner = true;\n        \n        // TODO: Step 1 - Validate the request (if-else if chain)\n        \n        // TODO: Step 2 - Calculate fee using switch on accountType\n        \n        // TODO: Step 3 - Calculate new balance, remaining daily limit (ternary)\n        \n        // TODO: Step 4 - Print formatted output\n        \n    }\n}",
+  
+  "example_output": "╔═══════════════════════════════════════════╗\n║         ATM WITHDRAWAL REQUEST            ║\n╚═══════════════════════════════════════════╝\nAccount:          AC4729384726\nType:             Savings\nRequested Amount: ₹5000.0\n-------------------------------------------\nVALIDATION CHECKS:\n  ✓ Card not blocked\n  ✓ Account active\n  ✓ Amount valid (>0 and divisible by 100)\n  ✓ Sufficient balance (₹25000.0)\n  ✓ Within daily limit (₹8000.0 / ₹25000.0 used)\n-------------------------------------------\nFEE CALCULATION:\n  Account Type: Savings\n  ATM Owner:    true\n  Transaction Fee: ₹0.0\n-------------------------------------------\nTRANSACTION DETAILS:\n  Withdrawal:        ₹5000.0\n  Fee:               ₹0.0\n  Total Deducted:    ₹5000.0\n  New Balance:       ₹20000.0\n  Remaining Today:   ₹12000.0\n===========================================\n         ✓ TRANSACTION APPROVED\n===========================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs and produces output (5 pts)"
+      ]
+    },
+    {
+      "category": "If-Else If Chain (Validation)",
+      "points": 25,
+      "criteria": [
+        "At least 5 distinct validation checks (15 pts)",
+        "Checks in logical order (5 pts)",
+        "Properly handles failure cases (5 pts)"
+      ]
+    },
+    {
+      "category": "Switch Statement",
+      "points": 15,
+      "criteria": [
+        "Uses switch on account type or similar (10 pts)",
+        "Includes default case (5 pts)"
+      ]
+    },
+    {
+      "category": "Ternary Operator",
+      "points": 10,
+      "criteria": [
+        "Uses ternary at least once (5 pts)",
+        "Used appropriately for simple decisions (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "Always uses braces (5 pts)",
+        "Clear variable names (5 pts)",
+        "Comments separating sections (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 20,
+      "criteria": [
+        "Sections clearly separated (5 pts)",
+        "Each validation check displayed (10 pts)",
+        "Final approval/denial banner (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 50,
+      "criteria": [
+        "Remaining limit calculation via ternary (10 pts)",
+        "Modern switch expression for fees (15 pts)",
+        "Denomination check (10 pts)",
+        "Polished output with checkmarks (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. This is a real-world style problem requiring you to translate business rules to code — a core engineering skill. Plan first, code second. If stuck on Java syntax, that's a valid hint use. If stuck on logic, think harder before asking.",
+  
+  "submission_instructions": "Save as ATMWithdrawal.java. Test multiple scenarios by changing the input values (low balance, blocked card, daily limit exceeded, non-divisible amount). When all scenarios produce sensible output, you're done. Commit to GitHub with a clear message.",
+  
+  "tips_for_success": [
+    "Start by writing the validation logic in pseudo-code (English), then translate to Java.",
+    "Order matters in your if-else if chain. Cheap checks first (boolean checks), expensive checks last.",
+    "Use a flag boolean (e.g., `boolean approved = true`) and flip it to false in any failing check. Or use a String to hold the failure reason.",
+    "Switch on accountType for fees makes for clean code. Modern switch expression is cleaner.",
+    "Ternary is perfect for calculations like: `double fee = isATMOwner ? 0.0 : 20.0;`",
+    "Print as you go. Don't try to write the entire output at the end.",
+    "Test edge cases: what if requestedAmount is exactly the daily limit? What about zero?"
+  ],
+  
+  "concepts_reinforced": [
+    "if-else if chains for sequential validation",
+    "switch statement (classic and modern)",
+    "Ternary operator for simple decisions",
+    "Boolean logic combining multiple conditions",
+    "Block scope and variable declaration",
+    "String comparison with .equals()",
+    "Modulo for divisibility checking",
+    "Real-world business rule translation"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Building this teaches you something most tutorials skip: TRANSLATING BUSINESS RULES TO CODE. Real engineers don't write code from puzzle problems — they get requirements from product managers, customers, regulations, and have to figure out how to express those rules in software. The rules here (daily limits, account types, fees, denominations) are exactly the kind of complexity you'll face every day. The validation pattern you build here — sequential checks, early exit on failure, clear status reporting — is reused across virtually every backend system in industry.",
+  
+  "extensions_for_advanced_learners": [
+    "Add 'transaction reference number' generation using current timestamp",
+    "Implement multiple withdrawals in sequence (preview of loops, Topic 5)",
+    "Add audit log: store each transaction's outcome",
+    "Add 'overdraft protection' logic for premium accounts",
+    "Handle international cards with currency conversion (extra fee + exchange rate)",
+    "Add 'wallet integration': can withdraw to PhonePe/Paytm with different rules"
+  ]
+}

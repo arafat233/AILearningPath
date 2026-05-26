@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m22_t5",
+  "language": "java",
+  "module_id": "m22",
+  "module_name": "Performance & Optimization",
+  "topic_number": 5,
+  "name": "Load Testing with Gatling",
+  "slug": "load-testing-gatling",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m22_t4"],
+    "concepts_taught": ["load_testing_overview","gatling_simulation","scenario_builder","inject_open","ramp_users","constant_users_per_sec","assertions","percentile_assertions","response_time_assertions","throughput_assertions","feeder","correlation","warmup_phase"],
+    "skills_developed": ["writing_gatling_simulations","defining_load_profiles","asserting_slos_in_load_test","correlating_dynamic_data","running_gatling_reports"],
+    "career_relevance": "Before deploying optimizations to production, you validate them with load testing. Zerodha runs Gatling tests before every market-open season. After JVM + DB + cache tuning: does the service actually meet p99 < 200ms at 500 req/s? Gatling tells you in 2 minutes, not after a production incident.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay's payment service was optimized: JVM tuned, indexes added, cache added. Does it actually meet SLOs?\n\n```\nGatling load test: 5-minute run, 500 users, ramp 30s:\n\nBEFORE optimization:\n  p50: 180ms  p95: 1,200ms  p99: 4,800ms  ← SLO VIOLATION!\n  Error rate: 2.3%\n  Requests/sec: 247 (throughput limited)\n\nAFTER optimization (JVM + indexes + cache):\n  p50: 45ms   p95: 120ms    p99: 195ms    ← SLO MET!\n  Error rate: 0.02%\n  Requests/sec: 498 (2× throughput)\n\nConclusion: all optimizations proven to work under real load.\n```",
+    "what_you_will_build": "A Gatling simulation for Razorpay's payment API: ramp-up phase, sustained load, SLO assertions on p99 latency and error rate."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "gatling_simulation": "**Complete Gatling simulation:**\n\n```java\npublic class PaymentLoadSimulation extends Simulation {\n    // HTTP configuration:\n    HttpProtocolBuilder httpProtocol = http\n        .baseUrl(\"http://staging.razorpay.internal\")\n        .acceptHeader(\"application/json\")\n        .contentTypeHeader(\"application/json\")\n        .shareConnections();\n    \n    // Feeder: CSV with test data\n    FeederBuilder.Batchable<String> merchantFeeder =\n        csv(\"merchants.csv\").random();\n    \n    // Scenario: payment processing flow\n    ScenarioBuilder paymentScenario = scenario(\"Payment Processing\")\n        .feed(merchantFeeder)\n        .exec(\n            http(\"POST /api/payments\")\n                .post(\"/api/payments\")\n                .header(\"X-API-Key\", \"#{apiKey}\")\n                .body(StringBody(\"\"\"\n                    {\"merchant_id\": \"#{merchantId}\",\n                     \"amount\": #{amount},\n                     \"gateway\": \"visa\"}\n                \"\"\"))\n                .check(\n                    status().is(200),\n                    jsonPath(\"$.status\").is(\"PENDING\"),\n                    responseTimeInMillis().lt(500)  // each request < 500ms\n                )\n        )\n        .pause(100.milliseconds, 500.milliseconds);\n    \n    // Load profile: warmup → ramp → sustain\n    {\n        setUp(\n            paymentScenario.injectOpen(\n                atOnceUsers(10),                         // baseline: 10 users immediately\n                rampUsers(100).during(30),               // ramp to 100 users in 30s\n                constantUsersPerSec(50).during(120)      // sustain 50 req/s for 2 minutes\n            )\n        ).protocols(httpProtocol)\n         .assertions(\n             global().responseTime().percentile(99).lt(200),    // p99 < 200ms\n             global().responseTime().percentile(95).lt(120),    // p95 < 120ms\n             global().successfulRequests().percent().gt(99.9),  // < 0.1% errors\n             global().requestsPerSec().gt(45)                    // throughput > 45 req/s\n         );\n    }\n}\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Gatling report page: top chart shows users over time (ramp from 0 to 100 over 30s, then constant 100). Bottom-left: response time percentiles over time (p50=45ms, p95=120ms, p99=195ms, all stable). Bottom-right: requests per second (steady 498 req/s). Summary table: total requests=14,940, KO=3 (0.02%), min=12ms, mean=51ms, p95=120ms, p99=195ms, max=312ms. All assertions: PASS (green checkmarks).", "alt_text": "Gatling load test report showing response time percentiles and throughput over test duration" }
+  },
+  "worked_example": {
+    "scenario": "Load test Razorpay payment service after all M22 optimizations. Verify SLOs under 500 req/s.",
+    "problem_statement": "1. Gatling simulation: ramp to 500 users, 2-minute sustain\n2. Assertions: p99 < 200ms, error rate < 0.1%, throughput > 450 req/s\n3. Feeder: CSV with merchant IDs and amounts\n4. Run and interpret the report",
+    "step_by_step_solution": [
+      { "step": 1, "action": "Maven plugin setup", "details": "```xml\n<plugin>\n  <groupId>io.gatling</groupId>\n  <artifactId>gatling-maven-plugin</artifactId>\n  <version>4.6.0</version>\n</plugin>\n<!-- Run: mvn gatling:test -DsimulationClass=PaymentLoadSimulation -->\n```" },
+      { "step": 2, "action": "Interpret results", "details": "```\ngatling/results/paymentload-*/index.html → open in browser\nLook for: p99 latency trend (should stay flat during sustained load)\nRed requests: any failures → investigate errors in request-level report\nAssertions: PASS = SLOs met\n```" }
+    ],
+    "final_code": "# Run: mvn gatling:test\n# Report: target/gatling/paymentloadsimulation-*/index.html\n# CI: add to GitHub Actions (run on staging before prod deploy)",
+    "expected_output": "================================================================================\nAssertions:\n  Global: 99th percentile of response time is less than 200 - OK\n  Global: 95th percentile of response time is less than 120 - OK\n  Global: percentage of successful requests is greater than 99.9 - OK\n  Global: mean requests/sec is greater than 45 - OK\n\nSimulation PaymentLoadSimulation completed in 151 seconds",
+    "things_to_notice": [
+      "Response time assertions: p99.lt(200) means the simulation FAILS if p99 exceeds 200ms. This is how you enforce SLOs in CI — failing Gatling = blocking deployment.",
+      "injectOpen vs injectClosed: Open = arrival rate (users arrive at a rate, regardless of current active users — models real internet traffic). Closed = concurrent users (maintain exactly N active users at all times — models limited user pools). For APIs: usually injectOpen.",
+      "Feeder: CSV file provides test data variability. Without feeder: every request uses the same merchant ID — DB may cache it specifically, making results unrealistically good.",
+      "warmup phase (atOnceUsers(10) before ramp): ensures JIT has compiled hot paths before measuring performance. Without warmup: first requests are slower (C1 JIT, not C2) — inflates p99."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Zerodha pre-market-open load test", "use_case": "Every Friday: Gatling test on staging. Profile: ramp to 1000 users (market open surge), sustain 10 minutes. Assertions: order execution p99 < 500ms, throughput > 800 req/s. If assertions fail: investigation before next trading week. Prevents 9:15am production incidents." }
+    ],
+    "interview_relevance": "'How do you validate performance before deploying?' → Gatling load test on staging. Scenario: ramp to expected peak load, sustain for 5-10 minutes. Assertions: p99 < SLO, error rate < 0.1%, throughput > minimum. Fail the CI pipeline if assertions fail. Run after every significant change.",
+    "real_world_workflow": "Load testing workflow: (1) write Gatling simulation, (2) run on staging with production-like data, (3) check assertions, (4) if fail: profile with async-profiler or Zipkin traces, (5) fix bottleneck, (6) re-run Gatling until assertions pass."
+  },
+  "common_gaps": [
+    { "gap_id": "testing_with_same_data", "what_students_get_wrong": "Using the same merchant ID for all load test requests. DB caches this specific record. Results are unrealistically fast (cache hit every time). Real production: random merchant IDs.", "remediation": "Use Gatling feeder: CSV with 1000 merchant IDs, random selection. This ensures cache pressure is realistic (mix of hits and misses).", "detection_pattern": "Load test p50 = 1ms (suspiciously fast); production p50 = 45ms. Root cause: test used cached data; production has random access patterns" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "Gatling: validates optimizations under real load before production",
+      "injectOpen: models real traffic (arrival rate). injectClosed: models limited concurrency.",
+      "Assertions: p99.lt(200), successRate.gt(99.9) — fails CI if violated",
+      "Feeder: CSV/JSON test data for realistic cache miss patterns",
+      "Warmup phase (atOnceUsers): JIT compilation before measuring",
+      "Gatling report: response time percentile charts + throughput over time",
+      "Run in CI: blocking deployment if performance regresses"
+    ],
+    "self_check_questions": [
+      { "question": "Your load test passes with p99 = 180ms at 100 users. How do you know if it will still pass at 500 users?", "answer": "You don't — 100 users might be within comfortable headroom. Scale test: run multiple Gatling simulations with increasing users (100, 200, 300, 400, 500) and record p99 at each level. This is a 'capacity test' or 'stress test'. Look for: the point where p99 exceeds SLO (500ms). That's your concurrency limit. Also test 'spike test': jump from 0 to 500 users instantly — does the system degrade gracefully (circuit breakers fire) or fail catastrophically? For trading services: test market-open surge (rampUsers(500).during(10)) — 500 users arriving in 10 seconds." }
+    ],
+    "next_topic_preview": "Module 22: Performance & Optimization is complete! You've mastered JVM tuning (T22.1), database query optimization (T22.2), connection pool sizing (T22.3), two-level caching (T22.4), and load testing (T22.5). Module 23 covers Security — JWT authentication, OAuth2, secrets management, and input validation."
+  }
+}

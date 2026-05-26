@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m44_t2",
+  "module_id": "m44",
+  "topic_number": 2,
+  "name": "Leadership and Collaboration Stories",
+  "slug": "leadership-collaboration",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m43_t5"
+    ],
+    "concepts_taught": [
+      "leadership-collaboration"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Leadership and Collaboration Stories"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Leadership without title: initiative + data + empathy = strongest combination",
+        "Conflict resolution: data before opinion, empathy before correction, propose privately first",
+        "Collaboration: cross-functional alignment, stakeholder management, shared ownership",
+        "Mentorship: teaching others, documentation, knowledge transfer count as impact",
+        "Process improvement: systemic fix > one-time fix in story value",
+        "Metrics: quantify team impact (deployment frequency, error rate, onboarding time)"
+      ],
+      "next_topic_preview": "Next: Technical decisions."
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m39_t3",
+  "module_id": "m39",
+  "topic_number": 3,
+  "name": "Rotated Arrays \u2014 Search, Find Min, Find Peak",
+  "slug": "rotated-arrays-search-min-peak",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m39_t1"
+    ],
+    "concepts_taught": [
+      "rotated-arrays-search-min-peak"
+    ],
+    "career_relevance": "Core Rotated Arrays \u2014 Search, Find Min, Find Peak.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Rotated Arrays \u2014 Search, Find Min, Find Peak"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Rotated sorted array: one half is always sorted",
+        "Find sorted half: if a[lo]<=a[m]: left half sorted; else right half sorted",
+        "Search in rotated: check which half target is in",
+        "Find minimum: if a[m]>a[hi]: min is in right (lo=m+1); else hi=m",
+        "Find peak: if a[m]>a[m+1]: peak in left (hi=m); else lo=m+1",
+        "Loop condition: `lo<hi` (not `lo<=hi`) when finding min/peak"
+      ],
+      "next_topic_preview": "Next: 2D Binary Search."
+    }
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m14_t3_proj",
+  "linked_topic": "java_m14_t3",
+  "level": "mini",
+  "name": "Data Pipeline Test Suite — Caching Layer",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+
+  "scenario": "Add production-grade Caffeine caching to the Flipkart-style product import pipeline. Product data is read far more often than written — perfect for caching. The cache layer eliminates database load for read-heavy workloads while keeping data consistent with targeted cache eviction.",
+
+  "description": "Add @Cacheable, @CachePut, @CacheEvict to the ProductService from Module 13. Configure Caffeine with per-cache TTLs. Write @SpringBootTest tests verifying cache hits, evictions, and consistency.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "@EnableCaching on Application class. `CacheConfig` @Configuration with Caffeine: 'products' cache (max=1000, 5min TTL, recordStats), 'products-by-category' cache (max=200, 5min TTL).",
+        "weight": 18
+      },
+      {
+        "id": "req_2",
+        "description": "`ProductService.findAll()` → @Cacheable('products'). `findById(String id)` → @Cacheable(value='products', key='#id'). `findByCategory(String cat)` → @Cacheable(value='products-by-category', key='#cat').",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`ProductService.save(Product p)` → @Caching: @CachePut('products', key='#result.id') + @CacheEvict('products', allEntries=true) + @CacheEvict('products-by-category', allEntries=true).",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`ProductService.delete(String id)` → @Caching: @CacheEvict('products', key='#id') + @CacheEvict('products', allEntries=true) + @CacheEvict('products-by-category', allEntries=true).",
+        "weight": 12
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest tests (minimum 4): findAll caches result; findById caches per id; save evicts list cache; delete evicts both product and list cache.",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "Performance test: call findAll() 1000 times in a loop, assert total time < 1 second (proves cache eliminates DB overhead).",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @Cacheable conditional: findByCategory only caches results with >= 2 products (using condition='#result != null && #result.size() >= 2'). Test that single-product categories are not cached.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add cache statistics endpoint: GET /api/admin/cache-stats returns {cacheName, hitCount, missCount, hitRate} for each Caffeine cache (use cache.getNativeCache().stats()).",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add @Scheduled(fixedRate=300000) job that pre-warms the cache by calling findAll() and findByCategory for all known categories — ensures cache is warm after TTL expiry.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Seed data (5 products):\n- Wireless Mouse (Electronics), ₹799\n- Keyboard (Electronics), ₹1999\n- USB-C Hub (Accessories), ₹499\n- Monitor (Electronics), ₹18999\n- Ergonomic Chair (Furniture), ₹8999\n\nCache config:\n- 'products': max=1000, TTL=5min\n- 'products-by-category': max=200, TTL=5min\n- recordStats=true on both",
+
+  "starter_code": "// Build on the ProductService from Module 13.3\n// Add caching annotations and Caffeine config\n\n// CacheConfig.java:\n@Configuration\n@EnableCaching\nclass CacheConfig {\n    @Bean CacheManager cacheManager() {\n        // Configure two Caffeine caches\n    }\n}\n\n// ProductService.java — add cache annotations to existing methods\n\n// ProductCacheTest.java — @SpringBootTest with 5 tests",
+
+  "example_output": "# First findAll():\nDB hit: findAll() — fetched 5 products\n\n# Second findAll() (500ms later):\n[cache hit] — 5 products, no DB query\n\n# save(new product):\nDB write: save Headphones\n[cache evicted: products, products-by-category]\n\n# findAll() after save:\nDB hit: findAll() — fetched 6 products (cache was cleared)\n\n# Performance test:\n1000 calls to findAll(): 45ms total (0.045ms avg — cache!)\n\n# Test results:\n✓ findAll_populatesProductsCache\n✓ findById_cachesPerProductId\n✓ save_evictsAllListCaches\n✓ delete_evictsProductAndListCaches\n✓ performanceTest_1000callsUnder1Second",
+
+  "rubric": [
+    { "category": "CacheConfig", "points": 18, "criteria": ["Two Caffeine caches (10 pts)", "Correct TTL/size (8 pts)"] },
+    { "category": "Read caching", "points": 20, "criteria": ["findAll (7 pts)", "findById (7 pts)", "findByCategory (6 pts)"] },
+    { "category": "Write eviction (save)", "points": 20, "criteria": ["@Caching with 3 operations (20 pts)"] },
+    { "category": "Delete eviction", "points": 12, "criteria": ["@Caching with 3 evictions (12 pts)"] },
+    { "category": "@SpringBootTest tests", "points": 20, "criteria": ["4 cache tests (5 pts each)"] },
+    { "category": "Performance test", "points": 10, "criteria": ["1000 calls < 1 second (10 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["Conditional cache (15 pts)", "Stats endpoint (20 pts)", "Cache warm-up job (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: @Caching(evict={...}, put={...}) for multiple cache operations. Cache test: @BeforeEach clear all caches + reload test data. Performance: long before=System.nanoTime(); for(int i=0;i<1000;i++) service.findAll(); assertTrue((System.nanoTime()-before)/1_000_000 < 1000). SimpleKey.EMPTY for no-arg method cache check.",
+
+  "submission_instructions": "Push to GitHub. All 5 tests pass. Add cache TTL and maxSize comments explaining why those values were chosen.",
+
+  "tips_for_success": [
+    "@Caching for save: 3 annotations in one — put product, evict products list, evict category list",
+    "Cache test: cacheManager.getCache('products').get(SimpleKey.EMPTY) for findAll()",
+    "@BeforeEach: clear both caches AND reload data — essential for isolation",
+    "Performance test: call findAll 1000x, measure total nanoseconds, convert to ms",
+    "CacheConfig: use registerCustomCache for per-cache TTL control"
+  ],
+
+  "concepts_reinforced": [
+    "@EnableCaching + @Cacheable, @CachePut, @CacheEvict",
+    "@Caching for multiple cache operations",
+    "Caffeine CacheManager with TTL and maxSize",
+    "Cache test with CacheManager injection",
+    "SimpleKey.EMPTY for no-arg method keys",
+    "Cache performance: verify near-zero latency on repeated calls"
+  ]
+}

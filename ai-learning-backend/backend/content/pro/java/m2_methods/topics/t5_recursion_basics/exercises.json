@@ -1,0 +1,456 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t5",
+  "topic_name": "Recursion Basics",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m2_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace basic countdown",
+      "scenario": "Predict what a simple recursive method prints.",
+      "instructions": "What does this print?\n\n```java\npublic class Demo {\n    public static void main(String[] args) {\n        countDown(3);\n    }\n    \n    public static void countDown(int n) {\n        if (n == 0) return;\n        System.out.println(n);\n        countDown(n - 1);\n    }\n}\n```",
+      "expected_solution": "3\n2\n1",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "3\n2\n1"
+        }
+      ],
+      "hints": [
+        "countDown(3): prints 3, calls countDown(2)",
+        "countDown(2): prints 2, calls countDown(1)",
+        "countDown(1): prints 1, calls countDown(0)",
+        "countDown(0): base case, returns immediately",
+        "Output: 3, 2, 1"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m2_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the base case",
+      "scenario": "Identify the missing base case.",
+      "instructions": "Fill in the base case to prevent infinite recursion.",
+      "starter_code": "public class App {\n    public static void main(String[] args) {\n        System.out.println(factorial(5));\n    }\n    \n    public static int factorial(int n) {\n        if (n == ______) {\n            return ______;\n        }\n        return n * factorial(n - 1);\n    }\n}",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        System.out.println(factorial(5));\n    }\n    \n    public static int factorial(int n) {\n        if (n == 0) {\n            return 1;\n        }\n        return n * factorial(n - 1);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "0", "hint": "What value of n stops recursion?" },
+        { "position": 2, "answer": "1", "hint": "0! is defined as 1" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "120"
+        }
+      ],
+      "hints": [
+        "Factorial base case: 0! = 1",
+        "When n reaches 0, return 1 (NOT 0 — would make everything 0)",
+        "5! = 5 * 4 * 3 * 2 * 1 = 120"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m2_t5_ex_3",
+      "level": "warmup",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Add missing base case",
+      "scenario": "This code will cause StackOverflowError. Fix it.",
+      "instructions": "Add the base case so this prints 5, 4, 3, 2, 1 (each on own line) without crashing.\n\nExpected output:\n5\n4\n3\n2\n1",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        printDown(5);\n    }\n    \n    public static void printDown(int n) {\n        System.out.println(n);\n        printDown(n - 1);\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        printDown(5);\n    }\n    \n    public static void printDown(int n) {\n        if (n == 0) return;\n        System.out.println(n);\n        printDown(n - 1);\n    }\n}",
+      "bugs": [
+        {
+          "line": "6-7",
+          "issue": "No base case — recursion never stops, eventually causes StackOverflowError",
+          "fix": "Add `if (n == 0) return;` at the start of the method"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "5\n4\n3\n2\n1",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Without a base case, this calls itself forever",
+        "Eventually Java runs out of stack space → StackOverflowError",
+        "Add `if (n == 0) return;` to stop when n reaches 0",
+        "Must be BEFORE the println and recursive call"
+      ],
+      "xp_reward": 25,
+      "common_misconceptions_tested": ["missing_base_case"]
+    },
+    
+    {
+      "id": "java_m2_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sum 1 to N recursively",
+      "scenario": "Implement classic recursive sum.",
+      "instructions": "Write a class `RecursiveSum` with:\n1. A method `sum(int n)` that returns 1 + 2 + ... + n using recursion\n2. main calls sum(5) and prints result\n\nBase case: sum(0) = 0\nRecursive case: sum(n) = n + sum(n-1)\n\nExpected output:\nSum 1 to 5: 15",
+      "starter_code": "// Write your RecursiveSum class below\n// Must use recursion, NOT a loop\n",
+      "expected_solution": "public class RecursiveSum {\n    public static void main(String[] args) {\n        System.out.println(\"Sum 1 to 5: \" + sum(5));\n    }\n    \n    public static int sum(int n) {\n        if (n == 0) {\n            return 0;\n        }\n        return n + sum(n - 1);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Sum 1 to 5: 15"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["sum(n - 1)"],
+          "must_not_contain": ["for (", "while ("]
+        }
+      ],
+      "hints": [
+        "Base case: if (n == 0) return 0",
+        "Recursive case: return n + sum(n - 1)",
+        "Trace: sum(5) = 5 + sum(4) = 5 + 4 + sum(3) = ... = 5+4+3+2+1+0 = 15",
+        "MUST use recursion (no loops)"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m2_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Count up recursively",
+      "scenario": "Print numbers in ASCENDING order using recursion.",
+      "instructions": "Write a class `CountUp` with a recursive method that prints 1 to 5 (ascending order):\n\nExpected output:\n1\n2\n3\n4\n5\n\nHint: place println AFTER the recursive call (so deeper calls return before printing).",
+      "starter_code": "// Write your CountUp class below\n// Must print ascending: 1, 2, 3, 4, 5\n// Hint: recursion FIRST, print AFTER\n",
+      "expected_solution": "public class CountUp {\n    public static void main(String[] args) {\n        countUp(5);\n    }\n    \n    public static void countUp(int n) {\n        if (n == 0) return;\n        countUp(n - 1);\n        System.out.println(n);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1\n2\n3\n4\n5"
+        }
+      ],
+      "hints": [
+        "Base case: if (n == 0) return",
+        "Make RECURSIVE call first: countUp(n - 1)",
+        "Then println(n)",
+        "Trace: countUp(5) recurses to countUp(0) first, then prints 1, 2, 3, 4, 5 as stack unwinds",
+        "Print BEFORE recurse = descending. Print AFTER recurse = ascending."
+      ],
+      "xp_reward": 35,
+      "concept_tested": "print_order_in_recursion"
+    },
+    
+    {
+      "id": "java_m2_t5_ex_6",
+      "level": "easy",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Trace factorial",
+      "scenario": "Walk through factorial recursion.",
+      "instructions": "What does this print?\n\n```java\npublic class Trace {\n    public static void main(String[] args) {\n        System.out.println(factorial(4));\n    }\n    \n    public static int factorial(int n) {\n        if (n == 0) return 1;\n        return n * factorial(n - 1);\n    }\n}\n```",
+      "expected_solution": "24",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "24"
+        }
+      ],
+      "hints": [
+        "factorial(4) = 4 * factorial(3)",
+        "factorial(3) = 3 * factorial(2)",
+        "factorial(2) = 2 * factorial(1)",
+        "factorial(1) = 1 * factorial(0)",
+        "factorial(0) = 1 (base case)",
+        "Unwind: 1 → 1 → 2 → 6 → 24"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m2_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Power function",
+      "scenario": "Compute x^n recursively.",
+      "instructions": "Write a class `Power` with a recursive method `power(int base, int exponent)` that calculates base^exponent.\n\nBase case: anything^0 = 1\nRecursive case: base^n = base * base^(n-1)\n\nmain tests with 2^10:\n\nExpected output:\n2^10 = 1024",
+      "starter_code": "// Write your Power class below\n",
+      "expected_solution": "public class Power {\n    public static void main(String[] args) {\n        System.out.println(\"2^10 = \" + power(2, 10));\n    }\n    \n    public static int power(int base, int exponent) {\n        if (exponent == 0) {\n            return 1;\n        }\n        return base * power(base, exponent - 1);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "2^10 = 1024"
+        }
+      ],
+      "hints": [
+        "Base case: when exponent reaches 0, return 1",
+        "Recursive: base * power(base, exponent - 1)",
+        "Trace: power(2,10) = 2 * power(2,9) = 2 * 2 * power(2,8) = ... = 1024",
+        "Notice: base stays the same, exponent decreases"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m2_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Recursive Fibonacci",
+      "scenario": "Implement Fibonacci using recursion (the classic example).",
+      "instructions": "Write a class `Fib` with a recursive method `fib(int n)` that returns the nth Fibonacci number.\n\nBase cases:\n- fib(0) = 0\n- fib(1) = 1\n\nRecursive case: fib(n) = fib(n-1) + fib(n-2)\n\nmain prints fib(0) through fib(10):\n\nExpected output:\nfib(0) = 0\nfib(1) = 1\nfib(2) = 1\nfib(3) = 2\nfib(4) = 3\nfib(5) = 5\nfib(6) = 8\nfib(7) = 13\nfib(8) = 21\nfib(9) = 34\nfib(10) = 55",
+      "starter_code": "// Write your Fib class below\n// Use recursion (we'll explore the slowness later)\n",
+      "expected_solution": "public class Fib {\n    public static void main(String[] args) {\n        for (int i = 0; i <= 10; i++) {\n            System.out.println(\"fib(\" + i + \") = \" + fib(i));\n        }\n    }\n    \n    public static int fib(int n) {\n        if (n == 0) return 0;\n        if (n == 1) return 1;\n        return fib(n - 1) + fib(n - 2);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "fib(0) = 0\nfib(1) = 1\nfib(2) = 1\nfib(3) = 2\nfib(4) = 3\nfib(5) = 5\nfib(6) = 8\nfib(7) = 13\nfib(8) = 21\nfib(9) = 34\nfib(10) = 55"
+        }
+      ],
+      "hints": [
+        "TWO base cases: n == 0 returns 0, n == 1 returns 1",
+        "Recursive case: fib(n-1) + fib(n-2)",
+        "main uses a loop to print 11 values (0 to 10)",
+        "Note: this is slow for n > 30 due to repeated computations — fine for demonstrating recursion"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "two_base_cases"
+    },
+    
+    {
+      "id": "java_m2_t5_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix recursive case that doesn't progress",
+      "scenario": "This code causes StackOverflowError despite having a base case. Find why.",
+      "instructions": "The code below has a base case but still crashes. The recursive case doesn't move toward the base case. Fix it.\n\nExpected output:\n10",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(decreaseUntilZero(10));\n    }\n    \n    public static int decreaseUntilZero(int n) {\n        if (n == 0) return 0;\n        return n + decreaseUntilZero(n + 1);  // BUG\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(decreaseUntilZero(10));\n    }\n    \n    public static int decreaseUntilZero(int n) {\n        if (n == 0) return 0;\n        return n + decreaseUntilZero(n - 1);\n    }\n}",
+      "bugs": [
+        {
+          "line": "7",
+          "issue": "Recursive call uses (n + 1), moving AWAY from base case (0). Will recurse forever.",
+          "fix": "Change to (n - 1) to move TOWARD the base case"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "55",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Base case is n == 0",
+        "If we call decreaseUntilZero(n + 1), n keeps growing",
+        "It never reaches 0 — infinite recursion → crash",
+        "Change to decreaseUntilZero(n - 1) so it decreases each call",
+        "For input 10: 10 + 9 + 8 + ... + 1 + 0 = 55"
+      ],
+      "xp_reward": 50,
+      "common_misconceptions_tested": ["recursive_case_not_moving_toward_base"]
+    },
+    
+    {
+      "id": "java_m2_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sum of digits (recursive)",
+      "scenario": "Compute sum of digits recursively (compare to Topic 1.5 iterative version).",
+      "instructions": "Write a class `DigitSum` with recursive method `sumOfDigits(int n)` that returns the sum of n's digits.\n\nBase case: if n < 10, return n\nRecursive case: return (n % 10) + sumOfDigits(n / 10)\n\nmain demonstrates with 12345:\n\nExpected output:\nSum of digits of 12345: 15",
+      "starter_code": "// Write your DigitSum class below\n// Must use recursion, NOT a loop\n",
+      "expected_solution": "public class DigitSum {\n    public static void main(String[] args) {\n        System.out.println(\"Sum of digits of 12345: \" + sumOfDigits(12345));\n    }\n    \n    public static int sumOfDigits(int n) {\n        if (n < 10) {\n            return n;\n        }\n        return (n % 10) + sumOfDigits(n / 10);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Sum of digits of 12345: 15"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["sumOfDigits(n / 10)"],
+          "must_not_contain": ["for (", "while ("]
+        }
+      ],
+      "hints": [
+        "Base case: single digit (n < 10) — return n itself",
+        "Recursive: last digit (n % 10) + sum of rest (sumOfDigits(n / 10))",
+        "12345 → 5 + sum(1234) → 5 + 4 + sum(123) → ... → 1+2+3+4+5 = 15",
+        "Compare: iterative version had 8 lines, recursive has 4"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m2_t5_ex_11",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace recursive pattern",
+      "scenario": "Predict output when print is positioned differently.",
+      "instructions": "What does this print?\n\n```java\npublic class Trace {\n    public static void main(String[] args) {\n        mystery(3);\n    }\n    \n    public static void mystery(int n) {\n        if (n == 0) return;\n        System.out.println(\"Before: \" + n);\n        mystery(n - 1);\n        System.out.println(\"After: \" + n);\n    }\n}\n```",
+      "expected_solution": "Before: 3\nBefore: 2\nBefore: 1\nAfter: 1\nAfter: 2\nAfter: 3",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Before: 3\nBefore: 2\nBefore: 1\nAfter: 1\nAfter: 2\nAfter: 3"
+        }
+      ],
+      "hints": [
+        "mystery(3): 'Before: 3' → recurse to mystery(2) → 'After: 3'",
+        "mystery(2): 'Before: 2' → recurse to mystery(1) → 'After: 2'",
+        "mystery(1): 'Before: 1' → recurse to mystery(0) → 'After: 1'",
+        "mystery(0): base case, returns immediately",
+        "All 'Before's print on the way DOWN; all 'After's print on the way UP",
+        "Result: Before 3, 2, 1; After 1, 2, 3"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "recursion_call_unwind_order"
+    },
+    
+    {
+      "id": "java_m2_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Count occurrences in number",
+      "scenario": "Count how many times a specific digit appears in a number.",
+      "instructions": "Write a class `DigitCount` with recursive method `countDigit(int number, int target)` that returns how many times `target` digit appears in `number`.\n\nExamples:\n- countDigit(12321, 2) = 2\n- countDigit(55555, 5) = 5\n- countDigit(12345, 9) = 0\n\nBase case: if number == 0, return 0\nRecursive case: 1 if last digit matches target, plus result for rest of digits\n\nExpected output:\nCount of 2 in 12321: 2\nCount of 5 in 55555: 5\nCount of 9 in 12345: 0",
+      "starter_code": "// Write your DigitCount class below\n",
+      "expected_solution": "public class DigitCount {\n    public static void main(String[] args) {\n        System.out.println(\"Count of 2 in 12321: \" + countDigit(12321, 2));\n        System.out.println(\"Count of 5 in 55555: \" + countDigit(55555, 5));\n        System.out.println(\"Count of 9 in 12345: \" + countDigit(12345, 9));\n    }\n    \n    public static int countDigit(int number, int target) {\n        if (number == 0) {\n            return 0;\n        }\n        int lastDigit = number % 10;\n        int countOfRest = countDigit(number / 10, target);\n        if (lastDigit == target) {\n            return 1 + countOfRest;\n        }\n        return countOfRest;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Count of 2 in 12321: 2\nCount of 5 in 55555: 5\nCount of 9 in 12345: 0"
+        }
+      ],
+      "hints": [
+        "Base case: number == 0, return 0 (no more digits)",
+        "Get last digit: number % 10",
+        "Recursive call on rest: countDigit(number / 10, target)",
+        "If last digit matches target, add 1 to the recursive result",
+        "Else just return the recursive result"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m2_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Recursive reverse number",
+      "scenario": "Build a number by extracting and reassembling digits — needs creative recursion.",
+      "instructions": "Write a class `ReverseNumber` with method `reverse(int n)` that returns n with its digits reversed.\n\nExamples:\n- reverse(1234) = 4321\n- reverse(700) = 7 (leading zeros dropped)\n- reverse(5) = 5\n\nThis is tricky! Use a helper method with an accumulator parameter:\n\n```java\npublic static int reverse(int n) {\n    return reverseHelper(n, 0);\n}\n\npublic static int reverseHelper(int n, int reversed) {\n    if (n == 0) return reversed;\n    // build reversed by shifting and adding last digit\n    return reverseHelper(n / 10, reversed * 10 + n % 10);\n}\n```\n\nExpected output:\nreverse(1234) = 4321\nreverse(700) = 7\nreverse(5) = 5",
+      "starter_code": "// Write your ReverseNumber class below\n// Use a helper method with an accumulator\n",
+      "expected_solution": "public class ReverseNumber {\n    public static void main(String[] args) {\n        System.out.println(\"reverse(1234) = \" + reverse(1234));\n        System.out.println(\"reverse(700) = \" + reverse(700));\n        System.out.println(\"reverse(5) = \" + reverse(5));\n    }\n    \n    public static int reverse(int n) {\n        return reverseHelper(n, 0);\n    }\n    \n    public static int reverseHelper(int n, int reversed) {\n        if (n == 0) {\n            return reversed;\n        }\n        return reverseHelper(n / 10, reversed * 10 + n % 10);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "reverse(1234) = 4321\nreverse(700) = 7\nreverse(5) = 5"
+        }
+      ],
+      "hints": [
+        "Use TWO methods: reverse (public wrapper) and reverseHelper (does the work)",
+        "Helper takes an accumulator parameter starting at 0",
+        "Each call: shift reversed left (* 10), add new last digit (n % 10)",
+        "Reduce n by /10 each call",
+        "Trace reverse(123): helper(123, 0) → helper(12, 3) → helper(1, 32) → helper(0, 321) → returns 321"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "accumulator_recursion"
+    },
+    
+    {
+      "id": "java_m2_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Recursive vs iterative comparison",
+      "scenario": "Implement the SAME problem two ways and compare.",
+      "instructions": "Write a class `Comparison` with TWO methods computing 1+2+3+...+n:\n\n1. `sumIterative(int n)` — uses a for loop\n2. `sumRecursive(int n)` — uses recursion\n\nmain compares results for n = 10:\n\nExpected output:\nIterative sum(10): 55\nRecursive sum(10): 55\nMatch: true",
+      "starter_code": "// Write your Comparison class below\n// Implement BOTH iterative and recursive versions\n",
+      "expected_solution": "public class Comparison {\n    public static void main(String[] args) {\n        int n = 10;\n        int iterResult = sumIterative(n);\n        int recurResult = sumRecursive(n);\n        \n        System.out.println(\"Iterative sum(\" + n + \"): \" + iterResult);\n        System.out.println(\"Recursive sum(\" + n + \"): \" + recurResult);\n        System.out.println(\"Match: \" + (iterResult == recurResult));\n    }\n    \n    public static int sumIterative(int n) {\n        int total = 0;\n        for (int i = 1; i <= n; i++) {\n            total += i;\n        }\n        return total;\n    }\n    \n    public static int sumRecursive(int n) {\n        if (n == 0) return 0;\n        return n + sumRecursive(n - 1);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Iterative sum(10): 55\nRecursive sum(10): 55\nMatch: true"
+        }
+      ],
+      "hints": [
+        "Iterative: standard accumulator pattern with for loop",
+        "Recursive: base case n==0 returns 0, recursive case n + sumRecursive(n-1)",
+        "Both produce 55 for n=10",
+        "Use == to compare ints",
+        "Notice: same output, different structure"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m2_t5_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Greatest Common Divisor (Euclidean algorithm)",
+      "scenario": "Implement Euclid's algorithm — one of the oldest algorithms (2000+ years old), still used in cryptography today.",
+      "instructions": "Write a class `GCD` with a recursive method `gcd(int a, int b)` using Euclid's algorithm:\n\n- If b == 0, gcd(a, b) = a (base case)\n- Otherwise, gcd(a, b) = gcd(b, a % b)\n\nThis efficiently finds the GCD — converges in O(log min(a,b)) steps.\n\nmain tests with several pairs:\n```\ngcd(48, 36) = 12\ngcd(100, 75) = 25\ngcd(17, 5) = 1\ngcd(1071, 462) = 21\n```",
+      "starter_code": "// Write your GCD class below\n// Euclid's algorithm: gcd(a, b) = gcd(b, a % b) until b == 0\n",
+      "expected_solution": "public class GCD {\n    public static void main(String[] args) {\n        System.out.println(\"gcd(48, 36) = \" + gcd(48, 36));\n        System.out.println(\"gcd(100, 75) = \" + gcd(100, 75));\n        System.out.println(\"gcd(17, 5) = \" + gcd(17, 5));\n        System.out.println(\"gcd(1071, 462) = \" + gcd(1071, 462));\n    }\n    \n    public static int gcd(int a, int b) {\n        if (b == 0) {\n            return a;\n        }\n        return gcd(b, a % b);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "gcd(48, 36) = 12\ngcd(100, 75) = 25\ngcd(17, 5) = 1\ngcd(1071, 462) = 21"
+        }
+      ],
+      "hints": [
+        "Base case: when b reaches 0, gcd is a",
+        "Recursive: swap them, with second becoming a % b",
+        "Trace gcd(48, 36): gcd(36, 12) → gcd(12, 0) → returns 12",
+        "Trace gcd(100, 75): gcd(75, 25) → gcd(25, 0) → returns 25",
+        "Beautiful algorithm — proven to terminate, very fast",
+        "Used in RSA encryption, fraction simplification, scheduling problems"
+      ],
+      "xp_reward": 90,
+      "concept_tested": "two_parameter_recursion"
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 8,
+      "debug": 2,
+      "predict_output": 3,
+      "algorithm": 1
+    },
+    "total_xp_possible": 695,
+    "estimated_completion_minutes": 55
+  },
+  
+  "gap_detection_map": {
+    "missing_base_case": ["ex_3"],
+    "recursive_case_not_moving_toward_base": ["ex_9"],
+    "print_order_in_recursion": ["ex_5", "ex_11"],
+    "two_base_cases": ["ex_8"],
+    "recursion_call_unwind_order": ["ex_11"],
+    "accumulator_recursion": ["ex_13"],
+    "two_parameter_recursion": ["ex_15"]
+  }
+}

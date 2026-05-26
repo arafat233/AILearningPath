@@ -1,0 +1,456 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t2",
+  "topic_name": "Parameters & Return Values",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m2_t2_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Method with one parameter",
+      "scenario": "Complete a method that prints a personalized greeting.",
+      "instructions": "Fill in the blanks so the method accepts a String name and prints 'Hello, <name>!'",
+      "starter_code": "public class App {\n    public static void main(String[] args) {\n        greet(\"Aisha\");\n    }\n    \n    public static void greet(______ name) {\n        System.out.println(\"Hello, \" + ______ + \"!\");\n    }\n}",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        greet(\"Aisha\");\n    }\n    \n    public static void greet(String name) {\n        System.out.println(\"Hello, \" + name + \"!\");\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "String", "hint": "Type for text" },
+        { "position": 2, "answer": "name", "hint": "Use the parameter name" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Hello, Aisha!"
+        }
+      ],
+      "hints": [
+        "Parameter declaration: type name (like String name)",
+        "Inside the method, use the parameter name to access its value",
+        "Concatenate: \"Hello, \" + name + \"!\""
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m2_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Method that returns a value",
+      "scenario": "Write a method that returns the square of a number.",
+      "instructions": "Complete the method definition: takes an int, returns its square.",
+      "starter_code": "public class Math {\n    public static void main(String[] args) {\n        int result = square(7);\n        System.out.println(\"Square: \" + result);\n    }\n    \n    public static ______ square(int n) {\n        ______ n * n;\n    }\n}",
+      "expected_solution": "public class Math {\n    public static void main(String[] args) {\n        int result = square(7);\n        System.out.println(\"Square: \" + result);\n    }\n    \n    public static int square(int n) {\n        return n * n;\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "int", "hint": "Return type — what does this method give back?" },
+        { "position": 2, "answer": "return", "hint": "Keyword to send a value back" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Square: 49"
+        }
+      ],
+      "hints": [
+        "Return type before method name: int square(...)",
+        "Use 'return' keyword to send the value back",
+        "n * n produces the square"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m2_t2_ex_3",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Pass by value",
+      "scenario": "Understand how Java handles primitive parameters.",
+      "instructions": "What does this print?\n\n```java\npublic class Demo {\n    public static void main(String[] args) {\n        int x = 5;\n        modify(x);\n        System.out.println(\"x = \" + x);\n    }\n    \n    public static void modify(int n) {\n        n = n + 100;\n    }\n}\n```",
+      "expected_solution": "x = 5",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "x = 5"
+        }
+      ],
+      "hints": [
+        "Java passes primitives BY VALUE — n is a COPY of x",
+        "Changing n inside modify doesn't change x",
+        "x stays 5",
+        "To actually modify x, the method would need to RETURN a value: x = modify(x);"
+      ],
+      "xp_reward": 15,
+      "concept_tested": "pass_by_value"
+    },
+    
+    {
+      "id": "java_m2_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write add method",
+      "scenario": "Build the classic add(a, b) method.",
+      "instructions": "Write a class `Adder` with:\n1. A method `add(int a, int b)` that returns the sum\n2. main() calls add(5, 3) and prints the result\n\nExpected output:\nResult: 8",
+      "starter_code": "// Write your Adder class below\n",
+      "expected_solution": "public class Adder {\n    public static void main(String[] args) {\n        int result = add(5, 3);\n        System.out.println(\"Result: \" + result);\n    }\n    \n    public static int add(int a, int b) {\n        return a + b;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Result: 8"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["public static int add(int a, int b)", "return"]
+        }
+      ],
+      "hints": [
+        "Method signature: public static int add(int a, int b)",
+        "Body: return a + b;",
+        "Call: int result = add(5, 3);",
+        "Print: System.out.println(\"Result: \" + result);"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m2_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Multiple parameters",
+      "scenario": "Build a method that takes multiple parameters.",
+      "instructions": "Write a class `Greeter` with:\n1. A method `greet(String name, int age, String city)` that prints: `'<name>, age <age>, from <city>'`\n2. main calls it with 'Priya', 28, 'Hyderabad'\n\nExpected output:\nPriya, age 28, from Hyderabad",
+      "starter_code": "// Write your Greeter class below\n",
+      "expected_solution": "public class Greeter {\n    public static void main(String[] args) {\n        greet(\"Priya\", 28, \"Hyderabad\");\n    }\n    \n    public static void greet(String name, int age, String city) {\n        System.out.println(name + \", age \" + age + \", from \" + city);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Priya, age 28, from Hyderabad"
+        }
+      ],
+      "hints": [
+        "Three parameters, comma-separated",
+        "Each has type and name: (String name, int age, String city)",
+        "Inside method, use the parameter names",
+        "Argument order must match parameter order"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m2_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Return a boolean",
+      "scenario": "Build a method that returns true/false.",
+      "instructions": "Write a class `EvenChecker` with:\n1. A method `isEven(int n)` that returns true if n is even, false otherwise\n2. main tests it with 10 and 7, prints results\n\nExpected output:\n10 is even: true\n7 is even: false",
+      "starter_code": "// Write your EvenChecker class below\n",
+      "expected_solution": "public class EvenChecker {\n    public static void main(String[] args) {\n        System.out.println(\"10 is even: \" + isEven(10));\n        System.out.println(\"7 is even: \" + isEven(7));\n    }\n    \n    public static boolean isEven(int n) {\n        return n % 2 == 0;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "10 is even: true\n7 is even: false"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["public static boolean isEven(int n)", "return"]
+        }
+      ],
+      "hints": [
+        "Return type: boolean",
+        "Body: `return n % 2 == 0;` — the expression evaluates to true or false",
+        "Call inside println: isEven(10) returns boolean, auto-converted to string",
+        "Method names starting with 'is' usually return boolean — Java convention"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m2_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Calculate area methods",
+      "scenario": "Build a utility class with two area calculation methods.",
+      "instructions": "Write a class `AreaCalculator` with:\n1. `rectangleArea(double width, double height)` returns area of rectangle\n2. `circleArea(double radius)` returns area of circle (pi * r^2, use Math.PI)\n3. main calls both:\n   - Rectangle 5x3\n   - Circle radius 4\n\nExpected output:\nRectangle area: 15.0\nCircle area: 50.26548245743669",
+      "starter_code": "// Write your AreaCalculator class below\n",
+      "expected_solution": "public class AreaCalculator {\n    public static void main(String[] args) {\n        double rect = rectangleArea(5, 3);\n        double circle = circleArea(4);\n        System.out.println(\"Rectangle area: \" + rect);\n        System.out.println(\"Circle area: \" + circle);\n    }\n    \n    public static double rectangleArea(double width, double height) {\n        return width * height;\n    }\n    \n    public static double circleArea(double radius) {\n        return Math.PI * radius * radius;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rectangle area: 15.0\nCircle area: 50.26548245743669"
+        }
+      ],
+      "hints": [
+        "Both methods return double",
+        "Rectangle: width * height",
+        "Circle: Math.PI * radius * radius (or use Math.pow(radius, 2))",
+        "Capture results in main, then print"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m2_t2_ex_8",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the return errors",
+      "scenario": "Three different methods have return errors. Fix all of them.",
+      "instructions": "This code has 3 method definition errors related to return values. Fix them.\n\nExpected output:\n100\n7\n12",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(square(10));\n        System.out.println(absolute(-7));\n        System.out.println(addThree(3, 4, 5));\n    }\n    \n    public static int square(int n) {\n        n * n;\n    }\n    \n    public static int absolute(int n) {\n        if (n >= 0) {\n            return n;\n        }\n    }\n    \n    public static int addThree(int a, int b, int c) {\n        return a + b + c;\n        System.out.println(\"Done\");\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(square(10));\n        System.out.println(absolute(-7));\n        System.out.println(addThree(3, 4, 5));\n    }\n    \n    public static int square(int n) {\n        return n * n;\n    }\n    \n    public static int absolute(int n) {\n        if (n >= 0) {\n            return n;\n        }\n        return -n;\n    }\n    \n    public static int addThree(int a, int b, int c) {\n        return a + b + c;\n    }\n}",
+      "bugs": [
+        {
+          "line": "8-10",
+          "issue": "square is missing 'return' keyword",
+          "fix": "Add 'return' before n * n"
+        },
+        {
+          "line": "12-16",
+          "issue": "absolute doesn't return on all paths (missing else branch)",
+          "fix": "Add 'return -n;' after the if block"
+        },
+        {
+          "line": "18-21",
+          "issue": "Unreachable code after return statement",
+          "fix": "Remove the System.out.println(\"Done\"); line"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "100\n7\n12",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Method #1: needs `return` before the expression",
+        "Method #2: must return on EVERY execution path. Missing return for n < 0 case.",
+        "Method #3: code after return is unreachable — delete it",
+        "Compiler errors will guide you to each issue"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["missing_return_value", "unreachable_code_after_return"]
+    },
+    
+    {
+      "id": "java_m2_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Compose methods",
+      "scenario": "Use the return value of one method as the argument to another.",
+      "instructions": "Write a class `Pipeline` with:\n1. `double` method `applyDiscount(double price, double percent)` — returns price after discount\n2. `double` method `applyTax(double price, double taxPercent)` — returns price after tax\n3. main applies BOTH to ₹1000 (10% discount, then 18% tax) — compose by passing one result to the other\n\nExpected output:\nOriginal: 1000.0\nAfter discount: 900.0\nFinal (with tax): 1062.0",
+      "starter_code": "// Write your Pipeline class below\n",
+      "expected_solution": "public class Pipeline {\n    public static void main(String[] args) {\n        double original = 1000.0;\n        double afterDiscount = applyDiscount(original, 10);\n        double finalPrice = applyTax(afterDiscount, 18);\n        \n        System.out.println(\"Original: \" + original);\n        System.out.println(\"After discount: \" + afterDiscount);\n        System.out.println(\"Final (with tax): \" + finalPrice);\n    }\n    \n    public static double applyDiscount(double price, double percent) {\n        return price - (price * percent / 100);\n    }\n    \n    public static double applyTax(double price, double taxPercent) {\n        return price + (price * taxPercent / 100);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Original: 1000.0\nAfter discount: 900.0\nFinal (with tax): 1062.0"
+        }
+      ],
+      "hints": [
+        "applyDiscount: returns price - (price * percent / 100)",
+        "applyTax: returns price + (price * taxPercent / 100)",
+        "1000 - 100 = 900 (10% discount)",
+        "900 + 162 = 1062 (18% tax)",
+        "Notice how methods compose: result of one feeds into the next"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m2_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Method with early return",
+      "scenario": "Practice the early return pattern for handling edge cases.",
+      "instructions": "Write a class `SafeDivider` with:\n1. A method `divide(double a, double b)` that:\n   - Returns 0 if b is zero (early return)\n   - Otherwise returns a / b\n2. main tests with: divide(10, 2), divide(15, 0), divide(20, 5)\n\nExpected output:\n10.0 / 2.0 = 5.0\n15.0 / 0.0 = 0.0\n20.0 / 5.0 = 4.0",
+      "starter_code": "// Write your SafeDivider class below\n",
+      "expected_solution": "public class SafeDivider {\n    public static void main(String[] args) {\n        System.out.println(\"10.0 / 2.0 = \" + divide(10, 2));\n        System.out.println(\"15.0 / 0.0 = \" + divide(15, 0));\n        System.out.println(\"20.0 / 5.0 = \" + divide(20, 5));\n    }\n    \n    public static double divide(double a, double b) {\n        if (b == 0) {\n            return 0;\n        }\n        return a / b;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "10.0 / 2.0 = 5.0\n15.0 / 0.0 = 0.0\n20.0 / 5.0 = 4.0"
+        }
+      ],
+      "hints": [
+        "Check edge case FIRST: if (b == 0) return 0;",
+        "Otherwise return a / b",
+        "Early return avoids nested if-else",
+        "Both arguments are double (literal numbers like 10 auto-convert)"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "early_return_pattern"
+    },
+    
+    {
+      "id": "java_m2_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "String method",
+      "scenario": "Methods can return Strings too.",
+      "instructions": "Write a class `Categorizer` with:\n1. A method `getCategory(int score)` that returns a String:\n   - 90+: 'Excellent'\n   - 75-89: 'Good'\n   - 60-74: 'Average'\n   - Below 60: 'Needs Improvement'\n2. main tests with scores 95, 80, 65, 45\n\nExpected output:\nScore 95: Excellent\nScore 80: Good\nScore 65: Average\nScore 45: Needs Improvement",
+      "starter_code": "// Write your Categorizer class below\n",
+      "expected_solution": "public class Categorizer {\n    public static void main(String[] args) {\n        System.out.println(\"Score 95: \" + getCategory(95));\n        System.out.println(\"Score 80: \" + getCategory(80));\n        System.out.println(\"Score 65: \" + getCategory(65));\n        System.out.println(\"Score 45: \" + getCategory(45));\n    }\n    \n    public static String getCategory(int score) {\n        if (score >= 90) {\n            return \"Excellent\";\n        } else if (score >= 75) {\n            return \"Good\";\n        } else if (score >= 60) {\n            return \"Average\";\n        } else {\n            return \"Needs Improvement\";\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Score 95: Excellent\nScore 80: Good\nScore 65: Average\nScore 45: Needs Improvement"
+        }
+      ],
+      "hints": [
+        "Return type: String",
+        "Use if-else if chain with returns",
+        "Each branch returns a different String",
+        "The final else covers all remaining cases"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m2_t2_ex_12",
+      "level": "medium",
+      "type": "refactor",
+      "difficulty": 4,
+      "title": "Refactor: extract method with parameters",
+      "scenario": "Refactor code with duplication by extracting a parameterized method.",
+      "instructions": "Refactor the code below: extract the price-with-tax calculation into a method `calculatePriceWithTax(double basePrice, double taxRate)`. Keep output identical:\n\nProduct A: 1180.0\nProduct B: 2360.0\nProduct C: 3540.0",
+      "starter_code": "public class Pricing {\n    public static void main(String[] args) {\n        double priceA = 1000.0;\n        double finalA = priceA + (priceA * 18 / 100);\n        System.out.println(\"Product A: \" + finalA);\n        \n        double priceB = 2000.0;\n        double finalB = priceB + (priceB * 18 / 100);\n        System.out.println(\"Product B: \" + finalB);\n        \n        double priceC = 3000.0;\n        double finalC = priceC + (priceC * 18 / 100);\n        System.out.println(\"Product C: \" + finalC);\n    }\n}",
+      "expected_solution": "public class Pricing {\n    public static void main(String[] args) {\n        System.out.println(\"Product A: \" + calculatePriceWithTax(1000.0, 18));\n        System.out.println(\"Product B: \" + calculatePriceWithTax(2000.0, 18));\n        System.out.println(\"Product C: \" + calculatePriceWithTax(3000.0, 18));\n    }\n    \n    public static double calculatePriceWithTax(double basePrice, double taxRate) {\n        return basePrice + (basePrice * taxRate / 100);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Product A: 1180.0\nProduct B: 2360.0\nProduct C: 3540.0"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["calculatePriceWithTax(double", "return"]
+        }
+      ],
+      "hints": [
+        "The same formula appears 3 times — extract it",
+        "Method takes basePrice and taxRate as parameters",
+        "Returns basePrice + (basePrice * taxRate / 100)",
+        "main becomes much shorter with method calls"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m2_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Build a math utility class",
+      "scenario": "Build a Math utility with multiple useful methods.",
+      "instructions": "Write a class `MathUtils` with these methods:\n1. `max(int a, int b)` — returns the larger of two ints\n2. `min(int a, int b)` — returns the smaller\n3. `absolute(int n)` — returns absolute value\n4. `average(int a, int b, int c)` — returns average of 3 numbers (as double)\n\nmain demonstrates all four:\n```\nmax(5, 10): 10\nmin(5, 10): 5\nabsolute(-7): 7\naverage(10, 20, 30): 20.0\n```",
+      "starter_code": "// Write your MathUtils class below\n",
+      "expected_solution": "public class MathUtils {\n    public static void main(String[] args) {\n        System.out.println(\"max(5, 10): \" + max(5, 10));\n        System.out.println(\"min(5, 10): \" + min(5, 10));\n        System.out.println(\"absolute(-7): \" + absolute(-7));\n        System.out.println(\"average(10, 20, 30): \" + average(10, 20, 30));\n    }\n    \n    public static int max(int a, int b) {\n        if (a > b) {\n            return a;\n        }\n        return b;\n    }\n    \n    public static int min(int a, int b) {\n        if (a < b) {\n            return a;\n        }\n        return b;\n    }\n    \n    public static int absolute(int n) {\n        if (n < 0) {\n            return -n;\n        }\n        return n;\n    }\n    \n    public static double average(int a, int b, int c) {\n        return (a + b + c) / 3.0;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "max(5, 10): 10\nmin(5, 10): 5\nabsolute(-7): 7\naverage(10, 20, 30): 20.0"
+        }
+      ],
+      "hints": [
+        "max/min: use if statement with comparison, return larger/smaller",
+        "absolute: if negative, return -n; otherwise return n",
+        "average: divide by 3.0 (NOT 3) for double result",
+        "Each method is short and focused — single responsibility"
+      ],
+      "xp_reward": 75
+    },
+    
+    {
+      "id": "java_m2_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Refactor EMI calculator (no static vars)",
+      "scenario": "Take the EMI calculator and use parameters/returns properly — no class-level variables.",
+      "instructions": "Build `EMICalculator` with these methods:\n1. `calculateEmi(double principal, double monthlyRate, int months)` returns EMI\n2. `printSummary(double principal, double emi, int months)` prints summary\n\nmain():\n- Sets principal=300000, annualRate=10, months=24\n- Calculates monthlyRate = annualRate/12/100\n- Calls calculateEmi to get EMI\n- Calls printSummary\n\nNO class-level static variables!\n\nExpected output:\nPrincipal: 300000.0\nMonths: 24\nMonthly EMI: 13841.97...\nTotal Paid: 332207.43... (approximate, may have trailing digits)",
+      "starter_code": "// Write your EMICalculator class below\n// NO class-level static variables — use parameters and returns\n",
+      "expected_solution": "public class EMICalculator {\n    public static void main(String[] args) {\n        double principal = 300000.0;\n        double annualRate = 10.0;\n        int months = 24;\n        double monthlyRate = annualRate / 12 / 100;\n        \n        double emi = calculateEmi(principal, monthlyRate, months);\n        printSummary(principal, emi, months);\n    }\n    \n    public static double calculateEmi(double principal, double monthlyRate, int months) {\n        double powerTerm = Math.pow(1 + monthlyRate, months);\n        return principal * monthlyRate * powerTerm / (powerTerm - 1);\n    }\n    \n    public static void printSummary(double principal, double emi, int months) {\n        System.out.println(\"Principal: \" + principal);\n        System.out.println(\"Months: \" + months);\n        System.out.println(\"Monthly EMI: \" + emi);\n        System.out.println(\"Total Paid: \" + (emi * months));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "code_analysis",
+          "must_contain": ["calculateEmi(double", "printSummary(double"],
+          "must_not_contain": ["static double principal", "static int months", "static double emi"]
+        }
+      ],
+      "hints": [
+        "main owns the data (local variables, not class-level)",
+        "Pass values as arguments to methods",
+        "calculateEmi RETURNS the EMI — capture it in a variable",
+        "printSummary takes the needed values as parameters",
+        "EMI formula: principal * rate * (1+rate)^n / ((1+rate)^n - 1)",
+        "Use Math.pow for exponentiation"
+      ],
+      "xp_reward": 85,
+      "concept_tested": "no_class_level_state"
+    },
+    
+    {
+      "id": "java_m2_t2_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Build a payroll system with methods",
+      "scenario": "Build a complete payroll calculator using parameter/return-based methods.",
+      "instructions": "Build `Payroll` with these methods (all use parameters/returns, no class-level state):\n\n1. `calculateGrossPay(double hourlyRate, double hoursWorked)` returns gross pay\n2. `calculateTax(double grossPay, double taxRate)` returns tax amount\n3. `calculateNetPay(double grossPay, double tax)` returns net pay\n4. `printPaystub(String name, double grossPay, double tax, double netPay)` prints formatted output\n\nIn main():\n- Process employee 'Vikram' working 160 hours at ₹500/hour with 10% tax\n- Compose the methods to calculate and print\n\nExpected output:\n=========================\n      PAYSTUB: Vikram\n=========================\nGross Pay: 80000.0\nTax:       8000.0\nNet Pay:   72000.0\n=========================",
+      "starter_code": "// Write your Payroll class below\n",
+      "expected_solution": "public class Payroll {\n    public static void main(String[] args) {\n        String name = \"Vikram\";\n        double hourlyRate = 500.0;\n        double hoursWorked = 160.0;\n        double taxRate = 10.0;\n        \n        double grossPay = calculateGrossPay(hourlyRate, hoursWorked);\n        double tax = calculateTax(grossPay, taxRate);\n        double netPay = calculateNetPay(grossPay, tax);\n        \n        printPaystub(name, grossPay, tax, netPay);\n    }\n    \n    public static double calculateGrossPay(double hourlyRate, double hoursWorked) {\n        return hourlyRate * hoursWorked;\n    }\n    \n    public static double calculateTax(double grossPay, double taxRate) {\n        return grossPay * (taxRate / 100);\n    }\n    \n    public static double calculateNetPay(double grossPay, double tax) {\n        return grossPay - tax;\n    }\n    \n    public static void printPaystub(String name, double grossPay, double tax, double netPay) {\n        System.out.println(\"=========================\");\n        System.out.println(\"      PAYSTUB: \" + name);\n        System.out.println(\"=========================\");\n        System.out.println(\"Gross Pay: \" + grossPay);\n        System.out.println(\"Tax:       \" + tax);\n        System.out.println(\"Net Pay:   \" + netPay);\n        System.out.println(\"=========================\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "=========================\n      PAYSTUB: Vikram\n=========================\nGross Pay: 80000.0\nTax:       8000.0\nNet Pay:   72000.0\n=========================",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Each calculation method takes only what it needs — minimum parameters",
+        "Results flow: gross → tax (needs gross) → net (needs gross AND tax)",
+        "main composes the methods: each return feeds into the next call",
+        "printPaystub is the only void method (it has side effect: printing)",
+        "Final values: 500 * 160 = 80000, 80000 * 0.1 = 8000, 80000 - 8000 = 72000"
+      ],
+      "xp_reward": 90
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 2,
+      "code_scratch": 9,
+      "debug": 1,
+      "predict_output": 1,
+      "refactor": 1,
+      "algorithm": 1
+    },
+    "total_xp_possible": 750,
+    "estimated_completion_minutes": 55
+  },
+  
+  "gap_detection_map": {
+    "pass_by_value": ["ex_3"],
+    "missing_return_value": ["ex_8"],
+    "unreachable_code_after_return": ["ex_8"],
+    "early_return_pattern": ["ex_10"],
+    "method_composition": ["ex_9", "ex_15"],
+    "no_class_level_state": ["ex_14"]
+  }
+}

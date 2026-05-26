@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m30_t1_proj",
+  "linked_topic": "java_m30_t1",
+  "level": "mini",
+  "name": "Zerodha Trade Pair Analyzer",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Zerodha's reconciliation team needs to find pairs and triplets in 1M daily trade records matching specific profit/loss targets. The current O(n²) solution takes 14 hours. Your two-pointer solutions should complete in under 10 seconds.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "twoSumSorted(int[] sorted, int target): two-pointer O(n), return int[] {i,j} or null. Test: [2,7,11,15] target=9 → [0,1]. Test: [1,2,3,4] target=10 → null.", "weight": 20},
+      {"id": "req_2", "description": "threeSum(int[] nums): all unique triplets summing to 0. Sort + fix + TP. Skip all duplicates. Test: [-1,0,1,2,-1,-4] → [[-1,-1,2],[-1,0,1]]. Test: [0,0,0] → [[0,0,0]].", "weight": 25},
+      {"id": "req_3", "description": "containerMaxWater(int[] height): O(n) two pointers. Move shorter side. Test: [1,8,6,2,5,4,8,3,7] → 49. Test: [1,1] → 1.", "weight": 15},
+      {"id": "req_4", "description": "removeDuplicatesSorted(int[] sorted): in-place, return k. slow/fast pointers. Test: [0,0,1,1,1,2,2,3,3,4] → k=5, array starts [0,1,2,3,4].", "weight": 15},
+      {"id": "req_5", "description": "@SpringBootTest (4 tests): twoSum correct, threeSum finds all triplets, maxWater=49 for [1,8,6,2,5,4,8,3,7], removeDups k=5. All pass.", "weight": 20},
+      {"id": "req_6", "description": "README: explains WHY moving the shorter pointer in containerMaxWater is optimal (greedy proof in 2 sentences).", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "trappingRainWater(int[] height): O(n) two pointer, O(1) space. Test: [0,1,0,2,1,0,1,3,2,1,2,1] → 6. Test: [4,2,0,3,2,5] → 9.", "weight": 20},
+      {"id": "bonus_2", "description": "sortedSquares(int[] nums): O(n) two pointers fill from back. Test: [-4,-1,0,3,10] → [0,1,9,16,100].", "weight": 15},
+      {"id": "bonus_3", "description": "fourSum(int[] nums, int target): O(n³). Two outer loops + TP. Test: [1,0,-1,0,-2,2] target=0 → [[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]].", "weight": 20}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Two pointers require SORTED array: unsorted → sort first (O(n log n) total). Pair sum: lo++ when sum too small (both values increase), hi-- when sum too large (both values decrease). Container water: move the SHORTER pointer — if you move the taller one, min(height) can only decrease while width always decreases. Three Sum duplicates: skip nums[i]==nums[i-1] for outer, nums[lo]==nums[lo+1] and nums[hi]==nums[hi-1] after finding triplet. Remove duplicates slow/fast: fast always advances; slow advances only when nums[fast] != nums[fast-1].",
+  "rubric": [
+    {"category": "twoSumSorted", "points": 20},
+    {"category": "threeSum", "points": 25},
+    {"category": "containerMaxWater", "points": 15},
+    {"category": "removeDuplicatesSorted", "points": 15},
+    {"category": "4 tests pass", "points": 20},
+    {"category": "README", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

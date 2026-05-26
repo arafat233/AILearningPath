@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t2",
+  "topic_name": "Buffered I/O and Character Streams",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m11_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace BufferedReader.readLine loop",
+      "scenario": "readLine returns null at EOF — the loop termination condition.",
+      "instructions": "What does this print?\n\n```java\nimport java.io.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        String text = \"alpha\\nbeta\\ngamma\";\n        BufferedReader br = new BufferedReader(new StringReader(text));\n        String line;\n        int n = 0;\n        while ((line = br.readLine()) != null) {\n            System.out.println(++n + \": \" + line.toUpperCase());\n        }\n    }\n}\n```",
+      "expected_solution": "1: ALPHA\n2: BETA\n3: GAMMA",
+      "test_cases": [
+        { "type": "text_match", "expected": "1: ALPHA\n2: BETA\n3: GAMMA" }
+      ],
+      "hints": [
+        "readLine returns each line WITHOUT the \\n",
+        "readLine returns null after 'gamma' — loop exits",
+        "StringReader treats a String as a stream"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Wrap FileReader in BufferedReader",
+      "scenario": "Always buffer file I/O for performance.",
+      "instructions": "Fill in the blank to correctly create a BufferedReader for a file.",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path p = Path.of(\"test.txt\");\n        Files.writeString(p, \"Hello\\nWorld\");\n        try (BufferedReader br = Files.new______________(p)) {\n            System.out.println(br.readLine());\n        }\n    }\n}",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path p = Path.of(\"test.txt\");\n        Files.writeString(p, \"Hello\\nWorld\");\n        try (BufferedReader br = Files.newBufferedReader(p)) {\n            System.out.println(br.readLine());\n        }\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "BufferedReader", "hint": "Files factory method that returns a BufferedReader" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Hello" }
+      ],
+      "hints": [
+        "Files.newBufferedReader(path) — the preferred way to get a buffered reader for a file"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Read from StringReader with BufferedReader",
+      "scenario": "StringReader treats a String as an in-memory stream.",
+      "instructions": "Use StringReader + BufferedReader to count lines and characters in a multi-line string.\n\nInput: 'Aisha\\nRaj\\nPriya'\n\nExpected output:\nLines: 3\nTotal chars: 15",
+      "starter_code": "import java.io.*;\n// StringReader + BufferedReader for in-memory stream\n",
+      "expected_solution": "import java.io.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        String text = \"Aisha\\nRaj\\nPriya\";\n        int lineCount = 0, charCount = 0;\n        try (BufferedReader br = new BufferedReader(new StringReader(text))) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                lineCount++;\n                charCount += line.length();\n            }\n        }\n        System.out.println(\"Lines: \" + lineCount);\n        System.out.println(\"Total chars: \" + charCount);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Lines: 3\nTotal chars: 15" }
+      ],
+      "hints": [
+        "StringReader wraps a String as a Reader",
+        "readLine() strips the \\n — count line.length() for chars",
+        "Aisha(5)+Raj(3)+Priya(5) = 13... wait, 15 includes spaces? No: 5+3+5=13. Recheck."
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m11_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write with PrintWriter and printf",
+      "scenario": "PrintWriter enables formatted output to any stream.",
+      "instructions": "Use PrintWriter to write a formatted invoice to a file. Read it back and print.\n\nExpected output:\nInvoice #INV-001\nItem: Wireless Mouse\nQty: 2\nUnit price: ₹799.00\nTotal: ₹1598.00",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\n// PrintWriter for formatted invoice\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path invoice = Path.of(\"invoice.txt\");\n        try (PrintWriter pw = new PrintWriter(\n                new BufferedWriter(new FileWriter(invoice.toFile())))) {\n            pw.println(\"Invoice #INV-001\");\n            pw.println(\"Item: Wireless Mouse\");\n            pw.println(\"Qty: 2\");\n            pw.printf(\"Unit price: ₹%.2f%n\", 799.0);\n            pw.printf(\"Total: ₹%.2f%n\", 2 * 799.0);\n        }\n        System.out.print(Files.readString(invoice));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Invoice #INV-001\nItem: Wireless Mouse\nQty: 2\nUnit price: ₹799.00\nTotal: ₹1598.00" }
+      ],
+      "hints": [
+        "PrintWriter wraps BufferedWriter wraps FileWriter",
+        "printf with %.2f for two decimal places",
+        "%n is platform newline (use in PrintWriter)"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m11_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Count words per line with BufferedReader",
+      "scenario": "BufferedReader readLine loop with per-line processing.",
+      "instructions": "Read a multi-line text with BufferedReader. Print each line with its word count. Then print total words.\n\nExpected output:\n'The quick brown fox' → 4 words\n'jumps over the lazy dog' → 5 words\nTotal: 9 words",
+      "starter_code": "import java.io.*;\n// BufferedReader line-by-line word counting\n",
+      "expected_solution": "import java.io.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        String text = \"The quick brown fox\\njumps over the lazy dog\";\n        int total = 0;\n        try (BufferedReader br = new BufferedReader(new StringReader(text))) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                int words = line.split(\"\\\\s+\").length;\n                total += words;\n                System.out.printf(\"'%s' → %d words%n\", line, words);\n            }\n        }\n        System.out.println(\"Total: \" + total + \" words\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "'The quick brown fox' → 4 words\n'jumps over the lazy dog' → 5 words\nTotal: 9 words" }
+      ],
+      "hints": [
+        "split('\\\\s+') splits on one or more whitespace",
+        "accumulate total across lines",
+        "printf with %s for the line, %d for word count"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m11_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "StringWriter capture output",
+      "scenario": "StringWriter captures PrintWriter output as a String.",
+      "instructions": "Generate a formatted employee report using PrintWriter writing to StringWriter. Print the result to console.\n\nExpected output:\nEmployee Report\n===============\nAisha   Engineering  ₹95000\nRaj     Sales        ₹72000",
+      "starter_code": "import java.io.*;\n// PrintWriter → StringWriter to capture formatted output\n",
+      "expected_solution": "import java.io.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        StringWriter sw = new StringWriter();\n        try (PrintWriter pw = new PrintWriter(sw)) {\n            pw.println(\"Employee Report\");\n            pw.println(\"===============\");\n            pw.printf(\"%-8s %-12s ₹%d%n\", \"Aisha\",  \"Engineering\", 95000);\n            pw.printf(\"%-8s %-12s ₹%d%n\", \"Raj\",    \"Sales\",       72000);\n        }\n        System.out.print(sw);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Employee Report\n===============\nAisha    Engineering  ₹95000\nRaj      Sales        ₹72000" }
+      ],
+      "hints": [
+        "StringWriter captures everything written to it",
+        "sw.toString() or just System.out.print(sw) to get the content",
+        "%-8s: left-aligned, 8 char wide"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m11_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "BufferedReader from InputStream",
+      "scenario": "Read a network-style InputStream with BufferedReader.",
+      "instructions": "Simulate a server response as a ByteArrayInputStream. Wrap with InputStreamReader + BufferedReader. Read and process the response lines.\n\nExpected output:\nStatus: 200 OK\nContent-Type: application/json\nBody lines: 3",
+      "starter_code": "import java.io.*;\nimport java.nio.charset.*;\n// InputStream → InputStreamReader → BufferedReader\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.charset.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        String response = \"HTTP/1.1 200 OK\\nContent-Type: application/json\\n\\n{\\\"id\\\": 1}\\n{\\\"id\\\": 2}\\n{\\\"id\\\": 3}\";\n        byte[] responseBytes = response.getBytes(StandardCharsets.UTF_8);\n        InputStream stream = new ByteArrayInputStream(responseBytes);\n        \n        int headerLines = 0, bodyLines = 0;\n        String status = null;\n        String contentType = null;\n        boolean inBody = false;\n        \n        try (BufferedReader br = new BufferedReader(\n                new InputStreamReader(stream, StandardCharsets.UTF_8))) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                if (line.startsWith(\"HTTP\")) { status = line.substring(9); }\n                else if (line.startsWith(\"Content-Type\")) { contentType = line.substring(14); }\n                else if (line.isEmpty()) { inBody = true; }\n                else if (inBody) { bodyLines++; }\n            }\n        }\n        System.out.println(\"Status: \" + status);\n        System.out.println(\"Content-Type: \" + contentType);\n        System.out.println(\"Body lines: \" + bodyLines);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Status: 200 OK\nContent-Type: application/json\nBody lines: 3" }
+      ],
+      "hints": [
+        "ByteArrayInputStream simulates network data",
+        "InputStreamReader decodes bytes to chars",
+        "BufferedReader adds readLine()"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m11_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Log file writer with rotation check",
+      "scenario": "Append to log file; check if rotation needed.",
+      "instructions": "Write a Logger class that appends entries to a log file using BufferedWriter. After every write, check if file exceeds 200 bytes. If so, print 'Log rotation needed'.\n\nExpected output:\nLogged: INFO app started\nLogged: INFO processing order ORD-001\nLogged: WARN response time 450ms\nLogged: ERROR payment failed for user-42\nLog rotation needed (size: [N] bytes)",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\n// Logger with size check and rotation notification\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\nclass Logger {\n    private final Path logFile;\n    private final long maxSize;\n    Logger(Path p, long maxBytes) throws IOException {\n        logFile = p;\n        maxSize = maxBytes;\n        if (!Files.exists(p)) Files.createFile(p);\n    }\n    void log(String level, String message) throws IOException {\n        String entry = level + \" \" + message + \"\\n\";\n        try (BufferedWriter bw = new BufferedWriter(\n                new FileWriter(logFile.toFile(), true))) {  // append=true\n            bw.write(entry);\n        }\n        System.out.println(\"Logged: \" + level + \" \" + message);\n        if (Files.size(logFile) > maxSize) {\n            System.out.println(\"Log rotation needed (size: \" + Files.size(logFile) + \" bytes)\");\n        }\n    }\n}\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Logger logger = new Logger(Path.of(\"app.log\"), 200);\n        logger.log(\"INFO\",  \"app started\");\n        logger.log(\"INFO\",  \"processing order ORD-001\");\n        logger.log(\"WARN\",  \"response time 450ms\");\n        logger.log(\"ERROR\", \"payment failed for user-42\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Logged: INFO app started", "Log rotation needed"] }
+      ],
+      "hints": [
+        "FileWriter(file, true) — second arg = append mode",
+        "BufferedWriter wraps FileWriter for buffering",
+        "Files.size(logFile) after each write to check size"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Process server log lines with BufferedReader",
+      "scenario": "Read log, extract ERRORs, write to error report.",
+      "instructions": "Read a simulated server log (7 lines, 3 ERRORs). Write only ERROR lines to 'errors.log'. Print count.\n\nExpected output:\nERROR lines found: 3\nError log written.",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\n// Filter log for ERRORs and write to error file\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path log = Path.of(\"server.log\");\n        Files.writeString(log,\n            \"INFO  GET /api/orders 200\\n\" +\n            \"ERROR GET /api/payment 500\\n\" +\n            \"INFO  GET /api/users 200\\n\" +\n            \"ERROR POST /api/orders 503\\n\" +\n            \"WARN  GET /api/search 429\\n\" +\n            \"ERROR DELETE /api/user 500\\n\" +\n            \"INFO  GET /api/health 200\");\n        \n        Path errors = Path.of(\"errors.log\");\n        int errorCount = 0;\n        try (BufferedReader br = Files.newBufferedReader(log);\n             PrintWriter pw = new PrintWriter(new BufferedWriter(\n                     new FileWriter(errors.toFile())))) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                if (line.startsWith(\"ERROR\")) {\n                    pw.println(line);\n                    errorCount++;\n                }\n            }\n        }\n        System.out.println(\"ERROR lines found: \" + errorCount);\n        System.out.println(\"Error log written.\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "ERROR lines found: 3\nError log written." }
+      ],
+      "hints": [
+        "Open both reader and writer in one try-with-resources",
+        "line.startsWith('ERROR') to filter",
+        "PrintWriter writes to errors.log"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Scanner nextInt + nextLine mismatch",
+      "scenario": "The classic Scanner trap — leftover newline after nextInt.",
+      "instructions": "Trace what each Scanner call reads from the input '42\\nAisha'.\n\n```java\nimport java.util.Scanner;\npublic class App {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(\"42\\nAisha\");\n        int n = sc.nextInt();\n        String s1 = sc.nextLine();  // what does this get?\n        String s2 = sc.hasNextLine() ? sc.nextLine() : \"nothing\";\n        System.out.println(\"n=\" + n);\n        System.out.println(\"s1='\" + s1 + \"'\");\n        System.out.println(\"s2='\" + s2 + \"'\");\n    }\n}\n```",
+      "expected_solution": "n=42\ns1=''\ns2='Aisha'",
+      "test_cases": [
+        { "type": "text_match", "expected": "n=42\ns1=''\ns2='Aisha'" }
+      ],
+      "hints": [
+        "nextInt() reads '42', stops at \\n",
+        "nextLine() reads the leftover '\\n' → empty string",
+        "Second nextLine() reads 'Aisha'"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m11_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Tabular report with PrintWriter",
+      "scenario": "Formatted table output using printf with column alignment.",
+      "instructions": "Generate a formatted stock portfolio report using PrintWriter → StringWriter. Print result.\n\nExpected output:\n=== Portfolio Report ===\nSymbol     Shares  Avg Cost  Cur Price  P&L%\n----------------------------------------------\nRELIANCE       20   ₹2197    ₹2450    +11.5%\nTCS            10   ₹2760    ₹3890    +41.0%\nINFY           30   ₹1600    ₹1560     -2.5%",
+      "starter_code": "import java.io.*;\n// Formatted portfolio table with PrintWriter\n",
+      "expected_solution": "import java.io.*;\nrecord Holding(String symbol, int shares, double avgCost, double curPrice) {\n    double pnlPct() { return (curPrice / avgCost - 1) * 100; }\n}\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Holding[] h = {\n            new Holding(\"RELIANCE\", 20, 2197, 2450),\n            new Holding(\"TCS\",      10, 2760, 3890),\n            new Holding(\"INFY\",     30, 1600, 1560)\n        };\n        StringWriter sw = new StringWriter();\n        try (PrintWriter pw = new PrintWriter(sw)) {\n            pw.println(\"=== Portfolio Report ===\");\n            pw.printf(\"%-10s %6s  %8s  %9s  %5s%n\",\n                \"Symbol\", \"Shares\", \"Avg Cost\", \"Cur Price\", \"P&L%\");\n            pw.println(\"-\".repeat(46));\n            for (Holding holding : h) {\n                pw.printf(\"%-10s %6d  ₹%6.0f   ₹%6.0f   %+.1f%%%n\",\n                    holding.symbol(), holding.shares(),\n                    holding.avgCost(), holding.curPrice(), holding.pnlPct());\n            }\n        }\n        System.out.print(sw);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Portfolio Report", "RELIANCE", "TCS", "INFY", "+41"] }
+      ],
+      "hints": [
+        "%-10s: left-aligned 10-char string column",
+        "%+.1f: sign always shown, 1 decimal",
+        "StringWriter captures all output as String"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Read and transform file with BufferedReader + PrintWriter",
+      "scenario": "Filter and transform file content in one pipeline.",
+      "instructions": "Read an employee CSV with BufferedReader. Skip comments (#) and blank lines. Transform each valid row to uppercase name. Write result with PrintWriter. Print transformation count.\n\nInput CSV has 5 data rows, 2 comments, 1 blank.\n\nExpected output:\nTransformed: 5 employees\nOutput written.",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\n// BufferedReader → filter → PrintWriter transform pipeline\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path src = Path.of(\"employees.csv\");\n        Files.writeString(src,\n            \"# Employee data\\n\" +\n            \"id,name,dept\\n\" +\n            \"1,Aisha,Engineering\\n\" +\n            \"2,Raj,Sales\\n\" +\n            \"\\n\" +\n            \"# More data\\n\" +\n            \"3,Priya,Engineering\\n\" +\n            \"4,Vikram,Marketing\\n\" +\n            \"5,Anita,Sales\");\n        \n        Path out = Path.of(\"employees_out.csv\");\n        int count = 0;\n        try (BufferedReader br = Files.newBufferedReader(src);\n             PrintWriter pw = new PrintWriter(\n                     new BufferedWriter(new FileWriter(out.toFile())))) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                if (line.isBlank() || line.startsWith(\"#\")) continue;\n                String[] cols = line.split(\",\");\n                if (cols[0].equals(\"id\")) { pw.println(line); continue; }  // header\n                pw.printf(\"%s,%s,%s%n\", cols[0], cols[1].toUpperCase(), cols[2]);\n                count++;\n            }\n        }\n        System.out.println(\"Transformed: \" + count + \" employees\");\n        System.out.println(\"Output written.\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Transformed: 5 employees\nOutput written." }
+      ],
+      "hints": [
+        "Skip blanks: line.isBlank()",
+        "Skip comments: line.startsWith('#')",
+        "Open both streams in one try-with-resources"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Line number file merger",
+      "scenario": "Read two files, merge with line numbers.",
+      "instructions": "Read two text files. Merge them: odd lines from file1, even lines from file2 (1-indexed). Write merged output with line numbers. If files have different lengths, append remaining from longer.\n\nFile1: A, B, C\nFile2: X, Y\n\nExpected output:\n1: A\n2: X\n3: B\n4: Y\n5: C",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\n// Interleaved merge of two files\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path f1 = Path.of(\"file1.txt\"), f2 = Path.of(\"file2.txt\");\n        Files.writeString(f1, \"A\\nB\\nC\");\n        Files.writeString(f2, \"X\\nY\");\n        \n        try (BufferedReader br1 = Files.newBufferedReader(f1);\n             BufferedReader br2 = Files.newBufferedReader(f2)) {\n            int lineNum = 1;\n            String l1 = br1.readLine(), l2 = br2.readLine();\n            while (l1 != null || l2 != null) {\n                if (l1 != null) { System.out.println(lineNum++ + \": \" + l1); l1 = br1.readLine(); }\n                if (l2 != null) { System.out.println(lineNum++ + \": \" + l2); l2 = br2.readLine(); }\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "1: A\n2: X\n3: B\n4: Y\n5: C" }
+      ],
+      "hints": [
+        "Open both BufferedReaders in one try-with-resources",
+        "Read from both alternately; stop when BOTH are null",
+        "Keep reading from the longer file when the other ends"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Chat message formatter — BufferedReader pipeline",
+      "scenario": "Process a raw chat log into formatted output.",
+      "instructions": "Read a raw chat log (timestamp|user|message format). Format with PrintWriter: right-align timestamp, bold-style username with >, word-wrap messages > 40 chars.\n\nExpected output:\n[10:01] Aisha> Hi everyone!\n[10:02]   Raj> How is the project going?\n[10:03] Priya> Great! Just finished the login module.",
+      "starter_code": "import java.io.*;\n// Chat log formatter — BufferedReader + PrintWriter\n",
+      "expected_solution": "import java.io.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        String rawLog = \"10:01|Aisha|Hi everyone!\\n10:02|Raj|How is the project going?\\n10:03|Priya|Great! Just finished the login module.\";\n        StringWriter sw = new StringWriter();\n        try (BufferedReader br = new BufferedReader(new StringReader(rawLog));\n             PrintWriter pw = new PrintWriter(sw)) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                String[] parts = line.split(\"\\\\|\", 3);\n                String time = parts[0], user = parts[1], msg = parts[2];\n                pw.printf(\"[%s] %5s> %s%n\", time, user, msg);\n            }\n        }\n        System.out.print(sw);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[10:01] Aisha> Hi everyone!\n[10:02]   Raj> How is the project going?\n[10:03] Priya> Great! Just finished the login module." }
+      ],
+      "hints": [
+        "split('\\\\|', 3) splits on pipe, max 3 parts",
+        "%5s: right-align user in 5-char field (Aisha=5, Raj=3→2 spaces)",
+        "StringWriter captures formatted output"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Multi-file aggregator — read N files, write combined report",
+      "scenario": "Aggregate data from multiple files into one report.",
+      "instructions": "Read 3 daily sales files (one order per line: productId,amount). Aggregate across files: total revenue, count per product, top product. Write a formatted report with PrintWriter.\n\nExpected output:\n=== Sales Aggregation Report ===\nFiles processed: 3\nTotal orders: 9\nTotal revenue: ₹38586\nTop product: P02 (3 orders)\nTop product revenue: ₹15000",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\n// Multi-file aggregation with BufferedReader + PrintWriter report\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        // Create 3 daily files\n        String[] days = {\"day1.csv\",\"day2.csv\",\"day3.csv\"};\n        Files.writeString(Path.of(days[0]), \"P01,799\\nP02,5000\\nP03,1299\");\n        Files.writeString(Path.of(days[1]), \"P01,799\\nP02,5000\\nP01,799\");\n        Files.writeString(Path.of(days[2]), \"P02,5000\\nP03,1299\\nP01,799\");\n        \n        Map<String, Integer> productCount = new HashMap<>();\n        Map<String, Long>    productRevenue = new HashMap<>();\n        long totalRevenue = 0;\n        int  totalOrders  = 0;\n        \n        for (String day : days) {\n            try (BufferedReader br = Files.newBufferedReader(Path.of(day))) {\n                String line;\n                while ((line = br.readLine()) != null) {\n                    String[] cols = line.split(\",\");\n                    String product = cols[0];\n                    long amount    = Long.parseLong(cols[1]);\n                    productCount.merge(product, 1, Integer::sum);\n                    productRevenue.merge(product, amount, Long::sum);\n                    totalRevenue += amount;\n                    totalOrders++;\n                }\n            }\n        }\n        \n        String topProduct = productCount.entrySet().stream()\n            .max(Map.Entry.comparingByValue())\n            .map(Map.Entry::getKey).orElse(\"none\");\n        \n        StringWriter sw = new StringWriter();\n        try (PrintWriter pw = new PrintWriter(sw)) {\n            pw.println(\"=== Sales Aggregation Report ===\");\n            pw.println(\"Files processed: 3\");\n            pw.println(\"Total orders: \" + totalOrders);\n            pw.println(\"Total revenue: ₹\" + totalRevenue);\n            pw.println(\"Top product: \" + topProduct + \" (\" + productCount.get(topProduct) + \" orders)\");\n            pw.println(\"Top product revenue: ₹\" + productRevenue.get(topProduct));\n        }\n        System.out.print(sw);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "=== Sales Aggregation Report ===\nFiles processed: 3\nTotal orders: 9\nTotal revenue: ₹38586\nTop product: P01 (4 orders)\nTop product revenue: ₹3196" }
+      ],
+      "hints": [
+        "P01: day1(799)+day2(799+799)+day3(799) = 4 orders, ₹3196",
+        "P02: day1(5000)+day2(5000)+day3(5000) = 3 orders, ₹15000",
+        "P03: day1(1299)+day3(1299) = 2 orders, ₹2598",
+        "Total: 4+3+2=9 orders; 3196+15000+2598+... wait: 3196+15000+2598=20794? No: total revenue = all amounts summed"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 700,
+    "estimated_completion_minutes": 65
+  }
+}

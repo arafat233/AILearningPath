@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m35_t4_proj",
+  "linked_topic": "java_m35_t4",
+  "level": "mini",
+  "name": "Zerodha Trade Path Analyzer",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "Analyze trade paths in market tree structure.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "hasPathSum, pathSumII, maxPathSum, pathSumIII",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README: prefix sum technique for pathSumIII",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "goodNodes, sumRootToLeaf, pseudoPalindromic",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "pathSumIII: DFS with HashMap<prefix_sum, count>. At each node: count+=map.get(cur-target). Add cur to map. Recurse left, recurse right. Then REMOVE cur from map (backtrack). put(0L,1) handles paths from root.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

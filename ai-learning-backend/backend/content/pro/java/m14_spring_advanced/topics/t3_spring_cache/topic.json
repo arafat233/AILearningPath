@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t3",
+  "language": "java",
+  "module_id": "m14",
+  "module_name": "Advanced Spring Boot",
+  "topic_number": 3,
+  "name": "Spring Cache with @Cacheable",
+  "slug": "spring-cache-cacheable",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m13_t3"],
+    "concepts_taught": [
+      "enable_caching",
+      "cacheable_annotation",
+      "cache_key",
+      "cache_condition",
+      "cache_evict",
+      "cache_put",
+      "caching_annotation",
+      "simple_cache_manager",
+      "caffeine_cache",
+      "cache_ttl",
+      "testing_caching_behaviour",
+      "cache_hit_vs_miss"
+    ],
+    "skills_developed": [
+      "adding_caching_to_spring_services",
+      "configuring_cache_keys",
+      "evicting_stale_cache_entries",
+      "configuring_caffeine_cache_with_ttl",
+      "verifying_caching_with_spy"
+    ],
+    "career_relevance": "Caching is one of the highest-leverage optimisations in any system. A single @Cacheable annotation on findAllProducts() can eliminate 99% of database calls for read-heavy workloads. Flipkart's product catalog, Zerodha's stock price cache, and Razorpay's merchant config — all cached. After this topic you add production-grade caching to any Spring Boot service in minutes.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your product catalog has 10,000 products. Every page load hits `productRepo.findAll()`. At 500 requests/second:\n\n```\nWithout cache:  500 DB queries/second → database overloaded → slow responses\nWith @Cacheable: 1 DB query (first call), then 0 DB queries until cache expires\n```\n\n**Without caching:**\n```java\n@Service class ProductService {\n    public List<Product> findAll() {\n        return repo.findAll();  // hits DB every single call\n    }\n}\n// 500 req/s = 500 DB queries/s = database bottleneck\n```\n\n**With one annotation:**\n```java\n@Service class ProductService {\n    @Cacheable(\"products\")  // ← that's it\n    public List<Product> findAll() {\n        return repo.findAll();  // hits DB ONCE, then returns cached copy\n    }\n    \n    @CacheEvict(\"products\")  // clear cache when products change\n    public Product save(Product p) { return repo.save(p); }\n}\n// 500 req/s = 1 DB query (first) + 499 cache hits = ✅\n```\n\nThe application context stays the same, the code change is one annotation, the performance gain is enormous. This is why caching is one of the most common interview topics for senior engineers.",
+    "what_you_will_build": "By the end of this topic, you'll add @Cacheable, @CacheEvict, and @CachePut to services, configure cache keys, add conditional caching, configure Caffeine cache with TTL (time-to-live), and test caching behaviour with Mockito spies."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "enable_caching": "**Enabling Spring Cache:**\n\n```xml\n<!-- pom.xml — using Caffeine for production-grade local cache: -->\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-cache</artifactId>\n</dependency>\n<dependency>\n    <groupId>com.github.ben-manes.caffeine</groupId>\n    <artifactId>caffeine</artifactId>\n</dependency>\n```\n\n```java\n@SpringBootApplication\n@EnableCaching  // activates Spring's caching abstraction\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n```\n\n**Simplest config — ConcurrentHashMap-based (dev/test only):**\n```java\n// No extra config needed with @EnableCaching — Spring uses SimpleCacheManager\n// application.properties:\nspring.cache.type=simple  // or caffeine for production\n```",
+
+      "cacheable": "**@Cacheable — cache the return value:**\n\n```java\n@Service\npublic class ProductService {\n    private final ProductRepository repo;\n    \n    // Cache entire list under key 'products::SimpleKey []':\n    @Cacheable(\"products\")\n    public List<Product> findAll() {\n        System.out.println(\"DB hit: findAll()\");  // prints ONCE, then cached\n        return repo.findAll();\n    }\n    \n    // Cache by id: key = 'products::P001' etc.\n    @Cacheable(value = \"products\", key = \"#id\")\n    public Optional<Product> findById(String id) {\n        System.out.println(\"DB hit: findById(\" + id + \")\");\n        return repo.findById(id);\n    }\n    \n    // Cache by category: key = 'products::Electronics'\n    @Cacheable(value = \"products\", key = \"#category\")\n    public List<Product> findByCategory(String category) {\n        return repo.findByCategory(category);\n    }\n    \n    // Conditional: only cache if list has items\n    @Cacheable(value = \"products\", condition = \"#result != null && !#result.isEmpty()\")\n    public List<Product> search(String query) {\n        return repo.findByNameContaining(query);\n    }\n    \n    // Unless: don't cache if empty result\n    @Cacheable(value = \"products\", unless = \"#result == null || #result.isEmpty()\")\n    public List<Product> hotProducts() {\n        return repo.findHot();\n    }\n}\n```\n\n**How @Cacheable works:**\n1. First call: cache miss → execute method → store return value in cache\n2. Subsequent calls with same key: cache hit → return cached value, method NOT called",
+
+      "cache_evict_put": "**@CacheEvict and @CachePut — keeping the cache consistent:**\n\n```java\n@Service\npublic class ProductService {\n    \n    // @CacheEvict: remove entry when data changes\n    @CacheEvict(value = \"products\", key = \"#product.id\")\n    public Product update(Product product) {\n        return repo.save(product);  // evicts 'products::P001' from cache\n    }\n    \n    // Evict ALL entries in the cache:\n    @CacheEvict(value = \"products\", allEntries = true)\n    public void reloadAll() {\n        // Called by admin or after bulk import\n    }\n    \n    // @CachePut: update the cache with new value (always executes the method)\n    @CachePut(value = \"products\", key = \"#result.id\")\n    public Product save(Product product) {\n        return repo.save(product);  // saves AND puts result in cache\n    }\n    \n    // @Caching: multiple cache operations on one method:\n    @Caching(evict = {\n        @CacheEvict(value = \"products\", key = \"#id\"),\n        @CacheEvict(value = \"products\", allEntries = true)  // also clear list cache\n    })\n    public void delete(String id) {\n        repo.deleteById(id);\n    }\n}\n```\n\n**Key difference:**\n- `@CacheEvict`: remove from cache (next call will re-fetch from DB)\n- `@CachePut`: update cache with method's return value (method always runs)",
+
+      "caffeine_config": "**Caffeine cache — production-grade with TTL:**\n\n```java\nimport com.github.benmanes.caffeine.cache.Caffeine;\nimport org.springframework.cache.caffeine.CaffeineCacheManager;\n\n@Configuration\npublic class CacheConfig {\n    \n    @Bean\n    public CacheManager cacheManager() {\n        CaffeineCacheManager manager = new CaffeineCacheManager();\n        manager.setCaffeine(Caffeine.newBuilder()\n            .maximumSize(1000)            // max 1000 entries\n            .expireAfterWrite(Duration.ofMinutes(10))  // TTL: 10 min after write\n            .recordStats());              // enable hit/miss stats\n        return manager;\n    }\n}\n\n// OR via application.properties (simpler):\n// spring.cache.type=caffeine\n// spring.cache.caffeine.spec=maximumSize=1000,expireAfterWrite=10m\n```\n\n**Per-cache TTL configuration:**\n```java\n@Bean\npublic CacheManager cacheManager() {\n    CaffeineCacheManager manager = new CaffeineCacheManager();\n    // Different TTLs per cache:\n    manager.registerCustomCache(\"products\",\n        Caffeine.newBuilder().maximumSize(500).expireAfterWrite(Duration.ofMinutes(5)).build());\n    manager.registerCustomCache(\"prices\",\n        Caffeine.newBuilder().maximumSize(200).expireAfterWrite(Duration.ofSeconds(30)).build());\n    manager.registerCustomCache(\"users\",\n        Caffeine.newBuilder().maximumSize(1000).expireAfterWrite(Duration.ofHours(1)).build());\n    return manager;\n}\n```",
+
+      "testing_cache": "**Testing cache behaviour with Spy:**\n\n```java\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass ProductServiceCacheTest {\n    \n    @Autowired ProductService productService;\n    @Autowired CacheManager cacheManager;\n    \n    @BeforeEach\n    void clearCache() {\n        // Clear all caches between tests:\n        cacheManager.getCacheNames().forEach(name ->\n            cacheManager.getCache(name).clear());\n    }\n    \n    @Test\n    void findAll_calledTwice_dbHitOnceOnly() {\n        // First call — DB hit:\n        List<Product> result1 = productService.findAll();\n        // Second call — cache hit (DB NOT called again):\n        List<Product> result2 = productService.findAll();\n        \n        assertNotNull(result1);\n        assertEquals(result1, result2);  // same list\n        \n        // Verify cache entry exists:\n        Cache cache = cacheManager.getCache(\"products\");\n        assertNotNull(cache.get(SimpleKey.EMPTY));  // key for no-arg method\n    }\n    \n    @Test\n    void save_evictsCache() {\n        productService.findAll();  // populate cache\n        productService.save(new Product(\"New Mouse\", 999));  // should evict\n        \n        // Verify cache was cleared:\n        Cache cache = cacheManager.getCache(\"products\");\n        assertNull(cache.get(SimpleKey.EMPTY));  // cache entry gone\n    }\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Cache hit/miss flow: Request 1 → @Cacheable method → MISS → DB query → store result in cache → return. Request 2 (same key) → @Cacheable method → HIT → return cached value (no DB query). Counter: DB queries: 1 for N requests. (2) Cache annotations comparison table: @Cacheable (reads cache, skips method on hit), @CachePut (always runs method, always updates cache), @CacheEvict (removes entry, next call re-fetches from DB). Use case column: read, write, delete. (3) Caffeine cache config: maximumSize=1000 (horizontal bar showing slots), expireAfterWrite=10min (clock icon with TTL), recordStats (hit rate metric). Per-cache TTL table: products=5min, prices=30sec, users=1hr.",
+      "alt_text": "Cache hit/miss flow, annotation comparison table, and Caffeine configuration"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add caching to the Flipkart-style product catalog. Products change infrequently — perfect for caching. The cache eliminates DB queries for read-heavy endpoints.",
+
+    "problem_statement": "Add caching to ProductService:\n1. Cache findAll() result\n2. Cache findById() per-product\n3. Cache findByCategory() per-category\n4. Evict on save/update/delete\n5. Configure Caffeine with 5-min TTL\n6. Verify with @SpringBootTest",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Enable caching + Caffeine config",
+        "details": "```java\n// Application.java:\n@SpringBootApplication @EnableCaching\npublic class Application { ... }\n\n// CacheConfig.java:\n@Configuration\nclass CacheConfig {\n    @Bean CacheManager cacheManager() {\n        CaffeineCacheManager cm = new CaffeineCacheManager();\n        cm.registerCustomCache(\"products\",\n            Caffeine.newBuilder()\n                .maximumSize(500)\n                .expireAfterWrite(Duration.ofMinutes(5))\n                .recordStats()\n                .build());\n        return cm;\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Annotate ProductService methods",
+        "details": "```java\n@Service\npublic class ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository r) { repo = r; }\n    \n    @Cacheable(\"products\")\n    public List<Product> findAll() { return repo.findAll(); }\n    \n    @Cacheable(value = \"products\", key = \"#id\")\n    public Optional<Product> findById(String id) { return repo.findById(id); }\n    \n    @Cacheable(value = \"products\", key = \"'cat:' + #category\")\n    public List<Product> findByCategory(String category) {\n        return repo.findByCategory(category);\n    }\n    \n    @CachePut(value = \"products\", key = \"#result.id\")\n    public Product save(Product p) { return repo.save(p); }\n    \n    @Caching(evict = {\n        @CacheEvict(value = \"products\", key = \"#id\"),\n        @CacheEvict(value = \"products\", allEntries = true)  // clear list caches\n    })\n    public void delete(String id) { repo.deleteById(id); }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Test that cache works",
+        "details": "```java\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass ProductCacheTest {\n    @Autowired ProductService service;\n    @Autowired CacheManager cacheManager;\n    @Autowired ProductRepository repo;\n    \n    @BeforeEach void clearAndSeed() {\n        cacheManager.getCacheNames().forEach(n -> cacheManager.getCache(n).clear());\n        repo.deleteAll();\n        repo.save(new Product(\"Mouse\",    799, \"Electronics\"));\n        repo.save(new Product(\"Keyboard\", 1999, \"Electronics\"));\n    }\n    \n    @Test\n    void findAll_cacheHitOnSecondCall() {\n        List<Product> first  = service.findAll();  // DB hit\n        List<Product> second = service.findAll();  // cache hit\n        assertEquals(first, second);\n        // Cache contains the entry:\n        assertNotNull(cacheManager.getCache(\"products\").get(SimpleKey.EMPTY));\n    }\n    \n    @Test\n    void delete_evictsCache() {\n        service.findAll();  // populate cache\n        repo.findAll().forEach(p -> service.delete(p.getId()));\n        // Cache cleared:\n        assertNull(cacheManager.getCache(\"products\").get(SimpleKey.EMPTY));\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Application.java: @EnableCaching\n// CacheConfig.java: Caffeine, 5min TTL, 500 max entries\n// ProductService.java: @Cacheable, @CachePut, @CacheEvict, @Caching\n// ProductCacheTest.java: @SpringBootTest cache verification\n\n// Key annotations:\n// @Cacheable('products'): key = SimpleKey.EMPTY for no-arg\n// @Cacheable(value='products', key='#id'): key = the id parameter\n// @Cacheable(value='products', key=\"'cat:'+#category\"): prefix key\n// @CacheEvict(value='products', allEntries=true): nuke entire cache\n// @CachePut(value='products', key='#result.id'): update cache with result",
+
+    "expected_output": "# Without cache:\nDB hit: findAll()    ← 1000x per minute\nDB hit: findAll()\n... (every request)\n\n# With @Cacheable:\nDB hit: findAll()    ← 1x per 5 minutes\n[cache hit]          ← all subsequent calls\n[cache hit]\n\n# After save(new product):\nDB hit: findAll()    ← cache was evicted, reloaded on next call",
+
+    "things_to_notice": [
+      "@Cacheable intercepts the method call via Spring AOP proxy. If there's a cache entry for the key, the method body is NOT executed at all — the cached value is returned directly. This means all the logic inside the method is skipped on a cache hit.",
+      "The default cache key for `findAll()` (no parameters) is `SimpleKey.EMPTY`. For `findById('P001')`, the default key is `'P001'`. For `findByCategory('Electronics')`, the default key is `'Electronics'` — but if you call `findById('Electronics')` and `findByCategory('Electronics')` they'd share the cache key! Use explicit key expressions to avoid collisions.",
+      "`key = \"'cat:' + #category\"`: the single quotes around 'cat:' are SpEL (Spring Expression Language) string literals. #category refers to the method parameter. Result: key is 'cat:Electronics'. This prefix avoids key collision with findById('Electronics').",
+      "@CachePut ALWAYS executes the method AND updates the cache. Use it for write operations where you want the cache to stay warm. @CacheEvict removes the entry — next read will re-fetch from DB and re-populate. Use @CachePut for update, @CacheEvict for delete.",
+      "TTL (expireAfterWrite=5 minutes) ensures the cache doesn't serve stale data forever. Even without explicit @CacheEvict calls, data refreshes every 5 minutes. For frequently-changing data, use shorter TTL. For rarely-changing data (config, categories), use longer TTL or no TTL.",
+      "Self-invocation: just like @Async and @Transactional, @Cacheable uses Spring AOP proxy. `this.findAll()` in the same class bypasses the proxy — the method runs and the result is NOT cached. Always call caching methods from a different bean."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart product catalog",
+        "use_case": "Product listings don't change every second. @Cacheable('products', key='#category') caches each category's product list for 5 minutes. 1000 requests/second for 'Electronics' → 1 DB query/5 minutes instead of 300,000. @CacheEvict fires when a seller updates a product. The cache is the difference between a responsive catalog and a sluggish one under load."
+      },
+      {
+        "company_context": "Zerodha stock price display",
+        "use_case": "Stock prices update every second during market hours. @Cacheable with a 1-second TTL prevents stampede: instead of 10,000 concurrent requests hitting the price feed simultaneously, 10,000 requests get the 1-second-old cached price while one request fetches the fresh price. Outside market hours, @Scheduled refreshes the closing prices into cache — no live feed needed."
+      },
+      {
+        "company_context": "Razorpay merchant configuration",
+        "use_case": "Every payment request needs the merchant's configuration (webhook URL, payment methods, limits). With 10,000 payments/second, that's 10,000 config lookups. @Cacheable('merchant-config', key='#merchantId') caches each merchant's config for 10 minutes. Config changes are rare — @CacheEvict on the admin update endpoint. The DB load drops by 99%."
+      }
+    ],
+
+    "interview_relevance": "Spring Cache interview questions:\n\n- **'How do you add caching to a Spring Boot service?'** → @EnableCaching on Application class, @Cacheable on the service method, configure CacheManager (Caffeine for production).\n- **'What is the difference between @CacheEvict and @CachePut?'** → @CacheEvict removes the cache entry (next call re-fetches). @CachePut always executes the method and stores the result in cache.\n- **'What cache key is used for @Cacheable without specifying a key?'** → For no-arg methods: SimpleKey.EMPTY. For one-arg: the argument value. For multiple args: SimpleKey wrapping all args.\n- **'Why is Caffeine preferred over simple cache in production?'** → Caffeine has TTL (expiry), maximum size (prevents memory issues), eviction policies, and hit rate statistics. SimpleCacheManager is ConcurrentHashMap — no TTL, unbounded growth.",
+
+    "real_world_workflow": "Daily caching workflow:\n\n- Identify read-heavy methods with rare data changes → @Cacheable\n- Add @CacheEvict on write methods that change cached data\n- Configure Caffeine with appropriate TTL and maxSize\n- Monitor hit rate with Caffeine's recordStats()\n- Test: call twice, verify DB only hit once"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "cache_key_collision",
+      "what_students_get_wrong": "Two different methods with the same parameter name and value share the same cache key — returning wrong data.",
+      "remediation": "Always use explicit key expressions that are unique per method. `key = \"'findById:' + #id\"` vs `key = \"'findByCat:' + #category\"`. Or put each method's cache in its own named cache ('products-by-id', 'products-by-category') to avoid cross-method collision.",
+      "detection_pattern": "findByCategory('P001') returns a single product instead of a list"
+    },
+    {
+      "gap_id": "caching_self_invocation",
+      "what_students_get_wrong": "Calling `this.findAll()` from within the same class — @Cacheable is bypassed (same AOP proxy issue as @Async).",
+      "remediation": "@Cacheable uses Spring AOP proxy. Self-invocation bypasses the proxy. If method A (non-cached) calls this.methodB() (cached) in the same class, the cache is ignored. Extract the cached method to a separate bean, or inject the bean's own proxy with @Autowired self.",
+      "detection_pattern": "Method is called repeatedly but DB is always hit — cache never populated"
+    },
+    {
+      "gap_id": "no_cache_evict_on_writes",
+      "what_students_get_wrong": "Adding @Cacheable to findAll() but forgetting @CacheEvict on save/update — cache serves stale data after writes.",
+      "remediation": "Every method that modifies cached data must have @CacheEvict (or @CachePut). If save() doesn't evict, findAll() keeps returning the old list. Use @Caching to combine multiple evictions on one method.",
+      "detection_pattern": "Newly saved products don't appear in the cached list until TTL expires"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@EnableCaching on Application class: activates Spring's caching abstraction",
+      "@Cacheable('cacheName'): cache the return value; skip method on cache hit",
+      "@Cacheable(value='name', key='#paramName'): explicit key per parameter",
+      "key SpEL: '#id', \"'prefix:' + #category\", '#result.id'",
+      "Default key: SimpleKey.EMPTY (no args), parameter value (one arg)",
+      "@CacheEvict(value='name', key='#id'): remove specific entry",
+      "@CacheEvict(value='name', allEntries=true): clear entire cache",
+      "@CachePut(value='name', key='#result.id'): always run + update cache",
+      "@Caching: combine multiple cache operations on one method",
+      "Caffeine: production-grade cache with TTL, maxSize, eviction, stats",
+      "expireAfterWrite=Duration.ofMinutes(5): entries expire 5 min after creation",
+      "recordStats(): enable hit/miss rate tracking",
+      "@Cacheable also uses AOP proxy — self-invocation bypasses cache"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "findAll() is @Cacheable. A new product is saved via save(). findAll() still returns the old list. Why?",
+        "answer": "save() has no @CacheEvict annotation. After save() inserts the new product, the 'products' cache still holds the old list. The next call to findAll() returns the cached (stale) list — the method body is skipped entirely. Fix: add `@CacheEvict(value='products', allEntries=true)` to save() (clears the entire products cache) or `@CachePut(value='products')` if you want to update the list cache with the new result. Using @Caching, you can combine evicting the list cache and putting the individual product cache in one annotation."
+      },
+      {
+        "question": "Two methods exist: findById(String id) and findByCategory(String category). Both use @Cacheable('products') without a key. findById('Electronics') is called first. Then findByCategory('Electronics') is called. What data does findByCategory return?",
+        "answer": "The wrong data — a single Optional<Product> instead of a List<Product>. Without explicit key expressions, @Cacheable uses the argument value as the key. Both calls with argument 'Electronics' produce the same cache key 'Electronics' in the 'products' cache. findByCategory finds the entry put by findById and returns it (wrong type). Fix: use explicit, unique keys — findById: `key=\"'id:'+#id\"`, findByCategory: `key=\"'cat:'+#category\"`. Or use separate caches: 'products-by-id' and 'products-by-category'."
+      },
+      {
+        "question": "What is the purpose of `expireAfterWrite` in Caffeine cache, and what value would you choose for stock prices versus country names?",
+        "answer": "expireAfterWrite sets how long a cache entry lives after it was last written. After this duration, the entry is removed and the next call re-fetches from the source. Stock prices: `expireAfterWrite=Duration.ofSeconds(1)` or shorter — prices change every second during market hours; stale price data is a risk. Country names: `expireAfterWrite=Duration.ofDays(7)` or even no expiry — country names essentially never change; a long TTL avoids unnecessary DB/API calls. The right TTL is the tradeoff between freshness and DB load."
+      }
+    ],
+
+    "next_topic_preview": "Next: **@ConfigurationProperties and Profiles** — as applications grow, configuration sprawls: dozens of @Value fields across many classes, hard to manage. @ConfigurationProperties binds a group of properties to a typed Java record/class, giving you IDE autocomplete, validation, and clean injection. Spring profiles allow different application.properties per environment (dev/staging/prod). After Topic 14.4, your configuration is clean, type-safe, and environment-aware."
+  }
+}

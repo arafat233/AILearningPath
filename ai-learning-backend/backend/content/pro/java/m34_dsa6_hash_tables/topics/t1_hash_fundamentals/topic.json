@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t1",
+  "module_id": "m34",
+  "topic_number": 1,
+  "name": "Hash Fundamentals \u2014 HashMap Internals, O(1) Ops",
+  "slug": "hash-fundamentals-hashmap-internals",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m29_t1"
+    ],
+    "concepts_taught": [
+      "hashmap_internals",
+      "hashing",
+      "collision_resolution",
+      "load_factor",
+      "get_put_containskey",
+      "getOrDefault",
+      "merge",
+      "computeIfAbsent",
+      "two_sum_pattern",
+      "subarray_sum_prefix_hash"
+    ],
+    "career_relevance": "HashMap is the most-used data structure in Java interviews. Two Sum (HashMap lookup) is the #1 Zerodha/Razorpay warm-up. Subarray Sum = K uses prefix+HashMap \u2014 appears in 30% of medium-level problems. Knowing load factor and O(1) vs O(n) worst-case signals senior-level understanding.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```java\n// O(n\u00b2) naive: for every pair, check if sum=target\n// O(n) HashMap: for each num, look up complement\nMap<Integer,Integer> seen = new HashMap<>();\nfor (int i=0; i<nums.length; i++) {\n    int comp = target - nums[i];\n    if (seen.containsKey(comp)) return new int[]{seen.get(comp), i};\n    seen.put(nums[i], i); // store index for later lookup\n}\n// One pass: O(n) time, O(n) space\n```",
+    "what_you_will_build": "Two Sum, frequency counting, subarray sum, consecutive sequence \u2014 all HashMap patterns."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "overview": "**HashMap internals and O(1) operations:**\n\n```java\n// HashMap: key \u2192 hash \u2192 bucket \u2192 linked list (or tree for >8 entries)\nHashMap<String,Integer> map = new HashMap<>();  // default capacity 16, load 0.75\nmap.put(\"RELIANCE\", 5000);    // O(1) avg: hash(key) % capacity \u2192 bucket\nmap.get(\"RELIANCE\");          // O(1) avg\nmap.containsKey(\"TCS\");       // O(1) avg \u2014 ALWAYS check before get!\nmap.getOrDefault(\"TCS\", 0);  // O(1) \u2014 safe get with default\nmap.putIfAbsent(\"TCS\", 100); // O(1) \u2014 put only if key missing\nmap.merge(\"TCS\", 1, Integer::sum); // O(1) \u2014 merge: put or update\nmap.computeIfAbsent(\"TCS\", k -> new ArrayList<>()).add(\"item\");\n// All O(1) average. O(n) worst case (all keys hash to same bucket).\n\n// Iteration:\nfor (Map.Entry<String,Integer> e : map.entrySet())\n    System.out.println(e.getKey() + \"=\" + e.getValue());\nmap.forEach((k,v) -> System.out.println(k+\"=\"+v));\n```"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "HashMap: O(1) avg put/get/containsKey. O(n) worst (all collisions).",
+        "ALWAYS use getOrDefault or containsKey before get \u2014 never assume key exists",
+        "merge(k, 1, Integer::sum): elegant frequency counting",
+        "prefixCount.put(0,1): handles subarrays starting at index 0",
+        "TreeMap: O(log n), sorted. LinkedHashMap: O(1), insertion order.",
+        "int[26] vs HashMap: use int[26] for lowercase alpha \u2014 O(1) space",
+        "Pre-size HashMap: new HashMap<>(n*4/3+1) to avoid resizing"
+      ],
+      "next_topic_preview": "Next: HashMap Patterns \u2014 groupAnagrams, frequency analysis, sliding window with map."
+    }
+  }
+}

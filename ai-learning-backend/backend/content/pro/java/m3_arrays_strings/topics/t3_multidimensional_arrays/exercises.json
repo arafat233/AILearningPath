@@ -1,0 +1,439 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t3",
+  "topic_name": "Multi-Dimensional Arrays",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m3_t3_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Declare a 2D array",
+      "scenario": "Create your first 2D array.",
+      "instructions": "Fill in the blanks to create a 2D int array with rows {1, 2, 3} and {4, 5, 6}, then print element at row 1, col 2.",
+      "starter_code": "public class App {\n    public static void main(String[] args) {\n        int[]____ grid = {\n            {1, 2, 3},\n            {4, 5, 6}\n        };\n        System.out.println(grid[____][____]);\n    }\n}",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        int[][] grid = {\n            {1, 2, 3},\n            {4, 5, 6}\n        };\n        System.out.println(grid[1][2]);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "[]", "hint": "Two pairs of brackets for 2D" },
+        { "position": 2, "answer": "1", "hint": "Row index (second row is index 1)" },
+        { "position": 3, "answer": "2", "hint": "Col index (third element is index 2)" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "6"
+        }
+      ],
+      "hints": [
+        "2D array declaration: int[][] (two square brackets)",
+        "Access: grid[row][col]",
+        "Row 1 = second row, col 2 = third element = 6"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m3_t3_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Trace 2D iteration",
+      "scenario": "Predict the output of nested loops.",
+      "instructions": "What does this print?\n\n```java\nint[][] grid = {\n    {1, 2, 3},\n    {4, 5, 6}\n};\n\nfor (int row = 0; row < grid.length; row++) {\n    for (int col = 0; col < grid[row].length; col++) {\n        System.out.print(grid[row][col] + \" \");\n    }\n    System.out.println();\n}\n```",
+      "expected_solution": "1 2 3 \n4 5 6 ",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "1 2 3 \n4 5 6 "
+        }
+      ],
+      "hints": [
+        "Outer loop iterates rows: row = 0, then 1",
+        "For row 0: prints 1, 2, 3 (with trailing space) then newline",
+        "For row 1: prints 4, 5, 6 then newline",
+        "Each line has a trailing space due to + \" \""
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m3_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Print 2D array with deepToString",
+      "scenario": "Use Arrays.deepToString to print 2D arrays.",
+      "instructions": "Write a class `PrintGrid` that:\n1. Has a 2D array {{10, 20}, {30, 40}, {50, 60}}\n2. Prints it using Arrays.deepToString\n\nExpected output:\n[[10, 20], [30, 40], [50, 60]]",
+      "starter_code": "// Write your PrintGrid class below\n// Use Arrays.deepToString, NOT Arrays.toString\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class PrintGrid {\n    public static void main(String[] args) {\n        int[][] grid = {{10, 20}, {30, 40}, {50, 60}};\n        System.out.println(Arrays.deepToString(grid));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[[10, 20], [30, 40], [50, 60]]"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["deepToString"]
+        }
+      ],
+      "hints": [
+        "Import java.util.Arrays",
+        "For 2D arrays, use Arrays.deepToString (not Arrays.toString)",
+        "Arrays.toString would print garbage for 2D",
+        "deepToString recursively converts inner arrays"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m3_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sum all 2D elements",
+      "scenario": "Use nested for-each to sum everything.",
+      "instructions": "Write a class `SumAll`:\n1. 2D array: {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}\n2. Sum all 9 elements\n3. Print 'Total: <sum>'\n\nUse nested for-each loops.\n\nExpected output:\nTotal: 45",
+      "starter_code": "// Write your SumAll class below\n// Use nested for-each loops\n",
+      "expected_solution": "public class SumAll {\n    public static void main(String[] args) {\n        int[][] grid = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\n        int total = 0;\n        for (int[] row : grid) {\n            for (int value : row) {\n                total += value;\n            }\n        }\n        System.out.println(\"Total: \" + total);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Total: 45"
+        }
+      ],
+      "hints": [
+        "Outer for-each: for (int[] row : grid) — each row is an int[]",
+        "Inner for-each: for (int value : row) — each value in the row",
+        "Accumulate into total",
+        "1+2+3+4+5+6+7+8+9 = 45"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m3_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Print grid as formatted table",
+      "scenario": "Display a 2D array in tabular format.",
+      "instructions": "Write a class `PrintTable`:\n1. 2D array: {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}\n2. Print each row on its own line, values space-separated\n\nExpected output:\n1 2 3\n4 5 6\n7 8 9",
+      "starter_code": "// Write your PrintTable class below\n",
+      "expected_solution": "public class PrintTable {\n    public static void main(String[] args) {\n        int[][] grid = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\n        for (int row = 0; row < grid.length; row++) {\n            for (int col = 0; col < grid[row].length; col++) {\n                System.out.print(grid[row][col]);\n                if (col < grid[row].length - 1) {\n                    System.out.print(\" \");\n                }\n            }\n            System.out.println();\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1 2 3\n4 5 6\n7 8 9"
+        }
+      ],
+      "hints": [
+        "Use nested classic for loops (need indices for spacing logic)",
+        "Print value with print() — no newline within row",
+        "Add space between values, but NOT after the last in a row",
+        "Use println() (empty) after inner loop to start new row",
+        "Alternative: just use System.out.print(value + \" \") and accept trailing space"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m3_t3_ex_6",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the 2D iteration bug",
+      "scenario": "Wrong inner-loop bound causes crash for non-square grids.",
+      "instructions": "This code crashes for the jagged array. Fix it to use the correct row length.\n\nExpected output:\n1 2 3 \n4 5 \n6 7 8 9 ",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        int[][] jagged = {\n            {1, 2, 3},\n            {4, 5},\n            {6, 7, 8, 9}\n        };\n        \n        for (int row = 0; row < jagged.length; row++) {\n            for (int col = 0; col < jagged[0].length; col++) {\n                System.out.print(jagged[row][col] + \" \");\n            }\n            System.out.println();\n        }\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        int[][] jagged = {\n            {1, 2, 3},\n            {4, 5},\n            {6, 7, 8, 9}\n        };\n        \n        for (int row = 0; row < jagged.length; row++) {\n            for (int col = 0; col < jagged[row].length; col++) {\n                System.out.print(jagged[row][col] + \" \");\n            }\n            System.out.println();\n        }\n    }\n}",
+      "bugs": [
+        {
+          "line": "10",
+          "issue": "Inner loop uses `jagged[0].length` (length of first row) but row 1 has only 2 elements, row 2 has 4. Will crash on row 1 (trying to access [1][2] which doesn't exist) or print past elements on row 2.",
+          "fix": "Use `jagged[row].length` to get THIS row's specific length"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1 2 3 \n4 5 \n6 7 8 9 ",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Java allows jagged arrays — different rows can have different lengths",
+        "`jagged[0].length` is 3 (length of row 0)",
+        "But row 1 has only 2 elements! Trying jagged[1][2] crashes.",
+        "Use `jagged[row].length` to get the current row's length"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["wrong_inner_loop_bound"]
+    },
+    
+    {
+      "id": "java_m3_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find max in 2D array",
+      "scenario": "Find the maximum value in a grid.",
+      "instructions": "Write a class `FindMax2D`:\n1. 2D array: {{3, 8, 1}, {7, 12, 5}, {9, 4, 11}}\n2. Find the maximum value\n3. Print 'Max: <value>'\n\nExpected output:\nMax: 12",
+      "starter_code": "// Write your FindMax2D class below\n",
+      "expected_solution": "public class FindMax2D {\n    public static void main(String[] args) {\n        int[][] grid = {{3, 8, 1}, {7, 12, 5}, {9, 4, 11}};\n        int max = grid[0][0];\n        for (int[] row : grid) {\n            for (int value : row) {\n                if (value > max) {\n                    max = value;\n                }\n            }\n        }\n        System.out.println(\"Max: \" + max);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Max: 12"
+        }
+      ],
+      "hints": [
+        "Start max with grid[0][0] (first element)",
+        "Nested for-each: each row, each value",
+        "If value > max, update max",
+        "12 is the largest in the grid"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m3_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Row sums",
+      "scenario": "Calculate the sum of each row.",
+      "instructions": "Write a class `RowSums`:\n1. 2D array: {{10, 20, 30}, {1, 2, 3}, {100, 200, 300}}\n2. Print sum for each row\n\nExpected output:\nRow 0 sum: 60\nRow 1 sum: 6\nRow 2 sum: 600",
+      "starter_code": "// Write your RowSums class below\n",
+      "expected_solution": "public class RowSums {\n    public static void main(String[] args) {\n        int[][] grid = {{10, 20, 30}, {1, 2, 3}, {100, 200, 300}};\n        for (int row = 0; row < grid.length; row++) {\n            int rowSum = 0;\n            for (int col = 0; col < grid[row].length; col++) {\n                rowSum += grid[row][col];\n            }\n            System.out.println(\"Row \" + row + \" sum: \" + rowSum);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Row 0 sum: 60\nRow 1 sum: 6\nRow 2 sum: 600"
+        }
+      ],
+      "hints": [
+        "Outer loop: each row index",
+        "INSIDE outer loop: reset rowSum = 0",
+        "Inner loop: sum that row",
+        "Print after inner loop (still inside outer)",
+        "Pattern: each iteration of outer = one row to compute"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m3_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Column sums",
+      "scenario": "Calculate the sum of each column (loop order flips!).",
+      "instructions": "Write a class `ColumnSums`:\n1. 2D array: {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}\n2. Print sum for each COLUMN\n\nExpected output:\nCol 0 sum: 12\nCol 1 sum: 15\nCol 2 sum: 18",
+      "starter_code": "// Write your ColumnSums class below\n// For columns, OUTER loop iterates columns\n",
+      "expected_solution": "public class ColumnSums {\n    public static void main(String[] args) {\n        int[][] grid = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\n        for (int col = 0; col < grid[0].length; col++) {\n            int colSum = 0;\n            for (int row = 0; row < grid.length; row++) {\n                colSum += grid[row][col];\n            }\n            System.out.println(\"Col \" + col + \" sum: \" + colSum);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Col 0 sum: 12\nCol 1 sum: 15\nCol 2 sum: 18"
+        }
+      ],
+      "hints": [
+        "FLIP the loop order: outer = col, inner = row",
+        "Outer bound: grid[0].length (number of columns)",
+        "Inner bound: grid.length (number of rows)",
+        "Access: grid[row][col] (always row first!)",
+        "Col 0: 1+4+7 = 12. Col 1: 2+5+8 = 15. Col 2: 3+6+9 = 18."
+      ],
+      "xp_reward": 55,
+      "concept_tested": "column_iteration"
+    },
+    
+    {
+      "id": "java_m3_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Create multiplication table",
+      "scenario": "Build and print a multiplication table.",
+      "instructions": "Write a class `MultTable`:\n1. Create a 5x5 int[][] where grid[i][j] = (i+1) * (j+1)\n2. Print as a grid\n\nExpected output:\n1 2 3 4 5 \n2 4 6 8 10 \n3 6 9 12 15 \n4 8 12 16 20 \n5 10 15 20 25 ",
+      "starter_code": "// Write your MultTable class below\n// First create the 5x5 array, then print it\n",
+      "expected_solution": "public class MultTable {\n    public static void main(String[] args) {\n        int[][] table = new int[5][5];\n        \n        for (int i = 0; i < 5; i++) {\n            for (int j = 0; j < 5; j++) {\n                table[i][j] = (i + 1) * (j + 1);\n            }\n        }\n        \n        for (int i = 0; i < 5; i++) {\n            for (int j = 0; j < 5; j++) {\n                System.out.print(table[i][j] + \" \");\n            }\n            System.out.println();\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1 2 3 4 5 \n2 4 6 8 10 \n3 6 9 12 15 \n4 8 12 16 20 \n5 10 15 20 25 "
+        }
+      ],
+      "hints": [
+        "Create: new int[5][5] (5 rows, 5 cols, all 0 initially)",
+        "Fill: nested loops, table[i][j] = (i + 1) * (j + 1)",
+        "Why +1? To get 1-5 instead of 0-4",
+        "Print: nested loops with println after inner",
+        "First row: 1*1, 1*2, 1*3, 1*4, 1*5 = 1, 2, 3, 4, 5"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m3_t3_ex_11",
+      "level": "medium",
+      "type": "algorithm",
+      "difficulty": 4,
+      "title": "Search in 2D",
+      "scenario": "Find a value in a 2D array, return its location.",
+      "instructions": "Write a class `Search2D`:\n1. 2D array: {{5, 12, 8}, {3, 19, 7}, {25, 11, 14}}\n2. Search for value 19\n3. Print 'Found at row X, col Y' or 'Not found'\n\nExpected output:\nFound at row 1, col 1",
+      "starter_code": "// Write your Search2D class below\n",
+      "expected_solution": "public class Search2D {\n    public static void main(String[] args) {\n        int[][] grid = {{5, 12, 8}, {3, 19, 7}, {25, 11, 14}};\n        int target = 19;\n        int foundRow = -1;\n        int foundCol = -1;\n        \n        outer:\n        for (int row = 0; row < grid.length; row++) {\n            for (int col = 0; col < grid[row].length; col++) {\n                if (grid[row][col] == target) {\n                    foundRow = row;\n                    foundCol = col;\n                    break outer;\n                }\n            }\n        }\n        \n        if (foundRow == -1) {\n            System.out.println(\"Not found\");\n        } else {\n            System.out.println(\"Found at row \" + foundRow + \", col \" + foundCol);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Found at row 1, col 1"
+        }
+      ],
+      "hints": [
+        "Track both row and col where found (sentinel -1)",
+        "Nested loops with break challenges: regular break only exits inner loop",
+        "Use 'labeled break': label the outer loop, then `break outer;`",
+        "Alternative: use a boolean flag and check it in outer loop condition",
+        "19 is at grid[1][1]"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "2d_search_with_labeled_break"
+    },
+    
+    {
+      "id": "java_m3_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sum diagonal elements",
+      "scenario": "Sum the main diagonal of a square matrix (where row index == column index).",
+      "instructions": "Write a class `DiagonalSum`:\n1. 2D array: {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}\n2. Sum the main diagonal (top-left to bottom-right): grid[0][0] + grid[1][1] + grid[2][2]\n3. Print 'Diagonal sum: <value>'\n\nExpected output:\nDiagonal sum: 15",
+      "starter_code": "// Write your DiagonalSum class below\n// Main diagonal: grid[i][i] for each i\n",
+      "expected_solution": "public class DiagonalSum {\n    public static void main(String[] args) {\n        int[][] grid = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\n        int sum = 0;\n        for (int i = 0; i < grid.length; i++) {\n            sum += grid[i][i];\n        }\n        System.out.println(\"Diagonal sum: \" + sum);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Diagonal sum: 15"
+        }
+      ],
+      "hints": [
+        "Main diagonal: positions [0][0], [1][1], [2][2], ...",
+        "Only ONE loop needed — row and col are both `i`",
+        "1 + 5 + 9 = 15",
+        "This is a CLASSIC interview pattern (diagonal traversal)"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m3_t3_ex_13",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "Transpose a matrix",
+      "scenario": "Classic interview problem — swap rows and columns.",
+      "instructions": "Write a class `Transpose`:\n1. Method `transpose(int[][] matrix)` returns the transposed matrix (rows become cols, cols become rows)\n2. main demonstrates:\n   - Input: {{1, 2, 3}, {4, 5, 6}}  (2 rows, 3 cols)\n   - Output: {{1, 4}, {2, 5}, {3, 6}}  (3 rows, 2 cols)\n\nUse Arrays.deepToString to print.\n\nExpected output:\nOriginal: [[1, 2, 3], [4, 5, 6]]\nTransposed: [[1, 4], [2, 5], [3, 6]]",
+      "starter_code": "// Write your Transpose class below\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Transpose {\n    public static void main(String[] args) {\n        int[][] matrix = {{1, 2, 3}, {4, 5, 6}};\n        System.out.println(\"Original: \" + Arrays.deepToString(matrix));\n        int[][] result = transpose(matrix);\n        System.out.println(\"Transposed: \" + Arrays.deepToString(result));\n    }\n    \n    public static int[][] transpose(int[][] matrix) {\n        int rows = matrix.length;\n        int cols = matrix[0].length;\n        int[][] result = new int[cols][rows];\n        \n        for (int i = 0; i < rows; i++) {\n            for (int j = 0; j < cols; j++) {\n                result[j][i] = matrix[i][j];\n            }\n        }\n        \n        return result;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Original: [[1, 2, 3], [4, 5, 6]]\nTransposed: [[1, 4], [2, 5], [3, 6]]"
+        }
+      ],
+      "hints": [
+        "If input is rows × cols, output is cols × rows (dimensions SWAP)",
+        "Create result array: new int[cols][rows]",
+        "Copy: result[j][i] = matrix[i][j] (indices flipped)",
+        "Print with deepToString for 2D arrays"
+      ],
+      "xp_reward": 75,
+      "concept_tested": "matrix_transpose"
+    },
+    
+    {
+      "id": "java_m3_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Count occurrences of value in 2D",
+      "scenario": "Count how many times a value appears in a 2D array.",
+      "instructions": "Write a class `CountInGrid`:\n1. 2D array (could be from a game/poll): {{1, 2, 1, 3}, {2, 1, 4, 1}, {1, 5, 1, 2}}\n2. Count occurrences of value 1\n3. Print 'Count of 1: <count>'\n\nExpected output:\nCount of 1: 6",
+      "starter_code": "// Write your CountInGrid class below\n",
+      "expected_solution": "public class CountInGrid {\n    public static void main(String[] args) {\n        int[][] grid = {{1, 2, 1, 3}, {2, 1, 4, 1}, {1, 5, 1, 2}};\n        int target = 1;\n        int count = 0;\n        \n        for (int[] row : grid) {\n            for (int value : row) {\n                if (value == target) {\n                    count++;\n                }\n            }\n        }\n        \n        System.out.println(\"Count of \" + target + \": \" + count);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Count of 1: 6"
+        }
+      ],
+      "hints": [
+        "Nested for-each loops",
+        "Counter accumulator: count starts at 0",
+        "If value matches target, increment",
+        "Row 0: 1, 1 = 2 ones. Row 1: 1, 1 = 2 ones. Row 2: 1, 1 = 2 ones. Total = 6."
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m3_t3_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Spiral matrix traversal",
+      "scenario": "Classic interview problem — visit matrix elements in spiral order.",
+      "instructions": "Write a class `Spiral`:\n1. 2D array: {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}\n2. Print elements in SPIRAL order (clockwise from top-left): 1, 2, 3, 6, 9, 8, 7, 4, 5\n3. Use boundary tracking (top, bottom, left, right)\n\nExpected output:\n1 2 3 6 9 8 7 4 5",
+      "starter_code": "// Write your Spiral class below\n// Track 4 boundaries: top, bottom, left, right\n// Shrink boundaries after each pass\n",
+      "expected_solution": "public class Spiral {\n    public static void main(String[] args) {\n        int[][] grid = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}};\n        \n        int top = 0;\n        int bottom = grid.length - 1;\n        int left = 0;\n        int right = grid[0].length - 1;\n        \n        StringBuilder result = new StringBuilder();\n        \n        while (top <= bottom && left <= right) {\n            // Top row, left to right\n            for (int col = left; col <= right; col++) {\n                result.append(grid[top][col]).append(\" \");\n            }\n            top++;\n            \n            // Right column, top to bottom\n            for (int row = top; row <= bottom; row++) {\n                result.append(grid[row][right]).append(\" \");\n            }\n            right--;\n            \n            // Bottom row, right to left (if there's still a row)\n            if (top <= bottom) {\n                for (int col = right; col >= left; col--) {\n                    result.append(grid[bottom][col]).append(\" \");\n                }\n                bottom--;\n            }\n            \n            // Left column, bottom to top (if there's still a column)\n            if (left <= right) {\n                for (int row = bottom; row >= top; row--) {\n                    result.append(grid[row][left]).append(\" \");\n                }\n                left++;\n            }\n        }\n        \n        System.out.println(result.toString().trim());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1 2 3 6 9 8 7 4 5"
+        }
+      ],
+      "hints": [
+        "Track 4 boundary pointers: top, bottom, left, right",
+        "Phase 1: traverse top row LEFT to RIGHT (col goes left..right)",
+        "Phase 2: traverse right column TOP to BOTTOM (row goes top..bottom)",
+        "Phase 3: traverse bottom row RIGHT to LEFT (col goes right..left)",
+        "Phase 4: traverse left column BOTTOM to TOP (row goes bottom..top)",
+        "After each phase, SHRINK that boundary (top++, right--, bottom--, left++)",
+        "Continue while top <= bottom AND left <= right",
+        "Use StringBuilder for efficient string building (we'll cover it in next topics)",
+        "Output: 1, 2, 3, 6, 9, 8, 7, 4, 5"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 8,
+      "debug": 1,
+      "predict_output": 1,
+      "algorithm": 4
+    },
+    "total_xp_possible": 660,
+    "estimated_completion_minutes": 60
+  },
+  
+  "gap_detection_map": {
+    "using_arrays_tostring_for_2d": ["ex_3"],
+    "wrong_inner_loop_bound": ["ex_6"],
+    "column_iteration": ["ex_9"],
+    "2d_search_with_labeled_break": ["ex_11"],
+    "matrix_transpose": ["ex_13"],
+    "spiral_traversal": ["ex_15"]
+  }
+}

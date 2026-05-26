@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m28_t5_proj",
+  "linked_topic": "java_m28_t5",
+  "level": "mini",
+  "name": "Razorpay gRPC Test Suite",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "The streaming payment confirmation RPC crashed in production (edge case with amount > ₹10L). Build a comprehensive gRPC test suite using InProcessServer that would have caught this bug — covering unary, streaming, auth, and error paths.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "TestStreamObserver<T> implements StreamObserver<T>: CopyOnWriteArrayList for values, CountDownLatch(1) decremented on onCompleted or onError. awaitCompletion(5, SECONDS) with assertTrue for timeout.", "weight": 15},
+      {"id": "req_2", "description": "PaymentServiceImpl: createPayment(request) unary — validates amount > 0, merchantId not blank, returns PaymentResponse. streamStatus(paymentId, observer) — sends INITIATED, PROCESSING, CONFIRMED then onCompleted.", "weight": 20},
+      {"id": "req_3", "description": "Unary test: createPayment happy path — response has paymentId and status='CREATED'. Unary error: createPayment with amount=0 → assertThrows StatusRuntimeException INVALID_ARGUMENT.", "weight": 15},
+      {"id": "req_4", "description": "Streaming test: streamStatus('PAY-001', observer) → awaitCompletion → 3 values → order: INITIATED, PROCESSING, CONFIRMED. Error test: invalid paymentId → onError called.", "weight": 20},
+      {"id": "req_5", "description": "@SpringBootTest (4 tests): unary happy, unary INVALID_ARGUMENT, stream 3 updates in order, stream error for invalid ID. All pass.", "weight": 25},
+      {"id": "req_6", "description": "README: explains why InProcessServer catches bugs that pure unit tests miss (real proto serialization + gRPC framework tested).", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "@ParameterizedTest for invalid amounts: Stream.of(0L, -1L, -500L, 10_000_001L). Each must throw StatusRuntimeException INVALID_ARGUMENT. 4 parameterized test cases all pass.", "weight": 20},
+      {"id": "bonus_2", "description": "Mock dependency test: PaymentGrpcService depends on PaymentRepository. @Mock repo. Test: repo.save() called with correct args. Test: repo throws → service returns Status.INTERNAL.", "weight": 20},
+      {"id": "bonus_3", "description": "Bidirectional streaming test: EchoService receives 3 messages, echoes each. TestStreamObserver captures echoes. Assert order matches input.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. awaitCompletion() is mandatory before any assertion on streaming results — CountDownLatch.await() blocks until onCompleted or onError is called. Missing this is the #1 streaming test bug. assertThrows(StatusRuntimeException.class) — NOT Exception.class. Always use the specific type and then check getStatus().getCode(). CopyOnWriteArrayList for TestStreamObserver.values: thread-safe because gRPC may call onNext from a different thread than the test. generateName() for InProcess: call once and use the SAME name for both InProcessServerBuilder and InProcessChannelBuilder. Always shutdown in @AfterEach: channel.shutdownNow().awaitTermination(5, SECONDS); server.shutdownNow().",
+  "rubric": [
+    {"category": "TestStreamObserver", "points": 15},
+    {"category": "PaymentServiceImpl (unary + streaming)", "points": 20},
+    {"category": "Unary tests (2)", "points": 15},
+    {"category": "Streaming tests (2)", "points": 20},
+    {"category": "4 tests (all pass)", "points": 25},
+    {"category": "README (InProcess vs pure unit)", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

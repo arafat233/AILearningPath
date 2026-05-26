@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t1",
+  "topic_name": "Introduction to Microservices Architecture",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m15_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Sync vs async — which to use?",
+      "scenario": "Some operations need an immediate response; others can proceed without one.",
+      "instructions": "For each operation, should the calling service use synchronous (REST) or asynchronous (event/queue) communication?\n\nA. Order service checking if a product is in stock before confirming an order\nB. Sending a welcome email after user registration\nC. Charging a user's payment before order confirmation\nD. Updating a recommendation model when a user views a product\nE. Checking user's credit limit before approving a loan\nF. Logging a completed transaction to an analytics warehouse",
+      "expected_solution": "A → Synchronous (need answer before proceeding)\nB → Asynchronous (can proceed without waiting for email)\nC → Synchronous (must confirm payment before confirming order)\nD → Asynchronous (recommendation update can be eventual)\nE → Synchronous (need credit limit answer to approve/reject)\nF → Asynchronous (logging can be eventual, doesn't affect transaction)",
+      "test_cases": [
+        { "type": "text_match", "expected": "A → Synchronous (need answer before proceeding)\nB → Asynchronous (can proceed without waiting for email)\nC → Synchronous (must confirm payment before confirming order)\nD → Asynchronous (recommendation update can be eventual)\nE → Synchronous (need credit limit answer to approve/reject)\nF → Asynchronous (logging can be eventual, doesn't affect transaction)" }
+      ],
+      "hints": [
+        "Synchronous: you need the answer to proceed with the current operation",
+        "Asynchronous: the current operation can complete without waiting"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "RestTemplate — GET and POST to another service",
+      "scenario": "RestTemplate makes HTTP calls to other Spring Boot services.",
+      "instructions": "Fill in the RestTemplate calls.",
+      "starter_code": "// Get a product from inventory-service:\nInventoryItem item = restTemplate.________(\n    \"http://inventory-service/api/inventory/\" + productId,\n    InventoryItem.class\n);\n\n// Post an order to order-service:\nOrder created = restTemplate.___________(\n    \"http://order-service/api/orders\",\n    new OrderRequest(productId, qty),\n    Order.class\n);",
+      "expected_solution": "// Get a product from inventory-service:\nInventoryItem item = restTemplate.getForObject(\n    \"http://inventory-service/api/inventory/\" + productId,\n    InventoryItem.class\n);\n\n// Post an order to order-service:\nOrder created = restTemplate.postForObject(\n    \"http://order-service/api/orders\",\n    new OrderRequest(productId, qty),\n    Order.class\n);",
+      "blanks": [
+        { "position": 1, "answer": "getForObject",  "hint": "GET request that deserializes the response body" },
+        { "position": 2, "answer": "postForObject", "hint": "POST request with request body, deserializes response" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "getForObject: GET, deserialize body to object",
+        "postForObject: POST with body, deserialize response"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "RestTemplate @Bean configuration",
+      "scenario": "RestTemplate must be declared as a Spring bean.",
+      "instructions": "Write a complete `AppConfig` @Configuration class that:\n1. Declares a `RestTemplate` @Bean\n2. Shows how to inject it into a @Service via constructor\n3. Shows one example call to another service",
+      "starter_code": "import org.springframework.web.client.RestTemplate;\nimport org.springframework.context.annotation.*;\nimport org.springframework.stereotype.Service;\n// AppConfig + ServiceThatCallsOtherService\n",
+      "expected_solution": "import org.springframework.web.client.RestTemplate;\nimport org.springframework.context.annotation.*;\nimport org.springframework.stereotype.Service;\n\n@Configuration\nclass AppConfig {\n    @Bean\n    public RestTemplate restTemplate() {\n        return new RestTemplate();\n    }\n}\n\n@Service\nclass OrderService {\n    private final RestTemplate restTemplate;\n    \n    OrderService(RestTemplate restTemplate) {\n        this.restTemplate = restTemplate;\n    }\n    \n    public boolean checkInventory(String productId, int qty) {\n        String url = \"http://inventory-service/api/inventory/\" + productId + \"/available?qty=\" + qty;\n        Boolean available = restTemplate.getForObject(url, Boolean.class);\n        return Boolean.TRUE.equals(available);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Bean RestTemplate: Spring manages the instance",
+        "Inject via constructor: OrderService(RestTemplate rt)",
+        "restTemplate.getForObject(url, Type.class): GET and deserialize"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m15_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Decompose a monolith into services",
+      "scenario": "Identify service boundaries from a monolith.",
+      "instructions": "Given this monolith package structure for a Zerodha-style trading app, propose 4 microservices with their responsibilities and communication patterns:\n\n```\ncom.zerodha.trading/\n  user/       - login, profile, KYC\n  portfolio/  - holdings, P&L calculation\n  orders/     - buy/sell orders, order book\n  market/     - stock prices, market data\n  payments/   - fund transfers, withdrawals\n  alerts/     - price alerts, notifications\n```",
+      "starter_code": "// Propose 4 microservices:\n// Service 1: ...\n// Service 2: ...\n// Service 3: ...\n// Service 4: ...\n// Communication: which calls which, sync or async?\n",
+      "expected_solution": "// Microservice decomposition:\n\n// Service 1: user-service (port 8081)\n// Responsibilities: login, registration, profile, KYC verification\n// Database: users_db (users, KYC docs)\n// Calls: none (other services call it)\n\n// Service 2: market-service (port 8082)\n// Responsibilities: real-time stock prices, historical data, market status\n// Database: market_db (price history, instruments)\n// Calls: none (data source for other services)\n\n// Service 3: order-service (port 8083)\n// Responsibilities: buy/sell orders, order book, order lifecycle\n// Database: orders_db (orders, trades)\n// Calls:\n//   - user-service (sync): validate user account\n//   - market-service (sync): get current price for order validation\n//   - payment-service (sync): debit funds for buy orders\n//   - alert-service (async): notify on order execution\n\n// Service 4: payment-service (port 8084)\n// Responsibilities: fund transfers, withdrawals, balance\n// Database: payments_db (transactions, balances)\n// Calls:\n//   - user-service (sync): validate user identity\n//   - async: publishes 'payment.completed' events\n\npublic class DecompositionExample {\n    public static void main(String[] args) {\n        System.out.println(\"4 services: user, market, order, payment\");\n        System.out.println(\"Each owns its own database\");\n        System.out.println(\"Order->Market: sync (need price to validate)\");\n        System.out.println(\"Order->Alert: async (notification can be eventual)\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["4 services"] }
+      ],
+      "hints": [
+        "Group by business domain (user, market, order, payment)",
+        "Sync if you need the answer to proceed; async if not",
+        "Each service owns its own data"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m15_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "RestTemplate GET with ResponseEntity",
+      "scenario": "ResponseEntity gives access to both status code and body.",
+      "instructions": "Write `PriceService.getStockPrice(String symbol)` that:\n1. Calls market-service: GET /api/market/price/{symbol}\n2. Uses getForEntity() to get the ResponseEntity<PriceResponse>\n3. If 200: returns the price\n4. If 404 (symbol not found): throws SymbolNotFoundException\n5. If other error: throws MarketServiceException",
+      "starter_code": "record PriceResponse(String symbol, double price, String currency) {}\nclass SymbolNotFoundException extends RuntimeException { SymbolNotFoundException(String m) { super(m); } }\nclass MarketServiceException extends RuntimeException { MarketServiceException(String m) { super(m); } }\n\nimport org.springframework.http.*;\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.stereotype.Service;\n// PriceService\n",
+      "expected_solution": "record PriceResponse(String symbol, double price, String currency) {}\nclass SymbolNotFoundException extends RuntimeException { SymbolNotFoundException(String m) { super(m); } }\nclass MarketServiceException extends RuntimeException { MarketServiceException(String m) { super(m); } }\n\nimport org.springframework.http.*;\nimport org.springframework.web.client.RestClientException;\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PriceService {\n    private final RestTemplate restTemplate;\n    private static final String MARKET_URL = \"http://market-service\";\n    \n    PriceService(RestTemplate restTemplate) { this.restTemplate = restTemplate; }\n    \n    public double getStockPrice(String symbol) {\n        try {\n            ResponseEntity<PriceResponse> response = restTemplate.getForEntity(\n                MARKET_URL + \"/api/market/price/\" + symbol,\n                PriceResponse.class);\n            \n            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {\n                return response.getBody().price();\n            }\n            throw new MarketServiceException(\"Unexpected response for symbol: \" + symbol);\n            \n        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {\n            throw new SymbolNotFoundException(\"Symbol not found: \" + symbol);\n        } catch (RestClientException e) {\n            throw new MarketServiceException(\"Market service error: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "getForEntity(): returns ResponseEntity<T> with status + body",
+        "HttpClientErrorException.NotFound: thrown by RestTemplate on 404",
+        "RestClientException: parent of all RestTemplate errors"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Minimal product-service — standalone Spring Boot",
+      "scenario": "Each microservice is a complete Spring Boot application.",
+      "instructions": "Write a complete minimal `product-service` Spring Boot application:\n1. `ProductServiceApplication` with main()\n2. `Product` @Entity (id, name, price, stockQty)\n3. `ProductRepository`\n4. `ProductController` with GET /api/products and GET /api/products/{id}\n5. application.properties: server.port=8081, H2 datasource\n\nThis runs independently on port 8081.",
+      "starter_code": "// product-service — complete standalone Spring Boot app\n// server.port=8081\n",
+      "expected_solution": "import org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport jakarta.persistence.*;\nimport java.util.*;\n\n@SpringBootApplication\npublic class ProductServiceApplication {\n    public static void main(String[] args) { SpringApplication.run(ProductServiceApplication.class, args); }\n}\n\n@Entity\npublic class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String name;\n    @Column(nullable=false) private double price;\n    @Column(nullable=false) private int stockQty;\n    protected Product(){}\n    public Product(String n, double p, int s) { name=n; price=p; stockQty=s; }\n    public String getId()     { return id;       }\n    public String getName()   { return name;     }\n    public double getPrice()  { return price;    }\n    public int getStockQty()  { return stockQty; }\n}\n\npublic interface ProductRepository extends JpaRepository<Product, String> {}\n\n@RestController @RequestMapping(\"/api/products\")\npublic class ProductController {\n    private final ProductRepository repo;\n    ProductController(ProductRepository r) { repo=r; }\n    \n    @GetMapping public List<Product> getAll() { return repo.findAll(); }\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Product> getById(@PathVariable String id) {\n        return repo.findById(id).map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n}\n\n// application.properties:\n// server.port=8081\n// spring.datasource.url=jdbc:h2:mem:productdb\n// spring.jpa.hibernate.ddl-auto=create-drop\n// spring.application.name=product-service",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Separate @SpringBootApplication: this is its own deployable unit",
+        "server.port=8081: product-service runs on 8081",
+        "spring.application.name=product-service: used by Eureka in Topic 15.3"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m15_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "order-service calling product-service",
+      "scenario": "order-service makes a sync HTTP call to product-service before placing an order.",
+      "instructions": "Write `OrderService.placeOrder(String productId, int quantity)` that:\n1. Calls product-service GET /api/products/{productId} via RestTemplate\n2. If product not found (null response): throws ProductNotFoundException\n3. If quantity > product.stockQty: throws InsufficientStockException\n4. Otherwise: saves and returns the order\n5. Hardcode product-service URL as 'http://localhost:8081'",
+      "starter_code": "record ProductDto(String id, String name, double price, int stockQty) {}\nclass ProductNotFoundException extends RuntimeException { ProductNotFoundException(String m){super(m);} }\nclass InsufficientStockException extends RuntimeException { InsufficientStockException(String m){super(m);} }\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.stereotype.Service;\n// OrderService\n",
+      "expected_solution": "record ProductDto(String id, String name, double price, int stockQty) {}\nclass ProductNotFoundException extends RuntimeException { ProductNotFoundException(String m){super(m);} }\nclass InsufficientStockException extends RuntimeException { InsufficientStockException(String m){super(m);} }\n\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class OrderService {\n    private static final String PRODUCT_URL = \"http://localhost:8081\";\n    private final RestTemplate restTemplate;\n    \n    OrderService(RestTemplate rt) { restTemplate = rt; }\n    \n    public String placeOrder(String productId, int quantity) {\n        // Call product-service:\n        ProductDto product;\n        try {\n            product = restTemplate.getForObject(\n                PRODUCT_URL + \"/api/products/\" + productId,\n                ProductDto.class);\n        } catch (org.springframework.web.client.HttpClientErrorException.NotFound e) {\n            throw new ProductNotFoundException(\"Product not found: \" + productId);\n        }\n        \n        if (product == null) {\n            throw new ProductNotFoundException(\"Product not found: \" + productId);\n        }\n        if (product.stockQty() < quantity) {\n            throw new InsufficientStockException(\n                \"Only \" + product.stockQty() + \" in stock, requested \" + quantity);\n        }\n        \n        // Save order (simplified — just return id):\n        String orderId = \"ORD-\" + java.util.UUID.randomUUID().toString().substring(0,8);\n        System.out.printf(\"Order %s placed: %d x %s @ ₹%.2f%n\",\n            orderId, quantity, product.name(), product.price());\n        return orderId;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "HttpClientErrorException.NotFound: RestTemplate throws this on 404",
+        "product == null check: getForObject returns null on 204 No Content",
+        "Hardcode URL for now — Eureka service discovery replaces this in T15.3"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Mock downstream services in @SpringBootTest",
+      "scenario": "Use MockRestServiceServer to test without real downstream services.",
+      "instructions": "Write a @SpringBootTest test for `OrderService.placeOrder()` that:\n1. Uses MockRestServiceServer to mock the product-service HTTP call\n2. Test case 1: product found, stock sufficient → order placed\n3. Test case 2: product found, stock insufficient → InsufficientStockException\n4. Test case 3: product not found (404) → ProductNotFoundException",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.web.client.MockRestServiceServer;\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.client.match.MockRestRequestMatchers.*;\nimport static org.springframework.test.web.client.response.MockRestResponseCreators.*;\nimport static org.junit.jupiter.api.Assertions.*;\n// MockRestServiceServer test for OrderService\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.web.client.MockRestServiceServer;\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.MediaType;\nimport static org.springframework.test.web.client.match.MockRestRequestMatchers.*;\nimport static org.springframework.test.web.client.response.MockRestResponseCreators.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass OrderServiceTest {\n    @Autowired OrderService orderService;\n    @Autowired RestTemplate restTemplate;\n    MockRestServiceServer mockServer;\n    \n    @BeforeEach void setup() {\n        mockServer = MockRestServiceServer.createServer(restTemplate);\n    }\n    \n    @Test void placeOrder_sufficientStock_returnsOrderId() {\n        mockServer.expect(requestTo(\"http://localhost:8081/api/products/P001\"))\n            .andRespond(withSuccess(\n                '{\"id\":\"P001\",\"name\":\"Mouse\",\"price\":799.0,\"stockQty\":50}',\n                MediaType.APPLICATION_JSON));\n        String orderId = orderService.placeOrder(\"P001\", 5);\n        assertNotNull(orderId);\n        assertTrue(orderId.startsWith(\"ORD-\"));\n    }\n    \n    @Test void placeOrder_insufficientStock_throws() {\n        mockServer.expect(requestTo(\"http://localhost:8081/api/products/P002\"))\n            .andRespond(withSuccess(\n                '{\"id\":\"P002\",\"name\":\"Laptop\",\"price\":79999.0,\"stockQty\":2}',\n                MediaType.APPLICATION_JSON));\n        assertThrows(InsufficientStockException.class,\n            () -> orderService.placeOrder(\"P002\", 10));\n    }\n    \n    @Test void placeOrder_productNotFound_throws() {\n        mockServer.expect(requestTo(\"http://localhost:8081/api/products/UNKNOWN\"))\n            .andRespond(withStatus(org.springframework.http.HttpStatus.NOT_FOUND));\n        assertThrows(ProductNotFoundException.class,\n            () -> orderService.placeOrder(\"UNKNOWN\", 1));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "MockRestServiceServer: intercepts RestTemplate calls — no real HTTP",
+        "withSuccess(body, contentType): mock 200 response with JSON body",
+        "withStatus(HttpStatus.NOT_FOUND): mock 404 response"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Inter-service DTO design — what to expose",
+      "scenario": "Services expose only what other services need, not their full domain model.",
+      "instructions": "Design the inter-service DTOs for order-service calling user-service:\n1. `UserResponse` — what order-service needs from user-service (not full user, just enough)\n2. `OrderEventDto` — what order-service publishes after an order (for notification-service)\n3. Write the calling code in OrderService using these DTOs",
+      "starter_code": "// Design inter-service DTOs:\n// UserResponse: what order-service needs from user-service\n// OrderEventDto: event published after order created\n// OrderService calling user-service\n",
+      "expected_solution": "// What order-service needs from user-service (NOT the full user model):\n// ID, name (for receipts), email (for notifications), account status\nrecord UserResponse(\n    String userId,\n    String fullName,\n    String email,\n    boolean accountActive,  // can they place orders?\n    String kycStatus        // VERIFIED / PENDING / REJECTED\n) {}\n\n// What order-service publishes (for notification-service to consume):\nrecord OrderEventDto(\n    String orderId,\n    String userId,\n    String productId,\n    int quantity,\n    double totalAmount,\n    String currency,\n    java.time.LocalDateTime placedAt\n) {}\n\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.stereotype.Service;\n\n@Service\nclass OrderService {\n    private final RestTemplate restTemplate;\n    private static final String USER_URL = \"http://user-service\";\n    \n    OrderService(RestTemplate rt) { restTemplate = rt; }\n    \n    public String placeOrder(String userId, String productId, int qty, double price) {\n        // Get just what we need from user-service:\n        UserResponse user = restTemplate.getForObject(\n            USER_URL + \"/api/users/\" + userId + \"/summary\",\n            UserResponse.class);\n        \n        if (user == null || !user.accountActive()) {\n            throw new IllegalStateException(\"User account is not active\");\n        }\n        if (!\"VERIFIED\".equals(user.kycStatus())) {\n            throw new IllegalStateException(\"KYC not verified\");\n        }\n        \n        String orderId = \"ORD-\" + java.util.UUID.randomUUID().toString().substring(0,8);\n        \n        // Publish event for notification-service (in real code: use Kafka/RabbitMQ):\n        OrderEventDto event = new OrderEventDto(\n            orderId, userId, productId, qty, qty * price, \"INR\",\n            java.time.LocalDateTime.now());\n        System.out.println(\"Published event: \" + event);\n        \n        return orderId;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "UserResponse: only the fields order-service needs — not password, not all preferences",
+        "OrderEventDto: enough for notification-service to send a useful SMS/email",
+        "Principle: expose minimal, stable interface — don't share internal domain objects"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Data isolation — what's wrong here?",
+      "scenario": "Services must not share databases.",
+      "instructions": "Identify what's wrong in this microservices setup and explain the correct approach:\n\n```java\n// order-service:\n@SpringBootApplication class OrderServiceApplication { ... }\n\n// application.properties:\nspring.datasource.url=jdbc:postgresql://shared-db:5432/company_db\n\n@Repository\ninterface OrderRepository extends JpaRepository<Order, String> { }\n\n// Also in order-service — directly querying another service's data:\n@Repository\ninterface ProductRepository extends JpaRepository<Product, String> { }\n\n// In OrderService:\nProduct product = productRepository.findById(productId).orElseThrow();\n```",
+      "expected_solution": "Problem 1: Both order-service and (presumably) product-service share the same database URL (company_db). This violates data isolation.\nProblem 2: order-service has a ProductRepository that directly queries the products table — this belongs to product-service.\nProblem 3: order-service is coupled to product-service's database schema. Any schema change in product-service breaks order-service.\n\nCorrect approach:\n- order-service uses orders_db (its own database)\n- product-service uses products_db (its own database)\n- order-service gets product data by calling product-service REST API\n- No direct cross-service database access",
+      "test_cases": [
+        { "type": "text_match", "expected": "Problem 1: Both order-service and (presumably) product-service share the same database URL (company_db). This violates data isolation.\nProblem 2: order-service has a ProductRepository that directly queries the products table — this belongs to product-service.\nProblem 3: order-service is coupled to product-service's database schema. Any schema change in product-service breaks order-service.\n\nCorrect approach:\n- order-service uses orders_db (its own database)\n- product-service uses products_db (its own database)\n- order-service gets product data by calling product-service REST API\n- No direct cross-service database access" }
+      ],
+      "hints": [
+        "Shared database: the #1 microservices antipattern",
+        "Each service must own its own schema",
+        "Cross-service data access: only via REST API, never direct DB"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "RestTemplate POST and DELETE inter-service",
+      "scenario": "Full CRUD inter-service calls for a reservation system.",
+      "instructions": "Write `ReservationService` that calls seat-service for concert seat booking:\n1. `checkSeatAvailable(String concertId, String seatId)` → GET /api/concerts/{id}/seats/{seatId}\n2. `reserveSeat(String concertId, String seatId, String userId)` → POST /api/reservations\n3. `cancelReservation(String reservationId)` → DELETE /api/reservations/{id}\n4. Handle 404, 409 (conflict/already reserved), and connection errors separately",
+      "starter_code": "record SeatDto(String id, boolean available, String zone) {}\nrecord ReservationDto(String id, String concertId, String seatId, String userId) {}\nrecord ReservationRequest(String concertId, String seatId, String userId) {}\nimport org.springframework.http.*;\nimport org.springframework.web.client.*;\nimport org.springframework.stereotype.Service;\n// ReservationService\n",
+      "expected_solution": "record SeatDto(String id, boolean available, String zone) {}\nrecord ReservationDto(String id, String concertId, String seatId, String userId) {}\nrecord ReservationRequest(String concertId, String seatId, String userId) {}\n\nimport org.springframework.http.*;\nimport org.springframework.web.client.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class ReservationService {\n    private final RestTemplate rt;\n    private static final String SEAT_URL = \"http://seat-service\";\n    ReservationService(RestTemplate rt) { this.rt = rt; }\n    \n    public boolean checkSeatAvailable(String concertId, String seatId) {\n        try {\n            SeatDto seat = rt.getForObject(\n                SEAT_URL + \"/api/concerts/\" + concertId + \"/seats/\" + seatId,\n                SeatDto.class);\n            return seat != null && seat.available();\n        } catch (HttpClientErrorException.NotFound e) {\n            return false;  // seat/concert not found = not available\n        } catch (RestClientException e) {\n            throw new RuntimeException(\"Seat service unavailable\", e);\n        }\n    }\n    \n    public ReservationDto reserveSeat(String concertId, String seatId, String userId) {\n        try {\n            return rt.postForObject(\n                SEAT_URL + \"/api/reservations\",\n                new ReservationRequest(concertId, seatId, userId),\n                ReservationDto.class);\n        } catch (HttpClientErrorException.Conflict e) {\n            throw new RuntimeException(\"Seat \" + seatId + \" already reserved\");\n        } catch (HttpClientErrorException.NotFound e) {\n            throw new RuntimeException(\"Concert or seat not found\");\n        }\n    }\n    \n    public void cancelReservation(String reservationId) {\n        try {\n            rt.delete(SEAT_URL + \"/api/reservations/\" + reservationId);\n        } catch (HttpClientErrorException.NotFound e) {\n            throw new RuntimeException(\"Reservation \" + reservationId + \" not found\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "HttpClientErrorException.Conflict: 409 response — seat already reserved",
+        "rt.delete(url): DELETE with no response body",
+        "Catch specific exceptions before catching the general RestClientException"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Exchange — POST with custom headers",
+      "scenario": "exchange() handles any HTTP method with full control over headers and body.",
+      "instructions": "Write `PaymentService.processPayment()` that calls payment-gateway-service with:\n1. POST /api/payments with JSON body\n2. Custom headers: X-API-Key (from @ConfigurationProperties), X-Idempotency-Key (UUID)\n3. Handles 200 (success), 402 (payment required/declined), 429 (rate limited)\n4. Returns PaymentResult",
+      "starter_code": "record PaymentRequest(String orderId, double amount, String currency) {}\nrecord PaymentResult(String transactionId, String status, String message) {}\nimport org.springframework.http.*;\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.stereotype.Service;\n// PaymentService with exchange()\n",
+      "expected_solution": "record PaymentRequest(String orderId, double amount, String currency) {}\nrecord PaymentResult(String transactionId, String status, String message) {}\n\nimport org.springframework.http.*;\nimport org.springframework.web.client.*;\nimport org.springframework.stereotype.Service;\nimport java.util.UUID;\n\n@Service\npublic class PaymentService {\n    private final RestTemplate restTemplate;\n    private static final String GATEWAY_URL = \"http://payment-gateway-service\";\n    private static final String API_KEY = \"rzp_test_abc123\";  // from @Value in real code\n    \n    PaymentService(RestTemplate rt) { restTemplate = rt; }\n    \n    public PaymentResult processPayment(String orderId, double amount, String currency) {\n        // Build request with custom headers:\n        HttpHeaders headers = new HttpHeaders();\n        headers.setContentType(MediaType.APPLICATION_JSON);\n        headers.set(\"X-API-Key\", API_KEY);\n        headers.set(\"X-Idempotency-Key\", UUID.randomUUID().toString());\n        \n        HttpEntity<PaymentRequest> request = new HttpEntity<>(\n            new PaymentRequest(orderId, amount, currency), headers);\n        \n        try {\n            ResponseEntity<PaymentResult> response = restTemplate.exchange(\n                GATEWAY_URL + \"/api/payments\",\n                HttpMethod.POST,\n                request,\n                PaymentResult.class);\n            return response.getBody();\n            \n        } catch (HttpClientErrorException e) {\n            if (e.getStatusCode() == HttpStatus.PAYMENT_REQUIRED) {\n                return new PaymentResult(null, \"DECLINED\", \"Payment declined by gateway\");\n            }\n            if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {\n                throw new RuntimeException(\"Rate limited by payment gateway\");\n            }\n            throw new RuntimeException(\"Payment gateway error: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "exchange(url, method, HttpEntity<body>, ResponseType.class)",
+        "HttpEntity<T>(body, headers): combines body + headers for exchange()",
+        "HttpStatus.PAYMENT_REQUIRED = 402; TOO_MANY_REQUESTS = 429"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Two-service integration — order places call to inventory",
+      "scenario": "End-to-end: order-service calls inventory-service, mock server in test.",
+      "instructions": "Build a complete two-service setup with tests:\n1. `inventory-service`: InventoryItem (productId, available, stockQty), GET /api/inventory/{productId}\n2. `order-service`: OrderService calls inventory-service before placing order\n3. `@SpringBootTest` test with `MockRestServiceServer` for all three scenarios: success, out of stock, service down\n\nAll 3 tests must pass.",
+      "starter_code": "// Complete two-service integration test\n// InventoryItem record, OrderService calling inventory, MockRestServiceServer tests\n",
+      "expected_solution": "import org.springframework.web.client.RestTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.web.client.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.*;\nimport static org.springframework.test.web.client.match.MockRestRequestMatchers.*;\nimport static org.springframework.test.web.client.response.MockRestResponseCreators.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\nrecord InventoryItem(String productId, boolean available, int stockQty) {}\n\n@Service\nclass OrderService {\n    private final RestTemplate rt;\n    private static final String INV = \"http://inventory-service\";\n    OrderService(RestTemplate rt) { this.rt = rt; }\n    \n    public String placeOrder(String productId, int qty) {\n        InventoryItem inv;\n        try {\n            inv = rt.getForObject(INV + \"/api/inventory/\" + productId, InventoryItem.class);\n        } catch (org.springframework.web.client.ResourceAccessException e) {\n            throw new RuntimeException(\"Inventory service unavailable\");\n        }\n        if (inv == null || !inv.available() || inv.stockQty() < qty) {\n            throw new IllegalStateException(\"Insufficient stock for \" + productId);\n        }\n        return \"ORD-\" + productId + \"-\" + qty;\n    }\n}\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass OrderServiceIntegrationTest {\n    @Autowired OrderService orderService;\n    @Autowired RestTemplate restTemplate;\n    MockRestServiceServer server;\n    \n    @BeforeEach void setup() { server = MockRestServiceServer.createServer(restTemplate); }\n    \n    @Test void placeOrder_inStock_returnsOrderId() {\n        server.expect(requestTo(\"http://inventory-service/api/inventory/P001\"))\n            .andRespond(withSuccess(\n                '{\"productId\":\"P001\",\"available\":true,\"stockQty\":50}',\n                MediaType.APPLICATION_JSON));\n        assertEquals(\"ORD-P001-5\", orderService.placeOrder(\"P001\", 5));\n    }\n    \n    @Test void placeOrder_outOfStock_throws() {\n        server.expect(requestTo(\"http://inventory-service/api/inventory/P002\"))\n            .andRespond(withSuccess(\n                '{\"productId\":\"P002\",\"available\":false,\"stockQty\":0}',\n                MediaType.APPLICATION_JSON));\n        assertThrows(IllegalStateException.class,\n            () -> orderService.placeOrder(\"P002\", 1));\n    }\n    \n    @Test void placeOrder_serviceDown_throws() {\n        server.expect(requestTo(\"http://inventory-service/api/inventory/P003\"))\n            .andRespond(withException(new java.io.IOException(\"Connection refused\")));\n        assertThrows(RuntimeException.class,\n            () -> orderService.placeOrder(\"P003\", 1));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "MockRestServiceServer.createServer(restTemplate): intercepts calls from that RestTemplate",
+        "withException(new IOException(...)): simulates connection failure",
+        "ResourceAccessException: RestTemplate throws this on connection errors"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m15_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Propagate authentication token between services",
+      "scenario": "JWT from the client must be forwarded to downstream services.",
+      "instructions": "Write a `TokenPropagationInterceptor` that:\n1. Implements `ClientHttpRequestInterceptor`\n2. Reads the JWT from the current SecurityContext\n3. Adds it as Authorization: Bearer {token} header on outgoing RestTemplate calls\n4. Register it on the RestTemplate @Bean\n\nThis ensures inter-service calls carry the user's JWT.",
+      "starter_code": "import org.springframework.http.client.ClientHttpRequestInterceptor;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.context.annotation.*;\n// TokenPropagationInterceptor + @Bean RestTemplate config\n",
+      "expected_solution": "import org.springframework.http.*;\nimport org.springframework.http.client.*;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.web.client.RestTemplate;\nimport org.springframework.context.annotation.*;\nimport org.springframework.stereotype.Component;\nimport java.io.IOException;\nimport java.util.List;\n\n@Component\npublic class TokenPropagationInterceptor implements ClientHttpRequestInterceptor {\n    \n    @Override\n    public ClientHttpResponse intercept(\n            HttpRequest request,\n            byte[] body,\n            ClientHttpRequestExecution execution) throws IOException {\n        \n        Authentication auth = SecurityContextHolder.getContext().getAuthentication();\n        if (auth != null && auth.getCredentials() instanceof String token) {\n            // Add JWT to the outgoing inter-service request:\n            request.getHeaders().set(HttpHeaders.AUTHORIZATION, \"Bearer \" + token);\n        }\n        return execution.execute(request, body);\n    }\n}\n\n@Configuration\nclass RestTemplateConfig {\n    @Bean\n    public RestTemplate restTemplate(TokenPropagationInterceptor interceptor) {\n        RestTemplate rt = new RestTemplate();\n        rt.setInterceptors(List.of(interceptor));\n        return rt;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ClientHttpRequestInterceptor: intercepts every RestTemplate request",
+        "SecurityContextHolder.getContext().getAuthentication().getCredentials(): the JWT string",
+        "request.getHeaders().set(AUTHORIZATION, 'Bearer '+token): add header to outgoing call"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m15_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Swiggy-style order flow — Topic 15.1 synthesis",
+      "scenario": "Full inter-service orchestration for a food delivery order.",
+      "instructions": "Build an order orchestration service (Swiggy-style):\n- `OrderOrchestrationService.placeOrder(userId, restaurantId, items)` must:\n  1. Call user-service: GET /api/users/{id}/status → active check (sync)\n  2. Call restaurant-service: GET /api/restaurants/{id}/available → open check (sync)\n  3. Calculate total from items\n  4. Call payment-service: POST /api/payments → charge (sync)\n  5. Save order\n  6. (Conceptual) publish 'order.placed' for delivery and notification (async, print only)\n\n- Use MockRestServiceServer in @SpringBootTest for all 3 HTTP calls\n- Test: success, user inactive (reject), restaurant closed (reject), payment failed (reject)\n- All 4 tests pass",
+      "starter_code": "// Complete Swiggy-style order orchestration\n// 3 downstream HTTP calls + MockRestServiceServer tests\n",
+      "expected_solution": "import org.springframework.web.client.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\nrecord UserStatus(String userId, boolean active) {}\nrecord RestaurantStatus(String restaurantId, boolean open, String name) {}\nrecord PaymentRequest2(String orderId, double amount) {}\nrecord PaymentResult2(String transactionId, boolean success) {}\nrecord OrderItem(String name, double price, int qty) {\n    double total() { return price * qty; }\n}\n\n@Service\nclass OrderOrchestrationService {\n    private final RestTemplate rt;\n    private static final String USER = \"http://user-service\";\n    private static final String REST = \"http://restaurant-service\";\n    private static final String PAY  = \"http://payment-service\";\n    OrderOrchestrationService(RestTemplate rt) { this.rt = rt; }\n    \n    public String placeOrder(String userId, String restaurantId, List<OrderItem> items) {\n        // 1. Check user:\n        UserStatus user = rt.getForObject(USER+\"/api/users/\"+userId+\"/status\", UserStatus.class);\n        if (user == null || !user.active()) throw new IllegalStateException(\"User not active\");\n        // 2. Check restaurant:\n        RestaurantStatus restaurant = rt.getForObject(REST+\"/api/restaurants/\"+restaurantId+\"/available\", RestaurantStatus.class);\n        if (restaurant == null || !restaurant.open()) throw new IllegalStateException(\"Restaurant closed\");\n        // 3. Calculate total:\n        double total = items.stream().mapToDouble(OrderItem::total).sum();\n        // 4. Process payment:\n        String orderId = \"ORD-\"+java.util.UUID.randomUUID().toString().substring(0,8);\n        PaymentResult2 payment = rt.postForObject(PAY+\"/api/payments\",\n            new PaymentRequest2(orderId, total), PaymentResult2.class);\n        if (payment == null || !payment.success()) throw new IllegalStateException(\"Payment failed\");\n        // 5. Save order (simplified):\n        System.out.println(\"Order \"+orderId+\" placed at \"+restaurant.name()+\" for ₹\"+total);\n        // 6. Async events:\n        System.out.println(\"[EVENT] order.placed published for order \"+orderId);\n        return orderId;\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.web.client.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.MediaType;\nimport static org.springframework.test.web.client.match.MockRestRequestMatchers.*;\nimport static org.springframework.test.web.client.response.MockRestResponseCreators.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass OrderOrchestrationTest {\n    @Autowired OrderOrchestrationService svc; @Autowired RestTemplate rt;\n    MockRestServiceServer server;\n    List<OrderItem> items = List.of(new OrderItem(\"Biryani\",350.0,2));\n    \n    @BeforeEach void setup() { server = MockRestServiceServer.createServer(rt); }\n    \n    void mockUser(boolean active) {\n        server.expect(requestTo(\"http://user-service/api/users/U01/status\"))\n            .andRespond(withSuccess('{\"userId\":\"U01\",\"active\":'+active+'}', MediaType.APPLICATION_JSON));\n    }\n    void mockRestaurant(boolean open) {\n        server.expect(requestTo(\"http://restaurant-service/api/restaurants/R01/available\"))\n            .andRespond(withSuccess('{\"restaurantId\":\"R01\",\"open\":'+open+',\"name\":\"Biryani House\"}', MediaType.APPLICATION_JSON));\n    }\n    void mockPayment(boolean success) {\n        server.expect(requestTo(\"http://payment-service/api/payments\"))\n            .andRespond(withSuccess('{\"transactionId\":\"TXN-001\",\"success\":'+success+'}', MediaType.APPLICATION_JSON));\n    }\n    \n    @Test void success() {\n        mockUser(true); mockRestaurant(true); mockPayment(true);\n        assertNotNull(svc.placeOrder(\"U01\",\"R01\",items));\n    }\n    @Test void userInactive_rejects() {\n        mockUser(false);\n        assertThrows(IllegalStateException.class, ()->svc.placeOrder(\"U01\",\"R01\",items));\n    }\n    @Test void restaurantClosed_rejects() {\n        mockUser(true); mockRestaurant(false);\n        assertThrows(IllegalStateException.class, ()->svc.placeOrder(\"U01\",\"R01\",items));\n    }\n    @Test void paymentFailed_rejects() {\n        mockUser(true); mockRestaurant(true); mockPayment(false);\n        assertThrows(IllegalStateException.class, ()->svc.placeOrder(\"U01\",\"R01\",items));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "3 separate server.expect() calls — they fire in order",
+        "MockRestServiceServer: each expect matches the next HTTP call made",
+        "Helper methods (mockUser, mockRestaurant, mockPayment) reduce duplication"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 745,
+    "estimated_completion_minutes": 70
+  }
+}

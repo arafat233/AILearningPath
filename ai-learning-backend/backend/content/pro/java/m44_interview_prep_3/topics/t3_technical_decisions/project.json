@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m44_t3_proj",
+  "linked_topic": "java_m44_t3",
+  "level": "mini",
+  "name": "Technical Decision and Architecture Stories",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  "scenario": "Build Technical Decision and Architecture Stories.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Complete all exercises.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "Record 4 timed sessions.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "Written reflection.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Peer review session.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "STAR answers: be specific (names, numbers, dates). Action must be yours (I not we). Result must be measured. Practice aloud until it feels natural, not scripted.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Timed",
+      "points": 35
+    },
+    {
+      "category": "Reflection",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

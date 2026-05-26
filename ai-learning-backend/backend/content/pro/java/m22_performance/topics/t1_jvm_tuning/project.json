@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m22_t1_proj",
+  "linked_topic": "java_m22_t1",
+  "level": "mini",
+  "name": "Razorpay Payment Service — JVM Performance Tuning",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+  "scenario": "Razorpay's payment service has p99 latency spikes every 30 seconds (traced to G1GC Full GC pauses of 800ms). Also, memory grows 50MB/day (traced to an unbounded static cache). Fix both issues and add comprehensive JVM monitoring.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "JAVA_TOOL_OPTIONS (in Dockerfile or env): -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:MaxRAMPercentage=75.0 -XX:+UseContainerSupport -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/. Comment explaining each flag.", "weight": 20 },
+      { "id": "req_2", "description": "JVMMonitoringService @Service: Gauge for heap utilization (jvm.heap.utilization), Counter for heap warnings (> 80%), @Scheduled check every 30s.", "weight": 20 },
+      { "id": "req_3", "description": "SafePaymentCache @Service: Replace unbounded HashMap with Caffeine cache (maximumSize=1000, expireAfterWrite=10min). Register cache size as Gauge.", "weight": 20 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): heap gauge registered + value 0-1, safe cache bounded at 1000, JIT compilation time accessible via CompilationMXBean. All 3 pass.", "weight": 35 },
+      { "id": "req_5", "description": "README: GC log pattern that shows the 800ms pause problem + explanation of fix.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Add ZGC configuration (separate docker-compose profile for latency-critical mode). Explain the G1GC vs ZGC tradeoff.", "weight": 15 },
+      { "id": "bonus_2", "description": "AllocationRateMonitor: track jvm.gc.memory.allocated rate (MB/s), warn if > 500MB/s. Test: allocation rate is tracked.", "weight": 20 },
+      { "id": "bonus_3", "description": "WarmUpService @EventListener(ApplicationStartedEvent): makes 50 test calls to payment processing path. Tracks JIT time before and after. Delays readiness probe by 10s after warm-up.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. -XX:MaxRAMPercentage=75.0 replaces -Xmx in containers: heap = 75% of container memory limit (not host RAM). HeapDumpOnOutOfMemoryError is mandatory — without it, OOM has no forensic evidence. G1GC MaxGCPauseMillis=100: target, not guarantee — G1GC will try to keep pauses < 100ms by adjusting collection amount per cycle. Caffeine maximumSize: eviction is asynchronous — allow test assertion margin (≤ maximumSize + 10%). ManagementFactory.getMemoryMXBean().getHeapMemoryUsage() — standard JMX API for heap stats.",
+  "rubric": [
+    { "category": "JAVA_TOOL_OPTIONS flags with comments", "points": 20 },
+    { "category": "JVMMonitoringService", "points": 20 },
+    { "category": "SafePaymentCache (Caffeine)", "points": 20 },
+    { "category": "@SpringBootTest (3 tests)", "points": 35 },
+    { "category": "README GC log explanation", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

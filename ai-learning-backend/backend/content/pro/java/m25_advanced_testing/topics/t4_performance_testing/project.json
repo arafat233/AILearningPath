@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m25_t4_proj",
+  "linked_topic": "java_m25_t4",
+  "level": "mini",
+  "name": "Zerodha Diwali Load Test — Gatling & k6",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Zerodha is preparing for the Diwali trading surge. Last year the trading API crashed at 50K concurrent users. Write a Gatling load test, stress test, and performance regression gate to prevent a repeat.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "PaymentLoadSimulation Gatling class: extends Simulation. HTTP protocol: baseUrl localhost:8080, JSON headers. Load injection: atOnceUsers(10) + rampUsers(100) over 30s.", "weight": 20 },
+      { "id": "req_2", "description": "Assertions in setUp(): global().responseTime().percentile3().lt(500) and global().successfulRequests().percent().gt(99.0).", "weight": 15 },
+      { "id": "req_3", "description": "k6 script (load-test.js): options with vus=100, duration=30s, thresholds p(99)<500 and http_req_failed rate<0.01. Default function calling GET /api/portfolio.", "weight": 15 },
+      { "id": "req_4", "description": "PerformanceRegressionChecker @Service: isAcceptable(baseline, result) with 10% p99 tolerance. reportSummary returns PASS/FAIL string.", "weight": 10 },
+      { "id": "req_5", "description": "@SpringBootTest (3 tests): no-regression passes, 25% p99 regression fails, growing heap (soak) detected. All 3 pass.", "weight": 25 },
+      { "id": "req_6", "description": "README: explains p99 vs average (why p99 is the right SLA metric), with Zerodha Diwali example.", "weight": 5 },
+      { "id": "req_7", "description": "Soak test detector: takes heap snapshots, returns true if heap grew > 150MB over last 3 measurements.", "weight": 10 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "CSV feeder Gatling simulation: payments.csv with merchantId,amount,gateway. Each VU gets different row. .circular() to avoid running out of data.", "weight": 20 },
+      { "id": "bonus_2", "description": "TradeDataGenerator @Service: weighted symbol distribution (RELIANCE 25%), log-normal amount distribution. @SpringBootTest: RELIANCE most frequent, all amounts in valid range.", "weight": 20 },
+      { "id": "bonus_3", "description": "RegressionHistory @Service: stores last 5 p99 values (Deque), isRegressionTrend() returns true if last 3 strictly increasing. @SpringBootTest: trend detected, stable not detected.", "weight": 15 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. percentile3 in Gatling DSL = p99 (NOT percentile99!). This is Gatling's naming: percentile1=p50, percentile2=p75, percentile3=p99. k6 thresholds fail the run and return exit code 1 — this is what blocks CI, not the check() assertions (checks are informational only). Gatling { setUp(...) }: instance initializer block — the simulation setup code goes here, not in a main method. 10% regression tolerance: maxAllowedP99 = baseline.p99 * 1.10 (round up). Never test against production database — always use staging with production-like data. Soak test memory leak: compare snapshots[last] - snapshots[0] for overall trend, not just consecutive difference (reduces GC noise impact).",
+  "rubric": [
+    { "category": "PaymentLoadSimulation (Gatling)", "points": 20 },
+    { "category": "Gatling assertions", "points": 15 },
+    { "category": "k6 script", "points": 15 },
+    { "category": "PerformanceRegressionChecker", "points": 10 },
+    { "category": "3 tests (all pass)", "points": 25 },
+    { "category": "Soak heap detector", "points": 10 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

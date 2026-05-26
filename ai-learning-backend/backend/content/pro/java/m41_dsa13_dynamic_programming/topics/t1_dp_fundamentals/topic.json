@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m41_t1",
+  "module_id": "m41",
+  "topic_number": 1,
+  "name": "DP Fundamentals \u2014 Memoization, Tabulation, Optimal Substructure",
+  "slug": "dp-fundamentals-memo-tab",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m29_t1"
+    ],
+    "concepts_taught": [
+      "dp-fundamentals-memo-tab"
+    ],
+    "career_relevance": "Core DP patterns \u2014 highest-value DSA topic in senior interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "DP Fundamentals \u2014 Memoization, Tabulation, Optimal Substructure"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "DP requires: optimal substructure + overlapping subproblems",
+        "Memoization (top-down): recursion + HashMap/array cache",
+        "Tabulation (bottom-up): fill table iteratively from base cases",
+        "Space optimization: when dp[i] only needs dp[i-1] \u2192 use two variables",
+        "Fibonacci: O(2^n) naive \u2192 O(n) memo \u2192 O(n) O(1) rolling",
+        "Coin Change: dp[amount]=min(dp[amount-coin]+1) for each coin"
+      ],
+      "next_topic_preview": "Next: 1D DP patterns."
+    }
+  }
+}

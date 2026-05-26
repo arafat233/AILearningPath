@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m30_t5",
+  "language": "java",
+  "module_id": "m30",
+  "topic_number": 5,
+  "name": "Array Patterns Synthesis \u2014 Multi-Pattern Problems",
+  "slug": "array-patterns-synthesis",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 60,
+    "prerequisites": [
+      "java_m30_t1",
+      "java_m30_t2",
+      "java_m30_t3",
+      "java_m30_t4"
+    ],
+    "concepts_taught": [
+      "pattern_recognition",
+      "multi_pattern_combination",
+      "kadane_max_subarray",
+      "product_except_self",
+      "majority_element",
+      "next_permutation"
+    ],
+    "skills_developed": [
+      "choosing_right_array_pattern",
+      "combining_two_patterns",
+      "solving_novel_array_problems"
+    ],
+    "career_relevance": "Senior DSA round: 'Find subarray with product closest to k that has no repeating elements.' Requires sliding window (no repeats) + product tracking. These combined problems separate the candidates who memorized patterns from those who understand them.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nFlipkart DSA round (Senior SDE):\n'Given trade amounts, find all subarrays where\n no trade repeats AND sum equals target'\n\nNeeds TWO patterns:\n  Sliding window (no-repeat constraint)\n  Prefix sum / two pointers (sum equals target)\n\nRecognizing this combination \u2192 gets the offer.\n```",
+    "what_you_will_build": "Solutions to 6 synthesis problems combining multiple array patterns."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "pattern_choice": "**Pattern recognition guide:**\n\n```\nPair in sorted array \u2192 Two Pointers (inward)\nContiguous subarray \u2192 Sliding Window (fixed or variable)\nRange sum queries \u2192 Prefix Sums\n3 categories sort \u2192 Dutch National Flag\nMax contiguous sum \u2192 Kadane's Algorithm\nNo extra space \u2192 In-place (swaps, two pointers)\n\nCombinations:\n  No repeats + some constraint \u2192 Sliding window (set) + constraint\n  k-sum problems \u2192 Sort + (k-2) loops + Two Pointers\n  Count subarrays \u2192 Prefix sum + HashMap\n  Subarray with mixed signs \u2192 Prefix sum (not sliding window)\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Decision tree for array patterns. Root: 'What type of problem?' Branch 1: 'Pair/triplet?' \u2192 Two Pointers. Branch 2: 'Contiguous subarray?' \u2192 Sliding Window. Branch 3: 'Range query?' \u2192 Prefix Sum. Branch 4: '3 categories?' \u2192 DNF. Branch 5: 'Max sum?' \u2192 Kadane. Each branch shows time/space complexity.",
+      "alt_text": "Array pattern decision tree"
+    },
+    "worked_example": {
+      "scenario": "Kadane's Algorithm \u2014 Maximum Subarray Sum",
+      "problem_statement": "[-2,1,-3,4,-1,2,1,-5,4] \u2192 6 ([4,-1,2,1])",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Kadane's DP insight",
+          "details": "For each element: either extend the previous subarray (currentSum + num) or start fresh (num), whichever is larger. maxSum = max seen so far."
+        }
+      ],
+      "final_code": "int currentSum=nums[0], maxSum=nums[0];\nfor(int i=1;i<n;i++){currentSum=Math.max(nums[i],currentSum+nums[i]);maxSum=Math.max(maxSum,currentSum);}",
+      "expected_output": "6",
+      "things_to_notice": [
+        "currentSum = max(num, currentSum + num): restart when previous sum was negative",
+        "O(n) time, O(1) space \u2014 simple but powerful",
+        "Handles all negatives: maxSum will be the least negative element"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha P&L analysis",
+          "use_case": "Kadane's on daily P&L array \u2192 find best trading period (max gain). Two pointers on sorted trade sizes \u2192 find pairs with target profit."
+        }
+      ],
+      "interview_relevance": "Recognizing which pattern to apply is 50% of the battle. Practice: for any array problem, ask (1) contiguous? (2) pairs? (3) range queries? (4) 3 categories? Then choose the right tool.",
+      "real_world_workflow": "Multi-pattern approach: (1) identify all constraints in the problem, (2) map each constraint to a pattern, (3) combine \u2014 usually one loop handles multiple patterns simultaneously."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "sliding_window_with_negatives",
+        "what_students_get_wrong": "Using sliding window for 'subarray sum == k' when array has negatives. Sliding window requires monotonic property (adding right always increases sum if positives only).",
+        "remediation": "Negative elements break the sliding window monotonic property. Use prefix sum + HashMap instead. Test: if array can have negatives AND problem involves sum \u2014 always use prefix sums, not sliding window.",
+        "detection_pattern": "Student uses sliding window on [-1,1,2,-1] sum==2 and gets wrong answer"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Pattern recognition: pairs\u2192TP, contiguous\u2192SW, range\u2192PS, 3-cat\u2192DNF, max-sum\u2192Kadane",
+        "Negatives break sliding window: use prefix sum + HashMap",
+        "Kadane: currentSum = max(num, prevSum + num)",
+        "Product except self: prefix products from left, suffix from right",
+        "Majority element: Boyer-Moore voting (O(n) O(1))"
+      ],
+      "self_check_questions": [
+        {
+          "question": "When does sliding window fail? What should you use instead?",
+          "answer": "Sliding window fails when the array contains negative numbers and you're looking for a sum-based condition (like 'subarray sum == k'). The reason: with negatives, adding an element to the window doesn't always increase the sum, and removing from the left doesn't always decrease it. The monotonic property breaks. Solution: use prefix sum + HashMap. The approach: prefix[j] - prefix[i] = k \u2192 count how many i's have prefix[i] = prefix[j] - k. This works with any values including negatives."
+        }
+      ],
+      "next_topic_preview": "Module 30 complete! Next: M31 DSA3 \u2014 String Algorithms (pattern matching, palindromes, string manipulation)."
+    }
+  }
+}

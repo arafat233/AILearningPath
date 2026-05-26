@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m9_t5_proj",
+  "linked_topic": "java_m9_t5",
+  "level": "capstone",
+  "name": "Spring-Style E-Commerce Framework — Generic Interface Capstone",
+  "estimated_minutes": 75,
+  "difficulty": 8,
+
+  "scenario": "Build a mini Spring Data-style framework from scratch. Using only generic interfaces and implementations — no frameworks, no annotations — create the same patterns that Spring Data, MapStruct, and validation frameworks use internally. This demonstrates you truly understand how production Java frameworks are built.",
+
+  "description": "A complete mini framework using generic interfaces: Repository pattern for data access, Mapper for type conversion, Validator for validation pipelines, Builder for complex object construction. Uses all Module 9 concepts: generic classes, generic methods, bounded type parameters, wildcards in API design, and generic interfaces.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Framework interfaces:\n- `Repository<T, ID>` — CRUD with default exists(), count(), saveAll()\n- `Mapper<S, T>` — mapTo, mapFrom, default mapAllTo\n- `Validator<T>` — isValid(T), default and(), or(), negate()\n- `Builder<T>` — build()\n\nAll with appropriate generic type parameters.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "`InMemoryRepository<T, ID>` — generic class implementing Repository<T, ID> using HashMap. Works for any entity type.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "Domain: Product, Order, Customer entities. For each: a concrete Repository, a DTO class, a Mapper<Entity, DTO>, and at least one Validator<Entity>.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`OrderService` that composes Repository<Order,String>, Repository<Customer,Integer>, Mapper<Order,OrderDto>, and a chain of Validator<Order> instances. Methods: placeOrder(OrderDto), getOrderHistory(int customerId) → List<OrderDto>.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "`OrderBuilder implements Builder<Order>` — fluent construction with at least 5 fields.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "main() demonstrates the full flow: build order (Builder) → validate (Validator composition) → save (Repository) → fetch → convert to DTO (Mapper).",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Zero raw types. Correct generic bounds where needed. No unchecked casts.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `QueryRepository<T, ID>` extending Repository<T, ID> with `List<T> findWhere(Predicate<T> condition)` — uses wildcards in the Predicate type.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `Pipeline<T>` functional interface (composable with then()) and use it to create a processing pipeline for orders: validate → enrich → save.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a `Statistics<T extends Number & Comparable<T>>` reuse from Topic 9.3 — compute order amount statistics.",
+        "weight": 15
+      }
+    ]
+  },
+
+  "data_to_use": "Domain data for demonstration:\n- Customers: Aisha(1), Raj(2), Priya(3)\n- Products: Mouse(P01, ₹799), Keyboard(P02, ₹1999), USB Hub(P03, ₹499)\n- Orders to place:\n  * ORD-001: Customer Aisha, Product Mouse, qty=2, amount=1598\n  * ORD-002: Customer Raj, Product Keyboard, qty=1, amount=1999\n  * ORD-003: Invalid order (amount=-500) — should be rejected",
+
+  "starter_code": "import java.util.*;\nimport java.util.stream.*;\nimport java.util.function.*;\n\n/**\n * Mini E-Commerce Framework — Module 9 Generic Interface Capstone\n * Implements: Repository, Mapper, Validator, Builder patterns\n * using generic interfaces and all Module 9 generics concepts.\n */\npublic class EcommerceFramework {\n    public static void main(String[] args) {\n        // Build → Validate → Save → Fetch → Map pipeline\n    }\n    \n    // Define: Repository, Mapper, Validator, Builder interfaces\n    // Define: InMemoryRepository implementation\n    // Define: Order, Customer, Product domain classes\n    // Define: OrderDto, OrderBuilder, OrderMapper, OrderValidator\n    // Define: OrderService\n}",
+
+  "example_output": "=== E-Commerce Framework Demo ===\n\n[Builder] Built: ORD-001 | Mouse x2 | ₹1598.0\n[Builder] Built: ORD-002 | Keyboard x1 | ₹1999.0\n[Builder] Built: ORD-003 | Monitor x1 | ₹-500.0\n\n[Validator] ORD-001: VALID\n[Validator] ORD-002: VALID\n[Validator] ORD-003: INVALID — Amount must be positive\n\n[Repository] Saved 2 orders\n\n[Mapper] ORD-001 DTO: {orderId=ORD-001, customer=Aisha, item=Mouse x2, total=₹1598.0}\n[Mapper] ORD-002 DTO: {orderId=ORD-002, customer=Raj, item=Keyboard x1, total=₹1999.0}\n\n[Repository] Aisha's orders: 1\n[Repository] Total orders: 2",
+
+  "rubric": [
+    { "category": "Framework Interfaces", "points": 20, "criteria": ["Repository with defaults (8 pts)", "Mapper with default (4 pts)", "Validator with and/or/negate (5 pts)", "Builder (3 pts)"] },
+    { "category": "InMemoryRepository<T,ID>", "points": 15, "criteria": ["Fully generic implementation (15 pts)"] },
+    { "category": "Domain + Concrete Implementations", "points": 20, "criteria": ["3 entities (5 pts)", "3 mappers (10 pts)", "2+ validators (5 pts)"] },
+    { "category": "OrderService", "points": 20, "criteria": ["Composes interfaces (10 pts)", "placeOrder + getHistory (10 pts)"] },
+    { "category": "Full Demo", "points": 15, "criteria": ["Build→Validate→Save→Fetch→Map pipeline (15 pts)"] },
+    { "category": "Type Safety", "points": 10, "criteria": ["No raw types (5 pts)", "No unchecked casts (5 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["QueryRepository with Predicate (20 pts)", "Pipeline<T> (20 pts)", "Statistics reuse (15 pts)"] }
+  ],
+
+  "ai_policy": "no_ai",
+  "ai_policy_explanation": "This is the Module 9 capstone — all five generics topics synthesized. No AI assistance. If stuck: re-read the Repository, Mapper, Validator sections from Topic 9.5, and the generic class/method sections from 9.1-9.2. Every concept used here appeared in a previous topic.",
+
+  "submission_instructions": "Save as EcommerceFramework.java. Add Javadoc to each interface explaining the type parameters. Push to GitHub with commit message: 'Module 9 capstone: Generic interface mini-framework'. This is portfolio-grade code.",
+
+  "tips_for_success": [
+    "Start with the four interfaces — get them compiling before any implementation.",
+    "InMemoryRepository<T, ID>: uses HashMap<ID, T>. findAll returns ArrayList(store.values()). save puts into map.",
+    "Validator.and() default: `return item -> isValid(item) && other.isValid(item)` — lambda returning new Validator.",
+    "OrderService constructor takes Repository and Mapper — constructor injection, same as Spring.",
+    "For placeOrder: take OrderDto, mapFrom to Order, run validators, save if valid.",
+    "getOrderHistory: findAll (or filtered if you implement bonus QueryRepository), map to DTOs."
+  ],
+
+  "concepts_reinforced": [
+    "Generic interface definition and implementation",
+    "Repository pattern (Spring Data analog)",
+    "Mapper pattern (MapStruct analog)",
+    "Validator functional interface with composition",
+    "Builder pattern via generic interface",
+    "Default methods on generic interfaces",
+    "All five Module 9 generics topics synthesized"
+  ]
+}

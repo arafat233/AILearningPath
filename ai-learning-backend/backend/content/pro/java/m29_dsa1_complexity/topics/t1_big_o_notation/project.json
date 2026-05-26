@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m29_t1_proj",
+  "linked_topic": "java_m29_t1",
+  "level": "mini",
+  "name": "Zerodha Algorithm Complexity Analyzer",
+  "estimated_minutes": 40,
+  "difficulty": 4,
+  "scenario": "Zerodha's engineering team is reviewing 5 legacy trading algorithms. Each is known to be slow at scale, but nobody knows why. Build an analyzer that identifies the Big-O class of each algorithm, benchmarks them, and recommends the correct data structure.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "ComplexityClassifier.classify(String code) → returns 'O(1)', 'O(log n)', 'O(n)', 'O(n log n)', or 'O(n²)' based on described algorithm pattern.", "weight": 15},
+      {"id": "req_2", "description": "5 algorithm implementations: findTrader (O(n) scan), getPrice (O(1) index), sortOrders (O(n log n)), matchPairs (O(n²) brute force), binarySearch (O(log n)).", "weight": 25},
+      {"id": "req_3", "description": "Benchmarker: run each algorithm at n=1000, n=10000, n=100000. Record and print timing table with actual milliseconds.", "weight": 20},
+      {"id": "req_4", "description": "For each O(n²) algorithm found: provide the O(n) or O(n log n) alternative. Implement and verify both give same result.", "weight": 20},
+      {"id": "req_5", "description": "@SpringBootTest equivalent (5 tests): each algorithm returns correct result, Big-O classification correct, optimized version faster.", "weight": 15},
+      {"id": "req_6", "description": "README: explains why O(n²) is dangerous at Zerodha's 10M/day volume with concrete numbers.", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "DataStructureAdvisor: given a description of the operation (frequent lookup vs frequent sort vs order-preserving), recommends HashMap vs TreeMap vs ArrayList with O() for each.", "weight": 20},
+      {"id": "bonus_2", "description": "Inversion count: implement O(n²) and O(n log n) solutions. Verify both give same count. Benchmark at n=10,000.", "weight": 20},
+      {"id": "bonus_3", "description": "Interactive complexity quiz: 5 code snippets printed, student inputs complexity, program verifies. 5/5 correct required.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Big-O drop rules: constants always dropped (O(3n) = O(n)), non-dominant terms dropped (O(n² + n) = O(n²)). Nested loops: multiply — O(n) × O(n) = O(n²). Sequential loops: add — O(n) + O(n) = O(2n) = O(n). Different input variables: O(n + m) NOT O(n) if n and m are independent. Binary search: i /= 2 or hi = mid-1 pattern = O(log n) — problem halves each step. Java TimSort used by Collections.sort() = O(n log n). HashMap operations (put/get/containsKey) = O(1) average.",
+  "rubric": [
+    {"category": "ComplexityClassifier", "points": 15},
+    {"category": "5 algorithm implementations", "points": 25},
+    {"category": "Timing benchmark table", "points": 20},
+    {"category": "O(n²) → O(n) optimization", "points": 20},
+    {"category": "5 tests pass", "points": 15},
+    {"category": "README", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

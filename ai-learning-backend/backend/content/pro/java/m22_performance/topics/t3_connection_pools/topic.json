@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m22_t3",
+  "language": "java",
+  "module_id": "m22",
+  "module_name": "Performance & Optimization",
+  "topic_number": 3,
+  "name": "Connection Pool Tuning (HikariCP)",
+  "slug": "connection-pool-tuning-hikaricp",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m22_t2"],
+    "concepts_taught": ["hikaricp_overview","pool_sizing_formula","connection_timeout","idle_timeout","max_lifetime","pool_exhaustion","hikari_metrics_micrometer","leaking_connections","connection_validation","pool_monitoring"],
+    "skills_developed": ["calculating_optimal_pool_size","configuring_hikaricp_timeouts","detecting_pool_exhaustion","monitoring_pool_metrics"],
+    "career_relevance": "HikariCP misconfiguration is one of the most common production outages. Razorpay's payment service went down for 8 minutes because connectionTimeout was set to 30 seconds — when DB was slow, all 200 Tomcat threads queued waiting for a connection. After proper HikariCP tuning, the service degrades gracefully instead of hanging. After this topic, you can correctly size and monitor connection pools.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay payment service: at 7pm, DB slows down (disk I/O spike). What happens?\n\n```\nWithout proper HikariCP config:\n  DB query time: 500ms (normal: 5ms)\n  Pool size: 10 connections, all busy\n  Tomcat threads: queue for a connection (connectionTimeout: 30s)\n  After 30s: ConnectionTimeoutException\n  Meanwhile: 200 Tomcat threads waiting\n  Thread pool exhausted: entire service down for 30 seconds!\n\nWith proper config:\n  connectionTimeout: 3000ms (3s)\n  maximumPoolSize: 20\n  After 3s: ConnectionTimeoutException thrown FAST → fallback circuit breaker fires\n  Other features still work (circuit breaker isolates DB failure)\n  Service degrades gracefully instead of complete outage\n```",
+    "what_you_will_build": "Correct HikariCP configuration, pool size calculation, and pool metrics monitoring via Micrometer."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "hikari_config": "**HikariCP configuration:**\n\n```yaml\nspring:\n  datasource:\n    url: jdbc:postgresql://prod-postgres:5432/payments\n    username: payments_user\n    password: ${DB_PASSWORD}\n    hikari:\n      # Pool sizing (see formula below):\n      maximum-pool-size: 20         # max connections in pool\n      minimum-idle: 5               # keep 5 connections open at all times\n      \n      # Timeouts:\n      connection-timeout: 3000      # max ms waiting for a connection (CRUCIAL!)\n                                    # Too high: threads queue → service hangs\n                                    # Too low: unnecessary failures\n      idle-timeout: 600000          # 10 min: close idle connections\n      max-lifetime: 1800000         # 30 min: max connection lifetime\n                                    # Must be < DB's wait_timeout!\n      \n      # Validation:\n      connection-test-query: SELECT 1  # test before giving connection to app\n      keepalive-time: 60000          # send keepalive every 60s (prevent firewall timeout)\n      \n      # Naming for metrics:\n      pool-name: PaymentServicePool\n```",
+      "pool_sizing": "**Pool size formula (HikariCP recommendation):**\n\n```\noptimal_pool_size = (core_count × 2) + effective_spindle_count\n\nFor a 4-core DB server (SSD storage, spindle_count ≈ 1):\n  4 × 2 + 1 = 9 connections\n\nFor a 4-core DB server with HDD (spindle_count ≈ 4):\n  4 × 2 + 4 = 12 connections\n\n  Counterintuitive: MORE connections is NOT always better!\n  Too many: DB CPU time wasted on context-switching between connections\n  Too few: application waits for a free connection\n  Sweet spot: DB server threads ≈ pool size per service\n\nFor multiple services sharing a DB:\n  DB max_connections = 200 (PostgreSQL default)\n  10 services × 20 pool = 200 total connections → AT THE LIMIT\n  Consider: PgBouncer (connection pooler) in front of PostgreSQL\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "HikariCP diagram: pool of 10 connections. Application threads (20) requesting connections. 10 threads get connections immediately. 10 threads wait in queue. connectionTimeout=3s: after 3s waiting, throws exception (fast failure). Metrics panel: hikaricp_connections_active (busy), hikaricp_connections_idle (free), hikaricp_connections_pending (waiting). Alert: pending > 5 for 30s → pool exhaustion warning.", "alt_text": "HikariCP connection pool with active/idle/pending connections and timeout diagram" },
+    "worked_example": {
+      "scenario": "Configure HikariCP for Razorpay payment service running on a 4-core DB server.",
+      "problem_statement": "1. Calculate optimal pool size\n2. Set connectionTimeout to fail fast\n3. Configure idle-timeout and max-lifetime\n4. Monitor pool metrics with Micrometer",
+      "step_by_step_solution": [{ "step": 1, "action": "Calculate and configure", "details": "```yaml\n# 4-core SSD DB server: (4×2)+1 = 9 → round to 10\nmaximum-pool-size: 20  # slightly over formula for burst capacity\nconnection-timeout: 3000  # 3s: fast failure, not 30s hang\nmax-lifetime: 1800000  # 30 min < PostgreSQL's default 8 hours\n```" }],
+      "final_code": "# GET /actuator/metrics/hikaricp.connections.active\n# Alert: hikaricp_connections_pending > 5 for 30s → pool exhaustion",
+      "expected_output": "pool.active=8, pool.idle=12, pool.pending=0  ← healthy\npool.active=20, pool.idle=0, pool.pending=15 ← EXHAUSTED! Alert fires",
+      "things_to_notice": [
+        "connectionTimeout: the most important setting. Too high (30s) = service hangs during DB pressure. 3s gives enough time for a brief spike without hanging threads.",
+        "max-lifetime < DB wait_timeout: PostgreSQL by default kills idle connections after 8 hours. If max-lifetime > 8 hours, HikariCP tries to use a dead connection → error. Set max-lifetime to 30 minutes (1,800,000ms) for safety.",
+        "minimum-idle: keeps warm connections ready. Without it: all connections close when idle, then burst traffic creates new connections (slow). Set to ~25% of maximum-pool-size.",
+        "Pool metrics are auto-registered when HikariCP is on the classpath AND a MetricRegistry bean is present. Spring Boot Actuator + Micrometer wires this automatically."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{ "company_context": "Razorpay payment DB pool", "use_case": "Payment DB: 8-core server. Formula: 8×2+1=17 → 20 pool size per service. 5 payment service instances: 5×20=100 total connections. PostgreSQL max_connections=200 (safe margin for monitoring tools, migrations). Alert: hikaricp_connections_pending > 3 for 60s → scale up payment service instances." }],
+      "interview_relevance": "'How do you size a database connection pool?' → HikariCP formula: (cores×2)+spindles. Too many connections: DB context-switching overhead. connectionTimeout: short (3s) to fail fast rather than queue threads. Monitor hikaricp.connections.pending — rising pending = pool exhaustion. Use PgBouncer for PostgreSQL connection multiplexing when many service instances share one DB.",
+      "real_world_workflow": "Pool tuning workflow: (1) start with formula result, (2) monitor hikaricp_connections_pending under load, (3) if pending > 0 frequently: increase pool size or optimize queries, (4) if active always low: decrease pool size to reduce DB connections."
+    },
+    "common_gaps": [
+      { "gap_id": "too_large_pool", "what_students_get_wrong": "Setting maximumPoolSize=200 thinking more connections = better throughput.", "remediation": "The PostgreSQL documentation (and HikariCP author) show that more connections DECREASES throughput after the optimal point. Each connection requires CPU context switching on the DB server. Formula: (cores×2)+spindles. Test under load to verify.", "detection_pattern": "High DB CPU even with low query count; hikaricp_connections_active always at maximum but throughput is low" }
+    ],
+    "reflection": {
+      "key_takeaways": ["Pool size formula: (cores×2)+spindles — counterintuitively small","connectionTimeout: 3s (fail fast) not 30s (hang)","max-lifetime: must be < DB's wait_timeout (< 8 hours for PostgreSQL)","minimum-idle: keep ~25% of max as warm connections","hikaricp.connections.pending: the key metric — rising = exhaustion","PgBouncer: connection multiplexer for many-service-to-one-DB"],
+      "self_check_questions": [
+        { "question": "Your DB server has 8 CPU cores and uses SSDs. You have 4 service instances each connecting to this DB. Calculate: pool size per instance, total DB connections.", "answer": "Pool size per instance: (8×2)+1 = 17, round to 20 (slight buffer). Total DB connections: 4 instances × 20 pool = 80 connections. PostgreSQL default max_connections=200 → 80 is safe (60% utilized, room for admin connections, migrations, monitoring). If you had 10 instances: 10×20=200 (at the limit — consider PgBouncer). Note: the formula is for the DB server cores, not the application server cores." }
+      ],
+      "next_topic_preview": "Next: Caching Strategies — L1 Caffeine (in-process) + L2 Redis (distributed). The fastest query is the one you never make."
+    }
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m21_t3_proj",
+  "linked_topic": "java_m21_t3",
+  "level": "mini",
+  "name": "Razorpay Payment Service — K8s Config & Secrets",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Razorpay payment service needs to run identically in dev, staging, and production with different DB URLs, secrets, and log levels. Implement ConfigMap + Secret management with graceful shutdown.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "k8s/payment-configmap.yml: ConfigMap with application.yml containing prod DB URL, log levels, pool size, Zipkin URL.", "weight": 15 },
+      { "id": "req_2", "description": "k8s/payment-secrets.yml: Secret with db_password, redis_password, visa_api_key (base64 encoded).", "weight": 10 },
+      { "id": "req_3", "description": "application.yml: server.shutdown=graceful, spring.lifecycle.timeout-per-shutdown-phase=50s, management.health.probes.enabled=true.", "weight": 15 },
+      { "id": "req_4", "description": "Deployment YAML: volumeMount for ConfigMap at /app/config, secretKeyRef env vars for secrets, preStop sleep 5s, terminationGracePeriodSeconds=60.", "weight": 20 },
+      { "id": "req_5", "description": "@SpringBootTest (3 tests): config @Value injection, readiness UP, liveness UP. All 3 pass.", "weight": 35 },
+      { "id": "req_6", "description": "README: explains base64 encoding + why Secrets are NOT encrypted by default.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Kustomize overlays: base + dev/prod with different replica counts and image tags.", "weight": 20 },
+      { "id": "bonus_2", "description": "ServiceAccount + Role + RoleBinding: payment service can only read its specific Secret.", "weight": 20 },
+      { "id": "bonus_3", "description": "startupProbe: configure for 90-second Flyway migration scenario. Explain difference from initialDelaySeconds.", "weight": 15 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. ConfigMap as volume: Spring Boot auto-reads files from config/ directory — mount ConfigMap at /app/config/ for automatic pickup. base64 encoding: `echo -n 'value' | base64` (the -n is important — prevents newline from being encoded). server.shutdown=graceful: requires the whole request to be handled before shutdown; combine with preStop to prevent new requests arriving during shutdown. management.health.probes.enabled=true: REQUIRED to get separate /readiness and /liveness endpoints. preStop + terminationGracePeriodSeconds: preStop (5s) + graceful shutdown timeout (50s) must be less than terminationGracePeriodSeconds (60s) — otherwise k8s sends SIGKILL before shutdown completes.",
+  "rubric": [
+    { "category": "k8s/payment-configmap.yml", "points": 15 },
+    { "category": "k8s/payment-secrets.yml", "points": 10 },
+    { "category": "application.yml graceful shutdown", "points": 15 },
+    { "category": "Deployment YAML (volume + secrets)", "points": 20 },
+    { "category": "@SpringBootTest (3 tests)", "points": 35 },
+    { "category": "README (security note)", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

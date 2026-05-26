@@ -1,0 +1,338 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t4",
+  "topic_name": "Validation and Exception Handling",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m13_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Which constraint catches which input?",
+      "scenario": "Bean Validation constraints each catch specific invalid inputs.",
+      "instructions": "Match each invalid input to the constraint that would catch it:\n\nInputs:\nA. name = \"\"  (empty string)\nB. price = -50\nC. qty = 1001, where @Max(1000) applied\nD. email = \"not-an-email\"\nE. sku = \"abc\" where @Pattern(regexp=\"^[A-Z]{3}$\")\n\nConstraints: @NotBlank, @Positive, @Max, @Email, @Pattern",
+      "expected_solution": "A → @NotBlank\nB → @Positive\nC → @Max\nD → @Email\nE → @Pattern",
+      "test_cases": [
+        { "type": "text_match", "expected": "A → @NotBlank\nB → @Positive\nC → @Max\nD → @Email\nE → @Pattern" }
+      ],
+      "hints": [
+        "@NotBlank rejects empty and whitespace strings",
+        "@Positive rejects zero and negative numbers",
+        "@Max rejects values above the maximum"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Annotate a request DTO",
+      "scenario": "Bean Validation annotations declare the rules.",
+      "instructions": "Fill in the annotations to validate this order request.",
+      "starter_code": "import jakarta.validation.constraints.*;\n\npublic record OrderRequest(\n    @_______(message = \"Customer name is required\")\n    String customerName,\n    \n    @_______(message = \"Amount must be positive\")\n    double amount,\n    \n    @___(value = 1, message = \"Quantity must be at least 1\")\n    int quantity\n) {}",
+      "expected_solution": "import jakarta.validation.constraints.*;\n\npublic record OrderRequest(\n    @NotBlank(message = \"Customer name is required\")\n    String customerName,\n    \n    @Positive(message = \"Amount must be positive\")\n    double amount,\n    \n    @Min(value = 1, message = \"Quantity must be at least 1\")\n    int quantity\n) {}",
+      "blanks": [
+        { "position": 1, "answer": "NotBlank", "hint": "Rejects null, empty, and whitespace-only strings" },
+        { "position": 2, "answer": "Positive", "hint": "Number must be strictly greater than 0" },
+        { "position": 3, "answer": "Min",      "hint": "Sets a minimum numeric value" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@NotBlank for strings; @Positive for any positive number",
+        "@Min(value=N): number must be >= N"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal @ControllerAdvice validation handler",
+      "scenario": "One @RestControllerAdvice handles all validation errors globally.",
+      "instructions": "Write a `GlobalExceptionHandler` with @RestControllerAdvice that handles MethodArgumentNotValidException and returns a Map<String, String> of field → message with 400 status.",
+      "starter_code": "import org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.MethodArgumentNotValidException;\nimport java.util.*;\n// GlobalExceptionHandler with one @ExceptionHandler\n",
+      "expected_solution": "import org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.MethodArgumentNotValidException;\nimport java.util.*;\n\n@RestControllerAdvice\npublic class GlobalExceptionHandler {\n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    public ResponseEntity<Map<String, String>> handleValidation(\n            MethodArgumentNotValidException ex) {\n        Map<String, String> errors = new LinkedHashMap<>();\n        ex.getBindingResult().getFieldErrors()\n            .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));\n        return ResponseEntity.badRequest().body(errors);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@RestControllerAdvice = @ControllerAdvice + @ResponseBody",
+        "ex.getBindingResult().getFieldErrors() → list of field failures",
+        "ResponseEntity.badRequest() = 400"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m13_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Custom ResourceNotFoundException",
+      "scenario": "Custom exceptions map business errors to HTTP status codes.",
+      "instructions": "Write:\n1. `ResourceNotFoundException` extending RuntimeException with `(String resource, String id)` constructor\n2. `DuplicateResourceException` extending RuntimeException\n3. @ExceptionHandler for each in @RestControllerAdvice — 404 and 409 respectively",
+      "starter_code": "// Custom exceptions + handlers\n",
+      "expected_solution": "// ResourceNotFoundException.java:\npublic class ResourceNotFoundException extends RuntimeException {\n    public ResourceNotFoundException(String resource, String id) {\n        super(resource + \" not found with id: \" + id);\n    }\n}\n\n// DuplicateResourceException.java:\npublic class DuplicateResourceException extends RuntimeException {\n    public DuplicateResourceException(String message) { super(message); }\n}\n\n// In GlobalExceptionHandler:\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n@RestControllerAdvice\npublic class GlobalExceptionHandler {\n    @ExceptionHandler(ResourceNotFoundException.class)\n    public ResponseEntity<Map<String,String>> handleNotFound(ResourceNotFoundException ex) {\n        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(\"error\", ex.getMessage()));\n    }\n    @ExceptionHandler(DuplicateResourceException.class)\n    public ResponseEntity<Map<String,String>> handleDuplicate(DuplicateResourceException ex) {\n        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(\"error\", ex.getMessage()));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "RuntimeException: no checked exception declaration needed",
+        "HttpStatus.NOT_FOUND = 404; HttpStatus.CONFLICT = 409"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m13_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Valid in controller — trigger validation",
+      "scenario": "@Valid must be on the parameter, not just on the DTO fields.",
+      "instructions": "Write a complete controller method `createProduct(@RequestBody ProductRequest req)` that:\n1. Has `@Valid` to trigger validation\n2. Returns 201 Created with saved product on success\n3. Show that without @Valid the constraints are ignored",
+      "starter_code": "record ProductRequest(\n    @NotBlank String name,\n    @Positive double price) {}\n\nrecord Product(String id, String name, double price) {}\n\n@RestController\n@RequestMapping(\"/api/products\")\nclass ProductController {\n    // Write the create method WITH @Valid\n    // Also show what happens WITHOUT @Valid\n}",
+      "expected_solution": "import jakarta.validation.*;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nrecord ProductRequest(@NotBlank String name, @Positive double price) {}\nrecord Product(String id, String name, double price) {}\n\n@RestController @RequestMapping(\"/api/products\")\nclass ProductController {\n    \n    // CORRECT — @Valid triggers the constraints:\n    @PostMapping\n    public ResponseEntity<Product> create(@Valid @RequestBody ProductRequest req) {\n        // Only reaches here if name is not blank AND price is positive\n        Product saved = new Product(java.util.UUID.randomUUID().toString(), req.name(), req.price());\n        return ResponseEntity.status(HttpStatus.CREATED).body(saved);\n    }\n    \n    // WITHOUT @Valid — constraints are IGNORED:\n    // @PostMapping(\"/no-validation\")\n    // public ResponseEntity<Product> createNoValidation(@RequestBody ProductRequest req) {\n    //     // Accepts name=\"\" price=-100 without complaint!\n    // }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Valid before @RequestBody is the trigger",
+        "Without @Valid: annotations on the record are read but never enforced"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m13_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Complete error handler — all 4 exception types",
+      "scenario": "Production @RestControllerAdvice covers validation, not-found, conflict, and generic errors.",
+      "instructions": "Write a complete `GlobalExceptionHandler` handling:\n1. MethodArgumentNotValidException → 400 map of field errors\n2. ResourceNotFoundException → 404 {\"error\": message}\n3. DuplicateResourceException → 409 {\"error\": message}\n4. Exception (catch-all) → 500 {\"error\": \"Unexpected error\"} (never expose details)",
+      "starter_code": "// Complete GlobalExceptionHandler\n",
+      "expected_solution": "import org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.MethodArgumentNotValidException;\nimport java.util.*;\n\n@RestControllerAdvice\npublic class GlobalExceptionHandler {\n    \n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    public ResponseEntity<Map<String,String>> handleValidation(MethodArgumentNotValidException ex) {\n        Map<String,String> errors = new LinkedHashMap<>();\n        ex.getBindingResult().getFieldErrors()\n            .forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));\n        return ResponseEntity.badRequest().body(errors);\n    }\n    \n    @ExceptionHandler(ResourceNotFoundException.class)\n    public ResponseEntity<Map<String,String>> handleNotFound(ResourceNotFoundException ex) {\n        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(\"error\", ex.getMessage()));\n    }\n    \n    @ExceptionHandler(DuplicateResourceException.class)\n    public ResponseEntity<Map<String,String>> handleDuplicate(DuplicateResourceException ex) {\n        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(\"error\", ex.getMessage()));\n    }\n    \n    @ExceptionHandler(Exception.class)\n    public ResponseEntity<Map<String,String>> handleGeneric(Exception ex) {\n        // Log ex internally — never expose details:\n        return ResponseEntity.internalServerError().body(Map.of(\"error\", \"An unexpected error occurred\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "4 methods; most specific handler wins",
+        "Catch-all: return generic message, never ex.getMessage()"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@WebMvcTest — test validation response",
+      "scenario": "@WebMvcTest tests the HTTP layer with MockMvc.",
+      "instructions": "Write a @WebMvcTest that:\n1. POSTs a product with blank name and negative price\n2. Asserts 400 status\n3. Asserts response body contains 'name' and 'price' error keys\n\nUse MockMvc and ObjectMapper.",
+      "starter_code": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\n// @WebMvcTest test for validation\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport java.util.Map;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(ProductController.class)\nclass ProductControllerValidationTest {\n    @Autowired MockMvc mvc;\n    @Autowired ObjectMapper mapper;\n    @MockBean ProductService productService;\n    \n    @Test\n    void createProduct_blankNameNegativePrice_returns400WithFieldErrors() throws Exception {\n        Map<String,Object> body = Map.of(\"name\",\"\",\"price\",-50.0,\"category\",\"Elec\",\"stockQty\",5);\n        mvc.perform(post(\"/api/products\")\n                .contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(body)))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.name\").exists())\n            .andExpect(jsonPath(\"$.price\").exists());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@WebMvcTest(Controller.class): loads only the HTTP layer",
+        "@MockBean for service dependencies",
+        "jsonPath('$.name').exists() checks the field exists in response JSON"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Test 404 and 409 error responses",
+      "scenario": "@WebMvcTest for not-found and duplicate error scenarios.",
+      "instructions": "Write @WebMvcTest tests for:\n1. GET /api/products/P999 → service throws ResourceNotFoundException → 404 with error key\n2. POST with duplicate name → service throws DuplicateResourceException → 409 with error key",
+      "starter_code": "// @WebMvcTest for not-found and duplicate errors\n",
+      "expected_solution": "@WebMvcTest(ProductController.class)\nclass ProductControllerErrorTest {\n    @Autowired MockMvc mvc;\n    @Autowired ObjectMapper mapper;\n    @MockBean ProductService productService;\n    \n    @Test\n    void getById_notFound_returns404() throws Exception {\n        when(productService.findById(\"P999\"))\n            .thenThrow(new ResourceNotFoundException(\"Product\", \"P999\"));\n        mvc.perform(get(\"/api/products/P999\"))\n            .andExpect(status().isNotFound())\n            .andExpect(jsonPath(\"$.error\").exists());\n    }\n    \n    @Test\n    void create_duplicateName_returns409() throws Exception {\n        Map<String,Object> body = Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5);\n        when(productService.create(any()))\n            .thenThrow(new DuplicateResourceException(\"Product already exists: Mouse\"));\n        mvc.perform(post(\"/api/products\")\n                .contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(body)))\n            .andExpect(status().isConflict())\n            .andExpect(jsonPath(\"$.error\").value(\"Product already exists: Mouse\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "when(service.findById('P999')).thenThrow(new ResourceNotFoundException(...))",
+        "status().isNotFound() = 404; status().isConflict() = 409",
+        "jsonPath('$.error').value('...') asserts the exact message"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@Pattern and @Email validation",
+      "scenario": "Regex and email format constraints.",
+      "instructions": "Write a `UserRegistrationRequest` with:\n- email: @NotBlank + @Email\n- username: @NotBlank + @Size(min=3, max=20) + @Pattern(^[a-zA-Z0-9_]+$)\n- age: @Min(18) + @Max(120)\n- password: @NotBlank + @Size(min=8)\n\nThen write @WebMvcTest testing invalid email and underage user.",
+      "starter_code": "import jakarta.validation.constraints.*;\n// UserRegistrationRequest + @WebMvcTest\n",
+      "expected_solution": "import jakarta.validation.constraints.*;\nrecord UserRegistrationRequest(\n    @NotBlank @Email(message=\"Valid email required\") String email,\n    @NotBlank @Size(min=3, max=20) @Pattern(regexp=\"^[a-zA-Z0-9_]+$\",\n        message=\"Username: letters, numbers, underscore only\") String username,\n    @Min(18) @Max(120) int age,\n    @NotBlank @Size(min=8, message=\"Password must be at least 8 characters\") String password\n) {}\n\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport java.util.Map;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(UserController.class)\nclass UserControllerValidationTest {\n    @Autowired MockMvc mvc;\n    @Autowired ObjectMapper mapper;\n    @MockBean UserService userService;\n    \n    @Test void invalidEmail_returns400() throws Exception {\n        Map<String,Object> body = Map.of(\"email\",\"not-email\",\"username\",\"aisha\",\"age\",25,\"password\",\"pass1234\");\n        mvc.perform(post(\"/api/users\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(body)))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.email\").exists());\n    }\n    @Test void underage_returns400() throws Exception {\n        Map<String,Object> body = Map.of(\"email\",\"a@b.com\",\"username\",\"aisha\",\"age\",16,\"password\",\"pass1234\");\n        mvc.perform(post(\"/api/users\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(body)))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.age\").exists());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Email: validates email format",
+        "@Pattern(regexp=...): custom regex constraint",
+        "@Min(18) on int age: rejects any age < 18"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Exception handler specificity",
+      "scenario": "Spring picks the most specific @ExceptionHandler.",
+      "instructions": "A service throws `IllegalStateException`. Which @ExceptionHandler fires, and what HTTP status is returned?\n\n```java\n@RestControllerAdvice\nclass Handler {\n    @ExceptionHandler(RuntimeException.class)\n    ResponseEntity<String> handleRuntime(RuntimeException ex) {\n        return ResponseEntity.status(500).body(\"runtime error\");\n    }\n    @ExceptionHandler(IllegalStateException.class)\n    ResponseEntity<String> handleIllegalState(IllegalStateException ex) {\n        return ResponseEntity.status(422).body(\"illegal state\");\n    }\n    @ExceptionHandler(Exception.class)\n    ResponseEntity<String> handleGeneric(Exception ex) {\n        return ResponseEntity.status(500).body(\"generic error\");\n    }\n}\n```",
+      "expected_solution": "handleIllegalState fires → HTTP 422 'illegal state'\nReason: IllegalStateException is more specific than RuntimeException or Exception",
+      "test_cases": [
+        { "type": "text_match", "expected": "handleIllegalState fires → HTTP 422 'illegal state'\nReason: IllegalStateException is more specific than RuntimeException or Exception" }
+      ],
+      "hints": [
+        "Spring picks the closest match in the exception hierarchy",
+        "IllegalStateException extends RuntimeException extends Exception",
+        "Most specific = handleIllegalState"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Structured ErrorResponse record",
+      "scenario": "A consistent error response format improves API usability.",
+      "instructions": "Create an `ErrorResponse` record with status, error, message, path, timestamp fields. Update GlobalExceptionHandler to use it for all handlers. Test with @WebMvcTest that the JSON response has all fields.",
+      "starter_code": "import java.time.*;\n// ErrorResponse record + updated GlobalExceptionHandler\n",
+      "expected_solution": "import java.time.*;\npublic record ErrorResponse(int status, String error, String message, String path, LocalDateTime timestamp) {}\n\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.MethodArgumentNotValidException;\nimport jakarta.servlet.http.HttpServletRequest;\nimport java.util.*;\n\n@RestControllerAdvice\npublic class GlobalExceptionHandler {\n    \n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    public ResponseEntity<Map<String,String>> handleValidation(MethodArgumentNotValidException ex) {\n        Map<String,String> errors = new LinkedHashMap<>();\n        ex.getBindingResult().getFieldErrors().forEach(e -> errors.put(e.getField(), e.getDefaultMessage()));\n        return ResponseEntity.badRequest().body(errors);\n    }\n    \n    @ExceptionHandler(ResourceNotFoundException.class)\n    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, HttpServletRequest req) {\n        return ResponseEntity.status(404).body(new ErrorResponse(404, \"Not Found\", ex.getMessage(), req.getRequestURI(), LocalDateTime.now()));\n    }\n    \n    @ExceptionHandler(DuplicateResourceException.class)\n    public ResponseEntity<ErrorResponse> handleDuplicate(DuplicateResourceException ex, HttpServletRequest req) {\n        return ResponseEntity.status(409).body(new ErrorResponse(409, \"Conflict\", ex.getMessage(), req.getRequestURI(), LocalDateTime.now()));\n    }\n    \n    @ExceptionHandler(Exception.class)\n    public ResponseEntity<ErrorResponse> handleGeneric(Exception ex, HttpServletRequest req) {\n        return ResponseEntity.status(500).body(new ErrorResponse(500, \"Internal Server Error\", \"An unexpected error occurred\", req.getRequestURI(), LocalDateTime.now()));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "HttpServletRequest req as parameter: Spring injects the current request",
+        "req.getRequestURI() gives the path that was called",
+        "LocalDateTime.now() for timestamp"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m13_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Payment validation DTO — Razorpay style",
+      "scenario": "Real-world payment API has strict validation requirements.",
+      "instructions": "Build a `PaymentRequest` record with validation:\n- amount: @Positive @Min(100) (minimum ₹1 = 100 paise) @Max(10000000)\n- currency: @NotBlank @Pattern(INR|USD|EUR) with message\n- orderId: @NotBlank @Size(max=40)\n- description: @Size(max=255) (optional — no @NotBlank)\n\nThen write @WebMvcTest tests for: valid request (201), amount too small (400), invalid currency (400).",
+      "starter_code": "import jakarta.validation.constraints.*;\n// PaymentRequest record + @WebMvcTest\n",
+      "expected_solution": "import jakarta.validation.constraints.*;\nrecord PaymentRequest(\n    @Min(value=100, message=\"Minimum amount is 100 paise (₹1)\")\n    @Max(value=10000000, message=\"Amount cannot exceed ₹1,00,000\")\n    @Positive long amount,\n    @NotBlank @Pattern(regexp=\"INR|USD|EUR\", message=\"Currency must be INR, USD, or EUR\") String currency,\n    @NotBlank @Size(max=40, message=\"Order ID cannot exceed 40 characters\") String orderId,\n    @Size(max=255, message=\"Description cannot exceed 255 characters\") String description\n) {}\n\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport java.util.Map;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(PaymentController.class)\nclass PaymentValidationTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;\n    @MockBean PaymentService paymentService;\n    \n    @Test void validPayment_returns201() throws Exception {\n        Map<String,Object> body = Map.of(\"amount\",1500L,\"currency\",\"INR\",\"orderId\",\"ORD-001\");\n        when(paymentService.process(any())).thenReturn(new Payment(\"PAY-001\",\"CREATED\"));\n        mvc.perform(post(\"/api/payments\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(body)))\n            .andExpect(status().isCreated());\n    }\n    @Test void amountTooSmall_returns400() throws Exception {\n        Map<String,Object> body = Map.of(\"amount\",50L,\"currency\",\"INR\",\"orderId\",\"ORD-001\");\n        mvc.perform(post(\"/api/payments\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(body)))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.amount\").exists());\n    }\n    @Test void invalidCurrency_returns400() throws Exception {\n        Map<String,Object> body = Map.of(\"amount\",1500L,\"currency\",\"GBP\",\"orderId\",\"ORD-001\");\n        mvc.perform(post(\"/api/payments\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(body)))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.currency\").exists());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Min(100) and @Positive both required — @Min(100) implies > 0 for positive values",
+        "description has no @NotBlank: optional field, validated only if present",
+        "@Pattern(regexp='INR|USD|EUR') — pipe-delimited alternatives"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m13_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full validation + exception integration test",
+      "scenario": "Complete validation chain from controller to error response.",
+      "instructions": "Build and test a full `UserController` with:\n- UserRegistrationRequest (email, username, age, password with constraints)\n- UserService (creates user, throws DuplicateResourceException if email exists)\n- GlobalExceptionHandler\n- @WebMvcTest with 4 tests:\n  1. Valid registration → 201\n  2. Invalid email → 400 with email error key\n  3. Underage → 400 with age error key\n  4. Duplicate email → 409 with error message",
+      "starter_code": "// Full UserController validation + exception integration\n",
+      "expected_solution": "import jakarta.validation.constraints.*;\nrecord UserRegistrationRequest(\n    @NotBlank @Email String email,\n    @NotBlank @Size(min=3,max=20) String username,\n    @Min(18) @Max(120) int age,\n    @NotBlank @Size(min=8) String password\n) {}\nrecord User(String id, String email, String username) {}\n\ninterface UserService {\n    User register(UserRegistrationRequest req);\n}\n\n@RestController @RequestMapping(\"/api/users\")\nclass UserController {\n    private final UserService service;\n    UserController(UserService s) { service=s; }\n    @PostMapping public ResponseEntity<User> register(@Valid @RequestBody UserRegistrationRequest req) {\n        return ResponseEntity.status(201).body(service.register(req));\n    }\n}\n\n// GlobalExceptionHandler (as in ex 6)\n\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport java.util.Map;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(UserController.class)\nclass UserControllerTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;\n    @MockBean UserService service;\n    \n    @Test void valid_registration_201() throws Exception {\n        when(service.register(any())).thenReturn(new User(\"U01\",\"a@b.com\",\"aisha\"));\n        mvc.perform(post(\"/api/users\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"email\",\"a@b.com\",\"username\",\"aisha\",\"age\",25,\"password\",\"pass1234\"))))\n            .andExpect(status().isCreated());\n    }\n    @Test void invalid_email_400() throws Exception {\n        mvc.perform(post(\"/api/users\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"email\",\"not-email\",\"username\",\"aisha\",\"age\",25,\"password\",\"pass1234\"))))\n            .andExpect(status().isBadRequest()).andExpect(jsonPath(\"$.email\").exists());\n    }\n    @Test void underage_400() throws Exception {\n        mvc.perform(post(\"/api/users\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"email\",\"a@b.com\",\"username\",\"aisha\",\"age\",16,\"password\",\"pass1234\"))))\n            .andExpect(status().isBadRequest()).andExpect(jsonPath(\"$.age\").exists());\n    }\n    @Test void duplicate_email_409() throws Exception {\n        when(service.register(any())).thenThrow(new DuplicateResourceException(\"Email exists\"));\n        mvc.perform(post(\"/api/users\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"email\",\"a@b.com\",\"username\",\"aisha\",\"age\",25,\"password\",\"pass1234\"))))\n            .andExpect(status().isConflict()).andExpect(jsonPath(\"$.error\").value(\"Email exists\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "@WebMvcTest(UserController.class): loads only UserController + GlobalExceptionHandler",
+        "@MockBean UserService: mock the service in the test",
+        "All 4 tests target different error scenarios"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m13_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@Validated on controller — path variable validation",
+      "scenario": "@Validated enables constraint validation on @PathVariable and @RequestParam.",
+      "instructions": "Add @Validated to the controller class and validate:\n- @PathVariable id: @Pattern(regexp='P\\\\d{3}', message='ID must be P + 3 digits')\n- @RequestParam limit: @Min(1) @Max(100)\n\nTest with @WebMvcTest that invalid path variable returns 400.",
+      "starter_code": "import jakarta.validation.constraints.*;\nimport org.springframework.validation.annotation.Validated;\n// @Validated controller + @WebMvcTest\n",
+      "expected_solution": "import jakarta.validation.constraints.*;\nimport org.springframework.validation.annotation.Validated;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\nimport java.util.*;\n\n@RestController @RequestMapping(\"/api/products\")\n@Validated  // enables constraint validation on @PathVariable and @RequestParam\npublic class ProductController {\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<String> getById(\n            @PathVariable @Pattern(regexp=\"P\\\\d{3}\", message=\"ID must match P + 3 digits\") String id,\n            @RequestParam(defaultValue=\"10\") @Min(1) @Max(100) int limit) {\n        return ResponseEntity.ok(\"Product: \" + id + \" limit: \" + limit);\n    }\n}\n\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(ProductController.class)\nclass PathVariableValidationTest {\n    @Autowired MockMvc mvc;\n    @Test void validId_returns200() throws Exception {\n        mvc.perform(get(\"/api/products/P001\")).andExpect(status().isOk());\n    }\n    @Test void invalidId_returns400() throws Exception {\n        mvc.perform(get(\"/api/products/invalid-id\")).andExpect(status().isBadRequest());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Validated on class level enables method-level parameter validation",
+        "@Pattern(regexp='P\\\\d{3}'): P followed by exactly 3 digits",
+        "ConstraintViolationException (not MethodArgumentNotValidException) for @PathVariable"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete product API with validation + exceptions — Module 13.4 synthesis",
+      "scenario": "Production-ready product API with full validation and error handling.",
+      "instructions": "Build the complete production-ready product API:\n- ProductRequest (5 constrained fields)\n- Product @Entity\n- ProductService (@Transactional, throws ResourceNotFoundException and DuplicateResourceException)\n- ProductController (GET all, GET/{id}, POST with @Valid, PUT/{id}, DELETE/{id})\n- GlobalExceptionHandler (4 handlers)\n- @WebMvcTest with 6 tests covering: happy path, validation failure, not found, duplicate, delete success, delete not found",
+      "starter_code": "// Complete product API — validation + exceptions\n",
+      "expected_solution": "// ProductRequest:\nrecord ProductRequest(\n    @NotBlank(message=\"Name required\") @Size(max=200) String name,\n    @NotNull @Positive(message=\"Price must be positive\") Double price,\n    @NotBlank(message=\"Category required\") String category,\n    @Min(0) @Max(9999) int stockQty\n) {}\n// Product @Entity (as in T13.3)\n// ResourceNotFoundException, DuplicateResourceException (as in Ex 4)\n// GlobalExceptionHandler (as in Ex 6)\n// ProductService:\n@Service @Transactional\nclass ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository r) { repo=r; }\n    Product create(ProductRequest req) {\n        if (repo.existsByName(req.name())) throw new DuplicateResourceException(\"Exists: \"+req.name());\n        return repo.save(new Product(req.name(), req.price(), req.category(), req.stockQty()));\n    }\n    Product findByIdOrThrow(String id) {\n        return repo.findById(id).orElseThrow(()->new ResourceNotFoundException(\"Product\",id));\n    }\n    List<Product> findAll() { return repo.findAll(); }\n    Product update(String id, ProductRequest req) { Product p=findByIdOrThrow(id); /* update fields */ return repo.save(p); }\n    void delete(String id) { findByIdOrThrow(id); repo.deleteById(id); }\n}\n// ProductController:\n@RestController @RequestMapping(\"/api/products\")\nclass ProductController {\n    private final ProductService service;\n    ProductController(ProductService s) { service=s; }\n    @GetMapping public List<Product> getAll() { return service.findAll(); }\n    @GetMapping(\"/{id}\") public Product getById(@PathVariable String id) { return service.findByIdOrThrow(id); }\n    @PostMapping public ResponseEntity<Product> create(@Valid @RequestBody ProductRequest req) {\n        return ResponseEntity.status(201).body(service.create(req)); }\n    @DeleteMapping(\"/{id}\") public ResponseEntity<Void> delete(@PathVariable String id) {\n        service.delete(id); return ResponseEntity.noContent().build(); }\n}\n// @WebMvcTest:\n@WebMvcTest(ProductController.class)\nclass ProductApiTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper; @MockBean ProductService service;\n    @Test void getAll_returns200() throws Exception { when(service.findAll()).thenReturn(List.of()); mvc.perform(get(\"/api/products\")).andExpect(status().isOk()); }\n    @Test void createValid_201() throws Exception { when(service.create(any())).thenReturn(new Product()); mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5)))).andExpect(status().isCreated()); }\n    @Test void createBlankName_400() throws Exception { mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(Map.of(\"name\",\"\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5)))).andExpect(status().isBadRequest()).andExpect(jsonPath(\"$.name\").exists()); }\n    @Test void getById_notFound_404() throws Exception { when(service.findByIdOrThrow(\"X\")).thenThrow(new ResourceNotFoundException(\"Product\",\"X\")); mvc.perform(get(\"/api/products/X\")).andExpect(status().isNotFound()); }\n    @Test void createDuplicate_409() throws Exception { when(service.create(any())).thenThrow(new DuplicateResourceException(\"exists\")); mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5)))).andExpect(status().isConflict()); }\n    @Test void delete_notFound_404() throws Exception { doThrow(new ResourceNotFoundException(\"Product\",\"X\")).when(service).delete(\"X\"); mvc.perform(delete(\"/api/products/X\")).andExpect(status().isNotFound()); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "6 tests pass" }
+      ],
+      "hints": [
+        "findByIdOrThrow: service method that throws ResourceNotFoundException if not found",
+        "doThrow(ex).when(service).delete('X') for void methods",
+        "All 6 test cases target different HTTP scenarios"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 715,
+    "estimated_completion_minutes": 65
+  }
+}

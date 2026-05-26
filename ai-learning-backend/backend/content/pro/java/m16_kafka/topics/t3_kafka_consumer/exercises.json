@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t3",
+  "topic_name": "Spring Kafka Consumer",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m16_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What happens when a consumer group reads a 3-partition topic?",
+      "scenario": "Kafka assigns partitions to consumer threads in a group.",
+      "instructions": "A topic 'order-events' has 3 partitions. You start a consumer with concurrency='2':\n\n```java\n@KafkaListener(topics=\"order-events\", groupId=\"g1\", concurrency=\"2\")\npublic void handle(OrderEvent e) { ... }\n```\n\nHow are the 3 partitions distributed across 2 threads?\nWhat if you add a third service instance (also with concurrency='2', same groupId='g1')?\nWhat happens if you set concurrency='5' on a 3-partition topic?",
+      "expected_solution": "concurrency=2: 2 threads in group 'g1'\n  Thread-1 → partitions 0 and 1\n  Thread-2 → partition 2\n(3 partitions ÷ 2 threads: one thread gets 2 partitions)\n\nSecond instance with concurrency=2:\n  Now 4 threads in group 'g1' total (2 from each instance)\n  Kafka rebalances: each of the 4 threads gets... \n  1 partition, and 1 thread sits IDLE (3 partitions < 4 threads)\n\nconcurrency=5 on 3-partition topic:\n  5 threads registered, but only 3 get partitions\n  2 threads are idle — WASTED resources\n  Rule: concurrency ≤ partition count",
+      "test_cases": [
+        { "type": "text_match", "expected": "concurrency=2: 2 threads in group 'g1'\n  Thread-1 → partitions 0 and 1\n  Thread-2 → partition 2\n(3 partitions ÷ 2 threads: one thread gets 2 partitions)\n\nSecond instance with concurrency=2:\n  Now 4 threads in group 'g1' total (2 from each instance)\n  Kafka rebalances: each of the 4 threads gets... \n  1 partition, and 1 thread sits IDLE (3 partitions < 4 threads)\n\nconcurrency=5 on 3-partition topic:\n  5 threads registered, but only 3 get partitions\n  2 threads are idle — WASTED resources\n  Rule: concurrency ≤ partition count" }
+      ],
+      "hints": [
+        "Kafka distributes partitions evenly across consumer threads in same group",
+        "Threads > partitions = idle threads (wasted)",
+        "Each partition assigned to exactly one consumer thread per group"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete consumer application.properties",
+      "scenario": "Consumer needs deserializer and trusted packages configured.",
+      "instructions": "Fill in the consumer configuration.",
+      "starter_code": "spring.kafka.bootstrap-servers=localhost:9092\n\n# Deserialize keys (String):\nspring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.____Deserializer\n\n# Deserialize values (JSON objects):\nspring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.____Deserializer\n\n# Trust event packages (REQUIRED for JSON deserializer):\nspring.kafka.consumer.properties.spring.json.trusted.packages=com.codequest.____\n\n# Start from beginning when no offset exists:\nspring.kafka.consumer.auto-offset-reset=____",
+      "expected_solution": "spring.kafka.bootstrap-servers=localhost:9092\nspring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer\nspring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer\nspring.kafka.consumer.properties.spring.json.trusted.packages=com.codequest.events\nspring.kafka.consumer.auto-offset-reset=earliest",
+      "blanks": [
+        { "position": 1, "answer": "String",   "hint": "Deserializes byte[] to String" },
+        { "position": 2, "answer": "Json",      "hint": "Deserializes JSON to Java objects (spring-kafka)" },
+        { "position": 3, "answer": "events",    "hint": "Package containing your event classes" },
+        { "position": 4, "answer": "earliest",  "hint": "Start from beginning when no offset committed" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected": "spring.kafka.bootstrap-servers=localhost:9092\nspring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer\nspring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer\nspring.kafka.consumer.properties.spring.json.trusted.packages=com.codequest.events\nspring.kafka.consumer.auto-offset-reset=earliest" }
+      ],
+      "hints": [
+        "trusted.packages: without this, JsonDeserializer rejects all messages",
+        "earliest: don't miss messages published before consumer started"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal @KafkaListener",
+      "scenario": "Subscribe to a topic and process each message.",
+      "instructions": "Write a `StockPriceConsumer` @Service that:\n1. @KafkaListener on topic 'stock-prices', groupId='analytics-group'\n2. Accepts StockPriceEvent(symbol, price, timestamp)\n3. Prints: 'PRICE UPDATE: {symbol} = ₹{price}'\n4. No error handling needed",
+      "starter_code": "record StockPriceEvent(String symbol, double price, String timestamp) {}\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n// StockPriceConsumer\n",
+      "expected_solution": "record StockPriceEvent(String symbol, double price, String timestamp) {}\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class StockPriceConsumer {\n    \n    @KafkaListener(topics = \"stock-prices\",\n                   groupId = \"analytics-group\")\n    public void handleStockPrice(StockPriceEvent event) {\n        System.out.printf(\"PRICE UPDATE: %s = ₹%.2f%n\",\n            event.symbol(), event.price());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@KafkaListener(topics='...', groupId='...'): two key attributes",
+        "Method parameter type = deserialized event class",
+        "Spring Kafka calls this method for each message automatically"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m16_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "@KafkaListener with ConsumerRecord — access metadata",
+      "scenario": "ConsumerRecord gives access to topic, partition, offset, key.",
+      "instructions": "Write `AuditConsumer` that:\n1. @KafkaListener on 'trade-executed', groupId='audit-group'\n2. Accepts ConsumerRecord<String, TradeExecutedEvent>\n3. Logs: 'AUDIT: topic={t} partition={p} offset={o} key={k} tradeId={id}'\n4. Saves the audit entry to AuditRepository",
+      "starter_code": "record TradeExecutedEvent(String tradeId, String symbol, int qty, double price) {}\nimport org.apache.kafka.clients.consumer.ConsumerRecord;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n// AuditConsumer with ConsumerRecord\n",
+      "expected_solution": "record TradeExecutedEvent(String tradeId, String symbol, int qty, double price) {}\n\nimport org.apache.kafka.clients.consumer.ConsumerRecord;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class AuditConsumer {\n    \n    // AuditRepository injected here in real code:\n    AuditConsumer() {}\n    \n    @KafkaListener(topics = \"trade-executed\",\n                   groupId = \"audit-group\")\n    public void handleTrade(\n            ConsumerRecord<String, TradeExecutedEvent> record) {\n        \n        TradeExecutedEvent event = record.value();\n        System.out.printf(\n            \"AUDIT: topic=%s partition=%d offset=%d key=%s tradeId=%s%n\",\n            record.topic(),\n            record.partition(),\n            record.offset(),\n            record.key(),\n            event.tradeId()\n        );\n        \n        // Save audit entry (repo injection omitted for brevity)\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ConsumerRecord<K,V>: key=String, value=TradeExecutedEvent",
+        "record.partition() and record.offset(): Kafka metadata",
+        "record.value(): the deserialized event object"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m16_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@RetryableTopic — retry with exponential backoff",
+      "scenario": "Transient failures should be retried before declaring failure.",
+      "instructions": "Write `InventoryConsumer.reserveStock(OrderPlacedEvent event)` with:\n1. @KafkaListener on 'order-placed', groupId='inventory-group'\n2. @RetryableTopic: 4 attempts, 500ms initial delay, multiplier=2.0\n3. Method calls inventoryService.reserve() which may throw RuntimeException\n4. @DltHandler: logs permanently failed orders",
+      "starter_code": "import org.springframework.kafka.annotation.*;\nimport org.springframework.retry.annotation.Backoff;\nimport org.springframework.stereotype.Service;\n// InventoryConsumer with retry and DLT\n",
+      "expected_solution": "import org.springframework.kafka.annotation.*;\nimport org.springframework.retry.annotation.Backoff;\nimport org.springframework.stereotype.Service;\n\nrecord OrderPlacedEvent(String orderId, String productId, int qty, double total) {}\n\n@Service\npublic class InventoryConsumer {\n    \n    @RetryableTopic(\n        attempts = \"4\",\n        backoff = @Backoff(delay = 500, multiplier = 2.0)\n        // Creates retry topics:\n        // order-placed-retry-0 (wait 500ms)\n        // order-placed-retry-1 (wait 1000ms)\n        // order-placed-retry-2 (wait 2000ms)\n        // order-placed-dlt (permanent failure)\n    )\n    @KafkaListener(topics = \"order-placed\", groupId = \"inventory-group\")\n    public void reserveStock(OrderPlacedEvent event) {\n        System.out.println(\"Reserving stock for order: \" + event.orderId());\n        // If this throws → retry up to 4 times total:\n        inventoryService().reserve(event.productId(), event.qty());\n    }\n    \n    @DltHandler\n    public void handleDlt(OrderPlacedEvent event) {\n        System.err.println(\"STOCK RESERVATION PERMANENTLY FAILED: \" + event.orderId());\n        // Alert ops, save to failed_orders, manual resolution\n    }\n    \n    // Simulated service (inject in real code):\n    private Object inventoryService() {\n        return new Object() {\n            void reserve(String pid, int qty) {\n                System.out.printf(\"Reserved %d units of %s%n\", qty, pid);\n            }\n        };\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@RetryableTopic creates intermediate retry topics automatically",
+        "attempts='4': 1 original + 3 retries = 4 total attempts",
+        "@DltHandler: no Exception parameter — receives the original event"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Concurrent consumer — parallel processing",
+      "scenario": "Multiple consumer threads process partitions in parallel.",
+      "instructions": "Write `PortfolioConsumer` with:\n1. @KafkaListener on 'trade-executed', groupId='portfolio-group'\n2. concurrency='3' (3 threads, for a 3-partition topic)\n3. Handler calls portfolioService.updateHolding(event)\n4. Log which thread processes each message\n5. Note: portfolioService must be thread-safe",
+      "starter_code": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n// PortfolioConsumer with concurrency\n",
+      "expected_solution": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PortfolioConsumer {\n    \n    @KafkaListener(\n        topics = \"trade-executed\",\n        groupId = \"portfolio-group\",\n        concurrency = \"3\"   // 3 threads, each assigned 1 partition (3-partition topic)\n    )\n    public void handleTrade(TradeExecutedEvent event) {\n        // This method is called from 3 different threads:\n        System.out.printf(\n            \"[Thread: %s] Processing trade: %s %s x%d%n\",\n            Thread.currentThread().getName(),\n            event.type(), event.symbol(), event.qty()\n        );\n        \n        // portfolioService must be thread-safe!\n        portfolioService().updateHolding(\n            event.userId(), event.symbol(), event.qty(), event.type());\n    }\n    \n    // Simulated thread-safe service (inject in real code):\n    private Object portfolioService() {\n        return new Object() {\n            void updateHolding(String uid, String sym, int qty, String type) {\n                // Use synchronized, concurrent collections, or @Transactional\n                System.out.printf(\"Updated %s: %s %s x%d%n\", uid, type, sym, qty);\n            }\n        };\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "concurrency='3': 3 listener threads created by Spring Kafka",
+        "Each thread is assigned partitions from the consumer group assignment",
+        "The @Service is SHARED — listener method called from multiple threads simultaneously"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@EmbeddedKafka test — verify listener is called",
+      "scenario": "Test that publishing a message triggers the @KafkaListener method.",
+      "instructions": "Write a @SpringBootTest test that:\n1. @EmbeddedKafka with 'stock-prices' topic\n2. @MockBean StockPriceService (inject into consumer)\n3. Publishes a StockPriceEvent via KafkaTemplate\n4. Waits for listener to process (CountDownLatch or Thread.sleep)\n5. Verify StockPriceService.update() was called with correct symbol",
+      "starter_code": "import org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport static org.mockito.Mockito.*;\n// @EmbeddedKafka listener test\n",
+      "expected_solution": "import org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport org.junit.jupiter.api.*;\n\n// Simulated service:\ninterface StockPriceService { void update(String symbol, double price); }\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=1, topics={\"stock-prices\"})\n@TestPropertySource(properties={\n    \"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\",\n    \"spring.kafka.consumer.auto-offset-reset=earliest\",\n    \"spring.kafka.consumer.properties.spring.json.trusted.packages=*\"\n})\nclass StockPriceConsumerTest {\n    @Autowired KafkaTemplate<String, StockPriceEvent> kafkaTemplate;\n    @MockBean  StockPriceService stockPriceService;\n    \n    @Test\n    void handleStockPrice_serviceCalledWithCorrectSymbol() throws Exception {\n        StockPriceEvent event = new StockPriceEvent(\"TCS\", 3890.0, \"2024-03-15\");\n        kafkaTemplate.send(\"stock-prices\", \"TCS\", event);\n        \n        Thread.sleep(2000);  // allow async processing\n        \n        verify(stockPriceService, times(1)).update(eq(\"TCS\"), eq(3890.0));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@MockBean StockPriceService: Spring injects this mock into the consumer",
+        "auto-offset-reset=earliest: consumer reads from beginning of embedded topic",
+        "trusted.packages=*: for testing only; avoids package trust configuration"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multiple consumer groups — same topic, independent consumption",
+      "scenario": "Two services consume the same topic independently with different group IDs.",
+      "instructions": "Write two consumers on the SAME topic 'order-placed':\n1. `InventoryConsumer`: groupId='inventory-group', reserves stock\n2. `EmailConsumer`: groupId='email-group', sends confirmation email\n\nBoth receive EVERY message independently. Show that they have different groupIds and different behaviors.",
+      "starter_code": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n// InventoryConsumer and EmailConsumer — different groups, same topic\n",
+      "expected_solution": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\nrecord OrderPlacedEvent2(String orderId, String productId, int qty, String email) {}\n\n// Consumer Group 1: inventory-group\n@Service\npublic class InventoryConsumer2 {\n    @KafkaListener(topics = \"order-placed\", groupId = \"inventory-group\")\n    public void reserveStock(OrderPlacedEvent2 event) {\n        System.out.printf(\n            \"[inventory-group] Reserving %d units of %s for order %s%n\",\n            event.qty(), event.productId(), event.orderId());\n        // Both InventoryConsumer and EmailConsumer receive this SAME message\n    }\n}\n\n// Consumer Group 2: email-group — INDEPENDENT of inventory-group!\n@Service\npublic class EmailConsumer {\n    @KafkaListener(topics = \"order-placed\", groupId = \"email-group\")\n    public void sendConfirmation(OrderPlacedEvent2 event) {\n        System.out.printf(\n            \"[email-group] Sending confirmation to %s for order %s%n\",\n            event.email(), event.orderId());\n        // This group reads from its own offset — if EmailConsumer is slow,\n        // it doesn't affect InventoryConsumer's processing at all\n    }\n}\n\n// Key insight:\n// order-placed message: published once by order-service\n// inventory-group: reads it once → reserves stock\n// email-group: reads it once → sends email\n// Both happen independently — fail-safe from each other",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Different groupId: different offset tracking, independent consumption",
+        "Kafka delivers the same message to EACH consumer group",
+        "If email-group is slow, inventory-group is unaffected"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Batch listener — process List of messages",
+      "scenario": "Batch consumption is more efficient than one-at-a-time for high-throughput.",
+      "instructions": "Write `AnalyticsConsumer` that:\n1. @KafkaListener on 'trade-executed', groupId='analytics-batch', batch='true'\n2. Accepts List<TradeExecutedEvent> events\n3. Logs: 'Processing batch of N events'\n4. Inserts all events in one DB batch operation\n5. Note: batch size depends on max.poll.records config",
+      "starter_code": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\nimport java.util.List;\n// AnalyticsConsumer with batch listener\n",
+      "expected_solution": "import org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\nimport java.util.List;\n\n@Service\npublic class AnalyticsConsumer {\n    \n    @KafkaListener(\n        topics = \"trade-executed\",\n        groupId = \"analytics-batch\",\n        batch = \"true\"  // receive List<TradeExecutedEvent> instead of single event\n    )\n    public void handleTradesBatch(List<TradeExecutedEvent> events) {\n        System.out.printf(\"Processing batch of %d trade events%n\", events.size());\n        \n        // Batch insert is much more efficient than N individual inserts:\n        analyticsRepository().insertBatch(events);\n        \n        // Each call to this method: up to max.poll.records events\n        // Default max.poll.records=500; configure via:\n        // spring.kafka.consumer.max-poll-records=100\n    }\n    \n    // Simulated repository (inject in real code):\n    private Object analyticsRepository() {\n        return new Object() {\n            void insertBatch(List<TradeExecutedEvent> events) {\n                System.out.println(\"Batch inserted \" + events.size() + \" records into analytics DB\");\n            }\n        };\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "batch='true': method receives List<EventType> instead of single EventType",
+        "max.poll.records: controls max events per batch call",
+        "Batch DB insert much faster than N individual inserts for analytics"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What happens when @KafkaListener throws?",
+      "scenario": "Unhandled exceptions in @KafkaListener trigger Kafka's error handling.",
+      "instructions": "```java\n@KafkaListener(topics=\"orders\", groupId=\"svc\")\npublic void handle(OrderEvent event) {\n    if (event.amount() <= 0) {\n        throw new IllegalArgumentException(\"Invalid amount: \" + event.amount());\n    }\n    orderProcessor.process(event);\n}\n```\n\nWith NO @RetryableTopic configured:\n- What happens immediately when the exception is thrown?\n- Is the message retried automatically?\n- Is the offset committed?\n- What should you do to handle this properly?",
+      "expected_solution": "Immediately: Spring Kafka's default error handler catches the exception\nDefault behavior: logs the error; commits the offset; message NOT retried\n→ message is LOST (offset committed = Kafka thinks it was processed)\n\nThis is the default SeekToCurrentErrorHandler in older Spring Kafka,\nor DefaultErrorHandler in Spring Kafka 2.8+ which retries with backoff.\n\nTo handle properly:\n1. Add @RetryableTopic for automatic retry + DLT\n2. OR configure DefaultErrorHandler with DeadLetterPublishingRecoverer\n3. OR validate input BEFORE processing and skip invalid messages gracefully\n4. Never silently lose messages in production",
+      "test_cases": [
+        { "type": "text_match", "expected": "Immediately: Spring Kafka's default error handler catches the exception\nDefault behavior: logs the error; commits the offset; message NOT retried\n→ message is LOST (offset committed = Kafka thinks it was processed)\n\nThis is the default SeekToCurrentErrorHandler in older Spring Kafka,\nor DefaultErrorHandler in Spring Kafka 2.8+ which retries with backoff.\n\nTo handle properly:\n1. Add @RetryableTopic for automatic retry + DLT\n2. OR configure DefaultErrorHandler with DeadLetterPublishingRecoverer\n3. OR validate input BEFORE processing and skip invalid messages gracefully\n4. Never silently lose messages in production" }
+      ],
+      "hints": [
+        "Default behavior without @RetryableTopic: depends on Spring Kafka version",
+        "Spring Kafka 2.8+: DefaultErrorHandler retries 10 times by default",
+        "Best practice: always configure @RetryableTopic + @DltHandler explicitly"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "CountDownLatch — precise test synchronization",
+      "scenario": "CountDownLatch is cleaner than Thread.sleep for async consumer tests.",
+      "instructions": "Rewrite the @EmbeddedKafka test using CountDownLatch:\n1. Latch initialized with count=1\n2. Consumer calls latch.countDown() when message processed\n3. Test waits: latch.await(5, TimeUnit.SECONDS)\n4. Assert: the await didn't timeout (returned true)\n5. This avoids hardcoded Thread.sleep delays",
+      "starter_code": "import java.util.concurrent.CountDownLatch;\nimport java.util.concurrent.TimeUnit;\nimport org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\n// CountDownLatch-based @EmbeddedKafka test\n",
+      "expected_solution": "import java.util.concurrent.CountDownLatch;\nimport java.util.concurrent.TimeUnit;\nimport java.util.concurrent.atomic.AtomicReference;\nimport org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Component;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// Test-only listener component with latch:\n@Component\nclass TestTradeConsumer {\n    private CountDownLatch latch;\n    private final AtomicReference<TradeExecutedEvent> received = new AtomicReference<>();\n    \n    void setLatch(CountDownLatch latch) { this.latch = latch; }\n    TradeExecutedEvent getReceived()    { return received.get(); }\n    \n    @KafkaListener(topics = \"trade-events-test\", groupId = \"test-group\")\n    public void consume(TradeExecutedEvent event) {\n        received.set(event);\n        if (latch != null) latch.countDown();  // signal test: done!\n    }\n}\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=1, topics={\"trade-events-test\"})\n@TestPropertySource(properties={\n    \"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\",\n    \"spring.kafka.consumer.auto-offset-reset=earliest\",\n    \"spring.kafka.consumer.properties.spring.json.trusted.packages=*\"\n})\nclass CountDownLatchConsumerTest {\n    @Autowired TestTradeConsumer consumer;\n    @Autowired KafkaTemplate<String,TradeExecutedEvent> kafkaTemplate;\n    \n    @Test\n    void consume_messageReceived_withinTimeout() throws Exception {\n        CountDownLatch latch = new CountDownLatch(1);\n        consumer.setLatch(latch);\n        \n        TradeExecutedEvent event = new TradeExecutedEvent(\n            \"TRD-001\",\"U01\",\"TCS\",10,3890.0,38900.0,\"BUY\",java.time.Instant.now());\n        kafkaTemplate.send(\"trade-events-test\", \"TCS\", event);\n        \n        // Wait up to 5 seconds — no hardcoded sleep:\n        boolean processed = latch.await(5, TimeUnit.SECONDS);\n        assertTrue(processed, \"Consumer did not process the message within 5 seconds\");\n        assertEquals(\"TRD-001\", consumer.getReceived().tradeId());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "CountDownLatch(1): count=1, consumer calls countDown(), test awaits",
+        "latch.await(5, SECONDS): returns true if count reached 0 within timeout",
+        "AtomicReference<Event>: thread-safe reference for the received event"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Manual acknowledgment — exactly-once processing",
+      "scenario": "Manual ack: only commit offset when business logic fully succeeds.",
+      "instructions": "Write `PaymentConsumer.handlePayment(ConsumerRecord, Acknowledgment)` with:\n1. ack-mode=MANUAL in application.properties\n2. Method injects Acknowledgment parameter\n3. Tries to process payment via paymentProcessor\n4. On success: calls acknowledgment.acknowledge()\n5. On failure: logs error, does NOT acknowledge (message redelivered!)\n6. Show required properties config",
+      "starter_code": "import org.apache.kafka.clients.consumer.ConsumerRecord;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.kafka.support.Acknowledgment;\nimport org.springframework.stereotype.Service;\n// PaymentConsumer with manual acknowledgment\n",
+      "expected_solution": "// application.properties:\n// spring.kafka.listener.ack-mode=manual\n// (Also valid: spring.kafka.listener.ack-mode=manual_immediate)\n\nimport org.apache.kafka.clients.consumer.ConsumerRecord;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.kafka.support.Acknowledgment;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PaymentConsumer {\n    \n    @KafkaListener(topics = \"payment-events\",\n                   groupId = \"payment-processor\")\n    public void handlePayment(\n            ConsumerRecord<String, PaymentEvent> record,\n            Acknowledgment acknowledgment) {  // Injected when ack-mode=manual\n        \n        PaymentEvent event = record.value();\n        try {\n            // Process payment — must fully succeed before acknowledging:\n            paymentProcessor().process(event);\n            \n            // Only commit offset when processing SUCCEEDED:\n            acknowledgment.acknowledge();\n            System.out.println(\"Payment processed and ACKed: \" + event.paymentId());\n            \n        } catch (Exception e) {\n            System.err.println(\"Payment processing FAILED (no ACK): \" + event.paymentId());\n            // DO NOT acknowledge → Kafka will redeliver this message\n            // After max retries: goes to DLT if configured\n        }\n    }\n    \n    private Object paymentProcessor() {\n        return new Object() {\n            void process(PaymentEvent e) { System.out.println(\"Processing: \" + e.paymentId()); }\n        };\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "spring.kafka.listener.ack-mode=manual: enables manual acknowledgment",
+        "Acknowledgment parameter: injected by Spring Kafka when ack-mode=manual",
+        "NO acknowledge() on failure: Kafka redelivers the message"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete notification service — producer + consumer roundtrip",
+      "scenario": "End-to-end: publish a trade, consume it, verify SMS sent.",
+      "instructions": "Build a complete producer → consumer roundtrip test:\n1. `TradeEventPublisher` @Service: publishes to 'trade-events-it'\n2. `TradeNotificationConsumer` @Service: @KafkaListener, calls SmsService\n3. @SpringBootTest @EmbeddedKafka test:\n   - @MockBean SmsService\n   - publishTrade() via TradeEventPublisher\n   - CountDownLatch waits for consumer\n   - verify(smsService).send(eq('U01'), contains('TCS'))\n\nAll assertions pass.",
+      "starter_code": "// Complete producer → consumer integration test with @EmbeddedKafka\n",
+      "expected_solution": "import org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n\ninterface SmsService2 { void send(String userId, String msg); }\n\n@Service\nclass TradeEventPublisher2 {\n    private final KafkaTemplate<String,TradeExecutedEvent> kt;\n    TradeEventPublisher2(KafkaTemplate<String,TradeExecutedEvent> kt){this.kt=kt;}\n    public void publishTrade(TradeExecutedEvent e){\n        kt.send(\"trade-events-it\", e.symbol(), e);\n    }\n}\n\n@Service\nclass TradeNotificationConsumer2 {\n    private final SmsService2 smsService;\n    private volatile CountDownLatch latch;\n    TradeNotificationConsumer2(SmsService2 s){smsService=s;}\n    void setLatch(CountDownLatch l){latch=l;}\n    \n    @KafkaListener(topics=\"trade-events-it\", groupId=\"notif-group-it\")\n    public void handleTrade(TradeExecutedEvent event){\n        smsService.send(event.userId(),\n            \"Trade: \"+event.qty()+\" \"+event.symbol()+\" @ ₹\"+event.price());\n        if(latch!=null) latch.countDown();\n    }\n}\n\nimport org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=1,topics={\"trade-events-it\"})\n@TestPropertySource(properties={\n    \"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\",\n    \"spring.kafka.consumer.auto-offset-reset=earliest\",\n    \"spring.kafka.consumer.properties.spring.json.trusted.packages=*\"\n})\nclass TradeNotificationIntegrationTest {\n    @Autowired TradeEventPublisher2 publisher;\n    @Autowired TradeNotificationConsumer2 consumer;\n    @MockBean  SmsService2 smsService;\n    \n    @Test void publishAndConsume_smsSent() throws Exception {\n        CountDownLatch latch = new CountDownLatch(1);\n        consumer.setLatch(latch);\n        TradeExecutedEvent event = new TradeExecutedEvent(\n            \"TRD-001\",\"U01\",\"TCS\",10,3890.0,38900.0,\"BUY\",java.time.Instant.now());\n        publisher.publishTrade(event);\n        assertTrue(latch.await(5,TimeUnit.SECONDS),\"Consumer timed out\");\n        verify(smsService).send(eq(\"U01\"),contains(\"TCS\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "CountDownLatch: consumer calls countDown; test awaits with timeout",
+        "@MockBean SmsService2: Spring injects mock into TradeNotificationConsumer2",
+        "verify(smsService).send(eq('U01'), contains('TCS')): Mockito assertion"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m16_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Consumer with DLT — test retry exhaustion",
+      "scenario": "Verify that after retries are exhausted, @DltHandler is called.",
+      "instructions": "Write a consumer with @RetryableTopic(attempts='2') and @DltHandler. Write a @SpringBootTest test that:\n1. Makes the processing method always throw RuntimeException\n2. Publishes a message\n3. Verifies: the original method was called (1 attempt)\n4. Verifies: the @DltHandler was called after retry exhaustion\n5. Use CountDownLatch on both the main handler and DLT handler",
+      "starter_code": "import org.springframework.kafka.annotation.*;\nimport org.springframework.retry.annotation.Backoff;\nimport java.util.concurrent.*;\n// DLT retry exhaustion test\n",
+      "expected_solution": "import org.springframework.kafka.annotation.*;\nimport org.springframework.retry.annotation.Backoff;\nimport org.springframework.stereotype.Service;\nimport org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.test.context.TestPropertySource;\nimport java.util.concurrent.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@Service\nclass RetryableConsumer {\n    volatile CountDownLatch mainLatch;\n    volatile CountDownLatch dltLatch;\n    \n    @RetryableTopic(attempts=\"2\", backoff=@Backoff(delay=100))\n    @KafkaListener(topics=\"retry-test-topic\", groupId=\"retry-test-group\")\n    public void handle(String message) {\n        if(mainLatch!=null) mainLatch.countDown();\n        throw new RuntimeException(\"Always fails!\");\n    }\n    \n    @DltHandler\n    public void handleDlt(String message) {\n        System.out.println(\"DLT received: \" + message);\n        if(dltLatch!=null) dltLatch.countDown();\n    }\n}\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=1, topics={\"retry-test-topic\",\"retry-test-topic-retry-0\",\"retry-test-topic-dlt\"})\n@TestPropertySource(properties={\n    \"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\",\n    \"spring.kafka.consumer.auto-offset-reset=earliest\",\n    \"spring.kafka.consumer.properties.spring.json.trusted.packages=*\"\n})\nclass DltRetryTest {\n    @Autowired RetryableConsumer consumer;\n    @Autowired KafkaTemplate<String,String> kafkaTemplate;\n    \n    @Test\n    void afterRetryExhaustion_dltHandlerCalled() throws Exception {\n        CountDownLatch mainLatch = new CountDownLatch(2); // 2 attempts\n        CountDownLatch dltLatch  = new CountDownLatch(1);\n        consumer.mainLatch = mainLatch;\n        consumer.dltLatch  = dltLatch;\n        \n        kafkaTemplate.send(\"retry-test-topic\", \"test-key\", \"test-message\");\n        \n        // DLT handler should be called after 2 failed attempts:\n        boolean dltCalled = dltLatch.await(10, TimeUnit.SECONDS);\n        assertTrue(dltCalled, \"DLT handler should have been called\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@RetryableTopic creates retry topics automatically; include them in @EmbeddedKafka",
+        "Two latches: one for main handler attempts, one for DLT invocation",
+        "backoff=100ms: short for tests; retry topics need to be in @EmbeddedKafka topics list"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m16_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha consumer pipeline — Topic 16.3 synthesis",
+      "scenario": "Full notification and portfolio consumers with retry, DLT, and tests.",
+      "instructions": "Build the complete Zerodha consumer pipeline:\n1. `TradeNotificationConsumer`: @KafkaListener + @RetryableTopic(3 attempts) + @DltHandler\n2. `PortfolioUpdateConsumer`: @KafkaListener(concurrency='3') — updates portfolio holdings\n3. Both on 'trade-executed', different groupIds\n4. application.properties: consumer config + trusted.packages\n5. @EmbeddedKafka @SpringBootTest: 2 tests — notification consumer called, portfolio consumer called\n\nAll 2 tests pass.",
+      "starter_code": "// Complete Zerodha consumer pipeline\n// TradeNotificationConsumer + PortfolioUpdateConsumer\n// Both consuming 'trade-executed', different groups\n// application.properties + 2 @EmbeddedKafka tests\n",
+      "expected_solution": "import org.springframework.kafka.annotation.*;\nimport org.springframework.retry.annotation.Backoff;\nimport org.springframework.stereotype.*;\nimport org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.test.context.TestPropertySource;\nimport java.util.concurrent.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\ninterface SmsService3 { void send(String u, String m); }\ninterface PortfolioService3 { void update(String u, String s, int q, String t); }\n\n@Service\nclass TradeNotificationConsumer3 {\n    private final SmsService3 sms;\n    volatile CountDownLatch latch;\n    TradeNotificationConsumer3(SmsService3 s){sms=s;}\n    \n    @RetryableTopic(attempts=\"3\",backoff=@Backoff(delay=100))\n    @KafkaListener(topics=\"trade-executed-z\",groupId=\"notification-group-z\")\n    public void handle(TradeExecutedEvent e){\n        sms.send(e.userId(),e.qty()+\" \"+e.symbol()+\" @ ₹\"+e.price());\n        if(latch!=null)latch.countDown();\n    }\n    @DltHandler\n    public void handleDlt(TradeExecutedEvent e){\n        System.err.println(\"DLT: \"+e.tradeId());\n    }\n}\n\n@Service\nclass PortfolioUpdateConsumer {\n    private final PortfolioService3 portfolio;\n    volatile CountDownLatch latch;\n    PortfolioUpdateConsumer(PortfolioService3 p){portfolio=p;}\n    \n    @KafkaListener(topics=\"trade-executed-z\",groupId=\"portfolio-group-z\",concurrency=\"3\")\n    public void handle(TradeExecutedEvent e){\n        portfolio.update(e.userId(),e.symbol(),e.qty(),e.type());\n        if(latch!=null)latch.countDown();\n    }\n}\n\n// application.properties:\n// spring.kafka.consumer.value-deserializer=...JsonDeserializer\n// spring.kafka.consumer.properties.spring.json.trusted.packages=*\n// spring.kafka.consumer.auto-offset-reset=earliest\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=3,topics={\"trade-executed-z\",\"trade-executed-z-retry-0\",\"trade-executed-z-retry-1\",\"trade-executed-z-dlt\"})\n@TestPropertySource(properties={\n    \"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\",\n    \"spring.kafka.consumer.auto-offset-reset=earliest\",\n    \"spring.kafka.consumer.properties.spring.json.trusted.packages=*\"\n})\nclass ZerodhaPipelineTest {\n    @Autowired TradeNotificationConsumer3 notifConsumer;\n    @Autowired PortfolioUpdateConsumer portfolioConsumer;\n    @MockBean SmsService3 smsService;\n    @MockBean PortfolioService3 portfolioService;\n    @Autowired KafkaTemplate<String,TradeExecutedEvent> kt;\n    \n    @Test void notification_smsSent() throws Exception {\n        CountDownLatch l=new CountDownLatch(1); notifConsumer.latch=l;\n        kt.send(\"trade-executed-z\",\"TCS\",\n            new TradeExecutedEvent(\"T1\",\"U01\",\"TCS\",10,3890.0,38900.0,\"BUY\",java.time.Instant.now()));\n        assertTrue(l.await(5,TimeUnit.SECONDS));\n        verify(smsService).send(eq(\"U01\"),contains(\"TCS\"));\n    }\n    @Test void portfolio_updated() throws Exception {\n        CountDownLatch l=new CountDownLatch(1); portfolioConsumer.latch=l;\n        kt.send(\"trade-executed-z\",\"INFY\",\n            new TradeExecutedEvent(\"T2\",\"U02\",\"INFY\",5,1560.0,7800.0,\"BUY\",java.time.Instant.now()));\n        assertTrue(l.await(5,TimeUnit.SECONDS));\n        verify(portfolioService).update(eq(\"U02\"),eq(\"INFY\"),eq(5),eq(\"BUY\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Two consumers, same topic, different groupIds — both receive every message",
+        "@EmbeddedKafka topics: include ALL retry and DLT topics for @RetryableTopic",
+        "CountDownLatch per test: reset between tests using fresh latch each @Test"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 65
+  }
+}

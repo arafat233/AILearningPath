@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m43_t3",
+  "module_id": "m43",
+  "topic_number": 3,
+  "name": "Database Design \u2014 Schema, Indexing, Pagination",
+  "slug": "database-design-schema",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t5"
+    ],
+    "concepts_taught": [
+      "database-design-schema"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Database Design \u2014 Schema, Indexing, Pagination"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "3NF normalization: no transitive dependencies; denormalize intentionally for reads",
+        "Index selectivity: high selectivity (unique) \u2192 B-tree; range queries \u2192 covering index",
+        "N+1 problem: use JOINs or batch loading; never loop queries in ORM",
+        "Cursor-based pagination: stable under concurrent inserts; offset breaks when rows added",
+        "Connection pooling: HikariCP max-pool-size = (CPU cores \u00d7 2) + disk spindles",
+        "EXPLAIN ANALYZE: always check query plan before adding index"
+      ],
+      "next_topic_preview": "Next: API Design."
+    }
+  }
+}

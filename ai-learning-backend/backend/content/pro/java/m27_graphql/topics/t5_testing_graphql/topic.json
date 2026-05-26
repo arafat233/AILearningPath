@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m27_t5",
+  "language": "java",
+  "module_id": "m27",
+  "module_name": "GraphQL",
+  "topic_number": 5,
+  "name": "Testing GraphQL APIs",
+  "slug": "testing-graphql-apis",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m27_t2", "java_m12_t3"],
+    "concepts_taught": [
+      "graphqltester_overview", "graphqltestslice", "query_testing",
+      "mutation_testing", "subscription_testing", "error_assertions",
+      "graphql_test_files", "mock_services_in_graphql_tests",
+      "path_traversal_assertions", "entity_list_assertions"
+    ],
+    "skills_developed": [
+      "writing_graphqltester_tests", "testing_mutations_and_errors",
+      "testing_subscriptions_with_stepverifier", "mocking_services_in_graphql_tests"
+    ],
+    "career_relevance": "Razorpay's GraphQL API powers mobile apps, web dashboards, and third-party integrations. A broken GraphQL resolver (wrong field name, missing auth check, N+1 bug) can silently break all these clients. GraphQlTester tests the complete GraphQL execution: schema parsing, resolver invocation, response serialization, error handling — just like a real client. After this topic, you can write tests that catch GraphQL-specific bugs that regular unit tests miss.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "Razorpay GraphQL API bug that MockMvc wouldn't catch:\n\n```\nSchema:\n  type Query { merchant(id: String!): Merchant }\n  type Merchant { id: String, name: String, payments: [Payment] }\n\nBug: MerchantResolver returns merchant.name in the 'id' field by mistake\n\nMockMvc test: POST /graphql with {query: '{ merchant(id: \"M1\") { id } }'}\n  → HTTP 200 OK\n  → body contains JSON\n  → test PASSES (MockMvc only checks HTTP layer!)\n\nGraphQlTester test:\n  .path(\"merchant.id\").entity(String.class).isEqualTo(\"MRC-001\")\n  → FAILS: actual value is 'Flipkart' (the name was returned as id)\n  → Bug caught before production!\n\nGraphQL-specific bugs GraphQlTester catches:\n  - Wrong field returned (name in id field)\n  - Missing required field (null where not-null expected)\n  - GraphQL error vs empty response\n  - Auth not applied (private data returned)\n  - N+1 not actually batched (checked via query count)\n```",
+    "what_you_will_build": "Complete GraphQlTester test suite for Razorpay's payment and merchant GraphQL API."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "graphqltester": "**GraphQlTester — Spring's GraphQL test client:**\n\n```java\n// @GraphQlTest: loads only GraphQL layer (@Controller + schema)\n@GraphQlTest(MerchantController.class)\nclass MerchantQueryTest {\n    @Autowired GraphQlTester tester;\n    @MockBean MerchantService merchantService; // mock the service\n\n    @Test void merchant_query() {\n        when(merchantService.findById(\"MRC-001\"))\n            .thenReturn(new Merchant(\"MRC-001\", \"Flipkart\"));\n\n        tester.documentName(\"getMerchant\") // src/test/resources/graphql-test/getMerchant.graphql\n            .variable(\"id\", \"MRC-001\")\n            .execute()\n            .errors().verify()                           // no GraphQL errors\n            .path(\"merchant.id\").entity(String.class).isEqualTo(\"MRC-001\")\n            .path(\"merchant.name\").entity(String.class).isEqualTo(\"Flipkart\");\n    }\n\n    @Test void merchant_notFound_returnsError() {\n        when(merchantService.findById(\"UNKNOWN\")).thenReturn(null);\n\n        tester.document(\"{ merchant(id: \\\"UNKNOWN\\\") { id name } }\")\n            .execute()\n            .errors().satisfy(errors -> {\n                assertFalse(errors.isEmpty());\n                assertEquals(\"NOT_FOUND\", errors.get(0).getErrorType().toString());\n            });\n    }\n}\n```\n\n```graphql\n# src/test/resources/graphql-test/getMerchant.graphql\nquery getMerchant($id: String!) {\n  merchant(id: $id) {\n    id\n    name\n    payments { id amount status }\n  }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two paths: Test → GraphQlTester → Spring GraphQL execution engine (resolvers, schema validation, error handling) → Response assertions. Compare with: Test → MockMvc → HTTP layer (just checks status code + raw JSON). GraphQlTester goes deeper: validates GraphQL-specific semantics. Second part: @GraphQlTest components — only loads @Controller, Schema, and @MockBean services (not full Spring context). Faster than @SpringBootTest.",
+      "alt_text": "GraphQlTester: tests through GraphQL execution engine, not just HTTP"
+    },
+    "worked_example": {
+      "scenario": "Test Razorpay payment query and merchant mutation.",
+      "problem_statement": "1. @GraphQlTest(PaymentController.class)\n2. Test: payment query with variables\n3. Test: mutation createPayment → assert returned id\n4. Test: payment not found → error response\n5. @MockBean PaymentService",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "@GraphQlTest vs @SpringBootTest",
+          "details": "@GraphQlTest: loads only the GraphQL layer (controllers, schema, type mappings). Fast: no full Spring context. @MockBean: required for all @Service dependencies. @SpringBootTest: full context. Use @GraphQlTest for GraphQL resolver tests, @SpringBootTest for integration tests that need real DB/services."
+        }
+      ],
+      "final_code": "// @GraphQlTest + @MockBean: fast, isolated GraphQL resolver tests\n// tester.document(query): inline GraphQL, or .documentName() for .graphql files\n// .variable(name, value): pass query arguments\n// .execute().path(fieldPath).entity(Type.class).isEqualTo(value)\n// .errors().verify(): assert no errors in response",
+      "expected_output": "// Test output:\n// MerchantQueryTest > merchant_query: PASSED (42ms)\n// MerchantQueryTest > merchant_notFound_returnsError: PASSED (8ms)\n// PaymentMutationTest > createPayment: PASSED (15ms)\n// Total: 3 tests, 65ms",
+      "things_to_notice": [
+        ".errors().verify(): must call this OR .errors().satisfy() before path assertions. If you skip it and there IS an error, path assertions will fail with a confusing message instead of 'GraphQL error occurred'.",
+        ".path(\"payments[0].id\"): array indexing in the path. Also: .path(\"payments\").entityList(Payment.class) for the full list.",
+        "@GraphQlTest vs @SpringBootTest: @GraphQlTest is 5-10× faster (no full Spring context, no DB connections). Use @GraphQlTest for resolver logic tests; @SpringBootTest for integration tests that need real repositories.",
+        ".documentName(\"query\"): reads from src/test/resources/graphql-test/query.graphql. Keeps test code clean (no inline GQL strings). Use for complex queries that need variables."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay GraphQL API test suite",
+          "use_case": "200+ @GraphQlTest tests covering: payment queries (filtering, sorting), merchant mutations (create, update), subscription setup, error paths (not found, unauthorized), N+1 prevention (query count assertions with @BatchMapping). Tests run in <30 seconds on CI (vs 3 minutes for full integration tests). Catches schema regressions when resolver field names change."
+        }
+      ],
+      "interview_relevance": "'How do you test a Spring for GraphQL API?' → @GraphQlTest + GraphQlTester. Test slice: only loads GraphQL layer. @MockBean: mock service dependencies. .execute().path('field').entity(Type).isEqualTo(): traverse response. .errors().verify(): assert no errors. Mutation testing: same API, different document. Subscription testing: .executeSubscription().toFlux() + StepVerifier.",
+      "real_world_workflow": "GraphQL testing workflow: (1) @GraphQlTest(Controller.class) + @MockBean services, (2) create .graphql test documents in src/test/resources/graphql-test/, (3) mock service behavior, (4) execute query/mutation, (5) assert: errors().verify(), then path().entity().isEqualTo(), (6) test error paths: when service throws → errors().satisfy()."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "skipping_error_verify",
+        "what_students_get_wrong": "Calling .path().entity() without first calling .errors().verify(). If the response has a GraphQL error, the path will be null or missing — the assertion fails with 'path not found' instead of 'GraphQL error was returned'.",
+        "remediation": "Always call .errors().verify() before .path() assertions when you expect a successful response. For error scenarios: don't call errors().verify() (it would throw) — use .errors().satisfy() instead to inspect the error details.",
+        "detection_pattern": "Test passes on happy path but gives cryptic 'no value found for path' error instead of 'GraphQL error' when the resolver throws"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "@GraphQlTest: fast test slice — only GraphQL layer loaded",
+        "GraphQlTester: injected automatically by @GraphQlTest",
+        ".document(gql): inline GraphQL string",
+        ".documentName(name): reads from graphql-test/name.graphql file",
+        ".variable(key, value): pass query/mutation arguments",
+        ".execute().errors().verify(): assert no errors (required before path assertions!)",
+        ".path(field.subfield).entity(Type.class).isEqualTo(value): traverse response",
+        ".path(list).entityList(Type.class).hasSize(N): list assertions",
+        ".errors().satisfy(errors -> ...): inspect error details (for error test cases)",
+        "Subscription: .executeSubscription().toFlux(Type.class) + StepVerifier",
+        "@MockBean: mock @Service dependencies in @GraphQlTest"
+      ],
+      "self_check_questions": [
+        {
+          "question": "You have a @QueryMapping that should return null when a merchant is not found. How do you test this scenario with GraphQlTester?",
+          "answer": "Two possible behaviors: (1) Resolver returns null → GraphQL returns { data: { merchant: null } } (no error). Test: .path('merchant').valueIsNull(). (2) Resolver throws an exception annotated with @GraphQlExceptionHandler or DataFetcherExceptionResolver maps it to a GraphQL error → GraphQL returns { data: null, errors: [...] }. Test: .errors().satisfy(errors -> assertEquals('NOT_FOUND', errors.get(0).getErrorType().toString())). The distinction matters: returning null is NOT the same as throwing an exception in GraphQL. Null = 'field is absent/optional', error = 'something went wrong'. For 'merchant not found': throw an exception that maps to NOT_FOUND error type (better user experience — client knows why it's missing, not just that it's null)."
+        }
+      ],
+      "next_topic_preview": "Module 27 GraphQL is complete! You've built queries, mutations, @BatchMapping, subscriptions, and now tests. You have the full GraphQL toolkit for senior Java engineering roles."
+    }
+  }
+}

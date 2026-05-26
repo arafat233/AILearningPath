@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m27_t3_proj",
+  "linked_topic": "java_m27_t3",
+  "level": "mini",
+  "name": "Flipkart Product Catalog — DataLoader",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Flipkart's product listing page loads in 3 seconds because each product triggers separate DB queries for seller and reviews. A senior engineer profiled it: 50 products = 101 DB queries. Fix it with @BatchMapping and verify with query count assertions.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "Product @QueryMapping: products(category: String) returns List<Product> with id, name, sellerId fields.", "weight": 10},
+      {"id": "req_2", "description": "@BatchMapping seller(List<Product>): finds all sellers in ONE batch query. Returns Map<Product, Seller>. Uses sellerRepo.findByIdIn(ids).", "weight": 20},
+      {"id": "req_3", "description": "@BatchMapping reviews(List<Product>): finds all reviews in ONE batch query. Returns Map<Product, List<Review>>. Groups by productId.", "weight": 20},
+      {"id": "req_4", "description": "SellerRepository and ReviewRepository: each has a findByIdIn / findByProductIdIn method with AtomicInteger query counter.", "weight": 10},
+      {"id": "req_5", "description": "@SpringBootTest (4 tests): 5+ products returned, seller batch = 1 query, review batch = 1 query, all products have valid seller (not 'Unknown'). All pass.", "weight": 35},
+      {"id": "req_6", "description": "README: explains N+1 problem (query count without vs with @BatchMapping for 50 products).", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "PerformanceComparator @Service: simulate naive (N+1 queries) vs batch (2 queries) for N=50. Assert speedup > 10×. Test: 3 assertions on query counts and latency.", "weight": 20},
+      {"id": "bonus_2", "description": "CachingDataLoader @Service: Map<String, T> cache per request. load(id) returns cached if present. Test: same id twice = 1 DB hit, different id = 2 DB hits.", "weight": 20},
+      {"id": "bonus_3", "description": "QueryComplexityAnalyzer @Service: calculateComplexity(depth, breadth). Rejects depth=4 breadth=10. Allows depth=1 breadth=10. Test: 3 assertions.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. @BatchMapping method signature: must accept List<ParentType> and return Map<ParentType, FieldType> (or Map<ParentType, List<FieldType>> for list fields). Spring for GraphQL collects all parent instances from the query, then calls your @BatchMapping once with all of them. findByIdIn vs findByProductIdIn: seller uses findByIdIn(List<sellerId>) — the ID is on the Product. Review uses findByProductIdIn(List<productId>) — the ID is on the Review. Deduplication: use distinct() or a Set to avoid duplicate IDs in the batch query (same seller may appear on multiple products). Map grouping: collect the batch results into Map<String, T> by ID, then stream products to create the final Map<Product, T>.",
+  "rubric": [
+    {"category": "@QueryMapping products()", "points": 10},
+    {"category": "@BatchMapping seller (1 query)", "points": 20},
+    {"category": "@BatchMapping reviews (1 query)", "points": 20},
+    {"category": "Repositories with counters", "points": 10},
+    {"category": "4 tests (all pass)", "points": 35},
+    {"category": "README", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m3_t3_proj",
+  "linked_topic": "java_m3_t3",
+  "level": "mini",
+  "name": "Tic-Tac-Toe Board Engine",
+  "estimated_minutes": 50,
+  "difficulty": 5,
+  
+  "scenario": "You're building the GAME LOGIC for a Tic-Tac-Toe app. Not the UI — just the engine that the UI will call. The engine needs to: maintain the 3×3 board state, allow players to make moves, check if a player has won (3 in a row horizontally, vertically, or diagonally), and detect when the game is a draw. This is exactly how real game engines are structured: separate the logic (a 2D array + algorithms) from the presentation. Any UI (terminal, web, mobile) just calls into the engine.",
+  
+  "description": "Build a `TicTacToe` class with static methods that simulate a complete game using a 3×3 2D array. Practice 2D array manipulation, search patterns (rows, columns, diagonals), and clean game logic.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `TicTacToe` in file TicTacToe.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Has a `char[][] board` of size 3x3, initialized with empty spaces (' ')",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`printBoard()` method displays the board in readable format (with grid lines)",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`makeMove(int row, int col, char player)` places player ('X' or 'O') on board IF cell is empty; returns boolean for success",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "`checkRowWin(char player)` returns true if any row has all 3 cells = player",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`checkColumnWin(char player)` returns true if any column has all 3 cells = player",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "`checkDiagonalWin(char player)` returns true if either diagonal has all 3 cells = player",
+        "weight": 10
+      },
+      {
+        "id": "req_9",
+        "description": "`isDraw()` returns true if board is full AND no winner",
+        "weight": 5
+      },
+      {
+        "id": "req_10",
+        "description": "main() simulates a complete game with at least 5 moves, demonstrating each method",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `hasWon(char player)` that combines row/col/diagonal checks into a single method",
+        "weight": 10
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `getEmptyCells()` returning a 2D array (or array of int[2]) of all empty positions — useful for AI",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `resetBoard()` that clears the board (sets all cells back to ' ')",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Print the board with column/row labels (0, 1, 2) for clarity",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Simulate this game sequence in main():\n\n1. Initialize empty board\n2. X plays (1, 1) (center)\n3. O plays (0, 0)\n4. X plays (0, 2)\n5. O plays (2, 2)\n6. X plays (2, 0)\n7. Check if X has won (should be: yes — anti-diagonal: [0][2], [1][1], [2][0])\n\nThe game shows X winning via the anti-diagonal. Your `checkDiagonalWin` should detect BOTH diagonals.",
+  
+  "starter_code": "public class TicTacToe {\n    static char[][] board = new char[3][3];\n    \n    public static void main(String[] args) {\n        // Initialize board with empty spaces\n        for (int i = 0; i < 3; i++) {\n            for (int j = 0; j < 3; j++) {\n                board[i][j] = ' ';\n            }\n        }\n        \n        // TODO: Simulate game moves\n        // makeMove(1, 1, 'X');\n        // makeMove(0, 0, 'O');\n        // ... etc\n        \n        // TODO: Check for winner\n        // boolean xWon = checkRowWin('X') || checkColumnWin('X') || checkDiagonalWin('X');\n    }\n    \n    // TODO: Define all required methods\n}",
+  
+  "example_output": "Initial board:\n |   |   |  \n-----------\n |   |   |  \n-----------\n |   |   |  \n\nAfter X plays (1, 1):\n |   |   |  \n-----------\n |   | X |  \n-----------\n |   |   |  \n\nAfter O plays (0, 0):\n O |   |  \n-----------\n |   | X |  \n-----------\n |   |   |  \n\n... (more moves)\n\nFinal board:\n O |   | X\n-----------\n |   | X |  \n-----------\n X |   | O\n\nX has won? true\nO has won? false\nDraw? false",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Board Management",
+      "points": 25,
+      "criteria": [
+        "Board is 3x3 char[][] (5 pts)",
+        "Initialized to empty spaces (5 pts)",
+        "printBoard displays cleanly (10 pts)",
+        "makeMove validates and updates correctly (5 pts)"
+      ]
+    },
+    {
+      "category": "Win Detection",
+      "points": 35,
+      "criteria": [
+        "checkRowWin works for all 3 rows (10 pts)",
+        "checkColumnWin works for all 3 columns (10 pts)",
+        "checkDiagonalWin handles BOTH diagonals (15 pts)"
+      ]
+    },
+    {
+      "category": "Game Logic",
+      "points": 15,
+      "criteria": [
+        "isDraw correctly identifies full+no-winner (10 pts)",
+        "makeMove rejects occupied cells (5 pts)"
+      ]
+    },
+    {
+      "category": "main Demonstration",
+      "points": 10,
+      "criteria": [
+        "Simulates complete game (5 pts)",
+        "Shows board state at each step (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 45,
+      "criteria": [
+        "hasWon convenience method (10 pts)",
+        "getEmptyCells (15 pts)",
+        "resetBoard (10 pts)",
+        "Row/col labels in print (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The most challenging part is the diagonal check — must handle BOTH the main diagonal (top-left to bottom-right) AND the anti-diagonal (top-right to bottom-left). Think about which indices form each diagonal before coding.",
+  
+  "submission_instructions": "Save as TicTacToe.java. Run it. Try different game scenarios (X wins, O wins, draw). Push to GitHub portfolio — this is the kind of game-logic engine that drives any board game app.",
+  
+  "tips_for_success": [
+    "Use `char` type for the board — ' ' (space), 'X', 'O'. More natural than int.",
+    "For printBoard: use a simple format. `cell + \" | \"` between cells, dashes between rows. Don't overcomplicate.",
+    "Main diagonal: positions (0,0), (1,1), (2,2). So board[i][i] for i = 0, 1, 2.",
+    "Anti-diagonal: positions (0,2), (1,1), (2,0). So board[i][2-i] for i = 0, 1, 2.",
+    "For row win: outer loop iterates rows, check if all 3 cells in that row equal player.",
+    "For col win: outer loop iterates cols, check if all 3 cells in that column equal player.",
+    "isDraw: check that NO cell is ' ', AND no player has won.",
+    "makeMove should return false if cell is already occupied. Don't overwrite existing moves."
+  ],
+  
+  "concepts_reinforced": [
+    "2D array declaration and initialization",
+    "Nested loops for grid iteration",
+    "Row, column, and diagonal traversal patterns",
+    "Methods operating on class-level 2D state",
+    "Boolean return values for game state",
+    "char data type usage",
+    "Game logic separation from presentation"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond practicing 2D arrays, you build a real game ENGINE — the kind that any game UI can use. The separation of logic (engine) from presentation (UI) is FOUNDATIONAL in software design. Real games (Chess.com, Lichess, mobile board games) all separate game state from rendering. Your TicTacToe engine could be hooked up to a CLI, a JavaFX UI, a web frontend, or a mobile app — the engine wouldn't change. This is your first taste of API design: methods that expose game state without revealing internal details.",
+  
+  "extensions_for_advanced_learners": [
+    "Make the board generalizable to NxN with K-in-a-row to win (configurable in constants)",
+    "Add a simple AI: 'easy' that plays random empty cells, 'medium' that blocks threats",
+    "Add a `playerHasThreats(char player)` method: count positions where player has 2 in a row with a third empty",
+    "Add an undo() method (track move history)",
+    "Convert to OOP: instead of static methods, make it an instance class (preview of Module 4)"
+  ]
+}

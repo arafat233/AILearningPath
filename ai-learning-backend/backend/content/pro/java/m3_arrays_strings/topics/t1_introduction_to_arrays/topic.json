@@ -1,0 +1,244 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t1",
+  "language": "java",
+  "module_id": "m3",
+  "module_name": "Arrays & Strings",
+  "topic_number": 1,
+  "name": "Introduction to Arrays",
+  "slug": "introduction-to-arrays",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m1_t1", "java_m1_t2", "java_m1_t3", "java_m1_t4", "java_m1_t5", "java_m2_t1", "java_m2_t2"],
+    "concepts_taught": [
+      "array_declaration",
+      "array_initialization",
+      "array_indexing",
+      "array_length",
+      "iterating_arrays",
+      "for_each_loop",
+      "array_index_out_of_bounds",
+      "default_array_values",
+      "arrays_are_objects",
+      "array_reference_vs_value"
+    ],
+    "skills_developed": [
+      "creating_arrays",
+      "accessing_array_elements",
+      "iterating_with_indexed_loops",
+      "iterating_with_enhanced_for",
+      "avoiding_index_out_of_bounds",
+      "reading_array_centric_code"
+    ],
+    "career_relevance": "Arrays are the foundation of data structures. Every dataset you'll ever process — user records, transactions, log entries, sensor readings, product catalogs — is fundamentally a sequence of items. Even when you graduate to fancier structures (ArrayList, HashMap), they're built on arrays underneath. Reading and writing array code fluently is required for: data processing, DSA interviews, working with libraries, parsing data, handling collections. Every Java developer touches arrays daily.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Imagine you're processing a month of credit card transactions — 50 of them. So far in this course, you'd need 50 separate variables: `transaction1`, `transaction2`, ..., `transaction50`. That's absurd. Worse: what about 10,000 transactions? A million?\n\nArrays solve this. An array is a SINGLE variable that holds MANY values — accessed by index. `transactions[0]` is the first, `transactions[1]` is the second, `transactions[49]` is the 50th. One variable. Any size. Combined with loops (Module 1), arrays unlock real data processing.\n\nEvery list you've ever seen in software — your inbox emails, your Spotify playlist, your bank statement, your friend list — is some form of array (or array-based structure) underneath. This topic is where you start handling REAL data.",
+    "what_you_will_build": "By the end of this topic, you'll know how to declare arrays, initialize them, access elements by index, find the length, and iterate using both classic for loops and the enhanced for-each loop. You'll build a sales-report processor that handles any number of daily sales — the kind of code real business apps use every day. After this topic, you finally have the tool that loops were designed for."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "An **array** is a container that holds a fixed number of values of the same type. Three things to know about it:\n\n1. **Same type**: An int array holds only ints. A String array holds only Strings. Mixing not allowed (until we hit Object arrays much later).\n\n2. **Fixed size**: Once created, an array's size cannot change. If you create `int[5]`, it's always 5 slots. Need more? Create a new array. (We'll learn ArrayList later for resizable lists.)\n\n3. **Indexed**: Access elements by position number — `array[0]`, `array[1]`, etc. **Java arrays are ZERO-INDEXED**. First element is at index 0, not 1.\n\nSimple example:\n\n```java\nint[] scores = {85, 90, 78, 92, 88};\nSystem.out.println(scores[0]);  // 85 (first)\nSystem.out.println(scores[4]);  // 88 (fifth, last)\nSystem.out.println(scores.length);  // 5\n```",
+      
+      "declaring_arrays": "Java has TWO main ways to create arrays:\n\n**1. Array literal** (when you know the values upfront):\n\n```java\nint[] scores = {85, 90, 78, 92, 88};\nString[] names = {\"Aisha\", \"Raj\", \"Priya\"};\ndouble[] prices = {19.99, 24.50, 39.95};\n```\n\nValues in `{ }`, separated by commas. Size is determined automatically.\n\n**2. Using `new` keyword** (when you don't have values yet, or know only the size):\n\n```java\nint[] scores = new int[5];        // 5-element int array, all initialized to 0\nString[] names = new String[3];   // 3-element String array, all null\ndouble[] prices = new double[10]; // 10-element double array, all 0.0\n```\n\nThe `new int[5]` creates an array of size 5. Elements get **default values**:\n- int, long, short, byte: `0`\n- double, float: `0.0`\n- boolean: `false`\n- char: `'\\u0000'` (null character)\n- Any reference type (String, etc.): `null`\n\nYou can then fill it later:\n\n```java\nscores[0] = 85;\nscores[1] = 90;\nscores[2] = 78;\n// etc.\n```\n\n**Declaration syntax note**: `int[] scores` is preferred. You'll occasionally see `int scores[]` — also valid (legacy C-style) but considered less clean.",
+      
+      "accessing_elements": "Access an element by its index in square brackets:\n\n```java\nint[] scores = {85, 90, 78, 92, 88};\n\nSystem.out.println(scores[0]);  // 85 — FIRST element\nSystem.out.println(scores[1]);  // 90 — second\nSystem.out.println(scores[4]);  // 88 — LAST element (index 4 in a 5-element array)\n```\n\n**Indexes go from 0 to length - 1**. For an array of length 5: valid indexes are 0, 1, 2, 3, 4.\n\n**Reading and writing**:\n\n```java\nint x = scores[2];      // READ: get value at index 2\nscores[2] = 100;        // WRITE: set value at index 2\nscores[2] += 10;        // READ AND WRITE: increment by 10\n```\n\nArrays use the same `=` semantics as regular variables, just with an index.",
+      
+      "array_length": "Every array has a built-in `length` field:\n\n```java\nint[] scores = {85, 90, 78, 92, 88};\nSystem.out.println(scores.length);  // 5\n```\n\nKey points:\n- `length` is a **field**, not a method. No parens: `scores.length`, NOT `scores.length()`.\n- Returns an int — the array's size.\n- Cannot be modified — it's `final`.\n\n**Critical pattern**: use `length` for loop bounds:\n\n```java\nfor (int i = 0; i < scores.length; i++) {\n    System.out.println(scores[i]);\n}\n```\n\nUsing `scores.length` instead of hard-coded `5` is safer — if the array size changes, the loop adjusts automatically.\n\n**For String, length is a METHOD**: `myString.length()` (with parens). This inconsistency is a Java quirk that trips up beginners constantly. Arrays: `length` (field). Strings: `length()` (method). Memorize the difference.",
+      
+      "iterating_arrays_classic": "**Classic for loop** — when you need the index:\n\n```java\nint[] scores = {85, 90, 78, 92, 88};\n\nfor (int i = 0; i < scores.length; i++) {\n    System.out.println(\"Score \" + i + \": \" + scores[i]);\n}\n```\n\nOutput:\n```\nScore 0: 85\nScore 1: 90\nScore 2: 78\nScore 3: 92\nScore 4: 88\n```\n\nThe variable `i` is the index. `scores[i]` is the value at that index.\n\n**Use classic for loop when**:\n- You need the index (e.g., for printing position)\n- You're modifying elements\n- You're iterating in reverse\n- You're skipping elements (`i += 2`)\n- You're going through TWO arrays simultaneously",
+      
+      "iterating_arrays_for_each": "**Enhanced for loop (for-each)** — when you just need values:\n\n```java\nint[] scores = {85, 90, 78, 92, 88};\n\nfor (int score : scores) {\n    System.out.println(score);\n}\n```\n\nReads as: 'for each int `score` in `scores`, do this.'\n\nOutput:\n```\n85\n90\n78\n92\n88\n```\n\nNo index variable, no array length, no `scores[i]` — just the values.\n\n**Use for-each when**:\n- You just need to access each value\n- You don't need the index\n- You're not modifying elements\n- The collection isn't being changed during iteration\n\n**Don't use for-each when**:\n- You need the index (use classic for)\n- You're modifying elements (the loop variable is a COPY for primitives)\n- You need to skip elements or break early in a special pattern\n\n**Style guideline**: prefer for-each when both work. It's cleaner.",
+      
+      "index_out_of_bounds": "**The #1 array bug**: accessing an invalid index.\n\n```java\nint[] scores = {85, 90, 78, 92, 88};  // valid: 0-4\n\nSystem.out.println(scores[5]);   // CRASH: ArrayIndexOutOfBoundsException\nSystem.out.println(scores[-1]);  // CRASH: same error\n```\n\nThis is a RUNTIME error, not a compile error. The compiler doesn't check index validity. You'll see it crash mid-execution.\n\n**Off-by-one is common**:\n\n```java\n// WRONG: goes one too far\nfor (int i = 0; i <= scores.length; i++) {  // <= instead of <\n    System.out.println(scores[i]);  // Crashes when i = 5\n}\n\n// RIGHT:\nfor (int i = 0; i < scores.length; i++) {  // < is correct\n    System.out.println(scores[i]);\n}\n```\n\n**Defensive pattern**: check bounds before accessing:\n\n```java\nif (i >= 0 && i < scores.length) {\n    System.out.println(scores[i]);\n} else {\n    System.out.println(\"Invalid index\");\n}\n```\n\nUseful when index comes from user input or computation.",
+      
+      "arrays_are_objects": "Important Java fact: **arrays are OBJECTS**, not primitives. When you 'assign' an array to a new variable, you're copying the REFERENCE (the address), not the data.\n\n```java\nint[] a = {1, 2, 3, 4, 5};\nint[] b = a;          // b now REFERS to the same array as a\nb[0] = 999;\nSystem.out.println(a[0]);  // 999! Same array, modified through b\n```\n\nThis is a critical concept that confuses many beginners. `int[] b = a` does NOT copy. It makes `b` point to the same array `a` points to. Changes through either variable affect both.\n\nTo actually COPY an array, use `Arrays.copyOf` (we'll cover this later) or a loop:\n\n```java\nint[] b = new int[a.length];\nfor (int i = 0; i < a.length; i++) {\n    b[i] = a[i];\n}\n// Now b is a true copy\n```\n\nFor now, just be aware: array assignment shares references. Object behavior gets fully covered in OOP module.\n\n**Implication for methods**: when you pass an array to a method, the method gets the same reference — modifications inside DO affect the original:\n\n```java\npublic static void modify(int[] arr) {\n    arr[0] = 999;  // affects the caller's array!\n}\n\npublic static void main(String[] args) {\n    int[] nums = {1, 2, 3};\n    modify(nums);\n    System.out.println(nums[0]);  // 999\n}\n```\n\nDifferent from primitives (which are passed by value). For arrays/objects: modifications inside methods affect the caller's array.",
+      
+      "common_patterns": "Three patterns you'll use constantly:\n\n**1. Sum/total** (accumulator with array):\n\n```java\nint[] nums = {10, 20, 30, 40, 50};\nint sum = 0;\nfor (int n : nums) {\n    sum += n;\n}\nSystem.out.println(\"Sum: \" + sum);  // 150\n```\n\n**2. Find max/min**:\n\n```java\nint[] nums = {10, 25, 7, 42, 18};\nint max = nums[0];  // start with first element\nfor (int n : nums) {\n    if (n > max) {\n        max = n;\n    }\n}\nSystem.out.println(\"Max: \" + max);  // 42\n```\n\nWhy start with `nums[0]` instead of 0? Because 0 might be larger than all elements (e.g., all negative numbers). Starting with the first element is safe.\n\n**3. Search for a value**:\n\n```java\nint[] nums = {10, 25, 7, 42, 18};\nint target = 42;\nboolean found = false;\nfor (int n : nums) {\n    if (n == target) {\n        found = true;\n        break;\n    }\n}\nSystem.out.println(\"Found: \" + found);\n```\n\nThese three patterns appear in 80% of array problems. Master them and you've handled most exercises."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show an array represented as a row of 5 boxes labeled `scores[0]` through `scores[4]` containing values 85, 90, 78, 92, 88. Below each box: the index (0, 1, 2, 3, 4). Annotation: 'Zero-indexed: first element is index 0, last is length - 1.' Side panel: shows what happens if you try `scores[5]` — red X with 'ArrayIndexOutOfBoundsException at runtime.' Another panel shows the two iteration styles side-by-side: classic for loop with `i` and `scores[i]` vs for-each loop with `score : scores`.",
+      "alt_text": "Visual array representation showing zero-indexed slots, with index labels and example of out-of-bounds error"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a daily sales report tool for a small business. The owner wants to see: total sales for the week, the best day, the worst day, and the average. The data is 7 daily sales figures. This is the classic 'process a list of numbers' problem — arrays + loops in their natural habitat.",
+    
+    "problem_statement": "Given an array of 7 daily sales figures, print:\n1. Each day's sale (with day number)\n2. Total sales for the week\n3. Best day (highest sale)\n4. Worst day (lowest sale)\n5. Average daily sale\n\nSample data: `{4500, 6200, 3800, 7100, 5400, 8900, 4200}` (₹ amounts)",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Set up the data and main method",
+        "details": "Start with the array literal and a basic main:\n\n```java\npublic class SalesReport {\n    public static void main(String[] args) {\n        double[] dailySales = {4500, 6200, 3800, 7100, 5400, 8900, 4200};\n        \n        // Process and print...\n    }\n}\n```\n\nWe use `double[]` because sales could have decimals in real data (₹4500.50 etc.).\n\n7 elements. Indexes 0-6. We'll process each."
+      },
+      {
+        "step": 2,
+        "action": "Print each day's sale (need index for day number)",
+        "details": "We need both the value AND the index (day number is index + 1). Classic for loop fits:\n\n```java\nSystem.out.println(\"=== Daily Sales ===\");\nfor (int i = 0; i < dailySales.length; i++) {\n    System.out.println(\"Day \" + (i + 1) + \": ₹\" + dailySales[i]);\n}\n```\n\nNote `(i + 1)` for human-friendly day numbering. The parens are important — without them, you'd get string concatenation: 'Day 01:', 'Day 11:', etc. With parens: 'Day 1:', 'Day 2:'."
+      },
+      {
+        "step": 3,
+        "action": "Calculate total (accumulator pattern with for-each)",
+        "details": "For total, we just need each value — for-each is cleaner:\n\n```java\ndouble total = 0;\nfor (double sale : dailySales) {\n    total += sale;\n}\nSystem.out.println(\"\\nTotal: ₹\" + total);\n```\n\nClassic accumulator pattern from Module 1. Start at 0, add each element.\n\n**Why for-each here?** We don't need the index. Just summing values. Cleaner.\n\nTotal: 4500 + 6200 + 3800 + 7100 + 5400 + 8900 + 4200 = 40,100"
+      },
+      {
+        "step": 4,
+        "action": "Find max (best day)",
+        "details": "Track the maximum value AND its index (so we can report which day):\n\n```java\ndouble maxSale = dailySales[0];\nint bestDayIndex = 0;\nfor (int i = 1; i < dailySales.length; i++) {\n    if (dailySales[i] > maxSale) {\n        maxSale = dailySales[i];\n        bestDayIndex = i;\n    }\n}\nSystem.out.println(\"Best Day: Day \" + (bestDayIndex + 1) + \" with ₹\" + maxSale);\n```\n\nStart at index 1 (since index 0 is the initial 'max'). For each element, if it's bigger, update both max and the index where it occurred.\n\n**Why we need the index**: to report 'Day 6 was the best,' we need to know it was at index 5.\n\nFor our data: 8900 at index 5 is the max → Day 6."
+      },
+      {
+        "step": 5,
+        "action": "Find min (worst day) — same pattern with `<`",
+        "details": "Mirror of max:\n\n```java\ndouble minSale = dailySales[0];\nint worstDayIndex = 0;\nfor (int i = 1; i < dailySales.length; i++) {\n    if (dailySales[i] < minSale) {\n        minSale = dailySales[i];\n        worstDayIndex = i;\n    }\n}\nSystem.out.println(\"Worst Day: Day \" + (worstDayIndex + 1) + \" with ₹\" + minSale);\n```\n\nFor our data: 3800 at index 2 is the min → Day 3."
+      },
+      {
+        "step": 6,
+        "action": "Calculate and display average",
+        "details": "Average is just total / count:\n\n```java\ndouble average = total / dailySales.length;\nSystem.out.println(\"Average: ₹\" + average);\n```\n\nNotice: `total / dailySales.length` — using `.length` instead of hardcoded `7`. If we change the array size, this works correctly.\n\n40100 / 7 ≈ 5728.57"
+      }
+    ],
+    
+    "final_code": "public class SalesReport {\n    public static void main(String[] args) {\n        double[] dailySales = {4500, 6200, 3800, 7100, 5400, 8900, 4200};\n        \n        System.out.println(\"=== Daily Sales Report ===\");\n        \n        // Print each day\n        for (int i = 0; i < dailySales.length; i++) {\n            System.out.println(\"Day \" + (i + 1) + \": ₹\" + dailySales[i]);\n        }\n        \n        // Calculate total\n        double total = 0;\n        for (double sale : dailySales) {\n            total += sale;\n        }\n        \n        // Find best day\n        double maxSale = dailySales[0];\n        int bestDayIndex = 0;\n        for (int i = 1; i < dailySales.length; i++) {\n            if (dailySales[i] > maxSale) {\n                maxSale = dailySales[i];\n                bestDayIndex = i;\n            }\n        }\n        \n        // Find worst day\n        double minSale = dailySales[0];\n        int worstDayIndex = 0;\n        for (int i = 1; i < dailySales.length; i++) {\n            if (dailySales[i] < minSale) {\n                minSale = dailySales[i];\n                worstDayIndex = i;\n            }\n        }\n        \n        // Calculate average\n        double average = total / dailySales.length;\n        \n        // Summary\n        System.out.println(\"\\n=== Summary ===\");\n        System.out.println(\"Total: ₹\" + total);\n        System.out.println(\"Best Day: Day \" + (bestDayIndex + 1) + \" with ₹\" + maxSale);\n        System.out.println(\"Worst Day: Day \" + (worstDayIndex + 1) + \" with ₹\" + minSale);\n        System.out.println(\"Average: ₹\" + average);\n    }\n}",
+    
+    "expected_output": "=== Daily Sales Report ===\nDay 1: ₹4500.0\nDay 2: ₹6200.0\nDay 3: ₹3800.0\nDay 4: ₹7100.0\nDay 5: ₹5400.0\nDay 6: ₹8900.0\nDay 7: ₹4200.0\n\n=== Summary ===\nTotal: ₹40100.0\nBest Day: Day 6 with ₹8900.0\nWorst Day: Day 3 with ₹3800.0\nAverage: ₹5728.571428571428",
+    
+    "things_to_notice": [
+      "Same code works for 7 days, 30 days, or 365 days — just change the array. The LOOPS adapt to length automatically.",
+      "We mixed iteration styles: classic for loop when we needed index (printing day numbers, tracking best/worst index), for-each when we just needed values (summing).",
+      "All four patterns (iterate-print, sum, max, min) used the same array. ONE data source, multiple operations.",
+      "Starting max/min with `dailySales[0]` is safer than starting with 0 or huge values. Real-world data could be anything.",
+      "Tracking the INDEX of max/min lets us report WHICH day was best/worst. Common interview pattern.",
+      "Notice we calculate average using `total / dailySales.length` — never hardcoded `7`. Self-adapting code.",
+      "In production, this code would be refactored into methods (Module 2): `calculateTotal(array)`, `findMax(array)`, `findAverage(array)`. We're keeping it inline for clarity here. (Exercises will refactor!)"
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "E-commerce (Flipkart, Amazon, Myntra)",
+        "use_case": "Every product listing is an array. Search results, recommended items, cart contents, order history — all sequences of items processed with array operations. 'Sort by price low to high' iterates through and sorts an array. 'Find items under ₹500' filters an array."
+      },
+      {
+        "company_context": "Banking & Financial Apps (HDFC, Razorpay, Zerodha)",
+        "use_case": "Transaction history is an array of records. Calculating monthly statements requires iterating, summing, filtering by date. The market data your stock app shows you — open/high/low/close prices over time — is fundamentally arrays. Charts you see are array visualizations."
+      },
+      {
+        "company_context": "Social Media Feeds (Twitter/X, Instagram, LinkedIn)",
+        "use_case": "Your feed is an array of posts. Generating it: collect candidates from friends/follows (arrays), score each (iterate), sort by score (array operation), return top N (array slice). Every refresh, this entire pipeline runs."
+      },
+      {
+        "company_context": "Game Development",
+        "use_case": "Game state is full of arrays: player inventory items, scores over time, AI enemy positions, particle effects, audio samples. Every frame of every game iterates through arrays to update state and render."
+      }
+    ],
+    
+    "interview_relevance": "Arrays are the #1 most tested topic in coding interviews:\n\n- **Easy**: 'Find the largest element,' 'Reverse an array,' 'Sum elements,' 'Check if sorted'\n- **Medium**: 'Find duplicates,' 'Two-sum problem,' 'Move zeros to end,' 'Rotate array'\n- **Hard**: 'Find the missing number,' 'Maximum subarray sum,' 'Trap rainwater'\n\nEvery FAANG, every fintech, every product company tests array problems. Often you'll get 2-3 array questions in a single interview.\n\nMastering the 3 patterns from this topic (iterate, sum/accumulate, find max/min) is the foundation. Advanced patterns build on these.\n\n**Common follow-up**: 'Can you do it in O(n)?' or 'Can you do it without extra space?' These are array optimization questions. We'll get to algorithmic complexity in the DSA module.",
+    
+    "real_world_workflow": "Daily life of a developer with arrays:\n\n- Reading data from a database: usually returns a list (array-like structure)\n- Processing API responses: JSON arrays parsed into Java arrays/Lists\n- Batch operations: 'send email to these 1000 users' = iterate through array\n- Data validation: 'all transactions must be positive' = iterate and check\n- Report generation: 'calculate monthly metrics' = aggregate over arrays\n- Search and filter UI: 'show items matching this filter' = array operations\n\nIn modern Java, arrays are often wrapped in higher-level collections (ArrayList, Stream API), but the underlying logic is the same. Understanding arrays = understanding all collections."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "off_by_one_index",
+      "what_students_get_wrong": "Using `i <= length` instead of `i < length`. Causes ArrayIndexOutOfBoundsException at runtime.",
+      "remediation": "Memorize: indexes go from 0 to length-1. Loop with `i < length` (strictly less). `<=` is wrong.",
+      "detection_pattern": "Runtime exception, off-by-one errors"
+    },
+    {
+      "gap_id": "confusing_length_field_vs_method",
+      "what_students_get_wrong": "Writing `array.length()` (parens, like strings) instead of `array.length` (no parens, field access).",
+      "remediation": "Array: `array.length` (field, no parens). String: `str.length()` (method, with parens). This Java quirk requires memorization.",
+      "detection_pattern": "Compilation error 'length() not defined' or similar"
+    },
+    {
+      "gap_id": "treating_array_assignment_as_copy",
+      "what_students_get_wrong": "Thinking `int[] b = a` creates a copy. It doesn't — both point to the same array.",
+      "remediation": "Array assignment shares reference. To copy: use Arrays.copyOf or a loop. Modifying through one variable affects the other.",
+      "detection_pattern": "Unexpected modifications appearing in 'other' arrays"
+    },
+    {
+      "gap_id": "assuming_for_each_can_modify",
+      "what_students_get_wrong": "Trying to modify elements in a for-each loop: `for (int n : arr) { n = 0; }` — doesn't modify the array.",
+      "remediation": "For-each gives a copy of each value (for primitives). To modify, use classic for loop with index: `for (int i = 0; i < arr.length; i++) arr[i] = 0;`",
+      "detection_pattern": "Array unchanged despite for-each loop"
+    },
+    {
+      "gap_id": "negative_index_attempt",
+      "what_students_get_wrong": "Trying `array[-1]` to get the last element (works in Python, not Java).",
+      "remediation": "Java doesn't support negative indexes. For last element: `array[array.length - 1]`.",
+      "detection_pattern": "ArrayIndexOutOfBoundsException with negative index"
+    },
+    {
+      "gap_id": "starting_max_with_zero",
+      "what_students_get_wrong": "Initializing max to 0 when finding the maximum of an array (fails if all values are negative).",
+      "remediation": "Initialize max with `array[0]` (the first element). Then iterate starting from index 1.",
+      "detection_pattern": "Wrong max for negative-value arrays"
+    },
+    {
+      "gap_id": "fixed_size_misunderstanding",
+      "what_students_get_wrong": "Trying to 'add' an element to an array (push/append). Arrays don't grow.",
+      "remediation": "Arrays have fixed size. To 'add,' create a new larger array and copy. For dynamic sizing, use ArrayList (covered later).",
+      "detection_pattern": "Trying to access index beyond current length"
+    },
+    {
+      "gap_id": "string_array_default_null_confusion",
+      "what_students_get_wrong": "Creating `String[] names = new String[5]` and then doing `names[0].length()` — crashes with NullPointerException because elements default to null.",
+      "remediation": "Reference type arrays default to null. Initialize each element before using methods on it. For primitives, defaults are safe (0, false, etc.).",
+      "detection_pattern": "NullPointerException on freshly-created String/object arrays"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Array: a fixed-size container of same-type values, accessed by index",
+      "ZERO-INDEXED: first element is index 0, last is length - 1",
+      "Two creation styles: literal `{1, 2, 3}` or `new int[5]`",
+      "Default values: 0 for numbers, false for boolean, null for references",
+      "`array.length` is a FIELD (no parens), unlike `string.length()`",
+      "Classic for loop when you need index. For-each when you just need values.",
+      "ArrayIndexOutOfBoundsException: tried to access an invalid index (always 0 to length-1)",
+      "Arrays are OBJECTS — assignment shares reference, doesn't copy",
+      "Three essential patterns: iterate/print, accumulate (sum/count), find max/min",
+      "When finding max/min, start with `array[0]`, not 0 — safer for all value ranges"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why does this crash?\n```java\nint[] nums = {10, 20, 30};\nSystem.out.println(nums[3]);\n```",
+        "answer": "ArrayIndexOutOfBoundsException. The array has 3 elements at indexes 0, 1, 2. Index 3 doesn't exist. Java arrays are zero-indexed: for length N, valid indexes are 0 to N-1. Last element access: `nums[nums.length - 1]` = `nums[2]` = 30."
+      },
+      {
+        "question": "Will the assertion print true or false?\n```java\nint[] a = {1, 2, 3};\nint[] b = a;\nb[0] = 999;\nSystem.out.println(a[0] == 999);\n```",
+        "answer": "True. Arrays are objects. `int[] b = a` makes `b` refer to the SAME array as `a`, not a copy. Modifying through `b` is the same as modifying through `a`. To actually copy: use Arrays.copyOf or a loop."
+      },
+      {
+        "question": "What's wrong with this code?\n```java\nint[] nums = new int[5];\nfor (int i = 0; i <= nums.length; i++) {\n    nums[i] = i * 2;\n}\n```",
+        "answer": "Off-by-one. `i <= nums.length` means i reaches 5. But valid indexes are 0-4 (length is 5, max index is 4). When i = 5, `nums[5]` throws ArrayIndexOutOfBoundsException. Fix: change `<=` to `<`. Iterating arrays: ALWAYS `i < length`."
+      },
+      {
+        "question": "Why doesn't this modify the array?\n```java\nint[] nums = {1, 2, 3};\nfor (int n : nums) {\n    n = 0;\n}\nSystem.out.println(nums[0]);  // Still 1\n```",
+        "answer": "For-each gives you a COPY of each element (for primitives). Modifying `n` doesn't affect the array. To zero out: use classic for loop with index: `for (int i = 0; i < nums.length; i++) { nums[i] = 0; }`. Always use indexed loops when MODIFYING."
+      },
+      {
+        "question": "If I create `String[] names = new String[3];`, what does `names[0]` contain?",
+        "answer": "null. Reference type arrays (String, Object, custom classes) default to null. Trying `names[0].length()` would throw NullPointerException. Compare to `int[] nums = new int[3];` where each element defaults to 0 (safe to use). When working with object arrays, INITIALIZE each element before calling methods on it."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Array Operations & Algorithms. We'll go deeper: searching arrays (linear search), summing/aggregating in different ways, reversing, copying, and the most-tested interview pattern — finding things efficiently. We'll also introduce the Arrays utility class (Arrays.sort, Arrays.toString) which makes common operations one-liners."
+  }
+}

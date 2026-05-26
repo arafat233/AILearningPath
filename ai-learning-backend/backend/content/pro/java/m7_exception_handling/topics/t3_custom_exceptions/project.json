@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m7_t3_proj",
+  "linked_topic": "java_m7_t3",
+  "level": "mini",
+  "name": "Flipkart-Style Order Management — Custom Exception System",
+  "estimated_minutes": 55,
+  "difficulty": 7,
+
+  "scenario": "Build the custom exception system for Flipkart's order management service. Orders go through a lifecycle: cart validation → inventory check → payment → order confirmation. Each stage can fail with specific, data-rich exceptions. The exception hierarchy lets frontend/API layer precisely handle each failure and give users the best possible experience.",
+
+  "description": "Design and implement a full custom exception hierarchy for an e-commerce order lifecycle. Each exception carries the domain data callers need to respond appropriately — item names, stock levels, card info, order IDs.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Exception hierarchy:\n- `FlipkartException extends RuntimeException` — base, has `errorCode (String)` and `userMessage (String)`. The `userMessage` is safe to show to end users (not the same as getMessage() which may contain technical details).",
+        "weight": 12
+      },
+      {
+        "id": "req_2",
+        "description": "`CartException extends FlipkartException` — for cart/validation issues:\n- `ItemNotFoundException extends CartException` — itemId field\n- `OutOfStockException extends CartException` — itemId, requested, available",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`PaymentException extends FlipkartException` — for payment failures:\n- `InsufficientFundsException extends PaymentException` — has available, attempted\n- `CardExpiredException extends PaymentException` — has cardLast4, expiryDate",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "`OrderService.placeOrder(String customerId, List<OrderItem> items, String paymentMethod)` — validates cart then processes payment, throws appropriate custom exception.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "`ApiController.checkout(...)` — calls OrderService, catches each specific exception type and returns a structured `ApiResponse(int status, String message, Map<String,Object> data)`. Different exceptions produce different HTTP status codes and response data.",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "main() demonstrates 5 checkout scenarios: success, item not found, out of stock, insufficient funds, expired card.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Each exception's `userMessage` must be friendly: 'The item you requested is currently unavailable' (not 'ITEM_NOT_FOUND: MOUSE-01'). The technical detail stays in getMessage() for logs.",
+        "weight": 8
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `OrderConfirmationException extends FlipkartException` — thrown when order is placed but confirmation email/SMS delivery fails (should NOT roll back the order — just log). Demonstrate graceful handling.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `ExceptionLogger` that uses a `List<String>` to record every exception caught (with timestamp-counter, exception type, and error code). Print the log at the end.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Implement `retryableExceptions` — a `Set<Class<? extends FlipkartException>>` that lists exception types worth retrying. Add a `canRetry(FlipkartException e)` check.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Order scenarios:\n1. Customer C001, items: [MOUSE-01 x2, KEYBOARD-01 x1], payment: CARD-4242 → success\n2. Customer C002, items: [TABLET-99 x1 (doesn't exist)] → ItemNotFoundException\n3. Customer C003, items: [MOUSE-01 x100 (only 35 in stock)] → OutOfStockException\n4. Customer C004, items: [KEYBOARD-01 x1], payment: CARD-0001 (balance ₹500, cost ₹1999) → InsufficientFundsException\n5. Customer C005, items: [MOUSE-01 x1], payment: CARD-EXPIRED (expired 2022-12) → CardExpiredException",
+
+  "starter_code": "import java.util.*;\n\npublic class FlipkartOrder {\n    public static void main(String[] args) {\n        // Run 5 checkout scenarios\n    }\n    \n    // Define: exception hierarchy, OrderItem, OrderService, ApiResponse, ApiController\n}",
+
+  "example_output": "Scenario 1: {status=200, message=Order placed!, data={orderId=ORD-1001}}\nScenario 2: {status=404, message=The item you requested is not available, data={itemId=TABLET-99}}\nScenario 3: {status=409, message=Not enough stock for your order, data={itemId=MOUSE-01, requested=100, available=35}}\nScenario 4: {status=402, message=Insufficient wallet balance, data={available=500.0, needed=1999.0}}\nScenario 5: {status=402, message=Your card has expired, data={cardLast4=EXPIRED, expiry=2022-12}}",
+
+  "rubric": [
+    { "category": "Exception Hierarchy", "points": 30, "criteria": ["Base FlipkartException with errorCode + userMessage (10 pts)", "CartException hierarchy (10 pts)", "PaymentException hierarchy (10 pts)"] },
+    { "category": "userMessage vs getMessage()", "points": 15, "criteria": ["userMessage is user-friendly (10 pts)", "getMessage() has technical detail (5 pts)"] },
+    { "category": "OrderService + ApiController", "points": 25, "criteria": ["Throws correct exception per scenario (15 pts)", "ApiController returns correct status per type (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs with 5 scenarios (5 pts)"] },
+    { "category": "Code Quality", "points": 15, "criteria": ["Domain fields with getters (8 pts)", "Two-constructor pattern (7 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["OrderConfirmationException graceful handling (15 pts)", "ExceptionLogger (20 pts)", "retryableExceptions (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key design: FlipkartException has two string fields (errorCode for programmatic use, userMessage for display). Each subclass passes both to super. ApiController maps exception types to HTTP status codes. Use 404 for not found, 409 for conflict (out of stock), 402 for payment issues.",
+
+  "submission_instructions": "Save as FlipkartOrder.java. Run all 5 scenarios. Push to GitHub — this demonstrates production custom exception design, the userMessage vs technical detail separation, and API-layer exception handling.",
+
+  "tips_for_success": [
+    "FlipkartException constructor: takes errorCode and userMessage, passes userMessage (the safe one) to super().",
+    "Each subclass builds its own message for super(): OutOfStockException: 'itemId out of stock: requested N, available M'. userMessage stays simple.",
+    "ApiController: one try, multiple catches — each sets a different HTTP status and returns different data Map.",
+    "ApiResponse: simple record or class with status (int), message (String), data (Map<String, Object>).",
+    "The two strings (errorCode and userMessage) are the key design — logs use errorCode for filtering, UI uses userMessage for display."
+  ],
+
+  "concepts_reinforced": [
+    "Custom exception classes with domain fields",
+    "Two-level hierarchy (CartException, PaymentException under FlipkartException)",
+    "userMessage vs technical message separation",
+    "API layer exception translation (exception type → HTTP status)",
+    "final fields with getters",
+    "Two-constructor pattern on base class"
+  ]
+}

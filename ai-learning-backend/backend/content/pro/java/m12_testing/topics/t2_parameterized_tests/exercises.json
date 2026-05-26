@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t2",
+  "topic_name": "Parameterized Tests and Edge Cases",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m12_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace @ValueSource execution count",
+      "scenario": "@ValueSource creates one test execution per value.",
+      "instructions": "How many times does this test execute? What does the test name look like for the 3rd execution?\n\n```java\n@ParameterizedTest\n@ValueSource(strings = {\"Hyderabad\", \"Mumbai\", \"Bengaluru\", \"Chennai\"})\nvoid city_isNotBlank(String city) {\n    assertFalse(city.isBlank());\n}\n```",
+      "expected_solution": "Executes 4 times.\n3rd execution name: [3] Bengaluru",
+      "test_cases": [
+        { "type": "text_match", "expected": "Executes 4 times.\n3rd execution name: [3] Bengaluru" }
+      ],
+      "hints": [
+        "One execution per value in the array",
+        "Default name: [index] value"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Basic @CsvSource test",
+      "scenario": "@CsvSource maps columns to test parameters.",
+      "instructions": "Fill in the blanks to complete this parameterized test.",
+      "starter_code": "import org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass MathTest {\n    @_____________\n    @CsvSource({\"3, 4, 7\", \"10, 5, 15\", \"0, 0, 0\"})\n    void add_returnsCorrectSum(int a, int b, int ___) {\n        assertEquals(___, new Calculator().add(a, b));\n    }\n}",
+      "expected_solution": "import org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass MathTest {\n    @ParameterizedTest\n    @CsvSource({\"3, 4, 7\", \"10, 5, 15\", \"0, 0, 0\"})\n    void add_returnsCorrectSum(int a, int b, int expected) {\n        assertEquals(expected, new Calculator().add(a, b));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "ParameterizedTest", "hint": "Annotation for parameterized tests" },
+        { "position": 2, "answer": "expected",          "hint": "Third column represents the expected result" },
+        { "position": 3, "answer": "expected",          "hint": "Same variable used in assertEquals" }
+      ],
+      "test_cases": [
+        { "type": "compilation_and_run", "expected": "3 test executions pass" }
+      ],
+      "hints": [
+        "@ParameterizedTest triggers the test framework to run with multiple inputs",
+        "@CsvSource '3, 4, 7' → a=3, b=4, expected=7"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "ValueSource for positive/negative",
+      "scenario": "Test valid and invalid inputs with @ValueSource.",
+      "instructions": "Write two parameterized tests for `BankAccount.deposit(double amount)`:\n1. @ValueSource(doubles) with valid amounts — assertDoesNotThrow\n2. @ValueSource(doubles) with invalid amounts — assertThrows\n\nValid: 1, 100, 999.99\nInvalid: 0, -1, -100",
+      "starter_code": "public class BankAccount {\n    private double balance = 0;\n    void deposit(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Must be positive\");\n        balance += amount;\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass BankAccountTest {\n    BankAccount account = new BankAccount();\n    // Two parameterized tests\n}",
+      "expected_solution": "// (BankAccount as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass BankAccountTest {\n    BankAccount account = new BankAccount();\n    @ParameterizedTest\n    @ValueSource(doubles = {1, 100, 999.99})\n    void deposit_validAmount_succeeds(double amount) {\n        assertDoesNotThrow(() -> account.deposit(amount));\n    }\n    @ParameterizedTest\n    @ValueSource(doubles = {0, -1, -100})\n    void deposit_invalidAmount_throws(double amount) {\n        assertThrows(IllegalArgumentException.class, () -> account.deposit(amount));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "6 test executions pass" }
+      ],
+      "hints": [
+        "@ValueSource(doubles = {...}) for double parameters",
+        "assertDoesNotThrow(() -> call()) for the happy path"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m12_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "@CsvSource with multiple parameters",
+      "scenario": "CsvSource maps each CSV row to test parameters.",
+      "instructions": "Write a parameterized test for a discount calculator using @CsvSource:\n- qty=1 → 0%\n- qty=10 → 10%\n- qty=50 → 20%\n- qty=9 → 0%\n- qty=49 → 10%",
+      "starter_code": "class DiscountCalc {\n    double getDiscount(int qty) {\n        if (qty >= 50) return 0.20;\n        if (qty >= 10) return 0.10;\n        return 0.0;\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass DiscountCalcTest {\n    DiscountCalc calc = new DiscountCalc();\n    // @CsvSource parameterized test\n}",
+      "expected_solution": "// (DiscountCalc as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass DiscountCalcTest {\n    DiscountCalc calc = new DiscountCalc();\n    @ParameterizedTest\n    @CsvSource({\"1, 0.00\", \"10, 0.10\", \"50, 0.20\", \"9, 0.00\", \"49, 0.10\"})\n    void getDiscount_variousQtys(int qty, double expected) {\n        assertEquals(expected, calc.getDiscount(qty), 0.001);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 test executions pass" }
+      ],
+      "hints": [
+        "@CsvSource({\"1, 0.00\", ...}) — each string is one CSV row",
+        "assertEquals with delta for doubles: assertEquals(0.10, result, 0.001)"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m12_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@NullAndEmptySource for null/empty handling",
+      "scenario": "Test that methods handle null and empty inputs gracefully.",
+      "instructions": "Write a parameterized test using @NullAndEmptySource that verifies `ProductSearch.find(String query)` returns an empty list for null and empty inputs (not throws).\n\nExpected: 2 executions (null and \"\"), both pass.",
+      "starter_code": "import java.util.*;\nclass ProductSearch {\n    List<String> find(String query) {\n        if (query == null || query.isBlank()) return List.of();\n        return List.of(\"Mouse\", \"Keyboard\");  // simplified\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass ProductSearchTest {\n    ProductSearch search = new ProductSearch();\n    // @NullAndEmptySource test\n}",
+      "expected_solution": "// (ProductSearch as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass ProductSearchTest {\n    ProductSearch search = new ProductSearch();\n    @ParameterizedTest\n    @NullAndEmptySource\n    void find_nullOrEmpty_returnsEmptyList(String query) {\n        List<String> result = search.find(query);\n        assertNotNull(result);\n        assertTrue(result.isEmpty());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 test executions pass" }
+      ],
+      "hints": [
+        "@NullAndEmptySource runs twice: null, then empty string",
+        "assertNotNull(result) — list should never be null, even for null query"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m12_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@EnumSource for all payment methods",
+      "scenario": "Test every enum value with @EnumSource.",
+      "instructions": "Write a test that verifies `PaymentProcessor.getFee(PaymentMethod)` returns a non-negative value for ALL payment methods.\n\nEnum: CARD, UPI, NET_BANKING, WALLET\n\nExpected: 4 executions, all pass.",
+      "starter_code": "enum PaymentMethod { CARD, UPI, NET_BANKING, WALLET }\nclass PaymentProcessor {\n    double getFee(PaymentMethod method) {\n        return switch (method) {\n            case CARD        -> 2.0;\n            case UPI         -> 0.0;\n            case NET_BANKING -> 1.5;\n            case WALLET      -> 0.5;\n        };\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass PaymentProcessorTest {\n    PaymentProcessor processor = new PaymentProcessor();\n    // @EnumSource test\n}",
+      "expected_solution": "// (enums and class as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass PaymentProcessorTest {\n    PaymentProcessor processor = new PaymentProcessor();\n    @ParameterizedTest\n    @EnumSource(PaymentMethod.class)\n    void getFee_allMethods_returnsNonNegative(PaymentMethod method) {\n        double fee = processor.getFee(method);\n        assertTrue(fee >= 0, \"Fee must be non-negative for \" + method);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 test executions pass" }
+      ],
+      "hints": [
+        "@EnumSource(PaymentMethod.class) iterates all enum values",
+        "assertTrue with message helps identify which enum value failed"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m12_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Boundary value testing — quantity limits",
+      "scenario": "Test all boundaries for a 1-999 quantity range.",
+      "instructions": "Write a @CsvSource parameterized test covering ALL boundaries for `OrderValidator.validateQty(int qty)` which throws on qty < 1 or qty > 999.\n\nTest: 0, 1, 2, 998, 999, 1000 → valid/invalid",
+      "starter_code": "class OrderValidator {\n    void validateQty(int qty) {\n        if (qty < 1 || qty > 999)\n            throw new IllegalArgumentException(\"Qty must be 1-999, got: \" + qty);\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass OrderValidatorTest {\n    OrderValidator v = new OrderValidator();\n    // Boundary value test with @CsvSource\n}",
+      "expected_solution": "// (OrderValidator as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass OrderValidatorTest {\n    OrderValidator v = new OrderValidator();\n    @ParameterizedTest\n    @CsvSource({\n        \"0,  false\",\n        \"1,  true\",\n        \"2,  true\",\n        \"998, true\",\n        \"999, true\",\n        \"1000, false\"\n    })\n    void validateQty_boundaryValues(int qty, boolean shouldPass) {\n        if (shouldPass) assertDoesNotThrow(() -> v.validateQty(qty));\n        else           assertThrows(IllegalArgumentException.class, () -> v.validateQty(qty));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "6 test executions pass" }
+      ],
+      "hints": [
+        "Test n-1 (0), n (1), n+1 (2) at lower boundary",
+        "Test m-1 (998), m (999), m+1 (1000) at upper boundary",
+        "Use assertDoesNotThrow for valid inputs"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m12_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@MethodSource for complex Product objects",
+      "scenario": "MethodSource provides complex objects as parameters.",
+      "instructions": "Write a @MethodSource test for `ProductValidator.isValid(Product product)` that accepts a stream of valid and invalid Products.\n\nProvide 5 products: 3 valid, 2 invalid. Test returns true/false.",
+      "starter_code": "record Product(String name, double price, int stock) {}\nclass ProductValidator {\n    boolean isValid(Product p) {\n        return p != null && !p.name().isBlank() && p.price() > 0 && p.stock() >= 0;\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\nclass ProductValidatorTest {\n    ProductValidator v = new ProductValidator();\n    \n    static Stream<Arguments> productCases() {\n        // Return 5 Arguments.of(product, expectedResult)\n    }\n    \n    @ParameterizedTest\n    @MethodSource(\"productCases\")\n    void isValid_variousProducts(Product product, boolean expected) {\n        assertEquals(expected, v.isValid(product));\n    }\n}",
+      "expected_solution": "// (Product and ProductValidator as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\nclass ProductValidatorTest {\n    ProductValidator v = new ProductValidator();\n    \n    static Stream<Arguments> productCases() {\n        return Stream.of(\n            Arguments.of(new Product(\"Mouse\", 799, 50),   true),\n            Arguments.of(new Product(\"Keyboard\", 1999, 0), true),  // 0 stock = out of stock, still valid\n            Arguments.of(new Product(\"Monitor\", 18999, 5), true),\n            Arguments.of(new Product(\"\", 799, 10),          false),  // blank name\n            Arguments.of(new Product(\"Hub\", 0, 10),         false)   // zero price\n        );\n    }\n    \n    @ParameterizedTest\n    @MethodSource(\"productCases\")\n    void isValid_variousProducts(Product product, boolean expected) {\n        assertEquals(expected, v.isValid(product));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 test executions pass" }
+      ],
+      "hints": [
+        "static Stream<Arguments> methodName() { return Stream.of(...) }",
+        "Arguments.of(object1, object2) maps to test parameters",
+        "Method must be static and return Stream"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Combined @NullAndEmptySource + @ValueSource",
+      "scenario": "Test all blank inputs with multiple annotations.",
+      "instructions": "Write a test that verifies `UserService.createUser(String name, int age)` throws IllegalArgumentException for blank names (null, empty, space).\n\nUse @NullAndEmptySource + @ValueSource(strings = {' ', '   '}).",
+      "starter_code": "class UserService {\n    String createUser(String name, int age) {\n        if (name == null || name.isBlank())\n            throw new IllegalArgumentException(\"Name cannot be blank\");\n        if (age < 18) throw new IllegalArgumentException(\"Must be 18+\");\n        return \"USER-\" + name.trim().toUpperCase();\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass UserServiceTest {\n    UserService service = new UserService();\n    // Combined source test\n}",
+      "expected_solution": "// (UserService as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass UserServiceTest {\n    UserService service = new UserService();\n    \n    @ParameterizedTest\n    @NullAndEmptySource\n    @ValueSource(strings = {\" \", \"   \"})\n    void createUser_blankName_throws(String name) {\n        assertThrows(IllegalArgumentException.class,\n            () -> service.createUser(name, 25));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 test executions pass" }
+      ],
+      "hints": [
+        "Stack @NullAndEmptySource and @ValueSource on the same test method",
+        "Total executions: 2 (NullAndEmpty) + 2 (ValueSource) = 4"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m12_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "@CsvSource with empty string syntax",
+      "scenario": "Empty strings in CsvSource need single-quote wrapping.",
+      "instructions": "What is the name parameter value for each of these @CsvSource rows?\n\n```java\n@ParameterizedTest\n@CsvSource({\n    \"Mouse, 799\",\n    \"'Dell 27, Monitor', 18999\",\n    \"'', 0\",\n    \", 500\"\n})\nvoid test(String name, int price) {\n    System.out.println('[' + name + ']');\n}\n```",
+      "expected_solution": "[Mouse]\n[Dell 27, Monitor]\n[]\n[null]",
+      "test_cases": [
+        { "type": "text_match", "expected": "[Mouse]\n[Dell 27, Monitor]\n[]\n[null]" }
+      ],
+      "hints": [
+        "Row 1: name = 'Mouse' (simple)",
+        "Row 2: single quotes wrap → 'Dell 27, Monitor' (comma inside)",
+        "Row 3: '' (two single quotes) → empty string",
+        "Row 4: nothing before comma → null"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m12_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "GST rate calculator — boundary testing",
+      "scenario": "Tax slabs need thorough boundary coverage.",
+      "instructions": "Write a @CsvSource parameterized test for `GSTCalculator.getRate(double price)` with slabs:\n- price < 1000 → 5%\n- price < 5000 → 12%\n- price < 15000 → 18%\n- price >= 15000 → 28%\n\nTest at least 8 values covering all boundaries and slab midpoints.",
+      "starter_code": "class GSTCalculator {\n    double getRate(double price) {\n        if (price < 1000)  return 0.05;\n        if (price < 5000)  return 0.12;\n        if (price < 15000) return 0.18;\n        return 0.28;\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass GSTCalculatorTest {\n    GSTCalculator calc = new GSTCalculator();\n    // @CsvSource boundary test\n}",
+      "expected_solution": "// (GSTCalculator as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass GSTCalculatorTest {\n    GSTCalculator calc = new GSTCalculator();\n    @ParameterizedTest\n    @CsvSource({\n        \"500,    0.05\",  // slab 1 midpoint\n        \"999,    0.05\",  // slab 1 boundary - 1\n        \"1000,   0.12\",  // slab 1/2 boundary exactly\n        \"1001,   0.12\",  // slab 2 just above\n        \"4999,   0.12\",  // slab 2/3 boundary - 1\n        \"5000,   0.18\",  // slab 2/3 boundary exactly\n        \"14999,  0.18\",  // slab 3/4 boundary - 1\n        \"15000,  0.28\",  // slab 3/4 boundary exactly\n        \"20000,  0.28\"   // slab 4 midpoint\n    })\n    void getRate_boundaryValues(double price, double expected) {\n        assertEquals(expected, calc.getRate(price), 0.001);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "9 test executions pass" }
+      ],
+      "hints": [
+        "Three boundaries: 1000, 5000, 15000",
+        "Each boundary: test value-1, value, value+1",
+        "Plus one midpoint per slab"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m12_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@MethodSource with multiple argument types",
+      "scenario": "MethodSource Arguments.of() maps to multiple parameters.",
+      "instructions": "Write a @MethodSource test for `StockPosition.classify()` which returns 'WINNER', 'LOSER', or 'FLAT' based on P&L percentage.\n\nProvide 5 test cases as Arguments.of(symbol, shares, buyPrice, curPrice, expectedClass).",
+      "starter_code": "class StockPosition {\n    String symbol; int shares; double buyPrice, curPrice;\n    StockPosition(String s, int sh, double b, double c) { symbol=s; shares=sh; buyPrice=b; curPrice=c; }\n    double pnlPct() { return (curPrice / buyPrice - 1) * 100; }\n    String classify() {\n        double pnl = pnlPct();\n        if (pnl >  5) return \"WINNER\";\n        if (pnl < -5) return \"LOSER\";\n        return \"FLAT\";\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\nclass StockPositionTest {\n    static Stream<Arguments> positionCases() {\n        // Provide 5 test cases\n    }\n    @ParameterizedTest\n    @MethodSource(\"positionCases\")\n    void classify_returnsCorrectCategory(String sym, int shares, double buy, double cur, String expected) {\n        assertEquals(expected, new StockPosition(sym, shares, buy, cur).classify());\n    }\n}",
+      "expected_solution": "// (StockPosition as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\nclass StockPositionTest {\n    static Stream<Arguments> positionCases() {\n        return Stream.of(\n            Arguments.of(\"TCS\",      10, 2760, 3890, \"WINNER\"),  // +40% WINNER\n            Arguments.of(\"RELIANCE\", 20, 2450, 2500, \"FLAT\"),    // +2% FLAT\n            Arguments.of(\"INFY\",     30, 1600, 1450, \"LOSER\"),   // -9.4% LOSER\n            Arguments.of(\"WIPRO\",     5,  450,  470, \"FLAT\"),    // +4.4% FLAT\n            Arguments.of(\"HDFC\",     15, 1678, 2000, \"WINNER\")   // +19.2% WINNER\n        );\n    }\n    @ParameterizedTest\n    @MethodSource(\"positionCases\")\n    void classify_returnsCorrectCategory(String sym, int shares, double buy, double cur, String expected) {\n        assertEquals(expected, new StockPosition(sym, shares, buy, cur).classify());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 test executions pass" }
+      ],
+      "hints": [
+        "Arguments.of(p1, p2, p3, p4, p5) maps to test method parameters",
+        "5 args: symbol, shares, buyPrice, curPrice, expectedClass",
+        "TCS: (3890/2760-1)*100 = +40.9% → WINNER"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m12_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Comprehensive validator test with all sources",
+      "scenario": "Use all four @Source types in one test class.",
+      "instructions": "Write a test class for `EmailValidator.isValid(String email)` using:\n1. @ValueSource(strings) for valid emails\n2. @NullAndEmptySource + @ValueSource for blank inputs → false\n3. @CsvSource for edge cases: no @, multiple @, valid with subdomain\n4. @MethodSource for complex valid/invalid examples with descriptions",
+      "starter_code": "class EmailValidator {\n    boolean isValid(String email) {\n        if (email == null || email.isBlank()) return false;\n        int atCount = email.chars().filter(c -> c == '@').count() != 1 ? 0 : 1;\n        if (atCount != 1) return false;\n        String[] parts = email.split(\"@\");\n        return parts.length == 2 && !parts[0].isBlank() && parts[1].contains(\".\");\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\nclass EmailValidatorTest {\n    EmailValidator v = new EmailValidator();\n    // 4 parameterized tests using different sources\n}",
+      "expected_solution": "// (EmailValidator as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\nclass EmailValidatorTest {\n    EmailValidator v = new EmailValidator();\n    \n    @ParameterizedTest\n    @ValueSource(strings = {\"aisha@example.com\", \"raj@flipkart.in\", \"priya@sub.domain.org\"})\n    void isValid_validEmails_returnsTrue(String email) {\n        assertTrue(v.isValid(email));\n    }\n    \n    @ParameterizedTest\n    @NullAndEmptySource\n    @ValueSource(strings = {\" \", \"  \"})\n    void isValid_blankInputs_returnsFalse(String email) {\n        assertFalse(v.isValid(email));\n    }\n    \n    @ParameterizedTest\n    @CsvSource({\n        \"noemail, false\",\n        \"two@@signs.com, false\",\n        \"@nodomain.com, false\",\n        \"'aisha@sub.example.co.in', true\"\n    })\n    void isValid_edgeCases(String email, boolean expected) {\n        assertEquals(expected, v.isValid(email));\n    }\n    \n    static Stream<Arguments> emailCases() {\n        return Stream.of(\n            Arguments.of(\"valid@example.com\",  true,  \"standard format\"),\n            Arguments.of(\"a@b.co\",             true,  \"minimal valid\"),\n            Arguments.of(\"missing@domain\",     false, \"no dot in domain\"),\n            Arguments.of(\"double@@at.com\",     false, \"two at signs\")\n        );\n    }\n    @ParameterizedTest\n    @MethodSource(\"emailCases\")\n    void isValid_withDescriptions(String email, boolean expected, String description) {\n        assertEquals(expected, v.isValid(email), description);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "All test executions pass" }
+      ],
+      "hints": [
+        "Four separate @ParameterizedTest methods, each with different @Source",
+        "@CsvSource with 'aisha@sub.example.co.in' — single quotes for dot in field",
+        "@MethodSource with 3rd param as description → passed as third method arg"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m12_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Pricing engine boundary tests",
+      "scenario": "Multi-rule pricing engine with complex boundaries.",
+      "instructions": "Write comprehensive boundary tests for `PricingEngine.finalPrice(int qty, double unitPrice, boolean premiumUser)`:\n- Qty discount: qty<10→0%, qty<50→10%, qty>=50→20%\n- Premium user: extra 5% off after qty discount\n- Minimum charge: ₹10 even if computed total < ₹10\n\nWrite @CsvSource with at least 10 cases covering all rules and boundaries.",
+      "starter_code": "class PricingEngine {\n    double finalPrice(int qty, double unitPrice, boolean premiumUser) {\n        double base = qty * unitPrice;\n        double disc = qty >= 50 ? 0.20 : qty >= 10 ? 0.10 : 0.0;\n        double afterDisc = base * (1 - disc);\n        double afterPremium = premiumUser ? afterDisc * 0.95 : afterDisc;\n        return Math.max(afterPremium, 10.0);\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass PricingEngineTest {\n    PricingEngine engine = new PricingEngine();\n    // @CsvSource boundary + rule tests\n}",
+      "expected_solution": "// (PricingEngine as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass PricingEngineTest {\n    PricingEngine engine = new PricingEngine();\n    @ParameterizedTest\n    @CsvSource({\n        \"1,  799,  false, 799.0\",       // no discount, not premium\n        \"1,  799,  true,  759.05\",      // premium 5% off: 799*0.95=759.05\n        \"9,  100,  false, 900.0\",       // qty boundary-1: no discount\n        \"10, 100,  false, 900.0\",       // qty boundary: 10% off\n        \"10, 100,  true,  855.0\",       // 10% disc + 5% premium: 1000*0.9*0.95\n        \"49, 100,  false, 4410.0\",      // below 50: 10% off: 4900*0.9\n        \"50, 100,  false, 4000.0\",      // 20% off: 5000*0.8\n        \"50, 100,  true,  3800.0\",      // 20%+5%: 5000*0.8*0.95\n        \"1,  1,    false, 10.0\",        // minimum charge\n        \"1,  9.99, true,  10.0\"         // 9.99*0.95=9.49 → min 10\n    })\n    void finalPrice_variousScenarios(int qty, double unit, boolean premium, double expected) {\n        assertEquals(expected, engine.finalPrice(qty, unit, premium), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "10 test executions pass" }
+      ],
+      "hints": [
+        "10 * 100 * 0.90 = 900; * 0.95 = 855.0",
+        "Minimum charge: 1 * 1 = 1; max(1, 10) = 10",
+        "Premium: 5% off AFTER qty discount"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m12_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete parameterized test suite for CSV parser",
+      "scenario": "Exhaustive edge case coverage using all parameterized techniques.",
+      "instructions": "Write a full parameterized test suite for `CSVParser.parseCSVLine(String)` (the Topic 11.3 state machine):\n\n1. @CsvSource for normal inputs: field count and first field value\n2. @MethodSource for complex quoted cases with expected field lists\n3. @NullAndEmptySource — null/empty string handling\n4. @ValueSource(strings) for single-field lines\n5. Boundary: maximum field count (test with 1, 2, 10 fields)\n\nAt least 15 total test executions.",
+      "starter_code": "import java.util.*;\npublic class CSVParser {\n    public static List<String> parseCSVLine(String line) {\n        if (line == null) return List.of();\n        if (line.isEmpty()) return List.of(\"\");\n        List<String> f = new ArrayList<>();\n        StringBuilder c = new StringBuilder();\n        boolean inQ = false;\n        for (int i=0;i<line.length();i++) {\n            char ch = line.charAt(i);\n            if (ch=='\"') {\n                if (inQ&&i+1<line.length()&&line.charAt(i+1)=='\"') {c.append('\"');i++;}\n                else inQ=!inQ;\n            } else if (ch==','&&!inQ) {f.add(c.toString());c.setLength(0);}\n            else c.append(ch);\n        }\n        f.add(c.toString()); return f;\n    }\n}\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.Stream;\nclass CSVParserTest {\n    // Full parameterized test suite — all @Source types\n}",
+      "expected_solution": "// (CSVParser as above)\nimport org.junit.jupiter.params.*;\nimport org.junit.jupiter.params.provider.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.stream.*;\nimport java.util.*;\nclass CSVParserTest {\n    @ParameterizedTest\n    @CsvSource({\n        \"'a,b,c',        3, a\",\n        \"'a,b',          2, a\",\n        \"'single',       1, single\",\n        \"'a,,c',         3, a\"\n    })\n    void parseCSVLine_normalInputs(String line, int expectedFields, String firstField) {\n        List<String> result = CSVParser.parseCSVLine(line);\n        assertEquals(expectedFields, result.size());\n        assertEquals(firstField, result.get(0));\n    }\n    \n    static Stream<Arguments> quotedCases() {\n        return Stream.of(\n            Arguments.of(\"\\\"Smith, John\\\",95000\",        List.of(\"Smith, John\", \"95000\")),\n            Arguments.of(\"\\\"Dell 27\\\"\\\" Monitor\\\",18999\", List.of(\"Dell 27\\\" Monitor\", \"18999\")),\n            Arguments.of(\"\\\"quoted\\\",plain\",              List.of(\"quoted\", \"plain\")),\n            Arguments.of(\"\\\"\\\",empty\",                    List.of(\"\", \"empty\"))\n        );\n    }\n    @ParameterizedTest\n    @MethodSource(\"quotedCases\")\n    void parseCSVLine_quotedFields(String line, List<String> expected) {\n        assertEquals(expected, CSVParser.parseCSVLine(line));\n    }\n    \n    @ParameterizedTest\n    @NullAndEmptySource\n    void parseCSVLine_nullOrEmpty_returnsEmptyOrSingleEmpty(String line) {\n        List<String> r = CSVParser.parseCSVLine(line);\n        assertNotNull(r);\n        assertTrue(r.isEmpty() || (r.size() == 1 && r.get(0).isEmpty()));\n    }\n    \n    @ParameterizedTest\n    @ValueSource(strings = {\"a\", \"hello\", \"Hyderabad\", \"xyz\"})\n    void parseCSVLine_singleField_returns1ElementList(String input) {\n        List<String> r = CSVParser.parseCSVLine(input);\n        assertEquals(1, r.size());\n        assertEquals(input, r.get(0));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "All test executions pass" }
+      ],
+      "hints": [
+        "@CsvSource: use single quotes to embed commas in CSV param value",
+        "@MethodSource: return Stream<Arguments> of (lineString, List<String>)",
+        "Total: 4+4+2+4 = 14 executions"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 700,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,185 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t2",
+  "language": "java",
+  "module_id": "m17",
+  "module_name": "Advanced Database Engineering",
+  "topic_number": 2,
+  "name": "The N+1 Query Problem",
+  "slug": "n-plus-one-query-problem",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m17_t1", "java_m13_t3"],
+    "concepts_taught": [
+      "n_plus_one_definition",
+      "lazy_vs_eager_loading",
+      "fetch_type_lazy",
+      "fetch_type_eager",
+      "join_fetch_jpql",
+      "entity_graph",
+      "batch_size_hint",
+      "query_logging_for_detection",
+      "hibernate_statistics",
+      "one_to_many_n_plus_one",
+      "many_to_one_n_plus_one",
+      "dto_projection",
+      "spring_data_jpa_n_plus_one"
+    ],
+    "skills_developed": [
+      "identifying_n_plus_one_in_logs",
+      "fixing_n_plus_one_with_join_fetch",
+      "using_entity_graph",
+      "measuring_query_count_in_tests",
+      "choosing_between_lazy_and_eager"
+    ],
+    "career_relevance": "The N+1 query problem is the #1 JPA performance issue in production. It's asked in nearly every senior Java interview. At Swiggy, an N+1 on the order listing API caused 50ms responses to become 5-second responses with 10,000 orders. After this topic, you'll recognize the N+1 pattern in code reviews, detect it in logs, and fix it with JOIN FETCH or @EntityGraph.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "The Swiggy order dashboard loads fine in dev (5 orders). You deploy to production (50,000 orders). The page now takes 30 seconds to load. The database server is at 100% CPU.\n\nWhat happened?\n\n```java\n// OrderController.java:\n@GetMapping(\"/api/orders\")\npublic List<OrderDto> getAllOrders() {\n    List<Order> orders = orderRepo.findAll();   // Query 1: SELECT * FROM orders\n    return orders.stream()\n        .map(o -> new OrderDto(\n            o.getId(),\n            o.getRestaurant().getName(),   // ← Query 2: SELECT * FROM restaurants WHERE id=?\n            o.getUser().getPhone()         // ← Query 3: SELECT * FROM users WHERE id=?\n        )).toList();\n}\n```\n\nWith 50,000 orders:\n```\n1 query:  SELECT * FROM orders LIMIT 50000\n50,000 queries: SELECT * FROM restaurants WHERE id = 'R001'\n50,000 queries: SELECT * FROM restaurants WHERE id = 'R002'  ← SAME restaurant!\n50,000 queries: SELECT * FROM users WHERE id = 'U001'\n...\n\nTotal: 100,001 database round trips for ONE HTTP request!\n```\n\n**The fix — 1 query instead of 100,001:**\n```java\n@Query(\"SELECT o FROM Order o JOIN FETCH o.restaurant JOIN FETCH o.user\")\nList<Order> findAllWithDetails();\n// → 1 SQL: SELECT o.*, r.*, u.* FROM orders o\n//           JOIN restaurants r ON o.restaurant_id = r.id\n//           JOIN users u ON o.user_id = u.id\n```\n\nResponse time: 30 seconds → 120ms. This is the N+1 query problem.",
+    "what_you_will_build": "By the end of this topic, you'll understand why N+1 happens, detect it in query logs, fix it with JOIN FETCH and @EntityGraph, and write tests that verify query count."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "why_n_plus_one_happens": "**Why N+1 happens — lazy loading:**\n\n```java\n// Order entity with lazy-loaded associations:\n@Entity\npublic class Order {\n    @Id String id;\n    \n    @ManyToOne(fetch = FetchType.LAZY)  // ← LAZY = don't load until accessed\n    @JoinColumn(name = \"user_id\")\n    private User user;\n    \n    @ManyToOne(fetch = FetchType.LAZY)\n    @JoinColumn(name = \"restaurant_id\")\n    private Restaurant restaurant;\n}\n\n// Repository:\nList<Order> orders = repo.findAll();\n// SQL: SELECT id, user_id, restaurant_id FROM orders  ← 1 query\n\n// Now accessing the user LAZILY:\nString name = orders.get(0).getUser().getName();\n// SQL: SELECT * FROM users WHERE id = 'U001'  ← triggered by .getUser()\n\nString name2 = orders.get(1).getUser().getName();\n// SQL: SELECT * FROM users WHERE id = 'U001'  ← SAME query for same user!\n\n// N orders → N additional queries for users → N+1 total\n```\n\n**FetchType.EAGER makes it worse:**\n```java\n@ManyToOne(fetch = FetchType.EAGER)  // ← EAGER = load immediately\nprivate User user;\n\n// repo.findAll() now fires N+1 ON EVERY LOAD:\n// SELECT * FROM orders\n// SELECT * FROM users WHERE id = ?  (for each order!)\n// → N+1 even if you never access user.getName()\n// EAGER is almost always the wrong choice\n```",
+
+      "detecting_n_plus_one": "**Detecting N+1 in logs:**\n\n```properties\n# application.properties — enable SQL logging:\nspring.jpa.show-sql=true\nspring.jpa.properties.hibernate.format_sql=true\nlogging.level.org.hibernate.type.descriptor.sql=trace\n```\n\n```\n# Log output for 3 orders with lazy user — spot the pattern:\nHibernate: select o.id, o.user_id from orders o\nHibernate: select u.id, u.name from users where u.id='U001'\nHibernate: select u.id, u.name from users where u.id='U002'\nHibernate: select u.id, u.name from users where u.id='U001'  ← DUPLICATE!\n#                                                              ↑ N+1!\n```\n\n**Count queries in tests with Hibernate statistics:**\n```java\n@Autowired EntityManager em;\n\n@Test\nvoid findAll_noNPlusOne() {\n    // Enable statistics:\n    SessionFactory sf = em.getEntityManagerFactory()\n        .unwrap(SessionFactory.class);\n    sf.getStatistics().setStatisticsEnabled(true);\n    sf.getStatistics().clear();\n    \n    // Execute the query:\n    orderService.getAllOrderDtos();\n    \n    // Assert query count:\n    long queryCount = sf.getStatistics().getQueryExecutionCount();\n    assertEquals(1, queryCount, \"Should execute exactly 1 query, not N+1\");\n}",
+
+      "fix_join_fetch": "**Fix 1: JOIN FETCH — the most reliable solution:**\n\n```java\n// In OrderRepository:\n\n// Bad (N+1):\nList<Order> findAll();\n// SELECT * FROM orders → then N lazy selects for each user\n\n// Good (1 query):\n@Query(\"SELECT o FROM Order o JOIN FETCH o.user JOIN FETCH o.restaurant\")\nList<Order> findAllWithDetails();\n// SELECT o.*, u.*, r.* FROM orders o\n// JOIN users u ON o.user_id = u.id\n// JOIN restaurants r ON o.restaurant_id = r.id\n// → 1 query, all data in one round trip\n\n// With filtering (JOIN FETCH + WHERE):\n@Query(\"SELECT o FROM Order o JOIN FETCH o.user WHERE o.status = :status\")\nList<Order> findByStatusWithUser(@Param(\"status\") String status);\n\n// With Optional:\n@Query(\"SELECT o FROM Order o JOIN FETCH o.user WHERE o.id = :id\")\nOptional<Order> findByIdWithUser(@Param(\"id\") String id);\n```\n\n**JOIN FETCH with @OneToMany — the count issue:**\n```java\n@Entity class Restaurant {\n    @OneToMany(mappedBy = \"restaurant\", fetch = FetchType.LAZY)\n    private List<Order> orders;\n}\n\n// JOIN FETCH on @OneToMany creates a Cartesian product:\n@Query(\"SELECT r FROM Restaurant r JOIN FETCH r.orders\")\nList<Restaurant> findAllWithOrders();\n// If 10 restaurants each have 100 orders:\n// Result set has 1000 rows (10 × 100)\n// Hibernate deduplicates, but huge memory use!\n\n// Fix for @OneToMany: use DISTINCT or @BatchSize\n@Query(\"SELECT DISTINCT r FROM Restaurant r JOIN FETCH r.orders\")\nList<Restaurant> findAllWithOrdersDistinct();\n```",
+
+      "fix_entity_graph": "**Fix 2: @EntityGraph — no JPQL needed:**\n\n```java\nimport org.springframework.data.jpa.repository.EntityGraph;\n\n// In repository:\n@EntityGraph(attributePaths = {\"user\", \"restaurant\"})\nList<Order> findAll();\n// Hibernate generates: SELECT o.*, u.*, r.*\n//   FROM orders o LEFT JOIN users u ON o.user_id = u.id\n//                 LEFT JOIN restaurants r ON o.restaurant_id = r.id\n\n// For specific queries:\n@EntityGraph(attributePaths = {\"user\"})\nList<Order> findByStatus(String status);\n\n// Named entity graph (defined on @Entity):\n@NamedEntityGraph(\n    name = \"Order.withDetails\",\n    attributeNodes = {\n        @NamedAttributeNode(\"user\"),\n        @NamedAttributeNode(\"restaurant\")\n    }\n)\n@Entity\npublic class Order { ... }\n\n// Use named graph in repository:\n@EntityGraph(\"Order.withDetails\")\nList<Order> findByCreatedAtAfter(LocalDateTime since);\n```\n\n**Fix 3: @BatchSize — middle ground for collections:**\n```java\n@Entity class Restaurant {\n    @OneToMany(mappedBy = \"restaurant\")\n    @BatchSize(size = 30)  // Hibernate batches 30 loads at once\n    private List<Order> orders;\n}\n// Instead of N queries (one per restaurant),\n// Hibernate does: SELECT * FROM orders WHERE restaurant_id IN (id1, id2, ..., id30)\n// N/30 queries instead of N queries\n// Good when full JOIN FETCH creates too large a result set\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) N+1 timeline: horizontal axis=time, vertical=database queries. First: 1 query for orders (SELECT * FROM orders). Then: N individual queries for users firing sequentially (SELECT * FROM users WHERE id=?), each a short red bar. Label 'N=100 → 101 total queries'. Total time: 300ms. (2) JOIN FETCH timeline: Same axis. One wide green bar: SELECT o.*, u.* FROM orders JOIN users. Total time: 25ms. Massive difference shown. (3) When to use which fix: decision tree. @ManyToOne → JOIN FETCH or @EntityGraph. @OneToMany (small collection) → JOIN FETCH DISTINCT. @OneToMany (large collection) → @BatchSize. Many associations → DTO projection.",
+      "alt_text": "N+1 query timeline vs JOIN FETCH single query, and decision tree for fixing N+1 based on association type"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "The Swiggy order listing API has N+1. Fix it step by step: detect in logs, apply JOIN FETCH, verify with query count assertion.",
+
+    "problem_statement": "1. Show the N+1 code (Order → lazy User + lazy Restaurant)\n2. Show log output proving N+1 exists\n3. Fix with JOIN FETCH in repository\n4. Fix with @EntityGraph as alternative\n5. Write a test asserting exactly 1 query executed",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Entity relationships causing N+1",
+        "details": "```java\n@Entity @Table(name=\"orders\")\npublic class Order {\n    @Id String id;\n    String status;\n    \n    @ManyToOne(fetch = FetchType.LAZY)  // lazy = N+1 waiting to happen\n    @JoinColumn(name = \"user_id\")\n    private User user;\n    \n    @ManyToOne(fetch = FetchType.LAZY)\n    @JoinColumn(name = \"restaurant_id\")\n    private Restaurant restaurant;\n    \n    // getters...\n}\n\n// Service BEFORE fix:\npublic List<OrderDto> getAllOrders() {\n    return orderRepo.findAll().stream()   // Query 1\n        .map(o -> new OrderDto(\n            o.getId(),\n            o.getUser().getName(),         // Query 2...N+1\n            o.getRestaurant().getName()))  // Query N+1...2N+1!\n        .toList();\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Fix: JOIN FETCH in repository",
+        "details": "```java\n// OrderRepository.java:\npublic interface OrderRepository extends JpaRepository<Order, String> {\n    \n    // BAD: N+1\n    // List<Order> findAll();\n    \n    // GOOD: 1 query with JOIN FETCH\n    @Query(\"SELECT o FROM Order o \" +\n           \"JOIN FETCH o.user \" +\n           \"JOIN FETCH o.restaurant\")\n    List<Order> findAllWithDetails();\n    \n    // With filter:\n    @Query(\"SELECT o FROM Order o \" +\n           \"JOIN FETCH o.user \" +\n           \"WHERE o.status = :status\")\n    List<Order> findByStatusWithUser(@Param(\"status\") String status);\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Alternative: @EntityGraph",
+        "details": "```java\npublic interface OrderRepository extends JpaRepository<Order, String> {\n    \n    @EntityGraph(attributePaths = {\"user\", \"restaurant\"})\n    List<Order> findAll();\n    // ↑ Overrides the default findAll() with eager loading\n    // No JPQL needed — Spring adds LEFT JOIN automatically\n    \n    @EntityGraph(attributePaths = {\"user\"})\n    List<Order> findByStatus(String status);\n    // Eagerly loads user but not restaurant\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "Verify with Hibernate statistics in @DataJpaTest",
+        "details": "```java\n@DataJpaTest\nclass OrderRepositoryN1Test {\n    @Autowired OrderRepository repo;\n    @Autowired EntityManager em;\n    @Autowired TestEntityManager testEm;\n    \n    @BeforeEach void seed() {\n        User u = testEm.persistAndFlush(new User(\"Aisha\", \"aisha@test.com\"));\n        Restaurant r = testEm.persistAndFlush(new Restaurant(\"Biryani House\"));\n        testEm.persistAndFlush(new Order(u, r, \"DELIVERED\"));\n        testEm.persistAndFlush(new Order(u, r, \"PLACED\"));\n        testEm.clear();  // ← evict from first-level cache!\n    }\n    \n    @Test\n    void findAllWithDetails_exactlyOneQuery() {\n        SessionFactory sf = em.getEntityManagerFactory()\n            .unwrap(SessionFactory.class);\n        sf.getStatistics().setStatisticsEnabled(true);\n        sf.getStatistics().clear();\n        \n        List<Order> orders = repo.findAllWithDetails();\n        \n        // Accessing associations should NOT fire extra queries:\n        orders.forEach(o -> {\n            assertNotNull(o.getUser().getName());\n            assertNotNull(o.getRestaurant().getName());\n        });\n        \n        long queryCount = sf.getStatistics().getPreparedStatementCount();\n        assertEquals(1, queryCount, \"N+1 detected! Expected 1 query, got \" + queryCount);\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Entity: @ManyToOne(fetch=LAZY) — correct default\n// Bad: repo.findAll() → access association in loop → N+1\n// Fix 1: @Query(\"SELECT o FROM Order o JOIN FETCH o.user\")\n// Fix 2: @EntityGraph(attributePaths={\"user\"}) on method\n// Test: SessionFactory.getStatistics().getPreparedStatementCount() == 1\n// Always testEm.clear() before asserting query count (clears L1 cache)",
+
+    "expected_output": "# BEFORE fix (3 orders, 2 associations):\nHibernate: select id, user_id, restaurant_id from orders\nHibernate: select id, name, email from users where id=?\nHibernate: select id, name, address from restaurants where id=?\nHibernate: select id, name, email from users where id=?       ← REPEATED\nHibernate: select id, name, address from restaurants where id=? ← REPEATED\nHibernate: select id, name, email from users where id=?\nHibernate: select id, name, address from restaurants where id=?\nTotal: 7 queries for 3 orders\n\n# AFTER fix (JOIN FETCH):\nHibernate: select o.id, o.status, u.id, u.name, r.id, r.name\n           from orders o\n           inner join users u on o.user_id=u.id\n           inner join restaurants r on o.restaurant_id=r.id\nTotal: 1 query for 3 orders",
+
+    "things_to_notice": [
+      "FetchType.LAZY is the correct default for @ManyToOne. It defers loading until accessed. The N+1 problem emerges when you access the association in a loop. The fix is in the repository query, not the entity fetch type.",
+      "testEm.clear() before asserting query count: Hibernate's first-level cache (Session cache) stores loaded entities per request. If User U001 was already loaded in the @BeforeEach, accessing it again won't fire a query. clear() evicts all entities from the cache so the next operation starts fresh — giving an accurate query count.",
+      "JOIN FETCH vs @EntityGraph: both produce a JOIN query. JOIN FETCH requires JPQL. @EntityGraph works with any derived query method but defaults to LEFT JOIN (nullable associations are null, not an exception). JOIN FETCH uses INNER JOIN by default. Choose @EntityGraph for simple cases, JOIN FETCH for complex JPQL.",
+      "DISTINCT with @OneToMany JOIN FETCH: SELECT DISTINCT r FROM Restaurant r JOIN FETCH r.orders. Without DISTINCT, each order row duplicates the restaurant — 10 restaurants × 100 orders = 1000 Restaurant objects returned (with duplicates). DISTINCT filters these at the Hibernate level.",
+      "Testing N+1: always write a test that asserts query count after fixing. Without it, a future code change can silently re-introduce N+1. SessionFactory statistics is the most reliable way to count actual queries (not log counting)."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy order listing API",
+        "use_case": "Swiggy's order management dashboard loads 10,000 orders per page. Each order has a User and a Restaurant. Without JOIN FETCH: 20,001 queries, 8-second response time, database at 80% CPU. After JOIN FETCH: 1 query, 150ms response time. The fix was adding 3 lines of JPQL. Every engineer at Swiggy reviews JPA queries for N+1 before code review approval."
+      },
+      {
+        "company_context": "Flipkart product listing",
+        "use_case": "Flipkart's product listing page shows products with their category, seller, and ratings. Product has @ManyToOne Seller, @ManyToOne Category. Before optimization: 3N+1 queries per page load. Fixed with: @EntityGraph(attributePaths={\"seller\",\"category\"}) on the findByActiveTrue() method. One query joins all tables. Rating (separate @OneToMany) uses @BatchSize(size=50)."
+      },
+      {
+        "company_context": "HDFC loan dashboard",
+        "use_case": "HDFC's loan officer dashboard shows all loans with their customer and payment history. Loan → Customer (@ManyToOne) + List<Payment> (@OneToMany). Fix: JOIN FETCH for Customer (required for display), @BatchSize(size=20) for Payments (only shown on drill-down). Mixed strategy: one approach for required data, another for optional data."
+      }
+    ],
+
+    "interview_relevance": "N+1 query problem interview questions:\n\n- **'What is the N+1 query problem?'** → When loading N entities, each entity triggers an additional query for a lazily-loaded association, resulting in N+1 total queries instead of 1.\n- **'How do you detect N+1?'** → Enable spring.jpa.show-sql=true and count SELECT statements in logs. Better: Hibernate statistics.getPreparedStatementCount() in tests.\n- **'How do you fix N+1?'** → JOIN FETCH in @Query, or @EntityGraph on the repository method. For collections: DISTINCT JOIN FETCH or @BatchSize.\n- **'When would you use EAGER loading?'** → Almost never. Eager loading triggers queries even when the association isn't needed. Use JOIN FETCH or @EntityGraph per-query instead of making every load eager.",
+
+    "real_world_workflow": "N+1 prevention workflow:\n\n- Entity design: always use FetchType.LAZY (the JPA default for @ManyToOne in many implementations)\n- Code review: flag any association access inside a loop — potential N+1\n- Testing: add Hibernate statistics assertion to any service that loads collections\n- Log monitoring: configure slow query alerts; N+1 manifests as many identical queries\n- Fix: JOIN FETCH for required associations, @BatchSize for optional collections"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "using_eager_as_fix",
+      "what_students_get_wrong": "Setting FetchType.EAGER on @ManyToOne to 'fix' N+1 — this makes it worse, firing N+1 on EVERY load, even when the association isn't needed.",
+      "remediation": "Keep FetchType.LAZY. Fix N+1 at the query level, not the entity level. @EntityGraph or JOIN FETCH on specific repository methods that need the association. EAGER applies to ALL queries — including those that don't need the association, causing unnecessary joins and data transfer.",
+      "detection_pattern": "N+1 logs on repo.findAll() even without accessing the association — a sign of EAGER loading"
+    },
+    {
+      "gap_id": "join_fetch_with_pagination",
+      "what_students_get_wrong": "Using JOIN FETCH with Pageable (pagination) — Hibernate warns: 'HHH90003004: firstResult/maxResults specified with collection fetch; applying in memory!' and loads ALL records into memory before paginating.",
+      "remediation": "Never combine JOIN FETCH (@OneToMany) with Pageable. The workaround: (1) Use @BatchSize on the collection instead, (2) Load IDs with pagination first, then JOIN FETCH by IDs, (3) Use @EntityGraph with countQuery, (4) Use a DTO projection query that avoids the collection entirely.",
+      "detection_pattern": "HHH90003004 warning in logs; OutOfMemoryError under load; slowness despite pagination"
+    },
+    {
+      "gap_id": "forgetting_cache_clear_in_tests",
+      "what_students_get_wrong": "Not calling testEm.clear() before asserting query count — the L1 cache hides extra queries, making the test pass even when N+1 exists.",
+      "remediation": "Always call entityManager.clear() (or testEntityManager.clear()) before the action being tested. This evicts all entities from the first-level cache, ensuring every association access fires a real query. Without clear(), the test may report 1 query even when N+1 exists.",
+      "detection_pattern": "Query count test passes in isolation but fails under load in production"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "N+1: 1 query for N entities + N queries for each entity's association = N+1 total",
+      "Cause: lazy-loaded associations accessed in a loop",
+      "FetchType.LAZY: default, correct — the N+1 fix is in the query, not the fetch type",
+      "FetchType.EAGER: almost always wrong — triggers joins on every query",
+      "Detection: spring.jpa.show-sql=true + counting SELECT statements in logs",
+      "Detection in tests: SessionFactory.getStatistics().getPreparedStatementCount()",
+      "Fix 1: JOIN FETCH — @Query(\"SELECT o FROM Order o JOIN FETCH o.user\")",
+      "Fix 2: @EntityGraph(attributePaths={\"user\", \"restaurant\"}) on repository method",
+      "Fix 3: @BatchSize(size=N) — for @OneToMany collections",
+      "JOIN FETCH + Pageable: NEVER combine — causes in-memory pagination",
+      "@OneToMany JOIN FETCH: use DISTINCT to avoid duplicate parent entities",
+      "testEm.clear() in tests: evicts L1 cache before asserting query count",
+      "Always test for N+1: add query count assertion after every N+1 fix"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A developer adds FetchType.EAGER to @ManyToOne User on the Order entity to fix N+1. What are the consequences?",
+        "answer": "EAGER on @ManyToOne causes Hibernate to always JOIN users when loading orders — even for queries that never access order.getUser(). Example: orderRepo.count() now joins users unnecessarily. orderRepo.findById() triggers a JOIN. Every derived query fires the JOIN. This increases data transfer, memory use, and query complexity for all order queries. Fix: keep LAZY, use JOIN FETCH or @EntityGraph only on specific methods that need the user data. EAGER is a global setting; JOIN FETCH/EntityGraph are per-query. Per-query is always preferable."
+      },
+      {
+        "question": "You fix N+1 with JOIN FETCH and add Pageable for pagination. Hibernate logs: 'HHH90003004: firstResult/maxResults specified with collection fetch; applying in memory!' What does this mean?",
+        "answer": "When JOIN FETCH is used with a @OneToMany collection, the SQL JOIN produces one row per child entity. For pagination, Hibernate needs to COUNT restaurants, but after the JOIN, each restaurant appears multiple times (once per order). Hibernate can't reliably paginate at the SQL level (LIMIT/OFFSET on rows, not on restaurants), so it loads ALL rows into memory and paginates in Java. With millions of rows, this causes OutOfMemoryError. Fix: (1) Remove JOIN FETCH, use @BatchSize on the collection instead, (2) Paginate on IDs: fetch IDs paginated, then JOIN FETCH by ID list, (3) Use a DTO projection that avoids the @OneToMany entirely."
+      },
+      {
+        "question": "You write a test that loads 10 orders and asserts query count == 1. The test passes. But in production, you see N+1 in the logs. What might be wrong?",
+        "answer": "The first-level cache (L1 cache / Session cache) in the test is masking the N+1. When entities are loaded in @BeforeEach seed(), they're stored in Hibernate's Session cache. When the method under test accesses the association, Hibernate serves it from the cache — no additional query fired — so query count stays 1. Fix: call testEntityManager.clear() (or entityManager.clear()) immediately before the operation being tested. This evicts all entities from the L1 cache, forcing Hibernate to hit the database for every association access. Also verify: the test seed uses the same Hibernate session as the test operation — if they're separate (e.g., separate @Transactional), the cache may not apply anyway."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Connection Pooling & Query Optimization** — you've fixed N+1. The next performance challenge: your PostgreSQL database handles 100 requests/second fine, but spikes to 500 req/s cause timeouts. The problem: connection pool exhaustion. Each request borrows a connection from HikariCP (Spring Boot's default pool). If pool is full, requests wait or timeout. Topic 17.3 covers HikariCP configuration, connection pool sizing, slow query analysis with EXPLAIN ANALYZE, and indexing strategies for query performance."
+  }
+}

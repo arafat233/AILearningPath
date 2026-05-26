@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m19_t3",
+  "language": "java",
+  "module_id": "m19",
+  "module_name": "Microservice Resilience",
+  "topic_number": 3,
+  "name": "Bulkhead Isolation",
+  "slug": "bulkhead-isolation",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m19_t2"],
+    "concepts_taught": [
+      "bulkhead_pattern_overview",
+      "thread_pool_bulkhead",
+      "semaphore_bulkhead",
+      "max_concurrent_calls",
+      "max_wait_duration",
+      "bulkhead_full_exception",
+      "feature_isolation",
+      "bulkhead_annotation",
+      "combining_bulkhead_with_circuit_breaker",
+      "bulkhead_metrics_actuator"
+    ],
+    "skills_developed": [
+      "adding_bulkhead_to_isolate_features",
+      "choosing_thread_pool_vs_semaphore_bulkhead",
+      "configuring_max_concurrent_calls",
+      "testing_bulkhead_saturation"
+    ],
+    "career_relevance": "Bulkheads prevent one resource-hungry feature from starving other features of threads. Swiggy's live order tracking can't be allowed to consume all threads and block payment processing. After this topic, you isolate features so one overloaded feature doesn't bring down the whole service.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+
+  "hook": {
+    "real_world_problem": "Swiggy's order service handles three concurrent features: payment processing (critical), order tracking (heavy polling), restaurant discovery (read-heavy). Without bulkheads:\n\n```\n500 order tracking requests × 3 seconds each = 1500 thread-seconds\nThread pool: 200 threads (all blocked on tracking)\nPayment requests: waiting for a free thread → timeout → payment FAILS\n```\n\n```java\n// WITH bulkheads:\n@Bulkhead(name=\"tracking\",    fallbackMethod=\"cachedTracking\")\n// max 100 concurrent tracking calls → remaining 100 threads for payments!\n@Bulkhead(name=\"payments\",    fallbackMethod=\"paymentBusy\")\n// max 50 concurrent payment calls → isolated, protected\n```",
+    "what_you_will_build": "Add @Bulkhead to isolate features, configure max concurrent calls, and verify bulkhead saturation behavior in tests."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "bulkhead_types": "**Semaphore vs Thread Pool Bulkhead:**\n\n```yaml\nresilience4j:\n  bulkhead:\n    instances:\n      tracking:\n        maxConcurrentCalls: 100       # semaphore: max concurrent calls\n        maxWaitDuration: 500ms        # wait up to 500ms for a permit\n  thread-pool-bulkhead:\n    instances:\n      payments:\n        maxThreadPoolSize: 50         # dedicated thread pool for payments\n        coreThreadPoolSize: 20\n        queueCapacity: 10\n        keepAliveDuration: 20ms\n```\n\n```java\n// Semaphore bulkhead — blocks the calling thread:\n@Bulkhead(name = \"tracking\", fallbackMethod = \"cachedTracking\")\npublic TrackingUpdate getOrderTracking(String orderId) {\n    return trackingClient.fetch(orderId);\n}\nprivate TrackingUpdate cachedTracking(String id, BulkheadFullException e) {\n    return TrackingUpdate.cached(id);  // return last known position\n}\n\n// Thread pool bulkhead — executes in a dedicated thread pool:\n@Bulkhead(name = \"payments\", type = Bulkhead.Type.THREADPOOL)\npublic CompletableFuture<PaymentResult> processPayment(PaymentRequest req) {\n    return CompletableFuture.supplyAsync(() -> paymentClient.process(req));\n    // Runs in the 'payments' thread pool (max 50 threads)\n    // Calling thread returns immediately\n}\n```",
+      "when_to_use": "**Choosing the right bulkhead:**\n\n```\nSemaphore bulkhead:\n  + Simple: limits concurrent requests without extra threads\n  + Same thread executes: no context switching overhead\n  + Use when: limiting concurrent DB calls, external API calls\n  - Calling thread blocks during maxWaitDuration\n\nThread Pool bulkhead:\n  + Full isolation: dedicated threads for this feature\n  + Non-blocking for caller: CompletableFuture return type\n  + Use when: truly isolating a heavy, potentially slow feature\n  - More memory: each pool has its own threads\n  - Requires CompletableFuture/reactive return types\n\nCommon usage:\n  - Payment processing: Thread Pool (isolated, never starved)\n  - Order tracking: Semaphore (limit concurrent, fallback on full)\n  - Search: Semaphore (limit expensive search concurrency)\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Ship bulkhead metaphor: ship divided into compartments. One compartment floods (tracking overloaded) but others stay dry (payments, search unaffected). Java: thread pool as compartments. 200 total threads: tracking pool=100, payment pool=50, search pool=50. When tracking is full (100 calls): fallback fires. Payments unaffected — their 50 threads are isolated.",
+      "alt_text": "Bulkhead isolation: separate thread pools prevent one feature from starving others"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Swiggy order service: isolate live tracking (heavy) from payment processing (critical).",
+    "problem_statement": "1. application.yml: semaphore bulkhead for tracking (max=100), thread pool for payments (max=50)\n2. TrackingService with @Bulkhead + cached fallback\n3. PaymentService with THREADPOOL bulkhead\n4. Test: saturate tracking bulkhead, payments still work",
+    "step_by_step_solution": [
+      { "step": 1, "action": "Semaphore bulkhead for tracking", "details": "```java\n@Bulkhead(name = \"tracking\", fallbackMethod = \"lastKnownTracking\")\npublic TrackingUpdate getTracking(String orderId) {\n    return client.fetch(orderId);\n}\nprivate TrackingUpdate lastKnownTracking(String id, BulkheadFullException e) {\n    System.out.println(\"[Bulkhead] Tracking full — returning cached for \" + id);\n    return TrackingUpdate.cached(id);\n}\n```" }
+    ],
+    "final_code": "// @Bulkhead semaphore: limits concurrent calls, fallback on BulkheadFullException\n// type=THREADPOOL: dedicated thread pool, returns CompletableFuture\n// Isolation: tracking saturation cannot block payment threads",
+    "expected_output": "# 100 concurrent tracking calls (bulkhead full):\n[Bulkhead] Tracking full — returning cached for ORD-101\n# Payments: unaffected, running on their isolated pool",
+    "things_to_notice": [
+      "BulkheadFullException fallback signature: same params + BulkheadFullException (or Exception) last.",
+      "THREADPOOL bulkhead requires CompletableFuture return type — the caller gets the future immediately.",
+      "Semaphore bulkhead maxWaitDuration: how long to wait for a permit. 0ms = fail immediately if full."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Swiggy order service", "use_case": "Bulkhead between live tracking (100 max concurrent) and payment processing (50 max). During dinner rush, 200 tracking requests can't starve the 50 payment threads." }
+    ],
+    "interview_relevance": "'What is a bulkhead pattern?' → Isolates features into separate resource pools. Prevents one overloaded feature from consuming all threads and starving critical paths. Like watertight compartments in a ship.",
+    "real_world_workflow": "Add bulkheads to: any feature with variable load, external API calls with unpredictable latency, features that poll/stream (tracking, notifications)."
+  },
+
+  "common_gaps": [
+    { "gap_id": "wrong_fallback_exception", "what_students_get_wrong": "Using Exception instead of BulkheadFullException in fallback — misses specific handling.", "remediation": "BulkheadFullException is the specific type. Use it for targeted handling. Or use Exception to catch all.", "detection_pattern": "Fallback not called; BulkheadFullException propagates to caller" }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@Bulkhead: limits max concurrent calls to a method",
+      "maxConcurrentCalls: semaphore count for concurrent callers",
+      "BulkheadFullException: thrown when all slots taken and maxWaitDuration exceeded",
+      "THREADPOOL type: dedicated thread pool, CompletableFuture return",
+      "Semaphore type: simpler, same thread, good for limiting concurrent API calls",
+      "Isolation: one feature saturated doesn't starve others"
+    ],
+    "self_check_questions": [
+      { "question": "Why should payment processing have its own bulkhead separate from order tracking?", "answer": "Payments are business-critical. Order tracking is read-heavy and can tolerate degraded performance (return cached location). Without isolation, 500 concurrent tracking requests (3s each) can saturate the thread pool, leaving no threads for payments. With separate bulkheads, the 50 payment threads are always available even if all 100 tracking slots are occupied." }
+    ],
+    "next_topic_preview": "Next: Timeout & Fallback — setting explicit timeouts on every external call so no single slow dependency can block your threads indefinitely."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m46_t2",
+  "module_id": "m46",
+  "topic_number": 2,
+  "name": "Flipkart Preparation \u2014 Scale, Logistics, E-commerce",
+  "slug": "flipkart-prep",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m45_t5"
+    ],
+    "concepts_taught": [
+      "flipkart-prep"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Flipkart Preparation \u2014 Scale, Logistics, E-commerce"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Flipkart scale: 100M+ products, 500M+ users, 10M+ daily transactions",
+        "Interview rounds: 2 coding + 1 system design + 1 behavioral (4 rounds total)",
+        "Focus areas: large-scale distributed systems, recommendation systems, search, inventory",
+        "Flipkart-specific: category-specific problems, seller ecosystem, logistics routing",
+        "Leadership principles: Flipkart has its own 8 leadership principles (customer first, bias for action, etc.)",
+        "System design must address: consistency at scale, CAP trade-offs, failure modes"
+      ],
+      "next_topic_preview": "Next: Razorpay prep."
+    }
+  }
+}

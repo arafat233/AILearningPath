@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m40_t1",
+  "topic_name": "Backtracking Template \u2014 Choose, Explore, Undo",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m40_t1_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Backtracking template",
+      "instructions": "Implement: Backtracking template.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class BTTemplate {\n    static List<List<Integer>> results=new ArrayList<>();\n    static void backtrack(List<Integer> current, int start, int[] candidates, int target){\n        if(target==0){results.add(new ArrayList<>(current));return;}\n        if(target<0)return;\n        for(int i=start;i<candidates.length;i++){\n            current.add(candidates[i]);\n            backtrack(current,i,candidates,target-candidates[i]); // i not i+1 to allow reuse\n            current.remove(current.size()-1); // BACKTRACK\n        }\n    }\n    public static void main(String[] a){results=new ArrayList<>();backtrack(new ArrayList<>(),0,new int[]{2,3,6,7},7);System.out.println(results);System.out.println(\"Template: choose\u2192recurse\u2192undo. O(2^n) to O(n!) depending on branching.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[2, 2, 3], [7]]",
+            "choose\u2192recurse\u2192undo"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m40_t1_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "All permutations (LeetCode #46)",
+      "instructions": "Implement: All permutations (LeetCode #46).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Permutations {\n    static List<List<Integer>> res=new ArrayList<>();\n    static void bt(int[] nums, boolean[] used, List<Integer> curr){\n        if(curr.size()==nums.length){res.add(new ArrayList<>(curr));return;}\n        for(int i=0;i<nums.length;i++){\n            if(used[i])continue;\n            used[i]=true;curr.add(nums[i]);\n            bt(nums,used,curr);\n            curr.remove(curr.size()-1);used[i]=false;} // backtrack\n    }\n    public static void main(String[] a){res=new ArrayList<>();bt(new int[]{1,2,3},new boolean[3],new ArrayList<>());System.out.println(res.size());System.out.println(\"6 permutations of [1,2,3]. O(n!). used[] tracks available elements.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "O(n!)"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m40_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Combinations (LeetCode #77)",
+      "instructions": "Implement: Combinations (LeetCode #77).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Combinations {\n    static List<List<Integer>> res=new ArrayList<>();\n    static void bt(int n,int k,int start,List<Integer> curr){\n        if(curr.size()==k){res.add(new ArrayList<>(curr));return;}\n        for(int i=start;i<=n;i++){curr.add(i);bt(n,k,i+1,curr);curr.remove(curr.size()-1);}}\n    public static void main(String[] a){res=new ArrayList<>();bt(4,2,1,new ArrayList<>());System.out.println(res.size());System.out.println(\"6 combinations of C(4,2). Start from i+1 to avoid repeats. O(C(n,k)).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "C(4,2)"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m40_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Subsets (LeetCode #78)",
+      "instructions": "Implement: Subsets (LeetCode #78).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Subsets {\n    static List<List<Integer>> res=new ArrayList<>();\n    static void bt(int[] nums, int start, List<Integer> curr){\n        res.add(new ArrayList<>(curr)); // add at every call (not just leaf)\n        for(int i=start;i<nums.length;i++){curr.add(nums[i]);bt(nums,i+1,curr);curr.remove(curr.size()-1);}\n    }\n    public static void main(String[] a){res=new ArrayList<>();bt(new int[]{1,2,3},0,new ArrayList<>());System.out.println(res.size());System.out.println(\"8 subsets (2^3). Add current at every call. O(2^n).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "8",
+            "2^n"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m40_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Combination Sum (LeetCode #39)",
+      "instructions": "Implement: Combination Sum (LeetCode #39).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CombSum {\n    static List<List<Integer>> res=new ArrayList<>();\n    static void bt(int[] c,int t,int start,List<Integer> curr){if(t==0){res.add(new ArrayList<>(curr));return;}for(int i=start;i<c.length;i++){if(c[i]>t)break;curr.add(c[i]);bt(c,t-c[i],i,curr);curr.remove(curr.size()-1);}}\n    public static void main(String[] a){res=new ArrayList<>();int[] c={2,3,6,7};java.util.Arrays.sort(c);bt(c,7,0,new ArrayList<>());System.out.println(res);System.out.println(\"[[2,2,3],[7]] \u2014 i not i+1 allows reuse. Sort+prune: if c[i]>target break.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[2, 2, 3], [7]]",
+            "i not i+1 allows reuse"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m40_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Letter Combinations (LeetCode #17)",
+      "instructions": "Implement: Letter Combinations (LeetCode #17).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class PhoneLetters {\n    static final String[] MAP={\"\",\"\",\"abc\",\"def\",\"ghi\",\"jkl\",\"mno\",\"pqrs\",\"tuv\",\"wxyz\"};\n    static List<String> res=new ArrayList<>();\n    static void bt(String digits,int i,StringBuilder curr){if(i==digits.length()){res.add(curr.toString());return;}for(char c:MAP[digits.charAt(i)-'0'].toCharArray()){curr.append(c);bt(digits,i+1,curr);curr.deleteCharAt(curr.length()-1);}}\n    public static void main(String[] a){res=new ArrayList<>();bt(\"23\",0,new StringBuilder());System.out.println(res.size());System.out.println(res.get(0));System.out.println(\"9 combinations for '23'. StringBuilder: deleteCharAt(len-1) to backtrack.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "9",
+            "ad",
+            "deleteCharAt"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m40_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sudoku Solver (LeetCode #37)",
+      "instructions": "Implement: Sudoku Solver (LeetCode #37).",
+      "starter_code": "",
+      "expected_solution": "public class Sudoku {\n    static boolean solve(char[][] b){for(int r=0;r<9;r++)for(int c=0;c<9;c++){if(b[r][c]!='.') continue;for(char d='1';d<='9';d++){if(valid(b,r,c,d)){b[r][c]=d;if(solve(b))return true;b[r][c]='.';}}return false;}return true;}\n    static boolean valid(char[][] b,int r,int c,char d){for(int i=0;i<9;i++){if(b[r][i]==d||b[i][c]==d||b[3*(r/3)+i/3][3*(c/3)+i%3]==d)return false;}return true;}\n    public static void main(String[] a){char[][] b={{'5','3','.','.','7','.','.','.','.'},{'6','.','.','1','9','5','.','.','.'},{'.','9','8','.','.','.','.','6','.'},{'8','.','.','.','6','.','.','.','3'},{'4','.','.','8','.','3','.','.','1'},{'7','.','.','.','2','.','.','.','6'},{'.','6','.','.','.','.','2','8','.'},{'.','.','.','4','1','9','.','.','5'},{'.','.','.','.','8','.','.','7','9'}};solve(b);System.out.println(b[0][2]);System.out.println(b[4][4]);System.out.println(\"Backtracking: try 1-9; validate row/col/box; recurse; undo if invalid.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "5",
+            "row/col/box"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m40_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "N-Queens (LeetCode #51)",
+      "instructions": "Implement: N-Queens (LeetCode #51).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class NQueens {\n    static List<List<String>> res=new ArrayList<>();\n    static void bt(int n,int row,int[] queens){\n        if(row==n){List<String> sol=new ArrayList<>();for(int r=0;r<n;r++){char[] line=new char[n];java.util.Arrays.fill(line,'.');line[queens[r]]='Q';sol.add(new String(line));}res.add(sol);return;}\n        for(int col=0;col<n;col++){boolean ok=true;for(int r=0;r<row;r++)if(queens[r]==col||Math.abs(queens[r]-col)==Math.abs(r-row)){ok=false;break;}if(ok){queens[row]=col;bt(n,row+1,queens);}}}\n    public static void main(String[] a){res=new ArrayList<>();bt(4,0,new int[4]);System.out.println(res.size());System.out.println(\"2 solutions for N=4. Conflict check: same column or diagonal |r1-r2|==|c1-c2|.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "|r1-r2|==|c1-c2|"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m40_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Word Search (LeetCode #79)",
+      "instructions": "Implement: Word Search (LeetCode #79).",
+      "starter_code": "",
+      "expected_solution": "public class WordSearch {\n    static boolean search(char[][] b,String word){for(int r=0;r<b.length;r++)for(int c=0;c<b[0].length;c++)if(dfs(b,word,r,c,0))return true;return false;}\n    static boolean dfs(char[][] b,String w,int r,int c,int i){if(i==w.length())return true;if(r<0||r>=b.length||c<0||c>=b[0].length||b[r][c]!=w.charAt(i))return false;char tmp=b[r][c];b[r][c]='#';boolean res=dfs(b,w,r+1,c,i+1)||dfs(b,w,r-1,c,i+1)||dfs(b,w,r,c+1,i+1)||dfs(b,w,r,c-1,i+1);b[r][c]=tmp;return res;}\n    public static void main(String[] a){char[][] b={{'A','B','C','E'},{'S','F','C','S'},{'A','D','E','E'}};System.out.println(search(b,\"ABCCED\"));System.out.println(search(b,\"SEE\"));System.out.println(search(b,\"ABCB\"));System.out.println(\"Mark visited with '#'; restore after DFS. O(m*n*4^L).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "false",
+            "Mark visited with '#'"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m40_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Palindrome Partitioning (LeetCode #131)",
+      "instructions": "Implement: Palindrome Partitioning (LeetCode #131).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class PalinPartition {\n    static List<List<String>> res=new ArrayList<>();\n    static void bt(String s,int start,List<String> curr){if(start==s.length()){res.add(new ArrayList<>(curr));return;}for(int end=start+1;end<=s.length();end++){String sub=s.substring(start,end);if(isPalin(sub)){curr.add(sub);bt(s,end,curr);curr.remove(curr.size()-1);}}}\n    static boolean isPalin(String s){int l=0,r=s.length()-1;while(l<r)if(s.charAt(l++)!=s.charAt(r--))return false;return true;}\n    public static void main(String[] a){res=new ArrayList<>();bt(\"aab\",0,new ArrayList<>());System.out.println(res);System.out.println(\"[[a,a,b],[aa,b]] \u2014 try all substrings from start; only recurse if palindrome.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[a, a, b], [aa, b]]",
+            "only recurse if palindrome"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m40_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Backtracking synthesis",
+      "instructions": "Implement: Backtracking synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class BTSynth {\n    static List<List<Integer>> perms(int[] nums){List<List<Integer>> res=new ArrayList<>();btp(nums,new boolean[nums.length],new ArrayList<>(),res);return res;}\n    static void btp(int[] n,boolean[] u,List<Integer> c,List<List<Integer>> res){if(c.size()==n.length){res.add(new ArrayList<>(c));return;}for(int i=0;i<n.length;i++){if(u[i])continue;u[i]=true;c.add(n[i]);btp(n,u,c,res);c.remove(c.size()-1);u[i]=false;}}\n    static List<List<Integer>> subs(int[] nums){List<List<Integer>> res=new ArrayList<>();bts(nums,0,new ArrayList<>(),res);return res;}\n    static void bts(int[] n,int s,List<Integer> c,List<List<Integer>> res){res.add(new ArrayList<>(c));for(int i=s;i<n.length;i++){c.add(n[i]);bts(n,i+1,c,res);c.remove(c.size()-1);}}\n    public static void main(String[] a){System.out.println(perms(new int[]{1,2,3}).size());System.out.println(subs(new int[]{1,2,3}).size());boolean ok=perms(new int[]{1,2,3}).size()==6&&subs(new int[]{1,2,3}).size()==8;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "6",
+            "8"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m40_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M40 Backtracking Synthesis",
+      "instructions": "Implement: Complete M40 Backtracking Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class M40Final {\n    static List<List<Integer>> combinationSum(int[] c,int t){List<List<Integer>> res=new ArrayList<>();java.util.Arrays.sort(c);cbt(c,t,0,new ArrayList<>(),res);return res;}\n    static void cbt(int[] c,int t,int s,List<Integer> curr,List<List<Integer>> res){if(t==0){res.add(new ArrayList<>(curr));return;}for(int i=s;i<c.length;i++){if(c[i]>t)break;curr.add(c[i]);cbt(c,t-c[i],i,curr,res);curr.remove(curr.size()-1);}}\n    static List<List<Integer>> subsets(int[] n){List<List<Integer>> res=new ArrayList<>();bts(n,0,new ArrayList<>(),res);return res;}\n    static void bts(int[] n,int s,List<Integer> c,List<List<Integer>> res){res.add(new ArrayList<>(c));for(int i=s;i<n.length;i++){c.add(n[i]);bts(n,i+1,c,res);c.remove(c.size()-1);}}\n    static int nQueens(int n){int[] q=new int[n];int[] cnt={0};nbt(n,0,q,cnt);return cnt[0];}\n    static void nbt(int n,int r,int[] q,int[] cnt){if(r==n){cnt[0]++;return;}for(int c=0;c<n;c++){boolean ok=true;for(int i=0;i<r;i++)if(q[i]==c||Math.abs(q[i]-c)==Math.abs(i-r)){ok=false;break;}if(ok){q[r]=c;nbt(n,r+1,q,cnt);}}}\n    public static void main(String[] a){System.out.println(\"combSum=\"+combinationSum(new int[]{2,3,6,7},7));System.out.println(\"subsets=\"+subsets(new int[]{1,2,3}).size());System.out.println(\"nQueens4=\"+nQueens(4));boolean ok=combinationSum(new int[]{2,3,6,7},7).size()==2&&subsets(new int[]{1,2,3}).size()==8&&nQueens(4)==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "combSum=[[2, 2, 3], [7]]",
+            "subsets=8",
+            "nQueens4=2"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

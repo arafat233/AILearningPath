@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m5_t4_proj",
+  "linked_topic": "java_m5_t4",
+  "level": "mini",
+  "name": "Sortable Product Catalog with Multiple Roles",
+  "estimated_minutes": 60,
+  "difficulty": 7,
+  
+  "scenario": "You're building the backend for an e-commerce platform's product catalog (think Flipkart, Meesho, or Amazon India). Products need to be sortable by multiple criteria, printable in multiple formats, and filterable by category. The system must be extensible — new product types (digital goods, subscription plans) should work with all existing catalog operations without any code changes. This requires careful interface design: each capability is a separate interface, and concrete classes implement the ones they support.",
+  
+  "description": "Design and build a multi-interface product catalog system. Product implements Comparable (natural sort by final price), a Displayable interface (human-readable output), a Filterable interface (category/in-stock checks), and a Discountable interface (price + discount calculation). Static catalog operations program to these interfaces.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Interface `Displayable`: abstract `String display()`, default `void show()` calling display()",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "Interface `Filterable`: abstract `String getCategory()`, abstract `boolean inStock()`, default `boolean isCategory(String cat)` → getCategory().equalsIgnoreCase(cat)",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Interface `Discountable`: abstract `double basePrice()`, abstract `double discountPercent()`, default `double finalPrice()` → base*(1-discount/100), default `double savings()` → base - finalPrice()",
+        "weight": 12
+      },
+      {
+        "id": "req_4",
+        "description": "`Product` class implementing `Comparable<Product>`, `Displayable`, `Filterable`, `Discountable`. Fields: name (String), category (String), stock (int), price (double), discount (double). Comparable: ascending finalPrice(). Validate in constructor: name not empty, price > 0, stock >= 0, discount 0-100.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "Product's display() returns: 'name [category] — ₹finalPrice (was ₹basePrice, discount%)'. inStock() returns stock > 0.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`CatalogManager` class: static Product[] (max 50), static count. Static addProduct(Product), static sortByPrice() (Arrays.sort), static void printAll(), static void printCategory(String cat) using Filterable.isCategory(), static Product findCheapest() returns lowest finalPrice in stock item.",
+        "weight": 25
+      },
+      {
+        "id": "req_7",
+        "description": "main() demonstrates: add 5+ products, sort, print all, filter by category, find cheapest in-stock.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `DigitalProduct` class (no stock concern — always in stock). Implements same interfaces with inStock() always returning true.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add static `totalSavings(Discountable[] items)` in CatalogManager that sums savings() across all items.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `printInStock(Filterable[] items)` static method — prints only in-stock items. Accepts Filterable[], not Product[].",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add interface `Comparable<Product>` to DigitalProduct too — sort digital and physical together in one array.",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Products:\n- 'Wireless Mouse', Electronics, stock=45, price=799, discount=10\n- 'Java Programming Book', Books, stock=0, price=649, discount=15\n- 'USB-C Hub', Electronics, stock=12, price=1299, discount=25\n- 'Mechanical Keyboard', Electronics, stock=8, price=4999, discount=20\n- 'Python Cookbook', Books, stock=5, price=549, discount=5\n- 'Noise Cancelling Earphones', Electronics, stock=0, price=2999, discount=30\n\nExpected cheapest in-stock:\nWireless Mouse: 799*0.9 = 719.10\nPython Cookbook: 549*0.95 = 521.55\nUSB-C Hub: 1299*0.75 = 974.25\nMechanical Keyboard: 4999*0.80 = 3999.20\n→ Cheapest in-stock: Python Cookbook at ₹521.55",
+  
+  "starter_code": "import java.util.Arrays;\n\npublic class ProductCatalogSystem {\n    public static void main(String[] args) {\n        // Add products, demonstrate all operations\n    }\n    \n    // Define: Displayable, Filterable, Discountable interfaces\n    // Define: Product class\n    // Define: CatalogManager class\n}",
+  
+  "example_output": "========================================\n       PRODUCT CATALOG SYSTEM\n========================================\n\n--- All Products (sorted by price) ---\nPython Cookbook [Books] — ₹521.55 (was ₹549.0, 5%)\nWireless Mouse [Electronics] — ₹719.10 (was ₹799.0, 10%)\nUSB-C Hub [Electronics] — ₹974.25 (was ₹1299.0, 25%)\nJava Book [Books] — ₹551.65 (was ₹649.0, 15%)\nEarphones [Electronics] — ₹2099.30 (was ₹2999.0, 30%)\nKeyboard [Electronics] — ₹3999.20 (was ₹4999.0, 20%)\n\n--- Electronics only ---\nWireless Mouse [Electronics] — ₹719.10 (was ₹799.0, 10%)\nUSB-C Hub [Electronics] — ₹974.25 (was ₹1299.0, 25%)\n...\n\n--- Cheapest in-stock ---\nPython Cookbook [Books] — ₹521.55 (was ₹549.0, 5%)\n========================================",
+  
+  "rubric": [
+    {
+      "category": "Interface Design",
+      "points": 25,
+      "criteria": [
+        "Displayable with default show() (8 pts)",
+        "Filterable with default isCategory() (9 pts)",
+        "Discountable with default finalPrice() and savings() (8 pts)"
+      ]
+    },
+    {
+      "category": "Product Class",
+      "points": 30,
+      "criteria": [
+        "All four interfaces implemented (15 pts)",
+        "Comparable by finalPrice() (5 pts)",
+        "Validating constructor (5 pts)",
+        "display() and inStock() correct (5 pts)"
+      ]
+    },
+    {
+      "category": "CatalogManager",
+      "points": 20,
+      "criteria": [
+        "sortByPrice() (5 pts)",
+        "printCategory() uses Filterable.isCategory() (10 pts)",
+        "findCheapest() handles in-stock check (5 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": ["Compiles (10 pts)", "Runs (5 pts)"]
+    },
+    {
+      "category": "Demonstration",
+      "points": 10,
+      "criteria": ["All operations shown (10 pts)"]
+    },
+    {
+      "category": "Bonus",
+      "points": 65,
+      "criteria": [
+        "DigitalProduct (15 pts)",
+        "totalSavings() (15 pts)",
+        "printInStock() accepts Filterable[] (20 pts)",
+        "Unified sort with DigitalProduct (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key design choices: Comparable sorts by finalPrice() (use Double.compare). findCheapest() must skip out-of-stock items — check inStock() on each. printCategory() should accept Filterable[] not Product[] to demonstrate programming-to-interface.",
+  
+  "submission_instructions": "Save as ProductCatalogSystem.java. Run it. Push to GitHub — this demonstrates professional interface design with multiple roles, Comparable for natural ordering, and polymorphic methods. Real Flipkart/Meesho catalog backends have this architecture.",
+  
+  "tips_for_success": [
+    "Define all three interfaces FIRST, then Product. Each interface is small — that's the point.",
+    "Product's display(): use String.format for clean number formatting.",
+    "findCheapest(): start with null, loop, check inStock(), update if finalPrice() lower.",
+    "printCategory() takes Filterable[] — then calls isCategory(). Cast to Displayable for show().",
+    "For sorting: Arrays.sort(products, 0, count) — only sort the filled portion.",
+    "Discount 0-100 validation: if (discount < 0 || discount > 100) throw exception."
+  ],
+  
+  "concepts_reinforced": [
+    "Interface definition (abstract methods + default methods)",
+    "implements multiple interfaces",
+    "Comparable<T> natural ordering via finalPrice()",
+    "Default methods (finalPrice, savings, isCategory, show, inStock)",
+    "Interface as parameter type (Filterable[], Discountable[])",
+    "Programming to interface in static utility methods",
+    "Polymorphism across multiple interface dimensions"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Real e-commerce catalog systems separate concerns exactly this way. 'Displayable' = the UI layer's concern. 'Filterable' = search/filter's concern. 'Discountable' = pricing engine's concern. 'Comparable' = sort engine's concern. Each system component works against ITS interface — it doesn't care about the full Product class. When you add DigitalProduct, each component automatically works because DigitalProduct fulfills the same contracts. This is interface-driven design — the architecture behind every major e-commerce backend.",
+  
+  "extensions_for_advanced_learners": [
+    "Add Comparator<Product> for alternate sort orders (by name, by category, by discount percent)",
+    "Add an interface Bundleable: combine two products into a bundle with combined discount",
+    "Add Exportable interface: toCSV() and toJSON() methods for data export",
+    "Track view count per product; sort by popularity as a secondary Comparator",
+    "Add a Promotable interface: isOnSale(), saleEndsDate() — time-limited discounts"
+  ]
+}

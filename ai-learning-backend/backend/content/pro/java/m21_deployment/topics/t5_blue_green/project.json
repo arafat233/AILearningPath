@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m21_t5_proj",
+  "linked_topic": "java_m21_t5",
+  "level": "mini",
+  "name": "Razorpay Payment Gateway — Progressive Delivery",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+  "scenario": "Razorpay is deploying a new payment tokenization algorithm. Too risky to roll out to all merchants at once. Implement blue-green for major DB-touching releases and canary for incremental algorithm changes, with automatic rollback on SLO breach.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "k8s/blue-green/: payment-blue.yml + payment-green.yml (3 replicas each, labels {app: payment, version: blue/green}) + payment-service.yml (selector: version: blue).", "weight": 20 },
+      { "id": "req_2", "description": "k8s/canary/: payment-stable-ingress.yml + payment-canary-ingress.yml (canary: true, weight: 5). Two Deployments: payment-stable + payment-canary.", "weight": 20 },
+      { "id": "req_3", "description": "FeatureFlagService @Service: isNewTokenizationEnabled(userId) using userId.hashCode() % 100 < rolloutPercentage. @Value: feature.tokenization.enabled + rollout-percentage.", "weight": 15 },
+      { "id": "req_4", "description": "blue-green-deploy.sh: detect active version, deploy to inactive, smoke test, switch Service, with rollback on failure.", "weight": 10 },
+      { "id": "req_5", "description": "@SpringBootTest (3 tests): health returns UP, feature flag logic (100% rollout enables for all users), metrics counter registers. All 3 pass.", "weight": 30 },
+      { "id": "req_6", "description": "README: strategy selection guide (rolling vs canary vs blue-green) with one concrete example each.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "CanaryMonitor @Service: @Scheduled(5min), queries Prometheus error rate, auto-rollback if > 2× SLO threshold. Test: threshold calculation correct.", "weight": 20 },
+      { "id": "bonus_2", "description": "Argo Rollout YAML: canary steps 5% → 25% → 50% → 100% with AnalysisTemplate checking error rate from Prometheus.", "weight": 25 },
+      { "id": "bonus_3", "description": "Expand-contract migration: Flyway V5__expand.sql (add new column, copy data) + PaymentEntity dual-read + V6__contract.sql (drop old column). Document all 4 phases.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Blue-green Service switch: kubectl patch service payment-service -p '{\"spec\":{\"selector\":{\"version\":\"green\"}}}' — Service selector change is atomic (~1 second). Canary Nginx annotations: nginx.ingress.kubernetes.io/canary: 'true' + nginx.ingress.kubernetes.io/canary-weight: '5' (string, not integer). userId.hashCode() % 100 for stable user bucketing — same user always gets same experience. Rollback canary: patch canary-weight annotation to '0'. Dual-read pattern: getPaymentRef() ?? getPaymentReference() during DB migration transition period.",
+  "rubric": [
+    { "category": "k8s/blue-green/ YAMLs", "points": 20 },
+    { "category": "k8s/canary/ YAMLs", "points": 20 },
+    { "category": "FeatureFlagService", "points": 15 },
+    { "category": "blue-green-deploy.sh", "points": 10 },
+    { "category": "@SpringBootTest (3 tests)", "points": 30 },
+    { "category": "README strategy guide", "points": 5 },
+    { "category": "Bonus", "points": 65 }
+  ]
+}

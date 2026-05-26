@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t5",
+  "topic_name": "Async I/O with HttpClient and CompletableFuture",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m11_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace sendAsync chain",
+      "scenario": "sendAsync returns CF — chain works like any other CF.",
+      "instructions": "What does this print? (Uses supplyAsync to simulate sendAsync)\n\n```java\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        CompletableFuture.supplyAsync(() -> \"HTTP 200 OK\")\n            .thenApply(status -> status.contains(\"200\") ? \"success\" : \"failure\")\n            .thenApply(String::toUpperCase)\n            .thenAccept(System.out::println)\n            .get();\n    }\n}\n```",
+      "expected_solution": "SUCCESS",
+      "test_cases": [
+        { "type": "text_match", "expected": "SUCCESS" }
+      ],
+      "hints": [
+        "supplyAsync returns 'HTTP 200 OK'",
+        "thenApply checks contains('200') → 'success'",
+        "thenApply toUpperCase → 'SUCCESS'",
+        "thenAccept prints it"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "sendAsync vs send — method names",
+      "scenario": "The non-blocking version adds 'Async' to the method name.",
+      "instructions": "Fill in the blank with the async HTTP send method name.",
+      "starter_code": "import java.net.http.*;\nimport java.net.URI;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        HttpClient client = HttpClient.newHttpClient();\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://httpbin.org/get\")).GET().build();\n        CompletableFuture<HttpResponse<String>> future = client\n            .____________(req, HttpResponse.BodyHandlers.ofString());\n        System.out.println(\"Request fired — not blocking!\");\n        System.out.println(\"Status: \" + future.get().statusCode());\n    }\n}",
+      "expected_solution": "import java.net.http.*;\nimport java.net.URI;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        HttpClient client = HttpClient.newHttpClient();\n        HttpRequest req = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://httpbin.org/get\")).GET().build();\n        CompletableFuture<HttpResponse<String>> future = client\n            .sendAsync(req, HttpResponse.BodyHandlers.ofString());\n        System.out.println(\"Request fired — not blocking!\");\n        System.out.println(\"Status: \" + future.get().statusCode());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "sendAsync", "hint": "Async version of send() — returns CF immediately" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Request fired — not blocking!"] }
+      ],
+      "hints": [
+        "sendAsync — the async counterpart to send()",
+        "Returns CompletableFuture<HttpResponse<T>> immediately"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Async chain with mock HTTP",
+      "scenario": "Simulate sendAsync, chain thenApply for parsing.",
+      "instructions": "Simulate an async HTTP response. Chain thenApply to extract status and parse a number from the 'body'. Use exceptionally for fallback.\n\nExpected output:\nAsync result: 42\nFallback: -1",
+      "starter_code": "import java.util.concurrent.*;\n// Simulate async HTTP: supply body → thenApply parse → exceptionally fallback\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    static CompletableFuture<Integer> fetchNumber(boolean succeed) {\n        return CompletableFuture.supplyAsync(() -> {\n            if (!succeed) throw new RuntimeException(\"HTTP 503\");\n            return \"{\\\"value\\\": 42}\";  // simulated response body\n        })\n        .thenApply(body -> Integer.parseInt(body.replaceAll(\".*: (\\\\d+).*\", \"$1\")))\n        .exceptionally(ex -> -1);\n    }\n    public static void main(String[] args) throws Exception {\n        System.out.println(\"Async result: \" + fetchNumber(true).get());\n        System.out.println(\"Fallback: \"     + fetchNumber(false).get());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Async result: 42\nFallback: -1" }
+      ],
+      "hints": [
+        "thenApply chains transformation of the body",
+        "exceptionally catches any RuntimeException and returns -1"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m11_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Parallel fetch timing comparison",
+      "scenario": "Show that parallel async is faster than sequential blocking.",
+      "instructions": "Simulate 4 tasks (each 150ms) two ways: sequential and parallel async. Print elapsed times.\n\nExpected output:\nSequential: ~600ms\nParallel async: ~150ms\nSpeedup: ~4x",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\n// Compare sequential vs parallel async timing\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    public static void main(String[] args) throws Exception {\n        // Sequential:\n        long seqStart = System.currentTimeMillis();\n        for (int i = 0; i < 4; i++) sleep(150);\n        long seqTime = System.currentTimeMillis() - seqStart;\n        System.out.printf(\"Sequential: ~%dms%n\", (seqTime / 100) * 100);\n        \n        // Parallel async:\n        long parStart = System.currentTimeMillis();\n        List<CompletableFuture<Void>> futures = IntStream.range(0, 4)\n            .mapToObj(i -> CompletableFuture.runAsync(() -> sleep(150)))\n            .collect(Collectors.toList());\n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();\n        long parTime = System.currentTimeMillis() - parStart;\n        System.out.printf(\"Parallel async: ~%dms%n\", (parTime / 100) * 100);\n        System.out.printf(\"Speedup: ~%dx%n\", Math.round((double) seqTime / parTime));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Sequential:", "Parallel async:", "Speedup:"] }
+      ],
+      "hints": [
+        "Sequential: 4 × sleep(150) = ~600ms",
+        "Parallel: runAsync for each, allOf to wait = ~150ms",
+        "Speedup ≈ seqTime / parTime ≈ 4"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m11_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Async JSON parse chain",
+      "scenario": "sendAsync → thenApply (check status) → thenApply (parse Jackson).",
+      "instructions": "Simulate sendAsync returning a mock response. Chain: check status code → parse JSON → extract field. Use Jackson.\n\nExpected output:\nCity: Bengaluru\nTemp: 28°C",
+      "starter_code": "import java.util.concurrent.*;\nimport com.fasterxml.jackson.databind.*;\n// sendAsync → thenApply status check → thenApply Jackson parse\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport com.fasterxml.jackson.databind.*;\npublic class App {\n    static final ObjectMapper MAPPER = new ObjectMapper();\n    // Simulate: returns (statusCode, body) pair\n    record MockResponse(int status, String body) {}\n    \n    public static void main(String[] args) throws Exception {\n        CompletableFuture.supplyAsync(() ->\n            new MockResponse(200, \"{\\\"city\\\":\\\"Bengaluru\\\",\\\"temp\\\":28}\"))\n        .thenApply(r -> {\n            if (r.status() != 200) throw new RuntimeException(\"HTTP \" + r.status());\n            return r.body();\n        })\n        .thenApply(body -> {\n            try { return MAPPER.readTree(body); }\n            catch (Exception e) { throw new RuntimeException(e); }\n        })\n        .thenAccept(json -> {\n            System.out.println(\"City: \" + json.path(\"city\").asText());\n            System.out.println(\"Temp: \" + json.path(\"temp\").asInt() + \"°C\");\n        })\n        .get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "City: Bengaluru\nTemp: 28°C" }
+      ],
+      "hints": [
+        "thenApply checks status, returns body string",
+        "thenApply parses with MAPPER.readTree(body)",
+        "Checked exception in thenApply → wrap as RuntimeException"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m11_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "exceptionally for 404 fallback",
+      "scenario": "404 response handled gracefully in async chain.",
+      "instructions": "Simulate async requests for 3 symbols: 2 succeed, 1 returns 404. Use exceptionally to return 'NOT_FOUND' for 404s. Collect and print all results.\n\nExpected output:\nTCS: ₹3890\nINFY: NOT_FOUND\nRELIANCE: ₹2450",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\n// Async requests with 404 fallback via exceptionally\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    static CompletableFuture<String> fetchPrice(String symbol) {\n        return CompletableFuture.supplyAsync(() -> {\n            Map<String, Integer> prices = Map.of(\"TCS\", 3890, \"RELIANCE\", 2450);\n            if (!prices.containsKey(symbol)) throw new RuntimeException(\"HTTP 404\");\n            return \"₹\" + prices.get(symbol);\n        }).exceptionally(ex -> \"NOT_FOUND\");\n    }\n    public static void main(String[] args) throws Exception {\n        List<String> symbols = List.of(\"TCS\", \"INFY\", \"RELIANCE\");\n        List<CompletableFuture<String>> futures = symbols.stream()\n            .map(App::fetchPrice).collect(Collectors.toList());\n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n            .thenRun(() -> {\n                for (int i = 0; i < symbols.size(); i++) {\n                    System.out.println(symbols.get(i) + \": \" + futures.get(i).join());\n                }\n            }).get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "TCS: ₹3890\nINFY: NOT_FOUND\nRELIANCE: ₹2450" }
+      ],
+      "hints": [
+        "exceptionally on each CF — per-request fallback",
+        "allOf waits for all; join inside thenRun is instant",
+        "futures list preserves submission order"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m11_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "anyOf — fastest CDN wins",
+      "scenario": "anyOf returns first completed future — fastest wins.",
+      "instructions": "Simulate 3 CDN endpoints with different delays (300ms, 100ms, 200ms). Use anyOf to get the fastest response.\n\nExpected output:\nFastest CDN responded: cdn2.example.com (100ms)\nTotal time: ~100ms",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\n// anyOf: fastest CDN wins\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.*;\npublic class App {\n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    public static void main(String[] args) throws Exception {\n        long start = System.currentTimeMillis();\n        record CdnResult(String host, long ms) {}\n        \n        CompletableFuture<CdnResult> cdn1 = CompletableFuture.supplyAsync(() -> {\n            sleep(300); return new CdnResult(\"cdn1.example.com\", 300);\n        });\n        CompletableFuture<CdnResult> cdn2 = CompletableFuture.supplyAsync(() -> {\n            sleep(100); return new CdnResult(\"cdn2.example.com\", 100);\n        });\n        CompletableFuture<CdnResult> cdn3 = CompletableFuture.supplyAsync(() -> {\n            sleep(200); return new CdnResult(\"cdn3.example.com\", 200);\n        });\n        \n        CompletableFuture.anyOf(cdn1, cdn2, cdn3)\n            .thenAccept(result -> {\n                CdnResult r = (CdnResult) result;\n                System.out.printf(\"Fastest CDN responded: %s (%dms)%n\", r.host(), r.ms());\n                System.out.printf(\"Total time: ~%dms%n\",\n                    (System.currentTimeMillis() - start) / 100 * 100);\n            })\n            .get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["cdn2.example.com (100ms)", "Total time: ~100ms"] }
+      ],
+      "hints": [
+        "anyOf completes when ANY one future completes",
+        "cdn2 at 100ms is the fastest",
+        "Cast Object result back to CdnResult"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m11_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "allOf with per-request error handling",
+      "scenario": "Individual failures handled; others still collected.",
+      "instructions": "5 async requests — 3 succeed, 2 fail. Each failure returns a default. allOf collects all. Print successful and failed counts.\n\nExpected output:\nResults collected: 5\nSuccessful: 3\nFailed (used default): 2",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\n// allOf with per-request fallback via exceptionally\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    record Result(String id, int value, boolean success) {}\n    \n    static CompletableFuture<Result> fetch(String id, boolean willSucceed) {\n        return CompletableFuture.supplyAsync(() -> {\n            if (!willSucceed) throw new RuntimeException(\"Simulated failure for \" + id);\n            return new Result(id, id.hashCode() % 1000, true);\n        }).exceptionally(ex -> new Result(id, -1, false));\n    }\n    \n    public static void main(String[] args) throws Exception {\n        List<CompletableFuture<Result>> futures = List.of(\n            fetch(\"A\", true), fetch(\"B\", false), fetch(\"C\", true),\n            fetch(\"D\", false), fetch(\"E\", true));\n        \n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n            .thenRun(() -> {\n                List<Result> results = futures.stream()\n                    .map(CompletableFuture::join).collect(Collectors.toList());\n                long successes = results.stream().filter(Result::success).count();\n                long failures  = results.size() - successes;\n                System.out.println(\"Results collected: \" + results.size());\n                System.out.println(\"Successful: \" + successes);\n                System.out.println(\"Failed (used default): \" + failures);\n            }).get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Results collected: 5\nSuccessful: 3\nFailed (used default): 2" }
+      ],
+      "hints": [
+        "exceptionally on each CF provides per-request fallback",
+        "allOf waits for ALL (including failed ones that returned defaults)",
+        "Count by filtering Result::success"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Async stock dashboard — Jackson parse chain",
+      "scenario": "Full async pipeline: simulate HTTP, parse JSON, display.",
+      "instructions": "Fetch 5 stock quotes in parallel (simulated). Parse each with Jackson. Print sorted dashboard. Show total time.\n\nExpected output (sorted by price desc):\n=== Async Stock Dashboard ===\nFetched in ~Nms\n\nTCS          ₹3,890\nRELIANCE     ₹2,450\nHDFC         ₹1,679\nINFY         ₹1,560\nWIPRO          ₹412",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport com.fasterxml.jackson.databind.*;\n// Async stock dashboard with Jackson parse chain\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport com.fasterxml.jackson.databind.*;\npublic class App {\n    static final ObjectMapper MAPPER = new ObjectMapper();\n    record Quote(String symbol, double price) {}\n    \n    static CompletableFuture<Quote> fetchQuoteAsync(String symbol) {\n        Map<String, Integer> prices = Map.of(\n            \"TCS\",3890, \"RELIANCE\",2450, \"INFY\",1560, \"HDFC\",1679, \"WIPRO\",412);\n        return CompletableFuture.supplyAsync(() -> {\n            try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            String json = \"{\\\"symbol\\\":\\\"\" + symbol + \"\\\",\\\"price\\\":\" + prices.get(symbol) + \"}\";\n            try {\n                JsonNode node = MAPPER.readTree(json);\n                return new Quote(node.path(\"symbol\").asText(), node.path(\"price\").asDouble());\n            } catch (Exception e) { throw new RuntimeException(e); }\n        });\n    }\n    \n    public static void main(String[] args) throws Exception {\n        long start = System.currentTimeMillis();\n        List<String> symbols = List.of(\"TCS\", \"RELIANCE\", \"INFY\", \"HDFC\", \"WIPRO\");\n        \n        List<CompletableFuture<Quote>> futures = symbols.stream()\n            .map(App::fetchQuoteAsync).collect(Collectors.toList());\n        \n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n            .thenRun(() -> {\n                System.out.println(\"=== Async Stock Dashboard ===\");\n                System.out.printf(\"Fetched in ~%dms%n%n\",\n                    (System.currentTimeMillis() - start) / 10 * 10);\n                futures.stream()\n                    .map(CompletableFuture::join)\n                    .sorted((a, b) -> Double.compare(b.price(), a.price()))\n                    .forEach(q -> System.out.printf(\"%-12s ₹%,6.0f%n\", q.symbol(), q.price()));\n            })\n            .get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["=== Async Stock Dashboard ===", "TCS", "RELIANCE", "WIPRO"] }
+      ],
+      "hints": [
+        "All 5 CFs start simultaneously — total time ~50ms not 250ms",
+        "MAPPER.readTree inside lambda → wrap JsonProcessingException as RuntimeException",
+        "Join inside thenRun is safe — all futures already done"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace allOf ordering",
+      "scenario": "allOf fires thenRun only after ALL futures complete; join order is submission order.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.concurrent.*;\nimport java.util.*;\npublic class App {\n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    public static void main(String[] args) throws Exception {\n        CompletableFuture<String> f1 = CompletableFuture.supplyAsync(() -> { sleep(300); return \"slow\"; });\n        CompletableFuture<String> f2 = CompletableFuture.supplyAsync(() -> { sleep(100); return \"fast\"; });\n        CompletableFuture<String> f3 = CompletableFuture.supplyAsync(() -> { sleep(200); return \"medium\"; });\n        \n        CompletableFuture.allOf(f1, f2, f3)\n            .thenRun(() -> System.out.println(\n                f1.join() + \",\" + f2.join() + \",\" + f3.join()))\n            .get();\n    }\n}\n```",
+      "expected_solution": "slow,fast,medium",
+      "test_cases": [
+        { "type": "text_match", "expected": "slow,fast,medium" }
+      ],
+      "hints": [
+        "allOf fires thenRun when all 3 are done — after 300ms",
+        "join() order matches f1, f2, f3 — submission order, not completion order",
+        "Output is in join() call order: slow, fast, medium"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m11_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Async service fan-out — product page assembly",
+      "scenario": "3 async services in parallel; assemble result when all done.",
+      "instructions": "Simulate a product page that fetches: product details (200ms), ratings (150ms), inventory (100ms) — all in parallel. Assemble and print when all done.\n\nExpected output:\n=== Product Page ===\nProduct: Wireless Mouse (₹799)\nRating: 4.3 ★ (218 reviews)\nInventory: 47 units in stock\nAssembled in ~200ms",
+      "starter_code": "import java.util.concurrent.*;\n// Async product page — 3 parallel service calls\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    record Product(String name, int price) {}\n    record Rating(double score, int reviews) {}\n    record Inventory(int units) {}\n    \n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    \n    public static void main(String[] args) throws Exception {\n        long start = System.currentTimeMillis();\n        \n        CompletableFuture<Product>   productCF   = CompletableFuture.supplyAsync(() -> { sleep(200); return new Product(\"Wireless Mouse\", 799); });\n        CompletableFuture<Rating>    ratingCF    = CompletableFuture.supplyAsync(() -> { sleep(150); return new Rating(4.3, 218); });\n        CompletableFuture<Inventory> inventoryCF = CompletableFuture.supplyAsync(() -> { sleep(100); return new Inventory(47); });\n        \n        CompletableFuture.allOf(productCF, ratingCF, inventoryCF)\n            .thenRun(() -> {\n                Product   p = productCF.join();\n                Rating    r = ratingCF.join();\n                Inventory i = inventoryCF.join();\n                long ms = (System.currentTimeMillis() - start) / 100 * 100;\n                System.out.println(\"=== Product Page ===\");\n                System.out.printf(\"Product: %s (₹%d)%n\", p.name(), p.price());\n                System.out.printf(\"Rating: %.1f ★ (%d reviews)%n\", r.score(), r.reviews());\n                System.out.printf(\"Inventory: %d units in stock%n\", i.units());\n                System.out.printf(\"Assembled in ~%dms%n\", ms);\n            })\n            .get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["=== Product Page ===", "Wireless Mouse", "4.3 ★", "47 units", "Assembled in ~200ms"] }
+      ],
+      "hints": [
+        "All 3 CFs start simultaneously — total ~200ms (slowest)",
+        "join() inside thenRun is instant — already done",
+        "Not 200+150+100 = 450ms sequential"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Sequential async pipeline with thenCompose",
+      "scenario": "Dependent async steps — each waits for previous result.",
+      "instructions": "Simulate a 3-step async pipeline: fetch userId → fetch user → fetch user's orders. Each step depends on the previous result. Use thenCompose.\n\nExpected output:\nStep 1: Resolved userId = 42\nStep 2: Fetched user = Aisha\nStep 3: Found 5 orders for Aisha\nPipeline complete",
+      "starter_code": "import java.util.concurrent.*;\n// Sequential async: thenCompose chain\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    \n    static CompletableFuture<Integer> resolveUserId(String token) {\n        return CompletableFuture.supplyAsync(() -> { sleep(80); System.out.println(\"Step 1: Resolved userId = 42\"); return 42; });\n    }\n    static CompletableFuture<String> fetchUser(int userId) {\n        return CompletableFuture.supplyAsync(() -> { sleep(100); System.out.println(\"Step 2: Fetched user = Aisha\"); return \"Aisha\"; });\n    }\n    static CompletableFuture<String> fetchOrders(String username) {\n        return CompletableFuture.supplyAsync(() -> { sleep(60);\n            String result = \"Found 5 orders for \" + username;\n            System.out.println(\"Step 3: \" + result); return result; });\n    }\n    \n    public static void main(String[] args) throws Exception {\n        resolveUserId(\"bearer-token-xyz\")\n            .thenCompose(userId   -> fetchUser(userId))\n            .thenCompose(username -> fetchOrders(username))\n            .thenAccept(result    -> System.out.println(\"Pipeline complete\"))\n            .get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Step 1: Resolved userId = 42\nStep 2: Fetched user = Aisha\nStep 3: Found 5 orders for Aisha\nPipeline complete" }
+      ],
+      "hints": [
+        "thenCompose for steps where next step returns CF",
+        "Each step receives the RESULT of the previous step",
+        "Total: 80+100+60=240ms sequential — but no threads blocked between steps"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Async price comparison across multiple APIs",
+      "scenario": "Fan-out to multiple price sources; take the best price.",
+      "instructions": "Fetch price for 'Laptop' from 3 simulated APIs simultaneously (different delays, slightly different prices). Take the LOWEST price. Show which API won.\n\nExpected output:\nFetching from 3 price APIs in parallel...\nFlipkart: ₹45999 (180ms)\nAmazon:   ₹46499 (120ms)\nMeesho:   ₹44999 (200ms)\nBest price: ₹44999 from Meesho\nFetched in ~200ms",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\n// Parallel price comparison across 3 APIs\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    record PriceResult(String source, int price, long ms) {}\n    \n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    \n    static CompletableFuture<PriceResult> fetchPrice(String source, int price, long delay) {\n        return CompletableFuture.supplyAsync(() -> {\n            long start = System.currentTimeMillis();\n            sleep(delay);\n            long ms = System.currentTimeMillis() - start;\n            System.out.printf(\"%-10s ₹%,d (%dms)%n\", source + \":\", price, ms);\n            return new PriceResult(source, price, ms);\n        });\n    }\n    \n    public static void main(String[] args) throws Exception {\n        System.out.println(\"Fetching from 3 price APIs in parallel...\");\n        long start = System.currentTimeMillis();\n        \n        List<CompletableFuture<PriceResult>> futures = List.of(\n            fetchPrice(\"Flipkart\", 45999, 180),\n            fetchPrice(\"Amazon\",   46499, 120),\n            fetchPrice(\"Meesho\",   44999, 200));\n        \n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n            .thenRun(() -> {\n                PriceResult best = futures.stream()\n                    .map(CompletableFuture::join)\n                    .min(Comparator.comparingInt(PriceResult::price))\n                    .orElseThrow();\n                System.out.printf(\"Best price: ₹%,d from %s%n\", best.price(), best.source());\n                System.out.printf(\"Fetched in ~%dms%n\",\n                    (System.currentTimeMillis() - start) / 100 * 100);\n            })\n            .get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Flipkart:", "Amazon:", "Meesho:", "Best price: ₹44,999 from Meesho"] }
+      ],
+      "hints": [
+        "All 3 start simultaneously — total ~200ms (slowest API)",
+        "min() by price to find best deal",
+        "Print order may vary (depends on completion time)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Async retry with exponential backoff",
+      "scenario": "Retry failed async requests with increasing wait times.",
+      "instructions": "Implement `retryAsync(Supplier<CF<T>>, int maxRetries)` that retries on RuntimeException with 100ms, 200ms, 400ms backoff. Test with a supplier that fails twice then succeeds.\n\nExpected output:\nAttempt 1 failed — retrying in 100ms\nAttempt 2 failed — retrying in 200ms\nAttempt 3 succeeded: result\nFinal: result",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.function.*;\n// Async retry with exponential backoff\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.function.*;\npublic class App {\n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    \n    static <T> CompletableFuture<T> retryAsync(\n            Supplier<CompletableFuture<T>> taskSupplier, int maxRetries) {\n        return taskSupplier.get().exceptionallyCompose(ex -> {\n            if (maxRetries <= 0) return CompletableFuture.failedFuture(ex);\n            long backoff = (long)(100 * Math.pow(2, 3 - maxRetries));\n            System.out.printf(\"Attempt %d failed — retrying in %dms%n\",\n                4 - maxRetries, backoff);\n            sleep(backoff);\n            return retryAsync(taskSupplier, maxRetries - 1);\n        });\n    }\n    \n    public static void main(String[] args) throws Exception {\n        int[] count = {0};\n        Supplier<CompletableFuture<String>> task = () -> CompletableFuture.supplyAsync(() -> {\n            count[0]++;\n            if (count[0] < 3) throw new RuntimeException(\"transient error\");\n            System.out.println(\"Attempt \" + count[0] + \" succeeded: result\");\n            return \"result\";\n        });\n        String result = retryAsync(task, 3).get();\n        System.out.println(\"Final: \" + result);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Attempt 1 failed", "Attempt 2 failed", "Attempt 3 succeeded", "Final: result"] }
+      ],
+      "hints": [
+        "exceptionallyCompose: like exceptionally but returns CF (enables async retry)",
+        "Exponential backoff: 100ms, 200ms, 400ms",
+        "Recursive call: retryAsync(taskSupplier, maxRetries - 1)"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m11_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete async payment aggregation — Module 11 synthesis",
+      "scenario": "Full async I/O pipeline: parallel HTTP → JSON parse → validate → aggregate → write report.",
+      "instructions": "Module 11 capstone:\n1. Fetch payment records from 3 'APIs' in parallel (simulated, each returns JSON array)\n2. Parse each JSON response with Jackson\n3. Combine all records\n4. Compute: total amount, count by status, failed payments\n5. Write JSON summary report to file with Files.writeString\n6. Print results\n\nExpected output:\n=== Payment Aggregation Report ===\nAPIs queried: 3\nTotal payments: 9\nSuccessful: 6  |  Failed: 3\nTotal amount: ₹[sum]\nReport written: report.json",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport java.nio.file.*;\nimport com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport com.fasterxml.jackson.core.type.*;\n// Async payment aggregation — M11 synthesis\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport java.nio.file.*;\nimport com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport com.fasterxml.jackson.core.type.*;\n\npublic class App {\n    static final ObjectMapper MAPPER = new ObjectMapper();\n    record Payment(String id, String status, int amount) {}\n    \n    // Simulate API returning JSON array of payments:\n    static CompletableFuture<List<Payment>> fetchPayments(String region, String jsonData) {\n        return CompletableFuture.supplyAsync(() -> {\n            try {\n                Thread.sleep(50 + (int)(Math.random()*100));\n                return MAPPER.readValue(jsonData, new TypeReference<List<Payment>>(){});\n            } catch (Exception e) { throw new RuntimeException(e); }\n        });\n    }\n    \n    public static void main(String[] args) throws Exception {\n        // Simulate 3 regional API responses:\n        String north = \"[{\\\"id\\\":\\\"P001\\\",\\\"status\\\":\\\"SUCCESS\\\",\\\"amount\\\":1500},\" +\n            \"{\\\"id\\\":\\\"P002\\\",\\\"status\\\":\\\"FAILED\\\",\\\"amount\\\":800},\" +\n            \"{\\\"id\\\":\\\"P003\\\",\\\"status\\\":\\\"SUCCESS\\\",\\\"amount\\\":2200}]\";\n        String south = \"[{\\\"id\\\":\\\"P004\\\",\\\"status\\\":\\\"SUCCESS\\\",\\\"amount\\\":999},\" +\n            \"{\\\"id\\\":\\\"P005\\\",\\\"status\\\":\\\"FAILED\\\",\\\"amount\\\":450},\" +\n            \"{\\\"id\\\":\\\"P006\\\",\\\"status\\\":\\\"SUCCESS\\\",\\\"amount\\\":3500}]\";\n        String west  = \"[{\\\"id\\\":\\\"P007\\\",\\\"status\\\":\\\"FAILED\\\",\\\"amount\\\":1200},\" +\n            \"{\\\"id\\\":\\\"P008\\\",\\\"status\\\":\\\"SUCCESS\\\",\\\"amount\\\":750},\" +\n            \"{\\\"id\\\":\\\"P009\\\",\\\"status\\\":\\\"SUCCESS\\\",\\\"amount\\\":2800}]\";\n        \n        List<CompletableFuture<List<Payment>>> futures = List.of(\n            fetchPayments(\"north\", north),\n            fetchPayments(\"south\", south),\n            fetchPayments(\"west\",  west));\n        \n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n            .thenRun(() -> {\n                List<Payment> all = futures.stream()\n                    .map(CompletableFuture::join)\n                    .flatMap(List::stream)\n                    .collect(Collectors.toList());\n                \n                long successful = all.stream().filter(p -> \"SUCCESS\".equals(p.status())).count();\n                long failed     = all.stream().filter(p -> \"FAILED\" .equals(p.status())).count();\n                long total      = all.stream().mapToLong(Payment::amount).sum();\n                \n                // Build JSON report:\n                ObjectNode report = MAPPER.createObjectNode();\n                report.put(\"apisQueried\", futures.size());\n                report.put(\"totalPayments\", all.size());\n                report.put(\"successful\",    successful);\n                report.put(\"failed\",        failed);\n                report.put(\"totalAmount\",   total);\n                \n                try {\n                    Files.writeString(Path.of(\"report.json\"),\n                        MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(report));\n                } catch (Exception e) { throw new RuntimeException(e); }\n                \n                System.out.println(\"=== Payment Aggregation Report ===\");\n                System.out.println(\"APIs queried: \" + futures.size());\n                System.out.println(\"Total payments: \" + all.size());\n                System.out.println(\"Successful: \" + successful + \"  |  Failed: \" + failed);\n                System.out.println(\"Total amount: ₹\" + total);\n                System.out.println(\"Report written: report.json\");\n            })\n            .get();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "=== Payment Aggregation Report ===\nAPIs queried: 3\nTotal payments: 9\nSuccessful: 6  |  Failed: 3\nTotal amount: ₹14199\nReport written: report.json" }
+      ],
+      "hints": [
+        "TypeReference<List<Payment>>{} for JSON array → List parse",
+        "flatMap(List::stream) to merge 3 lists into one",
+        "Files.writeString inside thenRun → wrap IOException as RuntimeException"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 715,
+    "estimated_completion_minutes": 70
+  }
+}

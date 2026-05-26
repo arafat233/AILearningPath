@@ -1,0 +1,373 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t4",
+  "topic_name": "Interfaces",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m5_t4_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Implement a simple interface",
+      "scenario": "Practice the implements keyword and interface method override.",
+      "instructions": "Fill in the blanks to make Robot implement Greetable.",
+      "starter_code": "interface Greetable {\n    String greet();\n}\n\nclass Robot ______ Greetable {\n    private String id;\n    public Robot(String id) { this.id = id; }\n    \n    ______\n    public String greet() {\n        return \"Hello, I am Robot \" + id;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Greetable g = new Robot(\"R2D2\");\n        System.out.println(g.greet());\n    }\n}",
+      "expected_solution": "interface Greetable {\n    String greet();\n}\n\nclass Robot implements Greetable {\n    private String id;\n    public Robot(String id) { this.id = id; }\n    \n    @Override\n    public String greet() {\n        return \"Hello, I am Robot \" + id;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Greetable g = new Robot(\"R2D2\");\n        System.out.println(g.greet());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "implements", "hint": "Keyword for interface adoption" },
+        { "position": 2, "answer": "@Override", "hint": "Annotation for implementing interface method" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Hello, I am Robot R2D2" }
+      ],
+      "hints": [
+        "implements keyword (not extends) for interfaces",
+        "@Override documents that you're implementing the interface method",
+        "Greetable g = new Robot(...) — interface as reference type"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m5_t4_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Interface default method",
+      "scenario": "Default methods come free with the interface.",
+      "instructions": "What does this print?\n\n```java\ninterface Describable {\n    String getName();\n    \n    default void describe() {\n        System.out.println(\"I am: \" + getName());\n    }\n}\n\nclass City implements Describable {\n    private String name;\n    public City(String name) { this.name = name; }\n    @Override public String getName() { return name; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        City c = new City(\"Hyderabad\");\n        c.describe();\n    }\n}\n```",
+      "expected_solution": "I am: Hyderabad",
+      "test_cases": [
+        { "type": "text_match", "expected": "I am: Hyderabad" }
+      ],
+      "hints": [
+        "City implements getName() (abstract)",
+        "describe() is a default method — City gets it for free",
+        "describe() calls getName() — polymorphic, runs City's version"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m5_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Implement Printable interface",
+      "scenario": "Simple interface definition and implementation.",
+      "instructions": "Create interface `Printable` with `void print()`. Create class `Invoice` with amount (double) that implements Printable — printing 'Invoice: ₹amount'.\n\nIn main, use Printable reference.\n\nExpected output:\nInvoice: ₹5299.0",
+      "starter_code": "// Define Printable interface and Invoice class\n",
+      "expected_solution": "interface Printable {\n    void print();\n}\n\nclass Invoice implements Printable {\n    private double amount;\n    \n    public Invoice(double amount) {\n        this.amount = amount;\n    }\n    \n    @Override\n    public void print() {\n        System.out.println(\"Invoice: ₹\" + amount);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Printable p = new Invoice(5299.0);\n        p.print();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Invoice: ₹5299.0" }
+      ],
+      "hints": [
+        "interface keyword, method with no body",
+        "Invoice implements Printable — must implement print()",
+        "Printable p = new Invoice(...) — interface as reference type"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m5_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Implement Comparable to sort strings by length",
+      "scenario": "Natural ordering via Comparable.",
+      "instructions": "Create class `Word` with private String value. Implement `Comparable<Word>` — natural order is by string LENGTH (shorter first).\n\nCreate 4 Words, sort with Arrays.sort, print each.\n\nExpected output:\nhi\njava\nworld\nprogramming",
+      "starter_code": "import java.util.Arrays;\n\n// Create Word implementing Comparable<Word>\n// Sort by string length\n",
+      "expected_solution": "import java.util.Arrays;\n\nclass Word implements Comparable<Word> {\n    private String value;\n    \n    public Word(String value) {\n        this.value = value;\n    }\n    \n    public String getValue() { return value; }\n    \n    @Override\n    public int compareTo(Word other) {\n        return Integer.compare(this.value.length(), other.value.length());\n    }\n    \n    @Override\n    public String toString() { return value; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Word[] words = {\n            new Word(\"programming\"),\n            new Word(\"hi\"),\n            new Word(\"world\"),\n            new Word(\"java\")\n        };\n        Arrays.sort(words);\n        for (Word w : words) System.out.println(w);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "hi\njava\nworld\nprogramming" }
+      ],
+      "hints": [
+        "implements Comparable<Word>",
+        "compareTo: compare lengths using Integer.compare(this.value.length(), other.value.length())",
+        "Arrays.sort uses compareTo automatically",
+        "toString returns value for easy printing"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "comparable_interface"
+    },
+    
+    {
+      "id": "java_m5_t4_ex_5",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix double subtraction in compareTo",
+      "scenario": "Never subtract doubles in compareTo.",
+      "instructions": "This sorting gives wrong results for some price values. Fix the compareTo.\n\nExpected output (sorted ascending):\n299.99\n599.0\n1999.0",
+      "starter_code": "import java.util.Arrays;\n\nclass Item implements Comparable<Item> {\n    private double price;\n    \n    public Item(double price) { this.price = price; }\n    \n    @Override\n    public int compareTo(Item other) {\n        return (int)(this.price - other.price);  // BUGGY for doubles\n    }\n    \n    @Override public String toString() { return String.valueOf(price); }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Item[] items = { new Item(1999.0), new Item(299.99), new Item(599.0) };\n        Arrays.sort(items);\n        for (Item i : items) System.out.println(i);\n    }\n}",
+      "expected_solution": "import java.util.Arrays;\n\nclass Item implements Comparable<Item> {\n    private double price;\n    \n    public Item(double price) { this.price = price; }\n    \n    @Override\n    public int compareTo(Item other) {\n        return Double.compare(this.price, other.price);\n    }\n    \n    @Override public String toString() { return String.valueOf(price); }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Item[] items = { new Item(1999.0), new Item(299.99), new Item(599.0) };\n        Arrays.sort(items);\n        for (Item i : items) System.out.println(i);\n    }\n}",
+      "bugs": [
+        {
+          "line": "9",
+          "issue": "(int)(this.price - other.price) truncates to int — 299.99 - 599.0 = -299.01 → -299, but 0.3 - 0.1 could give 0 due to precision.",
+          "fix": "Use Double.compare(this.price, other.price)"
+        }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "299.99\n599.0\n1999.0", "must_compile": true }
+      ],
+      "hints": [
+        "Subtracting doubles and casting to int truncates the decimal",
+        "Double.compare handles all edge cases correctly",
+        "Returns -1, 0, or 1 — exactly what compareTo needs"
+      ],
+      "xp_reward": 35,
+      "common_misconceptions_tested": ["compareto_subtraction_for_doubles"]
+    },
+    
+    {
+      "id": "java_m5_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Multiple interface implementation",
+      "scenario": "A class can implement many interfaces.",
+      "instructions": "Create:\n- Interface `Flyable`: `void fly()`\n- Interface `Swimmable`: `void swim()`\n- Class `Duck` implementing BOTH. fly(): 'Duck flies', swim(): 'Duck swims'.\n\nIn main, use both interface types.\n\nExpected output:\nDuck flies\nDuck swims",
+      "starter_code": "// Define Flyable, Swimmable interfaces\n// Duck implements both\n",
+      "expected_solution": "interface Flyable {\n    void fly();\n}\n\ninterface Swimmable {\n    void swim();\n}\n\nclass Duck implements Flyable, Swimmable {\n    @Override public void fly() { System.out.println(\"Duck flies\"); }\n    @Override public void swim() { System.out.println(\"Duck swims\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Flyable f = new Duck();\n        f.fly();\n        Swimmable s = new Duck();\n        s.swim();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Duck flies\nDuck swims" }
+      ],
+      "hints": [
+        "class Duck implements Flyable, Swimmable — comma-separated",
+        "Must implement all methods from BOTH interfaces",
+        "Can use either interface type as a reference"
+      ],
+      "xp_reward": 35,
+      "concept_tested": "multiple_interfaces"
+    },
+    
+    {
+      "id": "java_m5_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Interface with default method",
+      "scenario": "Default method provides free behavior based on abstract method.",
+      "instructions": "Create interface `Scorable`:\n- Abstract: `int getScore()`\n- Default: `String grade()` — returns 'A' if ≥90, 'B' if ≥80, 'C' if ≥70, 'D' otherwise\n- Default: `void report()` prints 'Score: X, Grade: Y'\n\nCreate `ExamResult` implementing Scorable with a score field.\n\nTest 3 scores.\n\nExpected output:\nScore: 95, Grade: A\nScore: 82, Grade: B\nScore: 65, Grade: D",
+      "starter_code": "// Interface Scorable with abstract getScore() and default grade()/report()\n",
+      "expected_solution": "interface Scorable {\n    int getScore();\n    \n    default String grade() {\n        int s = getScore();\n        if (s >= 90) return \"A\";\n        if (s >= 80) return \"B\";\n        if (s >= 70) return \"C\";\n        return \"D\";\n    }\n    \n    default void report() {\n        System.out.println(\"Score: \" + getScore() + \", Grade: \" + grade());\n    }\n}\n\nclass ExamResult implements Scorable {\n    private int score;\n    public ExamResult(int score) { this.score = score; }\n    @Override public int getScore() { return score; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Scorable[] results = {\n            new ExamResult(95),\n            new ExamResult(82),\n            new ExamResult(65)\n        };\n        for (Scorable r : results) r.report();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Score: 95, Grade: A\nScore: 82, Grade: B\nScore: 65, Grade: D" }
+      ],
+      "hints": [
+        "grade() is default — calls abstract getScore() polymorphically",
+        "report() is default — calls both grade() and getScore()",
+        "ExamResult only needs to implement getScore()",
+        "Scorable[] holds ExamResult objects — polymorphism"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m5_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sort employees by salary using Comparable",
+      "scenario": "Real domain — Employee sorted by salary descending.",
+      "instructions": "Create `Employee` implementing `Comparable<Employee>` — sorted by salary DESCENDING (highest first).\n\nFields: name, salary (double). Sort and print name + salary.\n\nExpected output:\nAisha: ₹95000.0\nRaj: ₹85000.0\nPriya: ₹72000.0\nVikram: ₹68000.0",
+      "starter_code": "import java.util.Arrays;\n\n// Employee implements Comparable<Employee>\n// Sort descending by salary\n",
+      "expected_solution": "import java.util.Arrays;\n\nclass Employee implements Comparable<Employee> {\n    private String name;\n    private double salary;\n    \n    public Employee(String name, double salary) {\n        this.name = name;\n        this.salary = salary;\n    }\n    \n    public String getName() { return name; }\n    public double getSalary() { return salary; }\n    \n    @Override\n    public int compareTo(Employee other) {\n        // Descending: compare other to this (reversed)\n        return Double.compare(other.salary, this.salary);\n    }\n    \n    @Override\n    public String toString() {\n        return name + \": ₹\" + salary;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Employee[] staff = {\n            new Employee(\"Priya\", 72000),\n            new Employee(\"Aisha\", 95000),\n            new Employee(\"Vikram\", 68000),\n            new Employee(\"Raj\", 85000)\n        };\n        Arrays.sort(staff);\n        for (Employee e : staff) System.out.println(e);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha: ₹95000.0\nRaj: ₹85000.0\nPriya: ₹72000.0\nVikram: ₹68000.0" }
+      ],
+      "hints": [
+        "Descending: return Double.compare(other.salary, this.salary) — arguments reversed",
+        "Normal ascending: Double.compare(this.salary, other.salary)",
+        "Arrays.sort uses compareTo"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m5_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Three interfaces on one class",
+      "scenario": "Full multi-role class — Comparable, Printable, Serializable-style.",
+      "instructions": "Create:\n- Interface `Summarizable`: `String summary()` abstract, default `void printSummary()` calling summary()\n- Interface `Scorable`: `int getScore()` abstract\n\nCreate `Student` implementing `Comparable<Student>` (by score descending), `Summarizable`, AND `Scorable`.\n\nFields: name, score (int). Rank them and print summaries.\n\nExpected output:\nAisha: 92\nRaj: 87\nPriya: 78",
+      "starter_code": "import java.util.Arrays;\n\n// Interfaces: Summarizable, Scorable\n// Student implements Comparable<Student>, Summarizable, Scorable\n",
+      "expected_solution": "import java.util.Arrays;\n\ninterface Summarizable {\n    String summary();\n    default void printSummary() { System.out.println(summary()); }\n}\n\ninterface Scorable {\n    int getScore();\n}\n\nclass Student implements Comparable<Student>, Summarizable, Scorable {\n    private String name;\n    private int score;\n    \n    public Student(String name, int score) {\n        this.name = name;\n        this.score = score;\n    }\n    \n    @Override public int getScore() { return score; }\n    \n    @Override public String summary() { return name + \": \" + score; }\n    \n    @Override\n    public int compareTo(Student other) {\n        return Integer.compare(other.score, this.score); // descending\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Student[] students = {\n            new Student(\"Priya\", 78),\n            new Student(\"Aisha\", 92),\n            new Student(\"Raj\", 87)\n        };\n        Arrays.sort(students);\n        for (Student s : students) s.printSummary();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha: 92\nRaj: 87\nPriya: 78" }
+      ],
+      "hints": [
+        "Three interfaces after implements, comma-separated",
+        "Implement all abstract methods from all three",
+        "printSummary() is a default — Student gets it free",
+        "Descending score: Integer.compare(other.score, this.score)"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m5_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Interface as polymorphic type",
+      "scenario": "Trace which methods are visible through an interface reference.",
+      "instructions": "What does this print?\n\n```java\ninterface Flyable { void fly(); }\n\nclass Plane implements Flyable {\n    public void fly() { System.out.println(\"Plane soars\"); }\n    public void land() { System.out.println(\"Plane lands\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Flyable f = new Plane();\n        f.fly();\n        // f.land();  // commented out\n        \n        if (f instanceof Plane p) {\n            p.land();\n        }\n    }\n}\n```",
+      "expected_solution": "Plane soars\nPlane lands",
+      "test_cases": [
+        { "type": "text_match", "expected": "Plane soars\nPlane lands" }
+      ],
+      "hints": [
+        "f.fly() works — fly() is in Flyable",
+        "f.land() would compile error — land() not in Flyable",
+        "instanceof Plane p pattern matching — casts and calls land()",
+        "Pattern: downcast only when you need specific behavior"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m5_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Interface extending interface",
+      "scenario": "Build a contract hierarchy.",
+      "instructions": "Create:\n- Interface `Readable`: `String read()`\n- Interface `Writable`: `void write(String data)`\n- Interface `ReadWritable extends Readable, Writable`: no extra methods\n- Class `Buffer` implementing `ReadWritable`: stores data internally\n\nIn main, use ReadWritable reference to write then read.\n\nExpected output:\nHello CodeQuest",
+      "starter_code": "// Interfaces: Readable, Writable, ReadWritable\n// Buffer implements ReadWritable\n",
+      "expected_solution": "interface Readable {\n    String read();\n}\n\ninterface Writable {\n    void write(String data);\n}\n\ninterface ReadWritable extends Readable, Writable {}\n\nclass Buffer implements ReadWritable {\n    private String data = \"\";\n    \n    @Override public void write(String data) { this.data = data; }\n    @Override public String read() { return data; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        ReadWritable buf = new Buffer();\n        buf.write(\"Hello CodeQuest\");\n        System.out.println(buf.read());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Hello CodeQuest" }
+      ],
+      "hints": [
+        "ReadWritable extends Readable, Writable — both, comma-separated",
+        "Buffer must implement read() AND write() from both parent interfaces",
+        "ReadWritable as reference type exposes all methods from both parents"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m5_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Polymorphic method accepting interface type",
+      "scenario": "Program to interface — method works for any implementor.",
+      "instructions": "Define interface `Discountable`: `double getPrice()`, `double getDiscountPercent()`.\nDefault method: `double discountedPrice()` = price * (1 - discountPercent/100).\n\nCreate `OnlineProduct` and `StoreProduct` implementing Discountable.\n\nWrite static method `printBestDeal(Discountable[] items)` that finds and prints the item with LOWEST discounted price.\n\nExpected output:\nBest deal: USB Hub at ₹374.25",
+      "starter_code": "// Interface Discountable with default discountedPrice()\n// OnlineProduct, StoreProduct implement it\n// printBestDeal accepts Discountable[]\n",
+      "expected_solution": "interface Discountable {\n    String getName();\n    double getPrice();\n    double getDiscountPercent();\n    \n    default double discountedPrice() {\n        return getPrice() * (1 - getDiscountPercent() / 100);\n    }\n}\n\nclass OnlineProduct implements Discountable {\n    private String name;\n    private double price;\n    private double discount;\n    \n    public OnlineProduct(String name, double price, double discount) {\n        this.name = name; this.price = price; this.discount = discount;\n    }\n    \n    @Override public String getName() { return name; }\n    @Override public double getPrice() { return price; }\n    @Override public double getDiscountPercent() { return discount; }\n}\n\nclass StoreProduct implements Discountable {\n    private String name;\n    private double price;\n    private double discount;\n    \n    public StoreProduct(String name, double price, double discount) {\n        this.name = name; this.price = price; this.discount = discount;\n    }\n    \n    @Override public String getName() { return name; }\n    @Override public double getPrice() { return price; }\n    @Override public double getDiscountPercent() { return discount; }\n}\n\npublic class App {\n    static void printBestDeal(Discountable[] items) {\n        Discountable best = items[0];\n        for (Discountable d : items) {\n            if (d.discountedPrice() < best.discountedPrice()) best = d;\n        }\n        System.out.printf(\"Best deal: %s at ₹%.2f%n\", best.getName(), best.discountedPrice());\n    }\n    \n    public static void main(String[] args) {\n        Discountable[] items = {\n            new OnlineProduct(\"Keyboard\", 1999, 15),   // 1999 * 0.85 = 1699.15\n            new StoreProduct(\"Mouse\", 599, 10),          // 599 * 0.90 = 539.10\n            new OnlineProduct(\"USB Hub\", 499, 25)        // 499 * 0.75 = 374.25\n        };\n        printBestDeal(items);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Best deal: USB Hub at ₹374.25" }
+      ],
+      "hints": [
+        "discountedPrice() is default — both classes get it free",
+        "printBestDeal accepts Discountable[] — works for any implementor",
+        "499 × 0.75 = 374.25 — lowest discounted price",
+        "Program to interface: method knows nothing about OnlineProduct or StoreProduct"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "programming_to_interface"
+    },
+    
+    {
+      "id": "java_m5_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Leaderboard with Comparable",
+      "scenario": "Complete gaming leaderboard using natural ordering.",
+      "instructions": "Create `GameEntry` implementing `Comparable<GameEntry>`:\n- Fields: playerName (String), score (int), level (int)\n- Natural order: DESCENDING score. Tie-break: higher LEVEL first.\n- toString: '#N playerName — score pts (lvl L)' (N is rank after sorting)\n\nSort an array of 5 entries and print with rank.\n\nExpected output:\n#1 Aisha — 9500 pts (lvl 8)\n#2 Raj — 9500 pts (lvl 6)\n#3 Priya — 8200 pts (lvl 7)\n#4 Vikram — 7800 pts (lvl 5)\n#5 Anita — 7800 pts (lvl 4)",
+      "starter_code": "import java.util.Arrays;\n\n// GameEntry with tie-break compareTo\n// Print with rank after sort\n",
+      "expected_solution": "import java.util.Arrays;\n\nclass GameEntry implements Comparable<GameEntry> {\n    private String playerName;\n    private int score;\n    private int level;\n    \n    public GameEntry(String playerName, int score, int level) {\n        this.playerName = playerName;\n        this.score = score;\n        this.level = level;\n    }\n    \n    @Override\n    public int compareTo(GameEntry other) {\n        // Primary: score descending\n        int cmp = Integer.compare(other.score, this.score);\n        if (cmp != 0) return cmp;\n        // Tie-break: level descending\n        return Integer.compare(other.level, this.level);\n    }\n    \n    public String formatWithRank(int rank) {\n        return \"#\" + rank + \" \" + playerName + \" — \" + score + \" pts (lvl \" + level + \")\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        GameEntry[] board = {\n            new GameEntry(\"Priya\", 8200, 7),\n            new GameEntry(\"Aisha\", 9500, 8),\n            new GameEntry(\"Anita\", 7800, 4),\n            new GameEntry(\"Raj\", 9500, 6),\n            new GameEntry(\"Vikram\", 7800, 5)\n        };\n        Arrays.sort(board);\n        for (int i = 0; i < board.length; i++) {\n            System.out.println(board[i].formatWithRank(i + 1));\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "#1 Aisha — 9500 pts (lvl 8)\n#2 Raj — 9500 pts (lvl 6)\n#3 Priya — 8200 pts (lvl 7)\n#4 Vikram — 7800 pts (lvl 5)\n#5 Anita — 7800 pts (lvl 4)" }
+      ],
+      "hints": [
+        "compareTo: first compare scores descending",
+        "If scores equal (cmp == 0), compare levels descending as tie-break",
+        "Integer.compare(other.score, this.score) = descending",
+        "Aisha and Raj both score 9500; Aisha's level 8 > Raj's 6 → Aisha first"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "comparable_tiebreak"
+    },
+    
+    {
+      "id": "java_m5_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Pluggable validation framework",
+      "scenario": "Interfaces enabling pluggable behavior — strategy pattern preview.",
+      "instructions": "Create:\n- Interface `Validator<T>`: `boolean validate(T value)`, `String errorMessage()`\n- Default method: `void check(T value)` — prints error if invalid\n\nCreate:\n- `LengthValidator implements Validator<String>`: validates string is at least minLength chars\n- `RangeValidator implements Validator<Integer>`: validates integer is in [min, max]\n\nRun multiple validators on inputs.\n\nExpected output:\nValidating 'hi': [ERROR] String must be at least 5 characters\nValidating 'hello': OK\nValidating 3: [ERROR] Value must be between 10 and 100\nValidating 50: OK",
+      "starter_code": "// Interface Validator<T> with check() default method\n// LengthValidator and RangeValidator implementations\n",
+      "expected_solution": "interface Validator<T> {\n    boolean validate(T value);\n    String errorMessage();\n    \n    default void check(T value) {\n        if (validate(value)) {\n            System.out.println(\"Validating '\" + value + \"': OK\");\n        } else {\n            System.out.println(\"Validating '\" + value + \"': [ERROR] \" + errorMessage());\n        }\n    }\n}\n\nclass LengthValidator implements Validator<String> {\n    private int minLength;\n    \n    public LengthValidator(int minLength) { this.minLength = minLength; }\n    \n    @Override public boolean validate(String value) { return value.length() >= minLength; }\n    @Override public String errorMessage() { return \"String must be at least \" + minLength + \" characters\"; }\n}\n\nclass RangeValidator implements Validator<Integer> {\n    private int min, max;\n    \n    public RangeValidator(int min, int max) { this.min = min; this.max = max; }\n    \n    @Override public boolean validate(Integer value) { return value >= min && value <= max; }\n    @Override public String errorMessage() { return \"Value must be between \" + min + \" and \" + max; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        LengthValidator lv = new LengthValidator(5);\n        lv.check(\"hi\");\n        lv.check(\"hello\");\n        \n        RangeValidator rv = new RangeValidator(10, 100);\n        rv.check(3);\n        rv.check(50);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Validating 'hi': [ERROR] String must be at least 5 characters\nValidating 'hello': OK\nValidating '3': [ERROR] Value must be between 10 and 100\nValidating '50': OK" }
+      ],
+      "hints": [
+        "Generic interface Validator<T> — works for String and Integer",
+        "check() is default — calls abstract validate() and errorMessage()",
+        "LengthValidator: validate checks length, errorMessage explains the rule",
+        "This is the Strategy Pattern — swappable validation logic"
+      ],
+      "xp_reward": 85,
+      "concept_tested": "strategy_via_interface"
+    },
+    
+    {
+      "id": "java_m5_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete sortable product catalog",
+      "scenario": "Everything together — Comparable, multiple interfaces, polymorphism.",
+      "instructions": "Build a product catalog with:\n1. Interface `Categorizable`: `String category()`, default `boolean isElectronics()` → category().equals('Electronics')\n2. Interface `Discountable`: `double getPrice()`, `double getDiscount()`, default `double finalPrice()` → price*(1-discount/100)\n3. `Product` implementing `Comparable<Product>`, `Categorizable`, `Discountable`:\n   - Fields: name, category, price, discount\n   - Comparable: ascending finalPrice()\n   - All interface methods implemented\n4. Static `printElectronics(Categorizable[] items)` — filters and prints only electronics\n\nExpected output:\n--- Sorted by final price ---\nUSB Hub: ₹374.25 (Electronics)\nMouse: ₹539.10 (Electronics)\nJava Book: ₹509.15 (Books)\nKeyboard: ₹1699.15 (Electronics)\n\n--- Electronics only ---\nUSB Hub\nMouse\nKeyboard",
+      "starter_code": "import java.util.Arrays;\n\n// Interfaces: Categorizable, Discountable\n// Product implements Comparable, Categorizable, Discountable\n// Utility method: printElectronics(Categorizable[])\n",
+      "expected_solution": "import java.util.Arrays;\n\ninterface Categorizable {\n    String category();\n    default boolean isElectronics() { return \"Electronics\".equals(category()); }\n}\n\ninterface Discountable {\n    String getName();\n    double getPrice();\n    double getDiscount();\n    default double finalPrice() { return getPrice() * (1 - getDiscount() / 100); }\n}\n\nclass Product implements Comparable<Product>, Categorizable, Discountable {\n    private String name;\n    private String cat;\n    private double price;\n    private double discount;\n    \n    public Product(String name, String cat, double price, double discount) {\n        this.name = name; this.cat = cat; this.price = price; this.discount = discount;\n    }\n    \n    @Override public String getName() { return name; }\n    @Override public String category() { return cat; }\n    @Override public double getPrice() { return price; }\n    @Override public double getDiscount() { return discount; }\n    \n    @Override\n    public int compareTo(Product other) {\n        return Double.compare(this.finalPrice(), other.finalPrice());\n    }\n    \n    @Override\n    public String toString() {\n        return String.format(\"%s: ₹%.2f (%s)\", name, finalPrice(), cat);\n    }\n}\n\npublic class App {\n    static void printElectronics(Categorizable[] items) {\n        System.out.println(\"--- Electronics only ---\");\n        for (Categorizable c : items) {\n            if (c.isElectronics()) System.out.println(((Discountable)c).getName());\n        }\n    }\n    \n    public static void main(String[] args) {\n        Product[] catalog = {\n            new Product(\"Keyboard\", \"Electronics\", 1999, 15),\n            new Product(\"Mouse\", \"Electronics\", 599, 10),\n            new Product(\"Java Book\", \"Books\", 599, 15),\n            new Product(\"USB Hub\", \"Electronics\", 499, 25)\n        };\n        \n        Arrays.sort(catalog);\n        System.out.println(\"--- Sorted by final price ---\");\n        for (Product p : catalog) System.out.println(p);\n        \n        System.out.println();\n        printElectronics(catalog);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "--- Sorted by final price ---\nUSB Hub: ₹374.25 (Electronics)\nMouse: ₹539.10 (Electronics)\nJava Book: ₹509.15 (Books)\nKeyboard: ₹1699.15 (Electronics)\n\n--- Electronics only ---\nUSB Hub\nMouse\nKeyboard" }
+      ],
+      "hints": [
+        "Product implements three types — all abstract methods satisfied",
+        "compareTo sorts by finalPrice() ascending",
+        "printElectronics accepts Categorizable[] — works for any categorizable",
+        "Inside printElectronics, cast to Discountable to call getName()",
+        "USB Hub: 499*0.75=374.25, Mouse: 599*0.9=539.1, Java Book: 599*0.85=509.15, Keyboard: 1999*0.85=1699.15"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 12,
+      "debug": 1,
+      "predict_output": 2
+    },
+    "total_xp_possible": 755,
+    "estimated_completion_minutes": 75
+  },
+  
+  "gap_detection_map": {
+    "comparable_interface": ["ex_4"],
+    "compareto_subtraction_for_doubles": ["ex_5"],
+    "multiple_interfaces": ["ex_6"],
+    "programming_to_interface": ["ex_12"],
+    "comparable_tiebreak": ["ex_13"],
+    "strategy_via_interface": ["ex_14"]
+  }
+}

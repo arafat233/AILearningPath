@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m13_t4_proj",
+  "linked_topic": "java_m13_t4",
+  "level": "mini",
+  "name": "Zerodha-Style Order API — Validated and Error-Handled",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Add production-grade validation and error handling to a stock order API. Orders must be validated (symbol format, quantity bounds, positive price), and errors must be returned as structured JSON responses — no stack traces, clear messages. This is the final step before a REST API is production-ready.",
+
+  "description": "Extend the order service from Topic 13.3 with: Bean Validation on OrderRequest, custom exceptions (InvalidSymbolException, InsufficientFundsException, OrderNotFoundException), GlobalExceptionHandler returning structured errors, and @WebMvcTest tests for every error scenario.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`OrderRequest` record with 5 validated fields: symbol (@NotBlank @Pattern ^[A-Z]{2,10}$), quantity (@Min(1) @Max(1000)), price (@Positive @Min(1)), orderType (@NotBlank @Pattern(BUY|SELL)), userId (@NotBlank @Size(max=36)).",
+        "weight": 18
+      },
+      {
+        "id": "req_2",
+        "description": "Three custom exceptions: `OrderNotFoundException` (→404), `InsufficientFundsException` (→422), `InvalidSymbolException` (→400 with structured message). All extend RuntimeException.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`GlobalExceptionHandler` (@RestControllerAdvice) with @ExceptionHandler for: MethodArgumentNotValidException → 400 field map, OrderNotFoundException → 404, InsufficientFundsException → 422, InvalidSymbolException → 400, Exception → 500 generic.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`ErrorResponse` record with: status, error, message, path, timestamp. Used for all non-validation errors.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`OrderController` (@RestController): POST /api/orders with @Valid, GET /api/orders/{id}, DELETE /api/orders/{id}. Service throws appropriate exceptions.",
+        "weight": 17
+      },
+      {
+        "id": "req_6",
+        "description": "@WebMvcTest tests (minimum 6): valid order 201, blank symbol 400, invalid symbol pattern 400, qty too large 400, order not found 404, insufficient funds 422.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @ParameterizedTest in @WebMvcTest testing 5 invalid symbols (empty, lowercase, spaces, too long, numbers only) — all returning 400 with 'symbol' error key.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add rate limiting: if the same userId places more than 10 orders per minute, throw RateLimitException → 429 Too Many Requests with Retry-After header in response.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add cross-field validation: if orderType=BUY, price cannot exceed the user's available balance (from @RequestHeader X-User-Balance). Custom @Constraint annotation or manual service check.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Valid order: symbol='TCS', quantity=10, price=3890.0, orderType='BUY', userId='U01'\n\nInvalid scenarios:\n- symbol='': 400 'symbol' field error\n- symbol='tcs' (lowercase): 400 pattern violation\n- quantity=0: 400 'quantity' field error\n- quantity=1001: 400 'quantity' field error\n- price=-100: 400 'price' field error\n- Unknown orderId: 404 {status:404, error:'Not Found', message:'Order P999 not found'}\n- InsufficientFunds (balance < qty*price): 422\n- InvalidSymbol (not a valid NSE symbol): 400",
+
+  "starter_code": "// Build the full order validation stack:\n\n// OrderRequest.java:\nrecord OrderRequest(\n    // ... 5 validated fields\n) {}\n\n// Custom exceptions (3 classes)\n\n// ErrorResponse.java\n\n// GlobalExceptionHandler.java\n\n// OrderController.java\n\n// OrderControllerTest.java (@WebMvcTest)",
+
+  "example_output": "# Valid POST:\nPOST /api/orders {\"symbol\":\"TCS\",\"quantity\":10,\"price\":3890,\"orderType\":\"BUY\",\"userId\":\"U01\"}\n→ 201 {\"id\":\"ORD-001\",\"symbol\":\"TCS\",\"status\":\"PENDING\",...}\n\n# Blank symbol:\nPOST /api/orders {\"symbol\":\"\",\"quantity\":10,...}\n→ 400 {\"symbol\":\"Symbol is required\"}\n\n# Invalid pattern:\nPOST /api/orders {\"symbol\":\"tcs-123\",...}\n→ 400 {\"symbol\":\"Symbol must be 2-10 uppercase letters\"}\n\n# Not found:\nGET /api/orders/ORD-999\n→ 404 {\"status\":404,\"error\":\"Not Found\",\"message\":\"Order ORD-999 not found\",\"path\":\"/api/orders/ORD-999\",\"timestamp\":\"...\"}\n\n# Insufficient funds:\nPOST /api/orders {valid data but user has insufficient balance}\n→ 422 {\"status\":422,\"error\":\"Unprocessable Entity\",\"message\":\"Insufficient funds: need ₹38900, have ₹10000\"}",
+
+  "rubric": [
+    { "category": "OrderRequest Validation", "points": 18, "criteria": ["5 fields with correct constraints (18 pts)"] },
+    { "category": "Custom Exceptions", "points": 15, "criteria": ["3 exceptions correct (15 pts)"] },
+    { "category": "GlobalExceptionHandler", "points": 20, "criteria": ["5 handlers (4 pts each)"] },
+    { "category": "ErrorResponse", "points": 10, "criteria": ["5 fields with correct types (10 pts)"] },
+    { "category": "OrderController", "points": 17, "criteria": ["3 endpoints (6 pts each, -1 for wrong status code)"] },
+    { "category": "@WebMvcTest tests", "points": 20, "criteria": ["6 tests (3 pts each + 2 pts all pass)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Parameterized symbols (20 pts)", "Rate limiting (25 pts)", "Cross-field validation (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: @Pattern(regexp='^[A-Z]{2,10}$') — anchored regex for uppercase-only symbol. @WebMvcTest with @MockBean service — mock service throws exceptions. doThrow(ex).when(service).delete('X') for void methods. InsufficientFundsException → HttpStatus.UNPROCESSABLE_ENTITY (422).",
+
+  "submission_instructions": "Push to GitHub. All 6 @WebMvcTest tests must pass. Show validation error response screenshots in README.",
+
+  "tips_for_success": [
+    "@Pattern(regexp='^[A-Z]{2,10}$') — ^ and $ anchors: must match entire string",
+    "@Min(1) on int quantity: cannot be 0 or negative",
+    "ErrorResponse constructor: (status, 'Not Found', ex.getMessage(), req.getRequestURI(), LocalDateTime.now())",
+    "@WebMvcTest: use @MockBean for every service the controller depends on",
+    "For void service methods: doThrow(new Ex()).when(service).delete(anyString())"
+  ],
+
+  "concepts_reinforced": [
+    "@Valid on @RequestBody — constraint trigger",
+    "Bean Validation: @NotBlank, @Pattern, @Min, @Max, @Positive",
+    "@RestControllerAdvice + @ExceptionHandler",
+    "Custom exception → specific HTTP status",
+    "ErrorResponse record for structured errors",
+    "@WebMvcTest + MockMvc for controller testing"
+  ]
+}

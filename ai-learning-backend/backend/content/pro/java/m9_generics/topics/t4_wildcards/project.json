@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m9_t4_proj",
+  "linked_topic": "java_m9_t4",
+  "level": "mini",
+  "name": "Zomato Search V3 — Wildcard-Flexible Search Engine",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Upgrade Zomato Search V2 (Module 8.3) with wildcard-based APIs that accept any compatible collection type. The search engine now accepts `Collection<? extends Restaurant>` so callers can pass Set<RestaurantChain>, List<LocalRestaurant>, or any other collection of Restaurant subtypes — all through the same methods.",
+
+  "description": "Refactor the restaurant search engine to use wildcards at all API boundaries. Methods that read from collections use `? extends`, methods that accumulate results use `? super`. Demonstrates the practical PECS rule in a real search domain.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Restaurant` base class + `ChainRestaurant extends Restaurant` (has chainId) + `LocalRestaurant extends Restaurant` (has ownerName). Both have the same base fields: name, cuisine, city, rating, pricePerPerson.",
+        "weight": 12
+      },
+      {
+        "id": "req_2",
+        "description": "`RestaurantSearch` with wildcard-based methods:\n- `filterByCuisine(Collection<? extends Restaurant>, String)` — returns `List<Restaurant>`\n- `filterByRating(Collection<? extends Restaurant>, double minRating)` — returns `List<Restaurant>`\n- `totalRestaurants(Collection<?>)` — unbounded: count any collection\n- `addAll(List<? super Restaurant>, Collection<? extends Restaurant>)` — PECS merge",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "`Statistics<T extends Number & Comparable<T>>` (from Topic 9.3) reused here — compute price stats for `Collection<? extends Restaurant>` using `mapToDouble` on `restaurant.getPricePerPerson()`.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "main() demonstrates: mixed collection of Chain and Local restaurants, filter by cuisine/rating, PECS merge two separate lists into one, price statistics.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "All filter methods return `List<Restaurant>` so callers always get a typed result.",
+        "weight": 13
+      },
+      {
+        "id": "req_6",
+        "description": "No casts. Wildcards used correctly at each boundary.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "A static `printSummary(Collection<?> restaurants)` that works for any collection of restaurants.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `<T extends Restaurant> Optional<T> findBestRated(Collection<? extends T> restaurants)` — uses wildcard to find max-rated from any restaurant subtype collection, preserving subtype T.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `groupByCuisine(Collection<? extends Restaurant>)` returning `Map<String, List<Restaurant>>` — groups by cuisine using wildcards.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a method `topN(Collection<? extends Restaurant>, int n, Comparator<? super Restaurant>)` — returns top N by any comparator, demonstrating `? super T` on the comparator parameter.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Chain restaurants (ChainRestaurant):\n- Domino's, Pizza, Hyderabad, 4.2, ₹350\n- McDonald's, Burgers, Mumbai, 4.0, ₹280\n- KFC, Chicken, Hyderabad, 4.3, ₹320\n\nLocal restaurants (LocalRestaurant):\n- Spice Garden, Indian, Hyderabad, 4.5, ₹300\n- Curry Leaf, Indian, Mumbai, 4.7, ₹400\n- Noodle House, Chinese, Hyderabad, 4.1, ₹250",
+
+  "starter_code": "import java.util.*;\nimport java.util.stream.*;\n\npublic class ZomatoV3 {\n    public static void main(String[] args) {\n        // Create chain and local restaurants\n        // Show wildcard-flexible search methods\n    }\n    // Define: Restaurant, ChainRestaurant, LocalRestaurant, RestaurantSearch\n}",
+
+  "example_output": "=== Total count (unbounded) ===\nAll restaurants: 6\nChain only: 3\n\n=== Filter by cuisine (? extends Restaurant) ===\nIndian: [Spice Garden, Curry Leaf]\n\n=== Filter by rating ≥ 4.3 ===\nTop rated: [KFC, Spice Garden, Curry Leaf]\n\n=== PECS merge all into one list ===\nMerged (6): [Domino's, McDonald's, KFC, Spice Garden, Curry Leaf, Noodle House]\n\n=== Price stats ===\nAvg price: ₹316.67 | Min: ₹250.0 | Max: ₹400.0",
+
+  "rubric": [
+    { "category": "Wildcard Methods", "points": 30, "criteria": ["? extends on read methods (15 pts)", "PECS addAll (10 pts)", "Unbounded ? on count (5 pts)"] },
+    { "category": "Subtype Hierarchy", "points": 15, "criteria": ["ChainRestaurant + LocalRestaurant (15 pts)"] },
+    { "category": "Statistics Integration", "points": 15, "criteria": ["Price stats on ? extends collection (15 pts)"] },
+    { "category": "Demonstration", "points": 15, "criteria": ["All methods demonstrated (15 pts)"] },
+    { "category": "Compiles & Zero Casts", "points": 15, "criteria": ["Compiles (10 pts)", "No casts (5 pts)"] },
+    { "category": "Code Quality", "points": 10, "criteria": ["Correct wildcard at each boundary (10 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["findBestRated preserving T (20 pts)", "groupByCuisine (20 pts)", "topN with ? super Comparator (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Core design: filterByCuisine reads from `Collection<? extends Restaurant>` — each element is a Restaurant (or subtype), readable as Restaurant. addAll writes to `List<? super Restaurant>` — adds Restaurants. totalRestaurants takes `Collection<?>` — only needs size(). Bonus: findBestRated signature preserves T to avoid widening to Restaurant.",
+
+  "submission_instructions": "Save as ZomatoV3.java. Comment: '// Wildcard-flexible search engine — accepts any Restaurant subtype collection'. Push to GitHub.",
+
+  "tips_for_success": [
+    "filterByCuisine: `Collection<? extends Restaurant> restaurants` — iterate, each is Restaurant, check cuisine",
+    "addAll: `List<? super Restaurant> dest, Collection<? extends Restaurant> src` — for each r in src, dest.add(r)",
+    "totalRestaurants: `Collection<?> collection` — just return collection.size()",
+    "priceStats: loop through `Collection<? extends Restaurant>`, call .getPricePerPerson() on each (Restaurant method)",
+    "For bonus findBestRated: `<T extends Restaurant> Optional<T> findBestRated(Collection<? extends T>)` — T preserved"
+  ],
+
+  "concepts_reinforced": [
+    "? extends for reading/consuming from collections",
+    "? super for writing/adding to collections",
+    "Unbounded ? for size and structure operations",
+    "PECS in a real domain (restaurants)",
+    "Accepting Restaurant subtype collections polymorphically",
+    "Statistics class reuse from Topic 9.3"
+  ]
+}

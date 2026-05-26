@@ -1,0 +1,29 @@
+{
+  "schema_version":"1.0","project_id":"java_m23_t3_proj","linked_topic":"java_m23_t3",
+  "level":"mini","name":"Razorpay Secrets — HashiCorp Vault Integration",
+  "estimated_minutes":45,"difficulty":7,
+  "scenario":"Razorpay has 50 services each using the same static DB password stored in application.yml (committed to git). Migrate to Vault with dynamic DB credentials and KV secrets for API keys.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"bootstrap.yml: Vault config (uri, KUBERNETES auth, kv enabled, database enabled). Comments explaining each field.","weight":15},
+    {"id":"req_2","description":"VaultSecretService @Service: @Value for visa_api_key and webhook_secret (with test defaults). hasSecrets() and maskedKey() methods.","weight":15},
+    {"id":"req_3","description":"SecretAuditService @Service: logAccess(path, operation) — logs path+time but NEVER the value. @Scheduled Vault health check every 30s.","weight":15},
+    {"id":"req_4","description":"Vault policy HCL file: read for secret/data/payment-service, read for database/creds/payment-service-db, sys/leases/renew update. Implicit deny all else.","weight":10},
+    {"id":"req_5","description":"@SpringBootTest (3 tests): @Value injected, audit log never contains secret value, fallback activates when VaultTemplate throws. All 3 pass.","weight":40},
+    {"id":"req_6","description":"README: explains dynamic secrets vs static passwords: TTL, blast radius, audit trail.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"VaultTemplate: getMerchantSecret(merchantId) reading dynamic path. Fallback returns default Map when Vault unavailable.","weight":15},
+    {"id":"bonus_2","description":"ESO YAML: ClusterSecretStore + ExternalSecret syncing Vault path to k8s Secret with 1h refresh.","weight":20},
+    {"id":"bonus_3","description":"SecretRotationService: triggerRotation(path) via VaultTemplate, logs rotation event. Test: rotation count increments.","weight":20}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. bootstrap.yml: Spring Cloud Vault config must be in bootstrap.yml (processed before application.yml). If using Spring Boot 2.4+: use spring.config.import=vault:// in application.yml instead. KUBERNETES auth: pod's ServiceAccount token (auto-mounted at /var/run/secrets/kubernetes.io/serviceaccount/token) authenticates to Vault — no static credential needed. @Value with default: ${payment.visa.api-key:test-default} — safe for @SpringBootTest without real Vault. VaultTemplate in @SpringBootTest: will throw exception (no real Vault running) — use try-catch or @MockBean. Audit log security test: assert that the log entries do NOT contain actual secret values.",
+  "rubric":[
+    {"category":"bootstrap.yml Vault config","points":15},
+    {"category":"VaultSecretService","points":15},
+    {"category":"SecretAuditService","points":15},
+    {"category":"Vault policy HCL","points":10},
+    {"category":"@SpringBootTest (3 tests)","points":40},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

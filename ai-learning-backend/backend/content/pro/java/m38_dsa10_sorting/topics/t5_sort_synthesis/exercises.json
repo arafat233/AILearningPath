@@ -1,0 +1,327 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m38_t5",
+  "topic_name": "Sort Synthesis \u2014 When to Use Which Sort",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m38_t5_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Merge sort",
+      "instructions": "Implement: Merge sort.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MergeSort {\n    static void mergeSort(int[] a, int l, int r){if(l>=r)return;int m=(l+r)/2;mergeSort(a,l,m);mergeSort(a,m+1,r);merge(a,l,m,r);}\n    static void merge(int[] a,int l,int m,int r){int[] tmp=Arrays.copyOfRange(a,l,r+1);int i=0,j=m-l+1,k=l;while(i<=m-l&&j<=r-l){if(tmp[i]<=tmp[j])a[k++]=tmp[i++];else a[k++]=tmp[j++];}while(i<=m-l)a[k++]=tmp[i++];while(j<=r-l)a[k++]=tmp[j++];}\n    public static void main(String[] a){int[] arr={64,34,25,12,22,11,90};mergeSort(arr,0,arr.length-1);System.out.println(Arrays.toString(arr));System.out.println(\"O(n log n) time O(n) space \u2014 stable sort. Best for linked lists.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[11, 12, 22, 25, 34, 64, 90]",
+            "O(n log n) time O(n) space"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m38_t5_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Quick sort with pivot",
+      "instructions": "Implement: Quick sort with pivot.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class QuickSort {\n    static void qsort(int[] a, int lo, int hi){if(lo>=hi)return;int p=partition(a,lo,hi);qsort(a,lo,p-1);qsort(a,p+1,hi);}\n    static int partition(int[] a, int lo, int hi){int pivot=a[hi],i=lo;for(int j=lo;j<hi;j++)if(a[j]<=pivot){int t=a[i];a[i]=a[j];a[j]=t;i++;}int t=a[i];a[i]=a[hi];a[hi]=t;return i;}\n    public static void main(String[] a){int[] arr={10,7,8,9,1,5};qsort(arr,0,arr.length-1);System.out.println(Arrays.toString(arr));System.out.println(\"O(n log n) avg O(n\u00b2) worst. O(log n) space. Unstable. Cache-friendly.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 5, 7, 8, 9, 10]",
+            "O(n log n) avg O(n\u00b2) worst"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m38_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Counting sort",
+      "instructions": "Implement: Counting sort.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CountingSort {\n    static int[] countSort(int[] a, int max){int[] cnt=new int[max+1];for(int x:a)cnt[x]++;for(int i=1;i<=max;i++)cnt[i]+=cnt[i-1];int[] out=new int[a.length];for(int i=a.length-1;i>=0;i--)out[--cnt[a[i]]]=a[i];return out;}\n    public static void main(String[] a){int[] arr={4,2,2,8,3,3,1};System.out.println(Arrays.toString(countSort(arr,8)));System.out.println(\"O(n+k) time O(n+k) space. k=range. Stable. No comparisons.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 2, 2, 3, 3, 4, 8]",
+            "O(n+k)"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m38_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sort colors (Dutch National Flag)",
+      "instructions": "Implement: Sort colors (Dutch National Flag).",
+      "starter_code": "",
+      "expected_solution": "public class SortColors {\n    static void sortColors(int[] a){int lo=0,mid=0,hi=a.length-1;while(mid<=hi){if(a[mid]==0){int t=a[lo];a[lo]=a[mid];a[mid]=t;lo++;mid++;}else if(a[mid]==1)mid++;else{int t=a[mid];a[mid]=a[hi];a[hi]=t;hi--;}}\n    }\n    public static void main(String[] a){int[] arr={2,0,2,1,1,0};sortColors(arr);System.out.println(java.util.Arrays.toString(arr));System.out.println(\"O(n) O(1) \u2014 3-way partition. mid advances only on 0 or 1, NOT after swap with hi.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[0, 0, 1, 1, 2, 2]",
+            "mid advances only on 0 or 1, NOT after swap with hi"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m38_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Merge intervals (LeetCode #56)",
+      "instructions": "Implement: Merge intervals (LeetCode #56).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MergeIntervals {\n    static int[][] merge(int[][] intervals){Arrays.sort(intervals,(a,b)->a[0]-b[0]);List<int[]> res=new ArrayList<>();for(int[] iv:intervals){if(res.isEmpty()||res.get(res.size()-1)[1]<iv[0])res.add(iv);else res.get(res.size()-1)[1]=Math.max(res.get(res.size()-1)[1],iv[1]);}return res.toArray(new int[0][]);}\n    public static void main(String[] a){System.out.println(Arrays.deepToString(merge(new int[][]{{1,3},{2,6},{8,10},{15,18}})));System.out.println(Arrays.deepToString(merge(new int[][]{{1,4},{4,5}})));System.out.println(\"Sort by start; merge if overlap (prev.end >= curr.start).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[1, 6], [8, 10], [15, 18]]",
+            "[[1, 5]]",
+            "Sort by start"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m38_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Custom sort: sort by frequency",
+      "instructions": "Implement: Custom sort: sort by frequency.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SortByFreq {\n    static int[] sortByFreq(int[] nums){Map<Integer,Integer> freq=new HashMap<>();for(int n:nums)freq.merge(n,1,Integer::sum);Integer[] boxed=new Integer[nums.length];for(int i=0;i<nums.length;i++)boxed[i]=nums[i];Arrays.sort(boxed,(a,b)->freq.get(a).equals(freq.get(b))?b-a:freq.get(a)-freq.get(b));int[] res=new int[nums.length];for(int i=0;i<nums.length;i++)res[i]=boxed[i];return res;}\n    public static void main(String[] a){System.out.println(Arrays.toString(sortByFreq(new int[]{1,1,2,2,2,3})));System.out.println(Arrays.toString(sortByFreq(new int[]{2,3,1,3,2})));System.out.println(\"Sort by freq ascending; tie-break by value descending. O(n log n)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[3, 1, 1, 2, 2, 2]",
+            "[1, 3, 3, 2, 2]",
+            "O(n log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m38_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Largest Number (LeetCode #179)",
+      "instructions": "Implement: Largest Number (LeetCode #179).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LargestNum {\n    static String largestNumber(int[] nums){String[] s=new String[nums.length];for(int i=0;i<nums.length;i++)s[i]=String.valueOf(nums[i]);Arrays.sort(s,(a,b)->(b+a).compareTo(a+b));if(s[0].equals(\"0\"))return \"0\";return String.join(\"\",s);}\n    public static void main(String[] a){System.out.println(largestNumber(new int[]{10,2}));System.out.println(largestNumber(new int[]{3,30,34,5,9}));System.out.println(\"Comparator: prefer (b+a) over (a+b). Edge: all zeros \u2192 '0'.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "210",
+            "9534330",
+            "Comparator: prefer (b+a)"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m38_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Minimum number of platforms (interval scheduling)",
+      "instructions": "Implement: Minimum number of platforms (interval scheduling).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MinPlatforms {\n    static int minPlatforms(int[] arr, int[] dep){int n=arr.length;Arrays.sort(arr);Arrays.sort(dep);int plat=1,max=1,i=1,j=0;while(i<n&&j<n){if(arr[i]<=dep[j]){plat++;i++;}else{plat--;j++;}max=Math.max(max,plat);}return max;}\n    public static void main(String[] a){System.out.println(minPlatforms(new int[]{900,940,950,1100,1500,1800},new int[]{910,1200,1120,1130,1900,2000}));System.out.println(\"3 \u2014 two-pointer on sorted arrivals/departures. Equivalent to Meeting Rooms II.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "two-pointer on sorted arrivals"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m38_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Count inversions (merge sort)",
+      "instructions": "Implement: Count inversions (merge sort).",
+      "starter_code": "",
+      "expected_solution": "public class CountInversions {\n    static long invCount=0;\n    static void mergeSort(int[] a,int l,int r){if(l>=r)return;int m=(l+r)/2;mergeSort(a,l,m);mergeSort(a,m+1,r);merge(a,l,m,r);}\n    static void merge(int[] a,int l,int m,int r){int[] tmp=java.util.Arrays.copyOfRange(a,l,r+1);int i=0,j=m-l+1,k=l;while(i<=m-l&&j<=r-l){if(tmp[i]<=tmp[j])a[k++]=tmp[i++];else{invCount+=m-l-i+1;a[k++]=tmp[j++];}}while(i<=m-l)a[k++]=tmp[i++];while(j<=r-l)a[k++]=tmp[j++];}\n    public static void main(String[] a){int[] arr={8,6,2,5};invCount=0;mergeSort(arr,0,arr.length-1);System.out.println(invCount);System.out.println(\"5 \u2014 during merge, when right element taken: all remaining left elements are inversions. O(n log n)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "5",
+            "O(n log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m38_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "3-way quick sort for duplicates",
+      "instructions": "Implement: 3-way quick sort for duplicates.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ThreeWaySort {\n    static void sort(int[] a,int lo,int hi){if(lo>=hi)return;int lt=lo,gt=hi,i=lo+1,pivot=a[lo];while(i<=gt){if(a[i]<pivot){int t=a[lt];a[lt]=a[i];a[i]=t;lt++;i++;}else if(a[i]>pivot){int t=a[i];a[i]=a[gt];a[gt]=t;gt--;}else i++;}sort(a,lo,lt-1);sort(a,gt+1,hi);}\n    public static void main(String[] a){int[] arr={4,2,3,4,1,2,4,3};sort(arr,0,arr.length-1);System.out.println(Arrays.toString(arr));System.out.println(\"3-way quicksort: O(n log n) avg; O(n) when many duplicates (Dutch flag partition).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 2, 2, 3, 3, 4, 4, 4]",
+            "O(n) when many duplicates"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m38_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Sort synthesis",
+      "instructions": "Implement: Sort synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SortSynth {\n    static void mergeS(int[] a,int l,int r){if(l>=r)return;int m=(l+r)/2;mergeS(a,l,m);mergeS(a,m+1,r);int[] t=Arrays.copyOfRange(a,l,r+1);int i=0,j=m-l+1,k=l;while(i<=m-l&&j<=r-l){if(t[i]<=t[j])a[k++]=t[i++];else a[k++]=t[j++];}while(i<=m-l)a[k++]=t[i++];while(j<=r-l)a[k++]=t[j++];}\n    static int[][] mergeIvs(int[][] ivs){Arrays.sort(ivs,(a,b)->a[0]-b[0]);List<int[]> res=new ArrayList<>();for(int[] iv:ivs){if(res.isEmpty()||res.get(res.size()-1)[1]<iv[0])res.add(iv);else res.get(res.size()-1)[1]=Math.max(res.get(res.size()-1)[1],iv[1]);}return res.toArray(new int[0][]);}\n    static String largestNum(int[] nums){String[] s=new String[nums.length];for(int i=0;i<nums.length;i++)s[i]=String.valueOf(nums[i]);Arrays.sort(s,(a,b)->(b+a).compareTo(a+b));if(s[0].equals(\"0\"))return \"0\";return String.join(\"\",s);}\n    public static void main(String[] a){int[] arr={64,34,25,12,22};mergeS(arr,0,arr.length-1);System.out.println(Arrays.toString(arr));System.out.println(Arrays.deepToString(mergeIvs(new int[][]{{1,3},{2,6},{8,10}})));System.out.println(largestNum(new int[]{3,30,34,5,9}));boolean ok=arr[0]==12&&largestNum(new int[]{3,30,34,5,9}).equals(\"9534330\");System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[12, 22, 25, 34, 64]",
+            "[[1, 6], [8, 10]]",
+            "9534330"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m38_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M38 Sort Synthesis",
+      "instructions": "Implement: Complete M38 Sort Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class M38Final {\n    static void qsort(int[] a,int lo,int hi){if(lo>=hi)return;int p=partition(a,lo,hi);qsort(a,lo,p-1);qsort(a,p+1,hi);}\n    static int partition(int[] a,int lo,int hi){int piv=a[hi],i=lo;for(int j=lo;j<hi;j++)if(a[j]<=piv){int t=a[i];a[i]=a[j];a[j]=t;i++;}int t=a[i];a[i]=a[hi];a[hi]=t;return i;}\n    static void sortColors(int[] a){int lo=0,mid=0,hi=a.length-1;while(mid<=hi){if(a[mid]==0){int t=a[lo];a[lo]=a[mid];a[mid]=t;lo++;mid++;}else if(a[mid]==1)mid++;else{int t=a[mid];a[mid]=a[hi];a[hi]=t;hi--;}}}\n    static int[][] mergeIvs(int[][] ivs){Arrays.sort(ivs,(a,b)->a[0]-b[0]);List<int[]> res=new ArrayList<>();for(int[] iv:ivs){if(res.isEmpty()||res.get(res.size()-1)[1]<iv[0])res.add(iv);else res.get(res.size()-1)[1]=Math.max(res.get(res.size()-1)[1],iv[1]);}return res.toArray(new int[0][]);}\n    public static void main(String[] a){int[] arr={3,1,4,1,5,9,2,6};qsort(arr.clone(),0,arr.length-1);System.out.println(Arrays.toString(arr));int[] colors={2,0,2,1,1,0};sortColors(colors);System.out.println(Arrays.toString(colors));System.out.println(Arrays.deepToString(mergeIvs(new int[][]{{1,3},{2,6},{8,10},{15,18}})));boolean ok=colors[0]==0&&colors[5]==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[0, 0, 1, 1, 2, 2]",
+            "[[1, 6], [8, 10], [15, 18]]"
+          ]
+        }
+      ],
+      "hints": [
+        "Base case first",
+        "Recursive subproblem",
+        "Memoize or tabulate"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

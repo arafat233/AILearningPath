@@ -1,0 +1,233 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t2",
+  "language": "java",
+  "module_id": "m2",
+  "module_name": "Methods & Code Organization",
+  "topic_number": 2,
+  "name": "Parameters & Return Values",
+  "slug": "parameters-and-return-values",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m2_t1"],
+    "concepts_taught": [
+      "method_parameters",
+      "method_arguments",
+      "return_values",
+      "return_statement",
+      "method_signature",
+      "multiple_parameters",
+      "pass_by_value",
+      "void_vs_return_types",
+      "early_return"
+    ],
+    "skills_developed": [
+      "designing_method_inputs",
+      "designing_method_outputs",
+      "composing_methods",
+      "avoiding_global_state",
+      "reading_method_signatures"
+    ],
+    "career_relevance": "Parameters and return values are how methods communicate. They turn methods from rigid one-trick scripts into flexible, reusable tools. A `calculateTax()` method without parameters can only calculate one fixed tax — useless. With parameters (income, rate), it works for any input. Production codebases are built on parameterized methods. Reading and writing method signatures fluently is a daily activity for every Java developer. After this topic, students stop using class-level static variables as a crutch and start writing methods like professionals.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Last topic, we refactored the EMI calculator into methods — but we cheated. We used class-level `static` variables to share data between methods. That's like sharing files via a single drawer everyone has the key to — it works in a small office, but it's a disaster at scale. Real systems would never do this. The reason: when ANY method can modify shared state, ANY method becomes a suspect when state is wrong. Bug appears in `balance`? Could've been caused by any of 50 methods. Welcome to 3 AM debugging sessions.\n\nThe professional way: methods receive what they need (parameters), do their thing, and give back results (return values). Nothing shared, nothing implicit. Everything explicit. This topic is where your code finally becomes maintainable.",
+    "what_you_will_build": "By the end of this topic, you'll write methods that ACCEPT inputs and RETURN outputs — like `add(int a, int b)` returns the sum. You'll refactor the EMI calculator AGAIN — this time, properly, with no class-level variables. You'll also build a complete utility class with several reusable mathematical methods. Same logic, professional structure. This is the most important upgrade in your skill so far."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A **parameter** is an input to a method — a variable declared in the method definition that receives a value when the method is called.\n\nA **return value** is the output a method produces — sent back to whoever called it.\n\nTogether, they make methods FLEXIBLE. Without them, every method is hard-coded. With them, methods become tools that work on any input.\n\nQuick example — `add` takes two numbers and returns their sum:\n\n```java\npublic static int add(int a, int b) {\n    return a + b;\n}\n```\n\nBreaking it down:\n- `int` (before `add`) = **return type**. This method gives back an int.\n- `add` = name\n- `(int a, int b)` = **parameter list**. Method takes two ints.\n- `return a + b;` = **return statement**. The value `a + b` is sent back.\n\nCalling it:\n\n```java\nint result = add(5, 3);  // result is 8\nSystem.out.println(result);\n```\n\n`5` and `3` are **arguments** — the actual values passed in. The parameters `a` and `b` receive these values inside the method.",
+      
+      "parameters_explained": "**Parameters** are listed in the method's parentheses. Each has a type and a name, separated by commas.\n\n```java\npublic static void printGreeting(String name) {\n    System.out.println(\"Hello, \" + name + \"!\");\n}\n```\n\nCall with an argument:\n\n```java\nprintGreeting(\"Aisha\");  // Prints: Hello, Aisha!\nprintGreeting(\"Raj\");    // Prints: Hello, Raj!\n```\n\nThe SAME method handles different inputs. That's the power.\n\n**Multiple parameters** — separated by commas:\n\n```java\npublic static void printInfo(String name, int age, String city) {\n    System.out.println(name + \" is \" + age + \" years old, from \" + city);\n}\n\n// Call:\nprintInfo(\"Priya\", 28, \"Hyderabad\");\n```\n\nThe ORDER matters. Arguments fill parameters left-to-right. `printInfo(28, \"Priya\", \"Hyderabad\")` would be a compilation error (int can't go into String parameter).\n\n**Important vocabulary**:\n- **Parameter** = the placeholder in the method definition (`String name`)\n- **Argument** = the actual value passed during call (`\"Aisha\"`)\n\nThese terms get used interchangeably in conversation, but technically they're different. In formal writing/docs, the distinction matters.",
+      
+      "return_values": "A method can SEND BACK a value using the `return` keyword.\n\n```java\npublic static int square(int n) {\n    return n * n;\n}\n```\n\nThe return type (`int`) is declared before the method name. The return value must match this type.\n\nCalling and using the result:\n\n```java\nint result = square(7);       // result = 49\nSystem.out.println(square(4));  // prints 16\nint sum = square(3) + square(4);  // 9 + 16 = 25\n```\n\nReturn values can be used anywhere a value of that type is valid: assignments, expressions, method arguments, conditions.\n\n**Return types** can be any type:\n\n```java\npublic static int countA(String s) { ... }      // returns int\npublic static double average(int a, int b) { ... } // returns double\npublic static boolean isEven(int n) { ... }       // returns boolean\npublic static String greeting(String name) { ... } // returns String\n```\n\n**Critical**: a method with a return type MUST return a value on every code path. The compiler enforces this:\n\n```java\npublic static int getAbsolute(int n) {\n    if (n >= 0) {\n        return n;\n    }\n    // ERROR: missing return for the n < 0 case\n}\n```\n\nFix:\n\n```java\npublic static int getAbsolute(int n) {\n    if (n >= 0) {\n        return n;\n    }\n    return -n;\n}\n```",
+      
+      "return_ends_method": "**`return` exits the method immediately.** Any code after `return` in the same execution path is unreachable.\n\n```java\npublic static int doubleIt(int n) {\n    return n * 2;\n    System.out.println(\"After return\");  // ERROR: unreachable code\n}\n```\n\nUseful pattern: **early return** for special cases:\n\n```java\npublic static double divide(int a, int b) {\n    if (b == 0) {\n        return 0;  // Early exit for divide-by-zero\n    }\n    return (double) a / b;\n}\n```\n\nThis avoids nested if-else. Handle special cases first, then the main logic.\n\n**For `void` methods**, you can use `return;` (no value) to exit early:\n\n```java\npublic static void printPositive(int n) {\n    if (n <= 0) {\n        return;  // Just exit, print nothing\n    }\n    System.out.println(\"Positive: \" + n);\n}\n```",
+      
+      "void_vs_return": "Two kinds of methods:\n\n**`void` methods** — DO something. No return value.\n\n```java\npublic static void printReport(double total) {\n    System.out.println(\"Total: \" + total);\n}\n```\n\nUse for actions: printing, saving, sending.\n\n**Methods that return a value** — COMPUTE something. Have a return type.\n\n```java\npublic static double calculateTax(double income, double rate) {\n    return income * (rate / 100);\n}\n```\n\nUse for calculations, lookups, transformations.\n\n**The split is intentional**:\n- void → side effects (changes the world: prints, saves, etc.)\n- returning → pure computation (gives back a value, doesn't change anything)\n\nGood Java code separates these. A method that BOTH computes AND prints is often doing too much.\n\nBad:\n```java\npublic static void calculateAndPrintTax(double income, double rate) {\n    double tax = income * (rate / 100);\n    System.out.println(\"Tax: \" + tax);\n}\n```\n\nBetter (separated):\n```java\npublic static double calculateTax(double income, double rate) {\n    return income * (rate / 100);\n}\n\npublic static void printTax(double tax) {\n    System.out.println(\"Tax: \" + tax);\n}\n\n// In main:\ndouble tax = calculateTax(75000, 15);\nprintTax(tax);\n```\n\nWhy better? `calculateTax` is reusable (could write to file, send to API, etc.). `printTax` could be replaced by a logger. Each does one thing.",
+      
+      "pass_by_value": "When you pass an argument to a method, Java copies the VALUE. Changes to the parameter inside the method do NOT affect the original variable.\n\n```java\npublic class Demo {\n    public static void main(String[] args) {\n        int x = 5;\n        modify(x);\n        System.out.println(x);  // Still 5! Not 100.\n    }\n    \n    public static void modify(int n) {\n        n = 100;\n    }\n}\n```\n\nWhy? `n` inside `modify` is a COPY of `x`'s value. Changing `n` doesn't change `x`.\n\nThis is called **pass-by-value**. It's the only way Java passes primitive types.\n\n**For objects (Strings, arrays, classes)**, it's a bit more nuanced — you pass a copy of the REFERENCE, but it still points to the same object. We'll cover this in OOP module. For now, just know:\n\n- Primitives: changes inside method don't affect outside\n- Objects: more complex (covered later)\n\nThe takeaway for now: if you want a method to give you back a value, USE A RETURN STATEMENT. Don't try to modify parameters.",
+      
+      "method_signature": "A method's **signature** is its name + parameter types (NOT return type).\n\nSo:\n- `int add(int a, int b)` has signature `add(int, int)`\n- `double add(double a, double b)` has signature `add(double, double)` — different signature\n- `int multiply(int a, int b)` has signature `multiply(int, int)` — different name\n\nTwo methods in the same class can't have identical signatures. We'll see why this matters in the next topic (Method Overloading).\n\nFor now: signature is how Java identifies a method. Names + types matter. Parameter NAMES (a, b) don't affect signature."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a method as a box with arrows flowing IN (parameters labeled with type+name) and arrows flowing OUT (return value, labeled with type). Below it, show the same method being called from main with arguments going in and the returned value being assigned to a variable. Side comparison: 'OLD WAY: class-level static variables (data leaks everywhere)' vs 'NEW WAY: parameters in, return out (data flows cleanly)'. Use arrows to emphasize directional data flow.",
+      "alt_text": "Method diagram showing parameters flowing in and return value flowing out, with comparison to global state approach"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Topic 2.1 refactored the EMI calculator into methods but used class-level static variables — a hack. Now we'll do it RIGHT. Same EMI calculator, but methods take parameters and return values. No global state. No shortcuts. This is what professional Java code looks like.",
+    
+    "problem_statement": "Refactor the EMI calculator so:\n- `calculateEmi(principal, monthlyRate, months)` RETURNS the EMI amount\n- `calculateMonthlyInterest(balance, monthlyRate)` RETURNS interest for one month\n- `printLoanHeader(principal, annualRate, months, emi)` prints header section\n- `printPaymentRow(month, principal, interest, balance)` prints one row\n\nNO class-level variables. Everything flows through parameters and returns.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Design the method signatures",
+        "details": "Before writing code, decide INPUTS and OUTPUTS for each method:\n\n```\ncalculateEmi:\n  Inputs:  principal (double), monthlyRate (double), months (int)\n  Output:  EMI amount (double)\n\ncalculateMonthlyInterest:\n  Inputs:  current balance (double), monthly rate (double)\n  Output:  interest for this month (double)\n\nprintLoanHeader:\n  Inputs:  principal, rate, months, EMI (4 values)\n  Output:  nothing (void) — just prints\n\nprintPaymentRow:\n  Inputs:  month number, principal portion, interest portion, balance after\n  Output:  nothing (void) — just prints\n```\n\nThinking about signatures BEFORE writing code is a senior-engineer habit. It forces you to design the interface."
+      },
+      {
+        "step": 2,
+        "action": "Implement calculation methods (return values)",
+        "details": "These methods only compute — no printing:\n\n```java\npublic static double calculateEmi(double principal, double monthlyRate, int months) {\n    double powerTerm = Math.pow(1 + monthlyRate, months);\n    return principal * monthlyRate * powerTerm / (powerTerm - 1);\n}\n\npublic static double calculateMonthlyInterest(double balance, double monthlyRate) {\n    return balance * monthlyRate;\n}\n```\n\nNotice:\n- Each method takes the data it needs as parameters\n- Each returns the computed value\n- No printing, no global state, no side effects\n- They're PURE functions — same inputs always produce same output"
+      },
+      {
+        "step": 3,
+        "action": "Implement output methods (void)",
+        "details": "These methods print — they don't compute or return anything:\n\n```java\npublic static void printLoanHeader(double principal, double annualRate, int months, double emi) {\n    System.out.println(\"=========================================\");\n    System.out.println(\"      LOAN AMORTIZATION SCHEDULE\");\n    System.out.println(\"=========================================\");\n    System.out.println(\"Principal:    ₹\" + principal);\n    System.out.println(\"Annual Rate:  \" + annualRate + \"%\");\n    System.out.println(\"Months:       \" + months);\n    System.out.println(\"Monthly EMI:  ₹\" + emi);\n    System.out.println(\"-----------------------------------------\");\n    System.out.println(\"Month | Principal | Interest | Balance\");\n    System.out.println(\"-----------------------------------------\");\n}\n\npublic static void printPaymentRow(int month, double principal, double interest, double balance) {\n    System.out.println(\"  \" + month + \"   | \" + principal + \" | \" + interest + \" | \" + balance);\n}\n```\n\nThese only do output — they're the 'view' layer. In real applications, you'd separate computation from presentation similarly."
+      },
+      {
+        "step": 4,
+        "action": "Write main() to orchestrate",
+        "details": "main() owns the data. It calls calculation methods to compute, then output methods to display:\n\n```java\npublic static void main(String[] args) {\n    // Loan data (local to main — no class-level state!)\n    double principal = 500000.0;\n    double annualRate = 9.5;\n    int months = 12;\n    double monthlyRate = annualRate / 12 / 100;\n    \n    // Calculate EMI\n    double emi = calculateEmi(principal, monthlyRate, months);\n    \n    // Print header\n    printLoanHeader(principal, annualRate, months, emi);\n    \n    // Print each month's row\n    double balance = principal;\n    for (int month = 1; month <= months; month++) {\n        double interest = calculateMonthlyInterest(balance, monthlyRate);\n        double principalThisMonth = emi - interest;\n        balance -= principalThisMonth;\n        \n        printPaymentRow(month, principalThisMonth, interest, balance);\n    }\n    \n    System.out.println(\"=========================================\");\n}\n```\n\nNow main:\n- Owns the loan parameters\n- Calls methods to compute values\n- Stores intermediate results in LOCAL variables\n- Passes them to print methods\n- NO class-level static variables anywhere"
+      },
+      {
+        "step": 5,
+        "action": "Notice what's different",
+        "details": "Compare to Topic 2.1's version:\n\n**Topic 2.1 (with class-level statics)**:\n- Variables shared between methods via class-level static\n- Methods modified state implicitly\n- Hard to track who changes what\n\n**Now (with parameters/returns)**:\n- Data flows explicitly through method signatures\n- Each method declares what it needs and what it gives back\n- Easy to test: pass test values, check return value\n- Easy to reuse: call `calculateEmi(amount, rate, period)` for any loan\n\n**The big win**: `calculateEmi` is now a pure utility. You could put it in a library, reuse it in 100 places, test it in isolation. With static variables, you couldn't — it was glued to specific data.\n\nThis is the engineering difference. Same output, vastly better code."
+      }
+    ],
+    
+    "final_code": "public class EMICalculator {\n    public static void main(String[] args) {\n        double principal = 500000.0;\n        double annualRate = 9.5;\n        int months = 12;\n        double monthlyRate = annualRate / 12 / 100;\n        \n        double emi = calculateEmi(principal, monthlyRate, months);\n        \n        printLoanHeader(principal, annualRate, months, emi);\n        \n        double balance = principal;\n        for (int month = 1; month <= months; month++) {\n            double interest = calculateMonthlyInterest(balance, monthlyRate);\n            double principalThisMonth = emi - interest;\n            balance -= principalThisMonth;\n            \n            printPaymentRow(month, principalThisMonth, interest, balance);\n        }\n        \n        System.out.println(\"=========================================\");\n    }\n    \n    public static double calculateEmi(double principal, double monthlyRate, int months) {\n        double powerTerm = Math.pow(1 + monthlyRate, months);\n        return principal * monthlyRate * powerTerm / (powerTerm - 1);\n    }\n    \n    public static double calculateMonthlyInterest(double balance, double monthlyRate) {\n        return balance * monthlyRate;\n    }\n    \n    public static void printLoanHeader(double principal, double annualRate, int months, double emi) {\n        System.out.println(\"=========================================\");\n        System.out.println(\"      LOAN AMORTIZATION SCHEDULE\");\n        System.out.println(\"=========================================\");\n        System.out.println(\"Principal:    ₹\" + principal);\n        System.out.println(\"Annual Rate:  \" + annualRate + \"%\");\n        System.out.println(\"Months:       \" + months);\n        System.out.println(\"Monthly EMI:  ₹\" + emi);\n        System.out.println(\"-----------------------------------------\");\n        System.out.println(\"Month | Principal | Interest | Balance\");\n        System.out.println(\"-----------------------------------------\");\n    }\n    \n    public static void printPaymentRow(int month, double principal, double interest, double balance) {\n        System.out.println(\"  \" + month + \"   | \" + principal + \" | \" + interest + \" | \" + balance);\n    }\n}",
+    
+    "expected_output": "(Same as Module 1 Topic 1.5 EMI Calculator — output unchanged, code dramatically improved)",
+    
+    "things_to_notice": [
+      "Output is the same as before. The transformation is purely in code structure.",
+      "No `static double principal` at class level. Variables live where they belong: in main().",
+      "`calculateEmi(500000, 0.0079, 12)` works. So does `calculateEmi(2500000, 0.0067, 240)`. The method is now REUSABLE.",
+      "Separation: calculation methods compute and return. Print methods take values and display. Each does ONE thing.",
+      "If you wanted to write loan data to a database instead of printing it, you'd add a `saveLoanToDb(...)` method using the same calculated values. The compute methods are unchanged.",
+      "Method signatures (the first line of each method definition) tell the whole story. A reader can understand what each method does without reading its body.",
+      "This is the gold standard for procedural Java. Once we hit OOP module, methods become even more powerful by living inside classes with instance state. But the parameter/return pattern stays."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Java Standard Library",
+        "use_case": "Every method in Java's built-in library uses parameters/returns. `Math.max(a, b)` — takes two values, returns the larger. `String.substring(start, end)` — takes indices, returns a portion. `Integer.parseInt(s)` — takes a String, returns an int. Reading docs for any Java API teaches you about good parameter/return design."
+      },
+      {
+        "company_context": "Spring Boot REST APIs",
+        "use_case": "Every REST endpoint is a method: `public User getUserById(Long id)` — takes ID parameter, returns a User. `public OrderResponse placeOrder(OrderRequest request)` — takes request, returns response. The whole web is built on parameter/return methods at this point. Understanding signatures means understanding APIs."
+      },
+      {
+        "company_context": "Microservice communication (Razorpay, Stripe, Uber)",
+        "use_case": "When services talk to each other, they're essentially calling methods over a network. The request body = parameters. The response body = return value. Service contracts are method signatures. Getting parameters right is critical for API stability."
+      },
+      {
+        "company_context": "Banking transaction systems",
+        "use_case": "`transferMoney(fromAccount, toAccount, amount, currency)` — clear parameters, returns transaction ID or error. Banks have audit requirements: every method must declare its inputs and outputs precisely. This isn't just clean code — it's regulatory compliance."
+      }
+    ],
+    
+    "interview_relevance": "Method signatures come up in every coding interview:\n\n- **Problem statements** are usually given as signatures: 'Implement `public int findMax(int[] arr)`.' You start by understanding what goes in and what comes out.\n\n- **Common questions**:\n  - 'Write a method that returns the nth Fibonacci number' — int parameter, long return\n  - 'Implement isPrime(int n)' — boolean return\n  - 'Reverse a String' — String in, String out\n  - 'Calculate factorial' — int in, long out (overflow consideration)\n\n- **Senior interviews**: 'Design an API for X' — you list method signatures with parameters and returns. The signatures ARE the design.\n\nIf you can't write clean method signatures, you can't pass technical interviews. This skill is non-negotiable.",
+    
+    "real_world_workflow": "Daily life with parameters/returns:\n- Code review feedback: 'This method takes too many parameters — split it' (usually means: this method does too many things)\n- Documentation: every method's parameters and return value go in JavaDoc comments\n- Testing: unit tests pass test values as arguments and assert on return values\n- Refactoring: a common task is 'extract method' — taking a chunk of code and turning it into a parameterized method\n- API design: deciding what parameters a method should take is a design decision affecting users of your code for years"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "missing_return_value",
+      "what_students_get_wrong": "Declaring a non-void return type but forgetting to return on all paths (especially in if/else chains).",
+      "remediation": "If method declares any return type (int, double, etc.), EVERY execution path must end with a return statement. The compiler enforces this — read the error message.",
+      "detection_pattern": "Compilation error: 'missing return statement'"
+    },
+    {
+      "gap_id": "return_type_mismatch",
+      "what_students_get_wrong": "Returning a different type than declared. E.g., method declared `int` but returning `double`.",
+      "remediation": "The returned value must match the declared return type. To convert, cast explicitly: `return (int) someDouble;` (with awareness of precision loss).",
+      "detection_pattern": "Compilation error: 'incompatible types'"
+    },
+    {
+      "gap_id": "modifying_parameter_thinking_it_changes_caller",
+      "what_students_get_wrong": "Trying to modify a parameter and expecting the change to affect the caller's variable.",
+      "remediation": "Java passes primitives by value (copies). Changes to parameter inside method don't affect outside. To return modified data, USE RETURN VALUE.",
+      "detection_pattern": "Method appears to work but outside variable unchanged"
+    },
+    {
+      "gap_id": "wrong_argument_order",
+      "what_students_get_wrong": "Passing arguments in wrong order. E.g., `calculateInterest(rate, principal)` instead of `calculateInterest(principal, rate)`.",
+      "remediation": "Arguments must match parameter ORDER. Read the signature carefully. Modern IDEs show parameter hints — use them.",
+      "detection_pattern": "Method compiles but produces wrong results"
+    },
+    {
+      "gap_id": "argument_count_mismatch",
+      "what_students_get_wrong": "Calling a method with wrong number of arguments. E.g., passing 2 args when method needs 3.",
+      "remediation": "Count must match exactly. Java will give a compilation error with message about 'actual and formal argument lists differ in length.'",
+      "detection_pattern": "Compilation error about argument count"
+    },
+    {
+      "gap_id": "unreachable_code_after_return",
+      "what_students_get_wrong": "Writing code AFTER a return statement in the same execution path.",
+      "remediation": "Once return is hit, the method exits. Code after return is unreachable. Compiler will flag this.",
+      "detection_pattern": "Compilation error: 'unreachable statement'"
+    },
+    {
+      "gap_id": "ignoring_return_value",
+      "what_students_get_wrong": "Calling a method that returns a value but ignoring the result. E.g., `calculateTax(income, rate);` — return value lost.",
+      "remediation": "If a method returns a value, capture it in a variable or use it directly. `double tax = calculateTax(...);` or `print(calculateTax(...));`",
+      "detection_pattern": "Method called but result not used"
+    },
+    {
+      "gap_id": "void_method_with_return_value",
+      "what_students_get_wrong": "Trying to return a value from a void method.",
+      "remediation": "void means 'returns nothing.' If you need to return a value, change the return type. `return;` (no value) is allowed in void for early exit.",
+      "detection_pattern": "Compilation error: 'cannot return a value from method whose result type is void'"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Parameters let methods accept inputs — defined in the method's parentheses",
+      "Return values let methods produce outputs — declared by return type, sent with `return`",
+      "Arguments are the actual values passed at call time; parameters are the placeholders in the method definition",
+      "Method order matters — `(name, age)` is different from `(age, name)`",
+      "Java passes primitives BY VALUE — changes inside method don't affect outside",
+      "Methods with non-void return types MUST return on every code path",
+      "`return` exits the method immediately — useful for early-exit patterns",
+      "Separate calculation methods (return values, no side effects) from output methods (void, with side effects)",
+      "Method signature = name + parameter types. Same signature can't repeat in a class.",
+      "Goodbye to class-level static variables as a hack. Parameters/returns are the professional way."
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's the difference between a parameter and an argument?",
+        "answer": "Parameter: the placeholder declared in the method definition (`int n` in `void doubleIt(int n)`). Argument: the actual value passed when calling (`5` in `doubleIt(5)`). The argument 5 is assigned to the parameter n inside the method. People often use these terms interchangeably, but technically they're different roles."
+      },
+      {
+        "question": "Why doesn't this code compile?\n```java\npublic static int getValue(int n) {\n    if (n > 0) {\n        return n;\n    }\n}\n```",
+        "answer": "Missing return for the n <= 0 case. A method with a non-void return type MUST return a value on EVERY possible execution path. Fix: add `return 0;` (or another value) after the if block, or add an else clause."
+      },
+      {
+        "question": "What does this print?\n```java\nint x = 10;\nincrement(x);\nSystem.out.println(x);\n\npublic static void increment(int n) {\n    n = n + 1;\n}\n```",
+        "answer": "10. Java passes primitives by value — `n` is a copy of `x`. Changing `n` inside the method doesn't affect `x`. To actually change x, the method should return the new value: `x = increment(x);` with `return n + 1;`."
+      },
+      {
+        "question": "What's the issue here?\n```java\npublic static double calculateTax(double income, double rate) {\n    System.out.println(\"Calculating...\");\n    double tax = income * (rate / 100);\n    return tax;\n}\n```",
+        "answer": "Not strictly wrong, but it MIXES computation with output (the println). Better practice: keep calculation methods pure (no side effects). The println belongs in a separate output method. Mixing makes the method harder to test and reuse — you can't compute without printing."
+      },
+      {
+        "question": "When would you use `void` instead of a return type?",
+        "answer": "When the method DOES something rather than COMPUTES something. Use void for: printing, saving to a database, sending an email, updating state. Use a return type for: calculations, lookups, transformations, queries. The split is intentional: void methods have side effects, returning methods compute."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Method Overloading. What if you want two methods that do similar things but with different inputs? Like `add(int, int)` and `add(double, double)` and `add(int, int, int)`? Java lets you have multiple methods with the same NAME but different parameter signatures. This is called overloading, and it's used heavily in real code. We'll learn when it helps and when it's overkill."
+  }
+}

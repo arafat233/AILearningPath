@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t4",
+  "topic_name": "Wildcards",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m9_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Invariance — which assignments compile?",
+      "scenario": "Generics are invariant — subtype relationships don't carry through.",
+      "instructions": "Write C (compiles) or E (error) for each:\n\n```\nA: List<Number>  n = new ArrayList<Integer>();\nB: List<Integer> i = new ArrayList<Integer>();\nC: List<Object>  o = new ArrayList<String>();\nD: Number        x = new Integer(42);\nE: List<?>       w = new ArrayList<Integer>();\n```",
+      "expected_solution": "A: E\nB: C\nC: E\nD: C\nE: C",
+      "test_cases": [
+        { "type": "text_match", "expected": "A: E\nB: C\nC: E\nD: C\nE: C" }
+      ],
+      "hints": [
+        "List<Integer> is NOT List<Number> — invariance",
+        "List<String> is NOT List<Object> — invariance",
+        "Number x = new Integer(42) — IS-A works for non-generic types",
+        "List<?> accepts ANY List — wildcard"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add ? extends for flexible parameter",
+      "scenario": "Without wildcard: only List<Number>. With wildcard: any numeric list.",
+      "instructions": "Fill in the blank to make sumList accept List<Integer>, List<Double>, and List<Number>.",
+      "starter_code": "import java.util.*;\npublic class App {\n    static double sumList(List<? ______ Number> nums) {\n        double total = 0;\n        for (Number n : nums) total += n.doubleValue();\n        return total;\n    }\n    public static void main(String[] args) {\n        System.out.println(sumList(Arrays.asList(10, 20, 30)));\n    }\n}",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static double sumList(List<? extends Number> nums) {\n        double total = 0;\n        for (Number n : nums) total += n.doubleValue();\n        return total;\n    }\n    public static void main(String[] args) {\n        System.out.println(sumList(Arrays.asList(10, 20, 30)));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "extends", "hint": "Upper bounded wildcard for reading" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "60.0" }
+      ],
+      "hints": [
+        "? extends Number = any list of Number or subtype",
+        "Producer pattern: reading from list → extends"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Unbounded wildcard for printAll",
+      "scenario": "Unbounded ? accepts any list for read-only operations.",
+      "instructions": "Write `printAll(List<?> list)` that prints each element. Show it works for String, Integer, and Boolean lists.\n\nExpected output:\n[Aisha, Raj]\n[1, 2, 3]\n[true, false]",
+      "starter_code": "import java.util.*;\n// printAll with unbounded wildcard\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static void printAll(List<?> list) {\n        System.out.println(list);\n    }\n    public static void main(String[] args) {\n        printAll(Arrays.asList(\"Aisha\", \"Raj\"));\n        printAll(Arrays.asList(1, 2, 3));\n        printAll(Arrays.asList(true, false));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha, Raj]\n[1, 2, 3]\n[true, false]" }
+      ],
+      "hints": [
+        "List<?> accepts any parameterized List",
+        "list.toString() works — no knowledge of element type needed"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m9_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "? extends for numeric processing",
+      "scenario": "Upper bounded wildcard for reading/computing.",
+      "instructions": "Write `average(List<? extends Number>)` returning OptionalDouble. Test with Integer and Double lists.\n\nExpected output:\n84.33333333333333\n2.5",
+      "starter_code": "import java.util.*;\n// average with ? extends Number\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static OptionalDouble average(List<? extends Number> nums) {\n        if (nums.isEmpty()) return OptionalDouble.empty();\n        double sum = 0;\n        for (Number n : nums) sum += n.doubleValue();\n        return OptionalDouble.of(sum / nums.size());\n    }\n    public static void main(String[] args) {\n        System.out.println(average(Arrays.asList(85, 92, 78, 95, 68, 88)).getAsDouble());\n        System.out.println(average(Arrays.asList(1.5, 2.5, 3.5)).getAsDouble());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "84.33333333333333\n2.5" }
+      ],
+      "hints": [
+        "? extends Number — reads as Number (doubleValue() available)",
+        "Same pattern as bounded type parameter T extends Number, but using wildcard"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m9_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "? super for consumer (adding to list)",
+      "scenario": "Lower bounded wildcard allows adding to compatible list.",
+      "instructions": "Write `addIntegers(List<? super Integer>, int... values)` that adds the values. Show it works for List<Integer>, List<Number>, and List<Object>.\n\nExpected output:\n[10, 20, 30]\n[10, 20, 30]\n[10, 20, 30]",
+      "starter_code": "import java.util.*;\n// ? super Integer allows adding Integer to any compatible list\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static void addIntegers(List<? super Integer> list, int... values) {\n        for (int v : values) list.add(v);\n    }\n    public static void main(String[] args) {\n        List<Integer> ints    = new ArrayList<>();\n        List<Number>  numbers = new ArrayList<>();\n        List<Object>  objects = new ArrayList<>();\n        \n        addIntegers(ints,    10, 20, 30);\n        addIntegers(numbers, 10, 20, 30);\n        addIntegers(objects, 10, 20, 30);\n        \n        System.out.println(ints);\n        System.out.println(numbers);\n        System.out.println(objects);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[10, 20, 30]\n[10, 20, 30]\n[10, 20, 30]" }
+      ],
+      "hints": [
+        "? super Integer = Integer, Number, or Object — any supertype of Integer",
+        "Consumer pattern: writing to list → super",
+        "All three list types can hold Integer values"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m9_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "PECS copy method",
+      "scenario": "Copy from producer (extends) to consumer (super).",
+      "instructions": "Implement `copy(List<? super T> dest, List<? extends T> src)` that copies all elements from src to dest. Test copying a List<Integer> into a List<Number>.\n\nExpected output:\nBefore: []\nAfter: [1, 2, 3]",
+      "starter_code": "import java.util.*;\n// PECS copy: ? extends = producer, ? super = consumer\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T> void copy(List<? super T> dest, List<? extends T> src) {\n        for (T element : src) dest.add(element);\n    }\n    public static void main(String[] args) {\n        List<Integer> source = Arrays.asList(1, 2, 3);\n        List<Number>  target = new ArrayList<>();\n        System.out.println(\"Before: \" + target);\n        copy(target, source);  // T=Integer, dest=List<Number>, src=List<Integer>\n        System.out.println(\"After: \" + target);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Before: []\nAfter: [1, 2, 3]" }
+      ],
+      "hints": [
+        "static <T> void copy(List<? super T> dest, List<? extends T> src)",
+        "src produces T (extends = producer); dest consumes T (super = consumer)",
+        "T=Integer inferred from source; List<Number> satisfies ? super Integer"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "pecs"
+    },
+
+    {
+      "id": "java_m9_t4_ex_7",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Trace PECS compile/error analysis",
+      "scenario": "Identify what operations are allowed with each wildcard.",
+      "instructions": "For `List<? extends Number> list` and `List<? super Integer> target`, which operations compile (C) or error (E)?\n\n```\nA: Number n = list.get(0);\nB: list.add(42);\nC: Object o = target.get(0);\nD: target.add(42);\nE: Integer i = target.get(0);\nF: list.size();\n```",
+      "expected_solution": "A: C\nB: E\nC: C\nD: C\nE: E\nF: C",
+      "test_cases": [
+        { "type": "text_match", "expected": "A: C\nB: E\nC: C\nD: C\nE: E\nF: C" }
+      ],
+      "hints": [
+        "? extends: read as T (Number), cannot add",
+        "? super: add T (Integer), read only as Object",
+        "size() works on any List regardless of wildcard"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Wildcard with Collection — countIf",
+      "scenario": "Count matching elements in any collection using wildcard.",
+      "instructions": "Write `countIf(Collection<? extends T>, Predicate<T>)` returning count of matching elements. Test with different collection types.\n\nExpected output:\nIntegers > 5: 3\nStrings starting with A: 2",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// countIf with ? extends for flexible collection parameter\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    static <T> long countIf(Collection<? extends T> items, Predicate<T> condition) {\n        long count = 0;\n        for (T item : items) if (condition.test(item)) count++;\n        return count;\n    }\n    public static void main(String[] args) {\n        List<Integer> nums = Arrays.asList(1, 3, 7, 2, 8, 9);\n        System.out.println(\"Integers > 5: \" + countIf(nums, n -> n > 5));\n        \n        Set<String> names = new LinkedHashSet<>(Arrays.asList(\"Aisha\",\"Raj\",\"Anita\",\"Priya\"));\n        System.out.println(\"Strings starting with A: \" + countIf(names, s -> s.startsWith(\"A\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Integers > 5: 3\nStrings starting with A: 2" }
+      ],
+      "hints": [
+        "Collection<? extends T> accepts List<Integer>, Set<String> etc.",
+        "T is inferred from Predicate<T> argument",
+        "Integers > 5: 7, 8, 9 = count 3; Aisha, Anita start with A = count 2"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "? extends for Shape hierarchy",
+      "scenario": "Classic wildcard use case — process any list of shapes.",
+      "instructions": "Create `Shape` (abstract, area()), `Circle` (radius), `Rectangle` (w,h). Write `totalArea(List<? extends Shape>)`. Show it works for all three list types.\n\nExpected output:\nCircles total area: 78.54\nRectangles total area: 60.0\nMixed total area: 138.54",
+      "starter_code": "import java.util.*;\n// Shape hierarchy + totalArea with ? extends Shape\n",
+      "expected_solution": "import java.util.*;\nabstract class Shape { abstract double area(); }\nclass Circle extends Shape {\n    double radius; Circle(double r) { radius=r; }\n    public double area() { return Math.PI * radius * radius; }\n}\nclass Rectangle extends Shape {\n    double w, h; Rectangle(double w, double h) { this.w=w; this.h=h; }\n    public double area() { return w * h; }\n}\npublic class App {\n    static double totalArea(List<? extends Shape> shapes) {\n        double total = 0;\n        for (Shape s : shapes) total += s.area();  // reads as Shape\n        return total;\n    }\n    public static void main(String[] args) {\n        List<Circle>    circles = Arrays.asList(new Circle(5));\n        List<Rectangle> rects   = Arrays.asList(new Rectangle(6,10));\n        List<Shape>     mixed   = new ArrayList<>();\n        mixed.addAll(circles); mixed.addAll(rects);\n        \n        System.out.printf(\"Circles total area: %.2f%n\",    totalArea(circles));\n        System.out.printf(\"Rectangles total area: %.2f%n\", totalArea(rects));\n        System.out.printf(\"Mixed total area: %.2f%n\",      totalArea(mixed));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Circles total area: 78.54\nRectangles total area: 60.0\nMixed total area: 138.54" }
+      ],
+      "hints": [
+        "totalArea(List<? extends Shape>) accepts List<Circle>, List<Rectangle>, List<Shape>",
+        "Reads each as Shape — area() method available",
+        "π × 5² ≈ 78.54; 6 × 10 = 60"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "? super for comparator — addAll with filter",
+      "scenario": "Consumer wildcard for flexible destination.",
+      "instructions": "Write `copyFiltered(List<? super T>, List<? extends T>, Predicate<T>)` — copy elements matching predicate from source to destination.\n\nTest: copy even integers from List<Integer> to List<Number>.\n\nExpected output:\nSource: [1, 2, 3, 4, 5, 6]\nEvens in target: [2, 4, 6]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// PECS + filter: copy matching elements\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    static <T> void copyFiltered(List<? super T> dest, List<? extends T> src, Predicate<T> filter) {\n        for (T item : src) if (filter.test(item)) dest.add(item);\n    }\n    public static void main(String[] args) {\n        List<Integer> source = Arrays.asList(1, 2, 3, 4, 5, 6);\n        List<Number>  target = new ArrayList<>();\n        copyFiltered(target, source, n -> n % 2 == 0);\n        System.out.println(\"Source: \" + source);\n        System.out.println(\"Evens in target: \" + target);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Source: [1, 2, 3, 4, 5, 6]\nEvens in target: [2, 4, 6]" }
+      ],
+      "hints": [
+        "src = producer (? extends T); dest = consumer (? super T)",
+        "T inferred as Integer from source; List<Number> satisfies ? super Integer"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m9_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Wildcard in return type — max of any numeric list",
+      "scenario": "Method returning from a wildcard collection.",
+      "instructions": "Write `maxNumber(List<? extends Number>)` returning Optional<Number> — the maximum value. Use compareTo via doubleValue comparison.\n\nTest with Integer and Double.\n\nExpected output:\nMax of ints: Optional[95]\nMax of doubles: Optional[3.9]\nMax of empty: Optional.empty",
+      "starter_code": "import java.util.*;\n// maxNumber using ? extends Number\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static Optional<Number> maxNumber(List<? extends Number> nums) {\n        if (nums.isEmpty()) return Optional.empty();\n        Number max = nums.get(0);\n        for (Number n : nums) {\n            if (n.doubleValue() > max.doubleValue()) max = n;\n        }\n        return Optional.of(max);\n    }\n    public static void main(String[] args) {\n        System.out.println(\"Max of ints: \"    + maxNumber(Arrays.asList(85, 92, 78, 95, 68)));\n        System.out.println(\"Max of doubles: \" + maxNumber(Arrays.asList(2.5, 3.9, 1.1)));\n        System.out.println(\"Max of empty: \"   + maxNumber(new ArrayList<>()));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Max of ints: Optional[95]\nMax of doubles: Optional[3.9]\nMax of empty: Optional.empty" }
+      ],
+      "hints": [
+        "List<? extends Number> → reads each element as Number",
+        "Compare using .doubleValue() — Number method",
+        "Return type Optional<Number> — widened from the element type"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m9_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Map with wildcard values",
+      "scenario": "Wildcards in Map types.",
+      "instructions": "Write `printValues(Map<String, ? extends Number> map)` that prints key=value pairs. Test with Map<String, Integer> and Map<String, Double>.\n\nExpected output:\nINFY=1560\nRELIANCE=2450\nTCS=3890\nPi=3.14\nE=2.72",
+      "starter_code": "import java.util.*;\n// Map with wildcard value type\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static void printValues(Map<String, ? extends Number> map) {\n        new TreeMap<>(map).forEach((k, v) -> System.out.println(k + \"=\" + v));\n    }\n    public static void main(String[] args) {\n        Map<String, Integer> prices = new LinkedHashMap<>();\n        prices.put(\"RELIANCE\", 2450);\n        prices.put(\"TCS\",      3890);\n        prices.put(\"INFY\",     1560);\n        printValues(prices);\n        \n        Map<String, Double> constants = new LinkedHashMap<>();\n        constants.put(\"Pi\", 3.14);\n        constants.put(\"E\",  2.72);\n        printValues(constants);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "INFY=1560\nRELIANCE=2450\nTCS=3890\nPi=3.14\nE=2.72" }
+      ],
+      "hints": [
+        "Map<String, ? extends Number> accepts Map<String, Integer> and Map<String, Double>",
+        "Values read as Number — .toString() called for printing",
+        "TreeMap sorts keys alphabetically"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m9_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete merge method using PECS",
+      "scenario": "Merge a collection of lists using producer/consumer wildcards.",
+      "instructions": "Write `merge(List<? super T> dest, List<? extends List<? extends T>> sources)` — merges multiple source lists into one destination list.\n\nTest: merge three List<Integer> into a List<Number>.\n\nExpected output:\n[1, 2, 3, 4, 5, 6, 7, 8, 9]",
+      "starter_code": "import java.util.*;\n// merge multiple source lists into destination using PECS\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T> void merge(List<? super T> dest, List<? extends List<? extends T>> sources) {\n        for (List<? extends T> source : sources) {\n            for (T item : source) dest.add(item);\n        }\n    }\n    public static void main(String[] args) {\n        List<Integer> a = Arrays.asList(1, 2, 3);\n        List<Integer> b = Arrays.asList(4, 5, 6);\n        List<Integer> c = Arrays.asList(7, 8, 9);\n        List<List<Integer>> sources = Arrays.asList(a, b, c);\n        List<Number> result = new ArrayList<>();\n        merge(result, sources);\n        System.out.println(result);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[1, 2, 3, 4, 5, 6, 7, 8, 9]" }
+      ],
+      "hints": [
+        "dest is consumer: ? super T",
+        "sources is a list of producers: ? extends List<? extends T>",
+        "Nested wildcard: each source is itself a producer of T"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "PECS in a generic Sorter class",
+      "scenario": "A generic sorter that uses wildcards correctly.",
+      "instructions": "Create `Sorter<T extends Comparable<T>>` class with:\n- `sort(List<T>)` — sorts in place\n- `sorted(List<? extends T>)` — returns new sorted list (producer wildcard)\n- `static <E extends Comparable<E>> void sortAll(List<? extends List<E>>)` — sorts each inner list\n\nTest all three.\n\nExpected output:\nIn-place: [Aisha, Priya, Raj]\nNew sorted: [1, 2, 3, 4, 5]\nAll sorted: [[Aisha, Priya], [Raj, Vikram]]",
+      "starter_code": "import java.util.*;\n// Sorter<T> with multiple wildcard-based sort methods\n",
+      "expected_solution": "import java.util.*;\nclass Sorter<T extends Comparable<T>> {\n    void sort(List<T> list) {\n        Collections.sort(list);\n    }\n    List<T> sorted(List<? extends T> list) {\n        List<T> copy = new ArrayList<>(list);\n        Collections.sort(copy);\n        return copy;\n    }\n    static <E extends Comparable<E>> void sortAll(List<? extends List<E>> lists) {\n        for (List<E> l : lists) Collections.sort(l);\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        Sorter<String> strSorter = new Sorter<>();\n        List<String> names = new ArrayList<>(Arrays.asList(\"Raj\", \"Aisha\", \"Priya\"));\n        strSorter.sort(names);\n        System.out.println(\"In-place: \" + names);\n        \n        List<Integer> ints = Arrays.asList(3, 1, 4, 1, 5);\n        Sorter<Integer> intSorter = new Sorter<>();\n        System.out.println(\"New sorted: \" + intSorter.sorted(ints));\n        \n        List<List<String>> groups = new ArrayList<>();\n        groups.add(new ArrayList<>(Arrays.asList(\"Priya\", \"Aisha\")));\n        groups.add(new ArrayList<>(Arrays.asList(\"Vikram\", \"Raj\")));\n        Sorter.sortAll(groups);\n        System.out.println(\"All sorted: \" + groups);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "In-place: [Aisha, Priya, Raj]\nNew sorted: [1, 2, 3, 4, 5]\nAll sorted: [[Aisha, Priya], [Raj, Vikram]]" }
+      ],
+      "hints": [
+        "sorted(): List<? extends T> accepts List<Integer> when T=Integer",
+        "sortAll(): List<? extends List<E>> — each inner list is a producer",
+        "Collections.sort(copy) works because T is Comparable"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Full wildcard utility — WildcardCollections",
+      "scenario": "Six wildcard-based methods demonstrating all three wildcard forms.",
+      "instructions": "Build `WildcardCollections` with six methods:\n1. `print(Collection<?>)` — print any collection\n2. `sum(Collection<? extends Number>)` — sum any numbers\n3. `max(Collection<? extends Comparable<?>>)` — max of any comparable collection (as Object)\n4. `fill(List<? super String>, String[])` — add strings to any compatible list\n5. `<T> copy(List<? super T>, List<? extends T>)` — PECS copy\n6. `<T> merge(List<? super T>, Collection<? extends T>[])` — merge multiple sources\n\nDemonstrate all 6 with test data.\n\nExpected output:\n[Aisha, Raj, Priya]\nSum: 60.0\nCopied: [1, 2, 3]\nFilled: [hello, world]\nMerged: [a, b, c, d, e, f]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// WildcardCollections — 6 methods using ?, ? extends, ? super\n",
+      "expected_solution": "import java.util.*;\nclass WildcardCollections {\n    static void print(Collection<?> c)                    { System.out.println(c); }\n    static double sum(Collection<? extends Number> nums)  {\n        double t=0; for (Number n:nums) t+=n.doubleValue(); return t;\n    }\n    static Object max(Collection<? extends Comparable<?>> c) {\n        // Simplified: convert to comparable list\n        Object max = null;\n        for (Object item : c) {\n            if (max == null || ((Comparable<Object>)item).compareTo(max) > 0) max = item;\n        }\n        return max;\n    }\n    static void fill(List<? super String> list, String... items) {\n        for (String s : items) list.add(s);\n    }\n    static <T> void copy(List<? super T> dest, List<? extends T> src) {\n        for (T item : src) dest.add(item);\n    }\n    @SafeVarargs\n    static <T> void merge(List<? super T> dest, Collection<? extends T>... sources) {\n        for (Collection<? extends T> src : sources)\n            for (T item : src) dest.add(item);\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        WildcardCollections.print(Arrays.asList(\"Aisha\",\"Raj\",\"Priya\"));\n        System.out.println(\"Sum: \" + WildcardCollections.sum(Arrays.asList(10,20,30)));\n        \n        List<Integer> src = Arrays.asList(1, 2, 3);\n        List<Number> dest = new ArrayList<>();\n        WildcardCollections.copy(dest, src);\n        System.out.println(\"Copied: \" + dest);\n        \n        List<String> strings = new ArrayList<>();\n        WildcardCollections.fill(strings, \"hello\", \"world\");\n        System.out.println(\"Filled: \" + strings);\n        \n        List<String> merged = new ArrayList<>();\n        WildcardCollections.merge(merged,\n            Arrays.asList(\"a\",\"b\"),\n            Arrays.asList(\"c\",\"d\"),\n            Arrays.asList(\"e\",\"f\"));\n        System.out.println(\"Merged: \" + merged);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha, Raj, Priya]\nSum: 60.0\nCopied: [1, 2, 3]\nFilled: [hello, world]\nMerged: [a, b, c, d, e, f]" }
+      ],
+      "hints": [
+        "print: ? — any collection",
+        "sum: ? extends Number — numeric producer",
+        "fill: ? super String — string consumer",
+        "copy: PECS — ? extends T src, ? super T dest",
+        "merge: varargs Collection<? extends T>[] sources"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 65
+  }
+}

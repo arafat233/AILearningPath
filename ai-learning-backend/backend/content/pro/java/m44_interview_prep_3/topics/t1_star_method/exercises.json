@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m44_t1",
+  "topic_name": "STAR Method \u2014 Situation Task Action Result",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m44_t1_ex_1",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "STAR for technical decision",
+      "instructions": "STAR answer: technical decision with significant impact.",
+      "expected_solution": "Situation: specific context. Task: your role. Action: what YOU did (not we). Result: measured impact. End with learning.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Situation: specific context. Task: your role. Action: what YOU did (not we). Result: measured impact. End with learning."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m44_t1_ex_2",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "Conflict resolution",
+      "instructions": "STAR answer: disagreement with teammate/manager.",
+      "expected_solution": "Share data not opinion. Empathy first. Propose privately before public disagreement. Result: relationship intact + better outcome.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Share data not opinion. Empathy first. Propose privately before public disagreement. Result: relationship intact + better outcome."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m44_t1_ex_3",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "Leadership without authority",
+      "instructions": "STAR: showed leadership without formal title.",
+      "expected_solution": "Initiative + data + empathy. Document the problem. Get buy-in. Volunteer to implement. Measure and share results.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Initiative + data + empathy. Document the problem. Get buy-in. Volunteer to implement. Measure and share results."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m44_t1_ex_4",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Failure story",
+      "instructions": "STAR: time you failed or made a mistake.",
+      "expected_solution": "Own the mistake clearly. Specific root cause. Immediate actions. Systemic fix. Learning applied going forward.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Own the mistake clearly. Specific root cause. Immediate actions. Systemic fix. Learning applied going forward."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m44_t1_ex_5",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Why this company",
+      "instructions": "3-minute answer for Zerodha/Flipkart.",
+      "expected_solution": "Personal connection. Specific knowledge (tech blog, products, culture). Skill fit. Long-term vision alignment.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Personal connection. Specific knowledge (tech blog, products, culture). Skill fit. Long-term vision alignment."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m44_t1_ex_6",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Tell me about yourself",
+      "instructions": "2-minute career summary.",
+      "expected_solution": "Past (relevant experience, highlight). Present (current skills, project). Future (why this role moves you forward). 2 minutes max.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Past (relevant experience, highlight). Present (current skills, project). Future (why this role moves you forward). 2 minutes max."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m44_t1_ex_7",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Biggest weakness",
+      "instructions": "Honest weakness + active mitigation.",
+      "expected_solution": "Real weakness (not 'I work too hard'). Specific impact. What you're doing about it. Evidence of improvement.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Real weakness (not 'I work too hard'). Specific impact. What you're doing about it. Evidence of improvement."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m44_t1_ex_8",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Most impactful project",
+      "instructions": "Deep dive on your best project.",
+      "expected_solution": "Technical depth. Business impact. Your role specifically. Challenges overcome. What you'd do differently.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Technical depth. Business impact. Your role specifically. Challenges overcome. What you'd do differently."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m44_t1_ex_9",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Handling ambiguity",
+      "instructions": "Time you succeeded with unclear requirements.",
+      "expected_solution": "How you gathered info. How you scoped down. How you validated assumptions. Result with limited information.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "How you gathered info. How you scoped down. How you validated assumptions. Result with limited information."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m44_t1_ex_10",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Prioritization under pressure",
+      "instructions": "Time you had to prioritize competing demands.",
+      "expected_solution": "Criteria for prioritization. Communication to stakeholders. Trade-offs made explicitly. Outcome.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Criteria for prioritization. Communication to stakeholders. Trade-offs made explicitly. Outcome."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m44_t1_ex_11",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Cross-functional collaboration",
+      "instructions": "Time you worked across teams/disciplines.",
+      "expected_solution": "Stakeholders involved. Communication approach. Alignment achieved. Outcome that required all parties.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Stakeholders involved. Communication approach. Alignment achieved. Outcome that required all parties."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m44_t1_ex_12",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Initiative/ownership",
+      "instructions": "Time you went beyond your job description.",
+      "expected_solution": "Identified gap without being asked. Proposed solution. Took ownership. Measured outcome.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Identified gap without being asked. Proposed solution. Took ownership. Measured outcome."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m44_t1_ex_13",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Full behavioral round simulation",
+      "instructions": "Answer all 5 key questions in sequence.",
+      "expected_solution": "Tell me about yourself (2min). Technical decision (2-3min). Conflict (2min). Failure (2min). Why us (2min). Total ~12 min.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Tell me about yourself (2min). Technical decision (2-3min). Conflict (2min). Failure (2min). Why us (2min). Total ~12 min."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m44_t1_ex_14",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Amazon/Flipkart leadership principles",
+      "instructions": "Map 5 stories to leadership principles.",
+      "expected_solution": "Ownership, Customer Obsession, Deliver Results, Invent and Simplify, Bias for Action. Map each story to 2-3 principles.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Ownership, Customer Obsession, Deliver Results, Invent and Simplify, Bias for Action. Map each story to 2-3 principles."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m44_t1_ex_15",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Complete behavioral preparation",
+      "instructions": "30 questions answered with 5 core stories.",
+      "expected_solution": "5 stories \u00d7 6 questions each = 30 answers. Practice: record yourself, time each, get feedback, iterate.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "5 stories \u00d7 6 questions each = 30 answers. Practice: record yourself, time each, get feedback, iterate."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "written_response": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 60
+  }
+}

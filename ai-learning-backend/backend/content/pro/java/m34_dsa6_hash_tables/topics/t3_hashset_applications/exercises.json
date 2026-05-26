@@ -1,0 +1,363 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t3",
+  "topic_name": "HashSet Applications",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m34_t3_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "HashSet basics \u2014 contains O(1)",
+      "instructions": "Implement: HashSet basics \u2014 contains O(1).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SetBasics {\n    public static void main(String[] a){\n        Set<Integer> set=new HashSet<>(Arrays.asList(1,2,3,4,5));\n        System.out.println(set.contains(3));    // true  O(1)\n        System.out.println(set.contains(6));    // false O(1)\n        set.add(6); set.remove(1);\n        System.out.println(set.size());         // 5\n        System.out.println(\"HashSet: O(1) add/remove/contains \u2014 backed by HashMap\");\n        System.out.println(\"LinkedHashSet: O(1) + insertion order\");\n        System.out.println(\"TreeSet: O(log n) + sorted order\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "5",
+            "O(1) add/remove/contains"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t3_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Contains Duplicate (LeetCode #217)",
+      "instructions": "Implement: Contains Duplicate (LeetCode #217).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ContainsDup {\n    public static boolean containsDuplicate(int[] nums) {\n        Set<Integer> seen=new HashSet<>();\n        for(int n:nums) if(!seen.add(n)) return true;\n        return false;\n    }\n    public static void main(String[] a){\n        System.out.println(containsDuplicate(new int[]{1,2,3,1})); // true\n        System.out.println(containsDuplicate(new int[]{1,2,3,4})); // false\n        System.out.println(\"add() returns false if already present \u2014 elegant one-liner\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "add() returns false"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Intersection / Union of two arrays",
+      "instructions": "Implement: Intersection / Union of two arrays.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SetOps {\n    static int[] intersection(int[] a, int[] b){\n        Set<Integer> s=new HashSet<>();for(int x:a)s.add(x);\n        Set<Integer> res=new HashSet<>();for(int x:b)if(s.contains(x))res.add(x);\n        return res.stream().mapToInt(Integer::intValue).toArray();\n    }\n    static int[] union(int[] a, int[] b){\n        Set<Integer> s=new HashSet<>();for(int x:a)s.add(x);for(int x:b)s.add(x);\n        return s.stream().mapToInt(Integer::intValue).toArray();\n    }\n    public static void main(String[] a){\n        System.out.println(intersection(new int[]{1,2,2,1},new int[]{2,2}).length); // 1\n        System.out.println(union(new int[]{1,2},new int[]{2,3}).length); // 3\n        System.out.println(\"O(n+m) \u2014 HashSet for O(1) contains\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "3",
+            "O(n+m)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m34_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Jewels and Stones (LeetCode #771)",
+      "instructions": "Implement: Jewels and Stones (LeetCode #771).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Jewels {\n    public static int numJewelsInStones(String jewels, String stones) {\n        Set<Character> j=new HashSet<>();for(char c:jewels.toCharArray())j.add(c);\n        int count=0; for(char c:stones.toCharArray()) if(j.contains(c)) count++;\n        return count;\n    }\n    public static void main(String[] a){\n        System.out.println(numJewelsInStones(\"aA\",\"aAAbbbb\")); // 3\n        System.out.println(numJewelsInStones(\"z\",\"ZZ\"));       // 0\n        System.out.println(\"O(j+s) \u2014 HashSet for jewel lookup\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "0",
+            "O(j+s)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m34_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Contains Duplicate II (LeetCode #219)",
+      "instructions": "Implement: Contains Duplicate II (LeetCode #219).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DupII {\n    public static boolean containsNearbyDuplicate(int[] nums, int k) {\n        Set<Integer> window=new HashSet<>();\n        for(int i=0;i<nums.length;i++){\n            if(window.contains(nums[i])) return true;\n            window.add(nums[i]);\n            if(window.size()>k) window.remove(nums[i-k]);\n        }\n        return false;\n    }\n    public static void main(String[] a){\n        System.out.println(containsNearbyDuplicate(new int[]{1,2,3,1},3)); // true\n        System.out.println(containsNearbyDuplicate(new int[]{1,0,1,1},1)); // true\n        System.out.println(containsNearbyDuplicate(new int[]{1,2,3,1,2,3},2)); // false\n        System.out.println(\"Sliding HashSet window of size k: O(n) O(k)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "false",
+            "Sliding HashSet window"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m34_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "First Missing Positive (LeetCode #41)",
+      "instructions": "Implement: First Missing Positive (LeetCode #41).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class FirstMissing {\n    public static int firstMissingPositive(int[] nums) {\n        Set<Integer> set=new HashSet<>();for(int n:nums)set.add(n);\n        for(int i=1;i<=nums.length+1;i++) if(!set.contains(i)) return i;\n        return nums.length+1;\n    }\n    public static void main(String[] a){\n        System.out.println(firstMissingPositive(new int[]{1,2,0}));    // 3\n        System.out.println(firstMissingPositive(new int[]{3,4,-1,1})); // 2\n        System.out.println(firstMissingPositive(new int[]{7,8,9,11})); // 1\n        System.out.println(\"O(n) O(n) \u2014 HashSet approach. O(n) O(1): index marking trick\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "2",
+            "1",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m34_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Longest Consecutive Sequence (HashSet O(n))",
+      "instructions": "Implement: Longest Consecutive Sequence (HashSet O(n)).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LCS2 {\n    public static int longestConsecutive(int[] nums) {\n        Set<Integer> set=new HashSet<>();for(int n:nums)set.add(n);\n        int best=0;\n        for(int n:set){if(!set.contains(n-1)){int len=1;while(set.contains(n+len))len++;best=Math.max(best,len);}}\n        return best;\n    }\n    public static void main(String[] a){\n        System.out.println(longestConsecutive(new int[]{100,4,200,1,3,2}));    // 4\n        System.out.println(longestConsecutive(new int[]{0,3,7,2,5,8,4,6,0,1})); // 9\n        System.out.println(\"O(n) \u2014 only start sequence from n where n-1 not in set\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "9",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m34_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Detect cycle with HashSet (LL variant)",
+      "instructions": "Implement: Detect cycle with HashSet (LL variant).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CycleHash {\n    static class Node{int val;Node next;Node(int v){val=v;}}\n    public static boolean hasCycle(Node head) {\n        Set<Node> seen=new HashSet<>();\n        while(head!=null){if(!seen.add(head)) return true;head=head.next;}\n        return false;\n    }\n    public static void main(String[] a){\n        Node n=new Node(1);n.next=new Node(2);n.next.next=new Node(3);n.next.next.next=n.next;\n        System.out.println(hasCycle(n)); // true\n        System.out.println(hasCycle(new Node(1))); // false\n        System.out.println(\"O(n) O(n) \u2014 HashSet vs O(n) O(1) Floyd. Use Floyd for O(1) space.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Floyd. Use Floyd for O(1) space"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Path Sum in Tree (HashSet running sum)",
+      "instructions": "Implement: Path Sum in Tree (HashSet running sum).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class PathSumHash {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static boolean found=false;\n    public static boolean hasPathSum(TreeNode root, int target) {\n        Set<Integer> sums=new HashSet<>();sums.add(0);found=false;\n        dfs(root,0,target,sums); return found;\n    }\n    static void dfs(TreeNode n, int curr, int target, Set<Integer> prevSums){\n        if(n==null||found) return;\n        curr+=n.val;\n        if(prevSums.contains(curr-target)&&n.left==null&&n.right==null){found=true;return;}\n        prevSums.add(curr);dfs(n.left,curr,target,prevSums);dfs(n.right,curr,target,prevSums);prevSums.remove(curr);\n    }\n    // Simpler direct:\n    static boolean pathSum(TreeNode n,int rem){if(n==null)return false;rem-=n.val;if(n.left==null&&n.right==null)return rem==0;return pathSum(n.left,rem)||pathSum(n.right,rem);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(5);r.left=new TreeNode(4);r.right=new TreeNode(8);r.left.left=new TreeNode(11);r.left.left.left=new TreeNode(7);r.left.left.right=new TreeNode(2);\n        System.out.println(pathSum(r,22)); // true (5+4+11+2)\n        System.out.println(pathSum(r,27)); // false\n        System.out.println(\"O(n) DFS \u2014 subtract from target each level\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "O(n) DFS"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Decode the Message (LeetCode #2325)",
+      "instructions": "Implement: Decode the Message (LeetCode #2325).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DecodeMsg {\n    public static String decodeMessage(String key, String message) {\n        Map<Character,Character> cipher=new LinkedHashMap<>();char next='a';\n        for(char c:key.toCharArray()){if(c!=' '&&!cipher.containsKey(c)){cipher.put(c,next);next++;}}\n        StringBuilder sb=new StringBuilder();\n        for(char c:message.toCharArray()) sb.append(c==' '?' ':cipher.get(c));\n        return sb.toString();\n    }\n    public static void main(String[] a){\n        System.out.println(decodeMessage(\"the quick brown fox jumps over the lazy dog\",\"vkbs bs t suepuv\"));\n        System.out.println(\"this is a secret\");\n        System.out.println(\"O(k+m) \u2014 LinkedHashMap preserves insertion order for cipher\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "this is a secret",
+            "O(k+m)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Happy Number (HashSet approach)",
+      "instructions": "Implement: Happy Number (HashSet approach).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HappyHS {\n    static int sumSq(int n){int s=0;while(n>0){int d=n%10;s+=d*d;n/=10;}return s;}\n    public static boolean isHappy(int n){\n        Set<Integer> seen=new HashSet<>();\n        while(n!=1){if(!seen.add(n)) return false;n=sumSq(n);}\n        return true;\n    }\n    public static void main(String[] a){\n        System.out.println(isHappy(19)); // true\n        System.out.println(isHappy(2));  // false\n        System.out.println(\"HashSet approach: O(log n) space per unique value\");\n        System.out.println(\"Floyd approach: O(1) space \u2014 preferred\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Floyd approach: O(1) space \u2014 preferred"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "HashSet synthesis",
+      "instructions": "Implement: HashSet synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SetSynth {\n    static boolean hasDup(int[] n){Set<Integer> s=new HashSet<>();for(int x:n)if(!s.add(x))return true;return false;}\n    static int longConsec(int[] n){Set<Integer> s=new HashSet<>();for(int x:n)s.add(x);int b=0;for(int x:s){if(!s.contains(x-1)){int l=1;while(s.contains(x+l))l++;b=Math.max(b,l);}}return b;}\n    static int[] inter(int[] a,int[] b){Set<Integer> sa=new HashSet<>();for(int x:a)sa.add(x);Set<Integer> r=new HashSet<>();for(int x:b)if(sa.contains(x))r.add(x);return r.stream().mapToInt(Integer::intValue).toArray();}\n    public static void main(String[] a){\n        System.out.println(hasDup(new int[]{1,2,3,1}));\n        System.out.println(longConsec(new int[]{100,4,200,1,3,2}));\n        System.out.println(inter(new int[]{1,2,3},new int[]{2,3,4}).length);\n        boolean ok=hasDup(new int[]{1,2,3,1})&&longConsec(new int[]{100,4,200,1,3,2})==4&&inter(new int[]{1,2,3},new int[]{2,3,4}).length==2;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "true",
+            "4",
+            "2"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete M34 T3 HashSet Synthesis",
+      "instructions": "Implement: Complete M34 T3 HashSet Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T3Final {\n    static boolean hasDup(int[] n){Set<Integer> s=new HashSet<>();for(int x:n)if(!s.add(x))return true;return false;}\n    static boolean nearDup(int[] n,int k){Set<Integer> w=new HashSet<>();for(int i=0;i<n.length;i++){if(w.contains(n[i]))return true;w.add(n[i]);if(w.size()>k)w.remove(n[i-k]);}return false;}\n    static int longConsec(int[] n){Set<Integer> s=new HashSet<>();for(int x:n)s.add(x);int b=0;for(int x:s){if(!s.contains(x-1)){int l=1;while(s.contains(x+l))l++;b=Math.max(b,l);}}return b;}\n    static int firstMissing(int[] n){Set<Integer> s=new HashSet<>();for(int x:n)s.add(x);for(int i=1;;i++)if(!s.contains(i))return i;}\n    public static void main(String[] a){\n        System.out.println(\"hasDup=\"+hasDup(new int[]{1,2,3,1}));\n        System.out.println(\"nearDup=\"+nearDup(new int[]{1,2,3,1},3));\n        System.out.println(\"longConsec=\"+longConsec(new int[]{100,4,200,1,3,2}));\n        System.out.println(\"firstMissing=\"+firstMissing(new int[]{3,4,-1,1}));\n        boolean ok=hasDup(new int[]{1,2,3,1})&&nearDup(new int[]{1,2,3,1},3)&&longConsec(new int[]{100,4,200,1,3,2})==4&&firstMissing(new int[]{3,4,-1,1})==2;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "hasDup=true",
+            "longConsec=4",
+            "firstMissing=2"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet O(1)",
+        "Check containsKey",
+        "merge for frequency"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m15_t3_proj",
+  "linked_topic": "java_m15_t3",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — Eureka Integrated (No Hardcoded URLs)",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Remove all hardcoded URLs from the Zerodha trading platform. Add Eureka service discovery: a eureka-server, and register both market-service and order-service. Feign clients find services by name. Run two market-service instances to observe load balancing.",
+
+  "description": "Three-service platform: eureka-server (registry) + market-service (producer) + order-service (consumer with Feign). All services registered with Eureka. No url= in any @FeignClient. Load balancing demonstrated with two market-service instances.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`eureka-server` Spring Boot app: @EnableEurekaServer, port=8761, register-with-eureka=false, fetch-registry=false, self-preservation=false. Dashboard accessible at http://localhost:8761.",
+        "weight": 18
+      },
+      {
+        "id": "req_2",
+        "description": "`market-service` with @EnableDiscoveryClient, spring.application.name=market-service, eureka.client.service-url.defaultZone configured. Endpoint: GET /api/stocks/{symbol}/quote returns {symbol, price, tradeable, handledByPort}.",
+        "weight": 18
+      },
+      {
+        "id": "req_3",
+        "description": "`order-service` with @EnableDiscoveryClient + @EnableFeignClients. `MarketServiceClient` @FeignClient(name='market-service') — NO url= attribute. spring-cloud-starter-loadbalancer in pom.xml.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`TradeService.executeTrade(userId, symbol, qty)` uses MarketServiceClient (Feign, discovered via Eureka). Validates tradeable flag. Returns TradeConfirmation. Records which market-service port handled the request.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest test for TradeService with Eureka disabled (eureka.client.enabled=false) and @MockBean MarketServiceClient. Tests: success, not tradeable (throws). Both tests pass.",
+        "weight": 14
+      },
+      {
+        "id": "req_6",
+        "description": "Show load balancing: start two market-service instances (ports 8081 + 8082), place 6 trades via order-service, verify logs show alternating ports (round-robin). Document in README.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add custom metadata to market-service: eureka.instance.metadata-map.version=1.0 and metadata-map.region=ap-south-1. Write RegistryController in order-service (GET /admin/registry) that shows all services with their metadata.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a third service: notification-service (port 8083) that registers with Eureka. Add NotificationServiceClient @FeignClient to order-service. After a trade executes, call notification-service (async) to send a confirmation.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add Actuator health integration: eureka.client.healthcheck.enabled=true. Write a custom OrderDbHealthIndicator. Simulate DB going DOWN and verify market-service stops routing to the unhealthy order-service instance.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "stock quotes:\nTCS:     price=3890, tradeable=true\nRELIANCE: price=2450, tradeable=true\nINFY:    price=1560, tradeable=true\nPAYTM:   price=475,  tradeable=false\n\nLoad balancing test:\nStart market-service on :8081 and :8082\nPlace 6 trades → expect alternating: 8081, 8082, 8081, 8082, 8081, 8082",
+
+  "starter_code": "// Three separate Maven projects:\n\n// ── eureka-server ──────────────────────────────────────────\n// pom: spring-cloud-starter-netflix-eureka-server\n// EurekaServerApplication.java (@EnableEurekaServer)\n// application.properties\n\n// ── market-service ─────────────────────────────────────────\n// pom: spring-cloud-starter-netflix-eureka-client, actuator\n// MarketServiceApplication.java (@EnableDiscoveryClient)\n// StockController.java (GET /api/stocks/{symbol}/quote)\n// application.properties\n\n// ── order-service ──────────────────────────────────────────\n// pom: eureka-client, openfeign, loadbalancer\n// OrderServiceApplication.java (@EnableDiscoveryClient @EnableFeignClients)\n// MarketServiceClient.java (@FeignClient(name='market-service') — NO url=)\n// TradeService.java (uses MarketServiceClient)\n// TradeServiceTest.java (@SpringBootTest eureka disabled, @MockBean)\n// application.properties",
+
+  "example_output": "# Start sequence:\n$ java -jar eureka-server.jar          # http://localhost:8761\n$ java -jar market-service.jar --server.port=8081\n$ java -jar market-service.jar --server.port=8082\n$ java -jar order-service.jar          # port 8082\n\n# Eureka dashboard shows:\n# MARKET-SERVICE  →  2 instances (8081, 8082)\n# ORDER-SERVICE   →  1 instance (8082)\n\n# Place 6 trades:\ncurl -X POST http://localhost:8082/api/trades -d '{\"symbol\":\"TCS\",\"qty\":10}'\n\n# order-service log:\n# Trade handled by market-service on port: 8081\n# Trade handled by market-service on port: 8082\n# Trade handled by market-service on port: 8081\n# Trade handled by market-service on port: 8082\n# Trade handled by market-service on port: 8081\n# Trade handled by market-service on port: 8082\n\n# Tests:\n✓ executeTrade_TCS_success\n✓ executeTrade_PAYTM_notTradeable",
+
+  "rubric": [
+    { "category": "eureka-server", "points": 18, "criteria": ["@EnableEurekaServer correct (8 pts)", "application.properties (10 pts)"] },
+    { "category": "market-service Eureka", "points": 18, "criteria": ["@EnableDiscoveryClient (8 pts)", "application.properties + quote endpoint (10 pts)"] },
+    { "category": "order-service @FeignClient(no url=)", "points": 20, "criteria": ["Feign without url= (10 pts)", "LoadBalancer dependency (10 pts)"] },
+    { "category": "TradeService uses Feign", "points": 15, "criteria": ["Feign call + validation (15 pts)"] },
+    { "category": "@SpringBootTest tests", "points": 14, "criteria": ["Eureka disabled + @MockBean (7 pts each test)"] },
+    { "category": "Load balancing README", "points": 15, "criteria": ["Round-robin demonstrated (15 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Metadata + RegistryController (20 pts)", "Notification service (25 pts)", "Health integration (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Critical: remove url= from @FeignClient and add spring-cloud-starter-loadbalancer dependency — both needed. eureka.instance.instance-id=${spring.application.name}:${server.port} prevents ID collision when running 2 instances. Test: @TestPropertySource(properties='eureka.client.enabled=false') + @MockBean FeignInterface.",
+
+  "submission_instructions": "Three separate GitHub repos (or subdirectories). README shows startup order and load balancing log proof. Both @SpringBootTest tests pass.",
+
+  "tips_for_success": [
+    "Start order: eureka-server first, wait for 'Started' log, then services",
+    "LoadBalancer: spring-cloud-starter-loadbalancer in order-service pom — REQUIRED for url-less Feign",
+    "Instance ID: ${spring.application.name}:${server.port} prevents 'already registered' errors",
+    "Load balancing: the /api/instance endpoint returns server.port — log it in each trade",
+    "Test: eureka.client.enabled=false prevents test from trying to connect to Eureka"
+  ],
+
+  "concepts_reinforced": [
+    "@EnableEurekaServer for the registry",
+    "@EnableDiscoveryClient for service registration",
+    "spring.application.name as the service identity",
+    "@FeignClient(name=...) without url= for discovery",
+    "spring-cloud-starter-loadbalancer for client-side load balancing",
+    "Round-robin load balancing across multiple instances",
+    "Disabling Eureka in tests with eureka.client.enabled=false"
+  ]
+}

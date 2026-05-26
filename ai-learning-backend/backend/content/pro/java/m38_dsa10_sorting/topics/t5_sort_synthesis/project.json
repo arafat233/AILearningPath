@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m38_t5_proj",
+  "linked_topic": "java_m38_t5",
+  "level": "mini",
+  "name": "Sort Synthesis \u2014 When to Use Which Sort",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Build Sort Synthesis \u2014 When to Use Which Sort.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Core algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "mergeSort: split at mid, sort both halves, merge. partition: last element as pivot, swap <= pivot to front. sortColors: DNF \u2014 lo/mid/hi pointers, mid advances only on 0 or 1.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m25_t5_proj",
+  "linked_topic": "java_m25_t5",
+  "level": "mini",
+  "name": "Razorpay Resilience Chaos Suite",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Razorpay's circuit breakers look correct in code review but a recent production incident showed the HDFC CB didn't open during a DNS failure. Build a chaos engineering suite to validate resilience mechanisms before they're needed in production.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "SteadyState record (p99Ms, errorRatePct, cbState). SteadyStateMonitor @Service: captureBaseline() returns normal metrics, isInSteadyState(ss) validates p99 < 500 AND error < 1% AND cbState = CLOSED.", "weight": 10 },
+      { "id": "req_2", "description": "ChaosHypothesis record (maxP99Ms, maxErrorPct, requireCbOpen). isMet(metrics, fallbackCount) → true only if ALL 3 conditions satisfied.", "weight": 15 },
+      { "id": "req_3", "description": "PaymentService @Service with @CircuitBreaker on HDFC call. Fallback method: returns PaymentResponse with status=FALLBACK. Chaos toggle: enableChaos() throws RuntimeException on every call.", "weight": 20 },
+      { "id": "req_4", "description": "ChaosExperimentRunner @Service: run(experiment, chaosEnabled) → ChaosOutcome. Records: CB state, fallback count, whether hypothesis was met.", "weight": 15 },
+      { "id": "req_5", "description": "@SpringBootTest (4 tests): normal op has 0 fallbacks, chaos activates fallback, hypothesis met when CB opens, hypothesis violated when no fallback. All 4 pass.", "weight": 30 },
+      { "id": "req_6", "description": "README: explains why testing only with 'no exception thrown' misses resilience bugs (with the HDFC DNS failure example).", "weight": 5 },
+      { "id": "req_7", "description": "Recovery test: after chaos disabled, service returns to normal behavior (fallback NOT called).", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "GameDayExperiment records for 3 scenarios: HDFC latency, payment DB exception, notification service down. Each with hypothesis, blast radius, and rollback procedure. isValid() validation.", "weight": 20 },
+      { "id": "bonus_2", "description": "ChaosGapTracker @Service: recordGap(DiscoveredGap), markFixed(experimentName), getOpenGaps(). Tests: gap tracked, fix applied, open gaps filtered correctly.", "weight": 20 },
+      { "id": "bonus_3", "description": "Database chaos test: DatabaseChaosSimulator throwing TransientDataAccessException → PaymentService returns cached payment list → assert cached data AND fallback counter > 0.", "weight": 15 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Three required assertions for chaos tests: (1) CircuitBreaker state = OPEN or HALF_OPEN (not CLOSED), (2) fallback counter > 0 (fallback actually ran), (3) p99 stayed within threshold (fallback was fast). All three needed — just 'no exception' is not enough. Chaos toggle: simplest implementation is a boolean flag (chaosEnabled=true → throw RuntimeException). @CircuitBreaker fallback method: must have same signature as main method PLUS the exception type as last parameter. Reset between tests: @BeforeEach must disable chaos and reset fallback counter (AtomicInteger.set(0)). Steady state first: always capture baseline metrics before injecting chaos — compare baseline vs chaos metrics in assertions.",
+  "rubric": [
+    { "category": "SteadyState + SteadyStateMonitor", "points": 10 },
+    { "category": "ChaosHypothesis", "points": 15 },
+    { "category": "PaymentService with chaos toggle", "points": 20 },
+    { "category": "ChaosExperimentRunner", "points": 15 },
+    { "category": "4 tests (all pass)", "points": 30 },
+    { "category": "README", "points": 5 },
+    { "category": "Recovery test", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m20_t1_proj",
+  "linked_topic": "java_m20_t1",
+  "level": "mini",
+  "name": "Razorpay Payment Observability — Metrics, Health & Info",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Razorpay's on-call team is flying blind — no metrics on payment success rates, latency, or gateway health. Add Micrometer metrics to the payment service so the team can see exactly what's happening in production via a Prometheus-compatible endpoint.",
+
+  "description": "Micrometer Counter + Timer + Gauge + DistributionSummary for payment flows. VisaGatewayHealthIndicator. PaymentInfoContributor. MeterRegistryCustomizer for global tags. 4 @SpringBootTest tests verifying all meters.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "pom.xml: spring-boot-starter-actuator + micrometer-registry-prometheus. application.yml: expose health, metrics, prometheus. Global tags: application=razorpay-payments, environment=${profile}.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "PaymentCounterService: Counter 'payments.total' with tags status (success/failure), gateway (visa/mastercard/upi), merchant_type. Methods: recordSuccess(gateway, merchantType), recordFailure(gateway, merchantType, reason).",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "PaymentTimerService: Timer 'payments.duration' per gateway with publishPercentiles(0.5, 0.95, 0.99). Method timePayment(gateway, Supplier<T>) wraps any callable.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "PaymentGaugeService: Gauge 'payments.retry.queue.size', Gauge 'payments.in.flight' (AtomicInteger). Methods: queueAdd(), queueRemove(), startPayment(), finishPayment().",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "VisaGatewayHealthIndicator implements HealthIndicator: check mock ping, return Health.up() with latencyMs or Health.down() with reason. Registered as component 'visaGateway'.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "@SpringBootTest (4 tests): success counter increments, timer records 1 call, gauge reflects queue size, health indicator returns UP. All 4 pass.",
+        "weight": 30
+      },
+      {
+        "id": "req_7",
+        "description": "README: explains Counter vs Timer vs Gauge with one-line summary each. Documents the Prometheus endpoint URL and example output.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "DistributionSummary 'payments.amount.inr' tracking payment amounts. publishPercentiles(0.5, 0.95, 0.99). Test: record 5 amounts, verify count=5.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "MeterRegistryCustomizer: add region=india to ALL meters via MeterFilter.commonTags(). MeterFilter to DENY any test.* metric name. Test: verify global tag appears on all metrics.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "PaymentInfoContributor: adds version, buildTime, team, apiDocs to /actuator/info. @SpringBootTest MockMvc test verifying info endpoint returns team=payments-engineering.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Gateways: visa, mastercard, upi\nMerchant types: ecomm, travel, food, education\nFailure reasons: card_declined, insufficient_funds, gateway_timeout, invalid_card\n\nTest payments:\n  visa, ecomm, ₹999 → success\n  mastercard, travel, ₹14999 → success\n  upi, food, ₹299 → success\n  visa, ecomm, ₹49999 → failure (gateway_timeout)\n  mastercard, travel, ₹1 → failure (invalid_card)",
+
+  "rubric": [
+    { "category": "pom.xml + application.yml", "points": 10 },
+    { "category": "PaymentCounterService", "points": 15 },
+    { "category": "PaymentTimerService", "points": 15 },
+    { "category": "PaymentGaugeService", "points": 15 },
+    { "category": "VisaGatewayHealthIndicator", "points": 10 },
+    { "category": "@SpringBootTest (4 tests)", "points": 30 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Create meters in constructor (not in request handler): call register() once, increment()/record() on every request. Low cardinality tags only: status, gateway, merchant_type are fine; paymentId, userId are NOT. Gauge takes (name, object, valueFunction): the function is called lazily each time the gauge is read. micrometer-registry-prometheus scope: runtime (not compile). Global tags in application.yml: management.metrics.tags.key=value — equivalent to MeterFilter.commonTags().",
+
+  "submission_instructions": "GitHub push. All 4 tests pass. Include a screenshot or sample output of GET /actuator/prometheus showing payments.total_total and payments.duration_seconds metrics in the README.",
+
+  "tips_for_success": [
+    "Register meters in constructor: Counter.builder().register() once; .increment() per event",
+    "Use registry.counter(name, tagKey, tagValue, ...): shorthand for common counters",
+    "Timer.record(Supplier<T>): returns T while recording duration — no separate timing needed",
+    "AtomicInteger for gauge: thread-safe, read by gauge function without lock",
+    "Health indicator component name: @Component(\"visaGateway\") → appears as 'visaGateway' in /actuator/health"
+  ],
+
+  "concepts_reinforced": [
+    "Counter: monotonically increasing event counter with tags",
+    "Timer: duration distribution with percentiles",
+    "Gauge: current value (queue size, active connections)",
+    "Low-cardinality tags: status/gateway/type are fine; IDs are not",
+    "HealthIndicator: component health contribution to /actuator/health",
+    "Global tags: added to all meters via application.yml or MeterFilter"
+  ]
+}

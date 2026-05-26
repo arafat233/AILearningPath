@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t5",
+  "language": "java",
+  "module_id": "m18",
+  "module_name": "Redis Caching & Rate Limiting",
+  "topic_number": 5,
+  "name": "Redis Pub/Sub & Cache Invalidation",
+  "slug": "redis-pubsub-cache-invalidation",
+
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m18_t4"],
+    "concepts_taught": [
+      "redis_pubsub_overview",
+      "publish_subscribe_pattern",
+      "redis_template_publish",
+      "message_listener_container",
+      "redis_message_listener",
+      "topic_channel_pattern",
+      "fanout_to_all_instances",
+      "l1_cache_invalidation_via_pubsub",
+      "spring_redis_pubsub_config",
+      "cluster_wide_cache_eviction",
+      "event_driven_invalidation",
+      "channel_naming_conventions",
+      "message_serialization_in_pubsub",
+      "at_most_once_delivery"
+    ],
+    "skills_developed": [
+      "publishing_redis_messages_with_redistemplate",
+      "subscribing_to_redis_channels",
+      "broadcasting_cache_invalidation_events",
+      "configuring_message_listener_container",
+      "testing_pubsub_with_countdownlatch"
+    ],
+    "career_relevance": "Redis Pub/Sub solves the hardest caching problem in multi-instance deployments: L1 cache staleness. When one instance updates a product, the other 4 instances' in-memory caches are still stale. Pub/Sub broadcasts 'invalidate product P001' to ALL instances instantly. After this topic, your multi-instance deployments serve consistent data without waiting for TTL expiry.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Flipkart has 10 app instances each with Caffeine L1 cache (0.01ms reads). When Seller A updates product P001's price from ₹999 to ₹799:\n\n```\nInstance 1: processes update → refreshes its L1 cache → ₹799 ✓\nInstance 2: L1 cache: ₹999 ← STALE! (TTL: 29 minutes remaining)\nInstance 3: L1 cache: ₹999 ← STALE!\n...\nInstance 10: L1 cache: ₹999 ← STALE!\n\nFor the next 29 minutes:\n  ~10% of requests → Instance 1 → ₹799 (correct)\n  ~90% of requests → Instances 2-10 → ₹999 (wrong price!)\n  Some users see old price, some see new price\n  Customer complains: 'I see ₹999 but my friend sees ₹799 for the same product'\n```\n\n**Redis Pub/Sub broadcasts the invalidation instantly to ALL instances:**\n```java\n// When price updates on Instance 1:\n@CacheEvict(value=\"products\", key=\"#productId\")\npublic Product updatePrice(String productId, double newPrice) {\n    Product updated = productRepo.update(productId, newPrice);\n    // Broadcast to all other instances:\n    redisTemplate.convertAndSend(\n        \"cache.invalidate.products\",  // channel\n        productId                      // message\n    );\n    return updated;\n}\n\n// ALL 10 instances are subscribed to this channel:\n@Bean\npublic MessageListenerAdapter listener(CacheInvalidationHandler handler) {\n    return new MessageListenerAdapter(handler, \"handleInvalidation\");\n}\n// When message arrives: evict from L1 cache\n// Result: all 10 instances serve ₹799 within milliseconds\n```",
+    "what_you_will_build": "By the end of this topic, you'll publish cache invalidation events via Redis Pub/Sub, subscribe all instances to receive them, evict L1 caches cluster-wide, and test the flow with CountDownLatch."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "pubsub_basics": "**Redis Pub/Sub — how it works:**\n\n```\nPublisher (Instance 1):\n  PUBLISH cache.invalidate.products 'P001'\n  → Redis delivers to all current subscribers\n\nSubscribers (ALL 10 instances):\n  SUBSCRIBE cache.invalidate.products\n  → Receive message 'P001'\n  → Evict P001 from their L1 cache\n  → Next request for P001: L1 miss → Redis L2 → serves fresh data\n\nKey properties:\n  Fire-and-forget: publisher doesn't know how many subscribers received it\n  At-most-once: if subscriber is offline when message is published, it misses it\n  Fan-out: one PUBLISH delivers to ALL subscribers simultaneously\n  Fast: sub-millisecond delivery within same Redis server\n```\n\n**Spring Data Redis Pub/Sub configuration:**\n```java\n@Configuration\npublic class RedisPubSubConfig {\n    \n    // 1. Message handler:\n    @Bean\n    public CacheInvalidationHandler cacheInvalidationHandler(\n            CacheManager cacheManager) {\n        return new CacheInvalidationHandler(cacheManager);\n    }\n    \n    // 2. Adapter: bridges Redis message to Java method call:\n    @Bean\n    public MessageListenerAdapter messageListenerAdapter(\n            CacheInvalidationHandler handler) {\n        return new MessageListenerAdapter(handler, \"onMessage\");\n        // 'onMessage' = method name on CacheInvalidationHandler\n    }\n    \n    // 3. Container: manages subscriptions and thread pool:\n    @Bean\n    public RedisMessageListenerContainer container(\n            RedisConnectionFactory factory,\n            MessageListenerAdapter adapter) {\n        RedisMessageListenerContainer container =\n            new RedisMessageListenerContainer();\n        container.setConnectionFactory(factory);\n        container.addMessageListener(\n            adapter,\n            new PatternTopic(\"cache.invalidate.*\")  // subscribe to all 'cache.invalidate.*' channels\n        );\n        return container;\n    }\n}\n```",
+
+      "publish_and_subscribe": "**Publishing and handling invalidation events:**\n\n```java\n// PUBLISHER — runs when cache should be invalidated:\n@Service\npublic class ProductService {\n    private final RedisTemplate<String, String> redis;\n    private final ProductRepository repo;\n    private final CacheManager cacheManager;\n    \n    @Transactional\n    public Product updateProduct(Product product) {\n        Product saved = repo.save(product);\n        \n        // Evict OUR local L1 cache:\n        Cache l1 = cacheManager.getCache(\"products\");\n        if (l1 != null) l1.evict(product.getId());\n        \n        // Broadcast to ALL other instances via Pub/Sub:\n        redis.convertAndSend(\n            \"cache.invalidate.products\",  // channel name\n            product.getId()               // message = product ID\n        );\n        \n        return saved;\n    }\n}\n\n// SUBSCRIBER — runs on EVERY instance when message arrives:\n@Component\npublic class CacheInvalidationHandler {\n    private final CacheManager cacheManager;\n    \n    CacheInvalidationHandler(CacheManager cm) { cacheManager = cm; }\n    \n    // This method is called by MessageListenerAdapter on every message:\n    public void onMessage(String message) {\n        // message = productId from publisher\n        System.out.println(\"[PubSub] Invalidating product: \" + message);\n        \n        Cache products = cacheManager.getCache(\"products\");\n        if (products != null) {\n            products.evict(message);  // evict this product from L1\n        }\n    }\n}\n```",
+
+      "channel_patterns": "**Channel naming and topic patterns:**\n\n```java\n// Specific channel:\nnew ChannelTopic(\"cache.invalidate.products\")  // only products channel\n\n// Pattern (wildcard subscription):\nnew PatternTopic(\"cache.invalidate.*\")  // ALL cache.invalidate.* channels\n// Matches:\n//   cache.invalidate.products\n//   cache.invalidate.categories\n//   cache.invalidate.prices\n\n// Multi-channel handler:\n@Component\npublic class MultiCacheInvalidationHandler implements MessageListener {\n    private final CacheManager cacheManager;\n    \n    @Override\n    public void onMessage(Message message, byte[] pattern) {\n        String channel = new String(message.getChannel());\n        String body    = new String(message.getBody());\n        \n        // Extract cache name from channel:\n        // 'cache.invalidate.products' → cache name = 'products'\n        if (channel.contains(\".\")) {\n            String cacheName = channel.substring(channel.lastIndexOf('.') + 1);\n            Cache cache = cacheManager.getCache(cacheName);\n            if (cache != null) {\n                if (\"*\".equals(body)) {\n                    cache.clear();         // broadcast 'clear all'\n                } else {\n                    cache.evict(body);     // evict specific key\n                }\n            }\n        }\n    }\n}\n```",
+
+      "testing_pubsub": "**Testing Pub/Sub with CountDownLatch:**\n\n```java\n@SpringBootTest\nclass CachePubSubTest {\n    @Autowired RedisTemplate<String, String> redis;\n    @Autowired CacheManager cacheManager;\n    \n    @Test\n    void publishInvalidation_evictsFromAllSubscribers() throws Exception {\n        // Arrange — put something in cache:\n        Cache cache = cacheManager.getCache(\"products\");\n        cache.put(\"P001\", \"Wireless Mouse ₹799\");\n        assertNotNull(cache.get(\"P001\"));  // in cache\n        \n        // CountDownLatch: wait for async subscriber to process message\n        CountDownLatch latch = new CountDownLatch(1);\n        \n        // Override handler for this test to count down:\n        // (In practice: spy or use the actual handler)\n        \n        // Act — publish invalidation:\n        redis.convertAndSend(\"cache.invalidate.products\", \"P001\");\n        \n        // Wait up to 2 seconds for subscriber to process:\n        boolean received = latch.await(2, TimeUnit.SECONDS);\n        \n        // Assert — small sleep for async processing:\n        Thread.sleep(100);\n        assertNull(cache.get(\"P001\"), \"P001 should be evicted from cache\");\n    }\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Fan-out diagram: Redis Pub/Sub server in center. Publisher (Instance 1) sends arrow to Redis labeled 'PUBLISH cache.invalidate.products P001'. Redis broadcasts to Instances 2-10 simultaneously (10 arrows radiating out). Each instance has a box labeled 'L1 Cache' with P001 crossed out (evicted). Timeline shows: T=0 price updated on Instance 1, T=1ms message delivered to all, T=2ms all L1 caches evicted, T=next request all serve fresh data. Compare to without Pub/Sub: T=29min for TTL expiry on all instances.",
+      "alt_text": "Redis Pub/Sub fan-out: one publisher broadcasts to all 10 subscriber instances which evict their L1 caches simultaneously"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Flipkart product price update must immediately invalidate L1 caches on all 10 instances. Configure Pub/Sub, publish on update, subscribe and evict on all instances.",
+
+    "problem_statement": "1. RedisPubSubConfig: container + adapter + handler bean\n2. CacheInvalidationHandler: evicts from L1 on message received\n3. ProductService.updatePrice(): saves + publishes invalidation event\n4. Test: publish message, assert L1 cache entry evicted within 2 seconds",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Configure Pub/Sub beans",
+        "details": "```java\n@Configuration\npublic class PubSubConfig {\n    @Bean\n    public RedisMessageListenerContainer container(\n            RedisConnectionFactory factory,\n            MessageListenerAdapter adapter) {\n        var container = new RedisMessageListenerContainer();\n        container.setConnectionFactory(factory);\n        container.addMessageListener(\n            adapter, new PatternTopic(\"cache.invalidate.*\"));\n        return container;\n    }\n    \n    @Bean\n    public MessageListenerAdapter adapter(CacheInvalidationHandler h) {\n        return new MessageListenerAdapter(h, \"onInvalidation\");\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Handler + publisher",
+        "details": "```java\n@Component\npublic class CacheInvalidationHandler {\n    private final CacheManager cm;\n    CacheInvalidationHandler(CacheManager c) { cm=c; }\n    \n    public void onInvalidation(String message, String channel) {\n        // channel: 'cache.invalidate.products'\n        // message: 'P001'\n        String cacheName = channel.substring(channel.lastIndexOf('.')+1);\n        Cache cache = cm.getCache(cacheName);\n        if (cache != null) cache.evict(message);\n        System.out.println(\"[PubSub] Evicted \" + message + \" from \" + cacheName);\n    }\n}\n\n@Service\npublic class ProductPublisher {\n    private final RedisTemplate<String,String> redis;\n    ProductPublisher(RedisTemplate<String,String> r) { redis=r; }\n    \n    public void notifyInvalidation(String productId) {\n        redis.convertAndSend(\"cache.invalidate.products\", productId);\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Container subscribes to 'cache.invalidate.*' pattern\n// MessageListenerAdapter routes messages to handler.onInvalidation()\n// Publisher: redis.convertAndSend(channel, message)\n// Handler: extract cache name from channel, evict the key\n// Test: CountDownLatch.await() ensures async message delivery before assertion",
+
+    "expected_output": "# Instance 1 updates product P001:\n[ProductService] Saved product P001 (₹799)\n[ProductService] Published invalidation: cache.invalidate.products → P001\n\n# All 10 instances' subscribers:\n[PubSub] Evicted P001 from products cache\n\n# Next request on any instance:\nGET /api/products/P001 → cache miss → Redis L2 (or DB) → ₹799 ✓",
+
+    "things_to_notice": [
+      "convertAndSend: the publisher doesn't subscribe — it just sends and forgets. Redis delivers to all current subscribers. There's no acknowledgment, no retry, no guarantee that all subscribers received it. This is fine for cache invalidation: if a subscriber misses the event, the TTL will eventually expire the stale entry anyway.",
+      "PatternTopic('cache.invalidate.*'): subscribes to ALL channels matching this pattern with a single subscription. More efficient than subscribing to each channel individually. The handler receives both the channel name and message, so it can route to the correct cache.",
+      "MessageListenerAdapter: Spring's bridge between Redis's raw byte[] messages and your Java method. It handles deserialization (byte[] → String) and method invocation. The second constructor argument is the method name to call on your handler. The handler method can accept (String message) or (String message, String channel).",
+      "At-most-once delivery: if an instance is restarting when the message is published, it misses the event. The L1 cache will eventually become consistent via TTL. For cache invalidation, this is acceptable — a short period of staleness is the worst case, not data corruption.",
+      "Test with CountDownLatch: Pub/Sub is asynchronous — the publisher returns before subscribers process the message. Without CountDownLatch (or a short sleep), the test assertion runs before the subscriber evicts the cache entry. The latch.await(2, TimeUnit.SECONDS) gives subscribers time to process."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart product price updates",
+        "use_case": "Flipkart's 10 app instances each maintain a Caffeine L1 cache of 5,000 hot products. When a seller updates a price, the update goes to PostgreSQL, then a Pub/Sub event fires on 'cache.invalidate.products' with the product ID. All 10 instances receive the event within milliseconds and evict the product from their L1 cache. The next request for that product on any instance gets the fresh price. Without Pub/Sub, stale prices would persist for up to the Caffeine TTL (typically 30-60 seconds)."
+      },
+      {
+        "company_context": "Razorpay merchant configuration changes",
+        "use_case": "Razorpay caches merchant configuration (webhook URLs, API key expiry, enabled payment methods) in each instance's L1 cache for 5 minutes. When a merchant updates their configuration in the dashboard, the change goes to PostgreSQL and a 'merchant.config.updated:{merchantId}' event is published. All instances receive it and evict that merchant's config from L1. The next payment request for that merchant gets the fresh configuration — critical for webhook delivery and feature flags."
+      },
+      {
+        "company_context": "Swiggy restaurant availability",
+        "use_case": "Swiggy caches restaurant open/closed status in L1 for 30 seconds (frequently checked). When a restaurant marks itself as closed during an emergency (kitchen fire, staff shortage), the status must propagate immediately — 30-second staleness is unacceptable. A 'restaurant.status.changed:{restaurantId}' pub/sub event triggers immediate L1 eviction on all instances. New orders are rejected within milliseconds of the restaurant closing, not after 30 seconds."
+      }
+    ],
+
+    "interview_relevance": "Redis Pub/Sub interview questions:\n\n- **'How do you keep L1 caches consistent across multiple instances?'** → Redis Pub/Sub broadcast invalidation events. Publisher evicts local L1 and publishes channel message. Subscribers receive and evict from their L1. Consistent within milliseconds.\n- **'What is Pub/Sub at-most-once delivery?'** → Messages are delivered to current subscribers and forgotten. No persistence, no retry. If a subscriber is offline, it misses the message. For cache invalidation, this is acceptable — TTL provides eventual consistency as a fallback.\n- **'What is the difference between Redis Pub/Sub and Kafka?'** → Pub/Sub: immediate fanout, at-most-once, no persistence, no consumer groups. Kafka: durable log, at-least-once, consumer groups, replay. Pub/Sub is for real-time broadcast (cache invalidation, live notifications). Kafka is for reliable event streaming (audit logs, microservice events).\n- **'When would you NOT use Redis Pub/Sub?'** → When you need guaranteed delivery, message replay, consumer groups (parallel processing), or message ordering. Use Kafka for these requirements.",
+
+    "real_world_workflow": "Cache invalidation via Pub/Sub workflow:\n\n- Identify L1 cache + Pub/Sub scenario: multi-instance + need for immediate consistency\n- Define channel naming: 'cache.invalidate.{cacheName}' or 'entity.updated.{entityType}'\n- Publisher: evict local + publish event in same method (@Transactional)\n- Subscriber: parse channel for cache name, evict specific key or clear if '*'\n- Test: @SpringBootTest with CountDownLatch + Thread.sleep for async delivery\n- Monitor: log each Pub/Sub event received; alert on missed events via TTL monitoring"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "no_await_in_test",
+      "what_students_get_wrong": "Writing Pub/Sub tests without waiting for async message delivery — asserting immediately after publish, before the subscriber has processed the message.",
+      "remediation": "Redis Pub/Sub message delivery is asynchronous. The publisher's convertAndSend() returns immediately after enqueuing the message. The subscriber processes it in a different thread. Tests must wait: use CountDownLatch.await(2, TimeUnit.SECONDS) or Thread.sleep(100-500ms). Better: inject a test-specific listener that counts down a latch when a message arrives, then assert after the latch fires.",
+      "detection_pattern": "Test passes sometimes, fails sometimes (flaky); asserting cache eviction before subscriber processes"
+    },
+    {
+      "gap_id": "missing_listener_container",
+      "what_students_get_wrong": "Defining a @Component with @Service for the subscriber but not configuring the RedisMessageListenerContainer — the handler never receives messages.",
+      "remediation": "The RedisMessageListenerContainer is the infrastructure that connects Redis to your handler. Without it, no subscription exists. Required: @Bean RedisMessageListenerContainer that: (1) sets the connection factory, (2) adds your MessageListenerAdapter pointing to your handler, (3) specifies the ChannelTopic or PatternTopic. Test: add logging in the handler's method and verify it prints after publish.",
+      "detection_pattern": "Handler never called despite messages being published; no logs from subscriber"
+    },
+    {
+      "gap_id": "publishing_complex_objects",
+      "what_students_get_wrong": "Publishing complex Java objects via convertAndSend — the subscriber receives serialized bytes and can't easily deserialize them.",
+      "remediation": "Redis Pub/Sub message is a raw byte array. Publish simple strings (entity ID, event type, JSON string). For complex messages: serialize to JSON string before publishing, deserialize in subscriber. Or use Jackson ObjectMapper to convert to/from JSON. Keep Pub/Sub messages as small, simple strings — the subscriber can look up the entity in its cache or DB using the ID.",
+      "detection_pattern": "Subscriber receives garbled message; ClassCastException or NumberFormatException in handler"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Redis Pub/Sub: PUBLISH channel message → delivered to all current SUBSCRIBE subscribers",
+      "At-most-once: no persistence, no retry — if subscriber is offline, message is missed",
+      "Fan-out: one PUBLISH reaches ALL subscribers simultaneously (sub-millisecond)",
+      "RedisMessageListenerContainer: the Spring bean that manages Pub/Sub subscriptions",
+      "MessageListenerAdapter: routes bytes → String → your Java method",
+      "convertAndSend(channel, message): publish in Spring (fire-and-forget)",
+      "ChannelTopic('name'): exact channel subscription",
+      "PatternTopic('prefix.*'): wildcard subscription matching multiple channels",
+      "Channel naming: 'cache.invalidate.{cacheName}' — embed context in channel name",
+      "Handler method signature: (String message) or (String message, String channel)",
+      "Publisher evicts local L1 AND publishes — complete consistency for the publishing instance",
+      "Subscriber evicts on receive — eventually consistent for other instances",
+      "Test: CountDownLatch + Thread.sleep — async delivery requires wait before assertion",
+      "Pub/Sub vs Kafka: Pub/Sub = broadcast fanout; Kafka = durable, ordered, replayable",
+      "Use case: L1 cache invalidation, live notifications, session invalidation"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Instance 3 is restarting when product P001 is updated. Instance 3 misses the Pub/Sub invalidation event. What happens when Instance 3 restarts?",
+        "answer": "Instance 3 restarts with an empty L1 cache (Caffeine in-memory cache doesn't survive restarts). When the first request for P001 arrives on Instance 3, it's a cache miss → it loads from Redis L2 or PostgreSQL → gets the fresh price (₹799). No stale data issue here because the L1 cache was cleared on restart. The at-most-once problem is more relevant when an instance is running but briefly disconnected from Redis — the Pub/Sub message is missed but the L1 cache still has the old value. In that case, staleness persists until the Caffeine TTL expires. This is the designed trade-off: Pub/Sub + TTL = fast invalidation in normal cases + TTL-based eventual consistency as safety net."
+      },
+      {
+        "question": "Why publish the entity ID (e.g., 'P001') rather than the full updated product JSON in the Pub/Sub message?",
+        "answer": "Several reasons: (1) Message size: Redis Pub/Sub is designed for small, fast messages. Publishing 5KB of product JSON for every update is wasteful. (2) Consistency: if you publish the full object and it takes 10ms to arrive at other instances, they might have already loaded a newer version from L2 cache — now they overwrite the new with the slightly-old published version. Publishing just the ID forces each subscriber to get the data from its own authoritative source (Redis L2 or DB). (3) Simplicity: the subscriber's job is invalidation, not data distribution. Evict the key, let the next request load fresh data. (4) Subscriber-side freshness: each subscriber independently loads fresh data on the next request — no risk of stale data propagation."
+      },
+      {
+        "question": "Your Pub/Sub test is flaky — sometimes passes, sometimes fails. What is likely wrong and how do you fix it?",
+        "answer": "The test is asserting cache state before the subscriber processes the Pub/Sub message. Pub/Sub is asynchronous: convertAndSend() returns immediately, but the subscriber runs in a separate thread from the RedisMessageListenerContainer's thread pool. Fixes: (1) Thread.sleep(100): simple but fragile — might be too short under load. (2) CountDownLatch: the test-specific listener decrements the latch when it receives a message; the test calls latch.await(2, SECONDS) before asserting. (3) @TestBean override: replace the production handler with a test-specific one that notifies the test via a callback. Option 2 is the standard pattern for async test coordination. The latch prevents the test from completing before the subscriber has a chance to process — the assertion is deterministic, not timing-dependent."
+      }
+    ],
+
+    "next_topic_preview": "Module 18: Redis Caching & Rate Limiting is complete! You've mastered the full Redis toolkit: @Cacheable + custom TTLs (T18.1), manual cache-aside + data structures (T18.2), rate limiting (T18.3), distributed locks (T18.4), and Pub/Sub cluster invalidation (T18.5). Module 19 — Microservice Resilience — covers Circuit Breakers (Resilience4j), retry policies, bulkheads, and the patterns that make microservices survive when their dependencies fail."
+  }
+}

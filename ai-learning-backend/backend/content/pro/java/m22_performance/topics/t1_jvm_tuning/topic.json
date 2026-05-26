@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m22_t1",
+  "language": "java",
+  "module_id": "m22",
+  "module_name": "Performance & Optimization",
+  "topic_number": 1,
+  "name": "JVM Tuning & Garbage Collection",
+  "slug": "jvm-tuning-gc",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m21_t1"],
+    "concepts_taught": [
+      "gc_fundamentals", "generational_gc", "g1gc_overview", "zgc_shenandoah",
+      "heap_sizing", "gc_pause_targets", "gc_logging", "metaspace", "jvm_flags_production",
+      "gc_metrics_micrometer", "heap_dump_analysis", "memory_leak_detection",
+      "off_heap_memory", "gc_tuning_workflow"
+    ],
+    "skills_developed": [
+      "choosing_right_gc", "configuring_heap_sizes", "reading_gc_logs",
+      "detecting_memory_leaks", "tuning_g1gc_pause_target",
+      "monitoring_gc_with_micrometer"
+    ],
+    "career_relevance": "GC pauses are invisible performance killers. Razorpay's payment service had p99 latency spikes every 30 seconds — root cause: G1GC full GC pause of 800ms. After tuning MaxGCPauseMillis=100, p99 dropped from 800ms to 180ms. After this topic, you can read GC logs, identify pause problems, and tune JVM flags for production services.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay payment service: p99 latency = 800ms. Prometheus dashboard shows:\n```\n19:05:00  p99 = 180ms ← normal\n19:05:30  p99 = 832ms ← SPIKE!\n19:06:00  p99 = 178ms ← normal\n19:06:30  p99 = 811ms ← SPIKE!\n```\nPattern: spike every 30 seconds, exactly. Grafana: JVM GC pause = 800ms every 30s.\n\nRoot cause: G1GC Full GC triggered by huge allocation rate (payment objects not collected quickly enough).\n\nFix:\n```bash\n# Before: default G1GC\n# After:\nJAVA_OPTS='-XX:+UseG1GC\n  -XX:MaxGCPauseMillis=100      ← target: keep pauses < 100ms\n  -XX:G1HeapRegionSize=16m      ← larger regions for big objects\n  -XX:ConcGCThreads=4           ← background GC threads\n  -Xms512m -Xmx2g               ← min=max avoids heap resize\n  -XX:+HeapDumpOnOutOfMemoryError'\n\nResult: p99 = 185ms (no more spikes!)\n```",
+    "what_you_will_build": "JVM flag configuration for production, GC metrics via Micrometer, and a memory leak detection strategy using heap dumps."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "gc_overview": "**GC generations and collectors:**\n\n```\nJVM Heap (e.g., 2GB):\n  Young Generation (~500MB):\n    Eden: where new objects are allocated\n    Survivor S0, S1: objects that survived 1+ GC cycle\n  Old Generation (~1.5GB):\n    Long-lived objects promoted from Young\n  \nMinor GC (Young Gen):\n  Triggers when Eden is full\n  Pause: 1-10ms (usually) — all threads stop\n  Frequency: very often (seconds)\n  \nMajor/Full GC (Old Gen):\n  Triggers when Old Gen is full\n  Pause: 100ms - 10s — ALL threads stop\n  Frequency: infrequently (minutes/hours)\n  Target: minimize pause duration\n\nCollectors:\n  G1GC (Java 11+): default, good balance pause/throughput\n    MaxGCPauseMillis: target pause duration (not guarantee!)\n  ZGC (Java 15+): sub-millisecond pauses, low-latency\n    Use for: latency-sensitive services (payment, trading)\n  Shenandoah: similar to ZGC, available in JDK 17+\n```",
+      "production_flags": "**Production JVM flags:**\n\n```bash\n# application.yml / JAVA_TOOL_OPTIONS:\n-XX:+UseG1GC                    # G1GC (default, good for most services)\n-XX:MaxGCPauseMillis=100        # target < 100ms GC pause\n-XX:G1HeapRegionSize=16m        # increase for large heap (> 1GB)\n-Xms2g -Xmx2g                  # min=max: avoid heap resizing pauses\n                                 # In containers: use MaxRAMPercentage instead!\n-XX:MetaspaceSize=128m          # initial metaspace (class metadata)\n-XX:MaxMetaspaceSize=256m       # cap metaspace growth\n-XX:+HeapDumpOnOutOfMemoryError # heap dump on OOM (ESSENTIAL for diagnosis)\n-XX:HeapDumpPath=/tmp/          # where to write heap dump\n-XX:+PrintGCDetails             # verbose GC log (use -Xlog:gc* in Java 11+)\n-Xlog:gc*:file=/var/log/gc.log:time,level,tags:filecount=5,filesize=20m\n\n# For ultra-low latency (Zerodha trading, Razorpay payments):\n-XX:+UseZGC                     # Java 15+ only\n-XX:SoftMaxHeapSize=1g          # ZGC: hint at target heap usage\n                                 # ZGC: typical pause < 1ms!\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "JVM heap diagram: Eden (left, large, green), Survivor S0+S1 (small, yellow), Old Gen (right, blue). Arrow: object created → Eden. Arrow: Eden full → Minor GC → surviving objects → S0. Arrow: after several Minor GCs → Old Gen (promotion). Arrow: Old Gen full → Major GC (STOP THE WORLD). Timeline below: normal operations, then Major GC pause bar (tall red block at 30s intervals without tuning). After tuning: many small G1GC incremental collection bars (no tall spikes).",
+      "alt_text": "JVM generational GC heap showing Eden, Survivor, Old Gen with collection triggers"
+    }
+  },
+  "worked_example": {
+    "scenario": "Razorpay payment service has GC pause spikes. Tune G1GC and add metrics.",
+    "problem_statement": "1. Read GC logs to identify pause pattern\n2. Configure G1GC flags for < 100ms pauses\n3. Add Micrometer GC metrics (jvm.gc.pause timer)\n4. @SpringBootTest: verify GC metrics are available",
+    "step_by_step_solution": [
+      { "step": 1, "action": "Enable GC logging", "details": "```bash\n-Xlog:gc*:file=/var/log/gc.log:time,uptime,level,tags:filecount=5,filesize=20m\n# Output: [2024-06-15T19:05:30] GC(42) Pause Full (G1 Evacuation Pause) 800ms\n# Pattern: 'Pause Full' every 30s → G1GC can't keep up with allocation rate\n```" },
+      { "step": 2, "action": "Tune G1GC", "details": "```bash\n-XX:MaxGCPauseMillis=100    # request < 100ms pauses\n-XX:G1NewSizePercent=40     # give more space to Young Gen (more frequent, shorter GC)\n-XX:ConcGCThreads=4         # background GC threads\n```" }
+    ],
+    "final_code": "// Micrometer: jvm.gc.pause timer auto-registered by Spring Boot Actuator\n// GET /actuator/metrics/jvm.gc.pause → count, sum, max of GC pauses\n// Grafana: histogram_quantile(0.99, rate(jvm_gc_pause_seconds_bucket[5m])) by (gc)\n// Alert: p99 GC pause > 200ms for 5 minutes → investigate heap sizing",
+    "expected_output": "# GET /actuator/metrics/jvm.gc.pause\n# {name:'jvm.gc.pause', measurements: [{statistic:'COUNT', value:42}, {statistic:'MAX', value:0.105}]}\n# MAX = 105ms (within our 100ms target)\n# Before tuning: MAX = 832ms (10× over target)",
+    "things_to_notice": [
+      "MaxGCPauseMillis is a TARGET, not a guarantee. G1GC will try to meet it but may exceed it. Setting it too low (< 50ms) can actually reduce throughput because GC runs too frequently.",
+      "Xms=Xmx (min=max heap): prevents JVM from resizing the heap at runtime. Heap resizing triggers a stop-the-world pause. In containers: use MaxRAMPercentage instead — it scales with the container memory limit.",
+      "HeapDumpOnOutOfMemoryError: absolutely essential in production. When OOM occurs, the heap dump is your only forensic evidence. Without it: OOM is just a mystery.",
+      "MetaspaceSize vs MaxMetaspaceSize: MetaspaceSize sets the initial size (avoids expansion at startup). MaxMetaspaceSize caps growth — prevents unbounded class loading (common in OSGi frameworks, hot-deploy scenarios)."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Zerodha trading service ZGC", "use_case": "Trading engine processes NSE orders. G1GC: 150ms pauses occurred during market open (high allocation rate). Switched to ZGC: pauses < 1ms. Order acknowledgment latency dropped from 200ms p99 to 35ms p99." },
+      { "company_context": "Razorpay payment memory leak", "use_case": "Payment service memory grew 50MB/day. HeapDumpOnOutOfMemoryError + heap dump analysis (VisualVM): found ThreadLocal<HashMap> not cleared after requests. Fix: MDC.clear() in finally block (T20.3 pattern). Memory growth: 0MB/day after fix." }
+    ],
+    "interview_relevance": "'How would you diagnose a memory leak in a Java service?' → Enable HeapDumpOnOutOfMemoryError. Get heap dump: `jmap -dump:format=b,file=heap.hprof <pid>`. Open in VisualVM or Eclipse MAT. Look for: growing retained heap over time, unexpected large object counts. Common causes: ThreadLocal not cleared, static collections growing, event listener not deregistered.",
+    "real_world_workflow": "GC tuning workflow: (1) enable GC logging, (2) find pause pattern, (3) increase Young Gen if frequent Minor GC, (4) tune MaxGCPauseMillis, (5) monitor with Micrometer, (6) consider ZGC for ultra-low latency."
+  },
+  "common_gaps": [
+    { "gap_id": "setting_xmx_in_container", "what_students_get_wrong": "Setting -Xmx2g inside a container with 2GB limit — JVM non-heap (Metaspace, threads, JIT) also needs memory → OOMKilled.", "remediation": "Use -XX:MaxRAMPercentage=75.0 instead. 75% = heap. 25% = non-heap overhead. If container has 2GB: heap = 1.5GB, non-heap = 512MB. Never hardcode -Xmx in a container without accounting for non-heap.", "detection_pattern": "Container OOMKilled immediately after start; -Xmx equals container memory limit exactly" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "Minor GC (Young Gen): frequent, short (1-10ms), expected",
+      "Major/Full GC (Old Gen): infrequent, long (100ms-10s), the problem",
+      "G1GC: default, good balance. ZGC: sub-ms pauses, Java 15+.",
+      "-XX:MaxGCPauseMillis=100: target, not guarantee",
+      "-Xms=-Xmx: prevent heap resize pauses. In containers: MaxRAMPercentage.",
+      "-XX:+HeapDumpOnOutOfMemoryError: mandatory in production",
+      "Metaspace: class metadata, capped with MaxMetaspaceSize",
+      "jvm.gc.pause (Micrometer): auto-exposed by Spring Boot Actuator"
+    ],
+    "self_check_questions": [
+      { "question": "Your service has 1GB container limit. What is the correct MaxRAMPercentage? What is the resulting heap size?", "answer": "MaxRAMPercentage=75.0 → heap = 1GB × 0.75 = 768MB. Non-heap overhead (25% = 256MB): covers Metaspace (~100MB), thread stacks (~50MB), JIT code cache (~50MB), Direct Memory (~30MB), GC overhead (~30MB). 256MB for non-heap is tight for a complex Spring Boot service. Consider: 1.5GB container → 1.1GB heap with 75%. If MetaspaceSize warning appears, increase container to 1.5GB or set MaxMetaspaceSize=128m to cap Metaspace growth." }
+    ],
+    "next_topic_preview": "Next: Database Query Optimization — EXPLAIN ANALYZE, slow query logs, missing indexes, and N+1 queries in production. The database is almost always the bottleneck, and after the JVM, it's the most impactful optimization target."
+  }
+}

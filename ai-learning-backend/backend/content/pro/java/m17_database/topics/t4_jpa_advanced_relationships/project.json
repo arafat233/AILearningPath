@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m17_t4_proj",
+  "linked_topic": "java_m17_t4",
+  "level": "mini",
+  "name": "Flipkart Product Catalog — Advanced JPA Domain Model",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+
+  "scenario": "Build the Flipkart product catalog domain model with all the advanced JPA relationship patterns: Product ↔ Category @ManyToMany with correct cascades, @Embeddable value objects (WarehouseAddress, Price), @ElementCollection for tags and specifications, soft delete, and auditing.",
+
+  "description": "Complex JPA domain: Category (with self-reference), Product (@ManyToMany, @Embedded, @ElementCollection, soft delete, auditing), Seller (@ManyToOne from Product). @DataJpaTest verifying all relationship behaviors.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "@Embeddable WarehouseAddress (city, pincode, state). @Embeddable Price (amount BigDecimal, currency String default 'INR'). Both with proper @Column annotations.",
+        "weight": 12
+      },
+      {
+        "id": "req_2",
+        "description": "Category @Entity: id, name UNIQUE, description, @ManyToOne Category parent (self-reference, nullable). @ManyToMany(mappedBy='categories') Set<Product> products.",
+        "weight": 13
+      },
+      {
+        "id": "req_3",
+        "description": "Product @Entity with: @ManyToMany Set<Category> (cascade={PERSIST,MERGE}, @JoinTable), @Embedded WarehouseAddress warehouseLocation, @Embedded Price price (@AttributeOverrides if needed), @ElementCollection Set<String> tags, @ElementCollection Set<String> imageUrls, boolean deleted=false, @CreatedDate/@LastModifiedDate (optional).",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Soft delete: @SQLDelete on Product (UPDATE SET deleted=true), @Where(clause='deleted=false'). softDelete() method. ALL JPA queries automatically filter deleted products.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "ProductService (@Service @Transactional): addProduct(name, price, warehouseCity, Set<String> tags), addToCategory(productId, categoryId), removeFromCategory(productId, categoryId), softDeleteProduct(id). Uses helper methods for bidirectional consistency.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "@DataJpaTest (5 tests): (1) addToCategory links both sides, (2) removeFromCategory doesn't delete category, (3) soft delete hides from findAll, (4) tags saved and loaded correctly, (5) parent category self-reference works. All 5 pass.",
+        "weight": 25
+      },
+      {
+        "id": "req_7",
+        "description": "Flyway migration V6: CREATE TABLE categories, CREATE TABLE products, CREATE TABLE product_categories, CREATE TABLE product_tags, CREATE TABLE product_image_urls. All with appropriate constraints.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @EntityListeners(AuditingEntityListener.class) + @CreatedDate + @LastModifiedDate + @CreatedBy + @LastModifiedBy to Product. @EnableJpaAuditing + AuditorAware<String> @Bean. @DataJpaTest verifying createdAt set on save.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Replace Product ↔ Category @ManyToMany with explicit ProductCategory @Entity when needing a 'featured' boolean and 'displayOrder' int in the join table. ProductCategoryService.featureProduct(productId, categoryId).",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add Seller @Entity (id, businessName, gstin, @Embedded sellerAddress). Product has @ManyToOne Seller (lazy). ProductRepository with JOIN FETCH Seller to avoid N+1. @DataJpaTest asserting exactly 1 query for findAllWithSeller.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Category hierarchy:\n  Electronics (root)\n  └── Mobiles (parent=Electronics)\n      └── 5G Phones (parent=Mobiles)\n  Appliances (root)\n\nProducts:\n  iPhone 15 Pro: ₹89,999, warehouse=Mumbai\n    → categories: Electronics, Mobiles, 5G Phones\n    → tags: 5G, iOS, Face ID\n  Samsung Galaxy S24: ₹74,999, warehouse=Delhi\n    → categories: Electronics, Mobiles\n    → tags: 5G, Android\n\nSoft delete test: delete iPhone15, findAll returns only Samsung",
+
+  "starter_code": "// Files to create:\n// src/main/java/.../WarehouseAddress.java (@Embeddable)\n// src/main/java/.../Price.java (@Embeddable)\n// src/main/java/.../Category.java (@Entity with self-reference)\n// src/main/java/.../Product.java (@Entity with all annotations)\n// src/main/java/.../ProductService.java\n// src/main/resources/db/migration/V6__create_catalog_tables.sql\n// src/test/java/.../ProductCatalogTest.java (@DataJpaTest, 5 tests)",
+
+  "example_output": "# Hibernate DDL (H2, create-drop in tests):\ncreate table categories (id varchar(36) primary key, name varchar(200) not null unique, parent_id varchar(36), ...)\ncreate table products (id varchar(36) primary key, name varchar(200) not null, deleted boolean not null default false, wh_city varchar(100), ...)\ncreate table product_categories (product_id varchar(36), category_id varchar(36))\ncreate table product_tags (product_id varchar(36), tag varchar(255))\n\n# Tests:\n✓ addToCategory_linksBothSides\n✓ removeFromCategory_categoryNotDeleted\n✓ softDelete_hiddenFromFindAll\n✓ tags_savedAndLoaded\n✓ selfReference_parentCategoryWorks",
+
+  "rubric": [
+    { "category": "@Embeddable types", "points": 12, "criteria": ["WarehouseAddress (6 pts)", "Price with BigDecimal (6 pts)"] },
+    { "category": "Category (self-ref)", "points": 13, "criteria": ["Self-reference @ManyToOne (7 pts)", "mappedBy on products (6 pts)"] },
+    { "category": "Product @Entity", "points": 20, "criteria": ["@ManyToMany correct (8 pts)", "@Embedded types (6 pts)", "@ElementCollection tags+images (6 pts)"] },
+    { "category": "Soft delete", "points": 10, "criteria": ["@SQLDelete + @Where (10 pts)"] },
+    { "category": "ProductService", "points": 15, "criteria": ["All 4 methods (10 pts)", "Helper methods both sides (5 pts)"] },
+    { "category": "@DataJpaTest (5 tests)", "points": 25, "criteria": ["5 tests × 5 pts each"] },
+    { "category": "V6 Flyway migration", "points": 5, "criteria": ["5 tables created (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["Auditing (20 pts)", "Explicit join entity (25 pts)", "Seller + N+1 fix (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. @ManyToMany cascade: NEVER include REMOVE or ALL — only {PERSIST, MERGE}. @SQLDelete: 'UPDATE products SET deleted=true WHERE id=?' — use actual table name, not entity name. @Where: 'deleted=false' — applied to ALL JPA queries automatically. Helper methods: always update BOTH sides (product.categories.add(cat) AND cat.products.add(product)). Self-referential: @ManyToOne @JoinColumn(name='parent_id') Category parent — nullable for root categories.",
+
+  "submission_instructions": "GitHub push. All 5 @DataJpaTest tests pass. V6 Flyway migration SQL file included. README explains cascade type choices and why CascadeType.REMOVE is excluded from @ManyToMany.",
+
+  "tips_for_success": [
+    "Cascade rule: if sharing → {PERSIST,MERGE}; if exclusive → ALL + orphanRemoval",
+    "@SQLDelete uses SQL table name (products), not JPQL entity name (Product)",
+    "@Where applies to ALL queries — findAll(), findById(), derived queries",
+    "Self-reference: @ManyToOne Category parent with @JoinColumn(name='parent_id'), nullable",
+    "testEm.flush() + testEm.clear() before assertions: forces DB write and clears cache"
+  ],
+
+  "concepts_reinforced": [
+    "@Embeddable value objects stored as columns in parent table",
+    "@ManyToMany with @JoinTable and correct cascade types",
+    "Bidirectional relationship helper methods",
+    "Soft delete with @SQLDelete and @Where",
+    "Self-referential @ManyToOne for category hierarchy",
+    "@ElementCollection for simple value collections"
+  ]
+}

@@ -1,0 +1,364 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m42_t3",
+  "topic_name": "Time Complexity Communication \u2014 Speaking Complexity Fluently",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m42_t3_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Subarray with Maximum Sum \u2014 Kadane's",
+      "instructions": "Implement: Subarray with Maximum Sum \u2014 Kadane's.",
+      "starter_code": "",
+      "expected_solution": "public class MaxSubarray {\n    static int maxSum(int[] nums){int max=nums[0],curr=nums[0];for(int i=1;i<nums.length;i++){curr=Math.max(nums[i],curr+nums[i]);max=Math.max(max,curr);}return max;}\n    public static void main(String[] a){System.out.println(maxSum(new int[]{-2,1,-3,4,-1,2,1,-5,4}));System.out.println(maxSum(new int[]{1}));System.out.println(maxSum(new int[]{5,4,-1,7,8}));System.out.println(\"Kadane: curr=max(num,curr+num). O(n) O(1). Zerodha P&L analysis.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "1",
+            "23",
+            "O(n) O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m42_t3_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Best time to buy and sell stock",
+      "instructions": "Implement: Best time to buy and sell stock.",
+      "starter_code": "",
+      "expected_solution": "public class StockProfit {\n    static int maxProfit(int[] p){int minP=p[0],maxP=0;for(int i=1;i<p.length;i++){maxP=Math.max(maxP,p[i]-minP);minP=Math.min(minP,p[i]);}return maxP;}\n    public static void main(String[] a){System.out.println(maxProfit(new int[]{7,1,5,3,6,4}));System.out.println(maxProfit(new int[]{7,6,4,3,1}));System.out.println(\"O(n) O(1) \u2014 track min price so far and max profit. Classic Zerodha trading problem.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "5",
+            "0",
+            "O(n) O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m42_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Balanced parentheses check",
+      "instructions": "Implement: Balanced parentheses check.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class BalancedParens {\n    static boolean isValid(String s){Deque<Character> st=new ArrayDeque<>();for(char c:s.toCharArray()){if(c=='('||c=='['||c=='{')st.push(c);else{if(st.isEmpty())return false;char t=st.pop();if(c==')'&&t!='('||c==']'&&t!='['||c=='}'&&t!='{')return false;}}return st.isEmpty();}\n    public static void main(String[] a){System.out.println(isValid(\"()[]{}\"));System.out.println(isValid(\"(]\"));System.out.println(isValid(\"{[()]}\"));System.out.println(\"Stack pattern \u2014 O(n). Interview warm-up at every company.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "Stack pattern"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m42_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Contains Duplicate II (window k)",
+      "instructions": "Implement: Contains Duplicate II (window k).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DupWindow {\n    static boolean hasDup(int[] nums,int k){Set<Integer> w=new HashSet<>();for(int i=0;i<nums.length;i++){if(w.contains(nums[i]))return true;w.add(nums[i]);if(w.size()>k)w.remove(nums[i-k]);}return false;}\n    public static void main(String[] a){System.out.println(hasDup(new int[]{1,2,3,1},3));System.out.println(hasDup(new int[]{1,0,1,1},1));System.out.println(hasDup(new int[]{1,2,3,1,2,3},2));System.out.println(\"Sliding HashSet window O(n) O(k).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "false",
+            "Sliding HashSet"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m42_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "3Sum (LeetCode #15)",
+      "instructions": "Implement: 3Sum (LeetCode #15).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ThreeSum {\n    static List<List<Integer>> threeSum(int[] nums){Arrays.sort(nums);List<List<Integer>> res=new ArrayList<>();for(int i=0;i<nums.length-2;i++){if(i>0&&nums[i]==nums[i-1])continue;int lo=i+1,hi=nums.length-1;while(lo<hi){int s=nums[i]+nums[lo]+nums[hi];if(s==0){res.add(Arrays.asList(nums[i],nums[lo],nums[hi]));while(lo<hi&&nums[lo]==nums[lo+1])lo++;while(lo<hi&&nums[hi]==nums[hi-1])hi--;lo++;hi--;}else if(s<0)lo++;else hi--;}}return res;}\n    public static void main(String[] a){System.out.println(threeSum(new int[]{-1,0,1,2,-1,-4}));System.out.println(\"O(n\u00b2) \u2014 sort + two pointer. Skip duplicates at all 3 levels.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[-1, -1, 2], [-1, 0, 1]]",
+            "O(n\u00b2)"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m42_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Product of array except self (LeetCode #238)",
+      "instructions": "Implement: Product of array except self (LeetCode #238).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ProductExcept {\n    static int[] productExceptSelf(int[] nums){int n=nums.length;int[] res=new int[n];res[0]=1;for(int i=1;i<n;i++)res[i]=res[i-1]*nums[i-1];int right=1;for(int i=n-1;i>=0;i--){res[i]*=right;right*=nums[i];}return res;}\n    public static void main(String[] a){System.out.println(Arrays.toString(productExceptSelf(new int[]{1,2,3,4})));System.out.println(Arrays.toString(productExceptSelf(new int[]{-1,1,0,-3,3})));System.out.println(\"O(n) O(1) extra \u2014 prefix product then right product sweep.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[24, 12, 8, 6]",
+            "[0, 0, 9, 0, 0]",
+            "O(n) O(1) extra"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m42_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Jump Game (LeetCode #55)",
+      "instructions": "Implement: Jump Game (LeetCode #55).",
+      "starter_code": "",
+      "expected_solution": "public class JumpGame {\n    static boolean canJump(int[] nums){int maxR=0;for(int i=0;i<nums.length;i++){if(i>maxR)return false;maxR=Math.max(maxR,i+nums[i]);}return true;}\n    public static void main(String[] a){System.out.println(canJump(new int[]{2,3,1,1,4}));System.out.println(canJump(new int[]{3,2,1,0,4}));System.out.println(\"Greedy: track max reachable. O(n) O(1). Pattern: 'can you reach' \u2192 greedy or DP.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Greedy"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m42_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Word Search (backtracking)",
+      "instructions": "Implement: Word Search (backtracking).",
+      "starter_code": "",
+      "expected_solution": "public class WordSearch {\n    static boolean search(char[][] b,String w){for(int r=0;r<b.length;r++)for(int c=0;c<b[0].length;c++)if(dfs(b,w,r,c,0))return true;return false;}\n    static boolean dfs(char[][] b,String w,int r,int c,int i){if(i==w.length())return true;if(r<0||r>=b.length||c<0||c>=b[0].length||b[r][c]!=w.charAt(i))return false;char t=b[r][c];b[r][c]='#';boolean ok=dfs(b,w,r+1,c,i+1)||dfs(b,w,r-1,c,i+1)||dfs(b,w,r,c+1,i+1)||dfs(b,w,r,c-1,i+1);b[r][c]=t;return ok;}\n    public static void main(String[] a){char[][] b={{'A','B','C','E'},{'S','F','C','S'},{'A','D','E','E'}};System.out.println(search(b,\"ABCCED\"));System.out.println(search(b,\"SEE\"));System.out.println(search(b,\"ABCB\"));System.out.println(\"Backtrack: mark+recurse+restore. O(m*n*4^L).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "false",
+            "Backtrack"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m42_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Number of Islands (BFS)",
+      "instructions": "Implement: Number of Islands (BFS).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Islands {\n    static int count(char[][] g){int r=g.length,c=g[0].length,cnt=0;int[][] d={{0,1},{0,-1},{1,0},{-1,0}};for(int i=0;i<r;i++)for(int j=0;j<c;j++){if(g[i][j]=='1'){cnt++;Queue<int[]> q=new ArrayDeque<>();q.offer(new int[]{i,j});g[i][j]='0';while(!q.isEmpty()){int[] p=q.poll();for(int[] dd:d){int ni=p[0]+dd[0],nj=p[1]+dd[1];if(ni>=0&&ni<r&&nj>=0&&nj<c&&g[ni][nj]=='1'){g[ni][nj]='0';q.offer(new int[]{ni,nj});}}}}}return cnt;}\n    public static void main(String[] a){System.out.println(count(new char[][]{{'1','1','0'},{'0','1','0'},{'0','0','1'}}));System.out.println(count(new char[][]{{'1','1','1'},{'0','1','0'},{'1','1','1'}}));System.out.println(\"BFS flood fill O(m*n). Pattern: connected components.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "1",
+            "O(m*n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m42_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Coin Change (DP)",
+      "instructions": "Implement: Coin Change (DP).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CC {\n    static int change(int[] c,int amt){int[] dp=new int[amt+1];Arrays.fill(dp,amt+1);dp[0]=0;for(int i=1;i<=amt;i++)for(int x:c)if(x<=i)dp[i]=Math.min(dp[i],dp[i-x]+1);return dp[amt]>amt?-1:dp[amt];}\n    public static void main(String[] a){System.out.println(change(new int[]{1,5,11},15));System.out.println(change(new int[]{2},3));System.out.println(change(new int[]{1,2,5},11));System.out.println(\"O(n*m) DP. Init dp[amt+1] not MAX_VALUE. Pattern: min cost \u2192 DP.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "3",
+            "O(n*m)"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m42_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "LRU Cache (design)",
+      "instructions": "Implement: LRU Cache (design).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LRU {\n    static class Cache{Map<Integer,Integer> m=new LinkedHashMap<>(16,0.75f,true){protected boolean removeEldestEntry(Map.Entry<Integer,Integer> e){return size()>cap;}};int cap;Cache(int c){cap=c;}int get(int k){return m.getOrDefault(k,-1);}void put(int k,int v){m.put(k,v);}}\n    public static void main(String[] a){Cache c=new Cache(2);c.put(1,1);c.put(2,2);System.out.println(c.get(1));c.put(3,3);System.out.println(c.get(2));System.out.println(c.get(3));System.out.println(\"LinkedHashMap(16,0.75f,true) + removeEldestEntry = LRU in 5 lines. Full: HashMap+DLL O(1).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "3",
+            "LinkedHashMap"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m42_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Rotate Image (LeetCode #48) in-place",
+      "instructions": "Implement: Rotate Image (LeetCode #48) in-place.",
+      "starter_code": "",
+      "expected_solution": "public class Rotate {\n    static void rotate(int[][] m){int n=m.length;for(int i=0;i<n;i++)for(int j=i+1;j<n;j++){int t=m[i][j];m[i][j]=m[j][i];m[j][i]=t;}for(int i=0;i<n;i++){int l=0,r=n-1;while(l<r){int t=m[i][l];m[i][l]=m[i][r];m[i][r]=t;l++;r--;}}System.out.println(java.util.Arrays.deepToString(m));}\n    public static void main(String[] a){rotate(new int[][]{{1,2,3},{4,5,6},{7,8,9}});System.out.println(\"Transpose then reverse each row. O(n\u00b2) O(1). Common in-place matrix trick.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[7, 4, 1], [8, 5, 2], [9, 6, 3]]",
+            "Transpose then reverse"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m42_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Sprint: solve 3 mediums in 30 min \u2014 timing synthesis",
+      "instructions": "Implement: Sprint: solve 3 mediums in 30 min \u2014 timing synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Sprint {\n    // Problem 1: Two Sum \u2014 5 min target\n    static int[] twoSum(int[] n,int t){Map<Integer,Integer> m=new HashMap<>();for(int i=0;i<n.length;i++){int c=t-n[i];if(m.containsKey(c))return new int[]{m.get(c),i};m.put(n[i],i);}return null;}\n    // Problem 2: Max profit \u2014 5 min target\n    static int maxP(int[] p){int min=p[0],max=0;for(int i=1;i<p.length;i++){max=Math.max(max,p[i]-min);min=Math.min(min,p[i]);}return max;}\n    // Problem 3: Valid parentheses \u2014 5 min target\n    static boolean valid(String s){Deque<Character> st=new ArrayDeque<>();for(char c:s.toCharArray()){if(\"([{\".indexOf(c)>=0)st.push(c);else{if(st.isEmpty())return false;char t=st.pop();if(c==')'&&t!='('||c==']'&&t!='['||c=='}'&&t!='{')return false;}}return st.isEmpty();}\n    public static void main(String[] a){System.out.println(Arrays.toString(twoSum(new int[]{2,7,11,15},9)));System.out.println(maxP(new int[]{7,1,5,3,6,4}));System.out.println(valid(\"()[]{}\"));boolean ok=Arrays.equals(twoSum(new int[]{2,7,11,15},9),new int[]{0,1})&&maxP(new int[]{7,1,5,3,6,4})==5&&valid(\"()[]{}\");System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[0, 1]",
+            "5",
+            "true"
+          ]
+        }
+      ],
+      "hints": [
+        "Pattern recognition",
+        "Optimal solution",
+        "Edge cases"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

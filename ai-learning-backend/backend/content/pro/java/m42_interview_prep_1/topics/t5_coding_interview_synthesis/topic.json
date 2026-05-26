@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m42_t5",
+  "module_id": "m42",
+  "topic_number": 5,
+  "name": "Coding Interview Synthesis \u2014 Full Mock Rounds",
+  "slug": "coding-interview-synthesis-mock-rounds",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t1"
+    ],
+    "concepts_taught": [
+      "coding-interview-synthesis-mock-rounds"
+    ],
+    "career_relevance": "Core interview preparation topic.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Coding Interview Synthesis \u2014 Full Mock Rounds"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Full mock round: 45 min, one medium + optimize, communication throughout",
+        "Pattern first: always identify pattern before coding",
+        "Brute force first: always have something working before optimizing",
+        "Edge cases: null, empty, single element, all same, negative numbers",
+        "Test your code: trace through example BEFORE saying 'done'",
+        "Questions for interviewer: 3 ready \u2014 tech stack, team culture, day-to-day"
+      ],
+      "next_topic_preview": "Module 42 complete! Next: M43 System Design Basics."
+    }
+  }
+}

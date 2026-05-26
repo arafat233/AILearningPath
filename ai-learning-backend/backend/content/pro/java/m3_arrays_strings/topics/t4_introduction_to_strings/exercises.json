@@ -1,0 +1,438 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t4",
+  "topic_name": "Introduction to Strings",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m3_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "String length",
+      "scenario": "Understand the length method.",
+      "instructions": "What does this print?\n\n```java\nString s = \"Hello World\";\nSystem.out.println(s.length());\n```",
+      "expected_solution": "11",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "11"
+        }
+      ],
+      "hints": [
+        "Strings use .length() with parens (method)",
+        "Count every character INCLUDING the space",
+        "H-e-l-l-o-(space)-W-o-r-l-d = 11 characters"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m3_t4_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Immutability check",
+      "scenario": "Strings are immutable — predict what happens.",
+      "instructions": "What does this print?\n\n```java\nString s = \"hello\";\ns.toUpperCase();\nSystem.out.println(s);\n```",
+      "expected_solution": "hello",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "hello"
+        }
+      ],
+      "hints": [
+        "Strings are IMMUTABLE",
+        "toUpperCase() returns a NEW string, original unchanged",
+        "We didn't capture the return value, so it's discarded",
+        "s still points to 'hello'",
+        "To change: s = s.toUpperCase()"
+      ],
+      "xp_reward": 10,
+      "concept_tested": "immutability"
+    },
+    
+    {
+      "id": "java_m3_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 1,
+      "title": "Convert and capture",
+      "scenario": "Fix the immutability mistake by capturing the result.",
+      "instructions": "Write a class `Convert` that:\n1. Has String s = \"hello world\"\n2. Converts it to uppercase AND captures the result\n3. Prints the uppercase version\n\nExpected output:\nHELLO WORLD",
+      "starter_code": "// Write your Convert class below\n",
+      "expected_solution": "public class Convert {\n    public static void main(String[] args) {\n        String s = \"hello world\";\n        s = s.toUpperCase();\n        System.out.println(s);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "HELLO WORLD"
+        }
+      ],
+      "hints": [
+        "Don't just call s.toUpperCase() — capture it",
+        "Assign back: s = s.toUpperCase()",
+        "Or use a new variable: String upper = s.toUpperCase()"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m3_t4_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the == bug",
+      "scenario": "Classic String comparison error.",
+      "instructions": "This code SHOULD print 'Premium access granted!' but doesn't. Fix it.\n\nExpected output:\nPremium access granted!",
+      "starter_code": "public class Subscription {\n    public static void main(String[] args) {\n        String plan = getUserPlan();\n        \n        if (plan == \"premium\") {\n            System.out.println(\"Premium access granted!\");\n        } else {\n            System.out.println(\"Upgrade required\");\n        }\n    }\n    \n    public static String getUserPlan() {\n        // Simulates fetching from database (forces new String)\n        return new String(\"premium\");\n    }\n}",
+      "expected_solution": "public class Subscription {\n    public static void main(String[] args) {\n        String plan = getUserPlan();\n        \n        if (plan.equals(\"premium\")) {\n            System.out.println(\"Premium access granted!\");\n        } else {\n            System.out.println(\"Upgrade required\");\n        }\n    }\n    \n    public static String getUserPlan() {\n        return new String(\"premium\");\n    }\n}",
+      "bugs": [
+        {
+          "line": "4",
+          "issue": "== compares references, not content. The String from getUserPlan() is a different object than the literal \"premium\".",
+          "fix": "Use .equals() for String comparison"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Premium access granted!",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Never use == to compare Strings",
+        "Use .equals() instead: plan.equals(\"premium\")",
+        "The 'premium' from getUserPlan is a different object than the literal",
+        "This bug causes real production incidents"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["string_equality_with_double_equals"]
+    },
+    
+    {
+      "id": "java_m3_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Trim and lowercase user input",
+      "scenario": "Clean up messy user input.",
+      "instructions": "Write a class `CleanInput` that:\n1. Has String userEmail = \"  AISHA@Gmail.COM  \"\n2. Cleans it: trim whitespace, then lowercase\n3. Print the cleaned version\n\nExpected output:\nCleaned: aisha@gmail.com",
+      "starter_code": "// Write your CleanInput class below\n",
+      "expected_solution": "public class CleanInput {\n    public static void main(String[] args) {\n        String userEmail = \"  AISHA@Gmail.COM  \";\n        String cleaned = userEmail.trim().toLowerCase();\n        System.out.println(\"Cleaned: \" + cleaned);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Cleaned: aisha@gmail.com"
+        }
+      ],
+      "hints": [
+        "Chain method calls: userEmail.trim().toLowerCase()",
+        ".trim() removes leading/trailing whitespace",
+        ".toLowerCase() converts to lowercase",
+        "Each method returns a new String, so we can chain"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m3_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Character at position",
+      "scenario": "Use charAt to access individual characters.",
+      "instructions": "Write a class `Initials` that:\n1. Has firstName = \"Aisha\" and lastName = \"Khan\"\n2. Gets first character of each (charAt(0))\n3. Prints initials like 'A.K.'\n\nExpected output:\nInitials: A.K.",
+      "starter_code": "// Write your Initials class below\n",
+      "expected_solution": "public class Initials {\n    public static void main(String[] args) {\n        String firstName = \"Aisha\";\n        String lastName = \"Khan\";\n        char firstInitial = firstName.charAt(0);\n        char lastInitial = lastName.charAt(0);\n        System.out.println(\"Initials: \" + firstInitial + \".\" + lastInitial + \".\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Initials: A.K."
+        }
+      ],
+      "hints": [
+        "charAt(0) returns the FIRST character",
+        "Returns a char (primitive), not String",
+        "Concatenate: firstInitial + \".\" + lastInitial + \".\""
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m3_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Count vowels",
+      "scenario": "Classic interview problem — count vowels in a string.",
+      "instructions": "Write a class `VowelCount`:\n1. Method `countVowels(String s)` returns count of vowels (a, e, i, o, u — case insensitive)\n2. main tests with \"Hello World\" — should return 3\n\nExpected output:\nVowels in 'Hello World': 3",
+      "starter_code": "// Write your VowelCount class below\n",
+      "expected_solution": "public class VowelCount {\n    public static void main(String[] args) {\n        String s = \"Hello World\";\n        System.out.println(\"Vowels in '\" + s + \"': \" + countVowels(s));\n    }\n    \n    public static int countVowels(String s) {\n        s = s.toLowerCase();\n        int count = 0;\n        for (int i = 0; i < s.length(); i++) {\n            char c = s.charAt(i);\n            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {\n                count++;\n            }\n        }\n        return count;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Vowels in 'Hello World': 3"
+        }
+      ],
+      "hints": [
+        "Convert to lowercase first to simplify checking",
+        "Iterate with charAt and index",
+        "Check if char is a, e, i, o, u using ==",
+        "Vowels in 'Hello World': e, o, o = 3"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "string_iteration"
+    },
+    
+    {
+      "id": "java_m3_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Substring extraction",
+      "scenario": "Extract a portion of a string.",
+      "instructions": "Write a class `Extract`:\n1. Has String url = \"https://github.com/anthropic\"\n2. Extract just the domain (between '//' and the next '/')\n3. Print 'Domain: <domain>'\n\nFor this URL, domain should be 'github.com'.\n\nExpected output:\nDomain: github.com",
+      "starter_code": "// Write your Extract class below\n",
+      "expected_solution": "public class Extract {\n    public static void main(String[] args) {\n        String url = \"https://github.com/anthropic\";\n        int start = url.indexOf(\"//\") + 2;\n        int end = url.indexOf(\"/\", start);\n        String domain = url.substring(start, end);\n        System.out.println(\"Domain: \" + domain);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Domain: github.com"
+        }
+      ],
+      "hints": [
+        "Find '//' position with indexOf",
+        "Domain starts AFTER '//', so add 2 to indexOf position",
+        "Find next '/' using indexOf with fromIndex parameter",
+        "substring(start, end) — end is EXCLUSIVE",
+        "For our URL: '//' at 6, next '/' at 16. Domain = substring(8, 16) = 'github.com'"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "substring_extraction"
+    },
+    
+    {
+      "id": "java_m3_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Split CSV line",
+      "scenario": "Parse comma-separated data.",
+      "instructions": "Write a class `CSVParse`:\n1. Has String line = \"Aisha,28,Hyderabad,Engineer\"\n2. Split by comma, store in array\n3. Print each field on its own line\n\nExpected output:\nField 0: Aisha\nField 1: 28\nField 2: Hyderabad\nField 3: Engineer",
+      "starter_code": "// Write your CSVParse class below\n",
+      "expected_solution": "public class CSVParse {\n    public static void main(String[] args) {\n        String line = \"Aisha,28,Hyderabad,Engineer\";\n        String[] fields = line.split(\",\");\n        for (int i = 0; i < fields.length; i++) {\n            System.out.println(\"Field \" + i + \": \" + fields[i]);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Field 0: Aisha\nField 1: 28\nField 2: Hyderabad\nField 3: Engineer"
+        }
+      ],
+      "hints": [
+        "line.split(\",\") returns String[]",
+        "Iterate with index to print 'Field i: value'",
+        "split is THE primary parsing tool — used in every CSV reader"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m3_t4_ex_10",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the concatenation order",
+      "scenario": "String + arithmetic order is tricky.",
+      "instructions": "This code SHOULD print 'Total: 30' but prints something else. Fix the concatenation logic.\n\nExpected output:\nTotal: 30",
+      "starter_code": "public class Concat {\n    public static void main(String[] args) {\n        int a = 10;\n        int b = 20;\n        System.out.println(\"Total: \" + a + b);\n    }\n}",
+      "expected_solution": "public class Concat {\n    public static void main(String[] args) {\n        int a = 10;\n        int b = 20;\n        System.out.println(\"Total: \" + (a + b));\n    }\n}",
+      "bugs": [
+        {
+          "line": "5",
+          "issue": "Left-to-right: \"Total: \" + 10 becomes \"Total: 10\", then \"Total: 10\" + 20 becomes \"Total: 1020\". Once + sees a String, it concatenates.",
+          "fix": "Wrap a + b in parens to force addition first"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Total: 30",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Output is currently 'Total: 1020' (concatenation, not addition)",
+        "Left-to-right evaluation: \"Total: \" + 10 first → \"Total: 10\"",
+        "Then \"Total: 10\" + 20 → \"Total: 1020\"",
+        "Wrap math in parens: (a + b) forces addition first",
+        "Result: \"Total: \" + 30 → \"Total: 30\""
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["concatenation_with_arithmetic_order"]
+    },
+    
+    {
+      "id": "java_m3_t4_ex_11",
+      "level": "medium",
+      "type": "algorithm",
+      "difficulty": 4,
+      "title": "Reverse a string",
+      "scenario": "Classic interview problem.",
+      "instructions": "Write a class `Reverse`:\n1. Method `reverse(String s)` returns the reversed string\n2. main tests with 'hello' → 'olleh'\n\nUse a loop (don't use StringBuilder.reverse — we want practice).\n\nExpected output:\nReverse of 'hello': olleh",
+      "starter_code": "// Write your Reverse class below\n// Use a loop, NOT StringBuilder.reverse()\n",
+      "expected_solution": "public class Reverse {\n    public static void main(String[] args) {\n        String s = \"hello\";\n        System.out.println(\"Reverse of '\" + s + \"': \" + reverse(s));\n    }\n    \n    public static String reverse(String s) {\n        String result = \"\";\n        for (int i = s.length() - 1; i >= 0; i--) {\n            result += s.charAt(i);\n        }\n        return result;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Reverse of 'hello': olleh"
+        }
+      ],
+      "hints": [
+        "Iterate from last index to first: i = s.length() - 1; i >= 0; i--",
+        "Build result by concatenating each char: result += s.charAt(i)",
+        "Note: this is INEFFICIENT for long strings (next topic explains why and how StringBuilder fixes it)",
+        "For now, the pattern works for learning"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "string_reversal_with_loop"
+    },
+    
+    {
+      "id": "java_m3_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Check string palindrome",
+      "scenario": "Two-pointer technique applied to strings.",
+      "instructions": "Write a class `Palindrome`:\n1. Method `isPalindrome(String s)` returns true if s reads same forwards and backwards (case-insensitive)\n2. main tests:\n   - \"racecar\" → true\n   - \"hello\" → false\n   - \"Level\" → true (case-insensitive)\n\nUse two pointers (left and right), not reverse-and-compare.\n\nExpected output:\n'racecar' palindrome? true\n'hello' palindrome? false\n'Level' palindrome? true",
+      "starter_code": "// Write your Palindrome class below\n// Use two-pointer technique, NOT reverse-and-compare\n",
+      "expected_solution": "public class Palindrome {\n    public static void main(String[] args) {\n        System.out.println(\"'racecar' palindrome? \" + isPalindrome(\"racecar\"));\n        System.out.println(\"'hello' palindrome? \" + isPalindrome(\"hello\"));\n        System.out.println(\"'Level' palindrome? \" + isPalindrome(\"Level\"));\n    }\n    \n    public static boolean isPalindrome(String s) {\n        s = s.toLowerCase();\n        int left = 0;\n        int right = s.length() - 1;\n        while (left < right) {\n            if (s.charAt(left) != s.charAt(right)) {\n                return false;\n            }\n            left++;\n            right--;\n        }\n        return true;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "'racecar' palindrome? true\n'hello' palindrome? false\n'Level' palindrome? true"
+        }
+      ],
+      "hints": [
+        "Convert to lowercase first for case-insensitive comparison",
+        "Two pointers: left = 0, right = s.length() - 1",
+        "While left < right: if charAt(left) != charAt(right) → not palindrome",
+        "Otherwise move pointers inward",
+        "Same two-pointer pattern as Topic 3.2"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m3_t4_ex_13",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "Count word occurrences",
+      "scenario": "Find how many times a word appears in a sentence.",
+      "instructions": "Write a class `WordCount`:\n1. Method `countOccurrences(String text, String word)` returns count of word in text (case-insensitive)\n2. Use split to break text into words\n3. main tests with: \"The cat sat on the mat\" and word \"the\" → 2\n\nExpected output:\n'the' appears 2 times in 'The cat sat on the mat'",
+      "starter_code": "// Write your WordCount class below\n",
+      "expected_solution": "public class WordCount {\n    public static void main(String[] args) {\n        String text = \"The cat sat on the mat\";\n        String word = \"the\";\n        int count = countOccurrences(text, word);\n        System.out.println(\"'\" + word + \"' appears \" + count + \" times in '\" + text + \"'\");\n    }\n    \n    public static int countOccurrences(String text, String word) {\n        String[] words = text.toLowerCase().split(\" \");\n        String target = word.toLowerCase();\n        int count = 0;\n        for (String w : words) {\n            if (w.equals(target)) {\n                count++;\n            }\n        }\n        return count;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "'the' appears 2 times in 'The cat sat on the mat'"
+        }
+      ],
+      "hints": [
+        "Lowercase both text and word for case-insensitive matching",
+        "Split text by space: text.split(\" \")",
+        "Loop through words array, count matches with .equals()",
+        "NEVER use == for string comparison",
+        "'The' and 'the' in lowercase both become 'the' → count 2"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m3_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Convert sentence to title case",
+      "scenario": "Capitalize the first letter of each word.",
+      "instructions": "Write a class `TitleCase`:\n1. Method `toTitleCase(String s)` capitalizes first letter of each word, lowercase rest\n2. main tests with \"hello world from JAVA\" → 'Hello World From Java'\n\nApproach: split by space, transform each word, join back.\n\nExpected output:\nTitle case: Hello World From Java",
+      "starter_code": "// Write your TitleCase class below\n",
+      "expected_solution": "public class TitleCase {\n    public static void main(String[] args) {\n        String s = \"hello world from JAVA\";\n        System.out.println(\"Title case: \" + toTitleCase(s));\n    }\n    \n    public static String toTitleCase(String s) {\n        String[] words = s.split(\" \");\n        String result = \"\";\n        for (int i = 0; i < words.length; i++) {\n            String word = words[i].toLowerCase();\n            if (word.length() > 0) {\n                String capitalized = word.substring(0, 1).toUpperCase() + word.substring(1);\n                result += capitalized;\n            }\n            if (i < words.length - 1) {\n                result += \" \";\n            }\n        }\n        return result;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Title case: Hello World From Java"
+        }
+      ],
+      "hints": [
+        "Split into words by space",
+        "For each word: lowercase entire word, then uppercase first char",
+        "Capitalize: word.substring(0, 1).toUpperCase() + word.substring(1)",
+        "Join back with spaces between words",
+        "Note: + in loops is slow due to immutability — fix in next topic with StringBuilder"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "title_case_transformation"
+    },
+    
+    {
+      "id": "java_m3_t4_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Find first non-repeating character",
+      "scenario": "Classic interview question — find the first character that appears only once.",
+      "instructions": "Write a class `FirstUnique`:\n1. Method `firstNonRepeating(String s)` returns the first character that appears exactly once in s. If all characters repeat, return ' ' (space) as sentinel.\n2. main tests:\n   - \"swiss\" → 'w' (s repeats, w is unique, then i unique, then s repeats — first unique is w)\n   - \"hello\" → 'h' (h unique)\n   - \"aabbcc\" → ' ' (all repeat)\n\nApproach: For each character, count its total occurrences in the string. Return first with count = 1.\n\nExpected output:\nFirst unique in 'swiss': w\nFirst unique in 'hello': h\nFirst unique in 'aabbcc': (space — all repeat)",
+      "starter_code": "// Write your FirstUnique class below\n",
+      "expected_solution": "public class FirstUnique {\n    public static void main(String[] args) {\n        System.out.println(\"First unique in 'swiss': \" + firstNonRepeating(\"swiss\"));\n        System.out.println(\"First unique in 'hello': \" + firstNonRepeating(\"hello\"));\n        System.out.println(\"First unique in 'aabbcc': \" + firstNonRepeating(\"aabbcc\") + \" (space if all repeat)\");\n    }\n    \n    public static char firstNonRepeating(String s) {\n        for (int i = 0; i < s.length(); i++) {\n            char c = s.charAt(i);\n            int count = 0;\n            for (int j = 0; j < s.length(); j++) {\n                if (s.charAt(j) == c) {\n                    count++;\n                }\n            }\n            if (count == 1) {\n                return c;\n            }\n        }\n        return ' ';\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "First unique in 'swiss': w\nFirst unique in 'hello': h\nFirst unique in 'aabbcc':   (space if all repeat)"
+        }
+      ],
+      "hints": [
+        "Outer loop: each character in string",
+        "Inner loop: count how many times that character appears total",
+        "If count == 1, this is the first unique — return it",
+        "If outer loop finishes with no unique found, return ' ' (space) as sentinel",
+        "For 'swiss': s appears 2 times, w appears 1 time → return 'w'",
+        "This is O(n²) — could be optimized with HashMap (covered in Collections module)"
+      ],
+      "xp_reward": 90,
+      "concept_tested": "nested_string_search"
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 0,
+      "code_scratch": 9,
+      "debug": 2,
+      "predict_output": 2,
+      "algorithm": 2
+    },
+    "total_xp_possible": 645,
+    "estimated_completion_minutes": 55
+  },
+  
+  "gap_detection_map": {
+    "immutability": ["ex_2", "ex_3"],
+    "string_equality_with_double_equals": ["ex_4"],
+    "concatenation_with_arithmetic_order": ["ex_10"],
+    "string_iteration": ["ex_7"],
+    "substring_extraction": ["ex_8"],
+    "string_reversal_with_loop": ["ex_11"],
+    "title_case_transformation": ["ex_14"],
+    "nested_string_search": ["ex_15"]
+  }
+}

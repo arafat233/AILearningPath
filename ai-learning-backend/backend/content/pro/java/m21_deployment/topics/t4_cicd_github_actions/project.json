@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m21_t4_proj",
+  "linked_topic": "java_m21_t4",
+  "level": "mini",
+  "name": "Zerodha Trading Service — GitHub Actions CI/CD",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Zerodha's trading service is deployed manually 3 times per week, taking 20 minutes each time and occasionally deploying broken builds. Build a GitHub Actions pipeline that automates: test → build → push → deploy-staging → manual-approval → deploy-prod.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": ".github/workflows/cicd.yml: on push to main. Jobs: test (mvn test + maven cache + upload artifacts) → build-push (Docker + GHCR + SHA tag + layer cache) → deploy-staging (kubectl set image + rollout status). All with proper 'needs:' chain.", "weight": 35 },
+      { "id": "req_2", "description": "deploy-prod job: environment: production (manual approval gate). kubectl deploy. rollback-prod job: if: failure() on deploy-prod.", "weight": 20 },
+      { "id": "req_3", "description": "Integration tests job: postgres service container + Spring Boot integration tests with correct env vars.", "weight": 15 },
+      { "id": "req_4", "description": "@SpringBootTest (2 tests): health endpoint returns UP, custom counter increments. Both pass.", "weight": 25 },
+      { "id": "req_5", "description": "README: explains SHA tagging vs latest, and pipeline stages.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Trivy security scan job (after build, before deploy-staging). Fails pipeline on CRITICAL vulnerabilities.", "weight": 20 },
+      { "id": "bonus_2", "description": "Slack notification: on successful prod deploy + on prod failure (different messages with SHA, actor, workflow link).", "weight": 20 },
+      { "id": "bonus_3", "description": "Reusable deploy workflow: .github/workflows/deploy.yml with workflow_call trigger + inputs (image, env, namespace).", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. permissions: packages: write — required to push to ghcr.io (GitHub Container Registry). cache: maven in setup-java: automatically caches ~/.m2 between runs — saves 1-2 minutes per run. if: github.ref == 'refs/heads/main' on build-push job: prevents building/deploying on PR branches. if: failure() on rollback job: ONLY runs when the previous job (deploy-prod) fails. secrets.GITHUB_TOKEN: automatically available in every workflow, no setup needed; use for GHCR login.",
+  "rubric": [
+    { "category": ".github/workflows/cicd.yml (test+build)", "points": 35 },
+    { "category": "deploy-prod + rollback jobs", "points": 20 },
+    { "category": "Integration tests job", "points": 15 },
+    { "category": "@SpringBootTest (2 tests)", "points": 25 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 60 }
+  ]
+}

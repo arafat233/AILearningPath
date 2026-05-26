@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t4",
+  "topic_name": "Concurrent Collections and Atomic Types",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m10_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "AtomicInteger basics — always correct",
+      "scenario": "AtomicInteger.incrementAndGet() is atomic.",
+      "instructions": "What does this print? Is it always the same?\n\n```java\nimport java.util.concurrent.atomic.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        AtomicInteger count = new AtomicInteger(0);\n        Runnable inc = () -> { for (int i = 0; i < 1000; i++) count.incrementAndGet(); };\n        Thread t1 = new Thread(inc);\n        Thread t2 = new Thread(inc);\n        t1.start(); t2.start();\n        t1.join(); t2.join();\n        System.out.println(count.get());\n    }\n}\n```",
+      "expected_solution": "2000",
+      "test_cases": [
+        { "type": "text_match", "expected": "2000" }
+      ],
+      "hints": [
+        "AtomicInteger.incrementAndGet() is a single atomic CPU operation",
+        "No race condition — always exactly 2000",
+        "Compare: regular int++ would give wrong result every time"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "ConcurrentHashMap atomic merge",
+      "scenario": "merge() is the correct atomic increment on ConcurrentHashMap.",
+      "instructions": "Fill in the blank to atomically increment request counts.",
+      "starter_code": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) {\n        ConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();\n        counts.______(\"orders\", 1, Integer::sum);\n        counts.______(\"orders\", 1, Integer::sum);\n        counts.______(\"users\",  1, Integer::sum);\n        System.out.println(counts.get(\"orders\") + \", \" + counts.get(\"users\"));\n    }\n}",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) {\n        ConcurrentHashMap<String, Integer> counts = new ConcurrentHashMap<>();\n        counts.merge(\"orders\", 1, Integer::sum);\n        counts.merge(\"orders\", 1, Integer::sum);\n        counts.merge(\"users\",  1, Integer::sum);\n        System.out.println(counts.get(\"orders\") + \", \" + counts.get(\"users\"));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "merge", "hint": "Atomic: if absent put value; else apply remapping function" },
+        { "position": 2, "answer": "merge", "hint": "Same atomic operation" },
+        { "position": 3, "answer": "merge", "hint": "Same atomic operation" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "2, 1" }
+      ],
+      "hints": [
+        "merge(key, value, fn): if absent → put value; if present → fn(existing, value)",
+        "merge('orders', 1, Integer::sum): 0+1=1, then 1+1=2"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Race condition vs AtomicInteger",
+      "scenario": "Show that int++ races; AtomicInteger doesn't.",
+      "instructions": "Run two versions: (1) regular int incremented by 2 threads 5000 times each, (2) AtomicInteger same setup. Print both results.\n\nExpected output:\nint result: [some value < 10000] (varies)\nAtomic result: 10000",
+      "starter_code": "// Race condition demo: int vs AtomicInteger\n",
+      "expected_solution": "import java.util.concurrent.atomic.*;\npublic class App {\n    static int         rawCount    = 0;\n    static AtomicInteger atomicCount = new AtomicInteger(0);\n    \n    public static void main(String[] args) throws InterruptedException {\n        Runnable raw = () -> { for (int i=0;i<5000;i++) rawCount++; };\n        Thread t1 = new Thread(raw), t2 = new Thread(raw);\n        t1.start(); t2.start(); t1.join(); t2.join();\n        System.out.println(\"int result: \" + rawCount);\n        \n        Runnable atomic = () -> { for (int i=0;i<5000;i++) atomicCount.incrementAndGet(); };\n        Thread t3 = new Thread(atomic), t4 = new Thread(atomic);\n        t3.start(); t4.start(); t3.join(); t4.join();\n        System.out.println(\"Atomic result: \" + atomicCount.get());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Atomic result: 10000"] }
+      ],
+      "hints": [
+        "rawCount++ is three operations: READ, ADD, WRITE — subject to race",
+        "atomicCount.incrementAndGet() is one atomic CPU instruction",
+        "The int result will almost certainly be < 10000"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m10_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "ConcurrentHashMap — thread-safe frequency count",
+      "scenario": "Count word frequencies across multiple threads.",
+      "instructions": "Use ConcurrentHashMap.merge() to count word frequencies from 4 threads processing different word lists. Print counts sorted alphabetically.\n\nWords across threads: 'apple','apple','banana','cherry','banana','apple','cherry','cherry'\n\nExpected output:\napple: 3\nbanana: 2\ncherry: 3",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// Thread-safe word frequency with ConcurrentHashMap.merge\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        ConcurrentHashMap<String, Integer> freq = new ConcurrentHashMap<>();\n        ExecutorService pool = Executors.newFixedThreadPool(4);\n        \n        List<List<String>> batches = Arrays.asList(\n            Arrays.asList(\"apple\", \"apple\"),\n            Arrays.asList(\"banana\", \"cherry\"),\n            Arrays.asList(\"banana\", \"apple\"),\n            Arrays.asList(\"cherry\", \"cherry\")\n        );\n        \n        for (List<String> batch : batches) {\n            pool.submit(() -> {\n                for (String word : batch) freq.merge(word, 1, Integer::sum);\n            });\n        }\n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n        \n        new TreeMap<>(freq).forEach((word, count) ->\n            System.out.println(word + \": \" + count));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "apple: 3\nbanana: 2\ncherry: 3" }
+      ],
+      "hints": [
+        "merge(word, 1, Integer::sum) atomically increments",
+        "TreeMap for sorted output",
+        "4 batches submitted to pool — all run concurrently"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m10_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "computeIfAbsent — safe lazy initialization",
+      "scenario": "computeIfAbsent atomically creates value if key is absent.",
+      "instructions": "Use computeIfAbsent to group employees by department (thread-safe). 4 threads add employees concurrently.\n\nExpected output (sorted):\nEngineering: [Aisha, Priya]\nMarketing: [Vikram]\nSales: [Raj, Anita]",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// computeIfAbsent for thread-safe grouping\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        ConcurrentHashMap<String, List<String>> byDept = new ConcurrentHashMap<>();\n        ExecutorService pool = Executors.newFixedThreadPool(4);\n        \n        Object[][] employees = {\n            {\"Aisha\",\"Engineering\"}, {\"Raj\",\"Sales\"},\n            {\"Priya\",\"Engineering\"}, {\"Vikram\",\"Marketing\"}, {\"Anita\",\"Sales\"}\n        };\n        \n        for (Object[] emp : employees) {\n            final String name = (String)emp[0], dept = (String)emp[1];\n            pool.submit(() -> {\n                // computeIfAbsent is atomic — only one CopyOnWriteArrayList created per dept\n                byDept.computeIfAbsent(dept, k -> new CopyOnWriteArrayList<>()).add(name);\n            });\n        }\n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n        \n        new TreeMap<>(byDept).forEach((dept, names) -> {\n            List<String> sorted = new ArrayList<>(names);\n            Collections.sort(sorted);\n            System.out.println(dept + \": \" + sorted);\n        });\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Engineering: [Aisha, Priya]\nMarketing: [Vikram]\nSales: [Anita, Raj]" }
+      ],
+      "hints": [
+        "computeIfAbsent(dept, k -> new CopyOnWriteArrayList<>()): atomically creates list if absent",
+        "CopyOnWriteArrayList because multiple threads may add to same department list",
+        "TreeMap for sorted output"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m10_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "BlockingQueue producer-consumer",
+      "scenario": "Bounded queue with producer blocking when full.",
+      "instructions": "Create a producer that generates 5 tasks ('Task-1' through 'Task-5') and a consumer that processes them (prints 'Processing: Task-N'). Use LinkedBlockingQueue(3).\n\nExpected output (in order):\nProducing: Task-1\nProducing: Task-2\nProducing: Task-3\nProcessing: Task-1\n...(all 5 tasks produced and consumed)",
+      "starter_code": "import java.util.concurrent.*;\n// Producer-consumer with LinkedBlockingQueue\n",
+      "expected_solution": "import java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        BlockingQueue<String> queue = new LinkedBlockingQueue<>(3);\n        \n        Thread producer = new Thread(() -> {\n            try {\n                for (int i = 1; i <= 5; i++) {\n                    String task = \"Task-\" + i;\n                    System.out.println(\"Producing: \" + task);\n                    queue.put(task);  // blocks if queue full\n                }\n                queue.put(\"DONE\");  // sentinel\n            } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        });\n        \n        Thread consumer = new Thread(() -> {\n            try {\n                while (true) {\n                    String task = queue.take();  // blocks if empty\n                    if (\"DONE\".equals(task)) break;\n                    System.out.println(\"Processing: \" + task);\n                    Thread.sleep(50);  // simulate work\n                }\n            } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        });\n        \n        producer.start();\n        consumer.start();\n        producer.join();\n        consumer.join();\n        System.out.println(\"All done\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Producing: Task-1", "Processing: Task-1", "All done"] }
+      ],
+      "hints": [
+        "queue.put() blocks if queue is full (capacity=3)",
+        "queue.take() blocks if queue is empty",
+        "Sentinel 'DONE' signals consumer to stop"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m10_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "AtomicLong for high-throughput counter",
+      "scenario": "AtomicLong handles high-contention counting without locks.",
+      "instructions": "Simulate a web server with 10 threads each handling 10,000 requests. Count total with AtomicLong. Print final count and requests per thread.\n\nExpected output:\nTotal requests: 100000\nPer thread: 10000",
+      "starter_code": "import java.util.concurrent.atomic.*;\nimport java.util.concurrent.*;\n// AtomicLong high-throughput counter\n",
+      "expected_solution": "import java.util.concurrent.atomic.*;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        AtomicLong total = new AtomicLong(0);\n        ExecutorService pool = Executors.newFixedThreadPool(10);\n        \n        for (int t = 0; t < 10; t++) {\n            pool.submit(() -> {\n                for (int i = 0; i < 10000; i++) total.incrementAndGet();\n            });\n        }\n        pool.shutdown();\n        pool.awaitTermination(10, TimeUnit.SECONDS);\n        \n        System.out.println(\"Total requests: \" + total.get());\n        System.out.println(\"Per thread: \" + total.get() / 10);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Total requests: 100000\nPer thread: 10000" }
+      ],
+      "hints": [
+        "AtomicLong.incrementAndGet() — atomic, no synchronization needed",
+        "10 threads × 10000 = 100000 — exact, no lost increments",
+        "Correct despite 10 concurrent threads"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m10_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "ConcurrentHashMap — cache with computeIfAbsent",
+      "scenario": "Thread-safe lazy cache for expensive computations.",
+      "instructions": "Build a simple cache using ConcurrentHashMap. The 'expensive' computation takes 200ms (sleep). Show that concurrent requests for the same key all get the same result but computation runs only once.\n\nExpected output (approx):\nComputing for: 'hyderabad'\nResult for 'hyderabad': HYDERABAD\nResult for 'hyderabad': HYDERABAD  [from cache — no 'Computing' printed again]\nTotal computations: 1",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n// Thread-safe lazy cache\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\npublic class App {\n    static ConcurrentHashMap<String, String> cache = new ConcurrentHashMap<>();\n    static AtomicInteger computeCount = new AtomicInteger(0);\n    \n    static String expensiveCompute(String key) {\n        System.out.println(\"Computing for: '\" + key + \"'\");\n        computeCount.incrementAndGet();\n        try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        return key.toUpperCase();\n    }\n    \n    public static void main(String[] args) throws InterruptedException {\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        String key = \"hyderabad\";\n        \n        // 3 concurrent requests for the same key:\n        for (int i = 0; i < 3; i++) {\n            pool.submit(() -> {\n                String result = cache.computeIfAbsent(key, App::expensiveCompute);\n                System.out.println(\"Result for '\" + key + \"': \" + result);\n            });\n        }\n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n        System.out.println(\"Total computations: \" + computeCount.get());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["HYDERABAD", "Total computations:"] }
+      ],
+      "hints": [
+        "computeIfAbsent: only calls the function if key is absent",
+        "AtomicInteger tracks how many times computation ran",
+        "Multiple threads may race — computeIfAbsent handles this safely"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m10_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "AtomicBoolean — one-time initialization",
+      "scenario": "compareAndSet ensures only one thread performs initialization.",
+      "instructions": "10 threads all try to be the first to 'initialize the system'. Only one should succeed. Use AtomicBoolean.compareAndSet.\n\nExpected output:\nThread-N initialized the system!\n[9 lines:] Thread-M: system already initialized",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n// AtomicBoolean for one-time initialization\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        AtomicBoolean initialized = new AtomicBoolean(false);\n        ExecutorService pool = Executors.newFixedThreadPool(10);\n        \n        for (int i = 0; i < 10; i++) {\n            final String name = \"Thread-\" + (i+1);\n            pool.submit(() -> {\n                boolean wasFirst = initialized.compareAndSet(false, true);\n                if (wasFirst) System.out.println(name + \" initialized the system!\");\n                else          System.out.println(name + \": system already initialized\");\n            });\n        }\n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["initialized the system!"] }
+      ],
+      "hints": [
+        "compareAndSet(false, true): only first thread gets true back",
+        "Exactly ONE thread will see wasFirst=true",
+        "All 9 others see false — system already initialized"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m10_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "CopyOnWriteArrayList for event listeners",
+      "scenario": "Read-heavy listener list — no ConcurrentModificationException.",
+      "instructions": "A notification system where 3 publishers send events and 1 thread adds/removes listeners concurrently. Show no ConcurrentModificationException.\n\nExpected output (approx):\nListeners at start: 3\nEvent from publisher: ['notified L1', 'notified L2', 'notified L3']\nListeners after modify: 2",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.concurrent.CopyOnWriteArrayList;\n// CopyOnWriteArrayList for safe concurrent iteration\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.CopyOnWriteArrayList;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        CopyOnWriteArrayList<String> listeners = new CopyOnWriteArrayList<>();\n        listeners.add(\"L1\"); listeners.add(\"L2\"); listeners.add(\"L3\");\n        System.out.println(\"Listeners at start: \" + listeners.size());\n        \n        // Publisher iterates and notifies:\n        Thread publisher = new Thread(() -> {\n            for (String listener : listeners) {  // iterates snapshot — safe\n                System.out.println(\"Notified \" + listener);\n                try { Thread.sleep(50); } catch (InterruptedException e) { return; }\n            }\n        });\n        \n        // Concurrent modifier removes a listener while publisher iterates:\n        Thread modifier = new Thread(() -> {\n            try { Thread.sleep(60); } catch (InterruptedException e) { return; }\n            listeners.remove(\"L2\");  // modifies underlying array — copy-on-write\n        });\n        \n        publisher.start(); modifier.start();\n        publisher.join(); modifier.join();\n        System.out.println(\"Listeners after modify: \" + listeners.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Listeners at start: 3", "Notified L1", "Listeners after modify: 2"] }
+      ],
+      "hints": [
+        "Iterator over CopyOnWriteArrayList sees a snapshot — no CME",
+        "remove() creates a new copy of the array",
+        "Publisher's iterator continues on old snapshot even after remove"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m10_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "BlockingQueue — bounded work queue with multiple workers",
+      "scenario": "Multiple producers feeding multiple consumers via bounded queue.",
+      "instructions": "2 producers generate 10 tasks each (20 total). 3 consumers process them. Use LinkedBlockingQueue(5). Print when each task is processed.\n\nExpected output (order varies):\nProduced Task-P1-1\n...\nWorker-N processed Task-P1-1\n...\nAll 20 tasks processed",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n// Multi-producer, multi-consumer with bounded BlockingQueue\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\npublic class App {\n    static final String POISON = \"__DONE__\";\n    public static void main(String[] args) throws InterruptedException {\n        BlockingQueue<String> queue = new LinkedBlockingQueue<>(5);\n        AtomicInteger processed = new AtomicInteger(0);\n        int numConsumers = 3;\n        \n        // Producers\n        Thread[] producers = {\n            new Thread(() -> {\n                try {\n                    for (int i=1;i<=10;i++) { System.out.println(\"Produced Task-P1-\"+i); queue.put(\"Task-P1-\"+i); }\n                } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            }),\n            new Thread(() -> {\n                try {\n                    for (int i=1;i<=10;i++) { System.out.println(\"Produced Task-P2-\"+i); queue.put(\"Task-P2-\"+i); }\n                } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            })\n        };\n        \n        // Consumers\n        Thread[] consumers = new Thread[numConsumers];\n        for (int c=0;c<numConsumers;c++) {\n            final String name = \"Worker-\"+(c+1);\n            consumers[c] = new Thread(() -> {\n                try {\n                    while (true) {\n                        String task = queue.take();\n                        if (POISON.equals(task)) { queue.put(POISON); break; }\n                        processed.incrementAndGet();\n                        System.out.println(name+\" processed \"+task);\n                    }\n                } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            });\n        }\n        \n        for (Thread t : consumers) t.start();\n        for (Thread t : producers) t.start();\n        for (Thread t : producers) t.join();\n        queue.put(POISON);  // single sentinel consumed and re-queued for all workers\n        for (Thread t : consumers) t.join();\n        System.out.println(\"All \" + processed.get() + \" tasks processed\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["All 20 tasks processed"] }
+      ],
+      "hints": [
+        "POISON pill pattern: one sentinel consumed and re-queued for all workers",
+        "queue.put() blocks producers when queue is full (capacity=5)",
+        "AtomicInteger for thread-safe task count"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m10_t4_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "ConcurrentHashMap.merge semantics",
+      "scenario": "Trace merge: first call puts, subsequent calls apply function.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) {\n        ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<>();\n        map.merge(\"a\", 10, Integer::sum);  // first: absent → put 10\n        map.merge(\"a\", 5,  Integer::sum);  // second: 10+5=15\n        map.merge(\"b\", 3,  Integer::sum);  // first for 'b': put 3\n        map.merge(\"a\", 1,  Integer::sum);  // third for 'a': 15+1=16\n        System.out.println(\"a=\" + map.get(\"a\") + \" b=\" + map.get(\"b\"));\n    }\n}\n```",
+      "expected_solution": "a=16 b=3",
+      "test_cases": [
+        { "type": "text_match", "expected": "a=16 b=3" }
+      ],
+      "hints": [
+        "merge: if absent → put value; if present → fn(existing, value)",
+        "'a': 10 → 15 → 16; 'b': 3"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m10_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Thread-safe LRU cache using ConcurrentHashMap",
+      "scenario": "Cache with capacity limit — concurrent access safe.",
+      "instructions": "Build a simple thread-safe cache using ConcurrentHashMap that:\n- Stores up to 3 entries\n- Evicts the oldest entry when full (track insertion order)\n- put(key, value), get(key) → Optional<String>\n- Multiple threads put/get concurrently\n\nExpected output:\nget('a'): Optional[1]\nget('d'): Optional[4]\nget('a'): Optional.empty  (evicted when 'd' added)",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// Thread-safe bounded cache with eviction\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\nclass BoundedCache {\n    private final int capacity;\n    private final ConcurrentHashMap<String, String> map = new ConcurrentHashMap<>();\n    private final LinkedBlockingDeque<String> insertionOrder = new LinkedBlockingDeque<>();\n    \n    BoundedCache(int capacity) { this.capacity = capacity; }\n    \n    synchronized void put(String key, String value) {\n        if (map.containsKey(key)) {\n            map.put(key, value);\n            return;\n        }\n        if (map.size() >= capacity) {\n            String oldest = insertionOrder.pollFirst();\n            if (oldest != null) map.remove(oldest);\n        }\n        map.put(key, value);\n        insertionOrder.addLast(key);\n    }\n    \n    Optional<String> get(String key) { return Optional.ofNullable(map.get(key)); }\n}\npublic class App {\n    public static void main(String[] args) {\n        BoundedCache cache = new BoundedCache(3);\n        cache.put(\"a\", \"1\");\n        cache.put(\"b\", \"2\");\n        cache.put(\"c\", \"3\");\n        System.out.println(\"get('a'): \" + cache.get(\"a\"));\n        cache.put(\"d\", \"4\");  // evicts 'a' (oldest)\n        System.out.println(\"get('d'): \" + cache.get(\"d\"));\n        System.out.println(\"get('a'): \" + cache.get(\"a\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "get('a'): Optional[1]\nget('d'): Optional[4]\nget('a'): Optional.empty" }
+      ],
+      "hints": [
+        "Track insertion order in a LinkedBlockingDeque",
+        "When at capacity, pollFirst() removes oldest key, remove from map",
+        "synchronized on put() coordinates the two data structures"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m10_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Analytics dashboard — all concurrent types",
+      "scenario": "Combine ConcurrentHashMap, AtomicInteger, BlockingQueue.",
+      "instructions": "Build a server analytics system:\n- Requests arrive via BlockingQueue\n- Worker threads consume and count: ConcurrentHashMap<endpoint, AtomicLong> for counts\n- After 20 requests: print top 3 endpoints by request count\n\nExpected output (counts vary by order):\n[processing 20 requests...]\nTop 3 endpoints:\n/api/orders: N\n/api/users: M\n/api/search: P",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n// Analytics: BlockingQueue + ConcurrentHashMap + AtomicLong\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        BlockingQueue<String> requests = new LinkedBlockingQueue<>(50);\n        ConcurrentHashMap<String, AtomicLong> counts = new ConcurrentHashMap<>();\n        String[] endpoints = {\"/api/orders\",\"/api/users\",\"/api/products\",\"/api/search\"};\n        \n        // Worker threads\n        ExecutorService pool = Executors.newFixedThreadPool(3);\n        AtomicInteger processed = new AtomicInteger(0);\n        for (int w = 0; w < 3; w++) pool.submit(() -> {\n            try {\n                while (true) {\n                    String ep = requests.poll(500, TimeUnit.MILLISECONDS);\n                    if (ep == null) break;\n                    counts.computeIfAbsent(ep, k -> new AtomicLong(0)).incrementAndGet();\n                    processed.incrementAndGet();\n                }\n            } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        });\n        \n        // Produce 20 requests\n        Random rnd = new Random(42);\n        for (int i = 0; i < 20; i++)\n            requests.put(endpoints[rnd.nextInt(endpoints.length)]);\n        \n        pool.shutdown();\n        pool.awaitTermination(5, TimeUnit.SECONDS);\n        \n        System.out.println(\"Top 3 endpoints:\");\n        counts.entrySet().stream()\n            .sorted((a,b) -> Long.compare(b.getValue().get(), a.getValue().get()))\n            .limit(3)\n            .forEach(e -> System.out.println(e.getKey() + \": \" + e.getValue().get()));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Top 3 endpoints:"] }
+      ],
+      "hints": [
+        "BlockingQueue.poll(500ms) returns null after timeout — used as shutdown signal",
+        "computeIfAbsent + AtomicLong for thread-safe per-endpoint counters",
+        "Sort entrySet by value descending, limit 3"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m10_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Connection pool — BlockingQueue + AtomicInteger",
+      "scenario": "A database connection pool using BlockingQueue for connection management.",
+      "instructions": "Build a `ConnectionPool` with capacity 3:\n- `getConnection()` — blocks until a connection is available\n- `releaseConnection(conn)` — returns connection to pool\n- `getActiveCount()` — connections currently in use (AtomicInteger)\n- 5 threads each borrow a connection, use it (100ms), release it\n\nExpected output (order varies):\nThread-N acquired connection C-M\n...\nThread-N released connection C-M\n...\nAll done. Active: 0, Pool: 3",
+      "starter_code": "import java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\n// Connection pool using BlockingQueue\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\nclass ConnectionPool {\n    private final BlockingQueue<String> pool;\n    private final AtomicInteger activeCount = new AtomicInteger(0);\n    \n    ConnectionPool(int capacity) {\n        pool = new LinkedBlockingQueue<>(capacity);\n        for (int i = 1; i <= capacity; i++) pool.offer(\"C-\" + i);\n    }\n    \n    String getConnection() throws InterruptedException {\n        String conn = pool.take();  // blocks if no connections available\n        activeCount.incrementAndGet();\n        return conn;\n    }\n    \n    void releaseConnection(String conn) throws InterruptedException {\n        pool.put(conn);\n        activeCount.decrementAndGet();\n    }\n    \n    int getActiveCount() { return activeCount.get(); }\n    int getPoolSize()    { return pool.size(); }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        ConnectionPool connPool = new ConnectionPool(3);\n        ExecutorService exec = Executors.newFixedThreadPool(5);\n        \n        for (int i = 1; i <= 5; i++) {\n            final String tname = \"Thread-\" + i;\n            exec.submit(() -> {\n                try {\n                    String conn = connPool.getConnection();\n                    System.out.println(tname + \" acquired \" + conn);\n                    Thread.sleep(100);\n                    System.out.println(tname + \" released \" + conn);\n                    connPool.releaseConnection(conn);\n                } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            });\n        }\n        exec.shutdown();\n        exec.awaitTermination(10, TimeUnit.SECONDS);\n        System.out.println(\"All done. Active: \" + connPool.getActiveCount() +\n                           \", Pool: \" + connPool.getPoolSize());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["All done. Active: 0, Pool: 3"] }
+      ],
+      "hints": [
+        "BlockingQueue.take() blocks when pool is empty — natural wait for connections",
+        "AtomicInteger tracks currently-borrowed connections",
+        "5 threads, 3 connections: 3 run immediately, 2 wait for a release"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 705,
+    "estimated_completion_minutes": 65
+  }
+}

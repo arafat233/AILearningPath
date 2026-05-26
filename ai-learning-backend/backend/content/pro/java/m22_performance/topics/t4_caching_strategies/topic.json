@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m22_t4",
+  "language": "java",
+  "module_id": "m22",
+  "module_name": "Performance & Optimization",
+  "topic_number": 4,
+  "name": "Caching Strategies (L1 + L2)",
+  "slug": "caching-strategies-l1-l2",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m22_t3"],
+    "concepts_taught": ["l1_cache_caffeine","l2_cache_redis","cache_aside_pattern","write_through","write_behind","cache_hit_rate_metric","cache_eviction","ttl_strategy","stampede_protection","two_level_cache"],
+    "skills_developed": ["configuring_caffeine_l1_cache","combining_l1_l2_caches","measuring_cache_hit_rate","choosing_ttl_values","preventing_cache_stampede"],
+    "career_relevance": "The fastest query is one you never make. Flipkart's product page was hitting the DB for every page view (200M/day). Adding a two-level cache (Caffeine L1 + Redis L2) reduced DB load by 95% — same infrastructure handled 20× more traffic. After this topic, you can design a correct caching strategy that doesn't get stale or cause stampedes.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Flipkart product page: 200M page views per day. Without cache: 200M DB queries/day.\n\n```\nDB queries/day: 200,000,000\nAvg query time: 5ms\nTotal DB time: 1,000,000 seconds/day → 278 hours/day on a 1-server DB!\n\nWith L1 (Caffeine) + L2 (Redis):\n  L1 hit rate: 40% → 80M DB queries avoided (in-process, ~0.1ms)\n  L2 hit rate: 55% → 110M Redis hits avoided (network, ~1ms)\n  DB hits:  5% → 10M queries/day (5× reduction from just L2)\n  Total time: 5M seconds/day → 94% reduction!\n```",
+    "what_you_will_build": "Two-level cache: Caffeine (L1, in-process) → Redis (L2, distributed) → DB. Cache-aside pattern with hit rate metrics and stampede protection."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "two_level_cache": "**Two-level cache implementation:**\n\n```java\n@Service\npublic class ProductCacheService {\n    private final Cache<String, Product> l1;  // Caffeine: fast, in-process\n    private final RedisTemplate<String, Product> redis;  // L2: shared across instances\n    private final ProductRepository repo;  // DB fallback\n    private final Counter l1Hits, l2Hits, dbHits;\n    \n    ProductCacheService(MeterRegistry reg, RedisTemplate<String, Product> redis,\n                        ProductRepository repo) {\n        this.l1 = Caffeine.newBuilder()\n            .maximumSize(1000)          // in-process: keep memory bounded\n            .expireAfterWrite(30, TimeUnit.SECONDS)  // short TTL: L1 is a buffer\n            .recordStats()              // track hit/miss stats\n            .build();\n        this.redis = redis;\n        this.repo = repo;\n        l1Hits = reg.counter(\"cache.hits\", \"level\", \"l1\");\n        l2Hits = reg.counter(\"cache.hits\", \"level\", \"l2\");\n        dbHits = reg.counter(\"cache.hits\", \"level\", \"db\");\n    }\n    \n    public Product getProduct(String id) {\n        // L1: check Caffeine first (microseconds)\n        Product p = l1.getIfPresent(id);\n        if (p != null) { l1Hits.increment(); return p; }\n        \n        // L2: check Redis (1ms)\n        p = redis.opsForValue().get(\"product:\" + id);\n        if (p != null) {\n            l2Hits.increment();\n            l1.put(id, p);  // populate L1 from L2\n            return p;\n        }\n        \n        // DB fallback (5ms)\n        p = repo.findById(id).orElseThrow();\n        dbHits.increment();\n        redis.opsForValue().set(\"product:\" + id, p, 5, TimeUnit.MINUTES);\n        l1.put(id, p);\n        return p;\n    }\n}\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Cache hierarchy: Request → L1 Caffeine (in-process, 30s TTL, 1000 entries) → L1 hit? return (0.1ms). L1 miss → L2 Redis (shared, 5min TTL) → L2 hit? populate L1 + return (1ms). L2 miss → DB (5ms) → populate Redis + Caffeine + return. Metrics panel showing hit rate by level: L1=40%, L2=55%, DB=5%. Right panel: stampede protection with mutex on cache-miss.", "alt_text": "Two-level cache hierarchy: Caffeine L1 → Redis L2 → PostgreSQL DB with hit rate metrics" },
+    "worked_example": {
+      "scenario": "Flipkart product lookup: L1 Caffeine (30s TTL, 1000 entries) → L2 Redis (5min TTL) → DB.",
+      "problem_statement": "1. Cache-aside with two levels\n2. Hit rate metrics (Counter by level)\n3. @SpringBootTest: verify L1 hit on second call, L2 miss on first",
+      "step_by_step_solution": [{ "step": 1, "action": "Cache-aside implementation", "details": "L1 (Caffeine): check first → L2 (Redis): check if L1 miss → DB: check if L2 miss → populate both caches on DB hit" }],
+      "final_code": "// L1 TTL short (30s): buffer for L2 — instances don't need to coordinate\n// L2 TTL longer (5min): shared source of truth across all instances",
+      "expected_output": "# First call: l1.miss → l2.miss → db.hit → populate l2 + l1\n# Second call: l1.hit (within 30s) → return immediately\n# After 30s + within 5min: l1.miss → l2.hit → populate l1 → return",
+      "things_to_notice": [
+        "L1 TTL shorter than L2: ensures L1 stays fresh by re-fetching from L2. L1=30s, L2=5min. After 30s, L1 misses → fetches from Redis (still fresh) → no DB hit needed.",
+        "Stampede protection: when a hot key expires, hundreds of requests simultaneously hit the DB. Fix: use `redis.opsForValue().setIfAbsent(lockKey, '1', 10s)` as a distributed lock, let only the first request fetch from DB.",
+        "Cache invalidation on write: when a product is updated, delete from both L1 and L2 before the new value is written. Or use write-through: write to cache AND DB simultaneously.",
+        "maximumSize(1000): Caffeine evicts LRU entries when full. In a payment service: cache the top 1000 merchant configs (accessed most frequently). 1001st merchant: evicts the least recently used."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{ "company_context": "Flipkart product catalog", "use_case": "L1 Caffeine (1000 products, 30s TTL) + L2 Redis (100K products, 5min TTL). L1 hit rate: 40% (popular products accessed many times per minute). L2 hit rate: 55%. DB hit rate: 5%. Result: 95% reduction in DB query count on 200M page views/day." }],
+      "interview_relevance": "'Design a caching strategy for a product catalog.' → Two-level cache: L1 Caffeine (in-process, small, short TTL) → L2 Redis (distributed, larger, longer TTL) → DB. Cache-aside pattern. Hit rate metrics (counter by level). Invalidate on write. Handle stampede with distributed lock on cache miss.",
+      "real_world_workflow": "Cache strategy: identify read-heavy, rarely-changing data (product details, merchant configs, exchange rates). Set TTL based on acceptable staleness. Monitor hit rate: < 80% L2 hit rate = either cache too small or TTL too short."
+    },
+    "common_gaps": [
+      { "gap_id": "cache_stampede", "what_students_get_wrong": "Not handling cache stampede: hot key expires, 1000 concurrent requests all miss and hit DB simultaneously.", "remediation": "On cache miss for a hot key: use a distributed lock (Redis SETNX). Only one request fetches from DB; others wait for cache to be populated, then read from cache.", "detection_pattern": "DB CPU spike every TTL interval; thousands of identical slow queries in pg_stat_statements exactly at cache expiry time" }
+    ],
+    "reflection": {
+      "key_takeaways": ["L1 (Caffeine): in-process, microsecond access, bounded by JVM heap","L2 (Redis): distributed, millisecond access, shared across instances","Cache-aside: check L1 → L2 → DB; populate on miss","L1 TTL < L2 TTL: L1 is a buffer — stays fresh by re-fetching from L2","Hit rate metric: counter by level → Prometheus → Grafana","Stampede: SETNX distributed lock on hot key expiry","Cache invalidation: delete L1 + L2 before writing new value to DB"],
+      "self_check_questions": [
+        { "question": "Why should L1 (Caffeine) TTL be shorter than L2 (Redis) TTL?", "answer": "L1 is a local, in-process cache — it's not shared between service instances. When Instance A updates a product, Instance B's L1 still has the old value. Short L1 TTL (30s) ensures the stale data is evicted quickly. When L1 misses, Instance B fetches from L2 (Redis), which was already updated (or invalidated) when Instance A wrote. L2 TTL (5min) can be longer because Redis is shared — one invalidation reaches all instances. If L1 had the same TTL as L2 (5min), Instance B could serve stale product data for up to 5 minutes after an update." }
+      ],
+      "next_topic_preview": "Final Module 22 topic: Load Testing with Gatling — verifying your optimized service actually meets SLOs under realistic production load. Test: 1000 users, 2 minutes, p99 < 200ms. Validate: no service degradation under sustained traffic."
+    }
+  }
+}

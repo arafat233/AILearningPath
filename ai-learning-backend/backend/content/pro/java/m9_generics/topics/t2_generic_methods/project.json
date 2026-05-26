@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m9_t2_proj",
+  "linked_topic": "java_m9_t2",
+  "level": "mini",
+  "name": "Inventory CSV Import V2 — Generic Processing Pipeline",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Upgrade the Inventory CSV Import from the Module 7.5 project using generic methods. The parsing pipeline (validate → parse → transform) is now expressed as generic utility methods that work for any record type, not just InventoryRow. This demonstrates how generic methods make code reusable across domains.",
+
+  "description": "A generic record processing library: `RecordPipeline<T>` built from generic static methods. Parse CSVs into any type, validate records generically, transform and aggregate results. The inventory use case is the demo, but the pipeline works for any record type.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`ParseResult<T>` — generic class with: `success(T value)` and `failure(int lineNumber, String reason)` factory methods. Getters: isSuccess(), getValue(), getLineNumber(), getReason().",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "`RecordProcessor` utility class with generic static methods:\n- `<T> List<ParseResult<T>> parseAll(List<String> lines, Function<String, ParseResult<T>> parser)` — parse each line\n- `<T> List<T> successValues(List<ParseResult<T>> results)` — extract only successful values\n- `<T> List<ParseResult<T>> failures(List<ParseResult<T>> results)` — extract only failures\n- `<T, R> List<R> transform(List<T> items, Function<T, R> fn)` — transform successful values",
+        "weight": 30
+      },
+      {
+        "id": "req_3",
+        "description": "`InventoryRow` class with parser: static `ParseResult<InventoryRow> parse(String csv)` — validates SKU non-blank, name non-blank, numeric qty/price, non-negative qty.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "main() uses RecordProcessor to parse 7 CSV rows (with 3 invalid), print success report and failure report. Must use generic methods throughout.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Calculate total inventory value (sum of qty × price) using transform + reduce or stream on successful rows.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Zero casts. All type inference from arguments.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `<T> Map<Boolean, List<ParseResult<T>>> partition(List<ParseResult<T>> results)` — split results into success/failure map.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a second record type (e.g., `EmployeeRecord`) with its own parser. Run both through the same RecordProcessor generic methods — demonstrating reuse.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `<T, K> Map<K, List<T>> groupSuccessBy(List<ParseResult<T>> results, Function<T, K> keyExtractor)` — group successful records by a key.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Same as T7.5 project:\nSKU-001,Wireless Mouse,45,799.0\nSKU-002,Keyboard,12,1999.0\nSKU-003,,8,18999.0          ← invalid: blank name\nSKU-004,USB Hub,60,499.0\nSKU-005,Monitor,-5,15000.0  ← invalid: negative qty\nSKU-006,Headphones,abc,2999.0 ← invalid: non-numeric qty\nSKU-007,Laptop Stand,25,1299.0",
+
+  "starter_code": "import java.util.*;\nimport java.util.function.*;\n\npublic class GenericImport {\n    public static void main(String[] args) {\n        List<String> csvLines = Arrays.asList(\n            \"SKU-001,Wireless Mouse,45,799.0\",\n            \"SKU-002,Keyboard,12,1999.0\",\n            \"SKU-003,,8,18999.0\",\n            \"SKU-004,USB Hub,60,499.0\",\n            \"SKU-005,Monitor,-5,15000.0\",\n            \"SKU-006,Headphones,abc,2999.0\",\n            \"SKU-007,Laptop Stand,25,1299.0\"\n        );\n        // Use RecordProcessor.parseAll with InventoryRow.parse\n        // Print success/failure summary\n    }\n    // Define: ParseResult<T>, RecordProcessor, InventoryRow\n}",
+
+  "example_output": "=== Import Summary ===\nSuccess: 4 rows\nFailed: 3 rows\n\n=== Accepted ===\nSKU-001 Wireless Mouse qty=45 ₹799.0\nSKU-002 Keyboard qty=12 ₹1999.0\nSKU-004 USB Hub qty=60 ₹499.0\nSKU-007 Laptop Stand qty=25 ₹1299.0\n\n=== Errors ===\nLine 3: Name cannot be blank\nLine 5: Quantity must be non-negative\nLine 6: Quantity must be a number: 'abc'\n\nTotal inventory value: ₹86826.0",
+
+  "rubric": [
+    { "category": "ParseResult<T>", "points": 15, "criteria": ["Generic class correct (10 pts)", "Factory methods (5 pts)"] },
+    { "category": "RecordProcessor methods", "points": 35, "criteria": ["parseAll generic signature (10 pts)", "successValues + failures (10 pts)", "transform (10 pts)", "Zero casts (5 pts)"] },
+    { "category": "InventoryRow parser", "points": 20, "criteria": ["Validation and parsing (15 pts)", "Returns ParseResult<InventoryRow> (5 pts)"] },
+    { "category": "Demonstration", "points": 15, "criteria": ["Success/failure report (10 pts)", "Total value computed (5 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["partition method (15 pts)", "EmployeeRecord second use case (25 pts)", "groupSuccessBy (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key design: `parseAll` takes `Function<String, ParseResult<T>>` — the parser IS the function parameter. `InventoryRow.parse` has signature `ParseResult<InventoryRow> parse(String csv)` which matches `Function<String, ParseResult<InventoryRow>>`. Call: `RecordProcessor.parseAll(csvLines, InventoryRow::parse)` — method reference as the function argument.",
+
+  "submission_instructions": "Save as GenericImport.java. Comment: '// Generic processing pipeline — works for any record type'. Push to GitHub.",
+
+  "tips_for_success": [
+    "parseAll: `static <T> List<ParseResult<T>> parseAll(List<String> lines, Function<String, ParseResult<T>> parser)` — for each line, call parser.apply(line)",
+    "successValues: `static <T> List<T> successValues(List<ParseResult<T>> results)` — filter isSuccess() then map getValue()",
+    "Call site: `RecordProcessor.parseAll(csvLines, InventoryRow::parse)` — T inferred as InventoryRow",
+    "Total value: `successValues(results).stream().mapToDouble(r -> r.getQty() * r.getPrice()).sum()`",
+    "Line number tracking: the `parse` method on InventoryRow doesn't know line number — pass index+1 from parseAll"
+  ],
+
+  "concepts_reinforced": [
+    "Generic static utility methods",
+    "Type inference at call site",
+    "Function<T, R> as method parameter (generic context)",
+    "Method reference as generic Function argument",
+    "ParseResult<T> generic class from Topic 9.1",
+    "Generic pipeline pattern: parse → validate → transform"
+  ]
+}

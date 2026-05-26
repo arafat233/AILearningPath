@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m21_t5",
+  "language": "java",
+  "module_id": "m21",
+  "module_name": "Production Deployment",
+  "topic_number": 5,
+  "name": "Blue-Green & Canary Deployments",
+  "slug": "blue-green-canary-deployments",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m21_t4"],
+    "concepts_taught": ["blue_green_deployment","canary_deployment","traffic_splitting","kubernetes_service_switch","nginx_ingress_canary","argo_rollouts","feature_flags","progressive_delivery","rollback_strategies","dark_launch"],
+    "skills_developed": ["implementing_blue_green_with_k8s_services","writing_canary_with_ingress_annotations","configuring_progressive_traffic_split","instant_blue_green_rollback","measuring_canary_success"],
+    "career_relevance": "Rolling updates are great but still expose 100% of users to new code. Blue-green and canary deployments let you test new code with 5% of users, measure error rates, and instantly roll back or progressively deploy to 100%. Razorpay uses canary deployments for payment gateway changes — too risky to expose all merchants at once.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay deploys a payment processing change. Rolling update: all 10 pods updated over 5 minutes. Problem: new code has a bug causing 5% payment failures. By the time you notice: 10,000 affected transactions.\n\nWith canary deployment:\n```\nCanary phase: 5% traffic → new code (v2) | 95% → old code (v1)\nMonitor: 30 minutes → error rate 5% on canary vs 0.1% on stable\nDecision: ROLLBACK → set canary to 0% → 0 users on broken code\nTotal affected: ~200 transactions (not 10,000)\n```",
+    "what_you_will_build": "Blue-green deployment using k8s Service selector switching, and canary deployment using Nginx Ingress annotations with error rate monitoring."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "blue_green": "**Blue-Green deployment with k8s Service:**\n\n```yaml\n# Two deployments: blue (current) and green (new):\napiVersion: apps/v1\nkind: Deployment\nmetadata: { name: payment-blue }\nspec:\n  selector:\n    matchLabels: { app: payment, version: blue }\n  template:\n    metadata:\n      labels: { app: payment, version: blue }\n    spec:\n      containers:\n      - image: razorpay/payment-service:v1.0\n---\napiVersion: apps/v1\nkind: Deployment\nmetadata: { name: payment-green }\nspec:\n  selector:\n    matchLabels: { app: payment, version: green }\n  template:\n    metadata:\n      labels: { app: payment, version: green }\n    spec:\n      containers:\n      - image: razorpay/payment-service:v2.0\n---\n# Service switches between blue and green:\napiVersion: v1\nkind: Service\nmetadata: { name: payment-service }\nspec:\n  selector:\n    app: payment\n    version: blue    # ← change to 'green' to switch ALL traffic\n```\n\n```bash\n# Switch from blue to green (instant, zero-downtime):\nkubectl patch service payment-service \\\n  -p '{\"spec\":{\"selector\":{\"version\":\"green\"}}}'\n\n# Rollback (instant):\nkubectl patch service payment-service \\\n  -p '{\"spec\":{\"selector\":{\"version\":\"blue\"}}}'\n```",
+      "canary": "**Canary with Nginx Ingress annotations:**\n\n```yaml\n# Stable Ingress (95% traffic):\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: payment-stable\n  annotations:\n    kubernetes.io/ingress.class: 'nginx'\nspec:\n  rules:\n  - http:\n      paths:\n      - path: /api/payments\n        backend:\n          service: { name: payment-stable, port: { number: 80 } }\n---\n# Canary Ingress (5% traffic):\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: payment-canary\n  annotations:\n    nginx.ingress.kubernetes.io/canary: 'true'\n    nginx.ingress.kubernetes.io/canary-weight: '5'  # 5% of traffic\nspec:\n  rules:\n  - http:\n      paths:\n      - path: /api/payments\n        backend:\n          service: { name: payment-canary, port: { number: 80 } }\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Blue-green: two Deployment sets (blue=v1, green=v2) both running. Service selector points to blue. Arrow shows 'kubectl patch' switching to green. Old blue pods continue running for rollback. Canary: single Ingress splits traffic — 95% to stable pods, 5% to canary pods. Prometheus panel showing: error rate canary (5%) vs stable (0.1%). Decision arrow: rollback at 2% canary error threshold.", "alt_text": "Blue-green service switching and canary traffic splitting with error rate monitoring" }
+  },
+  "worked_example": {
+    "scenario": "Razorpay payment service: blue-green for major releases, canary for incremental changes.",
+    "problem_statement": "1. Blue-green YAML: two deployments + service selector switch\n2. Canary YAML: Nginx Ingress 5% split\n3. Monitoring: Prometheus error rate alert to trigger rollback\n4. Test: validate Spring Boot app responds correctly",
+    "step_by_step_solution": [
+      { "step": 1, "action": "When blue-green vs canary?", "details": "Blue-green: major releases (database schema changes, API contract changes). Instant switch — good for changes that aren't backwards compatible. Rollback = switch Service back to old version. Limitation: 2× resource cost (both versions running).\n\nCanary: incremental changes (algorithm improvements, new features). Gradual exposure — good for measuring impact on small user segment. Rollback = reduce canary weight to 0%. Progressive rollout = increase weight 5% → 25% → 50% → 100%." },
+      { "step": 2, "action": "Canary success criteria", "details": "Before increasing canary weight: error rate (canary) < 2×(stable error rate). p99 latency (canary) < 1.5×(stable p99). Monitor for 30 minutes minimum at each step before proceeding." }
+    ],
+    "final_code": "# Blue-green switch: kubectl patch service payment-service -p '{selector: {version: green}}'\n# Canary 10% → 25%: kubectl patch ingress payment-canary --patch '{...canary-weight: 25}'",
+    "expected_output": "Blue-green switch: 0ms downtime — Service selector change is atomic\nCanary 5% for 30 minutes: error rate 0.1% (same as stable) → safe to increase to 25%",
+    "things_to_notice": [
+      "Blue-green: both versions running simultaneously means 2× resource cost. Acceptable for stateless services. For stateful services with DB migrations: requires careful handling (migration must be backward-compatible during the overlap).",
+      "Canary rollback is faster than rolling update rollback: patch ingress weight to 0 → instant 0% traffic to canary. Rolling update rollback: still takes time to cycle all pods.",
+      "Dark launch: deploy canary but with weight=0. Route specific test users (by cookie/header) to canary. Validate without exposing real users.",
+      "Argo Rollouts: k8s native progressive delivery — automates canary analysis (checks Prometheus metrics) and automatic rollback if error budget exceeded."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay payment gateway canary", "use_case": "New tokenization algorithm deployed as canary (5% of Visa transactions). Monitors: token generation success rate, payment completion rate, p99 latency. After 1 hour at 5%: all metrics within 1% of baseline → promote to 25% → 50% → 100% over 4 hours. Zero user-visible incidents during rollout." }
+    ],
+    "interview_relevance": "'What is a canary deployment and when would you use it?' → Deploy new version to a small percentage of traffic (5-10%). Monitor error rate and latency. If healthy: progressively increase to 100%. If unhealthy: set traffic to 0% (instant rollback). Use for: risky changes, algorithm changes, third-party API integration changes. Safer than rolling updates for high-risk changes.",
+    "real_world_workflow": "Deployment strategy selection: low-risk feature → rolling update. Medium-risk → canary (5% → 25% → 100%). High-risk (DB migration) → blue-green (instant switch/rollback)."
+  },
+  "common_gaps": [
+    { "gap_id": "no_canary_metrics", "what_students_get_wrong": "Deploying a canary without monitoring canary-specific error rates. If the same Prometheus alert fires for all pods, you can't distinguish canary from stable issues.", "remediation": "Tag canary pods with a 'version=canary' label. In Prometheus/Grafana: separate query for error rate by version. Alert: if canary error rate > 2× stable error rate for 5 minutes → auto-rollback (set ingress weight to 0).", "detection_pattern": "Error rate alert fires during canary but engineer can't tell which pods caused it" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "Blue-green: two full environments, instant Service selector switch, 2× resources",
+      "Canary: partial traffic split, gradual rollout, monitor before proceeding",
+      "Rolling update: default k8s strategy, good for low-risk changes",
+      "Nginx Ingress canary-weight: percentage of traffic to canary deployment",
+      "Canary rollback: set weight to 0 (instant), faster than rolling update rollback",
+      "Dark launch: canary with weight=0, route specific users by header/cookie",
+      "Argo Rollouts: automated canary analysis with Prometheus-based gates",
+      "Canary success criteria: error rate < 2× stable, p99 < 1.5× stable"
+    ],
+    "self_check_questions": [
+      { "question": "Why is blue-green better than rolling updates for a database schema change?", "answer": "Rolling update: pods v1 and v2 run simultaneously during the update window. If the new schema is not backward-compatible (e.g., column renamed, column deleted), v1 pods will fail when they encounter the new schema. Blue-green: run the DB migration when green is being prepared (while blue still serves traffic). Switch to green only after migration is complete and green is fully healthy. If anything is wrong: switch Service selector back to blue (which still works with the old schema — or at least the migration was backward-compatible). Rolling update has no way to protect v1 pods from an incompatible schema change." }
+    ],
+    "next_topic_preview": "Module 21: Production Deployment is complete! You've mastered Docker (T21.1), Kubernetes Deployments (T21.2), ConfigMaps & Secrets (T21.3), CI/CD with GitHub Actions (T21.4), and Blue-Green & Canary (T21.5). Module 22 covers Performance & Optimization — JVM tuning, connection pool optimization, and query performance analysis."
+  }
+}

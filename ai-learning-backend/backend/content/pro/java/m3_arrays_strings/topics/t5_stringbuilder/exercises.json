@@ -1,0 +1,438 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t5",
+  "topic_name": "StringBuilder & String Manipulation",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m3_t5_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Create a StringBuilder",
+      "scenario": "Practice the basic StringBuilder pattern.",
+      "instructions": "Fill in the blanks to build the string 'Hello World' using StringBuilder.",
+      "starter_code": "public class App {\n    public static void main(String[] args) {\n        StringBuilder sb = new ______();\n        sb.append(\"Hello\");\n        sb.______(\" World\");\n        System.out.println(sb.______());\n    }\n}",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder();\n        sb.append(\"Hello\");\n        sb.append(\" World\");\n        System.out.println(sb.toString());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "StringBuilder", "hint": "Constructor for empty builder" },
+        { "position": 2, "answer": "append", "hint": "Adds to the end" },
+        { "position": 3, "answer": "toString", "hint": "Convert to String" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Hello World"
+        }
+      ],
+      "hints": [
+        "Create with new StringBuilder()",
+        "append() adds to the end",
+        "toString() converts back to String"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m3_t5_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 1,
+      "title": "Chained appends",
+      "scenario": "StringBuilder methods return the builder — chain them.",
+      "instructions": "Write a class `Chain` that uses chained appends to build 'Java is awesome!':\n\n```java\nsb.append(\"Java\").append(\" is\").append(\" awesome!\");\n```\n\nExpected output:\nJava is awesome!",
+      "starter_code": "// Write your Chain class below\n",
+      "expected_solution": "public class Chain {\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder();\n        sb.append(\"Java\").append(\" is\").append(\" awesome!\");\n        System.out.println(sb.toString());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Java is awesome!"
+        }
+      ],
+      "hints": [
+        "append returns the StringBuilder, allowing chaining",
+        "sb.append(...).append(...).append(...)",
+        "Convert with toString() to print"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m3_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Build with loop",
+      "scenario": "Use StringBuilder in a loop (the main use case).",
+      "instructions": "Write a class `BuildNumbers` that uses StringBuilder to build the string '1, 2, 3, 4, 5'.\n\nApproach: loop 1 to 5, append number + \", \". Then handle the trailing comma.\n\nExpected output:\n1, 2, 3, 4, 5",
+      "starter_code": "// Write your BuildNumbers class below\n// Use StringBuilder + loop\n",
+      "expected_solution": "public class BuildNumbers {\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder();\n        for (int i = 1; i <= 5; i++) {\n            sb.append(i);\n            if (i < 5) {\n                sb.append(\", \");\n            }\n        }\n        System.out.println(sb.toString());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1, 2, 3, 4, 5"
+        }
+      ],
+      "hints": [
+        "Initialize StringBuilder before the loop",
+        "Loop 1 to 5",
+        "Append the number, then \", \" only if not the last",
+        "Alternative: append \", \" before each except the first"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m3_t5_ex_4",
+      "level": "easy",
+      "type": "refactor",
+      "difficulty": 2,
+      "title": "Refactor String + to StringBuilder",
+      "scenario": "Performance refactor — switch from String concat to StringBuilder.",
+      "instructions": "Refactor this code from String + to StringBuilder. Same output, much faster for large inputs.\n\nExpected output:\nabcdef",
+      "starter_code": "public class Slow {\n    public static void main(String[] args) {\n        String result = \"\";\n        String[] letters = {\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"};\n        for (String letter : letters) {\n            result += letter;\n        }\n        System.out.println(result);\n    }\n}",
+      "expected_solution": "public class Slow {\n    public static void main(String[] args) {\n        StringBuilder sb = new StringBuilder();\n        String[] letters = {\"a\", \"b\", \"c\", \"d\", \"e\", \"f\"};\n        for (String letter : letters) {\n            sb.append(letter);\n        }\n        System.out.println(sb.toString());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "abcdef"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["StringBuilder", ".append("],
+          "must_not_contain": ["result += "]
+        }
+      ],
+      "hints": [
+        "Replace `String result = \"\"` with `StringBuilder sb = new StringBuilder()`",
+        "Replace `result += letter` with `sb.append(letter)`",
+        "Convert to String for printing: sb.toString()",
+        "For 6 items it doesn't matter — but for 10,000 it's 100x+ faster"
+      ],
+      "xp_reward": 30,
+      "concept_tested": "stringbuilder_refactor"
+    },
+    
+    {
+      "id": "java_m3_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Reverse with StringBuilder",
+      "scenario": "Elegant string reversal — one line.",
+      "instructions": "Write a class `EasyReverse` that uses StringBuilder.reverse() to reverse a string.\n\nInput: 'hello world'\nExpected output:\nReversed: dlrow olleh",
+      "starter_code": "// Write your EasyReverse class below\n// Use new StringBuilder(s).reverse().toString()\n",
+      "expected_solution": "public class EasyReverse {\n    public static void main(String[] args) {\n        String s = \"hello world\";\n        String reversed = new StringBuilder(s).reverse().toString();\n        System.out.println(\"Reversed: \" + reversed);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Reversed: dlrow olleh"
+        }
+      ],
+      "hints": [
+        "Create StringBuilder pre-loaded: new StringBuilder(s)",
+        "Call .reverse() — modifies in place but returns the SB",
+        "Chain .toString() to get the result",
+        "Whole thing: new StringBuilder(s).reverse().toString()"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m3_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Use String.format",
+      "scenario": "Format output with String.format.",
+      "instructions": "Write a class `Format`:\n1. Have variables: name = \"Aisha\", score = 95.5\n2. Use String.format to produce: 'Aisha scored 95.50 points'\n3. Print it\n\nUse `%s` for name, `%.2f` for score (2 decimals).\n\nExpected output:\nAisha scored 95.50 points",
+      "starter_code": "// Write your Format class below\n",
+      "expected_solution": "public class Format {\n    public static void main(String[] args) {\n        String name = \"Aisha\";\n        double score = 95.5;\n        String message = String.format(\"%s scored %.2f points\", name, score);\n        System.out.println(message);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha scored 95.50 points"
+        }
+      ],
+      "hints": [
+        "String.format takes format string + arguments",
+        "%s = String placeholder",
+        "%.2f = double with 2 decimal places",
+        "95.5 formatted with %.2f → '95.50' (forces 2 decimals)"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m3_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Join strings with delimiter",
+      "scenario": "Use String.join for clean comma-separated output.",
+      "instructions": "Write a class `Joiner`:\n1. String array: {\"red\", \"green\", \"blue\", \"yellow\"}\n2. Join with \", \" separator using String.join\n3. Print 'Colors: <joined>'\n\nExpected output:\nColors: red, green, blue, yellow",
+      "starter_code": "// Write your Joiner class below\n",
+      "expected_solution": "public class Joiner {\n    public static void main(String[] args) {\n        String[] colors = {\"red\", \"green\", \"blue\", \"yellow\"};\n        String joined = String.join(\", \", colors);\n        System.out.println(\"Colors: \" + joined);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Colors: red, green, blue, yellow"
+        }
+      ],
+      "hints": [
+        "String.join(separator, array) creates joined string",
+        "Cleaner than building manually with StringBuilder",
+        "First argument: the separator between items"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m3_t5_ex_8",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the split regex bug",
+      "scenario": "Common gotcha — split uses regex.",
+      "instructions": "This code SHOULD split 'a.b.c' into ['a', 'b', 'c'] but doesn't. Fix it.\n\nExpected output:\nField 0: a\nField 1: b\nField 2: c",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        String s = \"a.b.c\";\n        String[] parts = s.split(\".\");\n        for (int i = 0; i < parts.length; i++) {\n            System.out.println(\"Field \" + i + \": \" + parts[i]);\n        }\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        String s = \"a.b.c\";\n        String[] parts = s.split(\"\\\\.\");\n        for (int i = 0; i < parts.length; i++) {\n            System.out.println(\"Field \" + i + \": \" + parts[i]);\n        }\n    }\n}",
+      "bugs": [
+        {
+          "line": "5",
+          "issue": "split uses regex. '.' is a regex wildcard matching ANY character. Splits between every character, producing empty array entries.",
+          "fix": "Escape the period: split(\"\\\\.\")"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Field 0: a\nField 1: b\nField 2: c",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "split() uses regex syntax internally",
+        ". in regex matches ANY character (wildcard)",
+        "To split on literal period, escape it: \\\\.",
+        "In Java string, that's \"\\\\.\" (double backslash + dot)"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["split_period_regex_trap"]
+    },
+    
+    {
+      "id": "java_m3_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Parse and sum numbers",
+      "scenario": "Parse a comma-separated string of numbers and sum them.",
+      "instructions": "Write a class `SumCSV`:\n1. Input: String csvNumbers = \"10,20,30,40,50\"\n2. Split by comma\n3. Parse each as int and sum\n4. Print 'Sum: <total>'\n\nExpected output:\nSum: 150",
+      "starter_code": "// Write your SumCSV class below\n",
+      "expected_solution": "public class SumCSV {\n    public static void main(String[] args) {\n        String csvNumbers = \"10,20,30,40,50\";\n        String[] parts = csvNumbers.split(\",\");\n        int sum = 0;\n        for (String part : parts) {\n            sum += Integer.parseInt(part);\n        }\n        System.out.println(\"Sum: \" + sum);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Sum: 150"
+        }
+      ],
+      "hints": [
+        "Split by comma",
+        "Integer.parseInt converts String to int",
+        "Accumulate: sum += parsed value",
+        "Total: 10+20+30+40+50 = 150"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "split_and_parse"
+    },
+    
+    {
+      "id": "java_m3_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Format currency table",
+      "scenario": "Create a formatted price list with aligned columns.",
+      "instructions": "Write a class `PriceList` that prints:\n\nProduct A           ₹1,250.00\nProduct B          ₹14,500.50\nProduct C             ₹399.99\n\nUse String.format with %-15s (left-aligned name) and %,12.2f (right-aligned currency with commas).\n\nData:\n```\nString[] names = {\"Product A\", \"Product B\", \"Product C\"};\ndouble[] prices = {1250.0, 14500.50, 399.99};\n```\n\nExpected output:\nProduct A       ₹    1,250.00\nProduct B       ₹   14,500.50\nProduct C       ₹      399.99",
+      "starter_code": "// Write your PriceList class below\n// Use String.format with padding specifiers\n",
+      "expected_solution": "public class PriceList {\n    public static void main(String[] args) {\n        String[] names = {\"Product A\", \"Product B\", \"Product C\"};\n        double[] prices = {1250.0, 14500.50, 399.99};\n        \n        for (int i = 0; i < names.length; i++) {\n            System.out.println(String.format(\"%-15s ₹%,12.2f\", names[i], prices[i]));\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Product A       ₹    1,250.00\nProduct B       ₹   14,500.50\nProduct C       ₹      399.99"
+        }
+      ],
+      "hints": [
+        "%-15s = left-aligned String in 15-char field",
+        "%,12.2f = double with commas, 12-char width, 2 decimals, right-aligned by default",
+        "Loop through arrays in parallel (same index)",
+        "Format string: \"%-15s ₹%,12.2f\""
+      ],
+      "xp_reward": 60,
+      "concept_tested": "format_specifiers"
+    },
+    
+    {
+      "id": "java_m3_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Build a CSV row from values",
+      "scenario": "Reverse of parsing — assemble values into CSV.",
+      "instructions": "Write a class `BuildCSV`:\n1. Has variables: name = \"Aisha\", age = 28, salary = 85000.5\n2. Build a CSV row using StringBuilder OR String.join: \"Aisha,28,85000.5\"\n3. Print the CSV row\n\nExpected output:\nAisha,28,85000.5",
+      "starter_code": "// Write your BuildCSV class below\n",
+      "expected_solution": "public class BuildCSV {\n    public static void main(String[] args) {\n        String name = \"Aisha\";\n        int age = 28;\n        double salary = 85000.5;\n        \n        StringBuilder sb = new StringBuilder();\n        sb.append(name).append(\",\")\n          .append(age).append(\",\")\n          .append(salary);\n        \n        System.out.println(sb.toString());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha,28,85000.5"
+        }
+      ],
+      "hints": [
+        "StringBuilder with chained appends",
+        "Or: String.join(\",\", String.valueOf(name), String.valueOf(age), String.valueOf(salary))",
+        "Note: append works with any type (int, double — auto-converts)",
+        "Just separator commas, no extras"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m3_t5_ex_12",
+      "level": "medium",
+      "type": "algorithm",
+      "difficulty": 4,
+      "title": "Count words in sentence",
+      "scenario": "Split-based word counting.",
+      "instructions": "Write a class `WordCount`:\n1. Method `countWords(String s)` returns number of words (split by whitespace)\n2. Handle empty string, single word, multiple spaces between words\n3. main tests:\n   - \"Hello World\" → 2\n   - \"This is a test sentence\" → 5\n   - \"\" → 0\n\nHint: use s.trim().split(\"\\\\s+\") to split on any whitespace. Handle empty/blank case separately.\n\nExpected output:\nWord count of 'Hello World': 2\nWord count of 'This is a test sentence': 5\nWord count of '': 0",
+      "starter_code": "// Write your WordCount class below\n// Handle empty string carefully\n",
+      "expected_solution": "public class WordCount {\n    public static void main(String[] args) {\n        System.out.println(\"Word count of 'Hello World': \" + countWords(\"Hello World\"));\n        System.out.println(\"Word count of 'This is a test sentence': \" + countWords(\"This is a test sentence\"));\n        System.out.println(\"Word count of '': \" + countWords(\"\"));\n    }\n    \n    public static int countWords(String s) {\n        if (s == null || s.trim().isEmpty()) {\n            return 0;\n        }\n        String[] words = s.trim().split(\"\\\\s+\");\n        return words.length;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Word count of 'Hello World': 2\nWord count of 'This is a test sentence': 5\nWord count of '': 0"
+        }
+      ],
+      "hints": [
+        "Empty/blank string check FIRST (early return)",
+        "trim() removes leading/trailing whitespace",
+        "split(\"\\\\s+\") splits on one or more whitespace (regex)",
+        "Return words.length",
+        "Without empty check, split on empty string returns array of length 1 (wrong)"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "word_counting"
+    },
+    
+    {
+      "id": "java_m3_t5_ex_13",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "String compression",
+      "scenario": "Classic interview problem — compress runs of repeated characters.",
+      "instructions": "Write a class `Compress`:\n1. Method `compress(String s)` compresses runs: 'aaabbc' → 'a3b2c1'\n2. Use StringBuilder for efficient building\n3. main tests:\n   - 'aaabbc' → 'a3b2c1'\n   - 'abc' → 'a1b1c1'\n   - 'aaaa' → 'a4'\n\nExpected output:\nCompressed 'aaabbc': a3b2c1\nCompressed 'abc': a1b1c1\nCompressed 'aaaa': a4",
+      "starter_code": "// Write your Compress class below\n// Use StringBuilder for efficient building\n",
+      "expected_solution": "public class Compress {\n    public static void main(String[] args) {\n        System.out.println(\"Compressed 'aaabbc': \" + compress(\"aaabbc\"));\n        System.out.println(\"Compressed 'abc': \" + compress(\"abc\"));\n        System.out.println(\"Compressed 'aaaa': \" + compress(\"aaaa\"));\n    }\n    \n    public static String compress(String s) {\n        if (s.isEmpty()) return \"\";\n        \n        StringBuilder sb = new StringBuilder();\n        int i = 0;\n        while (i < s.length()) {\n            char c = s.charAt(i);\n            int count = 0;\n            while (i < s.length() && s.charAt(i) == c) {\n                count++;\n                i++;\n            }\n            sb.append(c).append(count);\n        }\n        return sb.toString();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Compressed 'aaabbc': a3b2c1\nCompressed 'abc': a1b1c1\nCompressed 'aaaa': a4"
+        }
+      ],
+      "hints": [
+        "Use outer pointer i. For each new char, count its run.",
+        "Inner loop: while same char, count++ and i++",
+        "After inner loop: append char + count to StringBuilder",
+        "Outer continues from i (now at the next different char)",
+        "For 'aaabbc': run of 3 a's, run of 2 b's, run of 1 c"
+      ],
+      "xp_reward": 75,
+      "concept_tested": "string_compression"
+    },
+    
+    {
+      "id": "java_m3_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Build a CSV from objects (parallel arrays)",
+      "scenario": "Generate a CSV string from parallel arrays of data.",
+      "instructions": "Write a class `GenerateCSV`:\n1. Parallel arrays: names, ages, cities (3 employees)\n2. Method `toCsv()` returns a multi-line CSV string with header row 'Name,Age,City'\n3. Use StringBuilder\n\nData:\n```java\nString[] names = {\"Aisha\", \"Raj\", \"Priya\"};\nint[] ages = {28, 35, 24};\nString[] cities = {\"Hyderabad\", \"Mumbai\", \"Bangalore\"};\n```\n\nExpected output:\nName,Age,City\nAisha,28,Hyderabad\nRaj,35,Mumbai\nPriya,24,Bangalore",
+      "starter_code": "// Write your GenerateCSV class below\n",
+      "expected_solution": "public class GenerateCSV {\n    public static void main(String[] args) {\n        String[] names = {\"Aisha\", \"Raj\", \"Priya\"};\n        int[] ages = {28, 35, 24};\n        String[] cities = {\"Hyderabad\", \"Mumbai\", \"Bangalore\"};\n        \n        System.out.println(toCsv(names, ages, cities));\n    }\n    \n    public static String toCsv(String[] names, int[] ages, String[] cities) {\n        StringBuilder sb = new StringBuilder();\n        sb.append(\"Name,Age,City\\n\");\n        \n        for (int i = 0; i < names.length; i++) {\n            sb.append(names[i]).append(\",\")\n              .append(ages[i]).append(\",\")\n              .append(cities[i]);\n            if (i < names.length - 1) {\n                sb.append(\"\\n\");\n            }\n        }\n        \n        return sb.toString();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Name,Age,City\nAisha,28,Hyderabad\nRaj,35,Mumbai\nPriya,24,Bangalore"
+        }
+      ],
+      "hints": [
+        "Header first: append 'Name,Age,City' + newline",
+        "Loop through indexes (parallel arrays)",
+        "Each row: name + comma + age + comma + city",
+        "Add newline after each row EXCEPT the last (no trailing newline)",
+        "StringBuilder is essential here — many appends"
+      ],
+      "xp_reward": 80
+    },
+    
+    {
+      "id": "java_m3_t5_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Caesar cipher (classic crypto)",
+      "scenario": "Implement a Caesar cipher — shift each letter by N positions.",
+      "instructions": "Write a class `Caesar`:\n1. Method `encrypt(String text, int shift)` returns text with each letter shifted by `shift` positions in alphabet\n2. Handle ONLY letters (skip digits, spaces, punctuation unchanged)\n3. Preserve case (a stays lowercase, A stays uppercase)\n4. Wrap around: 'z' + 1 = 'a', 'Z' + 1 = 'A'\n\nUse StringBuilder for building. main tests:\n- encrypt(\"Hello, World!\", 3) → \"Khoor, Zruog!\"\n- encrypt(\"abc xyz\", 2) → \"cde zab\"\n\nExpected output:\nencrypt('Hello, World!', 3) = Khoor, Zruog!\nencrypt('abc xyz', 2) = cde zab",
+      "starter_code": "// Write your Caesar class below\n// Use char arithmetic: (c - 'a' + shift) % 26 + 'a' for lowercase\n",
+      "expected_solution": "public class Caesar {\n    public static void main(String[] args) {\n        System.out.println(\"encrypt('Hello, World!', 3) = \" + encrypt(\"Hello, World!\", 3));\n        System.out.println(\"encrypt('abc xyz', 2) = \" + encrypt(\"abc xyz\", 2));\n    }\n    \n    public static String encrypt(String text, int shift) {\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < text.length(); i++) {\n            char c = text.charAt(i);\n            if (c >= 'a' && c <= 'z') {\n                char shifted = (char) ((c - 'a' + shift) % 26 + 'a');\n                sb.append(shifted);\n            } else if (c >= 'A' && c <= 'Z') {\n                char shifted = (char) ((c - 'A' + shift) % 26 + 'A');\n                sb.append(shifted);\n            } else {\n                sb.append(c);\n            }\n        }\n        return sb.toString();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "encrypt('Hello, World!', 3) = Khoor, Zruog!\nencrypt('abc xyz', 2) = cde zab"
+        }
+      ],
+      "hints": [
+        "Iterate each character with charAt",
+        "For lowercase: (c - 'a' + shift) % 26 + 'a'",
+        "For uppercase: same but with 'A'",
+        "Cast result back to char: (char) (...)",
+        "For non-letters: append unchanged",
+        "Use StringBuilder for efficiency",
+        "Trace 'a' + shift 2: (97-97+2)%26+97 = 99 = 'c' ✓",
+        "Trace 'z' + shift 1: (122-97+1)%26+97 = 26%26+97 = 97 = 'a' (wraps!)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 9,
+      "debug": 1,
+      "refactor": 1,
+      "algorithm": 3
+    },
+    "total_xp_possible": 675,
+    "estimated_completion_minutes": 60
+  },
+  
+  "gap_detection_map": {
+    "stringbuilder_refactor": ["ex_4"],
+    "split_period_regex_trap": ["ex_8"],
+    "split_and_parse": ["ex_9"],
+    "format_specifiers": ["ex_10"],
+    "word_counting": ["ex_12"],
+    "string_compression": ["ex_13"]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t2",
+  "module_id": "m35",
+  "topic_number": 2,
+  "name": "Binary Tree Problems \u2014 LCA, Balance, Path Sum, Max Path",
+  "slug": "binary-tree-problems-lca-pathsum",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m35_t1"
+    ],
+    "concepts_taught": [
+      "lca",
+      "balanced_tree",
+      "path_sum",
+      "max_path_sum",
+      "invert",
+      "serialize"
+    ],
+    "career_relevance": "LCA is a top-5 tree interview question. Max Path Sum is a Google hard. Balanced/PathSum are warm-ups.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "// LCA: O(n) \u2014 if both found in same subtree, root of subtree is LCA\n// Max Path: O(n) \u2014 max(0,child) to ignore negatives\n",
+    "what_you_will_build": "LCA, balance, max path, path sum, invert, serialize/deserialize."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "lca": "Both non-null returns \u2192 current is LCA.",
+      "max_path": "Use max(0,child) to clip negatives; update global at each node."
+    },
+    "reflection": {
+      "key_takeaways": [
+        "LCA: if root==p||root==q return root; both sides non-null \u2192 LCA",
+        "Balanced: return -1 from height on imbalance \u2014 O(n) not O(n\u00b2)",
+        "Max Path Sum: max(0,child) ignores negative branches",
+        "Path Sum: subtract at each node; check target==0 at leaf",
+        "Serialize: preorder with 'null' markers; deserialize with queue"
+      ],
+      "next_topic_preview": "Next: BST Operations \u2014 insert, delete, validate, kth smallest."
+    }
+  }
+}

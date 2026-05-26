@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m19_t1",
+  "language": "java",
+  "module_id": "m19",
+  "module_name": "Microservice Resilience",
+  "topic_number": 1,
+  "name": "Resilience4j Circuit Breaker",
+  "slug": "resilience4j-circuit-breaker",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m17_t5"],
+    "concepts_taught": [
+      "why_circuit_breakers_exist",
+      "circuit_states_closed_open_half_open",
+      "failure_rate_threshold",
+      "sliding_window_count_vs_time",
+      "resilience4j_spring_boot_starter",
+      "circuit_breaker_annotation",
+      "fallback_method",
+      "circuit_breaker_registry",
+      "circuit_breaker_events",
+      "manual_state_transition",
+      "wait_duration_in_open_state",
+      "permitted_calls_in_half_open",
+      "slow_call_rate_threshold",
+      "actuator_circuit_breaker_endpoint"
+    ],
+    "skills_developed": [
+      "adding_circuit_breaker_to_service_call",
+      "writing_fallback_methods",
+      "configuring_failure_thresholds",
+      "reading_circuit_breaker_state_via_actuator",
+      "testing_circuit_breaker_with_wiremock"
+    ],
+    "career_relevance": "Microservice architectures fail in cascading ways: one slow upstream service makes your service slow, which makes the service calling you slow, until the whole cluster is waiting. Circuit breakers are the standard solution — they stop the cascade by fast-failing calls to a struggling dependency. Resilience4j is the go-to library for Spring Boot. BookMyShow, Zerodha, and Razorpay all use circuit breakers in their payment and notification pathways. This is a senior-level interview topic at every major tech company.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Razorpay's payment service calls a notification service to send SMS confirmations. The notification provider goes down during Diwali traffic:\n\n```\nWithout circuit breaker:\n\n  Payment Request 1:  → NotificationService → [timeout after 10s] → error\n  Payment Request 2:  → NotificationService → [timeout after 10s] → error\n  Payment Request 3:  → NotificationService → [timeout after 10s] → error\n  ...\n  500 concurrent requests × 10 second timeout = 5,000 thread-seconds blocked\n  Thread pool: 200 threads × 10s each → pool exhausted in 2 minutes\n  Result: PAYMENTS FAIL because payment threads are all blocked on notifications!\n  Core business (payments) broken because of non-critical service (notifications)\n```\n\n**With Resilience4j circuit breaker:**\n```java\n@CircuitBreaker(name = \"notification\", fallbackMethod = \"notificationFallback\")\npublic void sendPaymentNotification(String paymentId, String phone) {\n    notificationService.sendSMS(phone, \"Payment \" + paymentId + \" confirmed\");\n}\n\nprivate void notificationFallback(String paymentId, String phone, Exception e) {\n    // Circuit is OPEN: skip notification, payment still succeeds\n    log.warn(\"Notification skipped for {} — circuit open\", paymentId);\n    // Queue for later retry via Kafka/SQS\n    notificationQueue.enqueue(paymentId, phone);\n}\n```\n\n```\nWith circuit breaker (after 50% failure rate):\n\n  Requests 1-10:  → NotificationService → [timeout 10s] → recorded as failure\n  Circuit OPENS (failure rate ≥ 50%)\n  Requests 11-500: → fallbackMethod → return immediately in <1ms\n  Result: PAYMENTS SUCCEED — notifications queued for later delivery\n  Thread pool: freed up, core business unaffected\n```\n\nThe payment completes. The notification is queued. When the notification service recovers, queued notifications are sent. Zero lost payments. Zero blocked threads.",
+    "what_you_will_build": "By the end of this topic, you'll add a circuit breaker to any service call with one annotation, write fallback methods, configure failure thresholds, and monitor circuit state via Actuator."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "circuit_states": "**The three circuit states:**\n\n```\nCLOSED (normal):              OPEN (failing):              HALF-OPEN (testing):\n  All requests pass through    All requests → fallback      Limited requests pass\n  Failures tracked             No calls to real service     Tests if service recovered\n  If failure rate ≥ threshold  After waitDuration expires   If they succeed → CLOSED\n  → transition to OPEN         → transition to HALF-OPEN    If they fail → OPEN again\n\n         CLOSED ←──────── success ────────── HALF-OPEN\n            │                                     ↑\n       failure rate                           wait time\n       ≥ threshold                            expires\n            ↓                                     │\n          OPEN ──────────────────────────────────→\n```\n\n**What each state means in practice:**\n```\nCLOSED:\n  Business as usual. Every call goes to the real service.\n  Resilience4j tracks the last N calls in a sliding window.\n  If failure rate (failures / total) ≥ failureRateThreshold → circuit OPENS.\n\nOPEN:\n  Real service is struggling. All calls go directly to fallback.\n  No network calls made → zero thread blocking.\n  After waitDurationInOpenState (e.g., 30 seconds) → transitions to HALF-OPEN.\n\nHALF-OPEN:\n  Test phase. A limited number of calls pass through (permittedNumberOfCallsInHalfOpenState).\n  If these test calls succeed → circuit CLOSES (service recovered).\n  If any test call fails → circuit OPENS again (service still struggling).\n```",
+
+      "dependency_and_config": "**Resilience4j Spring Boot Starter:**\n\n```xml\n<!-- pom.xml: -->\n<dependency>\n    <groupId>io.github.resilience4j</groupId>\n    <artifactId>resilience4j-spring-boot3</artifactId>\n    <version>2.2.0</version>\n</dependency>\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-aop</artifactId>\n</dependency>\n<!-- AOP is required — @CircuitBreaker uses Spring AOP proxy -->\n```\n\n```yaml\n# application.yml:\nresilience4j:\n  circuitbreaker:\n    instances:\n      notification:                            # circuit breaker name\n        slidingWindowType: COUNT_BASED         # or TIME_BASED\n        slidingWindowSize: 10                  # last 10 calls tracked\n        minimumNumberOfCalls: 5               # need at least 5 before opening\n        failureRateThreshold: 50              # open if ≥ 50% failures\n        waitDurationInOpenState: 30s          # wait 30s before testing recovery\n        permittedNumberOfCallsInHalfOpenState: 3  # 3 test calls in half-open\n        slowCallDurationThreshold: 2s         # calls > 2s count as slow\n        slowCallRateThreshold: 80             # open if ≥ 80% slow calls\n      payment-gateway:\n        slidingWindowSize: 20\n        failureRateThreshold: 30              # stricter: open at 30% failures\n        waitDurationInOpenState: 60s\n        permittedNumberOfCallsInHalfOpenState: 5\n```",
+
+      "annotation_usage": "**@CircuitBreaker annotation pattern:**\n\n```java\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PaymentNotificationService {\n    private final NotificationClient notificationClient;\n    private final NotificationQueue queue;\n    \n    PaymentNotificationService(NotificationClient nc, NotificationQueue q) {\n        notificationClient = nc; queue = q;\n    }\n    \n    // The annotation wraps this method with a circuit breaker proxy:\n    @CircuitBreaker(\n        name = \"notification\",         // matches application.yml instance name\n        fallbackMethod = \"notificationFallback\"  // called when circuit is OPEN or exception\n    )\n    public void sendPaymentConfirmation(String paymentId, String phone) {\n        // Called only when circuit is CLOSED or HALF-OPEN:\n        notificationClient.sendSMS(\n            phone, \"Your payment \" + paymentId + \" was successful.\");\n    }\n    \n    // Fallback: SAME return type, SAME parameters + Exception as last param\n    private void notificationFallback(\n            String paymentId, String phone, Exception e) {\n        // This runs when:\n        //   1. Circuit is OPEN (fast fail — no real call made)\n        //   2. The real method threw an exception (failure recorded + fallback called)\n        log.warn(\"Notification fallback for payment {} — reason: {}\",\n            paymentId, e.getMessage());\n        queue.enqueue(paymentId, phone);  // retry later\n    }\n    \n    // For methods with return values:\n    @CircuitBreaker(name = \"product-service\", fallbackMethod = \"emptyProductFallback\")\n    public List<Product> getProducts(String category) {\n        return productClient.getByCategory(category);  // HTTP call\n    }\n    \n    private List<Product> emptyProductFallback(String category, Exception e) {\n        log.warn(\"Product service unavailable for category {}\", category);\n        return List.of();  // return empty list — page still renders\n    }\n}\n```",
+
+      "monitoring": "**Monitoring circuit breaker state via Actuator:**\n\n```yaml\n# application.yml:\nmanagement:\n  health:\n    circuitbreakers:\n      enabled: true\n  endpoint:\n    health:\n      show-details: always\n  endpoints:\n    web:\n      exposure:\n        include: health,metrics,circuitbreakers\n```\n\n```bash\n# Check health:\ncurl http://localhost:8080/actuator/health/circuitBreakers\n# Response:\n# {\n#   \"status\": \"UP\",\n#   \"components\": {\n#     \"notification\": {\n#       \"status\": \"CIRCUIT_CLOSED\",\n#       \"details\": {\n#         \"failureRate\": \"20.0%\",\n#         \"slowCallRate\": \"0.0%\",\n#         \"state\": \"CLOSED\"\n#       }\n#     }\n#   }\n# }\n\n# When circuit opens:\n# \"status\": \"CIRCUIT_OPEN\"\n# \"failureRate\": \"60.0%\"\n# \"state\": \"OPEN\"\n\n# Metrics:\ncurl http://localhost:8080/actuator/metrics/resilience4j.circuitbreaker.state\ncurl http://localhost:8080/actuator/metrics/resilience4j.circuitbreaker.failure.rate\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "State machine diagram: Three boxes labeled CLOSED, OPEN, HALF-OPEN. CLOSED box: shows sliding window of 10 calls, 6 red (failed), 4 green (success). '60% failure rate ≥ 50% threshold → OPEN' arrow pointing right. OPEN box: shows all incoming requests going to fallback immediately (0ms). Clock icon labeled 'waitDuration=30s'. After 30s → HALF-OPEN arrow. HALF-OPEN box: shows 3 test calls (permittedCalls=3). If all 3 green → CLOSED arrow (recovered!). If any red → OPEN arrow (still broken). Below: timeline showing payment service behavior without CB (5000 threads blocked) vs with CB (immediate fallback, 0 blocking). Labels: 'CLOSED=business as usual', 'OPEN=fast fail', 'HALF-OPEN=probe recovery'.",
+      "alt_text": "Circuit breaker state machine: CLOSED tracking failures, OPEN fast-failing to fallback, HALF-OPEN testing recovery"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Swiggy's order service calls a restaurant availability service. When the availability service goes down during peak hours, orders should still work (show restaurants as available, confirm later) rather than failing entirely.",
+
+    "problem_statement": "1. Add resilience4j-spring-boot3 + AOP dependency\n2. Configure 'restaurant-availability' circuit breaker in application.yml\n3. RestaurantAvailabilityService with @CircuitBreaker + fallback\n4. Fallback: return default availability (assume available, verify asynchronously)\n5. Integration test: trigger failures to open circuit, verify fallback fires",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "application.yml circuit breaker config",
+        "details": "```yaml\nresilience4j:\n  circuitbreaker:\n    instances:\n      restaurant-availability:\n        slidingWindowSize: 10\n        minimumNumberOfCalls: 5\n        failureRateThreshold: 50\n        waitDurationInOpenState: 20s\n        permittedNumberOfCallsInHalfOpenState: 3\n        slowCallDurationThreshold: 3s\n        slowCallRateThreshold: 70\n```"
+      },
+      {
+        "step": 2,
+        "action": "Service with @CircuitBreaker and fallback",
+        "details": "```java\n@Service\n@Slf4j\npublic class RestaurantAvailabilityService {\n    private final RestaurantClient client;\n    \n    @CircuitBreaker(\n        name = \"restaurant-availability\",\n        fallbackMethod = \"defaultAvailability\"\n    )\n    public RestaurantStatus checkAvailability(String restaurantId) {\n        return client.getStatus(restaurantId);  // HTTP call to external service\n    }\n    \n    private RestaurantStatus defaultAvailability(\n            String restaurantId, Exception e) {\n        log.warn(\"Restaurant availability service down for {}: {}\",\n            restaurantId, e.getMessage());\n        // Optimistic fallback: show restaurant, verify later\n        return RestaurantStatus.ASSUME_AVAILABLE;\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// @CircuitBreaker(name, fallbackMethod) wraps method with state-machine proxy\n// Fallback: same signature + Exception last — called on OPEN or on exception\n// application.yml: failureRateThreshold=50, slidingWindowSize=10\n// After 5+ calls with ≥50% failure: circuit opens → all calls → fallback\n// After waitDuration: half-open → test calls → closed or open again",
+
+    "expected_output": "# Circuit CLOSED (normal):\nGET /api/restaurants/R001/available → RestaurantStatus.OPEN (real service)\nGET /api/restaurants/R002/available → RestaurantStatus.OPEN\n\n# After 6/10 failures (60% ≥ 50% threshold):\n[WARN] Circuit 'restaurant-availability' changed to OPEN\nGET /api/restaurants/R003/available → ASSUME_AVAILABLE (fallback, 0ms)\nGET /api/restaurants/R004/available → ASSUME_AVAILABLE (fallback, 0ms)\n\n# Actuator:\nGET /actuator/health/circuitBreakers\n→ \"restaurant-availability\": {\"state\": \"OPEN\", \"failureRate\": \"60.0%\"}",
+
+    "things_to_notice": [
+      "The fallback method must have the SAME return type and the SAME parameters as the original method, plus an Exception as the LAST parameter. If the signature doesn't match, Resilience4j throws a configuration error at startup — it can't find the fallback.",
+      "minimumNumberOfCalls: 5 — the circuit won't open until at least 5 calls have been recorded. Without this, 1 failure out of 1 call = 100% failure rate → circuit opens immediately. This prevents false positives during low-traffic periods.",
+      "slowCallDurationThreshold: 3s — calls that take longer than 3 seconds count as 'slow calls'. slowCallRateThreshold: 70 means if 70% of calls are slow (even if they succeed!), the circuit opens. This prevents thread pool exhaustion from slow calls even when they technically don't fail.",
+      "waitDurationInOpenState: 20s — after the circuit opens, it stays OPEN for 20 seconds before trying HALF-OPEN. During these 20 seconds, zero calls reach the real service. This gives the struggling service time to recover. Don't set this too short (constant retry storms) or too long (slow recovery).",
+      "The @CircuitBreaker proxy is applied via Spring AOP — same self-invocation restriction as @Cacheable. If RestaurantAvailabilityService calls its own @CircuitBreaker method internally, the circuit breaker proxy is bypassed. Always call from external beans."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment notification circuit",
+        "use_case": "Razorpay's payment flow: process payment → send SMS notification. SMS provider experiences 80% failure rate during peak. Circuit breaker on the notification call opens after 50% failures. Payments continue completing (core business unaffected). Failed notifications are recorded in a Redis queue. When the circuit CLOSES (provider recovered), a background job retries the queued notifications. Customer receives SMS slightly delayed but payment is never blocked."
+      },
+      {
+        "company_context": "Zerodha instrument data circuit",
+        "use_case": "Zerodha's trading UI calls an NSE data feed service for real-time prices. Feed service occasionally goes down. Circuit breaker: slidingWindowSize=20, failureRateThreshold=30 (strict — prices must be accurate). When circuit opens: fallback returns the last known price with a 'delayed' flag. UI shows the last price with 'Price may be delayed' warning instead of showing an error. After 60-second wait, circuit tests recovery."
+      },
+      {
+        "company_context": "BookMyShow seat availability",
+        "use_case": "BookMyShow calls a seat map rendering service for interactive seat selection. Service fails during high load. Circuit breaker fallback: returns a simplified 'zone pricing' view (Orchestra ₹500, Balcony ₹300) instead of an interactive seat map. 95% of users can still complete their booking. The 5% who need specific seat selection see 'interactive map temporarily unavailable' with a retry option. Revenue protected."
+      }
+    ],
+
+    "interview_relevance": "Circuit breaker interview questions:\n\n- **'What is a circuit breaker pattern and why is it needed?'** → Prevents cascading failures in microservices. When a downstream service fails, a circuit breaker stops sending requests to it (fast-fail via fallback), preventing thread pool exhaustion upstream. After a recovery window, it tests if the service recovered.\n- **'What are the three circuit breaker states?'** → CLOSED (normal, all calls pass), OPEN (failing, all calls → fallback, no real calls), HALF-OPEN (testing recovery, limited real calls).\n- **'What is the difference between a retry and a circuit breaker?'** → Retry: try again on failure (good for transient errors, bad for sustained outages). Circuit breaker: stop trying after a failure threshold (good for sustained outages, prevents thread exhaustion).\n- **'What happens if the fallback method also fails?'** → Resilience4j propagates the exception from the fallback. The original circuit breaker still records the primary failure. Design fallbacks to be safe (cached data, empty list, default value) — they should never call the same failing service.",
+
+    "real_world_workflow": "Circuit breaker deployment workflow:\n\n- Identify external dependencies: HTTP calls, gRPC calls, DB calls to secondary systems\n- Classify criticality: core path (strict CB, slow fallback) vs non-critical (aggressive CB, degraded fallback)\n- Set thresholds based on SLA: permissible failure rate before degradation begins\n- Write fallbacks: return cached data, empty list, or default — never fail the core flow\n- Monitor: Actuator /health/circuitBreakers for state, Prometheus for transition rates\n- Alert: CB state changes should page on-call — they indicate dependency health"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "fallback_signature_mismatch",
+      "what_students_get_wrong": "Writing a fallback method with wrong signature — missing the Exception parameter, or different return type/parameter list.",
+      "remediation": "Fallback method rules: (1) Same return type as the original method. (2) Same parameters as the original method. (3) Plus one additional Exception (or specific exception type) as the LAST parameter. If the original is `List<Product> getProducts(String category)`, the fallback must be `List<Product> fallback(String category, Exception e)`. Resilience4j matches by return type and parameters — it fails at startup if no matching fallback is found.",
+      "detection_pattern": "Application fails to start with 'NoSuchMethodException' or 'FallbackMethod not found' for the circuit breaker"
+    },
+    {
+      "gap_id": "missing_aop_dependency",
+      "what_students_get_wrong": "Adding resilience4j-spring-boot3 but not spring-boot-starter-aop — the @CircuitBreaker annotation silently does nothing.",
+      "remediation": "Resilience4j's annotations use Spring AOP proxies. Without the AOP starter, @CircuitBreaker is just a marker annotation with no effect. Add: `<dependency><groupId>org.springframework.boot</groupId><artifactId>spring-boot-starter-aop</artifactId></dependency>`. Verify: the circuit breaker should appear in Actuator /health. If it doesn't, AOP is missing.",
+      "detection_pattern": "Circuit breaker annotations compile and run but no circuit breaker state in Actuator health; method always calls through even after many failures"
+    },
+    {
+      "gap_id": "minimum_calls_too_low",
+      "what_students_get_wrong": "Not setting minimumNumberOfCalls — the circuit opens after the very first failure (1/1 = 100% failure rate).",
+      "remediation": "minimumNumberOfCalls (default: 100) is the minimum number of calls that must be recorded before the circuit can open. A sensible value: 5-20 depending on traffic. Without it, a single timeout during startup causes the circuit to open immediately, blocking all calls until the wait duration expires. Set it to at least 5 to prevent false positives.",
+      "detection_pattern": "Circuit opens immediately on startup or after very first error; logs show circuit opened after just 1-2 calls"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Circuit breaker: stops cascading failures by fast-failing calls to a struggling dependency",
+      "CLOSED: normal; OPEN: fast fail → fallback; HALF-OPEN: test recovery",
+      "@CircuitBreaker(name, fallbackMethod): one annotation wraps the call",
+      "Fallback signature: same return type + same params + Exception as last param",
+      "application.yml: configure failureRateThreshold, slidingWindowSize, waitDurationInOpenState",
+      "minimumNumberOfCalls: prevents false positives on low traffic (don't set too low!)",
+      "slowCallDurationThreshold + slowCallRateThreshold: opens on slow calls too",
+      "spring-boot-starter-aop: required — @CircuitBreaker uses Spring AOP proxy",
+      "Self-invocation: @CircuitBreaker bypassed if called from same class (AOP proxy skipped)",
+      "Fallback purpose: degrade gracefully — empty list, cached data, default value",
+      "Fallback must NOT call the same failing service — keeps it simple and safe",
+      "permittedNumberOfCallsInHalfOpenState: test calls to verify recovery",
+      "waitDurationInOpenState: recovery window — don't set too short (retry storm) or too long",
+      "Actuator /health/circuitBreakers: real-time state visibility",
+      "Alert on state changes: CLOSED→OPEN = dependency health incident"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Your notification service has 100 requests per minute. You set slidingWindowSize=10 and minimumNumberOfCalls=5. In the last 10 calls, 6 failed (60% failure rate) and failureRateThreshold=50. Is the circuit open?",
+        "answer": "Yes, the circuit is OPEN. Conditions: slidingWindowSize=10 (last 10 calls tracked), minimumNumberOfCalls=5 (we have 10 calls, ≥5 minimum met), failureRateThreshold=50 (open if ≥50%), actual failure rate = 6/10 = 60% ≥ 50%. All conditions met → circuit transitions from CLOSED to OPEN. Now all calls go directly to fallbackMethod. No real calls to notification service. After waitDurationInOpenState (e.g., 30s), circuit transitions to HALF-OPEN for test calls."
+      },
+      {
+        "question": "The notification service recovers. The circuit is in HALF-OPEN state with permittedNumberOfCallsInHalfOpenState=3. All 3 test calls succeed. What happens next?",
+        "answer": "The circuit transitions from HALF-OPEN back to CLOSED. Resilience4j sees all 3 permitted calls succeeded (0% failure rate in half-open). This is interpreted as the service having recovered. The circuit CLOSES, normal operation resumes, and all subsequent calls go through to the real notification service. The sliding window resets. If instead ANY of the 3 test calls had failed, the circuit would have transitioned back to OPEN for another waitDurationInOpenState period before trying again."
+      },
+      {
+        "question": "What's wrong with this fallback method? `private void notificationFallback(Exception e) { ... }` for the original `public void sendNotification(String paymentId, String phone) { ... }`",
+        "answer": "The fallback is missing the original method's parameters. The correct signature must include ALL parameters from the original method, plus the Exception as the last parameter. Correct fallback: `private void notificationFallback(String paymentId, String phone, Exception e) { ... }`. Resilience4j matches fallback methods by: same return type (void) AND same parameter types in the same order (String, String) AND one Exception parameter last. Without paymentId and phone, Resilience4j cannot match this fallback to the original method and will throw a configuration error at startup."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Retry and Rate Limiter** — circuit breakers handle sustained failures. Retries handle transient failures (temporary network blip, brief service restart). Resilience4j @Retry automatically retries failed calls with configurable backoff. @RateLimiter prevents your service from overwhelming a downstream API (the flipside of rate limiting in Topic 18.3 — protecting what you CALL, not what calls you)."
+  }
+}

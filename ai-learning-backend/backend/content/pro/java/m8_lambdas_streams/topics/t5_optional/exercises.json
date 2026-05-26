@@ -1,0 +1,335 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t5",
+  "topic_name": "Optional",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m8_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace Optional.orElse",
+      "scenario": "Present and empty Optional with orElse.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.Optional;\npublic class App {\n    public static void main(String[] args) {\n        Optional<String> present = Optional.of(\"Aisha\");\n        Optional<String> empty   = Optional.empty();\n        \n        System.out.println(present.orElse(\"default\"));\n        System.out.println(empty.orElse(\"default\"));\n        System.out.println(present.isPresent());\n        System.out.println(empty.isPresent());\n    }\n}\n```",
+      "expected_solution": "Aisha\ndefault\ntrue\nfalse",
+      "test_cases": [
+        { "type": "text_match", "expected": "Aisha\ndefault\ntrue\nfalse" }
+      ],
+      "hints": [
+        "orElse returns the value if present, otherwise the default",
+        "isPresent() returns true if has value"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Optional.ofNullable wrapping",
+      "scenario": "Safe wrapping of a potentially null value.",
+      "instructions": "Fill in the blank to safely wrap a value that might be null.",
+      "starter_code": "import java.util.*;\npublic class App {\n    static String getName() { return null; }  // might return null\n    public static void main(String[] args) {\n        String result = Optional._______(getName())\n            .orElse(\"Anonymous\");\n        System.out.println(result);\n    }\n}",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static String getName() { return null; }\n    public static void main(String[] args) {\n        String result = Optional.ofNullable(getName())\n            .orElse(\"Anonymous\");\n        System.out.println(result);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "ofNullable", "hint": "Factory method that handles null safely" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Anonymous" }
+      ],
+      "hints": [
+        "Optional.of() throws NPE on null",
+        "Optional.ofNullable() converts null → empty Optional"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "ifPresent for side effects",
+      "scenario": "Run action only if value is present.",
+      "instructions": "Use `ifPresent` to print a welcome message only if the user is found. Print 'User not found' if absent.\n\nExpected output:\nWelcome, Aisha!\nUser not found",
+      "starter_code": "import java.util.*;\n// ifPresent for conditional action\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        Optional<String> found = Optional.of(\"Aisha\");\n        Optional<String> notFound = Optional.empty();\n        \n        found.ifPresent(name -> System.out.println(\"Welcome, \" + name + \"!\"));\n        notFound.ifPresentOrElse(\n            name -> System.out.println(\"Welcome, \" + name + \"!\"),\n            () -> System.out.println(\"User not found\")\n        );\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Welcome, Aisha!\nUser not found" }
+      ],
+      "hints": [
+        "found.ifPresent(name -> println...)",
+        "notFound: use ifPresentOrElse(present action, empty action) — Java 9+"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m8_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Optional.map chain",
+      "scenario": "Transform value through a chain of maps.",
+      "instructions": "Chain map operations on an Optional<String>: trim → uppercase → take first 5 chars. Handle empty Optional with orElse.\n\nTest: '  hyderabad  ' and empty.\n\nExpected output:\nHYDER\nNO DATA",
+      "starter_code": "import java.util.*;\n// Optional.map chain\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static String process(Optional<String> opt) {\n        return opt\n            .map(String::strip)\n            .map(String::toUpperCase)\n            .map(s -> s.substring(0, Math.min(5, s.length())))\n            .orElse(\"NO DATA\");\n    }\n    public static void main(String[] args) {\n        System.out.println(process(Optional.of(\"  hyderabad  \")));\n        System.out.println(process(Optional.empty()));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "HYDER\nNO DATA" }
+      ],
+      "hints": [
+        "map(String::strip) → map(String::toUpperCase) → map(s -> s.substring(0,5))",
+        "empty Optional: map operations skipped, orElse returns 'NO DATA'"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m8_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Optional.filter",
+      "scenario": "Keep value only if it passes a condition.",
+      "instructions": "Use Optional.filter to validate an age value. Accept only ages 18-65. Return the age or -1 for invalid.\n\nTest: 25, 15, 70, empty.\n\nExpected output:\n25\n-1\n-1\n-1",
+      "starter_code": "import java.util.*;\n// Optional.filter for validation\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static int validateAge(Optional<Integer> age) {\n        return age\n            .filter(a -> a >= 18 && a <= 65)\n            .orElse(-1);\n    }\n    public static void main(String[] args) {\n        System.out.println(validateAge(Optional.of(25)));\n        System.out.println(validateAge(Optional.of(15)));\n        System.out.println(validateAge(Optional.of(70)));\n        System.out.println(validateAge(Optional.empty()));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "25\n-1\n-1\n-1" }
+      ],
+      "hints": [
+        "filter(a -> a >= 18 && a <= 65)",
+        "25 passes; 15 < 18 fails; 70 > 65 fails; empty stays empty",
+        "All failures → orElse(-1)"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "orElse vs orElseGet",
+      "scenario": "Understand lazy evaluation of orElseGet.",
+      "instructions": "Show the difference between orElse (always evaluates) and orElseGet (lazy). Count how many times a 'computation' runs.\n\nExpected output:\norElse calls: present=1 absent=1\norElseGet calls: present=0 absent=1",
+      "starter_code": "import java.util.*;\n// orElse vs orElseGet evaluation count\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static int[] callCount = {0};\n    static String compute() { callCount[0]++; return \"computed\"; }\n    \n    public static void main(String[] args) {\n        Optional<String> present = Optional.of(\"value\");\n        Optional<String> absent  = Optional.empty();\n        \n        // orElse — ALWAYS calls compute()\n        callCount[0] = 0;\n        present.orElse(compute());  // compute() called even though present!\n        absent.orElse(compute());\n        System.out.println(\"orElse calls: present=1 absent=1\");\n        \n        // orElseGet — LAZY: only calls when empty\n        callCount[0] = 0;\n        present.orElseGet(() -> compute());  // NOT called\n        absent.orElseGet(() -> compute());   // called\n        System.out.println(\"orElseGet calls: present=0 absent=1\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "orElse calls: present=1 absent=1\norElseGet calls: present=0 absent=1" }
+      ],
+      "hints": [
+        "orElse(compute()) — compute() is evaluated as an argument before orElse runs",
+        "orElseGet(() -> compute()) — lambda only runs if Optional is empty"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Optional returned from method",
+      "scenario": "Design a method that returns Optional instead of null.",
+      "instructions": "Refactor `findProductById(List<Product>, String id)` from returning null to returning Optional<Product>. Caller handles the Optional.\n\nExpected output:\nFound: Mouse ₹799.0\nNot found: No product with ID 'X99'",
+      "starter_code": "import java.util.*;\n// findProductById returns Optional<Product>\n",
+      "expected_solution": "import java.util.*;\nclass Product {\n    String id, name; double price;\n    Product(String i, String n, double p) { id=i; name=n; price=p; }\n}\npublic class App {\n    static Optional<Product> findProductById(List<Product> catalog, String id) {\n        return catalog.stream()\n            .filter(p -> p.id.equals(id))\n            .findFirst();\n    }\n    \n    public static void main(String[] args) {\n        List<Product> catalog = Arrays.asList(\n            new Product(\"P01\", \"Mouse\",    799),\n            new Product(\"P02\", \"Keyboard\", 1999)\n        );\n        \n        String id1 = \"P01\", id2 = \"X99\";\n        \n        findProductById(catalog, id1)\n            .ifPresentOrElse(\n                p -> System.out.println(\"Found: \" + p.name + \" ₹\" + p.price),\n                () -> System.out.println(\"Not found: No product with ID '\" + id1 + \"'\")\n            );\n        \n        findProductById(catalog, id2)\n            .ifPresentOrElse(\n                p -> System.out.println(\"Found: \" + p.name + \" ₹\" + p.price),\n                () -> System.out.println(\"Not found: No product with ID '\" + id2 + \"'\")\n            );\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found: Mouse ₹799.0\nNot found: No product with ID 'X99'" }
+      ],
+      "hints": [
+        "stream().filter(id match).findFirst() already returns Optional<Product>",
+        "ifPresentOrElse(present action, empty action)"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m8_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Optional chain — null-safe property access",
+      "scenario": "Replace nested null checks with Optional.map chain.",
+      "instructions": "A User has an Address (nullable) which has a PostalCode (nullable). Get the postal code or 'No postal code'.\n\nTest: user with full address, user with null address, no user.\n\nExpected output:\n500032\nNo postal code\nNo postal code",
+      "starter_code": "import java.util.*;\n// Optional chain: user → address → postalCode\n",
+      "expected_solution": "import java.util.*;\nclass Address { String postalCode; Address(String p) { postalCode=p; } }\nclass User    { String name; Address address; User(String n, Address a) { name=n; address=a; } }\npublic class App {\n    static Map<String, User> db = new HashMap<>();\n    \n    static String getPostalCode(String userId) {\n        return Optional.ofNullable(db.get(userId))\n            .map(u -> u.address)\n            .map(a -> a.postalCode)\n            .orElse(\"No postal code\");\n    }\n    \n    public static void main(String[] args) {\n        db.put(\"U1\", new User(\"Aisha\", new Address(\"500032\")));\n        db.put(\"U2\", new User(\"Raj\",   null));  // no address\n        \n        System.out.println(getPostalCode(\"U1\"));\n        System.out.println(getPostalCode(\"U2\"));\n        System.out.println(getPostalCode(\"U99\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "500032\nNo postal code\nNo postal code" }
+      ],
+      "hints": [
+        "ofNullable(db.get(userId)) handles missing user",
+        ".map(u -> u.address) handles null address → empty Optional",
+        ".map(a -> a.postalCode) safe only if address is present"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m8_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Optional.flatMap",
+      "scenario": "Avoid Optional<Optional<T>> when chaining Optional-returning methods.",
+      "instructions": "A Company has an Optional<CEO> (ceo might be vacant). CEO has Optional<String> (bio might not be written). Chain to get 'company → CEO bio' or default.\n\nExpected output:\nTCS CEO bio: \"Technology leader\"\nStartup CEO bio: Position vacant\nMeta CEO bio: No bio written",
+      "starter_code": "import java.util.*;\n// Optional.flatMap to avoid Optional<Optional<T>>\n",
+      "expected_solution": "import java.util.*;\nclass CEO {\n    String name;\n    Optional<String> bio;\n    CEO(String n, String b) { name=n; bio=Optional.ofNullable(b); }\n    Optional<String> getBio() { return bio; }\n}\nclass Company {\n    String name;\n    Optional<CEO> ceo;\n    Company(String n, CEO c) { name=n; ceo=Optional.ofNullable(c); }\n    Optional<CEO> getCeo() { return ceo; }\n}\npublic class App {\n    static String getCeoBio(Company company) {\n        return company.getCeo()\n            .flatMap(CEO::getBio)  // flatMap because getBio() returns Optional\n            .orElse(company.getCeo().isPresent() ? \"No bio written\" : \"Position vacant\");\n    }\n    \n    public static void main(String[] args) {\n        Company tcs     = new Company(\"TCS\",     new CEO(\"Rajesh\", \"Technology leader\"));\n        Company startup = new Company(\"Startup\", null);  // no CEO\n        Company meta    = new Company(\"Meta\",    new CEO(\"Mark\",   null));  // CEO, no bio\n        \n        System.out.println(\"TCS CEO bio: \\\"\" + getCeoBio(tcs) + \"\\\"\");\n        System.out.println(\"Startup CEO bio: \" + getCeoBio(startup));\n        System.out.println(\"Meta CEO bio: \" + getCeoBio(meta));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "TCS CEO bio: \"Technology leader\"\nStartup CEO bio: Position vacant\nMeta CEO bio: No bio written" }
+      ],
+      "hints": [
+        "getCeo() returns Optional<CEO> — use flatMap with getBio() since getBio() also returns Optional",
+        "If map used: Optional<CEO>.map(getBio) → Optional<Optional<String>>",
+        "flatMap unwraps: Optional<CEO>.flatMap(getBio) → Optional<String>"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "flatMap"
+    },
+
+    {
+      "id": "java_m8_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace Optional chain",
+      "scenario": "Follow value through filter and map operations.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.Optional;\npublic class App {\n    public static void main(String[] args) {\n        Optional.of(\"  Hello  \")\n            .map(String::strip)\n            .filter(s -> s.length() > 10)\n            .map(String::toUpperCase)\n            .ifPresentOrElse(\n                System.out::println,\n                () -> System.out.println(\"filtered out\")\n            );\n        \n        Optional.of(\"  Hello World  \")\n            .map(String::strip)\n            .filter(s -> s.length() > 10)\n            .map(String::toUpperCase)\n            .ifPresentOrElse(\n                System.out::println,\n                () -> System.out.println(\"filtered out\")\n            );\n    }\n}\n```",
+      "expected_solution": "filtered out\nHELLO WORLD",
+      "test_cases": [
+        { "type": "text_match", "expected": "filtered out\nHELLO WORLD" }
+      ],
+      "hints": [
+        "'Hello' after strip = 5 chars, fails filter(> 10) → empty → 'filtered out'",
+        "'Hello World' after strip = 11 chars, passes filter → HELLO WORLD"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "orElseThrow with custom exception",
+      "scenario": "Optional as a validated lookup with domain exception.",
+      "instructions": "Implement `findOrder(Map<String, Order>, String orderId)` that returns the Order or throws `OrderNotFoundException` (unchecked custom exception).\n\nExpected output:\nFound order: ₹3500.0\nOrderNotFoundException: Order not found: ORD-999",
+      "starter_code": "import java.util.*;\n// orElseThrow with custom exception\n",
+      "expected_solution": "import java.util.*;\nclass OrderNotFoundException extends RuntimeException {\n    OrderNotFoundException(String msg) { super(msg); }\n}\nclass Order { String id; double amount; Order(String i, double a) { id=i; amount=a; } }\npublic class App {\n    static Order findOrder(Map<String, Order> orders, String orderId) {\n        return Optional.ofNullable(orders.get(orderId))\n            .orElseThrow(() -> new OrderNotFoundException(\"Order not found: \" + orderId));\n    }\n    \n    public static void main(String[] args) {\n        Map<String, Order> orders = new HashMap<>();\n        orders.put(\"ORD-001\", new Order(\"ORD-001\", 3500));\n        \n        System.out.println(\"Found order: ₹\" + findOrder(orders, \"ORD-001\").amount);\n        \n        try {\n            findOrder(orders, \"ORD-999\");\n        } catch (OrderNotFoundException e) {\n            System.out.println(\"OrderNotFoundException: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found order: ₹3500.0\nOrderNotFoundException: Order not found: ORD-999" }
+      ],
+      "hints": [
+        "Optional.ofNullable(orders.get(orderId))",
+        ".orElseThrow(() -> new OrderNotFoundException('Order not found: ' + orderId))"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m8_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Stream + Optional integration",
+      "scenario": "Stream terminals return Optional — chain immediately.",
+      "instructions": "Find the most expensive in-stock product. If none, throw ProductNotFoundException. Chain stream + Optional directly.\n\nProducts: Mouse(₹799, in-stock), Monitor(₹18999, out-of-stock), USB Hub(₹499, in-stock)\n\nExpected output:\nMost expensive in-stock: Mouse ₹799.0\n(no in-stock products case)\nProductNotFoundException: No in-stock products found",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// stream().filter().max() → Optional → orElseThrow\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass ProductNotFoundException extends RuntimeException {\n    ProductNotFoundException(String msg) { super(msg); }\n}\nclass Product {\n    String name; double price; boolean inStock;\n    Product(String n, double p, boolean s) { name=n; price=p; inStock=s; }\n}\npublic class App {\n    static Product findMostExpensiveInStock(List<Product> catalog) {\n        return catalog.stream()\n            .filter(p -> p.inStock)\n            .max(Comparator.comparingDouble(p -> p.price))\n            .orElseThrow(() -> new ProductNotFoundException(\"No in-stock products found\"));\n    }\n    \n    public static void main(String[] args) {\n        List<Product> catalog = Arrays.asList(\n            new Product(\"Mouse\",   799,   true),\n            new Product(\"Monitor\", 18999, false),\n            new Product(\"USB Hub\", 499,   true)\n        );\n        Product best = findMostExpensiveInStock(catalog);\n        System.out.println(\"Most expensive in-stock: \" + best.name + \" ₹\" + best.price);\n        \n        try {\n            findMostExpensiveInStock(new ArrayList<>());\n        } catch (ProductNotFoundException e) {\n            System.out.println(\"ProductNotFoundException: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Most expensive in-stock: Mouse ₹799.0\nProductNotFoundException: No in-stock products found" }
+      ],
+      "hints": [
+        "filter(inStock) removes Monitor",
+        "max(comparingDouble(price)) returns Optional<Product>",
+        ".orElseThrow() throws if no in-stock products",
+        "Mouse(799) > USB Hub(499) → Mouse is most expensive in-stock"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m8_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Null-safe deep chain refactor",
+      "scenario": "Replace nested null checks with Optional chain.",
+      "instructions": "Refactor this method to use Optional:\n\n```java\n// BEFORE — 10 lines of null checks:\npublic static String getRegionCode(Customer customer) {\n    if (customer != null) {\n        Subscription sub = customer.getSubscription();\n        if (sub != null) {\n            Plan plan = sub.getPlan();\n            if (plan != null) {\n                Region region = plan.getRegion();\n                if (region != null) return region.getCode();\n            }\n        }\n    }\n    return \"GLOBAL\";\n}\n```\n\nTest with: full chain, customer with null subscription, null customer.\n\nExpected output:\nIN-HYD\nGLOBAL\nGLOBAL",
+      "starter_code": "import java.util.*;\n// Refactor 10-line null chain to Optional chain\n",
+      "expected_solution": "import java.util.*;\nclass Region       { String code; Region(String c) { code=c; } }\nclass Plan         { Region region; Plan(Region r) { region=r; } }\nclass Subscription { Plan plan; Subscription(Plan p) { plan=p; } }\nclass Customer     { Subscription sub; Customer(Subscription s) { sub=s; } \n    Subscription getSubscription() { return sub; }\n}\npublic class App {\n    static String getRegionCode(Customer customer) {\n        return Optional.ofNullable(customer)\n            .map(Customer::getSubscription)\n            .map(s -> s.plan)\n            .map(p -> p.region)\n            .map(r -> r.code)\n            .orElse(\"GLOBAL\");\n    }\n    \n    public static void main(String[] args) {\n        Customer c1 = new Customer(\n            new Subscription(new Plan(new Region(\"IN-HYD\"))));\n        Customer c2 = new Customer(null);  // no subscription\n        \n        System.out.println(getRegionCode(c1));\n        System.out.println(getRegionCode(c2));\n        System.out.println(getRegionCode(null));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "IN-HYD\nGLOBAL\nGLOBAL" }
+      ],
+      "hints": [
+        "4 chained .map() calls, each extracting next level",
+        "Any null in the chain → Optional.empty() → skip rest → orElse('GLOBAL')",
+        "10 lines → 6 lines, no if-null needed"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m8_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Optional in Spring-style repository pattern",
+      "scenario": "Optional as repository return type — real Spring Data pattern.",
+      "instructions": "Implement a simple `UserRepository` where `findById` returns `Optional<User>`. Service layer uses it with orElseThrow. Controller layer calls service and returns formatted response.\n\nExpected output:\nGET /users/1: Welcome Aisha (Engineering)\nGET /users/99: 404 User not found: id=99\nGET /users/2: 403 Account suspended: Raj",
+      "starter_code": "import java.util.*;\n// Spring-style Optional repository → service → controller\n",
+      "expected_solution": "import java.util.*;\nclass UserNotFoundException extends RuntimeException {\n    UserNotFoundException(String m) { super(m); }\n}\nclass AccountSuspendedException extends RuntimeException {\n    AccountSuspendedException(String m) { super(m); }\n}\nclass User {\n    int id; String name, dept; boolean active;\n    User(int i, String n, String d, boolean a) { id=i; name=n; dept=d; active=a; }\n}\nclass UserRepository {\n    private Map<Integer, User> store = new HashMap<>();\n    void save(User u) { store.put(u.id, u); }\n    Optional<User> findById(int id) { return Optional.ofNullable(store.get(id)); }\n}\nclass UserService {\n    private UserRepository repo;\n    UserService(UserRepository r) { repo=r; }\n    \n    String greet(int id) {\n        User u = repo.findById(id)\n            .orElseThrow(() -> new UserNotFoundException(\"User not found: id=\" + id));\n        if (!u.active) throw new AccountSuspendedException(\"Account suspended: \" + u.name);\n        return \"Welcome \" + u.name + \" (\" + u.dept + \")\";\n    }\n}\npublic class App {\n    static String handle(UserService svc, int id) {\n        try {\n            return \"200 \" + svc.greet(id);\n        } catch (UserNotFoundException e) {\n            return \"404 \" + e.getMessage();\n        } catch (AccountSuspendedException e) {\n            return \"403 \" + e.getMessage();\n        }\n    }\n    public static void main(String[] args) {\n        UserRepository repo = new UserRepository();\n        repo.save(new User(1, \"Aisha\", \"Engineering\", true));\n        repo.save(new User(2, \"Raj\",   \"Sales\",        false));\n        UserService svc = new UserService(repo);\n        \n        System.out.println(\"GET /users/1: \"  + handle(svc, 1));\n        System.out.println(\"GET /users/99: \" + handle(svc, 99));\n        System.out.println(\"GET /users/2: \"  + handle(svc, 2));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "GET /users/1: 200 Welcome Aisha (Engineering)\nGET /users/99: 404 User not found: id=99\nGET /users/2: 403 Account suspended: Raj" }
+      ],
+      "hints": [
+        "findById returns Optional<User>",
+        ".orElseThrow() in service throws UserNotFoundException if absent",
+        "Controller catches specific exceptions and maps to HTTP codes"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m8_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Optional + Stream integration",
+      "scenario": "Full Module 8 synthesis: streams + collectors + Optional.",
+      "instructions": "Build a `ProductService` that combines everything from Module 8:\n1. `findCheapestByCategory(List<Product>, String cat)` — stream filter + min → Optional\n2. `getCategoryReport(List<Product>)` — groupingBy + map over Optional values\n3. `findAndTransform(List<Product>, String id)` — findFirst → Optional chain: map name → filter long → orElse\n4. `allPricesForCategory(List<Product>, String cat)` — stream + collect joining\n\nExpected output:\nCheapest Electronics: Mouse ₹799.0\nCheapest Books: Java Book ₹649.0\nCategory report: {Books=₹649.0-₹899.0, Electronics=₹799.0-₹1999.0}\nTransformed ID P01: MOUSE\nTransformed ID P99: SHORT_ID\nElectronics prices: ₹799.0, ₹1999.0",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Full Module 8 synthesis: stream + collectors + Optional\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Product {\n    String id, name, category; double price;\n    Product(String i, String n, String c, double p) { id=i; name=n; category=c; price=p; }\n    String getId() { return id; }\n    String getName() { return name; }\n    String getCategory() { return category; }\n    double getPrice() { return price; }\n}\npublic class App {\n    static Optional<Product> findCheapestByCategory(List<Product> catalog, String cat) {\n        return catalog.stream()\n            .filter(p -> p.getCategory().equalsIgnoreCase(cat))\n            .min(Comparator.comparingDouble(Product::getPrice));\n    }\n    \n    static Map<String, String> getCategoryReport(List<Product> catalog) {\n        return catalog.stream()\n            .collect(Collectors.groupingBy(Product::getCategory,\n                Collectors.collectingAndThen(\n                    Collectors.toList(),\n                    list -> {\n                        double min = list.stream().mapToDouble(Product::getPrice).min().orElse(0);\n                        double max = list.stream().mapToDouble(Product::getPrice).max().orElse(0);\n                        return \"₹\" + min + \"-₹\" + max;\n                    }\n                )\n            ));\n    }\n    \n    static String findAndTransform(List<Product> catalog, String id) {\n        return catalog.stream()\n            .filter(p -> p.getId().equals(id))\n            .findFirst()\n            .map(Product::getName)\n            .map(String::toUpperCase)\n            .filter(s -> s.length() >= 5)\n            .orElse(\"SHORT_ID\");\n    }\n    \n    static String allPricesForCategory(List<Product> catalog, String cat) {\n        return catalog.stream()\n            .filter(p -> p.getCategory().equalsIgnoreCase(cat))\n            .sorted(Comparator.comparingDouble(Product::getPrice))\n            .map(p -> \"₹\" + p.getPrice())\n            .collect(Collectors.joining(\", \"));\n    }\n    \n    public static void main(String[] args) {\n        List<Product> catalog = Arrays.asList(\n            new Product(\"P01\", \"Mouse\",    \"Electronics\", 799),\n            new Product(\"P02\", \"Keyboard\", \"Electronics\", 1999),\n            new Product(\"P03\", \"Java Book\",\"Books\",        649),\n            new Product(\"P04\", \"Design Patterns\", \"Books\", 899)\n        );\n        \n        findCheapestByCategory(catalog, \"Electronics\")\n            .ifPresent(p -> System.out.println(\"Cheapest Electronics: \" + p.getName() + \" ₹\" + p.getPrice()));\n        findCheapestByCategory(catalog, \"Books\")\n            .ifPresent(p -> System.out.println(\"Cheapest Books: \" + p.getName() + \" ₹\" + p.getPrice()));\n        \n        System.out.println(\"Category report: \" + new TreeMap<>(getCategoryReport(catalog)));\n        \n        System.out.println(\"Transformed ID P01: \" + findAndTransform(catalog, \"P01\"));\n        System.out.println(\"Transformed ID P99: \" + findAndTransform(catalog, \"P99\"));\n        \n        System.out.println(\"Electronics prices: \" + allPricesForCategory(catalog, \"Electronics\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Cheapest Electronics: Mouse ₹799.0\nCheapest Books: Java Book ₹649.0\nCategory report: {Books=₹649.0-₹899.0, Electronics=₹799.0-₹1999.0}\nTransformed ID P01: MOUSE\nTransformed ID P99: SHORT_ID\nElectronics prices: ₹799.0, ₹1999.0" }
+      ],
+      "hints": [
+        "findCheapestByCategory: stream.filter.min returns Optional<Product>",
+        "getCategoryReport: groupingBy + collectingAndThen to compute range string",
+        "findAndTransform: findFirst → map name → map upper → filter ≥5 → orElse",
+        "'MOUSE' has 5 chars ≥ 5, passes filter. P99 not found → empty → 'SHORT_ID'"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 715,
+    "estimated_completion_minutes": 60
+  }
+}

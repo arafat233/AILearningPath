@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m20_t3_proj",
+  "linked_topic": "java_m20_t3",
+  "level": "mini",
+  "name": "Razorpay Payment Audit Trail — Structured Logging",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Razorpay's logs are unstructured text, making debugging and compliance auditing a nightmare. Add JSON structured logging with MDC context so every log line is machine-parseable and includes requestId, userId, merchantId, and traceId.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "pom.xml: logstash-logback-encoder. logback-spring.xml: JSON appender for prod profile, text for dev.", "weight": 15 },
+      { "id": "req_2", "description": "LoggingContextFilter: sets requestId (UUID), userId, merchantId from headers. MDC.clear() in finally.", "weight": 20 },
+      { "id": "req_3", "description": "PaymentAuditLogger: INFO log on success, ERROR on failure. Both include paymentId, gateway, amount, status as structured fields.", "weight": 20 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): success logs INFO, failure logs ERROR, log message contains paymentId. All 3 pass.", "weight": 35 },
+      { "id": "req_5", "description": "README: sample JSON log output + 3 example Loki queries.", "weight": 10 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "AsyncMDCService: CompletableFuture that copies and restores MDC. Test: async thread logs show same requestId.", "weight": 20 },
+      { "id": "bonus_2", "description": "SecureLoggingDemo: show masked card number, masked API key, no password. Code review with before/after.", "weight": 15 },
+      { "id": "bonus_3", "description": "LokiAlertConfig: document 3 Loki alert rules with their LogQL queries and when they fire.", "weight": 15 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. MDC.clear() in finally block: mandatory — without it, thread pool reuse leaks context to next request. LogstashEncoder: outputs all MDC fields as JSON keys automatically (no extra configuration per field). ListAppender for testing: add before test, detach and clear after each test. Parameterized logging: log.info('User {}', id) NOT log.info('User ' + id) — lazy evaluation prevents string concatenation overhead when log level is disabled. Never log card numbers, CVV, API keys, or passwords.",
+  "rubric": [
+    { "category": "pom.xml + logback", "points": 15 },
+    { "category": "LoggingContextFilter", "points": 20 },
+    { "category": "PaymentAuditLogger", "points": 20 },
+    { "category": "@SpringBootTest (3 tests)", "points": 35 },
+    { "category": "README with Loki queries", "points": 10 },
+    { "category": "Bonus", "points": 50 }
+  ]
+}

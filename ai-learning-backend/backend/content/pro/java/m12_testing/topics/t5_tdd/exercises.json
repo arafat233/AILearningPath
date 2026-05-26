@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t5",
+  "topic_name": "Test-Driven Development (TDD)",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m12_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Identify TDD cycle stages",
+      "scenario": "Red = test fails; Green = minimum code passes; Refactor = improve.",
+      "instructions": "Label each step as RED, GREEN, or REFACTOR:\n\n```\nStep A: @Test void add_3and4_returns7() { assertEquals(7, calc.add(3,4)); }\n        Calc class does not exist yet.\n\nStep B: class Calc { int add(int a, int b) { return 7; } }\n        Test now passes.\n\nStep C: @Test void add_5and6_returns11() { assertEquals(11, calc.add(5,6)); }\n        Previous test still passes, new one fails.\n\nStep D: int add(int a, int b) { return a + b; }\n        Both tests pass.\n\nStep E: Rename method to 'sum'; extract constant MAX = 1000.\n        All tests still pass.\n```",
+      "expected_solution": "A: RED\nB: GREEN\nC: RED\nD: GREEN\nE: REFACTOR",
+      "test_cases": [
+        { "type": "text_match", "expected": "A: RED\nB: GREEN\nC: RED\nD: GREEN\nE: REFACTOR" }
+      ],
+      "hints": [
+        "RED: a failing test exists, no passing code",
+        "GREEN: minimum code makes the test pass",
+        "REFACTOR: improve code without adding behaviour"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete a TDD Green step",
+      "scenario": "Green: write minimum code to pass the failing test.",
+      "instructions": "The test exists. Fill in the minimum implementation to make it pass.",
+      "starter_code": "// EXISTING TEST (RED — fails because class doesn't exist):\n// @Test void double_of4_returns8() { assertEquals(8, Doubler.of(4)); }\n\n// YOUR MINIMUM GREEN IMPLEMENTATION:\npublic class Doubler {\n    public static int of(int n) {\n        return ____;\n    }\n}",
+      "expected_solution": "public class Doubler {\n    public static int of(int n) {\n        return n * 2;\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "n * 2", "hint": "Minimum code that makes of(4) return 8 for any n" }
+      ],
+      "test_cases": [
+        { "type": "compilation_and_run", "expected": "Test passes" }
+      ],
+      "hints": [
+        "Could return 8 (hardcoded) — but that would fail on triangulation",
+        "n * 2 is the minimum general solution"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "TDD Cycle 1+2: FizzBuzz",
+      "scenario": "Write test, implement, triangulate to force real logic.",
+      "instructions": "Use TDD to build FizzBuzz.of(int n) with exactly 3 cycles:\n1. of(1) → '1' (write test, implement)\n2. of(3) → 'Fizz' (triangulate)\n3. of(5) → 'Buzz' (triangulate again)\n\nAll 3 tests must pass with final implementation.",
+      "starter_code": "// Write tests AND implementation, cycle by cycle\n// Show all 3 tests, then the final implementation\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass FizzBuzzTest {\n    @Test void number_1_returns1()       { assertEquals(\"1\",    FizzBuzz.of(1)); }\n    @Test void multiple3_returns_Fizz()  { assertEquals(\"Fizz\", FizzBuzz.of(3)); }\n    @Test void multiple5_returns_Buzz()  { assertEquals(\"Buzz\", FizzBuzz.of(5)); }\n}\nclass FizzBuzz {\n    static String of(int n) {\n        if (n % 15 == 0) return \"FizzBuzz\";\n        if (n % 3  == 0) return \"Fizz\";\n        if (n % 5  == 0) return \"Buzz\";\n        return String.valueOf(n);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Cycle 1: return String.valueOf(n) makes '1' pass",
+        "Cycle 2: add if (n % 3 == 0) return 'Fizz'",
+        "Cycle 3: add if (n % 5 == 0) return 'Buzz'"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m12_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "TDD: Stack implementation — push and pop",
+      "scenario": "TDD with collections — tests drive the data structure choice.",
+      "instructions": "Use TDD to build a SimpleStack<T> with push() and pop(). Write tests first:\n1. empty() on new stack → true\n2. push one item → empty() false\n3. pop() after push → returns pushed item\n4. pop on empty → throws EmptyStackException\n\nAll 4 tests must pass.",
+      "starter_code": "// Write all 4 tests first, then implement SimpleStack<T>\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport java.util.*;\nclass SimpleStack<T> {\n    private final Deque<T> items = new ArrayDeque<>();\n    void push(T item) { items.push(item); }\n    T pop() {\n        if (isEmpty()) throw new EmptyStackException();\n        return items.pop();\n    }\n    boolean isEmpty() { return items.isEmpty(); }\n}\nclass SimpleStackTest {\n    SimpleStack<String> stack = new SimpleStack<>();\n    @Test void newStack_isEmpty()               { assertTrue(stack.isEmpty()); }\n    @Test void push_oneItem_notEmpty()          { stack.push(\"a\"); assertFalse(stack.isEmpty()); }\n    @Test void pop_afterPush_returnsPushedItem() { stack.push(\"hello\"); assertEquals(\"hello\", stack.pop()); }\n    @Test void pop_emptyStack_throwsException() { assertThrows(EmptyStackException.class, () -> stack.pop()); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "Write all tests first (RED), then implement",
+        "Use Deque<T> internally — tests drive the choice",
+        "EmptyStackException extends RuntimeException"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m12_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "TDD: Password validator — 5 rules",
+      "scenario": "Each rule is its own Red-Green cycle.",
+      "instructions": "TDD a PasswordValidator.isValid(String password) with 5 rules tested one at a time:\n1. null → false\n2. length < 8 → false\n3. no uppercase → false\n4. no digit → false\n5. valid password → true\n\nWrite all 5 tests, then implement.",
+      "starter_code": "// TDD: write all 5 tests, then implement\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass PasswordValidator {\n    boolean isValid(String pwd) {\n        if (pwd == null) return false;\n        if (pwd.length() < 8) return false;\n        if (!pwd.chars().anyMatch(Character::isUpperCase)) return false;\n        if (!pwd.chars().anyMatch(Character::isDigit)) return false;\n        return true;\n    }\n}\nclass PasswordValidatorTest {\n    PasswordValidator v = new PasswordValidator();\n    @Test void null_returnsFalse()           { assertFalse(v.isValid(null)); }\n    @Test void tooShort_returnsFalse()       { assertFalse(v.isValid(\"Abc123\")); }\n    @Test void noUppercase_returnsFalse()    { assertFalse(v.isValid(\"abc12345\")); }\n    @Test void noDigit_returnsFalse()        { assertFalse(v.isValid(\"Abcdefgh\")); }\n    @Test void validPassword_returnsTrue()   { assertTrue(v.isValid(\"Secure123\")); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "Each test adds one constraint",
+        "Write tests FIRST — they're the specification",
+        "pwd.chars().anyMatch(Character::isUpperCase)"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m12_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "TDD with exceptions — BankAccount withdraw",
+      "scenario": "Exception paths are first-class citizens in TDD.",
+      "instructions": "TDD BankAccount.withdraw(double amount) for 4 scenarios:\n1. withdraw less than balance → balance reduces\n2. withdraw exact balance → balance becomes 0\n3. withdraw more than balance → throws IllegalStateException\n4. withdraw negative → throws IllegalArgumentException\n\nWrite tests first.",
+      "starter_code": "// TDD: write 4 tests then implement\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass BankAccount {\n    private double balance;\n    BankAccount(double balance) { this.balance = balance; }\n    void withdraw(double amount) {\n        if (amount < 0) throw new IllegalArgumentException(\"Amount must be positive\");\n        if (amount > balance) throw new IllegalStateException(\"Insufficient funds\");\n        balance -= amount;\n    }\n    double getBalance() { return balance; }\n}\nclass BankAccountTest {\n    @Test void withdraw_lessThanBalance_reducesBalance() {\n        BankAccount acc = new BankAccount(1000); acc.withdraw(300);\n        assertEquals(700, acc.getBalance(), 0.01);\n    }\n    @Test void withdraw_exactBalance_becomesZero() {\n        BankAccount acc = new BankAccount(1000); acc.withdraw(1000);\n        assertEquals(0, acc.getBalance(), 0.01);\n    }\n    @Test void withdraw_moreThanBalance_throwsIllegalState() {\n        assertThrows(IllegalStateException.class, () -> new BankAccount(1000).withdraw(2000));\n    }\n    @Test void withdraw_negativeAmount_throwsIllegalArgument() {\n        assertThrows(IllegalArgumentException.class, () -> new BankAccount(1000).withdraw(-100));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "Write the exception tests first — they're often forgotten otherwise",
+        "Each test is one scenario, one assertion (or one assertThrows)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m12_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "TDD: Word frequency counter",
+      "scenario": "TDD a non-trivial algorithm step by step.",
+      "instructions": "TDD WordCounter.count(String text) returning Map<String, Long> with 4 cycles:\n1. single word → {word: 1}\n2. two different words → both in map\n3. repeated word → count is 2\n4. case insensitive — 'Mouse' and 'mouse' same key\n\nWrite each test before implementing.",
+      "starter_code": "// TDD: 4 cycles, each test first\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass WordCounter {\n    Map<String, Long> count(String text) {\n        if (text == null || text.isBlank()) return Map.of();\n        Map<String, Long> freq = new LinkedHashMap<>();\n        for (String word : text.toLowerCase().split(\"\\\\s+\")) {\n            freq.merge(word, 1L, Long::sum);\n        }\n        return freq;\n    }\n}\nclass WordCounterTest {\n    WordCounter counter = new WordCounter();\n    @Test void singleWord_count1() {\n        assertEquals(1L, counter.count(\"hello\").get(\"hello\"));\n    }\n    @Test void twoWords_bothInMap() {\n        Map<String, Long> result = counter.count(\"hello world\");\n        assertEquals(1L, result.get(\"hello\")); assertEquals(1L, result.get(\"world\"));\n    }\n    @Test void repeatedWord_count2() {\n        assertEquals(2L, counter.count(\"hello hello\").get(\"hello\"));\n    }\n    @Test void caseInsensitive_sameKey() {\n        Map<String, Long> result = counter.count(\"Mouse mouse\");\n        assertEquals(2L, result.get(\"mouse\"));\n        assertNull(result.get(\"Mouse\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "Cycle 1: single word forces you to return a Map, not a Long",
+        "Cycle 3: repeated word forces merge instead of put",
+        "Cycle 4: case insensitive forces .toLowerCase() on split"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m12_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "TDD: GST calculator — 4 slabs",
+      "scenario": "Multi-rule logic built test-by-test.",
+      "instructions": "TDD GSTCalculator.calculate(double price) returning tax amount:\n- price < 1000 → 5% tax\n- price < 5000 → 12%\n- price < 15000 → 18%\n- price >= 15000 → 28%\n\n4 test cycles, boundary values, triangulation.",
+      "starter_code": "// TDD: 4 cycles, one slab per cycle\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass GSTCalculator {\n    double calculate(double price) {\n        double rate = price < 1000 ? 0.05 : price < 5000 ? 0.12 : price < 15000 ? 0.18 : 0.28;\n        return price * rate;\n    }\n}\nclass GSTCalculatorTest {\n    GSTCalculator calc = new GSTCalculator();\n    @Test void price500_5percentTax()    { assertEquals(25.0,   calc.calculate(500),   0.01); }\n    @Test void price1000_12percentTax()  { assertEquals(120.0,  calc.calculate(1000),  0.01); }\n    @Test void price5000_18percentTax()  { assertEquals(900.0,  calc.calculate(5000),  0.01); }\n    @Test void price15000_28percentTax() { assertEquals(4200.0, calc.calculate(15000), 0.01); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "Cycle 1: return price * 0.05 (hardcoded for first slab)",
+        "Cycle 2: add if (price >= 1000) rate = 0.12",
+        "Each boundary forces the next condition",
+        "500 * 0.05 = 25; 1000 * 0.12 = 120; 5000 * 0.18 = 900; 15000 * 0.28 = 4200"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "TDD: Shopping Cart with discount tiers",
+      "scenario": "Full feature built from scratch using TDD.",
+      "instructions": "TDD ShoppingCart with 5 cycles:\n1. empty cart total is 0\n2. addItem single → total is price\n3. addItem two items → total is sum\n4. applyDiscount(10%) → total reduced by 10%\n5. remove item → total reduced\n\nWrite each test before implementing.",
+      "starter_code": "// 5-cycle TDD ShoppingCart\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass ShoppingCart {\n    private final Map<String, Double> items = new LinkedHashMap<>();\n    void addItem(String name, double price) { items.put(name, price); }\n    void removeItem(String name) { items.remove(name); }\n    void applyDiscount(double rate) { items.replaceAll((n, p) -> p * (1 - rate)); }\n    double getTotal() { return items.values().stream().mapToDouble(Double::doubleValue).sum(); }\n}\nclass ShoppingCartTest {\n    ShoppingCart cart = new ShoppingCart();\n    @Test void empty_totalIsZero()        { assertEquals(0.0, cart.getTotal(), 0.001); }\n    @Test void addOne_totalIsPrice()      { cart.addItem(\"Mouse\",799); assertEquals(799, cart.getTotal(), 0.001); }\n    @Test void addTwo_totalIsSum()        { cart.addItem(\"Mouse\",799); cart.addItem(\"KB\",1999); assertEquals(2798, cart.getTotal(), 0.001); }\n    @Test void discount10_reducesTotal()  { cart.addItem(\"Mouse\",1000); cart.applyDiscount(0.10); assertEquals(900, cart.getTotal(), 0.001); }\n    @Test void removeItem_totalReduced()  { cart.addItem(\"Mouse\",799); cart.addItem(\"KB\",1999); cart.removeItem(\"Mouse\"); assertEquals(1999, cart.getTotal(), 0.001); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "Cycle 1: getTotal returns 0.0 hardcoded",
+        "Cycle 2: addItem forces actual storage",
+        "Cycle 5 (remove): if using List, you must refactor to Map — that's fine in Green!"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m12_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Identify what's wrong with this TDD attempt",
+      "scenario": "TDD violations are subtle — recognize them.",
+      "instructions": "Which TDD rules are violated in this 'TDD' attempt? List the problems.\n\n```java\n// 'TDD' attempt:\n\n// STEP 1: Write all tests:\n@Test void add_returns7()     { assertEquals(7,  calc.add(3,4)); }\n@Test void add_returns11()    { assertEquals(11, calc.add(5,6)); }\n@Test void subtract_returns3(){ assertEquals(3,  calc.subtract(7,4)); }\n@Test void divide_by0_throws(){ assertThrows(ArithmeticException.class, () -> calc.divide(5,0)); }\n\n// STEP 2: Write full implementation:\nclass Calculator {\n    int add(int a, int b)      { return a + b; }\n    int subtract(int a, int b) { return a - b; }\n    int divide(int a, int b)   { return a / b; }\n}\n```",
+      "expected_solution": "Violations:\n1. All 4 tests written before any implementation (should be one at a time)\n2. Full implementation written after all tests (should be minimum code per test)\n3. No triangulation shown — both add tests written at once\n4. No refactor step shown between cycles",
+      "test_cases": [
+        { "type": "text_match", "expected": "Violations:\n1. All 4 tests written before any implementation (should be one at a time)\n2. Full implementation written after all tests (should be minimum code per test)\n3. No triangulation shown — both add tests written at once\n4. No refactor step shown between cycles" }
+      ],
+      "hints": [
+        "TDD: one test at a time, not batch",
+        "Green phase: minimum code, not full implementation",
+        "Missing: Red→Green→Refactor cycle for each test"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m12_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "TDD: Order pricing with multiple rules",
+      "scenario": "Multiple interacting rules built carefully test-by-test.",
+      "instructions": "TDD OrderPricer.calculateTotal(int qty, double unitPrice, boolean premiumUser):\nCycle 1: qty=1, price=100, not premium → 100.0\nCycle 2: qty=10, price=100 → 900.0 (10% discount)\nCycle 3: qty=50, price=100 → 800.0 (20% discount)\nCycle 4: premium user → extra 5% off after qty discount\nCycle 5: negative qty → throws\n\nAll 5 tests, write before implementing each.",
+      "starter_code": "// TDD: 5 cycles for OrderPricer\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass OrderPricer {\n    double calculateTotal(int qty, double unitPrice, boolean premium) {\n        if (qty < 0) throw new IllegalArgumentException(\"Qty must be non-negative\");\n        double base = qty * unitPrice;\n        double disc = qty >= 50 ? 0.20 : qty >= 10 ? 0.10 : 0.0;\n        double afterDisc = base * (1 - disc);\n        return premium ? afterDisc * 0.95 : afterDisc;\n    }\n}\nclass OrderPricerTest {\n    OrderPricer p = new OrderPricer();\n    @Test void singleItem_noDiscount()       { assertEquals(100.0, p.calculateTotal(1,  100, false), 0.01); }\n    @Test void qty10_10percentDiscount()     { assertEquals(900.0, p.calculateTotal(10, 100, false), 0.01); }\n    @Test void qty50_20percentDiscount()     { assertEquals(800.0, p.calculateTotal(50, 100, false), 0.01); }\n    @Test void premium_extra5percent()       { assertEquals(855.0, p.calculateTotal(10, 100, true),  0.01); }\n    @Test void negativeQty_throwsIllegal()   { assertThrows(IllegalArgumentException.class, () -> p.calculateTotal(-1, 100, false)); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "10 * 100 * 0.90 = 900; 50 * 100 * 0.80 = 800",
+        "Premium: 10 * 100 * 0.90 * 0.95 = 855",
+        "Cycle 3 triangulates cycle 2 — forces the conditional"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m12_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "TDD: Temperature converter",
+      "scenario": "Simple algorithm built with full TDD discipline.",
+      "instructions": "TDD TemperatureConverter with 3 conversion methods:\n- celsiusToFahrenheit(double c) → (c × 9/5) + 32\n- fahrenheitToCelsius(double f) → (f - 32) × 5/9\n- celsiusToKelvin(double c) → c + 273.15\n\nFor each: write test first, implement minimum, triangulate with second test.\nTotal: 6 test cases.",
+      "starter_code": "// TDD: 6 cycles for TemperatureConverter\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass TemperatureConverter {\n    double celsiusToFahrenheit(double c) { return c * 9.0/5 + 32; }\n    double fahrenheitToCelsius(double f) { return (f - 32) * 5.0/9; }\n    double celsiusToKelvin(double c)     { return c + 273.15; }\n}\nclass TemperatureConverterTest {\n    TemperatureConverter conv = new TemperatureConverter();\n    @Test void c2f_0celsius_is32f()      { assertEquals(32.0,  conv.celsiusToFahrenheit(0), 0.01); }\n    @Test void c2f_100celsius_is212f()   { assertEquals(212.0, conv.celsiusToFahrenheit(100), 0.01); }\n    @Test void f2c_32f_is0c()            { assertEquals(0.0,   conv.fahrenheitToCelsius(32), 0.01); }\n    @Test void f2c_212f_is100c()         { assertEquals(100.0, conv.fahrenheitToCelsius(212), 0.01); }\n    @Test void c2k_0celsius_is273_15k()  { assertEquals(273.15,conv.celsiusToKelvin(0), 0.01); }\n    @Test void c2k_100celsius_is373_15k(){ assertEquals(373.15,conv.celsiusToKelvin(100), 0.01); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "6 tests pass" }
+      ],
+      "hints": [
+        "Two tests per method for triangulation",
+        "0°C = 32°F (freezing); 100°C = 212°F (boiling)",
+        "Each method pair: one hardcodeable input, one that forces real formula"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m12_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "TDD: Roman numeral converter",
+      "scenario": "Non-trivial algorithm emerged from TDD steps.",
+      "instructions": "TDD RomanConverter.toRoman(int number) using 6+ cycles:\n1. 1 → 'I'\n2. 4 → 'IV'\n3. 5 → 'V'\n4. 9 → 'IX'\n5. 10 → 'X'\n6. 40 → 'XL'\n7. Add triangulation tests in between\n\nFinal implementation must handle 1-99.",
+      "starter_code": "// TDD: 6+ cycles for Roman numeral converter\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass RomanConverter {\n    static String toRoman(int n) {\n        int[]    values  = {90, 50, 40, 10,  9,  5,  4,  1};\n        String[] symbols = {\"XC\",\"L\",\"XL\",\"X\",\"IX\",\"V\",\"IV\",\"I\"};\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < values.length; i++) {\n            while (n >= values[i]) { sb.append(symbols[i]); n -= values[i]; }\n        }\n        return sb.toString();\n    }\n}\nclass RomanConverterTest {\n    @Test void one_isI()       { assertEquals(\"I\",    RomanConverter.toRoman(1)); }\n    @Test void two_isII()      { assertEquals(\"II\",   RomanConverter.toRoman(2)); }\n    @Test void four_isIV()     { assertEquals(\"IV\",   RomanConverter.toRoman(4)); }\n    @Test void five_isV()      { assertEquals(\"V\",    RomanConverter.toRoman(5)); }\n    @Test void nine_isIX()     { assertEquals(\"IX\",   RomanConverter.toRoman(9)); }\n    @Test void ten_isX()       { assertEquals(\"X\",    RomanConverter.toRoman(10)); }\n    @Test void forty_isXL()    { assertEquals(\"XL\",   RomanConverter.toRoman(40)); }\n    @Test void ninety_isXC()   { assertEquals(\"XC\",   RomanConverter.toRoman(90)); }\n    @Test void fourtyTwo_isXLII(){ assertEquals(\"XLII\", RomanConverter.toRoman(42)); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "9 tests pass" }
+      ],
+      "hints": [
+        "Start with just '1 → I', then triangulate '2 → II' to force the loop",
+        "Subtractive forms (IV, IX, XL) each require their own test cycle",
+        "The lookup table emerges naturally from all the cases"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m12_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "TDD: Order processing pipeline",
+      "scenario": "Multi-step business process built cycle by cycle.",
+      "instructions": "TDD OrderProcessor.process(Order order) returning ProcessResult with:\n1. Valid order → ACCEPTED, with total = qty × price\n2. Zero qty → REJECTED, message 'Qty must be positive'\n3. Zero price → REJECTED, message 'Price must be positive'\n4. qty >= 10 → ACCEPTED with 10% bulk discount applied to total\n5. null order → throws NullPointerException\n\n5 cycles, each test first.",
+      "starter_code": "// TDD: 5 cycles for OrderProcessor\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nrecord Order(String product, int qty, double price) {}\nrecord ProcessResult(String status, String message, double total) {}\nclass OrderProcessor {\n    ProcessResult process(Order order) {\n        if (order == null) throw new NullPointerException(\"Order cannot be null\");\n        if (order.qty() <= 0)   return new ProcessResult(\"REJECTED\", \"Qty must be positive\", 0);\n        if (order.price() <= 0) return new ProcessResult(\"REJECTED\", \"Price must be positive\", 0);\n        double total = order.qty() * order.price();\n        if (order.qty() >= 10) total *= 0.90;\n        return new ProcessResult(\"ACCEPTED\", \"OK\", total);\n    }\n}\nclass OrderProcessorTest {\n    OrderProcessor p = new OrderProcessor();\n    @Test void valid_order_accepted_withTotal() {\n        var r = p.process(new Order(\"Mouse\", 2, 799));\n        assertEquals(\"ACCEPTED\", r.status()); assertEquals(1598, r.total(), 0.01);\n    }\n    @Test void zeroQty_rejected_correctMessage() {\n        var r = p.process(new Order(\"Mouse\", 0, 799));\n        assertEquals(\"REJECTED\", r.status()); assertTrue(r.message().contains(\"Qty\"));\n    }\n    @Test void zeroPrice_rejected() {\n        assertEquals(\"REJECTED\", p.process(new Order(\"Mouse\", 1, 0)).status());\n    }\n    @Test void qty10_accepted_withBulkDiscount() {\n        var r = p.process(new Order(\"Mouse\", 10, 100));\n        assertEquals(\"ACCEPTED\", r.status()); assertEquals(900, r.total(), 0.01);\n    }\n    @Test void nullOrder_throwsNPE() {\n        assertThrows(NullPointerException.class, () -> p.process(null));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "5 tests pass" }
+      ],
+      "hints": [
+        "ProcessResult as a record — tests drive the return type",
+        "Cycle 4: qty=10 forces the bulk discount condition",
+        "Null test: write it last so early tests don't implicitly test null handling"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m12_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "TDD: Complete inventory system — Module 12 capstone",
+      "scenario": "Full class built from nothing using strict TDD discipline.",
+      "instructions": "TDD an InventoryManager from scratch with 8+ cycles:\n1. Empty inventory → getStock('P001') returns 0\n2. addStock → getStock returns correct quantity\n3. addStock twice → cumulative quantity\n4. removeStock → reduces quantity\n5. removeStock more than available → throws InsufficientStockException\n6. getProducts() → returns all product names with stock > 0\n7. setMinimum(product, qty) + isLow(product) → true if stock < minimum\n8. transferStock(from, to, qty) → moves stock between products\n\nEach test must be written BEFORE its implementation.",
+      "starter_code": "// TDD: 8+ cycles for InventoryManager — write ALL tests first, then implement\n// Show: test → then the minimum code added to pass it\n",
+      "expected_solution": "import org.junit.jupiter.api.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass InsufficientStockException extends RuntimeException { InsufficientStockException(String m) { super(m); } }\nclass InventoryManager {\n    private final Map<String, Integer> stock = new LinkedHashMap<>();\n    private final Map<String, Integer> minimums = new HashMap<>();\n    int getStock(String product) { return stock.getOrDefault(product, 0); }\n    void addStock(String product, int qty) { stock.merge(product, qty, Integer::sum); }\n    void removeStock(String product, int qty) {\n        int current = getStock(product);\n        if (qty > current) throw new InsufficientStockException(\n            \"Requested \" + qty + \" but only \" + current + \" available\");\n        stock.put(product, current - qty);\n    }\n    List<String> getProducts() {\n        return stock.entrySet().stream().filter(e -> e.getValue() > 0)\n            .map(Map.Entry::getKey).collect(Collectors.toList());\n    }\n    void setMinimum(String product, int minimum) { minimums.put(product, minimum); }\n    boolean isLow(String product) {\n        int min = minimums.getOrDefault(product, 0);\n        return getStock(product) < min;\n    }\n    void transferStock(String from, String to, int qty) {\n        removeStock(from, qty);\n        addStock(to, qty);\n    }\n}\nclass InventoryManagerTest {\n    InventoryManager inv = new InventoryManager();\n    @Test void empty_stockIsZero()             { assertEquals(0, inv.getStock(\"P001\")); }\n    @Test void addStock_returnsQty()           { inv.addStock(\"P001\", 50); assertEquals(50, inv.getStock(\"P001\")); }\n    @Test void addTwice_cumulative()           { inv.addStock(\"P001\", 50); inv.addStock(\"P001\", 20); assertEquals(70, inv.getStock(\"P001\")); }\n    @Test void removeStock_reduces()           { inv.addStock(\"P001\", 50); inv.removeStock(\"P001\", 10); assertEquals(40, inv.getStock(\"P001\")); }\n    @Test void removeMoreThanAvailable_throws(){ inv.addStock(\"P001\", 10);\n        assertThrows(InsufficientStockException.class, () -> inv.removeStock(\"P001\", 20)); }\n    @Test void getProducts_onlyWithStock()     { inv.addStock(\"P001\", 50); inv.addStock(\"P002\", 0);\n        assertTrue(inv.getProducts().contains(\"P001\")); assertFalse(inv.getProducts().contains(\"P002\")); }\n    @Test void isLow_belowMinimum_true()       { inv.addStock(\"P001\", 5); inv.setMinimum(\"P001\", 10); assertTrue(inv.isLow(\"P001\")); }\n    @Test void transferStock_movesQty()        { inv.addStock(\"P001\", 50); inv.addStock(\"P002\", 20);\n        inv.transferStock(\"P001\", \"P002\", 10);\n        assertEquals(40, inv.getStock(\"P001\")); assertEquals(30, inv.getStock(\"P002\")); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "8 tests pass" }
+      ],
+      "hints": [
+        "Cycle 1: getStock returns 0 for unknown → Map.getOrDefault",
+        "Cycle 3: addTwice forces merge instead of put",
+        "Cycle 6: getProducts filter stock > 0 — zero-stock 'P002' not included",
+        "Cycle 8: transferStock reuses removeStock + addStock — no new logic needed"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 70
+  }
+}

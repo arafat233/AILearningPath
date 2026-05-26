@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m13_t1_proj",
+  "linked_topic": "java_m13_t1",
+  "level": "mini",
+  "name": "Inventory Management Spring Boot Application",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+
+  "scenario": "Build a Spring Boot application skeleton for an inventory management system. No REST endpoints yet — this is purely the service layer: Spring beans, dependency injection, properties configuration, and a CommandLineRunner that demonstrates the wired components working together.",
+
+  "description": "A multi-service Spring Boot app: InventoryService, WarehouseService, and AlertService — all wired together with constructor injection. Configuration via application.properties. @PostConstruct initialization. CommandLineRunner demonstrates the full wiring on startup.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Application.java` with @SpringBootApplication and `main()`. All other classes in sub-packages.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`InventoryItem` record: sku (String), name (String), quantity (int), price (double).",
+        "weight": 8
+      },
+      {
+        "id": "req_3",
+        "description": "`InventoryRepository` (@Repository): in-memory Map<String, InventoryItem>. Methods: add(item), findBySku(sku) → Optional<InventoryItem>, findAll() → List, count() → int.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "`InventoryService` (@Service): depends on InventoryRepository (constructor injection). Methods: addItem(sku, name, qty, price), getItem(sku), getAllItems(), getTotalValue() (sum of qty × price).",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "`AlertService` (@Service): reads @Value `inventory.low-stock-threshold` (int, default 10). Method isLowStock(InventoryItem) → qty < threshold. @PostConstruct prints threshold.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "`InventoryStartupRunner` (@Component implements CommandLineRunner): depends on InventoryService and AlertService. In run(): adds 3 test items, prints all items, total value, flags low-stock items.",
+        "weight": 20
+      },
+      {
+        "id": "req_7",
+        "description": "`application.properties`: server.port=8090, spring.application.name=inventory-service, inventory.low-stock-threshold=5, logging.level.root=INFO.",
+        "weight": 14
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add Spring profiles: application-dev.properties (threshold=2, DEBUG logging) vs application-prod.properties (threshold=20, WARN logging). Demonstrate profile activation.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a @SpringBootTest integration test (WebEnvironment.NONE) that autowires InventoryService, adds items, and asserts getTotalValue() returns the correct sum.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add @ConfigurationProperties(prefix='inventory') as an alternative to multiple @Value fields. Create an InventoryProperties class with lowStockThreshold, maxItems, and currency fields.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Test inventory items:\nSKU-001: 'Wireless Mouse', qty=50, price=₹799\nSKU-002: 'Mechanical Keyboard', qty=3, price=₹1999 (low stock!)\nSKU-003: 'USB-C Hub', qty=8, price=₹499 (low stock at threshold=5? No. At threshold=10? Yes!)\n\nExpected output on startup:\n=== Inventory System Started ===\nAlert: threshold=5\nItems: 3\n  SKU-001: Wireless Mouse | qty:50 | ₹799 | [OK]\n  SKU-002: Keyboard | qty:3 | ₹1999 | [LOW STOCK!]\n  SKU-003: USB Hub | qty:8 | ₹499 | [OK]\nTotal inventory value: ₹47942",
+
+  "starter_code": "// Project structure:\n// src/main/java/com/codequest/inventory/\n//   Application.java\n//   repository/InventoryRepository.java\n//   service/InventoryService.java\n//   service/AlertService.java\n//   runner/InventoryStartupRunner.java\n// src/main/resources/\n//   application.properties\n\n// Start with Application.java:\npackage com.codequest.inventory;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n    }\n}",
+
+  "example_output": "  .   ____          _            __ _ _\n /\\\\ / ___'_ __ _ _(_)_ __  __ _ \\ \\ \\ \\\n...\nINFO  - Started Application in 2.1 seconds\n[AlertService] Low stock threshold: 5\n\n=== Inventory System ===\nSKU-001 | Wireless Mouse      | qty=50 | ₹799.00  [OK]\nSKU-002 | Mechanical Keyboard | qty=3  | ₹1999.00 [LOW STOCK!]\nSKU-003 | USB-C Hub           | qty=8  | ₹499.00  [OK]\n\nTotal items: 3\nTotal inventory value: ₹47942.00\nLow stock alerts: 1",
+
+  "rubric": [
+    { "category": "Application Setup", "points": 10, "criteria": ["@SpringBootApplication on main (5 pts)", "Package structure correct (5 pts)"] },
+    { "category": "InventoryRepository", "points": 20, "criteria": ["@Repository + in-memory Map (10 pts)", "All 4 methods correct (10 pts)"] },
+    { "category": "InventoryService", "points": 20, "criteria": ["@Service + constructor injection (10 pts)", "getTotalValue() correct (10 pts)"] },
+    { "category": "AlertService", "points": 15, "criteria": ["@Value threshold (8 pts)", "@PostConstruct print (7 pts)"] },
+    { "category": "StartupRunner", "points": 20, "criteria": ["CommandLineRunner impl (5 pts)", "Prints items + value + alerts (15 pts)"] },
+    { "category": "application.properties", "points": 15, "criteria": ["All 4 properties set (15 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["Profiles (15 pts)", "@SpringBootTest (20 pts)", "@ConfigurationProperties (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key: ALL classes must be in sub-packages of Application.java's package for @ComponentScan to find them. Constructor injection: no @Autowired annotation needed when there's only one constructor. getTotalValue(): items.stream().mapToDouble(i -> i.quantity() * i.price()).sum().",
+
+  "submission_instructions": "Push to GitHub. Run with `mvn spring-boot:run`. Show startup output in README.",
+
+  "tips_for_success": [
+    "Package all classes under com.codequest.inventory (or whatever you choose for Application)",
+    "InventoryRepository: private final Map<String, InventoryItem> store = new LinkedHashMap<>()",
+    "CommandLineRunner.run() is called after all beans are created — perfect for demo output",
+    "getTotalValue(): items().stream().mapToDouble(item -> item.quantity() * item.price()).sum()",
+    "@Value with default: @Value(\"${inventory.low-stock-threshold:10}\") — colon then default"
+  ],
+
+  "concepts_reinforced": [
+    "@SpringBootApplication and component scan",
+    "Constructor injection (no @Autowired)",
+    "@Value with defaults",
+    "@PostConstruct for initialization",
+    "CommandLineRunner for startup logic",
+    "application.properties configuration"
+  ]
+}

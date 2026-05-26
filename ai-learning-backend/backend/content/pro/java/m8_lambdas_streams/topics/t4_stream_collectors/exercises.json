@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t4",
+  "topic_name": "Stream Collectors",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m8_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace groupingBy result",
+      "scenario": "groupingBy groups elements by key into a Map of Lists.",
+      "instructions": "What type is `result` and what are its entries?\n\n```java\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> words = Arrays.asList(\"hi\", \"hey\", \"hello\", \"howdy\", \"hi\");\n        Map<Integer, List<String>> result = words.stream()\n            .collect(Collectors.groupingBy(String::length));\n        // Print sorted by key for determinism:\n        new TreeMap<>(result).forEach((len, ws) ->\n            System.out.println(len + \": \" + ws));\n    }\n}\n```",
+      "expected_solution": "2: [hi, hi]\n3: [hey]\n5: [hello, howdy]",
+      "test_cases": [
+        { "type": "text_match", "expected": "2: [hi, hi]\n3: [hey]\n5: [hello, howdy]" }
+      ],
+      "hints": [
+        "groupingBy String::length groups by word length",
+        "hi (length 2): appears twice → [hi, hi]",
+        "hey (length 3): [hey]",
+        "hello and howdy (length 5): [hello, howdy]"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "groupingBy with counting",
+      "scenario": "Count occurrences per group.",
+      "instructions": "Fill in the blank to count products per category.",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> categories = Arrays.asList(\"Electronics\",\"Books\",\"Electronics\",\"Books\",\"Electronics\");\n        Map<String, Long> counts = categories.stream()\n            .collect(Collectors.groupingBy(c -> c, Collectors.______()));\n        new TreeMap<>(counts).forEach((k,v) -> System.out.println(k + \": \" + v));\n    }\n}",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> categories = Arrays.asList(\"Electronics\",\"Books\",\"Electronics\",\"Books\",\"Electronics\");\n        Map<String, Long> counts = categories.stream()\n            .collect(Collectors.groupingBy(c -> c, Collectors.counting()));\n        new TreeMap<>(counts).forEach((k,v) -> System.out.println(k + \": \" + v));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "counting", "hint": "Downstream collector that counts elements per group" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Books: 2\nElectronics: 3" }
+      ],
+      "hints": [
+        "Collectors.counting() returns Long per group"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "partitioningBy basics",
+      "scenario": "Split a list into two groups.",
+      "instructions": "Partition a list of integers into even and odd groups. Print counts.\n\nInput: [1,2,3,4,5,6,7,8,9,10]\n\nExpected output:\nEven count: 5\nOdd count: 5",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// partitioningBy even vs odd\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = Arrays.asList(1,2,3,4,5,6,7,8,9,10);\n        Map<Boolean, Long> partition = nums.stream()\n            .collect(Collectors.partitioningBy(\n                n -> n % 2 == 0,\n                Collectors.counting()\n            ));\n        System.out.println(\"Even count: \" + partition.get(true));\n        System.out.println(\"Odd count: \" + partition.get(false));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Even count: 5\nOdd count: 5" }
+      ],
+      "hints": [
+        "partitioningBy(predicate, Collectors.counting())",
+        "partition.get(true) = evens, partition.get(false) = odds"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m8_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "groupingBy employees by department",
+      "scenario": "Group objects into Map of Lists.",
+      "instructions": "Group employees by department. Print each department's employee names (sorted).\n\nEmployees: Aisha(Eng), Raj(Sales), Priya(Eng), Vikram(Sales), Anita(Eng)\n\nExpected output:\nEngineering: [Aisha, Anita, Priya]\nSales: [Raj, Vikram]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// groupingBy department, print sorted names per group\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Employee {\n    String name, dept;\n    Employee(String n, String d) { name=n; dept=d; }\n    public String toString() { return name; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = Arrays.asList(\n            new Employee(\"Aisha\",  \"Engineering\"),\n            new Employee(\"Raj\",   \"Sales\"),\n            new Employee(\"Priya\", \"Engineering\"),\n            new Employee(\"Vikram\",\"Sales\"),\n            new Employee(\"Anita\", \"Engineering\")\n        );\n        Map<String, List<String>> byDept = staff.stream()\n            .collect(Collectors.groupingBy(\n                e -> e.dept,\n                Collectors.mapping(e -> e.name, Collectors.toList())\n            ));\n        new TreeMap<>(byDept).forEach((dept, names) -> {\n            Collections.sort(names);\n            System.out.println(dept + \": \" + names);\n        });\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Engineering: [Aisha, Anita, Priya]\nSales: [Raj, Vikram]" }
+      ],
+      "hints": [
+        "Collectors.mapping(e -> e.name, Collectors.toList()) to extract names",
+        "TreeMap wrapping for sorted keys",
+        "Collections.sort within forEach for sorted names"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "toMap — build lookup map",
+      "scenario": "Build Map from stream for O(1) lookup.",
+      "instructions": "Build a `Map<String, Double>` of product name → price using toMap. Then look up two products.\n\nExpected output:\nMouse: 799.0\nKeyboard: 1999.0",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// toMap: product name → price\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Product {\n    String name; double price;\n    Product(String n, double p) { name=n; price=p; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Product> catalog = Arrays.asList(\n            new Product(\"Mouse\",    799),\n            new Product(\"Keyboard\",1999),\n            new Product(\"USB Hub\",  499)\n        );\n        Map<String, Double> priceMap = catalog.stream()\n            .collect(Collectors.toMap(\n                p -> p.name,\n                p -> p.price\n            ));\n        System.out.println(\"Mouse: \" + priceMap.get(\"Mouse\"));\n        System.out.println(\"Keyboard: \" + priceMap.get(\"Keyboard\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Mouse: 799.0\nKeyboard: 1999.0" }
+      ],
+      "hints": [
+        "toMap(keyFunction, valueFunction)",
+        "p -> p.name = key; p -> p.price = value"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Collectors.joining variants",
+      "scenario": "Join stream elements as formatted string.",
+      "instructions": "From a list of product names, produce three formatted strings.\n\nProducts: Mouse, Keyboard, USB Hub, Monitor\n\nExpected output:\nSimple: MouseKeyboardUSB HubMonitor\nDelimited: Mouse, Keyboard, USB Hub, Monitor\nWrapped: [Mouse, Keyboard, USB Hub, Monitor]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Three Collectors.joining variants\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Mouse\",\"Keyboard\",\"USB Hub\",\"Monitor\");\n        System.out.println(\"Simple: \"   + names.stream().collect(Collectors.joining()));\n        System.out.println(\"Delimited: \"+ names.stream().collect(Collectors.joining(\", \")));\n        System.out.println(\"Wrapped: \"  + names.stream().collect(Collectors.joining(\", \",\"[\",\"]\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Simple: MouseKeyboardUSB HubMonitor\nDelimited: Mouse, Keyboard, USB Hub, Monitor\nWrapped: [Mouse, Keyboard, USB Hub, Monitor]" }
+      ],
+      "hints": [
+        "joining() — no args, concatenate",
+        "joining(', ') — delimiter",
+        "joining(', ', '[', ']') — delimiter + prefix + suffix"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "averagingDouble per group",
+      "scenario": "Compute average of a numeric field per group.",
+      "instructions": "Compute average score per grade bucket (A, B, C).\n\nStudents: Aisha(A,92), Raj(B,78), Priya(A,88), Vikram(C,65), Anita(B,82)\n\nExpected output:\nA: avg=90.0\nB: avg=80.0\nC: avg=65.0",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// groupingBy + averagingDouble\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Student {\n    String name; char grade; int score;\n    Student(String n, char g, int s) { name=n; grade=g; score=s; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Student> students = Arrays.asList(\n            new Student(\"Aisha\",  'A', 92),\n            new Student(\"Raj\",   'B', 78),\n            new Student(\"Priya\", 'A', 88),\n            new Student(\"Vikram\",'C', 65),\n            new Student(\"Anita\", 'B', 82)\n        );\n        Map<Character, Double> avgByGrade = students.stream()\n            .collect(Collectors.groupingBy(\n                s -> s.grade,\n                Collectors.averagingDouble(s -> s.score)\n            ));\n        new TreeMap<>(avgByGrade).forEach((g, avg) ->\n            System.out.println(g + \": avg=\" + avg));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "A: avg=90.0\nB: avg=80.0\nC: avg=65.0" }
+      ],
+      "hints": [
+        "groupingBy(s -> s.grade, Collectors.averagingDouble(s -> s.score))",
+        "A: (92+88)/2=90; B: (78+82)/2=80; C: 65/1=65"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m8_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "summarizingDouble for full stats",
+      "scenario": "Get count, sum, min, max, average in one pass.",
+      "instructions": "Get full price statistics for a product list using summarizingDouble.\n\nPrices: 799, 1999, 649, 499, 2999, 1299\n\nExpected output:\nCount: 6\nSum: 8244.0\nMin: 499.0\nMax: 2999.0\nAvg: 1374.0",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// summarizingDouble for full stats\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Double> prices = Arrays.asList(799.0,1999.0,649.0,499.0,2999.0,1299.0);\n        DoubleSummaryStatistics stats = prices.stream()\n            .collect(Collectors.summarizingDouble(Double::doubleValue));\n        System.out.println(\"Count: \" + stats.getCount());\n        System.out.println(\"Sum: \"   + stats.getSum());\n        System.out.println(\"Min: \"   + stats.getMin());\n        System.out.println(\"Max: \"   + stats.getMax());\n        System.out.println(\"Avg: \"   + stats.getAverage());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Count: 6\nSum: 8244.0\nMin: 499.0\nMax: 2999.0\nAvg: 1374.0" }
+      ],
+      "hints": [
+        "Collectors.summarizingDouble returns DoubleSummaryStatistics",
+        "Has getCount(), getSum(), getMin(), getMax(), getAverage()",
+        "Sum: 799+1999+649+499+2999+1299 = 8244"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m8_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "toMap with merge function",
+      "scenario": "Handle duplicate keys gracefully.",
+      "instructions": "Build a Map<String, Double> of department → highest salary. Use toMap with a merge function to handle multiple employees per department.\n\nEmployees: Aisha(Eng,95000), Raj(Sales,72000), Priya(Eng,88000), Vikram(Sales,78000)\n\nExpected output:\nEngineering: 95000.0\nSales: 78000.0",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// toMap with merge function for duplicates\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Employee {\n    String name, dept; double salary;\n    Employee(String n, String d, double s) { name=n; dept=d; salary=s; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = Arrays.asList(\n            new Employee(\"Aisha\",  \"Engineering\", 95000),\n            new Employee(\"Raj\",   \"Sales\",        72000),\n            new Employee(\"Priya\", \"Engineering\",  88000),\n            new Employee(\"Vikram\",\"Sales\",         78000)\n        );\n        Map<String, Double> maxByDept = staff.stream()\n            .collect(Collectors.toMap(\n                e -> e.dept,\n                e -> e.salary,\n                Math::max   // merge: keep higher salary\n            ));\n        new TreeMap<>(maxByDept).forEach((d, s) ->\n            System.out.println(d + \": \" + s));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Engineering: 95000.0\nSales: 78000.0" }
+      ],
+      "hints": [
+        "toMap(keyFn, valueFn, mergeFn)",
+        "mergeFn: (existing, newVal) -> Math.max(existing, newVal) — or just Math::max",
+        "Engineering: max(95000, 88000) = 95000; Sales: max(72000, 78000) = 78000"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m8_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "maxBy per group",
+      "scenario": "Find the best element in each group.",
+      "instructions": "Find the highest-rated product per category using groupingBy + maxBy.\n\nProducts: Mouse(Elec,4.2), Keyboard(Elec,4.7), Java Book(Books,4.5), Python Book(Books,4.0)\n\nExpected output:\nBooks: Java Book (4.5)\nElectronics: Keyboard (4.7)",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// groupingBy + maxBy for best per group\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Product {\n    String name, category; double rating;\n    Product(String n, String c, double r) { name=n; category=c; rating=r; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Product> catalog = Arrays.asList(\n            new Product(\"Mouse\",       \"Electronics\", 4.2),\n            new Product(\"Keyboard\",    \"Electronics\", 4.7),\n            new Product(\"Java Book\",   \"Books\",        4.5),\n            new Product(\"Python Book\", \"Books\",        4.0)\n        );\n        Map<String, Optional<Product>> bestByCategory = catalog.stream()\n            .collect(Collectors.groupingBy(\n                p -> p.category,\n                Collectors.maxBy(Comparator.comparingDouble(p -> p.rating))\n            ));\n        new TreeMap<>(bestByCategory).forEach((cat, opt) ->\n            opt.ifPresent(p ->\n                System.out.println(cat + \": \" + p.name + \" (\" + p.rating + \")\"))\n        );\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Books: Java Book (4.5)\nElectronics: Keyboard (4.7)" }
+      ],
+      "hints": [
+        "Collectors.maxBy(Comparator.comparingDouble(p -> p.rating))",
+        "Returns Optional<Product> per group",
+        "ifPresent to safely access the result"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m8_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "groupingBy with mapping + joining",
+      "scenario": "Names per group joined as a string.",
+      "instructions": "Group employees by city, collect each group's employee names as a comma-separated string.\n\nEmployees: Aisha(Hyd), Raj(Mumbai), Priya(Hyd), Vikram(Bengaluru), Anita(Mumbai)\n\nExpected output:\nBengaluru: Vikram\nHyderabad: Aisha, Priya\nMumbai: Raj, Anita",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// groupingBy + mapping + joining\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Employee {\n    String name, city;\n    Employee(String n, String c) { name=n; city=c; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = Arrays.asList(\n            new Employee(\"Aisha\",  \"Hyderabad\"),\n            new Employee(\"Raj\",   \"Mumbai\"),\n            new Employee(\"Priya\", \"Hyderabad\"),\n            new Employee(\"Vikram\",\"Bengaluru\"),\n            new Employee(\"Anita\", \"Mumbai\")\n        );\n        Map<String, String> namesByCity = staff.stream()\n            .collect(Collectors.groupingBy(\n                e -> e.city,\n                Collectors.mapping(e -> e.name, Collectors.joining(\", \"))\n            ));\n        new TreeMap<>(namesByCity).forEach((city, names) ->\n            System.out.println(city + \": \" + names));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Bengaluru: Vikram\nHyderabad: Aisha, Priya\nMumbai: Raj, Anita" }
+      ],
+      "hints": [
+        "Collectors.mapping(e -> e.name, Collectors.joining(', '))",
+        "mapping transforms each element before the downstream collector",
+        "TreeMap gives alphabetical city order"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m8_t4_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace partitioningBy with downstream",
+      "scenario": "partitioningBy + counting downstream.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> words = Arrays.asList(\"apple\",\"ant\",\"avocado\",\"banana\",\"cherry\",\"apricot\");\n        Map<Boolean, Long> result = words.stream()\n            .collect(Collectors.partitioningBy(\n                s -> s.startsWith(\"a\"),\n                Collectors.counting()\n            ));\n        System.out.println(\"Starts with a: \" + result.get(true));\n        System.out.println(\"Other: \" + result.get(false));\n    }\n}\n```",
+      "expected_solution": "Starts with a: 4\nOther: 2",
+      "test_cases": [
+        { "type": "text_match", "expected": "Starts with a: 4\nOther: 2" }
+      ],
+      "hints": [
+        "Starts with 'a': apple, ant, avocado, apricot = 4",
+        "Other: banana, cherry = 2"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multi-level groupingBy",
+      "scenario": "Nested grouping: department → city → list of names.",
+      "instructions": "Group employees by department, then by city within each department. Print the structure.\n\nEmployees: Aisha(Eng,Hyd), Priya(Eng,Bengaluru), Raj(Sales,Mumbai), Vikram(Sales,Hyd)\n\nExpected output:\nEngineering:\n  Bengaluru: [Priya]\n  Hyderabad: [Aisha]\nSales:\n  Hyderabad: [Vikram]\n  Mumbai: [Raj]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Nested groupingBy: dept → city → names\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Employee {\n    String name, dept, city;\n    Employee(String n, String d, String c) { name=n; dept=d; city=c; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = Arrays.asList(\n            new Employee(\"Aisha\",  \"Engineering\", \"Hyderabad\"),\n            new Employee(\"Priya\",  \"Engineering\", \"Bengaluru\"),\n            new Employee(\"Raj\",    \"Sales\",        \"Mumbai\"),\n            new Employee(\"Vikram\", \"Sales\",        \"Hyderabad\")\n        );\n        Map<String, Map<String, List<String>>> nested = staff.stream()\n            .collect(Collectors.groupingBy(\n                e -> e.dept,\n                Collectors.groupingBy(\n                    e -> e.city,\n                    Collectors.mapping(e -> e.name, Collectors.toList())\n                )\n            ));\n        new TreeMap<>(nested).forEach((dept, byCity) -> {\n            System.out.println(dept + \":\");\n            new TreeMap<>(byCity).forEach((city, names) ->\n                System.out.println(\"  \" + city + \": \" + names));\n        });\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Engineering:\n  Bengaluru: [Priya]\n  Hyderabad: [Aisha]\nSales:\n  Hyderabad: [Vikram]\n  Mumbai: [Raj]" }
+      ],
+      "hints": [
+        "groupingBy(dept, groupingBy(city, mapping(name, toList())))",
+        "Result: Map<String, Map<String, List<String>>>",
+        "Nested TreeMap iteration for sorted output"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m8_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Sales report — full Collectors pipeline",
+      "scenario": "Use multiple collectors to generate an analytics report.",
+      "instructions": "Generate a sales analytics report for 3 categories using:\n- Count per category\n- Total revenue per category (groupingBy + summingDouble)\n- Category with highest revenue (toMap + stream back)\n- Passed/failed target per category (partitioningBy: total > 10000)\n\nSales: Electronics[Mouse(5×799), Keyboard(3×1999)], Books[JavaBook(20×649)], Accessories[USBHub(15×499)]\n\nExpected output:\nCounts: {Accessories=1, Books=1, Electronics=2}\nRevenue: {Accessories=7485.0, Books=12980.0, Electronics=9992.0}\nTop category: Books\nHit target (>₹10000): {false=[Accessories, Electronics], true=[Books]}",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Full sales analytics with multiple collectors\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Sale {\n    String product, category; int qty; double price;\n    Sale(String p, String c, int q, double pr) { product=p; category=c; qty=q; price=pr; }\n    double revenue() { return qty * price; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Sale> sales = Arrays.asList(\n            new Sale(\"Mouse\",    \"Electronics\", 5,  799),\n            new Sale(\"Keyboard\", \"Electronics\", 3,  1999),\n            new Sale(\"Java Book\",\"Books\",        20, 649),\n            new Sale(\"USB Hub\",  \"Accessories\",  15, 499)\n        );\n        \n        // Count\n        Map<String, Long> counts = sales.stream()\n            .collect(Collectors.groupingBy(s -> s.category, Collectors.counting()));\n        System.out.println(\"Counts: \" + new TreeMap<>(counts));\n        \n        // Revenue\n        Map<String, Double> revenue = sales.stream()\n            .collect(Collectors.groupingBy(s -> s.category,\n                Collectors.summingDouble(Sale::revenue)));\n        System.out.println(\"Revenue: \" + new TreeMap<>(revenue));\n        \n        // Top category by revenue\n        String top = revenue.entrySet().stream()\n            .max(Map.Entry.comparingByValue())\n            .map(Map.Entry::getKey)\n            .orElse(\"None\");\n        System.out.println(\"Top category: \" + top);\n        \n        // Hit target\n        Map<Boolean, List<String>> hitTarget = revenue.entrySet().stream()\n            .collect(Collectors.partitioningBy(\n                e -> e.getValue() > 10000,\n                Collectors.mapping(Map.Entry::getKey, Collectors.toList())\n            ));\n        hitTarget.forEach((hit, cats) -> Collections.sort(cats));\n        System.out.println(\"Hit target (>₹10000): \" + hitTarget);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Counts: {Accessories=1, Books=1, Electronics=2}\nRevenue: {Accessories=7485.0, Books=12980.0, Electronics=9992.0}\nTop category: Books\nHit target (>₹10000): {false=[Accessories, Electronics], true=[Books]}" }
+      ],
+      "hints": [
+        "Revenue: groupingBy(category, Collectors.summingDouble(Sale::revenue))",
+        "Mouse: 5×799=3995; Keyboard: 3×1999=5997; Electronics total=9992",
+        "Java Book: 20×649=12980; USB Hub: 15×499=7485",
+        "Top category: stream the revenue map entries, find max by value"
+      ],
+      "xp_reward": 85
+    },
+
+    {
+      "id": "java_m8_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete order analytics system",
+      "scenario": "Real e-commerce analytics using all collector types.",
+      "instructions": "Analyze an order dataset using Collectors:\n1. Group orders by status (PENDING/DELIVERED/CANCELLED), count each\n2. Average order value per customer using groupingBy + averagingDouble\n3. Build orderId → Order lookup map using toMap\n4. Partition into high-value (≥₹2000) and low-value\n5. Names of customers who placed the most orders (top 2 by order count)\n\nOrders (id, customerId, amount, status):\nO1(C001,₹1500,DELIVERED), O2(C002,₹3500,PENDING), O3(C001,₹2200,DELIVERED),\nO4(C003,₹800,CANCELLED), O5(C002,₹4100,DELIVERED), O6(C001,₹950,PENDING)\n\nExpected output:\nStatus counts: {CANCELLED=1, DELIVERED=3, PENDING=2}\nAvg value by customer: {C001=1550.0, C002=3800.0, C003=800.0}\nLookup O3 amount: 2200.0\nHigh-value count: 3 | Low-value count: 3\nTop 2 customers by order count: [C001, C002]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Complete order analytics — all collectors\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Order {\n    String id, customerId, status;\n    double amount;\n    Order(String i, String c, double a, String s) { id=i; customerId=c; amount=a; status=s; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Order> orders = Arrays.asList(\n            new Order(\"O1\",\"C001\",1500,\"DELIVERED\"),\n            new Order(\"O2\",\"C002\",3500,\"PENDING\"),\n            new Order(\"O3\",\"C001\",2200,\"DELIVERED\"),\n            new Order(\"O4\",\"C003\", 800,\"CANCELLED\"),\n            new Order(\"O5\",\"C002\",4100,\"DELIVERED\"),\n            new Order(\"O6\",\"C001\", 950,\"PENDING\")\n        );\n        \n        // 1. Status counts\n        Map<String, Long> statusCounts = orders.stream()\n            .collect(Collectors.groupingBy(o -> o.status, Collectors.counting()));\n        System.out.println(\"Status counts: \" + new TreeMap<>(statusCounts));\n        \n        // 2. Avg value per customer\n        Map<String, Double> avgByCustomer = orders.stream()\n            .collect(Collectors.groupingBy(o -> o.customerId,\n                Collectors.averagingDouble(o -> o.amount)));\n        System.out.println(\"Avg value by customer: \" + new TreeMap<>(avgByCustomer));\n        \n        // 3. Lookup map\n        Map<String, Order> lookupMap = orders.stream()\n            .collect(Collectors.toMap(o -> o.id, o -> o));\n        System.out.println(\"Lookup O3 amount: \" + lookupMap.get(\"O3\").amount);\n        \n        // 4. Partition by value\n        Map<Boolean, Long> valueSplit = orders.stream()\n            .collect(Collectors.partitioningBy(\n                o -> o.amount >= 2000, Collectors.counting()));\n        System.out.println(\"High-value count: \" + valueSplit.get(true) +\n                           \" | Low-value count: \" + valueSplit.get(false));\n        \n        // 5. Top 2 by order count\n        Map<String, Long> orderCount = orders.stream()\n            .collect(Collectors.groupingBy(o -> o.customerId, Collectors.counting()));\n        List<String> top2 = orderCount.entrySet().stream()\n            .sorted(Map.Entry.<String, Long>comparingByValue().reversed())\n            .limit(2)\n            .map(Map.Entry::getKey)\n            .sorted()  // tie-break: sort alphabetically\n            .collect(Collectors.toList());\n        System.out.println(\"Top 2 customers by order count: \" + top2);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Status counts: {CANCELLED=1, DELIVERED=3, PENDING=2}\nAvg value by customer: {C001=1550.0, C002=3800.0, C003=800.0}\nLookup O3 amount: 2200.0\nHigh-value count: 3 | Low-value count: 3\nTop 2 customers by order count: [C001, C002]" }
+      ],
+      "hints": [
+        "C001 avg: (1500+2200+950)/3=1550; C002: (3500+4100)/2=3800; C003: 800/1=800",
+        "High-value (≥2000): O2(3500)+O3(2200)+O5(4100) = 3; Low: O1+O4+O6 = 3",
+        "C001=3 orders, C002=2 orders — both are top 2"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 755,
+    "estimated_completion_minutes": 70
+  }
+}

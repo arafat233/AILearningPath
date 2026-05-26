@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m14_t5_proj",
+  "linked_topic": "java_m14_t5",
+  "level": "mini",
+  "name": "Razorpay-Style Payment API — Full Production Observability",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Add complete production observability to the Razorpay-style payment API. Kubernetes probes, custom health indicators for the payment gateway, business metrics for every payment event, and a secure Actuator configuration. This is the final polish that makes a Spring Boot API production-ready.",
+
+  "description": "PaymentGatewayHealthIndicator (cached, latency-aware). Four Micrometer metrics. Liveness and readiness probes configured. Actuator secured (health+info public, everything else authenticated). @SpringBootTest with 5 tests.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`PaymentGatewayHealthIndicator` @Component with caching: @Scheduled(fixedRate=30000) refreshes health; health() returns cached AtomicReference<Health>. UP if latency < 500ms, DOWN otherwise. Shows latencyMs in details.",
+        "weight": 22
+      },
+      {
+        "id": "req_2",
+        "description": "`PaymentMetrics` @Component: Counter payments.processed (with 'currency' tag), Counter payments.failed (with 'reason' tag), AtomicInteger Gauge payments.pending, Timer payment.processing.duration.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`PaymentService.process(PaymentRequest)`: uses all 4 metrics. pending++ on entry, pending-- in finally. processed++ on success, failed++ on exception. wrapped in processingTimer.record().",
+        "weight": 18
+      },
+      {
+        "id": "req_4",
+        "description": "application.properties: expose health,info,metrics,loggers. show-details=always. management.server.port=8090 (actuator on separate port). info.app.name=payment-service, info.app.version=2.0.0. probes.enabled=true.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest(RANDOM_PORT) tests (5): /actuator/health UP, /actuator/health/liveness UP, /actuator/health/readiness UP, /actuator/info has version 2.0.0, process() increments payments.processed counter.",
+        "weight": 25
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add custom info contributor: InfoContributor that adds current active payment count and total processed since startup to the /actuator/info response.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Secure actuator endpoints: /health and /info public; all others require ADMIN role. Write @SpringBootTest tests verifying /actuator/env returns 401 for unauthenticated and 200 for ADMIN.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add Prometheus endpoint: spring-boot-starter-actuator + micrometer-registry-prometheus. Expose /actuator/prometheus. @SpringBootTest: verify response contains 'payments_processed_total'.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Metrics to track:\n- payments.processed (counter, tag: currency=INR/USD)\n- payments.failed (counter, tag: reason=validation/gateway/timeout)\n- payments.pending (gauge — AtomicInteger)\n- payment.processing.duration (timer)\n\nHealth: PaymentGatewayHealthIndicator — simulate latency 45ms (UP)\nKubernetes probes: /actuator/health/liveness and /actuator/health/readiness\n\nActuator port: 8090 (in test, use management.server.port from context)",
+
+  "starter_code": "// PaymentGatewayHealthIndicator.java (cached)\n// PaymentMetrics.java (@Component with 4 metrics)\n// PaymentService.java (uses metrics in process())\n// application.properties (full actuator config)\n// PaymentObservabilityTest.java (@SpringBootTest 5 tests)",
+
+  "example_output": "# GET /actuator/health (management port 8090):\n{\n  \"status\": \"UP\",\n  \"components\": {\n    \"db\": {\"status\": \"UP\"},\n    \"paymentGateway\": {\"status\": \"UP\", \"details\": {\"latencyMs\": 45}},\n    \"diskSpace\": {\"status\": \"UP\"}\n  }\n}\n\n# GET /actuator/health/liveness:\n{\"status\":\"UP\"}\n\n# GET /actuator/health/readiness:\n{\"status\":\"UP\"}\n\n# GET /actuator/info:\n{\"app\":{\"name\":\"payment-service\",\"version\":\"2.0.0\"}}\n\n# After 100 payments processed:\n# GET /actuator/metrics/payments.processed:\n{\"measurements\":[{\"statistic\":\"COUNT\",\"value\":100}]}\n\n# Tests:\n✓ health_isUp\n✓ liveness_isUp\n✓ readiness_isUp\n✓ info_hasVersion200\n✓ process_incrementsCounter",
+
+  "rubric": [
+    { "category": "PaymentGatewayHealthIndicator", "points": 22, "criteria": ["Caching with AtomicReference (12 pts)", "@Scheduled refresh (5 pts)", "Latency detail (5 pts)"] },
+    { "category": "PaymentMetrics", "points": 20, "criteria": ["Counter with tags (10 pts)", "Gauge (5 pts)", "Timer (5 pts)"] },
+    { "category": "PaymentService integration", "points": 18, "criteria": ["All 4 metrics used (18 pts)"] },
+    { "category": "application.properties", "points": 15, "criteria": ["Endpoint exposure (5 pts)", "Probes (5 pts)", "Info (5 pts)"] },
+    { "category": "@SpringBootTest 5 tests", "points": 25, "criteria": ["Each test correct (5 pts each)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["InfoContributor (20 pts)", "Actuator security (25 pts)", "Prometheus (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Cached HealthIndicator: AtomicReference<Health>, @Scheduled updates it, health() returns it. Separate management port: management.server.port=8090 — TestRestTemplate uses different port (inject @LocalManagementPort). Timer.record(Callable) — must throw Exception from callable, so wrap in try-catch or use Runnable for void.",
+
+  "submission_instructions": "Push to GitHub. All 5 @SpringBootTest tests pass. Include screenshot of /actuator/health response showing paymentGateway component.",
+
+  "tips_for_success": [
+    "AtomicReference<Health>: cachedHealth.set(Health.up()...) in @Scheduled, cachedHealth.get() in health()",
+    "Timer.record(Callable<T>) for methods that return values and may throw",
+    "management.server.port=8090 and @LocalManagementPort in test for management port",
+    "registry.find('payments.processed').counter().count(): look up counter in test",
+    "probes.enabled=true: enables /health/liveness and /health/readiness"
+  ],
+
+  "concepts_reinforced": [
+    "Cached HealthIndicator with AtomicReference",
+    "Counter with tags for filtering",
+    "Timer.record() wrapping service methods",
+    "Gauge via registry.gauge()",
+    "Actuator endpoint exposure configuration",
+    "Kubernetes liveness/readiness probes"
+  ]
+}

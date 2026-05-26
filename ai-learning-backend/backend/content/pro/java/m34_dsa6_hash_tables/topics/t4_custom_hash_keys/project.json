@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m34_t4_proj",
+  "linked_topic": "java_m34_t4",
+  "level": "mini",
+  "name": "Custom Hash Keys \u2014 Composite Keys, 2D Grid, Tuple Hashing",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Build Custom Hash Keys \u2014 Composite Keys, 2D Grid, Tuple Hashing.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Implement core algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Key patterns for Custom Hash Keys \u2014 Composite Keys, 2D Grid, Tuple Hashing.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m39_t4",
+  "module_id": "m39",
+  "topic_number": 4,
+  "name": "2D Binary Search \u2014 Matrix Search, Search Space",
+  "slug": "2d-binary-search-matrix",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m39_t1"
+    ],
+    "concepts_taught": [
+      "2d-binary-search-matrix"
+    ],
+    "career_relevance": "Core 2D Binary Search \u2014 Matrix Search, Search Space.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "2D Binary Search \u2014 Matrix Search, Search Space"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Row-column sorted matrix: start from top-right; go left if too big, down if too small",
+        "Row sorted, rows ascending: treat as 1D with index/cols row, index%cols col",
+        "Kth smallest in sorted matrix: binary search on value range",
+        "Find K-th smallest: count elements <= mid; if count>=k: hi=mid else lo=mid+1",
+        "Sparse matrix search: binary search on row then column"
+      ],
+      "next_topic_preview": "Next: Binary search synthesis."
+    }
+  }
+}

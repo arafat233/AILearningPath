@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m27_t4",
+  "language": "java",
+  "module_id": "m27",
+  "module_name": "GraphQL",
+  "topic_number": 4,
+  "name": "GraphQL Subscriptions — Real-Time Data",
+  "slug": "graphql-subscriptions-real-time",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m27_t2", "java_m10_t5"],
+    "concepts_taught": [
+      "graphql_subscriptions_overview", "websocket_graphql", "subscription_mapping",
+      "reactor_flux_as_publisher", "graphql_ws_protocol", "backpressure",
+      "subscription_filtering", "subscription_error_handling",
+      "live_trade_updates", "payment_status_streaming"
+    ],
+    "skills_developed": [
+      "writing_subscription_resolvers", "streaming_flux_over_websocket",
+      "filtering_subscription_events", "testing_subscriptions"
+    ],
+    "career_relevance": "Zerodha's Kite app shows live stock prices updating every second. Without subscriptions: browser polls every second (1000 users × 1 req/s = 1000 req/s just for price updates). With GraphQL subscriptions: 1000 persistent WebSocket connections, server pushes only when price changes. Zerodha processes 10 million+ trade updates per day. After this topic, you can build real-time dashboards that scale.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "Zerodha Kite without subscriptions:\n\n```\n1000 users watching RELIANCE live price\nEach browser polls every second:\n  1000 users × 1 request/s = 1000 HTTP requests/s\n  Each request: Spring handles, DB reads, response sent\n  Server: 1000 connections opened/closed per second\n  Latency: up to 1s behind real price (poll interval)\n\nWith GraphQL subscriptions (WebSocket):\n  1000 persistent WebSocket connections (kept open)\n  Server pushes ONLY when price changes\n  Average: 30 price changes/minute per stock\n  Traffic: 1000 users × 30/min = 500 pushes/min (vs 60,000 polls/min)\n  Server load: 120× less\n  Latency: <50ms from trade execution to screen update\n```",
+    "what_you_will_build": "Zerodha live price subscription and Razorpay payment status subscription."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "schema": "**Subscription in GraphQL schema:**\n\n```graphql\ntype Subscription {\n  # Subscribe to live price updates for a stock symbol:\n  priceUpdate(symbol: String!): PriceUpdate!\n\n  # Subscribe to payment status changes:\n  paymentStatus(paymentId: String!): PaymentStatus!\n\n  # Subscribe to ALL trade updates (admin use):\n  tradeUpdates: Trade!\n}\n\ntype PriceUpdate {\n  symbol: String!\n  price: Float!\n  change: Float!\n  timestamp: String!\n}\n```",
+      "resolver": "**@SubscriptionMapping in Spring for GraphQL:**\n\n```java\n@Controller\npublic class ZerodhaSubscriptionController {\n\n    // Publishes live price updates as a Reactor Flux:\n    @SubscriptionMapping\n    public Flux<PriceUpdate> priceUpdate(@Argument String symbol) {\n        return Flux.interval(Duration.ofSeconds(1)) // tick every second\n            .map(tick -> fetchCurrentPrice(symbol))\n            .filter(update -> update.price() > 0)  // filter out bad data\n            .onBackpressureDrop()  // drop slow consumer overflow\n            .doOnCancel(() -> log.info(\"Client {} unsubscribed from {}\", symbol));\n    }\n\n    // Payment status: push updates until CAPTURED or FAILED:\n    @SubscriptionMapping\n    public Flux<PaymentStatus> paymentStatus(@Argument String paymentId) {\n        return paymentUpdatePublisher\n            .asFlux()\n            .filter(status -> status.paymentId().equals(paymentId))\n            .takeUntil(status -> status.isFinal()); // stop after terminal state\n    }\n}\n```\n\n```yaml\n# application.yml — enable WebSocket for subscriptions:\nspring:\n  graphql:\n    websocket:\n      path: /graphql-ws     # WebSocket endpoint\n      keep-alive: 30s       # heartbeat interval\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two-part diagram. Left: HTTP polling (bad) — Browser → Server: repeated arrows labeled 'GET /prices every 1s', each arrow has a response arrow back. 1000 users = 1000 req/s. Right: WebSocket subscription (good) — 1000 browser arrows connect once to Server (WebSocket upgrade). Server has a single Flux<PriceUpdate> publishing to all connected clients via subscription protocol. Only one arrow per price change (not one per user). Price update source: Trade Engine → Publisher → Flux → all subscribed WebSockets. Labels: 'graphql-ws: subprotocol over WebSocket', 'Flux<T>: reactive stream from server'.",
+      "alt_text": "GraphQL subscriptions: WebSocket push vs HTTP polling comparison"
+    },
+    "worked_example": {
+      "scenario": "Zerodha live RELIANCE price subscription with Flux.",
+      "problem_statement": "1. PriceUpdate record + subscription schema\n2. @SubscriptionMapping priceUpdate(symbol): returns Flux<PriceUpdate>\n3. Flux.interval(1s) → simulate price updates\n4. @SpringBootTest: Flux emits correct type, completes after N elements",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "WebSocket vs HTTP for subscriptions",
+          "details": "HTTP: stateless, each request opens a new connection. Long-polling: keep connection open until data available — wastes threads. Server-Sent Events (SSE): one-way, server → client, HTTP. WebSocket: bidirectional, persistent, efficient for many clients. GraphQL subscriptions: use WebSocket with graphql-ws protocol. Spring for GraphQL: automatically handles the WebSocket upgrade and graphql-ws handshake when you add the WebSocket starter and configure spring.graphql.websocket.path."
+        }
+      ],
+      "final_code": "// @SubscriptionMapping → method returns Flux<T>\n// Flux.interval: emits on schedule (every 1s for live prices)\n// .filter(): only push relevant updates to this subscriber\n// .takeUntil(): stop stream on terminal condition\n// .onBackpressureDrop(): handle slow consumers gracefully",
+      "expected_output": "// Client subscribes: ws://localhost:8080/graphql-ws\n// subscription { priceUpdate(symbol: \"RELIANCE\") { price change timestamp } }\n//\n// Server pushes (every second):\n// { data: { priceUpdate: { price: 2834.50, change: +12.30, timestamp: \"14:23:01\" } } }\n// { data: { priceUpdate: { price: 2836.20, change: +14.00, timestamp: \"14:23:02\" } } }\n// { data: { priceUpdate: { price: 2835.80, change: +13.60, timestamp: \"14:23:03\" } } }",
+      "things_to_notice": [
+        "Flux<T> is the return type: Spring for GraphQL automatically bridges Reactor Flux to the WebSocket subscription protocol. Each element emitted by the Flux becomes one subscription message to the client.",
+        "@Argument: works the same as in @QueryMapping. The client passes the symbol when subscribing; Spring injects it into the method parameter.",
+        "takeUntil: for payment status, stop the subscription once a terminal state is reached (CAPTURED, FAILED). Without this, the subscription stays open indefinitely even after payment is complete.",
+        "Backpressure: if a client is slow (network lag), the Flux backpressure strategy determines what happens. onBackpressureDrop() drops overflow messages (fine for price data — client will see the next update). For payment status: use onBackpressureBuffer() (can't miss a status change)."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha Kite live trading dashboard",
+          "use_case": "RELIANCE price subscription: Flux.create() receives messages from an internal Kafka topic (NSE price feed). Each price tick: Kafka consumer → Sinks.Many → subscribed Flux → all WebSocket clients watching RELIANCE. 10 million price updates/day across 5000 symbols. GraphQL subscription filtering: only send price to clients subscribed to that specific symbol."
+        }
+      ],
+      "interview_relevance": "'How would you build a real-time order tracking system like Swiggy?' → GraphQL subscriptions. Schema: subscription { orderStatus(orderId: String): OrderUpdate }. Resolver: Flux that filters order status events by orderId. Spring: @SubscriptionMapping returns Flux. WebSocket: spring.graphql.websocket.path. Client subscribes once, server pushes each status change. Terminal state: takeUntil(status -> status.isDelivered()) stops the subscription. Compare: polling = 60 req/min × 1000 users = 60,000 req/min. Subscriptions = 1000 WebSocket connections + 1 push per status change.",
+      "real_world_workflow": "Subscription workflow: (1) schema: add Subscription type with fields, (2) resolver: @SubscriptionMapping returns Flux<T>, (3) event source: Sinks.Many for push-based, Flux.interval for periodic, (4) filtering: .filter() to route events to correct subscriber, (5) termination: .takeUntil() for finite subscriptions, (6) configure: spring.graphql.websocket.path in application.yml, (7) test: StepVerifier or GraphQlTester.Subscriptions."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "blocking_in_subscription",
+        "what_students_get_wrong": "Using blocking calls inside a Flux: `Flux.interval().map(t -> blockingRepository.findPrice(symbol))`. This blocks the scheduler thread for every subscription event — kills concurrency under load.",
+        "remediation": "Use reactive repositories (R2DBC, reactive Mongo) inside Flux, or offload to a boundedElastic scheduler: `.publishOn(Schedulers.boundedElastic()).map(t -> blockingRepo.find(symbol))`. For price feeds: use Sinks.Many (non-blocking push from Kafka consumer) rather than polling the DB.",
+        "detection_pattern": "JPA/JDBC calls directly inside Flux.map() — blocking call in reactive context warning from Reactor's debug agent"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "GraphQL subscriptions: real-time server push over WebSocket",
+        "@SubscriptionMapping: returns Flux<T> (one emission = one message to client)",
+        "graphql-ws protocol: Spring for GraphQL handles automatically",
+        "spring.graphql.websocket.path: enables WebSocket endpoint",
+        "Flux.interval(): periodic emission (live prices, heartbeats)",
+        "Sinks.Many: push-based source (Kafka events → subscribers)",
+        ".filter(event -> event.id().equals(clientId)): route events to correct subscriber",
+        ".takeUntil(status::isFinal): stop subscription on terminal state",
+        ".onBackpressureDrop(): lose slow messages (OK for prices, NOT for payments)",
+        "WebSocket vs polling: 120× less server load for live data"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Razorpay processes a payment. The client subscribed to paymentStatus(paymentId: 'PAY-001'). How should the server know to push the update to this specific client?",
+          "answer": "Event filtering via Flux.filter(). The architecture: (1) Payment service publishes status changes to a Sinks.Many (in-memory bus) or Kafka topic. (2) The @SubscriptionMapping method subscribes to this event source and adds a .filter(event -> event.paymentId().equals(paymentId)). (3) Only events matching the client's paymentId are emitted through this Flux. (4) .takeUntil(event -> event.isFinal()) stops the Flux once CAPTURED or FAILED is received. Scale: 10,000 clients each watching a different payment — all share the same Sinks.Many source, each filters their own paymentId. The Flux.filter() is the subscriber-specific routing logic."
+        }
+      ],
+      "next_topic_preview": "Final Module 27 topic: Testing GraphQL APIs — GraphQlTester, @GraphQlTest, testing mutations and subscriptions, error assertions."
+    }
+  }
+}

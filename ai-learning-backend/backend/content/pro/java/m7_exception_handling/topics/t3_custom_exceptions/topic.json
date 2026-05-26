@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t3",
+  "language": "java",
+  "module_id": "m7",
+  "module_name": "Exception Handling",
+  "topic_number": 3,
+  "name": "Custom Exceptions",
+  "slug": "custom-exceptions",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m7_t1", "java_m7_t2"],
+    "concepts_taught": [
+      "defining_custom_exception_classes",
+      "extending_exception_vs_runtimeexception",
+      "custom_exception_constructors",
+      "domain_fields_in_exceptions",
+      "exception_message_conventions",
+      "exception_hierarchy_design",
+      "when_to_create_custom_vs_use_builtin",
+      "rethrowing_with_domain_context",
+      "exception_as_api_contract"
+    ],
+    "skills_developed": [
+      "creating_custom_exception_classes",
+      "designing_exception_hierarchies",
+      "adding_domain_specific_fields",
+      "writing_informative_exception_messages",
+      "choosing_appropriate_parent_exception",
+      "using_custom_exceptions_in_real_apis"
+    ],
+    "career_relevance": "Every professional Java codebase has custom exceptions. `InsufficientFundsException`, `UserNotFoundException`, `OrderExpiredException` — these are what make code self-documenting and enable precise error handling. When a Razorpay payment fails, the calling code catches `PaymentDeclinedException` not generic `RuntimeException`. When a user isn't found, code catches `UserNotFoundException` not `NullPointerException`. Custom exceptions make APIs expressive, make catch blocks precise, and make error handling legible at a glance. After this topic, your APIs speak the language of your domain.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Compare these two approaches to the same problem:\n\n**Generic approach:**\n```java\npublic void transfer(String from, String to, double amount) {\n    if (accounts.get(from) < amount) {\n        throw new RuntimeException(\"Not enough money\");\n    }\n}\n\n// Caller:\ntry {\n    bank.transfer(\"A001\", \"A002\", 5000);\n} catch (RuntimeException e) {\n    // What went wrong? Bad input? Null? Network? Who knows.\n    System.out.println(\"Something failed\");\n}\n```\n\n**Domain exception approach:**\n```java\npublic void transfer(String from, String to, double amount)\n        throws InsufficientFundsException {\n    double balance = accounts.get(from);\n    if (balance < amount) {\n        throw new InsufficientFundsException(from, balance, amount);\n    }\n}\n\n// Caller:\ntry {\n    bank.transfer(\"A001\", \"A002\", 5000);\n} catch (InsufficientFundsException e) {\n    // Crystal clear. Exact data available.\n    System.out.printf(\"Transfer failed: %s has ₹%.0f, needed ₹%.0f%n\",\n        e.getAccountId(), e.getAvailableBalance(), e.getAttemptedAmount());\n}\n```\n\nThe second version is:\n- **Self-documenting** — the exception name tells the whole story\n- **Precise** — caller catches exactly what they expect\n- **Data-rich** — carries account ID, available balance, attempted amount\n- **API-quality** — the method signature declares what can go wrong\n\nThis is what custom exceptions do. They turn exceptions from vague crashes into expressive API contracts.",
+    "what_you_will_build": "By the end of this topic, you'll define custom exception classes, choose the right parent type (checked vs unchecked), add domain-specific fields, write clear constructors, design small exception hierarchies, and know when a custom exception is worth creating vs using a built-in."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "minimal_custom_exception": "**The minimal custom exception** — just a class with two constructors:\n\n```java\npublic class UserNotFoundException extends RuntimeException {\n    \n    // Constructor 1: just a message\n    public UserNotFoundException(String message) {\n        super(message);\n    }\n    \n    // Constructor 2: message + cause (for wrapping another exception)\n    public UserNotFoundException(String message, Throwable cause) {\n        super(message, cause);\n    }\n}\n```\n\nThat's the minimum. Extend either `RuntimeException` (unchecked) or `Exception` (checked), call `super(message)`, and you're done.\n\n**The two constructors** are a Java convention — always provide both:\n- `(String message)` — when you're creating the exception yourself\n- `(String message, Throwable cause)` — when you're wrapping another exception\n\n```java\n// Using the two constructors:\nthrow new UserNotFoundException(\"User not found: id=\" + userId);\n\n// Wrapping:\ntry {\n    db.query(...);\n} catch (SQLException e) {\n    throw new UserNotFoundException(\"User not found: id=\" + userId, e);\n}\n```",
+
+      "domain_fields": "**Domain-specific fields** — the real power of custom exceptions:\n\n```java\npublic class InsufficientFundsException extends RuntimeException {\n    private final String accountId;\n    private final double availableBalance;\n    private final double attemptedAmount;\n    \n    public InsufficientFundsException(String accountId,\n                                      double availableBalance,\n                                      double attemptedAmount) {\n        super(String.format(\"Account %s has ₹%.2f but attempted ₹%.2f\",\n            accountId, availableBalance, attemptedAmount));\n        this.accountId      = accountId;\n        this.availableBalance = availableBalance;\n        this.attemptedAmount  = attemptedAmount;\n    }\n    \n    public String getAccountId()       { return accountId; }\n    public double getAvailableBalance() { return availableBalance; }\n    public double getAttemptedAmount()  { return attemptedAmount; }\n}\n```\n\nNow the caller has structured data:\n\n```java\ntry {\n    bank.transfer(from, to, 5000);\n} catch (InsufficientFundsException e) {\n    // Rich domain data — not just a string message\n    showAlert(\"Your account (\" + e.getAccountId() +\n        \") has ₹\" + e.getAvailableBalance() +\n        \". You need ₹\" + e.getAttemptedAmount());\n    offerTopUp(e.getAccountId(), e.getAttemptedAmount() - e.getAvailableBalance());\n}\n```\n\nThe catch block can take ACTIONS based on the domain data — not just display a message.\n\n**Good field conventions**: always `final`. Initialized in constructor. Expose via getters. The exception object is immutable (like all good exceptions should be).",
+
+      "message_conventions": "**Exception message conventions** — write messages for humans AND logs:\n\n```java\n// BAD — no context:\nthrow new OrderException(\"failed\");\n\n// BAD — too technical:\nthrow new OrderException(\"NullPointerException in processOrder line 47\");\n\n// GOOD — domain context + actionable:\nthrow new OrderException(\"Order #\" + orderId + \" cannot be placed: \" +\n    \"item '\" + itemName + \"' is out of stock\");\n```\n\n**Message should answer**: WHAT failed + WHICH item/entity failed + WHY (if known).\n\nFormat guidance:\n- Include the entity identifier (order ID, user ID, account number)\n- State what operation was attempted ('during payment', 'while loading', 'when validating')\n- Include the constraint that was violated ('expected positive', 'must not be blank')\n\n```java\n// Template: [entity] [operation] [reason]\n\"User ID-123 login failed: account is locked\"\n\"Order #456 cannot be placed: CartItem 'Mouse' is out of stock\"\n\"Transfer from ACC-001: insufficient funds (₹3000 available, ₹5000 requested)\"\n```",
+
+      "exception_hierarchy_design": "**Designing a small exception hierarchy**:\n\n```java\n// Base domain exception — catches any payment error\npublic class PaymentException extends Exception {  // checked\n    public PaymentException(String message) { super(message); }\n    public PaymentException(String message, Throwable cause) { super(message, cause); }\n}\n\n// Specific types — extend the base\npublic class CardDeclinedException extends PaymentException {\n    private final String cardLast4;\n    private final String declineCode;\n    \n    public CardDeclinedException(String cardLast4, String declineCode) {\n        super(\"Card ending \" + cardLast4 + \" declined: \" + declineCode);\n        this.cardLast4 = cardLast4;\n        this.declineCode = declineCode;\n    }\n    // getters...\n}\n\npublic class PaymentTimeoutException extends PaymentException {\n    private final int timeoutMs;\n    \n    public PaymentTimeoutException(int timeoutMs) {\n        super(\"Payment timed out after \" + timeoutMs + \"ms\");\n        this.timeoutMs = timeoutMs;\n    }\n}\n```\n\n**Benefits of hierarchy**:\n1. Caller can catch the base `PaymentException` to handle ALL payment failures uniformly\n2. Or catch specific types for specific handling\n3. Hierarchy communicates which exceptions are related\n\n```java\ntry {\n    paymentService.charge(order);\n} catch (CardDeclinedException e) {\n    // specific: ask user to try another card\n    promptAltCard(e.getDeclineCode());\n} catch (PaymentTimeoutException e) {\n    // specific: retry\n    retryAfterDelay(e.getTimeoutMs());\n} catch (PaymentException e) {\n    // general: any other payment failure\n    showGenericError();\n}\n```",
+
+      "when_to_create_custom": "**When to create a custom exception vs use a built-in**:\n\n**Create custom when:**\n- The error is part of your API contract (callers need to catch it specifically)\n- You have domain data to carry (account IDs, amounts, entity names)\n- The name communicates what went wrong better than any built-in\n- Multiple error types from the same domain should be grouped under a hierarchy\n\n**Use built-in when:**\n- The error is generic: bad argument → `IllegalArgumentException`; wrong state → `IllegalStateException`; null where not expected → `NullPointerException` (or `IllegalArgumentException` for explicit null rejection)\n- No domain data needed — just a message is enough\n- The error won't be caught specifically by callers\n\n```java\n// Built-in is fine:\npublic void setAge(int age) {\n    if (age < 0) throw new IllegalArgumentException(\"Age cannot be negative: \" + age);\n}\n\n// Custom is better:\npublic void withdraw(String accountId, double amount) throws WithdrawalException {\n    // Callers need to know about WithdrawalException specifically\n    // and need the accountId and amount in the exception\n}\n```\n\n**Rule of thumb**: if callers need to catch it by name, create it. If it's just a developer error (wrong argument, broken invariant), use built-in.",
+
+      "exception_as_api_contract": "**Exceptions as API documentation**:\n\nMethod signatures with custom exceptions are self-documenting contracts:\n\n```java\n// Reading this signature, you know EXACTLY what can go wrong:\npublic Order placeOrder(String customerId, List<CartItem> items)\n        throws CustomerNotFoundException,\n               OutOfStockException,\n               PaymentFailedException;\n```\n\n- `CustomerNotFoundException` — customer doesn't exist\n- `OutOfStockException` — one or more items unavailable  \n- `PaymentFailedException` — payment processing failed\n\nCompare to:\n```java\npublic Order placeOrder(String customerId, List<CartItem> items)\n        throws Exception;  // tells you nothing\n```\n\nThe first is a contract. The second is noise.\n\nThis is why Spring's approach (unchecked exceptions) has a tradeoff: by removing the `throws` declaration, you lose the contract documentation. Many developers compensate with `@throws` Javadoc or custom annotation frameworks."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three things: (1) Custom exception class anatomy — class declaration extending RuntimeException or Exception, field declarations (final), two constructors (message, message+cause), getters. Each part labeled. (2) Exception hierarchy design example: PaymentException at top (checked), CardDeclinedException and PaymentTimeoutException below (also checked), with catch block showing catch-specific first, catch-base last. (3) 'Create custom vs use built-in' decision flowchart: 'Do callers need to catch it by name?' YES → custom. 'Does it carry domain data?' YES → custom. 'Is it a programmer error?' YES → built-in IllegalArgumentException. 'Just need a message?' YES → built-in RuntimeException.",
+      "alt_text": "Custom exception anatomy, hierarchy design, and when-to-create decision flowchart"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build the exception system for Zomato's order service. Orders can fail for multiple specific reasons — restaurant closed, item unavailable, delivery zone not covered, payment failed. Each failure needs precise catching and rich domain data. Design from scratch.",
+
+    "problem_statement": "Design a `ZomatoException` hierarchy for order placement:\n1. `ZomatoException` — base checked exception\n2. `RestaurantClosedException` — with restaurantId, expectedOpenTime\n3. `ItemUnavailableException` — with itemName, restaurantId\n4. `DeliveryZoneException` — with deliveryPincode, supportedPincodes\n5. `OrderService.placeOrder()` — throws appropriate exception\n6. Caller handles each case differently",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Base exception",
+        "details": "```java\npublic class ZomatoException extends Exception {\n    public ZomatoException(String message) { super(message); }\n    public ZomatoException(String message, Throwable cause) { super(message, cause); }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Specific exception subclasses with domain fields",
+        "details": "```java\npublic class RestaurantClosedException extends ZomatoException {\n    private final String restaurantId;\n    private final String expectedOpenTime;\n    \n    public RestaurantClosedException(String restaurantId, String openTime) {\n        super(\"Restaurant \" + restaurantId + \" is closed. Opens at \" + openTime);\n        this.restaurantId = restaurantId;\n        this.expectedOpenTime = openTime;\n    }\n    \n    public String getRestaurantId() { return restaurantId; }\n    public String getExpectedOpenTime() { return expectedOpenTime; }\n}\n\npublic class ItemUnavailableException extends ZomatoException {\n    private final String itemName;\n    private final String restaurantId;\n    \n    public ItemUnavailableException(String itemName, String restaurantId) {\n        super(\"'\" + itemName + \"' is unavailable at restaurant \" + restaurantId);\n        this.itemName = itemName;\n        this.restaurantId = restaurantId;\n    }\n    \n    public String getItemName() { return itemName; }\n    public String getRestaurantId() { return restaurantId; }\n}\n\npublic class DeliveryZoneException extends ZomatoException {\n    private final String pincode;\n    \n    public DeliveryZoneException(String pincode) {\n        super(\"Delivery not available to pincode \" + pincode);\n        this.pincode = pincode;\n    }\n    \n    public String getPincode() { return pincode; }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "OrderService with specific throws",
+        "details": "```java\npublic class OrderService {\n    public String placeOrder(String restaurantId, String item,\n                             String pincode, boolean restaurantOpen)\n            throws ZomatoException {\n        \n        if (!restaurantOpen) {\n            throw new RestaurantClosedException(restaurantId, \"10:00 AM\");\n        }\n        if (item.equals(\"Unavailable Item\")) {\n            throw new ItemUnavailableException(item, restaurantId);\n        }\n        if (pincode.startsWith(\"999\")) {\n            throw new DeliveryZoneException(pincode);\n        }\n        \n        return \"Order placed at \" + restaurantId + \" for '\" + item + \"'\";\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "Caller handles each case specifically",
+        "details": "```java\npublic static void main(String[] args) {\n    OrderService svc = new OrderService();\n    \n    Object[][] tests = {\n        {\"REST-1\", \"Biryani\", \"500001\", true},\n        {\"REST-2\", \"Biryani\", \"500001\", false},\n        {\"REST-3\", \"Unavailable Item\", \"500001\", true},\n        {\"REST-4\", \"Pizza\", \"999999\", true}\n    };\n    \n    for (Object[] t : tests) {\n        try {\n            System.out.println(svc.placeOrder((String)t[0], (String)t[1],\n                                             (String)t[2], (boolean)t[3]));\n        } catch (RestaurantClosedException e) {\n            System.out.println(\"Closed! Opens at \" + e.getExpectedOpenTime());\n        } catch (ItemUnavailableException e) {\n            System.out.println(\"'\" + e.getItemName() + \"' is sold out — try another item?\");\n        } catch (DeliveryZoneException e) {\n            System.out.println(\"We don't deliver to \" + e.getPincode() + \" yet.\");\n        } catch (ZomatoException e) {\n            System.out.println(\"Order failed: \" + e.getMessage());\n        }\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "class ZomatoException extends Exception {\n    ZomatoException(String msg) { super(msg); }\n    ZomatoException(String msg, Throwable cause) { super(msg, cause); }\n}\n\nclass RestaurantClosedException extends ZomatoException {\n    private final String restaurantId, openTime;\n    RestaurantClosedException(String id, String time) {\n        super(\"Restaurant \" + id + \" is closed. Opens at \" + time);\n        this.restaurantId = id; this.openTime = time;\n    }\n    String getRestaurantId() { return restaurantId; }\n    String getExpectedOpenTime() { return openTime; }\n}\n\nclass ItemUnavailableException extends ZomatoException {\n    private final String itemName, restaurantId;\n    ItemUnavailableException(String item, String rest) {\n        super(\"'\" + item + \"' unavailable at \" + rest);\n        this.itemName = item; this.restaurantId = rest;\n    }\n    String getItemName() { return itemName; }\n}\n\nclass DeliveryZoneException extends ZomatoException {\n    private final String pincode;\n    DeliveryZoneException(String pin) {\n        super(\"Delivery not available to pincode \" + pin);\n        this.pincode = pin;\n    }\n    String getPincode() { return pincode; }\n}\n\nclass OrderService {\n    String placeOrder(String restId, String item, String pin, boolean open)\n            throws ZomatoException {\n        if (!open) throw new RestaurantClosedException(restId, \"10:00 AM\");\n        if (\"Unavailable Item\".equals(item)) throw new ItemUnavailableException(item, restId);\n        if (pin.startsWith(\"999\")) throw new DeliveryZoneException(pin);\n        return \"Order placed at \" + restId + \" for '\" + item + \"'\";\n    }\n}\n\npublic class ZomatoOrder {\n    public static void main(String[] args) {\n        OrderService svc = new OrderService();\n        Object[][] tests = {\n            {\"REST-1\", \"Biryani\",        \"500001\", true},\n            {\"REST-2\", \"Biryani\",        \"500001\", false},\n            {\"REST-3\", \"Unavailable Item\",\"500001\", true},\n            {\"REST-4\", \"Pizza\",          \"999999\", true}\n        };\n        for (Object[] t : tests) {\n            try {\n                System.out.println(svc.placeOrder((String)t[0],(String)t[1],(String)t[2],(boolean)t[3]));\n            } catch (RestaurantClosedException e) {\n                System.out.println(\"Closed! Opens at \" + e.getExpectedOpenTime());\n            } catch (ItemUnavailableException e) {\n                System.out.println(\"'\" + e.getItemName() + \"' is sold out.\");\n            } catch (DeliveryZoneException e) {\n                System.out.println(\"No delivery to \" + e.getPincode() + \".\");\n            } catch (ZomatoException e) {\n                System.out.println(\"Order failed: \" + e.getMessage());\n            }\n        }\n    }\n}",
+
+    "expected_output": "Order placed at REST-1 for 'Biryani'\nClosed! Opens at 10:00 AM\n'Unavailable Item' is sold out.\nNo delivery to 999999.",
+
+    "things_to_notice": [
+      "The base class `ZomatoException extends Exception` (checked) — catching `ZomatoException` catches ALL order failures as a safety net.",
+      "Each subclass has exactly the fields that matter for that failure type — RestaurantClosedException has openTime, ItemUnavailableException has itemName. These enable the caller to take specific action.",
+      "Catch order: specific (RestaurantClosedException) → more specific (ItemUnavailableException) → base (ZomatoException). Wrong order = compile error or missed handling.",
+      "The method declares `throws ZomatoException` — one declaration covers all subclasses. Callers see: 'this can fail for order-related reasons.'",
+      "The caller can take different actions: 'Opens at 10:00 AM' (from RestaurantClosedException.getExpectedOpenTime()), 'is sold out' (from ItemUnavailableException.getItemName()). This is impossible with generic RuntimeException.",
+      "Two-constructor pattern: `ZomatoException(String)` and `ZomatoException(String, Throwable)` — defined on base, subclasses call `super(message)` with their computed message."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay / PayU payment APIs",
+        "use_case": "Razorpay's Java SDK throws custom exceptions: `BadRequestException` (invalid request parameters), `AuthenticationException` (API key issues), `RazorpayException` (base). Each carries the HTTP status code, error code, and description from the API response. Callers catch the specific type to decide: retry, log, or show user message."
+      },
+      {
+        "company_context": "Spring Data / Hibernate",
+        "use_case": "`DataIntegrityViolationException` (duplicate key), `EmptyResultDataAccessException` (expected one, got zero), `IncorrectResultSizeDataAccessException` (expected one, got many). Each is a custom exception with specific meaning. Code catches `DataIntegrityViolationException` to handle 'duplicate username' and `EmptyResultDataAccessException` to handle 'user not found'."
+      },
+      {
+        "company_context": "AWS SDK for Java",
+        "use_case": "AWS SDK has a rich exception hierarchy: `AwsServiceException` (base), `S3Exception`, `DynamoDbException`, `SqsException`. Each carries: HTTP status code, AWS error code, request ID. The request ID lets you find the exact failure in AWS logs. This is domain data in custom exceptions enabling debugging impossible with generic exceptions."
+      }
+    ],
+
+    "interview_relevance": "Custom exception questions at senior level:\n\n- **'How would you design exceptions for a payment service?'** — Show hierarchy: PaymentException base, CardDeclinedException/TimeoutException/FraudDetectedException subclasses.\n- **'Why not just use RuntimeException with a message?'** — Callers can't catch specific types; no structured data; not self-documenting; can't build meaningful error handling.\n- **'What fields should an exception carry?'** — The entity that caused failure (order ID, account ID); what was attempted; what was expected/available; whatever the caller needs to handle the failure or log it.\n- **'Should custom exceptions be checked or unchecked?'** — Domain rule violations (insufficient funds, entity not found) → unchecked. External/expected failures that callers MUST handle → checked.",
+
+    "real_world_workflow": "Creating custom exceptions in daily work:\n\n- New service method that can fail in specific ways → define custom exception\n- Wrapping third-party checked exceptions → custom unchecked wrapper\n- Adding domain context to generic exception → custom with fields\n- Code review: 'this throws RuntimeException with a message — should be a named custom exception'\n- API design: method signature documents its failures via throws declarations"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_super_call",
+      "what_students_get_wrong": "Forgetting to call `super(message)` in the constructor — exception message becomes null.",
+      "remediation": "ALWAYS call `super(message)` (or `super(message, cause)` for the two-arg constructor). Without it, `getMessage()` returns null.",
+      "detection_pattern": "`e.getMessage()` returns null; exception prints without a message"
+    },
+    {
+      "gap_id": "mutable_fields_in_exception",
+      "what_students_get_wrong": "Making exception fields non-final and providing setters — exceptions should be immutable.",
+      "remediation": "All exception fields should be `final`. Set them in the constructor. Expose via getters only. Exception objects are created at failure time and should not change.",
+      "detection_pattern": "Exception fields with setters; non-final fields"
+    },
+    {
+      "gap_id": "overly_generic_hierarchy",
+      "what_students_get_wrong": "Creating one giant `AppException` that everything extends — callers still can't catch specific types.",
+      "remediation": "Each distinct failure mode that callers need to handle separately should be its own class. Two exceptions from the same domain group should share a base, but don't force everything under one roof.",
+      "detection_pattern": "catch(AppException e) everywhere with instanceof inside"
+    },
+    {
+      "gap_id": "exception_message_too_vague",
+      "what_students_get_wrong": "Messages like 'error', 'failed', 'invalid input' without context.",
+      "remediation": "Include: WHAT failed + which entity (ID/name) + WHY. 'User not found: id=123' not 'not found'. 'Account ACC-001 has ₹3000, attempted ₹5000' not 'insufficient funds'.",
+      "detection_pattern": "Exception messages without entity identifiers or specific reasons"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Custom exceptions make APIs self-documenting: callers know exactly what can go wrong",
+      "Minimal structure: extend RuntimeException/Exception, call super(message), provide two constructors",
+      "Domain fields: final, initialized in constructor, exposed via getters",
+      "Message format: 'entity + operation + reason', include IDs and amounts",
+      "Hierarchy: base domain exception → specific subclasses; catch specific first, base last",
+      "When to create custom: callers need to catch by name, domain data needed, name communicates failure clearly",
+      "When to use built-in: generic programmer errors, IllegalArgumentException for bad args, IllegalStateException for wrong state",
+      "Exceptions are API contracts — well-named custom exceptions replace documentation",
+      "Two-constructor pattern: (String message) and (String message, Throwable cause) — always provide both"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What is missing from this custom exception?\n```java\nclass OrderException extends RuntimeException {\n    private String orderId;\n    OrderException(String orderId) {\n        this.orderId = orderId;\n    }\n    String getOrderId() { return orderId; }\n}\n```",
+        "answer": "Two problems: (1) `super(message)` is never called — `getMessage()` will return null. Fix: construct the message and pass it to super: `super('Order failed: ' + orderId)`. (2) `orderId` is not `final` — should be `private final String orderId`. (3) Missing the `(String message, Throwable cause)` constructor for wrapping."
+      },
+      {
+        "question": "When should you create a custom exception vs use `IllegalArgumentException`?",
+        "answer": "Use `IllegalArgumentException` when it's a generic programmer error with no domain data — bad method argument, violated precondition. Create custom when: (1) callers need to catch it by name for specific handling, (2) you need domain-specific fields (account ID, amount, item name), (3) the exception is part of your API contract and its name communicates the failure clearly. The question to ask: 'Will a caller ever write `catch (MyCustomException e)` and do something specific?' If yes, create it."
+      },
+      {
+        "question": "Why should custom exception fields be final?",
+        "answer": "Exceptions represent a point-in-time failure. The state at the moment of failure should be immutable — it shouldn't change after creation. Making fields final: (1) documents intent that exception data is immutable, (2) prevents accidental modification, (3) is safe for sharing across threads. The exception object is passed around (logged, rethrown, inspected) — it should always reflect the original failure state."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Defensive Programming** — writing code that validates inputs before they cause exceptions, handles null safely, uses preconditions, and follows 'fail fast' principles. After custom exceptions (knowing how to throw them well), defensive programming teaches when and how to throw them strategically."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m38_t2",
+  "module_id": "m38",
+  "topic_number": 2,
+  "name": "Non-Comparison Sorts \u2014 Counting, Radix, Bucket",
+  "slug": "non-comparison-sorts-counting-radix",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m38_t1"
+    ],
+    "concepts_taught": [
+      "non-comparison-sorts-counting-radix"
+    ],
+    "career_relevance": "Core Non-Comparison Sorts \u2014 Counting, Radix, Bucket patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Non-Comparison Sorts \u2014 Counting, Radix, Bucket"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Counting sort: O(n+k) \u2014 integers in [0,k]; count array of size k+1; prefix sum for stability",
+        "Radix sort: O(d*(n+k)) \u2014 sort by each digit LSD to MSD using stable counting sort",
+        "Bucket sort: O(n) avg \u2014 distribute into buckets, sort each, concatenate",
+        "Sort colors (DNF): O(n) O(1) \u2014 3-way partition with lo/mid/hi pointers",
+        "Counting sort stable: iterate backwards when placing elements",
+        "When to use: known range \u2192 counting; large n small k \u2192 radix; uniform distribution \u2192 bucket"
+      ],
+      "next_topic_preview": "Next: Sorting applications."
+    }
+  }
+}

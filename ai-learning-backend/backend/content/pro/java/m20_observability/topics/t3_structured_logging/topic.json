@@ -1,0 +1,66 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m20_t3",
+  "language": "java",
+  "module_id": "m20",
+  "module_name": "Observability",
+  "topic_number": 3,
+  "name": "Structured Logging",
+  "slug": "structured-logging",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m20_t2"],
+    "concepts_taught": ["structured_logging_overview","json_logging","logback_json","mdc_mapped_diagnostic_context","mdc_put_remove","request_filter_mdc","correlation_id","log_levels","log_aggregation_loki","slf4j_parameterized_logging"],
+    "skills_developed": ["configuring_json_log_output","adding_mdc_context_in_filter","correlating_logs_with_trace_ids","choosing_appropriate_log_levels","testing_log_output"],
+    "career_relevance": "Structured JSON logs are searchable, filterable, and parseable by log aggregation systems (Loki, Elasticsearch). Without structure: grepping thousands of lines for a payment error is manual and error-prone. With structured logs: Grafana Loki query `{app='payment-service'} |= 'gateway=visa' | json | latency > 500` finds all slow Visa calls instantly.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Unstructured log: `19:05:23 ERROR Payment failed for user USR-001 with Visa card error 12`\n→ grep is the only way to find this. Cannot query by error code, user, or latency.\n\nStructured JSON log:\n```json\n{\"timestamp\":\"19:05:23\",\"level\":\"ERROR\",\"traceId\":\"abc123\",\"userId\":\"USR-001\",\"gateway\":\"visa\",\"errorCode\":12,\"latencyMs\":2800,\"message\":\"Payment failed\"}\n```\n→ Loki query: `{app='payments'} | json | errorCode=12 | latencyMs > 1000` → all slow Visa error-12s",
+    "what_you_will_build": "JSON-formatted logs with MDC context (traceId, userId, requestId) via a request filter, queried in Loki alongside Grafana metrics."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "mdc_filter": "**MDC context via request filter:**\n\n```java\n@Component @Order(1)\npublic class LoggingContextFilter extends OncePerRequestFilter {\n    @Override\n    protected void doFilterInternal(HttpServletRequest req,\n            HttpServletResponse res, FilterChain chain)\n            throws ServletException, IOException {\n        String requestId = req.getHeader(\"X-Request-Id\");\n        if (requestId == null) requestId = UUID.randomUUID().toString().substring(0,8);\n        String userId = req.getHeader(\"X-User-Id\");\n        \n        MDC.put(\"requestId\", requestId);\n        MDC.put(\"userId\", userId != null ? userId : \"anonymous\");\n        MDC.put(\"path\", req.getRequestURI());\n        \n        try {\n            chain.doFilter(req, res);\n        } finally {\n            MDC.clear();  // ALWAYS clear — thread reuse can leak context!\n        }\n    }\n}\n```\n\n```xml\n<!-- logback-spring.xml — JSON structured output: -->\n<!-- <dependency>logstash-logback-encoder</dependency> -->\n<appender name=\"JSON\" class=\"ch.qos.logback.core.ConsoleAppender\">\n  <encoder class=\"net.logstash.logback.encoder.LogstashEncoder\"/>\n</appender>\n<!-- Outputs: {\"timestamp\":\"...\",\"level\":\"INFO\",\"traceId\":\"abc\",\"requestId\":\"req-001\",\"userId\":\"USR-001\",\"message\":\"...\"} -->\n```",
+      "log_levels": "**Choosing the right log level:**\n\n```java\n// ERROR: something failed that needs attention NOW\nlog.error(\"Payment failed paymentId={} gateway={} errorCode={}\", paymentId, gateway, errorCode);\n\n// WARN: degraded but not broken (circuit open, fallback used)\nlog.warn(\"Using cached price for symbol={} reason=feed_timeout\", symbol);\n\n// INFO: significant business events\nlog.info(\"Payment processed paymentId={} amount={} userId={}\", paymentId, amount, userId);\n\n// DEBUG: technical details (disabled in production)\nlog.debug(\"Entering validateCard cardType={} token={}\", cardType, token);\n\n// TRACE: extremely verbose (disabled always in prod)\nlog.trace(\"DB query took={}ms rows={}\", queryTime, rows);\n\n// PRODUCTION levels: ERROR + WARN in most packages, INFO for business logic\n// logging.level.com.razorpay: INFO\n// logging.level.org.springframework: WARN\n// logging.level.com.zaxxer.hikari: WARN\n// NEVER: log passwords, card numbers, PAN, API keys — log.info(\"Charging {}\", cardNumber) is a BREACH\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Three-column comparison: Unstructured log (text blob, hard to parse), Structured JSON log (key-value pairs, machine-readable), Loki query result (filtered by json fields). MDC filter diagram: request comes in → filter adds requestId/userId to MDC → controller → service → all log statements include MDC context automatically.", "alt_text": "Structured JSON log output vs unstructured, with MDC context propagation" }
+  },
+  "worked_example": {
+    "scenario": "Add structured JSON logging to Razorpay payment service with MDC context.",
+    "problem_statement": "1. Add logstash-logback-encoder. 2. LoggingContextFilter sets requestId/userId in MDC. 3. PaymentService logs structured events. 4. application.yml: JSON pattern.",
+    "step_by_step_solution": [{ "step": 1, "action": "Filter and usage", "details": "```java\n// Filter: MDC.put('requestId', uuid); MDC.put('userId', header)\n// Log: log.info('Payment processed paymentId={} amount={}', id, amt)\n// Output: {requestId:'req-001', userId:'USR-001', paymentId:'PAY-001', ...}\n```" }],
+    "final_code": "// MDC: thread-local key-value store; all log statements in thread include MDC values\n// JSON format: logstash-logback-encoder converts all log + MDC to JSON\n// MDC.clear() in finally: mandatory — thread pool reuse leaks context without clear",
+    "expected_output": "{\"timestamp\":\"19:05:23\",\"level\":\"INFO\",\"traceId\":\"abc123\",\"requestId\":\"req-001\",\"userId\":\"USR-001\",\"message\":\"Payment processed\",\"paymentId\":\"PAY-001\",\"amount\":999.0}",
+    "things_to_notice": [
+      "MDC.clear() in finally: if you don't clear, the next request on the same thread inherits the previous request's userId. Always clear in finally.",
+      "Never log sensitive data: card numbers, CVV, API keys, PAN. Even encrypted — don't log them at all.",
+      "Parameterized logging: log.info('User {}', userId) is lazy — if INFO is disabled, the string is never concatenated. log.info('User ' + userId) always concatenates.",
+      "JSON logging in production, text in development: Spring profiles make this easy."
+    ]
+  },
+  "applications": {
+    "industry_examples": [{ "company_context": "Razorpay fraud detection", "use_case": "Structured logs with userId, merchantId, amount, ipAddress, deviceFingerprint. Loki query: all payments from a suspicious IP in the last hour. Impossible with unstructured logs at scale." }],
+    "interview_relevance": "'What is structured logging and why does it matter?' → Logs in JSON format with key-value pairs. Machine-parseable by log aggregation systems. Enable queries like 'all failed payments from merchant X in the last hour' without grepping text. MDC adds context (userId, requestId) to every log line in a request.",
+    "real_world_workflow": "Add LoggingContextFilter to all services. Log business events at INFO, errors at ERROR. Use structured fields (not concatenated strings) for queryable log data."
+  },
+  "common_gaps": [
+    { "gap_id": "mdc_not_cleared", "what_students_get_wrong": "Not calling MDC.clear() in finally block — next request on same thread sees previous request's context.", "remediation": "Always MDC.clear() in finally in the filter. Thread pools reuse threads — without clearing, context leaks between requests.", "detection_pattern": "Logs show wrong userId or requestId; MDC values from previous request appearing" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "Structured logs: JSON format, machine-parseable, queryable in Loki",
+      "MDC: thread-local context added to all log statements in the request thread",
+      "LoggingContextFilter: sets requestId, userId, traceId in MDC for every request",
+      "MDC.clear() in finally: mandatory — thread pool reuse without clear = context leak",
+      "Log levels: ERROR=broken, WARN=degraded, INFO=business events, DEBUG=technical",
+      "Never log: passwords, card numbers, CVV, API keys, PAN",
+      "Parameterized logging: log.info('User {}', id) — not 'User ' + id"
+    ],
+    "self_check_questions": [
+      { "question": "Why does MDC.clear() need to be in a finally block, not after chain.doFilter()?", "answer": "If chain.doFilter() throws an exception, the code after it is skipped. The MDC values remain in the thread. The thread is returned to the pool and reused for the next request — with the previous request's userId, requestId, and traceId still in MDC. The next request's logs incorrectly show the previous user's context. finally block: always executes regardless of exceptions, ensuring MDC is always cleared before the thread returns to the pool." }
+    ],
+    "next_topic_preview": "Next: Prometheus & Grafana — visualizing metrics on dashboards. You've been emitting metrics since T20.1. Now: build a Grafana dashboard showing payment rate, p99 latency, error rate, and circuit breaker state — all in one view."
+  }
+}

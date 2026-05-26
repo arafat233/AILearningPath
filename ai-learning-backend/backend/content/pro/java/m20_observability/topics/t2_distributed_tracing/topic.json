@@ -1,0 +1,107 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m20_t2",
+  "language": "java",
+  "module_id": "m20",
+  "module_name": "Observability",
+  "topic_number": 2,
+  "name": "Distributed Tracing",
+  "slug": "distributed-tracing",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m20_t1"],
+    "concepts_taught": [
+      "distributed_tracing_overview",
+      "trace_span_relationship",
+      "trace_id_propagation",
+      "span_id",
+      "micrometer_tracing",
+      "brave_opentelemetry",
+      "zipkin_integration",
+      "b3_propagation",
+      "w3c_traceparent",
+      "sampling_rate",
+      "custom_spans",
+      "baggage",
+      "trace_in_logs",
+      "spring_boot_autoconfiguration_tracing"
+    ],
+    "skills_developed": [
+      "configuring_micrometer_tracing_with_zipkin",
+      "adding_custom_spans_to_critical_paths",
+      "propagating_trace_context_across_services",
+      "correlating_logs_with_trace_ids",
+      "reading_zipkin_traces"
+    ],
+    "career_relevance": "When p99 latency spikes, metrics tell you something is slow. Traces tell you WHERE: is it the database, the Visa API, or your own service logic? Distributed tracing is mandatory at every major Indian tech company. After this topic, you can pinpoint latency sources in a 5-service call chain within minutes.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+
+  "hook": {
+    "real_world_problem": "Razorpay payment p99 spikes to 3 seconds. Metrics show it's slow — but WHERE?\n\n```\nWithout tracing:\n  Log search: 'payment PAY-001' → 47 log lines across 3 services\n  Manual correlation: 45 minutes to find the slow step\n\nWith distributed tracing (Zipkin waterfall for PAY-001):\n  API Gateway:       [════] 5ms\n  Payment Service:   [════════════════════════] 2,847ms\n    ↳ validateCard:  [═] 3ms\n    ↳ callVisa:      [══════════════════════] 2,800ms  ← HERE!\n    ↳ saveToDb:      [═] 44ms\n\nDiagnosis: 93% of latency is in the Visa API call\nFix: add circuit breaker timeout + cache verification results\nTime to diagnosis: 45 SECONDS\n```",
+    "what_you_will_build": "Configure Micrometer Tracing with Zipkin, create custom spans, propagate trace IDs across service calls, and correlate trace IDs in log output."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "trace_and_span": "**Trace vs Span — the core concepts:**\n\n```\nTRACE: one request's journey through the entire system\n  traceId: 'abc123def456' (unique per request, same across all services)\n\nSPAN: one unit of work within a trace\n  spanId: 'span-001' (unique within the trace)\n  parentSpanId: null (root) or the ID of the calling span\n  startTime, endTime, tags, events, status\n\nExample — payment request trace:\n  Span 1 (root): POST /api/payments — traceId=abc123, spanId=s001\n    Span 2 (child): validateCard() — traceId=abc123, spanId=s002, parent=s001\n    Span 3 (child): callVisa() — traceId=abc123, spanId=s003, parent=s001\n      Span 4 (child, in Visa svc): processCharge() — same traceId=abc123\n    Span 5 (child): savePayment() — traceId=abc123, spanId=s005, parent=s001\n\nThe traceId threads through ALL services.\nEach service adds its own spans.\nZipkin reconstructs the full call tree from traceId.\n```",
+      "setup": "**Micrometer Tracing setup:**\n\n```xml\n<!-- pom.xml: -->\n<dependency>\n    <groupId>io.micrometer</groupId>\n    <artifactId>micrometer-tracing-bridge-brave</artifactId>\n</dependency>\n<dependency>\n    <groupId>io.zipkin.reporter2</groupId>\n    <artifactId>zipkin-reporter-brave</artifactId>\n</dependency>\n```\n\n```yaml\n# application.yml:\nmanagement:\n  tracing:\n    sampling:\n      probability: 1.0     # trace 100% of requests (use 0.1 in production)\n    propagation:\n      type: b3             # B3 propagation format (Zipkin)\n\nspring:\n  zipkin:\n    base-url: http://zipkin:9411  # Zipkin server URL\n```\n\n```yaml\n# docker-compose.yml — Zipkin server:\nservices:\n  zipkin:\n    image: openzipkin/zipkin\n    ports:\n      - '9411:9411'\n```",
+      "custom_spans": "**Creating custom spans:**\n\n```java\nimport io.micrometer.tracing.Tracer;\nimport io.micrometer.tracing.Span;\n\n@Service\npublic class PaymentService {\n    private final Tracer tracer;\n    private final VisaClient visaClient;\n    \n    PaymentService(Tracer tracer, VisaClient c) { this.tracer=tracer; visaClient=c; }\n    \n    public PaymentResult process(PaymentRequest req) {\n        // Span auto-created for @GetMapping/@PostMapping by Micrometer\n        \n        // Custom span for a critical sub-operation:\n        Span visaSpan = tracer.nextSpan().name(\"visa.charge\");\n        try (Tracer.SpanInScope ws = tracer.withSpan(visaSpan.start())) {\n            visaSpan.tag(\"gateway\", \"visa\");\n            visaSpan.tag(\"amount\", String.valueOf(req.amount()));\n            VisaResponse resp = visaClient.charge(req);\n            visaSpan.tag(\"responseCode\", resp.code());\n            return PaymentResult.from(resp);\n        } catch (Exception e) {\n            visaSpan.error(e);\n            throw e;\n        } finally {\n            visaSpan.end();  // ALWAYS end the span — even on exception\n        }\n    }\n}\n```",
+      "trace_in_logs": "**Correlating trace IDs in logs:**\n\n```yaml\n# logback-spring.xml — add traceId to every log line:\n<pattern>%d{HH:mm:ss} [%-5level] [%X{traceId},%X{spanId}] %logger{20} - %msg%n</pattern>\n# Output: 19:05:23 [ERROR] [abc123def456,span001] PaymentService - Visa timeout\n\n# Now: Prometheus alert fires (p99 > 500ms)\n# Grafana: find a slow trace ID from metrics\n# Zipkin: paste trace ID → see full waterfall\n# Logs: grep 'abc123def456' → all log lines for that request across all services\n# Three pillars working together!\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Zipkin waterfall diagram: horizontal bars showing span duration. Root: POST /payments (2,855ms). Three child spans below: validateCard (3ms, short bar), callVisa (2,800ms, very long bar highlighted red), savePayment (44ms, short bar). callVisa has one grandchild in the Visa service: processCharge (2,795ms). Annotations: 'traceId propagated in HTTP header X-B3-TraceId'. Bottom: log line showing traceId=[abc123] in MDC context.",
+      "alt_text": "Zipkin trace waterfall showing payment service with slow Visa call identified by span duration"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add distributed tracing to Razorpay's payment service: auto-instrument HTTP calls, add custom spans for Visa and DB operations, configure Zipkin export.",
+    "problem_statement": "1. Add micrometer-tracing-bridge-brave + zipkin-reporter-brave\n2. application.yml: sampling=1.0, zipkin URL\n3. Custom span around visaClient.charge()\n4. logback-spring.xml: include traceId in log pattern\n5. RestTemplate: trace context auto-propagated via HTTP headers",
+    "step_by_step_solution": [
+      { "step": 1, "action": "application.yml tracing config", "details": "```yaml\nmanagement.tracing.sampling.probability: 1.0\nspring.zipkin.base-url: http://zipkin:9411\nlogging.pattern.console: '%d [%X{traceId}] %-5level %logger{15} - %msg%n'\n```" },
+      { "step": 2, "action": "Custom span in payment service", "details": "```java\nSpan span = tracer.nextSpan().name(\"visa.charge\");\ntry (var ws = tracer.withSpan(span.start())) {\n    span.tag(\"gateway\", \"visa\");\n    return visaClient.charge(req);\n} catch (Exception e) {\n    span.error(e); throw e;\n} finally { span.end(); }\n```" }
+    ],
+    "final_code": "// micrometer-tracing auto-instruments Spring MVC endpoints and RestTemplate/WebClient\n// Custom spans: nextSpan().name() → withSpan(span.start()) → tag/error → span.end()\n// traceId in logs via %X{traceId} in Logback MDC pattern\n// B3 propagation: X-B3-TraceId header threads through all HTTP calls",
+    "expected_output": "# Zipkin UI at http://localhost:9411:\n# Trace: abc123def456 (2,855ms)\n#   POST /api/payments (2,855ms)\n#     visa.charge (2,800ms) ← tagged: gateway=visa, responseCode=00\n#     savePayment (44ms)\n\n# Log line (any service in the trace):\n# 19:05:23 [abc123def456] ERROR PaymentService - Visa timeout after 10000ms",
+    "things_to_notice": [
+      "span.end() in finally: mandatory — if you don't end the span, it never gets exported to Zipkin. The trace will be missing spans and the waterfall will be incomplete.",
+      "sampling.probability=1.0 in development, 0.1-0.01 in production. Tracing every request at high traffic (1000 req/s × 100% = 1000 traces/s) overloads Zipkin. Use 10% sampling in production; still enough to diagnose most issues.",
+      "traceId in logs: the %X{traceId} pattern reads from MDC (Mapped Diagnostic Context). Micrometer Tracing automatically puts traceId into MDC when a span is active. Without a span: traceId will be empty.",
+      "RestTemplate/WebClient auto-instrumentation: Micrometer Tracing auto-adds trace headers to outgoing HTTP calls. The B3 headers (X-B3-TraceId, X-B3-SpanId, X-B3-Sampled) propagate the trace context to downstream services. No manual header management needed."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay payment tracing", "use_case": "Every payment request gets a traceId. When merchants report 'slow payments', the support team asks for the traceId from the merchant's logs, pastes it into Zipkin, and sees exactly which service was slow: Visa verification (normal: 200ms, today: 3s) → add circuit breaker with cached verification result." },
+      { "company_context": "Zerodha order execution tracing", "use_case": "SEBI requires Zerodha to log all order execution times. Each order execution trace includes: order submission span, NSE validation span, execution confirmation span. When regulatory audit requires 'show us order ORD-20240615-001 execution path', Zerodha queries Zipkin by traceId embedded in the order ID." }
+    ],
+    "interview_relevance": "'What is distributed tracing and when do you use it?' → Tracing follows a single request through multiple services, recording each operation as a span. Use it when: p99 spikes but you don't know which service is slow, debugging cross-service failures, understanding request flow. Metrics: aggregate stats. Traces: individual request journey.",
+    "real_world_workflow": "Add tracing when: service calls other services, debugging latency, building observable microservices."
+  },
+
+  "common_gaps": [
+    { "gap_id": "not_ending_span", "what_students_get_wrong": "Not calling span.end() — span never exported to Zipkin, trace is incomplete.", "remediation": "Always put span.end() in a finally block. Missing end() leaks the span and prevents export.", "detection_pattern": "Zipkin shows partial traces; parent span has no children despite child work happening" }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Trace = one request's journey across all services (same traceId)",
+      "Span = one unit of work (startTime, endTime, tags, error)",
+      "micrometer-tracing-bridge-brave: Brave (Zipkin's client) under Micrometer API",
+      "sampling.probability=1.0 dev, 0.01-0.1 prod",
+      "Custom span: nextSpan().name() → withSpan(span.start()) → tag/error → end() in finally",
+      "traceId in logs: %X{traceId} in Logback pattern via MDC",
+      "B3 propagation: auto-propagated via HTTP headers by RestTemplate/WebClient",
+      "Three pillars: metrics (WHAT slow) → traces (WHERE slow) → logs (WHY slow)"
+    ],
+    "self_check_questions": [
+      { "question": "A payment request goes through API Gateway → Payment Service → Visa Client (external). The trace shows 3 spans. Are they all in the same trace?", "answer": "Yes, all three spans share the same traceId. The API Gateway creates the root span and puts the traceId in the outgoing HTTP headers (X-B3-TraceId). Payment Service reads the header, creates a child span with the same traceId. When Payment Service calls Visa Client, it propagates the traceId again. Zipkin collects all spans with the same traceId and reconstructs the full waterfall. If Visa is an external service without tracing, the external call still appears as a span in Payment Service's context, just without any child spans from Visa's side." }
+    ],
+    "next_topic_preview": "Next: Structured Logging — making logs machine-readable (JSON format), adding context fields (traceId, userId, paymentId), and shipping to Loki for querying alongside Grafana metrics."
+  }
+}

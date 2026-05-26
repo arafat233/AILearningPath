@@ -1,0 +1,369 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t1",
+  "topic_name": "Hash Fundamentals",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m34_t1_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "HashMap basic ops",
+      "instructions": "Implement: HashMap basic ops.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HMBasics {\n    public static void main(String[] a) {\n        Map<String,Integer> m = new HashMap<>();\n        m.put(\"A\", 1); m.put(\"B\", 2); m.put(\"C\", 3);\n        System.out.println(m.get(\"B\"));                // 2\n        System.out.println(m.getOrDefault(\"D\", -1));  // -1\n        System.out.println(m.containsKey(\"A\"));        // true\n        m.put(\"A\", 10);\n        System.out.println(m.get(\"A\"));                // 10 (overwrite)\n        System.out.println(m.size());                  // 3\n        System.out.println(\"O(1) avg: put/get/containsKey/size\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "-1",
+            "true",
+            "10",
+            "3",
+            "O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t1_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Frequency count with HashMap",
+      "instructions": "Implement: Frequency count with HashMap.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class FreqCount {\n    public static void main(String[] a) {\n        int[] nums = {1, 2, 2, 3, 3, 3, 4};\n        Map<Integer,Integer> freq = new HashMap<>();\n        for (int n : nums) freq.merge(n, 1, Integer::sum);\n        System.out.println(freq.get(1));  // 1\n        System.out.println(freq.get(2));  // 2\n        System.out.println(freq.get(3));  // 3\n        System.out.println(\"merge(k, 1, Integer::sum): elegant frequency count\");\n        System.out.println(\"Alternative: getOrDefault(k,0)+1\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "2",
+            "3",
+            "merge"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Two Sum (LeetCode #1)",
+      "instructions": "Implement: Two Sum (LeetCode #1).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TwoSum {\n    public static int[] twoSum(int[] nums, int target) {\n        Map<Integer,Integer> map = new HashMap<>(); // val \u2192 index\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (map.containsKey(complement)) return new int[]{map.get(complement), i};\n            map.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n    public static void main(String[] a) {\n        System.out.println(Arrays.toString(twoSum(new int[]{2,7,11,15}, 9)));  // [0,1]\n        System.out.println(Arrays.toString(twoSum(new int[]{3,2,4}, 6)));      // [1,2]\n        System.out.println(Arrays.toString(twoSum(new int[]{3,3}, 6)));        // [0,1]\n        System.out.println(\"O(n) \u2014 one pass, complement lookup\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[0, 1]",
+            "[1, 2]",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m34_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Subarray Sum Equals K (LeetCode #560)",
+      "instructions": "Implement: Subarray Sum Equals K (LeetCode #560).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SubarraySumK {\n    public static int subarraySum(int[] nums, int k) {\n        Map<Integer,Integer> prefixCount = new HashMap<>();\n        prefixCount.put(0, 1); // empty prefix\n        int sum = 0, count = 0;\n        for (int n : nums) {\n            sum += n;\n            count += prefixCount.getOrDefault(sum - k, 0);\n            prefixCount.merge(sum, 1, Integer::sum);\n        }\n        return count;\n    }\n    public static void main(String[] a) {\n        System.out.println(subarraySum(new int[]{1,1,1}, 2));    // 2\n        System.out.println(subarraySum(new int[]{1,2,3}, 3));    // 2\n        System.out.println(subarraySum(new int[]{-1,-1,1}, 0)); // 1\n        System.out.println(\"O(n) \u2014 prefix sum + HashMap. prefixCount.put(0,1) handles subarrays from index 0\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "2",
+            "1",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m34_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "HashMap load factor and resizing explanation",
+      "instructions": "Implement: HashMap load factor and resizing explanation.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HMInternals {\n    public static void main(String[] a) {\n        // Default: capacity=16, loadFactor=0.75\n        // Resize when size > capacity * loadFactor = 16 * 0.75 = 12\n        // Resize: capacity doubles (16 \u2192 32), rehash all keys\n        // Pre-size: avoid resizing when n is known\n        Map<String,Integer> small = new HashMap<>(4, 0.75f);\n        Map<String,Integer> large = new HashMap<>(1024); // pre-sized for 1024 entries\n        System.out.println(\"Default capacity: 16, load factor: 0.75\");\n        System.out.println(\"Resize threshold: 16 * 0.75 = 12 entries\");\n        System.out.println(\"After resize: capacity=32, all keys rehashed\");\n        System.out.println(\"Pre-size: new HashMap<>(n*4/3+1) to avoid resizes\");\n        System.out.println(\"O(1) avg because: good hash distributes evenly across buckets\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Default capacity: 16",
+            "load factor: 0.75",
+            "Pre-size",
+            "O(1) avg"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m34_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Count characters, find first non-repeating",
+      "instructions": "Implement: Count characters, find first non-repeating.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CharFreq {\n    public static int firstUniqChar(String s) {\n        int[] freq = new int[26];\n        for (char c : s.toCharArray()) freq[c-'a']++;\n        for (int i = 0; i < s.length(); i++)\n            if (freq[s.charAt(i)-'a'] == 1) return i;\n        return -1;\n    }\n    public static void main(String[] a) {\n        System.out.println(firstUniqChar(\"leetcode\"));     // 0 ('l')\n        System.out.println(firstUniqChar(\"loveleetcode\")); // 2 ('v')\n        System.out.println(firstUniqChar(\"aabb\"));         // -1\n        System.out.println(\"int[26] preferred over HashMap for lowercase alpha: O(1) space\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "0",
+            "2",
+            "-1",
+            "int[26] preferred"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m34_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Contiguous Array (LeetCode #525)",
+      "instructions": "Implement: Contiguous Array (LeetCode #525).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ContiguousArray {\n    public static int findMaxLength(int[] nums) {\n        Map<Integer,Integer> map = new HashMap<>();\n        map.put(0, -1); // balance 0 seen at index -1\n        int balance = 0, maxLen = 0;\n        for (int i = 0; i < nums.length; i++) {\n            balance += nums[i] == 1 ? 1 : -1;\n            if (map.containsKey(balance)) maxLen = Math.max(maxLen, i - map.get(balance));\n            else map.put(balance, i);\n        }\n        return maxLen;\n    }\n    public static void main(String[] a) {\n        System.out.println(findMaxLength(new int[]{0,1}));         // 2\n        System.out.println(findMaxLength(new int[]{0,1,0}));       // 2\n        System.out.println(findMaxLength(new int[]{0,0,1,0,0,0,1,1})); // 6\n        System.out.println(\"O(n) \u2014 balance (0\u2192-1, 1\u2192+1), same balance at i and j means equal 0s and 1s in (j,i]\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "2",
+            "6",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m34_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "HashMap vs TreeMap vs LinkedHashMap",
+      "instructions": "Implement: HashMap vs TreeMap vs LinkedHashMap.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MapTypes {\n    public static void main(String[] a) {\n        // HashMap: O(1) ops, no order guarantee\n        Map<Integer,String> hm = new HashMap<>();\n        hm.put(3,\"c\"); hm.put(1,\"a\"); hm.put(2,\"b\");\n        System.out.println(\"HashMap keys (random order): \" + hm.keySet());\n\n        // TreeMap: O(log n) ops, sorted by key\n        Map<Integer,String> tm = new TreeMap<>(hm);\n        System.out.println(\"TreeMap keys (sorted): \" + tm.keySet()); // [1,2,3]\n\n        // LinkedHashMap: O(1) ops, insertion order\n        Map<Integer,String> lhm = new LinkedHashMap<>(hm);\n        System.out.println(\"LinkedHashMap keys (insertion): \" + lhm.keySet()); // [3,1,2]\n\n        System.out.println(\"HashMap O(1), TreeMap O(log n), LinkedHashMap O(1)+order\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "TreeMap keys (sorted): [1, 2, 3]",
+            "O(1), TreeMap O(log n)",
+            "LinkedHashMap"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Longest Consecutive Sequence (LeetCode #128)",
+      "instructions": "Implement: Longest Consecutive Sequence (LeetCode #128).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LongestConsec {\n    public static int longestConsecutive(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int n : nums) set.add(n);\n        int best = 0;\n        for (int n : set) {\n            if (!set.contains(n - 1)) { // start of a sequence\n                int curr = n, len = 1;\n                while (set.contains(curr + 1)) { curr++; len++; }\n                best = Math.max(best, len);\n            }\n        }\n        return best;\n    }\n    public static void main(String[] a) {\n        System.out.println(longestConsecutive(new int[]{100,4,200,1,3,2})); // 4\n        System.out.println(longestConsecutive(new int[]{0,3,7,2,5,8,4,6,0,1})); // 9\n        System.out.println(\"O(n) \u2014 HashSet for O(1) lookup. Only start sequence when n-1 not in set\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "9",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Four Sum Count II (LeetCode #454)",
+      "instructions": "Implement: Four Sum Count II (LeetCode #454).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class FourSumII {\n    public static int fourSumCount(int[] a, int[] b, int[] c, int[] d) {\n        Map<Integer,Integer> abSum = new HashMap<>();\n        for (int x : a) for (int y : b) abSum.merge(x+y, 1, Integer::sum);\n        int count = 0;\n        for (int x : c) for (int y : d) count += abSum.getOrDefault(-(x+y), 0);\n        return count;\n    }\n    public static void main(String[] a2) {\n        System.out.println(fourSumCount(new int[]{1,2},new int[]{-2,-1},new int[]{-1,2},new int[]{0,2})); // 2\n        System.out.println(fourSumCount(new int[]{0},new int[]{0},new int[]{0},new int[]{0})); // 1\n        System.out.println(\"O(n\u00b2) \u2014 split into two pairs, HashMap for complement lookup\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "1",
+            "O(n\u00b2)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Random Pick Index (LeetCode #398) \u2014 HashMap",
+      "instructions": "Implement: Random Pick Index (LeetCode #398) \u2014 HashMap.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class RandomPickIdx {\n    static class Solution {\n        Map<Integer,List<Integer>> map = new HashMap<>(); Random rnd = new Random();\n        Solution(int[] nums) { for(int i=0;i<nums.length;i++) map.computeIfAbsent(nums[i],k->new ArrayList<>()).add(i); }\n        int pick(int target) { List<Integer> idxs=map.get(target); return idxs.get(rnd.nextInt(idxs.size())); }\n    }\n    public static void main(String[] a) {\n        Solution s = new Solution(new int[]{1,2,3,3,3});\n        int p = s.pick(3); System.out.println(p>=2 && p<=4); // true (index 2,3, or 4)\n        System.out.println(s.pick(1) == 0); // true (only at index 0)\n        System.out.println(\"O(n) build, O(1) pick \u2014 precompute index lists\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "O(1) pick"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "HashMap synthesis \u2014 two-sum + subarray sum + consecutive",
+      "instructions": "Implement: HashMap synthesis \u2014 two-sum + subarray sum + consecutive.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HMSynth {\n    static int[] twoSum(int[] n, int t){Map<Integer,Integer> m=new HashMap<>();for(int i=0;i<n.length;i++){int c=t-n[i];if(m.containsKey(c))return new int[]{m.get(c),i};m.put(n[i],i);}return new int[]{};}\n    static int subarrayK(int[] n, int k){Map<Integer,Integer> m=new HashMap<>();m.put(0,1);int s=0,c=0;for(int x:n){s+=x;c+=m.getOrDefault(s-k,0);m.merge(s,1,Integer::sum);}return c;}\n    static int longConsec(int[] n){Set<Integer> s=new HashSet<>();for(int x:n)s.add(x);int b=0;for(int x:s){if(!s.contains(x-1)){int c=x,l=1;while(s.contains(c+1)){c++;l++;}b=Math.max(b,l);}}return b;}\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(twoSum(new int[]{2,7,11,15},9)));\n        System.out.println(subarrayK(new int[]{1,1,1},2));\n        System.out.println(longConsec(new int[]{100,4,200,1,3,2}));\n        boolean ok=Arrays.equals(twoSum(new int[]{2,7,11,15},9),new int[]{0,1})&&subarrayK(new int[]{1,1,1},2)==2&&longConsec(new int[]{100,4,200,1,3,2})==4;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[0, 1]",
+            "2",
+            "4"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete M34 T1 Hash Fundamentals Synthesis",
+      "instructions": "Implement: Complete M34 T1 Hash Fundamentals Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T1Final {\n    static int[] twoSum(int[] n,int t){Map<Integer,Integer> m=new HashMap<>();for(int i=0;i<n.length;i++){int c=t-n[i];if(m.containsKey(c))return new int[]{m.get(c),i};m.put(n[i],i);}return new int[]{};}\n    static int subarrayK(int[] n,int k){Map<Integer,Integer> m=new HashMap<>();m.put(0,1);int s=0,c=0;for(int x:n){s+=x;c+=m.getOrDefault(s-k,0);m.merge(s,1,Integer::sum);}return c;}\n    static int longConsec(int[] n){Set<Integer> s=new HashSet<>();for(int x:n)s.add(x);int b=0;for(int x:s){if(!s.contains(x-1)){int c=x,l=1;while(s.contains(c+1)){c++;l++;}b=Math.max(b,l);}}return b;}\n    static Map<Integer,Integer> freq(int[] n){Map<Integer,Integer> m=new HashMap<>();for(int x:n)m.merge(x,1,Integer::sum);return m;}\n    public static void main(String[] a){\n        System.out.println(\"twoSum=\"+Arrays.toString(twoSum(new int[]{2,7,11,15},9)));\n        System.out.println(\"subarrayK=\"+subarrayK(new int[]{1,1,1},2));\n        System.out.println(\"longConsec=\"+longConsec(new int[]{100,4,200,1,3,2}));\n        System.out.println(\"freq(3)=\"+freq(new int[]{1,2,2,3,3,3}).get(3));\n        boolean ok=Arrays.equals(twoSum(new int[]{2,7,11,15},9),new int[]{0,1})&&subarrayK(new int[]{1,1,1},2)==2&&longConsec(new int[]{100,4,200,1,3,2})==4;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[0, 1]",
+            "subarrayK=2",
+            "longConsec=4"
+          ]
+        }
+      ],
+      "hints": [
+        "Use HashMap/HashSet",
+        "O(1) average operations",
+        "Check containsKey before get"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

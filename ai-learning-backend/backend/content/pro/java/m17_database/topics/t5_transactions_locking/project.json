@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m17_t5_proj",
+  "linked_topic": "java_m17_t5",
+  "level": "mini",
+  "name": "BookMyShow Ticket Booking — Concurrent-Safe Transactions",
+  "estimated_minutes": 50,
+  "difficulty": 9,
+
+  "scenario": "BookMyShow releases concert tickets. Thousands of users try to book simultaneously. Build a production-safe ticket booking system that prevents double-booking using optimistic locking for general seat selection and pessimistic locking for last-available-ticket scenarios. Include audit logging with REQUIRES_NEW and retry logic.",
+
+  "description": "Event/Ticket @Entity with @Version + pessimistic lock option. BookingService with @Retryable + @Lock strategy. AuditService with REQUIRES_NEW. @DataJpaTest verifying concurrent booking safety, audit persistence, and rollback behavior.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Event @Entity: id, name, totalSeats, availableSeats, @Version int version. TicketBooking @Entity: id, eventId, userId, status (CONFIRMED/CANCELLED), bookedAt. Both with appropriate @Column constraints.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "EventRepository: standard JpaRepository + findByIdWithLock() using @Lock(PESSIMISTIC_WRITE) + findByIdForOptimistic() using @Lock(OPTIMISTIC_FORCE_INCREMENT) as an alternative.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "BookingAuditService with @Transactional(propagation=REQUIRES_NEW): log(eventId, userId, action, success). Always commits independently — even if main transaction rolls back.",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "BookingService.book(eventId, userId): @Retryable(ObjectOptimisticLockingFailureException, maxAttempts=3, backoff=50ms), @Transactional(rollbackFor=Exception.class). Decrements availableSeats, creates TicketBooking, calls audit.log().",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "BookingService.cancelBooking(bookingId, userId): @Transactional, marks booking CANCELLED, increments availableSeats on Event, logs audit. Throws if booking not found or not owned by userId.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "@DataJpaTest (5 tests): (1) successful booking decrements seats, (2) booking sold-out event fails, (3) cancel increments seats, (4) audit log persists even on booking failure, (5) version increments after booking. All 5 pass.",
+        "weight": 30
+      },
+      {
+        "id": "req_7",
+        "description": "application.properties (prod): spring.transaction.default-timeout=30, spring.datasource.hikari.connection-timeout=2000 — documented with reasoning.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a WaitlistService: when event is sold out, add user to a waitlist. When a booking is cancelled, automatically confirm the first waitlist entry using REQUIRES_NEW (so waitlist processing doesn't block cancellation). @DataJpaTest verifying waitlist behavior.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Deadlock-safe bulk booking: BookingService.bookMultiple(userId, List<eventId>) locks events in ascending ID order before booking any. @DataJpaTest with two threads booking in opposite orders — no deadlock.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add @Scheduled cleanup: BookingService.releaseExpiredHolds() runs every minute, cancels bookings in PENDING status older than 10 minutes, restores seats with REQUIRES_NEW per booking. Demonstrate idempotency.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Events for @DataJpaTest:\n  EVT-001: 'Diljit Dosanjh Live', totalSeats=1000, availableSeats=1000\n  EVT-002: 'Sold Out Concert', totalSeats=100, availableSeats=0\n\nBooking flow:\n  bookTicket(EVT-001, U001) → availableSeats=999, version=1\n  bookTicket(EVT-001, U002) → availableSeats=998, version=2\n  bookTicket(EVT-002, U003) → SOLD_OUT exception\n  cancelBooking(booking1, U001) → availableSeats=999, version=3",
+
+  "starter_code": "// Event.java (@Entity with @Version)\n// TicketBooking.java (@Entity)\n// EventRepository.java\n// BookingAuditService.java (REQUIRES_NEW)\n// BookingService.java (@Retryable + @Transactional)\n// BookingServiceTest.java (@DataJpaTest, 5 tests)",
+
+  "example_output": "# Test run:\n✓ bookTicket_success_decrementsSeats\n✓ bookTicket_soldOut_throwsException\n✓ cancelBooking_incrementsSeats\n✓ auditLog_persistsOnBookingFailure\n✓ version_incrementsAfterBooking\n\n# Retry log (under concurrent load):\n[INFO] @Retryable: attempt 2/3 for event EVT-001 (ObjectOptimisticLockingFailureException)\n[INFO] Retried successfully on attempt 2\n\n# Audit log entries after test:\nEventId=EVT-001, action=BOOKING_SUCCESS, userId=U001, success=true\nEventId=EVT-002, action=BOOKING_FAILED,  userId=U003, success=false",
+
+  "rubric": [
+    { "category": "Entities (2×)", "points": 15, "criteria": ["Event @Version (8 pts)", "TicketBooking entity (7 pts)"] },
+    { "category": "EventRepository", "points": 10, "criteria": ["PESSIMISTIC_WRITE lock method (10 pts)"] },
+    { "category": "BookingAuditService", "points": 10, "criteria": ["REQUIRES_NEW propagation (10 pts)"] },
+    { "category": "BookingService.book()", "points": 20, "criteria": ["@Retryable correct (8 pts)", "rollbackFor (4 pts)", "audit call (8 pts)"] },
+    { "category": "BookingService.cancel()", "points": 10, "criteria": ["Restores seats + audit (10 pts)"] },
+    { "category": "@DataJpaTest (5 tests)", "points": 30, "criteria": ["5 tests × 6 pts each"] },
+    { "category": "application.properties", "points": 5, "criteria": ["Timeout properties documented (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["Waitlist (25 pts)", "Deadlock-safe bulk (25 pts)", "@Scheduled cleanup (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. @Retryable + @Transactional: each retry creates a NEW transaction (previous transaction rolled back on OptimisticLockException before retry). REQUIRES_NEW: audit transaction commits independently — if book() throws, audit still saved. rollbackFor=Exception.class: checked exceptions (if any) also trigger rollback. @Version field: use int/Integer, not Long, for simple version counter. ObjectOptimisticLockingFailureException is Spring's exception — catch this, not the raw Hibernate StaleObjectStateException.",
+
+  "submission_instructions": "GitHub push. All 5 @DataJpaTest tests pass. README explains: when optimistic vs pessimistic locking was chosen and why. Document the @Retryable settings rationale (3 attempts, 50ms backoff).",
+
+  "tips_for_success": [
+    "Sold-out check: if event.getAvailableSeats() <= 0, throw IllegalStateException BEFORE decrementing",
+    "Audit with REQUIRES_NEW: call audit.log() INSIDE the @Transactional book() method — it runs in its own nested transaction",
+    "Cancel restores seats: event.setAvailableSeats(event.getAvailableSeats() + 1) — also needs @Version protection",
+    "@Retryable: each retry is a fresh @Transactional — re-reads the entity with latest version",
+    "testEm.flush() before assertions: forces pending SQL to execute before reading back"
+  ],
+
+  "concepts_reinforced": [
+    "Optimistic locking with @Version for low-contention concurrent updates",
+    "@Retryable for transparent retry on optimistic lock conflict",
+    "Pessimistic locking with @Lock PESSIMISTIC_WRITE for high-contention critical sections",
+    "Propagation.REQUIRES_NEW for independent audit log transaction",
+    "rollbackFor=Exception.class for complete exception safety",
+    "Lost update prevention in concurrent ticket booking scenario"
+  ]
+}

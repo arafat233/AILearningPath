@@ -1,0 +1,337 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t2",
+  "topic_name": "Generic Methods",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m9_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace generic method type inference",
+      "scenario": "T is inferred from the argument at each call site.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\npublic class App {\n    static <T> T firstOrDefault(List<T> list, T def) {\n        return list.isEmpty() ? def : list.get(0);\n    }\n    public static void main(String[] args) {\n        System.out.println(firstOrDefault(Arrays.asList(\"Aisha\",\"Raj\"), \"none\"));\n        System.out.println(firstOrDefault(new ArrayList<>(), 42));\n        System.out.println(firstOrDefault(Arrays.asList(true, false), false));\n    }\n}\n```",
+      "expected_solution": "Aisha\n42\ntrue",
+      "test_cases": [
+        { "type": "text_match", "expected": "Aisha\n42\ntrue" }
+      ],
+      "hints": [
+        "Call 1: T=String, list has elements, returns first: Aisha",
+        "Call 2: T=Integer, list empty, returns default: 42",
+        "Call 3: T=Boolean, list has [true, false], returns first: true"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Generic method syntax",
+      "scenario": "Put type parameter in the right place.",
+      "instructions": "Fill in the blank to make this a valid generic method that returns the identity of any value.",
+      "starter_code": "public class App {\n    public static ______ T identity(T value) {\n        return value;\n    }\n    public static void main(String[] args) {\n        System.out.println(identity(\"hello\"));\n        System.out.println(identity(42));\n    }\n}",
+      "expected_solution": "public class App {\n    public static <T> T identity(T value) {\n        return value;\n    }\n    public static void main(String[] args) {\n        System.out.println(identity(\"hello\"));\n        System.out.println(identity(42));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "<T>", "hint": "Type parameter declaration before return type" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "hello\n42" }
+      ],
+      "hints": [
+        "<T> goes BEFORE the return type T",
+        "Order: access modifier → <T> → return type → method name"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Generic swap",
+      "scenario": "Swap two elements in a list — a classic generic utility.",
+      "instructions": "Write `swap(List<T> list, int i, int j)` that swaps elements at positions i and j in-place.\n\nTest: swap index 0 and 2 in [Aisha, Raj, Priya].\n\nExpected output:\nBefore: [Aisha, Raj, Priya]\nAfter: [Priya, Raj, Aisha]",
+      "starter_code": "import java.util.*;\n// Generic swap method\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T> void swap(List<T> list, int i, int j) {\n        T temp = list.get(i);\n        list.set(i, list.get(j));\n        list.set(j, temp);\n    }\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(Arrays.asList(\"Aisha\", \"Raj\", \"Priya\"));\n        System.out.println(\"Before: \" + names);\n        swap(names, 0, 2);\n        System.out.println(\"After: \" + names);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Before: [Aisha, Raj, Priya]\nAfter: [Priya, Raj, Aisha]" }
+      ],
+      "hints": [
+        "static <T> void swap(List<T> list, int i, int j)",
+        "T temp = list.get(i); list.set(i, list.get(j)); list.set(j, temp);"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m9_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Generic repeat method",
+      "scenario": "Create a list by repeating a value N times.",
+      "instructions": "Write `repeat(T value, int times)` that returns `List<T>`. Test with String and Integer.\n\nExpected output:\n[hello, hello, hello]\n[0, 0, 0, 0, 0]",
+      "starter_code": "import java.util.*;\n// Generic repeat method\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T> List<T> repeat(T value, int times) {\n        List<T> result = new ArrayList<>(times);\n        for (int i = 0; i < times; i++) result.add(value);\n        return result;\n    }\n    public static void main(String[] args) {\n        System.out.println(repeat(\"hello\", 3));\n        System.out.println(repeat(0, 5));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[hello, hello, hello]\n[0, 0, 0, 0, 0]" }
+      ],
+      "hints": [
+        "static <T> List<T> repeat(T value, int times)",
+        "T is inferred from the first argument: 'hello' → String, 0 → Integer"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m9_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic transform list (stream.map without streams)",
+      "scenario": "Apply a function to every element of a list.",
+      "instructions": "Write `transform(List<T>, Function<T, R>)` that returns `List<R>`. Test with String-to-length and String-to-uppercase.\n\nExpected output:\n[5, 3, 5]\n[AISHA, RAJ, PRIYA]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// Generic transform method\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    static <T, R> List<R> transform(List<T> list, Function<T, R> fn) {\n        List<R> result = new ArrayList<>(list.size());\n        for (T item : list) result.add(fn.apply(item));\n        return result;\n    }\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n        System.out.println(transform(names, String::length));\n        System.out.println(transform(names, String::toUpperCase));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[5, 3, 5]\n[AISHA, RAJ, PRIYA]" }
+      ],
+      "hints": [
+        "Two type params: <T, R> — T is input, R is output",
+        "T inferred from names (String), R inferred from String::length return type (Integer)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic findFirst with predicate",
+      "scenario": "Find first matching element — returns Optional.",
+      "instructions": "Write `findFirst(List<T>, Predicate<T>)` returning `Optional<T>`. Test with two conditions.\n\nExpected output:\nOptional[Priya]\nOptional.empty",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// Generic findFirst method\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    static <T> Optional<T> findFirst(List<T> list, Predicate<T> condition) {\n        for (T item : list) {\n            if (condition.test(item)) return Optional.of(item);\n        }\n        return Optional.empty();\n    }\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n        System.out.println(findFirst(names, s -> s.length() == 5 && s.endsWith(\"a\")));\n        System.out.println(findFirst(names, s -> s.length() > 10));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Optional[Priya]\nOptional.empty" }
+      ],
+      "hints": [
+        "static <T> Optional<T> findFirst(List<T> list, Predicate<T> condition)",
+        "Priya: length=5, ends with 'a' → matches",
+        "No string > 10 chars → empty"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic zip method",
+      "scenario": "Combine two lists element-by-element.",
+      "instructions": "Write `zip(List<A>, List<B>)` returning `List<Pair<A,B>>`. Shorter list determines length. Test.\n\nExpected output:\n[(Aisha, 95), (Raj, 87), (Priya, 92)]",
+      "starter_code": "import java.util.*;\n// Generic zip method with Pair class\n",
+      "expected_solution": "import java.util.*;\nclass Pair<A, B> {\n    A first; B second;\n    Pair(A a, B b) { first=a; second=b; }\n    public String toString() { return \"(\" + first + \", \" + second + \")\"; }\n}\npublic class App {\n    static <A, B> List<Pair<A, B>> zip(List<A> as, List<B> bs) {\n        int size = Math.min(as.size(), bs.size());\n        List<Pair<A,B>> result = new ArrayList<>(size);\n        for (int i = 0; i < size; i++) result.add(new Pair<>(as.get(i), bs.get(i)));\n        return result;\n    }\n    public static void main(String[] args) {\n        List<String>  names  = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n        List<Integer> scores = Arrays.asList(95, 87, 92);\n        System.out.println(zip(names, scores));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[(Aisha, 95), (Raj, 87), (Priya, 92)]" }
+      ],
+      "hints": [
+        "static <A, B> List<Pair<A,B>> zip(...)",
+        "A and B each independently inferred from the two list arguments"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m9_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Generic batch splitter",
+      "scenario": "Split a list into batches — useful for bulk processing.",
+      "instructions": "Write `batch(List<T>, int batchSize)` returning `List<List<T>>`. Split the input list into sublists of given size. Test.\n\nInput: [1..10], batch size 3\n\nExpected output:\n[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]",
+      "starter_code": "import java.util.*;\n// Generic batch splitter\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T> List<List<T>> batch(List<T> list, int batchSize) {\n        List<List<T>> batches = new ArrayList<>();\n        for (int i = 0; i < list.size(); i += batchSize) {\n            int end = Math.min(i + batchSize, list.size());\n            batches.add(new ArrayList<>(list.subList(i, end)));\n        }\n        return batches;\n    }\n    public static void main(String[] args) {\n        List<Integer> nums = Arrays.asList(1,2,3,4,5,6,7,8,9,10);\n        System.out.println(batch(nums, 3));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[[1, 2, 3], [4, 5, 6], [7, 8, 9], [10]]" }
+      ],
+      "hints": [
+        "static <T> List<List<T>> batch(List<T> list, int batchSize)",
+        "Iterate with step batchSize, subList each chunk",
+        "Last batch may be smaller than batchSize"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Generic safe cast method",
+      "scenario": "Cast with null return instead of ClassCastException.",
+      "instructions": "Write `safeCast(Object obj, Class<T> clazz)` that returns T if obj is an instance of clazz, null otherwise.\n\nExpected output:\nString: Aisha\nInteger: null\nInteger: 42",
+      "starter_code": "// Generic safeCast method\n",
+      "expected_solution": "@SuppressWarnings(\"unchecked\")\nclass TypeUtils {\n    static <T> T safeCast(Object obj, Class<T> clazz) {\n        return clazz.isInstance(obj) ? clazz.cast(obj) : null;\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        Object obj1 = \"Aisha\";\n        Object obj2 = 42;\n        \n        String s1 = TypeUtils.safeCast(obj1, String.class);\n        System.out.println(\"String: \" + s1);\n        \n        Integer n1 = TypeUtils.safeCast(obj1, Integer.class);\n        System.out.println(\"Integer: \" + n1);\n        \n        Integer n2 = TypeUtils.safeCast(obj2, Integer.class);\n        System.out.println(\"Integer: \" + n2);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "String: Aisha\nInteger: null\nInteger: 42" }
+      ],
+      "hints": [
+        "clazz.isInstance(obj) checks without casting",
+        "clazz.cast(obj) does the safe cast",
+        "Returns null if not an instance"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Type inference from multiple arguments",
+      "scenario": "Compiler infers T from all arguments together.",
+      "instructions": "What does this print? What type is T inferred as for each call?\n\n```java\nimport java.util.*;\npublic class App {\n    static <T> T coalesce(T... values) {\n        for (T v : values) if (v != null) return v;\n        return null;\n    }\n    public static void main(String[] args) {\n        System.out.println(coalesce(null, null, \"fallback\"));\n        System.out.println(coalesce(42, null, 99));\n        System.out.println(coalesce(null, null, null));\n    }\n}\n```",
+      "expected_solution": "fallback\n42\nnull",
+      "test_cases": [
+        { "type": "text_match", "expected": "fallback\n42\nnull" }
+      ],
+      "hints": [
+        "coalesce returns the first non-null value",
+        "Call 1: null, null, 'fallback' → 'fallback' (T=String)",
+        "Call 2: 42, null, 99 → 42 (first non-null, T=Integer)",
+        "Call 3: all null → returns null"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m9_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic flatten method",
+      "scenario": "Flatten a list of lists into a single list.",
+      "instructions": "Write `flatten(List<List<T>>)` returning `List<T>`. Test with nested lists of Strings and Integers.\n\nExpected output:\n[Aisha, Raj, Priya, Vikram]\n[1, 2, 3, 4, 5, 6]",
+      "starter_code": "import java.util.*;\n// Generic flatten method\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T> List<T> flatten(List<List<T>> nested) {\n        List<T> result = new ArrayList<>();\n        for (List<T> inner : nested) result.addAll(inner);\n        return result;\n    }\n    public static void main(String[] args) {\n        List<List<String>> names = Arrays.asList(\n            Arrays.asList(\"Aisha\", \"Raj\"),\n            Arrays.asList(\"Priya\", \"Vikram\")\n        );\n        System.out.println(flatten(names));\n        \n        List<List<Integer>> nums = Arrays.asList(\n            Arrays.asList(1, 2, 3),\n            Arrays.asList(4, 5, 6)\n        );\n        System.out.println(flatten(nums));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha, Raj, Priya, Vikram]\n[1, 2, 3, 4, 5, 6]" }
+      ],
+      "hints": [
+        "static <T> List<T> flatten(List<List<T>> nested)",
+        "For each inner list, addAll to result",
+        "T inferred from the outer list's type"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic partition method",
+      "scenario": "Split a list into two groups based on predicate.",
+      "instructions": "Write `partition(List<T>, Predicate<T>)` returning `Pair<List<T>, List<T>>` — first=matching, second=non-matching.\n\nTest: partition names by length > 3.\n\nExpected output:\nMatching: [Aisha, Priya]\nNon-matching: [Raj]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// Generic partition method returning Pair of lists\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\nclass Pair<A, B> {\n    A first; B second;\n    Pair(A a, B b) { first=a; second=b; }\n}\npublic class App {\n    static <T> Pair<List<T>, List<T>> partition(List<T> list, Predicate<T> condition) {\n        List<T> matching    = new ArrayList<>();\n        List<T> nonMatching = new ArrayList<>();\n        for (T item : list) {\n            (condition.test(item) ? matching : nonMatching).add(item);\n        }\n        return new Pair<>(matching, nonMatching);\n    }\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n        Pair<List<String>, List<String>> result = partition(names, s -> s.length() > 3);\n        System.out.println(\"Matching: \" + result.first);\n        System.out.println(\"Non-matching: \" + result.second);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Matching: [Aisha, Priya]\nNon-matching: [Raj]" }
+      ],
+      "hints": [
+        "static <T> Pair<List<T>, List<T>> partition(...)",
+        "Two lists: one for matching, one for non-matching",
+        "Ternary: (condition.test(item) ? matching : nonMatching).add(item)"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m9_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic group by key extractor",
+      "scenario": "Group list elements by a computed key — generic groupingBy.",
+      "instructions": "Write `groupBy(List<T>, Function<T, K>)` returning `Map<K, List<T>>`. Test with grouping names by length, and employees by department.\n\nExpected output:\nBy length: {3=[Raj], 5=[Aisha, Priya]}\nBy dept: {Engineering=[Aisha, Priya], Sales=[Raj]}",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// Generic groupBy method\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\nclass Employee {\n    String name, dept;\n    Employee(String n, String d) { name=n; dept=d; }\n    public String toString() { return name; }\n}\npublic class App {\n    static <T, K> Map<K, List<T>> groupBy(List<T> list, Function<T, K> keyExtractor) {\n        Map<K, List<T>> result = new LinkedHashMap<>();\n        for (T item : list) {\n            K key = keyExtractor.apply(item);\n            result.computeIfAbsent(key, k -> new ArrayList<>()).add(item);\n        }\n        return result;\n    }\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n        System.out.println(\"By length: \" + groupBy(names, String::length));\n        \n        List<Employee> staff = Arrays.asList(\n            new Employee(\"Aisha\", \"Engineering\"),\n            new Employee(\"Raj\",   \"Sales\"),\n            new Employee(\"Priya\", \"Engineering\")\n        );\n        System.out.println(\"By dept: \" + groupBy(staff, e -> e.dept));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "By length: {3=[Raj], 5=[Aisha, Priya]}\nBy dept: {Engineering=[Aisha, Priya], Sales=[Raj]}" }
+      ],
+      "hints": [
+        "static <T, K> Map<K, List<T>> groupBy(List<T> list, Function<T, K> keyExtractor)",
+        "computeIfAbsent inside loop — same pattern as Module 6",
+        "T=String/Employee, K=Integer/String — each inferred from arguments"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m9_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic method on generic class",
+      "scenario": "A generic class with a method that introduces its own type parameter.",
+      "instructions": "Create `Container<T>` with a field value and `map(Function<T, R>)` method that returns `Container<R>`. Chain three maps.\n\nExpected output:\nContainer(hello)\nContainer(5)\nContainer(FIVE CHARS)",
+      "starter_code": "import java.util.function.*;\n// Container<T> with map() — its own R type param\n",
+      "expected_solution": "import java.util.function.*;\nclass Container<T> {\n    private final T value;\n    Container(T v) { value = v; }\n    T get() { return value; }\n    <R> Container<R> map(Function<T, R> fn) {\n        return new Container<>(fn.apply(value));\n    }\n    public String toString() { return \"Container(\" + value + \")\"; }\n}\npublic class App {\n    public static void main(String[] args) {\n        Container<String> c = new Container<>(\"hello\");\n        System.out.println(c);\n        \n        Container<Integer> c2 = c.map(String::length);\n        System.out.println(c2);\n        \n        Container<String> c3 = c2.map(n -> n + \" CHARS\").map(String::toUpperCase);\n        System.out.println(c3);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Container(hello)\nContainer(5)\nContainer(FIVE CHARS)" }
+      ],
+      "hints": [
+        "<R> Container<R> map(Function<T, R> fn) — R is the method's own type param",
+        "Class has T, map introduces R — both in scope inside map",
+        "c.map(String::length): T=String, R=Integer → Container<Integer>"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete utility class — 7 generic methods",
+      "scenario": "Build a professional generic utility library.",
+      "instructions": "Create `ListUtils` with 7 generic static methods:\n1. `<T> T firstOrDefault(List<T>, T)` — first or default\n2. `<T> T lastOrDefault(List<T>, T)` — last or default\n3. `<T, R> List<R> map(List<T>, Function<T,R>)` — transform all\n4. `<T> List<T> filter(List<T>, Predicate<T>)` — keep matching\n5. `<T> Optional<T> findFirst(List<T>, Predicate<T>)` — first match\n6. `<T> List<T> take(List<T>, int n)` — first n elements\n7. `<T> List<T> drop(List<T>, int n)` — skip first n, take rest\n\nDemonstrate all 7 on a list of employees.\n\nExpected output:\nFirst: Aisha | Last: Anita\nMapped names: [Aisha, Raj, Priya, Vikram, Anita]\nFiltered salary>80000: [Aisha, Priya]\nFindFirst salary>90000: Optional[Aisha]\nTake 3: [Aisha, Raj, Priya]\nDrop 3: [Vikram, Anita]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// ListUtils — 7 generic static methods\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\nclass Employee {\n    String name; double salary;\n    Employee(String n, double s) { name=n; salary=s; }\n    public String toString() { return name; }\n}\nclass ListUtils {\n    static <T> T firstOrDefault(List<T> list, T def) {\n        return list.isEmpty() ? def : list.get(0);\n    }\n    static <T> T lastOrDefault(List<T> list, T def) {\n        return list.isEmpty() ? def : list.get(list.size()-1);\n    }\n    static <T, R> List<R> map(List<T> list, Function<T, R> fn) {\n        List<R> r = new ArrayList<>(list.size());\n        for (T item : list) r.add(fn.apply(item));\n        return r;\n    }\n    static <T> List<T> filter(List<T> list, Predicate<T> p) {\n        List<T> r = new ArrayList<>();\n        for (T item : list) if (p.test(item)) r.add(item);\n        return r;\n    }\n    static <T> Optional<T> findFirst(List<T> list, Predicate<T> p) {\n        for (T item : list) if (p.test(item)) return Optional.of(item);\n        return Optional.empty();\n    }\n    static <T> List<T> take(List<T> list, int n) {\n        return new ArrayList<>(list.subList(0, Math.min(n, list.size())));\n    }\n    static <T> List<T> drop(List<T> list, int n) {\n        return new ArrayList<>(list.subList(Math.min(n, list.size()), list.size()));\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = Arrays.asList(\n            new Employee(\"Aisha\",  95000),\n            new Employee(\"Raj\",    72000),\n            new Employee(\"Priya\",  88000),\n            new Employee(\"Vikram\", 65000),\n            new Employee(\"Anita\",  78000)\n        );\n        System.out.println(\"First: \" + ListUtils.firstOrDefault(staff, null) +\n                           \" | Last: \" + ListUtils.lastOrDefault(staff, null));\n        System.out.println(\"Mapped names: \" + ListUtils.map(staff, e -> e.name));\n        System.out.println(\"Filtered salary>80000: \" + ListUtils.filter(staff, e -> e.salary > 80000));\n        System.out.println(\"FindFirst salary>90000: \" + ListUtils.findFirst(staff, e -> e.salary > 90000));\n        System.out.println(\"Take 3: \" + ListUtils.take(staff, 3));\n        System.out.println(\"Drop 3: \" + ListUtils.drop(staff, 3));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "First: Aisha | Last: Anita\nMapped names: [Aisha, Raj, Priya, Vikram, Anita]\nFiltered salary>80000: [Aisha, Priya]\nFindFirst salary>90000: Optional[Aisha]\nTake 3: [Aisha, Raj, Priya]\nDrop 3: [Vikram, Anita]" }
+      ],
+      "hints": [
+        "All 7 methods follow static <T> ... or static <T, R> ...",
+        "take: subList(0, min(n, size))",
+        "drop: subList(min(n, size), size)",
+        "filter: loop + if + add"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 700,
+    "estimated_completion_minutes": 60
+  }
+}

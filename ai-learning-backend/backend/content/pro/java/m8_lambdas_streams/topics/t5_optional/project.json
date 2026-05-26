@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m8_t5_proj",
+  "linked_topic": "java_m8_t5",
+  "level": "mini",
+  "name": "Job Board Backend V2 — Optional + Streams",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Upgrade the Job Board Backend from the Module 6 capstone. That version used raw null returns and manual loops. This version uses Optional for all nullable results, Stream pipelines for all queries, and Collectors for grouping. Same domain, completely modern implementation.",
+
+  "description": "The Module 6 Job Board capstone rewritten with Optional, Streams, and Collectors. All 'might not be found' operations return Optional. All queries are stream pipelines. Demonstrates the complete Module 8 toolkit.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`JobPosting` class: jobId, title, company, category, salaryMin (double), postedDate. All getters.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`JobBoard` class with `List<JobPosting>` and `Map<String, List<String>>` applicants (jobId → names). NO manual multi-structure maintenance required (unlike M6 capstone) — use streams for queries.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`findById(String jobId)` — returns `Optional<JobPosting>`. Uses stream().findFirst().",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`apply(String jobId, String applicant)` — returns `Optional<String>` confirmation message, or Optional.empty() if job doesn't exist.",
+        "weight": 12
+      },
+      {
+        "id": "req_5",
+        "description": "`jobsByCategory()` — uses Collectors.groupingBy, returns `Map<String, List<JobPosting>>`.",
+        "weight": 12
+      },
+      {
+        "id": "req_6",
+        "description": "`jobsInSalaryRange(double min, double max)` — stream filter + collect, returns List<JobPosting>.",
+        "weight": 12
+      },
+      {
+        "id": "req_7",
+        "description": "`topApplicant()` — across all jobs, find the applicant who applied to the most jobs. Returns `Optional<String>`. Use stream over applicants map.",
+        "weight": 15
+      },
+      {
+        "id": "req_8",
+        "description": "`salaryReport()` — returns `Map<String, DoubleSummaryStatistics>` of salary stats per category using groupingBy + summarizingDouble.",
+        "weight": 11
+      },
+      {
+        "id": "req_9",
+        "description": "main() uses all 7 methods with proper Optional handling (.ifPresent, .orElse, etc.).",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `mostAppliedJob()` — returns Optional<String> (jobId with most applicants). Stream over applicants map entries.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `companiesHiring(String category)` — returns sorted list of unique company names in that category using stream + collect(Collectors.toSet()) → sorted list.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `applicationSummary()` returning a formatted String: for each job (sorted by title), show 'title: N applicants' joined by newlines. Uses groupingBy + joining.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Jobs:\n- JOB-001, Senior Java Dev, TCS, Engineering, ₹180000\n- JOB-002, Product Manager, Flipkart, Product, ₹220000\n- JOB-003, Data Analyst, Zerodha, Analytics, ₹120000\n- JOB-004, Frontend Eng, Zomato, Engineering, ₹140000\n- JOB-005, ML Engineer, Google, Analytics, ₹250000\n\nApplications:\n- JOB-001: Aisha, Raj, Priya\n- JOB-003: Aisha, Vikram\n- JOB-005: Raj, Aisha",
+
+  "starter_code": "import java.util.*;\nimport java.util.stream.*;\n\npublic class JobBoardV2 {\n    public static void main(String[] args) {\n        // Post jobs, apply, run queries with Optional + Streams\n    }\n    // Define: JobPosting, JobBoard\n}",
+
+  "example_output": "=== findById ===\nJOB-001: Senior Java Dev @ TCS\nJOB-999: not found\n\n=== apply ===\nAisha applied to JOB-001: Applied to Senior Java Dev!\nJOB-999 apply: job not found\n\n=== Jobs by Category ===\nAnalytics: Data Analyst, ML Engineer\nEngineering: Senior Java Dev, Frontend Eng\nProduct: Product Manager\n\n=== Salary ₹100K-₹200K ===\nSenior Java Dev (₹180000.0)\nData Analyst (₹120000.0)\nFrontend Eng (₹140000.0)\n\n=== Top Applicant ===\nAisha (3 applications)\n\n=== Salary Report ===\nAnalytics: avg=₹185000 min=₹120000 max=₹250000\nEngineering: avg=₹160000 min=₹140000 max=₹180000\nProduct: avg=₹220000",
+
+  "rubric": [
+    { "category": "Optional API", "points": 30, "criteria": ["findById returns Optional (10 pts)", "apply returns Optional (10 pts)", "topApplicant returns Optional (10 pts)"] },
+    { "category": "Stream Queries", "points": 25, "criteria": ["jobsByCategory uses groupingBy (10 pts)", "jobsInSalaryRange uses stream filter (8 pts)", "salaryReport uses summarizingDouble (7 pts)"] },
+    { "category": "Optional Handling", "points": 20, "criteria": ["ifPresent/orElse/ifPresentOrElse correctly used (20 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Bonus", "points": 50, "criteria": ["mostAppliedJob (15 pts)", "companiesHiring (15 pts)", "applicationSummary (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. This is a Module 8 synthesis project. Key patterns: findById = stream.filter.findFirst(). apply = findById(...).map(job -> { add applicant; return confirmation; }). topApplicant = stream over applicants map, flatMap values, frequency count, max entry. salaryReport = groupingBy category + summarizingDouble salaryMin.",
+
+  "submission_instructions": "Save as JobBoardV2.java. Add comment: '// Upgraded from Module 6 capstone: null → Optional, loops → Streams'. Push to GitHub.",
+
+  "tips_for_success": [
+    "findById: allJobs.stream().filter(j -> j.getJobId().equals(id)).findFirst()",
+    "apply: findById(jobId).map(job -> { addApplicant; return 'Applied to ' + job.getTitle() + '!'; })",
+    "topApplicant: stream applicants.values() → flatMap to List<String> → collect frequency map → max entry",
+    "jobsByCategory: Collectors.groupingBy(JobPosting::getCategory)",
+    "salaryReport: groupingBy(category, Collectors.summarizingDouble(JobPosting::getSalaryMin))"
+  ],
+
+  "concepts_reinforced": [
+    "Optional as return type for nullable results",
+    "Optional.map for chained transformations",
+    "orElse/ifPresent/ifPresentOrElse for Optional handling",
+    "Stream API for all queries",
+    "groupingBy + summarizingDouble for reports",
+    "Module 6 → Module 8 refactoring arc complete"
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m8_t3_proj",
+  "linked_topic": "java_m8_t3",
+  "level": "mini",
+  "name": "Zomato-Style Restaurant Search V2 — Streams Edition",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+
+  "scenario": "Remember the Zomato Restaurant Search project from Topic 6.5? It used loops and manual filtering. Now rewrite every query using Stream API — no more for-loops. The same data, dramatically cleaner code. This refactoring from Module 6 collections-style to Module 8 streams-style is exactly what happens when teams upgrade their codebase.",
+
+  "description": "Rewrite all restaurant queries using Stream API: filter by cuisine/rating/price/city, sort, paginate, compute statistics, find best options — all as stream pipelines. Zero manual loops allowed.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Restaurant` class: name, city, cuisine, pricePerPerson (double), rating (double). Getters + toString.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`RestaurantSearchV2.searchByCuisine(List<Restaurant>, String)` — stream pipeline: filter cuisine (case-insensitive), sort by rating desc, return List<Restaurant>.",
+        "weight": 12
+      },
+      {
+        "id": "req_3",
+        "description": "`affordableHighRated(List<Restaurant>, double maxPrice, double minRating)` — stream: filter both conditions, sort by rating desc.",
+        "weight": 12
+      },
+      {
+        "id": "req_4",
+        "description": "`cityStats(List<Restaurant>, String city)` — stream: filter by city, compute avg rating (mapToDouble.average), count, find most expensive (max).",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`topRestaurants(List<Restaurant>, int n)` — stream: sort by rating desc, limit n, collect.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`uniqueCuisines(List<Restaurant>)` — stream: map cuisine, distinct, sorted, collect.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "`recommendationSummary(List<Restaurant>)` — stream pipeline producing a String: names of top 3 by rating, joined by ' > '.",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "main() uses ALL methods above. Zero for-loops allowed in the stream methods — stream pipelines only.",
+        "weight": 15
+      },
+      {
+        "id": "req_9",
+        "description": "Use at least 3 method references in the solution.",
+        "weight": 8
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `getPage(List<Restaurant>, int page, int size, Comparator<Restaurant> sort)` using sorted + skip + limit — generic pagination.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `anyStarRestaurant(List<Restaurant>, double minRating)` — stream anyMatch: is there any restaurant rated >= minRating?",
+        "weight": 10
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `priceStats(List<Restaurant>)` using IntSummaryStatistics / DoubleSummaryStatistics via `collect(Collectors.summarizingDouble(...))`.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Use the same data as Topic 6.5 restaurant project:\n- Spice Garden, Hyderabad, Indian, ₹350, 4.3\n- Noodle House, Hyderabad, Chinese, ₹280, 4.1\n- Pizza Place, Mumbai, Italian, ₹500, 4.5\n- Curry Leaf, Mumbai, Indian, ₹400, 4.7\n- Wok & Roll, Hyderabad, Chinese, ₹320, 4.2\n- Biryani Bros, Hyderabad, Indian, ₹300, 4.4\n- Pasta Corner, Mumbai, Italian, ₹550, 4.0\n- Dim Sum Delight, Mumbai, Chinese, ₹450, 4.6",
+
+  "starter_code": "import java.util.*;\nimport java.util.stream.*;\n\npublic class ZomatoSearchV2 {\n    public static void main(String[] args) {\n        // Create restaurant list\n        // Call all search methods — ZERO for-loops in stream methods!\n    }\n    \n    // Define: Restaurant, RestaurantSearchV2\n}",
+
+  "example_output": "=== Indian restaurants (by rating) ===\nCurry Leaf: 4.7\nBiryani Bros: 4.4\nSpice Garden: 4.3\n\n=== Affordable & highly rated (≤₹350, ≥4.0) ===\nBiryani Bros: 4.4 ₹300\nSpice Garden: 4.3 ₹350\nWok & Roll: 4.2 ₹320\nNoodle House: 4.1 ₹280\n\n=== Hyderabad stats ===\nCount: 4 | Avg rating: 4.25 | Priciest: Spice Garden\n\n=== Top 3 restaurants ===\nCurry Leaf, Pizza Place, Dim Sum Delight\n\n=== Unique cuisines ===\n[Chinese, Indian, Italian]\n\n=== Recommendation summary ===\nTop 3: Curry Leaf > Dim Sum Delight > Pizza Place",
+
+  "rubric": [
+    { "category": "Stream Methods", "points": 40, "criteria": ["All 6 query methods use streams (30 pts)", "Zero for-loops in stream methods (10 pts)"] },
+    { "category": "Correctness", "points": 25, "criteria": ["Results match expected for all queries (25 pts)"] },
+    { "category": "Method References", "points": 10, "criteria": ["At least 3 method references used (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Before/After Comment", "points": 10, "criteria": ["Comment showing how streams simplified the code vs loops (10 pts)"] },
+    { "category": "Bonus", "points": 45, "criteria": ["getPage pagination (15 pts)", "anyStarRestaurant (10 pts)", "priceStats with summarizingDouble (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The core requirement: every method body is a stream pipeline with NO for-loops. cityStats must compute average via mapToDouble.average() not a manual sum. recommendationSummary uses Collectors.joining(' > '). Method references: use at least Comparator.comparingDouble() with method reference, and map(Restaurant::getName) etc.",
+
+  "submission_instructions": "Save as ZomatoSearchV2.java. Add a comment at the top: '// Refactored from Topic 6.5 (loops) to Topic 8.3 (streams)'. Push to GitHub.",
+
+  "tips_for_success": [
+    "searchByCuisine: filter(r -> r.getCuisine().equalsIgnoreCase(cuisine)) .sorted((a,b) -> Double.compare(b.getRating(), a.getRating()))",
+    "cityStats: filter by city, use .mapToDouble(Restaurant::getRating).average().orElse(0.0) for avg",
+    "uniqueCuisines: .map(Restaurant::getCuisine).distinct().sorted().collect(Collectors.toList())",
+    "recommendationSummary: sort desc, limit(3), map name, Collectors.joining(' > ')",
+    "Three method references: Restaurant::getName, Restaurant::getRating, Comparator.comparingDouble(Restaurant::getRating)"
+  ],
+
+  "concepts_reinforced": [
+    "filter + sorted + collect pipeline",
+    "mapToDouble + average for numeric aggregation",
+    "distinct for unique values",
+    "limit for top-N",
+    "Collectors.joining with delimiter",
+    "Method references in stream pipelines",
+    "Stream pipeline replaces for-loop + ArrayList"
+  ]
+}

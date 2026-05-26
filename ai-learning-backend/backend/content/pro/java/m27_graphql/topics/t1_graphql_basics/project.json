@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m27_t1_proj",
+  "linked_topic": "java_m27_t1",
+  "level": "mini",
+  "name": "Flipkart Product Catalog — GraphQL Schema Design",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Flipkart's frontend team is tired of making 6 API calls per product page. Design a GraphQL schema that lets the web app, iOS app, and Android app each request exactly the fields they need in a single query.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "Product type: id (ID!), name (String!), basePrice (Float!), discountedPrice (Float, nullable), category (Category!), seller (Seller!), images ([String!]!), rating (Float, nullable), inStock (Boolean!), reviews ([Review!]!).", "weight": 15},
+      {"id": "req_2", "description": "Category type: id, name, parent (Category, nullable — top-level has none), children ([Category!]!). Category forms a self-referential tree.", "weight": 10},
+      {"id": "req_3", "description": "Seller type: id, name, rating, deliveryDays, verified. Review type: id, rating (Int!, 1-5), comment (String, nullable), authorName.", "weight": 10},
+      {"id": "req_4", "description": "Input types: CreateProductInput (name!, basePrice!, categoryId!, sellerId!), ProductFilter (all nullable fields: minPrice, maxPrice, minRating, inStock, categoryId). ProductSort: field (enum) + direction (ASC/DESC enum).", "weight": 15},
+      {"id": "req_5", "description": "Pagination type: ProductPage { items: [Product!]!, total: Int!, page: Int!, hasNext: Boolean! }. Query: products(filter, sort, page=0, size=20) returns ProductPage.", "weight": 10},
+      {"id": "req_6", "description": "Query type: product(id), products(filter, sort, page, size), categories(parentId), searchProducts(keyword, filter, page, size), featuredProducts.", "weight": 10},
+      {"id": "req_7", "description": "Mutation type: createProduct, updateProductPrice(productId, newPrice). Use input type for createProduct.", "weight": 5},
+      {"id": "req_8", "description": "4 client queries (in SDL comment or separate file): home page (featured + categories), category listing (products with pagination), product detail (all fields + variants), search query. @SpringBootTest (3 tests): schema contains expected types, queries use fragments, evolution documented. All pass.", "weight": 25}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "ProductVariant type: id, color (nullable), size (nullable), price, stock. Add variants: [ProductVariant!]! to Product. Write a query fetching variants.", "weight": 15},
+      {"id": "bonus_2", "description": "SearchResult union: Product | Category | Seller. Query: search(keyword) returns [SearchResult!]!. Client query with __typename and inline fragments.", "weight": 20},
+      {"id": "bonus_3", "description": "Custom scalar: Rupee (Long paise). Document serialization: ₹5000 = 500000 paise. Add to schema with scalar Rupee and update price fields to use it.", "weight": 20}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Non-null design: use ID! for all entity IDs, String! for required names, Float! for prices (always present). Use nullable (no !) for: optional fields (description, discount), single-entity queries (product(id): Product, not Product!). Input types vs object types: mutations take input types (input keyword), return object types (type keyword) — you cannot use Product as a mutation argument. Pagination pattern: ProductPage { items, total, page, hasNext } — more scalable than returning [Product!]! directly (allows adding totalPages, cursor later). Self-referential type: Category.parent: Category (nullable — top-level categories have no parent). Safe schema changes: add nullable fields freely; never remove fields without @deprecated first.",
+  "rubric": [
+    {"category": "Product type (all fields)", "points": 15},
+    {"category": "Category + Seller + Review types", "points": 10},
+    {"category": "Input types + enums", "points": 15},
+    {"category": "ProductPage pagination", "points": 10},
+    {"category": "Query type (5 queries)", "points": 10},
+    {"category": "Mutation type", "points": 5},
+    {"category": "4 client queries", "points": 10},
+    {"category": "3 tests (all pass)", "points": 25},
+    {"category": "Bonus", "points": 55}
+  ]
+}

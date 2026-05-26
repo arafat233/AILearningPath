@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m21_t2",
+  "language": "java",
+  "module_id": "m21",
+  "module_name": "Production Deployment",
+  "topic_number": 2,
+  "name": "Kubernetes Deployments & Services",
+  "slug": "kubernetes-deployments-services",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m21_t1"],
+    "concepts_taught": [
+      "kubernetes_overview", "pod_deployment_service", "replica_sets", "deployment_yaml",
+      "service_types", "cluster_ip_node_port_load_balancer", "resource_requests_limits",
+      "rolling_updates", "kubectl_commands", "namespace", "labels_selectors",
+      "deployment_strategy", "k8s_dns", "readiness_liveness_probes"
+    ],
+    "skills_developed": [
+      "writing_deployment_yaml", "exposing_service_with_clusterip",
+      "scaling_replicas", "rolling_update_strategy", "kubectl_operations"
+    ],
+    "career_relevance": "Kubernetes is the industry standard for running Java microservices at scale. Razorpay, Zerodha, Flipkart — all run on Kubernetes. After this topic, you can deploy a Spring Boot service to k8s, scale it, and push a zero-downtime rolling update.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Payment service runs as a single Docker container. During Diwali sale: 10× traffic → container at 100% CPU → payments timing out. \n\nWith Kubernetes:\n```\nkubectl scale deployment payment-service --replicas=20\n→ 20 pods across 5 nodes → traffic distributed\n→ p99 drops from 3s to 180ms\n→ 0 downtime during scaling\n```",
+    "what_you_will_build": "A Kubernetes Deployment + Service YAML for the Razorpay payment service with 3 replicas, resource limits, and a rolling update strategy."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "deployment": "**Kubernetes Deployment YAML:**\n\n```yaml\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: payment-service\n  namespace: payments\n  labels:\n    app: payment-service\n    version: v2.1\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: payment-service\n  strategy:\n    type: RollingUpdate\n    rollingUpdate:\n      maxSurge: 1          # allow 1 extra pod during update\n      maxUnavailable: 0    # never reduce below desired replicas\n  template:\n    metadata:\n      labels:\n        app: payment-service\n    spec:\n      containers:\n      - name: payment-service\n        image: razorpay/payment-service:v2.1\n        ports:\n        - containerPort: 8080\n        resources:\n          requests:\n            memory: '512Mi'\n            cpu: '250m'\n          limits:\n            memory: '768Mi'\n            cpu: '500m'\n        env:\n        - name: SPRING_PROFILES_ACTIVE\n          value: production\n        readinessProbe:\n          httpGet:\n            path: /actuator/health/readiness\n            port: 8080\n          initialDelaySeconds: 30\n          periodSeconds: 10\n          failureThreshold: 3\n        livenessProbe:\n          httpGet:\n            path: /actuator/health/liveness\n            port: 8080\n          initialDelaySeconds: 60\n          periodSeconds: 30\n          failureThreshold: 3\n```",
+      "service": "**Kubernetes Service:**\n\n```yaml\napiVersion: v1\nkind: Service\nmetadata:\n  name: payment-service\n  namespace: payments\nspec:\n  selector:\n    app: payment-service    # routes to pods with this label\n  ports:\n  - protocol: TCP\n    port: 80        # service port (internal)\n    targetPort: 8080  # container port\n  type: ClusterIP   # internal only (use LoadBalancer for external)\n\n# Internal DNS: payment-service.payments.svc.cluster.local\n# Or shorthand (same namespace): payment-service\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Kubernetes cluster diagram: 3 nodes. Payment Service Deployment: 3 pods spread across nodes. ClusterIP Service sits in front with internal IP. Requests from other pods → ClusterIP → round-robin to 3 pods. Rolling update: new pod starts → readiness probe passes → old pod terminated. Labels shown on pods as tags (app: payment-service).", "alt_text": "K8s Deployment with 3 replicas behind a ClusterIP Service" }
+  },
+  "worked_example": {
+    "scenario": "Deploy Razorpay payment service to Kubernetes: 3 replicas, resource limits, rolling update.",
+    "problem_statement": "Write Deployment + Service YAML. Explain: requests vs limits, readiness vs liveness.",
+    "step_by_step_solution": [
+      { "step": 1, "action": "Requests vs Limits", "details": "Requests: guaranteed CPU/memory for scheduling (k8s uses this to decide which node). Limits: hard ceiling — OOMKilled if memory exceeded, CPU throttled. Guideline: limits = 1.5-2× requests." },
+      { "step": 2, "action": "Readiness vs Liveness", "details": "Readiness: 'am I ready to receive traffic?' Spring Boot: /actuator/health/readiness. If fails: pod removed from Service endpoints (no traffic).\nLiveness: 'am I still alive (not stuck)?' If fails: pod RESTARTED." }
+    ],
+    "final_code": "# Deploy: kubectl apply -f deployment.yml\n# Scale: kubectl scale deployment payment-service --replicas=5\n# Status: kubectl rollout status deployment/payment-service\n# History: kubectl rollout history deployment/payment-service",
+    "expected_output": "deployment.apps/payment-service created\nservice/payment-service created\ndeployment.apps/payment-service scaled\nWaiting for deployment 'payment-service' rollout to finish: 1 of 3 updated replicas are available...",
+    "things_to_notice": [
+      "maxUnavailable: 0 + maxSurge: 1: zero-downtime rolling update. During update: 3 old pods + 1 new pod → new pod passes readiness → 1 old terminated. Repeat until all replaced.",
+      "initialDelaySeconds: 30 for readiness: Spring Boot takes ~20-30s to start. Without delay, readiness probe fails immediately → pod never receives traffic.",
+      "CPU in millicores: 250m = 0.25 CPU cores. 1000m = 1 full core. 500m = half a core.",
+      "ClusterIP vs LoadBalancer: ClusterIP = internal only (pod-to-pod). LoadBalancer = creates a cloud load balancer with external IP. Most internal services use ClusterIP."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Zerodha trading service scaling", "use_case": "Normal: 3 replicas (9am-9pm). Market open at 9:15: scale to 10 replicas (HPA rule). Market close: scale back to 3. HPA (Horizontal Pod Autoscaler) automates this based on CPU/memory metrics from Micrometer." }
+    ],
+    "interview_relevance": "'What is a Kubernetes Deployment?' → A Deployment manages a ReplicaSet of identical pods. Desired state: 3 replicas. K8s ensures 3 pods always running. Rolling updates: controlled pod-by-pod replacement. Rollback: kubectl rollout undo.",
+    "real_world_workflow": "Kubernetes deploy workflow: docker build → push to ECR → kubectl apply updated image tag → rolling update completes → verify with kubectl rollout status."
+  },
+  "common_gaps": [
+    { "gap_id": "no_readiness_probe", "what_students_get_wrong": "Deploying without readiness probe: k8s sends traffic to pods before Spring Boot has started. Requests fail until startup completes.", "remediation": "Always configure readiness probe with initialDelaySeconds >= Spring Boot startup time (~30s for typical service). Spring Boot 2.3+: /actuator/health/readiness (distinct from /health).", "detection_pattern": "Connection refused errors during deployment; pods show Running but services return 502" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "Deployment manages desired state: replicas, image, strategy",
+      "ReplicaSet: owned by Deployment, ensures N pods always running",
+      "Service: stable DNS name + IP routing to pods via label selector",
+      "ClusterIP: internal only. LoadBalancer: external. NodePort: debug only.",
+      "Requests: scheduling guarantee. Limits: hard ceiling (OOMKill / CPU throttle).",
+      "Readiness: traffic gate. Liveness: restart trigger.",
+      "maxUnavailable: 0 + maxSurge: 1: zero-downtime rolling update.",
+      "CPU millicores: 250m = 0.25 core. Memory: 512Mi = 512 mebibytes."
+    ],
+    "self_check_questions": [
+      { "question": "What happens if a pod's readiness probe fails after it was already receiving traffic?", "answer": "The pod is removed from the Service's endpoint list (the kube-proxy updates iptables rules). No new traffic is routed to it. Existing connections complete. The pod continues running (readiness failure doesn't trigger restart — only liveness failure does). Once the readiness probe passes again (e.g., dependent service recovered), the pod is re-added to the endpoint list and receives traffic again. This is key for circuit breaker recovery: pod becomes 'not ready' while CB is OPEN, becomes 'ready' when CB is CLOSED again." }
+    ],
+    "next_topic_preview": "Next: Kubernetes ConfigMaps, Secrets, and Health Probes — externalizing Spring Boot configuration so the same Docker image runs in dev, staging, and production with different configs."
+  }
+}

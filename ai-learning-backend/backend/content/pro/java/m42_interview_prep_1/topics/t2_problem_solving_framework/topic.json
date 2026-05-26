@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m42_t2",
+  "module_id": "m42",
+  "topic_number": 2,
+  "name": "Problem Solving Framework \u2014 15 Classic Medium Problems",
+  "slug": "problem-solving-framework-classic-mediums",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t1"
+    ],
+    "concepts_taught": [
+      "problem-solving-framework-classic-mediums"
+    ],
+    "career_relevance": "Core interview preparation topic.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Problem Solving Framework \u2014 15 Classic Medium Problems"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "7-step framework: Read\u2192Clarify\u2192Brute\u2192Optimize\u2192Code\u2192Test\u2192Complexity",
+        "Kadane's algorithm: curr=max(num, curr+num) \u2014 max subarray",
+        "Stock profit: track minPrice so far; maxProfit=max(maxProfit, price-minPrice)",
+        "3Sum: sort + two pointers; skip duplicates at all 3 levels",
+        "Product except self: prefix product pass then right product sweep O(n) O(1)",
+        "Recognize pattern FIRST: Two pointers? Sliding window? DP? BFS?"
+      ],
+      "next_topic_preview": "Next: Time Complexity Communication \u2014 practice explaining O notation live."
+    }
+  }
+}

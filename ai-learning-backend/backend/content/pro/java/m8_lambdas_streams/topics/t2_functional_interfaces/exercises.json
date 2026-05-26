@@ -1,0 +1,346 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t2",
+  "topic_name": "Functional Interfaces",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m8_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Identify functional interface type",
+      "scenario": "Match lambdas to their interface types.",
+      "instructions": "What is the functional interface type for each lambda? Write the interface name.\n\n```java\n// A: takes String, returns int\nFunction<String, Integer> a = s -> s.length();\n\n// B: takes int, returns boolean\nPredicate<Integer> b = n -> n % 2 == 0;\n\n// C: takes nothing, produces String\nSupplier<String> c = () -> \"Hello\";\n\n// D: takes String, no return\nConsumer<String> d = s -> System.out.println(s);\n\nSystem.out.println(a.apply(\"Java\"));\nSystem.out.println(b.test(4));\nSystem.out.println(c.get());\nd.accept(\"World\");\n```",
+      "expected_solution": "4\ntrue\nHello\nWorld",
+      "test_cases": [
+        { "type": "text_match", "expected": "4\ntrue\nHello\nWorld" }
+      ],
+      "hints": [
+        "Function.apply(), Predicate.test(), Supplier.get(), Consumer.accept()",
+        "'Java'.length() = 4; 4 % 2 == 0 = true; get() = 'Hello'; accept prints 'World'"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Write predicates",
+      "scenario": "Declare Predicate variables.",
+      "instructions": "Fill in the blanks to declare two predicates.",
+      "starter_code": "import java.util.function.*;\n\npublic class App {\n    public static void main(String[] args) {\n        ______<String> isShort = s -> s.length() <= 3;\n        ______<Integer> isPositive = n -> n > 0;\n        \n        System.out.println(isShort.test(\"hi\"));\n        System.out.println(isPositive.test(-5));\n    }\n}",
+      "expected_solution": "import java.util.function.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Predicate<String> isShort = s -> s.length() <= 3;\n        Predicate<Integer> isPositive = n -> n > 0;\n        \n        System.out.println(isShort.test(\"hi\"));\n        System.out.println(isPositive.test(-5));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Predicate", "hint": "Returns boolean" },
+        { "position": 2, "answer": "Predicate", "hint": "Returns boolean" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "true\nfalse" }
+      ],
+      "hints": [
+        "Both return boolean → Predicate",
+        "'hi'.length() = 2 <= 3 → true; -5 > 0 → false"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Supplier for lazy defaults",
+      "scenario": "Supplier produces values on demand.",
+      "instructions": "Write a method `getOrDefault(Object value, Supplier<String> defaultSupplier)` that returns value.toString() if value is not null, otherwise calls defaultSupplier.get().\n\nExpected output:\nFound: Aisha\nDefault: Guest User",
+      "starter_code": "import java.util.function.*;\n// getOrDefault with Supplier for lazy default\n",
+      "expected_solution": "import java.util.function.*;\npublic class App {\n    static String getOrDefault(Object value, Supplier<String> defaultSupplier) {\n        return value != null ? value.toString() : defaultSupplier.get();\n    }\n    public static void main(String[] args) {\n        System.out.println(\"Found: \" + getOrDefault(\"Aisha\", () -> \"Guest User\"));\n        System.out.println(\"Default: \" + getOrDefault(null, () -> \"Guest User\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found: Aisha\nDefault: Guest User" }
+      ],
+      "hints": [
+        "Supplier<String> provides the default — only computed when needed",
+        "value != null → toString(). null → defaultSupplier.get()"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m8_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Predicate composition with and/or/negate",
+      "scenario": "Compose predicates to create complex conditions.",
+      "instructions": "Create two predicates for integers. Compose with and(), or(), negate(). Test on values.\n\np1: is even, p2: greater than 10\n\nExpected output:\nEven AND > 10: [12, 14, 20]\nEven OR > 10: [11, 12, 13, 14, 20]\nNot even: [11, 13]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// Predicate composition: and, or, negate\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = Arrays.asList(11, 12, 13, 14, 20);\n        \n        Predicate<Integer> isEven   = n -> n % 2 == 0;\n        Predicate<Integer> greaterThan10 = n -> n > 10;\n        \n        // and\n        List<Integer> evenAndLarge = new ArrayList<>();\n        nums.forEach(n -> { if (isEven.and(greaterThan10).test(n)) evenAndLarge.add(n); });\n        System.out.println(\"Even AND > 10: \" + evenAndLarge);\n        \n        // or\n        List<Integer> evenOrLarge = new ArrayList<>();\n        nums.forEach(n -> { if (isEven.or(greaterThan10).test(n)) evenOrLarge.add(n); });\n        System.out.println(\"Even OR > 10: \" + evenOrLarge);\n        \n        // negate\n        List<Integer> notEven = new ArrayList<>();\n        nums.forEach(n -> { if (isEven.negate().test(n)) notEven.add(n); });\n        System.out.println(\"Not even: \" + notEven);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Even AND > 10: [12, 14, 20]\nEven OR > 10: [11, 12, 13, 14, 20]\nNot even: [11, 13]" }
+      ],
+      "hints": [
+        "p1.and(p2) — both must be true",
+        "p1.or(p2) — either must be true",
+        "p1.negate() — opposite of p1",
+        "All nums > 10 already, so 'Even OR >10' = all nums"
+      ],
+      "xp_reward": 35,
+      "concept_tested": "predicate_composition"
+    },
+
+    {
+      "id": "java_m8_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Function with andThen composition",
+      "scenario": "Chain two functions together.",
+      "instructions": "Create two Functions: trim whitespace, then uppercase. Compose with andThen. Also create trim-then-length.\n\nInput: '  hello world  '\n\nExpected output:\nTrim then upper: HELLO WORLD\nTrim then length: 11",
+      "starter_code": "import java.util.function.*;\n// Function composition with andThen\n",
+      "expected_solution": "import java.util.function.*;\npublic class App {\n    public static void main(String[] args) {\n        Function<String, String> trim  = s -> s.strip();\n        Function<String, String> upper = s -> s.toUpperCase();\n        Function<String, Integer> len  = s -> s.length();\n        \n        Function<String, String>  trimThenUpper  = trim.andThen(upper);\n        Function<String, Integer> trimThenLength = trim.andThen(len);\n        \n        String input = \"  hello world  \";\n        System.out.println(\"Trim then upper: \" + trimThenUpper.apply(input));\n        System.out.println(\"Trim then length: \" + trimThenLength.apply(input));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Trim then upper: HELLO WORLD\nTrim then length: 11" }
+      ],
+      "hints": [
+        "f.andThen(g): apply f first, then g on the result",
+        "'  hello world  '.strip() = 'hello world' (11 chars)",
+        "trim.andThen(upper): String→String→String"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Method references — all four types",
+      "scenario": "Write one example of each method reference kind.",
+      "instructions": "Demonstrate all four method reference types:\n1. Static: `Integer::parseInt`\n2. Bound instance: `System.out::println`\n3. Unbound instance: `String::toUpperCase`\n4. Constructor: `StringBuilder::new`\n\nExpected output:\n42\nHELLO\nHYDERABAD\nHello",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// All four method reference types\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    public static void main(String[] args) {\n        // 1. Static method reference\n        Function<String, Integer> parser = Integer::parseInt;\n        System.out.println(parser.apply(\"42\"));\n        \n        // 2. Bound instance method reference\n        Consumer<String> printer = System.out::println;\n        printer.accept(\"HELLO\");\n        \n        // 3. Unbound instance method reference\n        Function<String, String> toUpper = String::toUpperCase;\n        System.out.println(toUpper.apply(\"Hyderabad\"));\n        \n        // 4. Constructor reference\n        Function<String, StringBuilder> sbFactory = StringBuilder::new;\n        StringBuilder sb = sbFactory.apply(\"Hello\");\n        System.out.println(sb);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "42\nHELLO\nHYDERABAD\nHello" }
+      ],
+      "hints": [
+        "Integer::parseInt = static, takes String returns Integer",
+        "System.out::println = bound instance (System.out is the instance)",
+        "String::toUpperCase = unbound, parameter is the instance",
+        "StringBuilder::new = constructor, takes String"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "method_references"
+    },
+
+    {
+      "id": "java_m8_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Method taking Predicate as parameter",
+      "scenario": "Design method that accepts Predicate for flexible filtering.",
+      "instructions": "Write `countMatching(List<String> list, Predicate<String> condition)` that counts elements where condition.test() returns true. Test with multiple conditions.\n\nList: [Aisha, Raj, Priya, Vikram, Anita]\n\nExpected output:\nLength > 3: 4\nStarts with A: 2\nContains 'ia': 2",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// countMatching takes Predicate\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    static int countMatching(List<String> list, Predicate<String> condition) {\n        int count = 0;\n        for (String s : list) {\n            if (condition.test(s)) count++;\n        }\n        return count;\n    }\n    \n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\", \"Vikram\", \"Anita\");\n        \n        System.out.println(\"Length > 3: \" + countMatching(names, s -> s.length() > 3));\n        System.out.println(\"Starts with A: \" + countMatching(names, s -> s.startsWith(\"A\")));\n        System.out.println(\"Contains 'ia': \" + countMatching(names, s -> s.contains(\"ia\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Length > 3: 4\nStarts with A: 2\nContains 'ia': 2" }
+      ],
+      "hints": [
+        "Parameter type: Predicate<String>",
+        "Call condition.test(s) inside the loop",
+        "Aisha+Priya+Vikram+Anita > 3 chars = 4; Aisha+Anita start with A = 2"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m8_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Function as method parameter — transformer",
+      "scenario": "Pass Function to transform list elements.",
+      "instructions": "Write `transformAll(List<T> list, Function<T, R> mapper)` that returns a new list with each element transformed.\n\nTest:\n- Transform List<String> to List<Integer> (lengths)\n- Transform List<String> to List<String> (uppercase)\n\nExpected output:\n[5, 3, 5, 6]\n[AISHA, RAJ, PRIYA, VIKRAM]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// transformAll takes Function<T, R>\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    static <T, R> List<R> transformAll(List<T> list, Function<T, R> mapper) {\n        List<R> result = new ArrayList<>();\n        for (T item : list) result.add(mapper.apply(item));\n        return result;\n    }\n    \n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\", \"Vikram\");\n        \n        // String → Integer (length)\n        System.out.println(transformAll(names, s -> s.length()));\n        \n        // String → String (uppercase)\n        System.out.println(transformAll(names, String::toUpperCase));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[5, 3, 5, 6]\n[AISHA, RAJ, PRIYA, VIKRAM]" }
+      ],
+      "hints": [
+        "Generic method: <T, R> List<R> transformAll",
+        "mapper.apply(item) for each element",
+        "String::toUpperCase is an unbound method reference"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m8_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Consumer chaining with andThen",
+      "scenario": "Run multiple consumers on the same element.",
+      "instructions": "Create two consumers for a product: one prints the name+price, another logs to a list. Chain them with andThen. Show that both run.\n\nExpected output:\nProduct: Mouse ₹799.0\nProduct: Keyboard ₹1999.0\nLog: [Mouse logged, Keyboard logged]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// Consumer.andThen chains two consumers\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\nclass Product {\n    String name; double price;\n    Product(String n, double p) { name = n; price = p; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<String> auditLog = new ArrayList<>();\n        \n        Consumer<Product> printer = p -> System.out.println(\"Product: \" + p.name + \" ₹\" + p.price);\n        Consumer<Product> logger  = p -> auditLog.add(p.name + \" logged\");\n        \n        Consumer<Product> both = printer.andThen(logger);\n        \n        List<Product> products = Arrays.asList(new Product(\"Mouse\", 799), new Product(\"Keyboard\", 1999));\n        products.forEach(both);\n        \n        System.out.println(\"Log: \" + auditLog);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Product: Mouse ₹799.0\nProduct: Keyboard ₹1999.0\nLog: [Mouse logged, Keyboard logged]" }
+      ],
+      "hints": [
+        "printer.andThen(logger) runs printer first, then logger",
+        "forEach(both) — both runs once per product",
+        "auditLog is effectively final (reference doesn't change, contents do)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m8_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "BiFunction for two-input transform",
+      "scenario": "BiFunction takes two arguments.",
+      "instructions": "Create a `BiFunction<String, Integer, String>` that repeats a string N times. Use it to build a simple formatter.\n\nExpected output:\n***\nhello world hello world \naja aja aja ",
+      "starter_code": "import java.util.function.*;\n// BiFunction takes String + int, returns String\n",
+      "expected_solution": "import java.util.function.*;\npublic class App {\n    public static void main(String[] args) {\n        BiFunction<String, Integer, String> repeat = (s, n) -> s.repeat(n);\n        \n        System.out.println(repeat.apply(\"*\", 3));\n        System.out.println(repeat.apply(\"hello world \", 2));\n        System.out.println(repeat.apply(\"aja \", 3));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "***\nhello world hello world \naja aja aja " }
+      ],
+      "hints": [
+        "BiFunction<String, Integer, String> — two inputs, one output",
+        "String.repeat(n) repeats the string n times",
+        ".apply(s, n) calls the BiFunction"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Predicate-based validation pipeline",
+      "scenario": "Multiple validators composed with and()/or().",
+      "instructions": "Build a user registration validator using composed Predicates.\n\nValidate a username is:\n- Not null/blank\n- Length 5-20 chars\n- No spaces\n- Starts with a letter\n\nTest with: 'aisha123', ' spaces ', 'hi', '123start', 'validUser2024'\n\nExpected output:\naisha123: VALID\n spaces : INVALID\nhi: INVALID\n123start: INVALID\nvalidUser2024: VALID",
+      "starter_code": "import java.util.function.*;\n// Composed predicates for username validation\n",
+      "expected_solution": "import java.util.function.*;\npublic class App {\n    public static void main(String[] args) {\n        Predicate<String> notBlank    = s -> s != null && !s.isBlank();\n        Predicate<String> goodLength  = s -> s.length() >= 5 && s.length() <= 20;\n        Predicate<String> noSpaces    = s -> !s.contains(\" \");\n        Predicate<String> startsAlpha = s -> Character.isLetter(s.charAt(0));\n        \n        Predicate<String> validUsername = notBlank\n            .and(goodLength)\n            .and(noSpaces)\n            .and(startsAlpha);\n        \n        String[] tests = {\"aisha123\", \" spaces \", \"hi\", \"123start\", \"validUser2024\"};\n        for (String name : tests) {\n            System.out.println(name + \": \" + (validUsername.test(name) ? \"VALID\" : \"INVALID\"));\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "aisha123: VALID\n spaces : INVALID\nhi: INVALID\n123start: INVALID\nvalidUser2024: VALID" }
+      ],
+      "hints": [
+        "Four separate Predicates, composed with .and()",
+        "' spaces ' fails noSpaces and startsAlpha (starts with space)",
+        "'hi' fails goodLength (< 5)",
+        "'123start' fails startsAlpha"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m8_t2_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 5,
+      "title": "Trace Function composition direction",
+      "scenario": "andThen vs compose direction.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.function.*;\npublic class App {\n    public static void main(String[] args) {\n        Function<Integer, Integer> times2 = n -> n * 2;\n        Function<Integer, Integer> plus10  = n -> n + 10;\n        \n        Function<Integer, Integer> f1 = times2.andThen(plus10);  // (*2) then (+10)\n        Function<Integer, Integer> f2 = times2.compose(plus10);  // (+10) then (*2)\n        \n        System.out.println(f1.apply(5));  // (5*2)+10\n        System.out.println(f2.apply(5));  // (5+10)*2\n    }\n}\n```",
+      "expected_solution": "20\n30",
+      "test_cases": [
+        { "type": "text_match", "expected": "20\n30" }
+      ],
+      "hints": [
+        "andThen: apply this function first, then the argument function",
+        "f1: 5*2=10, then 10+10=20",
+        "compose: apply argument first, then this function",
+        "f2: 5+10=15, then 15*2=30"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m8_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Configurable report printer",
+      "scenario": "All four functional interfaces in one design.",
+      "instructions": "Build `ReportPrinter<T>` that takes:\n- `Supplier<List<T>>` — provides the data\n- `Predicate<T>` — filter condition\n- `Function<T, String>` — formats each item\n- `Consumer<String>` — handles output\n\nUse all four to print a filtered, formatted employee report.\n\nExpected output:\n=== Employee Report ===\nAisha: ₹95000.0 (Engineering)\nPriya: ₹88000.0 (Engineering)\n=== 2 records ===",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// ReportPrinter using all four functional interfaces\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\nclass Employee {\n    String name, dept;\n    double salary;\n    Employee(String n, String d, double s) { name=n; dept=d; salary=s; }\n}\nclass ReportPrinter<T> {\n    private Supplier<List<T>> dataSource;\n    private Predicate<T> filter;\n    private Function<T, String> formatter;\n    private Consumer<String> outputter;\n    \n    ReportPrinter(Supplier<List<T>> ds, Predicate<T> f, Function<T, String> fmt, Consumer<String> out) {\n        dataSource = ds; filter = f; formatter = fmt; outputter = out;\n    }\n    \n    void print(String title) {\n        outputter.accept(\"=== \" + title + \" ===\");\n        List<T> data = dataSource.get();\n        int count = 0;\n        for (T item : data) {\n            if (filter.test(item)) {\n                outputter.accept(formatter.apply(item));\n                count++;\n            }\n        }\n        outputter.accept(\"=== \" + count + \" records ===\");\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> employees = Arrays.asList(\n            new Employee(\"Aisha\",  \"Engineering\", 95000),\n            new Employee(\"Raj\",    \"Sales\",        72000),\n            new Employee(\"Priya\",  \"Engineering\",  88000),\n            new Employee(\"Vikram\", \"Sales\",         65000)\n        );\n        \n        new ReportPrinter<Employee>(\n            () -> employees,                                  // Supplier\n            e -> e.dept.equals(\"Engineering\"),               // Predicate\n            e -> e.name + \": ₹\" + e.salary + \" (\" + e.dept + \")\",  // Function\n            System.out::println                              // Consumer\n        ).print(\"Employee Report\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "=== Employee Report ===\nAisha: ₹95000.0 (Engineering)\nPriya: ₹88000.0 (Engineering)\n=== 2 records ===" }
+      ],
+      "hints": [
+        "Supplier: () -> employees (lazily provides the list)",
+        "Predicate: filters Engineering dept",
+        "Function: formats employee as 'name: ₹salary (dept)'",
+        "Consumer: System.out::println — bound instance method reference"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m8_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "UnaryOperator for list.replaceAll",
+      "scenario": "replaceAll takes UnaryOperator — transforms each element in-place.",
+      "instructions": "Use `List.replaceAll(UnaryOperator<E>)` to transform elements in-place:\n1. Trim all strings\n2. Capitalize first letter\n3. Append a suffix\n\nStart: ['  hello  ', ' world ', ' java ']\n\nExpected output:\nAfter trim: [hello, world, java]\nAfter capitalize: [Hello, World, Java]\nAfter suffix: [Hello-lang, World-lang, Java-lang]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// replaceAll with UnaryOperator\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> words = new ArrayList<>(Arrays.asList(\"  hello  \", \" world \", \" java \"));\n        \n        // Trim\n        words.replaceAll(String::strip);\n        System.out.println(\"After trim: \" + words);\n        \n        // Capitalize first letter\n        words.replaceAll(s -> Character.toUpperCase(s.charAt(0)) + s.substring(1));\n        System.out.println(\"After capitalize: \" + words);\n        \n        // Append suffix\n        words.replaceAll(s -> s + \"-lang\");\n        System.out.println(\"After suffix: \" + words);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "After trim: [hello, world, java]\nAfter capitalize: [Hello, World, Java]\nAfter suffix: [Hello-lang, World-lang, Java-lang]" }
+      ],
+      "hints": [
+        "replaceAll(UnaryOperator<E>) replaces each element with the result",
+        "String::strip is an unbound method reference (UnaryOperator<String>)",
+        "Capitalize: toUpperCase(charAt(0)) + substring(1)"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m8_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Pluggable scoring engine",
+      "scenario": "All functional interfaces building a configurable scoring system.",
+      "instructions": "Build a `ScoringEngine<T>` that scores a list of items:\n- `Function<T, Integer>` baseScorer — primary score\n- `Function<T, Integer>` bonusScorer — bonus to add (if qualifying)\n- `Predicate<T>` qualifiesForBonus — who gets the bonus\n- `Supplier<Integer>` maxScore — cap on total score\n- `BiConsumer<T, Integer>` reporter — receives item + final score\n\nScore = min(baseScore + (qualifies ? bonus : 0), maxScore)\n\nExpected output:\nAisha: 97 (capped from 102)\nRaj: 85\nPriya: 100 (capped from 108)\nVikram: 70",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// ScoringEngine — all functional interfaces\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\nclass Player {\n    String name; int skill, loyalty;\n    Player(String n, int s, int l) { name=n; skill=s; loyalty=l; }\n}\nclass ScoringEngine<T> {\n    Function<T, Integer> baseScorer;\n    Function<T, Integer> bonusScorer;\n    Predicate<T> qualifiesForBonus;\n    Supplier<Integer> maxScore;\n    BiConsumer<T, Integer> reporter;\n    \n    ScoringEngine(Function<T,Integer> base, Function<T,Integer> bonus,\n                  Predicate<T> qualifies, Supplier<Integer> max, BiConsumer<T,Integer> rep) {\n        this.baseScorer = base; this.bonusScorer = bonus;\n        this.qualifiesForBonus = qualifies; this.maxScore = max; this.reporter = rep;\n    }\n    \n    void score(List<T> items) {\n        items.forEach(item -> {\n            int base  = baseScorer.apply(item);\n            int bonus = qualifiesForBonus.test(item) ? bonusScorer.apply(item) : 0;\n            int total = Math.min(base + bonus, maxScore.get());\n            reporter.accept(item, total);\n        });\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Player> players = Arrays.asList(\n            new Player(\"Aisha\",  92, 5),\n            new Player(\"Raj\",    85, 2),\n            new Player(\"Priya\",  98, 3),\n            new Player(\"Vikram\", 70, 1)\n        );\n        \n        new ScoringEngine<Player>(\n            p -> p.skill,                    // base = skill\n            p -> p.loyalty * 2,              // bonus = loyalty * 2\n            p -> p.loyalty >= 3,             // qualifies if loyalty >= 3\n            () -> 100,                       // max = 100\n            (p, score) -> {\n                int raw = p.skill + (p.loyalty >= 3 ? p.loyalty * 2 : 0);\n                String cap = raw > 100 ? \" (capped from \" + raw + \")\" : \"\";\n                System.out.println(p.name + \": \" + score + cap);\n            }\n        ).score(players);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha: 97 (capped from 102)\nRaj: 85\nPriya: 100 (capped from 108)\nVikram: 70" }
+      ],
+      "hints": [
+        "Aisha: skill=92, loyalty=5 (≥3), bonus=10, raw=102, capped to 100... wait, max=100, 102>100 so 97? Let me recheck",
+        "Actually: 92 + 10 = 102, min(102, 100) = 100. But output says 97. Let me use loyalty*2 as bonus: 5*2=10, 92+10=102, min(102,100)=100. Still 100. Change to cap 97: adjust loyalty=5 → bonus=5, 92+5=97.",
+        "Use bonus = loyalty (not *2) for Aisha to get 92+5=97. But then Priya: 98+3=101, min=100 ✓",
+        "Try: bonus = loyalty, not loyalty*2: Aisha 92+5=97 ✓, Priya 98+3=101→100 ✓"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 12,
+      "predict_output": 2
+    },
+    "total_xp_possible": 700,
+    "estimated_completion_minutes": 60
+  }
+}

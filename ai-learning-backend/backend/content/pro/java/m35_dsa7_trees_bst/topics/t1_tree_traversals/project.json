@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m35_t1_proj",
+  "linked_topic": "java_m35_t1",
+  "level": "mini",
+  "name": "Zerodha Order Tree Analyzer",
+  "estimated_minutes": 40,
+  "difficulty": 4,
+  "scenario": "Analyze binary order tree with all traversal patterns.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "inorder, levelOrder, diameter, isSymmetric, rightSideView",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests pass",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Zigzag, flatten, verticalTraversal",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Inorder iterative: push-left loop, then pop-visit-go-right. Level order: while(!q.isEmpty()) size=q.size() for-loop. Diameter: max global updated at each node with l+r where l,r are heights.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

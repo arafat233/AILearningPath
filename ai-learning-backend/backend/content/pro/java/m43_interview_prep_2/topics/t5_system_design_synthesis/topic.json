@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m43_t5",
+  "module_id": "m43",
+  "topic_number": 5,
+  "name": "System Design Synthesis \u2014 Full Practice Designs",
+  "slug": "sd-synthesis-full-designs",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t5"
+    ],
+    "concepts_taught": [
+      "sd-synthesis-full-designs"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "System Design Synthesis \u2014 Full Practice Designs"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "35-minute SD round: 5 clarify + 5 estimate + 5 API + 10 data+core + 10 scale",
+        "Always draw a diagram: client\u2192LB\u2192app servers\u2192cache\u2192DB\u2192queue",
+        "Trade-off language: 'We chose X over Y because Z, accepting trade-off W'",
+        "Common systems to know cold: URL shortener, chat, feed, payment, search",
+        "Zerodha focus: order matching (in-memory PQ), real-time prices (Kafka+WebSocket)",
+        "Razorpay focus: idempotency, saga pattern, reconciliation, ACID guarantees"
+      ],
+      "next_topic_preview": "Module 43 done! Next: M44 Behavioral."
+    }
+  }
+}

@@ -1,0 +1,341 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t5",
+  "topic_name": "Generic Interfaces & Design Patterns",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m9_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace generic interface implementation",
+      "scenario": "Concrete class provides types for generic interface.",
+      "instructions": "What does this print?\n\n```java\ninterface Container<T> {\n    void put(T item);\n    T get();\n    default boolean hasValue() { return get() != null; }\n}\n\nclass StringBox implements Container<String> {\n    private String value;\n    public void put(String s) { value = s; }\n    public String get()       { return value; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        StringBox box = new StringBox();\n        System.out.println(box.hasValue());  // uses default method\n        box.put(\"Aisha\");\n        System.out.println(box.hasValue());\n        System.out.println(box.get().toUpperCase());\n    }\n}\n```",
+      "expected_solution": "false\ntrue\nAISHA",
+      "test_cases": [
+        { "type": "text_match", "expected": "false\ntrue\nAISHA" }
+      ],
+      "hints": [
+        "hasValue() is a default method — calls get() which returns null initially",
+        "After put('Aisha'), get() returns 'Aisha' — not null → true",
+        "get() returns String — can call toUpperCase()"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Implement generic interface",
+      "scenario": "Provide concrete types when implementing.",
+      "instructions": "Fill in the blank so ProductRepo correctly implements Repository<Product, String>.",
+      "starter_code": "import java.util.*;\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    T save(T entity);\n}\nclass Product { String id, name; Product(String i, String n) { id=i; name=n; } }\n\nclass ProductRepo implements Repository<______, ______> {\n    private Map<String, Product> store = new HashMap<>();\n    public Optional<Product> findById(String id) { return Optional.ofNullable(store.get(id)); }\n    public Product save(Product p)               { store.put(p.id, p); return p; }\n}",
+      "expected_solution": "import java.util.*;\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    T save(T entity);\n}\nclass Product { String id, name; Product(String i, String n) { id=i; name=n; } }\n\nclass ProductRepo implements Repository<Product, String> {\n    private Map<String, Product> store = new HashMap<>();\n    public Optional<Product> findById(String id) { return Optional.ofNullable(store.get(id)); }\n    public Product save(Product p)               { store.put(p.id, p); return p; }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Product", "hint": "The entity type" },
+        { "position": 2, "answer": "String", "hint": "The ID type (product.id is String)" }
+      ],
+      "test_cases": [
+        { "type": "compile_check", "must_compile": true }
+      ],
+      "hints": [
+        "T = the entity class (Product)",
+        "ID = the type of the identifier (String in this case)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Validator<T> as functional interface",
+      "scenario": "A single-method generic interface accepts lambdas.",
+      "instructions": "Define `Validator<T>` with `boolean isValid(T item)`. Use lambdas to create validators for: String (non-blank), Integer (positive), Double (0.0-100.0).\n\nExpected output:\n'Aisha' valid: true\n'' valid: false\n-5 valid: false\n95.5 valid: true",
+      "starter_code": "// Validator<T> functional interface with lambda usage\n",
+      "expected_solution": "@FunctionalInterface\ninterface Validator<T> { boolean isValid(T item); }\n\npublic class App {\n    public static void main(String[] args) {\n        Validator<String>  notBlank  = s -> s != null && !s.isBlank();\n        Validator<Integer> positive  = n -> n > 0;\n        Validator<Double>  pct       = d -> d >= 0.0 && d <= 100.0;\n        \n        System.out.println(\"'Aisha' valid: \" + notBlank.isValid(\"Aisha\"));\n        System.out.println(\"'' valid: \"      + notBlank.isValid(\"\"));\n        System.out.println(\"-5 valid: \"      + positive.isValid(-5));\n        System.out.println(\"95.5 valid: \"    + pct.isValid(95.5));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "'Aisha' valid: true\n'' valid: false\n-5 valid: false\n95.5 valid: true" }
+      ],
+      "hints": [
+        "@FunctionalInterface — single abstract method → accepts lambdas",
+        "Lambda: s -> s != null && !s.isBlank() implements isValid(String)"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m9_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Mapper<S, T> interface",
+      "scenario": "Bidirectional type conversion through generic interface.",
+      "instructions": "Define `Mapper<S, T>` with `T mapTo(S)` and default `List<T> mapAllTo(List<S>)`. Implement `StringToInt` mapper.\n\nExpected output:\nMapped: 5\nAll: [5, 3, 5]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Mapper<S, T> with default mapAllTo\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\ninterface Mapper<S, T> {\n    T mapTo(S source);\n    default List<T> mapAllTo(List<S> sources) {\n        return sources.stream().map(this::mapTo).collect(Collectors.toList());\n    }\n}\nclass StringToLength implements Mapper<String, Integer> {\n    public Integer mapTo(String s) { return s.length(); }\n}\npublic class App {\n    public static void main(String[] args) {\n        Mapper<String, Integer> m = new StringToLength();\n        System.out.println(\"Mapped: \" + m.mapTo(\"Aisha\"));\n        System.out.println(\"All: \" + m.mapAllTo(Arrays.asList(\"Aisha\", \"Raj\", \"Priya\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Mapped: 5\nAll: [5, 3, 5]" }
+      ],
+      "hints": [
+        "default mapAllTo uses this::mapTo as method reference",
+        "StringToLength implements Mapper<String, Integer>"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m9_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Builder<T> for simple object",
+      "scenario": "Fluent builder pattern via generic interface.",
+      "instructions": "Define `Builder<T>` with `T build()`. Implement `PersonBuilder` for Person(name, age, city).\n\nExpected output:\nPerson: Aisha, 28, Hyderabad\nPerson: Raj, 0, Unknown",
+      "starter_code": "// Builder<T> interface + PersonBuilder\n",
+      "expected_solution": "interface Builder<T> { T build(); }\nclass Person {\n    String name, city; int age;\n    Person(String n, int a, String c) { name=n; age=a; city=c; }\n    public String toString() { return \"Person: \" + name + \", \" + age + \", \" + city; }\n}\nclass PersonBuilder implements Builder<Person> {\n    private String name=\"Unknown\", city=\"Unknown\"; private int age=0;\n    PersonBuilder name(String n)  { name=n; return this; }\n    PersonBuilder age(int a)      { age=a;  return this; }\n    PersonBuilder city(String c)  { city=c; return this; }\n    public Person build()         { return new Person(name, age, city); }\n}\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(new PersonBuilder().name(\"Aisha\").age(28).city(\"Hyderabad\").build());\n        System.out.println(new PersonBuilder().name(\"Raj\").build());  // age and city use defaults\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Person: Aisha, 28, Hyderabad\nPerson: Raj, 0, Unknown" }
+      ],
+      "hints": [
+        "interface Builder<T> { T build(); }",
+        "PersonBuilder.build() creates Person from the set fields",
+        "Methods return 'this' for fluent chaining"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m9_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "In-memory Repository<T, ID>",
+      "scenario": "Implement the Repository pattern for a concrete type.",
+      "instructions": "Implement `Repository<T, ID>` (with findById, findAll, save, delete, count, default exists). Create `StudentRepository implements Repository<Student, Integer>`.\n\nExpected output:\nSaved 3 students\nFound: Aisha\nExists 1: true | Exists 99: false\nCount: 3",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Repository<T,ID> with default exists, StudentRepository impl\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);\n    void delete(T entity);\n    long count();\n    default boolean exists(ID id) { return findById(id).isPresent(); }\n}\nclass Student {\n    int id; String name;\n    Student(int i, String n) { id=i; name=n; }\n    public String toString() { return name; }\n}\nclass StudentRepository implements Repository<Student, Integer> {\n    private Map<Integer, Student> store = new HashMap<>();\n    public Optional<Student> findById(Integer id) { return Optional.ofNullable(store.get(id)); }\n    public List<Student> findAll() { return new ArrayList<>(store.values()); }\n    public Student save(Student s) { store.put(s.id, s); return s; }\n    public void delete(Student s)  { store.remove(s.id); }\n    public long count()            { return store.size(); }\n}\npublic class App {\n    public static void main(String[] args) {\n        StudentRepository repo = new StudentRepository();\n        repo.save(new Student(1, \"Aisha\"));\n        repo.save(new Student(2, \"Raj\"));\n        repo.save(new Student(3, \"Priya\"));\n        System.out.println(\"Saved \" + repo.count() + \" students\");\n        System.out.println(\"Found: \" + repo.findById(1).get());\n        System.out.println(\"Exists 1: \" + repo.exists(1) + \" | Exists 99: \" + repo.exists(99));\n        System.out.println(\"Count: \" + repo.count());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Saved 3 students\nFound: Aisha\nExists 1: true | Exists 99: false\nCount: 3" }
+      ],
+      "hints": [
+        "exists() default method calls this.findById() — resolves to StudentRepository.findById()",
+        "StudentRepository implements Repository<Student, Integer>",
+        "T=Student, ID=Integer"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m9_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic interface with bound",
+      "scenario": "Interface type parameter with Comparable bound.",
+      "instructions": "Define `Ranked<T extends Comparable<T>>` interface with `rank(List<T>)` returning `List<T>` sorted descending. Implement for Integer scores.\n\nExpected output:\nRanked: [95, 92, 88, 85, 78, 68]",
+      "starter_code": "import java.util.*;\n// Ranked<T extends Comparable<T>> interface and implementation\n",
+      "expected_solution": "import java.util.*;\ninterface Ranked<T extends Comparable<T>> {\n    List<T> rank(List<T> items);  // sorted descending\n}\nclass IntegerRanker implements Ranked<Integer> {\n    public List<Integer> rank(List<Integer> items) {\n        List<Integer> sorted = new ArrayList<>(items);\n        sorted.sort((a, b) -> Integer.compare(b, a));  // descending\n        return sorted;\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        Ranked<Integer> ranker = new IntegerRanker();\n        List<Integer> scores = Arrays.asList(85, 92, 78, 95, 68, 88);\n        System.out.println(\"Ranked: \" + ranker.rank(scores));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Ranked: [95, 92, 88, 85, 78, 68]" }
+      ],
+      "hints": [
+        "interface Ranked<T extends Comparable<T>>",
+        "IntegerRanker implements Ranked<Integer> — T is fixed to Integer",
+        "Sort descending: compare(b, a) instead of compare(a, b)"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m9_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Strategy pattern for pricing",
+      "scenario": "Pluggable pricing algorithm via generic strategy.",
+      "instructions": "Define `PricingStrategy<T>` interface with `double calculatePrice(T item)`. Implement two strategies for Product: RegularPrice and DiscountedPrice (10% off).\n\nExpected output:\nRegular: ₹799.0\nDiscounted: ₹719.1\nRegular: ₹1999.0\nDiscounted: ₹1799.1",
+      "starter_code": "import java.util.*;\n// PricingStrategy<T> with two implementations\n",
+      "expected_solution": "import java.util.*;\ninterface PricingStrategy<T> { double calculatePrice(T item); }\nclass Product { String name; double basePrice; Product(String n, double p) { name=n; basePrice=p; } }\nclass RegularPrice implements PricingStrategy<Product> {\n    public double calculatePrice(Product p) { return p.basePrice; }\n}\nclass DiscountedPrice implements PricingStrategy<Product> {\n    public double calculatePrice(Product p) { return Math.round(p.basePrice * 0.9 * 10.0) / 10.0; }\n}\npublic class App {\n    static void showPricing(Product p, PricingStrategy<Product> strategy) {\n        System.out.printf(\"%s: ₹%.1f%n\", strategy.getClass().getSimpleName().replace(\"Price\",\"\"), strategy.calculatePrice(p));\n    }\n    public static void main(String[] args) {\n        List<Product> products = Arrays.asList(new Product(\"Mouse\",799), new Product(\"Keyboard\",1999));\n        PricingStrategy<Product> regular    = new RegularPrice();\n        PricingStrategy<Product> discounted = new DiscountedPrice();\n        for (Product p : products) {\n            System.out.println(\"Regular: ₹\" + regular.calculatePrice(p));\n            System.out.println(\"Discounted: ₹\" + discounted.calculatePrice(p));\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Regular: ₹799.0\nDiscounted: ₹719.1\nRegular: ₹1999.0\nDiscounted: ₹1799.1" }
+      ],
+      "hints": [
+        "PricingStrategy<T> — T is the item being priced",
+        "Both implement PricingStrategy<Product>",
+        "10% off: 799 * 0.9 = 719.1; 1999 * 0.9 = 1799.1"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multiple validator composition",
+      "scenario": "Chain multiple Validator<T> instances.",
+      "instructions": "Using `Validator<T>` (functional interface), write a `validate(T item, List<Validator<T>> validators)` method that returns a List of error messages (empty = valid). Test on a String with 3 validators.\n\nExpected output:\n'hello world' errors: []\n'' errors: [Must not be blank, Must be at least 5 chars]\n'hi' errors: [Must be at least 5 chars]",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// Validator<T> composition — collect all errors\n",
+      "expected_solution": "import java.util.*;\n@FunctionalInterface interface Validator<T> { boolean isValid(T item); String message = \"\"; }\n// Actually simpler:\ninterface NamedValidator<T> {\n    boolean isValid(T item);\n    String message();\n}\npublic class App {\n    static <T> List<String> validate(T item, List<NamedValidator<T>> validators) {\n        List<String> errors = new ArrayList<>();\n        for (NamedValidator<T> v : validators) {\n            if (!v.isValid(item)) errors.add(v.message());\n        }\n        return errors;\n    }\n    public static void main(String[] args) {\n        List<NamedValidator<String>> rules = Arrays.asList(\n            new NamedValidator<String>() {\n                public boolean isValid(String s) { return s != null && !s.isBlank(); }\n                public String message() { return \"Must not be blank\"; }\n            },\n            new NamedValidator<String>() {\n                public boolean isValid(String s) { return s != null && s.length() >= 5; }\n                public String message() { return \"Must be at least 5 chars\"; }\n            }\n        );\n        System.out.println(\"'hello world' errors: \" + validate(\"hello world\", rules));\n        System.out.println(\"'' errors: \"           + validate(\"\", rules));\n        System.out.println(\"'hi' errors: \"         + validate(\"hi\", rules));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "'hello world' errors: []\n'' errors: [Must not be blank, Must be at least 5 chars]\n'hi' errors: [Must be at least 5 chars]" }
+      ],
+      "hints": [
+        "NamedValidator<T> has two methods — isValid() and message()",
+        "validate() iterates all validators, collects error messages for failing ones",
+        "'hello world' passes both; '' fails both; 'hi' fails length"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m9_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Default method resolution in generic interface",
+      "scenario": "Default method calls abstract method — resolved at runtime.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    default boolean exists(ID id) { return findById(id).isPresent(); }\n    default long count(List<T> all) { return all.size(); }\n}\n\nclass IntRepo implements Repository<Integer, Integer> {\n    Map<Integer, Integer> store = Map.of(1, 10, 2, 20, 3, 30);\n    public Optional<Integer> findById(Integer id) {\n        return Optional.ofNullable(store.get(id));\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        IntRepo repo = new IntRepo();\n        System.out.println(repo.exists(2));\n        System.out.println(repo.exists(99));\n        System.out.println(repo.count(new ArrayList<>(repo.store.values())));\n    }\n}\n```",
+      "expected_solution": "true\nfalse\n3",
+      "test_cases": [
+        { "type": "text_match", "expected": "true\nfalse\n3" }
+      ],
+      "hints": [
+        "exists() calls findById() — resolves to IntRepo.findById()",
+        "findById(2) returns Optional[20] — isPresent() = true",
+        "findById(99) returns Optional.empty() — isPresent() = false",
+        "count(values) = store.values().size() = 3"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m9_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic Mapper with bidirectional conversion",
+      "scenario": "Full Mapper<S,T> implementation with both directions.",
+      "instructions": "Define `Mapper<S, T>` with mapTo(S), mapFrom(T), and default mapAllTo(List<S>). Implement `EmployeeMapper`: Employee(id, name, salary) ↔ EmployeeDto(name, formattedSalary).\n\nExpected output:\nTo DTO: Aisha | ₹95,000\nFrom DTO: [id=0, name=Priya, salary=85000.0]\nAll DTOs: [Aisha | ₹95,000, Raj | ₹72,000]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Mapper<S,T> with Employee ↔ EmployeeDto\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\ninterface Mapper<S, T> {\n    T mapTo(S source);\n    S mapFrom(T target);\n    default List<T> mapAllTo(List<S> sources) {\n        return sources.stream().map(this::mapTo).collect(Collectors.toList());\n    }\n}\nclass Employee { int id; String name; double salary;\n    Employee(int i, String n, double s) { id=i; name=n; salary=s; }\n    public String toString() { return \"[id=\" + id + \", name=\" + name + \", salary=\" + salary + \"]\"; }\n}\nclass EmployeeDto { String name, formattedSalary;\n    EmployeeDto(String n, String f) { name=n; formattedSalary=f; }\n    public String toString() { return name + \" | \" + formattedSalary; }\n}\nclass EmployeeMapper implements Mapper<Employee, EmployeeDto> {\n    public EmployeeDto mapTo(Employee e) {\n        return new EmployeeDto(e.name, String.format(\"₹%,d\", (int)e.salary));\n    }\n    public Employee mapFrom(EmployeeDto dto) {\n        double salary = Double.parseDouble(dto.formattedSalary.replaceAll(\"[₹,]\", \"\"));\n        return new Employee(0, dto.name, salary);\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        EmployeeMapper mapper = new EmployeeMapper();\n        Employee e1 = new Employee(1, \"Aisha\", 95000);\n        System.out.println(\"To DTO: \" + mapper.mapTo(e1));\n        System.out.println(\"From DTO: \" + mapper.mapFrom(new EmployeeDto(\"Priya\", \"₹85,000\")));\n        List<Employee> staff = Arrays.asList(new Employee(1,\"Aisha\",95000), new Employee(2,\"Raj\",72000));\n        System.out.println(\"All DTOs: \" + mapper.mapAllTo(staff));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "To DTO: Aisha | ₹95,000\nFrom DTO: [id=0, name=Priya, salary=85000.0]\nAll DTOs: [Aisha | ₹95,000, Raj | ₹72,000]" }
+      ],
+      "hints": [
+        "mapTo: Employee → EmployeeDto with formatted salary",
+        "mapFrom: EmployeeDto → Employee (parse salary back)",
+        "mapAllTo is inherited default method — no need to implement"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m9_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic Repository with domain-specific queries",
+      "scenario": "Base generic interface + concrete extensions.",
+      "instructions": "Define `Repository<T, ID>` (base CRUD). Then `ProductRepository extends Repository<Product, String>` adding `findByCategory(String)` and `findExpensive(double minPrice)` domain methods.\n\nExpected output:\nAll: 3 products\nElectronics: [Mouse, Keyboard]\nExpensive (>₹1000): [Keyboard]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Repository<T,ID> base + ProductRepository extension\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);\n    void delete(T entity);\n    long count();\n}\nclass Product { String id, name, category; double price;\n    Product(String i, String n, String c, double p) { id=i; name=n; category=c; price=p; }\n    public String toString() { return name; }\n}\nclass ProductRepository implements Repository<Product, String> {\n    private Map<String, Product> store = new HashMap<>();\n    public Optional<Product> findById(String id) { return Optional.ofNullable(store.get(id)); }\n    public List<Product> findAll()  { return new ArrayList<>(store.values()); }\n    public Product save(Product p)  { store.put(p.id, p); return p; }\n    public void delete(Product p)   { store.remove(p.id); }\n    public long count()             { return store.size(); }\n    \n    // Domain-specific:\n    public List<Product> findByCategory(String cat) {\n        return store.values().stream()\n            .filter(p -> p.category.equals(cat))\n            .sorted(Comparator.comparing(p -> p.name))\n            .collect(Collectors.toList());\n    }\n    public List<Product> findExpensive(double minPrice) {\n        return store.values().stream()\n            .filter(p -> p.price > minPrice)\n            .collect(Collectors.toList());\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        ProductRepository repo = new ProductRepository();\n        repo.save(new Product(\"P01\",\"Mouse\",    \"Electronics\", 799));\n        repo.save(new Product(\"P02\",\"Keyboard\", \"Electronics\", 1999));\n        repo.save(new Product(\"P03\",\"Java Book\",\"Books\",        649));\n        System.out.println(\"All: \" + repo.count() + \" products\");\n        System.out.println(\"Electronics: \" + repo.findByCategory(\"Electronics\"));\n        System.out.println(\"Expensive (>₹1000): \" + repo.findExpensive(1000));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "All: 3 products\nElectronics: [Mouse, Keyboard]\nExpensive (>₹1000): [Keyboard]" }
+      ],
+      "hints": [
+        "ProductRepository implements the generic Repository<Product, String>",
+        "Domain methods added to concrete class — not to the interface",
+        "findByCategory streams and filters — same pattern as Module 8"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m9_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic pipeline interface",
+      "scenario": "Composable transformation pipeline using generic interface.",
+      "instructions": "Define `Pipeline<T>` interface with `T process(T input)` and default `Pipeline<T> then(Pipeline<T> next)` that composes two pipelines. Build a string processing pipeline: trim → lowercase → replace spaces.\n\nExpected output:\nProcessed: 'hello_world'\nProcessed: 'aisha_and_raj'",
+      "starter_code": "// Pipeline<T> with composable then() default method\n",
+      "expected_solution": "@FunctionalInterface\ninterface Pipeline<T> {\n    T process(T input);\n    default Pipeline<T> then(Pipeline<T> next) {\n        return input -> next.process(this.process(input));\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        Pipeline<String> trim     = s -> s.strip();\n        Pipeline<String> lower    = s -> s.toLowerCase();\n        Pipeline<String> spaces   = s -> s.replace(\" \", \"_\");\n        \n        Pipeline<String> pipeline = trim.then(lower).then(spaces);\n        \n        System.out.println(\"Processed: '\" + pipeline.process(\"  Hello World  \") + \"'\");\n        System.out.println(\"Processed: '\" + pipeline.process(\"  AISHA and Raj  \") + \"'\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Processed: 'hello_world'\nProcessed: 'aisha_and_raj'" }
+      ],
+      "hints": [
+        "@FunctionalInterface — single abstract method → accepts lambdas",
+        "then(): returns new Pipeline<T> that first applies this, then next",
+        "Lambda in then: input -> next.process(this.process(input))"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full CRUD service using Repository + Mapper",
+      "scenario": "Compose Repository and Mapper patterns in a service layer.",
+      "instructions": "Build a `UserService` that uses `Repository<User, Integer>` and `Mapper<User, UserDto>` together:\n- createUser(UserDto) — map from DTO, validate (non-blank name), save\n- getUser(int id) — findById, map to DTO\n- listAll() — findAll, mapAllTo DTOs\n\nExpected output:\nCreated: Aisha (id=1)\nGet 1: UserDto{Aisha, aisha@x.com}\nGet 99: User not found\nList: [UserDto{Aisha, aisha@x.com}, UserDto{Raj, raj@x.com}]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// UserService composing Repository<User,Int> + Mapper<User,UserDto>\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);\n    long count();\n}\ninterface Mapper<S, T> {\n    T mapTo(S source);\n    S mapFrom(T target);\n    default List<T> mapAllTo(List<S> src) {\n        return src.stream().map(this::mapTo).collect(Collectors.toList());\n    }\n}\nclass User { int id; String name, email; User(int i, String n, String e) { id=i; name=n; email=e; } }\nclass UserDto { String name, email; UserDto(String n, String e) { name=n; email=e; }\n    public String toString() { return \"UserDto{\" + name + \", \" + email + \"}\"; }\n}\nclass UserRepository implements Repository<User, Integer> {\n    Map<Integer, User> store = new HashMap<>();\n    int nextId = 1;\n    public Optional<User> findById(Integer id) { return Optional.ofNullable(store.get(id)); }\n    public List<User> findAll() { return new ArrayList<>(store.values()); }\n    public User save(User u) { if (u.id==0) u.id=nextId++; store.put(u.id, u); return u; }\n    public long count() { return store.size(); }\n}\nclass UserMapper implements Mapper<User, UserDto> {\n    public UserDto mapTo(User u) { return new UserDto(u.name, u.email); }\n    public User mapFrom(UserDto d) { return new User(0, d.name, d.email); }\n}\nclass UserService {\n    private Repository<User, Integer> repo;\n    private Mapper<User, UserDto> mapper;\n    UserService(Repository<User,Integer> r, Mapper<User,UserDto> m) { repo=r; mapper=m; }\n    \n    User createUser(UserDto dto) {\n        if (dto.name == null || dto.name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        User user = mapper.mapFrom(dto);\n        return repo.save(user);\n    }\n    Optional<UserDto> getUser(int id) { return repo.findById(id).map(mapper::mapTo); }\n    List<UserDto> listAll() { return mapper.mapAllTo(repo.findAll()); }\n}\npublic class App {\n    public static void main(String[] args) {\n        UserService svc = new UserService(new UserRepository(), new UserMapper());\n        User u1 = svc.createUser(new UserDto(\"Aisha\", \"aisha@x.com\"));\n        svc.createUser(new UserDto(\"Raj\", \"raj@x.com\"));\n        System.out.println(\"Created: \" + u1.name + \" (id=\" + u1.id + \")\");\n        System.out.println(\"Get 1: \" + svc.getUser(1).orElse(null));\n        System.out.println(\"Get 99: \" + svc.getUser(99).map(Object::toString).orElse(\"User not found\"));\n        System.out.println(\"List: \" + svc.listAll());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Created: Aisha (id=1)\nGet 1: UserDto{Aisha, aisha@x.com}\nGet 99: User not found\nList: [UserDto{Aisha, aisha@x.com}, UserDto{Raj, raj@x.com}]" }
+      ],
+      "hints": [
+        "UserService takes Repository and Mapper as constructor params (dependency injection)",
+        "createUser: mapFrom(dto) → save → return User",
+        "getUser: findById → map to DTO via Optional.map",
+        "listAll: findAll → mapAllTo (default method)"
+      ],
+      "xp_reward": 85
+    },
+
+    {
+      "id": "java_m9_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Module 9 synthesis — complete generic backend",
+      "scenario": "All Module 9 concepts in one complete system.",
+      "instructions": "Build a complete generic backend using ALL Module 9 concepts:\n\n1. `Entity<ID>` interface — `ID getId()`, `void setId(ID id)`\n2. `Repository<T extends Entity<ID>, ID>` with CRUD + default exists/count\n3. `Validator<T>` functional interface + composite validator\n4. `Mapper<S, T>` with default mapAllTo\n5. `InMemoryRepository<T extends Entity<ID>, ID>` — keep generic\n6. Test with both Employee<Integer> and Product<String> entities\n\nExpected output:\nEmployee count: 2\nProduct count: 3\nEmployee Aisha exists: true\nProduct invalid: Name cannot be blank\nAll employees mapped: [Aisha→AISHA, Raj→RAJ]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\nimport java.util.function.*;\n// Full generic backend: Entity, Repository, Validator, Mapper, InMemoryRepository\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\ninterface Entity<ID> { ID getId(); void setId(ID id); }\ninterface Repository<T extends Entity<ID>, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T e);\n    void delete(T e);\n    default boolean exists(ID id) { return findById(id).isPresent(); }\n    default long count() { return findAll().size(); }\n}\n@FunctionalInterface interface Validator<T> {\n    boolean isValid(T item);\n    default Validator<T> and(Validator<T> other) { return item -> isValid(item) && other.isValid(item); }\n}\ninterface Mapper<S, T> {\n    T mapTo(S source);\n    default List<T> mapAllTo(List<S> sources) {\n        return sources.stream().map(this::mapTo).collect(Collectors.toList());\n    }\n}\nclass InMemoryRepository<T extends Entity<ID>, ID> implements Repository<T, ID> {\n    private Map<ID, T> store = new HashMap<>();\n    public Optional<T> findById(ID id) { return Optional.ofNullable(store.get(id)); }\n    public List<T> findAll()           { return new ArrayList<>(store.values()); }\n    public T save(T entity)            { store.put(entity.getId(), entity); return entity; }\n    public void delete(T entity)       { store.remove(entity.getId()); }\n}\nclass Employee implements Entity<Integer> {\n    private Integer id; String name; double salary;\n    Employee(Integer i, String n, double s) { id=i; name=n; salary=s; }\n    public Integer getId() { return id; } public void setId(Integer i) { id=i; }\n    public String toString() { return name; }\n}\nclass Product implements Entity<String> {\n    private String id; String name; double price;\n    Product(String i, String n, double p) { id=i; name=n; price=p; }\n    public String getId() { return id; } public void setId(String i) { id=i; }\n    public String toString() { return name; }\n}\npublic class App {\n    public static void main(String[] args) {\n        // Employee repository\n        InMemoryRepository<Employee, Integer> empRepo = new InMemoryRepository<>();\n        empRepo.save(new Employee(1, \"Aisha\", 95000));\n        empRepo.save(new Employee(2, \"Raj\", 72000));\n        System.out.println(\"Employee count: \" + empRepo.count());\n        \n        // Product repository\n        InMemoryRepository<Product, String> prodRepo = new InMemoryRepository<>();\n        prodRepo.save(new Product(\"P01\",\"Mouse\",799));\n        prodRepo.save(new Product(\"P02\",\"Keyboard\",1999));\n        prodRepo.save(new Product(\"P03\",\"USB Hub\",499));\n        System.out.println(\"Product count: \" + prodRepo.count());\n        \n        // Exists (default method)\n        System.out.println(\"Employee Aisha exists: \" + empRepo.exists(1));\n        \n        // Validator\n        Validator<Product> nonBlankName = p -> p.name != null && !p.name.isBlank();\n        Validator<Product> positivePrice = p -> p.price > 0;\n        Validator<Product> fullValidator = nonBlankName.and(positivePrice);\n        Product invalid = new Product(\"P99\", \"\", 100);\n        if (!fullValidator.isValid(invalid)) System.out.println(\"Product invalid: Name cannot be blank\");\n        \n        // Mapper\n        Mapper<Employee, String> empToUpper = e -> e.name + \"→\" + e.name.toUpperCase();\n        System.out.println(\"All employees mapped: \" + empToUpper.mapAllTo(empRepo.findAll()));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Employee count: 2\nProduct count: 3\nEmployee Aisha exists: true\nProduct invalid: Name cannot be blank\nAll employees mapped: [Aisha→AISHA, Raj→RAJ]" }
+      ],
+      "hints": [
+        "Entity<ID> interface provides getId/setId — bounds T extends Entity<ID>",
+        "InMemoryRepository<T extends Entity<ID>, ID> — generic class implementing generic interface",
+        "Validator.and() default method: compose two validators",
+        "Mapper<Employee, String> as lambda: e -> e.name + '→' + e.name.toUpperCase()"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 70
+  }
+}

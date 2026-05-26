@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m36_t3",
+  "module_id": "m36",
+  "topic_number": 3,
+  "name": "Priority Queue Design \u2014 Lazy Deletion, Custom Comparators",
+  "slug": "priority-queue-design-lazy-deletion",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m36_t2"
+    ],
+    "concepts_taught": [
+      "lazy_deletion",
+      "task_scheduler",
+      "reorganize_string",
+      "furthest_building",
+      "k_pairs_smallest_sums"
+    ],
+    "career_relevance": "Task Scheduler (LeetCode #621) and Reorganize String are Google/Amazon interview staples. Lazy deletion (mark-and-skip) solves heap problems where elements become invalid but can't be efficiently removed.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Priority Queue Design \u2014 Lazy Deletion, Custom Comparators"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Lazy deletion: mark elements as removed in HashMap; skip on poll",
+        "Task Scheduler: count frequencies; (maxFreq-1)*(n+1)+maxCount vs tasks.length",
+        "Reorganize String: always pick highest-frequency char not equal to last placed",
+        "Furthest Building: use min-heap for ladders \u2014 replace with bricks when possible",
+        "K Pairs Smallest Sums: min-heap starting with (nums1[i], nums2[0]) pairs"
+      ],
+      "next_topic_preview": "Next: K-Way Merge Problems."
+    }
+  }
+}

@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t1",
+  "topic_name": "Thread Basics",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m10_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "start() vs run() — which creates a thread?",
+      "scenario": "run() is just a method call; start() creates a new thread.",
+      "instructions": "What thread name appears in the output for each call?\n\n```java\npublic class App {\n    public static void main(String[] args) {\n        Thread t = new Thread(() ->\n            System.out.println(Thread.currentThread().getName()));\n        \n        t.run();   // Call 1\n        t.start(); // Call 2\n    }\n}\n```",
+      "expected_solution": "main\nThread-0",
+      "test_cases": [
+        { "type": "text_match", "expected": "main\nThread-0" }
+      ],
+      "hints": [
+        "run() executes on the calling thread — still 'main'",
+        "start() creates a new thread — named 'Thread-0' by default"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Create thread with lambda",
+      "scenario": "Lambda as Runnable — most concise thread creation.",
+      "instructions": "Fill in the blank to create and start a thread using a lambda.",
+      "starter_code": "public class App {\n    public static void main(String[] args) {\n        Thread t = new Thread(______ -> System.out.println(\"Hello from thread: \" + Thread.currentThread().getName()));\n        t.______();\n    }\n}",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        Thread t = new Thread(() -> System.out.println(\"Hello from thread: \" + Thread.currentThread().getName()));\n        t.start();\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "()", "hint": "Lambda with no parameters" },
+        { "position": 2, "answer": "start", "hint": "Method that creates a new thread" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Hello from thread: Thread-"] }
+      ],
+      "hints": [
+        "No-param lambda: () ->",
+        "Always call start(), never run()"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Three ways to create a thread",
+      "scenario": "All three creation methods produce equivalent threads.",
+      "instructions": "Create and start one thread each way: (1) extend Thread, (2) implement Runnable, (3) lambda. Each should print its thread name.\n\nExpected output contains three lines like:\nThread via extend: Thread-N\nThread via Runnable: Thread-N\nThread via lambda: Thread-N",
+      "starter_code": "// All three thread creation methods\n",
+      "expected_solution": "class MyThread extends Thread {\n    @Override public void run() {\n        System.out.println(\"Thread via extend: \" + Thread.currentThread().getName());\n    }\n}\nclass MyRunnable implements Runnable {\n    @Override public void run() {\n        System.out.println(\"Thread via Runnable: \" + Thread.currentThread().getName());\n    }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread t1 = new MyThread();\n        Thread t2 = new Thread(new MyRunnable());\n        Thread t3 = new Thread(() -> System.out.println(\"Thread via lambda: \" + Thread.currentThread().getName()));\n        t1.start(); t2.start(); t3.start();\n        t1.join(); t2.join(); t3.join();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Thread via extend", "Thread via Runnable", "Thread via lambda"] }
+      ],
+      "hints": [
+        "All three use start()",
+        "join() waits for completion so output appears before main exits"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m10_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Thread naming for better logs",
+      "scenario": "Named threads produce meaningful log output.",
+      "instructions": "Create 3 threads named 'Worker-1', 'Worker-2', 'Worker-3'. Each prints its name. Join all.\n\nExpected output contains:\nWorker-1 running\nWorker-2 running\nWorker-3 running\n(order may vary)",
+      "starter_code": "// Named worker threads\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread[] workers = new Thread[3];\n        for (int i = 1; i <= 3; i++) {\n            final int n = i;\n            workers[i-1] = new Thread(() ->\n                System.out.println(Thread.currentThread().getName() + \" running\"));\n            workers[i-1].setName(\"Worker-\" + n);\n        }\n        for (Thread w : workers) w.start();\n        for (Thread w : workers) w.join();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Worker-1 running", "Worker-2 running", "Worker-3 running"] }
+      ],
+      "hints": [
+        "t.setName('Worker-N') before t.start()",
+        "Start all first, then join all"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m10_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Thread.sleep and timing",
+      "scenario": "Sleep pauses the current thread — demonstrates timing.",
+      "instructions": "Create two threads: Thread-A sleeps 300ms and prints 'A done', Thread-B sleeps 100ms and prints 'B done'. Start both, join both. B should always finish first.\n\nExpected output:\nB done\nA done\nBoth done",
+      "starter_code": "// Two threads with different sleep durations\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread a = new Thread(() -> {\n            try { Thread.sleep(300); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            System.out.println(\"A done\");\n        });\n        Thread b = new Thread(() -> {\n            try { Thread.sleep(100); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            System.out.println(\"B done\");\n        });\n        a.start();\n        b.start();\n        a.join();\n        b.join();\n        System.out.println(\"Both done\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "B done\nA done\nBoth done" }
+      ],
+      "hints": [
+        "B sleeps 100ms, A sleeps 300ms — B finishes first",
+        "Start both BEFORE joining either",
+        "Always handle InterruptedException"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m10_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "join() for ordered completion",
+      "scenario": "join() makes calling thread wait for target thread to finish.",
+      "instructions": "Start a background thread that takes 200ms. Use join() to guarantee main waits. Print 'Background started', 'Background done', 'Main continues' in that exact order.\n\nExpected output:\nBackground started\nBackground done\nMain continues",
+      "starter_code": "// join() guarantees ordering\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread bg = new Thread(() -> {\n            System.out.println(\"Background started\");\n            try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            System.out.println(\"Background done\");\n        });\n        bg.start();\n        bg.join();  // main waits here until bg finishes\n        System.out.println(\"Main continues\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Background started\nBackground done\nMain continues" }
+      ],
+      "hints": [
+        "bg.join() blocks main until bg's run() returns",
+        "'Main continues' prints AFTER join() returns — guaranteed"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m10_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Parallel tasks — measure speedup",
+      "scenario": "Three tasks in parallel vs sequential — measure time difference.",
+      "instructions": "Three tasks each sleeping 500ms. Time them:\n1. Sequential (in main thread, 3 × sleep)\n2. Parallel (3 threads started simultaneously)\n\nPrint both times. Parallel should be ~500ms, sequential ~1500ms.\n\nExpected output (approx):\nSequential: ~1500ms\nParallel: ~500ms",
+      "starter_code": "// Sequential vs parallel timing comparison\n",
+      "expected_solution": "public class App {\n    static void doWork() {\n        try { Thread.sleep(500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    \n    public static void main(String[] args) throws InterruptedException {\n        // Sequential\n        long seqStart = System.currentTimeMillis();\n        doWork(); doWork(); doWork();\n        long seqTime = System.currentTimeMillis() - seqStart;\n        System.out.println(\"Sequential: ~\" + (seqTime / 100 * 100) + \"ms\");\n        \n        // Parallel\n        long parStart = System.currentTimeMillis();\n        Thread t1 = new Thread(App::doWork);\n        Thread t2 = new Thread(App::doWork);\n        Thread t3 = new Thread(App::doWork);\n        t1.start(); t2.start(); t3.start();\n        t1.join(); t2.join(); t3.join();\n        long parTime = System.currentTimeMillis() - parStart;\n        System.out.println(\"Parallel: ~\" + (parTime / 100 * 100) + \"ms\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Sequential:", "Parallel:"] }
+      ],
+      "hints": [
+        "Sequential: three sleep(500) in main thread = 1500ms",
+        "Parallel: start all three first, then join all = ~500ms",
+        "Method reference App::doWork as Runnable"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m10_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Thread lifecycle states",
+      "scenario": "Observe thread states through lifecycle transitions.",
+      "instructions": "Create a thread that sleeps 300ms. Print its state: before start, after start (immediately), after join.\n\nExpected output:\nBefore start: NEW\nAfter start: RUNNABLE or TIMED_WAITING\nAfter join: TERMINATED",
+      "starter_code": "// Observe thread state through lifecycle\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread t = new Thread(() -> {\n            try { Thread.sleep(300); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        });\n        \n        System.out.println(\"Before start: \" + t.getState());\n        t.start();\n        System.out.println(\"After start: \" + t.getState()); // RUNNABLE or TIMED_WAITING\n        t.join();\n        System.out.println(\"After join: \" + t.getState());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["NEW", "TERMINATED"] }
+      ],
+      "hints": [
+        "NEW before start()",
+        "After start: RUNNABLE if not yet sleeping, TIMED_WAITING if already asleep",
+        "TERMINATED after join()"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m10_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Non-determinism demo",
+      "scenario": "Thread execution order is unpredictable — show it.",
+      "instructions": "Start 5 threads, each printing their number. Run 3 times (in a loop). Show that order varies. Note: print 'Run N:' before each set.\n\nExpected output (order within each run varies):\nRun 1:\n[some order of 0-4]\nRun 2:\n[possibly different order]\nRun 3:\n[possibly different order]",
+      "starter_code": "// Non-determinism: thread order varies per run\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) throws InterruptedException {\n        for (int run = 1; run <= 3; run++) {\n            System.out.println(\"Run \" + run + \":\");\n            Thread[] threads = new Thread[5];\n            for (int i = 0; i < 5; i++) {\n                final int n = i;\n                threads[i] = new Thread(() -> System.out.print(n + \" \"));\n            }\n            for (Thread t : threads) t.start();\n            for (Thread t : threads) t.join();\n            System.out.println();\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Run 1:", "Run 2:", "Run 3:"] }
+      ],
+      "hints": [
+        "Start all in first loop, join all in second loop",
+        "The integer order within each run is non-deterministic",
+        "effectively final: final int n = i"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m10_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Daemon thread",
+      "scenario": "Daemon threads stop when main thread exits.",
+      "instructions": "Create a daemon thread that prints a message every 200ms indefinitely. Let main sleep 500ms then exit. Show the daemon stops automatically when main finishes.\n\nExpected output (approx 2-3 daemon messages, then main exits):\nDaemon tick\nDaemon tick\nMain done — JVM will exit\n[daemon stops]",
+      "starter_code": "// Daemon thread stops when JVM exits\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread daemon = new Thread(() -> {\n            while (true) {\n                System.out.println(\"Daemon tick\");\n                try { Thread.sleep(200); } catch (InterruptedException e) { return; }\n            }\n        });\n        daemon.setDaemon(true);  // MUST be set before start()\n        daemon.start();\n        \n        Thread.sleep(500);  // main runs for 500ms\n        System.out.println(\"Main done — JVM will exit\");\n        // JVM exits here; daemon thread is killed\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Daemon tick", "Main done"] }
+      ],
+      "hints": [
+        "setDaemon(true) BEFORE start()",
+        "JVM exits when only daemon threads remain",
+        "No join() — main just exits and daemon dies with it"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m10_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Parallel file simulator — concurrent processing",
+      "scenario": "Process multiple 'files' concurrently using threads.",
+      "instructions": "Simulate processing 5 files. Each takes a random time (100-500ms). Process all concurrently. Print when each finishes. Join all and print total time.\n\nExpected output (order varies, time ~500ms not 2500ms):\nFile-1 done (Xms)\nFile-3 done (Yms)\n...\nAll files processed in ~Zms",
+      "starter_code": "import java.util.*;\n// Parallel file processor\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        int[] delays = {400, 200, 500, 100, 300};\n        Thread[] threads = new Thread[delays.length];\n        long start = System.currentTimeMillis();\n        \n        for (int i = 0; i < delays.length; i++) {\n            final int n = i + 1;\n            final int delay = delays[i];\n            threads[i] = new Thread(() -> {\n                try { Thread.sleep(delay); } \n                catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }\n                System.out.printf(\"File-%d done (%dms)%n\", n, delay);\n            }, \"FileProcessor-\" + n);\n        }\n        \n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        \n        System.out.printf(\"All files processed in %dms%n\",\n            System.currentTimeMillis() - start);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["File-1 done", "File-4 done", "All files processed"] }
+      ],
+      "hints": [
+        "Create all threads in first loop, start all in second, join all in third",
+        "Named via Thread constructor: new Thread(runnable, 'name')",
+        "Total time should be ~500ms (the longest delay)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m10_t1_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "join() timeout behavior",
+      "scenario": "join(ms) returns after timeout even if thread is still running.",
+      "instructions": "What does this print?\n\n```java\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread t = new Thread(() -> {\n            try { Thread.sleep(1000); }\n            catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            System.out.println(\"Thread finished\");\n        });\n        t.start();\n        t.join(200);  // wait at most 200ms\n        System.out.println(\"State after join(200): \" + t.getState());\n        t.join();     // wait for completion\n        System.out.println(\"State after join(): \" + t.getState());\n    }\n}\n```",
+      "expected_solution": "State after join(200): TIMED_WAITING\nThread finished\nState after join(): TERMINATED",
+      "test_cases": [
+        { "type": "text_match", "expected": "State after join(200): TIMED_WAITING\nThread finished\nState after join(): TERMINATED" }
+      ],
+      "hints": [
+        "join(200) returns after 200ms — thread is still sleeping (1000ms)",
+        "Thread still in TIMED_WAITING (sleeping for 800 more ms)",
+        "join() waits for completion → then TERMINATED"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m10_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Thread pool simulation",
+      "scenario": "Manage a fixed number of worker threads for multiple tasks.",
+      "instructions": "Simulate processing 8 tasks with only 3 worker threads. Each task prints 'Worker-N processing task-M'. Workers pick up new tasks when available.\n\nUse a simple array of 3 threads, each processing 2-3 tasks sequentially.\n\nExpected output (order varies within batches):\n[3 threads start, processing 8 tasks total, 8 completion messages]",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\n// Thread pool simulation — 3 workers, 8 tasks\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.*;\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        int numWorkers = 3;\n        int numTasks = 8;\n        LinkedBlockingQueue<Integer> taskQueue = new LinkedBlockingQueue<>();\n        for (int i = 1; i <= numTasks; i++) taskQueue.add(i);\n        \n        Thread[] workers = new Thread[numWorkers];\n        for (int w = 0; w < numWorkers; w++) {\n            final int workerNum = w + 1;\n            workers[w] = new Thread(() -> {\n                Integer task;\n                while ((task = taskQueue.poll()) != null) {\n                    final int t = task;\n                    System.out.printf(\"Worker-%d processing task-%d%n\", workerNum, t);\n                    try { Thread.sleep(100); } \n                    catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }\n                    System.out.printf(\"Worker-%d done with task-%d%n\", workerNum, t);\n                }\n            }, \"Worker-\" + workerNum);\n        }\n        \n        for (Thread w : workers) w.start();\n        for (Thread w : workers) w.join();\n        System.out.println(\"All \" + numTasks + \" tasks completed\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["All 8 tasks completed"] }
+      ],
+      "hints": [
+        "LinkedBlockingQueue.poll() returns null when queue is empty",
+        "Each worker loops: poll task → process → repeat until null",
+        "This is a preview of Topic 10.3 (ExecutorService does this automatically)"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m10_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Restaurant kitchen — full simulation",
+      "scenario": "The worked example extended with error handling and reporting.",
+      "instructions": "Build a kitchen simulation with:\n- 4 stations: Drinks(200ms), Starter(400ms), Main(800ms), Dessert(300ms)\n- All start simultaneously\n- Main thread waits for all with join()\n- Print when each station finishes, in order of completion\n- Print total time\n\nExpected output (in completion order):\nDrinks ready (200ms)\nDessert ready (300ms)\nStarter ready (400ms)\nMain ready (800ms)\nAll served in ~800ms",
+      "starter_code": "// Restaurant kitchen — 4 concurrent stations\n",
+      "expected_solution": "class Station implements Runnable {\n    String name; int ms;\n    Station(String n, int m) { name=n; ms=m; }\n    public void run() {\n        long start = System.currentTimeMillis();\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }\n        System.out.printf(\"%s ready (%dms)%n\", name, System.currentTimeMillis()-start);\n    }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        long kitchenOpen = System.currentTimeMillis();\n        Thread[] stations = {\n            new Thread(new Station(\"Drinks\",  200)),\n            new Thread(new Station(\"Starter\", 400)),\n            new Thread(new Station(\"Main\",    800)),\n            new Thread(new Station(\"Dessert\", 300))\n        };\n        for (Thread s : stations) s.start();\n        for (Thread s : stations) s.join();\n        System.out.printf(\"All served in ~%dms%n\",\n            (System.currentTimeMillis()-kitchenOpen)/100*100);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Drinks ready", "Dessert ready", "Starter ready", "Main ready", "All served"] }
+      ],
+      "hints": [
+        "Each station records its own start time inside run()",
+        "Start all 4, then join all 4",
+        "Output order: completion order (fastest first)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m10_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Parallel search — find first match",
+      "scenario": "Search a large range in parallel across multiple threads.",
+      "instructions": "Search for a value in a range 1-1000 using 4 threads, each searching a quarter. First thread to find the target reports it. Use a shared flag (`volatile boolean found`) to stop other threads early.\n\nSearch for target = 573. Expected:\n\nThread-N found 573 in range [X, Y]\nSearch complete",
+      "starter_code": "// Parallel search with early termination\n",
+      "expected_solution": "public class App {\n    static volatile boolean found = false;\n    static volatile String finder = \"\";\n    \n    public static void main(String[] args) throws InterruptedException {\n        final int target = 573;\n        final int rangeSize = 250;\n        Thread[] threads = new Thread[4];\n        \n        for (int t = 0; t < 4; t++) {\n            final int start = t * rangeSize + 1;\n            final int end   = (t == 3) ? 1000 : start + rangeSize - 1;\n            final String name = \"Thread-\" + (t+1);\n            \n            threads[t] = new Thread(() -> {\n                for (int i = start; i <= end && !found; i++) {\n                    if (i == target) {\n                        found = true;\n                        finder = name + \" found \" + target + \" in range [\" + start + \", \" + end + \"]\";\n                        return;\n                    }\n                }\n            }, name);\n        }\n        \n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        System.out.println(finder.isEmpty() ? \"Not found\" : finder);\n        System.out.println(\"Search complete\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["found 573", "Search complete"] }
+      ],
+      "hints": [
+        "volatile boolean found — shared flag (volatile explained in Topic 10.2)",
+        "Each thread checks !found before each iteration — stops early",
+        "573 is in range [501, 750] — Thread-3 will find it"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 675,
+    "estimated_completion_minutes": 65
+  }
+}

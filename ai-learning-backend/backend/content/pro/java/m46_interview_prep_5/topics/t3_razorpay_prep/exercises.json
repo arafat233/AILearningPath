@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m46_t3",
+  "topic_name": "Razorpay Preparation \u2014 Payments, Reliability, Compliance",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m46_t3_ex_1",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "Zerodha technical culture",
+      "instructions": "What makes Zerodha unique technically, and how do you prepare?",
+      "expected_solution": "Small team, high ownership. Tech stack: Go, Python, Java, Kafka, Redis. No VC pressure = long-term thinking. Read zerodha.tech blog. Know: order matching, real-time trading, fintech regulations.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Small team, high ownership. Tech stack: Go, Python, Java, Kafka, Redis. No VC pressure = long-term thinking. Read zerodha.tech blog. Know: order matching, real-time trading, fintech regulations."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m46_t3_ex_2",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "Flipkart interview process",
+      "instructions": "Describe the Flipkart SDE interview process and what each round evaluates.",
+      "expected_solution": "Round 1: Data structures/algorithms (medium-hard). Round 2: DS/algo + system design intro. Round 3: System design (full). Round 4: Managerial behavioral. Round 5: HR. Total: 4-5 hours. Focus: Kruskal, Dijkstra, LRU, design scalable systems.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Round 1: Data structures/algorithms (medium-hard). Round 2: DS/algo + system design intro. Round 3: System design (full). Round 4: Managerial behavioral. Round 5: HR. Total: 4-5 hours. Focus: Kruskal, Dijkstra, LRU, design scalable systems."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m46_t3_ex_3",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "Razorpay payment systems",
+      "instructions": "What technical questions does Razorpay ask about payments?",
+      "expected_solution": "Idempotency, ACID transactions, distributed transactions, saga pattern, webhook retry logic, reconciliation, PCI DSS compliance concepts. Know: outbox pattern, at-least-once vs exactly-once delivery.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Idempotency, ACID transactions, distributed transactions, saga pattern, webhook retry logic, reconciliation, PCI DSS compliance concepts. Know: outbox pattern, at-least-once vs exactly-once delivery."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m46_t3_ex_4",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Zerodha-style problem: Order Book",
+      "instructions": "Design a simplified stock order book. Support: add order, cancel order, match orders, get best bid/ask.",
+      "expected_solution": "Order book: two PriorityQueues (max-heap for bids, min-heap for asks). HashMap for cancel in O(1). Match: while bid >= ask \u2192 execute trade. O(log n) per operation.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Order book: two PriorityQueues (max-heap for bids, min-heap for asks). HashMap for cancel in O(1). Match: while bid >= ask \u2192 execute trade. O(log n) per operation."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m46_t3_ex_5",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Flipkart-style problem: Inventory",
+      "instructions": "Design inventory management for 10M products with reservations and releases.",
+      "expected_solution": "Redis for atomic reservation: DECR. PostgreSQL for persistent state. Kafka for stock-updated events. Handle oversell: check-then-act with Redis WATCH or Lua script for atomicity.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Redis for atomic reservation: DECR. PostgreSQL for persistent state. Kafka for stock-updated events. Handle oversell: check-then-act with Redis WATCH or Lua script for atomicity."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m46_t3_ex_6",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Razorpay-style: Idempotency key",
+      "instructions": "Implement idempotency key handling for a payment API.",
+      "expected_solution": "Store request_id \u2192 response in Redis with TTL. On duplicate: return stored response. First call: process + store. Atomic: use Redis SET NX EX. Handle in-flight: store 'processing' state first.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Store request_id \u2192 response in Redis with TTL. On duplicate: return stored response. First call: process + store. Atomic: use Redis SET NX EX. Handle in-flight: store 'processing' state first."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m46_t3_ex_7",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Company-specific behavioral: Zerodha",
+      "instructions": "'Why fintech?' and 'How do you handle 99.99% uptime requirement?'",
+      "expected_solution": "Why fintech: democratizing access to financial tools, India's unique opportunity, impact at scale. Uptime: circuit breakers, graceful degradation, chaos engineering, SLA monitoring, on-call culture.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Why fintech: democratizing access to financial tools, India's unique opportunity, impact at scale. Uptime: circuit breakers, graceful degradation, chaos engineering, SLA monitoring, on-call culture."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m46_t3_ex_8",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Company-specific behavioral: Flipkart",
+      "instructions": "'Tell me about a time you improved system reliability' and 'Describe your engineering philosophy.'",
+      "expected_solution": "Reliability story: profiling, monitoring, runbooks, post-mortems. Philosophy: data-driven decisions, measure twice code once, understand customer impact, own your code in production.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Reliability story: profiling, monitoring, runbooks, post-mortems. Philosophy: data-driven decisions, measure twice code once, understand customer impact, own your code in production."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m46_t3_ex_9",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Zerodha system design: Real-time P&L",
+      "instructions": "Design real-time portfolio P&L calculation updated on every trade.",
+      "expected_solution": "Kafka topic: trade_executed events. Consumer: update positions. Redis: cache current positions and prices. Pre-calculate P&L. WebSocket push to client. Event sourcing for audit trail.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Kafka topic: trade_executed events. Consumer: update positions. Redis: cache current positions and prices. Pre-calculate P&L. WebSocket push to client. Event sourcing for audit trail."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m46_t3_ex_10",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Flipkart system design: Search",
+      "instructions": "Design product search for 100M products with filters and ranking.",
+      "expected_solution": "Elasticsearch: inverted index. Separate indexing pipeline. Filters: term queries. Ranking: BM25 + ML re-ranking. Cache: popular queries in Redis. CDN for search suggest.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Elasticsearch: inverted index. Separate indexing pipeline. Filters: term queries. Ranking: BM25 + ML re-ranking. Cache: popular queries in Redis. CDN for search suggest."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m46_t3_ex_11",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Razorpay system design: Reconciliation",
+      "instructions": "Design daily reconciliation between Razorpay records and bank settlement.",
+      "expected_solution": "Compare Razorpay DB vs bank settlement file. Identify: matched, missing in bank, extra in bank. Kafka for large file processing. PostgreSQL for storing discrepancies. Alert on threshold breach.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Compare Razorpay DB vs bank settlement file. Identify: matched, missing in bank, extra in bank. Kafka for large file processing. PostgreSQL for storing discrepancies. Alert on threshold breach."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m46_t3_ex_12",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Company question bank for 5 companies",
+      "instructions": "30 company-specific questions for Zerodha, Flipkart, Razorpay, HDFC Tech, Infosys.",
+      "expected_solution": "Zerodha: order matching, real-time trading, small-team culture. Flipkart: scale, logistics, recommendation. Razorpay: payments, reliability, compliance. HDFC: banking systems, legacy migration. Infosys: enterprise, consulting, delivery.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Zerodha: order matching, real-time trading, small-team culture. Flipkart: scale, logistics, recommendation. Razorpay: payments, reliability, compliance. HDFC: banking systems, legacy migration. Infosys: enterprise, consulting, delivery."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m46_t3_ex_13",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Final pre-interview checklist",
+      "instructions": "24-hour checklist before a Zerodha/Flipkart/Razorpay interview.",
+      "expected_solution": "Night before: review patterns (not new material), prepare questions for interviewer, good sleep. Morning of: warm up with 2 easy problems, review your 5 STAR stories, check tech setup 30 min early, notes on company products.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Night before: review patterns (not new material), prepare questions for interviewer, good sleep. Morning of: warm up with 2 easy problems, review your 5 STAR stories, check tech setup 30 min early, notes on company products."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m46_t3_ex_14",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Post-interview debrief template",
+      "instructions": "How do you analyze and learn from each interview experience?",
+      "expected_solution": "Within 1 hour: write down every question asked. Rate yourself: 1-5 on coding, communication, system design, behavioral. What patterns appeared? What was unclear? What would you do differently? Send thank-you note.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Within 1 hour: write down every question asked. Rate yourself: 1-5 on coding, communication, system design, behavioral. What patterns appeared? What was unclear? What would you do differently? Send thank-you note."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m46_t3_ex_15",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Complete interview prep synthesis",
+      "instructions": "The ultimate prep plan: last 2 weeks before interview.",
+      "expected_solution": "Week 1: 3 timed mocks/day (1 easy, 1 medium, 1 hard). Week 2: 2 full mock rounds/day + 1 SD practice/day + behavioral stories daily. Day before: light review + sleep. Day of: warm-up + breathe.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Week 1: 3 timed mocks/day (1 easy, 1 medium, 1 hard). Week 2: 2 full mock rounds/day + 1 SD practice/day + behavioral stories daily. Day before: light review + sleep. Day of: warm-up + breathe."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Practice aloud",
+        "Use STAR"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "written_response": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 60
+  }
+}

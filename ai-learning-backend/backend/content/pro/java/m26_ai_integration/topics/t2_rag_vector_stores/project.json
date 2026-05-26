@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m26_t2_proj",
+  "linked_topic": "java_m26_t2",
+  "level": "mini",
+  "name": "Razorpay Documentation Q&A — RAG",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Razorpay's merchant support team spends 4 hours daily answering questions already covered in the documentation. Build a RAG system that ingests Razorpay's 200-page documentation, retrieves relevant sections for each question, and answers with citations — grounded in actual docs, not AI guesses.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "DocumentIngestionService @Service: accepts List<String> text chunks + source name. Wraps each in Document with metadata (source, chunkIndex, totalChunks, ingestedAt). Calls vectorStore.add(). Returns count.", "weight": 15 },
+      { "id": "req_2", "description": "RazorpayDocsQA @Service: similaritySearch with topK=3, similarityThreshold=0.6. Build context string with [source] prefix for each chunk. Call AI with 'Answer based ONLY on context' instruction.", "weight": 20 },
+      { "id": "req_3", "description": "CitedAnswer record: answer (String), citations (List<String>). Return empty citations when no relevant context found.", "weight": 10 },
+      { "id": "req_4", "description": "Out-of-scope detection: if similarity search returns empty (no chunks above threshold), return 'This information is not in our documentation.' without calling the AI.", "weight": 10 },
+      { "id": "req_5", "description": "RagEvaluator @Service: evaluate(List<RagTestCase>). Each RagTestCase has question + expectedSource. Returns EvaluationResult with accuracy %. At least 60% accuracy on the provided test cases.", "weight": 15 },
+      { "id": "req_6", "description": "@SpringBootTest (4 tests): ingestion count correct, relevant question returns citation, pizza question returns no citation, evaluator accuracy measured. All 4 pass.", "weight": 25 },
+      { "id": "req_7", "description": "application.yml: spring.ai.vectorstore.pgvector configuration (commented out for test, but present). InMemoryVectorStore for tests.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Department-filtered retrieval: documents have 'department' metadata (WEBHOOKS/PAYMENTS/REFUNDS). FilterExpressionBuilder to restrict search to one department. Test: WEBHOOKS filter returns only webhook docs.", "weight": 20 },
+      { "id": "bonus_2", "description": "PolicyTextChunker @Service: chunk(text, maxChars=500, overlap=50). Respects word boundaries (no mid-word split). Test: 3 chunks produced from long text, overlap present.", "weight": 15 },
+      { "id": "bonus_3", "description": "HybridSearch @Service: keywordSearch (exact match) + semanticSearch (vector) → deduplicated merged list. Test: hybrid finds more results than keyword alone for synonym queries.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. 'Answer based ONLY on context': critical instruction — without this, AI blends its training data with retrieved context (hallucination). Always include this phrase. similarityThreshold: 0.6-0.7 is typical for production; lower to 0.4-0.5 for InMemoryVectorStore in tests (embedding scores differ). Context string: include [source: filename] prefix for each chunk so the AI can cite its sources in the answer. Early return: check if similarity search returns empty BEFORE calling the AI. Calling AI with empty context → hallucination. Return 'not in knowledge base' immediately. Document metadata: always include 'source' key — it's how you track which document each chunk came from (for citations and filtering).",
+  "rubric": [
+    { "category": "DocumentIngestionService", "points": 15 },
+    { "category": "RazorpayDocsQA (retrieval + grounding)", "points": 20 },
+    { "category": "CitedAnswer record", "points": 10 },
+    { "category": "Out-of-scope detection", "points": 10 },
+    { "category": "RagEvaluator", "points": 15 },
+    { "category": "4 tests (all pass)", "points": 25 },
+    { "category": "application.yml (pgvector config)", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

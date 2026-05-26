@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t1",
+  "language": "java",
+  "module_id": "m11",
+  "module_name": "I/O, Files, and Networking",
+  "topic_number": 1,
+  "name": "NIO File API",
+  "slug": "nio-file-api",
+
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m7_t5", "java_m8_t3"],
+    "concepts_taught": [
+      "path_interface",
+      "path_creation",
+      "path_manipulation",
+      "files_utility_class",
+      "files_read_write",
+      "files_exists_create_delete",
+      "files_copy_move",
+      "files_walk",
+      "files_lines_stream",
+      "standard_open_option",
+      "file_attributes",
+      "directory_operations",
+      "old_file_vs_path"
+    ],
+    "skills_developed": [
+      "creating_and_manipulating_paths",
+      "reading_writing_files",
+      "working_with_directories",
+      "using_files_utility_class",
+      "streaming_file_lines",
+      "handling_file_exceptions"
+    ],
+    "career_relevance": "File I/O is in every real Java application: reading config files, writing logs, processing CSVs, generating reports, importing data. Java's NIO.2 API (java.nio.file — introduced in Java 7) replaced the old java.io.File API with something far cleaner. Path + Files is what Spring Boot uses internally for classpath resources, what build tools use for source files, and what any data pipeline uses for file processing. After this topic, you read and write files confidently using modern Java.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Every Java app you build will eventually read or write files. A Flipkart order importer reads CSV files. A Zerodha report generator writes Excel-ready data. A Razorpay config loader reads JSON from disk. A log analyser processes thousands of log lines.\n\nThe old Java way:\n```java\n// java.io.File — clunky, error-prone:\nFile file = new File(\"data/orders.csv\");\nBufferedReader reader = new BufferedReader(new FileReader(file));\nString line;\nwhile ((line = reader.readLine()) != null) { process(line); }\nreader.close();  // must close manually!\n// Exceptions everywhere, no stream support, terrible API\n```\n\n**The modern way — Java NIO.2 (java.nio.file):**\n```java\n// Path + Files — clean, safe, stream-friendly:\nPath path = Path.of(\"data/orders.csv\");\n\n// Read all lines:\nList<String> lines = Files.readAllLines(path);\n\n// Or as a stream (lazy, memory-efficient for huge files):\ntry (Stream<String> stream = Files.lines(path)) {\n    stream.filter(line -> !line.startsWith(\"#\"))\n          .forEach(this::processOrder);\n}\n\n// Write:\nFiles.writeString(path, content);\nFiles.write(path, lines);\n```\n\nClean. Type-safe. Stream-integrated. Auto-closeable. This is the modern Java way to work with files.",
+    "what_you_will_build": "By the end of this topic, you'll create and manipulate Paths, use Files for reading, writing, copying, moving and deleting files, walk directory trees, and stream file contents efficiently. Every project for the rest of the course will use these skills."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "path_interface": "**`Path` — represents a file or directory location:**\n\n```java\nimport java.nio.file.*;\n\n// Create a Path:\nPath p1 = Path.of(\"data/orders.csv\");           // relative path\nPath p2 = Path.of(\"/home/aisha/data/orders.csv\"); // absolute path\nPath p3 = Path.of(\"data\", \"orders\", \"april.csv\"); // varargs join\n\n// Path navigation:\nPath parent = p1.getParent();   // data\nPath filename = p1.getFileName(); // orders.csv\nString ext = p1.toString().substring(p1.toString().lastIndexOf('.'));\n\n// Resolve (join paths):\nPath dir  = Path.of(\"data\");\nPath file = dir.resolve(\"orders.csv\");  // data/orders.csv\nPath up   = dir.resolve(\"../reports\"); // data/../reports\n\n// Normalize (remove . and ..):\nPath clean = up.normalize();  // reports\n\n// Absolute path:\nPath abs = p1.toAbsolutePath();  // /current/working/dir/data/orders.csv\n\n// Path info:\nSystem.out.println(p3.getNameCount());  // 3 (data, orders, april.csv)\nSystem.out.println(p3.getName(0));      // data\nSystem.out.println(p3.getName(2));      // april.csv\n```\n\n**Path vs String**: Path knows about the OS (uses `/` on Unix, `\\` on Windows). `Path.of()` handles separator differences automatically.",
+
+      "files_read": "**Reading files with `Files`:**\n\n```java\nimport java.nio.file.*;\nimport java.nio.charset.StandardCharsets;\n\nPath path = Path.of(\"data/orders.csv\");\n\n// Read all lines into List<String> (good for small-medium files):\nList<String> lines = Files.readAllLines(path);  // default: UTF-8\nList<String> lines2 = Files.readAllLines(path, StandardCharsets.UTF_8);\n\n// Read entire file as String (Java 11+):\nString content = Files.readString(path);\n\n// Read as byte array (binary files, images, etc.):\nbyte[] bytes = Files.readAllBytes(path);\n\n// Stream lines — lazy, memory-efficient for large files:\ntry (Stream<String> stream = Files.lines(path)) {\n    long count = stream\n        .filter(line -> !line.isBlank())\n        .count();\n}\n// IMPORTANT: Always use try-with-resources for Files.lines() — it opens a file handle!\n```",
+
+      "files_write": "**Writing files with `Files`:**\n\n```java\nPath path = Path.of(\"output/report.txt\");\n\n// Write String to file (creates or replaces):\nFiles.writeString(path, \"Hello, Hyderabad!\");\n\n// Write String with options:\nFiles.writeString(path, \"New line\\n\",\n    StandardOpenOption.APPEND,   // append instead of overwrite\n    StandardOpenOption.CREATE);  // create if doesn't exist\n\n// Write list of lines:\nList<String> lines = Arrays.asList(\"Line 1\", \"Line 2\", \"Line 3\");\nFiles.write(path, lines);  // each element on a new line\n\n// Write bytes (for binary data):\nbyte[] data = imageData;\nFiles.write(path, data);\n\n// StandardOpenOption values:\n// CREATE         — create file if not exists\n// CREATE_NEW     — fail if file already exists\n// APPEND         — append to existing content\n// TRUNCATE_EXISTING — truncate to zero before writing (default for write)\n// WRITE          — open for writing\n```",
+
+      "files_metadata": "**Checking files and directories:**\n\n```java\nPath path = Path.of(\"data/orders.csv\");\n\n// Existence and type:\nboolean exists     = Files.exists(path);           // file/dir exists?\nboolean isFile     = Files.isRegularFile(path);    // regular file?\nboolean isDir      = Files.isDirectory(path);      // directory?\nboolean isReadable = Files.isReadable(path);       // can read?\nboolean isWritable = Files.isWritable(path);       // can write?\n\n// Metadata:\nlong size    = Files.size(path);                    // bytes\nFileTime mod = Files.getLastModifiedTime(path);     // last modified\nSystem.out.println(mod);  // 2024-03-15T10:30:00Z\n\n// Create directories:\nFiles.createDirectory(Path.of(\"output\"));           // one level\nFiles.createDirectories(Path.of(\"output/2024/03\")); // all levels (like mkdir -p)\n\n// Create temp file:\nPath temp = Files.createTempFile(\"prefix\", \".txt\");  // in system temp\nPath temp2 = Files.createTempFile(Path.of(\"output\"), \"order-\", \".tmp\"); // in dir\n\n// Delete:\nFiles.delete(path);            // throws NoSuchFileException if not found\nFiles.deleteIfExists(path);    // no exception if not found\n```",
+
+      "files_copy_move": "**Copying and moving files:**\n\n```java\nPath src  = Path.of(\"data/orders.csv\");\nPath dest = Path.of(\"backup/orders-2024.csv\");\n\n// Copy:\nFiles.copy(src, dest);  // fails if dest exists\nFiles.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);  // overwrite OK\nFiles.copy(src, dest, StandardCopyOption.COPY_ATTRIBUTES);   // copy metadata too\n\n// Move (rename):\nFiles.move(src, dest);\nFiles.move(src, dest, StandardCopyOption.REPLACE_EXISTING);\nFiles.move(src, dest, StandardCopyOption.ATOMIC_MOVE);  // atomic on same filesystem\n\n// Copy with progress (InputStream-based):\ntry (InputStream in = Files.newInputStream(src)) {\n    Files.copy(in, dest);  // from input stream to file\n}\n```",
+
+      "files_walk": "**Walking directory trees:**\n\n```java\nPath dir = Path.of(\"data\");\n\n// List immediate children:\ntry (Stream<Path> entries = Files.list(dir)) {\n    entries.forEach(System.out::println);\n}\n\n// Walk all files recursively (depth-first):\ntry (Stream<Path> walk = Files.walk(dir)) {\n    walk.filter(Files::isRegularFile)   // only files, skip dirs\n        .filter(p -> p.toString().endsWith(\".csv\"))\n        .forEach(p -> System.out.println(\"Found CSV: \" + p));\n}\n\n// Walk with depth limit:\ntry (Stream<Path> walk = Files.walk(dir, 2)) {\n    // Only 2 levels deep\n}\n\n// Find files matching a predicate:\ntry (Stream<Path> found = Files.find(dir, Integer.MAX_VALUE,\n        (path, attrs) -> attrs.isRegularFile() && path.toString().endsWith(\".json\"))) {\n    found.forEach(System.out::println);\n}\n\n// IMPORTANT: ALL of Files.list(), Files.walk(), Files.find() return streams\n// that hold open file handles — always use try-with-resources!\n```",
+
+      "old_file_vs_path": "**Old `java.io.File` vs new `java.nio.file.Path`:**\n\n```java\n// OLD — java.io.File (avoid in new code):\nFile file = new File(\"data/orders.csv\");\nfile.exists();\nfile.length();\nBufferedReader reader = new BufferedReader(new FileReader(file));\n// Problems: no stream support, clunky API, error handling verbose\n\n// NEW — java.nio.file (use this):\nPath path = Path.of(\"data/orders.csv\");\nFiles.exists(path);\nFiles.size(path);\nList<String> lines = Files.readAllLines(path);\nStream<String> lines = Files.lines(path);\n\n// Converting between old and new:\nPath fromFile = file.toPath();     // File → Path\nFile fromPath = path.toFile();     // Path → File (for old APIs)\n```\n\nYou'll still see `java.io.File` in older code — it's important to recognize it, but always use `Path` + `Files` in new code."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a filesystem tree diagram with annotated Path operations: Path.of('data/orders.csv') with arrows pointing to: getParent() → 'data', getFileName() → 'orders.csv', resolve('backup') → 'data/backup'. Below: Files utility class as a toolbox — with icons for each operation: readAllLines (list icon), writeString (pen icon), copy (two-file icon), move (arrow icon), walk (tree icon), exists/isFile/isDirectory (checkbox icons). On the right: StandardOpenOption enum — CREATE, APPEND, TRUNCATE listed with use cases. Bottom: old File vs new Path comparison side by side.",
+      "alt_text": "Path navigation operations, Files toolbox, StandardOpenOption values, and File vs Path comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a simple order archive system: reads order CSVs from an input directory, processes valid orders, writes a summary report, and archives processed files to a backup directory.",
+
+    "problem_statement": "Build `OrderArchiver` that:\n1. Creates directory structure: `orders/input/`, `orders/backup/`, `orders/reports/`\n2. Writes 3 sample order CSV files to `orders/input/`\n3. Reads and processes each CSV (counts orders, computes total)\n4. Writes a summary report to `orders/reports/`\n5. Moves processed files to `orders/backup/`\n6. Verifies backup directory contents",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Set up directory structure and write sample files",
+        "details": "```java\nPath base    = Path.of(\"orders\");\nPath input   = base.resolve(\"input\");\nPath backup  = base.resolve(\"backup\");\nPath reports = base.resolve(\"reports\");\n\n// Create all directories:\nFiles.createDirectories(input);\nFiles.createDirectories(backup);\nFiles.createDirectories(reports);\n\n// Write sample CSV files:\nFiles.writeString(input.resolve(\"march.csv\"),\n    \"ORD-001,Mouse,799\\nORD-002,Keyboard,1999\\nORD-003,USB Hub,499\");\nFiles.writeString(input.resolve(\"april.csv\"),\n    \"ORD-004,Monitor,18999\\nORD-005,Headphones,2999\");\nFiles.writeString(input.resolve(\"may.csv\"),\n    \"ORD-006,Laptop Stand,1299\\nORD-007,Webcam,4999\\nORD-008,SSD,5999\");\n```"
+      },
+      {
+        "step": 2,
+        "action": "Process each file and collect stats",
+        "details": "```java\nList<String> reportLines = new ArrayList<>();\nreportLines.add(\"Order Summary Report\");\nreportLines.add(\"====================\");\n\ntry (Stream<Path> files = Files.list(input)) {\n    files.filter(p -> p.toString().endsWith(\".csv\"))\n         .sorted()\n         .forEach(csvFile -> {\n             try {\n                 List<String> lines = Files.readAllLines(csvFile);\n                 int count = lines.size();\n                 long total = lines.stream()\n                     .mapToLong(line -> Long.parseLong(line.split(\",\")[2]))\n                     .sum();\n                 String summary = csvFile.getFileName() + \": \" + count + \" orders, ₹\" + total;\n                 System.out.println(summary);\n                 reportLines.add(summary);\n             } catch (IOException e) {\n                 System.err.println(\"Error reading \" + csvFile);\n             }\n         });\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Write report and move files to backup",
+        "details": "```java\n// Write report:\nPath report = reports.resolve(\"summary.txt\");\nFiles.write(report, reportLines);\nSystem.out.println(\"Report written: \" + report);\n\n// Move all CSVs to backup:\ntry (Stream<Path> files = Files.list(input)) {\n    files.filter(p -> p.toString().endsWith(\".csv\"))\n         .forEach(csvFile -> {\n             try {\n                 Path dest = backup.resolve(csvFile.getFileName());\n                 Files.move(csvFile, dest, StandardCopyOption.REPLACE_EXISTING);\n                 System.out.println(\"Archived: \" + csvFile.getFileName());\n             } catch (IOException e) {\n                 System.err.println(\"Error moving \" + csvFile);\n             }\n         });\n}\n\n// Verify backup:\ntry (Stream<Path> backed = Files.list(backup)) {\n    System.out.println(\"Backup contains: \" + backed.count() + \" files\");\n}\n```"
+      }
+    ],
+
+    "final_code": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\n\npublic class OrderArchiver {\n    public static void main(String[] args) throws IOException {\n        Path base    = Path.of(\"orders\");\n        Path input   = base.resolve(\"input\");\n        Path backup  = base.resolve(\"backup\");\n        Path reports = base.resolve(\"reports\");\n        \n        Files.createDirectories(input);\n        Files.createDirectories(backup);\n        Files.createDirectories(reports);\n        \n        Files.writeString(input.resolve(\"march.csv\"),\n            \"ORD-001,Mouse,799\\nORD-002,Keyboard,1999\\nORD-003,USB Hub,499\");\n        Files.writeString(input.resolve(\"april.csv\"),\n            \"ORD-004,Monitor,18999\\nORD-005,Headphones,2999\");\n        Files.writeString(input.resolve(\"may.csv\"),\n            \"ORD-006,Laptop Stand,1299\\nORD-007,Webcam,4999\\nORD-008,SSD,5999\");\n        \n        List<String> reportLines = new ArrayList<>(Arrays.asList(\"Order Summary\", \"=============\"));\n        \n        try (Stream<Path> files = Files.list(input)) {\n            files.filter(p -> p.toString().endsWith(\".csv\"))\n                 .sorted()\n                 .forEach(csv -> {\n                     try {\n                         List<String> lines = Files.readAllLines(csv);\n                         long total = lines.stream()\n                             .mapToLong(l -> Long.parseLong(l.split(\",\")[2])).sum();\n                         String summary = csv.getFileName() + \": \" + lines.size() + \" orders, ₹\" + total;\n                         System.out.println(summary);\n                         reportLines.add(summary);\n                     } catch (IOException e) { throw new UncheckedIOException(e); }\n                 });\n        }\n        \n        Files.write(reports.resolve(\"summary.txt\"), reportLines);\n        System.out.println(\"Report saved.\");\n        \n        try (Stream<Path> files = Files.list(input)) {\n            files.filter(p -> p.toString().endsWith(\".csv\")).forEach(csv -> {\n                try {\n                    Files.move(csv, backup.resolve(csv.getFileName()),\n                        StandardCopyOption.REPLACE_EXISTING);\n                    System.out.println(\"Archived: \" + csv.getFileName());\n                } catch (IOException e) { throw new UncheckedIOException(e); }\n            });\n        }\n        \n        try (Stream<Path> backed = Files.list(backup)) {\n            System.out.println(\"Backup: \" + backed.count() + \" files\");\n        }\n    }\n}",
+
+    "expected_output": "april.csv: 2 orders, ₹21998\nmarch.csv: 3 orders, ₹3297\nmay.csv: 3 orders, ₹12297\nReport saved.\nArchived: april.csv\nArchived: march.csv\nArchived: may.csv\nBackup: 3 files",
+
+    "things_to_notice": [
+      "Files.createDirectories() creates all intermediate directories — like `mkdir -p`. No error if they already exist.",
+      "Files.list(), Files.walk(), Files.lines() all return Streams backed by file handles. They MUST be used in try-with-resources to close the handles, even though they look like regular streams.",
+      "UncheckedIOException is used inside forEach lambdas because checked IOException can't be thrown from a lambda. It's a wrapper that allows the IOException to propagate up.",
+      "Files.readAllLines() loads the entire file into memory — fine for small/medium files. For very large files (millions of lines), use Files.lines() with streaming processing.",
+      "Path.resolve(getFileName()) when moving to backup — getFileName() extracts just the filename portion, not the full path. This correctly places the file in the backup directory.",
+      "The processing uses stream().mapToLong().sum() directly on the lines — the same stream operations from Module 8 applied to file content. Files and streams integrate naturally."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot configuration loading",
+        "use_case": "Spring's ClassPathResource and FileSystemResource internally use NIO Files/Path to read application.properties, YAML configs, and classpath resources. When you write `@Value('${app.config.path}')`, Spring reads that file using Files.readAllBytes() or Files.lines(). Understanding Path/Files explains what Spring is doing under the hood."
+      },
+      {
+        "company_context": "Flipkart batch data import",
+        "use_case": "Flipkart's product catalog gets bulk-updated via CSV files from sellers. A scheduled job walks a drop folder with Files.walk(), reads each CSV with Files.readAllLines(), processes the data, writes results with Files.writeString(), then moves processed files to an archive directory with Files.move(). This exact pattern is in every data import pipeline."
+      },
+      {
+        "company_context": "Log analysis and reporting",
+        "use_case": "A log analyser watches a log directory with Files.walk(), filters for `.log` files, streams each with Files.lines() (lazy — doesn't load 10GB files into memory), filters for ERROR lines, writes a daily error report with Files.writeString() to a reports directory. NIO makes this natural and memory-safe."
+      }
+    ],
+
+    "interview_relevance": "File I/O questions are practical and common:\n\n- **'How do you read all lines of a file in Java?'** → `Files.readAllLines(Path.of('file.txt'))`\n- **'What is the difference between Files.readAllLines() and Files.lines()?'** → readAllLines loads all into List<String> (memory). lines() returns a lazy Stream (memory-efficient for huge files). Both need the file to exist.\n- **'How would you walk a directory and find all .csv files?'** → `Files.walk(dir).filter(p -> p.toString().endsWith('.csv'))`\n- **'What is try-with-resources and why use it for Files.lines()?'** → Ensures the underlying file handle is closed even if an exception occurs.",
+
+    "real_world_workflow": "Daily NIO usage:\n\n- Read config: `Files.readString(Path.of('config/app.json'))`\n- Write log: `Files.writeString(logFile, entry, APPEND, CREATE)`\n- Check directory: `Files.isDirectory(path)` + `Files.createDirectories(path)`\n- Process CSV: `Files.readAllLines(csvPath).stream().skip(1).map(line -> line.split(','))`\n- Archive: `Files.move(src, dest, REPLACE_EXISTING)`\n- Find files: `Files.walk(dir).filter(p -> p.endsWith('.json'))`"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "not_closing_files_lines_stream",
+      "what_students_get_wrong": "Using Files.lines() without try-with-resources — file handle leak.",
+      "remediation": "Files.lines(), Files.walk(), and Files.list() all hold open file handles. Always use try-with-resources: `try (Stream<String> s = Files.lines(path)) { ... }`. Closing the stream closes the file.",
+      "detection_pattern": "Too many open files error after processing many files"
+    },
+    {
+      "gap_id": "checked_ioexception_in_lambda",
+      "what_students_get_wrong": "Trying to throw IOException inside a stream forEach() lambda — compile error.",
+      "remediation": "Lambdas passed to stream operations can't throw checked exceptions. Options: (1) wrap in try-catch inside the lambda, (2) wrap in UncheckedIOException and re-catch outside, (3) extract to a method with throws IOException and use try-catch around the stream.",
+      "detection_pattern": "Compile error: 'unhandled exception type IOException'"
+    },
+    {
+      "gap_id": "path_separator_hardcoding",
+      "what_students_get_wrong": "Using string concatenation with `/` for paths — breaks on Windows.",
+      "remediation": "Always use Path.of() or path.resolve() for building paths. `Path.of('data', 'orders', 'file.csv')` works on all OS. Never do `'data' + '/' + 'orders'` — use Path APIs.",
+      "detection_pattern": "FileNotFoundException on Windows when developed on Mac/Linux"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Path represents a file/directory location; Files provides operations on Paths",
+      "Path.of('dir', 'file.csv'): OS-independent path creation",
+      "path.resolve('subdir'): join path segments safely",
+      "Files.readAllLines(path): List<String> — entire file in memory",
+      "Files.lines(path): lazy Stream<String> — must use try-with-resources",
+      "Files.readString(path): entire file as one String (Java 11+)",
+      "Files.writeString(path, content): write String to file",
+      "Files.write(path, lines): write List<String> to file",
+      "StandardOpenOption.APPEND: append to existing; CREATE: create if absent",
+      "Files.createDirectories(path): create all intermediate directories",
+      "Files.walk(dir): recursive Stream<Path> — use try-with-resources",
+      "Files.list(dir): immediate children only — use try-with-resources",
+      "Files.copy/move: with StandardCopyOption for overwrite/atomic options",
+      "IOException in lambdas → wrap as UncheckedIOException"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What's wrong with this code?\n```java\nStream<String> lines = Files.lines(Path.of(\"log.txt\"));\nlines.filter(l -> l.contains(\"ERROR\")).forEach(System.out::println);\n```",
+        "answer": "The stream from Files.lines() holds an open file handle that is never closed. Always wrap in try-with-resources: `try (Stream<String> lines = Files.lines(Path.of('log.txt'))) { lines.filter(...).forEach(...); }`. Without closing, you'll eventually get 'too many open files' errors in production."
+      },
+      {
+        "question": "What does `Path.of('data').resolve('orders').resolve('april.csv')` produce?",
+        "answer": "'data/orders/april.csv' (or 'data\\orders\\april.csv' on Windows — Path handles the separator automatically). resolve() joins path segments safely. Equivalent to Path.of('data', 'orders', 'april.csv') — both produce the same result."
+      },
+      {
+        "question": "How do you append a line to a file without overwriting it?",
+        "answer": "`Files.writeString(path, newLine + '\\n', StandardOpenOption.APPEND, StandardOpenOption.CREATE)`. APPEND: adds to existing content instead of replacing it. CREATE: creates the file if it doesn't exist yet (so first write also works). Without CREATE, the file must already exist."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Buffered I/O and Character Streams** — for scenarios where you need more control than Files.readAllLines() provides. BufferedReader wraps any InputStream and provides efficient line-by-line reading with buffering. BufferedWriter gives efficient character-by-character writing. PrintWriter adds printf-style formatting. These are the building blocks that Files uses internally — and what you need when working with network streams."
+  }
+}

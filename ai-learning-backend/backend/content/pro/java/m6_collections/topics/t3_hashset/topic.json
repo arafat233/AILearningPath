@@ -1,0 +1,193 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t3",
+  "language": "java",
+  "module_id": "m6",
+  "module_name": "Collections Framework",
+  "topic_number": 3,
+  "name": "HashSet",
+  "slug": "hashset",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m6_t1", "java_m6_t2", "java_m4_t4"],
+    "concepts_taught": [
+      "hashset_declaration",
+      "add_contains_remove",
+      "set_guarantees_uniqueness",
+      "set_vs_list_performance",
+      "iterating_hashset",
+      "set_operations_union_intersection_difference",
+      "deduplication_pattern",
+      "set_interface_type",
+      "when_to_use_set",
+      "linkedhashset_treeset_preview",
+      "hashset_requires_hashcode"
+    ],
+    "skills_developed": [
+      "using_hashset_for_unique_membership",
+      "deduplicating_collections",
+      "performing_set_operations",
+      "choosing_set_over_list",
+      "building_visited_or_seen_sets"
+    ],
+    "career_relevance": "HashSet is the right tool whenever you care about PRESENCE, not order or associations. 'Has this user been seen?' 'Is this email taken?' 'Which tags exist on this article?' 'What categories are in stock?' All HashSet. The performance difference vs ArrayList matters enormously at scale: checking 10 million records for membership takes 10 million comparisons with a list — and one hash lookup with a HashSet. Web crawlers, recommendation systems, fraud detection (has this card been used today?), caching (visited URLs), login systems (blocked IPs) — all use sets. After this topic, the full Collections triangle is complete: List for ordered sequences, Map for keyed lookup, Set for unique membership.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "You're building a recommendation engine. Every time a user views a product, you record it — and you must not recommend products they've ALREADY seen. With ArrayList:\n\n```java\nList<String> seenProducts = new ArrayList<>();\n\n// Record a view\nif (!seenProducts.contains(productId)) {\n    seenProducts.add(productId);\n}\n\n// Check before recommending:\nif (!seenProducts.contains(candidateProduct)) {\n    recommend(candidateProduct);\n}\n```\n\nBoth calls to `contains()` scan the ENTIRE list. After 10,000 views, each check scans up to 10,000 items. A million-user app with millions of viewed products? It crawls.\n\nWith HashSet:\n\n```java\nSet<String> seenProducts = new HashSet<>();\n\nseenProducts.add(productId);      // O(1)\n\nif (!seenProducts.contains(candidateProduct)) {  // O(1)\n    recommend(candidateProduct);\n}\n```\n\n**Constant time.** 10,000 items or 10 million — same speed. HashSet is backed by a HashMap, so it inherits O(1) lookup.\n\nPlus: HashSet AUTOMATICALLY prevents duplicates. If you add the same item twice, it's only stored once. No `if (!contains) add` needed — just `add()` and it handles uniqueness.\n\nThis is HashSet: O(1) membership checking + automatic deduplication. After List and Map, it's the third essential collection.",
+    "what_you_will_build": "By the end of this topic, you'll understand HashSet completely: O(1) add/contains/remove, automatic uniqueness, iterating, the three set operations (union, intersection, difference), the deduplication pattern, and when Set beats List. The full Collections triangle is complete."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A **HashSet** is an unordered collection of UNIQUE elements — no duplicates, no guaranteed order. It's backed by a HashMap (without values), giving O(1) average operations.\n\n```java\nimport java.util.HashSet;\nimport java.util.Set;\n\nSet<String> tags = new HashSet<>();\n\ntags.add(\"java\");      // OK\ntags.add(\"oop\");       // OK\ntags.add(\"java\");      // IGNORED — already present\n\nSystem.out.println(tags.size());           // 2 (not 3)\nSystem.out.println(tags.contains(\"oop\"));  // true — O(1)\nSystem.out.println(tags.contains(\"python\")); // false — O(1)\n\ntags.remove(\"oop\");   // remove if present\n\nfor (String tag : tags) {   // iterate (no guaranteed order)\n    System.out.println(tag);\n}\n```\n\nKey properties:\n- `add()` silently ignores duplicates (returns false if already present, true if added)\n- `contains()` is O(1) — this is the MAIN REASON to use HashSet\n- Order is NOT guaranteed — different from List",
+      
+      "set_vs_list": "**When Set beats List**:\n\n| Operation | `List<T>` | `Set<T>` |\n|-----------|-----------|----------|\n| `contains()` | O(n) — scans all | O(1) — hash lookup |\n| Add and auto-deduplicate | O(n) — check first | O(1) — add() handles it |\n| Remove one element | O(n) | O(1) |\n| Index access `get(i)` | O(1) | ❌ Sets have no index |\n| Maintains insertion order | Yes (ArrayList) | No |\n| Duplicate elements | Yes | No |\n\n**Use Set when**:\n- You only care whether something IS IN the collection\n- You want automatic deduplication\n- Performance of contains/add/remove matters\n- Order doesn't matter\n\n**Use List when**:\n- You need to access by index (`get(i)`)\n- You need to maintain insertion order\n- Duplicates are allowed or meaningful\n- You're iterating in sequence\n\n**Real question**: 'Do I need index access or care about order?' → List. 'Do I need fast membership check?' → Set.",
+      
+      "deduplication_pattern": "**The deduplication pattern** — instantly remove duplicates from a list:\n\n```java\nList<String> withDuplicates = Arrays.asList(\n    \"apple\", \"banana\", \"apple\", \"cherry\", \"banana\"\n);\n\n// Deduplicate: wrap in HashSet, then optionally back to List\nSet<String> unique = new HashSet<>(withDuplicates);\nSystem.out.println(unique);  // [banana, apple, cherry] (any order)\n\n// If you need a List again (with no duplicates):\nList<String> deduped = new ArrayList<>(unique);\n```\n\n`new HashSet<>(collection)` is the most idiomatic Java deduplication. Works instantly.\n\n**What makes it work**: HashSet's constructor accepts any Collection. It calls add() for each element — duplicates silently ignored.\n\n**Note**: order is NOT preserved. If you need deduplication WITH insertion order, use `LinkedHashSet` instead — preserves the order elements were first added.",
+      
+      "set_operations": "Three classic set operations — all achievable with HashSet:\n\n**Union** (all elements from both sets):\n```java\nSet<String> a = new HashSet<>(Arrays.asList(\"A\", \"B\", \"C\"));\nSet<String> b = new HashSet<>(Arrays.asList(\"B\", \"C\", \"D\"));\n\nSet<String> union = new HashSet<>(a);\nunion.addAll(b);  // adds all of b; duplicates ignored\n// Result: {A, B, C, D}\n```\n\n**Intersection** (only elements in BOTH sets):\n```java\nSet<String> intersection = new HashSet<>(a);\nintersection.retainAll(b);  // keep only elements also in b\n// Result: {B, C}\n```\n\n**Difference** (elements in a but NOT in b):\n```java\nSet<String> difference = new HashSet<>(a);\ndifference.removeAll(b);  // remove everything that's in b\n// Result: {A}\n```\n\n**Key**: always operate on a COPY to avoid mutating the original.\n\n**Real-world uses**:\n- Recommendation: userInterests MINUS alreadySeen = new recommendations\n- Access control: requiredPermissions MINUS userPermissions = missing permissions\n- Product comparison: featuresOfA.intersection(featuresOfB) = common features",
+      
+      "visited_pattern": "**The 'seen/visited' pattern** — track what's been processed:\n\n```java\nSet<String> visitedUrls = new HashSet<>();\n\nList<String> urlQueue = new ArrayList<>();\nurlQueue.add(\"https://codequest.io/\");\n\nwhile (!urlQueue.isEmpty()) {\n    String url = urlQueue.remove(0);\n    \n    if (visitedUrls.contains(url)) {\n        continue;  // skip — already processed\n    }\n    \n    visitedUrls.add(url);  // mark as seen\n    // process url...\n    // find links in page and add to urlQueue\n}\n```\n\nThis is the literal architecture of every web crawler. The `visitedUrls` set prevents infinite loops (A links to B, B links back to A).\n\n**Other uses**:\n- Deduplicating event processing (same event ID arrives twice → skip)\n- Tracking sent emails (don't send twice)\n- Memoization (have we computed this result before?)\n- Cycle detection in graphs",
+      
+      "hashset_requires_hashcode": "Like HashMap keys, objects stored in HashSet MUST have proper `hashCode()` and `equals()` — they're used to find the right bucket and confirm equality.\n\n```java\nclass Tag {\n    String value;\n    Tag(String value) { this.value = value; }\n    // No hashCode/equals override\n}\n\nSet<Tag> tags = new HashSet<>();\ntags.add(new Tag(\"java\"));\ntags.add(new Tag(\"java\"));  // different object, same value\n\nSystem.out.println(tags.size());  // 2! — both stored\n// Wrong — wanted 1 unique tag\n```\n\nFix — override hashCode and equals:\n```java\n@Override public boolean equals(Object o) {\n    if (!(o instanceof Tag t)) return false;\n    return Objects.equals(this.value, t.value);\n}\n@Override public int hashCode() { return Objects.hash(value); }\n// Now set.size() == 1 for two Tags with same value\n```\n\nFor Strings, Integers, and other built-in types: they already have proper equals/hashCode. For your own classes: you must override both (Topic 4.4).",
+      
+      "linkedhashset_treeset": "When you need Set behavior but need consistent ordering:\n\n**LinkedHashSet**: preserves INSERTION ORDER (elements come out in the order they were added)\n```java\nSet<String> ordered = new LinkedHashSet<>();\nordered.add(\"banana\"); ordered.add(\"apple\"); ordered.add(\"cherry\");\nSystem.out.println(ordered);  // [banana, apple, cherry] — insertion order\n```\n\n**TreeSet**: keeps elements in SORTED ORDER (uses Comparable or Comparator)\n```java\nSet<String> sorted = new TreeSet<>();\nsorted.add(\"banana\"); sorted.add(\"apple\"); sorted.add(\"cherry\");\nSystem.out.println(sorted);  // [apple, banana, cherry] — sorted\n```\n\nPick the right one:\n- `HashSet` — fastest, no order guarantees\n- `LinkedHashSet` — insertion order, slightly slower\n- `TreeSet` — sorted order, O(log n) operations\n\nFor most cases, use HashSet. Use LinkedHashSet when deduplication must preserve order. Use TreeSet when you need sorted unique elements."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show the Collections Triangle completed: List (ordered sequence, allows duplicates), Map (key→value pairs), Set (unique elements, O(1) lookup) — three boxes with arrows labeled 'ordered', 'keyed', 'unique'. Center annotation: 'Together they cover 90% of data structure needs.' Right side: HashSet internal structure (backed by HashMap, values are dummy). Performance table: List.contains O(n) shown as long bar; Set.contains O(1) shown as tiny bar. Bottom: three set operation diagrams with Venn circles: Union (all), Intersection (overlap), Difference (A minus B).",
+      "alt_text": "The Collections Triangle showing List, Map, Set with their strengths, and Venn diagrams for set operations"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Build a tag management system for a blogging platform. Articles have tags. We need: unique tag storage per article, fast 'does this article have this tag' lookups, finding articles by tag intersection (articles with ALL specified tags), and a site-wide unique tag catalog. All classic Set use cases.",
+    
+    "problem_statement": "Build `Article` with a `Set<String>` of tags. Build `TagCatalog` with:\n1. Per-article tag sets\n2. `findWithAllTags(Set<String> required)` — articles having ALL specified tags\n3. `allTags()` — complete unique tag set across all articles\n4. `popularTags(int minArticles)` — tags appearing in at least N articles",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Article class with tag Set",
+        "details": "```java\nclass Article {\n    private final String title;\n    private final Set<String> tags = new HashSet<>();\n    \n    public Article(String title, String... initialTags) {\n        this.title = title;\n        for (String tag : initialTags) tags.add(tag);\n    }\n    \n    public void addTag(String tag) { tags.add(tag); }\n    public boolean hasTag(String tag) { return tags.contains(tag); }  // O(1)\n    public Set<String> getTags() { return new HashSet<>(tags); }       // defensive copy\n    public String getTitle() { return title; }\n    \n    @Override public String toString() { return title + \" \" + tags; }\n}\n```\n\n`tags` is a Set — automatic deduplication. `hasTag()` is O(1). `getTags()` returns a defensive copy (caller can't modify internal set)."
+      },
+      {
+        "step": 2,
+        "action": "TagCatalog with set operations",
+        "details": "```java\nclass TagCatalog {\n    private List<Article> articles = new ArrayList<>();\n    \n    public void add(Article a) { articles.add(a); }\n    \n    // Find articles that have ALL specified tags (intersection check)\n    public List<Article> findWithAllTags(Set<String> required) {\n        List<Article> result = new ArrayList<>();\n        for (Article a : articles) {\n            if (a.getTags().containsAll(required)) {\n                result.add(a);\n            }\n        }\n        return result;\n    }\n    \n    // All unique tags across ALL articles (union)\n    public Set<String> allTags() {\n        Set<String> all = new HashSet<>();\n        for (Article a : articles) {\n            all.addAll(a.getTags());  // union: HashSet ignores duplicates\n        }\n        return all;\n    }\n    \n    // Tags appearing in at least minArticles articles\n    public Set<String> popularTags(int minArticles) {\n        // Count occurrences per tag (HashMap for counting)\n        Map<String, Integer> tagCount = new HashMap<>();\n        for (Article a : articles) {\n            for (String tag : a.getTags()) {\n                tagCount.put(tag, tagCount.getOrDefault(tag, 0) + 1);\n            }\n        }\n        \n        // Filter to popular ones\n        Set<String> popular = new HashSet<>();\n        for (Map.Entry<String, Integer> e : tagCount.entrySet()) {\n            if (e.getValue() >= minArticles) popular.add(e.getKey());\n        }\n        return popular;\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Demonstrate in main",
+        "details": "```java\nTagCatalog catalog = new TagCatalog();\ncatalog.add(new Article(\"Java Basics\", \"java\", \"beginner\", \"programming\"));\ncatalog.add(new Article(\"OOP in Java\", \"java\", \"oop\", \"programming\"));\ncatalog.add(new Article(\"Python vs Java\", \"java\", \"python\", \"comparison\"));\ncatalog.add(new Article(\"Python for Data\", \"python\", \"data-science\", \"beginner\"));\n\n// All unique tags\nSystem.out.println(\"All tags: \" + catalog.allTags());\n\n// Find articles with BOTH 'java' and 'beginner'\nSet<String> required = new HashSet<>(Arrays.asList(\"java\", \"beginner\"));\nList<Article> found = catalog.findWithAllTags(required);\nSystem.out.println(\"Java + beginner: \" + found.size() + \" article(s)\");\n\n// Tags in at least 2 articles\nSystem.out.println(\"Popular tags: \" + catalog.popularTags(2));\n```"
+      }
+    ],
+    
+    "final_code": "import java.util.*;\n\nclass Article {\n    private final String title;\n    private final Set<String> tags = new HashSet<>();\n    \n    public Article(String title, String... initialTags) {\n        this.title = title;\n        Collections.addAll(tags, initialTags);\n    }\n    \n    public boolean hasTag(String tag) { return tags.contains(tag); }\n    public Set<String> getTags() { return new HashSet<>(tags); }\n    public String getTitle() { return title; }\n    public String toString() { return title + \" \" + tags; }\n}\n\nclass TagCatalog {\n    private List<Article> articles = new ArrayList<>();\n    \n    public void add(Article a) { articles.add(a); }\n    \n    public List<Article> findWithAllTags(Set<String> required) {\n        List<Article> result = new ArrayList<>();\n        for (Article a : articles) {\n            if (a.getTags().containsAll(required)) result.add(a);\n        }\n        return result;\n    }\n    \n    public Set<String> allTags() {\n        Set<String> all = new HashSet<>();\n        for (Article a : articles) all.addAll(a.getTags());\n        return all;\n    }\n    \n    public Set<String> popularTags(int minArticles) {\n        Map<String, Integer> count = new HashMap<>();\n        for (Article a : articles)\n            for (String tag : a.getTags())\n                count.put(tag, count.getOrDefault(tag, 0) + 1);\n        Set<String> popular = new HashSet<>();\n        for (Map.Entry<String, Integer> e : count.entrySet())\n            if (e.getValue() >= minArticles) popular.add(e.getKey());\n        return popular;\n    }\n}\n\npublic class TagSystem {\n    public static void main(String[] args) {\n        TagCatalog catalog = new TagCatalog();\n        catalog.add(new Article(\"Java Basics\",       \"java\", \"beginner\", \"programming\"));\n        catalog.add(new Article(\"OOP in Java\",        \"java\", \"oop\",     \"programming\"));\n        catalog.add(new Article(\"Python vs Java\",     \"java\", \"python\",  \"comparison\"));\n        catalog.add(new Article(\"Python for Data\",    \"python\", \"data-science\", \"beginner\"));\n        \n        List<String> allTagsSorted = new ArrayList<>(catalog.allTags());\n        Collections.sort(allTagsSorted);\n        System.out.println(\"All tags: \" + allTagsSorted);\n        \n        Set<String> required = new HashSet<>(Arrays.asList(\"java\", \"beginner\"));\n        List<Article> found = catalog.findWithAllTags(required);\n        System.out.println(\"Java + beginner: \" + found.size() + \" article(s)\");\n        for (Article a : found) System.out.println(\"  \" + a.getTitle());\n        \n        List<String> popular = new ArrayList<>(catalog.popularTags(2));\n        Collections.sort(popular);\n        System.out.println(\"Popular (2+ articles): \" + popular);\n    }\n}",
+    
+    "expected_output": "All tags: [beginner, comparison, data-science, java, oop, programming, python]\nJava + beginner: 1 article(s)\n  Java Basics\nPopular (2+ articles): [beginner, java, programming, python]",
+    
+    "things_to_notice": [
+      "`getTags()` returns `new HashSet<>(tags)` — defensive copy. Caller can modify the returned set without affecting the Article's internal tags.",
+      "`containsAll(required)` checks if the article's tags contain ALL elements in the required set. This is 'subset check' — part of the Java Set API.",
+      "`allTags()` uses addAll — each article's tags are unioned into one set. Duplicates (like 'java' appearing in 3 articles) are automatically deduped.",
+      "`popularTags()` combines HashMap (for counting) and HashSet (for returning results). Both collections working together — a common real-world pattern.",
+      "Sorted the output for display — HashSet has no guaranteed order. The sorting happens just before printing.",
+      "'Python' appears in 2 articles (Python vs Java, Python for Data) → popular. 'Java' in 3 articles → popular. 'beginner' in 2 → popular. 'programming' in 2 → popular."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Web crawlers and search indexers (Google, Bing)",
+        "use_case": "The `visitedUrls` set prevents re-crawling pages. Every URL added to the crawl queue is checked against the visited set first. At Google scale, this Set has billions of entries — HashSet's O(1) lookup makes this feasible. Without it, each URL check would scan billions of records."
+      },
+      {
+        "company_context": "Social platforms (LinkedIn, Instagram)",
+        "use_case": "Connection/following: `Set<String> following` per user. 'Is Aisha following Raj?' → `following.contains('Raj')` — O(1). Mutual connections: intersection of Aisha's following set and Raj's followers set. Recommendation: Aisha's friends-of-friends MINUS Aisha's following (difference). All set operations."
+      },
+      {
+        "company_context": "Fraud detection (Razorpay, PayU, HDFC)",
+        "use_case": "Blocked accounts, suspicious IP addresses, flagged card numbers — all stored in HashSets for O(1) lookup on every transaction. 'Is this card in our fraud blacklist?' must be sub-millisecond for every payment. HashSet makes this possible regardless of how large the blacklist grows."
+      },
+      {
+        "company_context": "Duplicate detection (email marketing, notifications)",
+        "use_case": "Before sending a promotional email: check `sentEmailIds.contains(userId)`. Before sending a push notification: check `notifiedToday.contains(deviceToken)`. HashSet prevents duplicate sends. Built once at the start of a campaign run, queried for every potential send — often millions of lookups."
+      }
+    ],
+    
+    "interview_relevance": "Set questions come up regularly:\n\n- **'How would you deduplicate a list efficiently?'** → `new HashSet<>(list)`. O(n) time.\n- **'What's the time complexity of ArrayList.contains vs HashSet.contains?'** → O(n) vs O(1).\n- **'How do you find common elements between two collections?'** → Set intersection: `setA.retainAll(setB)`.\n- **'How do you find elements in A but not B?'** → Set difference: `setA.removeAll(setB)`.\n- **'Design a web crawler.'** → visited URLs set, URL queue list — standard answer.\n- **'Why would you use HashSet over ArrayList?'** → O(1) contains, automatic uniqueness.",
+    
+    "real_world_workflow": "Daily Set usage:\n\n- Deduplication: `Set<String> unique = new HashSet<>(list)` — instant\n- Membership check: `if (allowedUsers.contains(userId))` — auth check\n- Tag/label systems: `Set<String>` per entity\n- Permission checks: `if (userPermissions.containsAll(requiredPermissions))`\n- 'Seen' tracking: `Set<String> processedIds` during batch jobs\n- Finding common elements: `Set.retainAll()` for intersection\n- Removing known elements: `Set.removeAll()` for filtering"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "expecting_set_order",
+      "what_students_get_wrong": "Expecting HashSet to maintain insertion order or any specific order.",
+      "remediation": "HashSet order is undefined. Sort the set's contents when display order matters. Use LinkedHashSet for insertion-order preservation.",
+      "detection_pattern": "Tests failing due to order-dependent assertions on HashSet"
+    },
+    {
+      "gap_id": "set_contains_with_new_object",
+      "what_students_get_wrong": "`set.contains(new MyObject(sameData))` returns false because equals/hashCode not overridden.",
+      "remediation": "HashSet uses hashCode and equals. For custom objects, both MUST be properly overridden.",
+      "detection_pattern": "contains() returns false for 'equal' objects"
+    },
+    {
+      "gap_id": "mutating_original_on_set_operation",
+      "what_students_get_wrong": "Calling `setA.retainAll(setB)` mutates setA. Losing the original.",
+      "remediation": "Always copy before set operations: `Set<T> intersection = new HashSet<>(setA); intersection.retainAll(setB);`",
+      "detection_pattern": "Original set unexpectedly modified after operation"
+    },
+    {
+      "gap_id": "using_list_when_set_is_right",
+      "what_students_get_wrong": "Using List with manual contains check for uniqueness enforcement — slow and verbose.",
+      "remediation": "If uniqueness is required and order doesn't matter: use Set. Unique + order: LinkedHashSet. Just use add() — no contains check needed.",
+      "detection_pattern": "Repeated pattern of if (!list.contains(x)) list.add(x)"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "HashSet: unordered collection of UNIQUE elements, O(1) add/contains/remove",
+      "Always declare as `Set<T>`, create with `new HashSet<>()`",
+      "Adding a duplicate is SILENTLY IGNORED (add() returns false if already present)",
+      "No index access — Sets have no get(i) method",
+      "Deduplication: `new HashSet<>(list)` — instantly removes duplicates",
+      "Union: `copyA.addAll(setB)` | Intersection: `copyA.retainAll(setB)` | Difference: `copyA.removeAll(setB)`",
+      "Always copy before set operations to avoid mutating originals",
+      "Iteration order is not guaranteed — sort if display order matters",
+      "Custom objects must override hashCode AND equals to work correctly in a Set",
+      "LinkedHashSet: preserves insertion order. TreeSet: sorted order.",
+      "Collections Triangle complete: List (ordered), Map (keyed), Set (unique)"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why is `set.add('java'); set.add('java'); System.out.println(set.size())` printing 1 not 2?",
+        "answer": "HashSet only stores UNIQUE elements. The second `add('java')` finds 'java' already in the set (using hashCode + equals) and silently does nothing. It returns false to signal the element wasn't added. This is by design — it's the core guarantee of Set."
+      },
+      {
+        "question": "What's the correct way to find the intersection of two Sets without modifying either?",
+        "answer": "Copy one set, then call retainAll with the other: `Set<T> intersection = new HashSet<>(setA); intersection.retainAll(setB);`. The copy is essential — `retainAll` mutates the receiver in-place. Without copying, you'd destroy setA."
+      },
+      {
+        "question": "When would you choose LinkedHashSet over HashSet?",
+        "answer": "When you need deduplication AND want to preserve the order elements were first added. HashSet has faster operations (slightly) but no order guarantees. LinkedHashSet maintains insertion order at a tiny performance cost. Example: deduplicating a list of search results while keeping the original relevance ranking."
+      }
+    ],
+    
+    "next_topic_preview": "Next: **Iterating Collections** — for-each works everywhere, but there are more powerful patterns: `Iterator` (safe removal during iteration), `ListIterator` (bidirectional), and `Map.entrySet()` (key+value together). Then `Collections` utility class with sort, shuffle, min, max, frequency. After that, Topic 6.6 closes Module 6 with 'choosing the right collection' — the decision guide you'll use for your whole career."
+  }
+}

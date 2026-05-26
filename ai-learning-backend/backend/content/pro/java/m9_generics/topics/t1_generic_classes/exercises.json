@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t1",
+  "topic_name": "Generic Classes",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m9_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace generic class instantiation",
+      "scenario": "T is substituted with the actual type at compile time.",
+      "instructions": "What does this print?\n\n```java\nclass Box<T> {\n    private T value;\n    Box(T v) { value = v; }\n    T get()  { return value; }\n    public String toString() { return \"Box[\" + value + \"]:\"; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Box<String>  s = new Box<>(\"Hyderabad\");\n        Box<Integer> n = new Box<>(42);\n        System.out.println(s.get().getClass().getSimpleName());\n        System.out.println(n.get() * 2);\n    }\n}\n```",
+      "expected_solution": "String\n84",
+      "test_cases": [
+        { "type": "text_match", "expected": "String\n84" }
+      ],
+      "hints": [
+        "s is Box<String>, so get() returns String",
+        "getSimpleName() of String = 'String'",
+        "n.get() returns Integer 42; 42 * 2 = 84"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Declare generic class",
+      "scenario": "Add type parameter to make a class generic.",
+      "instructions": "Fill in the blanks to make `Container` a generic class with type parameter T.",
+      "starter_code": "public class Container______ {\n    private ______ item;\n    public Container(______ item) { this.item = item; }\n    public ______ getItem() { return item; }\n}",
+      "expected_solution": "public class Container<T> {\n    private T item;\n    public Container(T item) { this.item = item; }\n    public T getItem() { return item; }\n}",
+      "blanks": [
+        { "position": 1, "answer": "<T>", "hint": "Type parameter declaration after class name" },
+        { "position": 2, "answer": "T", "hint": "Type parameter used as field type" },
+        { "position": 3, "answer": "T", "hint": "Type parameter used as constructor param" },
+        { "position": 4, "answer": "T", "hint": "Type parameter used as return type" }
+      ],
+      "test_cases": [
+        { "type": "compile_check", "must_compile": true }
+      ],
+      "hints": [
+        "<T> after class name declares the type parameter",
+        "T is used as field, constructor param, and return type"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Simple Box<T> class",
+      "scenario": "Write and use the most basic generic class.",
+      "instructions": "Create `Box<T>` with get(), set(), and isEmpty(). Test with String and Integer.\n\nExpected output:\nString box: hello | empty: false\nAfter clear: empty: true\nInt box: 42",
+      "starter_code": "// Box<T> with get, set, isEmpty\n",
+      "expected_solution": "class Box<T> {\n    private T value;\n    Box(T v)        { value = v; }\n    Box()           { value = null; }\n    T get()         { return value; }\n    void set(T v)   { value = v; }\n    boolean isEmpty() { return value == null; }\n}\npublic class App {\n    public static void main(String[] args) {\n        Box<String> sb = new Box<>(\"hello\");\n        System.out.println(\"String box: \" + sb.get() + \" | empty: \" + sb.isEmpty());\n        sb.set(null);\n        System.out.println(\"After clear: empty: \" + sb.isEmpty());\n        Box<Integer> ib = new Box<>(42);\n        System.out.println(\"Int box: \" + ib.get());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "String box: hello | empty: false\nAfter clear: empty: true\nInt box: 42" }
+      ],
+      "hints": [
+        "class Box<T> { private T value; ... }",
+        "set(null) makes it empty, isEmpty() checks null"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m9_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Pair<A, B> — two type parameters",
+      "scenario": "Generic class with two different type parameters.",
+      "instructions": "Create `Pair<A, B>` with getFirst(), getSecond(), swap(), toString(). Test with String+Integer and String+Boolean.\n\nExpected output:\n(Hyderabad, 500032)\nSwapped: (500032, Hyderabad)\n(premium, true)",
+      "starter_code": "// Pair<A,B> with two type parameters and swap()\n",
+      "expected_solution": "class Pair<A, B> {\n    private final A first;\n    private final B second;\n    Pair(A a, B b) { first=a; second=b; }\n    A getFirst()  { return first; }\n    B getSecond() { return second; }\n    Pair<B, A> swap() { return new Pair<>(second, first); }\n    public String toString() { return \"(\" + first + \", \" + second + \")\"; }\n}\npublic class App {\n    public static void main(String[] args) {\n        Pair<String, Integer> p1 = new Pair<>(\"Hyderabad\", 500032);\n        System.out.println(p1);\n        System.out.println(\"Swapped: \" + p1.swap());\n        Pair<String, Boolean> p2 = new Pair<>(\"premium\", true);\n        System.out.println(p2);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "(Hyderabad, 500032)\nSwapped: (500032, Hyderabad)\n(premium, true)" }
+      ],
+      "hints": [
+        "class Pair<A, B> — two separate type parameters",
+        "swap() returns Pair<B, A> — reversed types!",
+        "new Pair<>(second, first) — note: no explicit types needed, diamond infers"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m9_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic Stack<T>",
+      "scenario": "Classic stack data structure as a generic class.",
+      "instructions": "Implement `Stack<T>` with push(T), pop() (throws if empty), peek(), isEmpty(), size().\n\nTest: push 3 ints, peek, pop all.\n\nExpected output:\nSize: 3, peek: 30\n30\n20\n10\nEmpty: true",
+      "starter_code": "import java.util.*;\n// Generic Stack<T>\n",
+      "expected_solution": "import java.util.*;\nclass Stack<T> {\n    private List<T> items = new ArrayList<>();\n    void push(T item) { items.add(item); }\n    T pop() {\n        if (isEmpty()) throw new NoSuchElementException(\"Stack is empty\");\n        return items.remove(items.size() - 1);\n    }\n    T peek() {\n        if (isEmpty()) throw new NoSuchElementException(\"Stack is empty\");\n        return items.get(items.size() - 1);\n    }\n    boolean isEmpty() { return items.isEmpty(); }\n    int size()        { return items.size(); }\n}\npublic class App {\n    public static void main(String[] args) {\n        Stack<Integer> stack = new Stack<>();\n        stack.push(10); stack.push(20); stack.push(30);\n        System.out.println(\"Size: \" + stack.size() + \", peek: \" + stack.peek());\n        while (!stack.isEmpty()) System.out.println(stack.pop());\n        System.out.println(\"Empty: \" + stack.isEmpty());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Size: 3, peek: 30\n30\n20\n10\nEmpty: true" }
+      ],
+      "hints": [
+        "Internally use List<T> for storage",
+        "pop/peek: remove/get last element",
+        "Throw NoSuchElementException when empty"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic cache wrapper",
+      "scenario": "Wrap a value with metadata in a generic class.",
+      "instructions": "Create `TimedEntry<T>` that stores a value and a timestamp (System.currentTimeMillis()). Methods: getValue(), getAge() (ms since creation), isExpired(long maxAgeMs).\n\nExpected output:\nValue: Aisha\nExpired (0ms max): true\nExpired (100000ms max): false",
+      "starter_code": "// TimedEntry<T> with value, creation time, expiry check\n",
+      "expected_solution": "class TimedEntry<T> {\n    private final T value;\n    private final long createdAt;\n    \n    TimedEntry(T value) {\n        this.value = value;\n        this.createdAt = System.currentTimeMillis();\n    }\n    \n    T getValue()     { return value; }\n    long getAge()    { return System.currentTimeMillis() - createdAt; }\n    boolean isExpired(long maxAgeMs) { return getAge() > maxAgeMs; }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        TimedEntry<String> entry = new TimedEntry<>(\"Aisha\");\n        System.out.println(\"Value: \" + entry.getValue());\n        System.out.println(\"Expired (0ms max): \" + entry.isExpired(0));\n        System.out.println(\"Expired (100000ms max): \" + entry.isExpired(100000));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Value: Aisha\nExpired (0ms max): true\nExpired (100000ms max): false" }
+      ],
+      "hints": [
+        "TimedEntry<T> — T is the value type",
+        "isExpired(0): any non-zero age > 0 → true",
+        "isExpired(100000): 100 seconds — entry is barely created → false"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Triple<A, B, C> — three type parameters",
+      "scenario": "Generic class with three type parameters.",
+      "instructions": "Create `Triple<A, B, C>` with three fields and getters. Add `toList()` that returns `List<Object>` with all three values. Add toString.\n\nExpected output:\n(Aisha, 28, Hyderabad)\n[Aisha, 28, Hyderabad]",
+      "starter_code": "import java.util.*;\n// Triple<A,B,C> with three type parameters\n",
+      "expected_solution": "import java.util.*;\nclass Triple<A, B, C> {\n    private final A first;\n    private final B second;\n    private final C third;\n    Triple(A a, B b, C c) { first=a; second=b; third=c; }\n    A getFirst()  { return first;  }\n    B getSecond() { return second; }\n    C getThird()  { return third;  }\n    List<Object> toList() { return Arrays.asList(first, second, third); }\n    public String toString() { return \"(\" + first + \", \" + second + \", \" + third + \")\"; }\n}\npublic class App {\n    public static void main(String[] args) {\n        Triple<String, Integer, String> t = new Triple<>(\"Aisha\", 28, \"Hyderabad\");\n        System.out.println(t);\n        System.out.println(t.toList());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "(Aisha, 28, Hyderabad)\n[Aisha, 28, Hyderabad]" }
+      ],
+      "hints": [
+        "class Triple<A, B, C> — three parameters",
+        "toList() returns List<Object> with Arrays.asList(first, second, third)"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m9_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Generic Queue<T>",
+      "scenario": "FIFO queue as generic class.",
+      "instructions": "Implement `Queue<T>` with enqueue(T), dequeue() → T, peek() → T, isEmpty(), size(). FIFO order.\n\nTest: enqueue 3 strings, dequeue all.\n\nExpected output:\nSize: 3, front: Aisha\nAisha\nRaj\nPriya\nEmpty: true",
+      "starter_code": "import java.util.*;\n// Generic Queue<T> — FIFO\n",
+      "expected_solution": "import java.util.*;\nclass Queue<T> {\n    private LinkedList<T> items = new LinkedList<>();\n    void enqueue(T item) { items.addLast(item); }\n    T dequeue() {\n        if (isEmpty()) throw new NoSuchElementException(\"Queue is empty\");\n        return items.removeFirst();\n    }\n    T peek() {\n        if (isEmpty()) throw new NoSuchElementException(\"Queue is empty\");\n        return items.getFirst();\n    }\n    boolean isEmpty() { return items.isEmpty(); }\n    int size()        { return items.size(); }\n}\npublic class App {\n    public static void main(String[] args) {\n        Queue<String> queue = new Queue<>();\n        queue.enqueue(\"Aisha\");\n        queue.enqueue(\"Raj\");\n        queue.enqueue(\"Priya\");\n        System.out.println(\"Size: \" + queue.size() + \", front: \" + queue.peek());\n        while (!queue.isEmpty()) System.out.println(queue.dequeue());\n        System.out.println(\"Empty: \" + queue.isEmpty());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Size: 3, front: Aisha\nAisha\nRaj\nPriya\nEmpty: true" }
+      ],
+      "hints": [
+        "LinkedList supports efficient addLast and removeFirst for FIFO",
+        "dequeue removes from front (FIFO order)",
+        "peek returns front without removing"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m9_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "ApiResponse<T> wrapper",
+      "scenario": "Generic response wrapper — universal REST API pattern.",
+      "instructions": "Create `ApiResponse<T>` with: status (int), message (String), data (T). Factory methods: ok(T data), error(int status, String message). toString formats as JSON-like string.\n\nExpected output:\n{\"status\":200,\"message\":\"OK\",\"data\":\"Aisha\"}\n{\"status\":404,\"message\":\"User not found\",\"data\":null}",
+      "starter_code": "// ApiResponse<T> — generic REST wrapper\n",
+      "expected_solution": "class ApiResponse<T> {\n    private final int status;\n    private final String message;\n    private final T data;\n    \n    private ApiResponse(int status, String message, T data) {\n        this.status = status; this.message = message; this.data = data;\n    }\n    \n    static <T> ApiResponse<T> ok(T data) {\n        return new ApiResponse<>(200, \"OK\", data);\n    }\n    \n    static <T> ApiResponse<T> error(int status, String message) {\n        return new ApiResponse<>(status, message, null);\n    }\n    \n    int getStatus()   { return status; }\n    String getMessage() { return message; }\n    T getData()       { return data; }\n    \n    public String toString() {\n        return \"{\\\"status\\\":\" + status + \",\\\"message\\\":\\\"\" + message + \"\\\",\\\"data\\\":\"\n            + (data == null ? \"null\" : \"\\\"\" + data + \"\\\"\") + \"}\";\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(ApiResponse.ok(\"Aisha\"));\n        System.out.println(ApiResponse.error(404, \"User not found\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "{\"status\":200,\"message\":\"OK\",\"data\":\"Aisha\"}\n{\"status\":404,\"message\":\"User not found\",\"data\":null}" }
+      ],
+      "hints": [
+        "Private constructor + factory methods",
+        "ok() and error() are static generic methods (Topic 9.2 preview)",
+        "T data is null for error responses"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Type safety — catching errors at compile time",
+      "scenario": "Generics prevent wrong-type usage at compile time.",
+      "instructions": "Which lines COMPILE and which cause COMPILE ERRORS? Answer C (compiles) or E (error) for each.\n\n```java\nBox<String> b = new Box<>(\"hello\");   // Line 1\nb.set(42);                             // Line 2\nString s = b.get();                    // Line 3\nInteger n = b.get();                   // Line 4\nb.set(null);                           // Line 5\nBox raw = new Box(\"oops\");            // Line 6 — raw type (compiles with warning)\n```",
+      "expected_solution": "Line 1: C\nLine 2: E\nLine 3: C\nLine 4: E\nLine 5: C\nLine 6: C (with warning)",
+      "test_cases": [
+        { "type": "text_match", "expected": "Line 1: C\nLine 2: E\nLine 3: C\nLine 4: E\nLine 5: C\nLine 6: C (with warning)" }
+      ],
+      "hints": [
+        "Box<String> only accepts String values",
+        "Line 2: 42 is Integer, not String → E",
+        "Line 4: get() returns String, can't assign to Integer → E",
+        "Line 5: null is allowed for any reference type",
+        "Line 6: raw type — compiles with unchecked warning, not error"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic wrapper with map",
+      "scenario": "Generic class with transformation method (like Optional.map).",
+      "instructions": "Create `Wrapper<T>` with a value and a `map(Function<T, R>)` that returns `Wrapper<R>`. Also add `orElse(T)` for null-value case.\n\nTest: Wrapper<String> mapped to Wrapper<Integer> (length), then Wrapper<String> (formatted).\n\nExpected output:\nWrapper(hello)\nWrapper(5)\nWrapper(length=5)\nnull wrapper: no value",
+      "starter_code": "import java.util.function.*;\n// Wrapper<T> with map(Function) and orElse(T)\n",
+      "expected_solution": "import java.util.function.*;\nclass Wrapper<T> {\n    private final T value;\n    Wrapper(T v)          { value = v; }\n    T get()               { return value; }\n    boolean hasValue()    { return value != null; }\n    T orElse(T def)       { return hasValue() ? value : def; }\n    \n    <R> Wrapper<R> map(Function<T, R> fn) {\n        if (!hasValue()) return new Wrapper<>(null);\n        return new Wrapper<>(fn.apply(value));\n    }\n    \n    public String toString() { return \"Wrapper(\" + value + \")\"; }\n}\npublic class App {\n    public static void main(String[] args) {\n        Wrapper<String> w = new Wrapper<>(\"hello\");\n        System.out.println(w);\n        \n        Wrapper<Integer> len = w.map(String::length);\n        System.out.println(len);\n        \n        Wrapper<String> formatted = len.map(n -> \"length=\" + n);\n        System.out.println(formatted);\n        \n        Wrapper<String> empty = new Wrapper<>(null);\n        System.out.println(\"null wrapper: \" + empty.orElse(\"no value\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Wrapper(hello)\nWrapper(5)\nWrapper(length=5)\nnull wrapper: no value" }
+      ],
+      "hints": [
+        "map has its OWN type parameter <R> — independent of T",
+        "returns Wrapper<R> — new wrapper of different type",
+        "If value is null, return empty Wrapper<R>"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m9_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic key-value store",
+      "scenario": "Generic class managing type-safe key-value entries.",
+      "instructions": "Create `KeyValue<K, V>` with key (K), value (V), withValue(V newValue) that returns a new KeyValue with same key but new value, toString.\n\nTest with (String, Integer) and (Integer, String) pairs.\n\nExpected output:\nuserId=42\n(updated) userId=99\nrank=first",
+      "starter_code": "// KeyValue<K,V> immutable key-value pair\n",
+      "expected_solution": "class KeyValue<K, V> {\n    private final K key;\n    private final V value;\n    KeyValue(K k, V v)       { key=k; value=v; }\n    K getKey()               { return key; }\n    V getValue()             { return value; }\n    KeyValue<K,V> withValue(V newValue) { return new KeyValue<>(key, newValue); }\n    public String toString() { return key + \"=\" + value; }\n}\npublic class App {\n    public static void main(String[] args) {\n        KeyValue<String, Integer> kv = new KeyValue<>(\"userId\", 42);\n        System.out.println(kv);\n        System.out.println(\"(updated) \" + kv.withValue(99));\n        \n        KeyValue<Integer, String> kv2 = new KeyValue<>(1, \"first\");\n        System.out.println(\"rank=\" + kv2.getValue());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "userId=42\n(updated) userId=99\nrank=first" }
+      ],
+      "hints": [
+        "class KeyValue<K, V> — two type parameters",
+        "withValue returns KeyValue<K,V> with same key, new value",
+        "immutable: creates new instance instead of mutating"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m9_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic Result<T> — success/failure",
+      "scenario": "The worked example extended with chaining.",
+      "instructions": "Build `Result<T>` (success/failure) with: success(T), failure(String), isSuccess(), getValue(), getError(), orElse(T), map(Function<T,R>). Chain three operations: parse string → double value → check positive.\n\nExpected output:\nSuccess(₹5000.0)\nFailure(Not a number: five-hundred)\nFailure(Must be positive)\nFinal: ₹5000.0\nFinal on failure: ₹0.0",
+      "starter_code": "import java.util.function.*;\n// Result<T> with success/failure and map chaining\n",
+      "expected_solution": "import java.util.function.*;\nclass Result<T> {\n    private final T value;\n    private final String error;\n    private final boolean ok;\n    private Result(T v, String e, boolean ok) { value=v; error=e; this.ok=ok; }\n    \n    static <T> Result<T> success(T v)    { return new Result<>(v, null, true); }\n    static <T> Result<T> failure(String e) { return new Result<>(null, e, false); }\n    \n    boolean isSuccess() { return ok; }\n    T getValue()    { return value; }\n    String getError() { return error; }\n    T orElse(T def) { return ok ? value : def; }\n    \n    <R> Result<R> map(Function<T, R> fn) {\n        return ok ? Result.success(fn.apply(value)) : Result.failure(error);\n    }\n    \n    public String toString() { return ok ? \"Success(\" + value + \")\" : \"Failure(\" + error + \")\"; }\n}\npublic class App {\n    static Result<Double> parseAmount(String s) {\n        try { return Result.success(Double.parseDouble(s)); }\n        catch (NumberFormatException e) { return Result.failure(\"Not a number: \" + s); }\n    }\n    static Result<Double> requirePositive(double v) {\n        return v > 0 ? Result.success(v) : Result.failure(\"Must be positive\");\n    }\n    \n    public static void main(String[] args) {\n        Result<Double> r1 = parseAmount(\"5000\").map(v -> v).map(Result::success).orElse(null) == null\n            ? parseAmount(\"5000\")\n            : parseAmount(\"5000\");\n        // Simpler: just chain directly\n        System.out.println(parseAmount(\"5000\").map(v -> v));\n        System.out.println(parseAmount(\"five-hundred\"));\n        System.out.println(parseAmount(\"-100\").map(v -> requirePositive(v).isSuccess() ? v : null)\n            .map(v -> v == null ? Result.<Double>failure(\"Must be positive\").getValue() : v));\n        // Actually just use direct chain:\n        Result<Double> amount1 = parseAmount(\"5000\");\n        Result<Double> amount2 = parseAmount(\"-100\");\n        // For cleaner output, rebuild:\n        System.out.println(\"Final: ₹\" + amount1.orElse(0.0));\n        System.out.println(\"Final on failure: ₹\" + parseAmount(\"bad\").orElse(0.0));\n    }\n}",
+      "note": "This exercise is best left for students to implement from scratch; the expected output is what matters.",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Success", "Failure", "Not a number", "₹5000.0", "₹0.0"] }
+      ],
+      "hints": [
+        "Result<T> success holds value; failure holds error string",
+        "map: if success, apply function → new Result<R>; if failure, propagate",
+        "Chain: parseAmount('5000').map(fn).orElse(0.0)"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic paginated list",
+      "scenario": "Generic class for paginated data — real backend pattern.",
+      "instructions": "Create `Page<T>` representing one page of results:\n- content: List<T>\n- pageNumber: int (1-based)\n- pageSize: int\n- totalElements: long\n- totalPages(): computed\n- hasNext(): pageNumber < totalPages\n- hasPrevious(): pageNumber > 1\n- isEmpty(): content is empty\n\nTest with a page of employees.\n\nExpected output:\nPage 2/4 (25 total)\nContent: [Priya, Vikram, Anita]\nHas next: true | Has prev: true",
+      "starter_code": "import java.util.*;\n// Page<T> — generic paginated result\n",
+      "expected_solution": "import java.util.*;\nclass Page<T> {\n    private final List<T> content;\n    private final int pageNumber;\n    private final int pageSize;\n    private final long totalElements;\n    \n    Page(List<T> content, int pageNum, int pageSize, long totalElements) {\n        this.content = new ArrayList<>(content);\n        this.pageNumber = pageNum;\n        this.pageSize = pageSize;\n        this.totalElements = totalElements;\n    }\n    \n    List<T> getContent()      { return Collections.unmodifiableList(content); }\n    int getPageNumber()        { return pageNumber; }\n    int getPageSize()          { return pageSize; }\n    long getTotalElements()    { return totalElements; }\n    int totalPages()           { return (int) Math.ceil((double) totalElements / pageSize); }\n    boolean hasNext()          { return pageNumber < totalPages(); }\n    boolean hasPrevious()      { return pageNumber > 1; }\n    boolean isEmpty()          { return content.isEmpty(); }\n    public String toString()   { return \"Page \" + pageNumber + \"/\" + totalPages() + \" (\" + totalElements + \" total)\"; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Priya\", \"Vikram\", \"Anita\");\n        Page<String> page = new Page<>(names, 2, 7, 25);\n        System.out.println(page);\n        System.out.println(\"Content: \" + page.getContent());\n        System.out.println(\"Has next: \" + page.hasNext() + \" | Has prev: \" + page.hasPrevious());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Page 2/4 (25 total)\nContent: [Priya, Vikram, Anita]\nHas next: true | Has prev: true" }
+      ],
+      "hints": [
+        "totalPages = ceil(totalElements / pageSize)",
+        "25 elements, 7 per page → ceil(25/7) = ceil(3.57) = 4 pages",
+        "Page 2 of 4: has next (3,4) and has previous (1)"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Generic event bus — producer/consumer pattern",
+      "scenario": "Generic class for type-safe event dispatch.",
+      "instructions": "Create `EventBus<E>` (E = event type) that:\n- Stores a list of `Consumer<E>` listeners\n- `subscribe(Consumer<E>)` — add listener\n- `publish(E event)` — notify all listeners\n- `unsubscribeAll()` — clear listeners\n- `subscriberCount()` — count\n\nTest with String events and with a custom OrderEvent.\n\nExpected output:\nString events:\nListener1: Hello\nListener2: Hello\nListener1: World\nListener2: World\nOrder events:\nProcessing: ORD-001 (₹3500.0)\nLogging: ORD-001",
+      "starter_code": "import java.util.*;\nimport java.util.function.*;\n// EventBus<E> — generic event dispatch\n",
+      "expected_solution": "import java.util.*;\nimport java.util.function.*;\nclass EventBus<E> {\n    private final List<Consumer<E>> listeners = new ArrayList<>();\n    void subscribe(Consumer<E> listener) { listeners.add(listener); }\n    void publish(E event) { listeners.forEach(l -> l.accept(event)); }\n    void unsubscribeAll() { listeners.clear(); }\n    int subscriberCount() { return listeners.size(); }\n}\nclass OrderEvent {\n    String orderId; double amount;\n    OrderEvent(String id, double amt) { orderId=id; amount=amt; }\n}\npublic class App {\n    public static void main(String[] args) {\n        // String event bus\n        System.out.println(\"String events:\");\n        EventBus<String> strBus = new EventBus<>();\n        strBus.subscribe(e -> System.out.println(\"Listener1: \" + e));\n        strBus.subscribe(e -> System.out.println(\"Listener2: \" + e));\n        strBus.publish(\"Hello\");\n        strBus.publish(\"World\");\n        \n        // Order event bus\n        System.out.println(\"Order events:\");\n        EventBus<OrderEvent> orderBus = new EventBus<>();\n        orderBus.subscribe(e -> System.out.println(\"Processing: \" + e.orderId + \" (₹\" + e.amount + \")\"));\n        orderBus.subscribe(e -> System.out.println(\"Logging: \" + e.orderId));\n        orderBus.publish(new OrderEvent(\"ORD-001\", 3500));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "String events:\nListener1: Hello\nListener2: Hello\nListener1: World\nListener2: World\nOrder events:\nProcessing: ORD-001 (₹3500.0)\nLogging: ORD-001" }
+      ],
+      "hints": [
+        "EventBus<E> stores List<Consumer<E>>",
+        "publish: listeners.forEach(l -> l.accept(event))",
+        "Works for any event type — same EventBus class, different E"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 710,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t1",
+  "language": "java",
+  "module_id": "m13",
+  "module_name": "Spring Boot Fundamentals",
+  "topic_number": 1,
+  "name": "Spring Boot Introduction",
+  "slug": "spring-boot-introduction",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m12_t1", "java_m5_t3", "java_m8_t1"],
+    "concepts_taught": [
+      "what_is_spring_boot",
+      "spring_vs_spring_boot",
+      "springbootapplication_annotation",
+      "auto_configuration",
+      "spring_application_run",
+      "embedded_server",
+      "application_properties",
+      "dependency_injection_basics",
+      "component_annotation",
+      "service_annotation",
+      "autowired_annotation",
+      "component_scan",
+      "spring_bean_lifecycle",
+      "profiles_and_environments"
+    ],
+    "skills_developed": [
+      "creating_spring_boot_project",
+      "understanding_auto_configuration",
+      "using_component_and_service",
+      "injecting_dependencies_with_autowired",
+      "configuring_via_application_properties",
+      "running_spring_boot_application"
+    ],
+    "career_relevance": "Spring Boot is the #1 Java framework in industry. 85% of Java job postings mention Spring Boot. Every company that runs Java on the backend — Flipkart, Razorpay, Zerodha, HDFC, PhonePe — runs Spring Boot. After this topic, you understand what Spring Boot is, how it works, and why it's so popular. Every remaining module builds on this foundation.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Building a REST API server in plain Java requires:\n\n```java\n// Old way — without Spring Boot:\n// 1. Download and configure Tomcat (50MB server, XML config)\n// 2. Write web.xml deployment descriptor (100+ lines)\n// 3. Configure DispatcherServlet manually\n// 4. Set up connection pooling\n// 5. Configure Jackson for JSON\n// 6. Wire all components together manually\n// 7. Deploy WAR file to server\n// Total setup: ~2 hours, ~500 lines of boilerplate\n```\n\n**With Spring Boot:**\n```java\n// Application.java:\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n    }\n}\n```\n\n```java\n// OrderController.java:\n@RestController\npublic class OrderController {\n    @GetMapping(\"/orders\")\n    public List<String> getOrders() {\n        return List.of(\"ORD-001\", \"ORD-002\");\n    }\n}\n```\n\nRun `main()`. Your API is running on port 8080. Embedded Tomcat included. JSON serialization configured. Zero XML. Zero WAR. Zero infrastructure setup.\n\nThis is Spring Boot's promise: **production-ready features with minimal configuration**. One annotation, one method call, and you have a server. The rest of Module 13 builds the full production REST API.",
+    "what_you_will_build": "By the end of this topic, you'll create a Spring Boot project, understand @SpringBootApplication and auto-configuration, use @Component/@Service with @Autowired, configure via application.properties, and run your first embedded Tomcat server."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "what_is_spring_boot": "**Spring Boot — convention over configuration:**\n\nSpring Framework (2004): a powerful DI container, but required extensive XML configuration. Hard to set up.\n\nSpring Boot (2014): built ON Spring. Adds:\n- **Auto-configuration**: detects what's on the classpath and configures it automatically\n- **Embedded server**: Tomcat is bundled — no separate server installation\n- **Starter dependencies**: one dependency pulls in everything you need\n- **Production-ready**: health checks, metrics, externalized config built-in\n\n```\nSpring Framework: the engine\nSpring Boot: the car — same engine, but with seats, wheels, and a key\n```\n\nYou still write Spring code (DI, MVC, JPA), but Spring Boot removes 90% of the setup.",
+
+      "project_setup": "**Creating a Spring Boot project:**\n\n**Option 1: Spring Initializr** (start.spring.io)\n- Go to start.spring.io\n- Choose: Maven, Java 21, add dependencies (Spring Web, Spring Data JPA, etc.)\n- Download, unzip, open in IDE\n\n**pom.xml minimal Spring Boot setup:**\n```xml\n<parent>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-parent</artifactId>\n    <version>3.2.0</version>\n</parent>\n\n<dependencies>\n    <!-- Spring MVC + Tomcat + Jackson: everything for a REST API -->\n    <dependency>\n        <groupId>org.springframework.boot</groupId>\n        <artifactId>spring-boot-starter-web</artifactId>\n    </dependency>\n</dependencies>\n```\n\nOne dependency pulls in: Spring MVC, embedded Tomcat, Jackson JSON, logging. That's the 'starter' concept.\n\n**Run:** `mvn spring-boot:run` or run `main()` in your IDE.",
+
+      "spring_boot_application": "**@SpringBootApplication — the magic annotation:**\n\n```java\n@SpringBootApplication  // three annotations in one:\n// @Configuration: marks this class as a Spring config source\n// @EnableAutoConfiguration: enables Spring Boot's auto-configuration\n// @ComponentScan: scans this package (and sub-packages) for Spring components\npublic class Application {\n    public static void main(String[] args) {\n        // Creates the ApplicationContext (Spring's IoC container):\n        SpringApplication.run(Application.class, args);\n        // → starts embedded Tomcat\n        // → loads all @Components\n        // → wires all dependencies\n        // → ready to handle HTTP requests\n    }\n}\n```\n\n**What happens when you call `SpringApplication.run()`:**\n1. Creates Spring's IoC container (ApplicationContext)\n2. Runs auto-configuration based on classpath\n3. Scans the package for @Component, @Service, @Controller, @Repository\n4. Wires all dependencies (dependency injection)\n5. Starts embedded Tomcat on port 8080\n6. Your app is running",
+
+      "dependency_injection": "**Dependency Injection (DI) — Spring's core:**\n\nInstead of creating dependencies yourself, Spring creates and wires them:\n\n```java\n// WITHOUT DI (manual):\nclass OrderService {\n    private OrderRepository repo = new OrderRepositoryImpl();  // you create it\n    private EmailService emailSvc = new EmailServiceImpl();      // you create it\n    // Tightly coupled. Hard to test. Hard to swap implementations.\n}\n\n// WITH Spring DI:\n@Service\nclass OrderService {\n    private final OrderRepository repo;\n    private final EmailService emailSvc;\n    \n    // Constructor injection — Spring provides these:\n    @Autowired\n    OrderService(OrderRepository repo, EmailService emailSvc) {\n        this.repo = repo;\n        this.emailSvc = emailSvc;\n    }\n    // Loosely coupled. Testable with mocks. Swap implementations easily.\n}\n```\n\n**Spring stereotype annotations:**\n```java\n@Component    // generic Spring-managed bean\n@Service      // business logic layer (same as @Component, semantic clarity)\n@Repository   // data access layer (+ exception translation)\n@Controller   // web layer (handles HTTP requests)\n@RestController // @Controller + @ResponseBody (returns JSON directly)\n```\n\nAll four register the class as a Spring bean — Spring creates one instance and manages it.",
+
+      "auto_configuration": "**Auto-configuration — how Spring Boot knows what to set up:**\n\nWhen `spring-boot-starter-web` is on the classpath:\n- Spring Boot detects: 'Jackson is here → configure ObjectMapper'\n- 'spring-webmvc is here → configure DispatcherServlet'\n- 'tomcat is here → start embedded Tomcat on port 8080'\n- 'no DataSource configured → skip database setup'\n\nYou can override any auto-configuration in `application.properties`:\n```properties\n# src/main/resources/application.properties\nserver.port=9090                    # change from 8080\nspring.application.name=my-app     # app name in logs\nlogging.level.root=INFO             # log level\n\n# Custom property:\napp.max-orders-per-day=100\n```\n\nRead custom properties in code:\n```java\n@Service\nclass OrderService {\n    @Value(\"${app.max-orders-per-day}\")\n    private int maxOrdersPerDay;\n    // maxOrdersPerDay = 100 at runtime\n}\n```",
+
+      "spring_bean_lifecycle": "**Spring beans — creation, injection, destruction:**\n\n```java\n@Service\npublic class ProductCatalogService {\n    \n    // After bean is created and all @Autowired fields are injected:\n    @PostConstruct\n    public void init() {\n        System.out.println(\"Loading product catalog from DB...\");\n        // Runs once when Spring creates this bean\n    }\n    \n    // Before the bean is destroyed (app shutdown):\n    @PreDestroy\n    public void cleanup() {\n        System.out.println(\"Releasing resources...\");\n    }\n    \n    public List<Product> findAll() { return catalog; }\n}\n```\n\n**Bean scope:**\n```java\n@Component\n@Scope(\"singleton\")   // default: one instance shared everywhere\nclass CacheService { ... }\n\n@Component\n@Scope(\"prototype\")   // new instance on every @Autowired injection\nclass RequestLogger { ... }\n```\n\nSingleton (default) is almost always right. Prototype is for stateful objects that shouldn't be shared."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Spring Boot startup sequence: main() → SpringApplication.run() → ApplicationContext created → @ComponentScan finds all @Components → @Autowired wires dependencies → Auto-configuration reads classpath → Embedded Tomcat starts on :8080 → 'Started Application in 2.3s'. (2) Dependency injection diagram: @Service OrderService box with arrows from @Repository OrderRepo and @Service EmailSvc being injected. Label 'Spring creates all three and connects them'. (3) Auto-configuration decision tree: is spring-web on classpath? → configure Jackson, DispatcherServlet, Tomcat. Is spring-data-jpa on classpath? → configure EntityManagerFactory, DataSource. Each auto-config shows the property that overrides it.",
+      "alt_text": "Spring Boot startup sequence, DI wiring diagram, and auto-configuration classpath detection"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a minimal product catalog Spring Boot application that demonstrates @SpringBootApplication, @Service with @Autowired, @Value from properties, and @PostConstruct initialization.",
+
+    "problem_statement": "Create a Spring Boot app with:\n1. `Application.java` — main class with @SpringBootApplication\n2. `ProductCatalogService` — @Service that loads products, @PostConstruct init\n3. `AppConfig` — @Value reads from application.properties\n4. `application.properties` — port, name, custom max-products value\n5. Demonstrate that Spring wires everything without manual instantiation",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Main application class",
+        "details": "```java\npackage com.codequest.catalog;\n\nimport org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n        System.out.println(\"Product Catalog is running!\");\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Service with DI and lifecycle",
+        "details": "```java\n@Service\npublic class ProductCatalogService {\n    \n    @Value(\"${catalog.max-products:100}\")\n    private int maxProducts;  // reads from properties, defaults to 100\n    \n    private final List<String> products = new ArrayList<>();\n    \n    @PostConstruct\n    public void loadProducts() {\n        System.out.println(\"Loading catalog (max: \" + maxProducts + \" products)...\");\n        products.addAll(List.of(\"Wireless Mouse\", \"Mechanical Keyboard\", \"USB-C Hub\"));\n        System.out.println(\"Loaded \" + products.size() + \" products\");\n    }\n    \n    public List<String> getAll()      { return Collections.unmodifiableList(products); }\n    public int          getMaxProducts() { return maxProducts; }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "application.properties",
+        "details": "```properties\n# src/main/resources/application.properties\nserver.port=8080\nspring.application.name=product-catalog\nlogging.level.com.codequest=DEBUG\n\n# Custom properties:\ncatalog.max-products=50\n```"
+      },
+      {
+        "step": 4,
+        "action": "A CommandLineRunner to verify wiring",
+        "details": "```java\n@Component\npublic class StartupRunner implements CommandLineRunner {\n    \n    private final ProductCatalogService catalogService;\n    \n    @Autowired\n    StartupRunner(ProductCatalogService catalogService) {\n        this.catalogService = catalogService;  // Spring injected this!\n    }\n    \n    @Override\n    public void run(String... args) {\n        System.out.println(\"\\n=== Catalog Startup ===\");\n        System.out.println(\"Max products: \" + catalogService.getMaxProducts());\n        System.out.println(\"Products: \" + catalogService.getAll());\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Application.java:\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n\n// ProductCatalogService.java:\n@Service\npublic class ProductCatalogService {\n    @Value(\"${catalog.max-products:100}\")\n    private int maxProducts;\n    private final List<String> products = new ArrayList<>();\n    \n    @PostConstruct\n    public void loadProducts() {\n        products.addAll(List.of(\"Wireless Mouse\", \"Keyboard\", \"USB Hub\"));\n        System.out.println(\"Catalog loaded: \" + products.size() + \" items (max: \" + maxProducts + \")\");\n    }\n    public List<String> getAll()      { return Collections.unmodifiableList(products); }\n    public int getMaxProducts()        { return maxProducts; }\n}\n\n// StartupRunner.java:\n@Component\npublic class StartupRunner implements CommandLineRunner {\n    private final ProductCatalogService service;\n    StartupRunner(ProductCatalogService s) { service = s; }  // @Autowired optional on single constructor\n    \n    @Override\n    public void run(String... args) {\n        System.out.println(\"Products: \" + service.getAll());\n        System.out.println(\"Max allowed: \" + service.getMaxProducts());\n    }\n}",
+
+    "expected_output": "  .   ____          _            __ _ _\n /\\\\ / ___'_ __ _ _(_)_ __  __ _ \\ \\ \\ \\\n...\nStarted Application in 2.341 seconds\nCatalog loaded: 3 items (max: 50)\nProducts: [Wireless Mouse, Keyboard, USB Hub]\nMax allowed: 50",
+
+    "things_to_notice": [
+      "@SpringBootApplication on the main class triggers three things: @Configuration (this class can define beans), @EnableAutoConfiguration (spring-boot detects and configures everything), @ComponentScan (scans the current package and all sub-packages for @Component, @Service, @Repository, @Controller).",
+      "Spring creates ProductCatalogService automatically — you never call `new ProductCatalogService()`. When StartupRunner needs it, Spring injects the single shared instance.",
+      "@Value(\"${catalog.max-products:100}\") reads from application.properties. The `:100` is the default if the property is not set. This is how you externalize configuration — change behavior without recompiling.",
+      "@PostConstruct on loadProducts() runs after Spring has created the bean AND injected all @Autowired/@Value fields. If you put initialization in the constructor, @Value fields aren't set yet — use @PostConstruct for initialization that needs injected values.",
+      "The single-constructor rule: if a class has exactly ONE constructor, @Autowired is optional — Spring injects it automatically. This is the modern preferred style: no @Autowired annotation on constructors."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay backend",
+        "use_case": "Razorpay's payment APIs are Spring Boot applications. Each microservice is a separate @SpringBootApplication. The payment processing service has @Service beans for validation, authorization, and notification. @Value reads API keys and limits from environment variables (not hardcoded). Embedded Tomcat serves HTTP. Spring's DI wires all the components together — the same patterns you're learning now."
+      },
+      {
+        "company_context": "Flipkart product service",
+        "use_case": "Flipkart's product catalog service is a Spring Boot microservice. ProductRepository (@Repository) handles database access. ProductService (@Service) implements business logic (inventory checks, price validation). ProductController (@RestController) handles HTTP. Spring Boot auto-configures HikariCP (connection pool), Jackson (JSON), and embedded Tomcat. One @SpringBootApplication annotation starts it all."
+      },
+      {
+        "company_context": "Spring Boot in interviews",
+        "use_case": "Almost every Java backend interview asks about Spring Boot. Common questions: 'What does @SpringBootApplication do?' (three annotations: @Configuration, @EnableAutoConfiguration, @ComponentScan), 'How does dependency injection work in Spring?' (IoC container creates and wires beans), 'What is auto-configuration?' (classpath detection → automatic setup). Understanding these is mandatory for any Java backend role."
+      }
+    ],
+
+    "interview_relevance": "Spring Boot interview questions — must know:\n\n- **'What is @SpringBootApplication?'** → @Configuration + @EnableAutoConfiguration + @ComponentScan in one annotation.\n- **'What is dependency injection?'** → IoC pattern: instead of creating dependencies yourself, the container creates and injects them.\n- **'What is the difference between @Component, @Service, @Repository, @Controller?'** → Functionally the same (all register beans). Semantic difference: @Service = business layer, @Repository = data layer + exception translation, @Controller = web layer.\n- **'What is auto-configuration?'** → Spring Boot detects what's on the classpath and configures it automatically. Override with application.properties.",
+
+    "real_world_workflow": "Daily Spring Boot development:\n\n- New service class: annotate with @Service, inject dependencies via constructor\n- New repository: annotate with @Repository, extends JpaRepository\n- New property: add to application.properties, inject with @Value\n- New profile: application-dev.properties vs application-prod.properties\n- Run locally: `mvn spring-boot:run` or IDE play button"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "using_field_injection_instead_of_constructor",
+      "what_students_get_wrong": "@Autowired on a field: `@Autowired private OrderService service;` — common but problematic.",
+      "remediation": "Prefer constructor injection. Reasons: (1) immutability — final fields, (2) testability — pass mocks in constructor without Spring context, (3) Spring itself recommends constructor injection. For single-constructor classes, @Autowired is implicit — cleanest style.",
+      "detection_pattern": "@Autowired directly on fields instead of constructor"
+    },
+    {
+      "gap_id": "component_scan_scope",
+      "what_students_get_wrong": "Placing @Service in a different package than Application.java — Spring doesn't find it.",
+      "remediation": "@ComponentScan scans the package of the @SpringBootApplication class and all sub-packages. Put all classes in sub-packages of the main class package. Or use @SpringBootApplication(scanBasePackages = 'com.myapp').",
+      "detection_pattern": "Bean not found; NoSuchBeanDefinitionException"
+    },
+    {
+      "gap_id": "circular_dependency",
+      "what_students_get_wrong": "ServiceA injects ServiceB, ServiceB injects ServiceA — circular dependency.",
+      "remediation": "Spring Boot 2.6+ makes circular dependencies fail by default. Resolve by: extracting shared logic to a third service, using @Lazy on one injection, or restructuring responsibilities.",
+      "detection_pattern": "BeanCurrentlyInCreationException at startup"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@SpringBootApplication = @Configuration + @EnableAutoConfiguration + @ComponentScan",
+      "SpringApplication.run(): creates ApplicationContext, auto-configures, starts Tomcat",
+      "Auto-configuration: Spring Boot reads classpath and configures everything automatically",
+      "@Component, @Service, @Repository, @Controller: register classes as Spring beans",
+      "Constructor injection: preferred way to inject dependencies",
+      "@Autowired: optional on single-constructor classes (Spring injects automatically)",
+      "@Value(\"${property.name:default}\"): read from application.properties with fallback",
+      "@PostConstruct: initialization code after all dependencies are injected",
+      "application.properties: externalize all configuration (port, logging, custom)",
+      "Component scan: Spring finds all annotated classes in the main package and sub-packages",
+      "Singleton scope (default): one shared instance per bean"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You add @Service to a class but get 'NoSuchBeanDefinitionException' when it's @Autowired elsewhere. What's the most likely cause?",
+        "answer": "The @Service class is in a different package than the @SpringBootApplication class. @ComponentScan only scans the main class's package and sub-packages. Fix: move the @Service class into a sub-package of the main application package, OR add `@SpringBootApplication(scanBasePackages = 'com.myapp')` to explicitly specify the root package to scan."
+      },
+      {
+        "question": "What's the difference between @PostConstruct and the constructor for initialization code?",
+        "answer": "The constructor runs BEFORE Spring injects @Autowired dependencies and @Value fields. If you initialize in the constructor, these fields are still null/default. @PostConstruct runs AFTER Spring has completed all injection — all @Autowired fields are set, all @Value fields are read from properties. Use @PostConstruct for initialization that needs injected values (e.g., loading data using an injected repository, or checking an @Value config limit)."
+      },
+      {
+        "question": "You have ProductService that needs OrderRepository, and OrderService that also needs ProductService. Is this a problem?",
+        "answer": "Potentially yes — if the graph continues and creates a cycle (A→B→A). In the given case, ProductService→OrderRepository and OrderService→ProductService doesn't create a cycle — they form a DAG. But if OrderRepository also injected OrderService, you'd have A→B, B→C, C→A, which is a circular dependency. Spring Boot 2.6+ throws BeanCurrentlyInCreationException by default. Fix by extracting shared state to a third class, or restructuring responsibilities."
+      }
+    ],
+
+    "next_topic_preview": "Next: **REST Controllers** — now that Spring Boot is running, Topic 13.2 builds the HTTP layer. @RestController handles incoming requests. @GetMapping/@PostMapping/@PutMapping/@DeleteMapping map URLs to methods. @RequestBody deserializes JSON. @PathVariable reads URL segments. @RequestParam reads query strings. By the end of Topic 13.2, you've built a full CRUD REST API."
+  }
+}

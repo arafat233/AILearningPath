@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m34_t1_proj",
+  "linked_topic": "java_m34_t1",
+  "level": "mini",
+  "name": "Zerodha Stock Analytics Engine",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Build a stock analytics engine using HashMap patterns for O(1) lookups.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "twoSum O(n), subarrayK O(n), longestConsec O(n), freq analysis",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests all pass",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README: explains why prefixCount.put(0,1) is needed for subarrayK",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms with tests",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Two sum: complement = target - nums[i]; put AFTER containsKey check. SubarrayK: prefix+HashMap; put(0,1) covers subarrays from start. LongestConsec: only start from n where n-1 not in set.",
+  "rubric": [
+    {
+      "category": "Core algorithms",
+      "points": 50
+    },
+    {
+      "category": "4 tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

@@ -1,0 +1,331 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t3",
+  "topic_name": "BST Operations",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m35_t3_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "BST search O(h)",
+      "instructions": "Implement: BST search O(h).",
+      "starter_code": "",
+      "expected_solution": "public class BSTSearch {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode search(TreeNode r, int t){\n        if(r==null||r.val==t)return r;\n        return t<r.val?search(r.left,t):search(r.right,t);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(4);r.left=new TreeNode(2);r.right=new TreeNode(7);\n        r.left.left=new TreeNode(1);r.left.right=new TreeNode(3);\n        System.out.println(search(r,2).val); // 2\n        System.out.println(search(r,5));      // null\n        System.out.println(\"O(h): h=log n balanced, h=n skewed. Always prefer balanced BST.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "null",
+            "O(h): h=log n"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t3_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "BST insert",
+      "instructions": "Implement: BST insert.",
+      "starter_code": "",
+      "expected_solution": "public class BSTInsert {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode insert(TreeNode r, int v){\n        if(r==null)return new TreeNode(v);\n        if(v<r.val)r.left=insert(r.left,v);\n        else if(v>r.val)r.right=insert(r.right,v);\n        return r;}\n    static String inorder(TreeNode r){return r==null?\"\":inorder(r.left)+r.val+\" \"+inorder(r.right);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(4);r=insert(r,2);r=insert(r,7);r=insert(r,1);r=insert(r,3);\n        System.out.println(inorder(r).trim()); // 1 2 3 4 7\n        System.out.println(\"Insert preserves BST property. Inorder must be sorted after.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1 2 3 4 7",
+            "Inorder must be sorted"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Validate BST (LeetCode #98)",
+      "instructions": "Implement: Validate BST (LeetCode #98).",
+      "starter_code": "",
+      "expected_solution": "public class ValidBST {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static boolean valid(TreeNode r, long lo, long hi){\n        if(r==null)return true;\n        if(r.val<=lo||r.val>=hi)return false;\n        return valid(r.left,lo,r.val)&&valid(r.right,r.val,hi);}\n    static boolean isValidBST(TreeNode r){return valid(r,Long.MIN_VALUE,Long.MAX_VALUE);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(2);r.left=new TreeNode(1);r.right=new TreeNode(3);\n        System.out.println(isValidBST(r)); // true\n        TreeNode bad=new TreeNode(5);bad.left=new TreeNode(1);bad.right=new TreeNode(4);\n        bad.right.left=new TreeNode(3);bad.right.right=new TreeNode(6);\n        System.out.println(isValidBST(bad)); // false\n        System.out.println(\"Pass (lo,hi) bounds. Long.MIN/MAX handles Integer.MIN_VALUE edge case.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Long.MIN/MAX"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m35_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Kth smallest (LeetCode #230)",
+      "instructions": "Implement: Kth smallest (LeetCode #230).",
+      "starter_code": "",
+      "expected_solution": "public class KthSmall {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int k,res;\n    static void inorder(TreeNode r){if(r==null)return;inorder(r.left);if(--k==0)res=r.val;inorder(r.right);}\n    static int kthSmallest(TreeNode r, int kk){k=kk;inorder(r);return res;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(3);r.left=new TreeNode(1);r.right=new TreeNode(4);r.left.right=new TreeNode(2);\n        System.out.println(kthSmallest(r,1)); // 1\n        System.out.println(kthSmallest(r,3)); // 3\n        System.out.println(\"BST inorder = sorted. Stop (decrement counter) at kth visit.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "3",
+            "BST inorder = sorted"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m35_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "LCA of BST (LeetCode #235)",
+      "instructions": "Implement: LCA of BST (LeetCode #235).",
+      "starter_code": "",
+      "expected_solution": "public class LCABST2 {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode lca(TreeNode r, int p, int q){\n        if(p<r.val&&q<r.val)return lca(r.left,p,q);\n        if(p>r.val&&q>r.val)return lca(r.right,p,q);\n        return r;}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(6);r.left=new TreeNode(2);r.right=new TreeNode(8);\n        r.left.left=new TreeNode(0);r.left.right=new TreeNode(4);\n        System.out.println(lca(r,2,8).val); // 6\n        System.out.println(lca(r,2,4).val); // 2\n        System.out.println(\"BST LCA is O(h), not O(n). Use BST property to navigate.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "2",
+            "O(h), not O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m35_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "BST delete (LeetCode #450)",
+      "instructions": "Implement: BST delete (LeetCode #450).",
+      "starter_code": "",
+      "expected_solution": "public class BSTDel {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode delete(TreeNode r, int k){\n        if(r==null)return null;\n        if(k<r.val)r.left=delete(r.left,k);\n        else if(k>r.val)r.right=delete(r.right,k);\n        else{\n            if(r.left==null)return r.right;\n            if(r.right==null)return r.left;\n            TreeNode s=r.right;while(s.left!=null)s=s.left;\n            r.val=s.val;r.right=delete(r.right,s.val);}\n        return r;}\n    static String in(TreeNode r){return r==null?\"\":in(r.left)+r.val+\" \"+in(r.right);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(5);r.left=new TreeNode(3);r.right=new TreeNode(6);\n        r.left.left=new TreeNode(2);r.left.right=new TreeNode(4);r.right.right=new TreeNode(7);\n        System.out.println(in(delete(r,3)).trim()); // 2 4 5 6 7\n        System.out.println(\"2-child delete: replace with inorder successor (leftmost of right subtree)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2 4 5 6 7",
+            "inorder successor"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m35_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sorted array to BST (LeetCode #108)",
+      "instructions": "Implement: Sorted array to BST (LeetCode #108).",
+      "starter_code": "",
+      "expected_solution": "public class SortedBST {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode build(int[] nums, int l, int r){\n        if(l>r)return null;int mid=(l+r)/2;\n        TreeNode n=new TreeNode(nums[mid]);\n        n.left=build(nums,l,mid-1);n.right=build(nums,mid+1,r);return n;}\n    static int depth(TreeNode r){return r==null?0:1+Math.max(depth(r.left),depth(r.right));}\n    public static void main(String[] a){\n        int[] nums={-10,-3,0,5,9};\n        TreeNode r=build(nums,0,nums.length-1);\n        System.out.println(depth(r));   // 3\n        System.out.println(r.val);      // 0 (middle element)\n        System.out.println(\"Mid element as root \u2192 balanced. O(n) to build.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "0",
+            "Mid element as root"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "BST iterator (LeetCode #173)",
+      "instructions": "Implement: BST iterator (LeetCode #173).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class BSTIter {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static class BSTIterator{\n        Deque<TreeNode> st=new ArrayDeque<>();\n        BSTIterator(TreeNode r){pushLeft(r);}\n        void pushLeft(TreeNode n){while(n!=null){st.push(n);n=n.left;}}\n        int next(){TreeNode n=st.pop();pushLeft(n.right);return n.val;}\n        boolean hasNext(){return!st.isEmpty();}}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(7);r.left=new TreeNode(3);r.right=new TreeNode(15);\n        r.right.left=new TreeNode(9);r.right.right=new TreeNode(20);\n        BSTIterator it=new BSTIterator(r);\n        System.out.println(it.next()); // 3\n        System.out.println(it.next()); // 7\n        System.out.println(it.hasNext()); // true\n        System.out.println(\"O(h) space stack. next() amortized O(1). pushLeft on right after pop.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "7",
+            "true",
+            "amortized O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "BST to Greater Sum Tree (LeetCode #538)",
+      "instructions": "Implement: BST to Greater Sum Tree (LeetCode #538).",
+      "starter_code": "",
+      "expected_solution": "public class GreaterTree {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static int sum=0;\n    static void revInorder(TreeNode r){\n        if(r==null)return;revInorder(r.right);sum+=r.val;r.val=sum;revInorder(r.left);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(4);r.left=new TreeNode(1);r.right=new TreeNode(6);\n        r.left.right=new TreeNode(2);r.right.left=new TreeNode(5);r.right.right=new TreeNode(7);\n        sum=0;revInorder(r);\n        System.out.println(r.val);       // 22 (4+6+5+7)\n        System.out.println(r.right.val); // 13 (6+7)\n        System.out.println(\"Reverse inorder (R-N-L): accumulate suffix sum from largest to smallest\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "22",
+            "13",
+            "Reverse inorder (R-N-L)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Recover BST (LeetCode #99)",
+      "instructions": "Implement: Recover BST (LeetCode #99).",
+      "starter_code": "",
+      "expected_solution": "public class RecoverBST {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static TreeNode first=null,second=null,prev=null;\n    static void inorder(TreeNode r){\n        if(r==null)return;inorder(r.left);\n        if(prev!=null&&prev.val>r.val){if(first==null)first=prev;second=r;}\n        prev=r;inorder(r.right);}\n    static void recoverTree(TreeNode r){first=second=prev=null;inorder(r);int t=first.val;first.val=second.val;second.val=t;}\n    static String in(TreeNode r){return r==null?\"\":in(r.left)+r.val+\" \"+in(r.right);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(1);r.left=new TreeNode(3);r.left.right=new TreeNode(2);\n        recoverTree(r);System.out.println(in(r).trim());\n        System.out.println(\"Find two swapped nodes via inorder: first violation = first, second violation = second\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1 2 3",
+            "first violation = first, second violation = second"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "BST synthesis",
+      "instructions": "Implement: BST synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class BSTSynth {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static boolean valid(TreeNode r,long lo,long hi){if(r==null)return true;if(r.val<=lo||r.val>=hi)return false;return valid(r.left,lo,r.val)&&valid(r.right,r.val,hi);}\n    static TreeNode ins(TreeNode r,int v){if(r==null)return new TreeNode(v);if(v<r.val)r.left=ins(r.left,v);else if(v>r.val)r.right=ins(r.right,v);return r;}\n    static int kth(TreeNode r,int k){int[]c={k},res={-1};ih(r,c,res);return res[0];}\n    static void ih(TreeNode r,int[]c,int[]res){if(r==null)return;ih(r.left,c,res);if(--c[0]==0)res[0]=r.val;ih(r.right,c,res);}\n    static String in(TreeNode r){return r==null?\"\":in(r.left)+r.val+\" \"+in(r.right);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(4);r=ins(r,2);r=ins(r,6);r=ins(r,1);r=ins(r,3);\n        System.out.println(\"valid=\"+valid(r,Long.MIN_VALUE,Long.MAX_VALUE));\n        System.out.println(\"kth2=\"+kth(r,2));\n        System.out.println(\"inorder=\"+in(r).trim());\n        boolean ok=valid(r,Long.MIN_VALUE,Long.MAX_VALUE)&&kth(r,2)==2&&in(r).trim().equals(\"1 2 3 4 6\");\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "valid=true",
+            "kth2=2"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M35 T3 BST Synthesis",
+      "instructions": "Implement: Complete M35 T3 BST Synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class T3Final {\n    static class TreeNode{int val;TreeNode left,right;TreeNode(int v){val=v;}}\n    static boolean valid(TreeNode r,long lo,long hi){if(r==null)return true;if(r.val<=lo||r.val>=hi)return false;return valid(r.left,lo,r.val)&&valid(r.right,r.val,hi);}\n    static TreeNode del(TreeNode r,int k){if(r==null)return null;if(k<r.val)r.left=del(r.left,k);else if(k>r.val)r.right=del(r.right,k);else{if(r.left==null)return r.right;if(r.right==null)return r.left;TreeNode s=r.right;while(s.left!=null)s=s.left;r.val=s.val;r.right=del(r.right,s.val);}return r;}\n    static int kth(TreeNode r,int k){int[]c={k},res={-1};ih(r,c,res);return res[0];}\n    static void ih(TreeNode r,int[]c,int[]res){if(r==null)return;ih(r.left,c,res);if(--c[0]==0)res[0]=r.val;ih(r.right,c,res);}\n    static String in(TreeNode r){return r==null?\"\":in(r.left)+r.val+\" \"+in(r.right);}\n    public static void main(String[] a){\n        TreeNode r=new TreeNode(5);r.left=new TreeNode(3);r.right=new TreeNode(6);r.left.left=new TreeNode(2);r.left.right=new TreeNode(4);\n        System.out.println(\"valid=\"+valid(r,Long.MIN_VALUE,Long.MAX_VALUE));\n        System.out.println(\"kth3=\"+kth(r,3));\n        System.out.println(\"del3=\"+in(del(r,3)).trim());\n        boolean ok=valid(r,Long.MIN_VALUE,Long.MAX_VALUE)&&kth(r,3)==4;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "valid=true",
+            "kth3=4"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

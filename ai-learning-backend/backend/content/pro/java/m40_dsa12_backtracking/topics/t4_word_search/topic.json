@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m40_t4",
+  "module_id": "m40",
+  "topic_number": 4,
+  "name": "Word Search \u2014 Grid Backtracking",
+  "slug": "word-search-grid-backtracking",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m40_t1"
+    ],
+    "concepts_taught": [
+      "word-search-grid-backtracking"
+    ],
+    "career_relevance": "Core Word Search \u2014 Grid Backtracking.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Word Search \u2014 Grid Backtracking"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Mark visited: set board[r][c]='#'; restore after DFS",
+        "4-directional DFS from each starting cell",
+        "Base case: index == word.length() \u2192 return true",
+        "Prune: if out of bounds or mismatch \u2192 return false",
+        "Word Search II: Trie + backtrack; prune Trie when word found",
+        "O(m*n*4^L) \u2014 m*n starting cells, 4^L paths of length L"
+      ],
+      "next_topic_preview": "Next: Backtracking synthesis."
+    }
+  }
+}

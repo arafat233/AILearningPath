@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t3",
+  "language": "java",
+  "module_id": "m10",
+  "module_name": "Concurrency and Threads",
+  "topic_number": 3,
+  "name": "ExecutorService and Thread Pools",
+  "slug": "executor-service-thread-pools",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m10_t1", "java_m10_t2", "java_m8_t1"],
+    "concepts_taught": [
+      "why_thread_pools",
+      "executors_factory_methods",
+      "executor_service_submit",
+      "callable_vs_runnable",
+      "future_interface",
+      "future_get",
+      "future_cancel_isDone",
+      "shutdown_and_awaittermination",
+      "fixed_thread_pool",
+      "cached_thread_pool",
+      "single_thread_executor",
+      "scheduled_executor_service",
+      "executor_vs_manual_threads",
+      "invokeAll_invokeAny"
+    ],
+    "skills_developed": [
+      "creating_and_using_thread_pools",
+      "submitting_tasks_to_executor",
+      "using_future_to_get_results",
+      "shutting_down_executors_correctly",
+      "choosing_the_right_pool_type",
+      "waiting_for_multiple_futures"
+    ],
+    "career_relevance": "Every production Java backend uses thread pools. Creating a new thread per request is catastrophic at scale — threads are expensive (1MB stack each; OS scheduling overhead). A thread pool recycles a fixed number of threads across thousands of tasks. Spring Boot's servlet container uses a Tomcat thread pool. Android's AsyncTask uses a thread pool. Razorpay's payment processing uses thread pools. After this topic, you write concurrent code the way professionals do — with pools, not raw threads.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "The Zomato app receives 50,000 order requests per minute at peak. Each request needs a thread:\n\n```java\n// WRONG — creating 50,000 threads:\nfor (OrderRequest request : incoming) {\n    new Thread(() -> processOrder(request)).start();  // 50,000 threads!\n}\n```\n\nProblems:\n- Each thread uses ~1MB of stack space → 50GB of RAM just for threads\n- OS can only context-switch between ~hundreds of threads efficiently\n- Thread creation itself takes milliseconds — too slow for high-throughput\n- Threads that finish are discarded — no reuse\n\n**The fix — a thread pool:**\n```java\n// Create pool ONCE — 50 threads, reused for all 50,000 requests:\nExecutorService pool = Executors.newFixedThreadPool(50);\n\nfor (OrderRequest request : incoming) {\n    pool.submit(() -> processOrder(request));  // queued, picked up by idle thread\n}\n// 50 threads handle 50,000 requests, recycling themselves\npool.shutdown();\n```\n\nThread pool = a fixed set of threads that pick up tasks from a queue, process them, then pick up the next task. No new thread creation overhead. Memory bounded. Dramatically more efficient.\n\nThis is `ExecutorService` — Java's thread pool API. After raw threads (10.1) and synchronization (10.2), this is how professionals actually schedule concurrent work.",
+    "what_you_will_build": "By the end of this topic, you'll create thread pools with Executors, submit Runnable and Callable tasks, use Future<T> to get results, properly shut down pools, handle exceptions from async tasks, and choose the right pool type for different workloads."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "why_thread_pools": "**Why thread pools instead of raw threads:**\n\n| Raw Thread per task | Thread Pool |\n|--------------------|-------------|\n| Create + destroy per task | Threads reused |\n| Unlimited threads possible | Bounded to pool size |\n| Expensive creation (~ms) | Cheap submission |\n| No task queue built in | Built-in queue |\n| No result retrieval | Future<T> for results |\n| No exception handling | Future captures exceptions |\n\nThread pools also protect against **thread explosion** — unbounded task submission can't create unbounded threads; excess tasks queue up.",
+
+      "executor_service_basics": "**Creating and using ExecutorService:**\n\n```java\nimport java.util.concurrent.*;\n\n// Create a pool of 4 threads:\nExecutorService pool = Executors.newFixedThreadPool(4);\n\n// Submit Runnable (no result):\npool.submit(() -> System.out.println(\"Task 1 — \" + Thread.currentThread().getName()));\npool.submit(() -> System.out.println(\"Task 2 — \" + Thread.currentThread().getName()));\npool.submit(() -> System.out.println(\"Task 3 — \" + Thread.currentThread().getName()));\n\n// Shutdown: stop accepting new tasks, finish existing ones\npool.shutdown();\n\n// Wait up to 10 seconds for all tasks to finish:\npool.awaitTermination(10, TimeUnit.SECONDS);\n```\n\n**The four Executors factory methods:**\n```java\n// Fixed pool — N threads, good for CPU-bound tasks:\nExecutorService fixed = Executors.newFixedThreadPool(4);\n\n// Cached pool — creates threads as needed, reuses idle ones (up to 60s):\n// Good for short-lived tasks, many bursts:\nExecutorService cached = Executors.newCachedThreadPool();\n\n// Single thread — one thread, tasks run sequentially:\n// Good for serializing access to a resource:\nExecutorService single = Executors.newSingleThreadExecutor();\n\n// Scheduled — run tasks after delay or periodically:\nScheduledExecutorService scheduled = Executors.newScheduledThreadPool(2);\n```",
+
+      "callable_and_future": "**Callable<T>** — like Runnable but returns a value and can throw:\n\n```java\n// Runnable: no return, no checked exceptions\nRunnable r = () -> System.out.println(\"done\");\n\n// Callable<T>: returns T, can throw Exception\nCallable<Integer> c = () -> {\n    Thread.sleep(100);  // can throw InterruptedException\n    return 42;          // returns a value\n};\n\n// Submit Callable — returns Future<T>\nFuture<Integer> future = pool.submit(c);\n\n// future.get() blocks until result is ready:\nInteger result = future.get();  // blocks, throws ExecutionException / InterruptedException\nSystem.out.println(result);  // 42\n```\n\n**Future<T> API:**\n```java\nFuture<String> future = pool.submit(() -> fetchData());\n\n// isDone() — non-blocking check:\nif (future.isDone()) { ... }\n\n// get() — blocks until complete:\nString result = future.get();\n\n// get(timeout) — blocks at most N time units:\nString result = future.get(5, TimeUnit.SECONDS);  // TimeoutException if too slow\n\n// cancel(true) — attempt to cancel (interrupt the thread):\nfuture.cancel(true);  // true = interrupt if running\n\n// isCancelled():\nif (future.isCancelled()) { ... }\n```",
+
+      "exception_handling_future": "**Exceptions in Callable — wrapped in ExecutionException:**\n\n```java\nCallable<String> risky = () -> {\n    if (Math.random() < 0.5) throw new RuntimeException(\"Network error\");\n    return \"Success\";\n};\n\nFuture<String> future = pool.submit(risky);\n\ntry {\n    String result = future.get();\n    System.out.println(result);\n} catch (ExecutionException e) {\n    // The actual cause is wrapped inside:\n    Throwable cause = e.getCause();\n    System.out.println(\"Task failed: \" + cause.getMessage());\n} catch (InterruptedException e) {\n    Thread.currentThread().interrupt();\n}\n```\n\n**Key point**: exceptions inside Callable are swallowed until you call `get()`. If you never call `get()`, you never see the exception. Always call `get()` or handle it properly.",
+
+      "shutdown_correctly": "**Shutting down an ExecutorService:**\n\n```java\n// OPTION 1: Graceful shutdown\npool.shutdown();  // no new tasks; wait for running+queued to finish\n\n// Wait up to 30 seconds:\nif (!pool.awaitTermination(30, TimeUnit.SECONDS)) {\n    pool.shutdownNow();  // interrupt running tasks; cancel queued\n    System.err.println(\"Pool did not terminate gracefully\");\n}\n\n// OPTION 2: Immediate shutdown\nList<Runnable> pendingTasks = pool.shutdownNow();\n// pendingTasks = queued tasks that never started\n\n// Pattern: never skip shutdown!\n// Resource leak: pool threads prevent JVM exit (non-daemon by default)\n```\n\n**Why shutdown matters**: pool threads are non-daemon by default — they prevent JVM exit. A pool never shut down keeps the JVM alive indefinitely even after main() returns.",
+
+      "invoke_all_any": "**invokeAll and invokeAny — batch task submission:**\n\n```java\nList<Callable<String>> tasks = Arrays.asList(\n    () -> { Thread.sleep(300); return \"Result A\"; },\n    () -> { Thread.sleep(100); return \"Result B\"; },\n    () -> { Thread.sleep(200); return \"Result C\"; }\n);\n\n// invokeAll — wait for ALL tasks, get all results:\nList<Future<String>> futures = pool.invokeAll(tasks);\nfor (Future<String> f : futures) {\n    System.out.println(f.get());  // Result A, Result B, Result C (in submission order)\n}\n\n// invokeAny — return the FIRST successful result, cancel others:\nString first = pool.invokeAny(tasks);  // returns 'Result B' (fastest)\nSystem.out.println(\"Fastest: \" + first);\n```\n\n**invokeAny** is perfect for redundant requests: send the same query to 3 replicas, use whichever responds first.",
+
+      "scheduled_executor": "**ScheduledExecutorService — delays and periodic tasks:**\n\n```java\nScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);\n\n// Run once after 2 seconds:\nscheduler.schedule(\n    () -> System.out.println(\"Delayed task!\"),\n    2, TimeUnit.SECONDS\n);\n\n// Run every 5 seconds, starting immediately:\nscheduler.scheduleAtFixedRate(\n    () -> System.out.println(\"Heartbeat at \" + LocalTime.now()),\n    0,  // initial delay\n    5,  // period\n    TimeUnit.SECONDS\n);\n\n// Run 3 seconds after each COMPLETION (not start):\nscheduler.scheduleWithFixedDelay(\n    () -> System.out.println(\"After delay\"),\n    0, 3, TimeUnit.SECONDS\n);\n\n// Always shutdown schedulers:\nscheduler.shutdown();\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show the thread pool as a factory: on the left, a queue of incoming tasks (Callable/Runnable boxes). In the middle, a pool of N worker threads (Thread-1 through Thread-N circles). Threads pull from the queue, process, return to the pool, pull again. On the right, Future<T> bubbles floating out — each linking back to the task that produced it. Future.get() arrows from client code to the bubbles, blocking until the bubble fills with a result. Below: shutdown lifecycle — pool.shutdown() stops intake but finishes queue; shutdownNow() cancels queued and interrupts running.",
+      "alt_text": "Thread pool task queue, worker threads, Future<T> result collection, and shutdown lifecycle"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Fetch stock data for 10 symbols from a simulated API using a thread pool. Each fetch takes varying time. Collect all results using Future<T>. Handle failures gracefully.",
+
+    "problem_statement": "Fetch stock quotes for 10 Zerodha-style symbols concurrently:\n1. Submit 10 Callable tasks to a 4-thread pool\n2. Each returns a StockQuote (symbol, price, change%)\n3. Collect all results via invokeAll + get()\n4. Handle occasional failures (symbol not found)\n5. Print results sorted by change% descending\n6. Properly shut down the pool",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "StockQuote and fetch Callable",
+        "details": "```java\nrecord StockQuote(String symbol, double price, double changePercent) {}\n\nCallable<StockQuote> fetchQuote(String symbol) {\n    return () -> {\n        Thread.sleep(50 + (int)(Math.random() * 200));  // simulate network\n        if (symbol.equals(\"BADSTOCK\")) throw new RuntimeException(\"Symbol not found: \" + symbol);\n        double price  = 500 + Math.random() * 4000;\n        double change = -5 + Math.random() * 10;\n        return new StockQuote(symbol, price, change);\n    };\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Submit all tasks and collect futures",
+        "details": "```java\nList<String> symbols = Arrays.asList(\n    \"RELIANCE\", \"TCS\", \"INFY\", \"HDFC\", \"WIPRO\",\n    \"ZOMATO\", \"PAYTM\", \"NYKAA\", \"DMART\", \"BAJFINANCE\"\n);\n\nExecutorService pool = Executors.newFixedThreadPool(4);\n\nList<Callable<StockQuote>> tasks = symbols.stream()\n    .map(this::fetchQuote)\n    .collect(Collectors.toList());\n\nList<Future<StockQuote>> futures = pool.invokeAll(tasks);  // waits for all\n```"
+      },
+      {
+        "step": 3,
+        "action": "Collect results and handle failures",
+        "details": "```java\nList<StockQuote> quotes = new ArrayList<>();\nfor (int i = 0; i < futures.size(); i++) {\n    try {\n        quotes.add(futures.get(i).get());\n    } catch (ExecutionException e) {\n        System.err.println(\"Failed to fetch \" + symbols.get(i) + \": \" + e.getCause().getMessage());\n    } catch (InterruptedException e) {\n        Thread.currentThread().interrupt();\n    }\n}\n\n// Sort by change% descending:\nquotes.sort((a, b) -> Double.compare(b.changePercent(), a.changePercent()));\nquotes.forEach(q -> System.out.printf(\"%10s: ₹%6.0f  %+5.1f%%%n\",\n    q.symbol(), q.price(), q.changePercent()));\n\npool.shutdown();\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.stream.*;\n\nrecord StockQuote(String symbol, double price, double change) {}\n\npublic class StockFetcher {\n    static Callable<StockQuote> fetchQuote(String symbol) {\n        return () -> {\n            Thread.sleep(50 + (int)(Math.random() * 150));\n            if (symbol.equals(\"BADSTOCK\")) throw new RuntimeException(\"Not found: \" + symbol);\n            double price  = 500 + Math.random() * 3500;\n            double change = -4 + Math.random() * 8;\n            return new StockQuote(symbol, price, change);\n        };\n    }\n    \n    public static void main(String[] args) throws InterruptedException {\n        List<String> symbols = Arrays.asList(\n            \"RELIANCE\", \"TCS\", \"INFY\", \"HDFC\", \"WIPRO\",\n            \"ZOMATO\", \"NYKAA\", \"BAJFINANCE\", \"DMART\", \"PAYTM\");\n        \n        ExecutorService pool = Executors.newFixedThreadPool(4);\n        long start = System.currentTimeMillis();\n        \n        List<Future<StockQuote>> futures = pool.invokeAll(\n            symbols.stream().map(StockFetcher::fetchQuote).collect(Collectors.toList()));\n        \n        List<StockQuote> quotes = new ArrayList<>();\n        for (int i = 0; i < futures.size(); i++) {\n            try {\n                quotes.add(futures.get(i).get());\n            } catch (ExecutionException e) {\n                System.err.println(\"Failed: \" + symbols.get(i));\n            }\n        }\n        \n        System.out.printf(\"Fetched %d quotes in %dms%n\",\n            quotes.size(), System.currentTimeMillis() - start);\n        System.out.println(\"\\nSymbol       Price    Change\");\n        System.out.println(\"-\".repeat(35));\n        \n        quotes.stream()\n            .sorted((a, b) -> Double.compare(b.change(), a.change()))\n            .forEach(q -> System.out.printf(\"%-12s ₹%6.0f  %+5.1f%%%n\",\n                q.symbol(), q.price(), q.change()));\n        \n        pool.shutdown();\n        pool.awaitTermination(10, TimeUnit.SECONDS);\n    }\n}",
+
+    "expected_output": "Fetched 10 quotes in ~200ms\n\nSymbol       Price    Change\n-----------------------------------\nRELIANCE     ₹2451  +3.8%\nTCS          ₹3890  +2.1%\n...\n(sorted by change% descending — varies each run)",
+
+    "things_to_notice": [
+      "4-thread pool fetches 10 symbols. With 4 threads and ~150ms average fetch, total time is ~150 * ceil(10/4) ≈ 400ms — much faster than 10 * 150ms = 1500ms sequential.",
+      "invokeAll() waits for ALL tasks to complete before returning. Each Future in the list is guaranteed done when get() is called. No timeout needed.",
+      "ExecutionException wraps the actual exception from the Callable. `e.getCause()` gets the original. This makes it safe to iterate: one failure doesn't break the loop.",
+      "The symbols list and futures list have the same order — futures.get(i) corresponds to symbols.get(i). This mapping is important for the error message.",
+      "pool.shutdown() then pool.awaitTermination() is the graceful pattern. Without shutdown(), the pool threads prevent JVM exit after main() returns.",
+      "4 threads handling 10 tasks: tasks 1-4 start immediately (4 threads free), tasks 5-8 start as those finish, tasks 9-10 get the last free threads. The pool manages the queue automatically."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot / Tomcat web servers",
+        "use_case": "Tomcat's connector has a thread pool (default 200 threads, configurable). Each HTTP request gets a thread from the pool. When done, the thread returns to the pool for the next request. `server.tomcat.threads.max=200` in application.properties IS the thread pool configuration. Without this pool, 10,000 concurrent users would need 10,000 threads — impossible."
+      },
+      {
+        "company_context": "Razorpay payment gateway",
+        "use_case": "Payment processing involves: (1) validate payment (2) call card network (3) update database (4) send notifications. Steps 2 and 3 can happen concurrently via a thread pool. A ScheduledExecutorService runs retry jobs — failed payments retried after 30s, 2m, 10m. Both patterns are standard ExecutorService usage."
+      },
+      {
+        "company_context": "Flipkart product search",
+        "use_case": "A search query fans out to 5 services: product catalog, reviews, inventory, pricing, recommendations. All 5 are submitted to a thread pool, results combined with invokeAll(). Response time is max(5 service times) instead of sum. This fan-out-and-collect pattern is ubiquitous in microservice architectures."
+      }
+    ],
+
+    "interview_relevance": "Thread pool questions at mid-senior level:\n\n- **'What is the difference between Runnable and Callable?'** — Callable returns a value (via Future) and can throw checked exceptions. Runnable returns void and cannot throw checked exceptions.\n- **'What does Future.get() do?'** — Blocks the calling thread until the task completes and returns the result. Throws ExecutionException if the task threw an exception.\n- **'How do you properly shut down an ExecutorService?'** → `pool.shutdown(); pool.awaitTermination(timeout, unit); if not done: pool.shutdownNow()`.\n- **'What pool type would you use for: (a) CPU-bound tasks, (b) I/O-bound tasks?'** → (a) fixedThreadPool(Runtime.getRuntime().availableProcessors()) — match CPU cores. (b) cachedThreadPool or larger fixed pool — threads block on I/O, so you can have more.",
+
+    "real_world_workflow": "Daily ExecutorService usage:\n\n- Background processing: `executor.submit(() -> sendNotification(user))`\n- Parallel API calls: submit N Callables, invokeAll, collect results\n- Periodic jobs: `scheduler.scheduleAtFixedRate(healthCheck, 0, 30, SECONDS)`\n- Fire-and-forget: `executor.submit(loggingTask)` — submit, don't await\n- Timeout on slow tasks: `future.get(5, TimeUnit.SECONDS)` with catch TimeoutException"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "not_shutting_down_pool",
+      "what_students_get_wrong": "Forgetting to call pool.shutdown() — JVM hangs because pool threads are non-daemon.",
+      "remediation": "Always shut down ExecutorService when done. Pattern: `try { ... } finally { pool.shutdown(); pool.awaitTermination(30, SECONDS); }`",
+      "detection_pattern": "Program doesn't exit after main() completes — pool threads still running"
+    },
+    {
+      "gap_id": "ignoring_execution_exception",
+      "what_students_get_wrong": "Calling future.get() without a try-catch — unhandled ExecutionException when tasks fail.",
+      "remediation": "Always wrap future.get() in try-catch for ExecutionException and InterruptedException. Check e.getCause() for the actual task exception.",
+      "detection_pattern": "Uncaught ExecutionException crashes the program"
+    },
+    {
+      "gap_id": "submit_runnable_ignoring_future",
+      "what_students_get_wrong": "Submitting a Runnable with submit() and discarding the Future — can't tell if task failed.",
+      "remediation": "Even for Runnable tasks, keep the Future to check for failures. `Future<?> f = pool.submit(task); f.get(); // throws if task failed`. Alternatively use execute() if you truly don't care about completion.",
+      "detection_pattern": "Exceptions in submitted tasks silently swallowed"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Thread pool: reuse a fixed set of threads across many tasks — efficient, bounded memory",
+      "ExecutorService: the Java API for thread pools; created via Executors factory methods",
+      "Executors.newFixedThreadPool(n): n threads, excess tasks queue up — good for CPU-bound",
+      "Executors.newCachedThreadPool(): grows as needed, shrinks on idle — good for I/O-bound",
+      "Executors.newSingleThreadExecutor(): one thread, sequential execution — for serialization",
+      "submit(Callable<T>): returns Future<T>. submit(Runnable): returns Future<?>",
+      "future.get(): blocks until result; throws ExecutionException (wraps task exception)",
+      "invokeAll: submit all, wait for all; invokeAny: submit all, return fastest result",
+      "Always shutdown: pool.shutdown() → pool.awaitTermination() → pool.shutdownNow() if needed",
+      "ScheduledExecutorService: run after delay or periodically"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What's the difference between `executor.execute(runnable)` and `executor.submit(runnable)`?",
+        "answer": "Both submit a task. `execute()` returns void — fire-and-forget; any exception in the Runnable is logged but you can't catch it. `submit()` returns `Future<?>` — you can call get() to wait for completion and to detect any exceptions (thrown as ExecutionException). Prefer `submit()` when you need to know if the task succeeded or failed."
+      },
+      {
+        "question": "A Callable throws an ArithmeticException. When does the caller see it?",
+        "answer": "Only when `future.get()` is called. The exception is caught by the executor framework, wrapped in an ExecutionException, and stored. When you call get(), the stored ExecutionException is thrown. `e.getCause()` gives you the original ArithmeticException. If you never call get(), you never see the exception — it's silently swallowed."
+      },
+      {
+        "question": "How many threads should a FixedThreadPool have for (a) CPU-intensive image processing, (b) calling 20 external APIs?",
+        "answer": "(a) CPU-intensive: `Runtime.getRuntime().availableProcessors()` — one thread per core. More threads would context-switch, adding overhead without improving throughput. (b) I/O-bound API calls: more threads than cores — threads spend most of their time blocked waiting for responses, so other threads can run. 20 threads is reasonable (one per API), or a cached pool that grows as needed."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Concurrent Collections and Atomic Types** — when multiple threads share a collection or counter, you need thread-safe versions. `ConcurrentHashMap` is much faster than `synchronized HashMap`. `AtomicInteger.incrementAndGet()` is a single atomic operation — no synchronized needed. After Topic 10.4, you handle high-throughput shared state without the performance cost of coarse-grained synchronization."
+  }
+}

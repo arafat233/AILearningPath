@@ -1,0 +1,451 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t1",
+  "topic_name": "Introduction to Arrays",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m3_t1_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Create your first array",
+      "scenario": "Practice the two ways to declare and initialize an array.",
+      "instructions": "Fill in the blanks to create an int array with values 10, 20, 30 and print the first element.",
+      "starter_code": "public class App {\n    public static void main(String[] args) {\n        ______[] nums = {10, 20, 30};\n        System.out.println(nums[______]);\n    }\n}",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        int[] nums = {10, 20, 30};\n        System.out.println(nums[0]);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "int", "hint": "Element type" },
+        { "position": 2, "answer": "0", "hint": "Index of FIRST element (zero-indexed)" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "10"
+        }
+      ],
+      "hints": [
+        "Array type goes before []",
+        "Java arrays are zero-indexed: first element is at index 0",
+        "nums[0] = 10, nums[1] = 20, nums[2] = 30"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m3_t1_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace array access",
+      "scenario": "Test basic indexing.",
+      "instructions": "What does this print?\n\n```java\nString[] names = {\"Aisha\", \"Raj\", \"Priya\"};\nSystem.out.println(names[1]);\nSystem.out.println(names.length);\n```",
+      "expected_solution": "Raj\n3",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Raj\n3"
+        }
+      ],
+      "hints": [
+        "names[0] = Aisha, names[1] = Raj, names[2] = Priya",
+        "names.length = 3 (no parens for arrays!)",
+        "Output: Raj then 3"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m3_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Print all elements",
+      "scenario": "Use a loop to print every element.",
+      "instructions": "Write a class `PrintAll` that:\n1. Has an int array with values {5, 10, 15, 20, 25}\n2. Uses a for-each loop to print each element\n\nExpected output:\n5\n10\n15\n20\n25",
+      "starter_code": "// Write your PrintAll class below\n// Use for-each loop\n",
+      "expected_solution": "public class PrintAll {\n    public static void main(String[] args) {\n        int[] nums = {5, 10, 15, 20, 25};\n        for (int n : nums) {\n            System.out.println(n);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "5\n10\n15\n20\n25"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": [" : "]
+        }
+      ],
+      "hints": [
+        "For-each syntax: for (int n : nums)",
+        "Reads as: 'for each int n in nums'",
+        "Inside loop: System.out.println(n)",
+        "Cleaner than classic for when you just need values"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m3_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sum array elements",
+      "scenario": "Use the accumulator pattern with an array.",
+      "instructions": "Write a class `SumArray`:\n1. Array: {10, 20, 30, 40, 50}\n2. Calculate sum using a loop\n3. Print 'Total: <sum>'\n\nExpected output:\nTotal: 150",
+      "starter_code": "// Write your SumArray class below\n",
+      "expected_solution": "public class SumArray {\n    public static void main(String[] args) {\n        int[] nums = {10, 20, 30, 40, 50};\n        int total = 0;\n        for (int n : nums) {\n            total += n;\n        }\n        System.out.println(\"Total: \" + total);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Total: 150"
+        }
+      ],
+      "hints": [
+        "Initialize total = 0 BEFORE loop",
+        "For-each: for (int n : nums)",
+        "Inside loop: total += n",
+        "Print after loop completes"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m3_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Indexed print",
+      "scenario": "Print with position numbers using classic for loop.",
+      "instructions": "Write a class `IndexedPrint`:\n1. String array: {\"Aisha\", \"Raj\", \"Priya\"}\n2. Print each with 1-based position: '<position>. <name>'\n\nExpected output:\n1. Aisha\n2. Raj\n3. Priya",
+      "starter_code": "// Write your IndexedPrint class below\n// Use classic for loop (you need the index)\n",
+      "expected_solution": "public class IndexedPrint {\n    public static void main(String[] args) {\n        String[] names = {\"Aisha\", \"Raj\", \"Priya\"};\n        for (int i = 0; i < names.length; i++) {\n            System.out.println((i + 1) + \". \" + names[i]);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1. Aisha\n2. Raj\n3. Priya"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["for (int i"]
+        }
+      ],
+      "hints": [
+        "Classic for: for (int i = 0; i < names.length; i++)",
+        "Print 1-based: (i + 1) — wrap in parens for math, not string concat",
+        "Without parens: 1Aisha (i+1 becomes string concat)",
+        "With parens: '1. Aisha'"
+      ],
+      "xp_reward": 25,
+      "concept_tested": "indexed_iteration"
+    },
+    
+    {
+      "id": "java_m3_t1_ex_6",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the index out of bounds",
+      "scenario": "Common off-by-one error.",
+      "instructions": "This code crashes with ArrayIndexOutOfBoundsException. Fix it.\n\nExpected output:\n10\n20\n30",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        int[] nums = {10, 20, 30};\n        for (int i = 0; i <= nums.length; i++) {\n            System.out.println(nums[i]);\n        }\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        int[] nums = {10, 20, 30};\n        for (int i = 0; i < nums.length; i++) {\n            System.out.println(nums[i]);\n        }\n    }\n}",
+      "bugs": [
+        {
+          "line": "4",
+          "issue": "Loop condition `i <= nums.length` makes i reach 3, but valid indexes are 0-2",
+          "fix": "Change `<=` to `<`"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "10\n20\n30",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Array of length 3 has indexes 0, 1, 2",
+        "When i = 3, nums[3] doesn't exist",
+        "Loop should be `i < nums.length` (strictly less)",
+        "Memorize: always `<` for array iteration, never `<=`"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["off_by_one_index"]
+    },
+    
+    {
+      "id": "java_m3_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find maximum value",
+      "scenario": "Find the largest number in an array — classic interview question.",
+      "instructions": "Write a class `FindMax`:\n1. Array: {23, 7, 89, 41, 15, 67, 32}\n2. Find and print the maximum value\n\nExpected output:\nMax: 89",
+      "starter_code": "// Write your FindMax class below\n",
+      "expected_solution": "public class FindMax {\n    public static void main(String[] args) {\n        int[] nums = {23, 7, 89, 41, 15, 67, 32};\n        int max = nums[0];\n        for (int n : nums) {\n            if (n > max) {\n                max = n;\n            }\n        }\n        System.out.println(\"Max: \" + max);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Max: 89"
+        }
+      ],
+      "hints": [
+        "Start max with nums[0] (NOT 0 — safer for any values)",
+        "For each element: if n > max, update max",
+        "For-each is fine here — we don't need index",
+        "89 > 23 > 7 > 89 > 41 > 15 > 67 > 32 → max = 89"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m3_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find minimum with index",
+      "scenario": "Find both the minimum value AND where it occurs.",
+      "instructions": "Write a class `FindMin`:\n1. Array: {45, 12, 78, 3, 91, 27}\n2. Find min value AND its index\n3. Print 'Min: <value> at index <index>'\n\nExpected output:\nMin: 3 at index 3",
+      "starter_code": "// Write your FindMin class below\n",
+      "expected_solution": "public class FindMin {\n    public static void main(String[] args) {\n        int[] nums = {45, 12, 78, 3, 91, 27};\n        int min = nums[0];\n        int minIndex = 0;\n        for (int i = 1; i < nums.length; i++) {\n            if (nums[i] < min) {\n                min = nums[i];\n                minIndex = i;\n            }\n        }\n        System.out.println(\"Min: \" + min + \" at index \" + minIndex);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Min: 3 at index 3"
+        }
+      ],
+      "hints": [
+        "Need both value and index — use classic for loop",
+        "Start min = nums[0], minIndex = 0",
+        "Start loop at i = 1 (skip the first, which is the initial min)",
+        "If nums[i] < min, update BOTH min and minIndex",
+        "3 is at index 3 in the array"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "find_with_index"
+    },
+    
+    {
+      "id": "java_m3_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Calculate average",
+      "scenario": "Combine sum and length.",
+      "instructions": "Write a class `Average`:\n1. Array: {85.5, 92.0, 78.5, 88.0, 95.5}\n2. Calculate average\n3. Print 'Average: <value>'\n\nExpected output:\nAverage: 87.9",
+      "starter_code": "// Write your Average class below\n",
+      "expected_solution": "public class Average {\n    public static void main(String[] args) {\n        double[] scores = {85.5, 92.0, 78.5, 88.0, 95.5};\n        double total = 0;\n        for (double s : scores) {\n            total += s;\n        }\n        double average = total / scores.length;\n        System.out.println(\"Average: \" + average);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Average: 87.9"
+        }
+      ],
+      "hints": [
+        "Array type: double[] (scores have decimals)",
+        "Sum all elements using accumulator",
+        "Divide by scores.length (not hardcoded 5)",
+        "Total: 439.5 / 5 = 87.9"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m3_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Search for a value",
+      "scenario": "Linear search — does the array contain a target?",
+      "instructions": "Write a class `Search`:\n1. Array: {17, 42, 89, 13, 56, 91, 24}\n2. Search for target = 89\n3. Print 'Found at index X' or 'Not found'\n\nExpected output:\nFound at index 2",
+      "starter_code": "// Write your Search class below\n",
+      "expected_solution": "public class Search {\n    public static void main(String[] args) {\n        int[] nums = {17, 42, 89, 13, 56, 91, 24};\n        int target = 89;\n        int foundIndex = -1;\n        \n        for (int i = 0; i < nums.length; i++) {\n            if (nums[i] == target) {\n                foundIndex = i;\n                break;\n            }\n        }\n        \n        if (foundIndex == -1) {\n            System.out.println(\"Not found\");\n        } else {\n            System.out.println(\"Found at index \" + foundIndex);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Found at index 2"
+        }
+      ],
+      "hints": [
+        "Use a 'sentinel' value: foundIndex = -1 means not found yet",
+        "Loop with index: classic for",
+        "If match found: set foundIndex = i, then break (stop searching)",
+        "After loop: check if foundIndex is still -1",
+        "89 is at index 2"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "linear_search"
+    },
+    
+    {
+      "id": "java_m3_t1_ex_11",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the modification bug",
+      "scenario": "Why isn't the array changing?",
+      "instructions": "This code SHOULD double every element. Instead, it does nothing. Fix it.\n\nExpected output:\n10\n20\n30",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        int[] nums = {5, 10, 15};\n        \n        for (int n : nums) {\n            n = n * 2;\n        }\n        \n        for (int n : nums) {\n            System.out.println(n);\n        }\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        int[] nums = {5, 10, 15};\n        \n        for (int i = 0; i < nums.length; i++) {\n            nums[i] = nums[i] * 2;\n        }\n        \n        for (int n : nums) {\n            System.out.println(n);\n        }\n    }\n}",
+      "bugs": [
+        {
+          "line": "5-7",
+          "issue": "For-each gives a COPY of each element (for primitives). Modifying `n` doesn't change the array.",
+          "fix": "Use classic for loop with index: nums[i] = nums[i] * 2"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "10\n20\n30",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "For-each can't MODIFY array elements (it gives copies of primitives)",
+        "When modifying, use classic for loop with index",
+        "Change first loop to: for (int i = 0; i < nums.length; i++)",
+        "Inside: nums[i] = nums[i] * 2 (or nums[i] *= 2)"
+      ],
+      "xp_reward": 55,
+      "common_misconceptions_tested": ["assuming_for_each_can_modify"]
+    },
+    
+    {
+      "id": "java_m3_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Count elements matching a condition",
+      "scenario": "Count how many elements meet a criterion.",
+      "instructions": "Write a class `CountEvens`:\n1. Array: {12, 7, 18, 23, 30, 41, 64, 9, 15, 22}\n2. Count how many are EVEN\n3. Print 'Even count: <count>'\n\nExpected output:\nEven count: 5",
+      "starter_code": "// Write your CountEvens class below\n",
+      "expected_solution": "public class CountEvens {\n    public static void main(String[] args) {\n        int[] nums = {12, 7, 18, 23, 30, 41, 64, 9, 15, 22};\n        int count = 0;\n        for (int n : nums) {\n            if (n % 2 == 0) {\n                count++;\n            }\n        }\n        System.out.println(\"Even count: \" + count);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Even count: 5"
+        }
+      ],
+      "hints": [
+        "Counter accumulator: start at 0",
+        "For each element: if even (n % 2 == 0), increment count",
+        "For-each is fine — just need values",
+        "Evens: 12, 18, 30, 64, 22 = 5 numbers"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m3_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Reverse array print",
+      "scenario": "Print array elements in REVERSE order.",
+      "instructions": "Write a class `ReversePrint`:\n1. Array: {\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\"}\n2. Print elements from LAST to FIRST\n\nExpected output:\nFri\nThu\nWed\nTue\nMon",
+      "starter_code": "// Write your ReversePrint class below\n// Iterate from end to beginning\n",
+      "expected_solution": "public class ReversePrint {\n    public static void main(String[] args) {\n        String[] days = {\"Mon\", \"Tue\", \"Wed\", \"Thu\", \"Fri\"};\n        for (int i = days.length - 1; i >= 0; i--) {\n            System.out.println(days[i]);\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Fri\nThu\nWed\nTue\nMon"
+        }
+      ],
+      "hints": [
+        "Start at i = days.length - 1 (last valid index)",
+        "Loop while i >= 0",
+        "Decrement: i--",
+        "Java doesn't have negative indexes; must iterate down to 0",
+        "Last index = 4 (Fri), then 3 (Thu), ..., 0 (Mon)"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m3_t1_ex_14",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "Find second largest",
+      "scenario": "Find the second-largest element — classic interview problem.",
+      "instructions": "Write a class `SecondLargest`:\n1. Array: {17, 42, 89, 13, 56, 91, 24}\n2. Find the second-largest value\n3. Assume all values are distinct\n\nApproach: track largest AND second-largest in one pass.\n\nExpected output:\nLargest: 91\nSecond largest: 89",
+      "starter_code": "// Write your SecondLargest class below\n// Track TWO values: largest and secondLargest\n",
+      "expected_solution": "public class SecondLargest {\n    public static void main(String[] args) {\n        int[] nums = {17, 42, 89, 13, 56, 91, 24};\n        \n        int largest = Integer.MIN_VALUE;\n        int secondLargest = Integer.MIN_VALUE;\n        \n        for (int n : nums) {\n            if (n > largest) {\n                secondLargest = largest;\n                largest = n;\n            } else if (n > secondLargest) {\n                secondLargest = n;\n            }\n        }\n        \n        System.out.println(\"Largest: \" + largest);\n        System.out.println(\"Second largest: \" + secondLargest);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Largest: 91\nSecond largest: 89"
+        }
+      ],
+      "hints": [
+        "Track two values: largest and secondLargest",
+        "Start both at Integer.MIN_VALUE (smallest possible int)",
+        "For each element n:",
+        "  - If n > largest: second becomes old largest, largest becomes n",
+        "  - Else if n > secondLargest: just update secondLargest",
+        "This is O(n) — one pass, no sorting needed",
+        "Walk through: 91 > 89 > 56 > 42 > 24 > 17 > 13 → Largest 91, second 89"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "two_variable_tracking"
+    },
+    
+    {
+      "id": "java_m3_t1_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Find pair that sums to target",
+      "scenario": "Classic 'Two Sum' interview problem (simplified).",
+      "instructions": "Write a class `TwoSum`:\n1. Array: {3, 8, 11, 6, 15, 2, 7}\n2. Target sum: 14\n3. Find ANY two indexes i, j (i < j) where nums[i] + nums[j] == target\n4. Print 'Pair found at indexes <i> and <j>' or 'No pair found'\n\nUse nested loops (brute force is fine for now — we'll optimize later in DSA).\n\nFor target 14: 8 + 6 = 14 (indexes 1 and 3). Or 11 + 3 = 14 (indexes 2 and 0)... wait, 0 < 2. So could be indexes 0 and 2 (3 + 11), OR 1 and 3 (8 + 6), OR 6 and 7 (no, only 7 elements)... Just find the FIRST pair.\n\nExpected output:\nPair found at indexes 0 and 2",
+      "starter_code": "// Write your TwoSum class below\n// Use nested loops to find a pair\n",
+      "expected_solution": "public class TwoSum {\n    public static void main(String[] args) {\n        int[] nums = {3, 8, 11, 6, 15, 2, 7};\n        int target = 14;\n        boolean found = false;\n        \n        for (int i = 0; i < nums.length; i++) {\n            for (int j = i + 1; j < nums.length; j++) {\n                if (nums[i] + nums[j] == target) {\n                    System.out.println(\"Pair found at indexes \" + i + \" and \" + j);\n                    found = true;\n                    break;\n                }\n            }\n            if (found) break;\n        }\n        \n        if (!found) {\n            System.out.println(\"No pair found\");\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Pair found at indexes 0 and 2"
+        }
+      ],
+      "hints": [
+        "Outer loop: i from 0 to length-1",
+        "Inner loop: j from i+1 to length-1 (j > i ensures we don't pair element with itself, and i < j ordering)",
+        "Check if nums[i] + nums[j] == target",
+        "When found: print and break out of both loops",
+        "Use a `found` boolean to break the outer loop too",
+        "First match: i=0, j=2 → 3 + 11 = 14 ✓"
+      ],
+      "xp_reward": 90,
+      "concept_tested": "nested_loop_search"
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 9,
+      "debug": 2,
+      "predict_output": 1,
+      "algorithm": 2
+    },
+    "total_xp_possible": 605,
+    "estimated_completion_minutes": 55
+  },
+  
+  "gap_detection_map": {
+    "off_by_one_index": ["ex_6"],
+    "assuming_for_each_can_modify": ["ex_11"],
+    "indexed_iteration": ["ex_5"],
+    "find_with_index": ["ex_8"],
+    "linear_search": ["ex_10"],
+    "two_variable_tracking": ["ex_14"],
+    "nested_loop_search": ["ex_15"]
+  }
+}

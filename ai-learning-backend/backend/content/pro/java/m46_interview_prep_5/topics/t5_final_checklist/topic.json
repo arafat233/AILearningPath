@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m46_t5",
+  "module_id": "m46",
+  "topic_number": 5,
+  "name": "Final Checklist \u2014 Last 2 Weeks Before D-Day",
+  "slug": "final-checklist-2-weeks",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m45_t5"
+    ],
+    "concepts_taught": [
+      "final-checklist-2-weeks"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Final Checklist \u2014 Last 2 Weeks Before D-Day"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Week 1 plan: 3 timed coding problems/day + 1 system design/day + behavioral practice",
+        "Week 2 plan: 2 full mock rounds/day + company-specific research + STAR story polish",
+        "Day before: light review only, prepare 3 questions to ask interviewer, test tech setup",
+        "Day of: warm up with 2 easy problems, review pattern cheat sheet, join 5 min early",
+        "Post-interview: document questions asked within 1 hour while memory is fresh",
+        "Job offer: compare equity, growth, tech stack, team \u2014 not just salary"
+      ],
+      "next_topic_preview": "THE COURSE IS COMPLETE! Congratulations on finishing all 46 modules."
+    }
+  }
+}

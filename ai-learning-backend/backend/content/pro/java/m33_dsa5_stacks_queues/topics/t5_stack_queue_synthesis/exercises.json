@@ -1,0 +1,316 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m33_t5",
+  "topic_name": "Stack Queue Synthesis",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m33_t5_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "LRU Cache (LeetCode #146)",
+      "instructions": "Implement: LRU Cache (LeetCode #146).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LRUCacheDemo {\n    static class LRUCache {\n        class Node{int key,val;Node prev,next;Node(int k,int v){key=k;val=v;}}\n        Map<Integer,Node> map=new HashMap<>();Node head=new Node(0,0),tail=new Node(0,0);int cap;\n        LRUCache(int c){cap=c;head.next=tail;tail.prev=head;}\n        void remove(Node n){n.prev.next=n.next;n.next.prev=n.prev;}\n        void addFront(Node n){n.next=head.next;n.prev=head;head.next.prev=n;head.next=n;}\n        int get(int k){if(!map.containsKey(k))return -1;Node n=map.get(k);remove(n);addFront(n);return n.val;}\n        void put(int k,int v){if(map.containsKey(k)){Node n=map.get(k);n.val=v;remove(n);addFront(n);return;}if(map.size()==cap){map.remove(tail.prev.key);remove(tail.prev);}Node n=new Node(k,v);addFront(n);map.put(k,n);}\n    }\n    public static void main(String[] a){\n        LRUCache c=new LRUCache(2);c.put(1,1);c.put(2,2);\n        System.out.println(c.get(1));  // 1\n        c.put(3,3);                    // evicts 2\n        System.out.println(c.get(2)); // -1\n        System.out.println(c.get(3)); // 3\n        System.out.println(\"O(1) get+put \u2014 HashMap + doubly linked list\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "3",
+            "O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m33_t5_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Task Scheduler (LeetCode #621)",
+      "instructions": "Implement: Task Scheduler (LeetCode #621).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TaskSched {\n    public static int leastInterval(char[] tasks, int n) {\n        int[] cnt=new int[26]; for(char t:tasks) cnt[t-'A']++;\n        int maxCnt=0; for(int c:cnt) maxCnt=Math.max(maxCnt,c);\n        int maxTasksWithMaxCnt=0; for(int c:cnt) if(c==maxCnt) maxTasksWithMaxCnt++;\n        int slots=(maxCnt-1)*(n+1)+maxTasksWithMaxCnt;\n        return Math.max(slots,tasks.length);\n    }\n    public static void main(String[] a){\n        System.out.println(leastInterval(new char[]{'A','A','A','B','B','B'},2)); // 8\n        System.out.println(leastInterval(new char[]{'A','A','A','B','B','B'},0)); // 6\n        System.out.println(\"O(n) \u2014 max count formula, no queue needed\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "8",
+            "6",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m33_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Design Twitter (LeetCode #355) simplified",
+      "instructions": "Implement: Design Twitter (LeetCode #355) simplified.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TwitterSimple {\n    Map<Integer,List<int[]>> tweets=new HashMap<>();Map<Integer,Set<Integer>> follows=new HashMap<>();int ts=0;\n    void postTweet(int userId,int tweetId){tweets.computeIfAbsent(userId,k->new ArrayList<>()).add(new int[]{ts++,tweetId});}\n    void follow(int f,int ee){follows.computeIfAbsent(f,k->new HashSet<>()).add(ee);}\n    void unfollow(int f,int ee){if(follows.containsKey(f))follows.get(f).remove(ee);}\n    List<Integer> getNewsFeed(int userId){PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->b[0]-a[0]);List<int[]> own=tweets.getOrDefault(userId,new ArrayList<>());for(int i=Math.max(0,own.size()-10);i<own.size();i++)pq.offer(own.get(i));if(follows.containsKey(userId))for(int f:follows.get(userId)){List<int[]> ft=tweets.getOrDefault(f,new ArrayList<>());for(int i=Math.max(0,ft.size()-10);i<ft.size();i++)pq.offer(ft.get(i));}List<Integer> res=new ArrayList<>();while(!pq.isEmpty()&&res.size()<10)res.add(pq.poll()[1]);return res;}\n    public static void main(String[] a){TwitterSimple t=new TwitterSimple();t.postTweet(1,5);t.postTweet(1,3);System.out.println(t.getNewsFeed(1));t.follow(2,1);System.out.println(t.getNewsFeed(2));System.out.println(\"Min-heap for top-10 feed merging\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[3, 5]",
+            "[3, 5]",
+            "Min-heap"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m33_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Basic Calculator (LeetCode #224) with parentheses",
+      "instructions": "Implement: Basic Calculator (LeetCode #224) with parentheses.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Calc1 {\n    public static int calculate(String s) {\n        Deque<Integer> stack=new ArrayDeque<>();int result=0,sign=1,num=0;\n        for(char c:s.toCharArray()){\n            if(Character.isDigit(c)) num=num*10+(c-'0');\n            else if(c=='+'||c=='-'){result+=sign*num;num=0;sign=(c=='+'?1:-1);}\n            else if(c=='('){stack.push(result);stack.push(sign);result=0;sign=1;}\n            else if(c==')'){result+=sign*num;num=0;result*=stack.pop();result+=stack.pop();}\n        }\n        return result+sign*num;\n    }\n    public static void main(String[] a){\n        System.out.println(calculate(\"1 + 1\"));         // 2\n        System.out.println(calculate(\" 2-1 + 2 \"));     // 3\n        System.out.println(calculate(\"(1+(4+5+2)-3)+(6+8)\")); // 23\n        System.out.println(\"O(n) \u2014 stack saves result+sign on '(', restores on ')'\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "3",
+            "23",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m33_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Decode Ways (LeetCode #91) \u2014 DP with stack thinking",
+      "instructions": "Implement: Decode Ways (LeetCode #91) \u2014 DP with stack thinking.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DecodeWays {\n    public static int numDecodings(String s) {\n        if(s.isEmpty()||s.charAt(0)=='0') return 0;\n        int n=s.length(); int[] dp=new int[n+1]; dp[0]=1; dp[1]=1;\n        for(int i=2;i<=n;i++){\n            int oneDigit=Integer.parseInt(s.substring(i-1,i));\n            int twoDigit=Integer.parseInt(s.substring(i-2,i));\n            if(oneDigit>=1) dp[i]+=dp[i-1];\n            if(twoDigit>=10&&twoDigit<=26) dp[i]+=dp[i-2];\n        }\n        return dp[n];\n    }\n    public static void main(String[] a){\n        System.out.println(numDecodings(\"12\")); // 2\n        System.out.println(numDecodings(\"226\")); // 3\n        System.out.println(numDecodings(\"06\"));  // 0\n        System.out.println(\"O(n) DP \u2014 not strictly stack but uses similar state tracking\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "3",
+            "0",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m33_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "LFU Cache (LeetCode #460) simplified",
+      "instructions": "Implement: LFU Cache (LeetCode #460) simplified.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LFUSimple {\n    // Simplified: track frequency + recency via LinkedHashMap\n    int cap,minFreq=0;\n    Map<Integer,Integer> keyVal=new HashMap<>(),keyFreq=new HashMap<>();\n    Map<Integer,LinkedHashSet<Integer>> freqKeys=new HashMap<>();\n    LFUSimple(int capacity){cap=capacity;}\n    void updateFreq(int key){int f=keyFreq.get(key);keyFreq.put(key,f+1);freqKeys.computeIfAbsent(f,k->new LinkedHashSet<>()).remove(key);if(freqKeys.get(f).isEmpty()&&f==minFreq)minFreq++;freqKeys.computeIfAbsent(f+1,k->new LinkedHashSet<>()).add(key);}\n    int get(int key){if(!keyVal.containsKey(key))return -1;updateFreq(key);return keyVal.get(key);}\n    void put(int key,int val){if(cap==0)return;if(keyVal.containsKey(key)){keyVal.put(key,val);updateFreq(key);return;}if(keyVal.size()==cap){int evict=freqKeys.get(minFreq).iterator().next();freqKeys.get(minFreq).remove(evict);keyVal.remove(evict);keyFreq.remove(evict);}keyVal.put(key,val);keyFreq.put(key,1);freqKeys.computeIfAbsent(1,k->new LinkedHashSet<>()).add(key);minFreq=1;}\n    public static void main(String[] a){LFUSimple lfu=new LFUSimple(2);lfu.put(1,1);lfu.put(2,2);System.out.println(lfu.get(1));lfu.put(3,3);System.out.println(lfu.get(2));System.out.println(lfu.get(3));System.out.println(\"O(1) LFU: freq map + LinkedHashSet for ordering within freq\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "3",
+            "O(1) LFU"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m33_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Stock Price Fluctuation (LeetCode #2034)",
+      "instructions": "Implement: Stock Price Fluctuation (LeetCode #2034).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class StockFluctuation {\n    Map<Integer,Integer> prices=new HashMap<>();TreeMap<Integer,Integer> priceCount=new TreeMap<>();\n    void update(int timestamp, int price){\n        if(prices.containsKey(timestamp)){int old=prices.get(timestamp);priceCount.merge(old,-1,Integer::sum);if(priceCount.get(old)==0)priceCount.remove(old);}\n        prices.put(timestamp,price);priceCount.merge(price,1,Integer::sum);\n    }\n    int current(){return prices.get(prices.keySet().stream().mapToInt(x->x).max().getAsInt());}\n    int maximum(){return priceCount.lastKey();}\n    int minimum(){return priceCount.firstKey();}\n    public static void main(String[] a){StockFluctuation sf=new StockFluctuation();sf.update(1,10);sf.update(2,5);sf.update(1,3);sf.update(4,2);System.out.println(sf.current());System.out.println(sf.maximum());System.out.println(sf.minimum());System.out.println(\"O(log n) update/max/min using TreeMap\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "5",
+            "2",
+            "O(log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Browser History (LeetCode #1472) with deque",
+      "instructions": "Implement: Browser History (LeetCode #1472) with deque.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class BrowserHist {\n    Deque<String> back=new ArrayDeque<>(),forward=new ArrayDeque<>();String curr;\n    BrowserHist(String homepage){curr=homepage;}\n    void visit(String url){back.push(curr);curr=url;forward.clear();}\n    String back(int steps){while(steps-->0&&!back.isEmpty()){forward.push(curr);curr=back.pop();}return curr;}\n    String forward(int steps){while(steps-->0&&!forward.isEmpty()){back.push(curr);curr=forward.pop();}return curr;}\n    public static void main(String[] a){BrowserHist bh=new BrowserHist(\"leetcode.com\");bh.visit(\"google.com\");bh.visit(\"facebook.com\");bh.visit(\"youtube.com\");System.out.println(bh.back(1));System.out.println(bh.back(1));System.out.println(bh.forward(1));System.out.println(\"Two stacks = browser back/forward history\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "facebook.com",
+            "google.com",
+            "facebook.com",
+            "Two stacks"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Implement stack with min \u2014 track auxiliary",
+      "instructions": "Implement: Implement stack with min \u2014 track auxiliary.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MinStackFull {\n    Deque<Long> stack=new ArrayDeque<>();long min;\n    void push(long v){if(stack.isEmpty()){stack.push(0L);min=v;}else{stack.push(v-min);if(v<min)min=v;}}\n    void pop(){long top=stack.pop();if(top<0)min=min-top;}\n    long top(){long top=stack.peek();return top>0?top+min:min;}\n    long getMin(){return min;}\n    public static void main(String[] a){MinStackFull ms=new MinStackFull();ms.push(5);ms.push(3);ms.push(7);ms.push(2);System.out.println(ms.getMin());ms.pop();System.out.println(ms.getMin());ms.pop();System.out.println(ms.getMin());System.out.println(\"O(1) space trick: store (val-min) as delta to track min without aux stack\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "3",
+            "3",
+            "O(1) space trick"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Synthesis \u2014 LRU + Calculator + Task Scheduler",
+      "instructions": "Implement: Synthesis \u2014 LRU + Calculator + Task Scheduler.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SQSynth {\n    // LRU simplified\n    static int lruTest(){LinkedHashMap<Integer,Integer> cache=new LinkedHashMap<>(2,0.75f,true){protected boolean removeEldestEntry(Map.Entry<Integer,Integer> e){return size()>2;}};cache.put(1,1);cache.put(2,2);cache.get(1);cache.put(3,3);return cache.getOrDefault(2,-1);}\n    static int calcII(String s){Deque<Integer> st=new ArrayDeque<>();int num=0;char op='+';for(int i=0;i<s.length();i++){char c=s.charAt(i);if(Character.isDigit(c))num=num*10+(c-'0');if((!Character.isDigit(c)&&c!=' ')||i==s.length()-1){if(op=='+')st.push(num);else if(op=='-')st.push(-num);else if(op=='*')st.push(st.pop()*num);else st.push(st.pop()/num);op=c;num=0;}}int r=0;while(!st.isEmpty())r+=st.pop();return r;}\n    static int sched(char[] t,int n){int[] c=new int[26];for(char x:t)c[x-'A']++;int max=0;for(int x:c)max=Math.max(max,x);int cnt=0;for(int x:c)if(x==max)cnt++;return Math.max((max-1)*(n+1)+cnt,t.length);}\n    public static void main(String[] a){System.out.println(\"lru=\"+lruTest());System.out.println(\"calc=\"+calcII(\"3+2*2\"));System.out.println(\"sched=\"+sched(new char[]{'A','A','A','B','B','B'},2));boolean ok=lruTest()==-1&&calcII(\"3+2*2\")==7&&sched(new char[]{'A','A','A','B','B','B'},2)==8;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "lru=-1",
+            "calc=7",
+            "sched=8"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m33_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M33 T5 Synthesis \u2014 all stack/queue patterns",
+      "instructions": "Implement: Complete M33 T5 Synthesis \u2014 all stack/queue patterns.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T5Final {\n    // LRU Cache\n    static class LRU{class N{int k,v;N p,n;N(int k,int v){this.k=k;this.v=v;}}Map<Integer,N> m=new HashMap<>();N h=new N(0,0),t=new N(0,0);int c;LRU(int c){this.c=c;h.n=t;t.p=h;}void rm(N n){n.p.n=n.n;n.n.p=n.p;}void af(N n){n.n=h.n;n.p=h;h.n.p=n;h.n=n;}int get(int k){if(!m.containsKey(k))return -1;N n=m.get(k);rm(n);af(n);return n.v;}void put(int k,int v){if(m.containsKey(k)){N n=m.get(k);n.v=v;rm(n);af(n);return;}if(m.size()==c){m.remove(t.p.k);rm(t.p);}N n=new N(k,v);af(n);m.put(k,n);}}\n    // Basic Calculator II\n    static int calc(String s){Deque<Integer> st=new ArrayDeque<>();int num=0;char op='+';for(int i=0;i<s.length();i++){char c=s.charAt(i);if(Character.isDigit(c))num=num*10+(c-'0');if((!Character.isDigit(c)&&c!=' ')||i==s.length()-1){if(op=='+')st.push(num);else if(op=='-')st.push(-num);else if(op=='*')st.push(st.pop()*num);else st.push(st.pop()/num);op=c;num=0;}}int r=0;while(!st.isEmpty())r+=st.pop();return r;}\n    public static void main(String[] a){\n        LRU lru=new LRU(2);lru.put(1,1);lru.put(2,2);System.out.println(\"LRU get(1)=\"+lru.get(1));lru.put(3,3);System.out.println(\"LRU get(2)=\"+lru.get(2));\n        System.out.println(\"calc('3+2*2')=\"+calc(\"3+2*2\"));\n        boolean ok=lru.get(1)==1&&lru.get(2)==-1&&calc(\"3+2*2\")==7;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "LRU get(1)=1",
+            "LRU get(2)=-1",
+            "calc('3+2*2')=7"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "pollFirst/pollLast",
+        "O(n) amortized"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

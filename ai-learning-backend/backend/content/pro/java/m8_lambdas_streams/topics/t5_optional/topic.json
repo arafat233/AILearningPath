@@ -1,0 +1,185 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t5",
+  "language": "java",
+  "module_id": "m8",
+  "module_name": "Lambda Expressions & Streams",
+  "topic_number": 5,
+  "name": "Optional",
+  "slug": "optional",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m8_t3", "java_m7_t4"],
+    "concepts_taught": [
+      "what_is_optional",
+      "optional_creation",
+      "optional_orElse_orElseGet",
+      "optional_ifPresent",
+      "optional_map_transform",
+      "optional_filter",
+      "optional_flatMap",
+      "optional_from_stream_terminals",
+      "optional_as_return_type",
+      "null_vs_optional_design",
+      "optional_anti_patterns"
+    ],
+    "skills_developed": [
+      "creating_and_using_optional",
+      "chaining_optional_operations",
+      "replacing_null_returns_with_optional",
+      "handling_optional_from_stream_findFirst",
+      "writing_null_safe_code_with_optional"
+    ],
+    "career_relevance": "Optional is the modern Java solution to the billion-dollar mistake — null. Every modern Java API returns Optional instead of null for 'might not be present' results. Java's Stream API returns Optional from findFirst(), min(), max(). Spring Data returns Optional<Entity> from repository methods. The Java standard library uses it in Map.getOrDefault and many utility methods. After this topic, your code declares its null-safety contract explicitly, null returns disappear from your APIs, and NullPointerExceptions from 'forgot to check for null' become a thing of the past.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "This code silently crashes when the user isn't found:\n\n```java\npublic String getEmailForUser(int userId) {\n    User user = userRepository.findById(userId);  // might return null!\n    return user.getEmail();  // NullPointerException if user is null\n}\n```\n\nThe traditional fix — null-check — is verbose and easy to forget:\n```java\npublic String getEmailForUser(int userId) {\n    User user = userRepository.findById(userId);\n    if (user != null) {\n        return user.getEmail();\n    }\n    return \"unknown@example.com\";\n}\n```\n\n**With Optional:**\n```java\npublic String getEmailForUser(int userId) {\n    return userRepository.findById(userId)  // returns Optional<User>\n        .map(User::getEmail)                // transform if present\n        .orElse(\"unknown@example.com\");     // default if empty\n}\n```\n\nOne line. No null check. No NPE possible. The method signature declares: 'this might not return a value.'\n\n**Why Optional is better than null:**\n1. The type system tells callers 'this might be absent' — they can't accidentally forget to check\n2. Clean chaining API (map, filter, flatMap) instead of nested if-null checks\n3. Integrates naturally with Streams — findFirst(), max(), min() all return Optional\n\nToday you learn to write null-safe code the modern Java way.",
+    "what_you_will_build": "By the end of this topic, you'll create Optionals, chain operations with map/filter/flatMap, handle empty Optionals with orElse/orElseGet/orElseThrow, use ifPresent for side effects, and design APIs that return Optional instead of null."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "optional_creation": "**Creating an Optional:**\n\n```java\nimport java.util.Optional;\n\n// Contains a value\nOptional<String> name = Optional.of(\"Aisha\");     // non-null value\n\n// Might be null — safe wrapper\nOptional<String> maybe = Optional.ofNullable(getUserName());  // null → empty\n\n// Definitely empty\nOptional<String> empty = Optional.empty();\n```\n\n**The three factory methods:**\n- `Optional.of(value)` — value MUST be non-null (throws NPE if null)\n- `Optional.ofNullable(value)` — null → empty Optional, non-null → present Optional\n- `Optional.empty()` — explicitly empty\n\n**Common usage pattern:**\n```java\n// Instead of returning null:\npublic Optional<User> findUser(int id) {\n    User user = database.lookup(id);\n    return Optional.ofNullable(user);  // wraps result — null becomes empty\n}\n```\n\n`Optional.ofNullable` is the go-to for wrapping values that might be null (Map.get, database results, etc.).",
+
+      "orElse_orElseGet_orElseThrow": "**Extracting values — four ways:**\n\n```java\nOptional<String> name = Optional.ofNullable(getName());\n\n// orElse: default value (always computed)\nString result1 = name.orElse(\"Unknown\");\n\n// orElseGet: default computed lazily (Supplier — only called if empty)\nString result2 = name.orElseGet(() -> computeDefault());  // more efficient\n\n// orElseThrow: throw if empty\nString result3 = name.orElseThrow(() -> new UserNotFoundException(\"Name not found\"));\n\n// get(): use ONLY after isPresent check — otherwise NoSuchElementException\nif (name.isPresent()) {\n    String r = name.get();  // only safe inside isPresent check\n}\n```\n\n**orElse vs orElseGet:**\n```java\n// orElse always evaluates the argument — even if Optional is present:\nString s = optional.orElse(expensiveComputation());  // expensiveComputation() ALWAYS runs\n\n// orElseGet only evaluates when Optional is empty:\nString s = optional.orElseGet(() -> expensiveComputation());  // only if empty\n```\n\nRule of thumb: use `orElse` for simple constants. Use `orElseGet` for computed defaults (database calls, object creation).",
+
+      "ifPresent_ifPresentOrElse": "**Acting on the value — ifPresent:**\n\n```java\nOptional<User> user = findUser(userId);\n\n// ifPresent: run action only if present\nuser.ifPresent(u -> System.out.println(\"Welcome, \" + u.getName()));\n\n// ifPresent with method reference\nuser.ifPresent(emailService::sendWelcomeEmail);\n\n// Java 9+: ifPresentOrElse — handle both cases\nuser.ifPresentOrElse(\n    u -> System.out.println(\"Found: \" + u.getName()),\n    () -> System.out.println(\"User not found\")\n);\n```\n\n`ifPresent` replaces the pattern:\n```java\nif (user != null) {\n    emailService.sendWelcomeEmail(user);\n}\n```",
+
+      "optional_map": "**`map(Function<T, R>)`** — transform the value if present:\n\n```java\nOptional<User> user = findUser(userId);\n\n// Get user's department — empty Optional if user not found\nOptional<String> dept = user.map(User::getDepartment);\n\n// Chain maps:\nOptional<Integer> deptSize = user\n    .map(User::getDepartment)\n    .map(String::length);  // how long is the dept name?\n\n// Practical: get email or default\nString email = findUser(userId)\n    .map(User::getEmail)\n    .orElse(\"no-reply@example.com\");\n```\n\n**map on empty Optional → empty Optional.** The function is only applied if the Optional has a value. This is what makes chaining safe — no null checks needed anywhere in the chain.\n\n```java\n// Without Optional — 3 null checks:\nString email = null;\nif (user != null) {\n    String dept = user.getDepartment();\n    if (dept != null) {\n        email = dept.getPrimaryContact();\n    }\n}\n\n// With Optional — 0 null checks:\nString email = Optional.ofNullable(user)\n    .map(User::getDepartment)\n    .map(Department::getPrimaryContact)\n    .orElse(null);\n```",
+
+      "optional_filter": "**`filter(Predicate<T>)`** — keep value only if it passes the test:\n\n```java\nOptional<User> activeUser = findUser(userId)\n    .filter(u -> u.isActive());\n\n// Chain filter and map:\nString email = findUser(userId)\n    .filter(User::isActive)      // empty if not active\n    .map(User::getEmail)         // get email only if active\n    .orElse(\"inactive@example.com\");\n\n// Filter by condition:\nOptional<Product> affordableProduct = findProduct(productId)\n    .filter(p -> p.getPrice() < 1000);\n```\n\n`filter` on an empty Optional → still empty. `filter` on present Optional → present if predicate true, empty if predicate false.",
+
+      "optional_flatMap": "**`flatMap(Function<T, Optional<R>>)`** — for when map would return Optional<Optional<T>>:\n\n```java\n// Problem: map returns Optional<Optional<String>>\nOptional<Optional<String>> nested = user.map(u -> u.getEmail());  // if getEmail() returns Optional<String>\n\n// flatMap unwraps one level:\nOptional<String> email = user.flatMap(u -> u.getEmail());\n\n// Practical chaining — user → order → tracking\nOptional<String> trackingInfo = findUser(userId)\n    .flatMap(User::getLastOrder)          // returns Optional<Order>\n    .flatMap(Order::getTrackingInfo);     // returns Optional<String>\n```\n\n**When to use flatMap**: when the function you're applying ITSELF returns an Optional. `map` for `T → R`. `flatMap` for `T → Optional<R>`.",
+
+      "optional_from_streams": "**Optional from Stream terminals** — you've already been using these:\n\n```java\nList<Product> catalog = ...;\n\n// findFirst returns Optional\nOptional<Product> first = catalog.stream()\n    .filter(p -> p.getPrice() < 500)\n    .findFirst();\n\n// Handle it:\nfirst.ifPresent(p -> System.out.println(\"Found: \" + p.getName()));\nProduct p = first.orElseThrow(() -> new ProductNotFoundException(\"No affordable product\"));\n\n// min/max return Optional\nOptional<Product> cheapest = catalog.stream()\n    .min(Comparator.comparingDouble(Product::getPrice));\n\n// Chain directly:\nString cheapestName = catalog.stream()\n    .min(Comparator.comparingDouble(Product::getPrice))\n    .map(Product::getName)\n    .orElse(\"No products\");\n```\n\nThis is why Optional was introduced in Java 8 — it was designed to be the return type of these stream terminal operations. `findFirst()`, `findAny()`, `min()`, `max()`, and `reduce()` (one-argument form) all return `Optional<T>`.",
+
+      "optional_as_return_type": "**Designing APIs with Optional as return type:**\n\n```java\n// Good API design:\npublic Optional<User> findUserByEmail(String email) {\n    return Optional.ofNullable(userMap.get(email));  // never returns null\n}\n\npublic Optional<Product> getMostExpensive(List<Product> catalog) {\n    return catalog.stream().max(Comparator.comparingDouble(Product::getPrice));\n}\n\n// Bad — don't use Optional as parameter type:\n// public void setName(Optional<String> name) {}  // WRONG — use overloads instead\n// public String getName(Optional<String> default) {}  // WRONG\n\n// Bad — don't use Optional for fields or collections:\n// private Optional<String> name;  // WRONG — use null check or object instead\n// Map<String, Optional<Product>> map;  // WRONG — unnecessary wrapping\n```\n\n**Optional is designed for RETURN TYPES only.** It's a signal to callers: 'this method might not return a value, and you MUST handle that case.' Not for fields, not for parameters.",
+
+      "anti_patterns": "**Optional anti-patterns to avoid:**\n\n```java\n// ANTI-PATTERN 1: Using get() without isPresent()\nUser user = findUser(id).get();  // NoSuchElementException if empty!\n// Fix: use orElse, orElseGet, orElseThrow, or ifPresent\n\n// ANTI-PATTERN 2: Optional for primitive types\nOptional<Integer> count = Optional.of(42);  // boxed — use OptionalInt\nOptionalInt count = OptionalInt.of(42);  // better\n\n// ANTI-PATTERN 3: Checking isPresent then get — just use orElse\nif (optional.isPresent()) {\n    return optional.get();  // verbose — same as optional.orElseThrow()\n}\n\n// ANTI-PATTERN 4: Returning Optional.of(null) — throws NPE!\nreturn Optional.of(maybeNull);  // WRONG if maybeNull could be null\nreturn Optional.ofNullable(maybeNull);  // CORRECT\n\n// ANTI-PATTERN 5: Using Optional as method parameter\npublic void process(Optional<String> input) {}  // WRONG design\npublic void process(String input) {}  // + overload for default\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show Optional as a box that either contains a value or is empty. Three rows: (1) Creation — Optional.of (non-null), Optional.ofNullable (might be null), Optional.empty. (2) Transformation chain — Optional<User>.map(getName) → Optional<String>.filter(long).orElse('?') — value flows through each step; empty propagates. (3) Terminal extraction — orElse, orElseGet (lazy), orElseThrow, ifPresent, isPresent+get. Right side: null return vs Optional return comparison — without Optional: method → null → caller forgets to check → NPE. With Optional: method → Optional → caller must handle → no NPE.",
+      "alt_text": "Optional as a container, transformation chain, terminal extraction, and null vs Optional comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Refactor a user account system from null-return style to Optional-return style. Show how chained Optional operations replace nested null checks for a real address lookup chain.",
+
+    "problem_statement": "A user has an Account, which has an Address, which has a city. Each step might be null. Refactor from nested null checks to Optional chains.\n\nAlso implement `getTopOrderValue(String userId)` which chains through userMap → user → orders → max order value.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Before: nested null checks",
+        "details": "```java\n// 6 lines, hard to read, easy to forget a check:\npublic String getUserCity(String userId) {\n    User user = users.get(userId);\n    if (user != null) {\n        Account account = user.getAccount();\n        if (account != null) {\n            Address address = account.getAddress();\n            if (address != null) {\n                return address.getCity();\n            }\n        }\n    }\n    return \"Unknown City\";\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "After: Optional chain",
+        "details": "```java\n// 4 lines, self-documenting, null-safe by design:\npublic String getUserCity(String userId) {\n    return Optional.ofNullable(users.get(userId))  // User?\n        .map(User::getAccount)                      // Account?\n        .map(Account::getAddress)                   // Address?\n        .map(Address::getCity)                      // City?\n        .orElse(\"Unknown City\");                    // default\n}\n```\n\nEach `.map()` step: if the Optional is empty, skip. If present, extract. If any step returns null, Optional.ofNullable wrapping in map propagates empty forward. Result: safe at every step."
+      },
+      {
+        "step": 3,
+        "action": "Stream + Optional integration: top order value",
+        "details": "```java\npublic double getTopOrderValue(String userId) {\n    return Optional.ofNullable(users.get(userId))\n        .map(User::getOrders)             // get order list (might be null)\n        .filter(orders -> !orders.isEmpty())\n        .flatMap(orders -> orders.stream() // stream returns Optional<Order>\n            .max(Comparator.comparingDouble(Order::getValue)))\n        .map(Order::getValue)\n        .orElse(0.0);\n}\n```\n\nflatMap is needed here because `orders.stream().max(...)` returns `Optional<Order>` — if we used map, we'd get `Optional<Optional<Order>>`."
+      }
+    ],
+
+    "final_code": "import java.util.*;\n\nclass Address { String city; Address(String c) { city=c; } String getCity() { return city; } }\nclass Account { Address address; Account(Address a) { address=a; } Address getAddress() { return address; } }\nclass Order   { double value; Order(double v) { value=v; } double getValue() { return value; } }\n\nclass User {\n    String name;\n    Account account;\n    List<Order> orders;\n    User(String n, Account a, List<Order> o) { name=n; account=a; orders=o; }\n    Account getAccount() { return account; }\n    List<Order> getOrders() { return orders; }\n    public String toString() { return name; }\n}\n\npublic class OptionalDemo {\n    static Map<String, User> users = new HashMap<>();\n    \n    static String getUserCity(String userId) {\n        return Optional.ofNullable(users.get(userId))\n            .map(User::getAccount)\n            .map(Account::getAddress)\n            .map(Address::getCity)\n            .orElse(\"Unknown City\");\n    }\n    \n    static double getTopOrderValue(String userId) {\n        return Optional.ofNullable(users.get(userId))\n            .map(User::getOrders)\n            .filter(orders -> !orders.isEmpty())\n            .flatMap(orders -> orders.stream()\n                .max(Comparator.comparingDouble(Order::getValue)))\n            .map(Order::getValue)\n            .orElse(0.0);\n    }\n    \n    public static void main(String[] args) {\n        users.put(\"U001\", new User(\"Aisha\",\n            new Account(new Address(\"Hyderabad\")),\n            Arrays.asList(new Order(5000), new Order(2200), new Order(8100))));\n        users.put(\"U002\", new User(\"Raj\",\n            new Account(null),  // no address\n            Arrays.asList(new Order(1500))));\n        \n        System.out.println(getUserCity(\"U001\"));    // Hyderabad\n        System.out.println(getUserCity(\"U002\"));    // Unknown City (address is null)\n        System.out.println(getUserCity(\"U999\"));    // Unknown City (user not found)\n        System.out.println(getTopOrderValue(\"U001\")); // 8100.0\n        System.out.println(getTopOrderValue(\"U999\")); // 0.0\n    }\n}",
+
+    "expected_output": "Hyderabad\nUnknown City\nUnknown City\n8100.0\n0.0",
+
+    "things_to_notice": [
+      "The chain `Optional.ofNullable(users.get(userId)).map(User::getAccount).map(Account::getAddress).map(Address::getCity)` replaces 6 lines of nested if-null with 4 lines. And if ANY step is null (user not found, no account, no address), the chain short-circuits and returns empty Optional — which `.orElse()` handles cleanly.",
+      "U002's account has `null` address. The `.map(Account::getAddress)` call gets null, but since we chained `.map()` (which wraps results in Optional internally), it becomes Optional.empty() — the `map(Address::getCity)` is never called. No NPE.",
+      "flatMap is used for the order max because `orders.stream().max(...)` already returns Optional<Order>. Using `.map()` here would produce Optional<Optional<Order>> — `.flatMap()` unwraps one level.",
+      "Method references throughout: `User::getAccount`, `Account::getAddress`, `Address::getCity`, `Order::getValue`. Clean and readable.",
+      "The method signatures tell the whole story: `getUserCity` returns `String` — it commits to always returning one (using orElse as default). `getTopOrderValue` returns `double` — same contract."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Data JPA repositories",
+        "use_case": "Every `findById()` method in Spring Data returns `Optional<T>`. The standard pattern: `userRepo.findById(id).orElseThrow(() -> new UserNotFoundException(id))`. No null check needed. The Optional signals: this user might not exist. Controllers that call findById must handle the Optional — the type system enforces null-safety."
+      },
+      {
+        "company_context": "Map.getOrDefault and Optional.ofNullable",
+        "use_case": "When calling `map.get(key)` which might return null: `Optional.ofNullable(map.get(key)).orElse(defaultValue)` is safer and more expressive than `map.containsKey(key) ? map.get(key) : defaultValue`. Most real code uses `map.getOrDefault(key, default)` for simple cases and `Optional.ofNullable(map.get(key)).map(transform).orElse(default)` for chained transformations."
+      },
+      {
+        "company_context": "Zerodha/Groww user profile APIs",
+        "use_case": "User profiles have many optional fields — middle name, alternate email, nominee details. These are modelled as `Optional<String>` getters in domain objects. The serialization layer uses `opt.map(v -> json.put(key, v))` for clean conditional JSON construction. No null checks scattered through serialization code."
+      }
+    ],
+
+    "interview_relevance": "Optional questions at senior level:\n\n- **'What problem does Optional solve?'** → Makes the possibility of absent values explicit in the type system; prevents NPEs from forgotten null checks.\n- **'When should a method return Optional?'** → When the value might genuinely be absent and callers need to handle that case. Not for collections (return empty list), not for required parameters.\n- **'orElse vs orElseGet?'** → orElse always evaluates; orElseGet is lazy (only called when Optional is empty).\n- **'What is Optional.flatMap used for?'** → When the mapping function itself returns an Optional — prevents Optional<Optional<T>>.\n- **'Where should you NOT use Optional?'** → Fields, constructor parameters, collection elements. Only for return types.",
+
+    "real_world_workflow": "Daily Optional usage:\n\n- Spring repository: `repo.findById(id).orElseThrow(() -> new EntityNotFoundException(id))`\n- Map lookup: `Optional.ofNullable(map.get(key)).map(transform).orElse(default)`\n- Stream terminals: `list.stream().findFirst().ifPresent(action)`\n- Chain null-safe access: `.map(User::getAccount).map(Account::getAddress).map(Address::getCity)`\n- Conditional action: `optional.ifPresent(value -> process(value))`\n- API return type: `Optional<Entity>` instead of `Entity` (might be null)"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "optional_get_without_check",
+      "what_students_get_wrong": "Calling `.get()` directly — throws NoSuchElementException if empty.",
+      "remediation": "Almost never use `.get()`. Use `orElse()`, `orElseGet()`, `orElseThrow()`, or `ifPresent()`. The only safe use of `.get()` is inside an `isPresent()` check — and even then, `orElseThrow()` is cleaner.",
+      "detection_pattern": "NoSuchElementException on Optional.get()"
+    },
+    {
+      "gap_id": "map_vs_flatmap_confusion",
+      "what_students_get_wrong": "Using `.map()` when the function returns Optional — creates Optional<Optional<T>>.",
+      "remediation": "If your mapping function `T → Optional<R>`, use `.flatMap()`. If it's `T → R` (non-Optional), use `.map()`. Rule: flatMap for Optional-returning functions.",
+      "detection_pattern": "Type: Optional<Optional<T>> — nested Optionals"
+    },
+    {
+      "gap_id": "optional_of_null",
+      "what_students_get_wrong": "Using `Optional.of(possiblyNullValue)` — throws NPE immediately if null.",
+      "remediation": "Use `Optional.of()` ONLY when you're certain the value is non-null. For any value that MIGHT be null, use `Optional.ofNullable()`.",
+      "detection_pattern": "NullPointerException inside Optional.of()"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Optional<T>: a container that either holds a value (present) or nothing (empty).",
+      "Creation: `of(nonNull)`, `ofNullable(maybeNull)`, `empty()`.",
+      "Extraction: `orElse(default)`, `orElseGet(Supplier)` (lazy), `orElseThrow(Supplier)`, `ifPresent(Consumer)`.",
+      "Transformation: `map(Function)` for non-Optional result; `flatMap(Function)` for Optional-returning function.",
+      "Filtering: `filter(Predicate)` — keeps value if true, empties if false.",
+      "orElse always evaluates; orElseGet only evaluates if empty — prefer orElseGet for expensive defaults.",
+      "Never call `.get()` without `isPresent()` — and even then, prefer `orElseThrow()`.",
+      "Optional is for RETURN TYPES only — not fields, not parameters, not collections.",
+      "Stream terminals (findFirst, max, min) return Optional — chain `.map().orElse()` directly.",
+      "flatMap needed when chaining methods that themselves return Optional (avoids Optional<Optional<T>>)."
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What is the output?\n```java\nOptional<String> opt = Optional.of(\"  hello  \");\nString result = opt\n    .map(String::strip)\n    .filter(s -> s.length() > 3)\n    .map(String::toUpperCase)\n    .orElse(\"empty\");\nSystem.out.println(result);\n```",
+        "answer": "HELLO\n\nStep by step: `Optional.of('  hello  ')` is present. `.map(String::strip)` → Optional('hello'). `.filter(s -> s.length() > 3)` — 'hello' has length 5 > 3 → still present. `.map(String::toUpperCase)` → Optional('HELLO'). `.orElse('empty')` — present, so returns 'HELLO'."
+      },
+      {
+        "question": "When do you use flatMap instead of map on an Optional?",
+        "answer": "Use flatMap when the mapping function itself returns an Optional. For example: `user.flatMap(User::getLastOrder)` where `getLastOrder()` returns `Optional<Order>`. If you used `.map(User::getLastOrder)` instead, you'd get `Optional<Optional<Order>>` — a nested Optional. flatMap unwraps one level, giving you `Optional<Order>`. Rule: `T → R` (non-Optional result) → map. `T → Optional<R>` → flatMap."
+      },
+      {
+        "question": "What's wrong with this code?\n```java\nOptional<User> user = userRepo.findById(id);\nif (user.isPresent()) {\n    return user.get().getEmail();\n}\nreturn null;\n```",
+        "answer": "Two problems: (1) This is the verbose 'Optional used like null' anti-pattern. It should be: `userRepo.findById(id).map(User::getEmail).orElse(null)`. (2) `return null` at the end re-introduces the null the Optional was trying to avoid — if the return type should handle absence, return Optional<String> from the method itself; if there's a sensible default, use .orElse('default'); if absence is an error, use .orElseThrow()."
+      }
+    ],
+
+    "next_topic_preview": "Module 8 is complete! Lambda expressions, functional interfaces, the Stream API, Collectors, and Optional — the modern Java functional toolkit. These five topics transform how you write Java and set you up for any professional backend role.\n\nModule 9 covers **Generics** — writing classes and methods that work with any type safely (List<T>, Map<K,V>, the kind of generic code you've been USING throughout Modules 6-8). After Module 9, you can build your own generic collections and APIs."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m14_t4_proj",
+  "linked_topic": "java_m14_t4",
+  "level": "mini",
+  "name": "Zerodha-Style Trading App — Multi-Environment Config",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+
+  "scenario": "Refactor the scattered @Value configuration in a trading service to use @ConfigurationProperties records. Add @Validated constraints. Create dev/prod property files. Add @Profile beans for environment-specific services.",
+
+  "description": "Replace all @Value fields in TradingService and NotificationService with two @ConfigurationProperties records. Add startup validation. Create dev (sandbox NSE, mock SMS), staging, and prod (live NSE, real SMS) configurations. Verify with @SpringBootTest.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`TradingConfig` @ConfigurationProperties(prefix='trading') @Validated with nested Market record (url, feedType, maxOrders) and nested RiskLimits record (maxOrderValueInRs, maxDailyLoss). @NotBlank on url, @Min/@Max on numeric fields.",
+        "weight": 22
+      },
+      {
+        "id": "req_2",
+        "description": "`NotificationConfig` @ConfigurationProperties(prefix='notification') with nested Sms (url, apiKey, rateLimit) and Email (host, port, from). @Validated with constraints.",
+        "weight": 18
+      },
+      {
+        "id": "req_3",
+        "description": "Three property files: application.properties (shared: app name, port, risk limits), application-dev.properties (sandbox NSE, mock credentials, H2, DEBUG), application-prod.properties (live NSE, env vars, PostgreSQL, WARN).",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "@Profile('dev') MockSmsService and @Profile('prod') LiveSmsService, both implementing SmsService interface. @Profile('dev') DevDataSeeder (CommandLineRunner seeding 3 test positions).",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest @ActiveProfiles('dev'): 4 assertions — market URL is sandbox, MockSmsService is injected, maxOrders is correct, H2 is the datasource.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "@ConfigurationPropertiesScan on Application class. Inject both config records into TradingService via constructor.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a 'staging' profile: application-staging.properties with live NSE URL but mock credentials, PostgreSQL staging DB, INFO logging. @SpringBootTest @ActiveProfiles('staging') with 2 assertions.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `FeatureFlags` @ConfigurationProperties: enableAlgoTrading, enableOptionsChain, enableDarkMode. Dev: all true. Prod: only enableOptionsChain. Test both profiles.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add @Scheduled @Profile('prod') EodReportJob (runs at 4PM weekdays) that reads TradingConfig.market().url(). Verify the job is NOT created in dev profile (@SpringBootTest @ActiveProfiles('dev') assertNull on the job bean).",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Config structure:\ntrading.market.url: https://sandbox.nseindia.com (dev), https://live.nseindia.com (prod)\ntrading.market.feed-type: MOCK (dev), WEBSOCKET (prod)\ntrading.market.max-orders: 10 (dev), 1000 (prod)\ntrading.risk-limits.max-order-value-in-rs: 100000\ntrading.risk-limits.max-daily-loss: 50000\n\nnotification.sms.url: https://mock-sms.dev (dev), https://api.textsms.in (prod)\nnotification.sms.api-key: dev_key (dev), ${SMS_LIVE_KEY} (prod)\nnotification.email.host: localhost (dev), smtp.gmail.com (prod)",
+
+  "starter_code": "// TradingConfig.java (@ConfigurationProperties)\n// NotificationConfig.java (@ConfigurationProperties)\n// SmsService interface + MockSmsService + LiveSmsService\n// DevDataSeeder @Profile('dev')\n// Application.java (@ConfigurationPropertiesScan)\n// application.properties\n// application-dev.properties\n// application-prod.properties\n// TradingConfigDevTest.java (@SpringBootTest @ActiveProfiles('dev'))",
+
+  "example_output": "# Dev profile startup:\n[main] Active profiles: dev\n[DevDataSeeder] Seeding 3 test trading positions...\n[main] TradingConfig: market.url=https://sandbox.nseindia.com\n[main] NotificationConfig: sms.url=https://mock-sms.dev\n[main] MockSmsService active (dev mode)\n\n# Test output:\n✓ market_url_isSandbox\n✓ smsService_isMock\n✓ maxOrders_isDevLimit (10)\n✓ email_host_isLocalhost",
+
+  "rubric": [
+    { "category": "TradingConfig", "points": 22, "criteria": ["Nested records (12 pts)", "@Validated constraints (10 pts)"] },
+    { "category": "NotificationConfig", "points": 18, "criteria": ["Nested records (10 pts)", "@Validated constraints (8 pts)"] },
+    { "category": "Three property files", "points": 20, "criteria": ["Shared (5 pts)", "Dev (8 pts)", "Prod with env vars (7 pts)"] },
+    { "category": "@Profile beans", "points": 15, "criteria": ["MockSmsService (5 pts)", "LiveSmsService (5 pts)", "DevDataSeeder (5 pts)"] },
+    { "category": "@SpringBootTest dev tests", "points": 15, "criteria": ["4 assertions correct (15 pts)"] },
+    { "category": "Application config", "points": 10, "criteria": ["@ConfigurationPropertiesScan (5 pts)", "Constructor injection (5 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["Staging profile (20 pts)", "FeatureFlags (20 pts)", "@Scheduled prod job (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Nested @ConfigurationProperties record: add @Valid on nested record fields to propagate validation. @Profile bean: Spring only creates beans matching the active profile. @ActiveProfiles('dev') in test: exactly mirrors running with --spring.profiles.active=dev. @ConfigurationPropertiesScan: ONE annotation on Application discovers ALL @ConfigurationProperties in the package.",
+
+  "submission_instructions": "Push to GitHub. Show all property files. All @SpringBootTest tests must pass with @ActiveProfiles('dev').",
+
+  "tips_for_success": [
+    "@ConfigurationPropertiesScan: put on Application class to auto-discover all @ConfigurationProperties",
+    "Nested record validation: put @Valid on the nested record field in the outer record",
+    "Dev property file: use realistic sandbox URLs — not placeholder strings",
+    "@Profile tests: @ActiveProfiles on the class applies to ALL test methods in that class",
+    "Constructor injection: TradingService(TradingConfig tc, NotificationConfig nc) — clean and testable"
+  ],
+
+  "concepts_reinforced": [
+    "@ConfigurationProperties with nested records",
+    "@Validated for startup validation",
+    "Profile-specific property files",
+    "@Profile on beans for conditional creation",
+    "@ConfigurationPropertiesScan for auto-discovery",
+    "@ActiveProfiles in tests"
+  ]
+}

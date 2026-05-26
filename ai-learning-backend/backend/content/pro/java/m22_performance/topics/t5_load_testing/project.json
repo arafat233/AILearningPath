@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0", "project_id": "java_m22_t5_proj", "linked_topic": "java_m22_t5",
+  "level": "mini", "name": "Razorpay Payment Service — Load Testing & Capacity Planning",
+  "estimated_minutes": 50, "difficulty": 7,
+  "scenario": "After all M22 optimizations (JVM tuning, indexes, connection pool, caching), validate that Razorpay's payment service actually meets SLOs under production-like load before Diwali sale. Build a Gatling simulation and capacity planner.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "PaymentLoadSimulation extends Simulation: feeder (merchants.csv random), POST /api/payments scenario with status+responseTime checks. Load: atOnceUsers(10) → rampUsers(200).during(30) → constantUsersPerSec(100).during(120).", "weight": 25 },
+      { "id": "req_2", "description": "Assertions: p99.lt(200), p95.lt(120), successRate.gt(99.9), throughput.gt(90). All 4 assertions defined.", "weight": 15 },
+      { "id": "req_3", "description": "CapacityPlanner: safeCapacityPerPod(reqPerSec, cpuPercent) and podsRequired(target, safe, buffer) methods.", "weight": 15 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): JVM metrics present, HikariCP metrics present, capacity math for 1500 req/s returns 7 pods. All 3 pass.", "weight": 40 },
+      { "id": "req_5", "description": "README: how to run simulation (mvn gatling:test command) and how to read the HTML report.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "SpikeTestSimulation: normal → 10× spike → recovery profile. Separate assertions for spike phase (error rate < 1% during spike, recovery within 30s).", "weight": 20 },
+      { "id": "bonus_2", "description": "AuthFlow scenario: POST /auth/token (save JWT) → repeat 50× POST /api/payments → refresh token. details() assertions per request name.", "weight": 20 },
+      { "id": "bonus_3", "description": "GitHub Actions performance-gate.yml: runs load test after staging deploy, blocks prod deploy on assertion failure, auto-rollback on failure.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Gatling class structure: extends Simulation, HTTP protocol + scenario + load profile in static initializer {}. FeederBuilder.random(): each virtual user picks a random row from CSV (more realistic than circular). Assertions syntax: global().responseTime().percentile(99).lt(200) — 'lt' means 'less than', not 'less than or equal'. details(\"requestName\"): assertion on a specific named request (not global). Capacity formula: safeCapacity = (observedReqPerSec / observedCpuPercent) × 100 × 0.80 — applies 80% headroom rule.",
+  "rubric": [
+    { "category": "PaymentLoadSimulation (feeder + scenario + load)", "points": 25 },
+    { "category": "4 SLO assertions", "points": 15 },
+    { "category": "CapacityPlanner (2 methods)", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 40 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 60 }
+  ]
+}

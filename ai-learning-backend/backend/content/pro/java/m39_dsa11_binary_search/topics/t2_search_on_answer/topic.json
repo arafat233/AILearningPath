@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m39_t2",
+  "module_id": "m39",
+  "topic_number": 2,
+  "name": "Search on Answer \u2014 Koko, Split Array, Median of Arrays",
+  "slug": "search-on-answer-koko-split",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m39_t1"
+    ],
+    "concepts_taught": [
+      "search-on-answer-koko-split"
+    ],
+    "career_relevance": "Core Search on Answer \u2014 Koko, Split Array, Median of Arrays.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Search on Answer \u2014 Koko, Split Array, Median of Arrays"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Pattern: binary search on the ANSWER SPACE not the array",
+        "Condition: find minimum X such that f(X) is feasible",
+        "f(X) must be monotonic: feasible for X implies feasible for X+1",
+        "Koko: speed X feasible if sum(ceil(piles[i]/X)) <= h",
+        "Split Array: size X feasible if split into k parts all <= X",
+        "Median of two sorted arrays: O(log(min(m,n))) binary search on shorter",
+        "Template: lo=min_answer, hi=max_answer; while(lo<hi) check mid feasibility"
+      ],
+      "next_topic_preview": "Next: Rotated arrays."
+    }
+  }
+}

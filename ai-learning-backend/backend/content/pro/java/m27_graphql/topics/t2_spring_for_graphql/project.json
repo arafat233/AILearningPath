@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m27_t2_proj",
+  "linked_topic": "java_m27_t2",
+  "level": "mini",
+  "name": "Razorpay Merchant Dashboard — Spring GraphQL API",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "Razorpay's frontend team makes 5 REST API calls per merchant dashboard page load. Replace with a Spring for GraphQL API that lets the web and mobile apps each request exactly the fields they need.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "schema.graphqls in src/main/resources/graphql/: defines Payment, Merchant, Refund types. PaymentStatus enum. CreatePaymentInput and InitiateRefundInput input types. Query and Mutation types.", "weight": 15},
+      {"id": "req_2", "description": "@Controller PaymentGraphQlController with @QueryMapping payment(id), @QueryMapping payments(merchantId, status). @Argument on all parameters.", "weight": 15},
+      {"id": "req_3", "description": "@MutationMapping createPayment(@Argument CreatePaymentInput input), @MutationMapping initiateRefund(@Argument InitiateRefundInput input). Input type deserialization via @Argument.", "weight": 15},
+      {"id": "req_4", "description": "@SchemaMapping(typeName='Payment') merchant(Payment payment) — field resolver. Called per payment in result set (document N+1 risk in comments).", "weight": 15},
+      {"id": "req_5", "description": "ProductNotFoundException or PaymentNotFoundException extends RuntimeException. @Component DataFetcherExceptionResolverAdapter that maps it to ErrorType.NOT_FOUND.", "weight": 10},
+      {"id": "req_6", "description": "@SpringBootTest or @GraphQlTest (4 tests): payment query, payments list, createPayment mutation, merchant field resolver. All 4 pass.", "weight": 25},
+      {"id": "req_7", "description": "application.yml: spring.graphql.graphiql.enabled=true. Comment in README: how to access GraphiQL at localhost:8080/graphiql.", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "Pagination: payments(merchantId, status, page=0, size=20) returns PaymentPage { items, total, page, hasNext }. Service implements skip/limit logic. Test: page 0 returns items, hasNext=true when more exist.", "weight": 20},
+      {"id": "bonus_2", "description": "Authentication context: @QueryMapping myPayments() — gets merchantId from GraphQlContext (not from @Argument). Test: with context returns correct payments, without context returns empty.", "weight": 20},
+      {"id": "bonus_3", "description": "@GraphQlTest with GraphQlTester: .document(query).execute().path('payment.status').entity(String.class).isEqualTo('CREATED'). Mock the service layer with @MockBean.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Schema location: src/main/resources/graphql/schema.graphqls (Spring reads all *.graphqls files from this directory at startup). @QueryMapping method name = schema Query field name by default — if they differ, use @QueryMapping(name='fieldName'). @Argument for input types: Spring auto-deserializes the GraphQL input map to the Java record using field name matching. @SchemaMapping typeName: must exactly match the GraphQL type name in the schema (case-sensitive). Error handling: return null from @QueryMapping for 'not found' if schema field is nullable (Product); throw exception if non-null (Product!) — map exception to GraphQL error via DataFetcherExceptionResolverAdapter.",
+  "rubric": [
+    {"category": "schema.graphqls (types + queries + mutations)", "points": 15},
+    {"category": "@QueryMapping resolvers", "points": 15},
+    {"category": "@MutationMapping resolvers", "points": 15},
+    {"category": "@SchemaMapping field resolver", "points": 15},
+    {"category": "Exception handler", "points": 10},
+    {"category": "4 tests (all pass)", "points": 25},
+    {"category": "application.yml + README", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

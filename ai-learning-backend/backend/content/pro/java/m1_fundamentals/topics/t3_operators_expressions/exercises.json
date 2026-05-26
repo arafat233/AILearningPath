@@ -1,0 +1,453 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t3",
+  "topic_name": "Operators & Expressions",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m1_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Basic arithmetic",
+      "scenario": "Verify your understanding of basic arithmetic operators.",
+      "instructions": "What does this code print?\n\n```java\npublic class Arithmetic {\n    public static void main(String[] args) {\n        int a = 10;\n        int b = 3;\n        \n        System.out.println(a + b);\n        System.out.println(a - b);\n        System.out.println(a * b);\n        System.out.println(a / b);\n        System.out.println(a % b);\n    }\n}\n```",
+      "expected_solution": "13\n7\n30\n3\n1",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "13\n7\n30\n3\n1"
+        }
+      ],
+      "hints": [
+        "a + b = 13",
+        "a - b = 7",
+        "a * b = 30",
+        "10 / 3 = 3 (integer division — drops the decimal)",
+        "10 % 3 = 1 (remainder)"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Compound assignment",
+      "scenario": "Replace verbose assignments with compound operators.",
+      "instructions": "Fill in the blanks to use compound assignment operators instead of verbose syntax.",
+      "starter_code": "public class Compound {\n    public static void main(String[] args) {\n        int score = 100;\n        \n        // score = score + 50;\n        score ______ 50;\n        \n        // score = score - 20;\n        score ______ 20;\n        \n        // score = score * 2;\n        score ______ 2;\n        \n        System.out.println(\"Final score: \" + score);\n    }\n}",
+      "expected_solution": "public class Compound {\n    public static void main(String[] args) {\n        int score = 100;\n        \n        // score = score + 50;\n        score += 50;\n        \n        // score = score - 20;\n        score -= 20;\n        \n        // score = score * 2;\n        score *= 2;\n        \n        System.out.println(\"Final score: \" + score);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "+=", "hint": "Compound operator for addition" },
+        { "position": 2, "answer": "-=", "hint": "Compound operator for subtraction" },
+        { "position": 3, "answer": "*=", "hint": "Compound operator for multiplication" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Final score: 260"
+        }
+      ],
+      "hints": [
+        "x = x + n becomes x += n",
+        "x = x - n becomes x -= n",
+        "x = x * n becomes x *= n"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t3_ex_3",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Comparison operators",
+      "scenario": "Practice reading comparison results.",
+      "instructions": "What does this code print?\n\n```java\npublic class Compare {\n    public static void main(String[] args) {\n        int x = 7;\n        int y = 10;\n        \n        System.out.println(x < y);\n        System.out.println(x == y);\n        System.out.println(x != y);\n        System.out.println(x >= 7);\n    }\n}\n```",
+      "expected_solution": "true\nfalse\ntrue\ntrue",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "true\nfalse\ntrue\ntrue"
+        }
+      ],
+      "hints": [
+        "7 < 10 = true",
+        "7 == 10 = false (they're different)",
+        "7 != 10 = true (yes, they're not equal)",
+        "7 >= 7 = true (>= means greater OR equal)"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Even or odd checker",
+      "scenario": "Build a simple utility to check if numbers are even. This uses the modulo operator — a classic pattern.",
+      "instructions": "Write a class `EvenChecker` that:\n1. Stores three numbers: 8, 17, 24\n2. For each, calculates whether it's even (use modulo)\n3. Prints the result\n\nExpected output:\n8 is even: true\n17 is even: false\n24 is even: true",
+      "starter_code": "// Write your EvenChecker class below\n",
+      "expected_solution": "public class EvenChecker {\n    public static void main(String[] args) {\n        int num1 = 8;\n        int num2 = 17;\n        int num3 = 24;\n        \n        boolean isEven1 = num1 % 2 == 0;\n        boolean isEven2 = num2 % 2 == 0;\n        boolean isEven3 = num3 % 2 == 0;\n        \n        System.out.println(num1 + \" is even: \" + isEven1);\n        System.out.println(num2 + \" is even: \" + isEven2);\n        System.out.println(num3 + \" is even: \" + isEven3);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "8 is even: true\n17 is even: false\n24 is even: true"
+        }
+      ],
+      "hints": [
+        "A number is even if it's divisible by 2 (no remainder)",
+        "Use modulo: `n % 2 == 0` checks if n is even",
+        "Store each result in a boolean variable for clarity"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t3_ex_5",
+      "level": "easy",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Precedence challenge",
+      "scenario": "Practice understanding operator precedence.",
+      "instructions": "What does this code print? Pay attention to precedence rules.\n\n```java\npublic class Precedence {\n    public static void main(String[] args) {\n        System.out.println(2 + 3 * 4);\n        System.out.println((2 + 3) * 4);\n        System.out.println(10 - 4 - 2);\n        System.out.println(20 / 4 / 2);\n        System.out.println(10 + 5 * 2 - 3);\n    }\n}\n```",
+      "expected_solution": "14\n20\n4\n2\n17",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "14\n20\n4\n2\n17"
+        }
+      ],
+      "hints": [
+        "Line 1: * before +, so 3*4=12, then 2+12=14",
+        "Line 2: parens first, 2+3=5, then 5*4=20",
+        "Line 3: same precedence (- and -), left-to-right: (10-4)-2 = 4",
+        "Line 4: same precedence (/ and /), left-to-right: (20/4)/2 = 2",
+        "Line 5: * first: 5*2=10. Then left-to-right: 10+10=20, 20-3=17"
+      ],
+      "xp_reward": 25,
+      "concept_tested": "operator_precedence"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Average calculator",
+      "scenario": "Calculate the average of three test scores. Be careful — this exercise tests integer division.",
+      "instructions": "Write a class `Average` that:\n1. Stores three test scores as int: 85, 92, 78\n2. Calculates the average correctly (must include decimal precision)\n3. Prints: 'Average: 85.0' (or similar — with decimal)\n\nHINT: If you just do `(a + b + c) / 3` with all ints, you'll get integer division. Cast at least one operand to double.",
+      "starter_code": "// Write your Average class below\n",
+      "expected_solution": "public class Average {\n    public static void main(String[] args) {\n        int score1 = 85;\n        int score2 = 92;\n        int score3 = 78;\n        \n        double average = (score1 + score2 + score3) / 3.0;\n        \n        System.out.println(\"Average: \" + average);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Average: 85.0"
+        }
+      ],
+      "hints": [
+        "Sum of int + int + int = int",
+        "int / int = int (truncates)",
+        "Trick: divide by 3.0 (not 3) — that makes it double division",
+        "Alternative: cast the sum: `(double)(score1 + score2 + score3) / 3`"
+      ],
+      "xp_reward": 30,
+      "concept_tested": "integer_division_gotcha"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_7",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the precedence bug",
+      "scenario": "This code is supposed to calculate the average of 4 numbers and check if it's above 70. It has bugs in the expressions.",
+      "instructions": "The code has 2 bugs related to operator usage. Fix them so it produces:\nAverage: 80.0\nPassing: true",
+      "starter_code": "public class Grades {\n    public static void main(String[] args) {\n        int s1 = 70;\n        int s2 = 80;\n        int s3 = 85;\n        int s4 = 85;\n        \n        // Bug: integer division\n        double average = s1 + s2 + s3 + s4 / 4;\n        \n        // Bug: should check if average is above 70\n        boolean passing = average > 100;\n        \n        System.out.println(\"Average: \" + average);\n        System.out.println(\"Passing: \" + passing);\n    }\n}",
+      "expected_solution": "public class Grades {\n    public static void main(String[] args) {\n        int s1 = 70;\n        int s2 = 80;\n        int s3 = 85;\n        int s4 = 85;\n        \n        // Fixed: parens for sum, divide by 4.0 for double result\n        double average = (s1 + s2 + s3 + s4) / 4.0;\n        \n        // Fixed: compare to 70 (passing threshold)\n        boolean passing = average > 70;\n        \n        System.out.println(\"Average: \" + average);\n        System.out.println(\"Passing: \" + passing);\n    }\n}",
+      "bugs": [
+        {
+          "line": 8,
+          "issue": "Without parens, only s4/4 happens first (division has higher precedence than addition). And int division loses precision.",
+          "fix": "Add parens around the sum, divide by 4.0 instead of 4"
+        },
+        {
+          "line": 11,
+          "issue": "Comparing to 100 — but passing threshold is 70.",
+          "fix": "Change 100 to 70"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Average: 80.0\nPassing: true",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Without parens: s1 + s2 + s3 + s4/4 = 70 + 80 + 85 + 21 = 256 (wrong)",
+        "With parens and 4.0: (70+80+85+85)/4.0 = 320/4.0 = 80.0",
+        "The passing threshold should be 70, not 100",
+        "Use parens to make the order of operations explicit"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["operator_precedence_assumption", "integer_division_truncation"]
+    },
+    
+    {
+      "id": "java_m1_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Login validator",
+      "scenario": "You're writing the validation logic for a login system. A user can log in if they have a valid username AND password AND are not locked out.",
+      "instructions": "Write a class `LoginValidator` that:\n1. Stores these variables:\n   - hasValidUsername (boolean) = true\n   - hasCorrectPassword (boolean) = true\n   - isLocked (boolean) = false\n   - failedAttempts (int) = 2\n2. Calculates `canLogin`: true only if all three conditions are good (valid username, correct password, NOT locked)\n3. Calculates `shouldWarnUser`: true if failedAttempts >= 2 AND less than 5\n4. Prints both results\n\nExpected output:\nCan login: true\nShould warn: true",
+      "starter_code": "// Write your LoginValidator class below\n",
+      "expected_solution": "public class LoginValidator {\n    public static void main(String[] args) {\n        boolean hasValidUsername = true;\n        boolean hasCorrectPassword = true;\n        boolean isLocked = false;\n        int failedAttempts = 2;\n        \n        boolean canLogin = hasValidUsername && hasCorrectPassword && !isLocked;\n        boolean shouldWarnUser = failedAttempts >= 2 && failedAttempts < 5;\n        \n        System.out.println(\"Can login: \" + canLogin);\n        System.out.println(\"Should warn: \" + shouldWarnUser);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Can login: true\nShould warn: true"
+        }
+      ],
+      "hints": [
+        "AND requires ALL conditions true — use &&",
+        "NOT (locked) means !isLocked",
+        "Range check: x >= a && x < b",
+        "failedAttempts is 2, so >= 2 is true AND < 5 is true → result true"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "logical_operators"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_9",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Short-circuit evaluation",
+      "scenario": "Short-circuit evaluation can be confusing. Verify your understanding.",
+      "instructions": "What does this code print?\n\n```java\npublic class ShortCircuit {\n    public static void main(String[] args) {\n        int x = 5;\n        int y = 10;\n        \n        boolean a = (x > 0) && (y > 0);\n        boolean b = (x > 100) && (y / 0 > 0);  // Watch this one!\n        boolean c = (x > 0) || (y / 0 > 0);    // And this one!\n        \n        System.out.println(a);\n        System.out.println(b);\n        System.out.println(c);\n    }\n}\n```",
+      "expected_solution": "true\nfalse\ntrue",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "true\nfalse\ntrue"
+        }
+      ],
+      "hints": [
+        "Line a: both true, result true",
+        "Line b: x>100 is FALSE. Java short-circuits — never evaluates y/0 (which would crash). Result false.",
+        "Line c: x>0 is TRUE. Java short-circuits — never evaluates y/0. Result true.",
+        "Lesson: short-circuit evaluation can prevent crashes"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "short_circuit_evaluation"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Pre vs post increment",
+      "scenario": "The pre vs post increment difference is a classic interview question.",
+      "instructions": "What does this code print?\n\n```java\npublic class Increments {\n    public static void main(String[] args) {\n        int a = 5;\n        int b = a++;\n        \n        int c = 5;\n        int d = ++c;\n        \n        System.out.println(\"a=\" + a + \", b=\" + b);\n        System.out.println(\"c=\" + c + \", d=\" + d);\n    }\n}\n```",
+      "expected_solution": "a=6, b=5\nc=6, d=6",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "a=6, b=5\nc=6, d=6"
+        }
+      ],
+      "hints": [
+        "a++ is POST-increment: b gets a's current value (5), THEN a becomes 6",
+        "++c is PRE-increment: c becomes 6 FIRST, then d gets that new value (6)",
+        "After: a=6 (incremented), b=5 (got old value before increment)",
+        "After: c=6 (incremented first), d=6 (got new value)"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "post_pre_increment_confusion"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Time converter",
+      "scenario": "Convert total seconds into hours, minutes, and seconds. Real-world use case: video duration, elapsed time.",
+      "instructions": "Write a class `TimeConverter` that:\n1. Stores totalSeconds = 9045 (just over 2.5 hours)\n2. Calculates:\n   - hours = totalSeconds / 3600 (use int division)\n   - remainingAfterHours = totalSeconds % 3600\n   - minutes = remainingAfterHours / 60\n   - seconds = remainingAfterHours % 60\n3. Prints in format:\n\n9045 seconds = 2 hours, 30 minutes, 45 seconds",
+      "starter_code": "// Write your TimeConverter class below\n",
+      "expected_solution": "public class TimeConverter {\n    public static void main(String[] args) {\n        int totalSeconds = 9045;\n        \n        int hours = totalSeconds / 3600;\n        int remainingAfterHours = totalSeconds % 3600;\n        int minutes = remainingAfterHours / 60;\n        int seconds = remainingAfterHours % 60;\n        \n        System.out.println(totalSeconds + \" seconds = \" + hours + \" hours, \" + minutes + \" minutes, \" + seconds + \" seconds\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "9045 seconds = 2 hours, 30 minutes, 45 seconds"
+        }
+      ],
+      "hints": [
+        "This problem is PERFECT for / and % together",
+        "Total / 3600 = hours (3600 seconds per hour)",
+        "Total % 3600 = remaining seconds after extracting hours",
+        "Remaining / 60 = minutes",
+        "Remaining % 60 = leftover seconds",
+        "Integer division is exactly what you want here"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "modulo_practical_use"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_12",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the eligibility check",
+      "scenario": "An e-commerce app has a 'free shipping' eligibility check that's broken. Customers are getting wrong results.",
+      "instructions": "Fix the bugs so the code correctly determines free shipping eligibility:\n- Free shipping if: order >= 500 AND (member OR first-time buyer)\n- For the given values, result should be: true",
+      "starter_code": "public class FreeShipping {\n    public static void main(String[] args) {\n        double orderTotal = 750.0;\n        boolean isMember = false;\n        boolean isFirstTimeBuyer = true;\n        \n        // Bug: wrong logic operators\n        boolean qualifiesForFreeShipping = orderTotal >= 500 || isMember && isFirstTimeBuyer;\n        \n        System.out.println(\"Free shipping: \" + qualifiesForFreeShipping);\n    }\n}",
+      "expected_solution": "public class FreeShipping {\n    public static void main(String[] args) {\n        double orderTotal = 750.0;\n        boolean isMember = false;\n        boolean isFirstTimeBuyer = true;\n        \n        // Fixed: parens for clarity, correct logic\n        boolean qualifiesForFreeShipping = orderTotal >= 500 && (isMember || isFirstTimeBuyer);\n        \n        System.out.println(\"Free shipping: \" + qualifiesForFreeShipping);\n    }\n}",
+      "bugs": [
+        {
+          "line": 7,
+          "issue": "Wrong operators. Without parens, && has higher precedence than ||, so it evaluated as: orderTotal >= 500 || (isMember && isFirstTimeBuyer) — wrong logic.",
+          "fix": "Use orderTotal >= 500 && (isMember || isFirstTimeBuyer) — both conditions must hold, but the second is satisfied by either being true."
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Free shipping: true",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Re-read the rule: order >= 500 AND (member OR first-time)",
+        "AND combines the order requirement with the customer-status requirement",
+        "OR combines the two customer-status possibilities",
+        "Use parens to group: orderTotal >= 500 && (isMember || isFirstTimeBuyer)"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "logical_operator_precedence"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Discount calculator with conditions",
+      "scenario": "Build a discount calculator. Different discounts apply based on multiple conditions.",
+      "instructions": "Write a class `DiscountCalculator` that:\n\nGiven:\n- Order amount: 1500.0\n- Is premium member: true\n- Number of previous orders: 5\n- Has coupon: false\n\nCalculate boolean variables for each discount type:\n- `qualifiesForBulkDiscount`: order >= 1000\n- `qualifiesForLoyaltyDiscount`: premium AND orders >= 3\n- `qualifiesForCouponDiscount`: hasCoupon (just the boolean)\n- `qualifiesForAnyDiscount`: any of the above is true\n\nOutput exactly:\nOrder: 1500.0\nBulk discount eligible: true\nLoyalty discount eligible: true\nCoupon discount eligible: false\nAny discount eligible: true",
+      "starter_code": "// Write your DiscountCalculator class below\n",
+      "expected_solution": "public class DiscountCalculator {\n    public static void main(String[] args) {\n        double orderAmount = 1500.0;\n        boolean isPremiumMember = true;\n        int previousOrders = 5;\n        boolean hasCoupon = false;\n        \n        boolean qualifiesForBulkDiscount = orderAmount >= 1000;\n        boolean qualifiesForLoyaltyDiscount = isPremiumMember && previousOrders >= 3;\n        boolean qualifiesForCouponDiscount = hasCoupon;\n        boolean qualifiesForAnyDiscount = qualifiesForBulkDiscount || qualifiesForLoyaltyDiscount || qualifiesForCouponDiscount;\n        \n        System.out.println(\"Order: \" + orderAmount);\n        System.out.println(\"Bulk discount eligible: \" + qualifiesForBulkDiscount);\n        System.out.println(\"Loyalty discount eligible: \" + qualifiesForLoyaltyDiscount);\n        System.out.println(\"Coupon discount eligible: \" + qualifiesForCouponDiscount);\n        System.out.println(\"Any discount eligible: \" + qualifiesForAnyDiscount);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Order: 1500.0\nBulk discount eligible: true\nLoyalty discount eligible: true\nCoupon discount eligible: false\nAny discount eligible: true"
+        }
+      ],
+      "hints": [
+        "Each discount is a separate boolean variable",
+        "Bulk: simple >= check",
+        "Loyalty: AND of two conditions (member AND order count)",
+        "Coupon: just the existing boolean (no calculation needed)",
+        "Any discount: OR of all four — use ||"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m1_t3_ex_14",
+      "level": "hard",
+      "type": "predict_output",
+      "difficulty": 5,
+      "title": "Complex expression challenge",
+      "scenario": "A real interview-level question on operators and precedence.",
+      "instructions": "What does this code print? Work through each expression carefully.\n\n```java\npublic class Complex {\n    public static void main(String[] args) {\n        int a = 10;\n        int b = 5;\n        int c = 2;\n        \n        int r1 = a + b * c - a / c;\n        int r2 = (a + b) * (c - 1);\n        boolean r3 = a > b && b > c || a == 10;\n        boolean r4 = !(a < b) && (c != 0);\n        int r5 = a % b + b % c;\n        \n        System.out.println(r1);\n        System.out.println(r2);\n        System.out.println(r3);\n        System.out.println(r4);\n        System.out.println(r5);\n    }\n}\n```",
+      "expected_solution": "15\n15\ntrue\ntrue\n1",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "15\n15\ntrue\ntrue\n1"
+        }
+      ],
+      "hints": [
+        "r1: b*c=10, a/c=5, then 10+10-5 = 15",
+        "r2: (10+5)*(2-1) = 15*1 = 15",
+        "r3: a>b=true, b>c=true. true && true = true. true || anything = true",
+        "r4: !(a<b) = !(false) = true. c!=0 = true. true && true = true",
+        "r5: 10%5=0, 5%2=1. 0+1 = 1"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "complex_expressions"
+    },
+    
+    {
+      "id": "java_m1_t3_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Build a loan eligibility calculator",
+      "scenario": "You're building a loan pre-qualification tool. The bank has specific eligibility criteria that combine many conditions.",
+      "instructions": "Write a class `LoanCalculator` that determines if someone qualifies for a loan.\n\nELIGIBILITY RULES:\n- Annual income >= 500,000 (5 lakh)\n- Age between 21 and 60 (inclusive)\n- Credit score >= 650\n- Current debt-to-income ratio (debt / income) < 0.4\n- Employment status: 'Employed' OR 'Self-Employed'\n\nUSE THIS DATA:\n- Name: 'Vikram Mehta'\n- Annual income: 750000.0\n- Age: 32\n- Credit score: 720\n- Current debt: 200000.0\n- Employment status: 'Employed'\n\nCALCULATE AND PRINT:\n=========================================\n         LOAN PRE-QUALIFICATION\n=========================================\nApplicant: Vikram Mehta\nAnnual Income: 750000.0\nAge: 32\nCredit Score: 720\nDebt: 200000.0\nDebt-to-Income Ratio: 0.26666666666666666\nEmployment: Employed\n-----------------------------------------\nIncome OK: true\nAge OK: true\nCredit OK: true\nDebt Ratio OK: true\nEmployment OK: true\n-----------------------------------------\nQUALIFIES FOR LOAN: true\n=========================================\n\nNote: For employment status, use .equals() since it's a String comparison.",
+      "starter_code": "// Write your LoanCalculator class below\n",
+      "expected_solution": "public class LoanCalculator {\n    public static void main(String[] args) {\n        // Applicant data\n        String name = \"Vikram Mehta\";\n        double annualIncome = 750000.0;\n        int age = 32;\n        int creditScore = 720;\n        double currentDebt = 200000.0;\n        String employmentStatus = \"Employed\";\n        \n        // Calculate ratio\n        double debtToIncomeRatio = currentDebt / annualIncome;\n        \n        // Individual checks\n        boolean incomeOK = annualIncome >= 500000;\n        boolean ageOK = age >= 21 && age <= 60;\n        boolean creditOK = creditScore >= 650;\n        boolean debtRatioOK = debtToIncomeRatio < 0.4;\n        boolean employmentOK = employmentStatus.equals(\"Employed\") || employmentStatus.equals(\"Self-Employed\");\n        \n        // Overall qualification\n        boolean qualifies = incomeOK && ageOK && creditOK && debtRatioOK && employmentOK;\n        \n        // Output\n        System.out.println(\"=========================================\");\n        System.out.println(\"         LOAN PRE-QUALIFICATION\");\n        System.out.println(\"=========================================\");\n        System.out.println(\"Applicant: \" + name);\n        System.out.println(\"Annual Income: \" + annualIncome);\n        System.out.println(\"Age: \" + age);\n        System.out.println(\"Credit Score: \" + creditScore);\n        System.out.println(\"Debt: \" + currentDebt);\n        System.out.println(\"Debt-to-Income Ratio: \" + debtToIncomeRatio);\n        System.out.println(\"Employment: \" + employmentStatus);\n        System.out.println(\"-----------------------------------------\");\n        System.out.println(\"Income OK: \" + incomeOK);\n        System.out.println(\"Age OK: \" + ageOK);\n        System.out.println(\"Credit OK: \" + creditOK);\n        System.out.println(\"Debt Ratio OK: \" + debtRatioOK);\n        System.out.println(\"Employment OK: \" + employmentOK);\n        System.out.println(\"-----------------------------------------\");\n        System.out.println(\"QUALIFIES FOR LOAN: \" + qualifies);\n        System.out.println(\"=========================================\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "=========================================\n         LOAN PRE-QUALIFICATION\n=========================================\nApplicant: Vikram Mehta\nAnnual Income: 750000.0\nAge: 32\nCredit Score: 720\nDebt: 200000.0\nDebt-to-Income Ratio: 0.26666666666666666\nEmployment: Employed\n-----------------------------------------\nIncome OK: true\nAge OK: true\nCredit OK: true\nDebt Ratio OK: true\nEmployment OK: true\n-----------------------------------------\nQUALIFIES FOR LOAN: true\n=========================================",
+          "must_compile": true
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": [".equals("],
+          "description": "Should use .equals() for String comparison"
+        }
+      ],
+      "hints": [
+        "Break this into smaller calculations — don't try to write one giant expression",
+        "Each eligibility rule becomes a separate boolean variable",
+        "Use .equals() for the employment status (Strings need .equals)",
+        "Age range: x >= 21 && x <= 60",
+        "Combine all checks at the end with && for the final qualifies"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 6,
+      "debug": 2,
+      "predict_output": 5,
+      "algorithm": 1
+    },
+    "total_xp_possible": 640,
+    "estimated_completion_minutes": 40
+  },
+  
+  "gap_detection_map": {
+    "integer_division_truncation": ["ex_1", "ex_6", "ex_7"],
+    "operator_precedence": ["ex_5", "ex_7", "ex_14"],
+    "logical_operator_precedence": ["ex_12"],
+    "logical_operators": ["ex_8"],
+    "short_circuit_evaluation": ["ex_9"],
+    "post_pre_increment_confusion": ["ex_10"],
+    "modulo_practical_use": ["ex_4", "ex_11"],
+    "complex_expressions": ["ex_14"],
+    "string_comparison_with_double_equals": ["ex_15"]
+  }
+}

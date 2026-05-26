@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m1_t2_proj",
+  "linked_topic": "java_m1_t2",
+  "level": "mini",
+  "name": "Build a Profile Card Generator",
+  "estimated_minutes": 30,
+  "difficulty": 3,
+  
+  "scenario": "You're building a feature for a developer community platform (think dev.to, GitHub, Hashnode). Each user has a 'profile card' that shows their stats and basic info. Your job: write a Java program that generates a formatted profile card for any developer. The output should look like it could be a real feature on a real platform.",
+  
+  "description": "Build a program that stores a developer's profile information using the correct data types, calculates a few derived values, and prints a clean, professional-looking profile card. This is your chance to apply everything from Topic 2: choosing types, using constants, calculating values, and formatting output.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `ProfileCard` in file ProfileCard.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors or warnings",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Uses at least 6 different variables with correctly chosen types (must include String, int, double, boolean, and at least one of: char, long)",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Has at least 2 calculated values (e.g., average rating, total contributions, days since joined)",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Uses at least one `final` constant",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Output has clear visual structure (borders, sections, alignment)",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Variable names are descriptive and follow camelCase convention",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Includes 'engagement score' calculation using multiple variables (e.g., (posts*5 + comments*2 + likes) / accountAgeInDays)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Uses long type appropriately (e.g., total views in millions, account ID)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_3",
+        "description": "Includes a badge/status calculation based on stats (e.g., 'PRO', 'VERIFIED', based on follower count)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Uses ASCII art or Unicode characters creatively for visual flair",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Use this developer profile (or invent your own — but use realistic numbers):\n\n- Name: Your choice (use a realistic name)\n- Username: Developer's handle (e.g., 'priya_codes')\n- Title: e.g., 'Backend Developer'\n- Years of experience: 3\n- Number of public repos: 47\n- Total followers: 1284\n- Total posts: 89\n- Average post rating: 4.7 (out of 5.0)\n- Is verified developer: true\n- Account ID: a long number\n- Tier badge: 'P' for Pro (single char)\n- Daily posts limit (constant): 10\n- Max followers free tier (constant): 5000",
+  
+  "starter_code": "// Build your ProfileCard program below\n// Goal: A clean profile card for a developer community platform\n\npublic class ProfileCard {\n    public static void main(String[] args) {\n        // Step 1: Declare variables with correct types\n        \n        // Step 2: Declare constants with 'final'\n        \n        // Step 3: Calculate derived values\n        \n        // Step 4: Print the formatted profile card\n        \n    }\n}",
+  
+  "example_output": "╔═══════════════════════════════════════╗\n║         DEVELOPER PROFILE             ║\n╚═══════════════════════════════════════╝\n  Name:        Priya Sharma\n  Username:    @priya_codes\n  Title:       Backend Developer\n  Tier:        [P] Pro Member\n  Verified:    true\n  Account ID:  894523741892\n---------------------------------------\n  Experience:  3 years\n  Repos:       47\n  Posts:       89\n  Followers:   1284\n  Rating:      4.7 / 5.0\n---------------------------------------\n  Engagement Score: 12.5\n  Daily Limit:      10 posts\n  Follower Cap:     5000 (free tier)\n=======================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Type Correctness",
+      "points": 25,
+      "criteria": [
+        "String used for text (5 pts)",
+        "int used for whole numbers in range (5 pts)",
+        "double used for decimals (5 pts)",
+        "boolean used for true/false (5 pts)",
+        "long or char used appropriately (5 pts)"
+      ]
+    },
+    {
+      "category": "Constants",
+      "points": 10,
+      "criteria": [
+        "At least one `final` constant (5 pts)",
+        "Constants use SCREAMING_SNAKE_CASE (5 pts)"
+      ]
+    },
+    {
+      "category": "Calculations",
+      "points": 15,
+      "criteria": [
+        "At least 2 calculated values (10 pts)",
+        "Calculations use appropriate math (5 pts)"
+      ]
+    },
+    {
+      "category": "Naming",
+      "points": 10,
+      "criteria": [
+        "Descriptive variable names (5 pts)",
+        "camelCase used correctly (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 15,
+      "criteria": [
+        "Clear visual structure (5 pts)",
+        "Sections separated cleanly (5 pts)",
+        "Professional appearance (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 45,
+      "criteria": [
+        "Engagement score calculation (15 pts)",
+        "Long type used well (10 pts)",
+        "Badge/status logic (10 pts)",
+        "Creative visuals (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "AI hints are allowed but limited to 5 for this project. Try to think through type choices yourself first — this is the topic's whole point. Use hints when truly stuck. Don't ask AI to generate the full solution.",
+  
+  "submission_instructions": "Save your code in ProfileCard.java. Run locally or in our editor. Verify your output is clean and professional. Submit through the platform for auto-grading. Add this to your GitHub portfolio repo — this is real-looking work you can show off.",
+  
+  "tips_for_success": [
+    "Plan first. Before coding, list every variable you need and decide its type. This is a senior-engineer habit.",
+    "Use realistic numbers. A developer with 5 billion followers isn't believable.",
+    "Don't make the engagement score formula too complex — pick 2-3 inputs that make logical sense.",
+    "Test your output by running it. Does it look like something a real platform would display?",
+    "Add comments above each section explaining what it does. Future you (and reviewers) will appreciate it.",
+    "If you push to GitHub, write a good commit message: 'feat: developer profile card generator with engagement scoring'"
+  ],
+  
+  "concepts_reinforced": [
+    "Variable declaration with appropriate types",
+    "Using all primitive types in context",
+    "final keyword for constants",
+    "Naming conventions (camelCase, SCREAMING_SNAKE_CASE)",
+    "Arithmetic with mixed types",
+    "String concatenation",
+    "Formatted console output"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Building this teaches you something subtle but critical: TYPE CHOICE IS A DESIGN DECISION. Every variable you declare is a small architectural choice. Should follower count be int or long? Could it ever exceed 2 billion? Should rating be float or double? Will the precision matter? These tiny decisions, multiplied across thousands of variables in a real project, define whether your software is robust or fragile. Top engineers think about types deliberately. Junior engineers default to int/double for everything and ship bugs.",
+  
+  "extensions_for_advanced_learners": [
+    "Read profile data from a config file (we'll cover file I/O later — flag for now)",
+    "Multiple profile cards in one run (preview of arrays/loops, coming in Topic 4)",
+    "Add input validation (e.g., negative followers shouldn't be allowed)",
+    "Export profile as JSON-like string format",
+    "Calculate profile completeness score (% of fields filled)"
+  ]
+}

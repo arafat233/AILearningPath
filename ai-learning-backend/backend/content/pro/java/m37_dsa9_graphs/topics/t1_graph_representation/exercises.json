@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m37_t1",
+  "topic_name": "Graph Representation \u2014 Adjacency List, BFS, DFS",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m37_t1_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Build adjacency list from edge list",
+      "instructions": "Implement: Build adjacency list from edge list.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class AdjList {\n    public static void main(String[] a){\n        int n=5;int[][] edges={{0,1},{0,2},{1,3},{2,4}};\n        List<List<Integer>> adj=new ArrayList<>();\n        for(int i=0;i<n;i++)adj.add(new ArrayList<>());\n        for(int[] e:edges){adj.get(e[0]).add(e[1]);adj.get(e[1]).add(e[0]);}\n        System.out.println(adj.get(0)); // [1,2]\n        System.out.println(adj.get(1)); // [0,3]\n        System.out.println(\"O(V+E) space \u2014 most efficient for sparse graphs\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 2]",
+            "[0, 3]",
+            "O(V+E) space"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m37_t1_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "BFS on undirected graph",
+      "instructions": "Implement: BFS on undirected graph.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class BFSGraph {\n    static List<Integer> bfs(List<List<Integer>> adj, int src){\n        boolean[] vis=new boolean[adj.size()];List<Integer> order=new ArrayList<>();\n        Queue<Integer> q=new ArrayDeque<>();q.offer(src);vis[src]=true;\n        while(!q.isEmpty()){int n=q.poll();order.add(n);for(int nb:adj.get(n))if(!vis[nb]){vis[nb]=true;q.offer(nb);}}\n        return order;\n    }\n    public static void main(String[] a){int n=6;int[][] edges={{0,1},{0,2},{1,3},{2,4},{3,5}};List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:edges){adj.get(e[0]).add(e[1]);adj.get(e[1]).add(e[0]);}System.out.println(bfs(adj,0));System.out.println(\"BFS = shortest path in unweighted graph. O(V+E).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[0, 1, 2, 3, 4, 5]",
+            "O(V+E)"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m37_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "DFS on undirected graph",
+      "instructions": "Implement: DFS on undirected graph.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DFSGraph {\n    static List<Integer> order=new ArrayList<>();\n    static void dfs(List<List<Integer>> adj, boolean[] vis, int n){vis[n]=true;order.add(n);for(int nb:adj.get(n))if(!vis[nb])dfs(adj,vis,nb);}\n    public static void main(String[] a){int n=6;int[][] edges={{0,1},{0,2},{1,3},{2,4},{3,5}};List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:edges){adj.get(e[0]).add(e[1]);adj.get(e[1]).add(e[0]);}order=new ArrayList<>();dfs(adj,new boolean[n],0);System.out.println(order);System.out.println(\"DFS explores depth-first. Order depends on adjacency list ordering.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[0, 1, 3, 5, 2, 4]",
+            "DFS explores depth-first"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m37_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Number of Connected Components",
+      "instructions": "Implement: Number of Connected Components.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ConnComp {\n    static int[] parent,rank;\n    static int find(int x){if(parent[x]!=x)parent[x]=find(parent[x]);return parent[x];}\n    static boolean union(int a,int b){int pa=find(a),pb=find(b);if(pa==pb)return false;if(rank[pa]<rank[pb]){int t=pa;pa=pb;pb=t;}parent[pb]=pa;if(rank[pa]==rank[pb])rank[pa]++;return true;}\n    static int countComponents(int n, int[][] edges){parent=new int[n];rank=new int[n];for(int i=0;i<n;i++)parent[i]=i;int comp=n;for(int[] e:edges)if(union(e[0],e[1]))comp--;return comp;}\n    public static void main(String[] a){System.out.println(countComponents(5,new int[][]{{0,1},{1,2},{3,4}}));System.out.println(countComponents(5,new int[][]{{0,1},{1,2},{2,3},{3,4}}));System.out.println(\"Union-Find: O(\u03b1(n)) per operation. Practically O(1).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "1",
+            "Union-Find"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m37_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Detect cycle in undirected graph",
+      "instructions": "Implement: Detect cycle in undirected graph.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CycleUndirected {\n    static boolean hasCycle(int n, int[][] edges){\n        List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:edges){adj.get(e[0]).add(e[1]);adj.get(e[1]).add(e[0]);}\n        boolean[] vis=new boolean[n];\n        for(int i=0;i<n;i++)if(!vis[i]&&dfs(adj,vis,i,-1))return true;\n        return false;}\n    static boolean dfs(List<List<Integer>> adj,boolean[] vis,int cur,int par){vis[cur]=true;for(int nb:adj.get(cur)){if(!vis[nb]){if(dfs(adj,vis,nb,cur))return true;}else if(nb!=par)return true;}return false;}\n    public static void main(String[] a){System.out.println(hasCycle(4,new int[][]{{0,1},{1,2},{2,0},{2,3}}));System.out.println(hasCycle(4,new int[][]{{0,1},{1,2},{2,3}}));System.out.println(\"DFS: cycle if visited neighbor != parent. O(V+E).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "DFS: cycle if visited neighbor != parent"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m37_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Bipartite check (LeetCode #785)",
+      "instructions": "Implement: Bipartite check (LeetCode #785).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Bipartite {\n    static boolean isBipartite(int[][] graph){int n=graph.length;int[] color=new int[n];Arrays.fill(color,-1);for(int i=0;i<n;i++){if(color[i]!=-1)continue;Queue<Integer> q=new ArrayDeque<>();q.offer(i);color[i]=0;while(!q.isEmpty()){int node=q.poll();for(int nb:graph[node]){if(color[nb]==-1){color[nb]=1-color[node];q.offer(nb);}else if(color[nb]==color[node])return false;}}};return true;}\n    public static void main(String[] a){System.out.println(isBipartite(new int[][]{{1,2,3},{0,2},{0,1,3},{0,2}}));System.out.println(isBipartite(new int[][]{{1,3},{0,2},{1,3},{0,2}}));System.out.println(\"2-coloring BFS: if neighbor same color \u2192 not bipartite. O(V+E)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "false",
+            "true",
+            "2-coloring BFS"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m37_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Topological sort (Kahn's BFS)",
+      "instructions": "Implement: Topological sort (Kahn's BFS).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TopoSort {\n    static int[] topoSort(int n, int[][] edges){int[] indegree=new int[n];List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:edges){adj.get(e[0]).add(e[1]);indegree[e[1]]++;}Queue<Integer> q=new ArrayDeque<>();for(int i=0;i<n;i++)if(indegree[i]==0)q.offer(i);int[] order=new int[n];int idx=0;while(!q.isEmpty()){int node=q.poll();order[idx++]=node;for(int nb:adj.get(node))if(--indegree[nb]==0)q.offer(nb);}return idx==n?order:new int[]{};}\n    public static void main(String[] a){System.out.println(Arrays.toString(topoSort(6,new int[][]{{5,2},{5,0},{4,0},{4,1},{2,3},{3,1}})));System.out.println(\"Kahn's: BFS from 0-indegree nodes. Cycle \u2192 fewer than n processed. O(V+E).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[5, 4, 2, 3, 1, 0]",
+            "O(V+E)"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m37_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Course Schedule (LeetCode #207)",
+      "instructions": "Implement: Course Schedule (LeetCode #207).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CourseSchedule {\n    static boolean canFinish(int n, int[][] prereqs){int[] indeg=new int[n];List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] p:prereqs){adj.get(p[1]).add(p[0]);indeg[p[0]]++;}Queue<Integer> q=new ArrayDeque<>();for(int i=0;i<n;i++)if(indeg[i]==0)q.offer(i);int done=0;while(!q.isEmpty()){int c=q.poll();done++;for(int nb:adj.get(c))if(--indeg[nb]==0)q.offer(nb);}return done==n;}\n    public static void main(String[] a){System.out.println(canFinish(2,new int[][]{{1,0}}));System.out.println(canFinish(2,new int[][]{{1,0},{0,1}}));System.out.println(\"Topo sort: if all courses processed \u2192 no cycle \u2192 can finish. O(V+E).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Topo sort"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m37_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Dijkstra shortest path",
+      "instructions": "Implement: Dijkstra shortest path.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Dijkstra {\n    static int[] shortestPath(int n, int[][] edges, int src){int[] dist=new int[n];Arrays.fill(dist,Integer.MAX_VALUE);dist[src]=0;List<List<int[]>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:edges){adj.get(e[0]).add(new int[]{e[1],e[2]});adj.get(e[1]).add(new int[]{e[0],e[2]});}PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[1]-b[1]);pq.offer(new int[]{src,0});while(!pq.isEmpty()){int[] top=pq.poll();int u=top[0],d=top[1];if(d>dist[u])continue;for(int[] nb:adj.get(u)){if(dist[u]+nb[1]<dist[nb[0]]){dist[nb[0]]=dist[u]+nb[1];pq.offer(new int[]{nb[0],dist[nb[0]]});}}}return dist;}\n    public static void main(String[] a){int[][] edges={{0,1,4},{0,2,1},{2,1,2},{1,3,1}};System.out.println(Arrays.toString(shortestPath(4,edges,0)));System.out.println(\"[0, 3, 1, 4] \u2014 Dijkstra O((V+E) log V). No negative edges.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[0, 3, 1, 4]",
+            "O((V+E) log V)"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m37_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Union-Find with path compression",
+      "instructions": "Implement: Union-Find with path compression.",
+      "starter_code": "",
+      "expected_solution": "public class UnionFind {\n    int[] parent,rank;\n    UnionFind(int n){parent=new int[n];rank=new int[n];for(int i=0;i<n;i++)parent[i]=i;}\n    int find(int x){if(parent[x]!=x)parent[x]=find(parent[x]);return parent[x];}\n    boolean union(int a,int b){int pa=find(a),pb=find(b);if(pa==pb)return false;if(rank[pa]<rank[pb]){int t=pa;pa=pb;pb=t;}parent[pb]=pa;if(rank[pa]==rank[pb])rank[pa]++;return true;}\n    public static void main(String[] a){UnionFind uf=new UnionFind(5);uf.union(0,1);uf.union(2,3);System.out.println(uf.find(0)==uf.find(1));System.out.println(uf.find(0)==uf.find(2));uf.union(1,2);System.out.println(uf.find(0)==uf.find(3));System.out.println(\"Path compression+rank: O(\u03b1(n)) \u2248 O(1) amortized. Critical for Kruskal/cycles.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "O(\u03b1(n))"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m37_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Graph synthesis \u2014 BFS + topo + Dijkstra",
+      "instructions": "Implement: Graph synthesis \u2014 BFS + topo + Dijkstra.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class GraphSynth {\n    static boolean canFinish(int n,int[][] p){int[] ind=new int[n];List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:p){adj.get(e[1]).add(e[0]);ind[e[0]]++;}Queue<Integer> q=new ArrayDeque<>();for(int i=0;i<n;i++)if(ind[i]==0)q.offer(i);int done=0;while(!q.isEmpty()){int c=q.poll();done++;for(int nb:adj.get(c))if(--ind[nb]==0)q.offer(nb);}return done==n;}\n    static int[] dijkstra(int n,int[][] edges,int src){int[] d=new int[n];Arrays.fill(d,Integer.MAX_VALUE);d[src]=0;List<List<int[]>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:edges){adj.get(e[0]).add(new int[]{e[1],e[2]});adj.get(e[1]).add(new int[]{e[0],e[2]});}PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[1]-b[1]);pq.offer(new int[]{src,0});while(!pq.isEmpty()){int[] top=pq.poll();int u=top[0],dd=top[1];if(dd>d[u])continue;for(int[] nb:adj.get(u))if(d[u]+nb[1]<d[nb[0]]){d[nb[0]]=d[u]+nb[1];pq.offer(new int[]{nb[0],d[nb[0]]});}}return d;}\n    public static void main(String[] a){System.out.println(canFinish(2,new int[][]{{1,0}}));System.out.println(canFinish(2,new int[][]{{1,0},{0,1}}));System.out.println(Arrays.toString(dijkstra(4,new int[][]{{0,1,4},{0,2,1},{2,1,2},{1,3,1}},0)));boolean ok=canFinish(2,new int[][]{{1,0}})&&!canFinish(2,new int[][]{{1,0},{0,1}});System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "true",
+            "false",
+            "[0, 3, 1, 4]"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m37_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M37 Graph Synthesis",
+      "instructions": "Implement: Complete M37 Graph Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class M37Final {\n    static int numIslands(char[][] g){int r=g.length,c=g[0].length,cnt=0;int[][] d={{0,1},{0,-1},{1,0},{-1,0}};for(int i=0;i<r;i++)for(int j=0;j<c;j++){if(g[i][j]=='1'){cnt++;Queue<int[]> q=new ArrayDeque<>();q.offer(new int[]{i,j});g[i][j]='0';while(!q.isEmpty()){int[] p=q.poll();for(int[] dd:d){int ni=p[0]+dd[0],nj=p[1]+dd[1];if(ni>=0&&ni<r&&nj>=0&&nj<c&&g[ni][nj]=='1'){g[ni][nj]='0';q.offer(new int[]{ni,nj});}}}}}return cnt;}\n    static boolean canFinish(int n,int[][] p){int[] ind=new int[n];List<List<Integer>> adj=new ArrayList<>();for(int i=0;i<n;i++)adj.add(new ArrayList<>());for(int[] e:p){adj.get(e[1]).add(e[0]);ind[e[0]]++;}Queue<Integer> q=new ArrayDeque<>();for(int i=0;i<n;i++)if(ind[i]==0)q.offer(i);int done=0;while(!q.isEmpty()){done++;int c=q.poll();for(int nb:adj.get(c))if(--ind[nb]==0)q.offer(nb);}return done==n;}\n    static int[] parent=new int[0];\n    static int find(int x){if(parent[x]!=x)parent[x]=find(parent[x]);return parent[x];}\n    static boolean union(int a,int b){int pa=find(a),pb=find(b);if(pa==pb)return false;parent[pb]=pa;return true;}\n    static int numComp(int n,int[][] e){parent=new int[n];for(int i=0;i<n;i++)parent[i]=i;int comp=n;for(int[] ed:e)if(union(ed[0],ed[1]))comp--;return comp;}\n    public static void main(String[] a){System.out.println(\"islands=\"+numIslands(new char[][]{{'1','1','0'},{'0','1','0'},{'0','0','1'}}));System.out.println(\"courseOk=\"+canFinish(2,new int[][]{{1,0}}));System.out.println(\"components=\"+numComp(5,new int[][]{{0,1},{1,2},{3,4}}));boolean ok=canFinish(2,new int[][]{{1,0}})&&numComp(5,new int[][]{{0,1},{1,2},{3,4}})==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "islands=2",
+            "courseOk=true",
+            "components=2"
+          ]
+        }
+      ],
+      "hints": [
+        "BFS/DFS",
+        "Adjacency list",
+        "O(V+E)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

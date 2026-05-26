@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m31_t3",
+  "language": "java",
+  "module_id": "m31",
+  "topic_number": 3,
+  "name": "Palindromes \u2014 Detection and Expansion",
+  "slug": "palindromes-detection-expansion",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": [
+      "java_m31_t1",
+      "java_m30_t1"
+    ],
+    "concepts_taught": [
+      "palindrome_check",
+      "expand_around_center",
+      "longest_palindromic_substring",
+      "palindromic_subsequence",
+      "manacher_intro",
+      "valid_palindrome_ii"
+    ],
+    "skills_developed": [
+      "palindrome_check_o1_space",
+      "expand_around_center_on",
+      "longest_palindromic_substring"
+    ],
+    "career_relevance": "Palindrome problems appear in 30% of Zerodha/Razorpay string rounds. 'Longest palindromic substring' is asked at every FAANG India interview at some point.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha stock ticker validation:\nIs 'AMAAMA' a palindrome ticker? Yes.\nIs 'RELIANCE' symmetric? No.\n\nExpand around center:\n'A M A A M A'\n      \u2191\u2191 \u2190 center between 3rd A and A\nExpand: 'AAMAAMA'? No \u2014 it's 'AMAAMA' = palindrome!\nO(n) vs O(n\u00b2) brute force\n```",
+    "what_you_will_build": "Palindrome checker, longest palindromic substring (expand around center), and valid palindrome after one deletion."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "palindrome_check": "**Check if string is palindrome \u2014 two approaches:**\n\n```java\n// O(n) time, O(1) space \u2014 two pointers\nbool isPalindrome(String s) {\n    int lo=0, hi=s.length()-1;\n    while(lo<hi) {\n        if(s.charAt(lo)!=s.charAt(hi)) return false;\n        lo++; hi--;\n    }\n    return true;\n}\n\n// O(n) but O(n) space \u2014 reverse comparison\nbool isPalindromeAlt(String s) {\n    return s.equals(new StringBuilder(s).reverse().toString());\n}\n```",
+      "expand_around_center": "**Expand Around Center \u2014 O(n) for each center, O(n\u00b2) total:**\n\n```java\n// For each center (n odd + n-1 even = 2n-1 centers total):\nfor(int center=0; center<n; center++) {\n    // Odd length palindromes (single center char):\n    int lo=center, hi=center;\n    while(lo>=0 && hi<n && s.charAt(lo)==s.charAt(hi)) {lo--;hi++;}\n    // lo+1 to hi-1 is the palindrome\n    if(hi-lo-1 > maxLen) { maxLen=hi-lo-1; start=lo+1; }\n    // Even length palindromes (center between chars i and i+1):\n    lo=center; hi=center+1;\n    while(lo>=0 && hi<n && s.charAt(lo)==s.charAt(hi)) {lo--;hi++;}\n    if(hi-lo-1 > maxLen) { maxLen=hi-lo-1; start=lo+1; }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Expand around center diagram on 'babad'. Show 5 odd centers: b(0), a(1), b(2), a(3), d(4). Center 1 (a): expand \u2192 b\u2260d, stop \u2192 palindrome 'a' len 1. Center 2 (b): expand left a, right a \u2192 a==a \u2192 continue \u2192 b,a == a,b? \u2192 no \u2192 palindrome 'aba' len 3. Also check even centers. Final: longest = 'bab' or 'aba' len 3.",
+      "alt_text": "Expand around center for each of 2n-1 positions"
+    },
+    "worked_example": {
+      "scenario": "Longest Palindromic Substring on 'babad'",
+      "problem_statement": "Return any one longest palindromic substring. 'babad'\u2192'bab' or 'aba'.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Try each center",
+          "details": "5 odd centers + 4 even centers = 9 total expansions. O(n) per expansion worst case."
+        }
+      ],
+      "final_code": "String res=\"\"; for(int i=0;i<n;i++){String odd=expand(s,i,i);String even=expand(s,i,i+1);String best=odd.length()>even.length()?odd:even;if(best.length()>res.length())res=best;} return res;",
+      "expected_output": "'babad' \u2192 'bab' (or 'aba')",
+      "things_to_notice": [
+        "2n-1 possible centers (n odd + n-1 even)",
+        "Each expansion is O(n) worst case \u2192 total O(n\u00b2)",
+        "Manacher's algorithm achieves O(n) \u2014 usually overkill for interviews"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha",
+          "use_case": "Validate palindromic stock tickers in O(1) extra space"
+        }
+      ],
+      "interview_relevance": "'Is this string a palindrome?' \u2192 immediate O(1) space two-pointer. 'Longest palindromic substring' \u2192 expand around center O(n\u00b2). Mention Manacher's for bonus points.",
+      "real_world_workflow": "Palindrome recognition: two-pointer \u2192 O(1) space. Longest palindromic substring: expand around center \u2192 O(n\u00b2) time O(1) space. Palindromic subsequence (not substring): DP."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "forgetting_even_centers",
+        "what_students_get_wrong": "Only checking odd-length palindromes. 'abba' has center between 'b' and 'b' (even-length). Must check both odd and even centers.",
+        "remediation": "For each index i: (1) expand around (i, i) \u2014 odd length, (2) expand around (i, i+1) \u2014 even length. Always both.",
+        "detection_pattern": "Student returns 'a' for 'abba' (single char palindrome) instead of 'abba'"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Two-pointer palindrome check: O(n) time O(1) space",
+        "2n-1 centers: n odd + n-1 even \u2014 always check both",
+        "Expand around center: O(n\u00b2) total \u2014 good enough for interviews",
+        "Manacher's O(n) \u2014 know the concept, rarely need to implement",
+        "Valid Palindrome II: try deleting one char from either side on mismatch"
+      ],
+      "self_check_questions": [
+        {
+          "question": "How many centers are there for a string of length n?",
+          "answer": "2n-1 centers total. n centers for odd-length palindromes (single characters as centers: indices 0 through n-1). n-1 centers for even-length palindromes (gaps between adjacent characters: between indices 0-1, 1-2, ..., (n-2)-(n-1)). So total = n + (n-1) = 2n-1. Example: 'abba' has 4 odd centers (a,b,b,a) and 3 even centers (between each pair). The even center between the two b's gives the palindrome 'abba'."
+        }
+      ],
+      "next_topic_preview": "Next: Anagram & Frequency \u2014 solve all anagram problems using frequency arrays and sliding windows."
+    }
+  }
+}

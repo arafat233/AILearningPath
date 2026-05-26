@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m45_t4",
+  "module_id": "m45",
+  "topic_number": 4,
+  "name": "Timed Practice \u2014 Racing the Clock",
+  "slug": "timed-practice-racing-clock",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m44_t5"
+    ],
+    "concepts_taught": [
+      "timed-practice-racing-clock"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Timed Practice \u2014 Racing the Clock"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Timer discipline: start timer when you start reading problem",
+        "2 min: pattern identified. 3 min: approach stated. 15 min: code complete. 2 min: tested.",
+        "Speed drills: 5 easy in 20 minutes, 3 medium in 45 minutes",
+        "Warmup set before real interview: same environment, same tools",
+        "Post-session review: what went wrong, where time was lost, what pattern missed"
+      ],
+      "next_topic_preview": "Next: Mock Round Synthesis."
+    }
+  }
+}

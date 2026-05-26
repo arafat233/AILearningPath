@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m4_t3_proj",
+  "linked_topic": "java_m4_t3",
+  "level": "mini",
+  "name": "User Profile Manager",
+  "estimated_minutes": 55,
+  "difficulty": 5,
+  
+  "scenario": "You're building the backend user-profile system for a social platform (think LinkedIn, Twitter, or a SaaS product). User profiles have complex state: read-only fields (userId, registrationDate), modifiable fields with rules (email must match a pattern, age must be 13-120), computed fields (account-age in days), and sensitive fields (password — never readable). This is real production-style backend design — every signup form on the internet has logic like this behind it.",
+  
+  "description": "Build a `UserProfile` class with full encapsulation: private fields, validating setters where appropriate, read-only fields where modification isn't allowed, computed properties, and security-aware design (password is set-only, never gettable). Then build a `UserDirectory` class that manages multiple users.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`UserProfile` class with ALL fields private",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "Fields: userId (int, final), username (String, final), email (String), age (int), passwordHash (String). registrationYear (int, final).",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Constructor takes userId, username, email, age, password, registrationYear. Validates: userId > 0, username non-empty, email contains '@', age 13-120. Password stored as 'hash' (use reverse for this project).",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Getters: getUserId, getUsername, getEmail, getAge, getRegistrationYear. NO getter for password!",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Setters: setEmail (validates @ present), setAge (validates 13-120). NO setters for userId, username, registrationYear, password.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`changePassword(String old, String new)` — must provide correct old password to set new. Returns boolean.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "`verifyPassword(String attempt)` — returns true if matches. (Tests can be authenticated this way.)",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "`getAccountAgeYears(int currentYear)` — computed property: currentYear - registrationYear",
+        "weight": 5
+      },
+      {
+        "id": "req_9",
+        "description": "main() demonstrates: creating valid user, attempting invalid creation, getters, valid email update, invalid age update, password change (success and failure), account age",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `UserDirectory` class with private User[] field, addUser(UserProfile), findByUsername(String) returning user or null",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `getEmailDomain()` to UserProfile — extracts domain part of email (after @)",
+        "weight": 10
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `isAdult()` to UserProfile — boolean getter, true if age >= 18",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add UserDirectory.countByEmailDomain(String domain) — counts users with email at that domain",
+        "weight": 25
+      }
+    ]
+  },
+  
+  "data_to_use": "Test scenario in main():\n\n1. Create user:\n   - userId: 101\n   - username: 'aisha_k'\n   - email: 'aisha@gmail.com'\n   - age: 28\n   - password: 'mypass123'\n   - registrationYear: 2020\n\n2. Try invalid creations (each in try/catch):\n   - userId: -1 → rejected\n   - email: 'no-at-sign' → rejected\n   - age: 150 → rejected\n\n3. Operations:\n   - Print getters\n   - setEmail('aisha.k@yahoo.com') → success\n   - setAge(200) → rejected\n   - verifyPassword('mypass123') → true\n   - verifyPassword('wrong') → false\n   - changePassword('wrong', 'new123') → false (rejected)\n   - changePassword('mypass123', 'new123') → true\n   - verifyPassword('new123') → true\n   - getAccountAgeYears(2024) → 4",
+  
+  "starter_code": "public class ProfileManager {\n    public static void main(String[] args) {\n        // Create valid user\n        // Try invalid creations\n        // Demonstrate getters\n        // Update email (valid and invalid)\n        // Password operations (verify, change with old)\n        // Account age computation\n    }\n    \n    // Define UserProfile class\n    // Define UserDirectory class (bonus)\n}",
+  
+  "example_output": "===================================\n      USER PROFILE MANAGER\n===================================\nCreated user: aisha_k\nUser ID: 101 | Email: aisha@gmail.com | Age: 28\n\nValidation tests:\nRejected: User ID must be positive\nRejected: Email must contain @\nRejected: Age must be between 13 and 120\n\nAfter email update: aisha.k@yahoo.com\nRejected age update: Age must be between 13 and 120\n\nPassword verification:\nverify 'mypass123': true\nverify 'wrong': false\n\nPassword change:\nWith wrong old: false\nWith correct old: true\nverify new password: true\n\nAccount age in 2024: 4 years\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Encapsulation Design",
+      "points": 30,
+      "criteria": [
+        "ALL fields private (10 pts)",
+        "Final on read-only fields (5 pts)",
+        "Correct getters/setters per spec (10 pts)",
+        "NO getPassword (security!) (5 pts)"
+      ]
+    },
+    {
+      "category": "Validation",
+      "points": 25,
+      "criteria": [
+        "Constructor validates all 4 rules (10 pts)",
+        "setEmail validates @ (5 pts)",
+        "setAge validates 13-120 (5 pts)",
+        "Throws IllegalArgumentException (5 pts)"
+      ]
+    },
+    {
+      "category": "Password Logic",
+      "points": 15,
+      "criteria": [
+        "Password 'hashed' on storage (5 pts)",
+        "verifyPassword checks hash (5 pts)",
+        "changePassword requires old password (5 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration",
+      "points": 15,
+      "criteria": [
+        "All operations shown (10 pts)",
+        "Clean output (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 65,
+      "criteria": [
+        "UserDirectory with findByUsername (20 pts)",
+        "getEmailDomain (10 pts)",
+        "isAdult boolean getter (10 pts)",
+        "countByEmailDomain (25 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The most important design decisions: (1) which fields get setters and which don't, (2) password NEVER has a getter, (3) changePassword requires the old password to be verified before allowing change. These are real security patterns.",
+  
+  "submission_instructions": "Save as ProfileManager.java. Run it. Push to GitHub — this is REAL user management backend logic. Many real signup systems work exactly like this.",
+  
+  "tips_for_success": [
+    "Fields that should NEVER change after creation: use private final and NO setter (userId, username, registrationYear)",
+    "Fields that allow controlled change: private + validating setter (email, age)",
+    "Sensitive fields: private, NO getter, only verify/change methods (password)",
+    "Use the 'reverse string' trick as your hash function — real apps use SHA-256",
+    "changePassword: first verify old password matches, then 'hash' and store new",
+    "Computed properties don't need a field — just compute in the getter",
+    "For bonus UserDirectory: similar to Library pattern from 4.2"
+  ],
+  
+  "concepts_reinforced": [
+    "Private fields, public methods",
+    "Read-only fields with no setter",
+    "Validating setters with IllegalArgumentException",
+    "Final fields for true immutability of value",
+    "Encapsulation for security (no password getter)",
+    "Operations vs setters (changePassword, not setPassword)",
+    "Computed properties (getAccountAgeYears)",
+    "Boolean getter with 'is' prefix",
+    "Multi-class system design"
+  ],
+  
+  "what_youll_learn_by_doing_this": "User profile systems are PERFECT for teaching encapsulation because they have a mix of fields with different access needs. Real-world authentication systems do EXACTLY what you're doing here:\n- Permanent identifiers (userId) can't be changed without breaking everything\n- Mutable profile data (email, age) needs validation on every change\n- Sensitive data (password) is set-only — you can verify or change it, but never see it\n- Computed values (account age) prevent stale data\n\nIf you understand this project, you understand the architecture of every signup/profile system in production. Companies like Razorpay, Stripe, and HDFC NetBanking have systems built on these same principles — just with more sophisticated hashing (bcrypt, scrypt, argon2) and additional security layers.",
+  
+  "extensions_for_advanced_learners": [
+    "Replace 'reverse' hash with a real SHA-256 implementation (java.security.MessageDigest)",
+    "Add password strength validation (length, complexity) using regex",
+    "Add a 'lastLoginDate' field with proper Date handling",
+    "Implement profile picture URL with validation (must be http/https)",
+    "Add audit log: track every email change with timestamp",
+    "Convert to use the Builder pattern for the complex constructor"
+  ]
+}

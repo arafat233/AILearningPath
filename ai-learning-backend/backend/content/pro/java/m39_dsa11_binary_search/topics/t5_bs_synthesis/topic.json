@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m39_t5",
+  "module_id": "m39",
+  "topic_number": 5,
+  "name": "Binary Search Synthesis \u2014 Patterns and Tradeoffs",
+  "slug": "bs-synthesis-patterns",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m39_t1",
+      "java_m39_t2"
+    ],
+    "concepts_taught": [
+      "bs-synthesis-patterns"
+    ],
+    "career_relevance": "Core Binary Search Synthesis \u2014 Patterns and Tradeoffs.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Binary Search Synthesis \u2014 Patterns and Tradeoffs"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Classic: target found \u2192 return; monotone 2D \u2192 split",
+        "Search on answer: define feasibility function; binary search on [lo,hi]",
+        "Rotated: determine sorted half then recurse",
+        "Peak element: if a[m]>a[m+1] \u2192 peak left (hi=m)",
+        "H-index: sort + scan with min(c[i], n-i)",
+        "Median of two sorted: binary search on shorter array partition"
+      ],
+      "next_topic_preview": "Module 39 complete! Next: M40 Backtracking."
+    }
+  }
+}

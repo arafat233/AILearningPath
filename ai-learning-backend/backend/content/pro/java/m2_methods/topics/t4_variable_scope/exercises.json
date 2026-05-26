@@ -1,0 +1,489 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t4",
+  "topic_name": "Variable Scope & Lifetime",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m2_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Will this compile?",
+      "scenario": "Quick check on basic scope rules.",
+      "instructions": "Will this code compile? If YES, predict the output. If NO, explain why.\n\n```java\npublic class Test {\n    public static void main(String[] args) {\n        for (int i = 0; i < 3; i++) {\n            System.out.println(i);\n        }\n        System.out.println(\"Final: \" + i);\n    }\n}\n```",
+      "expected_solution": "DOES NOT COMPILE",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "DOES NOT COMPILE",
+          "accept_alternatives": ["DOES NOT COMPILE", "Does not compile", "Won't compile", "Error", "Compilation error"]
+        }
+      ],
+      "hints": [
+        "Variable i is declared in the for loop's header",
+        "Its scope is the loop only",
+        "After the loop, i doesn't exist",
+        "Last line would cause: 'cannot find symbol: variable i'"
+      ],
+      "xp_reward": 10,
+      "concept_tested": "variable_out_of_scope"
+    },
+    
+    {
+      "id": "java_m2_t4_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 1,
+      "title": "Fix the scope error",
+      "scenario": "Make the previous code work.",
+      "instructions": "Fix this code so it compiles and prints:\n0\n1\n2\nFinal: 3\n\n```java\npublic class Test {\n    public static void main(String[] args) {\n        for (int i = 0; i < 3; i++) {\n            System.out.println(i);\n        }\n        System.out.println(\"Final: \" + i);\n    }\n}\n```",
+      "starter_code": "// Fix the code below\npublic class Test {\n    public static void main(String[] args) {\n        for (int i = 0; i < 3; i++) {\n            System.out.println(i);\n        }\n        System.out.println(\"Final: \" + i);\n    }\n}",
+      "expected_solution": "public class Test {\n    public static void main(String[] args) {\n        int i;\n        for (i = 0; i < 3; i++) {\n            System.out.println(i);\n        }\n        System.out.println(\"Final: \" + i);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "0\n1\n2\nFinal: 3"
+        }
+      ],
+      "hints": [
+        "Declare `int i;` BEFORE the for loop (in main's scope)",
+        "Remove `int` from the for loop header — just use `i = 0`",
+        "Now i exists in main's scope, visible inside and after the loop",
+        "After loop ends, i = 3 (the value that failed the condition)"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m2_t4_ex_3",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Local vs static",
+      "scenario": "Understand how static persists across method calls.",
+      "instructions": "What does this print?\n\n```java\npublic class Counter {\n    static int staticCount = 0;\n    \n    public static void main(String[] args) {\n        increment();\n        increment();\n        increment();\n        System.out.println(staticCount);\n    }\n    \n    public static void increment() {\n        staticCount++;\n        int localCount = 0;\n        localCount++;\n    }\n}\n```",
+      "expected_solution": "3",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "3"
+        }
+      ],
+      "hints": [
+        "staticCount is class-level — persists across calls",
+        "Each call adds 1 to staticCount: 0 → 1 → 2 → 3",
+        "localCount is local — resets to 0 each call",
+        "Only staticCount is printed → 3"
+      ],
+      "xp_reward": 15,
+      "concept_tested": "static_vs_local_lifetime"
+    },
+    
+    {
+      "id": "java_m2_t4_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the uninitialized variable",
+      "scenario": "Java requires locals to be initialized before use.",
+      "instructions": "Fix this code so it compiles and prints a result.\n\nThe message should be 'High' if score > 50, 'Low' otherwise. For score = 75, expected output:\nHigh",
+      "starter_code": "public class Grades {\n    public static void main(String[] args) {\n        int score = 75;\n        String message;\n        \n        if (score > 50) {\n            message = \"High\";\n        }\n        \n        System.out.println(message);\n    }\n}",
+      "expected_solution": "public class Grades {\n    public static void main(String[] args) {\n        int score = 75;\n        String message;\n        \n        if (score > 50) {\n            message = \"High\";\n        } else {\n            message = \"Low\";\n        }\n        \n        System.out.println(message);\n    }\n}",
+      "bugs": [
+        {
+          "line": "5-9",
+          "issue": "message is only assigned in the IF branch. If condition is false, message is never assigned → compilation error.",
+          "fix": "Add an else branch that assigns message = 'Low'"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "High",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Compiler error: 'variable message might not have been initialized'",
+        "If score is NOT > 50, message has no value",
+        "Java enforces: locals must be assigned on EVERY path before use",
+        "Add `else { message = \"Low\"; }`"
+      ],
+      "xp_reward": 25,
+      "common_misconceptions_tested": ["uninitialized_local_variable"]
+    },
+    
+    {
+      "id": "java_m2_t4_ex_5",
+      "level": "easy",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Independent method locals",
+      "scenario": "Each method has its own variables.",
+      "instructions": "What does this print?\n\n```java\npublic class Demo {\n    public static void main(String[] args) {\n        first();\n        second();\n    }\n    \n    public static void first() {\n        int x = 10;\n        System.out.println(\"first x: \" + x);\n    }\n    \n    public static void second() {\n        int x = 100;\n        System.out.println(\"second x: \" + x);\n    }\n}\n```",
+      "expected_solution": "first x: 10\nsecond x: 100",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "first x: 10\nsecond x: 100"
+        }
+      ],
+      "hints": [
+        "Each method has its own x — they're separate locals",
+        "first()'s x doesn't affect second()'s x",
+        "No conflict because they're in different scopes",
+        "Output: 10 then 100"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m2_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Use static constants",
+      "scenario": "Practice declaring and using static final constants.",
+      "instructions": "Write a class `TaxConfig` with:\n1. Class-level constants:\n   - GST_RATE = 18.0 (static final double)\n   - MAX_DEDUCTION = 150000.0 (static final double)\n2. A method `calculateTax(double amount)` that returns amount * (GST_RATE / 100)\n3. main calls calculateTax(1000) and prints result with format 'Tax on ₹1000.0: ₹180.0'\n\nExpected output:\nTax on ₹1000.0: ₹180.0",
+      "starter_code": "// Write your TaxConfig class below\n",
+      "expected_solution": "public class TaxConfig {\n    static final double GST_RATE = 18.0;\n    static final double MAX_DEDUCTION = 150000.0;\n    \n    public static void main(String[] args) {\n        double amount = 1000.0;\n        double tax = calculateTax(amount);\n        System.out.println(\"Tax on ₹\" + amount + \": ₹\" + tax);\n    }\n    \n    public static double calculateTax(double amount) {\n        return amount * (GST_RATE / 100);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Tax on ₹1000.0: ₹180.0"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["static final double GST_RATE", "static final double MAX_DEDUCTION"]
+        }
+      ],
+      "hints": [
+        "Constants: static final, SCREAMING_SNAKE_CASE",
+        "Declared at class level (outside any method)",
+        "GST_RATE is visible inside calculateTax",
+        "Math: 1000 * (18.0 / 100) = 180.0"
+      ],
+      "xp_reward": 30,
+      "concept_tested": "static_final_constants"
+    },
+    
+    {
+      "id": "java_m2_t4_ex_7",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the shadowing bug",
+      "scenario": "Find why the static counter isn't updating.",
+      "instructions": "The code below SHOULD print 'Total: 3' after three calls. Instead it prints 'Total: 0'. Find the shadowing bug and fix it.\n\nExpected output:\nTotal: 3",
+      "starter_code": "public class Counter {\n    static int total = 0;\n    \n    public static void main(String[] args) {\n        addOne();\n        addOne();\n        addOne();\n        System.out.println(\"Total: \" + total);\n    }\n    \n    public static void addOne() {\n        int total = 0;\n        total++;\n    }\n}",
+      "expected_solution": "public class Counter {\n    static int total = 0;\n    \n    public static void main(String[] args) {\n        addOne();\n        addOne();\n        addOne();\n        System.out.println(\"Total: \" + total);\n    }\n    \n    public static void addOne() {\n        total++;\n    }\n}",
+      "bugs": [
+        {
+          "line": "11-12",
+          "issue": "addOne declares a LOCAL `int total = 0;` which shadows the class-level total. Incrementing the local doesn't affect the static.",
+          "fix": "Remove the local declaration. Just `total++;` will modify the class-level static."
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Total: 3",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Static total starts at 0",
+        "addOne declares `int total = 0;` — this creates a NEW LOCAL named total",
+        "total++ inside addOne increments the LOCAL, not the static",
+        "The local is destroyed when addOne returns — its value is lost",
+        "Fix: remove the local declaration. Just use total++ which refers to the static."
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["shadowing_class_variable"]
+    },
+    
+    {
+      "id": "java_m2_t4_ex_8",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Block scope trace",
+      "scenario": "Predict what's visible where.",
+      "instructions": "What does this print? Watch the block scopes carefully.\n\n```java\npublic class Block {\n    public static void main(String[] args) {\n        int x = 10;\n        \n        {\n            int y = 20;\n            System.out.println(x + y);\n        }\n        \n        {\n            int y = 30;\n            System.out.println(x + y);\n        }\n        \n        System.out.println(x);\n    }\n}\n```",
+      "expected_solution": "30\n40\n10",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "30\n40\n10"
+        }
+      ],
+      "hints": [
+        "First block: y = 20. x + y = 30",
+        "y is destroyed at end of first block",
+        "Second block: NEW y = 30. x + y = 40",
+        "After blocks: just x = 10",
+        "The two y's are in different blocks — no conflict"
+      ],
+      "xp_reward": 35,
+      "concept_tested": "block_scope_isolation"
+    },
+    
+    {
+      "id": "java_m2_t4_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix scope issues in chained logic",
+      "scenario": "Variable scope errors in a tax calculation.",
+      "instructions": "Fix the scope issues so this compiles and prints correctly.\n\nFor income = 800000, expected output:\nBracket: 10%\nTax: 80000.0",
+      "starter_code": "public class TaxCalculator {\n    public static void main(String[] args) {\n        double income = 800000;\n        \n        if (income < 300000) {\n            String bracket = \"0%\";\n            double rate = 0;\n        } else if (income < 600000) {\n            String bracket = \"5%\";\n            double rate = 5;\n        } else if (income < 1200000) {\n            String bracket = \"10%\";\n            double rate = 10;\n        }\n        \n        double tax = income * (rate / 100);\n        System.out.println(\"Bracket: \" + bracket);\n        System.out.println(\"Tax: \" + tax);\n    }\n}",
+      "expected_solution": "public class TaxCalculator {\n    public static void main(String[] args) {\n        double income = 800000;\n        \n        String bracket;\n        double rate;\n        \n        if (income < 300000) {\n            bracket = \"0%\";\n            rate = 0;\n        } else if (income < 600000) {\n            bracket = \"5%\";\n            rate = 5;\n        } else if (income < 1200000) {\n            bracket = \"10%\";\n            rate = 10;\n        } else {\n            bracket = \"30%\";\n            rate = 30;\n        }\n        \n        double tax = income * (rate / 100);\n        System.out.println(\"Bracket: \" + bracket);\n        System.out.println(\"Tax: \" + tax);\n    }\n}",
+      "bugs": [
+        {
+          "line": "5-13",
+          "issue": "bracket and rate are declared INSIDE each if branch. They don't exist outside.",
+          "fix": "Declare bracket and rate BEFORE the if chain"
+        },
+        {
+          "line": "missing else",
+          "issue": "Without a final else, compiler can't guarantee bracket and rate are initialized.",
+          "fix": "Add final else branch with default values"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Bracket: 10%\nTax: 80000.0",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Each if-branch declares its own LOCAL bracket and rate — out of scope after the branch",
+        "Solution: declare String bracket; double rate; BEFORE the if",
+        "Inside branches, ASSIGN (don't redeclare): bracket = \"5%\";",
+        "Also add a final else for income >= 1200000 — Java requires all paths to assign",
+        "tax = 800000 * 0.10 = 80000.0"
+      ],
+      "xp_reward": 55,
+      "common_misconceptions_tested": ["declaring_inside_conditional_then_using_outside"]
+    },
+    
+    {
+      "id": "java_m2_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Static counter across calls",
+      "scenario": "Build a method call counter using static.",
+      "instructions": "Write a class `CallTracker`:\n1. Class-level static int `callCount` initialized to 0\n2. A method `doWork()` that:\n   - Increments callCount\n   - Prints 'Call number <callCount>'\n3. main calls doWork() 5 times\n\nExpected output:\nCall number 1\nCall number 2\nCall number 3\nCall number 4\nCall number 5",
+      "starter_code": "// Write your CallTracker class below\n",
+      "expected_solution": "public class CallTracker {\n    static int callCount = 0;\n    \n    public static void main(String[] args) {\n        doWork();\n        doWork();\n        doWork();\n        doWork();\n        doWork();\n    }\n    \n    public static void doWork() {\n        callCount++;\n        System.out.println(\"Call number \" + callCount);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Call number 1\nCall number 2\nCall number 3\nCall number 4\nCall number 5"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["static int callCount"]
+        }
+      ],
+      "hints": [
+        "callCount is class-level (static)",
+        "Increment first, then print — so first call prints 1, not 0",
+        "callCount persists across calls (that's the point of static)",
+        "Each doWork increments the SAME callCount"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "static_persistence"
+    },
+    
+    {
+      "id": "java_m2_t4_ex_11",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Predict scope and shadowing",
+      "scenario": "Tricky scope resolution.",
+      "instructions": "What does this print?\n\n```java\npublic class Tricky {\n    static int x = 100;\n    \n    public static void main(String[] args) {\n        System.out.println(x);\n        int x = 10;\n        System.out.println(x);\n        modify();\n        System.out.println(x);\n    }\n    \n    public static void modify() {\n        x = 999;\n    }\n}\n```",
+      "expected_solution": "100\n10\n10",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "100\n10\n10"
+        }
+      ],
+      "hints": [
+        "Line 1: x not yet declared locally, refers to static (100)",
+        "After `int x = 10;` — main's x is now LOCAL (10), shadowing static",
+        "Line 2: prints local 10",
+        "modify() sets STATIC x = 999. But main's LOCAL x is unaffected.",
+        "Line 3: still prints main's local x (10)",
+        "If you printed in modify after assignment, would print 999"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "shadowing_advanced"
+    },
+    
+    {
+      "id": "java_m2_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Constants and locals working together",
+      "scenario": "Build a discount calculator that uses constants and method-local variables.",
+      "instructions": "Write a class `Discount`:\n1. Class-level constants:\n   - REGULAR_DISCOUNT = 10.0\n   - PREMIUM_DISCOUNT = 20.0\n   - VIP_DISCOUNT = 30.0\n2. A method `calculate(double price, String tier)` that:\n   - Uses local variable for the discount rate (chosen via if-else based on tier)\n   - Returns the discounted price\n3. main demonstrates each tier with price 1000\n\nExpected output:\nRegular: 900.0\nPremium: 800.0\nVIP: 700.0",
+      "starter_code": "// Write your Discount class below\n",
+      "expected_solution": "public class Discount {\n    static final double REGULAR_DISCOUNT = 10.0;\n    static final double PREMIUM_DISCOUNT = 20.0;\n    static final double VIP_DISCOUNT = 30.0;\n    \n    public static void main(String[] args) {\n        System.out.println(\"Regular: \" + calculate(1000, \"regular\"));\n        System.out.println(\"Premium: \" + calculate(1000, \"premium\"));\n        System.out.println(\"VIP: \" + calculate(1000, \"vip\"));\n    }\n    \n    public static double calculate(double price, String tier) {\n        double discountRate;\n        \n        if (tier.equals(\"vip\")) {\n            discountRate = VIP_DISCOUNT;\n        } else if (tier.equals(\"premium\")) {\n            discountRate = PREMIUM_DISCOUNT;\n        } else {\n            discountRate = REGULAR_DISCOUNT;\n        }\n        \n        return price - (price * discountRate / 100);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Regular: 900.0\nPremium: 800.0\nVIP: 700.0"
+        }
+      ],
+      "hints": [
+        "Three static final constants for discount rates",
+        "Local double discountRate in calculate method",
+        "if-else chain selects which constant to use",
+        "Use .equals() to compare Strings",
+        "Final else handles 'regular' and any other tier",
+        "Formula: price - (price * rate / 100)"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m2_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multi-scope program",
+      "scenario": "Build a program that uses every type of scope correctly.",
+      "instructions": "Write a class `Bank` with:\n1. Class-level constants:\n   - INTEREST_RATE = 5.0 (static final)\n2. Class-level mutable static:\n   - totalAccounts = 0\n3. A method `createAccount(String owner, double initialDeposit)` that:\n   - Has a LOCAL variable `accountId` = totalAccounts + 1\n   - Increments totalAccounts\n   - Prints account info\n4. A method `calculateInterest(double balance)` returning balance * INTEREST_RATE / 100\n5. main creates 3 accounts then prints total\n\nExpected output:\nAccount #1 created for Aisha with ₹5000.0\nAccount #2 created for Raj with ₹10000.0\nAccount #3 created for Priya with ₹2500.0\nTotal accounts: 3\nInterest on ₹10000.0: ₹500.0",
+      "starter_code": "// Write your Bank class below\n",
+      "expected_solution": "public class Bank {\n    static final double INTEREST_RATE = 5.0;\n    static int totalAccounts = 0;\n    \n    public static void main(String[] args) {\n        createAccount(\"Aisha\", 5000.0);\n        createAccount(\"Raj\", 10000.0);\n        createAccount(\"Priya\", 2500.0);\n        System.out.println(\"Total accounts: \" + totalAccounts);\n        System.out.println(\"Interest on ₹10000.0: ₹\" + calculateInterest(10000.0));\n    }\n    \n    public static void createAccount(String owner, double initialDeposit) {\n        int accountId = totalAccounts + 1;\n        totalAccounts++;\n        System.out.println(\"Account #\" + accountId + \" created for \" + owner + \" with ₹\" + initialDeposit);\n    }\n    \n    public static double calculateInterest(double balance) {\n        return balance * INTEREST_RATE / 100;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Account #1 created for Aisha with ₹5000.0\nAccount #2 created for Raj with ₹10000.0\nAccount #3 created for Priya with ₹2500.0\nTotal accounts: 3\nInterest on ₹10000.0: ₹500.0"
+        }
+      ],
+      "hints": [
+        "INTEREST_RATE: static final double (constant)",
+        "totalAccounts: static int (mutable shared state)",
+        "accountId: local in createAccount (fresh each call)",
+        "owner, initialDeposit: parameters (locals)",
+        "Order in createAccount: compute accountId FIRST, then increment totalAccounts",
+        "Otherwise accountId would be 0, 1, 2 instead of 1, 2, 3"
+      ],
+      "xp_reward": 75
+    },
+    
+    {
+      "id": "java_m2_t4_ex_14",
+      "level": "hard",
+      "type": "debug",
+      "difficulty": 5,
+      "title": "Fix multiple scope errors",
+      "scenario": "This code has SEVERAL scope-related issues. Find and fix all.",
+      "instructions": "This code has 3 scope-related bugs. Fix all of them.\n\nExpected output:\nIteration 0: 0\nIteration 1: 10\nIteration 2: 20\nFinal sum: 30",
+      "starter_code": "public class Errors {\n    public static void main(String[] args) {\n        for (int i = 0; i < 3; i++) {\n            int value = i * 10;\n            System.out.println(\"Iteration \" + i + \": \" + value);\n            int sum = sum + value;\n        }\n        System.out.println(\"Final sum: \" + sum);\n    }\n}",
+      "expected_solution": "public class Errors {\n    public static void main(String[] args) {\n        int sum = 0;\n        for (int i = 0; i < 3; i++) {\n            int value = i * 10;\n            System.out.println(\"Iteration \" + i + \": \" + value);\n            sum = sum + value;\n        }\n        System.out.println(\"Final sum: \" + sum);\n    }\n}",
+      "bugs": [
+        {
+          "line": "5",
+          "issue": "`int sum = sum + value;` — declaring sum and using it in the same line. Plus this redeclares sum every iteration.",
+          "fix": "Remove `int` from the assignment — just `sum = sum + value;`"
+        },
+        {
+          "line": "5-7",
+          "issue": "sum declared inside the for loop — not visible outside",
+          "fix": "Declare sum BEFORE the for loop"
+        },
+        {
+          "line": "8",
+          "issue": "Trying to use sum outside the loop where it was declared",
+          "fix": "Will be fixed by declaring sum before the loop"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Iteration 0: 0\nIteration 1: 10\nIteration 2: 20\nFinal sum: 30",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "sum needs to exist OUTSIDE the for loop so main can use it after",
+        "Declare `int sum = 0;` before the for loop",
+        "Inside loop: just assign `sum = sum + value;` (no `int`)",
+        "Without these fixes, you'd get 'cannot find symbol' and 'variable might not be initialized' errors"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m2_t4_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Inventory tracker with proper scoping",
+      "scenario": "Build an inventory system using every scope type appropriately.",
+      "instructions": "Write a class `Inventory` with:\n\n1. Static constants:\n   - MAX_ITEMS_PER_ORDER = 100 (static final int)\n   - MIN_STOCK_THRESHOLD = 10 (static final int)\n\n2. Static mutable:\n   - currentStock = 50\n   - totalOrdersProcessed = 0\n\n3. Methods:\n   - `processOrder(int quantity)` — checks if quantity <= MAX_ITEMS_PER_ORDER AND <= currentStock, then deducts from stock, increments orders. Returns true if successful.\n   - `checkLowStock()` — returns true if currentStock < MIN_STOCK_THRESHOLD\n\n4. main():\n   - Process orders for 30, 25 (should leave -5... wait, second should fail)\n   - Actually: 30 (success: stock 20), 25 (fail: stock 20 < 25), 15 (success: stock 5)\n   - Check low stock at end\n\nExpected output:\nOrder 30: Success. Stock: 20\nOrder 25: Failed. Stock: 20\nOrder 15: Success. Stock: 5\nTotal orders processed: 2\nLow stock alert: true",
+      "starter_code": "// Write your Inventory class below\n",
+      "expected_solution": "public class Inventory {\n    static final int MAX_ITEMS_PER_ORDER = 100;\n    static final int MIN_STOCK_THRESHOLD = 10;\n    \n    static int currentStock = 50;\n    static int totalOrdersProcessed = 0;\n    \n    public static void main(String[] args) {\n        boolean result1 = processOrder(30);\n        System.out.println(\"Order 30: \" + (result1 ? \"Success\" : \"Failed\") + \". Stock: \" + currentStock);\n        \n        boolean result2 = processOrder(25);\n        System.out.println(\"Order 25: \" + (result2 ? \"Success\" : \"Failed\") + \". Stock: \" + currentStock);\n        \n        boolean result3 = processOrder(15);\n        System.out.println(\"Order 15: \" + (result3 ? \"Success\" : \"Failed\") + \". Stock: \" + currentStock);\n        \n        System.out.println(\"Total orders processed: \" + totalOrdersProcessed);\n        System.out.println(\"Low stock alert: \" + checkLowStock());\n    }\n    \n    public static boolean processOrder(int quantity) {\n        if (quantity > MAX_ITEMS_PER_ORDER) {\n            return false;\n        }\n        if (quantity > currentStock) {\n            return false;\n        }\n        currentStock -= quantity;\n        totalOrdersProcessed++;\n        return true;\n    }\n    \n    public static boolean checkLowStock() {\n        return currentStock < MIN_STOCK_THRESHOLD;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Order 30: Success. Stock: 20\nOrder 25: Failed. Stock: 20\nOrder 15: Success. Stock: 5\nTotal orders processed: 2\nLow stock alert: true",
+          "must_compile": true
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["static final int", "static int", "boolean processOrder"]
+        }
+      ],
+      "hints": [
+        "Constants: static final (MAX_ITEMS_PER_ORDER, MIN_STOCK_THRESHOLD)",
+        "Mutable static: currentStock, totalOrdersProcessed",
+        "Local in main: result1, result2, result3 (booleans)",
+        "Parameters in processOrder: quantity",
+        "Order #2 (25) fails because 25 > 20 (current stock)",
+        "Use early returns in processOrder for cleaner code",
+        "Ternary operator in main makes 'Success/Failed' cleaner: `result ? \"Success\" : \"Failed\"`",
+        "After all orders: stock = 50 - 30 - 15 = 5 (< 10 threshold)"
+      ],
+      "xp_reward": 90
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 0,
+      "code_scratch": 7,
+      "debug": 3,
+      "predict_output": 4,
+      "algorithm": 1
+    },
+    "total_xp_possible": 660,
+    "estimated_completion_minutes": 50
+  },
+  
+  "gap_detection_map": {
+    "variable_out_of_scope": ["ex_1", "ex_2"],
+    "uninitialized_local_variable": ["ex_4"],
+    "shadowing_class_variable": ["ex_7", "ex_11"],
+    "declaring_inside_conditional_then_using_outside": ["ex_9", "ex_14"],
+    "static_final_constants": ["ex_6", "ex_12", "ex_13", "ex_15"],
+    "static_persistence": ["ex_3", "ex_10"],
+    "block_scope_isolation": ["ex_8"]
+  }
+}

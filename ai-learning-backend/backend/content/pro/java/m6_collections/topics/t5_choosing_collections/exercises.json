@@ -1,0 +1,349 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t5",
+  "topic_name": "Choosing the Right Collection",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m6_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Which collection for each problem?",
+      "scenario": "Identify the right collection type.",
+      "instructions": "Match each problem to the right collection type. For each, write the correct Java declaration. Four separate questions — just write the correct type (List, Set, or Map) and a one-line reason.\n\n1. Track which userIds have visited a page today. Fast membership check.\n2. Store a playlist of songs a user added in order (duplicates allowed).\n3. Look up a product's price by its SKU code.\n4. Count how many orders each customer has placed.",
+      "expected_solution": "1. Set<String> visitedUsers = new HashSet<>();  // membership, O(1)\n2. List<String> playlist = new ArrayList<>();    // ordered, duplicates OK\n3. Map<String, Double> priceBysku = new HashMap<>();  // keyed lookup\n4. Map<String, Integer> ordersByCustomer = new HashMap<>();  // frequency count",
+      "test_cases": [
+        { "type": "code_analysis", "must_contain": ["HashSet", "ArrayList", "HashMap", "HashMap"] }
+      ],
+      "hints": [
+        "Membership/uniqueness → Set",
+        "Ordered sequence → List",
+        "Key→value lookup → Map",
+        "Frequency counting → Map<K, Integer>"
+      ],
+      "xp_reward": 15
+    },
+
+    {
+      "id": "java_m6_t5_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Performance comparison trace",
+      "scenario": "Understand O(1) vs O(n) in practice.",
+      "instructions": "What does this print? Focus on WHAT contains() returns (true/false) — ignore any timing.\n\n```java\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> list = new ArrayList<>(Arrays.asList(1,2,3,4,5));\n        Set<Integer>  set  = new HashSet<> (Arrays.asList(1,2,3,4,5));\n        System.out.println(list.contains(3));\n        System.out.println(set.contains(3));\n        System.out.println(list.contains(9));\n        System.out.println(set.contains(9));\n    }\n}\n```",
+      "expected_solution": "true\ntrue\nfalse\nfalse",
+      "test_cases": [
+        { "type": "text_match", "expected": "true\ntrue\nfalse\nfalse" }
+      ],
+      "hints": [
+        "Both give the same results — the difference is SPEED (O(n) vs O(1))",
+        "3 is in both → true; 9 is in neither → false"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m6_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Fix the antipattern: List for membership",
+      "scenario": "Replace O(n) membership check with O(1) Set.",
+      "instructions": "This code is correct but slow. Refactor to use the right collection.\n\n```java\n// SLOW — fix this:\nList<String> blockedIps = new ArrayList<>();\nblockedIps.add(\"1.2.3.4\");\nblockedIps.add(\"5.6.7.8\");\n\nString incoming = \"1.2.3.4\";\nif (blockedIps.contains(incoming)) {\n    System.out.println(\"Blocked\");\n}\n```\n\nExpected output:\nBlocked",
+      "starter_code": "import java.util.*;\n\n// Refactor: replace List with Set for O(1) membership check\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Set<String> blockedIps = new HashSet<>();\n        blockedIps.add(\"1.2.3.4\");\n        blockedIps.add(\"5.6.7.8\");\n        \n        String incoming = \"1.2.3.4\";\n        if (blockedIps.contains(incoming)) {\n            System.out.println(\"Blocked\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Blocked" }
+      ],
+      "hints": [
+        "Membership check → Set<String>",
+        "contains() is O(1) on HashSet vs O(n) on ArrayList",
+        "Same result, dramatically better performance at scale"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m6_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Fix the antipattern: List for lookup",
+      "scenario": "Replace linear scan with HashMap O(1) lookup.",
+      "instructions": "Refactor: replace the for-loop search with a HashMap lookup.\n\n```java\n// SLOW:\nList<String[]> employees = new ArrayList<>();\nemployees.add(new String[]{\"E001\", \"Aisha\"});\nemployees.add(new String[]{\"E002\", \"Raj\"});\n// find Raj:\nString name = null;\nfor (String[] e : employees) {\n    if (e[0].equals(\"E002\")) { name = e[1]; break; }\n}\nSystem.out.println(name);\n```\n\nExpected output:\nRaj",
+      "starter_code": "import java.util.*;\n\n// Refactor: use HashMap<String, String> for O(1) lookup by ID\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Map<String, String> employees = new HashMap<>();\n        employees.put(\"E001\", \"Aisha\");\n        employees.put(\"E002\", \"Raj\");\n        \n        String name = employees.get(\"E002\");\n        System.out.println(name);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Raj" }
+      ],
+      "hints": [
+        "Key lookup → Map<String, String>",
+        "get('E002') is O(1) vs scanning all employees",
+        "Much simpler code too"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m6_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "LinkedHashMap for insertion-order config",
+      "scenario": "Preserve insertion order in a map.",
+      "instructions": "Build a config map that preserves insertion order. Show that iterating a LinkedHashMap gives keys in insertion order (HashMap would not).\n\nInsert: timeout=30, retries=3, debug=true\n\nExpected output (in insertion order):\ntimeout=30\nretries=3\ndebug=true",
+      "starter_code": "import java.util.*;\n\n// Use LinkedHashMap to preserve insertion order\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Map<String, String> config = new LinkedHashMap<>();\n        config.put(\"timeout\", \"30\");\n        config.put(\"retries\", \"3\");\n        config.put(\"debug\", \"true\");\n        \n        for (Map.Entry<String, String> e : config.entrySet()) {\n            System.out.println(e.getKey() + \"=\" + e.getValue());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "timeout=30\nretries=3\ndebug=true" }
+      ],
+      "hints": [
+        "LinkedHashMap preserves insertion order",
+        "HashMap would give unpredictable order",
+        "entrySet() iterates in insertion order"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m6_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "TreeMap for sorted dictionary",
+      "scenario": "When sorted keys matter more than O(1) speed.",
+      "instructions": "Build a small dictionary (word → definition). Print all words alphabetically using TreeMap's natural sorted key order.\n\nExpected output:\napple: a red fruit\nbanana: a yellow fruit\ncherry: a small red fruit",
+      "starter_code": "import java.util.*;\n\n// TreeMap gives sorted keys automatically\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Map<String, String> dictionary = new TreeMap<>();\n        dictionary.put(\"banana\", \"a yellow fruit\");\n        dictionary.put(\"apple\", \"a red fruit\");\n        dictionary.put(\"cherry\", \"a small red fruit\");\n        \n        for (Map.Entry<String, String> e : dictionary.entrySet()) {\n            System.out.println(e.getKey() + \": \" + e.getValue());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "apple: a red fruit\nbanana: a yellow fruit\ncherry: a small red fruit" }
+      ],
+      "hints": [
+        "TreeMap keeps keys in sorted (alphabetical) order automatically",
+        "No need to sort after putting entries",
+        "Iteration over entrySet() gives alphabetical order"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m6_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Map of Lists — grouping pattern",
+      "scenario": "Nested collection for grouping.",
+      "instructions": "Group employees by department using `Map<String, List<String>>`.\n\nEmployees: Aisha(Engineering), Raj(Sales), Priya(Engineering), Vikram(HR), Anita(Sales)\n\nExpected output (sorted departments, sorted names within):\nEngineering: [Aisha, Priya]\nHR: [Vikram]\nSales: [Anita, Raj]",
+      "starter_code": "import java.util.*;\n\n// Map<String, List<String>> — group by department\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] names = {\"Aisha\", \"Raj\", \"Priya\", \"Vikram\", \"Anita\"};\n        String[] depts = {\"Engineering\", \"Sales\", \"Engineering\", \"HR\", \"Sales\"};\n        \n        Map<String, List<String>> byDept = new HashMap<>();\n        for (int i = 0; i < names.length; i++) {\n            byDept.computeIfAbsent(depts[i], k -> new ArrayList<>()).add(names[i]);\n        }\n        \n        // Sort for output\n        List<String> sortedDepts = new ArrayList<>(byDept.keySet());\n        Collections.sort(sortedDepts);\n        for (String dept : sortedDepts) {\n            List<String> members = byDept.get(dept);\n            Collections.sort(members);\n            System.out.println(dept + \": \" + members);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Engineering: [Aisha, Priya]\nHR: [Vikram]\nSales: [Anita, Raj]" }
+      ],
+      "hints": [
+        "Map<String, List<String>> — department → list of names",
+        "computeIfAbsent creates the list on first use",
+        "Sort both the dept keys and each name list for output"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m6_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Map of TreeSets — sorted unique grouping",
+      "scenario": "Nested collections for sorted unique groups.",
+      "instructions": "Build a tag index: Map<String, TreeSet<String>> — each tag maps to a sorted set of article titles that have that tag.\n\nArticles:\n- 'Java Guide' with tags: java, programming\n- 'Python Intro' with tags: python, programming  \n- 'OOP Concepts' with tags: java, oop, programming\n\nExpected output (sorted tags, sorted articles within):\njava: [Java Guide, OOP Concepts]\noop: [OOP Concepts]\nprogramming: [Java Guide, OOP Concepts, Python Intro]\npython: [Python Intro]",
+      "starter_code": "import java.util.*;\n\n// Map<String, TreeSet<String>> — tag index with sorted unique article sets\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Map<String, TreeSet<String>> tagIndex = new TreeMap<>();  // sorted tags\n        \n        // Helper to index an article\n        addToIndex(tagIndex, \"Java Guide\",   new String[]{\"java\", \"programming\"});\n        addToIndex(tagIndex, \"Python Intro\", new String[]{\"python\", \"programming\"});\n        addToIndex(tagIndex, \"OOP Concepts\", new String[]{\"java\", \"oop\", \"programming\"});\n        \n        for (Map.Entry<String, TreeSet<String>> e : tagIndex.entrySet()) {\n            System.out.println(e.getKey() + \": \" + e.getValue());\n        }\n    }\n    \n    static void addToIndex(Map<String, TreeSet<String>> index, String article, String[] tags) {\n        for (String tag : tags) {\n            index.computeIfAbsent(tag, k -> new TreeSet<>()).add(article);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "java: [Java Guide, OOP Concepts]\noop: [OOP Concepts]\nprogramming: [Java Guide, OOP Concepts, Python Intro]\npython: [Python Intro]" }
+      ],
+      "hints": [
+        "TreeMap<String, TreeSet<String>> — sorted tags, sorted articles per tag",
+        "TreeMap keeps tag keys alphabetical",
+        "TreeSet keeps article names sorted and unique",
+        "No extra sorting needed — the collections handle it"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m6_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "LinkedHashSet for ordered dedup",
+      "scenario": "Dedup while preserving first-seen order.",
+      "instructions": "A user visits pages in this order (with some revisits). Deduplicate while preserving the FIRST-VISIT order.\n\nVisits: /home /about /home /products /about /contact /products /home\n\nExpected output:\n[/home, /about, /products, /contact]",
+      "starter_code": "import java.util.*;\n\n// LinkedHashSet preserves insertion order while deduplicating\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] visits = {\"/home\", \"/about\", \"/home\", \"/products\", \"/about\", \"/contact\", \"/products\", \"/home\"};\n        \n        Set<String> uniqueInOrder = new LinkedHashSet<>();\n        for (String page : visits) uniqueInOrder.add(page);\n        \n        System.out.println(new ArrayList<>(uniqueInOrder));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[/home, /about, /products, /contact]" }
+      ],
+      "hints": [
+        "LinkedHashSet: dedup + insertion order",
+        "HashSet would work but order undefined",
+        "Convert to ArrayList just for the nice [] print format"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m6_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Right collection for a library catalog",
+      "scenario": "Design multiple data structures for the same domain.",
+      "instructions": "Design structures for a library system. For EACH requirement, use the most appropriate collection:\n1. All ISBN codes in the library (unique, fast lookup)\n2. Books a reader has borrowed, in order borrowed\n3. ISBN → Book object lookup\n4. All books per genre, sorted by title within genre\n\nCreate all four, add sample data, demonstrate each works.\n\nExpected output:\nHas ISBN-001: true\nBorrowed in order: [Dune, Foundation]\nFound: Clean Code\nSciFi titles: [Dune, Foundation]",
+      "starter_code": "import java.util.*;\n\n// Four data structures for four library requirements\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        // 1. All ISBN codes — unique, fast lookup\n        Set<String> allIsbns = new HashSet<>();\n        allIsbns.add(\"ISBN-001\");\n        allIsbns.add(\"ISBN-002\");\n        allIsbns.add(\"ISBN-003\");\n        System.out.println(\"Has ISBN-001: \" + allIsbns.contains(\"ISBN-001\"));\n        \n        // 2. Borrowed books in order\n        List<String> borrowed = new ArrayList<>();\n        borrowed.add(\"Dune\");\n        borrowed.add(\"Foundation\");\n        System.out.println(\"Borrowed in order: \" + borrowed);\n        \n        // 3. ISBN → book title lookup\n        Map<String, String> byIsbn = new HashMap<>();\n        byIsbn.put(\"ISBN-001\", \"Dune\");\n        byIsbn.put(\"ISBN-002\", \"Foundation\");\n        byIsbn.put(\"ISBN-003\", \"Clean Code\");\n        System.out.println(\"Found: \" + byIsbn.get(\"ISBN-003\"));\n        \n        // 4. Genre → sorted book titles\n        Map<String, TreeSet<String>> byGenre = new HashMap<>();\n        byGenre.computeIfAbsent(\"SciFi\", k -> new TreeSet<>()).add(\"Foundation\");\n        byGenre.computeIfAbsent(\"SciFi\", k -> new TreeSet<>()).add(\"Dune\");\n        byGenre.computeIfAbsent(\"Tech\", k -> new TreeSet<>()).add(\"Clean Code\");\n        System.out.println(\"SciFi titles: \" + byGenre.get(\"SciFi\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Has ISBN-001: true\nBorrowed in order: [Dune, Foundation]\nFound: Clean Code\nSciFi titles: [Dune, Foundation]" }
+      ],
+      "hints": [
+        "1 = HashSet (membership), 2 = ArrayList (ordered), 3 = HashMap (lookup), 4 = Map<String, TreeSet<String>>",
+        "TreeSet sorts titles automatically within each genre",
+        "Each choice justified by the operation it needs to support"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m6_t5_ex_11",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace TreeMap sorted output",
+      "scenario": "TreeMap iteration is always sorted by key.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        Map<Integer, String> map = new TreeMap<>();\n        map.put(3, \"three\");\n        map.put(1, \"one\");\n        map.put(4, \"four\");\n        map.put(2, \"two\");\n        for (Map.Entry<Integer, String> e : map.entrySet()) {\n            System.out.println(e.getKey() + \": \" + e.getValue());\n        }\n    }\n}\n```",
+      "expected_solution": "1: one\n2: two\n3: three\n4: four",
+      "test_cases": [
+        { "type": "text_match", "expected": "1: one\n2: two\n3: three\n4: four" }
+      ],
+      "hints": [
+        "TreeMap always iterates in sorted key order",
+        "Integer keys → numerically ascending: 1, 2, 3, 4",
+        "Insertion order (3, 1, 4, 2) doesn't matter"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m6_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Product inventory — three structures together",
+      "scenario": "One domain, three different collection needs.",
+      "instructions": "Product inventory with three requirements:\n1. `Map<String, Double>` — price by SKU for O(1) lookup\n2. `Map<String, Set<String>>` — which SKUs belong to each category (unique SKUs per category)\n3. `TreeMap<Double, String>` — SKU sorted by price (ascending)\n\nAdd 4 products and demonstrate all three.\n\nExpected output:\nPrice of SKU-003: 18999.0\nElectronics SKUs: [SKU-001, SKU-002, SKU-003]\nCheapest first: SKU-004(499.0) SKU-001(799.0) SKU-002(1999.0) SKU-003(18999.0)",
+      "starter_code": "import java.util.*;\n\n// Three structures for three needs on the same product data\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        // Structure 1: SKU → price\n        Map<String, Double> priceBysku = new HashMap<>();\n        // Structure 2: category → Set of SKUs\n        Map<String, TreeSet<String>> byCategory = new HashMap<>();\n        // Structure 3: price → SKU (sorted by price)\n        TreeMap<Double, String> byPrice = new TreeMap<>();\n        \n        // Add products: (sku, category, price)\n        String[][] products = {\n            {\"SKU-001\", \"Electronics\", \"799.0\"},\n            {\"SKU-002\", \"Electronics\", \"1999.0\"},\n            {\"SKU-003\", \"Electronics\", \"18999.0\"},\n            {\"SKU-004\", \"Accessories\", \"499.0\"}\n        };\n        \n        for (String[] p : products) {\n            String sku = p[0], cat = p[1];\n            double price = Double.parseDouble(p[2]);\n            priceBysku.put(sku, price);\n            byCategory.computeIfAbsent(cat, k -> new TreeSet<>()).add(sku);\n            byPrice.put(price, sku);\n        }\n        \n        System.out.println(\"Price of SKU-003: \" + priceBysku.get(\"SKU-003\"));\n        System.out.println(\"Electronics SKUs: \" + byCategory.get(\"Electronics\"));\n        \n        StringBuilder sb = new StringBuilder(\"Cheapest first: \");\n        for (Map.Entry<Double, String> e : byPrice.entrySet()) {\n            sb.append(e.getValue()).append(\"(\").append(e.getKey()).append(\") \");\n        }\n        System.out.println(sb.toString().trim());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Price of SKU-003: 18999.0\nElectronics SKUs: [SKU-001, SKU-002, SKU-003]\nCheapest first: SKU-004(499.0) SKU-001(799.0) SKU-002(1999.0) SKU-003(18999.0)" }
+      ],
+      "hints": [
+        "HashMap for price lookup — O(1) by SKU",
+        "Map<String, TreeSet> for category — sorted unique SKUs",
+        "TreeMap<Double, String> keeps entries sorted by price key",
+        "Iterate TreeMap for auto-sorted price output"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m6_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Refactor antipattern — full rewrite",
+      "scenario": "Identify and fix three collection antipatterns in one class.",
+      "instructions": "This class has THREE antipatterns. Identify each and rewrite the class using correct collections.\n\n```java\n// ANTIPATTERN CODE — DO NOT USE AS-IS:\nclass EmployeeSystem {\n    List<String[]> employees = new ArrayList<>();  // id, name, dept\n    List<String> processedIds = new ArrayList<>();  // track processed\n    \n    Employee find(String id) {\n        for (String[] e : employees) {\n            if (e[0].equals(id)) return new Employee(e[0], e[1], e[2]);\n        }\n        return null;\n    }\n    \n    void markProcessed(String id) {\n        if (!processedIds.contains(id)) processedIds.add(id);\n    }\n    \n    boolean isProcessed(String id) { return processedIds.contains(id); }\n}\n```\n\nExpected output:\nFound: Aisha (Engineering)\nProcessed: true",
+      "starter_code": "import java.util.*;\n\n// Rewrite EmployeeSystem with correct collections\n// Antipattern 1: List for lookup (should be Map)\n// Antipattern 2: List<String[]> instead of proper class\n// Antipattern 3: List for membership (should be Set)\n",
+      "expected_solution": "import java.util.*;\n\nclass Employee {\n    String id, name, dept;\n    Employee(String id, String name, String dept) {\n        this.id = id; this.name = name; this.dept = dept;\n    }\n    public String toString() { return name + \" (\" + dept + \")\"; }\n}\n\nclass EmployeeSystem {\n    Map<String, Employee> byId = new HashMap<>();   // O(1) lookup\n    Set<String> processedIds = new HashSet<>();     // O(1) membership\n    \n    void add(Employee e) { byId.put(e.id, e); }\n    \n    Employee find(String id) { return byId.get(id); }  // O(1)\n    \n    void markProcessed(String id) { processedIds.add(id); }  // auto-dedup\n    \n    boolean isProcessed(String id) { return processedIds.contains(id); }  // O(1)\n}\n\npublic class App {\n    public static void main(String[] args) {\n        EmployeeSystem sys = new EmployeeSystem();\n        sys.add(new Employee(\"E001\", \"Aisha\", \"Engineering\"));\n        sys.add(new Employee(\"E002\", \"Raj\", \"Sales\"));\n        \n        System.out.println(\"Found: \" + sys.find(\"E001\"));\n        sys.markProcessed(\"E001\");\n        System.out.println(\"Processed: \" + sys.isProcessed(\"E001\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found: Aisha (Engineering)\nProcessed: true" }
+      ],
+      "hints": [
+        "Antipattern 1: List<String[]> → proper Employee class",
+        "Antipattern 2: linear scan for find() → HashMap<String, Employee>",
+        "Antipattern 3: List<String> with contains for processedIds → HashSet<String>",
+        "The fixed version is simpler AND faster"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "antipattern_refactor"
+    },
+
+    {
+      "id": "java_m6_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Hospital patient management — design from requirements",
+      "scenario": "Design data structures from scratch for a real domain.",
+      "instructions": "Design data structures for a hospital system:\n1. Look up patient by ID (instant)\n2. All patients admitted today, in admission order\n3. Patients grouped by ward (surgical, medical, ICU) — each ward's list alphabetical by name\n4. Discharged patient IDs (for quick 'is this patient discharged?' check)\n5. Active ward names (unique)\n\nCreate all five, add sample data, demonstrate each.\n\nExpected output:\nPatient P001: Aisha (Surgical)\nToday's admissions: [P001, P002, P003]\nSurgical ward: [Aisha, Priya]\nP002 discharged: true\nActive wards: 3",
+      "starter_code": "import java.util.*;\n\n// Design all 5 data structures for the hospital system\n",
+      "expected_solution": "import java.util.*;\n\nclass Patient {\n    String id, name, ward;\n    Patient(String id, String name, String ward) {\n        this.id = id; this.name = name; this.ward = ward;\n    }\n    public String toString() { return name + \" (\" + ward + \")\"; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        // 1. Instant lookup by ID\n        Map<String, Patient> byId = new HashMap<>();\n        // 2. Admission order\n        List<String> admissionOrder = new ArrayList<>();\n        // 3. Ward → sorted patient names\n        Map<String, TreeSet<String>> byWard = new HashMap<>();\n        // 4. Discharged IDs\n        Set<String> discharged = new HashSet<>();\n        // 5. Active ward names\n        Set<String> activeWards = new HashSet<>();\n        \n        // Add patients\n        Patient[] patients = {\n            new Patient(\"P001\", \"Aisha\",  \"Surgical\"),\n            new Patient(\"P002\", \"Raj\",    \"Medical\"),\n            new Patient(\"P003\", \"Priya\",  \"Surgical\"),\n            new Patient(\"P004\", \"Vikram\", \"ICU\")\n        };\n        for (Patient p : patients) {\n            byId.put(p.id, p);\n            admissionOrder.add(p.id);\n            byWard.computeIfAbsent(p.ward, k -> new TreeSet<>()).add(p.name);\n            activeWards.add(p.ward);\n        }\n        \n        // Discharge P002\n        discharged.add(\"P002\");\n        \n        System.out.println(\"Patient P001: \" + byId.get(\"P001\"));\n        System.out.println(\"Today's admissions: \" + admissionOrder);\n        System.out.println(\"Surgical ward: \" + byWard.get(\"Surgical\"));\n        System.out.println(\"P002 discharged: \" + discharged.contains(\"P002\"));\n        System.out.println(\"Active wards: \" + activeWards.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Patient P001: Aisha (Surgical)\nToday's admissions: [P001, P002, P003, P004]\nSurgical ward: [Aisha, Priya]\nP002 discharged: true\nActive wards: 3" }
+      ],
+      "hints": [
+        "1=HashMap, 2=ArrayList, 3=Map<String,TreeSet<String>>, 4=HashSet, 5=HashSet",
+        "TreeSet keeps ward patient names sorted",
+        "Surgical has Aisha and Priya — TreeSet sorts them alphabetically"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m6_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "E-commerce engine — Module 6 full synthesis",
+      "scenario": "All collection types in one system, designed correctly.",
+      "instructions": "Build a mini e-commerce search engine using every collection type covered in Module 6:\n\n- `List<Product>` as the master catalog (ordered, browseable)\n- `Map<String, Product>` for SKU lookup (O(1))\n- `Map<String, List<Product>>` for category grouping\n- `Set<String>` for out-of-stock tracking\n- `TreeMap<Double, List<Product>>` for price-range browsing (sorted)\n\nImplement: `search(query)` finds products by name (case-insensitive contains). `inPriceRange(min, max)` uses TreeMap subMap.\n\nExpected output:\nTotal products: 4\nSearch 'key': [Keyboard]\nIn range ₹500-₹2000: [Mouse, Keyboard]\nElectronics count: 3\nOut of stock: 1",
+      "starter_code": "import java.util.*;\n\n// Full Module 6 synthesis — all collection types\n",
+      "expected_solution": "import java.util.*;\n\nclass Product {\n    String sku, name, category;\n    double price;\n    boolean inStock;\n    Product(String sku, String name, String cat, double price, boolean inStock) {\n        this.sku=sku; this.name=name; this.category=cat; this.price=price; this.inStock=inStock;\n    }\n    public String toString() { return name; }\n}\n\nclass ECommerceEngine {\n    List<Product> catalog = new ArrayList<>();\n    Map<String, Product> bySku = new HashMap<>();\n    Map<String, List<Product>> byCategory = new HashMap<>();\n    Set<String> outOfStock = new HashSet<>();\n    TreeMap<Double, List<Product>> byPrice = new TreeMap<>();\n    \n    void addProduct(Product p) {\n        catalog.add(p);\n        bySku.put(p.sku, p);\n        byCategory.computeIfAbsent(p.category, k -> new ArrayList<>()).add(p);\n        byPrice.computeIfAbsent(p.price, k -> new ArrayList<>()).add(p);\n        if (!p.inStock) outOfStock.add(p.sku);\n    }\n    \n    List<Product> search(String query) {\n        List<Product> results = new ArrayList<>();\n        for (Product p : catalog) {\n            if (p.name.toLowerCase().contains(query.toLowerCase())) results.add(p);\n        }\n        return results;\n    }\n    \n    List<Product> inPriceRange(double min, double max) {\n        List<Product> results = new ArrayList<>();\n        for (List<Product> prods : byPrice.subMap(min, true, max, true).values()) {\n            results.addAll(prods);\n        }\n        return results;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        ECommerceEngine engine = new ECommerceEngine();\n        engine.addProduct(new Product(\"SKU-001\", \"Mouse\",    \"Electronics\", 799,   true));\n        engine.addProduct(new Product(\"SKU-002\", \"Keyboard\",  \"Electronics\", 1999,  true));\n        engine.addProduct(new Product(\"SKU-003\", \"Monitor\",   \"Electronics\", 18999, false));\n        engine.addProduct(new Product(\"SKU-004\", \"Java Book\", \"Books\",        649,   true));\n        \n        System.out.println(\"Total products: \" + engine.catalog.size());\n        System.out.println(\"Search 'key': \" + engine.search(\"key\"));\n        System.out.println(\"In range ₹500-₹2000: \" + engine.inPriceRange(500, 2000));\n        System.out.println(\"Electronics count: \" + engine.byCategory.get(\"Electronics\").size());\n        System.out.println(\"Out of stock: \" + engine.outOfStock.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Total products: 4\nSearch 'key': [Keyboard]\nIn range ₹500-₹2000: [Java Book, Mouse, Keyboard]\nElectronics count: 3\nOut of stock: 1" }
+      ],
+      "hints": [
+        "Each collection serves a different query type",
+        "TreeMap.subMap(min, true, max, true) gives the price-range slice",
+        "subMap returns a view of entries between min and max inclusive",
+        "outOfStock is a Set<String> of SKUs — O(1) check"
+      ],
+      "xp_reward": 100
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 0,
+      "code_scratch": 13,
+      "debug": 0,
+      "predict_output": 2
+    },
+    "total_xp_possible": 730,
+    "estimated_completion_minutes": 65
+  },
+
+  "gap_detection_map": {
+    "list_for_membership": ["ex_3"],
+    "list_for_lookup": ["ex_4"],
+    "antipattern_refactor": ["ex_13"],
+    "nested_collections": ["ex_8", "ex_12"]
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t3",
+  "topic_name": "Mocking with Mockito",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m12_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Mock default returns",
+      "scenario": "Unstubbed mocks return default values — null for objects, 0 for ints.",
+      "instructions": "What does this print?\n\n```java\nimport org.mockito.Mockito;\nimport java.util.*;\npublic class App {\n    interface Repo { String findById(String id); List<String> findAll(); int count(); }\n    public static void main(String[] args) {\n        Repo repo = Mockito.mock(Repo.class);\n        System.out.println(repo.findById(\"U01\"));\n        System.out.println(repo.findAll());\n        System.out.println(repo.count());\n    }\n}\n```",
+      "expected_solution": "null\n[]\n0",
+      "test_cases": [
+        { "type": "text_match", "expected": "null\n[]\n0" }
+      ],
+      "hints": [
+        "Unstubbed reference types return null",
+        "Unstubbed collections return empty (not null)",
+        "Unstubbed int returns 0"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Stub with when().thenReturn()",
+      "scenario": "when() programs mock responses.",
+      "instructions": "Fill in the blanks to stub a UserRepository.",
+      "starter_code": "import static org.mockito.Mockito.*;\nimport org.junit.jupiter.api.*;\nclass UserServiceTest {\n    interface UserRepo { String findById(String id); }\n    @Test\n    void test() {\n        UserRepo repo = ______(UserRepo.class);\n        ______(repo.findById(\"U01\")).______(\"Aisha\");\n        assertEquals(\"Aisha\", repo.findById(\"U01\"));\n    }\n}",
+      "expected_solution": "import static org.mockito.Mockito.*;\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass UserServiceTest {\n    interface UserRepo { String findById(String id); }\n    @Test\n    void test() {\n        UserRepo repo = mock(UserRepo.class);\n        when(repo.findById(\"U01\")).thenReturn(\"Aisha\");\n        assertEquals(\"Aisha\", repo.findById(\"U01\"));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "mock",       "hint": "Mockito factory method to create a mock" },
+        { "position": 2, "answer": "when",       "hint": "Sets up a stubbing" },
+        { "position": 3, "answer": "thenReturn", "hint": "Specifies what to return" }
+      ],
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "mock(Class.class) creates a fake",
+        "when(mock.method(arg)).thenReturn(value)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m12_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "@Mock and @InjectMocks setup",
+      "scenario": "Annotations simplify mock creation and injection.",
+      "instructions": "Write a test class for `GreetingService` which depends on `UserRepository`. Use @Mock, @InjectMocks, @ExtendWith. Stub findById to return 'Aisha'. Test that greet('U01') returns 'Hello, Aisha!'.",
+      "starter_code": "// Production code:\ninterface UserRepository { String findById(String id); }\nclass GreetingService {\n    private final UserRepository repo;\n    GreetingService(UserRepository repo) { this.repo = repo; }\n    String greet(String userId) { return \"Hello, \" + repo.findById(userId) + \"!\"; }\n}\n\n// Write the test:\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n\n@ExtendWith(MockitoExtension.class)\nclass GreetingServiceTest {\n    @Mock UserRepository repo;\n    @InjectMocks GreetingService service;\n    \n    @Test\n    void greet_validUser_returnsHelloMessage() {\n        // Arrange, Act, Assert\n    }\n}",
+      "expected_solution": "// (production code as above)\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n@ExtendWith(MockitoExtension.class)\nclass GreetingServiceTest {\n    @Mock UserRepository repo;\n    @InjectMocks GreetingService service;\n    @Test\n    void greet_validUser_returnsHelloMessage() {\n        when(repo.findById(\"U01\")).thenReturn(\"Aisha\");\n        String result = service.greet(\"U01\");\n        assertEquals(\"Hello, Aisha!\", result);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@ExtendWith(MockitoExtension.class) on the class",
+        "@Mock for each dependency, @InjectMocks for the class under test",
+        "when(repo.findById('U01')).thenReturn('Aisha') before calling service"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m12_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "verify() — check method was called",
+      "scenario": "verify() asserts a mock method was invoked.",
+      "instructions": "Test that `OrderService.processOrder()` calls `repo.save()` exactly once and `emailSvc.send()` exactly once.\n\nWrite the test with both verify statements.",
+      "starter_code": "interface OrderRepo   { void save(String order); }\ninterface EmailService { void send(String order); }\nclass OrderService {\n    OrderRepo repo; EmailService emailSvc;\n    OrderService(OrderRepo r, EmailService e) { repo=r; emailSvc=e; }\n    void processOrder(String order) { repo.save(order); emailSvc.send(order); }\n}\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.mockito.Mockito.*;\n@ExtendWith(MockitoExtension.class)\nclass OrderServiceTest {\n    @Mock OrderRepo repo;\n    @Mock EmailService emailSvc;\n    @InjectMocks OrderService service;\n    \n    // Write the test with verify statements\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass OrderServiceTest {\n    @Mock OrderRepo repo;\n    @Mock EmailService emailSvc;\n    @InjectMocks OrderService service;\n    import org.junit.jupiter.api.*;\n    @Test\n    void processOrder_callsSaveAndEmail() {\n        service.processOrder(\"ORD-001\");\n        verify(repo).save(\"ORD-001\");\n        verify(emailSvc).send(\"ORD-001\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "verify(mock).method(arg) — verifies exactly one call",
+        "No when() needed for void methods unless you need to stub them"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m12_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "thenThrow — stub exceptions",
+      "scenario": "Mock can throw exceptions to test error paths.",
+      "instructions": "Test that `UserService.deleteUser(id)` throws `RuntimeException` when `repo.deleteById(id)` throws it. Also verify that no notification is sent when deletion fails.\n\nWrite two tests: one for successful delete, one for failed.",
+      "starter_code": "interface UserRepo     { void deleteById(String id); }\ninterface Notifier     { void notifyDeleted(String id); }\nclass UserService {\n    UserRepo repo; Notifier notifier;\n    UserService(UserRepo r, Notifier n) { repo=r; notifier=n; }\n    void deleteUser(String id) { repo.deleteById(id); notifier.notifyDeleted(id); }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n@ExtendWith(MockitoExtension.class)\nclass UserServiceTest {\n    @Mock UserRepo repo;\n    @Mock Notifier notifier;\n    @InjectMocks UserService service;\n    // Two tests\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass UserServiceTest {\n    @Mock UserRepo repo; @Mock Notifier notifier;\n    @InjectMocks UserService service;\n    \n    @Test void deleteUser_success_notifiesDeletion() {\n        service.deleteUser(\"U01\");\n        verify(repo).deleteById(\"U01\");\n        verify(notifier).notifyDeleted(\"U01\");\n    }\n    @Test void deleteUser_repoThrows_notifierNotCalled() {\n        doThrow(new RuntimeException(\"DB error\")).when(repo).deleteById(\"U01\");\n        assertThrows(RuntimeException.class, () -> service.deleteUser(\"U01\"));\n        verify(notifier, never()).notifyDeleted(any());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "doThrow(exception).when(mock).voidMethod() for void methods",
+        "verify(notifier, never()).notifyDeleted(any()) — never called",
+        "Test the error path: repo failure must prevent notification"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m12_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "verify(times(n)) and verify(never())",
+      "scenario": "Control how many times a method should be called.",
+      "instructions": "Test `ReportService.generateBatch(List<String> ids)` which calls `writer.write()` once per ID and `emailSvc.sendSummary()` once at the end.\n\nFor 3 IDs: verify write called 3 times, summary called 1 time.",
+      "starter_code": "import java.util.*;\ninterface Writer      { void write(String data); }\ninterface EmailSvc    { void sendSummary(int count); }\nclass ReportService {\n    Writer writer; EmailSvc emailSvc;\n    ReportService(Writer w, EmailSvc e) { writer=w; emailSvc=e; }\n    void generateBatch(List<String> ids) {\n        ids.forEach(id -> writer.write(\"Report-\" + id));\n        emailSvc.sendSummary(ids.size());\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.mockito.Mockito.*;\n@ExtendWith(MockitoExtension.class)\nclass ReportServiceTest {\n    @Mock Writer writer;\n    @Mock EmailSvc emailSvc;\n    @InjectMocks ReportService service;\n    // Test with verify(times) and verify(never)\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass ReportServiceTest {\n    @Mock Writer writer; @Mock EmailSvc emailSvc;\n    @InjectMocks ReportService service;\n    @Test void generateBatch_3ids_writesAndSummarizes() {\n        import org.junit.jupiter.api.*;\n        service.generateBatch(List.of(\"R1\",\"R2\",\"R3\"));\n        verify(writer, times(3)).write(anyString());\n        verify(emailSvc, times(1)).sendSummary(3);\n    }\n    @Test void generateBatch_emptyList_noWriteNoSummaryWrites() {\n        service.generateBatch(List.of());\n        verify(writer, never()).write(any());\n        verify(emailSvc).sendSummary(0);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "verify(mock, times(3)).method() — exactly 3 calls",
+        "verify(mock, never()).method() — never called",
+        "Empty list: writer never called, summary sent with count=0"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m12_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "ArgumentCaptor — verify saved object",
+      "scenario": "Capture the argument passed to a mock to assert its fields.",
+      "instructions": "Test that `ProductService.createProduct(String name, double price)` saves a Product with correct name, price, and createdAt timestamp (not null).\n\nUse ArgumentCaptor to capture the saved Product.",
+      "starter_code": "import java.time.*;\nrecord Product(String name, double price, LocalDateTime createdAt) {}\ninterface ProductRepo { Product save(Product p); }\nclass ProductService {\n    ProductRepo repo;\n    ProductService(ProductRepo r) { repo = r; }\n    Product createProduct(String name, double price) {\n        Product p = new Product(name, price, LocalDateTime.now());\n        return repo.save(p);\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass ProductServiceTest {\n    @Mock ProductRepo repo;\n    @InjectMocks ProductService service;\n    @Captor ArgumentCaptor<Product> productCaptor;\n    // Test using ArgumentCaptor\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass ProductServiceTest {\n    @Mock ProductRepo repo;\n    @InjectMocks ProductService service;\n    @Captor ArgumentCaptor<Product> productCaptor;\n    \n    @Test\n    void createProduct_savesWithCorrectFieldsAndTimestamp() {\n        Product saved = new Product(\"Mouse\", 799, LocalDateTime.now());\n        when(repo.save(any())).thenReturn(saved);\n        \n        service.createProduct(\"Mouse\", 799);\n        \n        verify(repo).save(productCaptor.capture());\n        Product captured = productCaptor.getValue();\n        \n        assertEquals(\"Mouse\", captured.name());\n        assertEquals(799, captured.price(), 0.01);\n        assertNotNull(captured.createdAt());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@Captor ArgumentCaptor<Product> captor at class level",
+        "verify(repo).save(captor.capture())",
+        "captor.getValue() returns the captured object"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "any() and eq() argument matchers",
+      "scenario": "Matchers let stubs respond to flexible or specific arguments.",
+      "instructions": "Test `SearchService.search(String query, int limit)` with argument matchers:\n- For any query with limit=10, return a 10-item list\n- For query='mouse', any limit, return a 2-item list\n- For null query, throw IllegalArgumentException\n\nVerify each behaviour.",
+      "starter_code": "import java.util.*;\ninterface ProductRepo { List<String> search(String query, int limit); }\nclass SearchService {\n    ProductRepo repo;\n    SearchService(ProductRepo r) { repo = r; }\n    List<String> search(String query, int limit) {\n        if (query == null) throw new IllegalArgumentException(\"Query cannot be null\");\n        return repo.search(query, limit);\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass SearchServiceTest {\n    @Mock ProductRepo repo;\n    @InjectMocks SearchService service;\n    // 3 tests using matchers\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass SearchServiceTest {\n    @Mock ProductRepo repo;\n    @InjectMocks SearchService service;\n    \n    @Test void search_anyQueryLimit10_returns10() {\n        when(repo.search(anyString(), eq(10)))\n            .thenReturn(List.of(\"a\",\"b\",\"c\",\"d\",\"e\",\"f\",\"g\",\"h\",\"i\",\"j\"));\n        assertEquals(10, service.search(\"laptop\", 10).size());\n    }\n    @Test void search_mouseAnyLimit_returns2() {\n        when(repo.search(eq(\"mouse\"), anyInt())).thenReturn(List.of(\"Wired Mouse\", \"Wireless Mouse\"));\n        assertEquals(2, service.search(\"mouse\", 5).size());\n        assertEquals(2, service.search(\"mouse\", 20).size());\n    }\n    @Test void search_nullQuery_throws() {\n        assertThrows(IllegalArgumentException.class, () -> service.search(null, 10));\n        verifyNoInteractions(repo);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Must use eq() when mixing with anyString()/anyInt()",
+        "eq(10) wraps a literal for use with matchers",
+        "null query check happens before repo — verifyNoInteractions for strict test"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m12_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "verifyNoInteractions — strict isolation",
+      "scenario": "verifyNoInteractions fails if unexpected calls happened.",
+      "instructions": "Test `PaymentService.refund(String paymentId, boolean notify)` where:\n- notify=true: calls repo.refund() then emailSvc.sendRefundEmail()\n- notify=false: calls repo.refund() but NOT emailSvc\n\nUse verifyNoInteractions for the notify=false test.",
+      "starter_code": "interface PaymentRepo { void refund(String id); }\ninterface EmailSvc    { void sendRefundEmail(String id); }\nclass PaymentService {\n    PaymentRepo repo; EmailSvc emailSvc;\n    PaymentService(PaymentRepo r, EmailSvc e) { repo=r; emailSvc=e; }\n    void refund(String paymentId, boolean notify) {\n        repo.refund(paymentId);\n        if (notify) emailSvc.sendRefundEmail(paymentId);\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.mockito.Mockito.*;\n@ExtendWith(MockitoExtension.class)\nclass PaymentServiceTest {\n    @Mock PaymentRepo repo; @Mock EmailSvc emailSvc;\n    @InjectMocks PaymentService service;\n    // Two tests\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass PaymentServiceTest {\n    @Mock PaymentRepo repo; @Mock EmailSvc emailSvc;\n    @InjectMocks PaymentService service;\n    @Test void refund_withNotify_sendsEmail() {\n        service.refund(\"PAY-001\", true);\n        verify(repo).refund(\"PAY-001\");\n        verify(emailSvc).sendRefundEmail(\"PAY-001\");\n    }\n    @Test void refund_withoutNotify_noEmailInteraction() {\n        service.refund(\"PAY-001\", false);\n        verify(repo).refund(\"PAY-001\");\n        verifyNoInteractions(emailSvc);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "verifyNoInteractions(emailSvc) — nothing was called on it",
+        "Stricter than verify(emailSvc, never()) — checks ALL methods"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m12_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Mock vs Spy — default behaviour",
+      "scenario": "Mock returns null/default; Spy calls real methods.",
+      "instructions": "What does this print?\n\n```java\nimport org.mockito.*;\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> mock = Mockito.mock(ArrayList.class);\n        List<String> spy  = Mockito.spy(new ArrayList<>());\n        \n        spy.add(\"hello\");\n        \n        System.out.println(mock.size());  // A\n        System.out.println(spy.size());   // B\n        System.out.println(mock.get(0) == null);  // C — mock returns null\n        System.out.println(spy.get(0));   // D — real call\n    }\n}\n```",
+      "expected_solution": "0\n1\ntrue\nhello",
+      "test_cases": [
+        { "type": "text_match", "expected": "0\n1\ntrue\nhello" }
+      ],
+      "hints": [
+        "mock.size(): unstubbed → returns 0 (int default)",
+        "spy.add() calls the real ArrayList.add() — size becomes 1",
+        "mock.get(0): unstubbed → returns null (reference default)",
+        "spy.get(0): real call → 'hello'"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m12_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "InOrder — verify call sequence",
+      "scenario": "InOrder ensures methods were called in the right order.",
+      "instructions": "Test that `TransactionService.transfer(from, to, amount)` calls:\n1. First: repo.debit(from, amount)\n2. Then: repo.credit(to, amount)\n3. Then: auditLog.record(from, to, amount)\n\nUse InOrder to verify the sequence.",
+      "starter_code": "interface TransactionRepo { void debit(String acc, double amount); void credit(String acc, double amount); }\ninterface AuditLog        { void record(String from, String to, double amount); }\nclass TransactionService {\n    TransactionRepo repo; AuditLog audit;\n    TransactionService(TransactionRepo r, AuditLog a) { repo=r; audit=a; }\n    void transfer(String from, String to, double amount) {\n        repo.debit(from, amount);\n        repo.credit(to, amount);\n        audit.record(from, to, amount);\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.mockito.Mockito.*;\n@ExtendWith(MockitoExtension.class)\nclass TransactionServiceTest {\n    @Mock TransactionRepo repo; @Mock AuditLog audit;\n    @InjectMocks TransactionService service;\n    // InOrder test\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass TransactionServiceTest {\n    @Mock TransactionRepo repo; @Mock AuditLog audit;\n    @InjectMocks TransactionService service;\n    @Test void transfer_verifiesCorrectOrder() {\n        service.transfer(\"ACC-A\", \"ACC-B\", 1000.0);\n        InOrder inOrder = inOrder(repo, audit);\n        inOrder.verify(repo).debit(\"ACC-A\", 1000.0);\n        inOrder.verify(repo).credit(\"ACC-B\", 1000.0);\n        inOrder.verify(audit).record(\"ACC-A\", \"ACC-B\", 1000.0);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "InOrder inOrder = inOrder(repo, audit) — pass all mocks involved",
+        "inOrder.verify(mock).method() — in sequence",
+        "Order matters: debit before credit, credit before audit"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m12_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete user registration service test",
+      "scenario": "Full service test with multiple mocks and verifications.",
+      "instructions": "Write 4 tests for `UserRegistrationService.register(String email, String password)`:\n- Success: user saved, welcome email sent, returns userId\n- Duplicate email: repo.exists() returns true → throws DuplicateUserException, no save\n- Invalid email: throws IllegalArgumentException before repo check\n- Password too short: throws IllegalArgumentException before repo check",
+      "starter_code": "interface UserRepo    { boolean exists(String email); String save(String email, String pwHash); }\ninterface EmailSvc    { void sendWelcome(String email); }\nclass DuplicateUserException extends RuntimeException { DuplicateUserException(String m) { super(m); } }\nclass UserRegistrationService {\n    UserRepo repo; EmailSvc emailSvc;\n    UserRegistrationService(UserRepo r, EmailSvc e) { repo=r; emailSvc=e; }\n    String register(String email, String password) {\n        if (email == null || !email.contains(\"@\")) throw new IllegalArgumentException(\"Invalid email\");\n        if (password == null || password.length() < 8) throw new IllegalArgumentException(\"Password too short\");\n        if (repo.exists(email)) throw new DuplicateUserException(\"Email already registered: \" + email);\n        String userId = repo.save(email, password.hashCode() + \"\");\n        emailSvc.sendWelcome(email);\n        return userId;\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass UserRegistrationServiceTest {\n    @Mock UserRepo repo; @Mock EmailSvc emailSvc;\n    @InjectMocks UserRegistrationService service;\n    // 4 tests\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass UserRegistrationServiceTest {\n    @Mock UserRepo repo; @Mock EmailSvc emailSvc;\n    @InjectMocks UserRegistrationService service;\n    \n    @Test void register_newUser_savesAndSendsWelcome() {\n        when(repo.exists(\"aisha@example.com\")).thenReturn(false);\n        when(repo.save(eq(\"aisha@example.com\"), anyString())).thenReturn(\"U001\");\n        String userId = service.register(\"aisha@example.com\", \"password123\");\n        assertEquals(\"U001\", userId);\n        verify(emailSvc).sendWelcome(\"aisha@example.com\");\n    }\n    @Test void register_duplicateEmail_throwsDuplicate_noSave() {\n        when(repo.exists(\"aisha@example.com\")).thenReturn(true);\n        assertThrows(DuplicateUserException.class, () -> service.register(\"aisha@example.com\", \"password123\"));\n        verify(repo, never()).save(any(), any());\n        verifyNoInteractions(emailSvc);\n    }\n    @Test void register_invalidEmail_throwsBeforeRepoCheck() {\n        assertThrows(IllegalArgumentException.class, () -> service.register(\"not-an-email\", \"password123\"));\n        verifyNoInteractions(repo, emailSvc);\n    }\n    @Test void register_shortPassword_throwsBeforeRepoCheck() {\n        assertThrows(IllegalArgumentException.class, () -> service.register(\"a@b.com\", \"short\"));\n        verifyNoInteractions(repo, emailSvc);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "Duplicate: exists returns true → throw before save",
+        "Invalid inputs: no repo interaction at all",
+        "eq() needed when mixing with anyString() in save stub"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m12_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Spy — partially mock a real object",
+      "scenario": "Spy calls real methods but can override specific ones.",
+      "instructions": "Use Mockito.spy() to test `PriceCalculator.totalWithTax(List<Item> items)` where:\n- sumItems() is the real method (tested indirectly)\n- getTaxRate() is stubbed (different environment rates)\n\nTest two scenarios: standard 18% tax and reduced 5% tax.",
+      "starter_code": "import java.util.*;\nrecord Item(String name, double price) {}\nclass PriceCalculator {\n    double sumItems(List<Item> items) { return items.stream().mapToDouble(Item::price).sum(); }\n    double getTaxRate() { return 0.18; }  // production: 18% GST\n    double totalWithTax(List<Item> items) { return sumItems(items) * (1 + getTaxRate()); }\n}\nimport org.junit.jupiter.api.*;\nimport org.mockito.Mockito;\nimport static org.junit.jupiter.api.Assertions.*;\nclass PriceCalculatorTest {\n    // Use Mockito.spy() to stub getTaxRate()\n}",
+      "expected_solution": "// (production code as above)\nimport org.junit.jupiter.api.*;\nimport org.mockito.Mockito;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport java.util.*;\nclass PriceCalculatorTest {\n    @Test void totalWithTax_standardRate_18percent() {\n        PriceCalculator spy = Mockito.spy(new PriceCalculator());\n        doReturn(0.18).when(spy).getTaxRate();  // stub rate\n        List<Item> items = List.of(new Item(\"Mouse\",799), new Item(\"Keyboard\",1999));\n        assertEquals(2798 * 1.18, spy.totalWithTax(items), 0.01);\n    }\n    @Test void totalWithTax_reducedRate_5percent() {\n        PriceCalculator spy = Mockito.spy(new PriceCalculator());\n        doReturn(0.05).when(spy).getTaxRate();\n        List<Item> items = List.of(new Item(\"Book\", 499));\n        assertEquals(499 * 1.05, spy.totalWithTax(items), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Mockito.spy(new PriceCalculator()) — real object, can stub methods",
+        "doReturn(0.18).when(spy).getTaxRate() — use doReturn for spy, not when()",
+        "sumItems() remains real — calls actual stream sum"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m12_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Captor for complex objects — verify audit trail",
+      "scenario": "Capture and verify complex objects passed to mocks.",
+      "instructions": "Test `PaymentService.processPayment(Payment p)` which creates an `AuditEntry` and passes it to `auditRepo.record()`. Capture the AuditEntry and verify its fields: paymentId, amount, status='PROCESSED', timestamp (not null).",
+      "starter_code": "import java.time.*;\nrecord Payment(String id, double amount, String userId) {}\nrecord AuditEntry(String paymentId, double amount, String status, LocalDateTime timestamp) {}\ninterface AuditRepo { void record(AuditEntry entry); }\ninterface PaymentRepo { Payment save(Payment p); }\nclass PaymentService {\n    PaymentRepo payRepo; AuditRepo auditRepo;\n    PaymentService(PaymentRepo pr, AuditRepo ar) { payRepo=pr; auditRepo=ar; }\n    Payment processPayment(Payment payment) {\n        Payment saved = payRepo.save(payment);\n        auditRepo.record(new AuditEntry(saved.id(), saved.amount(), \"PROCESSED\", LocalDateTime.now()));\n        return saved;\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass PaymentServiceTest {\n    @Mock PaymentRepo payRepo; @Mock AuditRepo auditRepo;\n    @InjectMocks PaymentService service;\n    @Captor ArgumentCaptor<AuditEntry> auditCaptor;\n    // Test using auditCaptor\n}",
+      "expected_solution": "// (production code as above)\n@ExtendWith(MockitoExtension.class)\nclass PaymentServiceTest {\n    @Mock PaymentRepo payRepo; @Mock AuditRepo auditRepo;\n    @InjectMocks PaymentService service;\n    @Captor ArgumentCaptor<AuditEntry> auditCaptor;\n    \n    @Test void processPayment_recordsAuditWithCorrectFields() {\n        Payment payment = new Payment(\"PAY-001\", 1500.0, \"U01\");\n        when(payRepo.save(any())).thenReturn(payment);\n        \n        service.processPayment(payment);\n        \n        verify(auditRepo).record(auditCaptor.capture());\n        AuditEntry captured = auditCaptor.getValue();\n        \n        assertAll(\n            () -> assertEquals(\"PAY-001\",  captured.paymentId()),\n            () -> assertEquals(1500.0,     captured.amount(), 0.01),\n            () -> assertEquals(\"PROCESSED\",captured.status()),\n            () -> assertNotNull(captured.timestamp())\n        );\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@Captor ArgumentCaptor<AuditEntry> — class-level field",
+        "verify(auditRepo).record(auditCaptor.capture())",
+        "assertAll for multiple field assertions"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m12_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Razorpay-style payment service test",
+      "scenario": "Full mock test suite for a payment processing service.",
+      "instructions": "Write a comprehensive test suite (6+ tests) for `RazorpayPaymentService.charge(String userId, double amount)`:\n- Success: user found, funds sufficient, charge processed, receipt created, notification sent\n- User not found: repo throws EntityNotFoundException, nothing else happens\n- Insufficient funds: balanceService returns insufficient, no charge, no receipt\n- Charge fails: paymentGateway throws, no receipt, notification sent with FAILED status\n- Zero amount: IllegalArgumentException before any service call\n- Verify exact amount passed to gateway using ArgumentCaptor",
+      "starter_code": "interface UserRepo     { String getUserEmail(String userId); }  // throws EntityNotFoundException if not found\ninterface BalanceService{ boolean hasFunds(String userId, double amount); }\ninterface PaymentGateway{ String charge(String userId, double amount); }  // throws on failure\ninterface ReceiptService{ void createReceipt(String chargeId, double amount); }\ninterface NotifySvc    { void notify(String email, String status); }\nclass EntityNotFoundException extends RuntimeException { EntityNotFoundException(String m) { super(m); } }\n\nclass RazorpayPaymentService {\n    UserRepo userRepo; BalanceService balance;\n    PaymentGateway gateway; ReceiptService receipts; NotifySvc notifySvc;\n    \n    String charge(String userId, double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Amount must be positive\");\n        String email    = userRepo.getUserEmail(userId);\n        if (!balance.hasFunds(userId, amount)) throw new IllegalStateException(\"Insufficient funds\");\n        String chargeId;\n        try {\n            chargeId = gateway.charge(userId, amount);\n            receipts.createReceipt(chargeId, amount);\n            notifySvc.notify(email, \"SUCCESS\");\n        } catch (Exception e) {\n            notifySvc.notify(email, \"FAILED\");\n            throw e;\n        }\n        return chargeId;\n    }\n}\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n@ExtendWith(MockitoExtension.class)\nclass RazorpayPaymentServiceTest {\n    @Mock UserRepo userRepo; @Mock BalanceService balance;\n    @Mock PaymentGateway gateway; @Mock ReceiptService receipts; @Mock NotifySvc notifySvc;\n    @InjectMocks RazorpayPaymentService service;\n    @Captor ArgumentCaptor<Double> amountCaptor;\n    // 6+ tests\n}",
+      "expected_solution": "// (all interfaces and classes as above)\n@ExtendWith(MockitoExtension.class)\nclass RazorpayPaymentServiceTest {\n    @Mock UserRepo userRepo; @Mock BalanceService balance;\n    @Mock PaymentGateway gateway; @Mock ReceiptService receipts; @Mock NotifySvc notifySvc;\n    @InjectMocks RazorpayPaymentService service;\n    @Captor ArgumentCaptor<Double> amountCaptor;\n    \n    private void setupHappyPath() throws Exception {\n        when(userRepo.getUserEmail(\"U01\")).thenReturn(\"aisha@example.com\");\n        when(balance.hasFunds(\"U01\", 1500)).thenReturn(true);\n        when(gateway.charge(\"U01\", 1500)).thenReturn(\"CHG-001\");\n    }\n    @Test void charge_success_fullPipelineExecuted() throws Exception {\n        setupHappyPath();\n        String chargeId = service.charge(\"U01\", 1500);\n        assertEquals(\"CHG-001\", chargeId);\n        verify(receipts).createReceipt(\"CHG-001\", 1500);\n        verify(notifySvc).notify(\"aisha@example.com\", \"SUCCESS\");\n    }\n    @Test void charge_userNotFound_nothingElse() {\n        when(userRepo.getUserEmail(\"U99\")).thenThrow(new EntityNotFoundException(\"not found\"));\n        assertThrows(EntityNotFoundException.class, () -> service.charge(\"U99\", 1500));\n        verifyNoInteractions(balance, gateway, receipts, notifySvc);\n    }\n    @Test void charge_insufficientFunds_noChargeNoReceipt() throws Exception {\n        when(userRepo.getUserEmail(\"U01\")).thenReturn(\"aisha@example.com\");\n        when(balance.hasFunds(\"U01\", 1500)).thenReturn(false);\n        assertThrows(IllegalStateException.class, () -> service.charge(\"U01\", 1500));\n        verifyNoInteractions(gateway, receipts, notifySvc);\n    }\n    @Test void charge_gatewayFails_noReceipt_failureNotification() throws Exception {\n        when(userRepo.getUserEmail(\"U01\")).thenReturn(\"aisha@example.com\");\n        when(balance.hasFunds(\"U01\", 1500)).thenReturn(true);\n        when(gateway.charge(\"U01\", 1500)).thenThrow(new RuntimeException(\"Gateway error\"));\n        assertThrows(RuntimeException.class, () -> service.charge(\"U01\", 1500));\n        verify(receipts, never()).createReceipt(any(), anyDouble());\n        verify(notifySvc).notify(\"aisha@example.com\", \"FAILED\");\n    }\n    @Test void charge_zeroAmount_throwsBeforeAnyCall() {\n        assertThrows(IllegalArgumentException.class, () -> service.charge(\"U01\", 0));\n        verifyNoInteractions(userRepo, balance, gateway, receipts, notifySvc);\n    }\n    @Test void charge_capturesExactAmountPassedToGateway() throws Exception {\n        setupHappyPath();\n        service.charge(\"U01\", 1500);\n        verify(gateway).charge(eq(\"U01\"), amountCaptor.capture());\n        assertEquals(1500.0, amountCaptor.getValue(), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "6 tests pass" }
+      ],
+      "hints": [
+        "Helper setUp method for happy path stubs — less repetition",
+        "Gateway fails: receipt never created, but FAILED notification IS sent",
+        "User not found: balance/gateway/receipt/notify all have NO interactions"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 70
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m44_t4",
+  "module_id": "m44",
+  "topic_number": 4,
+  "name": "Career Narrative \u2014 Your Story and Motivation",
+  "slug": "career-narrative",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m43_t5"
+    ],
+    "concepts_taught": [
+      "career-narrative"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Career Narrative \u2014 Your Story and Motivation"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "2-min self-intro: past (relevant)\u2192present (current skills)\u2192future (why this role)",
+        "Strengths: 1-2 specific strengths + concrete example each (not generic)",
+        "Weakness: real + active mitigation + evidence of improvement",
+        "'Why this company': specific knowledge + skill fit + long-term vision",
+        "Questions to ask: 3 thoughtful questions about team, growth, tech stack",
+        "Growth story: show progression and increasing scope of impact"
+      ],
+      "next_topic_preview": "Next: Behavioral synthesis."
+    }
+  }
+}

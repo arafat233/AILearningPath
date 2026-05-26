@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m16_t1_proj",
+  "linked_topic": "java_m16_t1",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — Event-Driven Architecture Design",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+
+  "scenario": "Design and document the complete Kafka event-driven architecture for the Zerodha trading platform. This is an architecture and design project (no Spring Kafka code yet — that's Topics 16.2 and 16.3). Prove the architecture by running Kafka with Docker and producing/consuming test messages via CLI.",
+
+  "description": "Full topology design: 4 topics with schemas, partition strategy, retention, consumer groups. Hybrid architecture (sync REST + async Kafka). Throughput calculations. Verified by running Kafka locally and producing test events via kafka-console-producer.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Design 4 Kafka topics for Zerodha: trade-events, market-ticks, notification-events, audit-log. Each includes: topic name, partition count with justification, retention period with justification, partition key, and which events it carries.",
+        "weight": 25
+      },
+      {
+        "id": "req_2",
+        "description": "Full Java event records: TradeEvent (eventId, tradeId, userId, symbol, qty, price, type, status, traceId, timestamp), MarketTickEvent, NotificationEvent, AuditEvent. All records compile with no errors.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "Producer-to-consumer mapping documented as a Java class with comments: which service produces each topic, which consumer groups subscribe, and what each consumer does with the event.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Hybrid architecture diagram (text): which calls remain synchronous REST (price lookup, account verify, risk check) and which become Kafka events (notification, analytics, portfolio, audit). Justify each decision.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Run Kafka locally with Docker Compose. Create all 4 topics with correct partition counts. Produce at least 2 test trade events to trade-events. Consume from trade-events with --from-beginning and --group test-group. Include terminal output in README.",
+        "weight": 25
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Throughput calculation class: given 100K trades/hour and 5ms processing time, calculate minimum consumers and partitions needed. Show with readable output.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a Kafka UI (Kafka UI by Provectus) to docker-compose.yml. Show the trade-events topic in the browser with messages visible. Screenshot in README.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Write a JUnit test that instantiates all 4 event records with valid data, serializes them to JSON (Jackson ObjectMapper), and deserializes back — verifying the schema round-trips correctly.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Test events to produce:\nEvent 1: {\"eventId\":\"uuid-001\",\"tradeId\":\"TRD-001\",\"userId\":\"U01\",\"symbol\":\"TCS\",\"qty\":10,\"price\":3890.0,\"type\":\"BUY\",\"status\":\"PLACED\"}\nEvent 2: {\"eventId\":\"uuid-002\",\"tradeId\":\"TRD-001\",\"userId\":\"U01\",\"symbol\":\"TCS\",\"qty\":10,\"price\":3890.0,\"type\":\"BUY\",\"status\":\"EXECUTED\"}\nEvent 3: {\"eventId\":\"uuid-003\",\"tradeId\":\"TRD-002\",\"userId\":\"U02\",\"symbol\":\"INFY\",\"qty\":5,\"price\":1560.0,\"type\":\"SELL\",\"status\":\"PLACED\"}",
+
+  "starter_code": "// Architecture Design Project:\n// 1. architecture/\n//    kafka-topology.md  — topic design documentation\n//    architecture-diagram.md — hybrid sync/async diagram\n\n// 2. src/main/java/\n//    events/\n//      TradeEvent.java\n//      MarketTickEvent.java\n//      NotificationEvent.java\n//      AuditEvent.java\n//    topology/\n//      ZerodhaKafkaTopology.java  — constants + producer-consumer map\n//      ThroughputCalculator.java  — partition sizing\n\n// 3. docker/\n//    docker-compose.yml  — Kafka KRaft mode\n//    create-topics.sh    — bash script to create all 4 topics\n\n// 4. README.md with terminal output screenshots",
+
+  "example_output": "# create-topics.sh output:\nCreated topic zerodha.trade.events (partitions=6)\nCreated topic zerodha.market.ticks (partitions=24)\nCreated topic zerodha.notification.events (partitions=3)\nCreated topic zerodha.audit.log (partitions=6)\n\n# Produce 3 trade events:\n$ docker exec -it kafka kafka-console-producer --topic zerodha.trade.events ...\n> {\"eventId\":\"uuid-001\",\"symbol\":\"TCS\",\"status\":\"PLACED\",...}\n> {\"eventId\":\"uuid-002\",\"symbol\":\"TCS\",\"status\":\"EXECUTED\",...}\n> {\"eventId\":\"uuid-003\",\"symbol\":\"INFY\",\"status\":\"PLACED\",...}\n\n# Consume:\n$ docker exec kafka kafka-console-consumer --topic zerodha.trade.events --from-beginning\n{\"eventId\":\"uuid-001\",...}\n{\"eventId\":\"uuid-002\",...}\n{\"eventId\":\"uuid-003\",...}\nProcessed 3 messages",
+
+  "rubric": [
+    { "category": "4 topic designs", "points": 25, "criteria": ["Each topic has all 5 attributes (5 pts each)"] },
+    { "category": "Event records", "points": 20, "criteria": ["4 records compile (5 pts each)"] },
+    { "category": "Producer-consumer map", "points": 15, "criteria": ["All 4 topics mapped (15 pts)"] },
+    { "category": "Hybrid architecture", "points": 15, "criteria": ["Sync justified (8 pts)", "Async justified (7 pts)"] },
+    { "category": "Docker Kafka + CLI", "points": 25, "criteria": ["Docker running (8 pts)", "Topics created (7 pts)", "Produce + consume verified (10 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["Throughput calc (15 pts)", "Kafka UI (20 pts)", "JSON round-trip test (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. KRaft mode: KAFKA_PROCESS_ROLES=broker,controller — no Zookeeper needed. CLUSTER_ID: run 'kafka-storage random-uuid' or use a fixed value in docker-compose. Topic creation: kafka-topics --create --partitions N --replication-factor 1. Consumer --from-beginning: reads all retained messages from offset 0. eventId field: UUID for idempotency — consumers deduplicate on this.",
+
+  "submission_instructions": "GitHub repo with all files. README includes: topic design table, architecture diagram, terminal output of docker compose up + topic creation + produce + consume. All 4 records compile (run mvn compile).",
+
+  "tips_for_success": [
+    "Start Kafka first: docker compose up -d && docker logs kafka (wait for 'Kafka Server started')",
+    "CLUSTER_ID: must be exactly 22 base64 characters — use 'MkU3OEVBNTcwNTJENDM2Qk' as a fixed value for dev",
+    "kafka-console-producer: type JSON, press Enter for each message, Ctrl+C to exit",
+    "kafka-console-consumer --from-beginning: reads all messages even if sent before consumer started",
+    "eventId with UUID: add to every record — essential for idempotency in Topic 16.5"
+  ],
+
+  "concepts_reinforced": [
+    "Event-driven architecture vs request-response",
+    "Topic design: partitions, retention, key strategy",
+    "Consumer groups for parallel and independent consumption",
+    "Hybrid architecture: sync for critical path, async for side effects",
+    "Kafka CLI: create topics, produce, consume",
+    "Message ordering within partitions via consistent key"
+  ]
+}

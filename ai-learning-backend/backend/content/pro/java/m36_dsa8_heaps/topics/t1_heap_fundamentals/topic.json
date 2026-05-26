@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m36_t1",
+  "module_id": "m36",
+  "topic_number": 1,
+  "name": "Heap Fundamentals \u2014 Min/Max Heap, PriorityQueue API",
+  "slug": "heap-fundamentals-minmax-pq",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m29_t1"
+    ],
+    "concepts_taught": [
+      "min_heap",
+      "max_heap",
+      "java_priority_queue",
+      "heapify",
+      "heap_sort",
+      "poll_peek_offer"
+    ],
+    "career_relevance": "PriorityQueue is the most-used 'black box' in Java DSA. Top K problems are in 40% of medium interviews. Heap sort is O(n log n) O(1) space \u2014 asked at Flipkart/Amazon as a space-efficient alternative to merge sort.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Heap Fundamentals \u2014 Min/Max Heap, PriorityQueue API"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "PriorityQueue: min-heap by default. Max-heap: Collections.reverseOrder() or (a,b)->b-a",
+        "offer(x): O(log n). poll(): O(log n) \u2014 removes minimum. peek(): O(1)",
+        "Heap sort: heapify O(n) + n extractions O(n log n) = O(n log n) O(1) space",
+        "PriorityQueue with custom comparator: PriorityQueue<int[]>((a,b)->a[0]-b[0])",
+        "Java PriorityQueue does NOT support O(1) contains or arbitrary removal",
+        "For max-heap of integers: new PriorityQueue<>(Collections.reverseOrder())",
+        "Initialization from collection: new PriorityQueue<>(list) \u2014 O(n) heapify"
+      ],
+      "next_topic_preview": "Next: Heap Patterns \u2014 K largest, K closest, median stream."
+    }
+  }
+}

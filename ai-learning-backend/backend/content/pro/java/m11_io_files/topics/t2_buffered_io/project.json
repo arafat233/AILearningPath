@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m11_t2_proj",
+  "linked_topic": "java_m11_t2",
+  "level": "mini",
+  "name": "Server Log Analyser — Buffered I/O Pipeline",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+
+  "scenario": "Build a production-style log analysis tool. Reads a server log with BufferedReader (efficient for large files), classifies each line, computes statistics per endpoint and level, writes a formatted analysis report with PrintWriter. Demonstrates the complete BufferedReader → process → PrintWriter pipeline.",
+
+  "description": "Read a multi-format server log, parse lines into structured data, aggregate by endpoint and log level, detect slow requests, write a formatted multi-section report with PrintWriter. Uses try-with-resources throughout.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Generate a server log file (at least 15 lines) with format: `yyyy-MM-dd HH:mm:ss LEVEL METHOD /endpoint STATUS Nms`. Include INFO, WARN, ERROR lines and multiple endpoints.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`LogEntry` class or record: timestamp, level, method, endpoint, status, responseMs. Static `parse(String line)` method.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "Read log with `Files.newBufferedReader` using readLine() loop. Parse each line into LogEntry. Store all valid entries in a List.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Compute statistics:\n- Request count and error count per endpoint\n- Average response time per endpoint\n- Slowest request (max responseMs)\n- Error rate per endpoint (errors / total requests)",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "Write formatted report to `analysis.txt` using `PrintWriter` wrapping `BufferedWriter`. Report sections: Summary, Endpoint Stats, Slow Requests (> 500ms), Error Report.",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "Print report to console AND write to file. Use printf for aligned columns.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "try-with-resources for both reader and writer. Close even if exception occurs.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add time-based grouping: group requests by hour (from timestamp). Print requests-per-hour using PrintWriter.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add percentile calculation: sort response times per endpoint and compute p50 (median) and p95. Print in the endpoint stats section.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add rolling-window analysis using StringWriter: for every 5-line window, compute error rate. Print window summaries where error rate > 20%.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Log entries (at least these 15):\n2024-03-15 10:00:01 INFO  GET /api/orders 200 45ms\n2024-03-15 10:00:02 ERROR GET /api/payment 500 1200ms\n2024-03-15 10:00:03 WARN  GET /api/orders 429 12ms\n2024-03-15 10:00:04 INFO  GET /api/users 200 30ms\n2024-03-15 10:00:05 ERROR POST /api/payment 503 2000ms\n2024-03-15 10:00:06 INFO  GET /api/products 200 88ms\n2024-03-15 10:00:07 INFO  GET /api/orders 200 42ms\n2024-03-15 10:00:08 ERROR GET /api/products 500 800ms\n2024-03-15 10:00:09 INFO  GET /api/users 200 35ms\n2024-03-15 10:00:10 WARN  POST /api/payment 400 55ms\n2024-03-15 10:00:11 INFO  GET /api/orders 200 41ms\n2024-03-15 10:00:12 INFO  GET /api/products 200 95ms\n2024-03-15 10:00:13 ERROR GET /api/orders 500 650ms\n2024-03-15 10:00:14 INFO  GET /api/users 200 28ms\n2024-03-15 10:00:15 INFO  GET /api/payment 200 120ms",
+
+  "starter_code": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\n\npublic class LogAnalyser {\n    public static void main(String[] args) throws IOException {\n        // Generate log file\n        // Read with BufferedReader\n        // Compute statistics\n        // Write report with PrintWriter\n    }\n    // Define: LogEntry, stats computation methods\n}",
+
+  "example_output": "=== Server Log Analysis Report ===\nGenerated: 2024-03-15\nLog entries: 15\n\n--- Summary ---\nINFO:  9\nWARN:  2\nERROR: 4\nError rate: 26.7%\n\n--- Endpoint Statistics ---\nEndpoint              Reqs  Errors  Avg(ms)  ErrorRate\n------------------------------------------------------\n/api/orders              5       1     46ms     20.0%\n/api/payment             4       2    843ms     50.0%\n/api/products            3       1    328ms     33.3%\n/api/users               3       0     31ms      0.0%\n\n--- Slow Requests (>500ms) ---\nGET /api/payment  2000ms [ERROR]\nGET /api/payment  1200ms [ERROR]\nGET /api/orders    650ms [ERROR]\nGET /api/products  800ms [ERROR]\n\nReport saved to: analysis.txt (N bytes)",
+
+  "rubric": [
+    { "category": "BufferedReader Usage", "points": 20, "criteria": ["Files.newBufferedReader (10 pts)", "readLine loop + null check (10 pts)"] },
+    { "category": "PrintWriter Report", "points": 25, "criteria": ["PrintWriter wrapping BufferedWriter (10 pts)", "printf for aligned columns (10 pts)", "Multiple sections (5 pts)"] },
+    { "category": "Statistics", "points": 20, "criteria": ["Per-endpoint counts + avg (10 pts)", "Error rate (5 pts)", "Slow requests (5 pts)"] },
+    { "category": "try-with-resources", "points": 15, "criteria": ["Reader closed (7 pts)", "Writer closed (8 pts)"] },
+    { "category": "Compiles & Runs", "points": 10, "criteria": ["Compiles (5 pts)", "Correct numbers (5 pts)"] },
+    { "category": "Code Quality", "points": 10, "criteria": ["LogEntry class/record (10 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Hourly grouping (20 pts)", "p50/p95 percentiles (25 pts)", "Rolling window (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Open both reader and writer in the same try-with-resources. Parse response time: strip 'ms' suffix, parseInt. Error rate = errors / total × 100. Slow requests: filter entries where responseMs > 500, sort desc by responseMs.",
+
+  "submission_instructions": "Save as LogAnalyser.java. Push to GitHub. Comment: 'Buffered I/O log analysis pipeline'.",
+
+  "tips_for_success": [
+    "Open reader and writer in one try-with-resources: `try (BufferedReader br = ...; PrintWriter pw = ...)`",
+    "Parse responseMs: `Integer.parseInt(cols[5].replace('ms', ''))`",
+    "Endpoint stats: Map<String, List<LogEntry>> groupBy endpoint, then compute per group",
+    "Slow requests: entries.stream().filter(e -> e.responseMs() > 500).sorted(...).forEach",
+    "Error rate: (double) errorCount / totalCount * 100"
+  ],
+
+  "concepts_reinforced": [
+    "Files.newBufferedReader for file reading",
+    "while (readLine() != null) loop pattern",
+    "PrintWriter wrapping BufferedWriter",
+    "printf for aligned tabular output",
+    "try-with-resources for both reader and writer",
+    "StringWriter for in-memory report building"
+  ]
+}

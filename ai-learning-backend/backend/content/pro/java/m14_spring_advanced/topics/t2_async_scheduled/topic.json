@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t2",
+  "language": "java",
+  "module_id": "m14",
+  "module_name": "Advanced Spring Boot",
+  "topic_number": 2,
+  "name": "@Async and @Scheduled",
+  "slug": "async-scheduled",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m13_t1", "java_m10_t5"],
+    "concepts_taught": [
+      "enable_async",
+      "async_annotation",
+      "async_with_completable_future",
+      "async_return_void",
+      "async_exception_handling",
+      "async_executor_configuration",
+      "enable_scheduling",
+      "scheduled_fixed_rate",
+      "scheduled_fixed_delay",
+      "scheduled_cron",
+      "cron_expression_syntax",
+      "scheduled_conditional",
+      "testing_async_methods",
+      "testing_scheduled_jobs"
+    ],
+    "skills_developed": [
+      "running_background_tasks_with_async",
+      "returning_completable_future_from_service",
+      "scheduling_jobs_with_cron",
+      "configuring_async_thread_pool",
+      "testing_async_and_scheduled_code"
+    ],
+    "career_relevance": "Every production system runs background tasks: sending notifications, refreshing caches, generating reports, processing queues. @Async keeps HTTP responses fast by offloading work. @Scheduled runs recurring jobs without a dedicated cron service. Flipkart's daily sales reports, Zerodha's EOD settlement jobs, Razorpay's payment retry logic — all use Spring's async and scheduling capabilities.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "A user places an order. Your API needs to:\n1. Save the order to the database (50ms)\n2. Send a confirmation email (1-3 seconds — network call)\n3. Notify the warehouse system (500ms — another network call)\n4. Return 201 Created to the user\n\n**Blocking approach** — user waits 4+ seconds:\n```java\n@PostMapping\npublic ResponseEntity<Order> placeOrder(@RequestBody OrderRequest req) {\n    Order saved = orderService.save(req);   // 50ms\n    emailSvc.sendConfirmation(saved);       // 2000ms — user WAITING\n    warehouseSvc.notify(saved);             // 500ms — user STILL WAITING\n    return ResponseEntity.status(201).body(saved);  // finally!\n}\n// Total: ~2550ms per order. With 100 concurrent orders: thread pool exhausted.\n```\n\n**@Async approach** — user gets 201 in 60ms:\n```java\n@Service\nclass NotificationService {\n    @Async  // runs in a background thread pool\n    public void sendConfirmation(Order order) {\n        emailSvc.send(order.getUserEmail(), buildEmail(order));\n        // 2 seconds — but the HTTP thread is LONG GONE by now\n    }\n    \n    @Async\n    public void notifyWarehouse(Order order) {\n        warehouseSvc.notify(order);\n    }\n}\n\n@PostMapping\npublic ResponseEntity<Order> placeOrder(@RequestBody OrderRequest req) {\n    Order saved = orderService.save(req);        // 50ms\n    notificationSvc.sendConfirmation(saved);     // returns immediately!\n    notificationSvc.notifyWarehouse(saved);      // returns immediately!\n    return ResponseEntity.status(201).body(saved);  // 60ms total\n}\n// The notifications run in background. User is happy. Throughput is high.\n```",
+    "what_you_will_build": "By the end of this topic, you'll use @Async for background tasks (returning void and CompletableFuture), configure a custom thread pool executor, write @Scheduled jobs with fixed rate, fixed delay, and cron expressions, and test both async and scheduled code."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "enable_async": "**Enabling @Async in Spring Boot:**\n\n```java\nimport org.springframework.scheduling.annotation.EnableAsync;\n\n@SpringBootApplication\n@EnableAsync  // activates @Async support — add this to your main class\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n```\n\n**Or in a configuration class:**\n```java\n@Configuration\n@EnableAsync\npublic class AsyncConfig {\n    // optionally configure the executor here\n}\n```\n\nWithout `@EnableAsync`, the `@Async` annotation is silently ignored — methods run synchronously. Always add `@EnableAsync` when using `@Async`.",
+
+      "async_usage": "**@Async — fire-and-forget background tasks:**\n\n```java\n@Service\npublic class NotificationService {\n    \n    // Void @Async: fire-and-forget, no return value:\n    @Async\n    public void sendWelcomeEmail(String email, String username) {\n        // Runs in Spring's async thread pool\n        // The calling thread returns immediately — this continues in background\n        try {\n            emailClient.send(email, \"Welcome, \" + username + \"!\");\n            System.out.println(\"Email sent to \" + email + \" on thread: \"\n                + Thread.currentThread().getName());\n        } catch (Exception e) {\n            // IMPORTANT: exceptions in void @Async methods are lost!\n            // Use an AsyncUncaughtExceptionHandler or log here\n            log.error(\"Failed to send email to \" + email, e);\n        }\n    }\n    \n    // CompletableFuture @Async: caller can wait for result if needed:\n    @Async\n    public CompletableFuture<String> generateReport(String userId) {\n        // Long-running operation — runs in background\n        String report = reportBuilder.build(userId);  // takes 5 seconds\n        return CompletableFuture.completedFuture(report);\n    }\n}\n\n// In a service or controller:\nnotificationService.sendWelcomeEmail(user.getEmail(), user.getName()); // returns immediately!\n// OR wait for the result:\nCompletableFuture<String> reportFuture = notificationService.generateReport(userId);\n// Do other work...\nString report = reportFuture.get(30, TimeUnit.SECONDS);  // wait up to 30s\n```\n\n**Critical rule**: `@Async` only works when the method is called from OUTSIDE the class (via the Spring proxy). `this.sendEmail()` from within the same class bypasses the proxy — @Async is ignored.",
+
+      "async_executor": "**Custom thread pool configuration:**\n\n```java\nimport org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;\n\n@Configuration\n@EnableAsync\npublic class AsyncConfig {\n    \n    @Bean(name = \"notificationExecutor\")\n    public Executor notificationExecutor() {\n        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();\n        executor.setCorePoolSize(5);         // always 5 threads running\n        executor.setMaxPoolSize(20);         // can grow to 20 under load\n        executor.setQueueCapacity(100);      // queue up to 100 tasks\n        executor.setThreadNamePrefix(\"notifications-\");  // name in logs\n        executor.setKeepAliveSeconds(60);    // idle threads kept for 60s\n        executor.initialize();\n        return executor;\n    }\n    \n    @Bean(name = \"reportExecutor\")\n    public Executor reportExecutor() {\n        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();\n        executor.setCorePoolSize(2);  // reports are heavy — limit threads\n        executor.setMaxPoolSize(5);\n        executor.setQueueCapacity(20);\n        executor.setThreadNamePrefix(\"reports-\");\n        executor.initialize();\n        return executor;\n    }\n}\n\n// Use a specific executor by name:\n@Async(\"notificationExecutor\")  // uses notificationExecutor\nvoid sendNotification(String userId) { ... }\n\n@Async(\"reportExecutor\")        // uses reportExecutor\nCompletableFuture<Report> generateReport(String month) { ... }\n```",
+
+      "scheduled": "**@Scheduled — run code on a schedule:**\n\n```java\nimport org.springframework.scheduling.annotation.EnableScheduling;\nimport org.springframework.scheduling.annotation.Scheduled;\n\n// On main class or config:\n@EnableScheduling  // activates @Scheduled\n\n@Component\npublic class ScheduledJobs {\n    \n    // Fixed rate: every 30 seconds from application start:\n    @Scheduled(fixedRate = 30_000)\n    public void refreshPriceCache() {\n        priceCache.refresh();\n        log.info(\"Price cache refreshed at \" + LocalDateTime.now());\n    }\n    \n    // Fixed delay: wait 60s AFTER previous execution completes:\n    @Scheduled(fixedDelay = 60_000)\n    public void processPaymentQueue() {\n        paymentQueue.processNext();\n        // If this takes 10s, next run starts 60s after it finishes\n        // With fixedRate, overlap is possible if job takes longer than rate\n    }\n    \n    // Cron expression: precise scheduling:\n    @Scheduled(cron = \"0 0 8 * * MON-FRI\")   // 8:00 AM weekdays\n    public void sendDailyMarketSummary() {\n        marketSummaryService.send();\n    }\n    \n    @Scheduled(cron = \"0 30 17 * * MON-FRI\")  // 5:30 PM weekdays (market close)\n    public void runEodSettlement() {\n        settlementService.process();\n    }\n    \n    // Initial delay: wait 5s after startup before first run:\n    @Scheduled(fixedRate = 10_000, initialDelay = 5_000)\n    public void healthCheck() { ... }\n}\n```",
+
+      "cron_expressions": "**Cron expression format:**\n\n```\nsecond  minute  hour  day-of-month  month  day-of-week\n  0       0      8         *           *      MON-FRI\n\nField values:\n  0-59      — seconds\n  0-59      — minutes\n  0-23      — hours\n  1-31      — day of month\n  1-12      — month (or JAN-DEC)\n  0-7       — day of week (0=Sunday, 1=Monday... or SUN-SAT)\n\nSpecial characters:\n  *  — every value\n  ,  — list:  1,3,5\n  -  — range: MON-FRI\n  /  — step:  0/5 = every 5 (0,5,10,15...)\n\nExamples:\n'0 0 * * * *'         — every hour (top of the hour)\n'0 */30 * * * *'      — every 30 minutes\n'0 0 8 * * MON-FRI'  — 8:00 AM weekdays\n'0 0 0 1 * *'         — midnight on 1st of every month\n'0 0 18 * * FRI'      — 6:00 PM every Friday\n'0 0/15 9-17 * * *'   — every 15 min during business hours\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) @Async flow: HTTP request arrives → Controller calls notificationSvc.sendEmail(order) → Spring's proxy intercepts → submits to thread pool → HTTP thread returns 201 immediately (60ms). Meanwhile: thread pool executes sendEmail (2000ms) in background. Arrow shows HTTP response returning while background work continues. Compare with blocking: single timeline bar with all operations sequential. (2) @Scheduled timeline: horizontal axis is time. fixedRate = bar every 30s regardless of duration (may overlap). fixedDelay = bar starts after previous bar ends + 60s gap. Cron = bars only at specific times (8:00 AM on weekdays). Shows: @EnableScheduling required label. CronExpression decoder showing '0 0 8 * * MON-FRI' split into second/minute/hour/day/month/dow fields.",
+      "alt_text": "@Async HTTP response flow vs blocking, and @Scheduled timing patterns for fixedRate, fixedDelay, and cron"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a Zerodha-style order processing system where placing an order is fast (save + return) but confirmation email and EOD settlement job run asynchronously and on a schedule respectively.",
+
+    "problem_statement": "Build:\n1. `OrderService.placeOrder()` — saves order, fires async notification\n2. `NotificationService.sendConfirmation()` — @Async email send\n3. `SettlementJob` — @Scheduled EOD settlement at 5:30 PM weekdays\n4. `PriceRefreshJob` — @Scheduled every 30 seconds\n5. Tests for both async and scheduled code",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Enable async and scheduling",
+        "details": "```java\n@SpringBootApplication\n@EnableAsync\n@EnableScheduling\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n\n// Custom executor (optional but recommended):\n@Configuration\nclass AsyncConfig {\n    @Bean(\"taskExecutor\")\n    Executor taskExecutor() {\n        ThreadPoolTaskExecutor ex = new ThreadPoolTaskExecutor();\n        ex.setCorePoolSize(4);\n        ex.setMaxPoolSize(10);\n        ex.setQueueCapacity(50);\n        ex.setThreadNamePrefix(\"async-\");\n        ex.initialize();\n        return ex;\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "@Async notification service",
+        "details": "```java\n@Service\npublic class NotificationService {\n    \n    @Async(\"taskExecutor\")\n    public CompletableFuture<Void> sendConfirmation(Order order) {\n        // Simulating 1-2 second email send:\n        System.out.printf(\"[%s] Sending email for order %s%n\",\n            Thread.currentThread().getName(), order.getId());\n        try { Thread.sleep(1500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        System.out.println(\"Email sent for \" + order.getId());\n        return CompletableFuture.completedFuture(null);\n    }\n    \n    @Async(\"taskExecutor\")\n    public void notifyWarehouse(Order order) {\n        // Fire-and-forget warehouse notification\n        System.out.printf(\"[%s] Notifying warehouse for %s%n\",\n            Thread.currentThread().getName(), order.getId());\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "OrderService — fast response",
+        "details": "```java\n@Service\npublic class OrderService {\n    private final OrderRepository repo;\n    private final NotificationService notificationSvc;\n    \n    OrderService(OrderRepository r, NotificationService n) { repo=r; notificationSvc=n; }\n    \n    @Transactional\n    public Order placeOrder(OrderRequest req) {\n        Order saved = repo.save(new Order(req.symbol(), req.qty(), req.price()));\n        // These return IMMEDIATELY — run in background:\n        notificationSvc.sendConfirmation(saved);\n        notificationSvc.notifyWarehouse(saved);\n        return saved;  // returns ~50ms after DB save\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "@Scheduled jobs",
+        "details": "```java\n@Component\npublic class TradingJobs {\n    private final PriceService priceService;\n    private final SettlementService settlementService;\n    \n    TradingJobs(PriceService p, SettlementService s) { priceService=p; settlementService=s; }\n    \n    @Scheduled(fixedRate = 30_000)  // every 30 seconds\n    public void refreshPrices() {\n        System.out.println(\"Refreshing prices at \" + LocalTime.now());\n        priceService.refreshAll();\n    }\n    \n    @Scheduled(cron = \"0 30 17 * * MON-FRI\")  // 5:30 PM weekdays\n    public void runEodSettlement() {\n        System.out.println(\"Running EOD settlement at \" + LocalDateTime.now());\n        settlementService.processAll();\n    }\n    \n    @Scheduled(cron = \"0 0 8 * * MON-FRI\")  // 8:00 AM weekdays\n    public void sendMorningMarketSummary() {\n        System.out.println(\"Market opens! Sending summaries...\");\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Application.java:\n@SpringBootApplication @EnableAsync @EnableScheduling\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n\n// NotificationService.java:\n@Service class NotificationService {\n    @Async\n    public void sendConfirmation(Order order) {\n        System.out.printf(\"[%s] Sending email for %s%n\",\n            Thread.currentThread().getName(), order.getId());\n    }\n}\n\n// OrderService.java:\n@Service class OrderService {\n    private final OrderRepository repo;\n    private final NotificationService notifySvc;\n    OrderService(OrderRepository r, NotificationService n) { repo=r; notifySvc=n; }\n    \n    @Transactional\n    public Order placeOrder(OrderRequest req) {\n        Order saved = repo.save(new Order(req.symbol(), req.qty()));\n        notifySvc.sendConfirmation(saved);  // fire-and-forget\n        return saved;  // ~50ms\n    }\n}\n\n// TradingJobs.java:\n@Component class TradingJobs {\n    @Scheduled(fixedRate = 30_000)\n    public void refreshPrices() { System.out.println(\"Prices refreshed: \" + LocalTime.now()); }\n    \n    @Scheduled(cron = \"0 30 17 * * MON-FRI\")\n    public void eodSettlement() { System.out.println(\"EOD settlement: \" + LocalDateTime.now()); }\n}",
+
+    "expected_output": "# When POST /api/orders is called:\n[http-nio-8080-exec-1] Saved order ORD-001\n[http-nio-8080-exec-1] Returns 201 in 52ms ← HTTP thread\n[async-1] Sending email for ORD-001      ← background thread\n[async-1] Email sent for ORD-001         ← 1500ms later, HTTP response long gone\n\n# Every 30 seconds:\nPrices refreshed: 14:30:00\nPrices refreshed: 14:30:30\nPrices refreshed: 14:31:00\n\n# At 5:30 PM on a weekday:\nEOD settlement: 2024-03-15T17:30:00",
+
+    "things_to_notice": [
+      "@Async on sendConfirmation() means the calling thread (HTTP request thread) returns from notifySvc.sendConfirmation(saved) immediately — before the email is actually sent. The email send happens in a different thread from the pool.",
+      "Thread names in the output: HTTP thread is 'http-nio-8080-exec-1'. Background threads are 'async-1', 'async-2', etc. (from the thread pool prefix). This makes logs readable — you can tell which work is synchronous vs async.",
+      "@Scheduled(fixedRate = 30_000) fires every 30 seconds from application startup, regardless of how long the job takes. If refreshPrices() takes 35 seconds, the next run starts 30 seconds after the PREVIOUS START — they could overlap. Use fixedDelay if you need a gap after completion.",
+      "@EnableAsync and @EnableScheduling must both be present. Without @EnableAsync, @Async is ignored (methods run synchronously). Without @EnableScheduling, @Scheduled is ignored (jobs never run). Both are commonly placed on the main Application class.",
+      "The cron '0 30 17 * * MON-FRI' means: second=0, minute=30, hour=17, any day-of-month, any month, Monday through Friday. Spring Boot's @Scheduled uses the 6-field cron (includes seconds), unlike the standard 5-field cron used by Unix cron jobs."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Zerodha EOD settlement",
+        "use_case": "@Scheduled(cron='0 30 15 * * MON-FRI') runs at 3:30 PM (NSE market close). Calculates P&L for all positions, updates account balances, generates contract notes. Takes 15-30 minutes — runs in background, doesn't block any HTTP requests. Without @Async+@Scheduled, this would require a separate cron server."
+      },
+      {
+        "company_context": "Flipkart order confirmation emails",
+        "use_case": "When a user places an order, the HTTP response is sent in <200ms. The confirmation email, seller notification, and warehouse alert are all @Async — they happen in background thread pools. Without @Async, the user would wait 2-5 seconds (network calls to SMTP, seller API, WMS). With @Async: 200ms response, all notifications sent in the background."
+      },
+      {
+        "company_context": "Razorpay payment retry job",
+        "use_case": "@Scheduled(fixedDelay = 300_000) runs every 5 minutes (after completion). Scans for PENDING payments that failed due to temporary network issues. Retries each one with exponential backoff. This is the standard pattern for reliable payment processing — no dedicated scheduler service needed, just Spring Boot."
+      }
+    ],
+
+    "interview_relevance": "@Async and @Scheduled interview questions:\n\n- **'How do you run a task asynchronously in Spring Boot?'** → @EnableAsync on the config, @Async on the method. Returns void for fire-and-forget or CompletableFuture<T> for awaitable results.\n- **'What is the difference between fixedRate and fixedDelay?'** → fixedRate: next run starts N ms after PREVIOUS START (may overlap if job is slow). fixedDelay: next run starts N ms after PREVIOUS COMPLETION (guaranteed gap between runs).\n- **'What is a cron expression?'** → Six-field time specification: second minute hour day-of-month month day-of-week. '0 0 8 * * MON-FRI' = 8:00 AM on weekdays.\n- **'When doesn't @Async work?'** → When called from within the same class (self-invocation) — Spring proxy is bypassed. Must be called from a different bean.",
+
+    "real_world_workflow": "Daily @Async/@Scheduled workflow:\n\n- Background work: @Async on the service method + @EnableAsync on config\n- Scheduled job: @Scheduled on a @Component method + @EnableScheduling\n- Custom executor: @Bean ThreadPoolTaskExecutor for isolation\n- Test @Async: mock the async service or use @SpringBootTest with future.get()\n- Test @Scheduled: inject the component and call the method directly"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_enable_async",
+      "what_students_get_wrong": "Adding @Async to methods but forgetting @EnableAsync — methods run synchronously without any error.",
+      "remediation": "@Async is silently ignored without @EnableAsync. Add @EnableAsync to your @SpringBootApplication class or a @Configuration class. Easy to miss because there's no startup error.",
+      "detection_pattern": "Methods with @Async still blocking the HTTP thread; Thread.currentThread().getName() shows http-nio thread"
+    },
+    {
+      "gap_id": "self_invocation",
+      "what_students_get_wrong": "Calling `this.sendEmail()` from within the same @Service class — @Async is bypassed because Spring's proxy isn't involved.",
+      "remediation": "@Async works through Spring's AOP proxy. When you call `this.method()`, you bypass the proxy entirely. The method runs synchronously. Fix: extract the @Async method to a separate @Service class and inject it.",
+      "detection_pattern": "@Async method runs synchronously when called from the same class"
+    },
+    {
+      "gap_id": "fixed_rate_vs_delay_confusion",
+      "what_students_get_wrong": "Using fixedRate when the job might take longer than the rate — tasks overlap and cause resource contention.",
+      "remediation": "fixedRate: next run starts N ms after previous START — can overlap. fixedDelay: next run starts N ms after previous COMPLETION — no overlap. For jobs that must not overlap (database writes, file processing): use fixedDelay. For cache refresh where overlap is OK: fixedRate is fine.",
+      "detection_pattern": "Multiple instances of the same job running simultaneously; resource contention"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@EnableAsync on @SpringBootApplication or @Configuration: activates @Async support",
+      "@Async on a service method: runs in Spring's thread pool, calling thread returns immediately",
+      "@Async return void: fire-and-forget; @Async return CompletableFuture<T>: awaitable",
+      "@Async only works when called from OUTSIDE the class (via Spring proxy)",
+      "ThreadPoolTaskExecutor: custom thread pool with core/max size, queue, prefix",
+      "@Async('executorName'): use a specific named executor",
+      "@EnableScheduling: activates @Scheduled support",
+      "@Scheduled(fixedRate=ms): every N ms from previous START",
+      "@Scheduled(fixedDelay=ms): every N ms from previous COMPLETION",
+      "@Scheduled(cron='s m h d M dow'): precise schedule with 6-field cron",
+      "@Scheduled(initialDelay=ms): wait N ms before first run",
+      "Cron format: second minute hour day-of-month month day-of-week"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "An order service sends an email with `this.sendConfirmationEmail(order)` in the same class. The method is annotated @Async. Why does it still block, and how do you fix it?",
+        "answer": "@Async uses Spring AOP proxy. When you call `this.method()`, you call the real object directly — bypassing the proxy. The proxy never intercepts the call, so @Async has no effect. Fix: extract sendConfirmationEmail() into a separate @Service bean (e.g., EmailService), inject it via constructor, and call `emailService.sendConfirmationEmail(order)`. Now Spring's proxy handles the call and @Async works."
+      },
+      {
+        "question": "You have a job that takes 45 seconds and is scheduled with fixedRate=30000. What happens?",
+        "answer": "The second execution starts 30 seconds after the FIRST started — while the first is still running. After another 30 seconds, a third starts. Unless @Async is used, these run in the scheduling thread pool which may have limited threads. With a single-threaded scheduler, the second run queues and starts immediately after the first finishes (90 seconds after the first start). To prevent overlap: use fixedDelay=30000 (waits 30s after completion) or add @Async to allow parallel runs in the task executor pool."
+      },
+      {
+        "question": "Write the @Scheduled cron expression for: 'Run at midnight on the first day of every month'.",
+        "answer": "`@Scheduled(cron = '0 0 0 1 * *')` — field by field: second=0, minute=0, hour=0 (midnight), day-of-month=1 (1st), month=* (every month), day-of-week=* (any day). So: midnight, on the 1st of each month. Alternative for last day of month: '0 0 0 L * *' (L = last day)."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Spring Cache with @Cacheable** — database queries take milliseconds. But if you call `findAllProducts()` 1000 times per second, that's 1000 database queries per second. @Cacheable makes the second call return the cached result instantly — no database hit. `@CacheEvict` clears the cache when data changes. After Topic 14.3, your Spring Boot application handles 10x the load without extra database capacity."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m46_t1",
+  "module_id": "m46",
+  "topic_number": 1,
+  "name": "Zerodha Preparation \u2014 Fintech, Trading, Small Team Culture",
+  "slug": "zerodha-prep",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m45_t5"
+    ],
+    "concepts_taught": [
+      "zerodha-prep"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Zerodha Preparation \u2014 Fintech, Trading, Small Team Culture"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Zerodha tech stack: Go, Python, Java, Kafka, Redis, PostgreSQL",
+        "zerodha.tech blog: read 5 recent posts, understand their engineering culture",
+        "Trading problems: order book (PQ), P&L calculation (event sourcing), real-time prices (WebSocket+Kafka)",
+        "Culture: small team, high ownership, no VC pressure, long-term thinking",
+        "Fintech regulatory context: SEBI, NSE/BSE integration, circuit breakers in trading",
+        "Round structure: 2-3 coding rounds + system design. Culture fit matters more than at pure tech companies."
+      ],
+      "next_topic_preview": "Next: Flipkart prep."
+    }
+  }
+}

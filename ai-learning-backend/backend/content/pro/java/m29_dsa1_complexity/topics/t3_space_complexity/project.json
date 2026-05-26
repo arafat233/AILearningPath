@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m29_t3_proj",
+  "linked_topic": "java_m29_t3",
+  "level": "mini",
+  "name": "Zerodha Memory-Constrained Algorithm Suite",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Zerodha's embedded trading terminal runs on 512MB RAM. The current codebase uses O(n) or O(n²) space algorithms that are crashing terminals on high-volume days. Rewrite the critical algorithms to use O(1) or O(log n) space wherever possible.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "reverseArray(int[] arr): O(1) space in-place using two-pointer. Print 'Space: O(1) — two pointer variables only'. Verify result with Arrays.equals().", "weight": 15},
+      {"id": "req_2", "description": "binarySearchIterative(int[] sorted, int target): O(1) space iterative (no recursion stack). Print 'Space: O(1) — loop variables only'. Compare to recursive O(log n) space version.", "weight": 15},
+      {"id": "req_3", "description": "moveZerosToEnd(int[] arr): O(1) space in-place. Non-zeros maintain relative order. Print 'Space: O(1)'. Test with [0,1,0,3,12].", "weight": 15},
+      {"id": "req_4", "description": "fibIterative(int n): O(1) space (only prev+curr variables). Print both time O(n) and space O(1). Verify equals fibMemo(n) for n=1..40.", "weight": 15},
+      {"id": "req_5", "description": "lcsOptimized(String a, String b): O(n) space (two-row rolling array instead of O(m×n) table). Print 'Space: O(n) reduced from O(m×n)'. Verify same result as 2D version.", "weight": 15},
+      {"id": "req_6", "description": "@SpringBootTest equivalent (5 tests): reverse correct, binary search correct, zeros moved, fib matches memo, lcs matches 2D. All pass.", "weight": 20},
+      {"id": "req_7", "description": "README: explains time-space trade-off with one concrete Zerodha example (which algorithm to choose and why).", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "reverseLinkedList(Node head): O(1) space three-pointer in-place. Test with 1->2->3->4->5. Verify reversed correctly.", "weight": 20},
+      {"id": "bonus_2", "description": "isPalindromeO1(String s): O(1) space two-pointer (no substring creation). Compare to naive O(n) space version. All test strings agree.", "weight": 15},
+      {"id": "bonus_3", "description": "kthLargestQuickSelect(int[] nums, int k): O(1) extra space QuickSelect. Compare to O(k) space min-heap approach. Both return same answer.", "weight": 20}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. In-place means modifying the input array with O(1) extra variables. Two-pointer reversal: lo=0, hi=n-1, swap arr[lo] and arr[hi], move inward until lo>=hi. Iterative binary search: while(lo<=hi), mid=lo+(hi-lo)/2, adjust lo or hi. Always use lo+(hi-lo)/2 not (lo+hi)/2 to avoid integer overflow. Recursion depth = stack space: recursive binary search O(log n) depth → O(log n) space; iterative → O(1). Rolling DP: for LCS only two rows needed at any time — after processing row i, row i-1 is never needed again. Swap prev/curr arrays each outer loop iteration.",
+  "rubric": [
+    {"category": "reverseArray O(1)", "points": 15},
+    {"category": "binarySearchIterative O(1)", "points": 15},
+    {"category": "moveZerosToEnd O(1)", "points": 15},
+    {"category": "fibIterative O(1)", "points": 15},
+    {"category": "lcsOptimized O(n)", "points": 15},
+    {"category": "5 tests pass", "points": 20},
+    {"category": "README", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

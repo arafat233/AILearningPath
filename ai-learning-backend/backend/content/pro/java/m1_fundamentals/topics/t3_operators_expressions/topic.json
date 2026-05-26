@@ -1,0 +1,217 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t3",
+  "language": "java",
+  "module_id": "m1",
+  "module_name": "Java Fundamentals",
+  "topic_number": 3,
+  "name": "Operators & Expressions",
+  "slug": "operators-and-expressions",
+  
+  "metadata": {
+    "difficulty": 2,
+    "estimated_minutes": 45,
+    "prerequisites": ["java_m1_t1", "java_m1_t2"],
+    "concepts_taught": [
+      "arithmetic_operators",
+      "comparison_operators",
+      "logical_operators",
+      "assignment_operators",
+      "increment_decrement",
+      "operator_precedence",
+      "type_promotion_in_expressions",
+      "modulo_operator",
+      "short_circuit_evaluation"
+    ],
+    "skills_developed": [
+      "writing_correct_expressions",
+      "understanding_precedence",
+      "debugging_logic_errors",
+      "reading_complex_conditions"
+    ],
+    "career_relevance": "Operators are how you manipulate data — every piece of business logic, every calculation, every decision in code uses them. Understanding precedence and quirks (like integer division, short-circuit evaluation, post vs pre-increment) prevents the most common category of subtle bugs in production code. Senior engineers don't memorize precedence tables — they write code that doesn't depend on remembering them (using parentheses for clarity). This topic teaches both: the rules AND the wisdom to not rely on them.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "In 1996, the Ariane 5 rocket exploded 37 seconds after launch. Cost: $370 million. The cause? A simple type conversion — a 64-bit floating-point number was being assigned to a 16-bit integer, and when the value got too big, the system crashed. The single line of code involved a basic expression you'll write in this topic. Operators and expressions are where the logic of your program lives. Get them wrong, and rockets explode. Get them right, and your code does exactly what you intended — every time.",
+    "what_you_will_build": "By the end of this topic, you'll know every operator in Java, understand the order they execute in (precedence), and recognize the gotchas that trip up most beginners: integer division truncation, the difference between `i++` and `++i`, why `==` doesn't work for Strings, and how short-circuit evaluation can save your program from crashes. You'll build a working BMI calculator and a grade evaluator that combines arithmetic with logical conditions."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "An expression is anything that produces a value. Operators are what produce that value from inputs.\n\n```java\nint x = 5 + 3;       // 5 + 3 is an expression. + is the operator. Value: 8\nboolean isAdult = age >= 18;  // age >= 18 is an expression. >= is the operator. Value: true/false\n```\n\nJava has five categories of operators. Master each:\n\n1. **Arithmetic** — math operations (+, -, *, /, %)\n2. **Comparison** — comparing values (==, !=, <, >, <=, >=)\n3. **Logical** — combining boolean values (&&, ||, !)\n4. **Assignment** — putting values into variables (=, +=, -=, etc.)\n5. **Increment/Decrement** — adding/subtracting 1 (++, --)\n\nWe'll go through each, but the most important thing isn't memorization — it's understanding the surprising behaviors. That's where the bugs live.",
+      
+      "arithmetic_operators": "The five arithmetic operators:\n\n| Operator | Meaning | Example | Result |\n|----------|---------|---------|--------|\n| `+` | Addition | `5 + 3` | `8` |\n| `-` | Subtraction | `10 - 4` | `6` |\n| `*` | Multiplication | `7 * 6` | `42` |\n| `/` | Division | `15 / 4` | `3` (yes, 3 — keep reading) |\n| `%` | Modulo (remainder) | `15 % 4` | `3` |\n\n**The integer division gotcha (revisited):**\n\nWhen BOTH operands are integers, division produces an integer — decimals are TRUNCATED (not rounded).\n\n```java\nint a = 15 / 4;       // Result: 3 (not 3.75)\ndouble b = 15 / 4;     // Still 3.0! The division happened as int, then converted.\ndouble c = 15.0 / 4;   // 3.75. One operand is double, so result is double.\ndouble d = (double)15 / 4;  // 3.75. Cast forces double division.\n```\n\nThis trips up MORE Java developers than any other single thing. Burn this into memory: **int / int = int**.\n\n**The modulo operator** (% — read as 'mod') gives the remainder:\n\n```java\n10 % 3   // 1 (10 = 3*3 + 1)\n15 % 5   // 0 (no remainder, divides evenly)\n7 % 2    // 1 (7 is odd)\n```\n\nReal uses: checking even/odd (`n % 2 == 0` means even), wrapping around (clock arithmetic, array indices), distributing items.",
+      
+      "comparison_operators": "Six comparison operators. They produce `boolean` (true/false):\n\n| Operator | Meaning | Example | Result |\n|----------|---------|---------|--------|\n| `==` | Equal to | `5 == 5` | `true` |\n| `!=` | Not equal | `5 != 3` | `true` |\n| `<` | Less than | `5 < 10` | `true` |\n| `>` | Greater than | `5 > 10` | `false` |\n| `<=` | Less than or equal | `5 <= 5` | `true` |\n| `>=` | Greater than or equal | `5 >= 6` | `false` |\n\n**The == gotcha for Strings:**\n\n```java\nString a = \"hello\";\nString b = \"hello\";\nString c = new String(\"hello\");\n\na == b;          // Sometimes true (due to String pool — confusing!)\na == c;          // false (different objects in memory)\na.equals(c);     // true (compares CONTENTS)\n```\n\n**Rule for now**: Use `==` for primitives (int, double, boolean, char). Use `.equals()` for Strings (and other objects). We'll fully cover this in the String topic, but starting this habit early prevents bugs.",
+      
+      "logical_operators": "Three logical operators. They work on booleans:\n\n| Operator | Meaning | Example | Result |\n|----------|---------|---------|--------|\n| `&&` | AND (both must be true) | `true && false` | `false` |\n| `\\|\\|` | OR (at least one true) | `true \\|\\| false` | `true` |\n| `!` | NOT (flip the value) | `!true` | `false` |\n\nReal-world examples:\n\n```java\nboolean canVote = age >= 18 && isCitizen;\nboolean shouldDiscount = isStudent || isSenior;\nboolean isInvalid = !isLoggedIn;\nboolean canDrink = age >= 21 && isAtBar && !isOnAntibiotics;\n```\n\n**Short-circuit evaluation** — a critical concept:\n\nJava evaluates `&&` and `||` left-to-right and STOPS as soon as the answer is determined.\n\n```java\nfalse && anything();   // anything() is NEVER called (false && X is always false)\ntrue || anything();    // anything() is NEVER called (true || X is always true)\n```\n\nThis is hugely important for null-safety:\n\n```java\nif (user != null && user.isActive()) {  // Safe!\n    // If user is null, .isActive() never runs (would have thrown NullPointerException)\n}\n\nif (user.isActive() && user != null) {  // BUG! Wrong order.\n    // If user is null, .isActive() throws NPE before null check runs\n}\n```\n\nOrder matters with &&. Always null-check before accessing.",
+      
+      "assignment_operators": "The basic `=` you already know, plus shorthand:\n\n| Operator | Equivalent to | Example | Result |\n|----------|--------------|---------|--------|\n| `=` | Assign | `x = 5` | x is 5 |\n| `+=` | x = x + n | `x += 3` | x is x+3 |\n| `-=` | x = x - n | `x -= 2` | x is x-2 |\n| `*=` | x = x * n | `x *= 4` | x is x*4 |\n| `/=` | x = x / n | `x /= 2` | x is x/2 |\n| `%=` | x = x % n | `x %= 3` | x is x%3 |\n\nUseful for clean code:\n\n```java\n// Verbose\ntotalScore = totalScore + points;\nattemptCount = attemptCount + 1;\n\n// Concise (same effect)\ntotalScore += points;\nattemptCount += 1;\n// Or even shorter:\nattemptCount++;\n```",
+      
+      "increment_decrement": "`++` adds 1, `--` subtracts 1. But there's a subtle twist: PRE vs POST.\n\n```java\nint a = 5;\nint b = a++;   // POST-increment: assign first, then increment. b=5, a=6\n\nint c = 5;\nint d = ++c;   // PRE-increment: increment first, then assign. d=6, c=6\n```\n\n**The rule:**\n- `a++` (postfix) — use the value, THEN increment\n- `++a` (prefix) — increment, THEN use the value\n\nWhen does this matter? Only in expressions where you USE the value:\n\n```java\nint i = 0;\ni++;        // Just increment. Pre vs post identical here (no assignment).\n\nint x = i++;  // Different! x gets old i, then i increments.\nint y = ++i;  // x gets new i (i is incremented first).\n```\n\n**Best practice**: Avoid post/pre-increment INSIDE complex expressions. They cause subtle bugs and confuse readers.\n\n```java\n// Confusing — what's the value of result?\nint result = a++ + ++b - c--;\n\n// Better — clear and obvious\nint result = a + b - c;\na++;\nb++;\nc--;\n```",
+      
+      "operator_precedence": "When an expression has multiple operators, which runs first? Operator precedence determines that.\n\nHigh-level summary (most-to-least binding):\n\n1. `()` (parentheses) — ALWAYS evaluate first\n2. `++` `--` `!` (unary)\n3. `*` `/` `%` (multiplicative)\n4. `+` `-` (additive)\n5. `<` `>` `<=` `>=` (relational)\n6. `==` `!=` (equality)\n7. `&&` (logical AND)\n8. `||` (logical OR)\n9. `=` `+=` `-=` etc. (assignment)\n\nExamples:\n\n```java\n2 + 3 * 4    // Multiplication first: 2 + 12 = 14\n(2 + 3) * 4  // Parens first: 5 * 4 = 20\n\n5 > 3 && 10 < 20    // Comparisons first: true && true = true\n!true || false      // ! first: false || false = false\n```\n\n**Practical wisdom**: Don't try to memorize the full table. Use parentheses to make intent explicit. Your future self and your teammates will thank you.\n\n```java\n// Technically correct but hard to read\nboolean canApply = age >= 18 && hasIncome && creditScore > 700 || isExisting customer;\n\n// Same logic, crystal clear intent\nboolean canApply = (age >= 18 && hasIncome && creditScore > 700) || isExistingCustomer;\n```"
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a precedence pyramid: parentheses at top, then unary operators, then arithmetic (* / % above + -), then comparison, then equality, then logical AND, then OR, then assignment at bottom. Arrows showing 'evaluated first' at top. Side annotation: 'Use parens to make intent explicit'.",
+      "alt_text": "Operator precedence pyramid showing evaluation order from highest to lowest"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a feature for a healthcare app: a BMI (Body Mass Index) calculator with category classification. BMI is a real medical metric. The user provides weight and height, your program calculates BMI and tells them which category they're in (underweight, normal, overweight, obese). This involves arithmetic, comparison, and logical operators all together — a realistic mini-feature.",
+    
+    "problem_statement": "Write a Java program that:\n1. Stores weight in kg (75.5) and height in meters (1.75)\n2. Calculates BMI using formula: BMI = weight / (height × height)\n3. Determines the category:\n   - Underweight: BMI < 18.5\n   - Normal: 18.5 ≤ BMI < 25.0\n   - Overweight: 25.0 ≤ BMI < 30.0\n   - Obese: BMI ≥ 30.0\n4. Prints a formatted health report\n\nFor now, we'll print all four checks (we'll learn if/else in the next topic).",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Set up the class and variables",
+        "details": "Start with the standard structure:\n\n```java\npublic class BMICalculator {\n    public static void main(String[] args) {\n        // Input data\n        double weightKg = 75.5;\n        double heightM = 1.75;\n    }\n}\n```\n\nWhy double? Both weight and height have decimals. Need precision."
+      },
+      {
+        "step": 2,
+        "action": "Calculate BMI",
+        "details": "The formula: BMI = weight / (height × height)\n\n```java\ndouble bmi = weightKg / (heightM * heightM);\n```\n\nNotice the parentheses around `heightM * heightM`. Without them:\n\n```java\ndouble wrong = weightKg / heightM * heightM;  // BUG!\n```\n\nThis would compute `(weightKg / heightM) * heightM`, which is just `weightKg` (the heights cancel). Precedence: `/` and `*` are at the same level, evaluated left-to-right. Parentheses force the intended order."
+      },
+      {
+        "step": 3,
+        "action": "Determine the category with boolean expressions",
+        "details": "Create boolean variables for each category:\n\n```java\nboolean isUnderweight = bmi < 18.5;\nboolean isNormal = bmi >= 18.5 && bmi < 25.0;\nboolean isOverweight = bmi >= 25.0 && bmi < 30.0;\nboolean isObese = bmi >= 30.0;\n```\n\nKey insight: `isNormal` uses `&&` (AND) because BMI must satisfy BOTH conditions. `bmi >= 18.5` alone would include overweight people too. The AND ensures it's in the specific range."
+      },
+      {
+        "step": 4,
+        "action": "Print the formatted health report",
+        "details": "Display the results:\n\n```java\nSystem.out.println(\"=====================================\");\nSystem.out.println(\"          HEALTH REPORT\");\nSystem.out.println(\"=====================================\");\nSystem.out.println(\"Weight:        \" + weightKg + \" kg\");\nSystem.out.println(\"Height:        \" + heightM + \" m\");\nSystem.out.println(\"BMI:           \" + bmi);\nSystem.out.println(\"-------------------------------------\");\nSystem.out.println(\"Underweight:   \" + isUnderweight);\nSystem.out.println(\"Normal:        \" + isNormal);\nSystem.out.println(\"Overweight:    \" + isOverweight);\nSystem.out.println(\"Obese:         \" + isObese);\nSystem.out.println(\"=====================================\");\n```\n\nIn the next topic (if/else), we'll print only the relevant category. For now, we print all four booleans to see them in action."
+      }
+    ],
+    
+    "final_code": "public class BMICalculator {\n    public static void main(String[] args) {\n        // Input data\n        double weightKg = 75.5;\n        double heightM = 1.75;\n        \n        // BMI calculation\n        double bmi = weightKg / (heightM * heightM);\n        \n        // Category determination\n        boolean isUnderweight = bmi < 18.5;\n        boolean isNormal = bmi >= 18.5 && bmi < 25.0;\n        boolean isOverweight = bmi >= 25.0 && bmi < 30.0;\n        boolean isObese = bmi >= 30.0;\n        \n        // Output\n        System.out.println(\"=====================================\");\n        System.out.println(\"          HEALTH REPORT\");\n        System.out.println(\"=====================================\");\n        System.out.println(\"Weight:        \" + weightKg + \" kg\");\n        System.out.println(\"Height:        \" + heightM + \" m\");\n        System.out.println(\"BMI:           \" + bmi);\n        System.out.println(\"-------------------------------------\");\n        System.out.println(\"Underweight:   \" + isUnderweight);\n        System.out.println(\"Normal:        \" + isNormal);\n        System.out.println(\"Overweight:    \" + isOverweight);\n        System.out.println(\"Obese:         \" + isObese);\n        System.out.println(\"=====================================\");\n    }\n}",
+    
+    "expected_output": "=====================================\n          HEALTH REPORT\n=====================================\nWeight:        75.5 kg\nHeight:        1.75 m\nBMI:           24.65306122448979\n-------------------------------------\nUnderweight:   false\nNormal:        true\nOverweight:    false\nObese:         false\n=====================================",
+    
+    "things_to_notice": [
+      "BMI of 24.65 falls in the Normal range (18.5 to 25.0). Only `isNormal` is true.",
+      "The long decimal in BMI output is normal double behavior. We'll learn formatting later.",
+      "The boolean expressions are READ as English: 'BMI is at least 18.5 AND less than 25.0'",
+      "Parentheses in `(heightM * heightM)` aren't strictly required for math (same precedence), but they make intent obvious.",
+      "We're calculating ALL four checks every time. Wasteful. In the next topic, if/else lets us stop checking once we find the answer."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "E-commerce checkout (Amazon, Flipkart, Shopify)",
+        "use_case": "Checkout systems use operators constantly: `subtotal + tax + shipping`, `quantity * unitPrice`, `availableStock >= orderedQuantity`, `user.isLoggedIn() && cart.hasItems() && paymentMethod.isValid()`. Every step is an expression."
+      },
+      {
+        "company_context": "Fraud detection (Razorpay, Stripe, banks)",
+        "use_case": "Fraud rules are complex boolean expressions: `(transactionAmount > 50000) && (timeOfDay < 6 || timeOfDay > 22) && (location != userHomeCountry) && !userHasVerifiedTransaction`. One misplaced operator can let fraud through OR block legitimate users."
+      },
+      {
+        "company_context": "Date/time calculations (Calendar apps, scheduling)",
+        "use_case": "Modulo (`%`) is everywhere: `currentHour % 12` for 12-hour format, `daysSinceEpoch % 7` for day of week, `seconds % 60` for clock display. Without modulo, every clock and calendar in software would be way more complex."
+      },
+      {
+        "company_context": "Game development (Unity, Unreal — also use C++, but principles transfer)",
+        "use_case": "Physics: `velocity += acceleration * deltaTime`. Collision detection: `playerX + playerWidth >= enemyX && playerX <= enemyX + enemyWidth`. Every frame, dozens of operations run."
+      }
+    ],
+    
+    "interview_relevance": "Operators come up in interviews more than you'd expect:\n\n- 'What does 7 / 2 produce in Java?' (3, not 3.5 — int division)\n- 'What's the difference between i++ and ++i?' (post vs pre)\n- 'What is `5 % 3`?' (2 — remainder of 5 divided by 3)\n- 'When would you use modulo?' (even/odd checks, wrapping, distribution)\n- 'Why might `if (user.isActive() && user != null)` be a bug?' (NPE — null check should come first)\n- 'What's short-circuit evaluation?' (stop evaluating as soon as result is determined)\n\nCoding interview problems often hinge on understanding these. The classic 'is this number prime?' uses `%`. The 'find duplicate in array' uses comparison. You'll use these constantly.",
+    
+    "real_world_workflow": "Every method you'll write has expressions in it. A function that validates an email checks: `email != null && email.contains(\"@\") && email.length() > 5`. A function that calculates a discount: `originalPrice * (1 - discountRate)`. A function that paginates: `pageNumber * pageSize`. Operators are the verbs of code. Variables are the nouns. Together they form sentences (statements)."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "integer_division_truncation",
+      "what_students_get_wrong": "Expecting 5/2 to give 2.5. In Java, with both operands as int, the result is 2 (truncated). Especially trip up students with backgrounds in math, Python, or JavaScript.",
+      "remediation": "Drill home: `int / int = int`. Show concrete examples: `7/2 = 3`, `10/3 = 3`, `15/4 = 3`. To get decimal result, at least one operand must be double, OR cast explicitly: `(double)a / b`.",
+      "detection_pattern": "Wrong answers on division questions, especially with averages"
+    },
+    {
+      "gap_id": "operator_precedence_assumption",
+      "what_students_get_wrong": "Assuming operators evaluate left-to-right (like reading). Writing `2 + 3 * 4` and expecting 20 (gets 14). Writing complex conditions without parens.",
+      "remediation": "Show the precedence pyramid. Encourage using parentheses liberally. Teach that explicit > implicit. Most experienced engineers use parens even when unnecessary.",
+      "detection_pattern": "Wrong answers on precedence questions, ambiguous expressions"
+    },
+    {
+      "gap_id": "string_comparison_with_double_equals",
+      "what_students_get_wrong": "Comparing Strings with `==` instead of `.equals()`. Sometimes works (due to String pool), sometimes fails. This is THE most common Java bug.",
+      "remediation": "Habit-form NOW: `.equals()` for Strings, always. Don't wait until they hit the bug — install the habit immediately. We'll explain WHY in detail in String topic.",
+      "detection_pattern": "Using == with String variables"
+    },
+    {
+      "gap_id": "short_circuit_misunderstanding",
+      "what_students_get_wrong": "Writing null checks AFTER usage: `user.isActive() && user != null`. Gets NullPointerException when user is null.",
+      "remediation": "Rule: ALWAYS null-check before using. The short-circuit evaluation means the second operand of && is only checked if the first is true. So put your safety check first.",
+      "detection_pattern": "NullPointerException in conditions, wrong order of checks"
+    },
+    {
+      "gap_id": "post_pre_increment_confusion",
+      "what_students_get_wrong": "Not understanding the difference between `i++` and `++i`. Especially confusing when used inside expressions like `int x = i++`.",
+      "remediation": "Show with traces. `i++` = use first, increment after. `++i` = increment first, use after. Best advice: don't use these inside expressions. Use on their own line.",
+      "detection_pattern": "Wrong predictions on pre/post-increment questions"
+    },
+    {
+      "gap_id": "modulo_for_negative_numbers",
+      "what_students_get_wrong": "Surprised by `-7 % 3` returning `-1` (not `2`). Java's modulo preserves sign of dividend, unlike some math conventions.",
+      "remediation": "Show examples with negatives. Note: for typical use cases (positive numbers), this doesn't matter. Mention it as a gotcha if working with potentially negative values.",
+      "detection_pattern": "Confusion on modulo with negative numbers"
+    },
+    {
+      "gap_id": "boolean_operators_with_non_booleans",
+      "what_students_get_wrong": "Trying to use `&&` or `||` with non-boolean values: `if (count && positive)`. In some languages this works (truthy/falsy), but Java requires explicit booleans.",
+      "remediation": "Java only allows true/false for logical operators. To check if a number is non-zero, write `count != 0`. Be explicit.",
+      "detection_pattern": "Compilation errors about boolean required"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Java has 5 operator categories: arithmetic, comparison, logical, assignment, increment/decrement",
+      "int / int = int (truncates decimals) — the most common Java gotcha",
+      "Modulo (%) gives the remainder — used for even/odd, wrapping, distribution",
+      "Use == for primitives, .equals() for Strings (and objects)",
+      "Logical operators short-circuit: false && X never evaluates X, true || X never evaluates X",
+      "Use parentheses liberally — clarity beats brevity",
+      "i++ vs ++i differs in expressions: post returns old value, pre returns new value",
+      "When in doubt, parenthesize. Your future self will thank you."
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's the result of `17 / 5` and `17 % 5` in Java (with int operands)?",
+        "answer": "`17 / 5` = 3 (integer division truncates 3.4 to 3). `17 % 5` = 2 (the remainder). Both come from 17 = 5*3 + 2."
+      },
+      {
+        "question": "Why is `user.isActive() && user != null` a bug?",
+        "answer": "If user is null, calling user.isActive() throws NullPointerException BEFORE the null check runs. Correct order: `user != null && user.isActive()` — null check first, short-circuit prevents the unsafe call."
+      },
+      {
+        "question": "If a=5, what's the value of `int b = a++ + ++a`?",
+        "answer": "8 + 7 = 15. Wait, let me think. `a++` returns 5 then a becomes 6. Then `++a` makes a 7 and returns 7. So 5 + 7 = 12. (This kind of expression is exactly why you should never write code like this in real life.)"
+      },
+      {
+        "question": "Why should you use `.equals()` for Strings instead of `==`?",
+        "answer": "`==` compares whether two String variables point to the same object in memory. `.equals()` compares whether they have the same content. Two Strings with identical content might be different objects (especially when one comes from user input or another source). Using `==` works sometimes due to String pooling, which makes the bug intermittent and hard to debug."
+      },
+      {
+        "question": "What does `2 + 3 * 4 - 1` evaluate to and why?",
+        "answer": "13. Multiplication has higher precedence than addition/subtraction: 3*4=12 first. Then left-to-right: 2+12=14, 14-1=13."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Control Flow with if/else statements. So far, your programs run every line in order. Conditionals let you DECIDE — execute different code based on conditions. Combined with the boolean operators you just learned, you'll write programs that actually make decisions instead of just computing."
+  }
+}

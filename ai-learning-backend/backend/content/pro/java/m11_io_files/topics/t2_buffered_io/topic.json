@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t2",
+  "language": "java",
+  "module_id": "m11",
+  "module_name": "I/O, Files, and Networking",
+  "topic_number": 2,
+  "name": "Buffered I/O and Character Streams",
+  "slug": "buffered-io-character-streams",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m11_t1", "java_m7_t5"],
+    "concepts_taught": [
+      "io_stream_hierarchy",
+      "reader_writer_vs_input_output_stream",
+      "file_reader_file_writer",
+      "buffered_reader",
+      "buffered_writer",
+      "print_writer",
+      "input_stream_reader",
+      "output_stream_writer",
+      "console_io_scanner",
+      "string_reader_writer",
+      "why_buffering_matters",
+      "decorator_pattern_in_io",
+      "closing_streams_properly",
+      "reading_from_network_streams"
+    ],
+    "skills_developed": [
+      "using_buffered_reader_for_line_reading",
+      "using_buffered_writer_print_writer",
+      "reading_network_input_streams",
+      "wrapping_streams_with_decorator_pattern",
+      "efficient_large_file_processing",
+      "reading_stdin_with_scanner"
+    ],
+    "career_relevance": "The Files API from Topic 11.1 is built ON TOP of these lower-level streams. Network sockets, HTTP connections, console I/O, and streaming processing all use Reader/Writer/InputStream/OutputStream directly. When you read from a server response or write to a network connection, you're working with InputStream wrapped in a BufferedReader. After this topic, you understand the entire Java I/O stack — from raw bytes to convenient line-by-line reading.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Files.readAllLines() is great for files — but what about reading from a network socket? A database response stream? Standard input (System.in)? The user's keyboard? These aren't files — they're streams of bytes that arrive over time.\n\n```java\n// Network socket — can't use Files.readAllLines():\nSocket socket = new Socket(\"api.razorpay.com\", 443);\nInputStream raw = socket.getInputStream();  // bytes from network\n// How do you read lines from this?\n```\n\nAnswer: the same way Files.readAllLines() works internally:\n```java\nBufferedReader reader = new BufferedReader(\n    new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8));\n\nString line;\nwhile ((line = reader.readLine()) != null) {\n    System.out.println(\"Received: \" + line);\n}\n```\n\n**Why BufferedReader?** Reading byte-by-byte from disk or network is inefficient — thousands of system calls for a typical file. BufferedReader reads a chunk (usually 8KB) at once, then serves your code from the buffer. 100x faster for line-by-line reading.\n\nThe Java I/O hierarchy is a set of composable building blocks — `InputStream` wraps in `InputStreamReader` wraps in `BufferedReader`. You build I/O pipelines by stacking them. Understanding this makes the entire Java networking and I/O stack click into place.",
+    "what_you_will_build": "By the end of this topic, you'll use BufferedReader for efficient line reading, BufferedWriter and PrintWriter for formatted output, InputStreamReader/OutputStreamWriter for byte-to-character conversion, understand why and how to buffer I/O, and read from any source — files, network, console — using the same API."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "io_hierarchy": "**The Java I/O hierarchy — two families:**\n\n```\nByte streams (raw binary data):\n├── InputStream  (read bytes)\n│   ├── FileInputStream\n│   ├── ByteArrayInputStream\n│   └── SocketInputStream (network)\n└── OutputStream (write bytes)\n    ├── FileOutputStream\n    ├── ByteArrayOutputStream\n    └── SocketOutputStream\n\nCharacter streams (text, with encoding):\n├── Reader  (read chars — InputStream + encoding)\n│   ├── FileReader\n│   ├── InputStreamReader  ← converts bytes → chars\n│   └── BufferedReader     ← adds buffering + readLine()\n└── Writer  (write chars)\n    ├── FileWriter\n    ├── OutputStreamWriter ← converts chars → bytes\n    ├── BufferedWriter     ← adds buffering + newLine()\n    └── PrintWriter        ← adds print/println/printf\n```\n\n**The key bridge:**\n- `InputStreamReader(InputStream)` → reads bytes, decodes as chars\n- `OutputStreamWriter(OutputStream)` → encodes chars as bytes\n\nThe **decorator pattern**: each layer wraps the previous one, adding a capability. `BufferedReader` adds buffering. `InputStreamReader` adds encoding. They compose.",
+
+      "buffered_reader": "**BufferedReader — efficient line-by-line reading:**\n\n```java\nimport java.io.*;\nimport java.nio.file.*;\n\n// From a file (two equivalent approaches):\n// Option 1: Files API (preferred for files):\ntry (BufferedReader br = Files.newBufferedReader(Path.of(\"data.txt\"))) {\n    String line;\n    while ((line = br.readLine()) != null) {  // null = end of file\n        System.out.println(line);\n    }\n}\n\n// Option 2: Traditional wrapping:\ntry (BufferedReader br = new BufferedReader(new FileReader(\"data.txt\"))) {\n    // same usage\n}\n\n// From InputStream (network, process output, etc.):\ntry (InputStream stream = getNetworkStream();\n     BufferedReader br = new BufferedReader(\n         new InputStreamReader(stream, StandardCharsets.UTF_8))) {\n    String line;\n    while ((line = br.readLine()) != null) {\n        process(line);\n    }\n}\n```\n\n**`readLine()` returns:**\n- The line content WITHOUT the line terminator (\\n or \\r\\n)\n- `null` when end of stream is reached\n\n**Always use try-with-resources** — BufferedReader must be closed to release the underlying resource.",
+
+      "buffered_writer": "**BufferedWriter and PrintWriter — efficient output:**\n\n```java\n// BufferedWriter — basic efficient writer:\ntry (BufferedWriter bw = Files.newBufferedWriter(Path.of(\"output.txt\"))) {\n    bw.write(\"First line\");\n    bw.newLine();          // OS-specific line separator\n    bw.write(\"Second line\");\n    bw.newLine();\n    bw.flush();            // optional: force write to OS buffer\n}\n\n// PrintWriter — adds print/println/printf:\ntry (PrintWriter pw = new PrintWriter(\n        new BufferedWriter(new FileWriter(\"report.txt\")))) {\n    pw.println(\"Order Report\");            // line + newline\n    pw.printf(\"Total: ₹%.2f%n\", 5000.0); // formatted\n    pw.println(\"---\");\n    pw.println(\"Items: 42\");\n    // flush happens on close\n}\n\n// PrintWriter with auto-flush (flushes after every println):\nPrintWriter autoFlush = new PrintWriter(outputStream, true /* autoFlush */);\nautoFlush.println(\"Flushed immediately!\");\n```\n\n**Why BufferedWriter wrapping PrintWriter?**\nPrintWriter alone writes one char at a time. Wrapping with BufferedWriter batches the writes — dramatically faster for large outputs.",
+
+      "input_stream_reader": "**InputStreamReader — the byte-to-char bridge:**\n\n```java\nimport java.nio.charset.StandardCharsets;\n\n// Reading System.in (console keyboard input):\ntry (BufferedReader console = new BufferedReader(\n        new InputStreamReader(System.in, StandardCharsets.UTF_8))) {\n    System.out.print(\"Enter your name: \");\n    String name = console.readLine();\n    System.out.println(\"Hello, \" + name + \"!\");\n}\n\n// Reading process output (e.g., running a shell command):\nProcess proc = Runtime.getRuntime().exec(\"ls -la\");\ntry (BufferedReader output = new BufferedReader(\n        new InputStreamReader(proc.getInputStream()))) {\n    output.lines().forEach(System.out::println);  // Stream API!\n}\n\n// ALWAYS specify charset — default varies by OS:\n// StandardCharsets.UTF_8  — universal, use this\n// StandardCharsets.ISO_8859_1 — legacy Latin-1\n// StandardCharsets.US_ASCII  — 7-bit ASCII only\n```\n\n**BufferedReader wraps InputStreamReader** because readLine() and efficient buffering come from BufferedReader. InputStreamReader only provides character decoding.",
+
+      "scanner": "**Scanner — convenient but slower parsing:**\n\n```java\nimport java.util.Scanner;\n\n// Read from console:\nScanner scanner = new Scanner(System.in);\nSystem.out.print(\"Enter age: \");\nint age = scanner.nextInt();\nscanner.nextLine();  // consume leftover newline!\nSystem.out.print(\"Enter name: \");\nString name = scanner.nextLine();\n\n// Read from file (works but slow for large files):\ntry (Scanner fileScanner = new Scanner(Path.of(\"data.txt\"))) {\n    while (fileScanner.hasNextLine()) {\n        String line = fileScanner.nextLine();\n        process(line);\n    }\n}\n\n// Scanner for parsing space-separated numbers:\nScanner numScanner = new Scanner(\"1 2 3 4 5\");\nwhile (numScanner.hasNextInt()) {\n    System.out.print(numScanner.nextInt() + \" \");\n}\n```\n\n**Scanner vs BufferedReader:**\n- Scanner: convenient (nextInt, nextDouble, hasNextX) but 2-5x slower\n- BufferedReader.readLine(): faster, simpler, better for large files\n- Use Scanner for: parsing user input with type checks, small structured input\n- Use BufferedReader: for everything else",
+
+      "string_reader_writer": "**StringReader/StringWriter — I/O from/to Strings:**\n\n```java\n// StringReader — treat a String like an InputStream:\ntry (BufferedReader br = new BufferedReader(new StringReader(\"Line 1\\nLine 2\\nLine 3\"))) {\n    String line;\n    while ((line = br.readLine()) != null) {\n        System.out.println(line);\n    }\n}\n\n// StringWriter — capture output to a String:\nStringWriter sw = new StringWriter();\ntry (PrintWriter pw = new PrintWriter(sw)) {\n    pw.println(\"Generated content\");\n    pw.printf(\"Amount: ₹%.2f%n\", 1500.0);\n}\nString result = sw.toString();\nSystem.out.println(result);\n```\n\n**Use cases:**\n- Testing: swap file for StringReader — no real files needed\n- Generating String output: build formatted content in memory\n- Parsing a String as if it were a stream"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show the decorator stack as nested boxes: innermost box = FileInputStream/SocketInputStream (raw bytes). Next layer = InputStreamReader (adds encoding, bytes→chars). Next layer = BufferedReader (adds 8KB buffer, readLine()). Arrow from left: 'raw bytes from disk/network' flows through each layer, emerging as 'String line' on the right. Parallel stack on output side: String content → PrintWriter → BufferedWriter → OutputStreamWriter → FileOutputStream/SocketOutputStream. Below: comparison table BufferedReader.readLine() vs Scanner.nextLine() — speed, use cases. Bottom: the three common starting points: FileInputStream (file), socket.getInputStream() (network), System.in (keyboard).",
+      "alt_text": "I/O decorator stack from raw bytes to readable lines, output stack, and Scanner vs BufferedReader comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a log analyser that reads a server log file line by line (efficient buffered reading), filters and summarises error entries, and writes a formatted report (PrintWriter). Demonstrates the full read-process-write I/O pipeline.",
+
+    "problem_statement": "Read an Apache-style server log, extract ERROR and WARN lines, count by level and endpoint, write a formatted summary report with PrintWriter.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Generate sample log file and read with BufferedReader",
+        "details": "```java\n// Generate log:\nPath logFile = Path.of(\"server.log\");\nFiles.writeString(logFile,\n    \"2024-03-01 10:00:01 INFO  GET /api/orders 200 45ms\\n\" +\n    \"2024-03-01 10:00:02 ERROR GET /api/payment 500 1200ms\\n\" +\n    \"2024-03-01 10:00:03 WARN  GET /api/orders 429 12ms\\n\" +\n    \"2024-03-01 10:00:04 INFO  GET /api/users 200 30ms\\n\" +\n    \"2024-03-01 10:00:05 ERROR POST /api/payment 503 2000ms\\n\" +\n    \"2024-03-01 10:00:06 ERROR GET /api/products 500 800ms\");\n\n// Analyse with BufferedReader:\nMap<String, Long> levelCounts = new HashMap<>();\nMap<String, Long> errorEndpoints = new HashMap<>();\n\ntry (BufferedReader br = Files.newBufferedReader(logFile)) {\n    String line;\n    while ((line = br.readLine()) != null) {\n        String[] parts = line.split(\"\\\\s+\");\n        String level    = parts[2];   // INFO, ERROR, WARN\n        String endpoint = parts[4];   // /api/...\n        \n        levelCounts.merge(level, 1L, Long::sum);\n        if (\"ERROR\".equals(level)) {\n            errorEndpoints.merge(endpoint, 1L, Long::sum);\n        }\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Write formatted report with PrintWriter",
+        "details": "```java\nPath report = Path.of(\"report.txt\");\ntry (PrintWriter pw = new PrintWriter(\n        new BufferedWriter(new FileWriter(report.toFile())))) {\n    pw.println(\"=== Server Log Analysis ===\");\n    pw.println(\"Generated: \" + LocalDateTime.now());\n    pw.println();\n    \n    pw.println(\"--- Log Level Summary ---\");\n    levelCounts.entrySet().stream()\n        .sorted(Map.Entry.comparingByKey())\n        .forEach(e -> pw.printf(\"  %-8s %d%n\", e.getKey(), e.getValue()));\n    pw.println();\n    \n    pw.println(\"--- Error Endpoints ---\");\n    errorEndpoints.entrySet().stream()\n        .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))\n        .forEach(e -> pw.printf(\"  %-25s %d errors%n\", e.getKey(), e.getValue()));\n    pw.println();\n    pw.printf(\"Total log lines: %d%n\",\n        levelCounts.values().stream().mapToLong(Long::longValue).sum());\n}\nSystem.out.println(\"Report written to \" + report);\n```"
+      }
+    ],
+
+    "final_code": "import java.io.*;\nimport java.nio.file.*;\nimport java.time.*;\nimport java.util.*;\nimport java.util.stream.*;\n\npublic class LogAnalyser {\n    public static void main(String[] args) throws IOException {\n        Path logFile = Path.of(\"server.log\");\n        Files.writeString(logFile,\n            \"2024-03-01 10:00:01 INFO  GET /api/orders 200 45ms\\n\" +\n            \"2024-03-01 10:00:02 ERROR GET /api/payment 500 1200ms\\n\" +\n            \"2024-03-01 10:00:03 WARN  GET /api/orders 429 12ms\\n\" +\n            \"2024-03-01 10:00:04 INFO  GET /api/users 200 30ms\\n\" +\n            \"2024-03-01 10:00:05 ERROR POST /api/payment 503 2000ms\\n\" +\n            \"2024-03-01 10:00:06 ERROR GET /api/products 500 800ms\");\n        \n        Map<String, Long> levels    = new LinkedHashMap<>();\n        Map<String, Long> errorEps  = new HashMap<>();\n        int totalLines = 0;\n        \n        try (BufferedReader br = Files.newBufferedReader(logFile)) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                totalLines++;\n                String[] p = line.split(\"\\\\s+\");\n                levels.merge(p[2], 1L, Long::sum);\n                if (\"ERROR\".equals(p[2])) errorEps.merge(p[4], 1L, Long::sum);\n            }\n        }\n        \n        System.out.println(\"=== Log Analysis ===\");\n        levels.forEach((level, count) -> System.out.printf(\"  %-7s %d%n\", level, count));\n        System.out.println(\"--- Error endpoints ---\");\n        errorEps.entrySet().stream()\n            .sorted((a, b) -> Long.compare(b.getValue(), a.getValue()))\n            .forEach(e -> System.out.printf(\"  %-20s %d%n\", e.getKey(), e.getValue()));\n        System.out.println(\"Total lines: \" + totalLines);\n        \n        // Write report:\n        Path report = Path.of(\"report.txt\");\n        try (PrintWriter pw = new PrintWriter(\n                new BufferedWriter(new FileWriter(report.toFile())))) {\n            pw.println(\"Log Analysis Report\");\n            levels.forEach((lv, cnt) -> pw.printf(\"  %-7s %d%n\", lv, cnt));\n            pw.printf(\"%nError endpoints:%n\");\n            errorEps.entrySet().stream()\n                .sorted((a,b) -> Long.compare(b.getValue(), a.getValue()))\n                .forEach(e -> pw.printf(\"  %s: %d%n\", e.getKey(), e.getValue()));\n        }\n        System.out.println(\"Report: \" + Files.size(report) + \" bytes\");\n    }\n}",
+
+    "expected_output": "=== Log Analysis ===\n  INFO    2\n  ERROR   3\n  WARN    1\n--- Error endpoints ---\n  /api/payment         2\n  /api/products        1\nTotal lines: 6\nReport: [N] bytes",
+
+    "things_to_notice": [
+      "Files.newBufferedReader(path) is the preferred way to wrap a file in a BufferedReader — it handles encoding (UTF-8) automatically and integrates with the NIO Path API.",
+      "readLine() returns null at end of file — the while loop idiom `while ((line = br.readLine()) != null)` is the standard pattern for reading all lines.",
+      "PrintWriter wraps BufferedWriter wraps FileWriter — three layers. Each adds one capability: FileWriter opens the file, BufferedWriter adds buffering, PrintWriter adds println/printf.",
+      "PrintWriter.printf uses %n for newline (platform-specific), not \\n. For files that will be read on the same OS, \\n is fine; %n is more portable.",
+      "The entire analysis is a classic: read-aggregate-write. BufferedReader for efficient reading, stream operations for aggregation, PrintWriter for formatted output. This pattern appears in data processing everywhere."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring MVC / Servlet API",
+        "use_case": "When a Spring controller reads a request body: `request.getReader()` returns a BufferedReader wrapping the HTTP request InputStream. When writing a response: `response.getWriter()` returns a PrintWriter wrapping the HTTP response OutputStream. Every web request uses these exact classes — understanding them reveals how web frameworks work."
+      },
+      {
+        "company_context": "Flipkart seller data pipelines",
+        "use_case": "Seller CSV uploads arrive as HTTP multipart streams. The processing pipeline: InputStream → InputStreamReader → BufferedReader → readLine() loop → parse each product row. Writing responses back: PrintWriter wrapping ByteArrayOutputStream, convert to byte[] for response. The same stack as Topic 11.2, just with network streams instead of files."
+      },
+      {
+        "company_context": "Log aggregation and ELK stack integration",
+        "use_case": "Log shippers (Filebeat, Logstash) read log files line by line. The Java equivalent: BufferedReader on a file, readLine() loop. Tailing a growing log file: check file size, seek to last position, BufferedReader from that offset. The Files.newBufferedReader pattern is exactly what monitoring agents use."
+      }
+    ],
+
+    "interview_relevance": "I/O stream questions in interviews:\n\n- **'Why wrap FileReader in a BufferedReader?'** — Performance: without buffering, each readLine() calls the OS for a few bytes. With BufferedReader, 8KB is read at once, served from the buffer. 100x faster for line-by-line reading.\n- **'What is InputStreamReader?'** — Bridges bytes to characters. InputStream provides raw bytes; InputStreamReader decodes them using a charset (UTF-8 etc.) into chars. Essential when working with network streams.\n- **'Difference between PrintWriter and BufferedWriter?'** — PrintWriter adds print/println/printf methods. BufferedWriter adds buffering (and newLine()). In production, wrap both: PrintWriter over BufferedWriter.\n- **'What does readLine() return at end of file?'** → null. The while `((line = br.readLine()) != null)` pattern checks for this.",
+
+    "real_world_workflow": "Daily BufferedReader/PrintWriter usage:\n\n- Log file processing: `Files.newBufferedReader(logPath)` → readLine loop\n- Console interaction: `new BufferedReader(new InputStreamReader(System.in))`\n- HTTP response reading: `new BufferedReader(new InputStreamReader(connection.getInputStream()))`\n- Formatted output to file: `PrintWriter over BufferedWriter over FileWriter`\n- Testing I/O code: `StringReader/StringWriter` instead of real files"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_to_wrap_with_buffered",
+      "what_students_get_wrong": "Using FileReader or FileWriter directly (without BufferedReader/Writer) — 10-100x slower for large files.",
+      "remediation": "Always wrap: `new BufferedReader(new FileReader(file))` or prefer `Files.newBufferedReader(path)`. FileReader/FileWriter alone are unbuffered — each read/write is a system call.",
+      "detection_pattern": "Slow performance reading large files; or using FileReader.read() char by char"
+    },
+    {
+      "gap_id": "scanner_nextint_nextline_mismatch",
+      "what_students_get_wrong": "Calling scanner.nextLine() immediately after nextInt()/nextDouble() — gets an empty string because nextInt left the newline in the buffer.",
+      "remediation": "After any nextInt()/nextDouble()/nextXxx(), call scanner.nextLine() to consume the leftover newline before reading the next line.",
+      "detection_pattern": "nextLine() returns empty string unexpectedly after nextInt()"
+    },
+    {
+      "gap_id": "printwriter_no_buffered_wrapper",
+      "what_students_get_wrong": "Creating PrintWriter directly wrapping FileWriter — unbuffered and slow for large outputs.",
+      "remediation": "Always: `new PrintWriter(new BufferedWriter(new FileWriter(file)))` — the BufferedWriter provides the buffer; PrintWriter provides the formatting methods.",
+      "detection_pattern": "Slow output when writing many lines"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "I/O hierarchy: InputStream/OutputStream (bytes) and Reader/Writer (chars)",
+      "InputStreamReader: bytes → chars (add encoding); OutputStreamWriter: chars → bytes",
+      "BufferedReader: wraps any Reader, adds 8KB buffer + readLine()",
+      "readLine() returns null at EOF — use while ((line = br.readLine()) != null)",
+      "Files.newBufferedReader(path): preferred file→BufferedReader creation",
+      "BufferedWriter: wraps any Writer, adds buffer + newLine()",
+      "PrintWriter: wraps any Writer, adds print/println/printf",
+      "Production stack: PrintWriter → BufferedWriter → FileWriter",
+      "Scanner: convenient parsing but slower; use for small/interactive input",
+      "StringReader/StringWriter: in-memory I/O — great for testing",
+      "Always try-with-resources for any BufferedReader or Writer",
+      "Specify charset explicitly: StandardCharsets.UTF_8 (not system default)"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Why is `new BufferedReader(new FileReader('big.log'))` faster than `new FileReader('big.log')` alone?",
+        "answer": "FileReader reads from disk one character at a time — one system call per read. System calls are expensive (kernel context switches). BufferedReader reads 8KB at once into an in-memory buffer, then serves characters from that buffer. For a file with 100,000 lines, this means ~100,000 system calls with FileReader alone vs only ~100 with BufferedReader (8KB per call × 100 = 800KB). The speedup is typically 10-100x for sequential line reading."
+      },
+      {
+        "question": "What does this print, and why?\n```java\nScanner sc = new Scanner(System.in);\nint n = sc.nextInt();\nString s = sc.nextLine();\nSystem.out.println('Got: ' + s);\n```\nUser types: 42 followed by Enter.",
+        "answer": "It prints 'Got: ' (empty string). nextInt() reads the '42' but stops at the newline — the \\n stays in the buffer. nextLine() immediately reads that leftover \\n and returns an empty string. Fix: add `sc.nextLine()` after `sc.nextInt()` to consume the trailing newline before reading the actual next line."
+      },
+      {
+        "question": "You receive an InputStream from a network socket and want to read line by line. What code do you write?",
+        "answer": "```java\ntry (BufferedReader br = new BufferedReader(\n        new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8))) {\n    String line;\n    while ((line = br.readLine()) != null) {\n        process(line);\n    }\n}\n```\nInputStreamReader decodes the raw bytes to chars using UTF-8. BufferedReader adds 8KB buffering and readLine(). The while loop reads until the connection closes (null)."
+      }
+    ],
+
+    "next_topic_preview": "Next: **CSV and Structured Data Processing** — CSV is the universal data exchange format. Reading it seems simple (split on comma) but real CSV has quoted fields, escaped commas, multi-line values, and varying encodings. Topic 11.3 covers proper CSV parsing with OpenCSV, reading real-world datasets, and writing output files. Plus a look at JSON — parsing with Jackson or Gson, the libraries you'll use for every REST API integration."
+  }
+}

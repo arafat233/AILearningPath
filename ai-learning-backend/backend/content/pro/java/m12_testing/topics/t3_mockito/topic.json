@@ -1,0 +1,199 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t3",
+  "language": "java",
+  "module_id": "m12",
+  "module_name": "Unit Testing with JUnit 5",
+  "topic_number": 3,
+  "name": "Mocking with Mockito",
+  "slug": "mocking-mockito",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m12_t1", "java_m5_t3"],
+    "concepts_taught": [
+      "what_is_mocking",
+      "why_mock_dependencies",
+      "mockito_setup",
+      "mock_annotation",
+      "inject_mocks_annotation",
+      "mockito_extension",
+      "when_then_return",
+      "when_then_throw",
+      "verify_method_calls",
+      "argument_matchers_any",
+      "argument_captor",
+      "spy_vs_mock",
+      "times_never_atLeast",
+      "doReturn_doThrow"
+    ],
+    "skills_developed": [
+      "creating_mocks_with_annotations",
+      "stubbing_method_returns",
+      "verifying_interactions",
+      "testing_exception_paths",
+      "using_argument_matchers",
+      "capturing_arguments"
+    ],
+    "career_relevance": "Every production Java service has dependencies — repositories for database access, HTTP clients for external APIs, email senders, payment processors. Testing these services requires mocking. Mockito is the #1 Java mocking framework, used in every Spring Boot application. Spring Boot Test auto-configures Mockito. After this topic, you test any class in complete isolation — no database, no network, no side effects needed.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You've built `OrderService.placeOrder()`. It:\n1. Validates the order\n2. Saves to the database (via `OrderRepository`)\n3. Sends a confirmation email (via `EmailService`)\n4. Returns the saved order with a generated ID\n\nHow do you test this? You can't set up a real database and email server for every test run. They're slow, fragile, and produce real side effects.\n\n```java\n// WITHOUT mocking — tests need real infrastructure:\nclass OrderServiceTest {\n    OrderService service = new OrderService(\n        new RealOrderRepository(\"jdbc:postgresql://...\"),  // real DB!\n        new RealEmailService(\"smtp.gmail.com\")             // real email!\n    );\n    // If DB is down → tests fail. If email quota exceeded → tests fail.\n    // Each test inserts real data that needs cleanup.\n}\n```\n\n**WITH Mockito:**\n```java\n@ExtendWith(MockitoExtension.class)\nclass OrderServiceTest {\n    @Mock OrderRepository repo;    // fake — no real DB\n    @Mock EmailService emailSvc;   // fake — no real emails\n    @InjectMocks OrderService service;  // service gets the fakes\n\n    @Test\n    void placeOrder_validOrder_savesAndSendsEmail() {\n        Order order = new Order(\"Mouse\", 2, 799);\n        Order saved = order.withId(\"ORD-001\");\n        \n        when(repo.save(order)).thenReturn(saved);  // fake save returns saved order\n        \n        Order result = service.placeOrder(order);\n        \n        assertEquals(\"ORD-001\", result.getId());\n        verify(repo).save(order);          // verify save was called\n        verify(emailSvc).sendConfirmation(saved);  // verify email was sent\n    }\n}\n```\n\nZero real infrastructure. Test runs in milliseconds. Side effects controlled.",
+    "what_you_will_build": "By the end of this topic, you'll create mocks with @Mock and @InjectMocks, stub return values with when().thenReturn(), stub exceptions with when().thenThrow(), verify method calls with verify(), use argument matchers (any(), eq(), anyString()), capture arguments with ArgumentCaptor, and understand spy vs mock."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "mockito_setup": "**Mockito setup:**\n\n```xml\n<!-- pom.xml -->\n<dependency>\n    <groupId>org.mockito</groupId>\n    <artifactId>mockito-junit-jupiter</artifactId>\n    <version>5.5.0</version>\n    <scope>test</scope>\n</dependency>\n```\n\n**Two ways to create mocks:**\n```java\n// Option 1: Annotation-based (preferred):\n@ExtendWith(MockitoExtension.class)  // class annotation\nclass OrderServiceTest {\n    @Mock OrderRepository repo;    // creates a mock\n    @InjectMocks OrderService service; // creates service and injects @Mock fields\n}\n\n// Option 2: Programmatic (for one-off mocks):\nOrderRepository repo = Mockito.mock(OrderRepository.class);\nOrderService service = new OrderService(repo);\n```\n\n**What `@InjectMocks` does:**\nCreates an instance of OrderService and automatically injects all `@Mock` fields into it (via constructor, setters, or field injection — tries each in order).",
+
+      "stubbing": "**Stubbing — controlling what mocks return:**\n\n```java\nimport static org.mockito.Mockito.*;\n\n// when(methodCall).thenReturn(value):\nwhen(repo.findById(\"U01\")).thenReturn(Optional.of(user));\nwhen(repo.findById(\"U99\")).thenReturn(Optional.empty());\n\n// Return different values on successive calls:\nwhen(repo.count()).thenReturn(5L, 6L, 7L);\n// First call → 5, second call → 6, third+ → 7\n\n// Return value based on argument:\nwhen(repo.findById(anyString())).thenReturn(Optional.empty());  // default\nwhen(repo.findById(\"U01\")).thenReturn(Optional.of(aisha));      // specific override\n\n// Stub void methods:\ndoNothing().when(emailService).send(any());  // do nothing when called\n\n// thenAnswer for dynamic responses:\nwhen(repo.save(any())).thenAnswer(invocation -> {\n    Order o = invocation.getArgument(0);\n    return o.withId(\"ORD-\" + o.product().toUpperCase());\n});\n```",
+
+      "stubbing_exceptions": "**Stubbing exceptions:**\n\n```java\n// Throw exception from a method:\nwhen(repo.findById(\"U99\"))\n    .thenThrow(new EntityNotFoundException(\"User not found: U99\"));\n\n// For void methods:\ndoThrow(new EmailException(\"SMTP server down\"))\n    .when(emailService).send(any(Email.class));\n\n// Test that the exception propagates:\n@Test\nvoid findUser_unknownId_throwsNotFoundException() {\n    when(repo.findById(\"U99\")).thenThrow(new EntityNotFoundException(\"not found\"));\n    \n    EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,\n        () -> service.getUser(\"U99\"));\n    \n    assertTrue(ex.getMessage().contains(\"U99\"));\n}\n```",
+
+      "verify": "**verify() — check that methods were called:**\n\n```java\n// Basic verify — method was called exactly once:\nverify(repo).save(order);\nverify(emailSvc).sendConfirmation(savedOrder);\n\n// Verify with specific arguments:\nverify(repo).save(order);                        // exactly this order\nverify(repo).findById(\"U01\");                    // exactly this ID\n\n// Verify call count:\nverify(repo, times(2)).save(any());              // called exactly 2 times\nverify(repo, times(0)).delete(any());            // never called\nverify(repo, never()).delete(any());             // same as times(0)\nverify(repo, atLeast(1)).findById(anyString());  // at least once\nverify(repo, atMost(3)).findById(anyString());   // at most 3 times\n\n// Verify no more interactions:\nverifyNoMoreInteractions(repo);  // no other methods called on repo\nverifyNoInteractions(emailSvc);  // nothing was called on emailSvc\n\n// Verify order of calls:\nInOrder inOrder = inOrder(repo, emailSvc);\ninOrder.verify(repo).save(order);             // save called first\ninOrder.verify(emailSvc).sendConfirmation(savedOrder);  // then email\n```",
+
+      "argument_matchers": "**Argument matchers — flexible verification:**\n\n```java\nimport static org.mockito.ArgumentMatchers.*;\n\n// any() — matches any object of any type:\nwhen(repo.save(any())).thenReturn(savedOrder);\nverify(repo).save(any(Order.class));\n\n// anyString(), anyInt(), anyLong(), anyDouble(), anyBoolean():\nwhen(repo.findById(anyString())).thenReturn(Optional.empty());\n\n// eq() — exact match (use when mixing matchers):\nwhen(repo.findByNameAndDept(eq(\"Aisha\"), anyString())).thenReturn(user);\n// RULE: if you use ANY matcher, ALL args must be matchers:\n// WRONG: when(repo.find(\"Aisha\", anyString()))  — mix of literal and matcher\n// RIGHT: when(repo.find(eq(\"Aisha\"), anyString()))\n\n// contains(), startsWith(), endsWith() for strings:\nwhen(emailSvc.sendTo(contains(\"@flipkart\"))).thenReturn(true);\n\n// isNull(), isNotNull():\nwhen(repo.save(isNotNull())).thenReturn(savedOrder);\n```",
+
+      "argument_captor": "**ArgumentCaptor — capture what was passed:**\n\n```java\n@Captor ArgumentCaptor<Order> orderCaptor;\n// OR programmatic:\nArgumentCaptor<Order> orderCaptor = ArgumentCaptor.forClass(Order.class);\n\n@Test\nvoid placeOrder_setsCorrectStatus() {\n    service.placeOrder(new Order(\"Mouse\", 2, 799));\n    \n    // Capture what was passed to repo.save():\n    verify(repo).save(orderCaptor.capture());\n    Order capturedOrder = orderCaptor.getValue();\n    \n    // Now assert on the captured value:\n    assertEquals(OrderStatus.PENDING, capturedOrder.getStatus());\n    assertEquals(2,   capturedOrder.getQty());\n    assertEquals(799, capturedOrder.getPrice());\n    assertNotNull(capturedOrder.getTimestamp());\n}\n```\n\nArgumentCaptor is essential when you need to verify not just THAT a method was called, but exactly WHAT was passed to it.",
+
+      "spy": "**Spy — partially mock a real object:**\n\n```java\n// Mock: entirely fake — no real methods called\n// Spy: real object with specific methods overridden\n\nList<String> realList = new ArrayList<>();\nList<String> spyList  = Mockito.spy(realList);\n\n// Real methods work:\nspyList.add(\"hello\");\nSystem.out.println(spyList.size());  // 1 (real call)\n\n// Stub specific methods:\ndoReturn(10).when(spyList).size();   // fake size()\nSystem.out.println(spyList.size());  // 10 (stubbed)\n\n// Use spy for classes where most behaviour is real but one method needs stubbing:\n// Common use: spy on a service to test one method while calling real implementations of others\n\n// NOTE: Use doReturn().when(spy) NOT when(spy).thenReturn() for spy methods\n// (when() calls the real method first, which may have side effects)\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Without mocking: OrderService box in center, arrows to OrderRepository (with real database cylinder), EmailService (with real email icon). Label: 'Tests need real infrastructure — slow, fragile'. (2) With Mockito: same OrderService box, but arrows now go to @Mock boxes (fake repository with no database, fake email with no SMTP). Label: 'Tests control all dependencies — fast, isolated'. (3) Test flow diagram: @ExtendWith → @Mock creates fakes → @InjectMocks creates service with fakes → when().thenReturn() programs responses → call service method → verify() checks interactions. Bottom: spy as a real object with one stubbed method shown as a half-transparent cylinder with one method highlighted.",
+      "alt_text": "Without vs with mocking, Mockito setup flow, and spy vs mock distinction"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Test `OrderService.placeOrder()` in complete isolation. The service depends on `OrderRepository` and `EmailService`. No real database or email infrastructure needed.",
+
+    "problem_statement": "Test OrderService with these scenarios:\n1. Valid order → saved, confirmation email sent, order ID returned\n2. Repository throws → exception propagates, email NOT sent\n3. placeOrder with no stock → IllegalArgumentException before any save\n4. Capture and verify the exact Order object passed to repository\n5. Verify email is sent AFTER save (order matters)",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Production code — the class under test",
+        "details": "```java\npublic class OrderService {\n    private final OrderRepository repo;\n    private final EmailService emailSvc;\n    \n    public OrderService(OrderRepository repo, EmailService emailSvc) {\n        this.repo = repo;\n        this.emailSvc = emailSvc;\n    }\n    \n    public Order placeOrder(Order order) {\n        if (order.qty() <= 0) throw new IllegalArgumentException(\"Qty must be positive\");\n        Order saved = repo.save(order.withStatus(OrderStatus.PENDING));\n        emailSvc.sendConfirmation(saved);\n        return saved;\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Test class setup with @Mock and @InjectMocks",
+        "details": "```java\n@ExtendWith(MockitoExtension.class)\nclass OrderServiceTest {\n    @Mock OrderRepository repo;      // fake\n    @Mock EmailService emailSvc;     // fake\n    @InjectMocks OrderService service;  // real, with fake dependencies\n    \n    @Captor ArgumentCaptor<Order> orderCaptor;\n    \n    Order inputOrder = new Order(\"Mouse\", 2, 799.0, OrderStatus.NEW);\n    Order savedOrder = new Order(\"Mouse\", 2, 799.0, OrderStatus.PENDING).withId(\"ORD-001\");\n```"
+      },
+      {
+        "step": 3,
+        "action": "Happy path — stub and verify",
+        "details": "```java\n    @Test\n    void placeOrder_validOrder_returnsOrderWithId() {\n        // Arrange — stub the repo:\n        when(repo.save(any(Order.class))).thenReturn(savedOrder);\n        \n        // Act:\n        Order result = service.placeOrder(inputOrder);\n        \n        // Assert — result:\n        assertEquals(\"ORD-001\", result.getId());\n        assertEquals(OrderStatus.PENDING, result.getStatus());\n        \n        // Verify interactions:\n        verify(repo).save(any(Order.class));       // save was called\n        verify(emailSvc).sendConfirmation(savedOrder); // email sent with saved order\n    }\n```"
+      },
+      {
+        "step": 4,
+        "action": "Repository failure — verify email NOT sent",
+        "details": "```java\n    @Test\n    void placeOrder_repoThrows_emailNotSent() {\n        when(repo.save(any())).thenThrow(new RuntimeException(\"DB error\"));\n        \n        assertThrows(RuntimeException.class, () -> service.placeOrder(inputOrder));\n        \n        verify(emailSvc, never()).sendConfirmation(any());  // email NOT sent\n    }\n    \n    @Test\n    void placeOrder_zeroQty_throwsBeforeSave() {\n        Order badOrder = new Order(\"Mouse\", 0, 799.0, OrderStatus.NEW);\n        \n        assertThrows(IllegalArgumentException.class, () -> service.placeOrder(badOrder));\n        \n        verifyNoInteractions(repo);    // repo never touched\n        verifyNoInteractions(emailSvc); // email never touched\n    }\n```"
+      },
+      {
+        "step": 5,
+        "action": "ArgumentCaptor — verify exact values",
+        "details": "```java\n    @Test\n    void placeOrder_setsPendingStatus_beforeSave() {\n        when(repo.save(any())).thenReturn(savedOrder);\n        service.placeOrder(inputOrder);\n        \n        verify(repo).save(orderCaptor.capture());\n        Order capturedOrder = orderCaptor.getValue();\n        \n        assertEquals(OrderStatus.PENDING, capturedOrder.getStatus());\n        assertEquals(2,     capturedOrder.qty());\n        assertEquals(799.0, capturedOrder.price(), 0.01);\n    }\n```"
+      }
+    ],
+
+    "final_code": "import org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n\n@ExtendWith(MockitoExtension.class)\nclass OrderServiceTest {\n    @Mock OrderRepository repo;\n    @Mock EmailService emailSvc;\n    @InjectMocks OrderService service;\n    @Captor ArgumentCaptor<Order> captor;\n    \n    Order input  = new Order(\"Mouse\", 2, 799.0, OrderStatus.NEW);\n    Order saved  = new Order(\"Mouse\", 2, 799.0, OrderStatus.PENDING).withId(\"ORD-001\");\n    \n    @Test\n    void placeOrder_validOrder_returnsWithId() {\n        when(repo.save(any())).thenReturn(saved);\n        Order result = service.placeOrder(input);\n        assertEquals(\"ORD-001\", result.getId());\n        verify(repo).save(any()); verify(emailSvc).sendConfirmation(saved);\n    }\n    \n    @Test\n    void placeOrder_repoFails_emailNotSent() {\n        when(repo.save(any())).thenThrow(new RuntimeException(\"DB error\"));\n        assertThrows(RuntimeException.class, () -> service.placeOrder(input));\n        verify(emailSvc, never()).sendConfirmation(any());\n    }\n    \n    @Test\n    void placeOrder_zeroQty_noInteractions() {\n        Order bad = new Order(\"Mouse\", 0, 799.0, OrderStatus.NEW);\n        assertThrows(IllegalArgumentException.class, () -> service.placeOrder(bad));\n        verifyNoInteractions(repo, emailSvc);\n    }\n    \n    @Test\n    void placeOrder_capturesPendingOrder() {\n        when(repo.save(any())).thenReturn(saved);\n        service.placeOrder(input);\n        verify(repo).save(captor.capture());\n        assertEquals(OrderStatus.PENDING, captor.getValue().getStatus());\n    }\n    \n    @Test\n    void placeOrder_saveBeforeEmail() {\n        when(repo.save(any())).thenReturn(saved);\n        service.placeOrder(input);\n        InOrder inOrder = inOrder(repo, emailSvc);\n        inOrder.verify(repo).save(any());\n        inOrder.verify(emailSvc).sendConfirmation(saved);\n    }\n}",
+
+    "expected_output": "Test Results:\n✓ placeOrder_validOrder_returnsWithId\n✓ placeOrder_repoFails_emailNotSent\n✓ placeOrder_zeroQty_noInteractions\n✓ placeOrder_capturesPendingOrder\n✓ placeOrder_saveBeforeEmail\n\n5 tests passed, 0 failed",
+
+    "things_to_notice": [
+      "@InjectMocks creates an OrderService instance and automatically injects the @Mock fields. You don't call `new OrderService(repo, emailSvc)` manually — Mockito handles constructor injection.",
+      "`when(repo.save(any())).thenReturn(saved)` stubs the fake repository to return a saved order when any Order is passed. Without this stub, the mock returns null by default for reference types.",
+      "`verify(emailSvc, never()).sendConfirmation(any())` — the test asserts that when the repository throws, the email is NEVER sent. This tests the error path isolation — a critical business rule.",
+      "`verifyNoInteractions(repo, emailSvc)` — when validation fails before any repository call, NEITHER dependency should be touched. This is stricter than separate `never()` verifications.",
+      "InOrder ensures save() happens BEFORE sendConfirmation(). This tests temporal ordering — important for business operations where the email must confirm a successfully saved order, not a failed one.",
+      "@Captor captures the actual Order object passed to repo.save(). This lets you verify that the service correctly set status=PENDING before saving — you're testing internal transformation, not just the final result."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot REST controllers",
+        "use_case": "Testing a PaymentController without a real PaymentService: `@WebMvcTest` + `@MockBean PaymentService paymentService` — Spring Boot's test slice. `when(paymentService.process(any())).thenReturn(result)`. The controller is tested in isolation: HTTP request handling, serialization, error codes. The service is mocked. This is the standard Spring Boot testing pattern."
+      },
+      {
+        "company_context": "Razorpay payment flow",
+        "use_case": "PaymentService.processPayment() calls: bankGatewayClient.authorize(), fraudDetectionService.check(), ledgerService.record(), notificationService.alert(). Testing this without mocking requires 4 real external systems. With Mockito, each is a @Mock. Tests run in 5ms, not 5 seconds. CI pipeline stays fast. `verify(ledgerService, never())` ensures the ledger is not updated when fraud is detected."
+      },
+      {
+        "company_context": "Zerodha order routing",
+        "use_case": "OrderRoutingService routes orders to different exchange connectors (NSE, BSE, MCX). Testing routing logic: `@Mock NSEConnector nse; @Mock BSEConnector bse`. `when(nse.getOrderBook('RELIANCE'))` returns mock market data. `verify(nse).placeOrder(any())` confirms the order went to NSE, not BSE. Without mocking, tests need real exchange connections — impossible in CI."
+      }
+    ],
+
+    "interview_relevance": "Mockito questions in senior Java interviews:\n\n- **'How do you test a service that depends on a database repository?'** → Mock the repository with @Mock, inject it with @InjectMocks. Stub with when().thenReturn() for the needed data.\n- **'What is the difference between @Mock and @Spy?'** → @Mock: fully fake object, all methods return default values unless stubbed. @Spy: real object, real methods are called unless overridden.\n- **'How do you verify that a method was NOT called?'** → `verify(mock, never()).methodName(any())`\n- **'What is ArgumentCaptor used for?'** → Capturing the argument passed to a mocked method so you can assert on it. Useful when the argument is built inside the method under test.",
+
+    "real_world_workflow": "Daily Mockito workflow in Spring Boot:\n\n- `@ExtendWith(MockitoExtension.class)` on every service test\n- `@Mock` for each dependency (repository, client, service)\n- `@InjectMocks` for the class under test\n- `when(dep.method(any())).thenReturn(result)` before each test\n- `verify(dep).method(...)` after the call\n- `verifyNoInteractions(dep)` for strict isolation tests\n- `ArgumentCaptor` when checking what was saved/sent/logged"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "mixing_matchers_and_literals",
+      "what_students_get_wrong": "Mixing argument matchers with literal values: `when(repo.find('Aisha', anyInt()))` — compile error because you can't mix.",
+      "remediation": "Once you use ANY ArgumentMatcher, ALL arguments must be matchers. Use `eq()` to wrap literal values: `when(repo.find(eq('Aisha'), anyInt()))`. This is the most common Mockito beginner error.",
+      "detection_pattern": "org.mockito.exceptions.misusing.InvalidUseOfMatchersException"
+    },
+    {
+      "gap_id": "when_on_spy_calls_real_method",
+      "what_students_get_wrong": "Using `when(spy.size()).thenReturn(10)` on a spy — this calls the real size() method first (which may throw or have side effects).",
+      "remediation": "For spies, use `doReturn(10).when(spy).size()` — the doReturn syntax avoids calling the real method. `when(spy.method())` calls the real method before the stubbing takes effect.",
+      "detection_pattern": "Unexpected exceptions or side effects during test setup"
+    },
+    {
+      "gap_id": "verify_without_stubbing",
+      "what_students_get_wrong": "Verifying a call without stubbing the return value — mock returns null, causing NullPointerException in the service.",
+      "remediation": "If the service uses the return value of a mocked method, always stub it first with `when(mock.method()).thenReturn(value)`. The mock returns null for all unstubbed methods (for reference types).",
+      "detection_pattern": "NullPointerException inside the service method during test"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@ExtendWith(MockitoExtension.class): activate Mockito annotations in JUnit 5",
+      "@Mock: creates a fake implementation of a dependency",
+      "@InjectMocks: creates the class under test, injecting all @Mocks automatically",
+      "when(mock.method(arg)).thenReturn(value): stub a method's return value",
+      "when(mock.method(arg)).thenThrow(exception): stub an exception",
+      "doNothing().when(mock).voidMethod(): stub void methods",
+      "verify(mock).method(arg): assert the method was called with that arg",
+      "verify(mock, times(n)).method(): assert called exactly n times",
+      "verify(mock, never()).method(): assert never called",
+      "verifyNoInteractions(mock): assert nothing was called on this mock",
+      "any(), anyString(), eq('value'): argument matchers; all or none",
+      "@Captor / ArgumentCaptor: capture what was passed to a mocked method",
+      "@Spy: real object with specific methods stubbed — use doReturn/doThrow"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A service method calls `repo.findById(id)` then `emailSvc.send(user)` only if the user was found. Write the verify statements for: (a) user found, (b) user not found.",
+        "answer": "(a) User found: `verify(repo).findById(id); verify(emailSvc).send(foundUser);` (b) User not found: `verify(repo).findById(id); verify(emailSvc, never()).send(any());` — for the not-found case, confirm find was called but email was NOT sent. `verifyNoMoreInteractions(emailSvc)` also works for case (b)."
+      },
+      {
+        "question": "What's wrong with this stubbing? `when(repo.findByName('Aisha', anyInt())).thenReturn(user)`",
+        "answer": "You're mixing a literal value ('Aisha') with an ArgumentMatcher (anyInt()). Mockito requires all arguments to be either all matchers or all literals — never mixed. Fix: `when(repo.findByName(eq('Aisha'), anyInt())).thenReturn(user)` — wrap the literal with eq()."
+      },
+      {
+        "question": "What does `verifyNoMoreInteractions(repo)` check, and when should you use it?",
+        "answer": "It fails if ANY method on `repo` was called that wasn't already verified. Use it after all verify() calls to assert that nothing unexpected happened — the service didn't call any extra repo methods you didn't account for. Useful for strict tests. Don't overuse it: for simpler tests, verifying only the important interactions is enough. If you add a new call to the service, all tests with verifyNoMoreInteractions fail — sometimes too strict."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Testing I/O and HTTP** — testing code that reads files, writes files, or makes HTTP calls. Use JUnit 5's @TempDir for real temporary files that auto-delete, WireMock to simulate HTTP servers, and the patterns for testing I/O-heavy code from Module 11. After Topic 12.4, every class you wrote in Module 11 gets a proper test suite."
+  }
+}

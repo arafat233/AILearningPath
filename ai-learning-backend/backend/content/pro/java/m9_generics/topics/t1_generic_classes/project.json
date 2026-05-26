@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m9_t1_proj",
+  "linked_topic": "java_m9_t1",
+  "level": "mini",
+  "name": "Type-Safe Data Pipeline Library",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Build a small but real library of generic utility classes that a team would actually use. Every class is generic — works for any type. This is what writing reusable code as a library author looks like.",
+
+  "description": "A collection of four generic utility classes: Pair<A,B>, Result<T>, Page<T>, and EventBus<E>. Each solves a real problem generically. Together they form a mini utility library demonstrating all key generic class concepts.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Pair<A, B>` — immutable, getFirst(), getSecond(), swap() → Pair<B,A>, equals()/hashCode() using both fields, toString().",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "`Result<T>` — success(T)/failure(String) factory methods, isSuccess(), getValue(), getError(), orElse(T), map(Function<T,R>) → Result<R>, toString().",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "`Page<T>` — content (unmodifiable list), pageNumber (1-based), pageSize, totalElements, totalPages(), hasNext(), hasPrevious(), isEmpty(), toString().",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`EventBus<E>` — subscribe(Consumer<E>), unsubscribe(Consumer<E>), publish(E), subscriberCount(), unsubscribeAll().",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "main() demonstrates all four classes working together: Result for an operation, Pair for key-value return, Page for paginated results, EventBus for notifications. All without casts.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Each class has a Javadoc-style comment (/** ... */) explaining the type parameter meaning.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `Either<L, R>` — left or right value (L=error type, R=success type). Like Result but both types are generic. `left(L)`, `right(R)`, `isLeft()`, `isRight()`, `mapRight(Function<R,R2>)`, `fold(Function<L,T>, Function<R,T>)` → T.",
+        "weight": 30
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `Memoize<T>` — wraps a `Supplier<T>` and caches the result after first call. `get()` calls the supplier once, then returns cached value. Demonstrates Supplier lazy evaluation in generic context.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `batch(List<T> items, int batchSize)` static method (in a utility class) that returns `List<List<T>>` — split into batches of given size. Generic, works for any list type.",
+        "weight": 15
+      }
+    ]
+  },
+
+  "data_to_use": "Demonstration in main():\n- Result: parse payment amount '5000' → success; 'abc' → failure\n- Pair: user ID 'U001' + account balance 50000.0\n- Page: 7 product names, page 1 of 3, 3 per page, 7 total\n- EventBus<String>: 2 subscribers, publish 2 events",
+
+  "starter_code": "import java.util.*;\nimport java.util.function.*;\n\n/**\n * Module 9.1 Mini Library — generic utility classes\n */\npublic class DataPipelineLib {\n    public static void main(String[] args) {\n        // Demonstrate Pair, Result, Page, EventBus\n    }\n    \n    // Define: Pair, Result, Page, EventBus here\n}",
+
+  "example_output": "=== Result ===\nParsed 5000: Success(5000.0)\nParsed abc: Failure(Not a number: abc)\nFormatted: ₹5000.00\n\n=== Pair ===\n(U001, 50000.0)\nSwapped: (50000.0, U001)\n\n=== Page ===\nPage 1/3 (7 total, 3 per page)\n[Mouse, Keyboard, USB Hub]\nHas next: true | Has prev: false\n\n=== EventBus ===\nHandler1: order placed\nHandler2: order placed\nHandler1: payment done\nHandler2: payment done",
+
+  "rubric": [
+    { "category": "Pair<A,B>", "points": 20, "criteria": ["Two type params (10 pts)", "swap() returns Pair<B,A> (10 pts)"] },
+    { "category": "Result<T>", "points": 25, "criteria": ["Factory methods (10 pts)", "map() correctly typed (15 pts)"] },
+    { "category": "Page<T>", "points": 15, "criteria": ["Computed properties (totalPages, hasNext, etc.) (15 pts)"] },
+    { "category": "EventBus<E>", "points": 10, "criteria": ["subscribe/publish work (10 pts)"] },
+    { "category": "Demonstration & Javadoc", "points": 15, "criteria": ["main() demonstrates all 4 (10 pts)", "Type param docs (5 pts)"] },
+    { "category": "No Casts Anywhere", "points": 15, "criteria": ["Zero casts in client code (15 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Either<L,R> with fold (30 pts)", "Memoize<T> (20 pts)", "batch() utility (15 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The challenge: every class must be fully generic with no Object casts in client code. Result.map() return type must be `<R> Result<R>`. Page requires defensive copy of content list. EventBus.unsubscribe() requires reference equality (same Consumer instance).",
+
+  "submission_instructions": "Save as DataPipelineLib.java. Push to GitHub — this is a reusable library. Comment: 'Generic utility library — no casts in client code.'",
+
+  "tips_for_success": [
+    "Result.map(): `public <R> Result<R> map(Function<T, R> fn)` — its own type parameter R",
+    "Page defensive copy: `this.content = Collections.unmodifiableList(new ArrayList<>(content))`",
+    "EventBus.unsubscribe: `listeners.remove(listener)` uses reference equality — caller must pass the same Consumer reference",
+    "Pair.equals: `Objects.equals(first, other.first) && Objects.equals(second, other.second)`",
+    "Zero casts means: never write `(SomeType)` anywhere in the calling code"
+  ],
+
+  "concepts_reinforced": [
+    "Generic class definition with <T>, <A,B>",
+    "Type parameters on methods vs class",
+    "Factory methods for generic classes",
+    "Immutable generic containers (final fields)",
+    "No casts in client code = core generic benefit",
+    "Type parameter naming conventions with Javadoc"
+  ]
+}

@@ -1,0 +1,246 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m20_t1",
+  "topic_name": "Spring Boot Actuator & Micrometer",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m20_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What does /actuator/prometheus expose?",
+      "scenario": "Understanding the Prometheus text format output.",
+      "instructions": "```java\n// Counter created and incremented 3 times:\nCounter c = Counter.builder(\"payments.total\")\n    .tag(\"status\", \"success\")\n    .tag(\"gateway\", \"visa\")\n    .register(registry);\nc.increment();\nc.increment();\nc.increment();\n```\n\n1. What is the Prometheus metric name (dot notation → underscore)?\n2. What does the output at /actuator/prometheus look like?\n3. What is the value after 3 increments?",
+      "expected_solution": "1. Prometheus converts dots to underscores AND appends _total for counters:\n   payments.total → payments_total_total\n   (Micrometer convention: metric name + Prometheus _total suffix)\n\n2. /actuator/prometheus output:\n   # HELP payments_total_total\n   # TYPE payments_total_total counter\n   payments_total_total{application=\"...\",gateway=\"visa\",status=\"success\"} 3.0\n\n3. Value: 3.0 (counter is cumulative — never resets unless app restarts)",
+      "test_cases": [{ "type": "text_match", "expected": "1. Prometheus converts dots to underscores AND appends _total for counters:\n   payments.total → payments_total_total\n   (Micrometer convention: metric name + Prometheus _total suffix)\n\n2. /actuator/prometheus output:\n   # HELP payments_total_total\n   # TYPE payments_total_total counter\n   payments_total_total{application=\"...\",gateway=\"visa\",status=\"success\"} 3.0\n\n3. Value: 3.0 (counter is cumulative — never resets unless app restarts)" }],
+      "hints": ["Dots → underscores: Prometheus naming convention", "_total suffix: Prometheus standard for counters", "Cumulative: counters only increase, never reset during app lifetime"],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m20_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the Counter and Timer creation",
+      "scenario": "Create a payment success counter and a latency timer.",
+      "instructions": "Fill in the blanks.",
+      "starter_code": "@Service\npublic class PaymentMetrics {\n    private final _____ successCounter;\n    private final _____ latencyTimer;\n    \n    PaymentMetrics(MeterRegistry registry) {\n        successCounter = _____.builder(\"payments.success\")\n            .tag(\"gateway\", \"visa\")\n            ._____(registry);\n        \n        latencyTimer = _____.builder(\"payments.latency\")\n            .publishPercentiles(0.5, 0.95, 0.99)\n            ._____(registry);\n    }\n}",
+      "expected_solution": "@Service\npublic class PaymentMetrics {\n    private final Counter successCounter;\n    private final Timer   latencyTimer;\n    \n    PaymentMetrics(MeterRegistry registry) {\n        successCounter = Counter.builder(\"payments.success\")\n            .tag(\"gateway\", \"visa\")\n            .register(registry);\n        \n        latencyTimer = Timer.builder(\"payments.latency\")\n            .publishPercentiles(0.5, 0.95, 0.99)\n            .register(registry);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Counter", "hint": "Counts events (io.micrometer.core.instrument.Counter)" },
+        { "position": 2, "answer": "Timer",   "hint": "Measures duration (io.micrometer.core.instrument.Timer)" },
+        { "position": 3, "answer": "Counter", "hint": "Counter.builder()" },
+        { "position": 4, "answer": "register","hint": "registers the meter with the registry" },
+        { "position": 5, "answer": "Timer",   "hint": "Timer.builder()" },
+        { "position": 6, "answer": "register","hint": "registers the meter with the registry" }
+      ],
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["Counter for events; Timer for durations", "register(registry): final step in the builder chain", "publishPercentiles: pre-compute p50/p95/p99"],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m20_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Add actuator + Prometheus to application.yml",
+      "scenario": "Configure Spring Boot Actuator to expose prometheus endpoint with global tags.",
+      "instructions": "Write application.yml that:\n1. Exposes: health, metrics, prometheus endpoints\n2. Shows health details\n3. Adds global tags: application=razorpay-payments, environment=prod\n4. Show what URL Prometheus scrapes and at what interval (typical)",
+      "starter_code": "# application.yml\n# management configuration\n",
+      "expected_solution": "# application.yml:\nmanagement:\n  endpoints:\n    web:\n      exposure:\n        include: health, metrics, prometheus\n  endpoint:\n    health:\n      show-details: always     # show DB, Redis, CB components\n    prometheus:\n      enabled: true\n  metrics:\n    tags:\n      application: razorpay-payments    # added to ALL metrics\n      environment: prod                 # filter by environment in Grafana\n\n# Prometheus scrape configuration (in prometheus.yml on the Prometheus server):\n# scrape_configs:\n#   - job_name: razorpay-payments\n#     scrape_interval: 15s               # every 15 seconds\n#     static_configs:\n#       - targets: ['localhost:8080']\n#     metrics_path: /actuator/prometheus  # the endpoint\n\n# After startup:\n# GET http://localhost:8080/actuator/prometheus\n# → Prometheus text format with all JVM, Spring, and custom metrics",
+      "test_cases": [{ "type": "text_match", "expected_contains": ["prometheus", "show-details: always", "application: razorpay-payments"] }],
+      "hints": ["include: list endpoint IDs separated by commas", "metrics.tags: key-value pairs added to ALL metrics automatically", "scrape_interval: 15s is typical Prometheus default"],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m20_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Counter for business events with tags",
+      "scenario": "Track payment events by status and payment method.",
+      "instructions": "Write Zerodha OrderMetricsService:\n1. Counter 'orders.submitted' with tags: type (BUY/SELL), symbol (NIFTY/SENSEX/etc)\n2. Counter 'orders.rejected' with tags: reason\n3. Method recordSubmission(type, symbol) and recordRejection(reason)\n4. Explain: why symbol should be LOW cardinality (use symbol like NIFTY not specific stocks)",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class ZerodhaOrderMetricsService {\n    private final MeterRegistry registry;\n    \n    ZerodhaOrderMetricsService(MeterRegistry registry) {\n        this.registry = registry;\n    }\n    \n    public void recordSubmission(String type, String symbol) {\n        // Create or look up the counter for this tag combination:\n        registry.counter(\"orders.submitted\",\n            \"type\", type,          // BUY or SELL (2 values — low cardinality OK)\n            \"symbol\", symbol       // NIFTY, BANKNIFTY, SENSEX — manageable\n        ).increment();\n    }\n    \n    public void recordRejection(String reason) {\n        registry.counter(\"orders.rejected\",\n            \"reason\", reason       // insufficient_funds, invalid_symbol, market_closed\n        ).increment();\n    }\n    \n    // WHY SYMBOL MUST BE LOW CARDINALITY:\n    // NSE has 1,500+ stocks. If symbol = 'INFY', 'TCS', 'RELIANCE', ...\n    // → 1,500+ unique time series in Prometheus\n    // Better: use index categories: 'NIFTY50', 'MIDCAP', 'SMALLCAP'\n    // Worst: symbol = specific stock code → manageable\n    // Never: symbol = full ISIN 'INE009A01021' (too many unique values)\n    //\n    // Rule: if a tag can have > 100 distinct values → reconsider\n    // If > 1000 → definitely wrong, use logs instead\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["registry.counter(name, tags...): shorthand without builder", "increment(): adds 1.0 to the counter", "Low cardinality: < 50 distinct values per tag is safe"],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m20_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Timer to measure payment processing duration",
+      "scenario": "Time the full payment flow and publish percentiles.",
+      "instructions": "Write RazorpayPaymentTimer:\n1. Timer 'payment.processing.time' with publishPercentiles(0.5, 0.95, 0.99)\n2. Wrap processPayment() with timer.record()\n3. Add tag 'gateway' (visa/mastercard/upi)\n4. Test: call 5 times with different durations, verify timer count and sum",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class RazorpayPaymentTimer {\n    private final MeterRegistry registry;\n    \n    RazorpayPaymentTimer(MeterRegistry registry) {\n        this.registry = registry;\n    }\n    \n    public PaymentResult processPayment(String gateway, PaymentRequest req) {\n        // Create or get timer by gateway:\n        Timer timer = Timer.builder(\"payment.processing.time\")\n            .tag(\"gateway\", gateway)\n            .publishPercentiles(0.5, 0.95, 0.99)\n            .register(registry);\n        \n        return timer.record(() -> {\n            // Simulated payment processing:\n            try {\n                Thread.sleep(100 + (long)(Math.random() * 200));  // 100-300ms\n            } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            return new PaymentResult(req.id(), \"APPROVED\");\n        });\n    }\n    \n    public long getCallCount(String gateway) {\n        return registry.find(\"payment.processing.time\")\n            .tag(\"gateway\", gateway)\n            .timer()\n            .map(Timer::count)\n            .orElse(0L);\n    }\n    \n    record PaymentRequest(String id) {}\n    record PaymentResult(String id, String status) {}\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["timer.record(Supplier<T>): returns T and records duration", "registry.find().tag().timer(): look up existing timer for assertions", "publishPercentiles: computed in-app; publishPercentileHistogram: for Prometheus aggregation"],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m20_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Gauge for queue depth and connection pool",
+      "scenario": "Track current resource utilization that can go up and down.",
+      "instructions": "Write SwiggyResourceGauges:\n1. Gauge 'payment.retry.queue.size' tracking queue.size()\n2. Gauge 'db.connection.pool.active' tracking hikariPool.getActiveConnections()\n3. Gauge 'cache.memory.usage.mb' tracking caffeine.estimatedSize()\n4. Show: why these need Gauge not Counter",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.ConcurrentLinkedQueue;\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.ConcurrentLinkedQueue;\n\n@Service\npublic class SwiggyResourceGauges {\n    \n    SwiggyResourceGauges(\n            MeterRegistry registry,\n            Queue<Object> retryQueue,\n            SimulatedHikariPool pool,\n            SimulatedCaffeineCache cache) {\n        \n        // GAUGE: tracks the current value of a thing that changes over time\n        Gauge.builder(\"payment.retry.queue.size\", retryQueue, Collection::size)\n            .description(\"Payment requests waiting for retry\")\n            .register(registry);\n        \n        Gauge.builder(\"db.connection.pool.active\", pool, SimulatedHikariPool::getActiveConnections)\n            .description(\"Active DB connections\")\n            .tag(\"pool\", \"HikariPool-1\")\n            .register(registry);\n        \n        Gauge.builder(\"cache.memory.entries\", cache, SimulatedCaffeineCache::estimatedSize)\n            .description(\"Estimated cache entries\")\n            .tag(\"cache\", \"products\")\n            .register(registry);\n    }\n    \n    // WHY GAUGE NOT COUNTER:\n    // Counter: orders processed = 14,523 (always growing — correct for count)\n    // Queue size: starts at 0, grows as retries added, shrinks as retries succeed\n    //   → Counter would only go UP — can't track shrinking\n    //   → Gauge reflects the CURRENT real-time value\n    // Pool active: can be 0, 15, 50, 50, 42, 8 throughout the day\n    //   → Only Gauge can represent 'current' point-in-time values\n    \n    // Gauge takes a reference to the object + a function to read the value:\n    // Gauge.builder(name, object, valueFunction)\n    // Micrometer calls valueFunction.apply(object) each time it's read\n    \n    interface SimulatedHikariPool { int getActiveConnections(); }\n    interface SimulatedCaffeineCache { long estimatedSize(); }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["Gauge takes (name, object, functionToReadValue): lazy evaluation", "Counter: events that happened (cumulative, never decreases)", "Gauge: current state (real-time snapshot, can increase or decrease)"],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m20_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Timed annotation for automatic method timing",
+      "scenario": "Shortcut for timing methods without manual Timer boilerplate.",
+      "instructions": "Write BookMyShowTicketService using @Timed:\n1. @Timed(value='ticket.booking.time') on bookTicket()\n2. @Timed(value='seat.availability.check.time') on checkAvailability()\n3. Enable @Timed via @EnableAspectJAutoProxy (or just note requirement)\n4. Compare @Timed vs manual Timer.builder() — when to use each",
+      "starter_code": "import io.micrometer.core.annotation.Timed;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import io.micrometer.core.annotation.Timed;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class BookMyShowTicketService {\n    \n    // @Timed: Spring AOP proxy wraps the method and records duration\n    // Requires: spring-boot-starter-aop AND @EnableAspectJAutoProxy\n    \n    @Timed(\n        value = \"ticket.booking.time\",\n        description = \"Time to complete ticket booking\",\n        percentiles = {0.5, 0.95, 0.99},\n        extraTags = {\"service\", \"booking\"}  // additional tags\n    )\n    public String bookTicket(String eventId, String seatId) {\n        // ... booking logic ...\n        return \"BOOKING-\" + System.currentTimeMillis();\n    }\n    \n    @Timed(value = \"seat.availability.check.time\")\n    public boolean checkAvailability(String eventId, String seatId) {\n        // ... check logic ...\n        return true;\n    }\n    \n    // @Timed vs manual Timer.builder():\n    //\n    // @Timed (annotation-driven):\n    //   + Simple: one annotation, no boilerplate\n    //   + Works on any @Service/@Component method\n    //   - Limited control: fixed tag values (can't use runtime values as tags)\n    //   - Can't tag by method result (success/failure requires try-catch in Timer)\n    //\n    // Manual Timer.builder() + timer.record():\n    //   + Full control: tag by status, gateway, exception type\n    //   + Can time subsections of a method\n    //   + Can conditionally record (only record slow calls)\n    //   - More code\n    //\n    // Use @Timed for: simple method timing with static tags\n    // Use manual for: business metrics with dynamic tags (status, user type, gateway)\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["@Timed: AOP-based, requires spring-boot-starter-aop", "percentiles in @Timed: equivalent to publishPercentiles()", "Manual Timer: needed when you want to tag by runtime values (success/failure)"],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m20_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Custom health indicator for a payment gateway",
+      "scenario": "HealthIndicator reports gateway connectivity status in /actuator/health.",
+      "instructions": "Write VisaGatewayHealthIndicator:\n1. Implements HealthIndicator\n2. Pings Visa connectivity endpoint (mock: always returns true/false)\n3. Returns Health.up() with latency detail, or Health.down() with reason\n4. @SpringBootTest: verify health endpoint returns correct status",
+      "starter_code": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n",
+      "expected_solution": "import org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@Component(\"visaGateway\")\npublic class VisaGatewayHealthIndicator implements HealthIndicator {\n    private final VisaConnectivityCheck visaCheck;\n    \n    VisaGatewayHealthIndicator(VisaConnectivityCheck c) { visaCheck = c; }\n    \n    @Override\n    public Health health() {\n        try {\n            long start = System.currentTimeMillis();\n            boolean connected = visaCheck.ping();\n            long latencyMs = System.currentTimeMillis() - start;\n            \n            if (connected) {\n                return Health.up()\n                    .withDetail(\"latencyMs\", latencyMs)\n                    .withDetail(\"gateway\", \"visa\")\n                    .build();\n            } else {\n                return Health.down()\n                    .withDetail(\"reason\", \"Visa gateway not responding\")\n                    .withDetail(\"gateway\", \"visa\")\n                    .build();\n            }\n        } catch (Exception e) {\n            return Health.down(e)\n                .withDetail(\"gateway\", \"visa\")\n                .build();\n        }\n    }\n    \n    // GET /actuator/health:\n    // {\n    //   \"status\": \"UP\",\n    //   \"components\": {\n    //     \"visaGateway\": {\n    //       \"status\": \"UP\",\n    //       \"details\": { \"latencyMs\": 45, \"gateway\": \"visa\" }\n    //     }\n    //   }\n    // }\n    \n    interface VisaConnectivityCheck { boolean ping(); }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["@Component(\"name\"): the health indicator appears under this key in /actuator/health", "Health.up().withDetail(): add key-value details visible in health response", "Health.down(exception): includes exception message in health details"],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m20_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "DistributionSummary for payment amount tracking",
+      "scenario": "Track distribution of payment amounts to understand transaction size patterns.",
+      "instructions": "Write PaymentAmountMetrics using DistributionSummary:\n1. DistributionSummary 'payment.amount' in INR\n2. Track: mean, max, p95, p99\n3. Show: how this differs from Timer (amount vs duration)\n4. Test: record 5 payments, verify count=5 and mean is correct",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PaymentAmountMetrics {\n    private final DistributionSummary amountSummary;\n    \n    PaymentAmountMetrics(MeterRegistry registry) {\n        amountSummary = DistributionSummary.builder(\"payment.amount\")\n            .baseUnit(\"rupees\")\n            .description(\"Distribution of payment amounts in INR\")\n            .publishPercentiles(0.5, 0.95, 0.99)\n            .minimumExpectedValue(1.0)    // minimum ₹1\n            .maximumExpectedValue(100000.0)  // maximum ₹1 lakh\n            .register(registry);\n    }\n    \n    public void record(double amountInr) {\n        amountSummary.record(amountInr);\n    }\n    \n    public DistributionSummary.HistogramSnapshot snapshot() {\n        return amountSummary.takeSnapshot();\n    }\n    \n    // DistributionSummary vs Timer:\n    // Timer: measures DURATION (time). Unit: nanoseconds internally.\n    // DistributionSummary: measures arbitrary VALUES. Unit: you define (rupees, bytes, items).\n    //\n    // Use DistributionSummary for:\n    //   payment amounts (₹): range ₹1 to ₹1,00,000\n    //   response body size (bytes)\n    //   items in cart\n    //   download speed (MB/s)\n    //\n    // Use Timer for:\n    //   API response time\n    //   DB query time\n    //   External API call duration\n    \n    public static void main(String[] a) {\n        System.out.println(\"DistributionSummary: track value distributions (amounts, sizes)\");\n        System.out.println(\"Timer: track duration distributions (latency)\");\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout_contains": ["DistributionSummary"] }],
+      "hints": ["DistributionSummary.record(value): records a single observation", "baseUnit: displayed in Prometheus metric name (rupees, bytes, etc.)", "minimumExpectedValue + maximumExpectedValue: histogram bucket optimization"],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m20_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "High cardinality tag problem",
+      "scenario": "What happens when you use paymentId as a tag?",
+      "instructions": "```java\n// BAD CODE:\npublic void recordPayment(String paymentId, double amount) {\n    registry.counter(\"payments.processed\",\n        \"paymentId\", paymentId,  // ← UNIQUE for every payment!\n        \"status\", \"success\"\n    ).increment();\n}\n// Each payment has a unique ID: PAY-001, PAY-002, PAY-003, ...\n// 1 million payments per day → ???\n```\n\n1. How many unique time series does this create after 1 million payments?\n2. What is the Prometheus impact?\n3. What is the correct fix?\n4. Where should paymentId go instead?",
+      "expected_solution": "1. 1 MILLION unique time series — one per unique paymentId value.\n   Each tag combination creates a separate time series in Prometheus.\n   1,000,000 unique paymentIds = 1,000,000 counter time series.\n\n2. Prometheus impact:\n   Prometheus stores each time series as a separate data structure.\n   1M time series × ~3KB each = ~3GB of memory for just this one counter.\n   Query performance: extremely slow (scan millions of series).\n   Alert: Prometheus will emit cardinality warnings and potentially crash.\n\n3. Correct fix — remove paymentId from tags, use only LOW-cardinality tags:\n   registry.counter(\"payments.processed\",\n       \"status\", \"success\",      // 2-3 values\n       \"gateway\", \"visa\",        // 3-5 values\n       \"merchant_type\", \"ecomm\" // 5-10 values\n   ).increment();\n\n4. paymentId belongs in LOGS (not metrics):\n   log.info(\"Payment processed paymentId={} amount={} gateway={}\",\n       paymentId, amount, gateway);\n   Logs: queryable by specific ID for debugging a specific transaction.\n   Metrics: aggregate counts/rates — don't need individual IDs.",
+      "test_cases": [{ "type": "text_match", "expected": "1. 1 MILLION unique time series — one per unique paymentId value.\n   Each tag combination creates a separate time series in Prometheus.\n   1,000,000 unique paymentIds = 1,000,000 counter time series.\n\n2. Prometheus impact:\n   Prometheus stores each time series as a separate data structure.\n   1M time series × ~3KB each = ~3GB of memory for just this one counter.\n   Query performance: extremely slow (scan millions of series).\n   Alert: Prometheus will emit cardinality warnings and potentially crash.\n\n3. Correct fix — remove paymentId from tags, use only LOW-cardinality tags:\n   registry.counter(\"payments.processed\",\n       \"status\", \"success\",      // 2-3 values\n       \"gateway\", \"visa\",        // 3-5 values\n       \"merchant_type\", \"ecomm\" // 5-10 values\n   ).increment();\n\n4. paymentId belongs in LOGS (not metrics):\n   log.info(\"Payment processed paymentId={} amount={} gateway={}\",\n       paymentId, amount, gateway);\n   Logs: queryable by specific ID for debugging a specific transaction.\n   Metrics: aggregate counts/rates — don't need individual IDs." }],
+      "hints": ["1 unique tag value = 1 time series in Prometheus", "Cardinality bomb: high-cardinality tags crash Prometheus", "Rule: if a tag has > 100 distinct values in production — reconsider"],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m20_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Razorpay complete payment metrics service",
+      "scenario": "Full production-grade metrics for payment processing.",
+      "instructions": "Build RazorpayPaymentMetricsService:\n1. Counter: payments.total{status, gateway, merchant_type} \n2. Timer: payments.duration{gateway} with p50/p95/p99\n3. Gauge: payments.retry.queue.size (tracks queue.size())\n4. DistributionSummary: payments.amount{gateway}\n5. processPayment() uses all 4 meters\n6. @SpringBootTest: 2 tests verifying counter increments and timer records",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.*;\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.*;\nimport java.util.*;\nimport java.util.concurrent.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@Service\nclass RazorpayPaymentMetricsService {\n    private final MeterRegistry reg;\n    private final Queue<String> retryQueue = new ConcurrentLinkedQueue<>();\n    private final Map<String, Timer> timers = new ConcurrentHashMap<>();\n    \n    RazorpayPaymentMetricsService(MeterRegistry r) {\n        reg = r;\n        Gauge.builder(\"payments.retry.queue.size\", retryQueue, Collection::size)\n             .register(reg);\n    }\n    \n    private Timer getTimer(String gateway) {\n        return timers.computeIfAbsent(gateway, gw ->\n            Timer.builder(\"payments.duration\")\n                 .tag(\"gateway\", gw)\n                 .publishPercentiles(0.5, 0.95, 0.99)\n                 .register(reg));\n    }\n    \n    public String processPayment(String gateway, String merchantType, double amount) {\n        return getTimer(gateway).record(() -> {\n            String status;\n            try {\n                Thread.sleep(50);\n                status = \"success\";\n                reg.counter(\"payments.total\",\n                    \"status\", status, \"gateway\", gateway, \"merchant_type\", merchantType\n                ).increment();\n                DistributionSummary.builder(\"payments.amount\")\n                    .tag(\"gateway\", gateway).baseUnit(\"rupees\")\n                    .register(reg).record(amount);\n            } catch (InterruptedException e) {\n                Thread.currentThread().interrupt();\n                status = \"failure\";\n                reg.counter(\"payments.total\",\n                    \"status\", status, \"gateway\", gateway, \"merchant_type\", merchantType\n                ).increment();\n            }\n            return \"PAY-\" + System.currentTimeMillis();\n        });\n    }\n    \n    public Queue<String> getRetryQueue() { return retryQueue; }\n}\n\n@SpringBootTest\nclass RazorpayMetricsTest {\n    @Autowired RazorpayPaymentMetricsService svc;\n    @Autowired MeterRegistry reg;\n    \n    @Test void counter_incrementsOnPayment() {\n        svc.processPayment(\"visa\", \"ecomm\", 999.0);\n        Counter c = reg.find(\"payments.total\")\n            .tag(\"status\", \"success\").tag(\"gateway\", \"visa\").counter();\n        assertNotNull(c);\n        assertTrue(c.count() >= 1.0);\n    }\n    \n    @Test void timer_recordsPaymentDuration() {\n        svc.processPayment(\"mastercard\", \"travel\", 2999.0);\n        Timer t = reg.find(\"payments.duration\").tag(\"gateway\", \"mastercard\").timer();\n        assertNotNull(t);\n        assertEquals(1, t.count());\n    }\n}",
+      "test_cases": [{ "type": "tests_pass", "expected": "2 tests pass" }],
+      "hints": ["computeIfAbsent: create timer once per gateway, reuse on each call", "reg.find().tag().counter(): look up existing meter by name and tags", "DistributionSummary inside record: creates per-call, should cache like timer"],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m20_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Custom /actuator/info with build and git info",
+      "scenario": "Enrich /actuator/info with application version, build time, and git commit.",
+      "instructions": "Write InfoConfig:\n1. @Bean InfoContributor adding: version, buildTime, team\n2. application.yml: enable info endpoint, add git.properties\n3. What values appear in /actuator/info?\n4. @SpringBootTest: verify info endpoint returns version",
+      "starter_code": "import org.springframework.boot.actuate.info.*;\nimport org.springframework.context.annotation.*;\nimport java.util.*;\n",
+      "expected_solution": "import org.springframework.boot.actuate.info.*;\nimport org.springframework.context.annotation.*;\nimport java.util.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.web.reactive.server.WebTestClient;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.junit.jupiter.api.*;\n\n// application.yml:\n// management.info.env.enabled: true\n// management.info.git.enabled: true\n// management.info.build.enabled: true\n// info:\n//   app:\n//     name: Razorpay Payment Service\n//     version: '@project.version@'  # Maven substitution\n//     team: payments-engineering\n//\n// Also: add spring-boot-maven-plugin with configuration to generate\n// META-INF/build-info.properties and git.properties\n\n@Configuration\npublic class InfoConfig {\n    \n    @Bean\n    public InfoContributor paymentServiceInfo() {\n        return builder -> builder.withDetail(\"payment-service\", Map.of(\n            \"version\",   \"2.1.0\",\n            \"buildTime\", java.time.Instant.now().toString(),\n            \"team\",      \"payments-engineering\",\n            \"apiDocs\",   \"https://docs.razorpay.com/api\"\n        ));\n    }\n    \n    // GET /actuator/info returns:\n    // {\n    //   \"app\": { \"name\": \"Razorpay Payment Service\", \"version\": \"2.1.0\" },\n    //   \"payment-service\": { \"team\": \"payments-engineering\", ... },\n    //   \"git\": { \"commit\": { \"id\": \"abc123\", \"time\": \"2024-06-15T10:00:00Z\" } },\n    //   \"build\": { \"version\": \"2.1.0\", \"time\": \"2024-06-15T09:55:00Z\" }\n    // }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["InfoContributor: adds entries to /actuator/info response", "builder.withDetail(key, value): adds a top-level key to info", "build-info.properties: generated by Spring Boot Maven plugin"],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m20_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Zerodha trading metrics dashboard — full implementation",
+      "scenario": "Complete observability for Zerodha's order service.",
+      "instructions": "Build ZerodhaOrderMetrics:\n1. Counter: orders.submitted{type=BUY/SELL, segment=EQUITY/FNO}\n2. Counter: orders.rejected{reason}\n3. Timer: orders.execution.time{type} with p50/p95/p99\n4. Gauge: orders.queue.depth (current orders in processing)\n5. @SpringBootTest (3 tests): all meters work correctly",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.atomic.AtomicInteger;\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.*;\nimport java.util.concurrent.atomic.AtomicInteger;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@Service\nclass ZerodhaOrderMetrics {\n    private final MeterRegistry reg;\n    private final AtomicInteger processingQueue = new AtomicInteger(0);\n    private final Timer buyTimer, sellTimer;\n    \n    ZerodhaOrderMetrics(MeterRegistry r) {\n        reg = r;\n        buyTimer  = Timer.builder(\"orders.execution.time\").tag(\"type\",\"BUY\" ).publishPercentiles(0.5,0.95,0.99).register(reg);\n        sellTimer = Timer.builder(\"orders.execution.time\").tag(\"type\",\"SELL\").publishPercentiles(0.5,0.95,0.99).register(reg);\n        Gauge.builder(\"orders.queue.depth\", processingQueue, AtomicInteger::get)\n             .description(\"Orders currently being processed\").register(reg);\n    }\n    \n    public void submitted(String type, String segment) {\n        reg.counter(\"orders.submitted\",\"type\",type,\"segment\",segment).increment();\n    }\n    \n    public void rejected(String reason) {\n        reg.counter(\"orders.rejected\",\"reason\",reason).increment();\n    }\n    \n    public String executeOrder(String type, String segment) {\n        processingQueue.incrementAndGet();\n        try {\n            Timer t = \"BUY\".equals(type) ? buyTimer : sellTimer;\n            return t.record(() -> {\n                submitted(type, segment);\n                try { Thread.sleep(20); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n                return \"ORD-\" + System.currentTimeMillis();\n            });\n        } finally {\n            processingQueue.decrementAndGet();\n        }\n    }\n}\n\n@SpringBootTest\nclass ZerodhaOrderMetricsTest {\n    @Autowired ZerodhaOrderMetrics metrics;\n    @Autowired MeterRegistry reg;\n    \n    @Test void submitted_counter_increments() {\n        metrics.executeOrder(\"BUY\",\"EQUITY\");\n        Counter c=reg.find(\"orders.submitted\").tag(\"type\",\"BUY\").tag(\"segment\",\"EQUITY\").counter();\n        assertNotNull(c); assertTrue(c.count()>=1);\n    }\n    @Test void rejection_counter_works() {\n        metrics.rejected(\"insufficient_funds\");\n        Counter c=reg.find(\"orders.rejected\").tag(\"reason\",\"insufficient_funds\").counter();\n        assertNotNull(c); assertTrue(c.count()>=1);\n    }\n    @Test void timer_records_execution_time() {\n        metrics.executeOrder(\"SELL\",\"FNO\");\n        Timer t=reg.find(\"orders.execution.time\").tag(\"type\",\"SELL\").timer();\n        assertNotNull(t); assertTrue(t.count()>=1);\n    }\n}",
+      "test_cases": [{ "type": "tests_pass", "expected": "3 tests pass" }],
+      "hints": ["AtomicInteger for gauge: thread-safe current value tracking", "processingQueue in finally: always decrements even on exception", "reg.find().tag().counter(): look up meter by name + tag combination"],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m20_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "MeterFilter to add global tags and rename metrics",
+      "scenario": "MeterFilter customizes all metrics globally without touching each meter.",
+      "instructions": "Write MeterFilterConfig:\n1. MeterFilter to add 'region=india' to ALL metrics\n2. MeterFilter to rename 'jvm.*' metrics to 'zerodha.jvm.*'\n3. MeterFilter to deny any metric with 'test' in the name\n4. @Bean MeterRegistryCustomizer to apply all filters\n5. Explain: why MeterFilter is better than adding tags manually everywhere",
+      "starter_code": "import io.micrometer.core.instrument.*;\nimport io.micrometer.core.instrument.config.MeterFilter;\nimport org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;\nimport org.springframework.context.annotation.*;\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport io.micrometer.core.instrument.config.MeterFilter;\nimport io.micrometer.core.instrument.MeterRegistry;\nimport org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;\nimport org.springframework.context.annotation.*;\n\n@Configuration\npublic class MeterFilterConfig {\n    \n    // MeterRegistryCustomizer: applied to the global MeterRegistry at startup\n    @Bean\n    public MeterRegistryCustomizer<MeterRegistry> metricsCommonTags() {\n        return registry -> registry\n            .config()\n            // Filter 1: add region tag to ALL meters:\n            .meterFilter(MeterFilter.commonTags(\n                Tags.of(\"region\", \"india\", \"datacenter\", \"mumbai\")\n            ))\n            // Filter 2: rename jvm.* to zerodha.jvm.*:\n            .meterFilter(MeterFilter.renameMetric(\"jvm\", \"zerodha.jvm\"))\n            // Filter 3: deny any metric with 'test' in the name:\n            .meterFilter(new MeterFilter() {\n                @Override\n                public MeterFilter.MeterFilterReply accept(Meter.Id id) {\n                    if (id.getName().contains(\"test\")) {\n                        return MeterFilter.MeterFilterReply.DENY;\n                    }\n                    return MeterFilter.MeterFilterReply.NEUTRAL;\n                }\n            });\n    }\n    \n    // WHY MeterFilter BEATS MANUAL TAGS:\n    // Without MeterFilter:\n    //   Every Counter.builder() needs .tag(\"region\", \"india\")\n    //   Every Timer.builder() needs .tag(\"region\", \"india\")\n    //   Forget one: metric missing region tag → Grafana query returns partial data\n    //\n    // With MeterFilter.commonTags():\n    //   Set once at startup\n    //   Applied to ALL meters (including 3rd-party library meters!)\n    //   JVM, Hikari, Resilience4j metrics all get 'region=india'\n    //\n    // Alternative: management.metrics.tags.region=india in application.yml\n    //   (equivalent, but MeterFilter allows conditional logic)\n    \n    public static void main(String[] a) {\n        System.out.println(\"MeterFilter: apply tags/renames/denies globally to all meters\");\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout_contains": ["MeterFilter:"] }],
+      "hints": ["MeterRegistryCustomizer: applied once at startup to global registry", "MeterFilter.commonTags(): equivalent to metrics.tags in application.yml", "DENY: prevents meter from being registered (saves memory + Prometheus space)"],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m20_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Razorpay observability — M20 T1 synthesis",
+      "scenario": "Production-grade metrics for all critical payment service operations.",
+      "instructions": "Build complete Razorpay observability:\n1. All 4 meter types: Counter, Timer, Gauge, DistributionSummary\n2. MeterRegistryCustomizer for global tags\n3. VisaGatewayHealthIndicator\n4. PaymentInfoContributor for /actuator/info\n5. @SpringBootTest (3 tests): counters, timers, health indicator all work\n\nAll 3 tests pass.",
+      "starter_code": "// Complete Razorpay M20 T1 observability synthesis\n",
+      "expected_solution": "import io.micrometer.core.instrument.*;\nimport io.micrometer.core.instrument.config.MeterFilter;\nimport org.springframework.boot.actuate.autoconfigure.metrics.MeterRegistryCustomizer;\nimport org.springframework.boot.actuate.health.*;\nimport org.springframework.boot.actuate.info.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Service\nclass RazorpayFullMetrics {\n    private final MeterRegistry reg;\n    private final AtomicInteger activePayments = new AtomicInteger(0);\n    private final Timer payTimer;\n    private final DistributionSummary amtSummary;\n    \n    RazorpayFullMetrics(MeterRegistry r) {\n        reg=r;\n        payTimer=Timer.builder(\"rp.payment.duration\").publishPercentiles(0.5,0.95,0.99).register(reg);\n        amtSummary=DistributionSummary.builder(\"rp.payment.amount\").baseUnit(\"rupees\").register(reg);\n        Gauge.builder(\"rp.payments.active\",activePayments,AtomicInteger::get).register(reg);\n    }\n    \n    public String process(String gateway, double amount) {\n        activePayments.incrementAndGet();\n        try {\n            return payTimer.record(()->{\n                reg.counter(\"rp.payments.total\",\"status\",\"success\",\"gateway\",gateway).increment();\n                amtSummary.record(amount);\n                return \"PAY-\"+System.currentTimeMillis();\n            });\n        } finally { activePayments.decrementAndGet(); }\n    }\n}\n\n@Component(\"visaGateway\")\nclass RazorpayVisaHealth implements HealthIndicator {\n    @Override public Health health() {\n        return Health.up().withDetail(\"gateway\",\"visa\").withDetail(\"status\",\"connected\").build();\n    }\n}\n\n@Configuration\nclass RazorpayObsConfig {\n    @Bean public MeterRegistryCustomizer<MeterRegistry> tags(){\n        return r->r.config().meterFilter(MeterFilter.commonTags(Tags.of(\"app\",\"razorpay-payments\")));\n    }\n    @Bean public InfoContributor info(){\n        return b->b.withDetail(\"service\",Map.of(\"name\",\"Razorpay Payment Service\",\"version\",\"3.0\"));\n    }\n}\n\n@SpringBootTest\nclass RazorpayObsTest {\n    @Autowired RazorpayFullMetrics metrics;\n    @Autowired MeterRegistry reg;\n    @Autowired RazorpayVisaHealth health;\n    \n    @Test void counter_tracks_payments(){\n        metrics.process(\"visa\",999.0);\n        Counter c=reg.find(\"rp.payments.total\").tag(\"status\",\"success\").tag(\"gateway\",\"visa\").counter();\n        assertNotNull(c); assertTrue(c.count()>=1);\n    }\n    @Test void timer_records_duration(){\n        metrics.process(\"mastercard\",1499.0);\n        Timer t=reg.find(\"rp.payment.duration\").timer();\n        assertNotNull(t); assertTrue(t.count()>=1);\n    }\n    @Test void healthIndicator_returnsUp(){\n        Health h=health.health();\n        assertEquals(Status.UP,h.getStatus());\n    }\n}",
+      "test_cases": [{ "type": "tests_pass", "expected": "3 tests pass" }],
+      "hints": ["activePayments in finally: ensures gauge decrements even on exception", "reg.find().timer(): finds first timer matching the name (no tag filter needed here)", "Health.up(): status UP; getStatus() returns Status.UP enum"],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": { "warmup": 3, "easy": 3, "medium": 6, "hard": 3 },
+    "by_type": { "fill_blank": 1, "code_scratch": 13, "predict_output": 1 },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 70
+  }
+}

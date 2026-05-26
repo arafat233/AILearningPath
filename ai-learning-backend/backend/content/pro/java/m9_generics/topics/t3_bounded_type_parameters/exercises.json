@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t3",
+  "topic_name": "Bounded Type Parameters",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m9_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace bounded type — which calls compile?",
+      "scenario": "Bounds restrict which types can substitute for T.",
+      "instructions": "A method is declared: `static <T extends Number> double doubled(T n) { return n.doubleValue() * 2; }`\n\nWhich of these COMPILE? Write C or E for each:\n```\nA: doubled(42)\nB: doubled(3.14)\nC: doubled(\"hello\")\nD: doubled(100L)\nE: doubled(true)\n```",
+      "expected_solution": "A: C\nB: C\nC: E\nD: C\nE: E",
+      "test_cases": [
+        { "type": "text_match", "expected": "A: C\nB: C\nC: E\nD: C\nE: E" }
+      ],
+      "hints": [
+        "Integer, Double, Long all extend Number → C",
+        "String does not extend Number → E",
+        "Boolean does not extend Number → E"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add Comparable bound",
+      "scenario": "Bound must be added to use compareTo.",
+      "instructions": "Fill in the blank so `max()` can call `compareTo()` on T.",
+      "starter_code": "import java.util.*;\npublic class App {\n    static <T ______ Comparable<T>> T max(List<T> list) {\n        T result = list.get(0);\n        for (T item : list) if (item.compareTo(result) > 0) result = item;\n        return result;\n    }\n    public static void main(String[] args) {\n        System.out.println(max(Arrays.asList(3, 1, 4, 1, 5)));\n    }\n}",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Comparable<T>> T max(List<T> list) {\n        T result = list.get(0);\n        for (T item : list) if (item.compareTo(result) > 0) result = item;\n        return result;\n    }\n    public static void main(String[] args) {\n        System.out.println(max(Arrays.asList(3, 1, 4, 1, 5)));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "extends", "hint": "In generics, always use extends — even for interfaces" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "5" }
+      ],
+      "hints": [
+        "Generics use 'extends' for both class and interface bounds",
+        "Never use 'implements' in a type bound"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m9_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Generic min method",
+      "scenario": "Implement min using Comparable bound.",
+      "instructions": "Write `min(List<T>)` returning the minimum element using compareTo. Test with integers and strings.\n\nExpected output:\n1\nAisha",
+      "starter_code": "import java.util.*;\n// Generic min — T extends Comparable<T>\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Comparable<T>> T min(List<T> list) {\n        if (list.isEmpty()) throw new IllegalArgumentException(\"Empty list\");\n        T result = list.get(0);\n        for (T item : list) if (item.compareTo(result) < 0) result = item;\n        return result;\n    }\n    public static void main(String[] args) {\n        System.out.println(min(Arrays.asList(3, 1, 4, 1, 5)));\n        System.out.println(min(Arrays.asList(\"Priya\", \"Aisha\", \"Raj\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "1\nAisha" }
+      ],
+      "hints": [
+        "static <T extends Comparable<T>> T min(List<T> list)",
+        "compareTo returns negative if item < result",
+        "Aisha is lexicographically smallest"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m9_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Generic sum with Number bound",
+      "scenario": "Sum any list of numbers using Number.doubleValue().",
+      "instructions": "Write `sum(List<T extends Number>)` returning double. Test with List<Integer>, List<Double>, List<Long>.\n\nExpected output:\n60.0\n7.5\n600.0",
+      "starter_code": "import java.util.*;\n// Generic sum with Number bound\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Number> double sum(List<T> numbers) {\n        double total = 0;\n        for (T n : numbers) total += n.doubleValue();\n        return total;\n    }\n    public static void main(String[] args) {\n        System.out.println(sum(Arrays.asList(10, 20, 30)));\n        System.out.println(sum(Arrays.asList(1.5, 2.5, 3.5)));\n        System.out.println(sum(Arrays.asList(100L, 200L, 300L)));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "60.0\n7.5\n600.0" }
+      ],
+      "hints": [
+        "static <T extends Number> double sum(List<T> numbers)",
+        "n.doubleValue() — Number method available on any T",
+        "Works for Integer, Double, Long — all extend Number"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m9_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic clamp method",
+      "scenario": "Keep a value within a range using Comparable.",
+      "instructions": "Write `clamp(T value, T min, T max)` — returns value clamped within [min, max].\n\nExpected output:\n10\n5\n0\nPriya",
+      "starter_code": "import java.util.*;\n// Generic clamp with Comparable bound\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Comparable<T>> T clamp(T value, T min, T max) {\n        if (value.compareTo(min) < 0) return min;\n        if (value.compareTo(max) > 0) return max;\n        return value;\n    }\n    public static void main(String[] args) {\n        System.out.println(clamp(15, 0, 10));    // > max → max\n        System.out.println(clamp(5,  0, 10));    // in range → unchanged\n        System.out.println(clamp(-3, 0, 10));    // < min → min\n        System.out.println(clamp(\"Priya\", \"Aisha\", \"Raj\"));  // between → Priya\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "10\n5\n0\nPriya" }
+      ],
+      "hints": [
+        "static <T extends Comparable<T>> T clamp(T value, T min, T max)",
+        "compareTo < 0 means value < min; > 0 means value > max",
+        "Priya is alphabetically between Aisha and Raj"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m9_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "SortedBox<T extends Comparable<T>>",
+      "scenario": "Generic class with Comparable bound keeps items sorted.",
+      "instructions": "Create `SortedBox<T extends Comparable<T>>` that maintains a sorted list. add(T), min(), max(), toList().\n\nExpected output:\n[Aisha, Priya, Raj]\nMin: Aisha | Max: Raj\n[1, 2, 3, 5, 8]",
+      "starter_code": "import java.util.*;\n// SortedBox<T extends Comparable<T>>\n",
+      "expected_solution": "import java.util.*;\nclass SortedBox<T extends Comparable<T>> {\n    private List<T> items = new ArrayList<>();\n    \n    void add(T item) {\n        items.add(item);\n        Collections.sort(items);  // OK because T extends Comparable\n    }\n    T min() { return items.isEmpty() ? null : items.get(0); }\n    T max() { return items.isEmpty() ? null : items.get(items.size()-1); }\n    List<T> toList() { return Collections.unmodifiableList(items); }\n}\npublic class App {\n    public static void main(String[] args) {\n        SortedBox<String> words = new SortedBox<>();\n        words.add(\"Raj\"); words.add(\"Aisha\"); words.add(\"Priya\");\n        System.out.println(words.toList());\n        System.out.println(\"Min: \" + words.min() + \" | Max: \" + words.max());\n        \n        SortedBox<Integer> nums = new SortedBox<>();\n        for (int n : new int[]{5,3,8,1,2}) nums.add(n);\n        System.out.println(nums.toList());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha, Priya, Raj]\nMin: Aisha | Max: Raj\n[1, 2, 3, 5, 8]" }
+      ],
+      "hints": [
+        "class SortedBox<T extends Comparable<T>>",
+        "Collections.sort(items) works because T is Comparable",
+        "After sort, first element is min, last is max"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Generic isBetween method",
+      "scenario": "Check if a value is within a range.",
+      "instructions": "Write `isBetween(T value, T low, T high)` returning boolean. Test with numbers and strings.\n\nExpected output:\ntrue\nfalse\ntrue\nfalse",
+      "starter_code": "import java.util.*;\n// Generic isBetween with Comparable bound\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Comparable<T>> boolean isBetween(T value, T low, T high) {\n        return value.compareTo(low) >= 0 && value.compareTo(high) <= 0;\n    }\n    public static void main(String[] args) {\n        System.out.println(isBetween(75, 60, 100));  // true\n        System.out.println(isBetween(55, 60, 100));  // false\n        System.out.println(isBetween(\"Raj\", \"Aisha\", \"Vikram\")); // true (alphabetical)\n        System.out.println(isBetween(\"Zara\", \"Aisha\", \"Vikram\")); // false\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "true\nfalse\ntrue\nfalse" }
+      ],
+      "hints": [
+        "value >= low AND value <= high using compareTo",
+        "compareTo >= 0 means value >= low"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m9_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Generic average with Number bound",
+      "scenario": "Average any numeric list.",
+      "instructions": "Write `average(List<T extends Number>)` returning OptionalDouble (empty if list is empty). Test with three numeric types.\n\nExpected output:\n84.33333333333333\n2.5\nOptionalDouble.empty",
+      "starter_code": "import java.util.*;\n// Generic average with Number bound\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Number> OptionalDouble average(List<T> nums) {\n        if (nums.isEmpty()) return OptionalDouble.empty();\n        double sum = 0;\n        for (T n : nums) sum += n.doubleValue();\n        return OptionalDouble.of(sum / nums.size());\n    }\n    public static void main(String[] args) {\n        System.out.println(average(Arrays.asList(85, 92, 78, 95, 68, 88)).getAsDouble());\n        System.out.println(average(Arrays.asList(1.5, 2.5, 3.5)).getAsDouble());\n        System.out.println(average(new ArrayList<Integer>()));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "84.33333333333333\n2.5\nOptionalDouble.empty" }
+      ],
+      "hints": [
+        "Return OptionalDouble — handles empty case",
+        "sum / nums.size() for the average",
+        "(85+92+78+95+68+88)/6 = 506/6 = 84.333..."
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m9_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multiple bounds — Number AND Comparable",
+      "scenario": "Dual bound grants both numeric operations and comparison.",
+      "instructions": "Write `median(List<T>)` where `T extends Number & Comparable<T>`. Sort the list (Comparable), then return middle element.\n\nExpected output:\n3\n3.5\n300",
+      "starter_code": "import java.util.*;\n// median with T extends Number & Comparable<T>\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Number & Comparable<T>> T median(List<T> list) {\n        if (list.isEmpty()) throw new IllegalArgumentException(\"Empty list\");\n        List<T> sorted = new ArrayList<>(list);\n        Collections.sort(sorted);  // uses Comparable\n        return sorted.get(sorted.size() / 2);\n    }\n    public static void main(String[] args) {\n        System.out.println(median(Arrays.asList(5, 1, 3, 4, 2)));         // [1,2,3,4,5] → 3\n        System.out.println(median(Arrays.asList(1.5, 4.5, 3.5, 2.5)));   // [1.5,2.5,3.5,4.5] → 3.5\n        System.out.println(median(Arrays.asList(500L, 100L, 300L)));      // [100,300,500] → 300\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "3\n3.5\n300" }
+      ],
+      "hints": [
+        "T extends Number & Comparable<T> — both required",
+        "Collections.sort() needs Comparable (second bound)",
+        "Index size/2 gives middle element (for odd-length, exact middle)"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "multiple_bounds"
+    },
+
+    {
+      "id": "java_m9_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Bound prevents wrong type at compile time",
+      "scenario": "Compile error for types that don't satisfy the bound.",
+      "instructions": "Given: `static <T extends Comparable<T>> T max(List<T> list)`\n\nWhich calls COMPILE (C) and which give ERRORS (E)?\n\n```\nA: max(List.of(3, 1, 4))               // Integer\nB: max(List.of(\"Raj\", \"Aisha\"))        // String\nC: max(List.of(new Object()))           // Object\nD: max(List.of(3.14, 2.71))            // Double\nE: max(List.of(new ArrayList<>()))     // ArrayList\n```",
+      "expected_solution": "A: C\nB: C\nC: E\nD: C\nE: E",
+      "test_cases": [
+        { "type": "text_match", "expected": "A: C\nB: C\nC: E\nD: C\nE: E" }
+      ],
+      "hints": [
+        "Integer, String, Double all implement Comparable → C",
+        "Object implements Comparable? No → E",
+        "ArrayList implements Comparable? No → E"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m9_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic NumberBox with arithmetic",
+      "scenario": "Bounded generic class with numeric operations.",
+      "instructions": "Create `NumberBox<T extends Number>` that stores a value and supports: doubleValue(), longValue(), isPositive(), isZero(), percentage(double total) = (value / total) * 100.\n\nTest with Integer and Double.\n\nExpected output:\nIntBox: 42 as double: 42.0 | positive: true\nDblBox: 7.5 as long: 7 | positive: true\n42 is 21.0% of 200\n7.5 is 25.0% of 30",
+      "starter_code": "// NumberBox<T extends Number>\n",
+      "expected_solution": "class NumberBox<T extends Number> {\n    private final T value;\n    NumberBox(T v) { value = v; }\n    T get()              { return value; }\n    double doubleValue() { return value.doubleValue(); }\n    long longValue()     { return value.longValue(); }\n    boolean isPositive() { return value.doubleValue() > 0; }\n    boolean isZero()     { return value.doubleValue() == 0; }\n    double percentage(double total) { return (value.doubleValue() / total) * 100; }\n    public String toString() { return \"NumberBox(\" + value + \")\"; }\n}\npublic class App {\n    public static void main(String[] args) {\n        NumberBox<Integer> ib = new NumberBox<>(42);\n        NumberBox<Double>  db = new NumberBox<>(7.5);\n        System.out.println(\"IntBox: \" + ib.get() + \" as double: \" + ib.doubleValue() + \" | positive: \" + ib.isPositive());\n        System.out.println(\"DblBox: \" + db.get() + \" as long: \" + db.longValue() + \" | positive: \" + db.isPositive());\n        System.out.println(ib.get() + \" is \" + ib.percentage(200) + \"% of 200\");\n        System.out.println(db.get() + \" is \" + db.percentage(30) + \"% of 30\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "IntBox: 42 as double: 42.0 | positive: true\nDblBox: 7.5 as long: 7 | positive: true\n42 is 21.0% of 200\n7.5 is 25.0% of 30" }
+      ],
+      "hints": [
+        "class NumberBox<T extends Number>",
+        "All methods use value.doubleValue() or value.longValue()",
+        "42/200 * 100 = 21.0%; 7.5/30 * 100 = 25.0%"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m9_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic range check and sort",
+      "scenario": "Methods using Comparable bound for range and sorting.",
+      "instructions": "Write a `RangeUtils` class with:\n- `<T extends Comparable<T>> boolean overlaps(T aMin, T aMax, T bMin, T bMax)` — do ranges [a,a] and [b,b] overlap?\n- `<T extends Comparable<T>> List<T> sorted(List<T>)` — return sorted copy\n\nExpected output:\nRanges [1,5] and [3,7] overlap: true\nRanges [1,3] and [5,7] overlap: false\nSorted: [Aisha, Priya, Raj, Vikram]",
+      "starter_code": "import java.util.*;\n// RangeUtils: overlaps and sorted\n",
+      "expected_solution": "import java.util.*;\nclass RangeUtils {\n    static <T extends Comparable<T>> boolean overlaps(T aMin, T aMax, T bMin, T bMax) {\n        // Ranges overlap if neither is entirely before the other\n        return aMin.compareTo(bMax) <= 0 && bMin.compareTo(aMax) <= 0;\n    }\n    static <T extends Comparable<T>> List<T> sorted(List<T> list) {\n        List<T> copy = new ArrayList<>(list);\n        Collections.sort(copy);\n        return copy;\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(\"Ranges [1,5] and [3,7] overlap: \" + RangeUtils.overlaps(1, 5, 3, 7));\n        System.out.println(\"Ranges [1,3] and [5,7] overlap: \" + RangeUtils.overlaps(1, 3, 5, 7));\n        List<String> names = Arrays.asList(\"Raj\", \"Aisha\", \"Vikram\", \"Priya\");\n        System.out.println(\"Sorted: \" + RangeUtils.sorted(names));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Ranges [1,5] and [3,7] overlap: true\nRanges [1,3] and [5,7] overlap: false\nSorted: [Aisha, Priya, Raj, Vikram]" }
+      ],
+      "hints": [
+        "Overlap condition: aMin <= bMax AND bMin <= aMax",
+        "[1,5] and [3,7]: 1<=7 AND 3<=5 → true",
+        "[1,3] and [5,7]: 1<=7 but 5>3 → false"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m9_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Statistics<T extends Number & Comparable<T>>",
+      "scenario": "The worked example — dual bound for full statistics.",
+      "instructions": "Implement the full `Statistics<T extends Number & Comparable<T>>` class: add(), count(), sum(), average(), min(), max(), range(), isBetween(T).\n\nTest with exam scores and stock prices.\n\nExpected output:\nCount: 6, Sum: 506.0, Avg: 84.33\nMin: 68, Max: 95, Range: 27.0\n90 in range: true\nAvg price: ₹2078.0",
+      "starter_code": "import java.util.*;\n// Statistics<T extends Number & Comparable<T>> — full implementation\n",
+      "expected_solution": "import java.util.*;\nclass Statistics<T extends Number & Comparable<T>> {\n    private List<T> data = new ArrayList<>();\n    void add(T v)        { data.add(v); }\n    void addAll(List<T> l) { data.addAll(l); }\n    int count()          { return data.size(); }\n    double sum()         { double t=0; for (T n:data) t+=n.doubleValue(); return t; }\n    double average()     { return data.isEmpty() ? 0 : sum()/count(); }\n    T min() { T r=data.get(0); for (T n:data) if (n.compareTo(r)<0) r=n; return r; }\n    T max() { T r=data.get(0); for (T n:data) if (n.compareTo(r)>0) r=n; return r; }\n    double range()       { return max().doubleValue()-min().doubleValue(); }\n    boolean isBetween(T v) { return v.compareTo(min())>=0 && v.compareTo(max())<=0; }\n}\npublic class App {\n    public static void main(String[] args) {\n        Statistics<Integer> scores = new Statistics<>();\n        scores.addAll(Arrays.asList(85, 92, 78, 95, 68, 88));\n        System.out.printf(\"Count: %d, Sum: %.1f, Avg: %.2f%n\",\n            scores.count(), scores.sum(), scores.average());\n        System.out.printf(\"Min: %d, Max: %d, Range: %.1f%n\",\n            scores.min(), scores.max(), scores.range());\n        System.out.println(\"90 in range: \" + scores.isBetween(90));\n        \n        Statistics<Double> prices = new Statistics<>();\n        prices.addAll(Arrays.asList(2450.0, 3890.0, 1560.0, 412.0));\n        System.out.println(\"Avg price: ₹\" + prices.average());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Count: 6, Sum: 506.0, Avg: 84.33\nMin: 68, Max: 95, Range: 27.0\n90 in range: true\nAvg price: ₹2078.0" }
+      ],
+      "hints": [
+        "Dual bound: both Number (for doubleValue) and Comparable (for compareTo) methods available",
+        "range() uses both: max().doubleValue() - min().doubleValue()",
+        "sum of scores = 506, average = 84.333..., formatted to 2 decimals"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Generic binary search",
+      "scenario": "Binary search needs Comparable to compare elements.",
+      "instructions": "Implement `binarySearch(List<T>, T target)` where T extends Comparable<T>. Return the index (or -1 if not found). List must be sorted.\n\nExpected output:\nIndex of 42: 4\nIndex of 100: -1\nIndex of Priya: 2",
+      "starter_code": "import java.util.*;\n// Generic binary search with Comparable bound\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static <T extends Comparable<T>> int binarySearch(List<T> sorted, T target) {\n        int low = 0, high = sorted.size() - 1;\n        while (low <= high) {\n            int mid = (low + high) / 2;\n            int cmp = sorted.get(mid).compareTo(target);\n            if (cmp == 0) return mid;\n            if (cmp < 0)  low  = mid + 1;\n            else          high = mid - 1;\n        }\n        return -1;\n    }\n    public static void main(String[] args) {\n        List<Integer> nums = Arrays.asList(10, 20, 25, 35, 42, 56, 78);\n        System.out.println(\"Index of 42: \" + binarySearch(nums, 42));\n        System.out.println(\"Index of 100: \" + binarySearch(nums, 100));\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\", \"Vikram\");\n        Collections.sort(names);\n        System.out.println(\"Index of Priya: \" + binarySearch(names, \"Priya\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Index of 42: 4\nIndex of 100: -1\nIndex of Priya: 2" }
+      ],
+      "hints": [
+        "Binary search: compare mid element to target using compareTo",
+        "cmp < 0: target is in right half; cmp > 0: target is in left half",
+        "Sorted names: [Aisha, Priya, Raj, Vikram] — Priya at index 2"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m9_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete bounded generics utility — Comparisons",
+      "scenario": "Six methods using Comparable and Number bounds.",
+      "instructions": "Build `ComparableUtils` with six bounded generic methods:\n1. `<T extends Comparable<T>> T max(List<T>)` — max of list\n2. `<T extends Comparable<T>> T min(List<T>)` — min of list\n3. `<T extends Comparable<T>> T clamp(T v, T lo, T hi)` — keep in range\n4. `<T extends Comparable<T>> List<T> sorted(List<T>)` — sorted copy\n5. `<T extends Number> double sum(List<T>)` — sum\n6. `<T extends Number & Comparable<T>> T medianOf(T a, T b, T c)` — middle of 3 values\n\nTest all 6 with appropriate data.\n\nExpected output:\nMax: 95\nMin: 68\nClamp 150 in [0,100]: 100\nSorted: [Aisha, Priya, Raj]\nSum: 506.0\nMedian of 8,3,5: 5",
+      "starter_code": "import java.util.*;\n// ComparableUtils — 6 bounded generic methods\n",
+      "expected_solution": "import java.util.*;\nclass ComparableUtils {\n    static <T extends Comparable<T>> T max(List<T> list) {\n        T r = list.get(0); for (T t : list) if (t.compareTo(r) > 0) r = t; return r;\n    }\n    static <T extends Comparable<T>> T min(List<T> list) {\n        T r = list.get(0); for (T t : list) if (t.compareTo(r) < 0) r = t; return r;\n    }\n    static <T extends Comparable<T>> T clamp(T v, T lo, T hi) {\n        if (v.compareTo(lo) < 0) return lo;\n        if (v.compareTo(hi) > 0) return hi;\n        return v;\n    }\n    static <T extends Comparable<T>> List<T> sorted(List<T> list) {\n        List<T> copy = new ArrayList<>(list);\n        Collections.sort(copy);\n        return copy;\n    }\n    static <T extends Number> double sum(List<T> nums) {\n        double t = 0; for (T n : nums) t += n.doubleValue(); return t;\n    }\n    static <T extends Number & Comparable<T>> T medianOf(T a, T b, T c) {\n        T big = a.compareTo(b) > 0 ? a : b;\n        T mid = big.compareTo(c) > 0\n            ? (a.compareTo(b) < 0 ? b : a).compareTo(c) < 0\n                ? (a.compareTo(b) < 0 ? b : a) : c\n            : big;\n        // Simpler: sort all three\n        List<T> three = new ArrayList<>(Arrays.asList(a, b, c));\n        Collections.sort(three);\n        return three.get(1);\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> scores = Arrays.asList(85, 92, 78, 95, 68, 88);\n        System.out.println(\"Max: \" + ComparableUtils.max(scores));\n        System.out.println(\"Min: \" + ComparableUtils.min(scores));\n        System.out.println(\"Clamp 150 in [0,100]: \" + ComparableUtils.clamp(150, 0, 100));\n        System.out.println(\"Sorted: \" + ComparableUtils.sorted(Arrays.asList(\"Raj\",\"Aisha\",\"Priya\")));\n        System.out.println(\"Sum: \" + ComparableUtils.sum(scores));\n        System.out.println(\"Median of 8,3,5: \" + ComparableUtils.medianOf(8, 3, 5));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Max: 95\nMin: 68\nClamp 150 in [0,100]: 100\nSorted: [Aisha, Priya, Raj]\nSum: 506.0\nMedian of 8,3,5: 5" }
+      ],
+      "hints": [
+        "medianOf: sort [8, 3, 5] → [3, 5, 8] → middle = 5",
+        "clamp(150, 0, 100): 150 > 100 → return 100",
+        "Each method has its own appropriate bound"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 745,
+    "estimated_completion_minutes": 65
+  }
+}

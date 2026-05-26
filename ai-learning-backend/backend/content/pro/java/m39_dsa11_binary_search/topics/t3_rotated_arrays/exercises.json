@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m39_t3",
+  "topic_name": "Rotated Arrays \u2014 Search, Find Min, Find Peak",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m39_t3_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Classic binary search",
+      "instructions": "Implement: Classic binary search.",
+      "starter_code": "",
+      "expected_solution": "public class BinarySearch {\n    static int search(int[] a, int t){int lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[m]<t)lo=m+1;else hi=m-1;}return -1;}\n    public static void main(String[] a){System.out.println(search(new int[]{-1,0,3,5,9,12},9));System.out.println(search(new int[]{-1,0,3,5,9,12},2));System.out.println(\"O(log n) \u2014 lo+(hi-lo)/2 avoids overflow. Loop condition: lo<=hi\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "-1",
+            "O(log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m39_t3_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "First and last occurrence",
+      "instructions": "Implement: First and last occurrence.",
+      "starter_code": "",
+      "expected_solution": "public class FirstLast {\n    static int first(int[] a,int t){int lo=0,hi=a.length-1,res=-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t){res=m;hi=m-1;}else if(a[m]<t)lo=m+1;else hi=m-1;}return res;}\n    static int last(int[] a,int t){int lo=0,hi=a.length-1,res=-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t){res=m;lo=m+1;}else if(a[m]<t)lo=m+1;else hi=m-1;}return res;}\n    public static void main(String[] a){int[] arr={5,7,7,8,8,10};System.out.println(first(arr,8)+\" \"+last(arr,8));System.out.println(first(arr,6)+\" \"+last(arr,6));System.out.println(\"First: when found, hi=m-1 (go left). Last: when found, lo=m+1 (go right).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3 4",
+            "-1 -1",
+            "First: when found, hi=m-1"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m39_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Search insert position (LeetCode #35)",
+      "instructions": "Implement: Search insert position (LeetCode #35).",
+      "starter_code": "",
+      "expected_solution": "public class SearchInsert {\n    static int searchInsert(int[] a, int t){int lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[m]<t)lo=m+1;else hi=m-1;}return lo;}\n    public static void main(String[] a){System.out.println(searchInsert(new int[]{1,3,5,6},5));System.out.println(searchInsert(new int[]{1,3,5,6},2));System.out.println(searchInsert(new int[]{1,3,5,6},7));System.out.println(\"Return lo when not found \u2014 lo is the correct insertion position.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "1",
+            "4",
+            "Return lo when not found"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m39_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Search in rotated sorted array (LeetCode #33)",
+      "instructions": "Implement: Search in rotated sorted array (LeetCode #33).",
+      "starter_code": "",
+      "expected_solution": "public class RotatedSearch {\n    static int search(int[] a, int t){int lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[lo]<=a[m]){if(a[lo]<=t&&t<a[m])hi=m-1;else lo=m+1;}else{if(a[m]<t&&t<=a[hi])lo=m+1;else hi=m-1;}}return -1;}\n    public static void main(String[] a){System.out.println(search(new int[]{4,5,6,7,0,1,2},0));System.out.println(search(new int[]{4,5,6,7,0,1,2},3));System.out.println(\"Determine which half is sorted; check if target is in that half.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "-1",
+            "Determine which half is sorted"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m39_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find minimum in rotated sorted array (LeetCode #153)",
+      "instructions": "Implement: Find minimum in rotated sorted array (LeetCode #153).",
+      "starter_code": "",
+      "expected_solution": "public class RotatedMin {\n    static int findMin(int[] a){int lo=0,hi=a.length-1;while(lo<hi){int m=lo+(hi-lo)/2;if(a[m]>a[hi])lo=m+1;else hi=m;}return a[lo];}\n    public static void main(String[] a){System.out.println(findMin(new int[]{3,4,5,1,2}));System.out.println(findMin(new int[]{4,5,6,7,0,1,2}));System.out.println(findMin(new int[]{11,13,15,17}));System.out.println(\"a[m]>a[hi]: min is in right half. Else: min is in left half (or m). Loop: lo<hi\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "0",
+            "11",
+            "a[m]>a[hi]: min is in right half"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m39_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Search a 2D Matrix (LeetCode #74)",
+      "instructions": "Implement: Search a 2D Matrix (LeetCode #74).",
+      "starter_code": "",
+      "expected_solution": "public class Matrix2D {\n    static boolean searchMatrix(int[][] m, int t){int r=m.length,c=m[0].length,lo=0,hi=r*c-1;while(lo<=hi){int mid=lo+(hi-lo)/2,v=m[mid/c][mid%c];if(v==t)return true;if(v<t)lo=mid+1;else hi=mid-1;}return false;}\n    public static void main(String[] a){int[][] m={{1,3,5,7},{10,11,16,20},{23,30,34,60}};System.out.println(searchMatrix(m,3));System.out.println(searchMatrix(m,13));System.out.println(\"Treat 2D as 1D: mid/cols=row, mid%cols=col. O(log(m*n))\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "O(log(m*n))"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m39_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sqrt (LeetCode #69)",
+      "instructions": "Implement: Sqrt (LeetCode #69).",
+      "starter_code": "",
+      "expected_solution": "public class Sqrt {\n    static int mySqrt(int x){if(x<2)return x;int lo=1,hi=x/2;while(lo<=hi){int m=lo+(hi-lo)/2;if((long)m*m==x)return m;if((long)m*m<x)lo=m+1;else hi=m-1;}return hi;}\n    public static void main(String[] a){System.out.println(mySqrt(4));System.out.println(mySqrt(8));System.out.println(mySqrt(2147395600));System.out.println(\"O(log n). Use (long)m*m to avoid int overflow. Return hi (floor).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "2",
+            "46340",
+            "O(log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m39_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Find Peak Element (LeetCode #162)",
+      "instructions": "Implement: Find Peak Element (LeetCode #162).",
+      "starter_code": "",
+      "expected_solution": "public class PeakElement {\n    static int findPeakElement(int[] a){int lo=0,hi=a.length-1;while(lo<hi){int m=lo+(hi-lo)/2;if(a[m]>a[m+1])hi=m;else lo=m+1;}return lo;}\n    public static void main(String[] a){System.out.println(findPeakElement(new int[]{1,2,3,1}));System.out.println(findPeakElement(new int[]{1,2,1,3,5,6,4}));System.out.println(\"a[m]>a[m+1]: peak in left half (including m). Else: peak in right half. O(log n).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "5",
+            "O(log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m39_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Koko Eating Bananas \u2014 binary search on answer",
+      "instructions": "Implement: Koko Eating Bananas \u2014 binary search on answer.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class KokoEating {\n    static int minEatingSpeed(int[] piles, int h){int lo=1,hi=Arrays.stream(piles).max().getAsInt();while(lo<hi){int m=lo+(hi-lo)/2;if(canEat(piles,m,h))hi=m;else lo=m+1;}return lo;}\n    static boolean canEat(int[] p,int k,int h){int hrs=0;for(int x:p)hrs+=(x+k-1)/k;return hrs<=h;}\n    public static void main(String[] a){System.out.println(minEatingSpeed(new int[]{3,6,7,11},8));System.out.println(minEatingSpeed(new int[]{30,11,23,4,20},5));System.out.println(\"Binary search on answer space [1..max]. Check feasibility. O(n log max).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "30",
+            "Binary search on answer space"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m39_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "H-Index (LeetCode #274)",
+      "instructions": "Implement: H-Index (LeetCode #274).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HIndex {\n    static int hIndex(int[] c){Arrays.sort(c);int n=c.length,h=0;for(int i=0;i<n;i++)h=Math.max(h,Math.min(c[i],n-i));return h;}\n    public static void main(String[] a){System.out.println(hIndex(new int[]{3,0,6,1,5}));System.out.println(hIndex(new int[]{1,3,1}));System.out.println(\"Sort: for each paper i, h-index contribution = min(citations[i], remaining papers = n-i).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "1",
+            "min(citations[i], remaining papers"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m39_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "BS synthesis \u2014 rotated + search on answer + 2D",
+      "instructions": "Implement: BS synthesis \u2014 rotated + search on answer + 2D.",
+      "starter_code": "",
+      "expected_solution": "public class BSSynth {\n    static int rotSearch(int[] a,int t){int lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[lo]<=a[m]){if(a[lo]<=t&&t<a[m])hi=m-1;else lo=m+1;}else{if(a[m]<t&&t<=a[hi])lo=m+1;else hi=m-1;}}return -1;}\n    static int koko(int[] p,int h){int lo=1,hi=0;for(int x:p)hi=Math.max(hi,x);while(lo<hi){int m=lo+(hi-lo)/2;int hrs=0;for(int x:p)hrs+=(x+m-1)/m;if(hrs<=h)hi=m;else lo=m+1;}return lo;}\n    static int sqrtBS(int x){if(x<2)return x;int lo=1,hi=x/2;while(lo<=hi){int m=lo+(hi-lo)/2;if((long)m*m==x)return m;if((long)m*m<x)lo=m+1;else hi=m-1;}return hi;}\n    public static void main(String[] a){System.out.println(rotSearch(new int[]{4,5,6,7,0,1,2},0));System.out.println(koko(new int[]{3,6,7,11},8));System.out.println(sqrtBS(8));boolean ok=rotSearch(new int[]{4,5,6,7,0,1,2},0)==4&&koko(new int[]{3,6,7,11},8)==4&&sqrtBS(8)==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "4",
+            "4",
+            "2"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m39_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M39 Binary Search Synthesis",
+      "instructions": "Implement: Complete M39 Binary Search Synthesis.",
+      "starter_code": "",
+      "expected_solution": "public class M39Final {\n    static int bs(int[] a,int t){int lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[m]<t)lo=m+1;else hi=m-1;}return -1;}\n    static int first(int[] a,int t){int lo=0,hi=a.length-1,r=-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t){r=m;hi=m-1;}else if(a[m]<t)lo=m+1;else hi=m-1;}return r;}\n    static int rotMin(int[] a){int lo=0,hi=a.length-1;while(lo<hi){int m=lo+(hi-lo)/2;if(a[m]>a[hi])lo=m+1;else hi=m;}return a[lo];}\n    static int searchInsert(int[] a,int t){int lo=0,hi=a.length-1;while(lo<=hi){int m=lo+(hi-lo)/2;if(a[m]==t)return m;if(a[m]<t)lo=m+1;else hi=m-1;}return lo;}\n    public static void main(String[] a){System.out.println(\"bs=\"+bs(new int[]{-1,0,3,5,9,12},9));System.out.println(\"first=\"+first(new int[]{5,7,7,8,8,10},8));System.out.println(\"rotMin=\"+rotMin(new int[]{3,4,5,1,2}));System.out.println(\"insert=\"+searchInsert(new int[]{1,3,5,6},2));boolean ok=bs(new int[]{-1,0,3,5,9,12},9)==4&&first(new int[]{5,7,7,8,8,10},8)==3&&rotMin(new int[]{3,4,5,1,2})==1;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "bs=4",
+            "first=3",
+            "rotMin=1",
+            "insert=1"
+          ]
+        }
+      ],
+      "hints": [
+        "lo/hi/mid",
+        "Check boundaries",
+        "Return lo when not found"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

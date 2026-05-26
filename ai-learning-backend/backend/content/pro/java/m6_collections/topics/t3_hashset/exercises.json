@@ -1,0 +1,357 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t3",
+  "topic_name": "HashSet",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m6_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace HashSet uniqueness",
+      "scenario": "Core Set guarantee: duplicates ignored.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.HashSet;\nimport java.util.Set;\n\npublic class App {\n    public static void main(String[] args) {\n        Set<String> set = new HashSet<>();\n        set.add(\"apple\");\n        set.add(\"banana\");\n        set.add(\"apple\");   // duplicate\n        set.add(\"cherry\");\n        set.add(\"banana\");  // duplicate\n        \n        System.out.println(set.size());\n        System.out.println(set.contains(\"apple\"));\n        System.out.println(set.contains(\"grape\"));\n    }\n}\n```",
+      "expected_solution": "3\ntrue\nfalse",
+      "test_cases": [
+        { "type": "text_match", "expected": "3\ntrue\nfalse" }
+      ],
+      "hints": [
+        "Duplicates are silently ignored: apple+apple → 1 apple",
+        "3 unique elements: apple, banana, cherry",
+        "contains is O(1)"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m6_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Deduplicate a list",
+      "scenario": "The instant deduplication pattern.",
+      "instructions": "Fill in the blank to remove duplicates from the list using a HashSet.",
+      "starter_code": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Aisha\", \"Priya\", \"Raj\");\n        \n        Set<String> unique = new ______(names);\n        \n        System.out.println(\"Unique count: \" + unique.size());\n    }\n}",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Aisha\", \"Priya\", \"Raj\");\n        \n        Set<String> unique = new HashSet<>(names);\n        \n        System.out.println(\"Unique count: \" + unique.size());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "HashSet<>", "hint": "Construct Set from a collection" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Unique count: 3" }
+      ],
+      "hints": [
+        "new HashSet<>(collection) adds all, deduplicating automatically",
+        "Aisha: 1, Raj: 1, Priya: 1 → 3 unique"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m6_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Basic Set operations",
+      "scenario": "Build a permission set and check membership.",
+      "instructions": "Create a `Set<String>` with permissions: READ, WRITE, DELETE.\nCheck if WRITE is allowed and if EXECUTE is allowed.\n\nExpected output:\nWRITE allowed: true\nEXECUTE allowed: false\nTotal permissions: 3",
+      "starter_code": "import java.util.HashSet;\nimport java.util.Set;\n\n// Permission set with membership checks\n",
+      "expected_solution": "import java.util.HashSet;\nimport java.util.Set;\n\npublic class App {\n    public static void main(String[] args) {\n        Set<String> permissions = new HashSet<>();\n        permissions.add(\"READ\");\n        permissions.add(\"WRITE\");\n        permissions.add(\"DELETE\");\n        \n        System.out.println(\"WRITE allowed: \" + permissions.contains(\"WRITE\"));\n        System.out.println(\"EXECUTE allowed: \" + permissions.contains(\"EXECUTE\"));\n        System.out.println(\"Total permissions: \" + permissions.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "WRITE allowed: true\nEXECUTE allowed: false\nTotal permissions: 3" }
+      ],
+      "hints": [
+        "Set<String> with add()",
+        "contains() for membership check — O(1)",
+        "size() for total"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m6_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Deduplicate and count unique items",
+      "scenario": "Count unique elements from a data source.",
+      "instructions": "Given an array of city names with duplicates, count how many UNIQUE cities there are.\n\nInput: [Hyderabad, Mumbai, Hyderabad, Chennai, Mumbai, Bengaluru, Delhi]\n\nExpected output:\nUnique cities: 5",
+      "starter_code": "import java.util.HashSet;\nimport java.util.Set;\n\n// Count unique cities using HashSet\n",
+      "expected_solution": "import java.util.HashSet;\nimport java.util.Set;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] cities = {\"Hyderabad\", \"Mumbai\", \"Hyderabad\", \"Chennai\", \"Mumbai\", \"Bengaluru\", \"Delhi\"};\n        \n        Set<String> unique = new HashSet<>();\n        for (String city : cities) unique.add(city);\n        \n        System.out.println(\"Unique cities: \" + unique.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Unique cities: 5" }
+      ],
+      "hints": [
+        "Add all cities to HashSet — duplicates auto-ignored",
+        "unique.size() gives count of unique cities",
+        "Or: new HashSet<>(Arrays.asList(cities)).size()"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m6_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find duplicate elements",
+      "scenario": "Use Set to identify which elements appear more than once.",
+      "instructions": "Given an int array, find all elements that appear MORE THAN ONCE. Print them in sorted order.\n\nInput: [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]\n\nExpected output:\nDuplicates: [1, 3, 5]",
+      "starter_code": "import java.util.*;\n\n// Find duplicates using two Sets\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        int[] nums = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3};\n        \n        Set<Integer> seen = new HashSet<>();\n        Set<Integer> duplicates = new TreeSet<>();  // TreeSet for sorted output\n        \n        for (int n : nums) {\n            if (!seen.add(n)) {   // add() returns false if already present\n                duplicates.add(n);\n            }\n        }\n        \n        System.out.println(\"Duplicates: \" + duplicates);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Duplicates: [1, 3, 5]" }
+      ],
+      "hints": [
+        "seen.add(n) returns false if n was already in the set",
+        "If add returns false → duplicate found",
+        "TreeSet keeps duplicates sorted automatically",
+        "1, 3, 5 each appear twice"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m6_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Set intersection — common skills",
+      "scenario": "Find elements present in both sets.",
+      "instructions": "Two sets of programming languages known by each person. Find languages BOTH know (intersection).\n\nAisha: [java, python, sql]\nRaj: [python, javascript, java]\n\nExpected output:\nCommon: [java, python]",
+      "starter_code": "import java.util.*;\n\n// Set intersection to find common languages\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Set<String> aisha = new HashSet<>(Arrays.asList(\"java\", \"python\", \"sql\"));\n        Set<String> raj = new HashSet<>(Arrays.asList(\"python\", \"javascript\", \"java\"));\n        \n        Set<String> common = new HashSet<>(aisha);  // copy!\n        common.retainAll(raj);                       // keep only in both\n        \n        List<String> sorted = new ArrayList<>(common);\n        Collections.sort(sorted);\n        System.out.println(\"Common: \" + sorted);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Common: [java, python]" }
+      ],
+      "hints": [
+        "Copy first: new HashSet<>(aisha) — don't mutate original",
+        "retainAll(raj) keeps only elements in both sets",
+        "Sort for deterministic output"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "set_intersection"
+    },
+    
+    {
+      "id": "java_m6_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "All three set operations",
+      "scenario": "Union, intersection, and difference.",
+      "instructions": "Two sets of student IDs in different courses. Compute all three operations.\n\nCourse A: {S01, S02, S03, S04}\nCourse B: {S03, S04, S05, S06}\n\nExpected output:\nUnion (all enrolled): [S01, S02, S03, S04, S05, S06]\nIntersection (both courses): [S03, S04]\nOnly in A: [S01, S02]",
+      "starter_code": "import java.util.*;\n\n// All three set operations: union, intersection, difference\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Set<String> courseA = new HashSet<>(Arrays.asList(\"S01\", \"S02\", \"S03\", \"S04\"));\n        Set<String> courseB = new HashSet<>(Arrays.asList(\"S03\", \"S04\", \"S05\", \"S06\"));\n        \n        // Union\n        Set<String> union = new HashSet<>(courseA);\n        union.addAll(courseB);\n        List<String> sortedUnion = new ArrayList<>(union);\n        Collections.sort(sortedUnion);\n        System.out.println(\"Union (all enrolled): \" + sortedUnion);\n        \n        // Intersection\n        Set<String> intersection = new HashSet<>(courseA);\n        intersection.retainAll(courseB);\n        List<String> sortedIntersection = new ArrayList<>(intersection);\n        Collections.sort(sortedIntersection);\n        System.out.println(\"Intersection (both courses): \" + sortedIntersection);\n        \n        // Difference A - B\n        Set<String> onlyA = new HashSet<>(courseA);\n        onlyA.removeAll(courseB);\n        List<String> sortedDiff = new ArrayList<>(onlyA);\n        Collections.sort(sortedDiff);\n        System.out.println(\"Only in A: \" + sortedDiff);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Union (all enrolled): [S01, S02, S03, S04, S05, S06]\nIntersection (both courses): [S03, S04]\nOnly in A: [S01, S02]" }
+      ],
+      "hints": [
+        "Always COPY before mutating: new HashSet<>(original)",
+        "Union: addAll(other)",
+        "Intersection: retainAll(other)",
+        "Difference A-B: removeAll(other)"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "set_operations"
+    },
+    
+    {
+      "id": "java_m6_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Visited URL tracker (web crawler pattern)",
+      "scenario": "The 'seen' pattern for processing unique items.",
+      "instructions": "Simulate processing URLs where some appear multiple times. Use a Set to process each URL EXACTLY ONCE.\n\nURLs to process: [/home, /about, /home, /products, /about, /contact, /products]\n\nExpected output:\nProcessing: /home\nProcessing: /about\nProcessing: /products\nProcessing: /contact\nTotal processed: 4",
+      "starter_code": "import java.util.*;\n\n// URL processor — process each URL exactly once\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] urls = {\"/home\", \"/about\", \"/home\", \"/products\", \"/about\", \"/contact\", \"/products\"};\n        \n        Set<String> visited = new HashSet<>();\n        \n        for (String url : urls) {\n            if (visited.add(url)) {   // add() returns true if newly added\n                System.out.println(\"Processing: \" + url);\n            }\n        }\n        \n        System.out.println(\"Total processed: \" + visited.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Processing: /home\nProcessing: /about\nProcessing: /products\nProcessing: /contact\nTotal processed: 4" }
+      ],
+      "hints": [
+        "visited.add(url) returns TRUE if newly added, FALSE if already present",
+        "Only process when add() returns true",
+        "This is the web crawler pattern!"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m6_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Permission checker with containsAll",
+      "scenario": "Does user have all required permissions?",
+      "instructions": "Check if a user has ALL required permissions using Set.containsAll().\n\nTest 3 users:\n- Aisha: [READ, WRITE, DELETE, ADMIN]\n- Raj: [READ, WRITE]\n- Priya: [READ, WRITE, DELETE]\n\nRequired: [READ, WRITE, DELETE]\n\nExpected output:\nAisha authorized: true\nRaj authorized: false\nPriya authorized: true",
+      "starter_code": "import java.util.*;\n\n// Permission check using containsAll\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    static boolean hasPermissions(Set<String> userPerms, Set<String> required) {\n        return userPerms.containsAll(required);\n    }\n    \n    public static void main(String[] args) {\n        Set<String> required = new HashSet<>(Arrays.asList(\"READ\", \"WRITE\", \"DELETE\"));\n        \n        Set<String> aisha = new HashSet<>(Arrays.asList(\"READ\", \"WRITE\", \"DELETE\", \"ADMIN\"));\n        Set<String> raj = new HashSet<>(Arrays.asList(\"READ\", \"WRITE\"));\n        Set<String> priya = new HashSet<>(Arrays.asList(\"READ\", \"WRITE\", \"DELETE\"));\n        \n        System.out.println(\"Aisha authorized: \" + hasPermissions(aisha, required));\n        System.out.println(\"Raj authorized: \" + hasPermissions(raj, required));\n        System.out.println(\"Priya authorized: \" + hasPermissions(priya, required));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha authorized: true\nRaj authorized: false\nPriya authorized: true" }
+      ],
+      "hints": [
+        "containsAll(required) returns true if user has ALL required permissions",
+        "Raj only has READ+WRITE, missing DELETE → false",
+        "Aisha has DELETE+more → true; Priya has exactly the required three → true"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m6_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "First non-repeated character",
+      "scenario": "Set to find characters appearing exactly once.",
+      "instructions": "Find the first character in a string that appears exactly ONCE.\n\nInput: 'aabbcddefa'\n\nExpected output:\nFirst unique: c",
+      "starter_code": "import java.util.*;\n\n// Use Map for counts, then find first char with count==1\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        String s = \"aabbcddefa\";\n        \n        // Count occurrences (Map — needed for counts)\n        Map<Character, Integer> count = new HashMap<>();\n        for (char c : s.toCharArray()) {\n            count.put(c, count.getOrDefault(c, 0) + 1);\n        }\n        \n        // First char with count == 1 (maintain original order — use string scan)\n        char result = ' ';\n        for (char c : s.toCharArray()) {\n            if (count.get(c) == 1) {\n                result = c;\n                break;\n            }\n        }\n        \n        System.out.println(\"First unique: \" + result);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "First unique: c" }
+      ],
+      "hints": [
+        "Count all characters first with Map<Character, Integer>",
+        "Then scan string again — first char where count == 1",
+        "Scan the original string (not map) to preserve order",
+        "a:2, b:2, c:1, d:2, e:1, f:1 → first with count 1 is 'c'"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m6_t3_ex_11",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace set operations — don't mutate originals",
+      "scenario": "Copy before operating.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\n\npublic class App {\n    public static void main(String[] args) {\n        Set<Integer> a = new HashSet<>(Arrays.asList(1, 2, 3, 4));\n        Set<Integer> b = new HashSet<>(Arrays.asList(3, 4, 5, 6));\n        \n        Set<Integer> copy = new HashSet<>(a);\n        copy.retainAll(b);\n        \n        System.out.println(\"a.size: \" + a.size());\n        System.out.println(\"copy: \" + new TreeSet<>(copy));\n    }\n}\n```",
+      "expected_solution": "a.size: 4\ncopy: [3, 4]",
+      "test_cases": [
+        { "type": "text_match", "expected": "a.size: 4\ncopy: [3, 4]" }
+      ],
+      "hints": [
+        "copy = new HashSet<>(a) — copy made, a unchanged",
+        "copy.retainAll(b) mutates COPY, not a",
+        "a still has 4 elements",
+        "copy intersection = {3, 4}"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m6_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "User session tracker with HashSet",
+      "scenario": "Track active users, block suspicious ones.",
+      "instructions": "Build a `SessionTracker`:\n- `Set<String>` activeUsers (logged in)\n- `Set<String>` blockedUsers\n- `login(String userId)` — adds to active if not blocked\n- `logout(String userId)` — removes from active\n- `block(String userId)` — adds to blocked, removes from active\n- `isActive(String id)` and `isBlocked(String id)` checks\n\nExpected output:\nAisha active: true\nRaj blocked: true\nRaj active: false\nActive users: 2",
+      "starter_code": "import java.util.*;\n\n// SessionTracker with two Sets\n",
+      "expected_solution": "import java.util.*;\n\nclass SessionTracker {\n    private Set<String> activeUsers = new HashSet<>();\n    private Set<String> blockedUsers = new HashSet<>();\n    \n    public boolean login(String userId) {\n        if (blockedUsers.contains(userId)) return false;\n        return activeUsers.add(userId);\n    }\n    \n    public void logout(String userId) {\n        activeUsers.remove(userId);\n    }\n    \n    public void block(String userId) {\n        blockedUsers.add(userId);\n        activeUsers.remove(userId);\n    }\n    \n    public boolean isActive(String userId) { return activeUsers.contains(userId); }\n    public boolean isBlocked(String userId) { return blockedUsers.contains(userId); }\n    public int activeCount() { return activeUsers.size(); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        SessionTracker tracker = new SessionTracker();\n        tracker.login(\"aisha\");\n        tracker.login(\"raj\");\n        tracker.login(\"priya\");\n        tracker.block(\"raj\");       // block and remove from active\n        tracker.login(\"raj\");       // attempt to login — blocked, fails\n        \n        System.out.println(\"Aisha active: \" + tracker.isActive(\"aisha\"));\n        System.out.println(\"Raj blocked: \" + tracker.isBlocked(\"raj\"));\n        System.out.println(\"Raj active: \" + tracker.isActive(\"raj\"));\n        System.out.println(\"Active users: \" + tracker.activeCount());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha active: true\nRaj blocked: true\nRaj active: false\nActive users: 2" }
+      ],
+      "hints": [
+        "Two Sets: active and blocked",
+        "login: check blocked first; if blocked, return false",
+        "block: add to blocked, remove from active",
+        "isActive/isBlocked: contains() — O(1)"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m6_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Product recommendation engine",
+      "scenario": "Use Set difference for recommendations.",
+      "instructions": "Build a simple recommendation engine:\n- User has a Set<String> of viewed products\n- Catalog is a Set<String> of all products\n- `recommend(Set<String> viewed, Set<String> catalog)` returns all catalog products NOT YET viewed (set difference)\n\nTest: viewed=[Mouse, Keyboard], catalog=[Mouse, Keyboard, Monitor, Headphones, USB Hub]\n\nExpected output:\nRecommendations: [Headphones, Monitor, USB Hub]",
+      "starter_code": "import java.util.*;\n\n// Recommendation via Set difference: catalog minus viewed\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    static Set<String> recommend(Set<String> viewed, Set<String> catalog) {\n        Set<String> recommendations = new HashSet<>(catalog);\n        recommendations.removeAll(viewed);\n        return recommendations;\n    }\n    \n    public static void main(String[] args) {\n        Set<String> viewed = new HashSet<>(Arrays.asList(\"Mouse\", \"Keyboard\"));\n        Set<String> catalog = new HashSet<>(Arrays.asList(\n            \"Mouse\", \"Keyboard\", \"Monitor\", \"Headphones\", \"USB Hub\"));\n        \n        Set<String> recs = recommend(viewed, catalog);\n        List<String> sorted = new ArrayList<>(recs);\n        Collections.sort(sorted);\n        System.out.println(\"Recommendations: \" + sorted);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Recommendations: [Headphones, Monitor, USB Hub]" }
+      ],
+      "hints": [
+        "Copy catalog: new HashSet<>(catalog)",
+        "removeAll(viewed) removes already-seen products",
+        "Remaining = unseen = recommendations",
+        "Sort for deterministic output"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m6_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Social network — mutual friends",
+      "scenario": "Set operations model social connections.",
+      "instructions": "Build a `SocialGraph` where each user has a `Set<String>` of friends.\n- `addFriendship(a, b)` — mutual (adds both directions)\n- `mutualFriends(a, b)` — intersection of friend sets\n- `suggestions(user)` — friends-of-friends who aren't already friends (exclude self)\n\nTest graph: Aisha↔Raj, Aisha↔Priya, Raj↔Vikram, Priya↔Vikram\n\nExpected output:\nAisha & Raj mutual: [Priya]\nSuggestions for Aisha: [Vikram]",
+      "starter_code": "import java.util.*;\n\n// SocialGraph with Set-based friend lists\n",
+      "expected_solution": "import java.util.*;\n\nclass SocialGraph {\n    private Map<String, Set<String>> friends = new HashMap<>();\n    \n    private Set<String> getFriends(String user) {\n        return friends.computeIfAbsent(user, k -> new HashSet<>());\n    }\n    \n    public void addFriendship(String a, String b) {\n        getFriends(a).add(b);\n        getFriends(b).add(a);\n    }\n    \n    public Set<String> mutualFriends(String a, String b) {\n        Set<String> mutual = new HashSet<>(getFriends(a));\n        mutual.retainAll(getFriends(b));\n        return mutual;\n    }\n    \n    public Set<String> suggestions(String user) {\n        Set<String> myFriends = getFriends(user);\n        Set<String> suggested = new HashSet<>();\n        \n        // Friends of friends\n        for (String friend : myFriends) {\n            suggested.addAll(getFriends(friend));\n        }\n        \n        // Remove self and existing friends\n        suggested.remove(user);\n        suggested.removeAll(myFriends);\n        \n        return suggested;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        SocialGraph graph = new SocialGraph();\n        graph.addFriendship(\"Aisha\", \"Raj\");\n        graph.addFriendship(\"Aisha\", \"Priya\");\n        graph.addFriendship(\"Raj\", \"Vikram\");\n        graph.addFriendship(\"Priya\", \"Vikram\");\n        \n        Set<String> mutual = graph.mutualFriends(\"Aisha\", \"Raj\");\n        List<String> mutualSorted = new ArrayList<>(mutual);\n        Collections.sort(mutualSorted);\n        System.out.println(\"Aisha & Raj mutual: \" + mutualSorted);\n        \n        Set<String> suggestions = graph.suggestions(\"Aisha\");\n        List<String> suggSorted = new ArrayList<>(suggestions);\n        Collections.sort(suggSorted);\n        System.out.println(\"Suggestions for Aisha: \" + suggSorted);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha & Raj mutual: [Priya]\nSuggestions for Aisha: [Vikram]" }
+      ],
+      "hints": [
+        "Map<String, Set<String>> — each user maps to their friend set",
+        "mutual: intersection of two friend sets",
+        "suggestions: union of friends' friend-sets, minus self and existing friends",
+        "Aisha's friends: Raj, Priya. Raj's friends include Vikram. Priya's friends include Vikram. suggestions = {Vikram} - {Raj, Priya, Aisha} = {Vikram}"
+      ],
+      "xp_reward": 85
+    },
+    
+    {
+      "id": "java_m6_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Course enrollment validator",
+      "scenario": "Set-based prerequisite checking in a university system.",
+      "instructions": "Build an enrollment validator:\n- `Course`: code, title, `Set<String>` prerequisites\n- `Student`: name, `Set<String>` completedCourses\n- `Validator`: `canEnroll(student, course)` — true if student has completed ALL prerequisites\n- `missingPrerequisites(student, course)` — returns Set<String> of missing prereqs\n- `eligibleCourses(student, List<Course>)` — returns courses student CAN enroll in\n\nExpected output:\nAisha can enroll in DSA: true\nRaj can enroll in DSA: false\nRaj missing: [Java101]\nAisha eligible courses: [DSA, WebDev]",
+      "starter_code": "import java.util.*;\n\n// Course enrollment validator with Set-based prerequisite checking\n",
+      "expected_solution": "import java.util.*;\n\nclass Course {\n    String code, title;\n    Set<String> prerequisites;\n    \n    Course(String code, String title, String... prereqs) {\n        this.code = code; this.title = title;\n        this.prerequisites = new HashSet<>(Arrays.asList(prereqs));\n    }\n}\n\nclass Student {\n    String name;\n    Set<String> completed;\n    \n    Student(String name, String... completed) {\n        this.name = name;\n        this.completed = new HashSet<>(Arrays.asList(completed));\n    }\n}\n\nclass Validator {\n    public boolean canEnroll(Student s, Course c) {\n        return s.completed.containsAll(c.prerequisites);\n    }\n    \n    public Set<String> missingPrerequisites(Student s, Course c) {\n        Set<String> missing = new HashSet<>(c.prerequisites);\n        missing.removeAll(s.completed);\n        return missing;\n    }\n    \n    public List<Course> eligibleCourses(Student s, List<Course> courses) {\n        List<Course> eligible = new ArrayList<>();\n        for (Course c : courses) {\n            if (canEnroll(s, c)) eligible.add(c);\n        }\n        return eligible;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Course dsa = new Course(\"DSA\", \"Data Structures\", \"Java101\", \"Math101\");\n        Course webDev = new Course(\"WebDev\", \"Web Development\", \"Java101\");\n        Course ml = new Course(\"ML\", \"Machine Learning\", \"Python101\", \"Math101\");\n        \n        Student aisha = new Student(\"Aisha\", \"Java101\", \"Math101\", \"OOP101\");\n        Student raj = new Student(\"Raj\", \"Math101\", \"OOP101\");  // missing Java101\n        \n        Validator v = new Validator();\n        \n        System.out.println(\"Aisha can enroll in DSA: \" + v.canEnroll(aisha, dsa));\n        System.out.println(\"Raj can enroll in DSA: \" + v.canEnroll(raj, dsa));\n        \n        Set<String> missing = v.missingPrerequisites(raj, dsa);\n        System.out.println(\"Raj missing: \" + new TreeSet<>(missing));\n        \n        List<Course> allCourses = Arrays.asList(dsa, webDev, ml);\n        List<Course> eligible = v.eligibleCourses(aisha, allCourses);\n        List<String> eligibleNames = new ArrayList<>();\n        for (Course c : eligible) eligibleNames.add(c.code);\n        Collections.sort(eligibleNames);\n        System.out.println(\"Aisha eligible courses: \" + eligibleNames);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha can enroll in DSA: true\nRaj can enroll in DSA: false\nRaj missing: [Java101]\nAisha eligible courses: [DSA, WebDev]" }
+      ],
+      "hints": [
+        "canEnroll: completed.containsAll(prerequisites) — subset check",
+        "missing: copy prerequisites, removeAll(completed) — difference",
+        "eligibleCourses: filter by canEnroll for each course",
+        "Aisha has Java101+Math101 → can do DSA and WebDev, but not ML (needs Python101)"
+      ],
+      "xp_reward": 90
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 12,
+      "debug": 0,
+      "predict_output": 2
+    },
+    "total_xp_possible": 685,
+    "estimated_completion_minutes": 60
+  },
+  
+  "gap_detection_map": {
+    "expecting_set_order": ["ex_1", "ex_7"],
+    "mutating_original_on_set_operation": ["ex_11"],
+    "set_intersection": ["ex_6"],
+    "set_operations": ["ex_7"]
+  }
+}

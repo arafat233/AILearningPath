@@ -1,0 +1,311 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t5",
+  "topic_name": "Trie",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m35_t5_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Trie basics \u2014 insert and search",
+      "instructions": "Implement: Trie basics \u2014 insert and search.",
+      "starter_code": "",
+      "expected_solution": "public class TrieBasic {\n    static class Trie{\n        Trie[] ch=new Trie[26];boolean end;\n        void insert(String w){Trie cur=this;for(char c:w.toCharArray()){int i=c-'a';if(cur.ch[i]==null)cur.ch[i]=new Trie();cur=cur.ch[i];}cur.end=true;}\n        boolean search(String w){Trie cur=this;for(char c:w.toCharArray()){int i=c-'a';if(cur.ch[i]==null)return false;cur=cur.ch[i];}return cur.end;}\n        boolean startsWith(String p){Trie cur=this;for(char c:p.toCharArray()){int i=c-'a';if(cur.ch[i]==null)return false;cur=cur.ch[i];}return true;}\n    }\n    public static void main(String[] a){\n        Trie t=new Trie();t.insert(\"apple\");\n        System.out.println(t.search(\"apple\"));   // true\n        System.out.println(t.search(\"app\"));     // false\n        System.out.println(t.startsWith(\"app\")); // true\n        t.insert(\"app\");System.out.println(t.search(\"app\")); // true\n        System.out.println(\"Trie: O(m) insert/search (m=word length). O(26^m) space worst.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "O(m) insert/search"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t5_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Implement Trie (LeetCode #208)",
+      "instructions": "Implement: Implement Trie (LeetCode #208).",
+      "starter_code": "",
+      "expected_solution": "public class TrieImpl {\n    static class TrieNode{TrieNode[] ch=new TrieNode[26];boolean end;}\n    static class Trie{\n        TrieNode root=new TrieNode();\n        void insert(String w){TrieNode c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new TrieNode();c=c.ch[i];}c.end=true;}\n        boolean search(String w){TrieNode c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return false;c=c.ch[i];}return c.end;}\n        boolean startsWith(String p){TrieNode c=root;for(char ch:p.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return false;c=c.ch[i];}return true;}\n    }\n    public static void main(String[] a){Trie t=new Trie();t.insert(\"apple\");System.out.println(t.search(\"apple\"));System.out.println(t.search(\"app\"));System.out.println(t.startsWith(\"app\"));t.insert(\"app\");System.out.println(t.search(\"app\"));System.out.println(\"Each node: ch[26] array + boolean end flag\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "true",
+            "ch[26] array"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Word search in Trie (autocomplete prefix)",
+      "instructions": "Implement: Word search in Trie (autocomplete prefix).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Autocomplete {\n    static class Trie{Trie[] ch=new Trie[26];boolean end;String word;}\n    static Trie root=new Trie();\n    static void insert(String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new Trie();c=c.ch[i];}c.end=true;c.word=w;}\n    static List<String> suggest(String prefix){List<String> res=new ArrayList<>();Trie c=root;for(char ch:prefix.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return res;c=c.ch[i];}dfs(c,res);return res;}\n    static void dfs(Trie n,List<String> res){if(n==null)return;if(n.end)res.add(n.word);for(Trie ch:n.ch)dfs(ch,res);}\n    public static void main(String[] a){root=new Trie();for(String w:new String[]{\"apple\",\"app\",\"application\",\"apply\",\"apt\"})insert(w);System.out.println(suggest(\"app\"));System.out.println(suggest(\"apt\"));System.out.println(\"O(m+k) suggest: m=prefix length, k=results count\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[app, apple, application, apply]",
+            "[apt]",
+            "O(m+k)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m35_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Replace Words (LeetCode #648)",
+      "instructions": "Implement: Replace Words (LeetCode #648).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ReplaceWords {\n    static class Trie{Trie[] ch=new Trie[26];String word;}\n    static void insert(Trie root,String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new Trie();c=c.ch[i];if(c.word!=null)return;}c.word=w;}\n    static String findRoot(Trie root,String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)break;c=c.ch[i];if(c.word!=null)return c.word;}return w;}\n    static String replaceWords(List<String> dict,String sentence){Trie root=new Trie();for(String d:dict)insert(root,d);StringBuilder sb=new StringBuilder();for(String w:sentence.split(\" \")){if(sb.length()>0)sb.append(' ');sb.append(findRoot(root,w));}return sb.toString();}\n    public static void main(String[] a){System.out.println(replaceWords(Arrays.asList(\"cat\",\"bat\",\"rat\"),\"the cattle was rattled by the battery\"));System.out.println(\"the cat was rat by the bat\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "the cat was rat by the bat"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m35_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Word search II (LeetCode #212) \u2014 Trie + backtrack",
+      "instructions": "Implement: Word search II (LeetCode #212) \u2014 Trie + backtrack.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class WordSearch2 {\n    static class Trie{Trie[] ch=new Trie[26];String word;}\n    static void insert(Trie root,String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new Trie();c=c.ch[i];}c.word=w;}\n    static List<String> findWords(char[][] board,String[] words){\n        Trie root=new Trie();for(String w:words)insert(root,w);\n        Set<String> res=new HashSet<>();int m=board.length,n=board[0].length;\n        for(int i=0;i<m;i++)for(int j=0;j<n;j++)dfs(board,i,j,root,res);\n        return new ArrayList<>(res);}\n    static void dfs(char[][] b,int r,int c,Trie node,Set<String> res){\n        if(r<0||r>=b.length||c<0||c>=b[0].length||b[r][c]=='#')return;\n        char ch=b[r][c];Trie next=node.ch[ch-'a'];if(next==null)return;\n        if(next.word!=null)res.add(next.word);\n        b[r][c]='#';dfs(b,r+1,c,next,res);dfs(b,r-1,c,next,res);dfs(b,r,c+1,next,res);dfs(b,r,c-1,next,res);b[r][c]=ch;}\n    public static void main(String[] a){char[][] board={{'o','a','a','n'},{'e','t','a','e'},{'i','h','k','r'},{'i','f','l','v'}};System.out.println(findWords(board,new String[]{\"oath\",\"pea\",\"eat\",\"rain\"}));System.out.println(\"Trie pruning: skip DFS when no matching prefix. O(m*n*4^L) worst.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[oath, eat]",
+            "Trie pruning"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m35_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Design Add and Search Words (LeetCode #211)",
+      "instructions": "Implement: Design Add and Search Words (LeetCode #211).",
+      "starter_code": "",
+      "expected_solution": "public class WordDict {\n    static class Trie{Trie[] ch=new Trie[26];boolean end;}\n    static Trie root=new Trie();\n    static void addWord(String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new Trie();c=c.ch[i];}c.end=true;}\n    static boolean search(String w){return sH(w,0,root);}\n    static boolean sH(String w,int i,Trie n){if(i==w.length())return n.end;char c=w.charAt(i);if(c=='.'){for(Trie ch:n.ch)if(ch!=null&&sH(w,i+1,ch))return true;return false;}if(n.ch[c-'a']==null)return false;return sH(w,i+1,n.ch[c-'a']);}\n    public static void main(String[] a){root=new Trie();addWord(\"bad\");addWord(\"dad\");addWord(\"mad\");System.out.println(search(\"pad\"));System.out.println(search(\"bad\"));System.out.println(search(\".ad\"));System.out.println(search(\"b..\"));System.out.println(\"'.' matches any char \u2014 try all 26 children at that position\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "false",
+            "true",
+            "true",
+            "true",
+            "'.' matches any char"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m35_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Longest Word in Dictionary (LeetCode #720)",
+      "instructions": "Implement: Longest Word in Dictionary (LeetCode #720).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LongestWord {\n    public static String longestWord(String[] words){\n        Arrays.sort(words);Set<String> built=new HashSet<>();built.add(\"\");String res=\"\";\n        for(String w:words)if(built.contains(w.substring(0,w.length()-1))){built.add(w);if(w.length()>res.length())res=w;}\n        return res;\n    }\n    public static void main(String[] a){System.out.println(longestWord(new String[]{\"w\",\"wo\",\"wor\",\"worl\",\"world\"}));System.out.println(longestWord(new String[]{\"a\",\"banana\",\"app\",\"appl\",\"ap\",\"apply\",\"apple\"}));System.out.println(\"Sort+HashSet: add if prefix (all but last char) already in set. O(n*m log n)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "world",
+            "apple",
+            "O(n*m log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Map Sum Pairs (LeetCode #677)",
+      "instructions": "Implement: Map Sum Pairs (LeetCode #677).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MapSum {\n    static class Trie{Trie[] ch=new Trie[26];int val;}\n    static Trie root=new Trie();\n    static Map<String,Integer> map=new HashMap<>();\n    static void insert(String k,int v){int diff=v-map.getOrDefault(k,0);map.put(k,v);Trie c=root;for(char ch:k.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new Trie();c=c.ch[i];c.val+=diff;}}\n    static int sum(String prefix){Trie c=root;for(char ch:prefix.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return 0;c=c.ch[i];}return c.val;}\n    public static void main(String[] a){root=new Trie();map=new HashMap<>();insert(\"apple\",3);System.out.println(sum(\"ap\"));System.out.println(sum(\"b\"));insert(\"app\",2);System.out.println(sum(\"ap\"));System.out.println(\"Store cumulative sum at each Trie node. O(m) insert/sum.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "0",
+            "5",
+            "O(m) insert/sum"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Trie for XOR maximum (LeetCode #421)",
+      "instructions": "Implement: Trie for XOR maximum (LeetCode #421).",
+      "starter_code": "",
+      "expected_solution": "public class MaxXOR {\n    static int[][] trie=new int[600000][2];static int tot=1;\n    static void insert(int n){int cur=0;for(int i=31;i>=0;i--){int b=(n>>i)&1;if(trie[cur][b]==0)trie[cur][b]=tot++;cur=trie[cur][b];}}\n    static int maxXOR(int n){int cur=0,res=0;for(int i=31;i>=0;i--){int b=(n>>i)&1,want=1-b;if(trie[cur][want]!=0){res|=(1<<i);cur=trie[cur][want];}else cur=trie[cur][b];}return res;}\n    public static void main(String[] a){tot=1;for(int i=0;i<600000;i++)trie[i][0]=trie[i][1]=0;int[]nums={3,10,5,25,2,8};int max=0;for(int n:nums)insert(n);for(int n:nums)max=Math.max(max,maxXOR(n));System.out.println(max);System.out.println(\"28 \u2014 binary Trie for XOR max: at each bit, prefer opposite bit.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "28",
+            "binary Trie for XOR"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Trie synthesis",
+      "instructions": "Implement: Trie synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TrieSynth {\n    static class Trie{Trie[] ch=new Trie[26];boolean end;String word;}\n    static Trie newTrie(){return new Trie();}\n    static void ins(Trie root,String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new Trie();c=c.ch[i];}c.end=true;c.word=w;}\n    static boolean srch(Trie root,String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return false;c=c.ch[i];}return c.end;}\n    static List<String> suggest(Trie root,String prefix){List<String> res=new ArrayList<>();Trie c=root;for(char ch:prefix.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return res;c=c.ch[i];}dfs(c,res);return res;}\n    static void dfs(Trie n,List<String> res){if(n==null)return;if(n.end)res.add(n.word);for(Trie ch:n.ch)dfs(ch,res);}\n    public static void main(String[] a){Trie t=newTrie();for(String w:new String[]{\"apple\",\"app\",\"apt\",\"application\"})ins(t,w);System.out.println(srch(t,\"apple\"));System.out.println(srch(t,\"ap\"));System.out.println(suggest(t,\"app\").size());boolean ok=srch(t,\"apple\")&&!srch(t,\"ap\")&&suggest(t,\"app\").size()==3;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "true",
+            "false",
+            "3"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M35 T5 Trie Synthesis",
+      "instructions": "Implement: Complete M35 T5 Trie Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T5Final {\n    static class Trie{Trie[] ch=new Trie[26];boolean end;String word;}\n    static Trie root;\n    static void ins(String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)c.ch[i]=new Trie();c=c.ch[i];}c.end=true;c.word=w;}\n    static boolean srch(String w){Trie c=root;for(char ch:w.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return false;c=c.ch[i];}return c.end;}\n    static boolean sw(String p){Trie c=root;for(char ch:p.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return false;c=c.ch[i];}return true;}\n    static List<String> suggest(String prefix){List<String> res=new ArrayList<>();Trie c=root;for(char ch:prefix.toCharArray()){int i=ch-'a';if(c.ch[i]==null)return res;c=c.ch[i];}dfs(c,res);return res;}\n    static void dfs(Trie n,List<String> r){if(n==null)return;if(n.end)r.add(n.word);for(Trie ch:n.ch)dfs(ch,r);}\n    public static void main(String[] a){root=new Trie();for(String w:new String[]{\"apple\",\"app\",\"application\",\"apply\",\"apt\"})ins(w);System.out.println(\"search apple=\"+srch(\"apple\"));System.out.println(\"startsWith app=\"+sw(\"app\"));System.out.println(\"suggest app=\"+suggest(\"app\").size());boolean ok=srch(\"apple\")&&sw(\"app\")&&!srch(\"api\")&&suggest(\"app\").size()==4;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "search apple=true",
+            "startsWith app=true",
+            "suggest app=4"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

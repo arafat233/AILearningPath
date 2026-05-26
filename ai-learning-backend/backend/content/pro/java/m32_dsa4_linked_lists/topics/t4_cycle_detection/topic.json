@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t4",
+  "module_id": "m32",
+  "topic_number": 4,
+  "name": "Cycle Detection \u2014 Floyd's Algorithm",
+  "slug": "cycle-detection-floyds-algorithm",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m32_t1",
+      "java_m32_t2"
+    ],
+    "concepts_taught": [
+      "cycle_detection",
+      "cycle_entry_point",
+      "cycle_length",
+      "floyds_tortoise_hare",
+      "linked_list_intersection",
+      "find_duplicate_array"
+    ],
+    "skills_developed": [
+      "detecting_cycle_o1_space",
+      "finding_cycle_start",
+      "linked_list_intersection_detection"
+    ],
+    "career_relevance": "Floyd's cycle detection is a DSA classic asked at Amazon, Microsoft, and Zerodha. 'Find duplicate in array' (LeetCode #287) uses the same algorithm on arrays. Understanding the mathematical proof demonstrates algorithmic depth.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nDetect cycle in Zerodha payment routing graph:\n  Gateway A \u2192 Bank B \u2192 Processor C \u2192 Gateway A (CYCLE!)\n  Naive HashSet: O(n) space \u2014 stores all visited nodes\n  Floyd's: O(n) time, O(1) space \u2014 just two pointers!\n\nBonus: find WHERE the cycle starts (which node)\n  After fast+slow meet: reset slow to head\n  Move both at speed 1 \u2192 they meet at cycle entry!\n```",
+    "what_you_will_build": "Floyd's cycle detection, cycle entry finder, cycle length, and linked list intersection."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "floyds": "**Floyd's Tortoise and Hare \u2014 three phases:**\n\n```java\n// Phase 1: Detect cycle\nListNode slow=head, fast=head;\nboolean hasCycle=false;\nwhile(fast!=null&&fast.next!=null){\n    slow=slow.next; fast=fast.next.next;\n    if(slow==fast){hasCycle=true; break;}\n}\n\n// Phase 2: Find cycle entry (if cycle exists)\nif(hasCycle){\n    slow=head; // reset slow to head\n    while(slow!=fast){\n        slow=slow.next; // both at speed 1\n        fast=fast.next;\n    }\n    // slow==fast == cycle entry node\n}\n\n// Phase 3: Find cycle length\nint length=1;\nListNode temp=slow.next;\nwhile(temp!=slow){temp=temp.next;length++;}\n// length = cycle length\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Linked list with cycle: 1\u21922\u21923\u21924\u21925\u21923(cycle). Phase 1: fast/slow both start at 1. After 3 iterations: slow=4, fast=4 (meeting point inside cycle). Phase 2: reset slow to 1. Advance both at speed 1. slow goes 1\u21922\u21923, fast goes 4\u21925\u21923. Meet at 3 = cycle entry. Phase 3: count from 3 until return to 3: 3\u21924\u21925\u21923 = length 3.",
+      "alt_text": "Floyd's three-phase cycle detection algorithm"
+    },
+    "worked_example": {
+      "scenario": "Find Duplicate Number (LeetCode #287) using Floyd's.",
+      "problem_statement": "Array nums[1..n] with one duplicate. Find it in O(n) O(1).",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Treat array as linked list",
+          "details": "Index i links to nums[i]. Since one number is duplicated, two indices point to the same next \u2014 creating a cycle. Apply Floyd's to find the cycle entry = the duplicate."
+        }
+      ],
+      "final_code": "int slow=nums[0],fast=nums[0];\ndo{slow=nums[slow];fast=nums[nums[fast]];}while(slow!=fast);\nslow=nums[0];\nwhile(slow!=fast){slow=nums[slow];fast=nums[fast];}\nreturn slow;",
+      "expected_output": "[1,3,4,2,2] \u2192 2",
+      "things_to_notice": [
+        "Array treated as implicit linked list: index i points to nums[i]",
+        "Duplicate value = two indices with same 'next' = cycle",
+        "Phase 2 math: after reset, slow meets fast at cycle entry = duplicate",
+        "This achieves O(n) O(1) which is better than sort O(n log n) or HashSet O(n) space"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay payment routing",
+          "use_case": "Detect circular routing in payment gateway graph. Floyd's O(1) space vs BFS/DFS O(n) space."
+        }
+      ],
+      "interview_relevance": "Phase 2 proof is often asked as a follow-up. 'Find duplicate in array' is a disguised cycle detection. Both are FAANG favourites.",
+      "real_world_workflow": "Cycle detection decision: HashSet if you need the actual path, Floyd's if you just need yes/no or the entry point with O(1) space."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "phase2_misunderstanding",
+        "what_students_get_wrong": "After detecting a cycle (slow==fast), students try to count from there instead of finding the entry. They return the MEETING POINT instead of the CYCLE ENTRY, which are different nodes.",
+        "remediation": "Phase 1: detect cycle \u2014 fast==slow at some meeting point inside cycle. Phase 2: find ENTRY \u2014 reset slow to head, keep fast at meeting point, advance both at speed 1. When they meet: that's the cycle ENTRY (not the original meeting point).",
+        "detection_pattern": "Student returns wrong node for cycle start"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Phase 1: detect (fast==slow inside cycle)",
+        "Phase 2: entry (reset slow to head, both speed 1, meet at entry)",
+        "Phase 3: length (count from entry back to entry)",
+        "Meeting point \u2260 cycle entry \u2014 Phase 2 is required",
+        "Same algorithm works on arrays (LeetCode #287)"
+      ],
+      "self_check_questions": [
+        {
+          "question": "After Floyd's Phase 1 (cycle detected), why does resetting slow to head and advancing both at speed 1 lead to the cycle entry?",
+          "answer": "Let L = distance from head to cycle entry, C = cycle length, M = distance from entry to meeting point. In Phase 1: slow travels L+M steps (enters cycle, travels M more). Fast travels 2(L+M) steps = L+M+kC for some k (completes full cycles). So 2(L+M) = L+M+kC \u2192 L = kC-M = (k-1)C + (C-M). This means L \u2261 C-M (mod C). In Phase 2: slow starts at head, needs L steps to reach entry. Fast starts at meeting point (M steps past entry), needs C-M steps to reach entry. Since L \u2261 C-M (mod C), they arrive at the entry at the same time."
+        }
+      ],
+      "next_topic_preview": "Next: Merge and Sort Linked Lists \u2014 merge two sorted lists, merge k sorted lists, sort linked list with merge sort."
+    }
+  }
+}

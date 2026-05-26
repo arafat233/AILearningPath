@@ -1,0 +1,141 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t6",
+  "language": "java",
+  "module_id": "m6",
+  "module_name": "Collections Framework",
+  "topic_number": 6,
+  "name": "Module 6 Capstone — Collections in the Wild",
+  "slug": "module6-capstone",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 90,
+    "prerequisites": ["java_m6_t1", "java_m6_t2", "java_m6_t3", "java_m6_t4", "java_m6_t5"],
+    "concepts_taught": [
+      "module6_synthesis_in_practice",
+      "multi_collection_system_design",
+      "performance_conscious_collection_selection",
+      "iterator_safe_operations",
+      "collections_utility_in_pipeline",
+      "nested_collections_in_real_system"
+    ],
+    "skills_developed": [
+      "designing_multi_collection_systems",
+      "choosing_collections_under_constraints",
+      "building_complete_data_management_systems",
+      "applying_all_module6_patterns"
+    ],
+    "career_relevance": "This capstone brings together every Module 6 pattern in one realistic system — the kind of thing you'd build in a real job within your first month. ArrayList for sequences, HashMap for O(1) lookup, HashSet for deduplication, TreeMap for sorted access, Iterator for safe mutations, Collections utilities for sorting and statistics. Building this end-to-end is what converts 'learned it' into 'can apply it.'",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You've spent Module 6 learning each collection in isolation. Now it's time to build something that uses them ALL together — the way real production code actually looks.\n\nReal codebases don't have one collection. A single service class might have:\n- A `List<Order>` for displaying recent orders in sequence\n- A `Map<String, Order>` for O(1) lookup by order ID\n- A `Map<String, List<Order>>` for grouping orders by customer\n- A `Set<String>` for tracking processed order IDs\n- A `TreeMap<LocalDate, List<Order>>` for date-range queries\n\nAll five collections. All necessary. Each chosen for a specific access pattern.\n\nThis capstone project is that system. You'll build a **Job Board backend** — posting jobs, tracking applicants, generating reports. Every collection type from Module 6 plays a role. You'll know you've truly mastered the module when this feels natural.",
+    "what_you_will_build": "A complete Job Board system using every Module 6 tool: ArrayList, HashMap, HashSet, TreeMap, Iterator for safe removal, and Collections utilities. No new syntax — pure application of everything you've learned."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "module6_recap": "**Module 6 recap — all tools available:**\n\n| Collection | Use it for | Key operation |\n|------------|-----------|---------------|\n| `ArrayList<T>` | Ordered sequences | `add()`, `get(i)`, iteration |\n| `HashMap<K,V>` | O(1) keyed lookup | `put()`, `get()`, `getOrDefault()` |\n| `HashSet<T>` | Unique membership | `add()`, `contains()`, dedup |\n| `TreeMap<K,V>` | Sorted key access | `subMap()`, sorted iteration |\n| `LinkedHashMap` | Insertion-order map | Same as HashMap, ordered |\n| `TreeSet<T>` | Sorted unique set | Sorted iteration, range ops |\n| `Iterator` | Safe loop removal | `hasNext()`, `next()`, `remove()` |\n| `Collections` | Utility operations | `sort()`, `min()`, `max()`, `unmodifiableList()` |\n\n**The design pattern**: for each piece of data, ask 'what operations do I need on this?' Then pick the collection that makes those operations O(1) or O(log n).\n\n**Nested patterns**:\n- `Map<K, List<V>>` — group items by key\n- `Map<K, Set<V>>` — unique groups\n- `Map<K, TreeSet<V>>` — sorted unique groups\n\nThese patterns appear constantly in production backends. After this capstone, you'll recognize them instantly.",
+
+      "capstone_architecture": "**The Job Board system architecture:**\n\n```\nJobBoard\n├── List<JobPosting>    allPostings          // ordered master list\n├── Map<String, JobPosting> byId             // O(1) ID lookup\n├── Map<String, List<JobPosting>> byCategory // grouped by category\n├── TreeMap<Date, List<JobPosting>> byDate   // sorted by posted date\n├── Map<String, List<String>> applicants     // jobId → list of applicant names\n└── Set<String> closedJobIds                 // fast closed-job check\n```\n\nEach structure exists because a specific operation needs it:\n- Browse all jobs in posting order → `allPostings`\n- Look up job details by ID → `byId`\n- Filter jobs by category → `byCategory`\n- Get jobs posted this week → `byDate.subMap(weekStart, weekEnd)`\n- See who applied to a job → `applicants.get(jobId)`\n- Check if a job is still open → `!closedJobIds.contains(jobId)`\n\nThis is what professional backend design looks like."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show the JobBoard class as a central box with six collection fields radiating out, each labeled with its purpose. Arrows show which user action hits which collection: 'Browse all' → List, 'Search by ID' → HashMap, 'Filter by category' → Map of Lists, 'Date range' → TreeMap, 'View applicants' → Map<String, List>, 'Check if open' → HashSet. Below: the Module 6 complete summary table — all tools, operations, and when-to-use.",
+      "alt_text": "JobBoard architecture diagram showing six collections and their access patterns"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "The Job Board capstone is the main project. The worked example shows a smaller version — a simplified Inventory Manager — to demonstrate the multi-collection pattern before students tackle the full capstone.",
+
+    "problem_statement": "Simplified version showing the pattern: InventoryManager using ArrayList + HashMap + HashSet + TreeMap together.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Design the data structures",
+        "details": "```java\nclass InventoryManager {\n    // Master list — ordered, for browsing\n    private List<Product> allProducts = new ArrayList<>();\n    \n    // Lookup by SKU — O(1)\n    private Map<String, Product> bySku = new HashMap<>();\n    \n    // Grouping by category\n    private Map<String, List<Product>> byCategory = new HashMap<>();\n    \n    // Low-stock alerts — unique SKUs with stock < threshold\n    private Set<String> lowStockSkus = new HashSet<>();\n    \n    // Price-sorted view\n    private TreeMap<Double, List<Product>> byPrice = new TreeMap<>();\n}\n```\n\nFour structures, each serving a different query."
+      },
+      {
+        "step": 2,
+        "action": "addProduct populates all structures",
+        "details": "```java\npublic void addProduct(Product p) {\n    allProducts.add(p);                        // master list\n    bySku.put(p.getSku(), p);                  // id lookup\n    byCategory\n        .computeIfAbsent(p.getCategory(), k -> new ArrayList<>())\n        .add(p);                               // grouping\n    byPrice\n        .computeIfAbsent(p.getPrice(), k -> new ArrayList<>())\n        .add(p);                               // price sort\n    if (p.getStock() < 10) lowStockSkus.add(p.getSku()); // alert\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Use Iterator to safely remove discontinued products with audit log",
+        "details": "```java\npublic List<String> removeDiscontinued() {\n    List<String> removed = new ArrayList<>();\n    Iterator<Product> it = allProducts.iterator();\n    while (it.hasNext()) {\n        Product p = it.next();\n        if (p.isDiscontinued()) {\n            removed.add(p.getSku() + \":\" + p.getName());\n            it.remove();\n            bySku.remove(p.getSku());  // keep all structures in sync!\n            lowStockSkus.remove(p.getSku());\n            // Note: byCategory and byPrice cleanup left as exercise\n        }\n    }\n    return removed;\n}\n```"
+      }
+    ],
+
+    "final_code": "// See the capstone project for the full implementation.",
+    "expected_output": "See the capstone project.",
+    "things_to_notice": [
+      "When you remove from one structure, you must remove from ALL related structures. This is the 'consistency' challenge in multi-collection systems.",
+      "Each collection is populated in addProduct(). This is the right place — once, consistently.",
+      "Iterator is used for the allProducts list (to remove while building an audit log). removeIf would work for simple removal but not for the logging.",
+      "The TreeMap gives free sorted iteration over prices — no sort needed at query time."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "LinkedIn job search backend",
+        "use_case": "LinkedIn's job service maintains multiple indexes on the same job data: by ID (HashMap), by company (Map of Lists), by skills required (Map of Sets), by posting date (TreeMap). Each search type hits a different pre-built structure. No linear scanning — every operation is O(1) or O(log n)."
+      },
+      {
+        "company_context": "Naukri.com / Indeed India",
+        "use_case": "Job portal backends group postings by location, industry, experience level. Applications are tracked per job. Expired jobs are flagged in a Set for fast filtering. This is exactly the architecture this capstone builds."
+      }
+    ],
+    "interview_relevance": "Capstone-style 'design a system' questions are VERY common at the senior level: 'Design a job board data store', 'Design an in-memory event system', 'How would you implement a leaderboard?'. The answer always involves multiple collections serving different access patterns.",
+    "real_world_workflow": "The pattern of maintaining multiple collections of the same data (for different access patterns) is the foundation of caching layers, search indexes, and read-optimized data stores — all standard patterns in backend engineering."
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_to_sync_all_structures",
+      "what_students_get_wrong": "Removing or updating in one collection but forgetting to update the others.",
+      "remediation": "Design add/remove/update methods that touch ALL relevant structures. Never let two structures get out of sync.",
+      "detection_pattern": "Stale data in lookup map after removing from master list"
+    },
+    {
+      "gap_id": "rebuilding_instead_of_maintaining",
+      "what_students_get_wrong": "Rebuilding derived structures (byCategory, byPrice) from scratch on every query instead of maintaining them incrementally.",
+      "remediation": "Update all structures in addProduct() and removeProduct(). Query methods should just READ — not rebuild.",
+      "detection_pattern": "O(n) query methods that re-scan the master list"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Real systems maintain multiple collections of the same data for different access patterns",
+      "Add/remove operations must keep ALL structures in sync",
+      "Query methods should read — not rebuild structures",
+      "TreeMap.subMap() for date/price range queries is clean and efficient",
+      "Iterator when removal needs side effects (audit log, cascading removes)",
+      "Collections.unmodifiableList() for safe public getters",
+      "Module 6 complete: ArrayList, HashMap, HashSet, TreeMap, Iterator, Collections utilities"
+    ],
+    "self_check_questions": [
+      {
+        "question": "Why maintain both a List<Job> and a Map<String, Job> for the same jobs?",
+        "answer": "Different access patterns. The List supports browsing in order (get page 1, page 2, etc.) — O(1) by index. The Map supports instant lookup by ID — O(1) by key. Neither alone handles both. The tiny memory overhead of maintaining both is far cheaper than O(n) lookup or O(n) ordered access."
+      },
+      {
+        "question": "When you close a job (move it to closedJobIds), what else must you update?",
+        "answer": "Depends on the design. At minimum: add to closedJobIds (HashSet). Optionally: remove from allPostings (if closed jobs shouldn't appear), remove from byCategory, update in byId (change status field). The key principle: ALL structures must reflect the same truth. Inconsistency is a bug."
+      }
+    ],
+    "next_topic_preview": "Module 6 is complete! You have the full Collections toolkit. Module 7 covers Exception Handling — try/catch/finally, custom exceptions, checked vs unchecked, and writing code that fails gracefully. After Module 7, your Java code is genuinely production-ready."
+  }
+}

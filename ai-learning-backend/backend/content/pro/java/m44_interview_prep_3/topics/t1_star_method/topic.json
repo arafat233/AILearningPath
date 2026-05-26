@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m44_t1",
+  "module_id": "m44",
+  "topic_number": 1,
+  "name": "STAR Method \u2014 Situation Task Action Result",
+  "slug": "star-method",
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m43_t5"
+    ],
+    "concepts_taught": [
+      "star-method"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "STAR Method \u2014 Situation Task Action Result"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "STAR: Situation (context), Task (your role), Action (YOU not we), Result (measured impact)",
+        "Metrics: 87% faster, 40%\u219218% abandonment, 23 min downtime \u2014 make stories credible",
+        "5-7 core stories that flex to cover any question",
+        "Each story 2-3 minutes when spoken \u2014 practice with timer",
+        "Action must be YOURS: 'I proposed', 'I implemented', 'I convinced'",
+        "End with: what you learned and how you applied it"
+      ],
+      "next_topic_preview": "Next: Leadership stories."
+    }
+  }
+}

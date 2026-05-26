@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m12_t3_proj",
+  "linked_topic": "java_m12_t3",
+  "level": "mini",
+  "name": "Flipkart Order Service — Complete Mock Test Suite",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Write a comprehensive Mockito test suite for a Flipkart-style order management service. The `OrderManagementService` depends on four repositories and services. You write tests that cover all business rules, error paths, and interactions — without any real database, email server, or payment gateway.",
+
+  "description": "The production `OrderManagementService` is provided. Students write a full test suite covering happy paths, exception paths, interaction verification, argument capture, and call ordering — using all Mockito features from this topic.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`placeOrder_validOrder_test`: stub all dependencies, call placeOrder(), assert returned order has correct ID and status. verify() that inventory was decremented, order was saved, confirmation email was sent.",
+        "weight": 18
+      },
+      {
+        "id": "req_2",
+        "description": "`placeOrder_outOfStock_test`: stub inventory to return false for `checkAvailability()`. assertThrows — no order saved, no email sent. verifyNoInteractions on orderRepo and emailSvc.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`placeOrder_paymentFails_test`: stub paymentGateway.charge() to throw. assertThrows. Verify inventory was decremented (it happened before payment), then verify inventory was RESTORED (rollback call), no email sent.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "`placeOrder_invalidProduct_test`: null or blank product name → IllegalArgumentException before any service interaction. verifyNoInteractions on all 4 mocks.",
+        "weight": 12
+      },
+      {
+        "id": "req_5",
+        "description": "ArgumentCaptor test: capture the Order object passed to orderRepo.save(). Verify: productName set correctly, status=PENDING, timestamp not null, total price = qty × unitPrice.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "InOrder test: verify that payment is charged BEFORE order is saved, and email is sent AFTER order is saved.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "All tests use @ExtendWith(MockitoExtension.class), @Mock for all 4 dependencies, @InjectMocks for OrderManagementService. At least 6 test methods total.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add @ParameterizedTest + @MethodSource returning Stream<Arguments> with 4 invalid orders (negative qty, zero price, null product, blank product). All should throw IllegalArgumentException with no mock interactions.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a spy test: spy on a real PricingCalculator and stub getDiscountRate() to return 0.20 (20% test discount). Verify that the service applies the discount when calculating order total.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a test for concurrent order placement: mock orderRepo to simulate optimistic locking (throws ConcurrentModificationException on the 2nd save). Verify the service handles this gracefully and sends a 'retry' notification.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Production OrderManagementService constructor:\n  OrderManagementService(InventoryService inventory, PaymentGateway payment,\n                         OrderRepository orderRepo, EmailService emailSvc)\n\nKey method:\n  Order placeOrder(String productName, int qty, double unitPrice, String userId)\n  - Validates inputs\n  - Checks inventory.checkAvailability(productName, qty)\n  - Charges payment.charge(userId, qty * unitPrice)\n  - Saves orderRepo.save(Order) → returns saved order with ID\n  - Sends emailSvc.sendConfirmation(userId, savedOrder)\n  - Returns saved order\n  - On payment failure: restores inventory\n\nTest data:\n  productName='Wireless Mouse', qty=2, unitPrice=799.0, userId='U01'\n  orderId returned by repo: 'ORD-001'",
+
+  "starter_code": "// Production code (provided):\npublic record Order(String id, String product, int qty, double total,\n                    String status, java.time.LocalDateTime createdAt) {}\n\npublic interface InventoryService {\n    boolean checkAvailability(String product, int qty);\n    void decrementStock(String product, int qty);\n    void restoreStock(String product, int qty);\n}\npublic interface PaymentGateway { String charge(String userId, double amount); }\npublic interface OrderRepository { Order save(Order order); }\npublic interface EmailService    { void sendConfirmation(String userId, Order order); }\n\n// Write YOUR test class:\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n\n@ExtendWith(MockitoExtension.class)\nclass OrderManagementServiceTest {\n    @Mock InventoryService inventory;\n    @Mock PaymentGateway payment;\n    @Mock OrderRepository orderRepo;\n    @Mock EmailService emailSvc;\n    @InjectMocks OrderManagementService service;\n    @Captor ArgumentCaptor<Order> orderCaptor;\n    \n    // Your 6+ test methods here\n}",
+
+  "example_output": "Test Results:\n✓ placeOrder_validOrder_returnsWithId\n✓ placeOrder_outOfStock_noSaveNoEmail\n✓ placeOrder_paymentFails_inventoryRestored\n✓ placeOrder_invalidProduct_noInteractions\n✓ placeOrder_capturesOrderWithCorrectFields\n✓ placeOrder_verifyPaymentBeforeSaveBeforeEmail\n\n6 tests passed, 0 failed",
+
+  "rubric": [
+    { "category": "Happy Path Test", "points": 18, "criteria": ["stubs all deps (8 pts)", "asserts result (5 pts)", "verify save + email (5 pts)"] },
+    { "category": "Out of Stock Test", "points": 15, "criteria": ["assertThrows (8 pts)", "verifyNoInteractions orderRepo + emailSvc (7 pts)"] },
+    { "category": "Payment Failure Test", "points": 15, "criteria": ["assertThrows (5 pts)", "verify restoreStock called (10 pts)"] },
+    { "category": "Invalid Input Test", "points": 12, "criteria": ["assertThrows (6 pts)", "verifyNoInteractions all 4 (6 pts)"] },
+    { "category": "ArgumentCaptor Test", "points": 15, "criteria": ["capture order (8 pts)", "all 4 fields verified (7 pts)"] },
+    { "category": "InOrder Test", "points": 10, "criteria": ["payment→save→email order (10 pts)"] },
+    { "category": "Annotations + Count", "points": 15, "criteria": ["@ExtendWith, @Mock×4, @InjectMocks (8 pts)", "6+ tests (7 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Parameterized invalid (20 pts)", "Spy discount (20 pts)", "Concurrency (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. This is a test-writing exercise — read the production code and service flow carefully. Each test should test ONE scenario. Key patterns: stub before act, verify after act. For payment failure: inventory.decrementStock is called before payment, so even on failure it runs — then restoreStock is called in the catch block.",
+
+  "submission_instructions": "Save as OrderManagementServiceTest.java. Push to GitHub. Tests in src/test/java.",
+
+  "tips_for_success": [
+    "Setup helper method for happy path stubs — reuse across tests",
+    "Payment fail test: check inventory.restoreStock is called after throw",
+    "Captor: verify(orderRepo).save(orderCaptor.capture()) THEN orderCaptor.getValue()",
+    "InOrder: inOrder(payment, orderRepo, emailSvc); inOrder.verify(payment)... etc.",
+    "Invalid product: assertThrows, then verifyNoInteractions(inventory, payment, orderRepo, emailSvc)"
+  ],
+
+  "concepts_reinforced": [
+    "@Mock, @InjectMocks, @ExtendWith(MockitoExtension.class)",
+    "when().thenReturn(), when().thenThrow()",
+    "verify(), verify(times()), verify(never())",
+    "verifyNoInteractions() for strict isolation",
+    "ArgumentCaptor for captured argument assertions",
+    "InOrder for temporal verification"
+  ]
+}

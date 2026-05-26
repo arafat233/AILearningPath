@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m6_t5_proj",
+  "linked_topic": "java_m6_t5",
+  "level": "mini",
+  "name": "Zomato-Style Restaurant Search",
+  "estimated_minutes": 55,
+  "difficulty": 7,
+
+  "scenario": "Build a backend search system for a food delivery platform (Zomato/Swiggy style). Restaurants are listed, customers search by cuisine, price, and rating. Each data access pattern requires a different collection — and choosing wrong makes the system slow or incorrect. This project is the Module 6 capstone: you must pick the right collection for each requirement and justify it.",
+
+  "description": "A restaurant discovery engine using all collection types: ArrayList for master listing, HashMap for ID lookup, Map<String, List> for cuisine grouping, TreeMap for sorted price ranges, HashSet for featured restaurant IDs, and Set operations for multi-criteria filtering.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Restaurant` class: restaurantId (String), name, cuisine (String), pricePerPerson (double), rating (double), city. Getters + toString.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`SearchEngine` with: `List<Restaurant>` allRestaurants, `Map<String, Restaurant>` byId, `Map<String, List<Restaurant>>` byCuisine, `TreeMap<Double, List<Restaurant>>` byPrice (sorted).",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`addRestaurant(Restaurant)` — populates all four structures simultaneously.",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`searchByCuisine(String cuisine)` — returns List<Restaurant> for that cuisine, sorted by rating descending.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`findById(String id)` — O(1) lookup, returns Restaurant or null.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`inPriceRange(double min, double max)` — uses TreeMap.subMap() to get all restaurants in price range.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "`topRated(int n)` — top N restaurants by rating across all cuisines. Uses Collections.sort on a copy.",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "main() demonstrates all five operations with 8+ restaurants across 3 cuisines.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `Set<String>` featuredIds. `feature(String id)` marks as featured. `getFeatured()` returns List<Restaurant> for featured IDs.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `searchMultiCuisine(Set<String> cuisines)` — returns restaurants matching ANY of the given cuisines (union of cuisine results), deduplicated.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `cityStats(String city)` — Map<String, Object> with: count (int), avgRating (double), cuisines (Set<String>).",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Restaurants:\n- R001, Spice Garden, Indian, ₹350/person, 4.3, Hyderabad\n- R002, Noodle House, Chinese, ₹280/person, 4.1, Hyderabad\n- R003, Pizza Place, Italian, ₹500/person, 4.5, Mumbai\n- R004, Curry Leaf, Indian, ₹400/person, 4.7, Mumbai\n- R005, Wok & Roll, Chinese, ₹320/person, 4.2, Hyderabad\n- R006, Biryani Bros, Indian, ₹300/person, 4.4, Hyderabad\n- R007, Pasta Corner, Italian, ₹550/person, 4.0, Mumbai\n- R008, Dim Sum Delight, Chinese, ₹450/person, 4.6, Mumbai",
+
+  "starter_code": "import java.util.*;\n\npublic class RestaurantSearch {\n    public static void main(String[] args) {\n        // Create SearchEngine, add restaurants, demonstrate all operations\n    }\n    // Define: Restaurant, SearchEngine\n}",
+
+  "example_output": "=== RESTAURANT SEARCH ENGINE ===\n\n--- Indian Restaurants (by rating) ---\nCurry Leaf: 4.7 ⭐ ₹400\nBiryani Bros: 4.4 ⭐ ₹300\nSpice Garden: 4.3 ⭐ ₹350\n\n--- Find by ID ---\nR005: Wok & Roll (Chinese)\n\n--- Price ₹300-₹400 ---\nNoodle House (₹280)... wait, 300-400 range:\nWok & Roll, Biryani Bros, Spice Garden, Curry Leaf...\n\n--- Top 3 Rated ---\n1. Curry Leaf (4.7)\n2. Dim Sum Delight (4.6)\n3. Pizza Place (4.5)",
+
+  "rubric": [
+    { "category": "Data Structure Design", "points": 25, "criteria": ["All 4 structures correctly typed (10 pts)", "addRestaurant populates all (15 pts)"] },
+    { "category": "Search Operations", "points": 35, "criteria": ["searchByCuisine with sort (10 pts)", "findById O(1) (5 pts)", "inPriceRange with TreeMap (10 pts)", "topRated correct (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 15, "criteria": ["All operations shown (15 pts)"] },
+    { "category": "Collection Justification", "points": 10, "criteria": ["Comments explain why each collection chosen (10 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["featuredIds HashSet (15 pts)", "searchMultiCuisine with union (20 pts)", "cityStats (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The key challenge is `inPriceRange` with TreeMap.subMap(min, true, max, true). Also, searchByCuisine needs to sort by rating descending — use a Comparator.",
+
+  "submission_instructions": "Save as RestaurantSearch.java. Add a comment above each data structure field explaining WHY that collection type was chosen. Push to GitHub — this demonstrates Module 6 mastery in a recognizable real-world context.",
+
+  "tips_for_success": [
+    "Comment every data structure: // HashMap: O(1) lookup by restaurant ID.",
+    "addRestaurant must add to ALL four structures — easy to forget one.",
+    "inPriceRange: byPrice.subMap(min, true, max, true).values() gives you the matching price bands. Loop through each band's list.",
+    "searchByCuisine: get the list, make a copy, sort by rating descending (Double.compare(b.rating, a.rating)).",
+    "topRated: copy allRestaurants, sort descending, return first n."
+  ],
+
+  "concepts_reinforced": [
+    "ArrayList as master list",
+    "HashMap for O(1) ID lookup",
+    "Map<String, List<>> for grouping",
+    "TreeMap for sorted range queries",
+    "HashSet for feature flags",
+    "Set union for multi-criteria search",
+    "Collection choice justification",
+    "Module 6 synthesis"
+  ],
+
+  "what_youll_learn_by_doing_this": "This project forces you to think about EACH data access pattern separately and choose the right tool. Real Zomato/Swiggy backends make these exact choices. The TreeMap for price-range queries is particularly elegant — `subMap()` is the built-in range slice that makes range queries efficient without writing any loop logic. After this project, collection choice feels natural."
+}

@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t2",
+  "language": "java",
+  "module_id": "m8",
+  "module_name": "Lambda Expressions & Streams",
+  "topic_number": 2,
+  "name": "Functional Interfaces",
+  "slug": "functional-interfaces",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m8_t1"],
+    "concepts_taught": [
+      "predicate_interface",
+      "function_interface",
+      "consumer_interface",
+      "supplier_interface",
+      "bifunction_biconsumer",
+      "composing_predicates",
+      "composing_functions",
+      "method_references_full",
+      "functional_interface_in_api_design",
+      "unary_operator_binary_operator"
+    ],
+    "skills_developed": [
+      "using_predicate_for_conditions",
+      "using_function_for_transformations",
+      "using_consumer_for_side_effects",
+      "using_supplier_for_lazy_evaluation",
+      "composing_functional_interfaces",
+      "using_method_references_fluently"
+    ],
+    "career_relevance": "Predicate, Function, Consumer, and Supplier are the four building blocks of Java's entire functional programming model. The Stream API uses them directly — filter() takes Predicate, map() takes Function, forEach() takes Consumer. Every Spring Security rule, every Reactor pipeline, every CompletableFuture chain uses these interfaces. Method references (the `::` syntax) appear in virtually every modern Java codebase. After this topic, you understand the vocabulary that the Stream API speaks — making Topics 8.3-8.5 natural extensions rather than new concepts.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You've been using lambdas with `forEach` and `sort`. Both of those worked because Java already had the functional interfaces defined. Now look at this Stream API code (previewing Topic 8.3):\n\n```java\nList<Product> expensive = catalog.stream()\n    .filter(p -> p.getPrice() > 1000)       // takes Predicate<Product>\n    .map(p -> p.getName())                   // takes Function<Product, String>\n    .collect(Collectors.toList());\n\ncatalog.stream()\n    .forEach(p -> System.out.println(p));    // takes Consumer<Product>\n```\n\nThree different operations, three different lambda shapes:\n- `filter` needs a **test** that returns boolean → `Predicate<Product>`\n- `map` needs a **transformation** → `Function<Product, String>`\n- `forEach` needs an **action** with no return → `Consumer<Product>`\n\nThese aren't just Stream-specific — they're Java's STANDARD functional interfaces in `java.util.function`. Once you know them, you know the vocabulary of functional Java. Spring Security uses `Predicate` for authorization rules. CompletableFuture uses `Function` for chained transformations. Event systems use `Consumer` for handlers. This topic is the dictionary that makes all of it readable.",
+    "what_you_will_build": "By the end of this topic, you'll understand and use all four primary functional interfaces: `Predicate<T>`, `Function<T,R>`, `Consumer<T>`, `Supplier<T>`, plus `BiFunction` and `BiConsumer`. You'll compose predicates with `and()/or()/negate()`, compose functions with `andThen()`, and use method references fluently."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "predicate": "**`Predicate<T>`** — a function that takes a T and returns boolean.\n\n```java\nimport java.util.function.Predicate;\n\nPredicate<String> isLong    = s -> s.length() > 5;\nPredicate<Integer> isEven   = n -> n % 2 == 0;\nPredicate<Product> expensive = p -> p.getPrice() > 1000;\n```\n\nKey method: `boolean test(T t)`\n\n**Using Predicates:**\n```java\nSystem.out.println(isLong.test(\"Hello\"));         // false\nSystem.out.println(isLong.test(\"Hyderabad\"));     // true\n\n// With List.removeIf (which takes Predicate<E>):\nList<String> names = new ArrayList<>(Arrays.asList(\"Raj\", \"Aisha\", \"Priya\"));\nnames.removeIf(isLong);   // removes strings longer than 5\n// names is now [Raj]\n```\n\n**Composing predicates:**\n```java\nPredicate<Integer> isEven     = n -> n % 2 == 0;\nPredicate<Integer> isPositive = n -> n > 0;\n\nPredicate<Integer> evenAndPositive = isEven.and(isPositive);\nPredicate<Integer> evenOrNegative  = isEven.or(isPositive.negate());\nPredicate<Integer> notEven         = isEven.negate();\n\nSystem.out.println(evenAndPositive.test(4));   // true\nSystem.out.println(evenAndPositive.test(-4));  // false\nSystem.out.println(notEven.test(3));           // true\n```\n\n`and()`, `or()`, `negate()` return new Predicates — composable without creating new lambdas.",
+
+      "function": "**`Function<T, R>`** — takes a T, returns an R. Transforms one type to another.\n\n```java\nimport java.util.function.Function;\n\nFunction<String, Integer> length    = s -> s.length();\nFunction<String, String>  upperCase = s -> s.toUpperCase();\nFunction<Product, Double> getPrice  = p -> p.getPrice();\nFunction<String, Integer> parseInt  = Integer::parseInt;  // method reference\n```\n\nKey method: `R apply(T t)`\n\n**Using Functions:**\n```java\nSystem.out.println(length.apply(\"Hello\"));        // 5\nSystem.out.println(upperCase.apply(\"hyderabad\")); // HYDERABAD\n\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\");\n// map is not a List method — it's Stream (Topic 8.3)\n// but we can simulate:\nList<String> upper = new ArrayList<>();\nnames.forEach(name -> upper.add(upperCase.apply(name)));\n// upper = [AISHA, RAJ]\n```\n\n**Composing functions with `andThen()`:**\n```java\nFunction<String, String> trim    = s -> s.trim();\nFunction<String, String> upper   = s -> s.toUpperCase();\nFunction<String, Integer> length = s -> s.length();\n\nFunction<String, String>  trimThenUpper  = trim.andThen(upper);\nFunction<String, Integer> trimThenLength = trim.andThen(length);\n\nSystem.out.println(trimThenUpper.apply(\"  hello  \"));   // HELLO\nSystem.out.println(trimThenLength.apply(\"  hello  \"));  // 5\n```\n\n`andThen(after)` returns a new Function that first applies `this`, then applies `after`.",
+
+      "consumer": "**`Consumer<T>`** — takes a T, returns nothing (void). Performs a side effect.\n\n```java\nimport java.util.function.Consumer;\n\nConsumer<String> print     = s -> System.out.println(s);\nConsumer<Product> save     = p -> database.save(p);\nConsumer<String> log       = s -> logger.info(s);\n```\n\nKey method: `void accept(T t)`\n\n**Using Consumers:**\n```java\nprint.accept(\"Hello\");  // prints 'Hello'\n\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\");\nnames.forEach(print);  // forEach takes Consumer<T>\n// prints Aisha, then Raj\n```\n\n**Composing consumers with `andThen()`:**\n```java\nConsumer<String> printUpper = s -> System.out.println(s.toUpperCase());\nConsumer<String> printLen   = s -> System.out.println(\"Length: \" + s.length());\n\nConsumer<String> both = printUpper.andThen(printLen);\nboth.accept(\"hello\");\n// Prints:\n// HELLO\n// Length: 5\n```\n\n`Consumer.andThen()` runs both consumers in sequence.\n\n**`BiConsumer<T, U>`** — takes two arguments:\n```java\nBiConsumer<String, Integer> printScore = (name, score) -> \n    System.out.println(name + \": \" + score);\n\n// Map.forEach takes BiConsumer<K, V>:\nscores.forEach(printScore);\n// OR:\nscores.forEach((name, score) -> System.out.println(name + \": \" + score));\n```",
+
+      "supplier": "**`Supplier<T>`** — takes nothing, returns a T. Produces a value lazily.\n\n```java\nimport java.util.function.Supplier;\n\nSupplier<String> greeting  = () -> \"Hello, World!\";\nSupplier<Double> random    = () -> Math.random();\nSupplier<List<String>> newList = () -> new ArrayList<>();\nSupplier<LocalDate> today  = LocalDate::now;  // method reference\n```\n\nKey method: `T get()`\n\n**Using Suppliers:**\n```java\nSystem.out.println(greeting.get());  // Hello, World!\nSystem.out.println(random.get());    // random number\n\n// Lazy default — only compute if needed:\npublic User getUser(int id, Supplier<User> defaultUser) {\n    User u = cache.get(id);\n    return u != null ? u : defaultUser.get();  // only calls defaultUser if not cached\n}\n```\n\n**Why Supplier?** It defers execution. The lambda body doesn't run until `.get()` is called. Useful for:\n- Lazy default values (avoid expensive computation if not needed)\n- Object factories (`ArrayList::new`)\n- Test data generation\n- Logging messages that are only computed if log level is enabled",
+
+      "method_references": "**Method references** — shorthand when the lambda just calls a method:\n\n```java\n// Lambda and method reference — equivalent:\nnames.forEach(s -> System.out.println(s));\nnames.forEach(System.out::println);\n\nlist.stream().map(s -> Integer.parseInt(s));\nlist.stream().map(Integer::parseInt);\n\nnames.sort((a, b) -> a.compareTo(b));\nnames.sort(String::compareTo);\n```\n\n**Four kinds of method references:**\n\n**1. Static method:** `ClassName::staticMethod`\n```java\nFunction<String, Integer> parser = Integer::parseInt;   // Integer.parseInt(s)\nFunction<Object, String> str    = String::valueOf;      // String.valueOf(obj)\nBinaryOperator<Integer> max     = Math::max;            // Math.max(a, b)\n```\n\n**2. Instance method on specific object:** `instance::method`\n```java\nString prefix = \"Hello\";\nPredicate<String> startsWithHello = prefix::startsWith;  // prefix.startsWith(s)\nConsumer<String> printLine = System.out::println;         // System.out.println(s)\n```\n\n**3. Instance method on parameter:** `ClassName::instanceMethod`\n```java\nFunction<String, String> toUpper = String::toUpperCase;   // s.toUpperCase()\nFunction<String, Integer> strlen = String::length;        // s.length()\nBiFunction<String, String, Boolean> starts = String::startsWith;  // a.startsWith(b)\n```\n\n**4. Constructor:** `ClassName::new`\n```java\nSupplier<ArrayList> factory = ArrayList::new;  // new ArrayList()\nFunction<String, StringBuilder> sbFactory = StringBuilder::new;  // new StringBuilder(s)\n```",
+
+      "bifunction_and_variants": "**Other functional interfaces:**\n\n**`BiFunction<T, U, R>`** — two inputs, one output:\n```java\nBiFunction<String, Integer, String> repeat = (s, n) -> s.repeat(n);\nSystem.out.println(repeat.apply(\"ha\", 3));  // hahaha\n```\n\n**`UnaryOperator<T>`** — extends `Function<T,T>`, same type in and out:\n```java\nUnaryOperator<String> shout = s -> s.toUpperCase() + \"!\";\nUnaryOperator<Integer> doubler = n -> n * 2;\n// list.replaceAll(shout) — replaces each element with transformed version\n```\n\n**`BinaryOperator<T>`** — extends `BiFunction<T,T,T>`, two same-type inputs, same-type output:\n```java\nBinaryOperator<Integer> add = (a, b) -> a + b;\nBinaryOperator<String> concat = (a, b) -> a + b;\n```\n\n**Quick reference table:**\n\n| Interface | Parameters | Returns | Primary method | Use case |\n|-----------|-----------|---------|---------------|----------|\n| `Predicate<T>` | T | boolean | test(T) | Filter conditions |\n| `Function<T,R>` | T | R | apply(T) | Transform |\n| `Consumer<T>` | T | void | accept(T) | Side effects |\n| `Supplier<T>` | none | T | get() | Produce values |\n| `BiFunction<T,U,R>` | T, U | R | apply(T,U) | Two-input transform |\n| `UnaryOperator<T>` | T | T | apply(T) | In-place transform |\n| `BinaryOperator<T>` | T, T | T | apply(T,T) | Combine two values |"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show four boxes for the four primary interfaces, each with: name, arrow diagram (input → output or just output for Supplier), primary method signature, and one real-world use case. Colors: Predicate=blue (test/filter), Function=green (transform), Consumer=orange (act), Supplier=purple (produce). Center: method reference cheat sheet — four types with examples. Bottom: composition diagram — two Predicates combined with .and() producing a third; two Functions chained with .andThen().",
+      "alt_text": "Four primary functional interfaces with method signatures, composition, and method reference types"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a configurable data processing pipeline using all four functional interfaces. A `DataPipeline<T>` class that accepts Predicates for filtering, Functions for transformation, and Consumers for output — composing them together without knowing the concrete types.",
+
+    "problem_statement": "Build `DataPipeline<T>` with:\n1. `filter(Predicate<T>)` — filter elements\n2. `transform(Function<T, T>)` — transform each element\n3. `output(Consumer<T>)` — what to do with final results\n4. `process(List<T>)` — run all three stages\n\nTest with String pipeline (filter long words, uppercase, print) and Integer pipeline (filter evens, double, sum).",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "DataPipeline class storing all four functional interfaces",
+        "details": "```java\nimport java.util.function.*;\nimport java.util.*;\n\nclass DataPipeline<T> {\n    private Predicate<T> filter = t -> true;      // default: keep all\n    private UnaryOperator<T> transform = t -> t;  // default: identity (no change)\n    private Consumer<T> output = t -> {};          // default: do nothing\n    \n    public DataPipeline<T> filter(Predicate<T> p) {\n        this.filter = p;\n        return this;  // fluent builder\n    }\n    \n    public DataPipeline<T> transform(UnaryOperator<T> op) {\n        this.transform = op;\n        return this;\n    }\n    \n    public DataPipeline<T> output(Consumer<T> c) {\n        this.output = c;\n        return this;\n    }\n    \n    public void process(List<T> data) {\n        for (T item : data) {\n            if (filter.test(item)) {          // Predicate\n                T result = transform.apply(item);  // UnaryOperator\n                output.accept(result);             // Consumer\n            }\n        }\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "String pipeline — filter long, uppercase, print",
+        "details": "```java\nList<String> cities = Arrays.asList(\"Delhi\", \"Hyderabad\", \"Mumbai\", \"Bengaluru\", \"Pune\");\n\nnew DataPipeline<String>()\n    .filter(s -> s.length() > 5)            // Predicate: length > 5\n    .transform(s -> s.toUpperCase())        // UnaryOperator: uppercase\n    .output(s -> System.out.println(s))     // Consumer: print\n    .process(cities);\n```\n\nOutput: HYDERABAD, BENGALURU (both > 5 chars)"
+      },
+      {
+        "step": 3,
+        "action": "Integer pipeline — filter evens, double, collect",
+        "details": "```java\nList<Integer> nums = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);\nList<Integer> results = new ArrayList<>();\n\nnew DataPipeline<Integer>()\n    .filter(n -> n % 2 == 0)               // Predicate: even\n    .transform(n -> n * 2)                 // UnaryOperator: double\n    .output(n -> results.add(n))           // Consumer: collect\n    .process(nums);\n\nSystem.out.println(\"Doubled evens: \" + results);\n```\n\nEvens: 2, 4, 6, 8. Doubled: 4, 8, 12, 16."
+      }
+    ],
+
+    "final_code": "import java.util.*;\nimport java.util.function.*;\n\nclass DataPipeline<T> {\n    private Predicate<T>    filter    = t -> true;\n    private UnaryOperator<T> transform = t -> t;\n    private Consumer<T>     output    = t -> {};\n    \n    DataPipeline<T> filter(Predicate<T> p)     { this.filter = p; return this; }\n    DataPipeline<T> transform(UnaryOperator<T> op) { this.transform = op; return this; }\n    DataPipeline<T> output(Consumer<T> c)       { this.output = c; return this; }\n    \n    void process(List<T> data) {\n        for (T item : data) {\n            if (filter.test(item))\n                output.accept(transform.apply(item));\n        }\n    }\n}\n\npublic class FunctionalPipeline {\n    public static void main(String[] args) {\n        List<String> cities = Arrays.asList(\"Delhi\", \"Hyderabad\", \"Mumbai\", \"Bengaluru\", \"Pune\");\n        \n        System.out.println(\"Cities longer than 5 chars (UPPERCASE):\");\n        new DataPipeline<String>()\n            .filter(s -> s.length() > 5)\n            .transform(s -> s.toUpperCase())\n            .output(System.out::println)  // method reference!\n            .process(cities);\n        \n        System.out.println(\"\\nDoubled even numbers:\");\n        List<Integer> nums = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);\n        List<Integer> results = new ArrayList<>();\n        new DataPipeline<Integer>()\n            .filter(n -> n % 2 == 0)\n            .transform(n -> n * 2)\n            .output(results::add)  // method reference on instance!\n            .process(nums);\n        System.out.println(results);\n    }\n}",
+
+    "expected_output": "Cities longer than 5 chars (UPPERCASE):\nHYDERABAD\nBENGALURU\n\nDoubled even numbers:\n[4, 8, 12, 16]",
+
+    "things_to_notice": [
+      "DataPipeline stores Predicate, UnaryOperator, Consumer as fields. Each is assigned via a lambda (or could be a method reference). This is the Strategy Pattern implemented with functional interfaces.",
+      "`System.out::println` is a method reference to an instance method on a specific object (`System.out`). It's a Consumer<String> — accepts a String and prints it.",
+      "`results::add` is a method reference to an instance method on `results`. It's a Consumer<Integer> — each accepted integer is added to the list.",
+      "Default values: `t -> true` for filter (keep all), `t -> t` for transform (identity — no change), `t -> {}` for output (do nothing). This makes all three stages optional.",
+      "The fluent `.filter(...).transform(...).output(...).process(...)` pattern is identical to how Stream API chains work: `.filter(...).map(...).forEach(...)`. This IS a mini-stream.",
+      "Doubled evens: 2→4, 4→8, 6→12, 8→16 = [4, 8, 12, 16]. Order preserved."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Java Stream API (every modern Java application)",
+        "use_case": "`stream().filter(predicate)` takes a `Predicate<T>`. `stream().map(function)` takes a `Function<T,R>`. `stream().forEach(consumer)` takes a `Consumer<T>`. These interfaces ARE the Stream API's vocabulary. After this topic, Topics 8.3-8.5 are just learning the Stream syntax — you already know what each operation expects."
+      },
+      {
+        "company_context": "Spring Security (every secured Spring Boot app)",
+        "use_case": "Spring Security's authorization rules use Predicate-like patterns: `.requestMatchers('/admin/**').access(auth -> auth.isAuthenticated() && auth.getAuthorities().contains('ADMIN'))`. The lambda IS a predicate over the authentication object. Spring's @Query methods use Function-like projections."
+      },
+      {
+        "company_context": "CompletableFuture / async Java (Razorpay, Flipkart backends)",
+        "use_case": "`future.thenApply(function)` takes a `Function<T,R>` — same as Stream's map. `future.thenAccept(consumer)` takes a Consumer<T>. `future.thenCompose(function)` chains futures. Entire async pipelines are built from these four interfaces — you're already writing the right vocabulary."
+      }
+    ],
+
+    "interview_relevance": "Functional interface questions show depth:\n\n- **'What is Predicate?'** → Test a condition on input, returns boolean. `filter()` in streams takes Predicate.\n- **'What is Function<T,R>?'** → Transform T to R. `map()` in streams takes Function.\n- **'What is Consumer?'** → Accept input, return nothing. `forEach()` takes Consumer.\n- **'What is Supplier?'** → Produce a value with no input. `get()` method. Used for lazy defaults.\n- **'How do you compose Predicates?'** → `p1.and(p2)`, `p1.or(p2)`, `p1.negate()`.\n- **'What are method references?'** → Four types: static (`Integer::parseInt`), bound instance (`obj::method`), unbound instance (`String::length`), constructor (`ArrayList::new`).",
+
+    "real_world_workflow": "Daily functional interface usage:\n\n- Stream filter: `stream.filter(user -> user.isActive())` — Predicate\n- Stream map: `stream.map(user -> user.getName())` — Function\n- Stream forEach: `stream.forEach(System.out::println)` — Consumer\n- Optional.orElseGet: `opt.orElseGet(() -> computeDefault())` — Supplier\n- Passing validation rules: `validate(user, u -> u.getAge() >= 18)` — Predicate parameter\n- Transforming lists: `list.replaceAll(s -> s.trim())` — UnaryOperator"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "function_vs_consumer_confusion",
+      "what_students_get_wrong": "Using Function when Consumer is needed (or vice versa) — Consumer has no return, Function returns a value.",
+      "remediation": "If your lambda returns a value → Function. If it performs an action with no return (print, save, add) → Consumer. forEach always takes Consumer. map always takes Function.",
+      "detection_pattern": "Compile error trying to use a void-returning lambda as Function"
+    },
+    {
+      "gap_id": "method_reference_type_confusion",
+      "what_students_get_wrong": "Not knowing which method reference form to use — especially confusing unbound vs bound instance methods.",
+      "remediation": "Bound: `object::method` — specific instance, method called ON that object. Unbound: `ClassName::method` — the parameter IS the instance, method called on the lambda argument.",
+      "detection_pattern": "Wrong method reference that doesn't compile or has wrong type"
+    },
+    {
+      "gap_id": "composition_order",
+      "what_students_get_wrong": "Getting andThen() direction confused — thinking it applies the second function first.",
+      "remediation": "`f.andThen(g)` = first apply f, then apply g. Same as `g(f(x))`. Think: 'f, and then g.' `compose()` is the reverse: `f.compose(g)` = g first, then f.",
+      "detection_pattern": "Wrong output order from composed functions"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Predicate<T>: T → boolean. `test(T t)`. For filtering, conditions.",
+      "Function<T,R>: T → R. `apply(T t)`. For transformation.",
+      "Consumer<T>: T → void. `accept(T t)`. For side effects (print, save).",
+      "Supplier<T>: nothing → T. `get()`. For lazy production.",
+      "BiFunction<T,U,R>: T,U → R. For two-input transforms.",
+      "UnaryOperator<T>: T → T. Same type in/out. For in-place transforms.",
+      "Composing: `Predicate.and/or/negate()`, `Function.andThen()`, `Consumer.andThen()`",
+      "Method references — four types: static, bound instance, unbound instance, constructor",
+      "These interfaces ARE the Stream API vocabulary: filter=Predicate, map=Function, forEach=Consumer",
+      "Supplier is key for lazy evaluation — computation deferred until `.get()` called"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What functional interface type is each of these lambdas?\na) `s -> s.toUpperCase()`\nb) `n -> n > 0`\nc) `() -> new ArrayList<>()`\nd) `s -> System.out.println(s)`",
+        "answer": "a) `Function<String, String>` — takes String, returns String\nb) `Predicate<Integer>` (or `Predicate<Number>`) — takes a number, returns boolean\nc) `Supplier<ArrayList>` — no input, produces an ArrayList\nd) `Consumer<String>` — takes String, returns void (performs side effect)"
+      },
+      {
+        "question": "What is the difference between `String::length` and `myString::length`?",
+        "answer": "`String::length` is an UNBOUND instance method reference. The lambda argument becomes the instance: `s -> s.length()` — works as `Function<String, Integer>`. `myString::length` is a BOUND instance method reference — `myString` is the fixed instance, the lambda takes no arguments: `() -> myString.length()` — works as `Supplier<Integer>`."
+      },
+      {
+        "question": "Write a composed Predicate that accepts strings that are both longer than 3 chars AND start with 'A'.",
+        "answer": "`Predicate<String> longEnough = s -> s.length() > 3;`\n`Predicate<String> startsWithA = s -> s.startsWith('A');`\n`Predicate<String> combined = longEnough.and(startsWithA);`\n\nTest: `combined.test('Aisha')` → true (5 > 3 AND starts with A). `combined.test('Raj')` → false (3 is not > 3). `combined.test('Ada')` → false (3 not > 3). `combined.test('Anita')` → true."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Stream API** — where Predicate, Function, and Consumer go to work together. A Stream is a pipeline of operations: `list.stream()` creates a stream, `.filter(predicate)` removes elements, `.map(function)` transforms them, `.collect(...)` gathers results. After this topic, the 10-line sort-filter-transform loops from Module 6 become 1-3 line stream chains. The most powerful data processing tool in Java."
+  }
+}

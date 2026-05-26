@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m28_t5",
+  "language": "java",
+  "module_id": "m28",
+  "module_name": "gRPC",
+  "topic_number": 5,
+  "name": "Testing gRPC Services",
+  "slug": "testing-grpc-services",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m28_t1", "java_m28_t2", "java_m12_t3"],
+    "concepts_taught": [
+      "inprocess_server", "inprocess_channel", "grpc_test_isolation",
+      "testing_unary_rpcs", "testing_streaming_rpcs", "test_stream_observer",
+      "grpc_server_extension", "mock_service_stubs", "status_runtime_exception_testing",
+      "testing_interceptors", "grpc_integration_test_patterns"
+    ],
+    "skills_developed": [
+      "writing_grpc_unit_tests_with_inprocess", "testing_streaming_rpcs",
+      "testing_auth_interceptors", "isolating_grpc_tests_from_network"
+    ],
+    "career_relevance": "Razorpay's payment gRPC service processes 1M+ transactions daily. A bug in the streaming RPC that sends payment confirmations crashed the service for 12 minutes — ₹18 crore in missed transactions. The bug was in an edge case of the stream observer that was never tested. After this topic, you can write comprehensive gRPC tests using InProcessServer (no network, fast, deterministic) that would have caught this bug in CI.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "Razorpay streaming RPC bug:\n\n```\nPaymentConfirmationService.streamConfirmations():\n  Sends payment status updates to merchant webhook listener\n  Stream: INITIATED → PROCESSING → CONFIRMED/FAILED\n\nBug: when payment amount > ₹10 lakh, onError() called instead of onNext()\n  Merchant connection drops, merchant doesn't receive CONFIRMED\n  Merchant retries payment → customer charged twice\n  12-minute outage, ₹18 crore impact\n\nWould have been caught by:\n  TestStreamObserver observer = new TestStreamObserver<>();\n  stub.streamConfirmations(PaymentRequest.newBuilder().setAmount(10_00_001).build(), observer);\n  observer.awaitCompletion();\n  assertTrue(observer.getValues().stream().anyMatch(r -> r.getStatus().equals(\"CONFIRMED\")));\n  // ← TEST WOULD HAVE FAILED for amount > 10L, caught in CI\n```",
+    "what_you_will_build": "InProcess gRPC test harness for Razorpay payment service — unary and streaming."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "inprocess_server": "**InProcessServer — gRPC testing without network:**\n\n```java\n@ExtendWith(GrpcExtension.class)  // OR manual setup:\nclass PaymentServiceTest {\n\n    private ManagedChannel channel;\n    private Server server;\n\n    @BeforeEach\n    void setup() throws IOException {\n        String serverName = InProcessServerBuilder.generateName();\n\n        // Start in-process server:\n        server = InProcessServerBuilder\n            .forName(serverName)\n            .directExecutor()    // single-threaded for tests\n            .addService(new PaymentServiceImpl())  // real implementation\n            .build()\n            .start();\n\n        // Connect in-process channel:\n        channel = InProcessChannelBuilder\n            .forName(serverName)\n            .directExecutor()\n            .build();\n    }\n\n    @AfterEach\n    void teardown() throws InterruptedException {\n        channel.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);\n        server.shutdownNow().awaitTermination(5, TimeUnit.SECONDS);\n    }\n\n    @Test void createPayment_returnsPaymentId() {\n        PaymentServiceGrpc.PaymentServiceBlockingStub stub =\n            PaymentServiceGrpc.newBlockingStub(channel);\n\n        PaymentResponse response = stub.createPayment(\n            PaymentRequest.newBuilder()\n                .setMerchantId(\"MRC-001\")\n                .setAmountPaise(50000)\n                .build());\n\n        assertNotNull(response.getPaymentId());\n        assertEquals(\"CREATED\", response.getStatus());\n    }\n}\n```",
+      "streaming_test": "**Testing streaming RPCs:**\n\n```java\n// TestStreamObserver: captures all messages for assertion\nclass TestStreamObserver<T> implements StreamObserver<T> {\n    private final List<T> values = new CopyOnWriteArrayList<>();\n    private Throwable error;\n    private final CountDownLatch completed = new CountDownLatch(1);\n\n    @Override public void onNext(T value) { values.add(value); }\n    @Override public void onError(Throwable t) { error = t; completed.countDown(); }\n    @Override public void onCompleted() { completed.countDown(); }\n\n    public void awaitCompletion() throws InterruptedException {\n        assertTrue(completed.await(5, TimeUnit.SECONDS), \"Stream did not complete\");\n    }\n    public List<T> getValues() { return values; }\n    public Throwable getError() { return error; }\n    public boolean hasError() { return error != null; }\n}\n\n// Test server-streaming:\n@Test void streamPaymentUpdates_sendsAllStatuses() throws InterruptedException {\n    PaymentServiceGrpc.PaymentServiceStub asyncStub =\n        PaymentServiceGrpc.newStub(channel);\n\n    TestStreamObserver<PaymentUpdate> observer = new TestStreamObserver<>();\n    asyncStub.streamPaymentUpdates(\n        PaymentRequest.newBuilder().setPaymentId(\"PAY-001\").build(),\n        observer);\n\n    observer.awaitCompletion();\n    assertFalse(observer.hasError());\n    assertEquals(3, observer.getValues().size()); // INITIATED, PROCESSING, CONFIRMED\n    assertEquals(\"CONFIRMED\", observer.getValues().get(2).getStatus());\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "gRPC InProcess test architecture. Left: Test class with @BeforeEach setup. Center: InProcessServer (no network, in JVM memory) containing the real PaymentServiceImpl. Right: Test stub connected via InProcessChannel (same JVM, no TCP). Arrows: test → stub (blocking/async) → InProcessChannel → InProcessServer → PaymentServiceImpl → response back. Below: TestStreamObserver diagram showing onNext()/onCompleted()/onError() callbacks and CountDownLatch for async synchronization.",
+      "alt_text": "InProcessServer: gRPC tests with no real network — server and client in same JVM"
+    },
+    "worked_example": {
+      "scenario": "Test suite for Razorpay PaymentService — unary createPayment and streaming streamConfirmations.",
+      "problem_statement": "1. InProcessServerBuilder setup in @BeforeEach\n2. Test unary createPayment: PaymentRequest → PaymentResponse\n3. Test streaming: stream confirmations → verify all statuses received\n4. Test error path: amount = 0 → StatusRuntimeException INVALID_ARGUMENT\n5. @SpringBootTest or plain JUnit",
+      "step_by_step_solution": [{"step": 1, "action": "directExecutor for tests", "details": "directExecutor(): runs gRPC in the same thread as the test (no thread pool). Tests become deterministic — no race conditions between test thread and gRPC threads. Never use directExecutor() in production (blocks the event loop). Tests only."}],
+      "final_code": "// InProcessServerBuilder.forName(uniqueName).directExecutor().addService(impl).build().start()\n// InProcessChannelBuilder.forName(uniqueName).directExecutor().build()\n// Stub calls are synchronous with directExecutor → no async waiting needed for unary",
+      "expected_output": "✓ createPayment_returns_paymentId (15ms)\n✓ createPayment_zeroAmount_throwsInvalidArgument (8ms)\n✓ streamConfirmations_sends3Updates (22ms)\n✓ streamConfirmations_largeAmount_completesNormally (18ms) ← would have caught the bug!",
+      "things_to_notice": [
+        "No real network: InProcessServer uses a named pipe within the JVM. Tests run in ~10-50ms vs 100-500ms for real network. 10x faster CI.",
+        "Real implementation: InProcess tests run your REAL service code (not mocks). This is integration testing at the gRPC level — the proto serialization/deserialization is also tested.",
+        "CountDownLatch for streaming: asynchronous streams need synchronization. onCompleted() or onError() decrements the latch. Test waits up to 5 seconds (never hangs CI forever).",
+        "Test isolation: each test gets a uniquely named server (InProcessServerBuilder.generateName()). Tests don't share server state and can run in parallel."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{"company_context": "Razorpay payment gRPC service", "use_case": "Every PaymentService RPC has an InProcess test. Streaming RPCs: TestStreamObserver captures all messages, asserting correct status sequence (INITIATED→PROCESSING→CONFIRMED). Edge cases: amount > ₹10L, currency mismatch, gateway timeout — all tested with InProcess. CI: 200 gRPC tests run in 8 seconds total (InProcess). Would take 3+ minutes with real network stubs."}],
+      "interview_relevance": "'How do you test gRPC services?' → InProcessServerBuilder: starts gRPC server in same JVM (no network). Add real service implementation, connect InProcessChannelBuilder. Test unary: blocking stub, assert response fields. Test streaming: TestStreamObserver with CountDownLatch. Test error: assertThrows(StatusRuntimeException.class, ...) then check getStatus().getCode(). Test interceptors: add interceptor to InProcessServer, test it's applied.",
+      "real_world_workflow": "gRPC test workflow: (1) generate a unique server name, (2) start InProcessServer with real service impl, (3) connect InProcessChannel, (4) create stubs (blocking for unary, async for streaming), (5) TestStreamObserver for streaming, (6) @AfterEach shutdown server and channel, (7) use directExecutor for deterministic single-threaded tests."
+    },
+    "common_gaps": [{"gap_id": "not_waiting_for_stream", "what_students_get_wrong": "Asserting streaming results immediately without waiting for stream to complete. Observer.getValues() is empty because the async stream hasn't delivered messages yet.", "remediation": "Always call observer.awaitCompletion() before asserting. CountDownLatch with 5-second timeout: fails CI rather than hanging indefinitely. Alternative: use directExecutor() — synchronous execution makes streaming tests simpler.", "detection_pattern": "assertEquals(3, observer.getValues().size()) fails with 0 elements — stream not awaited before assertion"}],
+    "reflection": {
+      "key_takeaways": [
+        "InProcessServerBuilder: gRPC server in same JVM (no network, fast, deterministic)",
+        "InProcessChannelBuilder.forName(same name): connects to in-process server",
+        "directExecutor(): single-threaded, no race conditions — tests only",
+        "BlockingStub for unary: synchronous test code",
+        "AsyncStub for streaming: pass TestStreamObserver",
+        "TestStreamObserver: captures onNext/onError/onCompleted",
+        "CountDownLatch: wait for stream completion before asserting",
+        "awaitCompletion(5 seconds): never hang CI indefinitely",
+        "assertThrows(StatusRuntimeException.class): test error RPCs",
+        "getStatus().getCode(): verify specific gRPC status code",
+        "@AfterEach: shutdown server and channel (resource cleanup)"
+      ],
+      "self_check_questions": [{"question": "Why use InProcessServer instead of mocking the service interface for gRPC tests?", "answer": "Mocking the service: you test the business logic in isolation but skip gRPC serialization, proto validation, and the gRPC framework itself. If a proto field is wrong type or a required field is missing — mock tests pass but real gRPC call would fail. InProcessServer: tests run the REAL service implementation through the REAL gRPC framework. Proto messages are serialized/deserialized. Request validation happens. Interceptors run. The full gRPC stack is exercised. Only the network is replaced (InProcess pipe vs TCP). Trade-off: InProcess tests are slower than pure mocks (~15ms vs ~1ms) but faster than real network (~15ms vs ~150ms). For gRPC: InProcess is the sweet spot — catches real proto/serialization bugs without network overhead. Pure mocks: use for unit testing pure business logic that doesn't depend on gRPC."}]
+      ,
+      "next_topic_preview": "Module 28 complete! You've mastered gRPC: protobuf, Spring Boot gRPC, streaming, security, and testing. Combined with GraphQL (M27), you now have the full modern API toolkit."
+    }
+  }
+}

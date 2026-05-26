@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m11_t1_proj",
+  "linked_topic": "java_m11_t1",
+  "level": "mini",
+  "name": "Inventory CSV Import System",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+
+  "scenario": "Build a complete inventory file processing system for a Flipkart-style warehouse. Products arrive as CSV files in an input directory. The system validates, processes, archives, and reports — a real-world data pipeline using only Java NIO File API.",
+
+  "description": "A file-based inventory importer: reads CSVs from an input directory, validates each row, writes processed records to output, moves valid files to archive, moves problematic files to quarantine, and generates a summary report.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Directory structure creation: `inventory/input/`, `inventory/archive/`, `inventory/quarantine/`, `inventory/reports/` — all with createDirectories.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "Generate 3 sample CSV files in `inventory/input/` with columns: sku, name, quantity, price. At least one file has an invalid row (negative qty or blank name).",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`InventoryProcessor.processFile(Path csvFile)` → returns `ProcessingResult` (validCount, errorCount, totalValue). Reads file with Files.readAllLines or Files.lines, skips header, validates each row.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Process all CSV files in input/ using Files.walk or Files.list. Files with 0 errors → move to archive/. Files with any errors → move to quarantine/.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "Write `inventory/reports/summary.txt` with: timestamp, per-file results, grand totals (total valid, total errors, total inventory value). Use Files.writeString or Files.write.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "Print summary to console AND write to report file.",
+        "weight": 12
+      },
+      {
+        "id": "req_7",
+        "description": "Proper use of try-with-resources for any Files.lines() or Files.walk() streams.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add duplicate SKU detection across all files: if the same SKU appears in multiple files, flag it in the report as 'DUPLICATE SKU: [sku]'. Use a ConcurrentHashMap or Set.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add Files.walk-based cleanup: after processing, delete any files older than 7 days from quarantine/ (simulate with files created more than N seconds ago via Files.getLastModifiedTime). Demonstrate the check even if nothing is actually deleted.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Write per-file detail reports: for each processed CSV, write `inventory/reports/[filename]-detail.txt` with each valid row's computed total (qty × price) and any error rows.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "CSV format: sku,name,quantity,price\nFile 1 (electronics.csv) — all valid:\nSKU-001,Wireless Mouse,45,799\nSKU-002,Keyboard,12,1999\nSKU-003,USB Hub,60,499\n\nFile 2 (accessories.csv) — has errors:\nSKU-004,Laptop Stand,25,1299\nSKU-005,,8,18999      ← invalid: blank name\nSKU-006,Headphones,-5,2999  ← invalid: negative qty\n\nFile 3 (books.csv) — all valid:\nSKU-007,Java Programming,100,649\nSKU-008,Design Patterns,50,899",
+
+  "starter_code": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\n\npublic class InventoryImporter {\n    public static void main(String[] args) throws IOException {\n        // Create directory structure\n        // Generate sample CSV files\n        // Process each file\n        // Move to archive or quarantine\n        // Write summary report\n    }\n    // Define: ProcessingResult, InventoryProcessor\n}",
+
+  "example_output": "=== Inventory Import System ===\n\nProcessing: electronics.csv\n  Valid rows: 3, Errors: 0, Value: ₹84042\n  → Archived\n\nProcessing: accessories.csv\n  Valid rows: 1, Errors: 2, Value: ₹32475\n  → Quarantined\n\nProcessing: books.csv\n  Valid rows: 2, Errors: 0, Value: ₹103350\n  → Archived\n\n=== Summary ===\nFiles processed: 3\nArchived: 2  |  Quarantined: 1\nTotal valid rows: 6\nTotal errors: 2\nTotal inventory value: ₹219867\n\nReport saved to: inventory/reports/summary.txt",
+
+  "rubric": [
+    { "category": "Directory Setup", "points": 10, "criteria": ["createDirectories for all 4 dirs (10 pts)"] },
+    { "category": "File Reading", "points": 20, "criteria": ["Reads with readAllLines or lines (10 pts)", "Skips header (5 pts)", "try-with-resources if lines used (5 pts)"] },
+    { "category": "Validation", "points": 20, "criteria": ["Blank name check (10 pts)", "Non-positive qty/price check (10 pts)"] },
+    { "category": "Archive/Quarantine", "points": 20, "criteria": ["Files.walk or list (5 pts)", "Correct routing logic (15 pts)"] },
+    { "category": "Report Writing", "points": 15, "criteria": ["Summary written to file (10 pts)", "Printed to console (5 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (8 pts)", "Correct output (7 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["Duplicate SKU detection (20 pts)", "Stale file cleanup (20 pts)", "Per-file detail reports (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: Files.list() to iterate input/, try-with-resources for any stream. IOException inside lambda → wrap as UncheckedIOException. Files.move() to archive or quarantine. Files.writeString() for report. ProcessingResult can be a simple record or class.",
+
+  "submission_instructions": "Save as InventoryImporter.java. Push to GitHub. This is a real data pipeline pattern.",
+
+  "tips_for_success": [
+    "Collect files into List<Path> first (don't iterate stream while moving files)",
+    "IOException in forEach lambda → catch inside lambda and re-throw as UncheckedIOException",
+    "ProcessingResult: record(int valid, int errors, long totalValue)",
+    "Move logic: result.errors() == 0 → archive, else → quarantine",
+    "Report: Files.write(reportPath, summaryLines) where summaryLines is a List<String>"
+  ],
+
+  "concepts_reinforced": [
+    "Path.of() and path.resolve()",
+    "Files.createDirectories()",
+    "Files.readAllLines() for processing",
+    "Files.write() for output",
+    "Files.list() with try-with-resources",
+    "Files.move() with REPLACE_EXISTING",
+    "IOException handling in file operations"
+  ]
+}

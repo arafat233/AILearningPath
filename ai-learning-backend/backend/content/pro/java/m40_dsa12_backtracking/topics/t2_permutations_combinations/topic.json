@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m40_t2",
+  "module_id": "m40",
+  "topic_number": 2,
+  "name": "Permutations, Combinations, Subsets",
+  "slug": "permutations-combinations-subsets",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m40_t1"
+    ],
+    "concepts_taught": [
+      "permutations-combinations-subsets"
+    ],
+    "career_relevance": "Core Permutations, Combinations, Subsets.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Permutations, Combinations, Subsets"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Permutations: `used[]` array; O(n!)",
+        "Combinations: `start` index; i+1 prevents duplicates; O(C(n,k))",
+        "Subsets: add at every call; O(2^n)",
+        "Permutations with duplicates: sort + skip if `i>0 && nums[i]==nums[i-1] && !used[i-1]`",
+        "Combination Sum II (no reuse): i+1; skip duplicates with `i>start && c[i]==c[i-1]`"
+      ],
+      "next_topic_preview": "Next: Sudoku, N-Queens."
+    }
+  }
+}

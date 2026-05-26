@@ -1,0 +1,229 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t4",
+  "language": "java",
+  "module_id": "m2",
+  "module_name": "Methods & Code Organization",
+  "topic_number": 4,
+  "name": "Variable Scope & Lifetime",
+  "slug": "variable-scope-and-lifetime",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 45,
+    "prerequisites": ["java_m2_t1", "java_m2_t2", "java_m2_t3"],
+    "concepts_taught": [
+      "local_variables",
+      "method_parameters_as_locals",
+      "block_scope",
+      "class_level_static_variables",
+      "variable_lifetime",
+      "variable_shadowing",
+      "scope_resolution",
+      "garbage_collection_intro"
+    ],
+    "skills_developed": [
+      "reasoning_about_variable_visibility",
+      "avoiding_shadowing_bugs",
+      "choosing_correct_scope_for_data",
+      "predicting_compilation_errors",
+      "reading_scoped_code"
+    ],
+    "career_relevance": "Scope determines WHERE a variable is visible and WHEN it exists. Most beginner bugs are scope-related: 'variable not found,' 'might not have been initialized,' or worse — silent shadowing where a local variable hides a class-level one. Production codebases have variables at multiple scopes (local, parameter, class-level, even nested blocks). Reading code fluently requires understanding scope without thinking about it. After this topic, students stop being surprised by 'variable X cannot be resolved' errors.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Here's a question that trips up interview candidates daily: 'In your for loop, why can't I use the loop counter after the loop ends?'\n\n```java\nfor (int i = 0; i < 10; i++) { ... }\nSystem.out.println(i);  // COMPILATION ERROR\n```\n\nThe answer is **scope**. The variable `i` only exists INSIDE the for loop's parentheses and body. Outside, it doesn't exist at all — like it was never declared.\n\nThis seems annoying at first but it's actually a feature. Scope prevents accidents: variables don't leak between unrelated parts of code. A loop variable from one method can't accidentally affect another method. This isolation is what makes large codebases manageable.",
+    "what_you_will_build": "By the end of this topic, you'll understand every kind of variable scope in Java: local, parameter, block-level, and class-level (static). You'll predict where variables exist and where they don't. You'll recognize 'variable shadowing' — when a local variable hides a class-level one — and know how to avoid it. You'll also understand 'variable lifetime' — when variables are created and destroyed (which is more interesting than it sounds, because Java's garbage collector handles cleanup for you)."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**Scope** = where a variable is visible (and therefore usable) in your code.\n\n**Lifetime** = when a variable exists in memory.\n\nJava has several scopes — let's go through them from smallest to biggest.",
+      
+      "block_scope": "A **block** is any code enclosed in `{ ... }`. Variables declared inside a block exist ONLY inside that block.\n\n```java\npublic static void main(String[] args) {\n    int x = 10;\n    \n    {  // start of inner block\n        int y = 20;\n        System.out.println(x + y);  // OK: x and y both visible\n    }  // end of inner block — y goes out of scope here\n    \n    System.out.println(x);  // OK\n    System.out.println(y);  // COMPILATION ERROR: y doesn't exist here\n}\n```\n\nBlocks can be nested. Variables 'fall out of scope' when their block ends.\n\n**Common case: for loops**:\n\n```java\nfor (int i = 0; i < 5; i++) {\n    int doubled = i * 2;  // exists only inside the loop\n    System.out.println(doubled);\n}\nSystem.out.println(i);        // ERROR: i not visible outside loop\nSystem.out.println(doubled);  // ERROR: doubled not visible outside loop\n```\n\nThe for loop's `int i` is technically in the loop's 'header scope,' which is contained in the loop. Same effect: not visible outside.\n\n**Common case: if statements**:\n\n```java\nif (x > 0) {\n    String message = \"Positive\";\n}\nSystem.out.println(message);  // ERROR: message doesn't exist out here\n```\n\nFix: declare message OUTSIDE the if, assign inside:\n\n```java\nString message;  // declared in outer scope\nif (x > 0) {\n    message = \"Positive\";\n} else {\n    message = \"Non-positive\";\n}\nSystem.out.println(message);  // OK now\n```",
+      
+      "local_variables": "Variables declared INSIDE a method are **local variables**. They exist only during that method's execution.\n\n```java\npublic static void calculate() {\n    int result = 42;  // local variable\n    System.out.println(result);\n}  // result is destroyed here\n\npublic static void main(String[] args) {\n    calculate();\n    System.out.println(result);  // ERROR: result not visible here\n}\n```\n\nEach method has its OWN locals. Two methods can have variables with the same name — they're completely independent:\n\n```java\npublic static void first() {\n    int x = 1;\n    System.out.println(\"first: \" + x);\n}\n\npublic static void second() {\n    int x = 100;  // different variable, different method\n    System.out.println(\"second: \" + x);\n}\n```\n\nNo conflict. Each `x` lives in its own world.\n\n**Important rule**: local variables MUST be initialized before use. The compiler enforces this.\n\n```java\npublic static void demo() {\n    int x;\n    System.out.println(x);  // ERROR: variable might not have been initialized\n}\n```\n\nFix: assign before using.",
+      
+      "method_parameters": "Method parameters are **special locals**. They're declared in the method's signature and act like local variables — visible throughout the method's body, destroyed when method ends.\n\n```java\npublic static int doubleIt(int n) {  // n is a parameter (a local)\n    int result = n * 2;             // n is visible here\n    return result;\n}\n// n no longer exists once doubleIt finishes\n```\n\nParameters are initialized with the argument values you pass. You can use them immediately — no separate initialization needed.\n\n**Parameters and local variables can't share names within the same method**:\n\n```java\npublic static void demo(int x) {\n    int x = 10;  // ERROR: variable x is already defined\n}\n```",
+      
+      "class_level_static": "Variables declared at the CLASS level (outside any method) with `static` are **static variables** (also called 'class variables').\n\n```java\npublic class Demo {\n    static int counter = 0;  // class-level — visible to all methods\n    \n    public static void main(String[] args) {\n        increment();\n        increment();\n        System.out.println(counter);  // 2 — accessible everywhere\n    }\n    \n    public static void increment() {\n        counter++;  // accessible here too\n    }\n}\n```\n\n**Lifetime**: static variables exist for the entire duration of the program. They're created when the class loads, destroyed when the program ends.\n\n**Visibility**: visible to ALL methods in the class.\n\n**This is the 'global state' we warned against**. While useful for constants and shared configuration, overusing static variables for general data is an anti-pattern. Use parameters/returns instead (Topic 2.2). Static variables are appropriate for:\n- Constants (`static final double PI = 3.14159`)\n- Counters that genuinely should be shared\n- Configuration loaded at startup\n\nNot appropriate for: regular method-level data, anything that should be encapsulated.",
+      
+      "shadowing": "**Variable shadowing**: when a local variable has the same name as a class-level variable, the local 'hides' the class one inside that scope.\n\n```java\npublic class Demo {\n    static int count = 100;  // class-level\n    \n    public static void main(String[] args) {\n        int count = 5;       // local — shadows the class-level count\n        System.out.println(count);   // prints 5 (local wins)\n    }\n    \n    public static void showClassCount() {\n        System.out.println(count);   // prints 100 (no local here, sees class-level)\n    }\n}\n```\n\nShadowing isn't an error — it's allowed. But it's confusing. Inside `main`, `count` refers to the local. Outside, it refers to the static.\n\n**Real-world danger**: shadowing in production code causes subtle bugs:\n\n```java\nstatic int balance = 1000;\n\npublic static void updateBalance(int amount) {\n    int balance = amount * 2;  // OOPS: local shadows class-level\n    // ... thinks it's updating class-level, but only touching local\n}\n```\n\n**Best practice**: avoid shadowing. If you need to access a class-level variable, don't redeclare it. Use different names or fully qualify with `ClassName.variableName`.\n\nIn OOP (covered later), shadowing gets more dimensions with instance variables and `this`. For now: just avoid it.",
+      
+      "scope_resolution": "When the compiler sees a variable name, it checks scopes from innermost outward:\n\n1. Current block (innermost)\n2. Enclosing blocks (loops, if statements)\n3. Method scope (parameters and locals)\n4. Class scope (static variables)\n5. (Later, with OOP: instance variables, then inherited members)\n\nFirst match wins.\n\n```java\npublic class Demo {\n    static int x = 100;  // class scope\n    \n    public static void demo(int x) {  // parameter (method scope)\n        if (x > 0) {\n            int x_local = x * 2;  // block scope\n            System.out.println(x_local);\n        }\n    }\n}\n```\n\nInside `demo`, when we say `x`, Java sees the parameter (closer scope) — class-level `x` is shadowed.\n\nThis hierarchy is why scope errors say 'cannot find symbol' — Java looked through all visible scopes and found nothing matching.",
+      
+      "lifetime_garbage_collection": "**Variable lifetime** = when does a variable exist in memory?\n\n- **Local variables**: created when method starts, destroyed when method returns. (Strictly: stored on the 'stack.')\n- **Block variables**: created when block entered, destroyed when block exits.\n- **Static variables**: created when class loads (typically program start), destroyed when program ends.\n\nFor PRIMITIVES, that's the whole story. Java cleans them up automatically.\n\nFor OBJECTS (next module), it's more nuanced — Java has a **garbage collector** (GC) that reclaims memory when objects are no longer referenced.\n\nYou don't manually free memory in Java like you do in C/C++. The JVM tracks object references and cleans up automatically. This is a HUGE feature — eliminates an entire class of bugs (memory leaks, double-free errors).\n\nFor now, just internalize: variables come and go with their scope. Don't worry about the mechanics yet.",
+      
+      "static_final_constants": "A common pattern: `static final` variables — class-level constants.\n\n```java\npublic class Math {\n    public static final double PI = 3.14159;\n    public static final double E = 2.71828;\n}\n```\n\n- `static`: belongs to the class, accessible without an instance\n- `final`: value can't change after initialization\n\nThis is how you define constants in Java. By convention: `SCREAMING_SNAKE_CASE`.\n\nUseful examples:\n```java\nstatic final int MAX_RETRIES = 3;\nstatic final String API_URL = \"https://api.example.com\";\nstatic final double TAX_RATE = 18.0;\n```\n\nThese live for the program's lifetime, are visible everywhere in the class, and can't be modified. This is the ONE place class-level variables are universally accepted in clean code."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a nested boxes diagram: outermost box is 'Class scope (static variables)' containing inner box 'Method scope (parameters + locals)' which contains 'Block scope (loop/if variables)'. Each level labeled with what's visible at that level. Arrows show variables 'falling out of scope' when their block closes. Side note: 'Inner scopes can see outer; outer cannot see inner.' Below: a 'lifetime timeline' showing when each variable type is created and destroyed during program execution.",
+      "alt_text": "Nested scope diagram showing class, method, and block scopes with visibility rules and lifetime timeline"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "You're building a session tracker for a web app. It needs to track:\n- How many users have logged in total (static counter, lives for program lifetime)\n- Current session info (local to each session method)\n- Constants like max session length (static final)\n\nWe'll build it using ALL the scope types correctly, then deliberately introduce a scope bug and fix it. This shows scope thinking in action.",
+    
+    "problem_statement": "Build a `SessionTracker` class that:\n\n1. Has class-level constants: `MAX_SESSION_MINUTES` (60), `SESSION_TIMEOUT_WARNING` (5)\n2. Has a class-level mutable static: `totalLoginsCount` (starts at 0)\n3. Has methods that handle one session each, with local variables for session-specific data\n4. Demonstrates each scope working correctly",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Identify what belongs at each scope",
+        "details": "Think about WHERE each piece of data should live:\n\n- **Constants** (never change, used everywhere): class-level `static final`\n  - MAX_SESSION_MINUTES = 60\n  - SESSION_TIMEOUT_WARNING = 5\n\n- **Mutable shared state** (changes, used by multiple methods): class-level `static`\n  - totalLoginsCount\n\n- **Per-session data** (different each call, used in one method): local variables\n  - userName, sessionDurationMinutes, isExpired\n\nThis MATCHES THE REAL WORLD. Constants are constants. Counters that span the program go at class level. Per-call data stays local."
+      },
+      {
+        "step": 2,
+        "action": "Set up class-level variables",
+        "details": "Declare class-level state:\n\n```java\npublic class SessionTracker {\n    // Constants (never change)\n    static final int MAX_SESSION_MINUTES = 60;\n    static final int SESSION_TIMEOUT_WARNING = 5;\n    \n    // Mutable shared state\n    static int totalLoginsCount = 0;\n    \n    // ...methods below\n}\n```\n\nUse SCREAMING_SNAKE_CASE for constants. They're visible to all methods. The `final` keyword prevents accidental modification."
+      },
+      {
+        "step": 3,
+        "action": "Write a session-handling method with local variables",
+        "details": "Each session method has its OWN locals — they don't conflict with other sessions:\n\n```java\npublic static void handleSession(String userName, int sessionDurationMinutes) {\n    // Parameters are special locals — exist only in this method call\n    \n    // Local variables — exist only during this method call\n    boolean isExpired = sessionDurationMinutes > MAX_SESSION_MINUTES;\n    int minutesRemaining = MAX_SESSION_MINUTES - sessionDurationMinutes;\n    \n    // Increment class-level counter (this DOES persist across calls)\n    totalLoginsCount++;\n    \n    // Print session info\n    System.out.println(\"User: \" + userName);\n    System.out.println(\"Duration: \" + sessionDurationMinutes + \" min\");\n    System.out.println(\"Expired: \" + isExpired);\n    System.out.println(\"Remaining: \" + minutesRemaining + \" min\");\n    System.out.println(\"---\");\n}  // userName, sessionDurationMinutes, isExpired, minutesRemaining all DESTROYED here\n```\n\nWhen this method ends, locals vanish. `totalLoginsCount` (class-level) persists."
+      },
+      {
+        "step": 4,
+        "action": "Demonstrate scope across calls",
+        "details": "Call it multiple times — each call has FRESH locals but SHARED static:\n\n```java\npublic static void main(String[] args) {\n    handleSession(\"Aisha\", 45);    // Locals exist briefly, totalLoginsCount: 1\n    handleSession(\"Raj\", 75);      // Different locals, totalLoginsCount: 2\n    handleSession(\"Priya\", 30);    // Different locals again, totalLoginsCount: 3\n    \n    System.out.println(\"Total logins: \" + totalLoginsCount);  // 3 — persisted\n}\n```\n\nKey insight: each call to handleSession has its OWN userName, sessionDurationMinutes, isExpired. They don't accumulate. They don't conflict. Each call is independent.\n\nBut `totalLoginsCount` is shared. It accumulates across calls."
+      },
+      {
+        "step": 5,
+        "action": "Show what happens with shadowing (and why to avoid it)",
+        "details": "Now show a deliberately BAD example to teach the lesson:\n\n```java\npublic static void badShadowingExample() {\n    int totalLoginsCount = 999;  // shadows class-level!\n    totalLoginsCount++;\n    System.out.println(totalLoginsCount);  // 1000 (local)\n    // ...thought we were updating the class-level counter, but we weren't!\n}\n```\n\nThe shadowing doesn't cause a compilation error. It causes a SILENT BUG. The class-level counter remains untouched. Anyone reading this code has to look carefully to notice the shadow.\n\n**Lesson**: use different names. If we want to track local session count for logging, name it `localSessionAttempts`, not `totalLoginsCount`."
+      }
+    ],
+    
+    "final_code": "public class SessionTracker {\n    // Class-level constants — never change\n    static final int MAX_SESSION_MINUTES = 60;\n    static final int SESSION_TIMEOUT_WARNING = 5;\n    \n    // Class-level mutable — persists across method calls\n    static int totalLoginsCount = 0;\n    \n    public static void main(String[] args) {\n        handleSession(\"Aisha\", 45);\n        handleSession(\"Raj\", 75);\n        handleSession(\"Priya\", 30);\n        \n        System.out.println(\"Total logins: \" + totalLoginsCount);\n    }\n    \n    public static void handleSession(String userName, int sessionDurationMinutes) {\n        // Parameters (special locals)\n        // Local variables — fresh for each call\n        boolean isExpired = sessionDurationMinutes > MAX_SESSION_MINUTES;\n        int minutesRemaining = MAX_SESSION_MINUTES - sessionDurationMinutes;\n        \n        // Update class-level counter\n        totalLoginsCount++;\n        \n        System.out.println(\"User: \" + userName);\n        System.out.println(\"Duration: \" + sessionDurationMinutes + \" min\");\n        System.out.println(\"Expired: \" + isExpired);\n        System.out.println(\"Remaining: \" + minutesRemaining + \" min\");\n        System.out.println(\"---\");\n    }\n}",
+    
+    "expected_output": "User: Aisha\nDuration: 45 min\nExpired: false\nRemaining: 15 min\n---\nUser: Raj\nDuration: 75 min\nExpired: true\nRemaining: -15 min\n---\nUser: Priya\nDuration: 30 min\nExpired: false\nRemaining: 30 min\n---\nTotal logins: 3",
+    
+    "things_to_notice": [
+      "Each `handleSession` call has FRESH locals (userName, sessionDurationMinutes, isExpired). They're created when method starts, destroyed when method ends.",
+      "`totalLoginsCount` PERSISTS across calls — it's class-level static. After 3 calls, it's 3.",
+      "`MAX_SESSION_MINUTES` and `SESSION_TIMEOUT_WARNING` are constants — same value forever. The `final` keyword prevents accidental modification.",
+      "The parameter `userName` doesn't conflict between calls. Each method invocation has its own copy.",
+      "If we tried to access `userName` or `isExpired` from main, we'd get a compilation error — they only exist inside handleSession.",
+      "The third call shows Raj's session expired (75 > 60). Note the negative 'remaining' (-15) — in real code, we'd handle this with conditionals."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Web application servers (Tomcat, Spring Boot)",
+        "use_case": "Servlet methods handle HTTP requests. Each request gets its own locals (request data, parsed parameters). Shared application config lives at class-level static. Without proper scope, two simultaneous requests would interfere with each other — a security disaster."
+      },
+      {
+        "company_context": "Database connection pools (HikariCP)",
+        "use_case": "Connection pools use static fields to hold the shared pool, and locals within each query method to hold per-query state. Mixing these up would cause connection leaks (queries 'losing' their connections) or worse — sharing transactions between requests."
+      },
+      {
+        "company_context": "Mobile app development (Android)",
+        "use_case": "Android apps have activities and fragments with scoped lifecycles. Variables declared in `onCreate()` differ from those in `onResume()`. Misunderstanding scope is the #1 cause of crashes ('view not attached to a window' — usually a scope/lifetime issue)."
+      },
+      {
+        "company_context": "Configuration management (every app)",
+        "use_case": "App-wide settings (database URL, API keys, feature flags) belong at static class level — usually in a Config or Constants class. Per-user/per-request settings belong in method-level locals. The boundary is foundational to writing testable code."
+      }
+    ],
+    
+    "interview_relevance": "Scope questions in interviews:\n\n- 'What's the difference between local and static variables?' — Common warm-up\n- 'What is variable shadowing? Show an example.' — Tests understanding\n- 'Will this code compile?' — Often involves variables used outside their scope\n- 'When is a variable garbage collected?' — Tests deeper understanding (objects, references)\n- 'What's the difference between `final` and `static final`?' — Common confusion\n\nMore advanced (senior level): 'Why are static variables considered an anti-pattern in OOP code?' — Tests architectural thinking.\n\nScope errors are the most common 'gotcha' in code reviews for junior developers. Showing you understand scope cleanly demonstrates maturity.",
+    
+    "real_world_workflow": "Daily life with scope:\n- Compilation error 'cannot find symbol' → check if variable is in scope where you're using it\n- Compilation error 'variable might not have been initialized' → assignment is in conditional block; ensure it happens on all paths\n- Unexpected behavior in nested loops → check if you're shadowing a counter\n- Code review feedback: 'this should be a constant, not a local' or 'this should be a parameter, not a static' — these are scope decisions\n- Refactoring: moving a local variable to a parameter is one of the most common refactors"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "variable_out_of_scope",
+      "what_students_get_wrong": "Trying to access a variable outside its declaring scope. Most common: using a loop counter after the loop ends.",
+      "remediation": "Variables exist only inside their declaring block. If you need it after the block, declare it OUTSIDE the block (and assign inside).",
+      "detection_pattern": "Compilation error: 'cannot find symbol' or 'cannot resolve variable'"
+    },
+    {
+      "gap_id": "uninitialized_local_variable",
+      "what_students_get_wrong": "Using a local variable without initializing it. Java's compiler enforces initialization for locals (unlike static fields, which get default values).",
+      "remediation": "Local variables MUST be initialized before use. Either at declaration (`int x = 0;`) or via assignment before reading.",
+      "detection_pattern": "Compilation error: 'variable might not have been initialized'"
+    },
+    {
+      "gap_id": "shadowing_class_variable",
+      "what_students_get_wrong": "Declaring a local variable with the same name as a class-level variable, accidentally hiding it.",
+      "remediation": "Use different names for locals. If you absolutely need to shadow, comment WHY. In OOP, use `this.fieldName` to access shadowed fields.",
+      "detection_pattern": "Unexpected behavior where class-level state isn't being updated"
+    },
+    {
+      "gap_id": "expecting_static_modification_from_outside",
+      "what_students_get_wrong": "Thinking calling a method magically updates a local variable in the caller. Locals are scoped — changes inside a method don't escape unless via return value.",
+      "remediation": "Method changes to LOCAL variables don't affect caller. To 'return' data, use return values. To share, use static (with care) or parameters/objects.",
+      "detection_pattern": "Variable seemingly unchanged after method call"
+    },
+    {
+      "gap_id": "declaring_inside_conditional_then_using_outside",
+      "what_students_get_wrong": "Declaring a variable inside an `if` block, then trying to use it after the if. Variable goes out of scope.",
+      "remediation": "Declare the variable BEFORE the if (in outer scope), assign inside. Common pattern in topic 4 (control flow) exercises.",
+      "detection_pattern": "Compilation error using variable after conditional"
+    },
+    {
+      "gap_id": "overusing_static_variables",
+      "what_students_get_wrong": "Using class-level static variables as a default, even for data that should be local or parameter-passed.",
+      "remediation": "Static variables are global state. Use them ONLY for: constants, truly shared mutable state, or class-wide configuration. For per-method data, use locals.",
+      "detection_pattern": "Many static variables in a class; methods modifying state implicitly"
+    },
+    {
+      "gap_id": "confusing_static_final_vs_static_alone",
+      "what_students_get_wrong": "Mixing up `static` (class-level) with `final` (can't change). Or using one when needing both.",
+      "remediation": "`static` = belongs to class, not instance. `final` = cannot be reassigned. Constants are `static final`. A regular counter is `static` (not final). An instance value that's set once is `final` (not static).",
+      "detection_pattern": "Constants without final, or non-constants with final"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Scope = where a variable is VISIBLE; lifetime = when it EXISTS in memory",
+      "Block scope: variables exist only inside their `{ }` block — including for/while loop variables",
+      "Method scope: parameters and locals exist only during one method call",
+      "Class scope (`static`): variables exist for the program's lifetime, visible to all methods",
+      "Local variables MUST be initialized before use (compiler enforces)",
+      "Shadowing: when a local hides a class-level variable with the same name. Avoid this.",
+      "Java resolves variable references from innermost scope outward",
+      "Static variables = global state. Use sparingly (mostly for constants).",
+      "`static final` = the proper way to declare class-level constants",
+      "Garbage collection handles object cleanup — you don't manually free memory in Java"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why doesn't this code compile?\n```java\nfor (int i = 0; i < 10; i++) {\n    System.out.println(i);\n}\nSystem.out.println(\"Final i: \" + i);\n```",
+        "answer": "The loop variable `i` is declared inside the for loop. Its scope is the loop header and body only. After the loop ends, `i` no longer exists. To use it after, declare it outside: `int i; for (i = 0; i < 10; i++) { ... }`. Then i is accessible after."
+      },
+      {
+        "question": "What's the difference between `int x = 5;` inside a method vs at the class level?",
+        "answer": "Inside a method (local): x exists only during that method call. Multiple calls have multiple independent x's. Destroyed when method ends. At class level (static): x exists for the entire program lifetime. ALL methods see the same x. Changes by one method are visible to others. Different lifetimes, different visibility, different use cases."
+      },
+      {
+        "question": "What's wrong with this code?\n```java\nstatic int balance = 1000;\n\npublic static void deposit(int amount) {\n    int balance = balance + amount;\n}\n```",
+        "answer": "Shadowing. The line `int balance = balance + amount;` declares a NEW local variable named balance, shadowing the static one. The right side `balance` actually refers to the new local — which doesn't have a value yet at that point in the expression. Compilation error: variable might not have been initialized. Fix: just `balance += amount;` (no `int` keyword) — modifies the static."
+      },
+      {
+        "question": "What does this print?\n```java\nstatic int count = 0;\n\npublic static void main(String[] args) {\n    increment();\n    increment();\n    increment();\n    System.out.println(count);\n}\n\npublic static void increment() {\n    count++;\n}\n```",
+        "answer": "3. The static `count` persists across all calls. Each call to increment increases it. After 3 calls, count is 3. If count were a local in increment, it would reset to 0 each call and final output would be... well, it wouldn't even compile because main couldn't access it. Static visibility is exactly what makes this work."
+      },
+      {
+        "question": "When should you use `static final` instead of just `final`?",
+        "answer": "`static final` = a CLASS-level constant. Same value for all code, all instances, accessed via ClassName.CONSTANT_NAME. Use for: PI, MAX_VALUES, configuration constants. Just `final` (in OOP) = INSTANCE-level constant — set once per object, but different objects can have different values. Example: `final long createdAt;` (set in constructor, can't be changed after). Most beginner-level constants are `static final` because they're class-wide and immutable."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Recursion Basics. So far, methods have called other methods, or themselves zero times. What if a method calls ITSELF? That's recursion — and it's both powerful and confusing at first. We'll cover: when recursion helps, the famous factorial and Fibonacci examples, the stack and how it relates to method calls, and when to use loops instead. After recursion, Module 2 is complete."
+  }
+}

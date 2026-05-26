@@ -1,0 +1,189 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t3",
+  "language": "java",
+  "module_id": "m13",
+  "module_name": "Spring Boot Fundamentals",
+  "topic_number": 3,
+  "name": "Spring Data JPA",
+  "slug": "spring-data-jpa",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m13_t2", "java_m5_t1"],
+    "concepts_taught": [
+      "jpa_and_hibernate",
+      "entity_annotation",
+      "id_and_generated_value",
+      "column_annotation",
+      "jpa_repository_interface",
+      "crud_repository_methods",
+      "findby_derived_queries",
+      "custom_jpql_query",
+      "h2_in_memory_database",
+      "application_properties_datasource",
+      "transaction_annotation",
+      "one_to_many_relationship",
+      "data_jpa_test"
+    ],
+    "skills_developed": [
+      "mapping_java_classes_to_database_tables",
+      "using_jpa_repository_for_crud",
+      "writing_derived_query_methods",
+      "configuring_h2_datasource",
+      "testing_repositories_with_data_jpa_test"
+    ],
+    "career_relevance": "Every backend application persists data. Spring Data JPA is the standard — it eliminates 95% of boilerplate SQL. Flipkart, Zerodha, HDFC all use JPA for database access. After this topic, you turn any Java class into a database table with one annotation, and get full CRUD for free. This is the skill that bridges Java and databases in production.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your product catalog needs a real database. Without Spring Data JPA:\n\n```java\n// Old way — JDBC (raw SQL):\nConnection conn = DriverManager.getConnection(jdbcUrl, user, pass);\nPreparedStatement ps = conn.prepareStatement(\n    \"SELECT id, name, price FROM products WHERE id = ?\");\nps.setString(1, productId);\nResultSet rs = ps.executeQuery();\nif (rs.next()) {\n    return new Product(rs.getString(\"id\"), rs.getString(\"name\"), rs.getDouble(\"price\"));\n}\n// Close connection... handle exceptions... repeat for EVERY query\n```\n\n**With Spring Data JPA:**\n```java\n// 1. Mark the class as a table:\n@Entity\n@Table(name = \"products\")\npublic class Product {\n    @Id @GeneratedValue(strategy = GenerationType.UUID)\n    private String id;\n    private String name;\n    private double price;\n    // getters/setters or use Lombok\n}\n\n// 2. Declare a repository interface — zero implementation:\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    List<Product> findByCategory(String category);\n    List<Product> findByPriceLessThan(double maxPrice);\n    Optional<Product> findByName(String name);\n}\n\n// 3. Use it:\n@Autowired ProductRepository repo;\nrepo.save(product);              // INSERT or UPDATE\nrepo.findById(\"P001\");          // SELECT WHERE id = ?\nrepo.findByCategory(\"Electronics\"); // SELECT WHERE category = ?\nrepo.deleteById(\"P001\");        // DELETE WHERE id = ?\nrepo.findAll();                  // SELECT * FROM products\n```\n\nZero SQL. Zero connection management. Spring Data generates the implementation at runtime.",
+    "what_you_will_build": "By the end of this topic, you'll create @Entity classes that map to database tables, use JpaRepository for CRUD operations, write derived query methods, configure H2 in-memory database, and test repositories with @DataJpaTest."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "entity_mapping": "**@Entity — mapping Java to a database table:**\n\n```java\nimport jakarta.persistence.*;  // JPA annotations\n\n@Entity\n@Table(name = \"products\")   // optional: default table name is class name\npublic class Product {\n    \n    @Id\n    @GeneratedValue(strategy = GenerationType.UUID)  // auto-generate ID\n    private String id;\n    \n    @Column(nullable = false, length = 200)  // NOT NULL VARCHAR(200)\n    private String name;\n    \n    @Column(nullable = false)\n    private double price;\n    \n    @Column(name = \"category_code\")  // maps to 'category_code' column\n    private String category;\n    \n    @Column(updatable = false)  // set once, never updated\n    private LocalDateTime createdAt;\n    \n    // JPA requires a no-arg constructor:\n    protected Product() {}\n    \n    public Product(String name, double price, String category) {\n        this.name = name; this.price = price; this.category = category;\n        this.createdAt = LocalDateTime.now();\n    }\n    \n    // getters (and setters if needed)\n    public String getId()     { return id; }\n    public String getName()   { return name; }\n    public double getPrice()  { return price; }\n    // ...\n}\n```\n\n**Key JPA annotations:**\n- `@Entity`: marks as a JPA entity (mapped to a table)\n- `@Id`: the primary key field\n- `@GeneratedValue`: how the ID is generated (UUID, AUTO, SEQUENCE, IDENTITY)\n- `@Column`: customize column name, nullability, length\n- `@Table`: customize table name",
+
+      "jpa_repository": "**JpaRepository — free CRUD for any entity:**\n\n```java\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.stereotype.Repository;\n\n@Repository  // optional — JpaRepository subinterfaces are detected automatically\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    // JpaRepository<EntityType, IdType> gives you:\n    \n    // ALREADY IMPLEMENTED (no code needed):\n    // Product save(Product entity)                → INSERT or UPDATE\n    // Optional<Product> findById(String id)       → SELECT WHERE id = ?\n    // List<Product> findAll()                     → SELECT *\n    // List<Product> findAllById(Iterable<String>) → SELECT WHERE id IN (?)\n    // void deleteById(String id)                  → DELETE WHERE id = ?\n    // boolean existsById(String id)               → SELECT EXISTS\n    // long count()                                → SELECT COUNT(*)\n    // void deleteAll()                            → DELETE FROM table\n}\n```\n\nSpring Data generates the implementation at startup. You declare an interface — Spring provides a working class that makes real SQL.",
+
+      "derived_queries": "**Derived query methods — Spring generates SQL from method names:**\n\n```java\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    \n    // Spring reads the method name and generates SQL:\n    \n    // SELECT * FROM products WHERE category = ?\n    List<Product> findByCategory(String category);\n    \n    // SELECT * FROM products WHERE price < ?\n    List<Product> findByPriceLessThan(double maxPrice);\n    \n    // SELECT * FROM products WHERE category = ? AND price <= ?\n    List<Product> findByCategoryAndPriceLessThanEqual(String cat, double max);\n    \n    // SELECT * FROM products WHERE name LIKE '%?%'\n    List<Product> findByNameContainingIgnoreCase(String query);\n    \n    // SELECT * FROM products ORDER BY price DESC\n    List<Product> findAllByOrderByPriceDesc();\n    \n    // SELECT * FROM products WHERE category = ? ORDER BY price ASC LIMIT ?\n    List<Product> findTop10ByCategoryOrderByPriceAsc(String category);\n    \n    // SELECT COUNT(*) WHERE category = ?\n    long countByCategory(String category);\n    \n    // SELECT EXISTS WHERE name = ?\n    boolean existsByName(String name);\n}\n```\n\nKeywords: `findBy`, `countBy`, `existsBy`, `deleteBy` + field names + `And`, `Or`, `LessThan`, `GreaterThan`, `Between`, `Containing`, `StartingWith`, `IgnoreCase`, `OrderBy`, `TopN`.",
+
+      "custom_queries": "**Custom JPQL queries with @Query:**\n\n```java\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.jpa.repository.Modifying;\nimport org.springframework.data.repository.query.Param;\n\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    \n    // JPQL — works with entity field names, not column names:\n    @Query(\"SELECT p FROM Product p WHERE p.price BETWEEN :min AND :max\")\n    List<Product> findByPriceRange(@Param(\"min\") double min, @Param(\"max\") double max);\n    \n    // Native SQL — for complex queries:\n    @Query(value = \"SELECT * FROM products WHERE category = :cat ORDER BY RAND() LIMIT 5\",\n           nativeQuery = true)\n    List<Product> findRandomByCategory(@Param(\"cat\") String category);\n    \n    // Modifying query (UPDATE/DELETE) needs @Modifying:\n    @Modifying\n    @Query(\"UPDATE Product p SET p.price = p.price * :factor WHERE p.category = :cat\")\n    int adjustPrices(@Param(\"factor\") double factor, @Param(\"cat\") String category);\n}\n```",
+
+      "datasource_config": "**Configuring the database in application.properties:**\n\n```properties\n# H2 in-memory (dev/test — auto-configured when H2 is on classpath):\nspring.datasource.url=jdbc:h2:mem:testdb\nspring.datasource.driverClassName=org.h2.Driver\nspring.datasource.username=sa\nspring.datasource.password=\nspring.h2.console.enabled=true    # browse at /h2-console\nspring.jpa.database-platform=org.hibernate.dialect.H2Dialect\n\n# Schema creation strategy:\nspring.jpa.hibernate.ddl-auto=create-drop  # create tables on start, drop on stop\n# Options: none, validate, update, create, create-drop\n\n# Show generated SQL in logs:\nspring.jpa.show-sql=true\nspring.jpa.properties.hibernate.format_sql=true\n```\n\n**Maven dependency:**\n```xml\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-data-jpa</artifactId>\n</dependency>\n<dependency>\n    <groupId>com.h2database</groupId>\n    <artifactId>h2</artifactId>\n    <scope>runtime</scope>\n</dependency>\n```",
+
+      "data_jpa_test": "**@DataJpaTest — testing repositories:**\n\n```java\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\n\n@DataJpaTest  // loads ONLY JPA components + in-memory H2\n              // does NOT load controllers, services, etc.\nclass ProductRepositoryTest {\n    \n    @Autowired ProductRepository repo;\n    \n    @Test\n    void save_andFindById_returnsProduct() {\n        Product p = new Product(\"Mouse\", 799, \"Electronics\");\n        Product saved = repo.save(p);\n        \n        assertNotNull(saved.getId());\n        Optional<Product> found = repo.findById(saved.getId());\n        assertTrue(found.isPresent());\n        assertEquals(\"Mouse\", found.get().getName());\n    }\n    \n    @Test\n    void findByCategory_electronics_returnsTwoProducts() {\n        repo.save(new Product(\"Mouse\",    799,  \"Electronics\"));\n        repo.save(new Product(\"Keyboard\", 1999, \"Electronics\"));\n        repo.save(new Product(\"Chair\",    5000, \"Furniture\"));\n        \n        List<Product> electronics = repo.findByCategory(\"Electronics\");\n        assertEquals(2, electronics.size());\n    }\n    \n    @Test\n    void findByPriceLessThan_returns_correctCount() {\n        repo.save(new Product(\"Mouse\",   799,  \"Electronics\"));\n        repo.save(new Product(\"Monitor\", 18999,\"Electronics\"));\n        \n        assertEquals(1, repo.findByPriceLessThan(1000).size());\n    }\n}\n```\n\n@DataJpaTest: creates an H2 database, runs Hibernate, loads only @Repository beans. Very fast — no full Spring context."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) JPA layers: Java @Entity class ↔ Hibernate ↔ JDBC ↔ Database. Show Product.java with @Entity → generates SQL CREATE TABLE. (2) JpaRepository method name parser: 'findByCategory' splits into find + By + Category → generates 'SELECT * FROM products WHERE category = ?'. 'findByCategoryAndPriceLessThan' → compound WHERE clause. (3) @DataJpaTest scope: full Spring Boot context (grey, inactive) vs @DataJpaTest context (green, active — only @Repository, JPA, H2). Shows what's loaded vs skipped. Side note: transaction rollback between tests — database is clean for each test.",
+      "alt_text": "JPA layers, derived query name parsing, and @DataJpaTest narrow context"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Convert the HashMap-based Product API from Topic 13.2 to use a real database. Add Spring Data JPA with H2, create a proper @Entity, and replace the Map with a JpaRepository.",
+
+    "problem_statement": "Replace in-memory storage with JPA:\n1. Add @Entity to Product with proper JPA annotations\n2. Create ProductRepository extending JpaRepository\n3. Update ProductService to use the repository\n4. Add derived query: findByCategoryIgnoreCase()\n5. Test the repository with @DataJpaTest",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "@Entity Product class",
+        "details": "```java\nimport jakarta.persistence.*;\nimport java.time.LocalDateTime;\n\n@Entity\n@Table(name = \"products\")\npublic class Product {\n    \n    @Id\n    @GeneratedValue(strategy = GenerationType.UUID)\n    private String id;\n    \n    @Column(nullable = false)\n    private String name;\n    \n    @Column(nullable = false)\n    private double price;\n    \n    @Column(nullable = false)\n    private String category;\n    \n    @Column(updatable = false)\n    private LocalDateTime createdAt = LocalDateTime.now();\n    \n    protected Product() {}  // required by JPA\n    \n    public Product(String name, double price, String category) {\n        this.name = name; this.price = price; this.category = category;\n    }\n    \n    // Getters:\n    public String getId()           { return id; }\n    public String getName()         { return name; }\n    public double getPrice()        { return price; }\n    public String getCategory()     { return category; }\n    public LocalDateTime getCreatedAt() { return createdAt; }\n    \n    public void setName(String name)         { this.name = name; }\n    public void setPrice(double price)       { this.price = price; }\n    public void setCategory(String category) { this.category = category; }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "ProductRepository",
+        "details": "```java\nimport org.springframework.data.jpa.repository.JpaRepository;\n\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    List<Product> findByCategoryIgnoreCase(String category);\n    List<Product> findByPriceLessThanEqual(double maxPrice);\n    List<Product> findByNameContainingIgnoreCase(String query);\n    boolean existsByName(String name);\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Updated ProductService using repository",
+        "details": "```java\n@Service\n@Transactional  // all methods run in a transaction by default\npublic class ProductService {\n    \n    private final ProductRepository repo;\n    \n    ProductService(ProductRepository repo) { this.repo = repo; }\n    \n    public Product create(String name, double price, String category) {\n        if (repo.existsByName(name))\n            throw new IllegalStateException(\"Product already exists: \" + name);\n        return repo.save(new Product(name, price, category));\n    }\n    \n    public Optional<Product> findById(String id)         { return repo.findById(id); }\n    public List<Product>     findAll()                   { return repo.findAll(); }\n    public List<Product>     findByCategory(String cat)  { return repo.findByCategoryIgnoreCase(cat); }\n    public List<Product>     search(String q)            { return repo.findByNameContainingIgnoreCase(q); }\n    \n    public Product update(String id, String name, double price, String category) {\n        Product p = repo.findById(id).orElseThrow(() ->\n            new IllegalArgumentException(\"Product not found: \" + id));\n        p.setName(name); p.setPrice(price); p.setCategory(category);\n        return repo.save(p);\n    }\n    \n    public void delete(String id) {\n        if (!repo.existsById(id)) throw new IllegalArgumentException(\"Product not found: \" + id);\n        repo.deleteById(id);\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "@DataJpaTest for the repository",
+        "details": "```java\n@DataJpaTest\nclass ProductRepositoryTest {\n    @Autowired ProductRepository repo;\n    \n    @Test\n    void save_assignsId() {\n        Product saved = repo.save(new Product(\"Mouse\", 799, \"Electronics\"));\n        assertNotNull(saved.getId());\n    }\n    \n    @Test\n    void findByCategoryIgnoreCase_findsCorrect() {\n        repo.save(new Product(\"Mouse\",    799,  \"Electronics\"));\n        repo.save(new Product(\"Keyboard\", 1999, \"ELECTRONICS\"));\n        repo.save(new Product(\"Desk\",     5000, \"Furniture\"));\n        assertEquals(2, repo.findByCategoryIgnoreCase(\"electronics\").size());\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Product.java:\n@Entity @Table(name=\"products\")\npublic class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String name;\n    @Column(nullable=false) private double price;\n    @Column(nullable=false) private String category;\n    protected Product() {}\n    public Product(String name, double price, String category) {\n        this.name=name; this.price=price; this.category=category; }\n    public String getId()        { return id; }\n    public String getName()      { return name; }\n    public double getPrice()     { return price; }\n    public String getCategory()  { return category; }\n    public void setName(String n){ name=n; } public void setPrice(double p){ price=p; }\n    public void setCategory(String c){ category=c; }\n}\n\n// ProductRepository.java:\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    List<Product> findByCategoryIgnoreCase(String category);\n    List<Product> findByNameContainingIgnoreCase(String query);\n    boolean existsByName(String name);\n}\n\n// application.properties:\n// spring.datasource.url=jdbc:h2:mem:testdb\n// spring.jpa.hibernate.ddl-auto=create-drop\n// spring.jpa.show-sql=true\n// spring.h2.console.enabled=true",
+
+    "expected_output": "# On startup (with spring.jpa.show-sql=true):\nHibernate: create table products (id varchar(36) not null, category varchar(255) not null, name varchar(255) not null, price float(53) not null, primary key (id))\n\n# On repo.save(new Product('Mouse', 799, 'Electronics')):\nHibernate: insert into products (category, name, price, id) values (?, ?, ?, ?)\n\n# On repo.findByCategoryIgnoreCase('Electronics'):\nHibernate: select p.id, p.category, p.name, p.price from products p where upper(p.category)=upper(?)",
+
+    "things_to_notice": [
+      "@Entity tells Hibernate to create a database table for this class. The table name defaults to the class name (Product → PRODUCT); @Table(name='products') overrides to lowercase.",
+      "@GeneratedValue(strategy=GenerationType.UUID): Hibernate generates a UUID string as the ID before INSERT. AUTO uses the database's auto-increment. UUID is better for distributed systems — no coordination needed.",
+      "JPA requires a protected no-arg constructor — Hibernate needs to create instances via reflection when loading from the database. Keep it protected, not public.",
+      "findByCategoryIgnoreCase: Spring Data parses the method name. 'find' = SELECT. 'By' = WHERE. 'Category' = category column. 'IgnoreCase' = UPPER(category) = UPPER(?). Zero SQL written.",
+      "@Transactional on ProductService: all methods run in a database transaction. If anything throws, the entire transaction rolls back. Without it, each repo.save() is its own auto-commit transaction.",
+      "@DataJpaTest is narrow: it loads only JPA/Hibernate components and an H2 in-memory database. No controllers, no services, no HTTP. Each test runs in a transaction that rolls back after — the database is clean for every test."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart product catalog",
+        "use_case": "Flipkart's product service stores millions of products in MySQL via Spring Data JPA. `ProductRepository extends JpaRepository<Product, Long>` with `findByCategoryAndPriceBetween(cat, min, max)`, `findBySellerIdAndStockGreaterThan(sellerId, 0)`. Custom @Query for complex search. Spring Data handles connection pooling (HikariCP), transaction management, and query generation. No raw SQL in the application layer."
+      },
+      {
+        "company_context": "Zerodha order book",
+        "use_case": "Each stock order is an @Entity: orderId, userId, symbol, quantity, price, status, timestamp. OrderRepository extends JpaRepository with `findByUserIdAndStatus(userId, 'PENDING')`, `findBySymbolOrderByTimestampDesc(symbol)`. @Transactional on the service: if an order is placed, balance is debited, and order is saved — if any step fails, the entire transaction rolls back."
+      },
+      {
+        "company_context": "HDFC loan management",
+        "use_case": "Loan entity with @OneToMany to LoanPayment. LoanRepository: `findByCustomerIdAndStatus('ACTIVE')`. Custom @Query for arrears calculation. @DataJpaTest verifies all repository methods against H2 before deploying to Oracle. The @Transactional guarantee means partial loan payments never leave the database in an inconsistent state."
+      }
+    ],
+
+    "interview_relevance": "Spring Data JPA interview questions:\n\n- **'What is the difference between @Entity and a regular class?'** → @Entity maps to a database table. Hibernate creates/reads/updates/deletes rows for it automatically.\n- **'How do you perform a custom query in Spring Data JPA?'** → Two ways: derived query methods (findByNameContaining...) or @Query with JPQL/native SQL.\n- **'What is @Transactional?'** → Wraps a method in a database transaction. If the method throws, all DB changes are rolled back. Applied at service layer, not repository layer.\n- **'What is the difference between @DataJpaTest and @SpringBootTest?'** → @DataJpaTest loads only JPA components and H2. Much faster. @SpringBootTest loads the full context.",
+
+    "real_world_workflow": "Daily JPA workflow:\n\n- New table: create @Entity class, add @Id, @Column annotations\n- New query: add derived method to repository interface\n- Complex query: @Query with JPQL (use entity field names, not column names)\n- Service: @Transactional, call repo methods, throw on not-found\n- Test: @DataJpaTest, @Autowired repo, save test data, assert"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_no_arg_constructor",
+      "what_students_get_wrong": "Removing the protected no-arg constructor — Hibernate can't instantiate the entity when loading from database.",
+      "remediation": "JPA spec requires a no-arg constructor (can be protected). Hibernate uses it to create instances when reading rows. Never delete it. If using Lombok: @NoArgsConstructor(access = AccessLevel.PROTECTED).",
+      "detection_pattern": "HibernateException: No default (no-argument) constructor for entity"
+    },
+    {
+      "gap_id": "jpql_uses_class_field_names",
+      "what_students_get_wrong": "Writing @Query with SQL column names (`WHERE category_code = ?`) instead of entity field names (`WHERE p.category = ?`).",
+      "remediation": "JPQL operates on the Java entity, not the table. Use field names from the Java class, not column names from the database. `@Column(name='category_code')` means the DB column is 'category_code' but JPQL still uses `p.category` (the field name).",
+      "detection_pattern": "QuerySyntaxException: unexpected token"
+    },
+    {
+      "gap_id": "missing_transactional_on_modifying",
+      "what_students_get_wrong": "Using @Modifying @Query without @Transactional — throws TransactionRequiredException.",
+      "remediation": "Any @Modifying query (UPDATE, DELETE) requires a transaction. Add @Transactional to the repository method, OR have a @Transactional service method call it. @DataJpaTest auto-wraps each test in a transaction — so it works in tests but fails in production without @Transactional.",
+      "detection_pattern": "TransactionRequiredException: Executing an update/delete query"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@Entity: maps a Java class to a database table",
+      "@Id + @GeneratedValue: primary key + auto-generation strategy",
+      "@Column: customize column name, nullability, length",
+      "Protected no-arg constructor: required by JPA (Hibernate instantiation)",
+      "JpaRepository<EntityType, IdType>: free save, findById, findAll, delete, count",
+      "Derived queries: findByCategory → SELECT WHERE category = ?",
+      "Keywords: And, Or, LessThan, GreaterThan, Containing, IgnoreCase, OrderBy, Top",
+      "@Query: custom JPQL or native SQL; use entity field names in JPQL",
+      "@Modifying: required for UPDATE/DELETE @Query; needs @Transactional",
+      "@Transactional on service: all repo calls in one transaction; rollback on exception",
+      "H2 in application.properties: jdbc:h2:mem:testdb, ddl-auto=create-drop",
+      "@DataJpaTest: loads only JPA + H2, each test in rollback transaction"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You write `findByUserIdAndCreatedAtAfter(String userId, LocalDateTime since)`. What SQL does Spring Data generate?",
+        "answer": "SELECT * FROM [table] WHERE user_id = ? AND created_at > ? — Spring Data parses 'findBy' (SELECT WHERE) + 'UserId' (user_id column) + 'And' (AND) + 'CreatedAt' (created_at column) + 'After' (> operator). The parameters map left to right: first ? = userId, second ? = since."
+      },
+      {
+        "question": "Your @Query('UPDATE Product p SET p.price = :price WHERE p.id = :id') throws TransactionRequiredException. Why and how do you fix it?",
+        "answer": "UPDATE queries require an active transaction. @Query on a repository method doesn't automatically start one. Fix: add @Modifying @Transactional to the repository method, OR call it from a @Transactional service method (preferred — the service controls the transaction boundary). Also: @Modifying is required for UPDATE/DELETE @Query to tell Spring Data it's a modifying operation, not a SELECT."
+      },
+      {
+        "question": "What is the difference between @DataJpaTest and @SpringBootTest for testing a repository?",
+        "answer": "@DataJpaTest loads only JPA components (Hibernate, datasource, @Repository beans) with an in-memory H2 database. It's fast (2-3 seconds) and focused. Each test runs in a transaction that rolls back after — database is clean per test. @SpringBootTest loads the full application context including controllers, services, web configuration, and uses whatever database is configured (possibly a real one). For repository testing, @DataJpaTest is strongly preferred — narrower, faster, and isolated."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Request Handling — Validation and Exception Handling** — when a client sends bad data (`{\"price\": -100}` or a missing required field), the API needs to reject it cleanly with a 400 response explaining what's wrong. Topic 13.4 covers `@Valid`, `@NotBlank`, `@Min`, `@ControllerAdvice` for global exception handling, and `@ExceptionHandler` for specific error responses — making the API robust and production-ready."
+  }
+}

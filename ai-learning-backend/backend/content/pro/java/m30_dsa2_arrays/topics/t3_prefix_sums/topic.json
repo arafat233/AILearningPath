@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m30_t3",
+  "language": "java",
+  "module_id": "m30",
+  "topic_number": 3,
+  "name": "Prefix Sums \u2014 O(1) Range Queries",
+  "slug": "prefix-sums-o1-range-queries",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m30_t1",
+      "java_m29_t1"
+    ],
+    "concepts_taught": [
+      "prefix_sum_definition",
+      "range_sum_query",
+      "subarray_sum_equals_k",
+      "difference_array",
+      "2d_prefix_sum",
+      "kadane_algorithm_intro"
+    ],
+    "skills_developed": [
+      "precomputing_prefix_sums",
+      "answering_range_queries_o1",
+      "finding_subarrays_with_target_sum"
+    ],
+    "career_relevance": "Razorpay's analytics team answers millions of 'what was the total payment volume between timestamps A and B?' queries daily. Without prefix sums: O(n) per query = system unusable. With prefix sums: O(1) per query after O(n) precomputation. This pattern appears in every competitive coding round.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nRazorpay payment volume queries:\n  daily[] = [100, 250, 180, 320, 150, 280]\n  Q: 'Total volume from day 1 to day 4?'\n  Naive: sum daily[1..4] = 250+180+320+150 = 900 \u2192 O(n) per query\n  \n  With 1M queries/day \u2192 1M \u00d7 n = unusable!\n\n  Prefix sums: precompute in O(n), answer each query in O(1)\n  prefix[] = [0, 100, 350, 530, 850, 1000, 1280]\n  Query(1,4): prefix[5] - prefix[1] = 1000 - 100 = 900 \u2190 O(1)!\n```",
+    "what_you_will_build": "Prefix sum array for O(1) range queries, and subarray sum problems."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "prefix_sum": "**Prefix sum \u2014 precompute, query in O(1):**\n\n```java\n// Build: O(n)\nint[] prefix = new int[n + 1]; // prefix[0] = 0\nfor (int i = 0; i < n; i++) prefix[i+1] = prefix[i] + nums[i];\n\n// Query rangeSum(l, r) \u2014 0-indexed, inclusive: O(1)\nint rangeSum = prefix[r+1] - prefix[l];\n// prefix[r+1] = sum of nums[0..r]\n// prefix[l]   = sum of nums[0..l-1]\n// difference  = sum of nums[l..r]\n\n// Example: nums=[3,1,2,5,8], l=1, r=3\n// prefix=[0,3,4,6,11,19]\n// rangeSum(1,3) = prefix[4] - prefix[1] = 11 - 3 = 8\n// Verify: 1+2+5 = 8 \u2713\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Prefix sum array diagram. Top: original array [3,1,2,5,8]. Bottom: prefix array [0,3,4,6,11,19]. Arrows show: prefix[i+1] = prefix[i] + nums[i]. Range query: rangeSum(1,3) = prefix[4]-prefix[1] = 11-3=8 highlighted with bracket.",
+      "alt_text": "Prefix sum array and range query"
+    },
+    "worked_example": {
+      "scenario": "Subarray Sum Equals K using prefix sums + HashMap.",
+      "problem_statement": "Count subarrays summing to k. nums=[1,1,1], k=2 \u2192 2.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Key insight",
+          "details": "prefix[j] - prefix[i] = k means subarray [i..j-1] sums to k. For each j, count how many i's have prefix[i] = prefix[j] - k. HashMap stores frequency of each prefix sum seen so far."
+        }
+      ],
+      "final_code": "Map<Integer,Integer> count = new HashMap<>();\ncount.put(0,1); // empty prefix\nint sum=0, ans=0;\nfor(int n:nums){sum+=n; ans+=count.getOrDefault(sum-k,0); count.merge(sum,1,Integer::sum);}\nreturn ans;",
+      "expected_output": "[1,1,1] k=2 \u2192 2",
+      "things_to_notice": [
+        "prefix.put(0,1): handles subarrays starting at index 0",
+        "Works with negatives: sliding window fails for negative arrays"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay analytics",
+          "use_case": "O(1) range sum queries after O(n) preprocessing. 1M daily queries answered in O(1M) instead of O(1M \u00d7 n)."
+        }
+      ],
+      "interview_relevance": "'Range sum query' always \u2192 prefix sums. 'Subarray sum equals k' \u2192 prefix + HashMap. Two key patterns to memorize.",
+      "real_world_workflow": "Pattern: (1) precompute prefix[0..n] where prefix[0]=0, (2) rangeSum(l,r) = prefix[r+1]-prefix[l], (3) for count problems: HashMap tracks prefix frequencies."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "off_by_one",
+        "what_students_get_wrong": "prefix has n+1 elements (index 0..n). prefix[0]=0. rangeSum(l,r) = prefix[r+1] - prefix[l]. Students use prefix[r] - prefix[l-1] which breaks for l=0.",
+        "remediation": "Always use n+1 sized prefix array with prefix[0]=0. rangeSum(l,r) = prefix[r+1] - prefix[l]. The +1 shift handles all boundary cases.",
+        "detection_pattern": "Student uses prefix[r]-prefix[l] or prefix[r+1]-prefix[l+1] \u2014 off by one"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "prefix[0]=0, prefix[i]=prefix[i-1]+nums[i-1] (1-indexed)",
+        "rangeSum(l,r) = prefix[r+1] - prefix[l]",
+        "Subarray sum==k: HashMap counts prefix sums, check prefix[j]-k",
+        "Works with negatives: prefix sums don't care about sign",
+        "2D prefix: precompute rectangular sums in O(mn), query in O(1)"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why initialize prefixCount.put(0,1) for subarray sum == k?",
+          "answer": "prefixCount.put(0,1) handles subarrays starting from index 0. If prefix[j] == k, then sum of nums[0..j-1] == k. We need to count this case, so we need prefix[i]=0 to have been seen once. That's why we initialize {0:1} \u2014 the 'empty prefix before the array starts'."
+        }
+      ],
+      "next_topic_preview": "Next: Dutch National Flag \u2014 partition array into 3 groups in O(n) O(1) space."
+    }
+  }
+}

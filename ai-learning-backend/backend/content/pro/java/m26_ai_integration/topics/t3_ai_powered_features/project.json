@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m26_t3_proj",
+  "linked_topic": "java_m26_t3",
+  "level": "mini",
+  "name": "HDFC Bank Document Intelligence Pipeline",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "HDFC Bank processes 50,000 loan documents daily. Build an AI-powered pipeline that classifies each document type, extracts structured data with confidence scoring, gates low-confidence extractions to human review, and routes support tickets to the right team.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "SalarySlipExtract record: applicantName, employer, monthlyGrossIncomePaise, employmentDate, extractionConfidence. isHighConfidence() returns confidence >= 70.", "weight": 10 },
+      { "id": "req_2", "description": "SalarySlipExtractor @Service: BeanOutputConverter<SalarySlipExtract>, ChatClient with extraction system prompt (temp=0, paise conversion). extract(text) + extractSafe(text) → Optional.", "weight": 20 },
+      { "id": "req_3", "description": "DocumentClassifier @Service: rule-based (keyword matching). classify(text) → DocType enum (SALARY_SLIP, BANK_STATEMENT, ID_PROOF, INVOICE, UNKNOWN).", "weight": 10 },
+      { "id": "req_4", "description": "SupportTicketClassifier @Service: BeanOutputConverter<TicketClassification>. TicketClassification: category (TicketCategory enum), urgency (1-5), requiresHuman (urgency>=4).", "weight": 15 },
+      { "id": "req_5", "description": "DocumentValidationService @Service: isValid(ExtractionResult) → checks confidence >= 70 AND required fields present per DocType.", "weight": 10 },
+      { "id": "req_6", "description": "@SpringBootTest (4 tests): salary slip classified correctly, high-confidence extract present, low-confidence extract empty, fraud ticket has urgency=5. All 4 pass.", "weight": 30 },
+      { "id": "req_7", "description": "application.yml: spring.ai.anthropic.chat.options.temperature=0.0 for extraction (deterministic).", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "BatchDocumentProcessor: process List<SlipText> in parallel with virtual threads. Returns BatchResult(highConfidence, reviewQueue). Test: total = high + review.", "weight": 20 },
+      { "id": "bonus_2", "description": "DocumentSummarizer @Service: system prompt 'exactly 3 bullets, max 25 words each'. SummaryResult record with bullets List<String>. BeanOutputConverter. Test: schema contains 'bullets'.", "weight": 15 },
+      { "id": "bonus_3", "description": "Fallback classifier: if AI throws exception → rule-based RuleBasedTicketClassifier used automatically. Test: fallback activated + returns valid category.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. BeanOutputConverter.getFormat(): ALWAYS include this as a .param() in the user message. Without it the AI doesn't know what JSON schema to produce. Temperature=0.0: set in application.yml for extraction — deterministic output means same document always produces same extraction. Confidence threshold: use >= 70 for Optional.of(), < 70 for Optional.empty(). Amounts in paise: ₹85,000 = 8,500,000 paise (long). Never use double for money — precision loss. extractSafe returns Optional: caller must handle the empty case (route to human review queue), never unwrap without checking.",
+  "rubric": [
+    { "category": "SalarySlipExtract record", "points": 10 },
+    { "category": "SalarySlipExtractor (extract + extractSafe)", "points": 20 },
+    { "category": "DocumentClassifier", "points": 10 },
+    { "category": "SupportTicketClassifier", "points": 15 },
+    { "category": "DocumentValidationService", "points": 10 },
+    { "category": "4 tests (all pass)", "points": 30 },
+    { "category": "application.yml (temperature=0)", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

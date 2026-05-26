@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m19_t5_proj",
+  "linked_topic": "java_m19_t5",
+  "level": "mini",
+  "name": "Razorpay API Gateway — Centralized Resilience",
+  "estimated_minutes": 45,
+  "difficulty": 9,
+  "scenario": "Razorpay has 3 microservices (payment, fraud-detection, notification). Currently each has duplicate resilience code. Consolidate by adding a Spring Cloud Gateway with centralized rate limiting, circuit breakers, and retry logic.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "pom.xml: spring-cloud-starter-gateway + circuit breaker + redis-reactive. application.yml: 3 routes with appropriate filters per service.", "weight": 20 },
+      { "id": "req_2", "description": "KeyResolver @Bean: apiKeyResolver (X-API-Key header), ipResolver (remote address). Both referenced in application.yml.", "weight": 10 },
+      { "id": "req_3", "description": "GatewayFallbackController: 3 fallback endpoints returning appropriate HTTP status + JSON bodies.", "weight": 15 },
+      { "id": "req_4", "description": "GatewayConfig: actuator exposure (health, gateway, circuitbreakers). Gateway routes: payment (no retry), fraud (no retry), notification (retry GET only).", "weight": 10 },
+      { "id": "req_5", "description": "@SpringBootTest (4 tests): 3 fallback endpoints return correct status codes, routes endpoint lists configured routes. All 4 pass.", "weight": 40 },
+      { "id": "req_6", "description": "README: explains gateway-level vs service-level resilience — what goes where.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Path rewriting: /api/v2/payments/** → /v2/payments/** using RewritePath filter. AddRequestHeader for internal auth token. Test with WebTestClient.", "weight": 20 },
+      { "id": "bonus_2", "description": "Dynamic route management: GatewayAdminController with POST/DELETE /admin/routes. Publishes RefreshRoutesEvent. Test: add route, verify in actuator.", "weight": 25 },
+      { "id": "bonus_3", "description": "Load balancer config: lb:// URIs with DiscoveryClient integration. Document how CB + LB interact (all instances fail → CB opens).", "weight": 25 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. spring-cloud-starter-gateway: uses Spring WebFlux (reactive); NOT compatible with spring-boot-starter-web. Use spring-boot-starter-data-redis-reactive (not regular redis). KeyResolver returns Mono<String>. methods: GET in Retry filter — never retry POST. fallbackUri: forward:/fallback/xxx routes to the GatewayFallbackController in the same gateway app.",
+  "rubric": [
+    { "category": "pom.xml + application.yml", "points": 20 },
+    { "category": "KeyResolver @Beans", "points": 10 },
+    { "category": "GatewayFallbackController", "points": 15 },
+    { "category": "GatewayConfig + actuator", "points": 10 },
+    { "category": "@SpringBootTest (4 tests)", "points": 40 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 70 }
+  ]
+}

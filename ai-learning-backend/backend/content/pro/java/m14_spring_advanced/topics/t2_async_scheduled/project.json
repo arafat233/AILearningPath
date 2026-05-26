@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m14_t2_proj",
+  "linked_topic": "java_m14_t2",
+  "level": "mini",
+  "name": "Razorpay-Style Payment Notification Pipeline",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Build a payment processing pipeline where the payment API responds in <100ms while notifications (email, SMS, webhook) and retry jobs run asynchronously in the background. Daily reconciliation and weekly reports run on a schedule.",
+
+  "description": "PaymentService processes and saves payments fast. NotificationPipeline fires 3 async notifications (email, SMS, webhook). RetryJob checks for failed payments every 5 minutes. DailyReconciliationJob runs at 11:59 PM. Custom thread pool isolates notification threads.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`NotificationPipeline` @Service with 3 @Async methods: `sendEmail(Payment p)`, `sendSms(Payment p)`, `triggerWebhook(Payment p)`. All return `CompletableFuture<Void>`. Each logs the thread name.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "`PaymentService.processPayment(PaymentRequest req)` — saves payment, fires all 3 async notifications using allOf (waits for all to start but not finish), returns payment in <200ms.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`PaymentRetryJob` @Component: @Scheduled(fixedDelay=300_000) — loads FAILED payments, retries each. @Scheduled(cron='0 59 23 * * *') for daily reconciliation.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`AsyncConfig` @Configuration with @EnableAsync, @EnableScheduling: custom ThreadPoolTaskExecutor named 'paymentExecutor' with core=3, max=10, prefix='payment-notif-'.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest test: processPayment returns in <200ms; all 3 notifications fired (verified via thread names logged within 2 seconds of payment creation).",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "@SpringBootTest test for retry job: create a FAILED payment, call retryJob.retryFailedPayments() directly, assert payment status changes to RETRIED.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add AsyncUncaughtExceptionHandler: if any notification fails (simulate by throwing in sendEmail when amount > 100000), the error is logged but doesn't affect the payment response.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a rate-limited @Async: if webhook is called more than 10 times/minute, skip it and log 'Webhook rate limited'. Use AtomicInteger counter reset by a @Scheduled(fixedRate=60000) job.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add async parallel data enrichment: before saving payment, fetch exchange rate (async), fraud score (async), and merchant info (async) using CompletableFuture.allOf, then save enriched payment.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Payment: id, userId, amount, currency, status (CREATED/FAILED/RETRIED)\nNotifications: email (2s simulated), SMS (500ms simulated), webhook (1s simulated)\nRetry: find FAILED payments, attempt re-processing, set status=RETRIED\nSchedules: retry every 5 min (fixedDelay=300000), reconcile at 11:59 PM (cron='0 59 23 * * *')\nThread pool: paymentExecutor, core=3, max=10, queue=50",
+
+  "starter_code": "// Payment.java (@Entity with status field)\n// NotificationPipeline.java (3 @Async methods)\n// PaymentService.java (save + fire 3 async)\n// PaymentRetryJob.java (2 @Scheduled methods)\n// AsyncConfig.java (@EnableAsync + executor)\n// PaymentServiceTest.java (@SpringBootTest)\n// PaymentRetryJobTest.java (@SpringBootTest)",
+
+  "example_output": "# On POST /api/payments:\n[http-nio-8080-exec-1] Payment PAY-001 saved\n[http-nio-8080-exec-1] Returning 201 in 47ms\n[payment-notif-1] Sending email for PAY-001...\n[payment-notif-2] Sending SMS for PAY-001...\n[payment-notif-3] Triggering webhook for PAY-001...\n[payment-notif-1] Email sent for PAY-001 (2000ms later)\n\n# Every 5 minutes:\n[scheduling-1] Checking for FAILED payments...\n[scheduling-1] Found 0 failed payments\n\n# At 11:59 PM:\n[scheduling-1] Starting daily reconciliation for 2024-03-15\n[scheduling-1] Reconciliation complete: 1523 payments processed\n\n# Tests:\n✓ processPayment_returnsIn200ms\n✓ retryJob_failedPayment_changesStatusToRetried",
+
+  "rubric": [
+    { "category": "NotificationPipeline", "points": 20, "criteria": ["3 @Async methods (15 pts)", "Thread name logging (5 pts)"] },
+    { "category": "PaymentService", "points": 20, "criteria": ["Saves payment (8 pts)", "Fires 3 async (7 pts)", "<200ms return (5 pts)"] },
+    { "category": "RetryJob scheduling", "points": 20, "criteria": ["fixedDelay=300000 retry (10 pts)", "Cron reconciliation (10 pts)"] },
+    { "category": "AsyncConfig", "points": 15, "criteria": ["@EnableAsync + @EnableScheduling (5 pts)", "Custom executor (10 pts)"] },
+    { "category": "Performance test", "points": 15, "criteria": ["<200ms assertion (15 pts)"] },
+    { "category": "Retry test", "points": 10, "criteria": ["Status change assertion (10 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Exception handler (20 pts)", "Rate limiting (25 pts)", "Enrichment (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Performance test: `long start = System.currentTimeMillis(); service.processPayment(req); assertTrue(System.currentTimeMillis() - start < 200)`. Verify notifications ran: Thread.sleep(2500) then check log/counter. Self-invocation anti-pattern: fire notifications via injected NotificationPipeline bean, not `this`.",
+
+  "submission_instructions": "Push to GitHub. Show logs demonstrating async threads (http-nio vs payment-notif). All tests must pass.",
+
+  "tips_for_success": [
+    "All 3 notifications: fire all three, don't wait — user gets response immediately",
+    "Performance test: store System.currentTimeMillis() before and after processPayment()",
+    "Retry job test: inject @Autowired PaymentRetryJob; call method directly",
+    "AsyncConfig: @Bean('paymentExecutor') return executor; @EnableAsync + @EnableScheduling both needed",
+    "Thread names: setCorePoolSize + setThreadNamePrefix('payment-notif-') → 'payment-notif-1', etc."
+  ],
+
+  "concepts_reinforced": [
+    "@Async with CompletableFuture<Void> for fire-and-forget with result handle",
+    "CompletableFuture.allOf() for parallel async launch",
+    "@Scheduled(fixedDelay) for gap-after-completion scheduling",
+    "@Scheduled(cron) for precise time-based scheduling",
+    "ThreadPoolTaskExecutor with custom configuration",
+    "Performance assertion in @SpringBootTest"
+  ]
+}

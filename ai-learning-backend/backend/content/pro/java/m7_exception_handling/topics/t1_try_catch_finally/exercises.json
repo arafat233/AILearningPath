@@ -1,0 +1,346 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t1",
+  "topic_name": "try / catch / finally",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m7_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace try-catch basic flow",
+      "scenario": "Exception thrown mid-try — remaining lines skipped.",
+      "instructions": "What does this print?\n\n```java\npublic class App {\n    public static void main(String[] args) {\n        try {\n            System.out.println(\"before\");\n            int x = Integer.parseInt(\"bad\");\n            System.out.println(\"after\");\n        } catch (NumberFormatException e) {\n            System.out.println(\"caught\");\n        }\n        System.out.println(\"done\");\n    }\n}\n```",
+      "expected_solution": "before\ncaught\ndone",
+      "test_cases": [
+        { "type": "text_match", "expected": "before\ncaught\ndone" }
+      ],
+      "hints": [
+        "'before' prints before the exception",
+        "parseInt('bad') throws NumberFormatException",
+        "'after' is SKIPPED — after throw point",
+        "'caught' runs in catch block",
+        "'done' runs after the try-catch"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t1_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Trace try-catch-finally",
+      "scenario": "Finally always runs.",
+      "instructions": "What does this print?\n\n```java\npublic class App {\n    public static void main(String[] args) {\n        try {\n            System.out.println(\"try\");\n            int[] arr = new int[2];\n            arr[5] = 10;\n        } catch (ArrayIndexOutOfBoundsException e) {\n            System.out.println(\"catch\");\n        } finally {\n            System.out.println(\"finally\");\n        }\n        System.out.println(\"after\");\n    }\n}\n```",
+      "expected_solution": "try\ncatch\nfinally\nafter",
+      "test_cases": [
+        { "type": "text_match", "expected": "try\ncatch\nfinally\nafter" }
+      ],
+      "hints": [
+        "try: 'try' prints, arr[5] throws",
+        "catch: exception caught, 'catch' prints",
+        "finally: ALWAYS runs",
+        "after: execution continues"
+      ],
+      "xp_reward": 15
+    },
+
+    {
+      "id": "java_m7_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Safe parseInt",
+      "scenario": "Wrap a parse operation in try-catch.",
+      "instructions": "Write a method `safeParseInt(String s)` that returns the parsed integer, or -1 if parsing fails. Test with '42', 'abc'.\n\nExpected output:\n42\n-1",
+      "starter_code": "// safeParseInt: returns parsed int or -1 on failure\n",
+      "expected_solution": "public class App {\n    static int safeParseInt(String s) {\n        try {\n            return Integer.parseInt(s);\n        } catch (NumberFormatException e) {\n            return -1;\n        }\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(safeParseInt(\"42\"));\n        System.out.println(safeParseInt(\"abc\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "42\n-1" }
+      ],
+      "hints": [
+        "try { return Integer.parseInt(s); }",
+        "catch (NumberFormatException e) { return -1; }"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m7_t1_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix wrong catch order",
+      "scenario": "Parent exception catches everything — specific catch never reached.",
+      "instructions": "This code won't compile. Fix the catch block order.\n\n```java\ntry {\n    int x = Integer.parseInt(\"bad\");\n} catch (Exception e) {\n    System.out.println(\"general\");\n} catch (NumberFormatException e) {  // unreachable!\n    System.out.println(\"specific\");\n}\n```\n\nExpected output after fix:\nspecific",
+      "starter_code": "// Fix the catch order so specific exception is caught first\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        try {\n            int x = Integer.parseInt(\"bad\");\n        } catch (NumberFormatException e) {\n            System.out.println(\"specific\");\n        } catch (Exception e) {\n            System.out.println(\"general\");\n        }\n    }\n}",
+      "bugs": [
+        { "issue": "catch(Exception) before catch(NumberFormatException) — specific is unreachable", "fix": "Swap: NumberFormatException first, Exception second" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "specific", "must_compile": true }
+      ],
+      "hints": [
+        "Specific (child) exceptions FIRST",
+        "General (parent) exceptions LAST",
+        "NumberFormatException extends RuntimeException extends Exception"
+      ],
+      "xp_reward": 25,
+      "concept_tested": "catch_order"
+    },
+
+    {
+      "id": "java_m7_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Multiple catch blocks",
+      "scenario": "Different exceptions caught and handled differently.",
+      "instructions": "Write `safeDivide(String a, String b)` that returns the division result as a String, or an appropriate error message:\n- If either isn't a number: 'Error: invalid number'\n- If b is zero: 'Error: division by zero'\n\nTest with: ('10','2'), ('10','abc'), ('10','0')\n\nExpected output:\n5\nError: invalid number\nError: division by zero",
+      "starter_code": "// safeDivide with two catch blocks for two exception types\n",
+      "expected_solution": "public class App {\n    static String safeDivide(String a, String b) {\n        try {\n            int numA = Integer.parseInt(a);\n            int numB = Integer.parseInt(b);\n            return String.valueOf(numA / numB);\n        } catch (NumberFormatException e) {\n            return \"Error: invalid number\";\n        } catch (ArithmeticException e) {\n            return \"Error: division by zero\";\n        }\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(safeDivide(\"10\", \"2\"));\n        System.out.println(safeDivide(\"10\", \"abc\"));\n        System.out.println(safeDivide(\"10\", \"0\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "5\nError: invalid number\nError: division by zero" }
+      ],
+      "hints": [
+        "Parse both strings first — NumberFormatException if either fails",
+        "Then divide — ArithmeticException if b is 0",
+        "Two separate catch blocks, each with specific message"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m7_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Finally for cleanup",
+      "scenario": "Simulate resource cleanup guaranteed by finally.",
+      "instructions": "Simulate opening/closing a DB connection. Use finally to ensure 'Connection closed' ALWAYS prints, even if an exception occurs.\n\nTest two cases: normal query, failing query.\n\nExpected output:\nConnection opened\nQuery executed: SELECT * FROM users\nConnection closed\n---\nConnection opened\nError: Query failed\nConnection closed",
+      "starter_code": "// Simulate DB connection with finally-based cleanup\n",
+      "expected_solution": "public class App {\n    static void runQuery(String query, boolean fail) {\n        System.out.println(\"Connection opened\");\n        try {\n            if (fail) throw new RuntimeException(\"Query failed\");\n            System.out.println(\"Query executed: \" + query);\n        } catch (RuntimeException e) {\n            System.out.println(\"Error: \" + e.getMessage());\n        } finally {\n            System.out.println(\"Connection closed\");\n        }\n    }\n    \n    public static void main(String[] args) {\n        runQuery(\"SELECT * FROM users\", false);\n        System.out.println(\"---\");\n        runQuery(\"SELECT * FROM orders\", true);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Connection opened\nQuery executed: SELECT * FROM users\nConnection closed\n---\nConnection opened\nError: Query failed\nConnection closed" }
+      ],
+      "hints": [
+        "println 'Connection opened' before try",
+        "finally block: println 'Connection closed'",
+        "finally runs whether exception thrown or not"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m7_t1_ex_7",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Finally with return",
+      "scenario": "Finally runs even when try has a return.",
+      "instructions": "What does this print?\n\n```java\npublic class App {\n    static String test(boolean throwIt) {\n        try {\n            if (throwIt) throw new RuntimeException(\"oops\");\n            return \"ok\";\n        } catch (RuntimeException e) {\n            return \"caught\";\n        } finally {\n            System.out.println(\"finally runs\");\n        }\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(test(false));\n        System.out.println(test(true));\n    }\n}\n```",
+      "expected_solution": "finally runs\nok\nfinally runs\ncaught",
+      "test_cases": [
+        { "type": "text_match", "expected": "finally runs\nok\nfinally runs\ncaught" }
+      ],
+      "hints": [
+        "test(false): no exception → 'return ok' starts → finally runs → returns 'ok'",
+        "test(true): exception thrown → catch returns 'caught' → finally runs first → returns 'caught'",
+        "finally ALWAYS runs before return"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m7_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multi-catch with | operator",
+      "scenario": "Same handling for multiple exception types.",
+      "instructions": "Write `parseAndAccess(String indexStr, String[] array)` that:\n- Parses indexStr as int (NumberFormatException possible)\n- Accesses array[index] (ArrayIndexOutOfBoundsException possible)\n- Returns the value, or an error message\n- Uses multi-catch (|) since both errors get the same message: 'Invalid input'\n\nExpected output:\nhello\nInvalid input\nInvalid input",
+      "starter_code": "// parseAndAccess using multi-catch\n",
+      "expected_solution": "public class App {\n    static String parseAndAccess(String indexStr, String[] array) {\n        try {\n            int index = Integer.parseInt(indexStr);\n            return array[index];\n        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {\n            return \"Invalid input\";\n        }\n    }\n    \n    public static void main(String[] args) {\n        String[] words = {\"hello\", \"world\", \"java\"};\n        System.out.println(parseAndAccess(\"0\", words));    // hello\n        System.out.println(parseAndAccess(\"abc\", words));  // invalid - not a number\n        System.out.println(parseAndAccess(\"99\", words));   // invalid - out of bounds\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "hello\nInvalid input\nInvalid input" }
+      ],
+      "hints": [
+        "catch (NumberFormatException | ArrayIndexOutOfBoundsException e)",
+        "Both get the same message — multi-catch is cleaner than two blocks",
+        "Same exception variable e works for both types"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m7_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Exception getMessage and class",
+      "scenario": "Read exception details from the exception object.",
+      "instructions": "Write `describeException(Runnable action)` that runs the action in a try-catch, and if an exception occurs, prints:\n- The exception class (simple name)\n- The message\n\nTest with three Runnables that throw different exceptions.\n\nExpected output:\nArithmeticException: / by zero\nNullPointerException: Cannot invoke \"String.length()\" because \"s\" is null\nNumberFormatException: For input string: \"xyz\"",
+      "starter_code": "// describeException prints class + message of any caught exception\n",
+      "expected_solution": "public class App {\n    static void describeException(Runnable action) {\n        try {\n            action.run();\n        } catch (Exception e) {\n            System.out.println(e.getClass().getSimpleName() + \": \" + e.getMessage());\n        }\n    }\n    \n    public static void main(String[] args) {\n        describeException(() -> { int x = 1 / 0; });\n        describeException(() -> { String s = null; int len = s.length(); });\n        describeException(() -> { Integer.parseInt(\"xyz\"); });\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["ArithmeticException", "NullPointerException", "NumberFormatException"] }
+      ],
+      "hints": [
+        "e.getClass().getSimpleName() gives just the class name (no package)",
+        "e.getMessage() gives the description",
+        "Runnable is a functional interface with run() — accepts lambdas"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m7_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Robust input parser",
+      "scenario": "Parse multiple fields with individual error messages.",
+      "instructions": "Parse a CSV line 'name,age,salary' into a Person object. Return descriptive error if any field is wrong.\n\nTest: 'Aisha,28,75000', 'Raj,notAnAge,85000', 'Priya,25,'\n\nExpected output:\nPerson: Aisha, 28, ₹75000.0\nError: Age must be a valid integer\nError: Salary must be a valid number",
+      "starter_code": "// Parse CSV line with field-specific error messages\n",
+      "expected_solution": "public class App {\n    record Person(String name, int age, double salary) {\n        public String toString() { return \"Person: \" + name + \", \" + age + \", ₹\" + salary; }\n    }\n    \n    static String parsePerson(String csv) {\n        String[] parts = csv.split(\",\");\n        if (parts.length != 3) return \"Error: Expected 3 fields\";\n        \n        String name = parts[0].trim();\n        int age;\n        double salary;\n        \n        try {\n            age = Integer.parseInt(parts[1].trim());\n        } catch (NumberFormatException e) {\n            return \"Error: Age must be a valid integer\";\n        }\n        \n        try {\n            salary = Double.parseDouble(parts[2].trim());\n        } catch (NumberFormatException e) {\n            return \"Error: Salary must be a valid number\";\n        }\n        \n        return new Person(name, age, salary).toString();\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(parsePerson(\"Aisha,28,75000\"));\n        System.out.println(parsePerson(\"Raj,notAnAge,85000\"));\n        System.out.println(parsePerson(\"Priya,25,\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Person: Aisha, 28, ₹75000.0\nError: Age must be a valid integer\nError: Salary must be a valid number" }
+      ],
+      "hints": [
+        "Separate try-catch for age and salary — different error messages per field",
+        "Parsing a blank string '' as double throws NumberFormatException",
+        "record is a Java 16+ shorthand for immutable data class"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m7_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Retry logic with exception handling",
+      "scenario": "Retry on failure — common production pattern.",
+      "instructions": "Implement `retryParse(String[] attempts, int maxRetries)` — tries to parse each string as int, returns the first successful parse, stops after maxRetries total attempts.\n\nInput: ['abc', 'def', '42', '99'], maxRetries=3\n\nExpected output:\nAttempt 1: 'abc' — failed\nAttempt 2: 'def' — failed\nAttempt 3: '42' — success: 42",
+      "starter_code": "// Retry parse: try each until success or maxRetries exhausted\n",
+      "expected_solution": "public class App {\n    static int retryParse(String[] attempts, int maxRetries) {\n        for (int i = 0; i < Math.min(attempts.length, maxRetries); i++) {\n            try {\n                int result = Integer.parseInt(attempts[i]);\n                System.out.println(\"Attempt \" + (i + 1) + \": '\" + attempts[i] + \"' — success: \" + result);\n                return result;\n            } catch (NumberFormatException e) {\n                System.out.println(\"Attempt \" + (i + 1) + \": '\" + attempts[i] + \"' — failed\");\n            }\n        }\n        return -1;  // all failed\n    }\n    \n    public static void main(String[] args) {\n        retryParse(new String[]{\"abc\", \"def\", \"42\", \"99\"}, 3);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Attempt 1: 'abc' — failed\nAttempt 2: 'def' — failed\nAttempt 3: '42' — success: 42" }
+      ],
+      "hints": [
+        "Loop up to maxRetries, try parseInt each time",
+        "On success: print and return",
+        "On NumberFormatException: print failed, continue loop"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m7_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Bank transfer with exception handling",
+      "scenario": "Financial domain — multiple exception paths.",
+      "instructions": "Implement `transfer(Map<String, Double> accounts, String from, String to, String amountStr)`.\n\nErrors:\n- Amount not a number → 'Invalid amount format'\n- Amount <= 0 → 'Amount must be positive'\n- From account doesn't exist → 'Account not found: [from]'\n- Insufficient funds → 'Insufficient funds in [from]'\n\nOnSuccess: update balances, return 'Transfer complete'\n\nExpected output:\nTransfer complete\nInsufficient funds in A001\nInvalid amount format\nAccount not found: A999",
+      "starter_code": "import java.util.*;\n\n// Bank transfer with comprehensive error handling\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    static String transfer(Map<String, Double> accounts,\n                           String from, String to, String amountStr) {\n        double amount;\n        try {\n            amount = Double.parseDouble(amountStr);\n        } catch (NumberFormatException e) {\n            return \"Invalid amount format\";\n        }\n        \n        if (amount <= 0) return \"Amount must be positive\";\n        if (!accounts.containsKey(from)) return \"Account not found: \" + from;\n        if (!accounts.containsKey(to))   return \"Account not found: \" + to;\n        \n        double balance = accounts.get(from);\n        if (balance < amount) return \"Insufficient funds in \" + from;\n        \n        accounts.put(from, balance - amount);\n        accounts.put(to, accounts.get(to) + amount);\n        return \"Transfer complete\";\n    }\n    \n    public static void main(String[] args) {\n        Map<String, Double> accounts = new HashMap<>();\n        accounts.put(\"A001\", 5000.0);\n        accounts.put(\"A002\", 1000.0);\n        \n        System.out.println(transfer(accounts, \"A001\", \"A002\", \"2000\"));\n        System.out.println(transfer(accounts, \"A001\", \"A002\", \"5000\"));  // now only 3000\n        System.out.println(transfer(accounts, \"A001\", \"A002\", \"abc\"));\n        System.out.println(transfer(accounts, \"A999\", \"A002\", \"100\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Transfer complete\nInsufficient funds in A001\nInvalid amount format\nAccount not found: A999" }
+      ],
+      "hints": [
+        "Parse amount first in try-catch",
+        "Then validate: amount > 0, accounts exist, sufficient balance",
+        "After first transfer: A001 has 3000 (was 5000, transferred 2000)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m7_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Exception propagation demo",
+      "scenario": "Show how exceptions travel through the call stack.",
+      "instructions": "Create a 3-level call chain where the deepest method throws, the middle method catches and rethrows as RuntimeException, and the top catches the RuntimeException. Print the chain.\n\nExpected output:\ndeepMethod: throwing\nmiddleMethod: caught, rethrowing as RuntimeException\ntopMethod: caught RuntimeException: original cause was NumberFormatException",
+      "starter_code": "// 3-level exception propagation and rethrow chain\n",
+      "expected_solution": "public class App {\n    static void deepMethod() {\n        System.out.println(\"deepMethod: throwing\");\n        Integer.parseInt(\"bad\");  // throws NumberFormatException\n    }\n    \n    static void middleMethod() {\n        try {\n            deepMethod();\n        } catch (NumberFormatException e) {\n            System.out.println(\"middleMethod: caught, rethrowing as RuntimeException\");\n            throw new RuntimeException(\"wrapped\", e);  // wrap with cause\n        }\n    }\n    \n    static void topMethod() {\n        try {\n            middleMethod();\n        } catch (RuntimeException e) {\n            String causeName = e.getCause() != null\n                ? e.getCause().getClass().getSimpleName()\n                : \"none\";\n            System.out.println(\"topMethod: caught RuntimeException: original cause was \" + causeName);\n        }\n    }\n    \n    public static void main(String[] args) {\n        topMethod();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "deepMethod: throwing\nmiddleMethod: caught, rethrowing as RuntimeException\ntopMethod: caught RuntimeException: original cause was NumberFormatException" }
+      ],
+      "hints": [
+        "deepMethod: throws NumberFormatException via parseInt",
+        "middleMethod: catch NFE, throw new RuntimeException('wrapped', e)",
+        "topMethod: catch RuntimeException, use e.getCause().getClass().getSimpleName()"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m7_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Robust file-like processor with finally",
+      "scenario": "Resource cleanup guaranteed by finally — real production pattern.",
+      "instructions": "Simulate a transaction processor: open → process N items → close. Items can fail individually. Use finally to guarantee 'closed' even if a catastrophic error occurs mid-processing.\n\nItems: [100, 200, 'bad', 300, 0] — 'bad' fails to parse, 0 triggers ArithmeticException (divide by zero in processing)\n\nExpected output:\nProcessor opened\nProcessed: 100\nProcessed: 200\nSkipped invalid item: bad\nProcessed: 300\nSkipped invalid item: 0 (/ by zero)\nProcessor closed\nTotal processed: 3",
+      "starter_code": "// Transaction processor with finally-based cleanup\n",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        String[] items = {\"100\", \"200\", \"bad\", \"300\", \"0\"};\n        int processed = 0;\n        \n        System.out.println(\"Processor opened\");\n        try {\n            for (String item : items) {\n                try {\n                    int val = Integer.parseInt(item);\n                    int result = 1000 / val;  // ArithmeticException if val==0\n                    System.out.println(\"Processed: \" + val);\n                    processed++;\n                } catch (NumberFormatException e) {\n                    System.out.println(\"Skipped invalid item: \" + item);\n                } catch (ArithmeticException e) {\n                    System.out.println(\"Skipped invalid item: \" + item + \" (\" + e.getMessage() + \")\");\n                }\n            }\n        } finally {\n            System.out.println(\"Processor closed\");\n        }\n        System.out.println(\"Total processed: \" + processed);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Processor opened\nProcessed: 100\nProcessed: 200\nSkipped invalid item: bad\nProcessed: 300\nSkipped invalid item: 0 (/ by zero)\nProcessor closed\nTotal processed: 3" }
+      ],
+      "hints": [
+        "Outer try/finally: processor lifecycle",
+        "Inner try/catch per item: handle individual failures without stopping the batch",
+        "finally closes regardless of what happens inside",
+        "1000/0 throws ArithmeticException with message '/ by zero'"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m7_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete payment form validator",
+      "scenario": "Full real-world form validation with specific exception handling per field.",
+      "instructions": "Build a payment form validator for a Razorpay-style checkout:\n\nFields: cardNumber (16 digits), expiryYear (4-digit int, 2024-2030), cvv (3-digit int), amount (positive double)\n\nValidate and parse each field. Return a FULL validation report listing all errors (not just the first).\n\nTest with: cardNumber='1234567890123456', expiryYear='2028', cvv='12x', amount='-500'\n\nExpected output:\nErrors:\n- CVV must be a 3-digit number\n- Amount must be positive",
+      "starter_code": "import java.util.*;\n\n// Payment form validator — collects ALL errors, not just first\n",
+      "expected_solution": "import java.util.*;\n\npublic class App {\n    static List<String> validatePayment(String cardNum, String expiryYearStr, String cvvStr, String amountStr) {\n        List<String> errors = new ArrayList<>();\n        \n        // Card number: 16 digits\n        if (cardNum == null || !cardNum.matches(\"\\\\d{16}\")) {\n            errors.add(\"Card number must be exactly 16 digits\");\n        }\n        \n        // Expiry year\n        try {\n            int year = Integer.parseInt(expiryYearStr);\n            if (year < 2024 || year > 2030) errors.add(\"Expiry year must be 2024-2030\");\n        } catch (NumberFormatException e) {\n            errors.add(\"Expiry year must be a valid year\");\n        }\n        \n        // CVV: 3-digit int\n        try {\n            int cvv = Integer.parseInt(cvvStr);\n            if (String.valueOf(cvv).length() != 3 || cvv < 0) errors.add(\"CVV must be a 3-digit number\");\n        } catch (NumberFormatException e) {\n            errors.add(\"CVV must be a 3-digit number\");\n        }\n        \n        // Amount\n        try {\n            double amount = Double.parseDouble(amountStr);\n            if (amount <= 0) errors.add(\"Amount must be positive\");\n        } catch (NumberFormatException e) {\n            errors.add(\"Amount must be a valid number\");\n        }\n        \n        return errors;\n    }\n    \n    public static void main(String[] args) {\n        List<String> errors = validatePayment(\n            \"1234567890123456\", \"2028\", \"12x\", \"-500\"\n        );\n        \n        if (errors.isEmpty()) {\n            System.out.println(\"Payment valid\");\n        } else {\n            System.out.println(\"Errors:\");\n            for (String err : errors) System.out.println(\"- \" + err);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Errors:\n- CVV must be a 3-digit number\n- Amount must be positive" }
+      ],
+      "hints": [
+        "Collect ALL errors in a List<String> — don't return on first error",
+        "Each field has its own try-catch for NumberFormatException",
+        "After parsing: validate the value (range, length) with if-checks",
+        "'12x' fails parseInt → 'CVV must be a 3-digit number'",
+        "'-500' parses to -500.0 but is <= 0 → 'Amount must be positive'"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 0,
+      "code_scratch": 12,
+      "debug": 1,
+      "predict_output": 2
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  }
+}

@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t6",
+  "language": "java",
+  "module_id": "m1",
+  "module_name": "Java Fundamentals",
+  "topic_number": 6,
+  "name": "Reading User Input with Scanner",
+  "slug": "reading-user-input-with-scanner",
+
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 40,
+    "prerequisites": ["java_m1_t1", "java_m1_t2", "java_m1_t3", "java_m1_t4", "java_m1_t5"],
+    "concepts_taught": [
+      "import_statement",
+      "scanner_class",
+      "system_in_input_stream",
+      "next_line_vs_next",
+      "next_int_next_double",
+      "newline_consumption_gotcha",
+      "input_prompts_with_print",
+      "closing_scanner_resources",
+      "input_loop_pattern"
+    ],
+    "skills_developed": [
+      "reading_user_input",
+      "validating_input_types",
+      "designing_prompt_response_flow",
+      "avoiding_scanner_buffer_bugs",
+      "building_interactive_programs"
+    ],
+    "career_relevance": "Until now your programs have been static — you hardcoded all the data. Real programs RESPOND to users: they ask, take input, react. Even backend services (REST APIs, message consumers) are 'just' Scanner-style input loops behind the scenes — they read a request, process it, send a response. Scanner is your first taste of that pattern. The newline-consumption gotcha you'll learn here is one of those Java idioms that trips up developers FOR YEARS if not understood — get it now and you'll save yourself debugging hell.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Every Java program you've written so far has had the data baked in. `int age = 28;` Hardcoded. But that's not how real software works. When you log in to a banking app, you don't recompile the app to change your password — you TYPE it. When you order food, you don't edit source code to add an item — you select from the menu. Real programs read input from users.\n\nIn Java, the standard way to read keyboard input is the `Scanner` class. It's been in Java since 2004 and is in every textbook, every interview prep, every codebase that ever asked a console question. You'll use it constantly in Module 1-6 exercises and projects.\n\nThis topic also covers Java's most notorious newcomer gotcha: the `nextInt() + nextLine()` newline bug. Almost every Java beginner hits this within their first week. Today you'll learn what it is and how to dodge it permanently.",
+    "what_you_will_build": "By the end of this topic, you'll be able to: write programs that ask the user questions and react to answers, read both numbers and text, prompt the user with a clear inline cursor (no extra newline), recognise and fix the newline-consumption bug, and close the Scanner properly. You'll build a complete interactive mini-app — a 'Loan Eligibility Checker' that takes the user's income, age, and credit score and tells them whether they qualify."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "intro": "Reading input in Java involves three pieces:\n\n1. **`Scanner`** — a class that reads from any input source (keyboard, file, string, network).\n2. **`System.in`** — the standard input stream. By default, this is the keyboard.\n3. **`import java.util.Scanner;`** — Scanner lives in the `java.util` package, so you must import it.\n\nThe pattern (memorise this):\n\n```java\nimport java.util.Scanner;\n\npublic class Demo {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        System.out.print(\"What's your name? \");\n        String name = sc.nextLine();\n        \n        System.out.println(\"Hello, \" + name + \"!\");\n        \n        sc.close();\n    }\n}\n```\n\nFour lines do the work:\n- `Scanner sc = new Scanner(System.in);` — create a Scanner that reads keyboard input.\n- `sc.nextLine()` — read one full line of input (everything the user types until Enter).\n- Use the result like any other String.\n- `sc.close()` — release the resource when done.\n\nRun that program: it prints `What's your name? `, waits for you to type, then greets you. Your first interactive Java program."
+    },
+
+    "import_explained": {
+      "intro": "**Why `import java.util.Scanner;`?**\n\nJava's standard library is organized into **packages**. `java.util` is the utility package — it contains Scanner, ArrayList, HashMap, Random, and many other classes you'll use constantly. To use a class from a non-default package, you import it at the TOP of your file (after `public class` is not allowed — imports go above the class).\n\n```java\nimport java.util.Scanner;  // ← here, at the top\n\npublic class Demo {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n    }\n}\n```\n\nWithout the import, the compiler doesn't know what `Scanner` refers to and your code won't compile.\n\n**What's auto-imported?** Only `java.lang` (which contains String, System, Math, Integer, etc.). That's why you've never had to import `String` or `System.out.println`. Everything else needs an explicit import.",
+      "common_mistakes": [
+        "Forgetting the import entirely → 'cannot find symbol: class Scanner'",
+        "Typing `import java.util.scanner;` (lowercase) → 'package java.util.scanner does not exist'",
+        "Putting the import INSIDE the class body → syntax error"
+      ]
+    },
+
+    "reading_strings": {
+      "intro": "Scanner offers two methods to read text:\n\n**`nextLine()`** — reads ONE WHOLE LINE (everything until the user presses Enter). Returns a String.\n\n**`next()`** — reads ONE TOKEN (one 'word' — stops at whitespace). Returns a String.",
+      "code": "import java.util.Scanner;\n\npublic class ReadDemo {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        System.out.print(\"Enter your full name: \");\n        String fullName = sc.nextLine();   // reads \"Aisha Khan\" — both words\n        \n        System.out.print(\"Enter one tag: \");\n        String tag = sc.next();             // reads only \"developer\" — stops at space\n        \n        System.out.println(\"Name: \" + fullName);\n        System.out.println(\"Tag:  \" + tag);\n        \n        sc.close();\n    }\n}",
+      "rule_of_thumb": "Use `nextLine()` for things that might contain spaces (names, addresses, messages). Use `next()` for single-word input (usernames, tags, command words)."
+    },
+
+    "reading_numbers": {
+      "intro": "For numeric input, Scanner has typed methods that convert text → number for you:\n\n| Method | Returns | Reads input like |\n|--------|---------|------------------|\n| `nextInt()` | int | `42` |\n| `nextLong()` | long | `5234891753` |\n| `nextDouble()` | double | `19.99` |\n| `nextFloat()` | float | `3.14f` (no f suffix needed when typing) |\n| `nextBoolean()` | boolean | `true` or `false` |",
+      "code": "Scanner sc = new Scanner(System.in);\n\nSystem.out.print(\"Enter your age: \");\nint age = sc.nextInt();\n\nSystem.out.print(\"Enter your account balance: \");\ndouble balance = sc.nextDouble();\n\nSystem.out.println(\"Age: \" + age + \", Balance: ₹\" + balance);\n\nsc.close();",
+      "what_can_go_wrong": "If the user types text where a number is expected (e.g. types `hello` when `nextInt()` is waiting), Java throws `InputMismatchException` and crashes the program. We'll learn to handle this gracefully in the Exceptions module — for now, assume well-behaved input."
+    },
+
+    "the_newline_gotcha": {
+      "intro": "**THE bug.** Every Java beginner hits this. Read carefully — you'll save yourself an hour of confused debugging.",
+      "the_problem": "**Setup:** you call `nextInt()` to read a number, then `nextLine()` to read a string. The string comes back EMPTY without the user typing anything. Like this:\n\n```java\nScanner sc = new Scanner(System.in);\n\nSystem.out.print(\"Age: \");\nint age = sc.nextInt();           // user types: 28<Enter>\n\nSystem.out.print(\"Name: \");\nString name = sc.nextLine();       // never prompts, name = \"\"\n\nSystem.out.println(\"Hi \" + name + \", age \" + age);  // \"Hi , age 28\"\n```\n\n**Why?** When the user typed `28<Enter>`:\n- `nextInt()` consumed the `28` but LEFT the `<Enter>` (the newline character `\\n`) in the input buffer.\n- The next `nextLine()` saw that leftover newline and immediately returned an empty string. It didn't wait for new input.\n\nIn one line: `nextInt()`, `nextDouble()`, `next()`, `nextBoolean()` ALL leave the newline in the buffer. Only `nextLine()` consumes it.",
+      "the_fix": "**Fix:** call `sc.nextLine()` to discard the leftover newline before reading a real line.\n\n```java\nSystem.out.print(\"Age: \");\nint age = sc.nextInt();\nsc.nextLine();   // ← throwaway: consumes the leftover newline\n\nSystem.out.print(\"Name: \");\nString name = sc.nextLine();   // NOW this waits for real input\n```\n\nThe throwaway `nextLine()` does nothing visible — it just clears the buffer so the next read works correctly.\n\n**When to add it:** every time you mix `nextInt()`/`nextDouble()`/`next()` with `nextLine()`. Make it a reflex.\n\n**Alternative**: read everything with `nextLine()` then convert manually:\n```java\nSystem.out.print(\"Age: \");\nint age = Integer.parseInt(sc.nextLine().trim());\n```\nThis avoids the buffer issue entirely — `nextLine()` always consumes its own newline. Many production codebases use this pattern.",
+      "remember": "**Mantra**: 'After every nextInt, throwaway nextLine.' Repeat 3 times."
+    },
+
+    "prompt_pattern": {
+      "intro": "**Use `print` not `println` for prompts** so the cursor sits at the end of the prompt:",
+      "good_example": "System.out.print(\"Enter your age: \");\nint age = sc.nextInt();",
+      "good_result": "Enter your age: 28      ← cursor was next to the colon",
+      "bad_example": "System.out.println(\"Enter your age: \");  // ← println adds a newline\nint age = sc.nextInt();",
+      "bad_result": "Enter your age: \n28        ← cursor jumped to next line — looks weird",
+      "rule": "`println` for things ON their own line (results, headings). `print` for prompts where input follows on the same line."
+    },
+
+    "closing_scanner": {
+      "intro": "Always close your Scanner when done. Two ways:",
+      "manual_close": "Scanner sc = new Scanner(System.in);\n// ... use sc ...\nsc.close();",
+      "try_with_resources": "// Modern style (Java 7+): auto-closes at end of block\ntry (Scanner sc = new Scanner(System.in)) {\n    int age = sc.nextInt();\n    System.out.println(\"Age: \" + age);\n}",
+      "explanation": "`try-with-resources` declares the Scanner inside `try (...)` — when the block exits (normally or via exception), Java automatically calls `sc.close()`. Safer than manual close (you can't forget). We'll cover try/catch fully in Module 7. For now, manual `sc.close()` at the end of `main` is fine.",
+      "warning": "**Don't close `System.in`** in a program that needs more input later — once closed, you can't reopen it. Single-Scanner programs (like everything in this module) are fine to close at the end."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a keyboard at top. Arrow flowing down into a box labeled 'System.in (stdin stream)'. Arrow flowing right into 'Scanner sc'. From Scanner, branches to nextInt() (returns 42), nextLine() (returns 'Aisha Khan'), nextDouble() (returns 19.99). Below: a buffer diagram showing the newline bug — user types '28\\n', nextInt() takes '28', leaves '\\n' in buffer, next nextLine() instantly returns '' (empty). Bottom: the fix — extra throwaway nextLine() consumes the '\\n'.",
+      "alt_text": "Diagram showing Scanner reading from System.in, plus visualisation of the newline-consumption bug and its fix"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "You're building a 'Loan Eligibility Checker' for a fintech startup. The user enters their annual income, age, and credit score. The program tells them whether they qualify for a personal loan based on simple rules. This is a real fintech feature — every loan app in India (Razorpay, Bajaj Finserv, Paytm) starts with a screen like this.",
+
+    "problem_statement": "Write a program that:\n1. Asks the user three questions (annual income, age, credit score)\n2. Reads each value using the right Scanner method\n3. Decides eligibility based on these rules:\n   - Annual income must be at least ₹3,00,000\n   - Age must be between 21 and 60 (inclusive)\n   - Credit score must be at least 700\n4. Prints whether they qualify, with reasons if they don't.\n\nUse Scanner. Handle the newline gotcha correctly. Close the Scanner.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Set up Scanner and import",
+        "details": "Start with the import and the standard structure:\n\n```java\nimport java.util.Scanner;\n\npublic class LoanEligibilityChecker {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        // Prompts and reads go here\n        \n        sc.close();\n    }\n}\n```\n\nThe `import` is OUTSIDE and ABOVE the class. The Scanner is created at the top of main."
+      },
+      {
+        "step": 2,
+        "action": "Read the three inputs",
+        "details": "Ask each question with `print` (so the cursor sits next to the prompt). Use `nextDouble()` for income and credit score, `nextInt()` for age:\n\n```java\nSystem.out.print(\"Enter your annual income (₹): \");\ndouble income = sc.nextDouble();\n\nSystem.out.print(\"Enter your age: \");\nint age = sc.nextInt();\n\nSystem.out.print(\"Enter your credit score: \");\nint creditScore = sc.nextInt();\n```\n\nWe're only reading numbers — no `nextLine()` here, so we don't have to worry about the newline gotcha YET. But we will the moment we mix in any String input."
+      },
+      {
+        "step": 3,
+        "action": "Check the rules with if/else",
+        "details": "Use the conditionals from Topic 4. We'll check each rule separately so we can give a SPECIFIC reason if the user doesn't qualify:\n\n```java\nboolean incomeOk = income >= 300000;\nboolean ageOk = age >= 21 && age <= 60;\nboolean creditOk = creditScore >= 700;\n\nboolean qualifies = incomeOk && ageOk && creditOk;\n```\n\nThree booleans, then a final `qualifies` combining all of them with `&&`. Clean."
+      },
+      {
+        "step": 4,
+        "action": "Print the result",
+        "details": "If qualified, congratulate. Otherwise, list each failed rule:\n\n```java\nSystem.out.println();\nSystem.out.println(\"=== LOAN ELIGIBILITY RESULT ===\");\n\nif (qualifies) {\n    System.out.println(\"\\u2705 Congratulations! You qualify for a personal loan.\");\n} else {\n    System.out.println(\"\\u274C Sorry, you don't qualify. Reasons:\");\n    if (!incomeOk)  System.out.println(\"  - Annual income below \\u20B93,00,000\");\n    if (!ageOk)     System.out.println(\"  - Age outside 21-60 range\");\n    if (!creditOk)  System.out.println(\"  - Credit score below 700\");\n}\n```\n\nNote the `if (!incomeOk)` etc — only prints the line if THAT rule failed."
+      },
+      {
+        "step": 5,
+        "action": "Close and run",
+        "details": "Don't forget `sc.close()`. Run the program with sample inputs:\n\n- Income 500000, age 30, score 750 → ✅ qualifies\n- Income 200000, age 30, score 750 → ❌ income too low\n- Income 500000, age 18, score 650 → ❌ age + credit both fail"
+      }
+    ],
+
+    "final_code": "import java.util.Scanner;\n\npublic class LoanEligibilityChecker {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        \n        System.out.print(\"Enter your annual income (\\u20B9): \");\n        double income = sc.nextDouble();\n        \n        System.out.print(\"Enter your age: \");\n        int age = sc.nextInt();\n        \n        System.out.print(\"Enter your credit score: \");\n        int creditScore = sc.nextInt();\n        \n        boolean incomeOk  = income >= 300000;\n        boolean ageOk     = age >= 21 && age <= 60;\n        boolean creditOk  = creditScore >= 700;\n        boolean qualifies = incomeOk && ageOk && creditOk;\n        \n        System.out.println();\n        System.out.println(\"=== LOAN ELIGIBILITY RESULT ===\");\n        \n        if (qualifies) {\n            System.out.println(\"\\u2705 Congratulations! You qualify for a personal loan.\");\n        } else {\n            System.out.println(\"\\u274C Sorry, you don't qualify. Reasons:\");\n            if (!incomeOk)  System.out.println(\"  - Annual income below \\u20B93,00,000\");\n            if (!ageOk)     System.out.println(\"  - Age outside 21-60 range\");\n            if (!creditOk)  System.out.println(\"  - Credit score below 700\");\n        }\n        \n        sc.close();\n    }\n}",
+
+    "expected_output": "Enter your annual income (₹): 500000\nEnter your age: 30\nEnter your credit score: 750\n\n=== LOAN ELIGIBILITY RESULT ===\n✅ Congratulations! You qualify for a personal loan.",
+
+    "common_issues": [
+      {
+        "issue": "Mixed nextInt + nextLine gives empty string",
+        "cause": "The newline gotcha — nextInt left the newline in the buffer",
+        "fix": "Add a throwaway sc.nextLine() between the nextInt and the next nextLine. See 'the newline gotcha' section above."
+      },
+      {
+        "issue": "Program crashes when user types text instead of a number",
+        "cause": "Scanner throws InputMismatchException when type doesn't match",
+        "fix": "For now, only feed it valid input. Module 7 (Exceptions) covers how to handle this gracefully with try/catch."
+      },
+      {
+        "issue": "Prompt jumps to next line before user can type",
+        "cause": "Used println instead of print",
+        "fix": "Use System.out.print for prompts. println for results."
+      }
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Every CLI tool ever (git, npm, mvn, javac)",
+        "use_case": "Command-line tools read input either from args[] or interactively. `git commit` opens an editor for the message — same pattern as Scanner.nextLine() under the hood. CLI is the entry point for every developer tool on the planet."
+      },
+      {
+        "company_context": "Backend REST APIs (Spring Boot, every web backend)",
+        "use_case": "When a Spring controller receives `@RequestBody User`, the framework is doing the JSON equivalent of Scanner: reading bytes from a stream, parsing them, converting to Java objects. The mental model is identical. Master Scanner and you've grasped the input pattern that runs every web service."
+      },
+      {
+        "company_context": "Interactive scripts at every IT job (DBAs, sysadmins, support engineers)",
+        "use_case": "'Enter the user ID to deactivate: ' / 'Confirm deletion (y/n): ' / 'Enter date range: ' — every internal tool has Scanner-style prompts. Building a quick command-line utility for your team is a daily task in many roles."
+      },
+      {
+        "company_context": "Coding interview rounds (every company)",
+        "use_case": "Live coding rounds at HackerRank, Codeforces, LeetCode often use stdin input — the platform pipes test data to your program's System.in. Scanner is the standard way to read it. Knowing the newline gotcha cold prevents a public face-palm in front of an interviewer."
+      }
+    ],
+
+    "interview_relevance": "Scanner itself rarely appears as a direct interview question, but stdin handling DOES come up in coding rounds. You'll be expected to:\n- Read `n` integers from stdin and process them\n- Read a grid of values\n- Read until EOF or a sentinel value\n\nCommon questions you may face:\n- 'What's the difference between next() and nextLine()?' — token vs whole line.\n- 'Why might nextLine() return an empty string?' — the newline gotcha.\n- 'What is try-with-resources?' — auto-closing for AutoCloseable. Scanner is one such resource.\n\nIf you can't read input fluently, you can't even GET STARTED on a coding round. This is foundational.",
+
+    "real_world_workflow": "Day-to-day with input:\n- Building a quick prototype: hardcode values first (faster), wrap in Scanner once you want to test variations.\n- Writing a CLI utility: use a real argument parser (Apache Commons CLI, Picocli) instead of raw Scanner — but the mental model carries over.\n- Reading from a file: `new Scanner(new File(\"data.txt\"))` — same API, different source. Module 11 (I/O) covers this.\n- In production: rarely raw Scanner. But the pattern (open stream → read → process → close) is everywhere."
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_import",
+      "what_students_get_wrong": "Forgetting `import java.util.Scanner;` at the top of the file. The class won't compile.",
+      "remediation": "Make import-on-line-1 a reflex when you see Scanner. IDEs auto-import; without an IDE, you must remember it.",
+      "detection_pattern": "Compilation error: cannot find symbol — class Scanner"
+    },
+    {
+      "gap_id": "newline_buffer_bug",
+      "what_students_get_wrong": "Calling nextLine() right after nextInt()/nextDouble() and getting an empty string. THE classic Java beginner bug.",
+      "remediation": "Always throwaway-nextLine() between numeric reads and a real nextLine(). Or read everything as nextLine() and parse manually with Integer.parseInt.",
+      "detection_pattern": "An expected text input is empty without the user typing anything"
+    },
+    {
+      "gap_id": "println_for_prompt",
+      "what_students_get_wrong": "Using System.out.println for the prompt — cursor jumps to next line before user can type.",
+      "remediation": "Use System.out.print (no `ln`) for prompts. The prompt should sit right next to where the user types.",
+      "detection_pattern": "Prompt and input are on separate lines"
+    },
+    {
+      "gap_id": "scanner_never_closed",
+      "what_students_get_wrong": "Forgetting sc.close() at the end. The JVM will clean up eventually, but it's bad practice and triggers IDE warnings.",
+      "remediation": "Either add sc.close() before main exits, or use try-with-resources for automatic close.",
+      "detection_pattern": "Resource leak warning from compiler/IDE"
+    },
+    {
+      "gap_id": "input_mismatch_crash",
+      "what_students_get_wrong": "Program crashes when the user types non-numeric input into nextInt().",
+      "remediation": "For learning exercises, document that input must be valid. For production code, wrap in try/catch and re-prompt — covered in Module 7.",
+      "detection_pattern": "InputMismatchException at runtime"
+    },
+    {
+      "gap_id": "treating_next_like_nextLine",
+      "what_students_get_wrong": "Using sc.next() for things like full names — gets only the first word.",
+      "remediation": "next() is for single tokens. Use nextLine() for anything that might contain spaces.",
+      "detection_pattern": "Second part of a multi-word input goes unread or causes downstream bugs"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Scanner reads input from System.in (keyboard by default). Import `java.util.Scanner` to use it.",
+      "Create one: `Scanner sc = new Scanner(System.in);`",
+      "Read text: `sc.nextLine()` (whole line) or `sc.next()` (one word).",
+      "Read numbers: `sc.nextInt()`, `sc.nextDouble()`, `sc.nextLong()`, `sc.nextBoolean()`.",
+      "THE bug: numeric reads leave the newline in the buffer. Add a throwaway `sc.nextLine()` before the next real `nextLine()`.",
+      "Use `print` (not `println`) for prompts so the cursor sits inline.",
+      "Always `sc.close()` when done — or use try-with-resources for automatic cleanup."
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What does `nextLine()` return that `next()` doesn't?",
+        "answer": "nextLine() returns the WHOLE LINE (including spaces) up to the Enter key. next() stops at any whitespace and returns just the first token."
+      },
+      {
+        "question": "You call `sc.nextInt()` then `sc.nextLine()`. The nextLine returns an empty string. Why?",
+        "answer": "nextInt() consumed the digits but LEFT the newline (Enter) in the input buffer. nextLine() then read that lingering newline and returned empty without waiting. Fix: add an extra sc.nextLine() right after nextInt() to discard the newline."
+      },
+      {
+        "question": "What import do you need for Scanner?",
+        "answer": "import java.util.Scanner; — placed at the top of the file, above the class declaration."
+      },
+      {
+        "question": "Should you use System.out.print or System.out.println for a prompt like 'Enter your age:'?",
+        "answer": "System.out.print — without the 'ln'. That way the cursor stays on the same line, right after the colon, so the user's input appears next to the prompt instead of on a new line."
+      },
+      {
+        "question": "What's the modern (Java 7+) way to ensure your Scanner gets closed?",
+        "answer": "try-with-resources: `try (Scanner sc = new Scanner(System.in)) { ... }`. Java auto-closes sc when the try block exits, even if an exception is thrown."
+      }
+    ],
+
+    "next_topic_preview": "Module 1 is complete! You can now do everything a procedural Java programmer needs: declare variables, use operators, branch with if/else, loop with for/while, and read user input. Module 2 (Methods) is where your code transitions from 'a script that works' to 'engineered software.' You'll learn to break programs into reusable named pieces — the single most important habit in software engineering."
+  }
+}

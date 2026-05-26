@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m26_t4",
+  "language": "java",
+  "module_id": "m26",
+  "module_name": "AI-Powered Java Applications",
+  "topic_number": 4,
+  "name": "LangChain4j — AI Services & Agents",
+  "slug": "langchain4j-ai-services-agents",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m26_t1", "java_m26_t2"],
+    "concepts_taught": [
+      "langchain4j_overview", "ai_services_interface", "system_user_messages",
+      "chat_memory", "langchain4j_tools", "langchain4j_rag",
+      "streaming_responses", "structured_output_l4j",
+      "spring_ai_vs_langchain4j", "model_integration_l4j"
+    ],
+    "skills_developed": [
+      "defining_ai_services_as_interfaces",
+      "building_rag_with_langchain4j",
+      "implementing_conversation_memory",
+      "tool_use_in_langchain4j"
+    ],
+    "career_relevance": "LangChain4j is the most widely adopted AI framework in the Java ecosystem as of 2026, with over 8,000 GitHub stars and production deployments at Vodafone, ING Bank, and dozens of Indian startups. Many CodeQuest graduates will encounter LangChain4j in job interviews and production codebases. Its AiServices API — where you declare an interface and LangChain4j generates the AI-powered implementation — is the most elegant AI integration pattern in Java. After this topic, you can work fluently in both Spring AI and LangChain4j ecosystems.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Compare AI integration approaches:\n\n```java\n// SPRING AI (what you've learned):\n@Service\nclass PaymentAI {\n    private final ChatClient chatClient;\n    PaymentAI(ChatClient.Builder b) {\n        chatClient = b.defaultSystem(\"You are Razorpay AI.\").build();\n    }\n    String answer(String q) {\n        return chatClient.prompt().user(q).call().content();\n    }\n}\n\n// LANGCHAIN4J (just an interface — LangChain4j generates the implementation!):\ninterface PaymentAI {\n    @SystemMessage(\"You are Razorpay AI assistant.\")\n    String answer(@UserMessage String question);\n}\n// LangChain4j generates the whole implementation:\nPaymentAI ai = AiServices.create(PaymentAI.class, chatModel);\nai.answer(\"What is Razorpay?\"); // works!\n```\n\nDifference: LangChain4j's AiServices = declare interface → get AI service.\nSpring AI: manual wiring of ChatClient. Both are valid; knowing both makes you versatile.",
+    "what_you_will_build": "LangChain4j-powered Razorpay support service with memory, tools, and RAG."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "ai_services": "**LangChain4j AiServices — the interface magic:**\n\n```java\n// 1. Define as an interface:\n@AiService\ninterface RazorpaySupportAI {\n    @SystemMessage(\"\"\"\n        You are Razorpay's customer support AI.\n        Help merchants with payment integration questions.\n        Be concise and technical. Suggest docs links when relevant.\n        \"\"\")\n    String answer(@UserMessage String question);\n\n    // Multi-turn with memory:\n    @SystemMessage(\"You are Razorpay AI with conversation history.\")\n    String chat(@UserMessage String message, @MemoryId String sessionId);\n}\n\n// 2. Register as Spring Bean (with Spring Boot integration):\n@Configuration\nclass LangChain4jConfig {\n    @Bean\n    RazorpaySupportAI razorpaySupportAI(ChatLanguageModel model, ChatMemoryProvider memProvider) {\n        return AiServices.builder(RazorpaySupportAI.class)\n            .chatLanguageModel(model)\n            .chatMemoryProvider(memProvider)  // per-session memory\n            .build();\n    }\n\n    @Bean\n    ChatMemoryProvider chatMemoryProvider() {\n        return memoryId -> MessageWindowChatMemory.withMaxMessages(10);\n    }\n}\n\n// 3. Inject and use — just like any other Spring Bean:\n@Service\nclass SupportController {\n    private final RazorpaySupportAI ai;\n    public String handleTicket(String sessionId, String message) {\n        return ai.chat(message, sessionId); // memory managed per sessionId!\n    }\n}\n```",
+      "rag_l4j": "**LangChain4j RAG:**\n\n```java\n// RAG in LangChain4j:\nEmbeddingStore<TextSegment> store = new InMemoryEmbeddingStore<>();\nEmbeddingModel embeddingModel = AnthropicEmbeddingModel.withApiKey(apiKey);\n\n// Ingest documents:\nDocument doc = Document.from(\"Razorpay webhook retries 5 times over 24 hours.\");\nDocumentSplitter splitter = DocumentSplitters.recursive(500, 50);\nList<TextSegment> segments = splitter.split(doc);\nembeddingModel.embedAll(segments).forEach((segment, embedding) ->\n    store.add(embedding, segment));\n\n// RAG-enabled AI service:\nContentRetriever retriever = EmbeddingStoreContentRetriever.builder()\n    .embeddingStore(store)\n    .embeddingModel(embeddingModel)\n    .maxResults(3)\n    .minScore(0.7)\n    .build();\n\nRazorpayDocsAI docsAI = AiServices.builder(RazorpayDocsAI.class)\n    .chatLanguageModel(model)\n    .contentRetriever(retriever)  // RAG enabled!\n    .build();\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "LangChain4j architecture diagram. Left: Interface declaration (RazorpaySupportAI) with @SystemMessage and @UserMessage annotations. Center: AiServices.builder().chatLanguageModel().chatMemoryProvider().contentRetriever().build() — the builder pattern. Right: Generated implementation proxy at runtime. Below: comparison table — Spring AI row (ChatClient, manual wiring, programmatic) vs LangChain4j row (AiServices interface, declarative, annotation-driven). Both connect to the same AI models (Anthropic Claude, OpenAI, Ollama).",
+      "alt_text": "LangChain4j AiServices: declare interface, get AI implementation — vs Spring AI manual ChatClient"
+    },
+    "worked_example": {
+      "scenario": "Razorpay support AI with LangChain4j: memory + RAG + tools.",
+      "problem_statement": "1. RazorpaySupportAI interface with @SystemMessage\n2. AiServices.builder: model + memory\n3. @Tool method: getPaymentStatus(paymentId)\n4. @SpringBootTest: interface + tool work",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Spring AI vs LangChain4j — when to choose each",
+          "details": "Spring AI: if you're already in the Spring ecosystem, want tightest Spring Boot integration, prefer programmatic ChatClient API. Good for: complex prompt logic, streaming, Spring Security integration. LangChain4j: if you want clean interface-based API, simpler memory/RAG setup, or are using LangChain4j-specific features (agents, tools chains). Good for: quick prototyping, clean service interfaces, teams that prefer declarative over programmatic. Rule: both frameworks are production-ready. Know both; use whichever the project already uses."
+        }
+      ],
+      "final_code": "// AiServices.create(Interface.class, model): simplest\n// AiServices.builder(Interface.class).chatLanguageModel(m).chatMemoryProvider(p).build(): with memory\n// @MemoryId String sessionId: LangChain4j manages separate memory per session ID",
+      "expected_output": "// ai.answer(\"What is Razorpay?\") → \"Razorpay is a payment gateway...\"\n// ai.chat(\"Hello\", \"session-1\") → \"Hi! How can I help?\"\n// ai.chat(\"What did I just say?\", \"session-1\") → \"You said Hello\" (memory!)",
+      "things_to_notice": [
+        "@MemoryId: LangChain4j manages separate conversation memory per session ID automatically. You don't need to build the conversation history — just pass the session ID and LangChain4j handles the rest.",
+        "AiServices.create() vs builder(): .create() is simpler (no memory/RAG). .builder() adds memory, RAG, tools. Start simple, add features as needed.",
+        "Same models, different SDKs: LangChain4j supports Anthropic, OpenAI, Ollama, Azure OpenAI — same models as Spring AI, just different API.",
+        "Tool execution: @Tool annotated methods are called by LangChain4j automatically when the AI decides to use them. You don't call them manually — just register them in the builder."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay merchant support with LangChain4j",
+          "use_case": "RazorpaySupportAI interface: @SystemMessage with Razorpay brand guidelines, @UserMessage for merchant question, @MemoryId for session tracking. Tools: getPaymentStatus(), getWebhookLogs(), getSettlementReport(). ContentRetriever: docs embedded in pgvector. Builder wires all together. Merchants get context-aware support that remembers the conversation and fetches real data."
+        }
+      ],
+      "interview_relevance": "'Are you familiar with LangChain4j?' → Yes. AiServices: declare interface with @SystemMessage + @UserMessage → LangChain4j generates proxy. Memory: MessageWindowChatMemory, @MemoryId for per-session state. RAG: EmbeddingStoreContentRetriever with InMemoryEmbeddingStore or pgvector. Tools: @Tool annotation on service methods. Spring Boot integration: @AiService or @Bean. Compare with Spring AI: LangChain4j = declarative/interface; Spring AI = programmatic/ChatClient. Both production-ready.",
+      "real_world_workflow": "LangChain4j workflow: (1) add langchain4j-spring-boot-starter + langchain4j-anthropic, (2) configure model API key in application.yml, (3) declare AiService interface with @SystemMessage, (4) register @Bean with AiServices.builder().chatLanguageModel().build(), (5) add memory with chatMemoryProvider() if needed, (6) add RAG with contentRetriever() if needed, (7) inject and use like any @Service."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "forgetting_memory_id",
+        "what_students_get_wrong": "Using @MemoryId but passing the same hardcoded string for all users: `ai.chat(question, \"default\")`. All users share the same conversation history — one user sees another's messages.",
+        "remediation": "Always use a unique per-user/per-session identifier: `ai.chat(question, sessionId)` where sessionId comes from the HTTP session or a UUID generated on first request. Clear memory with `chatMemory.clear(sessionId)` when the conversation should reset.",
+        "detection_pattern": "@MemoryId parameter hardcoded as a literal string or constant (not from request/session)"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "AiServices: declare interface → LangChain4j generates AI implementation",
+        "@SystemMessage: AI persona/role on the interface (or method)",
+        "@UserMessage: marks the user input parameter",
+        "@MemoryId: per-session conversation memory managed by LangChain4j",
+        "MessageWindowChatMemory(maxMessages=10): keeps last 10 messages",
+        "@Tool: marks methods callable by the AI (same concept as Spring AI)",
+        "ContentRetriever: EmbeddingStoreContentRetriever for RAG",
+        "AiServices.create(): simple (no memory/RAG)",
+        "AiServices.builder(): add memory, RAG, tools",
+        "Spring AI vs LangChain4j: same models, different APIs — both production-ready"
+      ],
+      "self_check_questions": [
+        {
+          "question": "A Zerodha developer has a Spring Boot app and wants to add AI chat with conversation memory. They've found both Spring AI and LangChain4j. Which should they choose and why?",
+          "answer": "Both are valid. Decision factors: (1) Team familiarity: if the team already uses Spring AI (from other parts of the app), stay consistent. (2) Memory preference: LangChain4j's @MemoryId pattern is simpler for conversation memory — declare the interface, pass the session ID, done. Spring AI needs manual MessageHistory management. (3) Interface cleanliness: LangChain4j's AiServices gives you a clean Java interface — easier to mock in tests, clear contract. Spring AI's ChatClient is more flexible for complex prompt logic. (4) Existing Spring Boot setup: Spring AI integrates slightly more tightly with Spring Boot autoconfiguration. Recommendation for a new Zerodha feature: LangChain4j if they want the simplest memory+RAG setup with clean interfaces. Spring AI if they need deeper Spring Security or WebFlux streaming integration. In practice: many large projects use both (different teams, different services) — knowing both makes you versatile."
+        }
+      ],
+      "next_topic_preview": "Final Module 26 topic: Testing AI Applications — how to mock AI responses, write deterministic AI tests, and contract-test your AI API integrations."
+    }
+  }
+}

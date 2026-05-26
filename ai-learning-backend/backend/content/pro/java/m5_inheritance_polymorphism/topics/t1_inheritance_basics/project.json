@@ -1,0 +1,148 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m5_t1_proj",
+  "linked_topic": "java_m5_t1",
+  "level": "mini",
+  "name": "Insurance Policy Hierarchy",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "You're building the policy management backend for an insurance company (think PolicyBazaar, HDFC Life, Bajaj Allianz). Insurance products are hierarchical: all policies share common data (policy number, holder name, premium), but Health Insurance adds coverage limit and deductible, Car Insurance adds vehicle details and own-damage coverage, and Life Insurance adds sum assured and nominee. Each type calculates its annual cost differently. This mirrors exactly how real insurance software models their product catalog.",
+  
+  "description": "Build an insurance policy hierarchy: InsurancePolicy (base), HealthInsurance, CarInsurance, LifeInsurance. Demonstrate inheritance, super(), method overriding, and polymorphic arrays.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`InsurancePolicy` base class: static auto-policyNumber, holderName, basePremium. Validate in constructor. toString, equals (by policyNumber), hashCode.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "InsurancePolicy: `annualCost()` returns basePremium × 12. `getPolicySummary()` returns formatted string.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`HealthInsurance extends InsurancePolicy`: coverageLimit (double), deductible (double). Override annualCost(): base + deductible. Override getPolicySummary() using super.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`CarInsurance extends InsurancePolicy`: vehicleModel (String), ownDamageCoverage (double). Override annualCost(): base + percentage of ownDamageCoverage (0.5%). Override getPolicySummary().",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "`LifeInsurance extends InsurancePolicy`: sumAssured (double), nomineeName (String). Override annualCost(): base (term life is typically fixed premium). Override getPolicySummary().",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "main(): create one of each type, store in InsurancePolicy[], print all summaries and total annual costs.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `PolicyManager` class with InsurancePolicy[] and methods: addPolicy, getTotalAnnualCost (sums all), findMostExpensive.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Override equals in each subclass to also check type-specific fields (HealthInsurance equals checks coverageLimit too).",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `applyDiscount(double percent)` to InsurancePolicy that reduces basePremium.",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Create:\n- HealthInsurance for Aisha: monthly ₹2000, coverage ₹500000, deductible ₹5000\n- CarInsurance for Raj: monthly ₹1500, vehicle Honda City, own-damage ₹800000\n- LifeInsurance for Priya: monthly ₹3000, sum assured ₹5000000, nominee 'Rahul'\n\nExpected annual costs:\n- Health: 2000×12 + 5000 = 29000\n- Car: 1500×12 + 800000×0.005 = 18000 + 4000 = 22000\n- Life: 3000×12 = 36000",
+  
+  "starter_code": "import java.util.Objects;\n\npublic class InsuranceSystem {\n    public static void main(String[] args) {\n        // Create policies and demonstrate hierarchy\n    }\n    // Define: InsurancePolicy, HealthInsurance, CarInsurance, LifeInsurance\n}",
+  
+  "example_output": "=== Insurance Policies ===\nHealth Policy #1 [Aisha] — ₹2000/mo, Coverage: ₹500000, Deductible: ₹5000 | Annual: ₹29000.0\nCar Policy #2 [Raj] — ₹1500/mo, Vehicle: Honda City, Own-Damage: ₹800000 | Annual: ₹22000.0\nLife Policy #3 [Priya] — ₹3000/mo, Sum Assured: ₹5000000, Nominee: Rahul | Annual: ₹36000.0\nTotal annual cost: ₹87000.0",
+  
+  "rubric": [
+    {
+      "category": "Base Class Design",
+      "points": 20,
+      "criteria": [
+        "Auto-policyNumber, validated constructor (10 pts)",
+        "annualCost() and getPolicySummary() base implementations (10 pts)"
+      ]
+    },
+    {
+      "category": "Subclass Implementations",
+      "points": 40,
+      "criteria": [
+        "HealthInsurance: correct super(), fields, overrides (13 pts)",
+        "CarInsurance: correct super(), fields, overrides (13 pts)",
+        "LifeInsurance: correct super(), fields, overrides (14 pts)"
+      ]
+    },
+    {
+      "category": "Polymorphism",
+      "points": 15,
+      "criteria": [
+        "All stored in InsurancePolicy[] (5 pts)",
+        "Loop correctly calls each policy's overridden methods (10 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": ["Compiles (10 pts)", "Runs (5 pts)"]
+    },
+    {
+      "category": "Object Methods",
+      "points": 10,
+      "criteria": ["toString, equals, hashCode in base (10 pts)"]
+    },
+    {
+      "category": "Bonus",
+      "points": 60,
+      "criteria": ["PolicyManager class (25 pts)", "Subclass equals (20 pts)", "applyDiscount (15 pts)"]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Use super() in subclass constructors and super.getPolicySummary() in overrides. The annualCost formula for each type is in the requirements.",
+  
+  "submission_instructions": "Save as InsuranceSystem.java. Run it. Push to GitHub — this models a real insurance product catalog hierarchy.",
+  
+  "tips_for_success": [
+    "InsurancePolicy base class should be complete (all Object methods) before writing subclasses.",
+    "Each subclass: super(holderName, basePremium) first in constructor.",
+    "getPolicySummary() in each subclass: start with super.getPolicySummary() + add type-specific info.",
+    "annualCost(): each subclass overrides with its formula — Health adds deductible, Car adds own-damage %.",
+    "For the loop: InsurancePolicy[] holds all types; each .annualCost() calls the right override."
+  ],
+  
+  "concepts_reinforced": [
+    "extends keyword, parent-child class relationship",
+    "super() in constructors (first line)",
+    "super.method() in overrides",
+    "@Override annotation",
+    "Method overriding with different formulas",
+    "Polymorphic array (InsurancePolicy[] holds subclasses)",
+    "protected access for subclass use",
+    "Module 4 patterns continued into Module 5"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Insurance product hierarchies are a classic OOP domain. PolicyBazaar, HDFC Life, Bajaj Allianz — all have product catalogs structured exactly like this. The annualCost() override mirrors how different products price differently while sharing a common interface. Most importantly: you'll feel the power of the InsurancePolicy[] loop — one line of code that works for all three types, calling the right calculation for each. That's the inheritance + polymorphism payoff.",
+  
+  "extensions_for_advanced_learners": [
+    "Add TravelInsurance with destination and duration fields",
+    "Make InsurancePolicy abstract (Topic 5.3 preview — abstract annualCost())",
+    "Add a claim() method to each type with type-specific claim processing",
+    "Add renewal logic: expired policies get a 5% premium increase",
+    "Build a PolicyComparator that sorts policies by annual cost"
+  ]
+}

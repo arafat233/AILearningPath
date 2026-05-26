@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m19_t2",
+  "language": "java",
+  "module_id": "m19",
+  "module_name": "Microservice Resilience",
+  "topic_number": 2,
+  "name": "Retry & Rate Limiter",
+  "slug": "retry-rate-limiter",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m19_t1"],
+    "concepts_taught": [
+      "transient_vs_sustained_failure",
+      "retry_pattern",
+      "exponential_backoff",
+      "max_attempts",
+      "retry_on_exception_type",
+      "resilience4j_retry_annotation",
+      "retry_with_circuit_breaker",
+      "rate_limiter_pattern",
+      "limit_for_period",
+      "timeout_duration_rate_limiter",
+      "request_not_permitted_exception",
+      "combining_resilience_annotations",
+      "annotation_order_matters"
+    ],
+    "skills_developed": [
+      "adding_retry_with_exponential_backoff",
+      "configuring_per_exception_retry",
+      "rate_limiting_outbound_calls",
+      "combining_retry_and_circuit_breaker",
+      "testing_retry_behavior_with_mockito"
+    ],
+    "career_relevance": "Retries with exponential backoff are the standard pattern for transient network failures. Every Razorpay HTTP call to Visa/Mastercard uses retries — 30% of failures are transient and succeed on retry. Rate limiters protect downstream APIs from being overwhelmed by your service. After this topic, you handle transient failures transparently and respect external API rate limits.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+
+  "hook": {
+    "real_world_problem": "Razorpay calls Visa's payment network. Visa occasionally drops connections under load — 30% of failed calls succeed on immediate retry:\n\n```\nWithout retry:\n  Call 1: IOException (network blip) → payment FAILED\n  User: 'My payment failed' → support ticket → refund request\n  Reality: Visa was ready 50ms later\n\nWith @Retry:\n  Call 1: IOException → wait 100ms → retry\n  Call 2: SUCCESS → payment APPROVED\n  User: sees 100ms extra latency (imperceptible)\n  Support tickets: zero for this failure type\n```\n\n```java\n@Retry(name = \"visa-gateway\", fallbackMethod = \"paymentFailed\")\n@CircuitBreaker(name = \"visa-gateway\")\npublic PaymentResult chargeVisa(ChargeRequest req) {\n    return visaClient.charge(req);\n}\n// @Retry retries on transient failures\n// @CircuitBreaker opens if retry-exhausted failures pile up\n```\n\nSeparate concern: your service calls a rate-limited analytics API (1,000 calls/hour):\n```java\n@RateLimiter(name = \"analytics-api\")\npublic void logEvent(TradeEvent event) {\n    analyticsClient.record(event);\n}\n// If you exceed 1,000/hour: RequestNotPermittedException\n// Rate limiter enforces the quota YOUR service respects toward the downstream API\n```",
+    "what_you_will_build": "By the end, you'll add @Retry with exponential backoff, configure retries only for specific exception types, combine @Retry with @CircuitBreaker, and add @RateLimiter to respect downstream API quotas."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "retry": "**@Retry — transparent transient failure recovery:**\n\n```yaml\n# application.yml:\nresilience4j:\n  retry:\n    instances:\n      visa-gateway:\n        maxAttempts: 3           # total attempts (1 original + 2 retries)\n        waitDuration: 100ms      # wait between attempts\n        enableExponentialBackoff: true\n        exponentialBackoffMultiplier: 2.0\n        # Attempt 1: immediate\n        # Attempt 2: +100ms\n        # Attempt 3: +200ms (100 × 2.0)\n        # Total max wait: 300ms\n        retryExceptions:         # ONLY retry these exception types\n          - java.io.IOException\n          - java.net.ConnectException\n        ignoreExceptions:        # NEVER retry these (permanent errors)\n          - com.razorpay.InvalidCardException\n          - com.razorpay.InsufficientFundsException\n```\n\n```java\nimport io.github.resilience4j.retry.annotation.Retry;\n\n@Service\npublic class VisaGatewayService {\n    \n    @Retry(name = \"visa-gateway\", fallbackMethod = \"visaFallback\")\n    public PaymentResult charge(ChargeRequest req) {\n        // If IOException: retried up to 3 times\n        // If InvalidCardException: NOT retried (in ignoreExceptions)\n        return visaClient.charge(req);\n    }\n    \n    private PaymentResult visaFallback(ChargeRequest req, Exception e) {\n        // Called after ALL retries exhausted:\n        log.error(\"Visa charge failed after {} retries: {}\", 3, e.getMessage());\n        return PaymentResult.failed(\"GATEWAY_ERROR\");\n    }\n}\n```",
+      "rate_limiter": "**@RateLimiter — respect downstream API quotas:**\n\n```yaml\nresilience4j:\n  ratelimiter:\n    instances:\n      analytics-api:\n        limitForPeriod: 100      # max 100 calls per refresh period\n        limitRefreshPeriod: 1s   # reset every 1 second\n        timeoutDuration: 500ms   # wait up to 500ms for a permit\n```\n\n```java\nimport io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RequestNotPermittedException;\n\n@Service\npublic class AnalyticsService {\n    \n    @RateLimiter(name = \"analytics-api\", fallbackMethod = \"dropEvent\")\n    public void recordTradeEvent(TradeEvent event) {\n        analyticsClient.record(event);  // external API with rate limit\n    }\n    \n    private void dropEvent(TradeEvent event, RequestNotPermittedException e) {\n        // Rate limit exceeded — drop or queue the event:\n        log.warn(\"Analytics rate limit hit — dropping event {}\", event.getId());\n        // Or: queue.offer(event) for retry\n    }\n    \n    // Rate limiter vs our rate limiter (Topic 18.3):\n    // Topic 18.3 (Redis INCR): protects OUR service from INCOMING abuse\n    // @RateLimiter:            protects THEIR service from OUR outgoing calls\n}\n```",
+      "combining": "**Combining @Retry + @CircuitBreaker:**\n\n```java\n// Order matters: outer annotation wraps inner\n// Best practice: @CircuitBreaker OUTSIDE @Retry\n@CircuitBreaker(name = \"notification\", fallbackMethod = \"notifCBFallback\")\n@Retry(name = \"notification\")  // @Retry is INSIDE the circuit breaker\npublic void sendNotification(String userId, String message) {\n    notifClient.send(userId, message);\n}\n// Execution order:\n// CB checks state → if CLOSED: Retry wraps the actual call\n// If all retries fail: CB records ONE failure (not 3)\n// If CB opens: all calls fast-fail without even attempting retry\n\n// The number each circuit breaker counts:\n// @Retry(maxAttempts=3) fails → CB records 1 failure\n// After N CB-failures at threshold → circuit OPENS\n// Future calls: CB fast-fails before even trying the first retry\n\n// WRONG order (retry outside CB): CB records each retry attempt as a separate failure\n// → Circuit opens much faster than intended\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) @Retry timeline for a transient failure: T=0 attempt 1 fails (red X), wait 100ms, T=100ms attempt 2 fails (red X), wait 200ms, T=300ms attempt 3 succeeds (green checkmark). Total user-visible latency: 300ms. Compare: without retry: T=0 fail → user sees error. (2) @RateLimiter token bucket: bucket of 100 tokens refills every 1 second. Each call consumes 1 token. When bucket empty: new calls wait up to 500ms (timeoutDuration) for a token. After 500ms: RequestNotPermittedException → fallback (drop/queue).",
+      "alt_text": "Retry timeline showing 3 attempts with exponential backoff, and RateLimiter token bucket with permit acquisition"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Zerodha's order router calls the NSE trading engine. Network blips are common during market open. Add retry with exponential backoff for transient errors, combined with a circuit breaker for sustained failures.",
+    "problem_statement": "1. application.yml: retry (3 attempts, 100ms, exponential) + circuit breaker\n2. OrderRouterService: @CircuitBreaker + @Retry on submitOrder()\n3. Retry only IOException and ConnectException — not InvalidOrderException\n4. Test: mock to fail twice then succeed — verify 1 success from 3 attempts",
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "application.yml retry config",
+        "details": "```yaml\nresilience4j:\n  retry:\n    instances:\n      nse-gateway:\n        maxAttempts: 3\n        waitDuration: 100ms\n        enableExponentialBackoff: true\n        exponentialBackoffMultiplier: 2.0\n        retryExceptions:\n          - java.io.IOException\n          - java.net.ConnectException\n        ignoreExceptions:\n          - com.zerodha.InvalidOrderException\n  circuitbreaker:\n    instances:\n      nse-gateway:\n        slidingWindowSize: 10\n        failureRateThreshold: 40\n        minimumNumberOfCalls: 5\n        waitDurationInOpenState: 30s\n```"
+      },
+      {
+        "step": 2,
+        "action": "Service with combined annotations",
+        "details": "```java\n@Service\npublic class OrderRouterService {\n    private final NseClient client;\n    OrderRouterService(NseClient c) { client = c; }\n    \n    @CircuitBreaker(name = \"nse-gateway\", fallbackMethod = \"orderFailed\")\n    @Retry(name = \"nse-gateway\")\n    public OrderAck submitOrder(Order order) throws IOException {\n        return client.submit(order);\n    }\n    \n    private OrderAck orderFailed(Order order, Exception e) {\n        log.error(\"Order submission failed after retries: {}\", e.getMessage());\n        return OrderAck.rejected(order.getId(), \"NSE_UNAVAILABLE\");\n    }\n}\n```"
+      }
+    ],
+    "final_code": "// @CircuitBreaker outer + @Retry inner: CB fast-fails when OPEN, skipping retries\n// retryExceptions: only transient errors retried; business errors (InvalidOrder) not retried\n// 3 attempts × exponential backoff: 0ms + 100ms + 200ms = max 300ms added latency",
+    "expected_output": "# Test: fail twice, succeed third:\n[RETRY] Attempt 1/3 → IOException → retry in 100ms\n[RETRY] Attempt 2/3 → IOException → retry in 200ms\n[RETRY] Attempt 3/3 → SUCCESS\nOrderAck{status=ACCEPTED}\n\n# Test: fail 3 times → fallback:\nOrderAck{status=REJECTED, reason=NSE_UNAVAILABLE}",
+    "things_to_notice": [
+      "Annotation order: @CircuitBreaker OUTSIDE @Retry. The CB wraps the retried operation as ONE call. If all 3 retries fail: the CB records 1 failure. Wrong order (retry outside CB): each retry counts as a separate CB failure → circuit opens 3× faster.",
+      "ignoreExceptions: InvalidOrderException should NOT be retried — it's a permanent business error (wrong symbol, insufficient margin). Retrying it 3 times wastes time and logs. Only transient infrastructure errors (IOException, ConnectException) deserve retry.",
+      "exponentialBackoffMultiplier=2.0: attempt 1 immediately, attempt 2 after 100ms, attempt 3 after 200ms. This prevents thundering herd when many services retry simultaneously — staggered timing reduces server load.",
+      "maxAttempts=3: 'total attempts' includes the first try. maxAttempts=3 means: 1 original + 2 retries. Many developers expect maxAttempts=3 to mean 3 retries (4 total attempts) — verify the semantics in your Resilience4j version."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay card network calls", "use_case": "Visa/Mastercard connections fail transiently under load. Razorpay retries up to 3 times with 100ms exponential backoff. 30% of failures succeed on first retry. retryExceptions: IOException, SSLException. ignoreExceptions: InvalidCardException, CardDeclinedException (permanent — retrying won't help)." },
+      { "company_context": "Zerodha NSE API rate limits", "use_case": "@RateLimiter on NSE API calls: SEBI-mandated rate limit of 200 orders/second. limitForPeriod=200, limitRefreshPeriod=1s. If Zerodha's own order router exceeds 200 orders/second, @RateLimiter queues excess requests for up to 500ms before throwing RequestNotPermittedException." }
+    ],
+    "interview_relevance": "'When would you use retry vs circuit breaker?' → Retry: transient failures (network blip, restart). Circuit breaker: sustained failures (service down). Use both together: retry handles blips, CB handles outages. Order: @CircuitBreaker wraps @Retry."
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "retry_on_business_errors",
+      "what_students_get_wrong": "Not configuring ignoreExceptions — retrying permanent business errors (InvalidCard, InsufficientFunds) wastes time and produces confusing logs.",
+      "remediation": "Always configure retryExceptions (whitelist) or ignoreExceptions (blacklist). For payment systems: retry only IOException, ConnectException, SocketTimeoutException. Never retry: InvalidCardException, CardDeclinedException, InsufficientFundsException. The user's card is genuinely invalid — retrying 3 times doesn't fix it.",
+      "detection_pattern": "Logs show 3 retry attempts for InvalidCardException; 300ms delay for a permanent business error"
+    },
+    {
+      "gap_id": "wrong_annotation_order",
+      "what_students_get_wrong": "@Retry outside @CircuitBreaker — each retry counts as a separate CB failure, opening the circuit 3× faster than expected.",
+      "remediation": "Order: @CircuitBreaker (outer) → @Retry (inner). The CB wraps the retried operation and counts it as one call, regardless of how many retries happened. If all 3 retries fail: CB records 1 failure. With wrong order: 3 retries = 3 CB failures → circuit opens in 1/3 the expected time.",
+      "detection_pattern": "Circuit opens much faster than configured threshold suggests; CB records failures at 3× expected rate"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Retry: handles transient failures (network blip) — retries transparently",
+      "@Retry(maxAttempts=3): 1 original + 2 retries (read docs to confirm semantics)",
+      "exponentialBackoff: prevents thundering herd on mass failures",
+      "retryExceptions: whitelist — only retry these exception types",
+      "ignoreExceptions: blacklist — never retry these (permanent errors)",
+      "@RateLimiter: limits your outgoing call rate to protect downstream",
+      "limitForPeriod + limitRefreshPeriod: 100 calls per 1 second",
+      "timeoutDuration: wait up to N ms for a rate limit permit",
+      "@CircuitBreaker OUTSIDE @Retry: CB wraps retry sequence as one call",
+      "Wrong order (retry outside CB): 3× faster circuit opening than intended"
+    ],
+    "self_check_questions": [
+      {
+        "question": "maxAttempts=3, fails all 3. How many failures does the circuit breaker record?",
+        "answer": "1 failure (when @CircuitBreaker wraps @Retry). The CB sees the entire retry sequence as one operation. If all 3 attempts fail, the CB records exactly 1 failure. This is the correct behavior — otherwise one outage would trip the circuit 3× faster."
+      }
+    ],
+    "next_topic_preview": "Next: Bulkhead isolation — prevents one overloaded feature from consuming all threads and starving other features."
+  }
+}

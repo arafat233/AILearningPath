@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t4",
+  "topic_name": "Kafka Streams",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m16_t4_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "KStream vs KTable — what's the difference?",
+      "scenario": "KStream stores every event; KTable stores the latest value per key.",
+      "instructions": "Three events are published to 'stock-prices' topic:\n```\nKey: TCS  Value: 3890\nKey: INFY Value: 1560\nKey: TCS  Value: 3920  ← TCS price updated\n```\n\nIf you consume this topic as a KStream, how many events does the stream see?\nIf you consume as a KTable, how many key-value pairs are in the table? What is the value for TCS?",
+      "expected_solution": "KStream sees: 3 events (every message, in order)\n  (TCS,3890), (INFY,1560), (TCS,3920)\n\nKTable sees: 2 key-value pairs (latest value per key)\n  TCS → 3920 (overwritten by the newer value)\n  INFY → 1560\n\nKStream = immutable append-only log (every event matters)\nKTable = mutable table (latest value per key, like a DB table)",
+      "test_cases": [
+        { "type": "text_match", "expected": "KStream sees: 3 events (every message, in order)\n  (TCS,3890), (INFY,1560), (TCS,3920)\n\nKTable sees: 2 key-value pairs (latest value per key)\n  TCS → 3920 (overwritten by the newer value)\n  INFY → 1560\n\nKStream = immutable append-only log (every event matters)\nKTable = mutable table (latest value per key, like a DB table)" }
+      ],
+      "hints": [
+        "KStream: all events, append-only",
+        "KTable: latest value per key, like a hash map",
+        "KTable: same key published twice → second value wins"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t4_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete a basic Kafka Streams filter",
+      "scenario": "filter() keeps events matching the predicate.",
+      "instructions": "Fill in the blanks to filter only SELL trades to an output topic.",
+      "starter_code": "KStream<String, TradeEvent> trades = builder.____(\"trade-executed\",\n    Consumed.with(Serdes.String(), tradeSerde));\n\nKStream<String, TradeEvent> sellTrades = trades\n    .______((key, event) -> \"SELL\".equals(event.type()));\n\nsellTrades.____(\"sell-trades\");",
+      "expected_solution": "KStream<String, TradeEvent> trades = builder.stream(\"trade-executed\",\n    Consumed.with(Serdes.String(), tradeSerde));\n\nKStream<String, TradeEvent> sellTrades = trades\n    .filter((key, event) -> \"SELL\".equals(event.type()));\n\nsellTrades.to(\"sell-trades\");",
+      "blanks": [
+        { "position": 1, "answer": "stream",  "hint": "Create a KStream from a Kafka topic" },
+        { "position": 2, "answer": "filter",  "hint": "Keep only events matching the predicate" },
+        { "position": 3, "answer": "to",      "hint": "Write the stream to an output topic" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "builder.stream(): source of the KStream",
+        ".filter(): lambda returns boolean — true = keep, false = discard",
+        ".to('topic'): sink — writes to output Kafka topic"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m16_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Filter and map a KStream",
+      "scenario": "Filter to BUY trades, map to extract the total value.",
+      "instructions": "Write a Streams topology that:\n1. Reads 'trade-executed' as KStream<String, TradeEvent>\n2. Filters to only BUY trades\n3. Maps values to extract just the totalValue (Double)\n4. Writes to 'buy-trade-values' with Serdes.Double()\n5. Returns the original stream",
+      "starter_code": "import org.apache.kafka.streams.StreamsBuilder;\nimport org.apache.kafka.streams.kstream.*;\nimport org.springframework.context.annotation.*;\n// Streams topology: filter BUY + mapValues to totalValue\n",
+      "expected_solution": "import org.apache.kafka.streams.StreamsBuilder;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\n\nrecord TradeEvent(String tradeId, String symbol, int qty, double totalValue, String type) {}\n\n@Configuration\n@EnableKafkaStreams\npublic class TradeFilterTopology {\n    \n    @Bean\n    public KStream<String, TradeEvent> tradeStream(StreamsBuilder builder) {\n        KStream<String, TradeEvent> trades = builder.stream(\n            \"trade-executed\"\n            // Consumed.with(...) — Serde configured in application.properties\n        );\n        \n        trades\n            .filter((key, event) -> \"BUY\".equals(event.type()))  // BUY only\n            .mapValues(event -> event.totalValue())               // extract value\n            .to(\"buy-trade-values\",\n                Produced.with(Serdes.String(), Serdes.Double())); // write to topic\n        \n        return trades;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@EnableKafkaStreams: required to activate Streams processing",
+        ".filter(predicate): returns new KStream with only matching events",
+        ".mapValues(v -> transform): transform value type; key unchanged"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m16_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Count events per key with Kafka Streams",
+      "scenario": "count() groups by key and maintains a running count.",
+      "instructions": "Write a topology that:\n1. Reads 'user-logins' as KStream<String, LoginEvent> (key=userId already set)\n2. Groups by key (groupByKey)\n3. Counts login events per user\n4. Writes count to 'login-counts' as KStream<String, Long>",
+      "starter_code": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport org.springframework.context.annotation.*;\n// Login count topology\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\n\nrecord LoginEvent(String userId, String device, String timestamp) {}\n\n@Configuration\n@EnableKafkaStreams\npublic class LoginCountTopology {\n    \n    @Bean\n    public KStream<String, LoginEvent> loginCountStream(StreamsBuilder builder) {\n        KStream<String, LoginEvent> logins = builder.stream(\"user-logins\");\n        \n        logins\n            .groupByKey()                                   // group by userId (existing key)\n            .count(Materialized.as(\"login-count-store\"))   // count per user\n            .toStream()                                     // KTable → KStream\n            .to(\"login-counts\",                             // write to topic\n                Produced.with(Serdes.String(), Serdes.Long()));\n        \n        return logins;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "groupByKey(): use when key already represents the grouping dimension",
+        ".count(): returns KTable<String, Long> — running count per key",
+        ".toStream(): convert KTable to KStream to write to a topic"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m16_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "selectKey then aggregate — Zerodha style",
+      "scenario": "Re-key by symbol, then aggregate total volume per symbol.",
+      "instructions": "Write a topology that:\n1. Reads 'trade-executed' as KStream<String, TradeEvent> (key=tradeId)\n2. Re-keys by symbol using selectKey\n3. Groups by key and aggregates total volume (sum of totalValue)\n4. Writes to 'symbol-volume' as KStream<String, Double>",
+      "starter_code": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport org.apache.kafka.common.utils.Bytes;\nimport org.apache.kafka.streams.state.KeyValueStore;\n// Symbol volume topology\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport org.apache.kafka.common.utils.Bytes;\nimport org.apache.kafka.streams.state.KeyValueStore;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\n\n@Configuration @EnableKafkaStreams\npublic class SymbolVolumeTopology {\n    @Bean\n    public KStream<String, TradeEvent> symbolVolumeStream(StreamsBuilder builder) {\n        KStream<String, TradeEvent> trades = builder.stream(\"trade-executed\");\n        \n        trades\n            .selectKey((tradeId, event) -> event.symbol())  // re-key: tradeId → symbol\n            .groupByKey()                                    // group by symbol\n            .aggregate(\n                () -> 0.0,                                   // initializer: start at 0\n                (symbol, event, runningVolume) ->            // aggregator: sum totalValue\n                    runningVolume + event.totalValue(),\n                Materialized.<String, Double, KeyValueStore<Bytes, byte[]>>\n                    as(\"symbol-volume-store\")\n                    .withValueSerde(Serdes.Double())         // store Double values\n            )\n            .toStream()\n            .to(\"symbol-volume\", Produced.with(Serdes.String(), Serdes.Double()));\n        \n        return trades;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "selectKey((k, v) -> newKey): change key before grouping",
+        "aggregate(init, accumulator, Materialized): custom stateful aggregation",
+        "Materialized.withValueSerde(Serdes.Double()): tell Streams how to store the accumulated value"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Tumbling window — 5-minute trade count",
+      "scenario": "Count trades per symbol per 5-minute window.",
+      "instructions": "Write a topology that:\n1. Reads 'trade-executed'\n2. Re-keys by symbol\n3. Groups by key\n4. Counts in 5-minute tumbling windows (no grace period)\n5. Writes windowed counts to 'symbol-trade-count-5min'\n\nHint: windowed count → .map() to extract the plain symbol as key",
+      "starter_code": "import org.apache.kafka.streams.kstream.*;\nimport java.time.Duration;\n// 5-minute windowed count topology\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport java.time.Duration;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\n\n@Configuration @EnableKafkaStreams\npublic class WindowedCountTopology {\n    @Bean\n    public KStream<String, TradeEvent> windowedCountStream(StreamsBuilder builder) {\n        KStream<String, TradeEvent> trades = builder.stream(\"trade-executed\");\n        \n        trades\n            .selectKey((k, e) -> e.symbol())\n            .groupByKey()\n            .windowedBy(\n                TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5))  // 5-min tumbling\n            )\n            .count()\n            .toStream()\n            .map((windowed, count) -> KeyValue.pair(\n                windowed.key(),    // extract just the symbol (drop window bounds)\n                count))            // the count in this window\n            .to(\"symbol-trade-count-5min\",\n                Produced.with(Serdes.String(), Serdes.Long()));\n        \n        return trades;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)): 5-min tumbling window",
+        "After windowed count: key is Windowed<String>, not String",
+        ".map((windowed, count) -> KeyValue.pair(windowed.key(), count)): extract plain key"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m16_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "TopologyTestDriver — test a filter topology",
+      "scenario": "TopologyTestDriver tests Streams without a running Kafka broker.",
+      "instructions": "Write a TopologyTestDriver test for a filter topology:\n1. Topology: filter only 'BUY' trades → 'buy-trades'\n2. Test setup: create StreamsBuilder + build topology + create driver\n3. Create input topic, pipe 3 events (2 BUY, 1 SELL)\n4. Create output topic, read records\n5. Assert: exactly 2 records on output (only BUY trades)",
+      "starter_code": "import org.apache.kafka.streams.TopologyTestDriver;\nimport org.apache.kafka.streams.TestInputTopic;\nimport org.apache.kafka.streams.TestOutputTopic;\nimport org.apache.kafka.streams.StreamsBuilder;\n// TopologyTestDriver test for BUY filter\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.*;\nimport java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\nclass BuyFilterTopologyTest {\n    TopologyTestDriver driver;\n    TestInputTopic<String, String> inputTopic;\n    TestOutputTopic<String, String> outputTopic;\n    \n    @BeforeEach void setup() {\n        StreamsBuilder builder = new StreamsBuilder();\n        \n        // Build the topology:\n        builder.<String,String>stream(\"trade-executed\")\n            .filter((k, v) -> v.contains(\"BUY\"))  // simplified: check value contains BUY\n            .to(\"buy-trades\");\n        \n        Properties props = new Properties();\n        props.put(StreamsConfig.APPLICATION_ID_CONFIG, \"test-buy-filter\");\n        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, \"dummy:9092\");\n        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        \n        driver = new TopologyTestDriver(builder.build(), props);\n        inputTopic  = driver.createInputTopic(\"trade-executed\",\n            new StringSerializer(),   new StringSerializer());\n        outputTopic = driver.createOutputTopic(\"buy-trades\",\n            new StringDeserializer(), new StringDeserializer());\n    }\n    \n    @AfterEach void teardown() { driver.close(); }\n    \n    @Test void filter_onlyBuyTradesOutputted() {\n        inputTopic.pipeInput(\"TRD-1\", \"{type:BUY,symbol:TCS}\");\n        inputTopic.pipeInput(\"TRD-2\", \"{type:SELL,symbol:INFY}\");  // filtered out\n        inputTopic.pipeInput(\"TRD-3\", \"{type:BUY,symbol:RELIANCE}\");\n        \n        List<KeyValue<String,String>> records = outputTopic.readKeyValuesToList();\n        assertEquals(2, records.size(), \"Expected 2 BUY trades\");\n        assertTrue(records.get(0).value.contains(\"TCS\"));\n        assertTrue(records.get(1).value.contains(\"RELIANCE\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "TopologyTestDriver: no real Kafka needed, synchronous processing",
+        "createInputTopic/createOutputTopic: test-only utilities for piping data",
+        "pipeInput → read from outputTopic: all synchronous, no sleep needed"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m16_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "TopologyTestDriver — test count aggregation",
+      "scenario": "Verify that count() accumulates correctly across multiple input events.",
+      "instructions": "Write a TopologyTestDriver test for trade count per symbol:\n1. Topology: selectKey(symbol) + groupByKey + count → 'symbol-counts'\n2. Pipe: 3 TCS trades, 2 INFY trades, 1 RELIANCE trade\n3. Read all output records\n4. Assert: TCS count=3, INFY count=2, RELIANCE count=1\n\nNote: KTable sends the latest value, so read ALL output and find the last value per key.",
+      "starter_code": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.*;\n// TopologyTestDriver count test\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.*;\nimport java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\nclass TradeCountTopologyTest {\n    TopologyTestDriver driver;\n    TestInputTopic<String, String> input;\n    TestOutputTopic<String, Long> output;\n    \n    @BeforeEach void setup() {\n        StreamsBuilder builder = new StreamsBuilder();\n        builder.<String,String>stream(\"trade-executed\")\n            .selectKey((k, v) -> extractSymbol(v))  // key = symbol\n            .groupByKey()\n            .count(Materialized.as(\"count-store\"))\n            .toStream()\n            .to(\"symbol-counts\", Produced.with(Serdes.String(), Serdes.Long()));\n        \n        Properties props = new Properties();\n        props.put(StreamsConfig.APPLICATION_ID_CONFIG, \"count-test\");\n        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, \"dummy:9092\");\n        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        \n        driver = new TopologyTestDriver(builder.build(), props);\n        input  = driver.createInputTopic(\"trade-executed\", new StringSerializer(), new StringSerializer());\n        output = driver.createOutputTopic(\"symbol-counts\", new StringDeserializer(), new LongDeserializer());\n    }\n    @AfterEach void teardown() { driver.close(); }\n    \n    // Helper:\n    private String extractSymbol(String json) {\n        return json.contains(\"TCS\") ? \"TCS\" : json.contains(\"INFY\") ? \"INFY\" : \"RELIANCE\";\n    }\n    \n    @Test void count_accumulatesPerSymbol() {\n        input.pipeInput(\"T1\", \"{symbol:TCS}\");\n        input.pipeInput(\"T2\", \"{symbol:TCS}\");\n        input.pipeInput(\"T3\", \"{symbol:TCS}\");\n        input.pipeInput(\"T4\", \"{symbol:INFY}\");\n        input.pipeInput(\"T5\", \"{symbol:INFY}\");\n        input.pipeInput(\"T6\", \"{symbol:RELIANCE}\");\n        \n        // KTable emits on every update — read all and get latest per key:\n        Map<String, Long> counts = output.readKeyValuesToMap();\n        assertEquals(3L, counts.get(\"TCS\"));\n        assertEquals(2L, counts.get(\"INFY\"));\n        assertEquals(1L, counts.get(\"RELIANCE\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "readKeyValuesToMap(): returns last value per key (perfect for KTable-derived output)",
+        "KTable emits on every update; the map shows the final state",
+        "LongDeserializer: for Long values from count()"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m16_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Fraud detection stream — flag suspicious accounts",
+      "scenario": "Count transactions per card in a 10-minute window; flag if >5.",
+      "instructions": "Write a Kafka Streams topology:\n1. Reads 'payment-events' KStream<String, PaymentEvent> (key=cardId already)\n2. Groups by key (cardId)\n3. Counts in 10-minute tumbling windows\n4. Filters windowed count > 5 (suspicious)\n5. Maps to FraudAlert(cardId, count) and writes to 'fraud-alerts'",
+      "starter_code": "record PaymentEvent(String paymentId, String cardId, double amount) {}\nrecord FraudAlert(String cardId, long count) {}\nimport org.apache.kafka.streams.kstream.*;\nimport java.time.Duration;\n// Fraud detection topology\n",
+      "expected_solution": "record PaymentEvent(String paymentId, String cardId, double amount) {}\nrecord FraudAlert(String cardId, long count) {}\n\nimport org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport java.time.Duration;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\n\n@Configuration @EnableKafkaStreams\npublic class FraudDetectionTopology {\n    @Bean\n    public KStream<String, PaymentEvent> fraudDetection(StreamsBuilder builder) {\n        KStream<String, PaymentEvent> payments = builder.stream(\"payment-events\");\n        \n        payments\n            .groupByKey()                          // group by cardId (already the key)\n            .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(10)))\n            .count()                               // count per card per 10-min window\n            .toStream()\n            .filter((windowed, count) -> count > 5)  // suspicious: > 5 in 10 minutes\n            .map((windowed, count) -> KeyValue.pair(\n                windowed.key(),                    // cardId\n                new FraudAlert(windowed.key(), count)))  // alert payload\n            .to(\"fraud-alerts\");                   // alert consumer handles it\n        \n        return payments;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "groupByKey(): cardId is already the key — no selectKey needed",
+        ".filter() after windowed count: filters the KTable result",
+        "windowed.key(): extracts the plain cardId from the Windowed<String> key"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m16_t4_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Tumbling vs hopping window — what output at 12:05?",
+      "scenario": "Window type determines how often results are emitted.",
+      "instructions": "Trades arrive for TCS:\n```\n12:00 — BUY ₹10,000\n12:01 — BUY ₹5,000\n12:04 — BUY ₹8,000\n12:06 — BUY ₹3,000\n```\n\nTopology A: TUMBLING window of 5 minutes (no grace)\nTopology B: HOPPING window, size=5 min, advance=1 min\n\nAt 12:05 (window closes for 12:00-12:05):\n- What does Topology A emit to 'symbol-volume'?\n- What does Topology B emit?\n- Which gives you 'volume in the last 5 minutes right now'?",
+      "expected_solution": "At 12:05 (tumbling window [12:00,12:05) closes):\n\nTopology A (tumbling): emits ONE result\n  TCS → ₹23,000 (10,000 + 5,000 + 8,000)\n  Window [12:00–12:05), closed at 12:05\n  The ₹3,000 at 12:06 goes to the NEXT window [12:05-12:10)\n\nTopology B (hopping, size=5min, advance=1min): emits MULTIPLE results at 12:05\n  Window [12:00–12:05): TCS → ₹23,000\n  Window [12:01–12:06): TCS → ₹16,000 (5,000 + 8,000 + 3,000)\n  Window [11:59–12:04): TCS → ₹15,000 (10,000 + 5,000)\n  (multiple windows overlap and update independently)\n\nFor 'volume in the LAST 5 minutes right now': Topology B (hopping)\nFor 'volume in each 5-minute period': Topology A (tumbling)",
+      "test_cases": [
+        { "type": "text_match", "expected": "At 12:05 (tumbling window [12:00,12:05) closes):\n\nTopology A (tumbling): emits ONE result\n  TCS → ₹23,000 (10,000 + 5,000 + 8,000)\n  Window [12:00–12:05), closed at 12:05\n  The ₹3,000 at 12:06 goes to the NEXT window [12:05-12:10)\n\nTopology B (hopping, size=5min, advance=1min): emits MULTIPLE results at 12:05\n  Window [12:00–12:05): TCS → ₹23,000\n  Window [12:01–12:06): TCS → ₹16,000 (5,000 + 8,000 + 3,000)\n  Window [11:59–12:04): TCS → ₹15,000 (10,000 + 5,000)\n  (multiple windows overlap and update independently)\n\nFor 'volume in the LAST 5 minutes right now': Topology B (hopping)\nFor 'volume in each 5-minute period': Topology A (tumbling)" }
+      ],
+      "hints": [
+        "Tumbling: non-overlapping fixed windows, each event in exactly one window",
+        "Hopping: overlapping, each event in multiple windows",
+        "Hopping = 'sliding window' — always shows last N minutes"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m16_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Hopping window — rolling 5-minute volume",
+      "scenario": "Hopping window: 5-minute size, 1-minute advance.",
+      "instructions": "Write a topology that:\n1. Reads 'trade-executed'\n2. Re-keys by symbol\n3. Groups + hopping window: size=5 min, advance=1 min\n4. Aggregates totalValue per window\n5. Emits to 'symbol-rolling-volume'\n\nThis gives 'volume in the last 5 minutes' updated every minute.",
+      "starter_code": "import org.apache.kafka.streams.kstream.*;\nimport java.time.Duration;\n// Hopping window topology\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.Serdes;\nimport org.apache.kafka.common.utils.Bytes;\nimport org.apache.kafka.streams.state.WindowStore;\nimport java.time.Duration;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\n\n@Configuration @EnableKafkaStreams\npublic class RollingVolumeTopology {\n    @Bean\n    public KStream<String, TradeEvent> rollingVolume(StreamsBuilder builder) {\n        KStream<String, TradeEvent> trades = builder.stream(\"trade-executed\");\n        \n        trades\n            .selectKey((k, e) -> e.symbol())\n            .groupByKey()\n            .windowedBy(\n                TimeWindows.ofSizeWithNoGrace(\n                    Duration.ofMinutes(5))           // window size: 5 minutes\n                    .advanceBy(Duration.ofMinutes(1)) // advance every 1 minute\n            )  // = hopping window\n            .aggregate(\n                () -> 0.0,\n                (sym, event, vol) -> vol + event.totalValue(),\n                Materialized.<String, Double, WindowStore<Bytes, byte[]>>\n                    as(\"rolling-vol-store\").withValueSerde(Serdes.Double())\n            )\n            .toStream()\n            .map((windowed, vol) -> KeyValue.pair(windowed.key(), vol))\n            .to(\"symbol-rolling-volume\",\n                Produced.with(Serdes.String(), Serdes.Double()));\n        \n        return trades;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        ".advanceBy(Duration.ofMinutes(1)): makes TimeWindows a hopping window",
+        "Without advanceBy: tumbling window (advance=size)",
+        "Result emitted every 1 minute for each window"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multi-output topology — branch to multiple topics",
+      "scenario": "One input stream, three output topics based on trade value.",
+      "instructions": "Write a topology that routes trades to different topics by value:\n1. Read 'trade-executed'\n2. Small trades (< ₹10,000) → 'small-trades'\n3. Medium trades (₹10,000–₹1,00,000) → 'medium-trades'\n4. Large trades (> ₹1,00,000) → 'large-trades'\n5. Use .split().branch() to implement routing",
+      "starter_code": "import org.apache.kafka.streams.kstream.*;\n// Multi-branch routing topology\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\nimport java.util.Map;\n\n@Configuration @EnableKafkaStreams\npublic class TradeRoutingTopology {\n    @Bean\n    public KStream<String, TradeEvent> tradeRouter(StreamsBuilder builder) {\n        KStream<String, TradeEvent> trades = builder.stream(\"trade-executed\");\n        \n        // Branch by trade value:\n        Map<String, KStream<String, TradeEvent>> branches = trades\n            .split(Named.as(\"trade-size-\"))\n            .branch(\n                (key, e) -> e.totalValue() < 10_000,          // small\n                Named.as(\"small\")\n            )\n            .branch(\n                (key, e) -> e.totalValue() >= 10_000\n                         && e.totalValue() <= 100_000,         // medium\n                Named.as(\"medium\")\n            )\n            .defaultBranch(Named.as(\"large\"));                 // large (> ₹1L)\n        \n        branches.get(\"trade-size-small\") .to(\"small-trades\");\n        branches.get(\"trade-size-medium\").to(\"medium-trades\");\n        branches.get(\"trade-size-large\") .to(\"large-trades\");\n        \n        return trades;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        ".split(Named.as('prefix-')): start branching",
+        ".branch(predicate, Named.as('name')): a conditional branch",
+        ".defaultBranch(Named.as('name')): catch-all for non-matched events",
+        "Branch key = prefix + name (e.g., 'trade-size-small')"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m16_t4_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full windowed count test with TopologyTestDriver",
+      "scenario": "Test windowed count with controlled event timestamps.",
+      "instructions": "Write a TopologyTestDriver test for a 5-minute windowed trade count:\n1. Build the topology: selectKey(symbol) + groupByKey + windowedBy(5min) + count\n2. Pipe 3 TCS trades at t=0,1,2 min → in same window\n3. Pipe 1 TCS trade at t=6 min → different window\n4. Assert: first window TCS count = 3, second window TCS count = 1\n\nHint: use pipeInput(key, value, Instant.ofEpochMilli(time)) for event timestamps.",
+      "starter_code": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport java.time.*;\nimport java.util.*;\n// Windowed count TopologyTestDriver test\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.*;\nimport java.time.*; import java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\nclass WindowedCountTest {\n    TopologyTestDriver driver;\n    TestInputTopic<String,String> input;\n    TestOutputTopic<String,Long> output;\n    \n    @BeforeEach void setup() {\n        StreamsBuilder builder = new StreamsBuilder();\n        builder.<String,String>stream(\"trades\")\n            .selectKey((k, v) -> v.split(\"::\")[0])  // symbol is before ::\n            .groupByKey()\n            .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))\n            .count()\n            .toStream()\n            .map((w, c) -> KeyValue.pair(w.key(), c))\n            .to(\"counts\", Produced.with(Serdes.String(), Serdes.Long()));\n        \n        Properties props = new Properties();\n        props.put(StreamsConfig.APPLICATION_ID_CONFIG, \"win-test\");\n        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, \"dummy:9092\");\n        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());\n        \n        driver = new TopologyTestDriver(builder.build(), props);\n        input  = driver.createInputTopic(\"trades\",  new StringSerializer(),   new StringSerializer());\n        output = driver.createOutputTopic(\"counts\", new StringDeserializer(), new LongDeserializer());\n    }\n    @AfterEach void teardown() { driver.close(); }\n    \n    @Test void windowedCount_separatesWindows() {\n        Instant start = Instant.parse(\"2024-03-15T09:00:00Z\");\n        // Window 1 [9:00-9:05): 3 TCS trades\n        input.pipeInput(\"T1\", \"TCS::BUY\",  start);\n        input.pipeInput(\"T2\", \"TCS::BUY\",  start.plusSeconds(60));\n        input.pipeInput(\"T3\", \"TCS::SELL\", start.plusSeconds(120));\n        // Window 2 [9:05-9:10): 1 TCS trade\n        input.pipeInput(\"T4\", \"TCS::BUY\",  start.plusSeconds(360));\n        \n        List<KeyValue<String,Long>> records = output.readKeyValuesToList();\n        // Last count per window: window1 final = 3, window2 final = 1\n        // Records: TCS=1, TCS=2, TCS=3 (from window1), TCS=1 (from window2)\n        long lastWindow1 = records.stream()\n            .filter(r -> r.key.equals(\"TCS\"))\n            .mapToLong(r -> r.value).max().getAsLong();\n        assertEquals(3L, lastWindow1, \"Window 1 TCS count should be 3\");\n        // The last record should be 1 (window2):\n        assertEquals(1L, records.get(records.size()-1).value,\n            \"Window 2 TCS count should be 1\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "pipeInput(key, value, Instant): set the event timestamp for windowing",
+        "Events at t=0,1,2 min → window [9:00-9:05); t=6 min → window [9:05-9:10)",
+        "KTable emits after each update; readKeyValuesToList shows all updates"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m16_t4_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "KStream-KTable join — enrich trades with stock info",
+      "scenario": "Join trade events with static stock info (from KTable).",
+      "instructions": "Write a topology that:\n1. KStream: 'trade-executed' (key=symbol already set)\n2. KTable: 'stock-info' (key=symbol, value=StockInfo with companyName, sector)\n3. Join KStream + KTable → enriched EnrichedTrade(symbol, companyName, sector, qty, total)\n4. Write enriched trades to 'enriched-trades'",
+      "starter_code": "record StockInfo(String symbol, String companyName, String sector) {}\nrecord EnrichedTrade(String symbol, String companyName, String sector, int qty, double total) {}\nimport org.apache.kafka.streams.kstream.*;\n// KStream-KTable join topology\n",
+      "expected_solution": "record StockInfo(String symbol, String companyName, String sector) {}\nrecord EnrichedTrade(String symbol, String companyName, String sector, int qty, double total) {}\n\nimport org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.kafka.annotation.EnableKafkaStreams;\n\n@Configuration @EnableKafkaStreams\npublic class TradeEnrichmentTopology {\n    @Bean\n    public KStream<String, TradeEvent> enrichedTradeStream(StreamsBuilder builder) {\n        // Source 1: trade events (key=symbol):\n        KStream<String, TradeEvent> trades = builder.stream(\"trade-executed\");\n        \n        // Source 2: stock info table (key=symbol, latest value per symbol):\n        KTable<String, StockInfo> stockInfo = builder.table(\"stock-info\");\n        \n        // Join: for each trade, look up the stock's company info:\n        trades\n            .join(\n                stockInfo,\n                (tradeEvent, info) -> new EnrichedTrade(\n                    tradeEvent.symbol(),\n                    info != null ? info.companyName() : \"Unknown\",\n                    info != null ? info.sector()      : \"Unknown\",\n                    tradeEvent.qty(),\n                    tradeEvent.totalValue())\n            )\n            .to(\"enriched-trades\");\n        \n        return trades;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "builder.table('topic'): creates KTable from a topic (latest value per key)",
+        "stream.join(table, valueJoiner): left join — trade enriched with latest stock info",
+        "Keys must match for join to work: both keyed by symbol"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m16_t4_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha analytics — Topic 16.4 synthesis",
+      "scenario": "Full Kafka Streams analytics topology with 3 outputs and TopologyTestDriver tests.",
+      "instructions": "Build the complete Zerodha trade analytics topology:\n1. Input: 'trade-executed' KStream (key=tradeId, re-key by symbol)\n2. Output A: large trades (>₹1L) → 'large-trades'\n3. Output B: running trade count per symbol → 'symbol-count'\n4. Output C: 5-minute rolling volume per symbol → 'symbol-5min-volume'\n5. TopologyTestDriver tests:\n   - 3 trades: 2 large (>₹1L), 1 small → 'large-trades' has 2 records\n   - 3 TCS trades → TCS count = 3\n\nAll 2 tests pass.",
+      "starter_code": "// Complete Zerodha analytics Kafka Streams topology\n// 3 output streams + TopologyTestDriver 2 tests\n",
+      "expected_solution": "import org.apache.kafka.streams.*;\nimport org.apache.kafka.streams.kstream.*;\nimport org.apache.kafka.common.serialization.*;\nimport org.apache.kafka.common.utils.Bytes;\nimport org.apache.kafka.streams.state.KeyValueStore;\nimport java.time.Duration; import java.util.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n// (TradeEvent record as before)\n\nclass ZerodhaAnalyticsTopology {\n    StreamsBuilder build(StreamsBuilder b) {\n        KStream<String,TradeEvent> trades = b.stream(\"trade-executed\");\n        KStream<String,TradeEvent> bySymbol = trades.selectKey((k,e)->e.symbol());\n        \n        // A: Large trades:\n        bySymbol.filter((sym,e)->e.totalValue()>100_000).to(\"large-trades\");\n        \n        // B: Count per symbol:\n        bySymbol.groupByKey()\n            .count(Materialized.<String,Long,KeyValueStore<Bytes,byte[]>>as(\"sym-count\"))\n            .toStream()\n            .to(\"symbol-count\",Produced.with(Serdes.String(),Serdes.Long()));\n        \n        // C: 5-min volume per symbol:\n        bySymbol.groupByKey()\n            .windowedBy(TimeWindows.ofSizeWithNoGrace(Duration.ofMinutes(5)))\n            .aggregate(()->0.0,(s,e,vol)->vol+e.totalValue(),\n                Materialized.as(\"sym-vol\"))\n            .toStream()\n            .map((w,v)->KeyValue.pair(w.key(),v))\n            .to(\"symbol-5min-volume\",Produced.with(Serdes.String(),Serdes.Double()));\n        return b;\n    }\n}\n\nclass ZerodhaAnalyticsTest {\n    TopologyTestDriver driver;\n    TestInputTopic<String,String> input;\n    TestOutputTopic<String,String> largeTrades;\n    TestOutputTopic<String,Long>   symbolCount;\n    \n    private String tradeJson(String sym, double total) {\n        return \"{\\\"symbol\\\":\\\"\"+sym+\"\\\",\\\"qty\\\":10,\\\"totalValue\\\":\"+total+\",\\\"type\\\":\\\"BUY\\\"}\";\n    }\n    \n    @BeforeEach void setup(){\n        StreamsBuilder builder = new StreamsBuilder();\n        new ZerodhaAnalyticsTopology().build(builder);\n        Properties props = new Properties();\n        props.put(StreamsConfig.APPLICATION_ID_CONFIG,\"z-test\");\n        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,\"dummy:9092\");\n        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,Serdes.String().getClass());\n        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,Serdes.String().getClass());\n        driver=new TopologyTestDriver(builder.build(),props);\n        input       =driver.createInputTopic(\"trade-executed\",new StringSerializer(),new StringSerializer());\n        largeTrades =driver.createOutputTopic(\"large-trades\",new StringDeserializer(),new StringDeserializer());\n        symbolCount =driver.createOutputTopic(\"symbol-count\",new StringDeserializer(),new LongDeserializer());\n    }\n    @AfterEach void teardown(){driver.close();}\n    \n    @Test void largeTrades_filtered(){\n        input.pipeInput(\"T1\",tradeJson(\"TCS\",200_000.0));\n        input.pipeInput(\"T2\",tradeJson(\"INFY\",50_000.0));   // small, filtered out\n        input.pipeInput(\"T3\",tradeJson(\"RELIANCE\",150_000.0));\n        assertEquals(2,largeTrades.readKeyValuesToList().size());\n    }\n    @Test void symbolCount_correct(){\n        input.pipeInput(\"T1\",tradeJson(\"TCS\",10_000.0));\n        input.pipeInput(\"T2\",tradeJson(\"TCS\",20_000.0));\n        input.pipeInput(\"T3\",tradeJson(\"TCS\",15_000.0));\n        Map<String,Long> counts=symbolCount.readKeyValuesToMap();\n        assertEquals(3L,counts.get(\"TCS\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "One input stream fans out to 3 branches — call operations on the same KStream",
+        "TopologyTestDriver: build topology, pipe inputs, read each output topic separately",
+        "readKeyValuesToMap() for counts; .size() for large-trades"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 70
+  }
+}

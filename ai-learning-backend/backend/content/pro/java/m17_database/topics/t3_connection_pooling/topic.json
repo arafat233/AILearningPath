@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t3",
+  "language": "java",
+  "module_id": "m17",
+  "module_name": "Advanced Database Engineering",
+  "topic_number": 3,
+  "name": "Connection Pooling & Query Optimization",
+  "slug": "connection-pooling-query-optimization",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m17_t2"],
+    "concepts_taught": [
+      "hikaricp_overview",
+      "connection_pool_sizing",
+      "hikari_configuration_properties",
+      "connection_timeout_vs_idle_timeout",
+      "pool_exhaustion_symptoms",
+      "explain_analyze_postgresql",
+      "query_execution_plan",
+      "sequential_scan_vs_index_scan",
+      "index_design_strategy",
+      "composite_indexes",
+      "partial_indexes",
+      "slow_query_logging_postgresql",
+      "spring_actuator_hikari_metrics",
+      "hikari_leak_detection"
+    ],
+    "skills_developed": [
+      "configuring_hikaricp_for_production",
+      "diagnosing_pool_exhaustion",
+      "reading_explain_analyze_output",
+      "adding_targeted_indexes",
+      "monitoring_pool_metrics_via_actuator"
+    ],
+    "career_relevance": "Connection pool exhaustion is the #1 cause of intermittent 504 timeout errors under load. Every senior Java engineer must know how to size HikariCP, detect pool exhaustion, and use EXPLAIN ANALYZE to find missing indexes. Swiggy's Black Friday performance issues, Razorpay's payment API spikes — all traced to these two root causes. After this topic, you diagnose and fix the most common production database problems.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Swiggy's order API works perfectly at 100 requests/second. On Diwali sale day, traffic spikes to 800 req/s. Suddenly:\n\n```\n[ERROR] HikariPool-1 - Connection is not available, request timed out after 30000ms.\n[ERROR] Unable to acquire JDBC Connection\n[WARN]  HikariPool-1 - Pool stats (total=10, active=10, idle=0, waiting=47)\n```\n\n**What happened:**\n```\nNormal (100 req/s):                 Diwali (800 req/s):\nPool size: 10 connections           Pool size: 10 connections\nAvg query time: 50ms                Avg query time: 50ms (same queries)\nConcurrent connections needed:      Concurrent connections needed:\n  100 req/s × 0.05s = 5 connections   800 req/s × 0.05s = 40 connections!\nPool: 10 > 5 → plenty of slack     Pool: 10 < 40 → 30 requests WAIT!\n                                    Wait queue fills → timeout after 30s\n                                    → HTTP 503 / 504 for users\n```\n\nSimultaneously, the orders table has 50 million rows. A `WHERE symbol = 'TCS'` query with no index does a full table scan:\n\n```sql\nEXPLAIN ANALYZE SELECT * FROM orders WHERE symbol = 'TCS';\n-- Seq Scan on orders (cost=0.00..892341.00 rows=1450000)\n--   Filter: (symbol = 'TCS')\n--   Rows Removed by Filter: 48550000\n-- Planning Time: 0.5ms\n-- Execution Time: 4832.7ms   ← 5 seconds! One query!\n```\n\n**Two fixes:**\n1. Resize HikariCP pool for peak load\n2. Add index for frequently queried columns\n\n```properties\nspring.datasource.hikari.maximum-pool-size=25\n```\n\n```sql\nCREATE INDEX idx_orders_symbol ON orders(symbol);\n-- Execution Time: 0.8ms   ← 6000× faster\n```",
+    "what_you_will_build": "By the end of this topic, you'll configure HikariCP correctly for production, diagnose pool exhaustion, use EXPLAIN ANALYZE to find missing indexes, add targeted indexes, and monitor pool health via Spring Actuator."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "hikaricp_configuration": "**HikariCP — Spring Boot's default connection pool:**\n\n```properties\n# application.properties — production HikariCP config:\n\n# Core pool size settings:\nspring.datasource.hikari.maximum-pool-size=20\n# Maximum connections: never exceed this (protects DB server)\n# Too small: pool exhaustion under load\n# Too large: overwhelms DB with too many concurrent queries\n\nspring.datasource.hikari.minimum-idle=5\n# Connections kept open when load is low (saves reconnect time)\n# Minimum >= 0; typically 25-50% of maximum\n\n# Timeouts:\nspring.datasource.hikari.connection-timeout=3000\n# How long a request waits for a pool connection (ms)\n# Default: 30000ms (30s) — way too long! Use 3000ms\n# After this: HikariPool-1 Connection is not available exception\n\nspring.datasource.hikari.idle-timeout=600000\n# How long idle connections are kept before closed (ms)\n# Default: 10 minutes — reasonable for most apps\n\nspring.datasource.hikari.max-lifetime=1800000\n# Maximum connection lifetime (ms) — 30 minutes\n# Prevents stale connections (DB server closes idle connections)\n# Always: max-lifetime < DB server's wait_timeout\n\n# Health / leak detection:\nspring.datasource.hikari.leak-detection-threshold=5000\n# Logs WARNING if a connection is held > 5 seconds\n# Helps detect queries that forgot to close connections\n\nspring.datasource.hikari.pool-name=Swiggy-Orders-Pool\n# Named pool for easier monitoring in Actuator/metrics\n```\n\n**Pool sizing formula (HikariCP docs):**\n```\npool_size = (core_count × 2) + effective_spindle_count\n\nFor a 4-core server with SSD (spindles=1):\n  pool_size = (4 × 2) + 1 = 9\n\nFor a 8-core server with RAID-5 HDD (spindles=5):\n  pool_size = (8 × 2) + 5 = 21\n\nWhy not just set to 200?\n  More connections ≠ faster. DB server has limited CPU.\n  100 connections all running simultaneously → context switching overhead.\n  The formula reflects DB CPU saturation, not application threads.\n```",
+
+      "explain_analyze": "**EXPLAIN ANALYZE — understanding query performance:**\n\n```sql\n-- Always add ANALYZE to actually run the query:\nEXPLAIN ANALYZE\nSELECT * FROM orders\nWHERE user_id = 'U001'\n  AND status = 'PLACED'\nORDER BY created_at DESC\nLIMIT 10;\n```\n\n**Output — what to look for:**\n```\nLimit  (cost=... rows=10)\n  -> Sort  (cost=... rows=1245)\n       Sort Key: created_at DESC\n       -> Seq Scan on orders  (cost=0.00..892341 rows=1245)\n            Filter: ((user_id='U001') AND (status='PLACED'))\n            Rows Removed by Filter: 49998755    ← BAD! Scanning all rows!\n\nPlanning Time: 0.5ms\nExecution Time: 4823.2ms\n```\n\n**Key signals:**\n```\n'Seq Scan on orders' → full table scan → MISSING INDEX\n'Index Scan using idx_orders_user_id' → GOOD, index used\n'Index Only Scan' → BEST, no heap access needed\n\n'Rows Removed by Filter: 49998755' → scanning 50M rows to find 1245\n  → add index on the filter columns!\n\n'Execution Time: 4823ms' → anything > 100ms is slow for an indexed query\n'Planning Time: 0.5ms' → how long PostgreSQL spent building the query plan\n```\n\n**After adding the index:**\n```sql\nCREATE INDEX idx_orders_user_status ON orders(user_id, status);\n\nEXPLAIN ANALYZE\nSELECT * FROM orders WHERE user_id='U001' AND status='PLACED'\nORDER BY created_at DESC LIMIT 10;\n\n-- Index Scan using idx_orders_user_status on orders\n--   Index Cond: ((user_id='U001') AND (status='PLACED'))\n-- Execution Time: 0.3ms   ← 16,000× faster!\n```",
+
+      "index_strategies": "**Index design strategies:**\n\n```sql\n-- 1. Single column index — for equality or range on one column:\nCREATE INDEX idx_orders_user_id ON orders(user_id);\nCREATE INDEX idx_orders_status  ON orders(status);\n-- Good for: WHERE user_id = ?, WHERE status = 'PLACED'\n\n-- 2. Composite index — for multi-column WHERE clauses:\nCREATE INDEX idx_orders_user_status ON orders(user_id, status);\n-- Good for: WHERE user_id = ? AND status = ?\n-- Also good for: WHERE user_id = ?  (leftmost prefix rule!)\n-- NOT used for: WHERE status = ?  (no leftmost prefix)\n\n-- 3. Covering index — includes all columns in the query:\nCREATE INDEX idx_orders_user_cover\n    ON orders(user_id, status)\n    INCLUDE (total, created_at);\n-- Good for: SELECT total, created_at WHERE user_id = ? AND status = ?\n-- No heap access needed → Index Only Scan (fastest)\n\n-- 4. Partial index — only indexes a subset of rows:\nCREATE INDEX idx_orders_pending\n    ON orders(user_id)\n    WHERE status = 'PLACED';  -- only index PLACED orders\n-- Good for: WHERE user_id = ? AND status = 'PLACED'\n-- Much smaller index (only PLACED rows, not all 50M)\n-- Razorpay: idx_payments_pending WHERE status='PENDING' (10% of rows)\n\n-- 5. Index on expression:\nCREATE INDEX idx_orders_lower_symbol ON orders(LOWER(symbol));\n-- Good for: WHERE LOWER(symbol) = 'tcs'  (case-insensitive search)\n\n-- LEFTMOST PREFIX RULE:\n-- Index: (user_id, status, created_at)\n-- Used for: WHERE user_id = ?                              ✓\n-- Used for: WHERE user_id = ? AND status = ?              ✓\n-- Used for: WHERE user_id = ? AND status = ? AND created_at > ?  ✓\n-- NOT used: WHERE status = ?                              ✗\n-- NOT used: WHERE created_at > ?                          ✗\n```",
+
+      "monitoring": "**Monitoring pool health via Spring Actuator:**\n\n```xml\n<!-- pom.xml: -->\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-actuator</artifactId>\n</dependency>\n<dependency>\n    <groupId>io.micrometer</groupId>\n    <artifactId>micrometer-registry-prometheus</artifactId>\n    <scope>runtime</scope>\n</dependency>\n```\n\n```properties\n# application.properties:\nmanagement.endpoints.web.exposure.include=health,metrics,prometheus\nmanagement.endpoint.health.show-details=always\n```\n\n```bash\n# Check pool health:\ncurl http://localhost:8080/actuator/metrics/hikaricp.connections\n# → {\"name\":\"hikaricp.connections\",\n#    \"measurements\":[{\"statistic\":\"VALUE\",\"value\":20.0}]}\n\n# Pool breakdown:\ncurl http://localhost:8080/actuator/metrics/hikaricp.connections.active\ncurl http://localhost:8080/actuator/metrics/hikaricp.connections.idle\ncurl http://localhost:8080/actuator/metrics/hikaricp.connections.pending\n# If pending > 0 regularly → pool exhaustion → increase max-pool-size\n\n# Prometheus metrics (for Grafana dashboards):\ncurl http://localhost:8080/actuator/prometheus | grep hikari\n# hikaricp_connections_active{pool=\"Swiggy-Orders-Pool\"} 17.0\n# hikaricp_connections_idle{pool=\"Swiggy-Orders-Pool\"} 3.0\n# hikaricp_connections_pending{pool=\"Swiggy-Orders-Pool\"} 0.0\n```\n\n**Slow query logging in PostgreSQL:**\n```properties\n# postgresql.conf:\nlog_min_duration_statement = 100  # log all queries > 100ms\nlog_statement = 'none'            # don't log all queries (only slow ones)\n\n# Spring Boot: detect slow queries via p6spy or Datasource-Proxy:\n# Or: monitor pg_stat_statements view in PostgreSQL\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) HikariCP pool lifecycle: pool of 10 connection slots shown as boxes. Request 1-10 arrive → each borrows a connection (box turns red=active). Request 11 arrives → all 10 red → waits in queue. connection-timeout timer starts. If a connection returns before timeout (box turns green=idle) → request 11 gets it. If no connection returns before timeout → HikariPool Connection not available exception. (2) EXPLAIN ANALYZE output annotated: 'Seq Scan' circled in red with label 'MISSING INDEX'. 'Rows Removed by Filter: 49M' circled red with label 'SCANNING ENTIRE TABLE'. After CREATE INDEX: 'Index Scan' circled green with label 'USING INDEX'. 'Execution Time: 0.3ms' with label '16000x faster'. (3) Composite index leftmost prefix rule: index (user_id, status, created_at) shown as three-column B-tree. Green checkmarks for WHERE user_id=? and WHERE user_id=? AND status=?. Red X for WHERE status=? (no user_id prefix). Rule: must start from leftmost column.",
+      "alt_text": "HikariCP pool exhaustion under load, EXPLAIN ANALYZE before/after index, and composite index leftmost prefix rule"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Diagnose and fix two production issues in the Razorpay payment service: (1) HikariCP pool exhaustion during payment spikes, (2) slow payment search query missing an index.",
+
+    "problem_statement": "1. Configure HikariCP for payment service (8-core, SSD server, max 2s timeout)\n2. Show pool exhaustion symptoms in logs\n3. Run EXPLAIN ANALYZE on `SELECT * FROM payments WHERE merchant_id = ? AND status = ?`\n4. Interpret the Seq Scan output and identify missing index\n5. Add composite index and show improved EXPLAIN ANALYZE output\n6. Add Actuator monitoring for real-time pool metrics",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "HikariCP configuration for 8-core server",
+        "details": "```properties\n# application-prod.properties:\n# Pool size: (8 cores × 2) + 1 = 17 → round to 20 for headroom\nspring.datasource.hikari.maximum-pool-size=20\nspring.datasource.hikari.minimum-idle=5\nspring.datasource.hikari.pool-name=Razorpay-Payments-Pool\n\n# Fail fast (don't let users wait 30 seconds):\nspring.datasource.hikari.connection-timeout=2000\n\n# Connection lifecycle:\nspring.datasource.hikari.idle-timeout=300000    # 5 minutes\nspring.datasource.hikari.max-lifetime=1200000   # 20 minutes < PostgreSQL default 10min\n\n# Detect connection leaks:\nspring.datasource.hikari.leak-detection-threshold=5000\n```"
+      },
+      {
+        "step": 2,
+        "action": "Pool exhaustion diagnosis",
+        "details": "```\n# Log output during payment spike:\n[WARN] HikariPool-Razorpay-Payments-Pool - Pool stats:\n       (total=20, active=20, idle=0, waiting=47)\n       ← 47 requests waiting! Pool exhausted.\n\n[ERROR] Unable to acquire JDBC Connection\n[ERROR] HikariPool-1 - Connection is not available,\n        request timed out after 2000ms.\n\n# Actuator check:\nGET /actuator/metrics/hikaricp.connections.pending\n→ {\"value\": 47.0}   ← 47 requests waiting for a connection\n\n# Fix options:\n# 1. Increase maximum-pool-size (if DB server can handle it)\n# 2. Reduce query time (N+1 fix, index) → connections released faster\n# 3. Add read replicas for read-heavy queries → split read/write pools\n```"
+      },
+      {
+        "step": 3,
+        "action": "EXPLAIN ANALYZE diagnosis",
+        "details": "```sql\n-- Connect to PostgreSQL and run:\nEXPLAIN ANALYZE\nSELECT * FROM payments\nWHERE merchant_id = 'M001'\n  AND status = 'AUTHORIZED'\nORDER BY created_at DESC\nLIMIT 20;\n\n-- Output:\n-- Limit  (cost=... rows=20)\n--   -> Sort  (cost=... rows=892)\n--        Sort Key: created_at DESC\n--        -> Seq Scan on payments  (cost=0.00..4892341 rows=892)\n--             Filter: ((merchant_id='M001') AND (status='AUTHORIZED'))\n--             Rows Removed by Filter: 49999108    ← 50M scanned!\n-- Execution Time: 9823.4ms   ← 10 seconds!\n```"
+      },
+      {
+        "step": 4,
+        "action": "Add composite index + covering include",
+        "details": "```sql\n-- Migration V5__add_payment_indexes.sql:\nCREATE INDEX idx_payments_merchant_status\n    ON payments(merchant_id, status)\n    INCLUDE (total, created_at, currency);\n-- INCLUDE: covers the SELECT columns → Index Only Scan\n\nCREATE INDEX idx_payments_created_at\n    ON payments(created_at DESC);\n-- For time-range queries: WHERE created_at > NOW() - INTERVAL '1 day'\n\nCREATE INDEX idx_payments_pending\n    ON payments(merchant_id)\n    WHERE status = 'AUTHORIZED';  -- partial: only authorized payments\n\n-- EXPLAIN ANALYZE after indexes:\n-- Index Scan using idx_payments_merchant_status on payments\n--   Index Cond: (merchant_id='M001') AND (status='AUTHORIZED')\n-- Execution Time: 0.4ms   ← 25,000× faster!\n```"
+      }
+    ],
+
+    "final_code": "// HikariCP: maximum-pool-size=20, connection-timeout=2000ms, leak-detection-threshold=5000\n// Seq Scan → add CREATE INDEX idx_payments_merchant_status ON payments(merchant_id, status)\n// INCLUDE for covering index → Index Only Scan → fastest possible\n// Actuator: /metrics/hikaricp.connections.pending monitors pool health",
+
+    "expected_output": "# BEFORE indexes:\n-- Seq Scan on payments (cost=0..4892341)\n-- Rows Removed by Filter: 49999108\n-- Execution Time: 9823.4ms\n\n# AFTER indexes:\n-- Index Scan using idx_payments_merchant_status\n-- Execution Time: 0.4ms\n\n# Pool metrics during normal load:\nhikaricp_connections_active: 12\nhikaricp_connections_idle:    8\nhikaricp_connections_pending: 0  ← healthy\n\n# Pool metrics during spike (before sizing):\nhikaricp_connections_active:  20\nhikaricp_connections_idle:     0\nhikaricp_connections_pending: 47  ← ALERT! increase pool size",
+
+    "things_to_notice": [
+      "connection-timeout=2000ms not 30000ms: 30-second waits cause cascading failures. A 2-second timeout fails fast — better to return a 503 quickly than to hold the user for 30 seconds. Set connection-timeout to match your SLA. If your SLA is 200ms, set it to 500ms.",
+      "max-lifetime=1200000 (20 min) must be less than PostgreSQL's tcp_keepalives_idle or wait_timeout. If PostgreSQL closes idle connections after 10 minutes but max-lifetime is 30 minutes, Hikari tries to use a closed connection → error. Always: max-lifetime < DB server timeout.",
+      "EXPLAIN vs EXPLAIN ANALYZE: EXPLAIN shows the planned execution (estimated cost). EXPLAIN ANALYZE actually runs the query and shows real timing. Always use ANALYZE in development. Never run EXPLAIN ANALYZE on a destructive query (DELETE, UPDATE) without wrapping in a transaction and rolling back.",
+      "Composite index column order: put the most selective column FIRST (highest cardinality). merchant_id has thousands of values (high cardinality) — put it first. status has ~5 values (low cardinality) — put it second. WHERE merchant_id='M001' reduces rows dramatically; WHERE status='AUTHORIZED' alone is still 20% of all rows.",
+      "INCLUDE columns (covering index): add frequently SELECTed columns to INCLUDE so PostgreSQL can satisfy the entire query from the index without visiting the heap (table). This is called an Index Only Scan — the fastest possible execution. Only works if all columns needed are in the index."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment API Black Friday",
+        "use_case": "Razorpay's payment API handles 10× normal traffic on sale days. HikariCP is sized at maximum-pool-size=30 (based on 16-core DB server: 16×2+1=33). connection-timeout=2000ms: payment requests that can't get a connection fail fast with 503, triggering retry on client side. The payments table has composite indexes on (merchant_id, status) and (order_id). EXPLAIN ANALYZE runs weekly on slow query log output. Any query over 500ms gets an index or query rewrite."
+      },
+      {
+        "company_context": "Swiggy order search optimization",
+        "use_case": "Swiggy's order search API queries: WHERE restaurant_id = ? AND created_at BETWEEN ? AND ? AND status != 'CANCELLED'. Index: (restaurant_id, created_at) — restaurant_id is the selective column (first), created_at enables range scan (second). Partial index excludes CANCELLED orders (75% of data) keeping the index small. Without indexes: 8-second full table scan on 200M orders. With indexes: 12ms. The index migration was V7 in Flyway, deployed during off-peak hours with CONCURRENT index creation to avoid table lock."
+      },
+      {
+        "company_context": "Zerodha trade history pool sizing",
+        "use_case": "Zerodha's trade history service runs on 4-core instances. Pool size: (4×2)+1=9, rounded to 10. During market hours (9:15-15:30 IST), concurrent queries spike. connection-timeout=1000ms — trading apps can retry. leak-detection-threshold=2000ms caught a bug where a transaction wasn't closed in an error path — Hikari logged the warning, the developer found and fixed the leak. After fixing the leak, pool saturation dropped from frequent to never."
+      }
+    ],
+
+    "interview_relevance": "Connection pool and query optimization interview questions:\n\n- **'How do you size HikariCP for production?'** → Formula: (cores × 2) + effective_spindle_count. Match to DB server capacity. Set connection-timeout to fail fast (2-3 seconds, not 30).\n- **'What causes pool exhaustion?'** → Slow queries hold connections longer → fewer available for new requests. Fix: (1) fix slow queries (indexes, N+1), (2) increase pool size, (3) reduce connection-timeout, (4) use read replicas for reads.\n- **'What is EXPLAIN ANALYZE?'** → PostgreSQL command that runs the query and shows the execution plan with actual timing. 'Seq Scan' = missing index. 'Execution Time' shows actual performance.\n- **'What is the leftmost prefix rule for composite indexes?'** → A composite index on (a, b, c) can be used for queries filtering on (a), (a, b), or (a, b, c). Not for (b), (c), or (b, c) alone.",
+
+    "real_world_workflow": "Production performance workflow:\n\n- Enable slow query logging: log_min_duration_statement=100 in postgres.conf\n- Weekly review: pg_stat_statements for top-N slow queries\n- EXPLAIN ANALYZE each slow query: look for Seq Scan, high Rows Removed\n- Add targeted index, re-run EXPLAIN ANALYZE to verify Index Scan\n- Deploy index as Flyway migration (CREATE INDEX CONCURRENTLY for zero-downtime)\n- Monitor Actuator: hikaricp.connections.pending should stay near 0\n- Alert: if pending > 0 for > 30 seconds → pool exhaustion investigation"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "pool_too_large",
+      "what_students_get_wrong": "Setting maximum-pool-size=200 thinking more connections = faster. Oversized pools overwhelm the database server with concurrent queries.",
+      "remediation": "The database server has limited CPU. 200 concurrent queries cause context switching overhead on the DB side, slowing ALL queries. Use the formula: (cores × 2) + spindle_count. For most production 8-core servers with SSD: ~17. Setting to 200 will be slower than 17. HikariCP's documentation specifically warns against over-provisioning.",
+      "detection_pattern": "High DB CPU despite moderate connection count; queries slow down as pool grows; pg_stat_activity shows many active queries with shared CPU"
+    },
+    {
+      "gap_id": "wrong_index_column_order",
+      "what_students_get_wrong": "Creating a composite index with low-cardinality column first: INDEX(status, user_id) instead of INDEX(user_id, status).",
+      "remediation": "Put the most selective column FIRST. user_id has millions of unique values (high cardinality) — filters down to a small result set quickly. status has ~5 values (low cardinality). Index(status, user_id): filter on status='PLACED' → still 20% of 50M = 10M rows. Index(user_id, status): filter on user_id='U001' → typically < 1000 rows. Order: high-cardinality first, then narrow with additional columns.",
+      "detection_pattern": "Index exists but EXPLAIN shows Index Scan still removing many rows; execution time improvement minimal"
+    },
+    {
+      "gap_id": "creating_index_without_concurrent",
+      "what_students_get_wrong": "Running CREATE INDEX (without CONCURRENTLY) on a large production table — acquires an exclusive lock that blocks all writes for minutes.",
+      "remediation": "Always: CREATE INDEX CONCURRENTLY idx_name ON table(column). CONCURRENTLY builds the index without an exclusive lock — reads and writes continue. Cost: takes 2-3× longer to build. Without CONCURRENTLY on a 50M-row table: all ORDER INSERT/UPDATE/DELETE blocked for 10+ minutes. With CONCURRENTLY: zero user impact. Note: CONCURRENTLY cannot be used inside a transaction block.",
+      "detection_pattern": "All writes block during index creation; 'could not obtain lock' errors in application logs"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "HikariCP: Spring Boot's default connection pool",
+      "pool_size formula: (cores × 2) + spindle_count — not 'as large as possible'",
+      "spring.datasource.hikari.maximum-pool-size=20: limit connections",
+      "spring.datasource.hikari.connection-timeout=2000: fail fast, not 30s",
+      "spring.datasource.hikari.leak-detection-threshold=5000: detect held connections",
+      "Pool exhaustion symptoms: pending > 0, 'Connection is not available' errors",
+      "Fixing slow queries reduces connection hold time → pool saturation decreases",
+      "EXPLAIN ANALYZE: runs query + shows actual execution plan + timing",
+      "'Seq Scan' + 'Rows Removed by Filter' → missing index",
+      "'Index Scan using idx_name' → index used",
+      "'Index Only Scan' → covering index, fastest possible",
+      "Composite index column order: most selective (high cardinality) FIRST",
+      "Leftmost prefix rule: index(a,b,c) helps WHERE a=?, WHERE a=? AND b=?, but NOT WHERE b=?",
+      "Partial index: WHERE status='PENDING' — only indexes active records (small, fast)",
+      "INCLUDE: covering index — adds columns to index without indexing them",
+      "CREATE INDEX CONCURRENTLY: zero-downtime index creation on production",
+      "Actuator: hikaricp.connections.pending — monitor for pool exhaustion",
+      "log_min_duration_statement=100: PostgreSQL slow query logging"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Your 4-core production server runs PostgreSQL on SSD. You have 3 Spring Boot instances each with their own pool. What should maximum-pool-size be per instance?",
+        "answer": "Total optimal pool size: (4 × 2) + 1 = 9 connections to the DB server. With 3 Spring Boot instances sharing the DB, each instance should have: 9 / 3 = 3 connections. So maximum-pool-size=3 per instance. This ensures the total concurrent connections to PostgreSQL stays near 9 (the DB server's sweet spot). In practice, you'd set it to 5-7 per instance to allow for bursts, monitor pg_stat_activity, and tune based on actual DB CPU usage. The key insight: pool size × number of app instances = total DB connections. Too many total connections overwhelm the DB server."
+      },
+      {
+        "question": "EXPLAIN ANALYZE shows: 'Seq Scan on orders, Rows Removed by Filter: 49000000, Execution Time: 8500ms'. What does this mean and what's your fix?",
+        "answer": "Seq Scan: PostgreSQL scanned the ENTIRE orders table (50 million rows). Rows Removed: 49 million rows scanned and discarded to find the needed rows. Execution Time: 8.5 seconds for one query. This is a missing index. The WHERE clause columns are not indexed. Fix: identify which columns are in the WHERE clause (e.g., WHERE user_id = ? AND created_at > ?), create a composite index: CREATE INDEX CONCURRENTLY idx_orders_user_created ON orders(user_id, created_at). Re-run EXPLAIN ANALYZE — should now show 'Index Scan using idx_orders_user_created' with Execution Time in milliseconds. Deploy via Flyway migration. Use CONCURRENTLY to avoid production lock."
+      },
+      {
+        "question": "You have a composite index on (merchant_id, status, created_at). Which queries use it?",
+        "answer": "Leftmost prefix rule: the index can be used if the query starts with merchant_id. Used: WHERE merchant_id = ? (leftmost prefix). Used: WHERE merchant_id = ? AND status = ? (two-column prefix). Used: WHERE merchant_id = ? AND status = ? AND created_at > ? (full index). Used: WHERE merchant_id = ? AND created_at > ? (skips status, but merchant_id matches leftmost — may use index for merchant_id lookup, then filter created_at). NOT used: WHERE status = ? (no merchant_id). NOT used: WHERE created_at > ? (no merchant_id). NOT used: WHERE status = ? AND created_at > ? (no merchant_id). Rule: always include the leftmost column(s) in your WHERE clause to use the index."
+      }
+    ],
+
+    "next_topic_preview": "Next: **JPA Advanced Relationships** — you've handled @ManyToOne and @OneToMany. Topic 17.4 goes deeper: @ManyToMany (students ↔ courses, products ↔ categories), cascade types (CascadeType.ALL vs PERSIST vs MERGE), orphanRemoval, @Embeddable for value objects (Address, Money), and bidirectional relationship maintenance. These are the patterns that make complex domain models work cleanly in JPA — without the usual gotchas."
+  }
+}

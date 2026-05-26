@@ -1,0 +1,465 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t1",
+  "topic_name": "Introduction to Methods",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m2_t1_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Define your first method",
+      "scenario": "Define a method that prints a greeting.",
+      "instructions": "Fill in the blanks to define a void method called `sayHi` that prints 'Hi there!'",
+      "starter_code": "public class Greeter {\n    public ______ ______ sayHi() {\n        System.out.println(\"Hi there!\");\n    }\n    \n    public static void main(String[] args) {\n        sayHi();\n    }\n}",
+      "expected_solution": "public class Greeter {\n    public static void sayHi() {\n        System.out.println(\"Hi there!\");\n    }\n    \n    public static void main(String[] args) {\n        sayHi();\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "static", "hint": "Keyword needed for class-level methods (so main can call it)" },
+        { "position": 2, "answer": "void", "hint": "Return type for a method that returns nothing" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Hi there!"
+        }
+      ],
+      "hints": [
+        "Method pattern: public static <return_type> name()",
+        "Use `static` (so it can be called from main)",
+        "Use `void` since the method doesn't return anything"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m2_t1_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 1,
+      "title": "Call a method multiple times",
+      "scenario": "Use a method to print a message three times.",
+      "instructions": "Write a class `Triple` with:\n1. A static void method called `printStar` that prints '*'\n2. A main method that calls printStar() three times\n\nExpected output:\n*\n*\n*",
+      "starter_code": "// Write your Triple class below\n",
+      "expected_solution": "public class Triple {\n    public static void printStar() {\n        System.out.println(\"*\");\n    }\n    \n    public static void main(String[] args) {\n        printStar();\n        printStar();\n        printStar();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "*\n*\n*"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["public static void printStar()"]
+        }
+      ],
+      "hints": [
+        "Define the method ABOVE or BELOW main — either works",
+        "Inside the method: System.out.println(\"*\");",
+        "Call it three times in main"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m2_t1_ex_3",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Trace method calls",
+      "scenario": "Predict the order of output when methods call each other.",
+      "instructions": "What does this code print?\n\n```java\npublic class Order {\n    public static void main(String[] args) {\n        System.out.println(\"A\");\n        first();\n        System.out.println(\"D\");\n    }\n    \n    public static void first() {\n        System.out.println(\"B\");\n        second();\n    }\n    \n    public static void second() {\n        System.out.println(\"C\");\n    }\n}\n```",
+      "expected_solution": "A\nB\nC\nD",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "A\nB\nC\nD"
+        }
+      ],
+      "hints": [
+        "main starts: prints A",
+        "Calls first(): prints B, then calls second()",
+        "second(): prints C, returns to first()",
+        "first() finishes, returns to main",
+        "main prints D"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m2_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Extract repeated code into a method",
+      "scenario": "Take repeated code and refactor it into a reusable method.",
+      "instructions": "The code below has duplicate println blocks. Refactor it: create a method `printSeparator` that prints `'---'`, then call it from main wherever the separator was used.\n\nORIGINAL OUTPUT (your refactored version should match):\n---\nHello\n---\nWorld\n---\n\nWrite the refactored version in a class called `Refactored`.",
+      "starter_code": "// Original code (refactor this):\n// public class Original {\n//     public static void main(String[] args) {\n//         System.out.println(\"---\");\n//         System.out.println(\"Hello\");\n//         System.out.println(\"---\");\n//         System.out.println(\"World\");\n//         System.out.println(\"---\");\n//     }\n// }\n\n// Write your refactored Refactored class below\n// Must use a printSeparator() method\n",
+      "expected_solution": "public class Refactored {\n    public static void printSeparator() {\n        System.out.println(\"---\");\n    }\n    \n    public static void main(String[] args) {\n        printSeparator();\n        System.out.println(\"Hello\");\n        printSeparator();\n        System.out.println(\"World\");\n        printSeparator();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "---\nHello\n---\nWorld\n---"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["public static void printSeparator()"]
+        }
+      ],
+      "hints": [
+        "Define printSeparator() as a static void method",
+        "Inside, just one println of '---'",
+        "In main, call printSeparator() three times (in place of the original println of '---')"
+      ],
+      "xp_reward": 25,
+      "concept_tested": "dry_principle"
+    },
+    
+    {
+      "id": "java_m2_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Multiple methods, one main",
+      "scenario": "Organize a simple report into separate methods.",
+      "instructions": "Write a class `WeatherReport` with three methods called from main:\n1. `printHeader()` — prints 'WEATHER REPORT'\n2. `printTemp()` — prints 'Temperature: 28°C'\n3. `printCondition()` — prints 'Condition: Sunny'\n\nmain() should call all three in order.\n\nExpected output:\nWEATHER REPORT\nTemperature: 28°C\nCondition: Sunny",
+      "starter_code": "// Write your WeatherReport class below\n",
+      "expected_solution": "public class WeatherReport {\n    public static void main(String[] args) {\n        printHeader();\n        printTemp();\n        printCondition();\n    }\n    \n    public static void printHeader() {\n        System.out.println(\"WEATHER REPORT\");\n    }\n    \n    public static void printTemp() {\n        System.out.println(\"Temperature: 28°C\");\n    }\n    \n    public static void printCondition() {\n        System.out.println(\"Condition: Sunny\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "WEATHER REPORT\nTemperature: 28°C\nCondition: Sunny"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["printHeader()", "printTemp()", "printCondition()"]
+        }
+      ],
+      "hints": [
+        "Three separate methods, each with one println",
+        "All three are public static void",
+        "main calls them in order: printHeader(), printTemp(), printCondition()",
+        "Order of method DEFINITIONS in file doesn't matter"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m2_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Method calling another method",
+      "scenario": "Build methods that call each other.",
+      "instructions": "Write a class `Nested` with:\n1. A method `printBorder()` that prints '======'\n2. A method `printBoxed()` that calls printBorder, then prints 'TITLE', then calls printBorder again\n3. main() that just calls printBoxed()\n\nExpected output:\n======\nTITLE\n======",
+      "starter_code": "// Write your Nested class below\n",
+      "expected_solution": "public class Nested {\n    public static void printBorder() {\n        System.out.println(\"======\");\n    }\n    \n    public static void printBoxed() {\n        printBorder();\n        System.out.println(\"TITLE\");\n        printBorder();\n    }\n    \n    public static void main(String[] args) {\n        printBoxed();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "======\nTITLE\n======"
+        }
+      ],
+      "hints": [
+        "printBoxed() should call printBorder() twice and println once in between",
+        "Methods can freely call other methods in the same class",
+        "main only needs to call printBoxed() once"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m2_t1_ex_7",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the method definition errors",
+      "scenario": "Your colleague wrote some method definitions with bugs. Fix them.",
+      "instructions": "This code has 3 bugs related to method syntax. Fix them so it compiles and prints:\nLoading...\nDone!",
+      "starter_code": "public class App {\n    public static void main(String[] args) {\n        showLoading;\n        showDone();\n    }\n    \n    public void showLoading() {\n        System.out.println(\"Loading...\");\n    }\n    \n    public static showDone() {\n        System.out.println(\"Done!\");\n    }\n}",
+      "expected_solution": "public class App {\n    public static void main(String[] args) {\n        showLoading();\n        showDone();\n    }\n    \n    public static void showLoading() {\n        System.out.println(\"Loading...\");\n    }\n    \n    public static void showDone() {\n        System.out.println(\"Done!\");\n    }\n}",
+      "bugs": [
+        {
+          "line": 3,
+          "issue": "Missing parentheses on showLoading. Without (), it's not a method call.",
+          "fix": "Add () to make it showLoading();"
+        },
+        {
+          "line": 7,
+          "issue": "showLoading() is missing 'static' keyword. Can't call non-static from static main.",
+          "fix": "Add 'static': public static void showLoading()"
+        },
+        {
+          "line": 11,
+          "issue": "showDone() is missing return type. Every method needs a return type.",
+          "fix": "Add 'void': public static void showDone()"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Loading...\nDone!",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Method calls need parentheses, even if no arguments: methodName()",
+        "All methods in this module need `static` (so main can call them)",
+        "Every method definition needs a return type — use `void` if returning nothing"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["method_call_no_parens", "forgetting_static", "missing_return_type"]
+    },
+    
+    {
+      "id": "java_m2_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Break down a long main",
+      "scenario": "Take a monolithic main() and refactor it into multiple methods.",
+      "instructions": "The code below has everything in main. Refactor into a class `MenuApp` with these methods:\n- `printTitle()` — prints 'MAIN MENU'\n- `printOptions()` — prints '1. Start' / '2. Settings' / '3. Quit' (3 separate lines)\n- `printPrompt()` — prints 'Choose an option:'\n\nmain should call them in order. Output should match exactly:\nMAIN MENU\n1. Start\n2. Settings\n3. Quit\nChoose an option:",
+      "starter_code": "// Original (don't write this — refactor instead):\n// public static void main(String[] args) {\n//     System.out.println(\"MAIN MENU\");\n//     System.out.println(\"1. Start\");\n//     System.out.println(\"2. Settings\");\n//     System.out.println(\"3. Quit\");\n//     System.out.println(\"Choose an option:\");\n// }\n\n// Write your refactored MenuApp class below\n",
+      "expected_solution": "public class MenuApp {\n    public static void main(String[] args) {\n        printTitle();\n        printOptions();\n        printPrompt();\n    }\n    \n    public static void printTitle() {\n        System.out.println(\"MAIN MENU\");\n    }\n    \n    public static void printOptions() {\n        System.out.println(\"1. Start\");\n        System.out.println(\"2. Settings\");\n        System.out.println(\"3. Quit\");\n    }\n    \n    public static void printPrompt() {\n        System.out.println(\"Choose an option:\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "MAIN MENU\n1. Start\n2. Settings\n3. Quit\nChoose an option:"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["printTitle()", "printOptions()", "printPrompt()"]
+        }
+      ],
+      "hints": [
+        "Each method has a specific job",
+        "printOptions() should contain ALL three option printlns",
+        "main becomes a high-level outline — just three method calls",
+        "This is the pattern: main = outline, methods = details"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m2_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Naming methods well",
+      "scenario": "Apply method naming conventions.",
+      "instructions": "Write a class `BetterNamed` with the following methods (note the proper camelCase verb-based names):\n- `printWelcomeMessage()` — prints 'Welcome to our app!'\n- `displayCurrentDate()` — prints 'Date: 2026-05-18'\n- `showUserStatus()` — prints 'Status: Active'\n\nmain calls them in order.\n\nExpected output:\nWelcome to our app!\nDate: 2026-05-18\nStatus: Active",
+      "starter_code": "// Write your BetterNamed class below\n// Use the EXACT method names specified — they demonstrate good naming\n",
+      "expected_solution": "public class BetterNamed {\n    public static void main(String[] args) {\n        printWelcomeMessage();\n        displayCurrentDate();\n        showUserStatus();\n    }\n    \n    public static void printWelcomeMessage() {\n        System.out.println(\"Welcome to our app!\");\n    }\n    \n    public static void displayCurrentDate() {\n        System.out.println(\"Date: 2026-05-18\");\n    }\n    \n    public static void showUserStatus() {\n        System.out.println(\"Status: Active\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Welcome to our app!\nDate: 2026-05-18\nStatus: Active"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["printWelcomeMessage", "displayCurrentDate", "showUserStatus"]
+        }
+      ],
+      "hints": [
+        "Method names start with a verb: print, display, show, get, set, calculate, etc.",
+        "Use camelCase (first letter lowercase, then capitalize each word)",
+        "Be specific — names should describe what the method does"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "naming_conventions"
+    },
+    
+    {
+      "id": "java_m2_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Reuse a method multiple times",
+      "scenario": "Demonstrate the DRY principle by reusing a method.",
+      "instructions": "Write a class `BannerApp` with:\n1. A method `printBanner()` that prints these 3 lines:\n   `**********`\n   `*  ALERT *`\n   `**********`\n2. main() should call printBanner() THREE times (showing it 3 times in a row)\n\nExpected output:\n**********\n*  ALERT *\n**********\n**********\n*  ALERT *\n**********\n**********\n*  ALERT *\n**********",
+      "starter_code": "// Write your BannerApp class below\n",
+      "expected_solution": "public class BannerApp {\n    public static void main(String[] args) {\n        printBanner();\n        printBanner();\n        printBanner();\n    }\n    \n    public static void printBanner() {\n        System.out.println(\"**********\");\n        System.out.println(\"*  ALERT *\");\n        System.out.println(\"**********\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "**********\n*  ALERT *\n**********\n**********\n*  ALERT *\n**********\n**********\n*  ALERT *\n**********"
+        }
+      ],
+      "hints": [
+        "printBanner() has 3 println statements inside",
+        "main() calls printBanner() three times — written ONCE, used 3 times",
+        "Imagine writing this without methods — 9 println statements!"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m2_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multi-level method calls",
+      "scenario": "Build a hierarchy of methods that call each other.",
+      "instructions": "Write a class `ReportGenerator` with this structure:\n- `generateReport()` calls: `printHeader()`, `printBody()`, `printFooter()`\n- `printHeader()` prints '=== REPORT ==='\n- `printBody()` prints two lines: 'Item: 1' and 'Item: 2'\n- `printFooter()` prints '--- END ---'\n- main() just calls generateReport()\n\nExpected output:\n=== REPORT ===\nItem: 1\nItem: 2\n--- END ---",
+      "starter_code": "// Write your ReportGenerator class below\n",
+      "expected_solution": "public class ReportGenerator {\n    public static void main(String[] args) {\n        generateReport();\n    }\n    \n    public static void generateReport() {\n        printHeader();\n        printBody();\n        printFooter();\n    }\n    \n    public static void printHeader() {\n        System.out.println(\"=== REPORT ===\");\n    }\n    \n    public static void printBody() {\n        System.out.println(\"Item: 1\");\n        System.out.println(\"Item: 2\");\n    }\n    \n    public static void printFooter() {\n        System.out.println(\"--- END ---\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "=== REPORT ===\nItem: 1\nItem: 2\n--- END ---"
+        }
+      ],
+      "hints": [
+        "main() is super simple: just calls generateReport()",
+        "generateReport() coordinates three sub-methods",
+        "Each sub-method does its specific job",
+        "This 3-level structure (main → generateReport → details) is real-world code organization"
+      ],
+      "xp_reward": 50
+    },
+    
+    {
+      "id": "java_m2_t1_ex_12",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the missing call",
+      "scenario": "Some methods are defined but never called.",
+      "instructions": "This code defines methods correctly but main() doesn't call them all. Fix main so it calls each defined method exactly once, producing the expected output.\n\nExpected output:\nSTART\nMiddle 1\nMiddle 2\nEND",
+      "starter_code": "public class Flow {\n    public static void main(String[] args) {\n        System.out.println(\"START\");\n        // Calls are missing\n        System.out.println(\"END\");\n    }\n    \n    public static void middle1() {\n        System.out.println(\"Middle 1\");\n    }\n    \n    public static void middle2() {\n        System.out.println(\"Middle 2\");\n    }\n}",
+      "expected_solution": "public class Flow {\n    public static void main(String[] args) {\n        System.out.println(\"START\");\n        middle1();\n        middle2();\n        System.out.println(\"END\");\n    }\n    \n    public static void middle1() {\n        System.out.println(\"Middle 1\");\n    }\n    \n    public static void middle2() {\n        System.out.println(\"Middle 2\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "START\nMiddle 1\nMiddle 2\nEND",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Defining a method isn't enough — you have to CALL it",
+        "Between 'START' and 'END' printlns, call middle1() and middle2()",
+        "Don't forget the parentheses on the calls"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["method_call_vs_definition"]
+    },
+    
+    {
+      "id": "java_m2_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Refactor a long main",
+      "scenario": "Take a 25-line main and refactor it into properly organized methods.",
+      "instructions": "Below is a long main(). Refactor it into a class `LoginScreen` with FOUR methods:\n- `printAppLogo()` — prints the 3 logo lines\n- `printLoginPrompt()` — prints the 'LOGIN' header line\n- `printInputFields()` — prints the username and password prompts\n- `printActions()` — prints the action buttons\n\nmain() should be 4 lines (just the method calls).\n\nExpected output (must match exactly):\n  ___ ___ \n |    |   |\n |____|___|\n========= LOGIN =========\nUsername: ________\nPassword: ________\n[ Login ] [ Sign Up ] [ Forgot? ]",
+      "starter_code": "// Original code (don't keep this structure — refactor it):\n// public class Original {\n//     public static void main(String[] args) {\n//         System.out.println(\"  ___ ___ \");\n//         System.out.println(\" |    |   |\");\n//         System.out.println(\" |____|___|\");\n//         System.out.println(\"========= LOGIN =========\");\n//         System.out.println(\"Username: ________\");\n//         System.out.println(\"Password: ________\");\n//         System.out.println(\"[ Login ] [ Sign Up ] [ Forgot? ]\");\n//     }\n// }\n\n// Write your refactored LoginScreen class below\n",
+      "expected_solution": "public class LoginScreen {\n    public static void main(String[] args) {\n        printAppLogo();\n        printLoginPrompt();\n        printInputFields();\n        printActions();\n    }\n    \n    public static void printAppLogo() {\n        System.out.println(\"  ___ ___ \");\n        System.out.println(\" |    |   |\");\n        System.out.println(\" |____|___|\");\n    }\n    \n    public static void printLoginPrompt() {\n        System.out.println(\"========= LOGIN =========\");\n    }\n    \n    public static void printInputFields() {\n        System.out.println(\"Username: ________\");\n        System.out.println(\"Password: ________\");\n    }\n    \n    public static void printActions() {\n        System.out.println(\"[ Login ] [ Sign Up ] [ Forgot? ]\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "  ___ ___ \n |    |   |\n |____|___|\n========= LOGIN =========\nUsername: ________\nPassword: ________\n[ Login ] [ Sign Up ] [ Forgot? ]"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["printAppLogo", "printLoginPrompt", "printInputFields", "printActions"]
+        }
+      ],
+      "hints": [
+        "main becomes a 4-line outline",
+        "Each method groups RELATED prints together",
+        "Logo: 3 lines together. Prompt: 1 line. Fields: 2 lines. Actions: 1 line.",
+        "Carefully preserve spacing in the original printlns"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m2_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Refactor with shared helper",
+      "scenario": "Find a duplicate pattern and extract it into a helper method.",
+      "instructions": "The output has THREE 'box headers' that all use the same separator pattern. Write a class `Dashboard` that:\n1. Has a helper method `printSeparator()` that prints '++++++++++'\n2. Has methods `showStats()`, `showAlerts()`, `showRecent()` — each prints its title using printSeparator above and below\n3. main() calls showStats, showAlerts, showRecent in order\n\nExpected output:\n++++++++++\nSTATS\n++++++++++\n++++++++++\nALERTS\n++++++++++\n++++++++++\nRECENT\n++++++++++",
+      "starter_code": "// Write your Dashboard class below\n// Hint: printSeparator() is called from 6 places (top+bottom of each section)\n",
+      "expected_solution": "public class Dashboard {\n    public static void main(String[] args) {\n        showStats();\n        showAlerts();\n        showRecent();\n    }\n    \n    public static void printSeparator() {\n        System.out.println(\"++++++++++\");\n    }\n    \n    public static void showStats() {\n        printSeparator();\n        System.out.println(\"STATS\");\n        printSeparator();\n    }\n    \n    public static void showAlerts() {\n        printSeparator();\n        System.out.println(\"ALERTS\");\n        printSeparator();\n    }\n    \n    public static void showRecent() {\n        printSeparator();\n        System.out.println(\"RECENT\");\n        printSeparator();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "++++++++++\nSTATS\n++++++++++\n++++++++++\nALERTS\n++++++++++\n++++++++++\nRECENT\n++++++++++"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["printSeparator()"],
+          "description": "Must use printSeparator helper method"
+        }
+      ],
+      "hints": [
+        "printSeparator() is the helper — written once, called from many methods",
+        "Each section method (showStats, showAlerts, showRecent) follows same pattern: separator, title, separator",
+        "If you wanted to change the separator, you'd only change it in printSeparator() — DRY in action"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "dry_principle"
+    },
+    
+    {
+      "id": "java_m2_t1_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Refactor profile card with methods",
+      "scenario": "Take the Profile Card mini-project from Module 1 (Topic 1.2) and refactor it using methods.",
+      "instructions": "Build a class `ProfileCard` that organizes a developer profile display using methods.\n\nUse these class-level static variables (declared at the top of the class):\n```java\nstatic String name = \"Priya Sharma\";\nstatic String username = \"priya_codes\";\nstatic String title = \"Backend Developer\";\nstatic int yearsExperience = 3;\nstatic int repos = 47;\nstatic int followers = 1284;\n```\n\nDefine these methods:\n1. `printBorder()` — prints '+----------------------------------+'\n2. `printNameSection()` — prints name and username (two lines):\n   Name: Priya Sharma\n   @priya_codes\n3. `printProfessionalInfo()` — prints title and experience:\n   Title: Backend Developer\n   Experience: 3 years\n4. `printStats()` — prints repos and followers:\n   Repos: 47\n   Followers: 1284\n5. main() — orchestrates: printBorder, printNameSection, printBorder, printProfessionalInfo, printBorder, printStats, printBorder\n\nExpected output:\n+----------------------------------+\nName: Priya Sharma\n@priya_codes\n+----------------------------------+\nTitle: Backend Developer\nExperience: 3 years\n+----------------------------------+\nRepos: 47\nFollowers: 1284\n+----------------------------------+",
+      "starter_code": "// Write your ProfileCard class below\n// Use class-level static variables for the profile data\n// Define the 4 helper methods plus main\n",
+      "expected_solution": "public class ProfileCard {\n    // Class-level data (static variables)\n    static String name = \"Priya Sharma\";\n    static String username = \"priya_codes\";\n    static String title = \"Backend Developer\";\n    static int yearsExperience = 3;\n    static int repos = 47;\n    static int followers = 1284;\n    \n    public static void main(String[] args) {\n        printBorder();\n        printNameSection();\n        printBorder();\n        printProfessionalInfo();\n        printBorder();\n        printStats();\n        printBorder();\n    }\n    \n    public static void printBorder() {\n        System.out.println(\"+----------------------------------+\");\n    }\n    \n    public static void printNameSection() {\n        System.out.println(\"Name: \" + name);\n        System.out.println(\"@\" + username);\n    }\n    \n    public static void printProfessionalInfo() {\n        System.out.println(\"Title: \" + title);\n        System.out.println(\"Experience: \" + yearsExperience + \" years\");\n    }\n    \n    public static void printStats() {\n        System.out.println(\"Repos: \" + repos);\n        System.out.println(\"Followers: \" + followers);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "+----------------------------------+\nName: Priya Sharma\n@priya_codes\n+----------------------------------+\nTitle: Backend Developer\nExperience: 3 years\n+----------------------------------+\nRepos: 47\nFollowers: 1284\n+----------------------------------+",
+          "must_compile": true
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["static String name", "printBorder()", "printNameSection()", "printProfessionalInfo()", "printStats()"]
+        }
+      ],
+      "hints": [
+        "Declare 6 static variables at the class level (above main)",
+        "Methods can access class-level static variables directly — no parameters needed yet",
+        "printBorder is called 4 times in main — DRY in action",
+        "Each section method handles 2 lines of related info",
+        "When you reach Topic 2.2, we'll improve this by passing data through parameters instead of class variables"
+      ],
+      "xp_reward": 90
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 9,
+      "debug": 2,
+      "predict_output": 1,
+      "refactor": 2
+    },
+    "total_xp_possible": 670,
+    "estimated_completion_minutes": 45
+  },
+  
+  "gap_detection_map": {
+    "missing_return_type": ["ex_7"],
+    "method_call_no_parens": ["ex_7"],
+    "forgetting_static": ["ex_7"],
+    "method_call_vs_definition": ["ex_12"],
+    "dry_principle": ["ex_4", "ex_14"],
+    "naming_conventions": ["ex_9"],
+    "method_organization": ["ex_8", "ex_11", "ex_13"]
+  }
+}

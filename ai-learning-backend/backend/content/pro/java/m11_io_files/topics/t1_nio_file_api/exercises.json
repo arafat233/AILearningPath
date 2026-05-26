@@ -1,0 +1,341 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t1",
+  "topic_name": "NIO File API",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m11_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace Path operations",
+      "scenario": "Path navigation methods — getParent, getFileName, getName.",
+      "instructions": "What does this print?\n\n```java\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) {\n        Path p = Path.of(\"data\", \"orders\", \"april.csv\");\n        System.out.println(p.getFileName());\n        System.out.println(p.getParent());\n        System.out.println(p.getNameCount());\n        System.out.println(p.getName(0));\n    }\n}\n```",
+      "expected_solution": "april.csv\ndata/orders\n3\ndata",
+      "test_cases": [
+        { "type": "text_match", "expected": "april.csv\ndata/orders\n3\ndata" }
+      ],
+      "hints": [
+        "getFileName: last component = april.csv",
+        "getParent: everything except last = data/orders",
+        "getNameCount: 3 components (data, orders, april.csv)",
+        "getName(0): first component = data"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Read all lines from a file",
+      "scenario": "Files.readAllLines returns List<String>.",
+      "instructions": "Fill in the blank to read all lines from a file.",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path path = Path.of(\"test.txt\");\n        Files.writeString(path, \"Line1\\nLine2\\nLine3\");\n        List<String> lines = Files.____________(path);\n        System.out.println(lines.size());\n        System.out.println(lines.get(0));\n    }\n}",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path path = Path.of(\"test.txt\");\n        Files.writeString(path, \"Line1\\nLine2\\nLine3\");\n        List<String> lines = Files.readAllLines(path);\n        System.out.println(lines.size());\n        System.out.println(lines.get(0));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "readAllLines", "hint": "Returns List<String> with all lines" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "3\nLine1" }
+      ],
+      "hints": [
+        "Files.readAllLines(path) — reads entire file as List<String>"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write and read a file",
+      "scenario": "Basic write then read cycle.",
+      "instructions": "Write 'Hello from Hyderabad!' to 'greeting.txt', then read it back and print.\n\nExpected output:\nHello from Hyderabad!",
+      "starter_code": "import java.nio.file.*;\n// Write then read\n",
+      "expected_solution": "import java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path path = Path.of(\"greeting.txt\");\n        Files.writeString(path, \"Hello from Hyderabad!\");\n        String content = Files.readString(path);\n        System.out.println(content);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Hello from Hyderabad!" }
+      ],
+      "hints": [
+        "Files.writeString(path, content)",
+        "Files.readString(path) reads all back as one String"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m11_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Append to file with StandardOpenOption",
+      "scenario": "APPEND option adds to existing content.",
+      "instructions": "Write three lines to a log file using APPEND (so all three lines accumulate). Print the final file content.\n\nExpected output:\n2024-01-01 INFO Started\n2024-01-01 INFO Running\n2024-01-01 INFO Stopped",
+      "starter_code": "import java.nio.file.*;\n// Append three lines to a log file\n",
+      "expected_solution": "import java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path log = Path.of(\"app.log\");\n        Files.writeString(log, \"2024-01-01 INFO Started\\n\",\n            StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);\n        Files.writeString(log, \"2024-01-01 INFO Running\\n\", StandardOpenOption.APPEND);\n        Files.writeString(log, \"2024-01-01 INFO Stopped\\n\", StandardOpenOption.APPEND);\n        System.out.print(Files.readString(log));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "2024-01-01 INFO Started\n2024-01-01 INFO Running\n2024-01-01 INFO Stopped" }
+      ],
+      "hints": [
+        "First write: CREATE + TRUNCATE_EXISTING (fresh start)",
+        "Subsequent writes: APPEND (add to existing)",
+        "Files.readString reads everything back"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m11_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Create directory structure",
+      "scenario": "createDirectories makes the whole tree at once.",
+      "instructions": "Create directory tree `project/src/main/java` and `project/src/test/java`. Check they exist.\n\nExpected output:\nsrc/main/java exists: true\nsrc/test/java exists: true",
+      "starter_code": "import java.nio.file.*;\n// Create nested directory structure\n",
+      "expected_solution": "import java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Files.createDirectories(Path.of(\"project\", \"src\", \"main\", \"java\"));\n        Files.createDirectories(Path.of(\"project\", \"src\", \"test\", \"java\"));\n        System.out.println(\"src/main/java exists: \" +\n            Files.isDirectory(Path.of(\"project\", \"src\", \"main\", \"java\")));\n        System.out.println(\"src/test/java exists: \" +\n            Files.isDirectory(Path.of(\"project\", \"src\", \"test\", \"java\")));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "src/main/java exists: true\nsrc/test/java exists: true" }
+      ],
+      "hints": [
+        "createDirectories: creates all intermediate directories",
+        "No error if directory already exists"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m11_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Count lines in a file with Files.lines",
+      "scenario": "Files.lines returns lazy Stream<String> — memory efficient.",
+      "instructions": "Write a 10-line file, then count non-blank lines using Files.lines with try-with-resources.\n\nExpected output:\nTotal lines: 10\nNon-blank: 8",
+      "starter_code": "import java.nio.file.*;\nimport java.util.stream.*;\n// Files.lines with try-with-resources\n",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path p = Path.of(\"data.txt\");\n        Files.writeString(p, \"Line 1\\nLine 2\\n\\nLine 4\\nLine 5\\n\\nLine 7\\nLine 8\\nLine 9\\nLine 10\");\n        \n        long total, nonBlank;\n        try (Stream<String> lines = Files.lines(p)) {\n            total = lines.count();\n        }\n        try (Stream<String> lines = Files.lines(p)) {\n            nonBlank = lines.filter(l -> !l.isBlank()).count();\n        }\n        System.out.println(\"Total lines: \" + total);\n        System.out.println(\"Non-blank: \" + nonBlank);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Total lines: 10\nNon-blank: 8" }
+      ],
+      "hints": [
+        "Files.lines() returns Stream<String> — must close it!",
+        "try-with-resources: try (Stream<String> s = Files.lines(p)) { ... }",
+        "Two blank lines (lines 3 and 6) → 10 - 2 = 8 non-blank"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m11_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Copy file to backup directory",
+      "scenario": "Files.copy with REPLACE_EXISTING option.",
+      "instructions": "Create a source file, create a backup directory, copy the file. Copy again (should overwrite with REPLACE_EXISTING). Print sizes of both.\n\nExpected output:\nSource size: [N] bytes\nBackup size: [N] bytes\nSizes match: true",
+      "starter_code": "import java.nio.file.*;\n// Files.copy with REPLACE_EXISTING\n",
+      "expected_solution": "import java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path src = Path.of(\"source.txt\");\n        Files.writeString(src, \"Important data from Razorpay\\nTransaction: TXN-001\\nAmount: ₹5000\");\n        \n        Path backupDir = Path.of(\"backup\");\n        Files.createDirectories(backupDir);\n        Path dest = backupDir.resolve(src.getFileName());\n        \n        Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);\n        Files.copy(src, dest, StandardCopyOption.REPLACE_EXISTING);  // overwrite OK\n        \n        long srcSize  = Files.size(src);\n        long destSize = Files.size(dest);\n        System.out.println(\"Source size: \" + srcSize + \" bytes\");\n        System.out.println(\"Backup size: \" + destSize + \" bytes\");\n        System.out.println(\"Sizes match: \" + (srcSize == destSize));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Sizes match: true"] }
+      ],
+      "hints": [
+        "Files.copy(src, dest, REPLACE_EXISTING) — overwrites if exists",
+        "dest = backupDir.resolve(src.getFileName()) — put file in backup dir",
+        "Files.size(path) — returns byte count"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m11_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Walk directory for CSV files",
+      "scenario": "Files.walk traverses directory tree recursively.",
+      "instructions": "Create a nested directory structure with CSV and non-CSV files. Use Files.walk to find and count only CSV files.\n\nExpected output:\nFound CSVs:\n[paths of CSV files, sorted]\nTotal CSVs: 3",
+      "starter_code": "import java.nio.file.*;\nimport java.util.stream.*;\n// Files.walk to find CSVs\n",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        // Create structure\n        Files.createDirectories(Path.of(\"filetest\", \"data\", \"orders\"));\n        Files.createDirectories(Path.of(\"filetest\", \"data\", \"inventory\"));\n        Files.writeString(Path.of(\"filetest\", \"data\", \"orders\", \"march.csv\"), \"data\");\n        Files.writeString(Path.of(\"filetest\", \"data\", \"orders\", \"april.csv\"), \"data\");\n        Files.writeString(Path.of(\"filetest\", \"data\", \"inventory\", \"stock.csv\"), \"data\");\n        Files.writeString(Path.of(\"filetest\", \"data\", \"readme.txt\"), \"not csv\");\n        \n        System.out.println(\"Found CSVs:\");\n        long count;\n        try (Stream<Path> walk = Files.walk(Path.of(\"filetest\"))) {\n            count = walk\n                .filter(Files::isRegularFile)\n                .filter(p -> p.toString().endsWith(\".csv\"))\n                .sorted()\n                .peek(p -> System.out.println(\"  \" + p))\n                .count();\n        }\n        System.out.println(\"Total CSVs: \" + count);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["march.csv", "april.csv", "stock.csv", "Total CSVs: 3"] }
+      ],
+      "hints": [
+        "Files.walk returns all paths recursively",
+        "Filter: Files::isRegularFile (skip directories)",
+        "Filter: p.toString().endsWith('.csv')",
+        "try-with-resources for the stream!"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Process CSV with Files.lines stream",
+      "scenario": "Stream file lines, skip header, parse fields.",
+      "instructions": "Read a product CSV (header + 5 data rows). Skip header, parse each row, print products costing > ₹1000 sorted by price desc.\n\nCSV: name,category,price\n\nExpected output:\nKeyboard: ₹1999\nHeadphones: ₹2999\nMonitor: ₹18999",
+      "starter_code": "import java.nio.file.*;\nimport java.util.stream.*;\nimport java.util.*;\n// Stream CSV lines, skip header, filter+sort\n",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.stream.*;\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"products.csv\");\n        Files.writeString(csv,\n            \"name,category,price\\n\" +\n            \"Mouse,Electronics,799\\n\" +\n            \"Keyboard,Electronics,1999\\n\" +\n            \"USB Hub,Accessories,499\\n\" +\n            \"Headphones,Electronics,2999\\n\" +\n            \"Monitor,Electronics,18999\");\n        \n        try (Stream<String> lines = Files.lines(csv)) {\n            lines\n                .skip(1)  // skip header\n                .map(line -> line.split(\",\"))\n                .filter(cols -> Integer.parseInt(cols[2]) > 1000)\n                .sorted((a, b) -> Integer.compare(\n                    Integer.parseInt(a[2]), Integer.parseInt(b[2])))\n                .forEach(cols -> System.out.println(cols[0] + \": ₹\" + cols[2]));\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Keyboard: ₹1999\nHeadphones: ₹2999\nMonitor: ₹18999" }
+      ],
+      "hints": [
+        "skip(1) skips the header row",
+        "map(line -> line.split(',')) splits each row",
+        "cols[2] is the price column",
+        "try-with-resources for Files.lines!"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "File metadata and existence checks",
+      "scenario": "Files utility methods for file inspection.",
+      "instructions": "Create a file and directory. Print: exists, isFile, isDirectory, size (bytes), last modified for each.\n\nExpected output:\nfile.txt: exists=true, isFile=true, isDir=false, size=[N]\ndataDir: exists=true, isFile=false, isDir=true",
+      "starter_code": "import java.nio.file.*;\n// File metadata inspection\n",
+      "expected_solution": "import java.nio.file.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path file = Path.of(\"file.txt\");\n        Path dir  = Path.of(\"dataDir\");\n        \n        Files.writeString(file, \"sample data for size check\");\n        Files.createDirectories(dir);\n        \n        System.out.printf(\"file.txt: exists=%b, isFile=%b, isDir=%b, size=%d%n\",\n            Files.exists(file), Files.isRegularFile(file),\n            Files.isDirectory(file), Files.size(file));\n        System.out.printf(\"dataDir: exists=%b, isFile=%b, isDir=%b%n\",\n            Files.exists(dir), Files.isRegularFile(dir), Files.isDirectory(dir));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["file.txt: exists=true, isFile=true, isDir=false", "dataDir: exists=true, isFile=false, isDir=true"] }
+      ],
+      "hints": [
+        "Files.exists(), Files.isRegularFile(), Files.isDirectory()",
+        "Files.size() returns long (bytes)",
+        "'sample data for size check' is 26 bytes"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m11_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Move files after processing (archive pattern)",
+      "scenario": "Process input files and archive processed ones.",
+      "instructions": "Create 3 text files in `input/`. Process each (count words), write summary. Move processed files to `done/`. Print summary.\n\nExpected output:\nProcessed: file1.txt (3 words)\nProcessed: file2.txt (4 words)\nProcessed: file3.txt (5 words)\nMoved 3 files to done/",
+      "starter_code": "import java.nio.file.*;\nimport java.util.stream.*;\nimport java.util.*;\n// Process input files, then move to done/\n",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.stream.*;\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path input = Path.of(\"input\");\n        Path done  = Path.of(\"done\");\n        Files.createDirectories(input);\n        Files.createDirectories(done);\n        \n        Files.writeString(input.resolve(\"file1.txt\"), \"hello world java\");\n        Files.writeString(input.resolve(\"file2.txt\"), \"one two three four\");\n        Files.writeString(input.resolve(\"file3.txt\"), \"a b c d e\");\n        \n        long moved = 0;\n        try (Stream<Path> files = Files.list(input)) {\n            List<Path> fileList = files\n                .filter(Files::isRegularFile)\n                .sorted()\n                .collect(Collectors.toList());\n            \n            for (Path file : fileList) {\n                String content = Files.readString(file);\n                long wordCount = Arrays.stream(content.split(\"\\\\s+\")).count();\n                System.out.println(\"Processed: \" + file.getFileName() + \" (\" + wordCount + \" words)\");\n                Files.move(file, done.resolve(file.getFileName()),\n                    StandardCopyOption.REPLACE_EXISTING);\n                moved++;\n            }\n        }\n        System.out.println(\"Moved \" + moved + \" files to done/\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Processed: file1.txt (3 words)\nProcessed: file2.txt (4 words)\nProcessed: file3.txt (5 words)\nMoved 3 files to done/" }
+      ],
+      "hints": [
+        "Collect list first (can't move while iterating the stream)",
+        "Files.readString → split on whitespace → count words",
+        "Files.move with REPLACE_EXISTING"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t1_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Path resolution and normalization",
+      "scenario": "resolve() joins paths; normalize() removes . and ..",
+      "instructions": "What does this print?\n\n```java\nimport java.nio.file.*;\npublic class App {\n    public static void main(String[] args) {\n        Path base = Path.of(\"data\");\n        System.out.println(base.resolve(\"orders.csv\"));\n        System.out.println(base.resolve(\"..\").resolve(\"config\"));\n        System.out.println(base.resolve(\"..\").resolve(\"config\").normalize());\n        System.out.println(Path.of(\"a\", \"b\", \"..\", \"c\").normalize());\n    }\n}\n```",
+      "expected_solution": "data/orders.csv\ndata/../config\nconfig\na/c",
+      "test_cases": [
+        { "type": "text_match", "expected": "data/orders.csv\ndata/../config\nconfig\na/c" }
+      ],
+      "hints": [
+        "resolve joins: data + orders.csv = data/orders.csv",
+        "..  goes up: data + .. = data/..",
+        "normalize removes ..: data/../config → config",
+        "a/b/../c → a/c"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m11_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Word frequency counter from file",
+      "scenario": "Stream file lines, tokenize, count word frequencies.",
+      "instructions": "Read a text file with Files.lines. Count word frequencies (case-insensitive). Print top 5 by frequency descending.\n\nSample text: 'The quick brown fox jumps over the lazy dog the fox and the dog'\n\nExpected output:\nthe: 4\nfox: 2\ndog: 2\nbrown: 1\nquick: 1",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\n// Word frequency from file — top 5\n",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path p = Path.of(\"text.txt\");\n        Files.writeString(p, \"The quick brown fox jumps over the lazy dog the fox and the dog\");\n        \n        Map<String, Long> freq;\n        try (Stream<String> lines = Files.lines(p)) {\n            freq = lines\n                .flatMap(line -> Arrays.stream(line.split(\"\\\\s+\")))\n                .map(String::toLowerCase)\n                .filter(w -> !w.isBlank())\n                .collect(Collectors.groupingBy(w -> w, Collectors.counting()));\n        }\n        \n        freq.entrySet().stream()\n            .sorted(Map.Entry.<String, Long>comparingByValue().reversed()\n                .thenComparing(Map.Entry.comparingByKey()))\n            .limit(5)\n            .forEach(e -> System.out.println(e.getKey() + \": \" + e.getValue()));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "the: 4\ndog: 2\nfox: 2\nbrown: 1\njumps: 1" }
+      ],
+      "hints": [
+        "flatMap(line -> Arrays.stream(line.split('\\\\s+'))) splits all words",
+        "groupingBy + counting for frequency map",
+        "Sort by value desc, then key asc for ties"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Directory diff — find files in A but not B",
+      "scenario": "Walk two directories, compare file names.",
+      "instructions": "Given two directories, find files present in dir1 but not in dir2 (by filename). Print them sorted.\n\ndir1: a.txt, b.txt, c.txt\ndir2: b.txt, c.txt, d.txt\n\nExpected output:\nOnly in dir1:\na.txt\nOnly in dir2:\nd.txt",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\n// Directory diff — files in A not in B\n",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    static Set<String> filenames(Path dir) throws Exception {\n        try (Stream<Path> s = Files.list(dir)) {\n            return s.filter(Files::isRegularFile)\n                    .map(p -> p.getFileName().toString())\n                    .collect(Collectors.toSet());\n        }\n    }\n    public static void main(String[] args) throws Exception {\n        Path dir1 = Path.of(\"dir1\"), dir2 = Path.of(\"dir2\");\n        Files.createDirectories(dir1);\n        Files.createDirectories(dir2);\n        for (String f : new String[]{\"a.txt\",\"b.txt\",\"c.txt\"}) Files.writeString(dir1.resolve(f), f);\n        for (String f : new String[]{\"b.txt\",\"c.txt\",\"d.txt\"}) Files.writeString(dir2.resolve(f), f);\n        \n        Set<String> s1 = filenames(dir1);\n        Set<String> s2 = filenames(dir2);\n        \n        Set<String> onlyIn1 = new TreeSet<>(s1); onlyIn1.removeAll(s2);\n        Set<String> onlyIn2 = new TreeSet<>(s2); onlyIn2.removeAll(s1);\n        \n        System.out.println(\"Only in dir1:\");\n        onlyIn1.forEach(System.out::println);\n        System.out.println(\"Only in dir2:\");\n        onlyIn2.forEach(System.out::println);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Only in dir1:\na.txt\nOnly in dir2:\nd.txt" }
+      ],
+      "hints": [
+        "Collect filenames to Set<String> for each directory",
+        "Set.removeAll(other) for set difference",
+        "TreeSet for sorted output"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Order CSV importer — full pipeline",
+      "scenario": "Real file I/O pipeline: read, validate, transform, write results.",
+      "instructions": "Read an orders CSV (orderId, product, qty, unitPrice). Skip header. Validate each row (qty > 0, price > 0). Compute order total (qty × price). Write valid orders to `output/valid.csv` and invalid to `output/errors.txt`. Print summary.\n\nCSV has 6 rows — 4 valid, 2 invalid (qty=0 and negative price).\n\nExpected output:\nValid orders: 4\nInvalid rows: 2\nTotal revenue: ₹[sum]\nOutput written to output/",
+      "starter_code": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\n// Full CSV import pipeline with validation\n",
+      "expected_solution": "import java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"orders.csv\");\n        Files.writeString(csv,\n            \"orderId,product,qty,unitPrice\\n\" +\n            \"ORD-001,Mouse,2,799\\n\" +\n            \"ORD-002,Keyboard,0,1999\\n\" +  // invalid: qty=0\n            \"ORD-003,USB Hub,5,499\\n\" +\n            \"ORD-004,Monitor,1,18999\\n\" +\n            \"ORD-005,Headphones,-1,2999\\n\" +  // invalid: negative qty\n            \"ORD-006,Webcam,3,4999\");\n        \n        Files.createDirectories(Path.of(\"output\"));\n        \n        List<String> valid = new ArrayList<>();\n        List<String> errors = new ArrayList<>();\n        valid.add(\"orderId,product,qty,unitPrice,total\");\n        long totalRevenue = 0;\n        \n        List<String> lines = Files.readAllLines(csv);\n        for (int i = 1; i < lines.size(); i++) {  // skip header\n            String[] cols = lines.get(i).split(\",\");\n            int qty = Integer.parseInt(cols[2]);\n            int price = Integer.parseInt(cols[3]);\n            if (qty <= 0 || price <= 0) {\n                errors.add(\"Row \" + (i+1) + \": \" + lines.get(i) + \" [invalid qty or price]\");\n            } else {\n                long total = (long) qty * price;\n                totalRevenue += total;\n                valid.add(lines.get(i) + \",\" + total);\n            }\n        }\n        \n        Files.write(Path.of(\"output\", \"valid.csv\"), valid);\n        Files.write(Path.of(\"output\", \"errors.txt\"), errors);\n        \n        System.out.println(\"Valid orders: \" + (valid.size() - 1));\n        System.out.println(\"Invalid rows: \" + errors.size());\n        System.out.println(\"Total revenue: ₹\" + totalRevenue);\n        System.out.println(\"Output written to output/\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Valid orders: 4", "Invalid rows: 2", "Total revenue:", "Output written to output/"] }
+      ],
+      "hints": [
+        "readAllLines: List; iterate with index (skip i=0 header)",
+        "Validate qty > 0 AND price > 0",
+        "Write header + valid rows to valid.csv; errors to errors.txt",
+        "Total: 2×799 + 5×499 + 1×18999 + 3×4999 = 1598+2495+18999+14997 = 38089"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 675,
+    "estimated_completion_minutes": 60
+  }
+}

@@ -1,0 +1,181 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t3",
+  "language": "java",
+  "module_id": "m16",
+  "module_name": "Apache Kafka & Event-Driven Architecture",
+  "topic_number": 3,
+  "name": "Spring Kafka Consumer",
+  "slug": "spring-kafka-consumer",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m16_t2"],
+    "concepts_taught": [
+      "kafka_listener_annotation",
+      "consumer_group_id",
+      "consumer_deserialization",
+      "consumer_record_metadata",
+      "acknowledgment_modes",
+      "manual_acknowledgment",
+      "consumer_error_handling",
+      "dead_letter_topic",
+      "consumer_concurrency",
+      "batch_listener",
+      "consumer_offset_management",
+      "embedded_kafka_consumer_test",
+      "kafka_listener_container_factory",
+      "trusted_packages_for_json_deserialization"
+    ],
+    "skills_developed": [
+      "writing_kafka_listener_methods",
+      "configuring_consumer_deserialization",
+      "handling_consumer_errors_with_dlt",
+      "testing_consumers_with_embedded_kafka",
+      "configuring_consumer_groups"
+    ],
+    "career_relevance": "@KafkaListener is the most-used Spring Kafka annotation in production. Swiggy's notification-service, Zerodha's portfolio-service, Razorpay's analytics-service — all use @KafkaListener to process events from producers. Writing a correct consumer (with error handling, DLT, and tests) is a core mid-level Spring engineer skill.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "order-service publishes to 'order-events'. Three services need to react:\n\n**Without Kafka — tight coupling:**\n```java\n// order-service must know about ALL consumers:\nordersService.save(order);\nnotificationService.sendSms(order);   // coupled\nportfolioService.updateHoldings(order); // coupled\nanalyticsService.record(order);        // coupled\n// Add a new consumer? Change order-service!\n```\n\n**With @KafkaListener — complete decoupling:**\n```java\n// notification-service (separate app, different team):\n@KafkaListener(topics = \"order-events\", groupId = \"notification-group\")\npublic void onOrderPlaced(OrderPlacedEvent event) {\n    smsService.send(event.userId(),\n        \"Order \" + event.orderId() + \" placed! Total: ₹\" + event.total());\n}\n\n// portfolio-service (another team, another deploy cycle):\n@KafkaListener(topics = \"order-events\", groupId = \"portfolio-group\")\npublic void onOrderPlaced(OrderPlacedEvent event) {\n    holdings.reserve(event.userId(), event.symbol(), event.qty());\n}\n\n// analytics-service (yet another team):\n@KafkaListener(topics = \"order-events\", groupId = \"analytics-group\")\npublic void onOrderPlaced(OrderPlacedEvent event) {\n    analyticsDb.insert(event);\n}\n```\n\nOrder-service knows nothing about these consumers. Each team:\n- deploys independently\n- fails independently (one consumer down ≠ others fail)\n- reads the SAME events at their own pace\n- can add more consumers to their group for parallelism\n\nThis is the power of @KafkaListener.",
+    "what_you_will_build": "By the end of this topic, you'll write @KafkaListener methods that consume events from Kafka, configure consumer deserialization, handle errors with dead-letter topics, set up concurrent consumers, and test consumers with EmbeddedKafka."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "kafka_listener_basics": "**@KafkaListener — subscribing to a topic:**\n\n```java\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class TradeNotificationConsumer {\n    \n    // Simplest form — Spring calls this method for each message:\n    @KafkaListener(topics = \"trade-executed\",\n                   groupId = \"notification-group\")\n    public void handleTradeExecuted(TradeExecutedEvent event) {\n        // Spring Kafka deserializes JSON → TradeExecutedEvent automatically\n        System.out.printf(\"Trade received: %s x%d @ ₹%.2f for user %s%n\",\n            event.symbol(), event.qty(), event.price(), event.userId());\n        smsService.send(event.userId(),\n            event.qty() + \" \" + event.symbol() + \" @ ₹\" + event.price());\n    }\n    \n    // With ConsumerRecord — access partition, offset, key, headers:\n    @KafkaListener(topics = \"trade-executed\", groupId = \"audit-group\")\n    public void handleWithMetadata(\n            ConsumerRecord<String, TradeExecutedEvent> record) {\n        System.out.printf(\n            \"Topic: %s | Partition: %d | Offset: %d | Key: %s | Value: %s%n\",\n            record.topic(), record.partition(), record.offset(),\n            record.key(), record.value());\n    }\n    \n    // Listen to multiple topics:\n    @KafkaListener(topics = {\"order-placed\", \"order-cancelled\"},\n                   groupId = \"notification-group\")\n    public void handleOrderEvents(Object event) {\n        // Handle both order-placed and order-cancelled events\n    }\n}\n```",
+
+      "consumer_configuration": "**Consumer configuration:**\n\n```properties\n# application.properties:\nspring.kafka.bootstrap-servers=localhost:9092\n\n# Consumer group (can also set per @KafkaListener):\nspring.kafka.consumer.group-id=notification-group\n\n# Deserialization:\nspring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer\nspring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer\n\n# CRITICAL: trust your event packages for deserialization:\nspring.kafka.consumer.properties.spring.json.trusted.packages=com.codequest.events,com.codequest.trade\n# Or trust everything (dev only):\n# spring.kafka.consumer.properties.spring.json.trusted.packages=*\n\n# Read from beginning when no offset found:\nspring.kafka.consumer.auto-offset-reset=earliest\n\n# Manual offset commit (for exactly-once processing):\n# spring.kafka.listener.ack-mode=manual\n```\n\n**Trusted packages — CRITICAL:**\nJsonDeserializer refuses to deserialize types from untrusted packages (security protection). You MUST configure trusted.packages for your event types.",
+
+      "error_handling": "**Error handling — Dead Letter Topic (DLT):**\n\n```java\nimport org.springframework.kafka.annotation.KafkaListener;\nimport org.springframework.kafka.annotation.DltHandler;\nimport org.springframework.kafka.annotation.RetryableTopic;\nimport org.springframework.retry.annotation.Backoff;\n\n@Service\npublic class OrderConsumer {\n    \n    // @RetryableTopic: retry 3 times with backoff, then send to DLT:\n    @RetryableTopic(\n        attempts = \"3\",\n        backoff = @Backoff(delay = 1000, multiplier = 2.0),\n        dltTopicSuffix = \"-dlt\"\n    )\n    @KafkaListener(topics = \"order-placed\", groupId = \"inventory-group\")\n    public void handleOrderPlaced(OrderPlacedEvent event) {\n        // If this throws, Kafka retries. After 3 attempts → 'order-placed-dlt':\n        inventoryService.reserveStock(event.productId(), event.qty());\n    }\n    \n    // Handles messages that end up in the DLT:\n    @DltHandler\n    public void handleDlt(OrderPlacedEvent event) {\n        System.err.println(\"ORDER PERMANENTLY FAILED: \" + event.orderId());\n        // Alert ops team, save to failed-orders table, trigger manual review...\n        alertingService.sendPagerDuty(\"Order failed after retries: \" + event.orderId());\n    }\n}\n```\n\n**DLT flow:**\n```\n1st attempt: fails → wait 1s → retry\n2nd attempt: fails → wait 2s → retry\n3rd attempt: fails → move to 'order-placed-dlt'\n@DltHandler: called with the failed message\n```",
+
+      "concurrent_consumers": "**Concurrency and batch listeners:**\n\n```java\n// Concurrent consumers — process in parallel:\n@KafkaListener(\n    topics = \"trade-executed\",\n    groupId = \"portfolio-group\",\n    concurrency = \"3\"  // 3 consumer threads, one per partition\n)\npublic void handleTrade(TradeExecutedEvent event) {\n    // Called from 3 threads simultaneously (one per partition)\n    // Thread safety: use thread-safe services!\n    portfolioService.updateHolding(event);\n}\n\n// Batch listener — process multiple records at once:\n@KafkaListener(\n    topics = \"analytics-events\",\n    groupId = \"analytics-group\",\n    batch = \"true\"  // receive List of records instead of one\n)\npublic void handleBatch(List<TradeExecutedEvent> events) {\n    System.out.println(\"Processing batch of \" + events.size() + \" events\");\n    analyticsDb.insertBatch(events);  // more efficient than one-by-one\n}\n```\n\n**Concurrency rule**: concurrent consumers ≤ number of partitions.\n- 3-partition topic + `concurrency=3` → 3 threads, 1 partition each (optimal)\n- 3-partition topic + `concurrency=5` → 3 threads active, 2 idle (wasted)\n- 3-partition topic + `concurrency=1` → 1 thread processes all 3 partitions (single-threaded)"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) @KafkaListener method flow: Kafka broker delivers message from 'trade-executed' topic. Spring Kafka container intercepts, deserializes JSON→TradeExecutedEvent using JsonDeserializer. Calls handleTradeExecuted(event) on the @Service. Method processes (SMS send). Offset committed back to Kafka. Error path: exception thrown → @RetryableTopic retries up to 3 times → after 3 failures → message goes to 'trade-executed-dlt' → @DltHandler called. (2) Consumer groups: trade-executed topic (3 partitions P0, P1, P2). notification-group: 3 consumers C1→P0, C2→P1, C3→P2. portfolio-group: 1 consumer C4→P0,P1,P2 (reads all partitions). Both groups receive the SAME messages independently.",
+      "alt_text": "@KafkaListener processing flow with DLT error handling, and two consumer groups reading the same topic independently"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build the notification-service for the Zerodha trading platform. It listens to 'trade-executed' events and sends SMS notifications. Add retry logic so transient SMS failures don't cause event loss.",
+
+    "problem_statement": "1. Configure consumer with JsonDeserializer and trusted packages\n2. Write TradeNotificationConsumer with @KafkaListener\n3. Add @RetryableTopic for SMS failures\n4. Add @DltHandler for permanently failed messages\n5. Test: use @EmbeddedKafka, publish a message, assert listener is called",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Consumer application.properties",
+        "details": "```properties\nspring.kafka.bootstrap-servers=localhost:9092\nspring.kafka.consumer.group-id=notification-group\nspring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer\nspring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer\nspring.kafka.consumer.properties.spring.json.trusted.packages=com.codequest.events\nspring.kafka.consumer.auto-offset-reset=earliest\n```"
+      },
+      {
+        "step": 2,
+        "action": "TradeNotificationConsumer with retry and DLT",
+        "details": "```java\nimport org.springframework.kafka.annotation.*;\nimport org.springframework.retry.annotation.Backoff;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class TradeNotificationConsumer {\n    private final SmsService smsService;\n    TradeNotificationConsumer(SmsService s) { smsService = s; }\n    \n    @RetryableTopic(attempts = \"3\",\n                    backoff = @Backoff(delay = 500, multiplier = 2.0))\n    @KafkaListener(topics = \"trade-executed\",\n                   groupId = \"notification-group\")\n    public void handleTrade(TradeExecutedEvent event) {\n        smsService.send(event.userId(),\n            String.format(\"Trade: %d %s @ ₹%.2f\",\n                event.qty(), event.symbol(), event.price()));\n    }\n    \n    @DltHandler\n    public void handleFailedTrade(TradeExecutedEvent event) {\n        System.err.println(\"TRADE NOTIFICATION FAILED (DLT): \" + event.tradeId());\n        // save to failed_notifications table for ops team\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "@EmbeddedKafka test — verify listener called",
+        "details": "```java\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@EmbeddedKafka(partitions=1, topics={\"trade-executed\"})\n@TestPropertySource(properties={\n    \"spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\",\n    \"spring.kafka.consumer.auto-offset-reset=earliest\"\n})\nclass TradeNotificationConsumerTest {\n    @Autowired KafkaTemplate<String,TradeExecutedEvent> kafkaTemplate;\n    @MockBean SmsService smsService;\n    \n    @Test void handleTrade_callsSmsService() throws Exception {\n        var event = new TradeExecutedEvent(\n            \"TRD-001\",\"U01\",\"TCS\",10,3890.0,38900.0,\"BUY\",Instant.now());\n        kafkaTemplate.send(\"trade-executed\", event.symbol(), event);\n        \n        // Wait for listener to process:\n        Thread.sleep(2000);\n        verify(smsService, times(1)).send(eq(\"U01\"), contains(\"TCS\"));\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// application.properties: consumer config + trusted.packages\n// TradeNotificationConsumer: @KafkaListener + @RetryableTopic + @DltHandler\n// Test: @EmbeddedKafka + @MockBean SmsService + verify called\n\n// Event flow:\n// order-service → kafkaTemplate.send('trade-executed') → broker\n// broker → @KafkaListener → handleTrade(event)\n//   success: SMS sent\n//   fail x3: → 'trade-executed-dlt' → @DltHandler → ops alert",
+
+    "expected_output": "# Consumer startup:\n[Kafka Listener] Trade notification consumer started, group=notification-group\n\n# Message received:\n[TradeNotificationConsumer] Trade received: TCS x10 @ ₹3890 for U01\n[SmsService] SMS sent to U01: Trade: 10 TCS @ ₹3890.00\n\n# On SMS failure (retry):\n[WARN] SMS failed, retrying in 500ms (attempt 2/3)\n[WARN] SMS failed, retrying in 1000ms (attempt 3/3)\n[ERROR] TRADE NOTIFICATION FAILED (DLT): TRD-001 — sending to 'trade-executed-dlt'\n[DltHandler] Saved to failed_notifications: TRD-001",
+
+    "things_to_notice": [
+      "spring.kafka.consumer.properties.spring.json.trusted.packages: the most-forgotten consumer property. Without it, JsonDeserializer throws IllegalArgumentException: 'The class ... is not in the trusted packages'. You must list all packages containing your event classes, or use * (development only).",
+      "auto-offset-reset=earliest: when a consumer group first connects (no committed offset), start from the beginning of the topic. 'latest' (default) would miss all messages published before the consumer started. In tests, use 'earliest' so the test consumer sees messages published during setup.",
+      "The @DltHandler method is called when the message has exhausted all retries. It does NOT receive an Exception parameter (it receives the event itself). In production: alert the ops team, save to a dead-letter database, or send to a monitoring system. Never silently swallow DLT messages.",
+      "@EmbeddedKafka consumer test: Thread.sleep(2000) gives the listener time to process. A better approach: use a CountDownLatch — the listener calls latch.countDown() when processed; the test does latch.await(5, TimeUnit.SECONDS). This avoids hardcoded sleep times.",
+      "concurrency='3': three consumer threads, one per partition. The @Service class must be thread-safe — if it has mutable state, use AtomicInteger or synchronization. Spring creates ONE instance of the @Service but calls the listener method from multiple threads simultaneously."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy notification pipeline",
+        "use_case": "Swiggy's notification-service has @KafkaListener for 'order-placed', 'order-confirmed', 'order-picked-up', 'order-delivered'. Each handler sends the appropriate SMS/push notification. @RetryableTopic handles transient SMS gateway failures. Concurrency=12 (12 partitions per topic, 12 consumer threads). The notification-service team owns this entirely — order-service never knows about SMS."
+      },
+      {
+        "company_context": "Zerodha portfolio service",
+        "use_case": "Zerodha's portfolio-service listens to 'trade-executed' with `groupId='portfolio-group'`. For every trade event, it updates the user's holdings: BUY adds shares, SELL removes. The key (symbol) ensures TCS trades always go to the same partition → same consumer thread → holdings updated in order (no race between BUY and SELL for same symbol). A separate 'analytics-group' reads the same events for P&L calculations."
+      },
+      {
+        "company_context": "Razorpay webhook dispatch",
+        "use_case": "When a payment completes, payment-service publishes to 'payment-events'. webhook-service has @KafkaListener with @RetryableTopic (attempts=5) because merchant webhooks are unreliable. If the merchant's webhook endpoint returns 5xx, Razorpay retries with exponential backoff. After 5 failures → DLT → ops team investigates and manually retries. Never silently drop payment webhook events."
+      }
+    ],
+
+    "interview_relevance": "Spring Kafka consumer interview questions:\n\n- **'How do you consume Kafka messages in Spring Boot?'** → Add @KafkaListener(topics='topic', groupId='group') on a @Service method. Spring Kafka deserializes the message and calls the method.\n- **'What is auto.offset.reset?'** → What to do when a consumer group has no committed offset (first start). 'earliest': read from beginning. 'latest': read from now onwards. Use 'earliest' in dev/test.\n- **'How do you handle consumer failures?'** → @RetryableTopic: retry N times with backoff. @DltHandler: process messages that failed all retries. Always handle DLT — never silently lose messages.\n- **'What is trusted.packages?'** → JsonDeserializer security feature — refuses to deserialize types from untrusted packages. Configure spring.json.trusted.packages with your event package names.",
+
+    "real_world_workflow": "Daily @KafkaListener workflow:\n\n- New event type: add @KafkaListener method, add package to trusted.packages\n- New business rule: add handler method in existing consumer @Service\n- Test: @EmbeddedKafka, publish message, verify handler called via @MockBean verification\n- Production issue: check DLT topic — failed messages are there"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_trusted_packages",
+      "what_students_get_wrong": "Configuring JsonDeserializer for value-deserializer but forgetting trusted.packages — consumer throws IllegalArgumentException on every message.",
+      "remediation": "Add: `spring.kafka.consumer.properties.spring.json.trusted.packages=com.yourcompany.events` (or `*` for dev). Without this, JsonDeserializer refuses to instantiate classes from unknown packages as a security measure. The error: 'The class X is not in the trusted packages'. In @EmbeddedKafka tests, add it to @TestPropertySource.",
+      "detection_pattern": "Consumer logs: 'IllegalArgumentException: The class ... is not in the trusted packages'"
+    },
+    {
+      "gap_id": "exception_swallowing",
+      "what_students_get_wrong": "Catching all exceptions inside @KafkaListener without re-throwing — Kafka thinks the message was processed successfully and commits the offset. The message is lost.",
+      "remediation": "In @KafkaListener, either: (1) let exceptions propagate — Spring Kafka will retry (if @RetryableTopic configured) or commit offset (if no retry), (2) use @RetryableTopic for automatic retry + DLT, or (3) catch specific business exceptions and handle them, but let infrastructure exceptions propagate. Avoid `catch(Exception e) { log.error(e); }` — it commits the offset even though processing failed.",
+      "detection_pattern": "Exception logged but message not retried; consumer offset advances past failed messages"
+    },
+    {
+      "gap_id": "wrong_auto_offset_reset",
+      "what_students_get_wrong": "Using auto-offset-reset=latest in tests — the consumer starts after the test message was published, missing it entirely.",
+      "remediation": "In tests: always set `spring.kafka.consumer.auto-offset-reset=earliest`. This tells the consumer to start from the beginning of the topic when no committed offset exists (first test run). 'latest' would only receive messages published AFTER the consumer subscribed — which means the test message published first is missed.",
+      "detection_pattern": "Test consumer.poll() returns empty records even though kafkaTemplate.send() was called"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@KafkaListener(topics='name', groupId='group'): subscribe to a topic",
+      "Method parameter: the event type (deserialized from JSON automatically)",
+      "Or ConsumerRecord<K,V>: access topic, partition, offset, key, headers",
+      "spring.kafka.consumer.value-deserializer=JsonDeserializer (spring-kafka)",
+      "spring.kafka.consumer.properties.spring.json.trusted.packages=...: MUST configure",
+      "spring.kafka.consumer.auto-offset-reset=earliest: start from beginning when no offset",
+      "@RetryableTopic(attempts='3', backoff=@Backoff(delay=500, multiplier=2.0)): retry policy",
+      "@DltHandler: handles messages after all retries exhausted — never silently drop",
+      "concurrency='3': N consumer threads, one per partition (N ≤ partitionCount)",
+      "batch='true': receive List<Event> instead of single Event",
+      "@EmbeddedKafka test: publish + Thread.sleep (or CountDownLatch) + verify",
+      "@MockBean SmsService + verify(smsService).send(...): assert listener effect",
+      "Never catch-all inside @KafkaListener — offset commits even on failure"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Your @KafkaListener test publishes a message but the listener is never called. You checked: @EmbeddedKafka is set up, spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers} is configured. What else might be wrong?",
+        "answer": "Most likely: auto-offset-reset=latest (default). The message is published before the consumer subscribes, so it's missed. Fix: add spring.kafka.consumer.auto-offset-reset=earliest to @TestPropertySource. Other possible causes: (1) trusted.packages not configured — consumer throws and discards messages silently, (2) Thread.sleep is too short — listener hasn't processed yet; increase to 2-3 seconds or use CountDownLatch, (3) groupId mismatch — @KafkaListener uses a different groupId than expected; check both @KafkaListener annotation and application.properties, (4) topic name typo — check @EmbeddedKafka topics= matches kafkaTemplate.send() topic name."
+      },
+      {
+        "question": "A @KafkaListener method catches Exception internally and logs it. The method never throws. What is the problem?",
+        "answer": "The Kafka offset is committed as if the message was processed successfully — even though processing failed. Kafka doesn't know the processing failed because the method returned normally (no exception escaped). The message is permanently lost — it won't be retried. Fix: either let the exception propagate (Kafka will retry if @RetryableTopic is configured), or save the failed message to a dead-letter database before returning, or use @RetryableTopic which handles retry + DLT automatically. Rule: only catch exceptions you can fully handle within the listener; let infrastructure exceptions propagate."
+      },
+      {
+        "question": "A 'trade-executed' topic has 6 partitions. You set concurrency='3' on @KafkaListener. How many partitions does each consumer thread handle?",
+        "answer": "2 partitions per thread: 6 partitions ÷ 3 threads = 2. Kafka distributes partitions evenly across consumer threads in the same group. With concurrency=3: thread-1 → P0+P1, thread-2 → P2+P3, thread-3 → P4+P5. To get one partition per thread (maximum throughput with ordering per partition), set concurrency='6' (equal to partition count). Setting concurrency > 6 wastes threads — extra threads get no partitions assigned and sit idle. Setting concurrency < 6 means some threads handle multiple partitions but ordering is still maintained per partition."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Kafka Streams** — @KafkaListener processes one event at a time. Kafka Streams processes a continuous stream of events with stateful operations: filtering, grouping, aggregating, joining. You can answer questions like 'What is the total trading volume per stock in the last 5 minutes?' in real-time, as events arrive, without querying a database. After Topic 16.4, you'll build a real-time trading dashboard with Kafka Streams."
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m28_t1_proj",
+  "linked_topic": "java_m28_t1",
+  "level": "mini",
+  "name": "Zerodha Trading gRPC Schema",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Zerodha's order routing system needs to call 5 internal microservices with <0.5ms total latency. Define the gRPC proto schema for the trading system, ensuring backward compatibility for rolling deployments.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "OrderRequest message: accountId (string), symbol (string), exchange (Exchange enum), quantity (int32), limitPricePaise (int64), type (OrderType enum), idempotencyKey (string). All fields numbered correctly starting at 1.", "weight": 15},
+      {"id": "req_2", "description": "OrderResponse message: orderId (string), status (OrderStatus enum), fillPricePaise (int64), rejectionReason (string), placedAt (google.protobuf.Timestamp).", "weight": 10},
+      {"id": "req_3", "description": "3 enums with UNSPECIFIED=0: OrderType (MARKET, LIMIT, STOP_LOSS), OrderStatus (PENDING, PLACED, FILLED, REJECTED), Exchange (NSE, BSE, NFO).", "weight": 10},
+      {"id": "req_4", "description": "TradeService with 2 RPCs: PlaceOrder (unary) and GetOrderHistory (server-streaming → returns stream OrderResponse).", "weight": 15},
+      {"id": "req_5", "description": "Proto options: java_package, java_multiple_files=true.", "weight": 5},
+      {"id": "req_6", "description": "Backward compatibility: field 5 was 'product_code' — add reserved 5; reserved 'product_code'; to prevent reuse.", "weight": 10},
+      {"id": "req_7", "description": "Java builder demonstration: build an OrderRequest using simulated/generated newBuilder() pattern with all fields set.", "weight": 15},
+      {"id": "req_8", "description": "@SpringBootTest (3 tests): builder creates correct message, reserved field not reusable (documented), stream RPC signature documented. All 3 pass.", "weight": 15},
+      {"id": "req_9", "description": "README: explains when to use gRPC vs REST vs GraphQL with Zerodha as the example.", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "MarketDataService: GetQuote (unary) + WatchQuotes (server-streaming). Quote message with LTP, bid, ask, volume, Timestamp.", "weight": 20},
+      {"id": "bonus_2", "description": "PortfolioService: GetPortfolio (returns stream Position). Position message with symbol, quantity, avgBuyPrice, unrealisedPnl.", "weight": 15},
+      {"id": "bonus_3", "description": "Serialization size comparison: Java code that compares simulated proto byte count vs JSON string length for same OrderRequest data. Assert proto < JSON.", "weight": 20}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Field numbers are permanent: once assigned, a field number can NEVER be reused for a different field — even if the original field is removed. Use 'reserved N;' and 'reserved name;' for removed fields. Enum first value MUST be 0 in proto3: name it UNSPECIFIED or UNKNOWN (e.g., ORDER_TYPE_UNSPECIFIED = 0). java_multiple_files = true: generates one .java file per message — cleaner than one giant file. stream keyword in service: 'returns (stream OrderResponse)' means the server sends 0..N messages before closing. Field numbers 1-15: encoded in 1 byte — use these for the most commonly sent fields.",
+  "rubric": [
+    {"category": "OrderRequest message", "points": 15},
+    {"category": "OrderResponse message", "points": 10},
+    {"category": "3 enums with UNSPECIFIED=0", "points": 10},
+    {"category": "TradeService (unary + streaming)", "points": 15},
+    {"category": "Proto options", "points": 5},
+    {"category": "reserved field (backward compat)", "points": 10},
+    {"category": "Java builder demo", "points": 15},
+    {"category": "3 tests (all pass)", "points": 15},
+    {"category": "README", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

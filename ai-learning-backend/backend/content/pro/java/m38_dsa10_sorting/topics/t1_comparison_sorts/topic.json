@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m38_t1",
+  "module_id": "m38",
+  "topic_number": 1,
+  "name": "Comparison Sorts \u2014 Merge, Quick, Heap Sort",
+  "slug": "comparison-sorts-merge-quick-heap",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m29_t1"
+    ],
+    "concepts_taught": [
+      "comparison-sorts-merge-quick-heap"
+    ],
+    "career_relevance": "Core Comparison Sorts \u2014 Merge, Quick, Heap Sort patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Comparison Sorts \u2014 Merge, Quick, Heap Sort"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Merge sort: O(n log n) O(n) \u2014 stable, best for linked lists and external sort",
+        "Quick sort: O(n log n) avg O(n\u00b2) worst O(log n) space \u2014 unstable, cache-friendly, fastest in practice",
+        "Heap sort: O(n log n) O(1) \u2014 unstable, in-place",
+        "Stable = relative order of equals preserved: Merge, Counting, Radix, Tim",
+        "Unstable: Quick sort, Heap sort",
+        "Java Arrays.sort uses TimSort (stable, O(n log n)) for objects; dual-pivot Quicksort for primitives"
+      ],
+      "next_topic_preview": "Next: Non-comparison sorts."
+    }
+  }
+}

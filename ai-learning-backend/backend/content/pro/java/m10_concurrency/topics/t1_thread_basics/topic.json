@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t1",
+  "language": "java",
+  "module_id": "m10",
+  "module_name": "Concurrency and Threads",
+  "topic_number": 1,
+  "name": "Thread Basics",
+  "slug": "thread-basics",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m4_t1", "java_m5_t4", "java_m8_t1"],
+    "concepts_taught": [
+      "what_is_a_thread",
+      "process_vs_thread",
+      "creating_threads_extends_thread",
+      "creating_threads_implements_runnable",
+      "creating_threads_lambda_runnable",
+      "thread_start_vs_run",
+      "thread_lifecycle",
+      "thread_sleep",
+      "thread_join",
+      "thread_naming",
+      "thread_priority",
+      "daemon_threads",
+      "non_deterministic_thread_execution"
+    ],
+    "skills_developed": [
+      "creating_and_starting_threads",
+      "using_runnable_with_lambda",
+      "making_threads_wait_sleep_join",
+      "understanding_thread_non_determinism",
+      "basic_concurrent_program_structure"
+    ],
+    "career_relevance": "Every backend server handles thousands of simultaneous requests — each on its own thread. Android UI runs on a main thread, with background work on worker threads. Without threads, a slow database query would freeze the entire application. After this topic, you write Java that can do multiple things at once — the foundation of every scalable backend and every responsive UI.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You've built a restaurant search app. When the user taps 'Search', the app needs to:\n1. Query the database (takes 200ms)\n2. Call a ratings API (takes 300ms)\n3. Check promo codes (takes 100ms)\n4. Render the result screen\n\n**Sequential (what you've been doing):**\n```\nStep 1: 200ms → Step 2: 300ms → Step 3: 100ms → Render\nTotal: 600ms\n```\nThe user sees the screen freeze for half a second. On every search.\n\n**Concurrent (threads):**\n```\nStep 1: 200ms ─┐\nStep 2: 300ms  ├─→ Render (after 300ms — the slowest one)\nStep 3: 100ms ─┘\n```\nAll three tasks run simultaneously. Total wait: 300ms. Twice as fast.\n\nThis is threads. This is why every scalable system uses them.\n\n```java\n// Rough idea — you'll build this properly by end of Module 10:\nThread dbQuery     = new Thread(() -> fetchDatabase());\nThread ratingsApi  = new Thread(() -> callRatingsApi());\nThread promoCheck  = new Thread(() -> checkPromoCodes());\n\ndbQuery.start();    // starts immediately\nratingsApi.start(); // also starts immediately\npromoCheck.start(); // also starts immediately\n// All three running at the same time!\n```\n\nThreads are the first step into concurrent programming. Today you learn how they work.",
+    "what_you_will_build": "By the end of this topic, you'll create threads three ways (extends Thread, implements Runnable, lambda), start them correctly (not call run()), understand that thread execution order is non-deterministic, use sleep() and join(), and know the thread lifecycle."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "what_is_a_thread": "A **thread** is a unit of execution that runs independently. Your JVM starts with one thread — the main thread — and you can create more.\n\n**Process vs Thread:**\n- **Process**: a running program with its own memory space (your Java app IS a process)\n- **Thread**: a unit of execution WITHIN a process — shares the process's memory\n\n```\nYour Java App (Process)\n├── Main Thread          ← runs main()\n├── Worker Thread 1      ← you create\n├── Worker Thread 2      ← you create\n└── GC Thread            ← JVM creates for garbage collection\n```\n\nThreads within the same process share: heap memory, static variables, open files.\nThreads have their own: program counter, call stack, local variables.\n\n**Why threads?**\n- **Parallelism**: use multiple CPU cores at once\n- **Responsiveness**: keep UI responsive while doing background work\n- **Concurrency**: handle multiple requests simultaneously",
+
+      "creating_threads": "**Three ways to create a thread:**\n\n**Method 1: Extend Thread** (simple but limited — can't extend anything else)\n```java\nclass MyTask extends Thread {\n    @Override\n    public void run() {\n        System.out.println(\"Running in: \" + Thread.currentThread().getName());\n    }\n}\n\nMyTask t = new MyTask();\nt.start();  // starts the thread; run() executes in a new thread\n```\n\n**Method 2: Implement Runnable** (preferred — keeps class hierarchy free)\n```java\nclass MyRunnable implements Runnable {\n    @Override\n    public void run() {\n        System.out.println(\"Running in: \" + Thread.currentThread().getName());\n    }\n}\n\nThread t = new Thread(new MyRunnable());\nt.start();\n```\n\n**Method 3: Lambda (Java 8+)** — most concise, most common in modern code:\n```java\nThread t = new Thread(() -> {\n    System.out.println(\"Running in: \" + Thread.currentThread().getName());\n});\nt.start();\n\n// Even shorter for single expression:\nThread t = new Thread(() -> System.out.println(\"Hello from thread!\"));\nt.start();\n```\n\n**Best practice**: prefer Runnable (Method 2/3) over extending Thread (Method 1). Runnable separates the TASK from the THREAD that runs it — cleaner design.",
+
+      "start_vs_run": "**`start()` vs `run()` — the most critical distinction in threading:**\n\n```java\nThread t = new Thread(() -> System.out.println(\"Running in: \" + Thread.currentThread().getName()));\n\nt.start(); // CORRECT — creates a new thread, runs the lambda IN THAT THREAD\n// Output: Running in: Thread-0\n\nt.run();   // WRONG — calls the method directly, runs in the CURRENT thread\n// Output: Running in: main\n// No new thread was created!\n```\n\n**`t.start()`**: tells the JVM to create a new OS thread and execute `run()` in it.\n\n**`t.run()`**: just calls the `run()` method directly on the calling thread — no concurrency at all. This is a common beginner mistake.\n\n**You can never call start() on the same thread twice:**\n```java\nThread t = new Thread(() -> System.out.println(\"hello\"));\nt.start();  // OK\nt.start();  // IllegalThreadStateException!\n```",
+
+      "non_determinism": "**Thread execution is NON-DETERMINISTIC:**\n\n```java\nfor (int i = 0; i < 3; i++) {\n    int task = i;\n    new Thread(() -> System.out.println(\"Task \" + task)).start();\n}\n\n// Possible outputs (ALL are valid):\n// Run 1: Task 0, Task 1, Task 2\n// Run 2: Task 2, Task 0, Task 1\n// Run 3: Task 1, Task 2, Task 0\n// Run 4: Task 0, Task 2, Task 1\n```\n\nThe OS scheduler decides which thread runs when. You don't control the order.\n\n**Why non-deterministic?**\n- Multiple CPU cores can run threads truly simultaneously\n- The OS preempts threads at arbitrary moments\n- System load, other processes, memory pressure all affect scheduling\n\n**This is fundamental** — non-determinism is the source of both the power AND the complexity of threads. Topics 10.2-10.4 teach how to write correct concurrent code despite non-determinism.",
+
+      "thread_sleep_and_join": "**`Thread.sleep(ms)`** — pause the CURRENT thread:\n\n```java\nSystem.out.println(\"Start\");\ntry {\n    Thread.sleep(1000);  // pause for 1 second\n} catch (InterruptedException e) {\n    Thread.currentThread().interrupt();  // restore interrupt flag — best practice\n}\nSystem.out.println(\"After 1 second\");\n```\n\n`sleep()` throws checked `InterruptedException` — always handle it!\n\n**`thread.join()`** — wait for a thread to finish:\n\n```java\nThread t1 = new Thread(() -> {\n    Thread.sleep(500);\n    System.out.println(\"t1 done\");\n});\n\nt1.start();\nSystem.out.println(\"Waiting for t1...\");\nt1.join();   // main thread blocks until t1 completes\nSystem.out.println(\"t1 has finished\");\n\n// Output (guaranteed order):\n// Waiting for t1...\n// t1 done\n// t1 has finished\n```\n\n**join() with timeout**: `t1.join(2000)` — wait at most 2 seconds, then continue regardless.",
+
+      "thread_lifecycle": "**Thread lifecycle:**\n\n```\nNEW → RUNNABLE → (BLOCKED/WAITING/TIMED_WAITING) → TERMINATED\n\nNEW: created with new Thread() but not started\nRUNNABLE: started, eligible to run (may be currently executing)\nBLOCKED: waiting to acquire a lock (synchronized — Topic 10.2)\nWAITING: waiting indefinitely (join(), wait())\nTIMED_WAITING: waiting with timeout (sleep(ms), join(ms))\nTERMINATED: run() has completed or threw an uncaught exception\n```\n\n**Checking state:**\n```java\nThread t = new Thread(() -> { ... });\nSystem.out.println(t.getState());  // NEW\nt.start();\nSystem.out.println(t.getState());  // RUNNABLE (likely)\nt.join();\nSystem.out.println(t.getState());  // TERMINATED\n```",
+
+      "thread_naming_and_info": "**Thread naming and metadata:**\n\n```java\n// Get the current thread:\nThread current = Thread.currentThread();\nSystem.out.println(current.getName());  // 'main' in main()\n\n// Name a thread:\nThread t = new Thread(() -> {\n    System.out.println(\"I am: \" + Thread.currentThread().getName());\n});\nt.setName(\"WorkerThread-1\");\nt.start();\n// Output: I am: WorkerThread-1\n\n// Thread priority (1=lowest, 10=highest, 5=default):\nt.setPriority(Thread.MAX_PRIORITY);  // 10\nt.setPriority(Thread.NORM_PRIORITY); // 5 (default)\nt.setPriority(Thread.MIN_PRIORITY);  // 1\n// Priority is a HINT to the scheduler — not guaranteed\n\n// Daemon threads — shut down when main thread exits:\nThread daemon = new Thread(() -> {\n    while (true) { /* background task */ }\n});\ndaemon.setDaemon(true);  // must set BEFORE start()\ndaemon.start();\n// JVM exits even if daemon is still running\n```\n\n**Daemon threads**: background tasks (GC, log flushing, cache cleanup) that shouldn't prevent program exit. Must call `setDaemon(true)` before `start()`."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a timeline of 3 threads starting simultaneously from a main thread. Three colored bars (Thread-0, Thread-1, Thread-2) start at different times due to scheduling, each running for a period, potentially overlapping. Below: thread lifecycle state machine — boxes for NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING, TERMINATED with arrows showing transitions. Side: start() vs run() — two code paths: start() creates new thread stack (separate arrow), run() stays on same thread stack. Daemon thread visual: main thread exits, non-daemon thread keeps JVM alive, daemon thread is killed.",
+      "alt_text": "Thread timeline showing non-deterministic overlap, thread lifecycle states, and start vs run difference"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Simulate a restaurant order processing system where three kitchen stations (appetizer, main course, dessert) cook simultaneously, rather than sequentially.",
+
+    "problem_statement": "Build a restaurant kitchen simulator:\n1. Create three threads: appetizer (2s), main (4s), dessert (1s)\n2. Start all three simultaneously\n3. Main thread waits for ALL to finish with join()\n4. Print total time (should be ~4s, not 7s sequential)\n5. Show non-deterministic completion order",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Create a KitchenStation Runnable",
+        "details": "```java\nclass KitchenStation implements Runnable {\n    private final String name;\n    private final int cookTimeMs;\n    \n    KitchenStation(String name, int cookTimeMs) {\n        this.name = name;\n        this.cookTimeMs = cookTimeMs;\n    }\n    \n    @Override\n    public void run() {\n        System.out.printf(\"[%s] Starting...%n\", name);\n        try {\n            Thread.sleep(cookTimeMs);  // simulate cooking\n        } catch (InterruptedException e) {\n            Thread.currentThread().interrupt();\n            return;\n        }\n        System.out.printf(\"[%s] Done!%n\", name);\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Start all three and join",
+        "details": "```java\npublic static void main(String[] args) throws InterruptedException {\n    long start = System.currentTimeMillis();\n    \n    Thread appetizer = new Thread(new KitchenStation(\"Appetizer\", 2000));\n    Thread main      = new Thread(new KitchenStation(\"Main Course\", 4000));\n    Thread dessert   = new Thread(new KitchenStation(\"Dessert\", 1000));\n    \n    // Name them for clearer output\n    appetizer.setName(\"Kitchen-Appetizer\");\n    main.setName(\"Kitchen-Main\");\n    dessert.setName(\"Kitchen-Dessert\");\n    \n    // Start ALL — they run concurrently from this point\n    appetizer.start();\n    main.start();\n    dessert.start();\n    \n    System.out.println(\"All stations started. Waiting for completion...\");\n    \n    // Wait for each to finish\n    appetizer.join();\n    main.join();\n    dessert.join();\n    \n    long elapsed = System.currentTimeMillis() - start;\n    System.out.printf(\"All done in %d ms (sequential would be 7000ms)%n\", elapsed);\n}\n```"
+      }
+    ],
+
+    "final_code": "class KitchenStation implements Runnable {\n    private final String name;\n    private final int cookTimeMs;\n    KitchenStation(String name, int ms) { this.name=name; cookTimeMs=ms; }\n    \n    @Override\n    public void run() {\n        System.out.printf(\"[%s] Starting (%.1fs)...%n\", name, cookTimeMs/1000.0);\n        try { Thread.sleep(cookTimeMs); } \n        catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }\n        System.out.printf(\"[%s] Done!%n\", name);\n    }\n}\n\npublic class RestaurantKitchen {\n    public static void main(String[] args) throws InterruptedException {\n        long start = System.currentTimeMillis();\n        \n        Thread appetizer = new Thread(new KitchenStation(\"Appetizer\",  500));\n        Thread mainCourse= new Thread(new KitchenStation(\"Main Course\",1000));\n        Thread dessert   = new Thread(new KitchenStation(\"Dessert\",     300));\n        \n        appetizer.start();\n        mainCourse.start();\n        dessert.start();\n        \n        System.out.println(\"Kitchen open — all stations cooking!\");\n        \n        appetizer.join();\n        mainCourse.join();\n        dessert.join();\n        \n        long elapsed = System.currentTimeMillis() - start;\n        System.out.printf(\"Meal complete in %dms (sequential: 1800ms)%n\", elapsed);\n    }\n}",
+
+    "expected_output": "Kitchen open — all stations cooking!\n[Appetizer] Starting (0.5s)...\n[Main Course] Starting (1.0s)...\n[Dessert] Starting (0.3s)...\n[Dessert] Done!\n[Appetizer] Done!\n[Main Course] Done!\nMeal complete in ~1000ms (sequential: 1800ms)",
+
+    "things_to_notice": [
+      "All three 'Starting' messages appear quickly (threads started almost simultaneously). The 'Done' messages appear in order of completion time — Dessert (0.3s) first, then Appetizer (0.5s), then Main (1.0s).",
+      "`join()` is called on ALL THREE after all three are started — NOT alternating start/join. If you called start/join/start/join/start/join, they'd run sequentially, not concurrently.",
+      "Total time is ~1000ms (the slowest station), not 1800ms (sum of all). This is the power of concurrency.",
+      "The startup order (Appetizer, Main, Dessert 'Starting...' messages) might vary between runs — thread scheduling is non-deterministic.",
+      "InterruptedException handling: `Thread.currentThread().interrupt()` restores the interrupt flag so callers can detect it. Simply catching and ignoring InterruptedException is a common bug.",
+      "Thread names are set with setName() for cleaner logging. In production, always name your threads — '[Kitchen-Main]' is far more useful than '[Thread-1]' in log files."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Tomcat / Spring Boot web server",
+        "use_case": "Every HTTP request gets its own thread from a thread pool (Topic 10.3). When a Razorpay or Flipkart API receives 1000 simultaneous requests, each runs in its own thread. Without threads, requests would queue up sequentially — catastrophic for any production service."
+      },
+      {
+        "company_context": "Android app development",
+        "use_case": "Android has ONE main thread (UI thread). ANY network call, database query, or file read MUST run on a background thread — doing it on the main thread throws NetworkOnMainThreadException. Background threads send results back to the UI thread. This architecture requires exactly what Module 10 teaches."
+      },
+      {
+        "company_context": "Zerodha trading platform",
+        "use_case": "Market data feeds stream thousands of price updates per second. Processing these on a single thread would create latency. Zerodha uses multiple threads: one receives market data, others process it per-instrument, others update UI/state. Thread coordination is critical for correct order execution."
+      }
+    ],
+
+    "interview_relevance": "Thread basics questions at every level:\n\n- **'What is the difference between a process and a thread?'** — Process: separate memory space. Thread: unit within a process, shares memory.\n- **'How do you create a thread in Java?'** — Extend Thread, implement Runnable, or use lambda with new Thread(runnable).\n- **'What is the difference between start() and run()?'** — start() creates a new thread. run() executes on the calling thread — no new thread.\n- **'What is a daemon thread?'** — Background thread; JVM exits even if it's still running. GC is a daemon thread.\n- **'What happens if you call start() twice on the same Thread?'** — IllegalThreadStateException.",
+
+    "real_world_workflow": "Daily threading patterns:\n\n- Background task during app startup: `new Thread(this::loadConfig).start()`\n- Wait for multiple tasks: start + join all\n- Named threads for debugging: `t.setName('payment-processor')`\n- Daemon for background housekeeping: `setDaemon(true)` before start\n- Never blocking the UI/main thread: background thread for I/O"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "calling_run_instead_of_start",
+      "what_students_get_wrong": "Calling `t.run()` instead of `t.start()` — code appears to work but runs sequentially on the calling thread.",
+      "remediation": "ALWAYS call `start()`. `run()` is just a regular method call — no new thread is created. This is the #1 beginner threading mistake.",
+      "detection_pattern": "Thread names in output show 'main' instead of 'Thread-N'"
+    },
+    {
+      "gap_id": "swallowing_interrupted_exception",
+      "what_students_get_wrong": "Empty catch block for InterruptedException: `catch (InterruptedException e) {}`",
+      "remediation": "Always call `Thread.currentThread().interrupt()` in the catch block (restores the interrupt signal for callers) or rethrow. Never silently swallow InterruptedException.",
+      "detection_pattern": "Empty or commented-out InterruptedException catch block"
+    },
+    {
+      "gap_id": "start_then_join_pattern",
+      "what_students_get_wrong": "Calling start() then immediately join() on each thread — running them sequentially.",
+      "remediation": "Start ALL threads first, THEN join them all. `t1.start(); t2.start(); t3.start(); t1.join(); t2.join(); t3.join()` — this gives concurrency. `t1.start(); t1.join(); t2.start(); t2.join();` is sequential.",
+      "detection_pattern": "Alternating start/join calls — threads run one at a time"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Thread: unit of execution within a process; shares process memory",
+      "Create threads three ways: extend Thread, implement Runnable, lambda with Thread(runnable)",
+      "ALWAYS call start() — never run() — to actually create a new thread",
+      "Thread execution order is NON-DETERMINISTIC — the scheduler decides",
+      "Thread.sleep(ms) — pause current thread; throws InterruptedException (always handle it)",
+      "thread.join() — block until that thread finishes",
+      "Start ALL threads, THEN join them all — for true concurrency",
+      "Thread.currentThread().getName() — identify which thread is running",
+      "Daemon threads: background threads; JVM exits even if they're running",
+      "Thread priority: hint to scheduler, not a guarantee"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What does this code output? Does it run concurrently?\n```java\nThread t = new Thread(() -> System.out.println(\"hello\"));\nt.run();\nSystem.out.println(\"world\");\n```",
+        "answer": "Output: hello, then world. SEQUENTIALLY — no concurrency. `t.run()` is just a regular method call. 'hello' prints on the main thread, then 'world' prints on the main thread. To run concurrently, call `t.start()` instead of `t.run()`."
+      },
+      {
+        "question": "Why does `Thread.currentThread().interrupt()` appear in the InterruptedException catch block?",
+        "answer": "Calling `Thread.sleep()` or `Thread.join()` clears the thread's interrupt flag when they throw InterruptedException. If your caller needs to know the thread was interrupted (to clean up or stop), it checks `Thread.currentThread().isInterrupted()`. If you swallow the exception without restoring the flag, callers can't detect the interruption. `Thread.currentThread().interrupt()` restores the flag so callers are properly notified."
+      },
+      {
+        "question": "You start threads t1, t2, t3, and then call t1.join(), t2.join(), t3.join() in main. Does main proceed after t1.join() if t3 finishes before t1?",
+        "answer": "No. `t1.join()` blocks main until t1 finishes, regardless of what t2 or t3 do. Main waits for t1 to finish, THEN waits for t2 to finish (or it may already have), THEN t3 (or it may already have). The joins are sequential — main doesn't move to the next line until the current join() call returns. If t3 finishes while main is blocked on t1.join(), that's fine — when t3.join() is eventually called, it returns immediately since t3 is already done."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Synchronization** — when threads share mutable data, things go wrong. Race conditions, lost updates, corrupted state. `synchronized` keyword prevents multiple threads from executing a block simultaneously. The `volatile` keyword ensures visibility of changes across threads. After Topic 10.2, your threads will share data safely."
+  }
+}

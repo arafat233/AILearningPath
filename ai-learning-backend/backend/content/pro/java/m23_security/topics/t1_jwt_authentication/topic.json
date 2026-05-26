@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m23_t1",
+  "language": "java",
+  "module_id": "m23",
+  "module_name": "Security",
+  "topic_number": 1,
+  "name": "JWT Authentication",
+  "slug": "jwt-authentication",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m18_t1"],
+    "concepts_taught": [
+      "jwt_structure", "jwt_signing_hs256_rs256", "stateless_auth",
+      "spring_security_resource_server", "jwt_validation", "claims_extraction",
+      "preauthorize", "authentication_principal", "custom_jwt_converter",
+      "token_expiry", "refresh_tokens_concept", "security_filter_chain"
+    ],
+    "skills_developed": [
+      "configuring_spring_security_jwt", "extracting_claims_from_token",
+      "role_based_access_control", "writing_security_tests",
+      "validating_jwt_signature"
+    ],
+    "career_relevance": "Every production API uses token-based authentication. Razorpay's merchant API: every request carries a JWT with merchant_id, permissions, and expiry. Without JWT validation, any request could forge a merchantId and access other merchants' data. After this topic, you can secure a Spring Boot API so only verified token holders can access their own data.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay payment API without auth:\n```\nGET /api/payments?merchant_id=MRC-001\n→ Returns all MRC-001 payments to ANYONE\nAttacker sets merchant_id=MRC-002 → sees another merchant's transactions!\n```\n\nWith JWT:\n```\nGET /api/payments\nAuthorization: Bearer eyJhbGciOiJSUzI1NiJ9...\n\nSpring Security validates JWT:\n  ✓ Signature valid (issued by Razorpay Auth Server)\n  ✓ Not expired (exp claim in the future)\n  ✓ merchant_id claim: 'MRC-001'\n→ Returns ONLY MRC-001 payments\n→ Attacker cannot forge a valid JWT without the private key\n```",
+    "what_you_will_build": "Spring Security JWT resource server: validate tokens, extract claims, role-based access control with @PreAuthorize."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "jwt_structure": "**JWT Structure:**\n\n```\neyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9\n.eyJzdWIiOiJNUkMtMDAxIiwibWVyY2hhbnRfaWQiOiJNUkMtMDAxIiwicm9sZXMiOlsiTUVSQ0hBTlQiXSwiaWF0IjoxNzE3NTI4MDAwLCJleHAiOjE3MTc1MzE2MDB9\n.SIGNATURE\n\nHeader (base64):  { 'alg': 'RS256', 'typ': 'JWT' }\nPayload (base64): {\n  'sub': 'MRC-001',\n  'merchant_id': 'MRC-001',\n  'roles': ['MERCHANT'],\n  'iat': 1717528000,\n  'exp': 1717531600  ← expires in 1 hour\n}\nSignature: RSA-SHA256(header.payload, privateKey)\n  → verified with the public key (JWK Set)\n```",
+      "spring_security_config": "**Spring Security JWT Resource Server:**\n\n```java\n@Configuration\n@EnableWebSecurity\n@EnableMethodSecurity  // enables @PreAuthorize\npublic class SecurityConfig {\n    @Bean\n    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {\n        return http\n            .csrf(csrf -> csrf.disable())  // stateless API: no CSRF needed\n            .sessionManagement(s -> s\n                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))\n            .authorizeHttpRequests(auth -> auth\n                .requestMatchers(\"/actuator/health\").permitAll()\n                .anyRequest().authenticated())\n            .oauth2ResourceServer(oauth2 -> oauth2\n                .jwt(jwt -> jwt\n                    .jwtAuthenticationConverter(jwtConverter())))\n            .build();\n    }\n    \n    @Bean\n    JwtAuthenticationConverter jwtConverter() {\n        var converter = new JwtGrantedAuthoritiesConverter();\n        converter.setAuthoritiesClaimName(\"roles\");  // extract from 'roles' claim\n        converter.setAuthorityPrefix(\"ROLE_\");\n        var jwtConverter = new JwtAuthenticationConverter();\n        jwtConverter.setJwtGrantedAuthoritiesConverter(converter);\n        return jwtConverter;\n    }\n}\n\n// application.yml:\n// spring.security.oauth2.resourceserver.jwt:\n//   jwk-set-uri: https://auth.razorpay.com/.well-known/jwks.json\n// OR for symmetric (HS256):\n//   secret-key: ${JWT_SECRET}  (not standard — use custom decoder)\n```",
+      "controller": "**JWT claims in controller:**\n\n```java\n@RestController\n@RequestMapping(\"/api/payments\")\npublic class PaymentController {\n    private final PaymentService paymentService;\n    \n    @GetMapping\n    @PreAuthorize(\"hasRole('MERCHANT')\")\n    public List<Payment> getPayments(@AuthenticationPrincipal Jwt jwt) {\n        // Extract merchant_id from JWT claim (not from request param!):\n        String merchantId = jwt.getClaimAsString(\"merchant_id\");\n        return paymentService.findByMerchant(merchantId);\n        // Attacker cannot forge merchant_id: JWT signature validates claims\n    }\n    \n    @PostMapping\n    @PreAuthorize(\"hasRole('MERCHANT') and #amount <= @paymentLimits.getMax(authentication)\")\n    public Payment createPayment(@AuthenticationPrincipal Jwt jwt,\n                                 @RequestBody @Valid PaymentRequest req) {\n        String merchantId = jwt.getClaimAsString(\"merchant_id\");\n        return paymentService.create(merchantId, req);\n    }\n}\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "JWT flow: Client → POST /auth/token (credentials) → Auth Server → returns JWT. Client → GET /api/payments (Authorization: Bearer JWT) → Spring Security Filter Chain → JWT filter decodes + validates signature (JWK endpoint) + extracts claims → SecurityContext populated → Controller receives @AuthenticationPrincipal Jwt → extracts merchant_id → queries DB by merchant_id only. Attacker tries forged JWT → signature validation fails → 401 Unauthorized.", "alt_text": "JWT authentication flow from client through Spring Security to database query" },
+    "worked_example": {
+      "scenario": "Secure Razorpay payment API: only authenticated merchants see their own payments.",
+      "problem_statement": "1. SecurityFilterChain: JWT resource server + method security\n2. JwtAuthenticationConverter: extract 'roles' claim\n3. PaymentController: @PreAuthorize + @AuthenticationPrincipal Jwt\n4. @SpringBootTest: valid JWT → 200, no JWT → 401, wrong role → 403",
+      "step_by_step_solution": [
+        { "step": 1, "action": "Why not sessions?", "details": "JWT = stateless: server doesn't store session. Each request carries its own credentials. Perfect for microservices (no shared session store needed). Also: JWT works across domains (mobile app, web app, partner API) without CORS session issues." },
+        { "step": 2, "action": "RS256 vs HS256", "details": "HS256: HMAC with shared secret. Both issuer AND verifier need the secret. If secret leaks from one service: all services compromised.\nRS256: RSA keypair. Auth server signs with PRIVATE key. Services verify with PUBLIC key. Compromise of a service's public key doesn't let anyone forge tokens. Production: always RS256 (asymmetric)." }
+      ],
+      "final_code": "// application.yml:\n// spring.security.oauth2.resourceserver.jwt:\n//   jwk-set-uri: https://auth.razorpay.com/.well-known/jwks.json\n//   issuer-uri: https://auth.razorpay.com",
+      "expected_output": "// Valid JWT + MERCHANT role → 200 OK with merchant's payments\n// No JWT → 401 Unauthorized (WWW-Authenticate: Bearer error='unauthorized')\n// Valid JWT + ADMIN role (no MERCHANT) → 403 Forbidden\n// Valid JWT + correct merchant_id → own payments only",
+      "things_to_notice": [
+        "Never log JWT tokens: they are credentials. Even though the payload is base64-encoded (not encrypted), a logged JWT can be replayed until expiry. Log token.getSubject() at most.",
+        "Short expiry (15-60 minutes): if a JWT is stolen, it's only valid for a short window. Use refresh tokens for long sessions. Never set JWT expiry to days or weeks.",
+        "merchant_id from JWT claim (not request param): request params can be forged. JWT claims are signed — cannot be changed without invalidating the signature.",
+        "@EnableMethodSecurity: required for @PreAuthorize to work. Without it, @PreAuthorize annotations are silently ignored — all requests are permitted!"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        { "company_context": "Razorpay merchant API auth", "use_case": "Merchant dashboard: every API call includes JWT. Claims: merchant_id, plan (basic/gold/enterprise), permissions (VIEW_PAYMENTS, CREATE_PAYMENT, MANAGE_WEBHOOKS). @PreAuthorize checks permissions — basic plan merchants cannot call enterprise-only endpoints. No server-side session needed: JWT is self-contained." }
+      ],
+      "interview_relevance": "'How does JWT authentication work in Spring Boot?' → Client gets JWT from auth server. Every subsequent request includes JWT in Authorization: Bearer header. Spring Security JWT filter validates signature against JWK Set (public keys). Extracts claims → populates SecurityContext. @AuthenticationPrincipal Jwt in controllers gives direct claim access. @PreAuthorize enforces role/permission checks.",
+      "real_world_workflow": "JWT workflow: (1) client authenticates with credentials, (2) auth server issues JWT (signed RS256), (3) service validates JWT against JWK Set on every request (cached), (4) extract claims from validated JWT, (5) authorize based on roles/permissions in claims."
+    },
+    "common_gaps": [
+      { "gap_id": "missing_enable_method_security", "what_students_get_wrong": "Adding @PreAuthorize annotations but forgetting @EnableMethodSecurity on the config class. @PreAuthorize is silently ignored — all requests pass through.", "remediation": "Always add @EnableMethodSecurity to your @Configuration class when using @PreAuthorize, @PostAuthorize, or @Secured. Test: write a @SpringBootTest that verifies a 403 is returned when the role doesn't match.", "detection_pattern": "@PreAuthorize(\"hasRole('ADMIN')\") but regular users can still access the endpoint — no 403 returned" }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "JWT: header.payload.signature — payload is base64, NOT encrypted",
+        "RS256 (asymmetric): production. HS256 (symmetric): dev only.",
+        "Spring Security JWT resource server: validates signature via JWK Set",
+        "@EnableMethodSecurity: REQUIRED for @PreAuthorize to work",
+        "@AuthenticationPrincipal Jwt: access claims directly in controller",
+        "merchant_id from JWT claim, not request param: params are forgeable",
+        "Short expiry (15-60 min): limit blast radius of stolen token",
+        "Never log JWT: it's a credential valid until expiry"
+      ],
+      "self_check_questions": [
+        { "question": "A merchant's JWT contains `roles: ['MERCHANT']` and `plan: 'basic'`. Another merchant has `plan: 'enterprise'`. How do you prevent basic merchants from calling enterprise endpoints?", "answer": "Two approaches: (1) Include plan in JWT roles: `roles: ['MERCHANT', 'PLAN_BASIC']` for basic, `['MERCHANT', 'PLAN_ENTERPRISE']` for enterprise. Then: @PreAuthorize(\"hasRole('PLAN_ENTERPRISE')\") on enterprise endpoints. (2) Custom @PreAuthorize SpEL: @PreAuthorize(\"@planService.allowsEndpoint(authentication, 'BULK_PAYOUT')\") — delegates to a bean that reads the plan claim and checks a permissions map. Approach 2 is more flexible (permission changes don't require token re-issue), but approach 1 is simpler for a small number of tiers." }
+      ],
+      "next_topic_preview": "Next: OAuth2 with Spring Security — the Authorization Code flow for user-facing applications, where users log in via Google/HDFC SSO and your service receives a delegated access token on their behalf."
+    }
+  }
+}

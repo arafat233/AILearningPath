@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t4",
+  "language": "java",
+  "module_id": "m9",
+  "module_name": "Generics",
+  "topic_number": 4,
+  "name": "Wildcards",
+  "slug": "wildcards",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m9_t3", "java_m5_t1"],
+    "concepts_taught": [
+      "generic_invariance",
+      "wildcard_unbounded",
+      "wildcard_upper_bounded_extends",
+      "wildcard_lower_bounded_super",
+      "pecs_rule",
+      "producer_extends_consumer_super",
+      "reading_vs_writing_from_wildcards",
+      "wildcards_vs_type_parameters",
+      "practical_wildcard_usage"
+    ],
+    "skills_developed": [
+      "using_unbounded_wildcards",
+      "using_upper_bounded_wildcards_for_reading",
+      "using_lower_bounded_wildcards_for_writing",
+      "applying_pecs_rule",
+      "reading_java_library_wildcard_signatures"
+    ],
+    "career_relevance": "Wildcard signatures appear throughout Java's standard library: `Collections.copy(List<? super T>, List<? extends T>)`, `Collections.sort(List<T extends Comparable<? super T>>)`, `Stream.flatMap(Function<? super T, ? extends Stream<? extends R>>)`. Without understanding wildcards, these signatures are impenetrable. With wildcards, you can read and write flexible generic APIs. After this topic, the last cryptic piece of Java generics becomes clear.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You write a method to print all numbers in a list:\n\n```java\nvoid printAll(List<Number> numbers) {\n    for (Number n : numbers) System.out.println(n);\n}\n```\n\nLooks fine — until you call it:\n```java\nList<Integer> ints    = Arrays.asList(1, 2, 3);\nList<Double>  doubles = Arrays.asList(1.1, 2.2);\n\nprintAll(ints);    // COMPILE ERROR!\nprintAll(doubles); // COMPILE ERROR!\n```\n\nBut Integer IS-A Number and Double IS-A Number! Why doesn't this work?\n\n**Because generics are INVARIANT.** `List<Integer>` is NOT a `List<Number>` — even though Integer extends Number. The type relationship doesn't carry through the generic.\n\n*Why?* Safety. If `List<Integer>` were a `List<Number>`, you could do:\n```java\nvoid addNumber(List<Number> list) { list.add(3.14); }  // adds a Double!\nList<Integer> ints = new ArrayList<>();\naddNumber(ints);  // now ints has a Double — runtime explosion!\n```\n\n**The wildcard solution:**\n```java\n// ? extends Number = any List of Number or any subtype of Number\nvoid printAll(List<? extends Number> numbers) {  // READ ONLY\n    for (Number n : numbers) System.out.println(n);\n}\n\nprintAll(ints);    // OK — List<Integer> satisfies ? extends Number\nprintAll(doubles); // OK — List<Double> satisfies ? extends Number\n```\n\nToday you learn the `?` wildcard — Java's way to say 'a List of something, but I don't know exactly what.'",
+    "what_you_will_build": "By the end of this topic, you'll understand why generics are invariant, use unbounded `?`, upper-bounded `? extends T`, and lower-bounded `? super T` wildcards, apply the PECS rule (Producer Extends, Consumer Super), and read Java library wildcard signatures confidently."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "invariance": "**Generic invariance** — the fundamental rule:\n\n```java\n// Class hierarchy: Integer extends Number extends Object\nNumber n = new Integer(42);  // OK — IS-A relationship\n\n// Generic types are INVARIANT:\nList<Number> numbers = new ArrayList<Integer>();  // COMPILE ERROR!\n// List<Integer> IS NOT a List<Number>\n\n// Why? Safety:\nvoid add(List<Number> list) { list.add(3.14); }  // legal if allowed\nList<Integer> ints = new ArrayList<>();\nadd(ints);  // would corrupt ints with a Double!\n```\n\n**The three options when a type relationship doesn't hold:**\n1. Use `List<? extends Number>` — read-only access to a list of Number or subtypes\n2. Use `List<? super Integer>` — write-only (safe add) to a list of Integer or supertypes\n3. Use `List<Number>` — only accepts exactly List<Number>, nothing else",
+
+      "unbounded_wildcard": "**Unbounded wildcard `?`** — 'a list of something unknown':\n\n```java\n// Accepts List<String>, List<Integer>, List<Object>, List<anything>:\nvoid printSize(List<?> list) {\n    System.out.println(\"Size: \" + list.size());  // OK — size() doesn't need T\n    for (Object item : list) {                   // OK — can read as Object\n        System.out.println(item);\n    }\n    list.add(\"hello\");  // COMPILE ERROR — can't add to List<?>\n}\n\nList<String>  strings = Arrays.asList(\"Aisha\", \"Raj\");\nList<Integer> ints    = Arrays.asList(1, 2, 3);\nprintSize(strings);  // OK\nprintSize(ints);     // OK\n```\n\n**With `?`**: you can READ elements as Object. You CANNOT write (add elements).\n\n**Why no writes?** The compiler doesn't know what type `?` is. It could be `List<String>`. If you add an Integer, that's a bug. So all adds are blocked — even `null` (via `list.add(null)` is technically allowed but unusual).\n\n**Use unbounded `?` when**: you only need container-level operations (size, clear, iteration as Object) and don't care about the element type.",
+
+      "upper_bounded": "**Upper bounded wildcard `? extends T`** — producer/reading:\n\n```java\n// Accepts List<Number>, List<Integer>, List<Double>, List<Long>:\ndouble sumOfList(List<? extends Number> list) {\n    double sum = 0;\n    for (Number n : list) {      // reads as Number — safe!\n        sum += n.doubleValue();\n    }\n    return sum;\n    // list.add(42);  // COMPILE ERROR — can't add to ? extends\n}\n\nList<Integer> ints    = Arrays.asList(10, 20, 30);\nList<Double>  doubles = Arrays.asList(1.5, 2.5);\nSystem.out.println(sumOfList(ints));    // 60.0\nSystem.out.println(sumOfList(doubles)); // 4.0\n```\n\n**`? extends T`**: you can READ elements as T. You CANNOT add elements.\n\n**Why no adds?** The `?` could be `List<Integer>`. If you add a Number (which might be a Double), that's a ClassCastException in the underlying List<Integer>.\n\n**Use `? extends T` when**: you're reading/consuming from the collection — treating it as a producer of T-values.",
+
+      "lower_bounded": "**Lower bounded wildcard `? super T`** — consumer/writing:\n\n```java\n// Accepts List<Integer>, List<Number>, List<Object>:\nvoid addNumbers(List<? super Integer> list) {\n    list.add(10);   // OK — Integer satisfies ? super Integer\n    list.add(20);   // OK\n    // Integer n = list.get(0);  // COMPILE ERROR — can only read as Object\n    Object obj = list.get(0);    // OK — read as Object\n}\n\nList<Integer> ints    = new ArrayList<>();\nList<Number>  numbers = new ArrayList<>();\nList<Object>  objects = new ArrayList<>();\n\naddNumbers(ints);    // OK — Integer is ? super Integer\naddNumbers(numbers); // OK — Number is ? super Integer\naddNumbers(objects); // OK — Object is ? super Integer\n// addNumbers(new ArrayList<Double>())  // ERROR — Double is NOT ? super Integer\n```\n\n**`? super T`**: you can ADD elements of type T. You can only READ as Object.\n\n**Why only Object reads?** The `?` could be `List<Object>`. When you get an element, you don't know if it's Integer, Number, or Object — safest is Object.\n\n**Use `? super T` when**: you're adding/writing to the collection — treating it as a consumer of T-values.",
+
+      "pecs_rule": "**PECS — the rule that makes wildcards click:**\n\n**P**roducer **E**xtends, **C**onsumer **S**uper\n\n```java\n// PRODUCER — something you READ FROM:\n// Use ? extends T\nvoid process(List<? extends Animal> animals) {\n    for (Animal a : animals) a.speak();  // READING from animals\n}\n\n// CONSUMER — something you WRITE TO:\n// Use ? super Cat\nvoid adopt(List<? super Cat> shelter) {\n    shelter.add(new Cat());   // WRITING to shelter\n    shelter.add(new Kitten()); // OK — Kitten extends Cat\n}\n\n// BOTH — reading and writing:\n// Use exact type parameter <T>\n// OR use two separate: <T> void copy(List<? extends T> source, List<? super T> dest)\n```\n\n**The famous Java example** — `Collections.copy()`:\n```java\npublic static <T> void copy(List<? super T> dest, List<? extends T> src) {\n    for (T element : src)   // reads from src (? extends T = producer)\n        dest.add(element);  // writes to dest (? super T = consumer)\n}\n```\n\n**Memory trick**: think about the direction of data flow.\n- Data flows OUT of the collection → it's a Producer → use `extends`\n- Data flows IN to the collection → it's a Consumer → use `super`",
+
+      "wildcard_vs_type_param": "**Wildcard vs type parameter — when to use each:**\n\n```java\n// Use TYPE PARAMETER when:\n// - The method uses the type in multiple places (return type, multiple params)\n// - You need to enforce a relationship between parameters\n\npublic static <T> T getFirst(List<T> list) { return list.get(0); }  // returns T — needs T\npublic static <T> void swap(List<T> list, int i, int j) { ... }   // needs T internally\n\n// Use WILDCARD when:\n// - You only need one occurrence of the type\n// - You don't need to name the type\n\npublic static void printAll(List<?> list) { ... }          // ? — don't care what type\npublic static double sum(List<? extends Number> list) { } // ? extends — read as Number\n\n// Multiple wildcards for different types:\npublic static <T> void copy(List<? super T> dest, List<? extends T> src) { }\n// Here T ties dest and src together — needs type parameter for the relationship\n```\n\n**Rule of thumb**: if you'd write the same T exactly once, consider using `?` instead. If T appears in the return type or multiple parameters that must agree, use a named type parameter.",
+
+      "common_wildcard_patterns": "**Common wildcard patterns in daily Java:**\n\n```java\n// Print any collection\nvoid print(Collection<?> c) { c.forEach(System.out::println); }\n\n// Sum any numeric collection\ndouble sum(Collection<? extends Number> nums) {\n    return nums.stream().mapToDouble(Number::doubleValue).sum();\n}\n\n// Add items to a collection of a base type\nvoid addAll(List<? super String> dest, String... items) {\n    for (String s : items) dest.add(s);\n}\n\n// Process a map with unknown key type\nvoid printValues(Map<?, String> map) {\n    map.values().forEach(System.out::println);\n}\n\n// Stream-friendly: method accepting List of any Animal subtype\nvoid processAnimals(List<? extends Animal> animals) {\n    animals.stream()\n        .filter(a -> a.isHungry())\n        .forEach(Animal::feed);\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three stacked diagrams: (1) Invariance: Number hierarchy (Integer → Number → Object) on left; List hierarchy on right — List<Integer>, List<Number>, List<Object> are INDEPENDENT (no arrows between them). (2) ? extends Number: a wide funnel accepting List<Integer>, List<Double>, List<Long>, List<Float>, List<Number> — all pour in. Data flows OUT (arrow labeled READING ONLY). X on adding. (3) ? super Integer: a funnel accepting List<Integer>, List<Number>, List<Object>. Data flows IN (arrow labeled WRITING ONLY, Integer goes in). Only Object comes out when reading. Bottom: PECS visual — data flowing OUT = extends; data flowing IN = super.",
+      "alt_text": "Invariance, upper bounded wildcard funnel, lower bounded wildcard funnel, and PECS data flow"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "A real Java utility: implement `Collections.copy()`-style methods and a `merge()`-style method using wildcards to make them as flexible as possible. Then demonstrate reading Java's own wildcard signatures.",
+
+    "problem_statement": "Implement three wildcard-driven utility methods:\n1. `sumAll(List<? extends Number>)` — sum any numeric list\n2. `addDefaults(List<? super String>, String...)` — add strings to any compatible list\n3. `copy(List<? super T>, List<? extends T>)` — copy from source to destination\n\nThen decode Collections.sort's signature.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "sumAll — reading via ? extends",
+        "details": "```java\n// Accepts: List<Integer>, List<Double>, List<Number>, etc.\nstatic double sumAll(List<? extends Number> nums) {\n    double total = 0;\n    for (Number n : nums) total += n.doubleValue();  // reads as Number — safe\n    return total;\n    // nums.add(1);  // COMPILE ERROR — can't add to ? extends\n}\n\nSystem.out.println(sumAll(Arrays.asList(10, 20, 30)));       // 60.0\nSystem.out.println(sumAll(Arrays.asList(1.5, 2.5, 3.0)));   // 7.0\nSystem.out.println(sumAll(Arrays.asList(100L, 200L)));       // 300.0\n```"
+      },
+      {
+        "step": 2,
+        "action": "addDefaults — writing via ? super",
+        "details": "```java\n// Accepts: List<String>, List<Object>, List<CharSequence> (supertype of String)\nstatic void fillDefaults(List<? super String> target, String... defaults) {\n    for (String d : defaults) target.add(d);  // adding String — safe\n    // String s = target.get(0);  // COMPILE ERROR — reads as Object only\n    Object obj = target.get(0);  // OK — can read as Object\n}\n\nList<String>       strings = new ArrayList<>();\nList<Object>       objects = new ArrayList<>();\nList<CharSequence> chars   = new ArrayList<>();\n\nfillDefaults(strings, \"Aisha\", \"Raj\");\nfillDefaults(objects, \"Priya\", \"Vikram\");\nfillDefaults(chars, \"Anita\");\nSystem.out.println(strings);  // [Aisha, Raj]\n```"
+      },
+      {
+        "step": 3,
+        "action": "copy — the PECS masterpiece",
+        "details": "```java\n// src produces T (? extends T), dest consumes T (? super T)\nstatic <T> void copy(List<? super T> dest, List<? extends T> src) {\n    for (T element : src) {  // reads from producer\n        dest.add(element);   // writes to consumer\n    }\n}\n\nList<Integer> source = Arrays.asList(1, 2, 3);\nList<Number>  target = new ArrayList<>();\n\ncopy(target, source);  // T=Integer, dest=List<Number>, src=List<Integer>\nSystem.out.println(target);  // [1, 2, 3]\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\n\npublic class WildcardUtils {\n    // Producer: ? extends — read as Number\n    static double sumAll(List<? extends Number> nums) {\n        double total = 0;\n        for (Number n : nums) total += n.doubleValue();\n        return total;\n    }\n    \n    // Consumer: ? super — add Strings\n    static void fillDefaults(List<? super String> target, String... defaults) {\n        for (String d : defaults) target.add(d);\n    }\n    \n    // PECS: src=producer (extends), dest=consumer (super)\n    static <T> void copy(List<? super T> dest, List<? extends T> src) {\n        for (T element : src) dest.add(element);\n    }\n    \n    // Unbounded: just need size\n    static void printInfo(List<?> list) {\n        System.out.println(\"Size: \" + list.size() + \", items: \" + list);\n    }\n    \n    public static void main(String[] args) {\n        // sumAll — any numeric list\n        System.out.println(sumAll(Arrays.asList(10, 20, 30)));       // 60.0\n        System.out.println(sumAll(Arrays.asList(1.5, 2.5, 3.0)));   // 7.0\n        System.out.println(sumAll(Arrays.asList(100L, 200L)));       // 300.0\n        \n        // fillDefaults — any list of String or supertype\n        List<String> names = new ArrayList<>();\n        fillDefaults(names, \"Aisha\", \"Raj\", \"Priya\");\n        System.out.println(names);\n        \n        // copy\n        List<Integer> ints    = Arrays.asList(1, 2, 3);\n        List<Number>  numbers = new ArrayList<>();\n        copy(numbers, ints);  // T=Integer\n        System.out.println(numbers);\n        \n        // printInfo — unbounded\n        printInfo(names);\n        printInfo(numbers);\n    }\n}",
+
+    "expected_output": "60.0\n7.0\n300.0\n[Aisha, Raj, Priya]\n[1, 2, 3]\nSize: 3, items: [Aisha, Raj, Priya]\nSize: 3, items: [1, 2, 3]",
+
+    "things_to_notice": [
+      "sumAll accepts List<Integer>, List<Double>, AND List<Long> — all from the same method declaration. Without wildcards, you'd need three overloads or use the raw List<Number> (which doesn't accept List<Integer>).",
+      "fillDefaults uses `? super String` — it accepts List<String>, List<Object>, List<CharSequence>. The key: we're WRITING Strings into it, so any list that CAN hold Strings is valid.",
+      "copy is the PECS pattern in action: src is `? extends T` (we READ from it — it produces T values), dest is `? super T` (we WRITE to it — it consumes T values). T ties them together.",
+      "printInfo with unbounded `?` — we only need size() and iteration as Object. We don't care about the element type at all.",
+      "The copy call: `copy(numbers, ints)` — T is inferred as Integer. List<Number> satisfies `? super Integer` (Number IS a supertype of Integer). List<Integer> satisfies `? extends Integer`."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Java Collections Framework — Collections.copy, Collections.sort",
+        "use_case": "`Collections.copy(List<? super T> dest, List<? extends T> src)` — the canonical PECS example. `Collections.sort(List<T extends Comparable<? super T>>)` — the `? super T` allows sorting a `List<Integer>` using a `Comparator<Number>`. Without wildcards, sort would need exact type matches."
+      },
+      {
+        "company_context": "Stream API — map, flatMap, filter",
+        "use_case": "`Stream.map(Function<? super T, ? extends R>)` — the function parameter is `? super T` (consumer of T) and `? extends R` (producer of R). This allows passing a `Function<Object, String>` where `Function<Integer, String>` is expected — the function can handle Integer (which is Object). Wildcards make the Stream API far more flexible."
+      },
+      {
+        "company_context": "Spring Framework — event system, strategy patterns",
+        "use_case": "Spring's ApplicationContext.publishEvent(Object event) and listeners using `ApplicationListener<? extends ApplicationEvent>`. Spring MVC's HandlerMethodArgumentResolver uses `List<? extends HandlerMethodArgumentResolver>`. Wildcards allow Spring to work with any concrete event/resolver subtype through generic collections."
+      }
+    ],
+
+    "interview_relevance": "Wildcard questions at senior level:\n\n- **'Why is List<Integer> not a List<Number>?'** — Generics are invariant. If allowed, you could add a Double to a List<Integer> through the List<Number> reference.\n- **'What is PECS?'** — Producer Extends, Consumer Super. Read from a collection → `? extends T`. Write to a collection → `? super T`.\n- **'What is the difference between `List<?>` and `List<Object>`?'** → `List<Object>` only accepts `List<Object>`. `List<?>` accepts any list. You can add to `List<Object>`; you can't add to `List<?>`.\n- **'Explain Collections.copy signature'** → `<T> void copy(List<? super T> dest, List<? extends T> src)`. src is a producer (extends = producer), dest is a consumer (super = consumer). T ties them: copy works when src element type is a subtype of dest element type.",
+
+    "real_world_workflow": "Daily wildcard usage:\n\n- API method accepting any numeric list: `void process(List<? extends Number> nums)`\n- Method that adds to a collection: `void populate(List<? super T> dest)`\n- Utility reading any collection: `int size(Collection<?> c)` — or just use Collection\n- Interpreting Spring/library signatures: `List<? extends HandlerInterceptor>` → producers\n- Writing flexible generic utility methods that work for whole type families"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "cannot_add_to_extends_wildcard",
+      "what_students_get_wrong": "Trying to add elements to a `List<? extends T>` — compile error.",
+      "remediation": "? extends = PRODUCER = READ ONLY. You cannot add to it. If you need to add, use `List<? super T>` or a named type parameter.",
+      "detection_pattern": "Compile error: cannot add to type-safe List? extends"
+    },
+    {
+      "gap_id": "only_object_reads_from_super",
+      "what_students_get_wrong": "Trying to read a specific type from `List<? super Integer>` — only Object available.",
+      "remediation": "? super = CONSUMER = WRITE ONLY (reads give Object). If you need typed reads, use `? extends T` or a named type parameter.",
+      "detection_pattern": "Compile error assigning list.get(0) to a typed variable from ? super"
+    },
+    {
+      "gap_id": "list_object_vs_list_wildcard",
+      "what_students_get_wrong": "Using `List<Object>` where flexibility is needed — doesn't accept List<String>, List<Integer>.",
+      "remediation": "`List<Object>` only accepts List<Object>. Use `List<?>` for any list or `List<? extends SomeType>` for lists of a type family.",
+      "detection_pattern": "Passing List<String> to parameter of type List<Object> — compile error"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Generics are INVARIANT: List<Integer> is NOT a List<Number> — even though Integer extends Number",
+      "Unbounded `?`: accepts any List; can read as Object; cannot add",
+      "Upper bounded `? extends T`: accepts List<T> and List<subtypes of T>; READ as T; cannot add",
+      "Lower bounded `? super T`: accepts List<T> and List<supertypes of T>; ADD T; read only as Object",
+      "PECS: Producer Extends (reading), Consumer Super (writing)",
+      "Data flows OUT → Producer → ? extends; Data flows IN → Consumer → ? super",
+      "Named type parameter needed when: return type uses T, or multiple params must agree on T",
+      "Wildcard when: T appears only once in the method signature, you just need flexibility",
+      "List<?> vs List<Object>: List<Object> accepts only List<Object>; List<?> accepts any List",
+      "Collections.copy: ? extends (producer src), ? super (consumer dest) — the PECS textbook example"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A method is defined as `void process(List<? extends Shape> shapes)`. Which calls compile?\na) `process(new ArrayList<Circle>())`\nb) `process(new ArrayList<Shape>())`\nc) `process(new ArrayList<Object>())`",
+        "answer": "a) Compiles — Circle extends Shape, satisfies ? extends Shape. b) Compiles — Shape satisfies ? extends Shape (extends includes the type itself). c) COMPILE ERROR — Object does NOT extend Shape; it's the other direction."
+      },
+      {
+        "question": "What is PECS and when do you apply each part?",
+        "answer": "PECS = Producer Extends, Consumer Super. Apply by direction of data flow: If data flows OUT of a collection (you read/iterate it), use `? extends T` — the collection PRODUCES T values. If data flows INTO a collection (you add to it), use `? super T` — the collection CONSUMES T values. Example: copying from a list of Integers to a list of Numbers — source (produces Integers) uses `? extends Integer`, destination (consumes Integers) uses `? super Integer`."
+      },
+      {
+        "question": "What is the difference between `List<?>` and `List<Object>`?",
+        "answer": "`List<Object>`: a specific parameterized type — only accepts `ArrayList<Object>` or other `List<Object>`. You CAN add to it (list.add(anything)). `List<?>`: an unbounded wildcard — accepts ANY list regardless of element type (List<String>, List<Integer>, List<SomeClass>). You CANNOT add to it (compiler doesn't know what type would be safe). Use `List<?>` when you need to accept any list but only need container operations (size, clear, iterate as Object). Use `List<Object>` when you specifically want a list of Objects that can hold mixed types."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 9 topic: **Generic Interfaces and Design Patterns** — writing generic interfaces, implementing them, and the design patterns they enable: generic Repository pattern, generic Strategy pattern, generic Builder pattern. After Topic 9.5, you understand generics as a design tool — not just syntax. You'll see how `Repository<T, ID>`, `Mapper<S, T>`, `Builder<T>` are built and why they make professional APIs so clean."
+  }
+}

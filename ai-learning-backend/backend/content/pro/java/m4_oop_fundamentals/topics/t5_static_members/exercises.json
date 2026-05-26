@@ -1,0 +1,444 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t5",
+  "topic_name": "Static Members & Class-Level Data",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m4_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace static counter",
+      "scenario": "Static field shared by all instances.",
+      "instructions": "What does this print?\n\n```java\nclass Widget {\n    private static int count = 0;\n    \n    public Widget() {\n        count++;\n    }\n    \n    public static int getCount() {\n        return count;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        new Widget();\n        new Widget();\n        new Widget();\n        System.out.println(Widget.getCount());\n    }\n}\n```",
+      "expected_solution": "3",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "3"
+        }
+      ],
+      "hints": [
+        "count is static — one shared value",
+        "Each new Widget() calls the constructor → count++",
+        "Three Widgets created → count = 3",
+        "getCount() returns the static field"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m4_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Declare a constant",
+      "scenario": "Practice the static final constant pattern.",
+      "instructions": "Fill in the blanks to declare a constant named MAX_USERS with value 1000.",
+      "starter_code": "class App {\n    public ______ ______ int MAX_USERS = 1000;\n    \n    public static void main(String[] args) {\n        System.out.println(App.MAX_USERS);\n    }\n}",
+      "expected_solution": "class App {\n    public static final int MAX_USERS = 1000;\n    \n    public static void main(String[] args) {\n        System.out.println(App.MAX_USERS);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "static", "hint": "One copy shared by all" },
+        { "position": 2, "answer": "final", "hint": "Cannot be changed" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1000"
+        }
+      ],
+      "hints": [
+        "Constants use: public static final",
+        "static = one copy, final = immutable",
+        "Name in SCREAMING_SNAKE_CASE"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m4_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Simple static utility method",
+      "scenario": "Write a static utility method.",
+      "instructions": "Create a class `StringUtils` with a STATIC method `countVowels(String s)` that counts vowels (a, e, i, o, u — case-insensitive).\n\nCall it without creating any StringUtils object.\n\nExpected output:\nVowels in 'Hello World': 3",
+      "starter_code": "// Write StringUtils class with static countVowels method\n",
+      "expected_solution": "class StringUtils {\n    public static int countVowels(String s) {\n        s = s.toLowerCase();\n        int count = 0;\n        for (int i = 0; i < s.length(); i++) {\n            char c = s.charAt(i);\n            if (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u') {\n                count++;\n            }\n        }\n        return count;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(\"Vowels in 'Hello World': \" + StringUtils.countVowels(\"Hello World\"));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Vowels in 'Hello World': 3"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["public static int countVowels"]
+        }
+      ],
+      "hints": [
+        "Method is static — callable on class name",
+        "No instance of StringUtils needed",
+        "Call: StringUtils.countVowels(...)",
+        "Works purely on its parameter — no instance state needed"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m4_t5_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the static context error",
+      "scenario": "Cannot access instance field from static context.",
+      "instructions": "This code doesn't compile. Fix it.\n\nExpected output:\n5",
+      "starter_code": "class Calc {\n    private int value;\n    \n    public Calc(int value) {\n        this.value = value;\n    }\n    \n    public static int doubled() {\n        return value * 2;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Calc c = new Calc(5);\n        System.out.println(c.value);\n    }\n}",
+      "expected_solution": "class Calc {\n    private int value;\n    \n    public Calc(int value) {\n        this.value = value;\n    }\n    \n    public int doubled() {\n        return value * 2;\n    }\n    \n    public int getValue() {\n        return value;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Calc c = new Calc(5);\n        System.out.println(c.getValue());\n    }\n}",
+      "bugs": [
+        {
+          "line": "8",
+          "issue": "Static method `doubled()` tries to access instance field `value`. There's no 'current object' in a static context.",
+          "fix": "Remove 'static' from doubled(). Also add a getter since value is private."
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "5",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Compilation error: non-static variable value cannot be referenced from a static context",
+        "doubled() needs THIS object's value — it should be an instance method",
+        "Remove 'static' from doubled()",
+        "value is private — add a getter or use the doubled() method"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["accessing_instance_from_static"]
+    },
+    
+    {
+      "id": "java_m4_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Instance counter class",
+      "scenario": "Classic static counter tracking how many instances exist.",
+      "instructions": "Create a `User` class where each new user gets an auto-assigned id:\n- Private static field: nextId = 1\n- Private field: id (int)\n- Private field: name (String)\n- Constructor: takes only name. Sets this.id = nextId++\n- Static method getNextId() shows next id to be assigned\n- toString: 'User[id=X, name=Y]'\n\nIn main, create 3 users and print each.\n\nExpected output:\nUser[id=1, name=Aisha]\nUser[id=2, name=Raj]\nUser[id=3, name=Priya]",
+      "starter_code": "// Build User class with auto-id assignment\n// nextId is static — shared across all users\n",
+      "expected_solution": "class User {\n    private static int nextId = 1;\n    \n    private final int id;\n    private String name;\n    \n    public User(String name) {\n        this.id = nextId++;\n        this.name = name;\n    }\n    \n    public static int getNextId() {\n        return nextId;\n    }\n    \n    @Override\n    public String toString() {\n        return \"User[id=\" + id + \", name=\" + name + \"]\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        User u1 = new User(\"Aisha\");\n        User u2 = new User(\"Raj\");\n        User u3 = new User(\"Priya\");\n        System.out.println(u1);\n        System.out.println(u2);\n        System.out.println(u3);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "User[id=1, name=Aisha]\nUser[id=2, name=Raj]\nUser[id=3, name=Priya]"
+        }
+      ],
+      "hints": [
+        "nextId is static — one value shared across all users",
+        "Constructor: this.id = nextId++ (uses current value, then increments)",
+        "Post-increment: nextId++ returns current value, then increments",
+        "First user gets id=1, second gets 2, etc."
+      ],
+      "xp_reward": 45,
+      "concept_tested": "static_counter_pattern"
+    },
+    
+    {
+      "id": "java_m4_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Constants class",
+      "scenario": "Define application-level constants in a utility class.",
+      "instructions": "Create a `HttpStatus` class with ONLY static final constants (no instance state):\n- `OK` = 200\n- `CREATED` = 201\n- `NOT_FOUND` = 404\n- `SERVER_ERROR` = 500\n- Private constructor (prevent instantiation)\n\nIn main, print the constant values.\n\nExpected output:\nOK: 200\nNOT_FOUND: 404",
+      "starter_code": "// Build HttpStatus class with constants\n// Private constructor prevents instantiation\n",
+      "expected_solution": "class HttpStatus {\n    public static final int OK = 200;\n    public static final int CREATED = 201;\n    public static final int NOT_FOUND = 404;\n    public static final int SERVER_ERROR = 500;\n    \n    private HttpStatus() {}  // prevent instantiation\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(\"OK: \" + HttpStatus.OK);\n        System.out.println(\"NOT_FOUND: \" + HttpStatus.NOT_FOUND);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "OK: 200\nNOT_FOUND: 404"
+        }
+      ],
+      "hints": [
+        "Each constant: public static final int NAME = value",
+        "SCREAMING_SNAKE_CASE for names",
+        "Private constructor: private HttpStatus() {}",
+        "Access via class name: HttpStatus.OK"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m4_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Factory method pattern",
+      "scenario": "Static factory methods with semantic names.",
+      "instructions": "Create a `Temperature` class:\n- Private final field: celsius (double)\n- PRIVATE constructor (prevents direct `new Temperature(x)`)\n- Static factory: `fromCelsius(double c)` — creates from Celsius\n- Static factory: `fromFahrenheit(double f)` — converts F→C, creates  (formula: (f-32)/1.8)\n- Static factory: `fromKelvin(double k)` — converts K→C, creates (formula: k-273.15)\n- Getter: getCelsius()\n- toString: '<value>°C'\n\nIn main:\n- Create 3 temperatures using different factories\n- Print each\n\nExpected output:\n100.0°C\n100.0°C\n100.0°C",
+      "starter_code": "// Build Temperature class with factory methods\n// Private constructor — only factories can create instances\n",
+      "expected_solution": "class Temperature {\n    private final double celsius;\n    \n    private Temperature(double celsius) {\n        this.celsius = celsius;\n    }\n    \n    public static Temperature fromCelsius(double c) {\n        return new Temperature(c);\n    }\n    \n    public static Temperature fromFahrenheit(double f) {\n        return new Temperature((f - 32) / 1.8);\n    }\n    \n    public static Temperature fromKelvin(double k) {\n        return new Temperature(k - 273.15);\n    }\n    \n    public double getCelsius() {\n        return celsius;\n    }\n    \n    @Override\n    public String toString() {\n        return celsius + \"°C\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Temperature t1 = Temperature.fromCelsius(100);\n        Temperature t2 = Temperature.fromFahrenheit(212);\n        Temperature t3 = Temperature.fromKelvin(373.15);\n        \n        System.out.println(t1);\n        System.out.println(t2);\n        System.out.println(t3);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "100.0°C\n100.0°C\n100.0°C"
+        }
+      ],
+      "hints": [
+        "Private constructor: private Temperature(double celsius)",
+        "Factory methods are public static, return `new Temperature(...)`",
+        "212°F = 100°C: (212-32)/1.8 = 180/1.8 = 100",
+        "373.15 K = 100°C: 373.15 - 273.15 = 100",
+        "Semantic naming: callers say 'I have Fahrenheit' and use fromFahrenheit"
+      ],
+      "xp_reward": 65,
+      "concept_tested": "factory_method_pattern"
+    },
+    
+    {
+      "id": "java_m4_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Static utility class",
+      "scenario": "Build a utility class with only static methods and constants.",
+      "instructions": "Create a `MathExtra` utility class:\n- Constants: PI = 3.14159265358979, GOLDEN_RATIO = 1.61803398874989\n- Private constructor\n- Static method `circleArea(double r)` → π × r²\n- Static method `fibonacci(int n)` → nth Fibonacci number (1-indexed: fib(1)=1, fib(2)=1, fib(3)=2)\n\nIn main:\n- Print circle area for r=5\n- Print fib(7)\n\nExpected output:\nCircle area (r=5): 78.539816...\nFib(7): 13",
+      "starter_code": "// Build MathExtra utility class\n// Private constructor, only static methods and constants\n",
+      "expected_solution": "class MathExtra {\n    public static final double PI = 3.14159265358979;\n    public static final double GOLDEN_RATIO = 1.61803398874989;\n    \n    private MathExtra() {}\n    \n    public static double circleArea(double r) {\n        return PI * r * r;\n    }\n    \n    public static int fibonacci(int n) {\n        if (n <= 1) return 1;\n        int a = 1, b = 1;\n        for (int i = 2; i < n; i++) {\n            int c = a + b;\n            a = b;\n            b = c;\n        }\n        return b;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(\"Circle area (r=5): \" + MathExtra.circleArea(5));\n        System.out.println(\"Fib(7): \" + MathExtra.fibonacci(7));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Circle area (r=5): 78.53981633974483\nFib(7): 13"
+        }
+      ],
+      "hints": [
+        "All methods static, no instance fields",
+        "Private constructor prevents instantiation",
+        "circleArea uses PI constant",
+        "fibonacci iterative: start with a=1, b=1, loop n-1 times",
+        "fib(7) sequence: 1,1,2,3,5,8,13 → 13"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m4_t5_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the non-constant constant",
+      "scenario": "Missing final means it's mutable.",
+      "instructions": "This code compiles but has a design flaw — someone can change 'MAX_SIZE'. Fix it and prevent modification.\n\nExpected output:\n100\n100",
+      "starter_code": "public class Config {\n    public static int MAX_SIZE = 100;\n    \n    public static void main(String[] args) {\n        System.out.println(Config.MAX_SIZE);\n        Config.MAX_SIZE = 999;  // shouldn't be allowed!\n        System.out.println(Config.MAX_SIZE);\n    }\n}",
+      "expected_solution": "public class Config {\n    public static final int MAX_SIZE = 100;\n    \n    public static void main(String[] args) {\n        System.out.println(Config.MAX_SIZE);\n        // Config.MAX_SIZE = 999;  // Now a COMPILE ERROR — can't assign to final\n        System.out.println(Config.MAX_SIZE);\n    }\n}",
+      "bugs": [
+        {
+          "line": "2",
+          "issue": "Missing `final` — MAX_SIZE can be reassigned by anyone",
+          "fix": "Add final: `public static final int MAX_SIZE = 100;`. Remove the reassignment line (it would be a compile error)."
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "100\n100",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "static alone doesn't prevent modification",
+        "Need final to make it immutable",
+        "public static final = true constant",
+        "With final, the line Config.MAX_SIZE = 999 is a compile error — remove it"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["not_making_constants_final"]
+    },
+    
+    {
+      "id": "java_m4_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Singleton pattern",
+      "scenario": "Only one instance allowed.",
+      "instructions": "Implement a Singleton `AppConfig` class:\n- Private static field: instance (AppConfig)\n- Private field: String dbUrl\n- Private constructor sets a default dbUrl\n- Static `getInstance()` returns the single instance (create on first call)\n- Getter for dbUrl, setter for dbUrl\n\nIn main:\n- Get instance twice\n- Verify they're the same object (==)\n- Set dbUrl via first reference\n- Get dbUrl via second reference (should reflect the change — same object)\n\nExpected output:\nSame instance: true\nUpdated URL via ref1: jdbc:mysql://prod\nURL via ref2: jdbc:mysql://prod",
+      "starter_code": "// Implement Singleton AppConfig\n// Private static instance, private constructor, static getInstance()\n",
+      "expected_solution": "class AppConfig {\n    private static AppConfig instance;\n    \n    private String dbUrl;\n    \n    private AppConfig() {\n        this.dbUrl = \"jdbc:h2:mem:test\";\n    }\n    \n    public static AppConfig getInstance() {\n        if (instance == null) {\n            instance = new AppConfig();\n        }\n        return instance;\n    }\n    \n    public String getDbUrl() { return dbUrl; }\n    public void setDbUrl(String dbUrl) { this.dbUrl = dbUrl; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        AppConfig ref1 = AppConfig.getInstance();\n        AppConfig ref2 = AppConfig.getInstance();\n        \n        System.out.println(\"Same instance: \" + (ref1 == ref2));\n        \n        ref1.setDbUrl(\"jdbc:mysql://prod\");\n        System.out.println(\"Updated URL via ref1: \" + ref1.getDbUrl());\n        System.out.println(\"URL via ref2: \" + ref2.getDbUrl());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Same instance: true\nUpdated URL via ref1: jdbc:mysql://prod\nURL via ref2: jdbc:mysql://prod"
+        }
+      ],
+      "hints": [
+        "private static AppConfig instance; (starts as null)",
+        "private constructor prevents direct instantiation",
+        "getInstance: if null, create new AppConfig; then return instance",
+        "Both ref1 and ref2 point to the same instance → == is true",
+        "Change via ref1 affects ref2 (same object)"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "singleton_pattern"
+    },
+    
+    {
+      "id": "java_m4_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Static factory with caching",
+      "scenario": "Factory that reuses objects instead of always creating new ones.",
+      "instructions": "Create a `Boolean2` class (simplified Boolean):\n- Two static final instances: TRUE = new Boolean2(true), FALSE = new Boolean2(false)\n- Private final field: value (boolean)\n- Private constructor\n- Static factory `of(boolean b)` — returns TRUE if b is true, FALSE if false (NO new object created)\n- Getter isTrue()\n\nIn main:\n- Boolean2 a = Boolean2.of(true)\n- Boolean2 b = Boolean2.of(true)\n- Print: a == b (should be TRUE — same cached object)\n\nExpected output:\nSame instance: true",
+      "starter_code": "// Boolean2 with static cached instances\n// of() returns existing instances, not new ones\n",
+      "expected_solution": "class Boolean2 {\n    public static final Boolean2 TRUE = new Boolean2(true);\n    public static final Boolean2 FALSE = new Boolean2(false);\n    \n    private final boolean value;\n    \n    private Boolean2(boolean value) {\n        this.value = value;\n    }\n    \n    public static Boolean2 of(boolean b) {\n        return b ? TRUE : FALSE;\n    }\n    \n    public boolean isTrue() {\n        return value;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Boolean2 a = Boolean2.of(true);\n        Boolean2 b = Boolean2.of(true);\n        System.out.println(\"Same instance: \" + (a == b));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Same instance: true"
+        }
+      ],
+      "hints": [
+        "Two static final instances: TRUE and FALSE",
+        "Private constructor — nobody else can create instances",
+        "of(b) returns TRUE or FALSE (the static ones) — no new object",
+        "a == b is true because both are the same static TRUE instance",
+        "This is how java.lang.Boolean works internally"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "static_cached_instances"
+    },
+    
+    {
+      "id": "java_m4_t5_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Static vs instance interaction",
+      "scenario": "Trace complex static/instance interaction.",
+      "instructions": "What does this print?\n\n```java\nclass Container {\n    private static int total = 0;\n    private int items;\n    \n    public Container(int items) {\n        this.items = items;\n        total += items;\n    }\n    \n    public static int getTotal() { return total; }\n    public int getItems() { return items; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Container c1 = new Container(5);\n        Container c2 = new Container(8);\n        Container c3 = new Container(3);\n        \n        System.out.println(c1.getItems());\n        System.out.println(c2.getItems());\n        System.out.println(Container.getTotal());\n    }\n}\n```",
+      "expected_solution": "5\n8\n16",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "5\n8\n16"
+        }
+      ],
+      "hints": [
+        "total is static — accumulates across all Containers",
+        "items is instance — each has its own",
+        "c1.getItems() = 5, c2.getItems() = 8",
+        "Container.getTotal() = 5 + 8 + 3 = 16"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m4_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "ID generator utility",
+      "scenario": "Class-level auto-incrementing ID generator.",
+      "instructions": "Create an `IdGenerator` class:\n- Private static field: counters for different TYPES (use simple int[] with type-specific slots)\n- Actually simpler: use separate static counters for 'USER' and 'ORDER'\n- Static method `nextUserId()` → returns next user ID (1, 2, 3...)\n- Static method `nextOrderId()` → returns next order ID (1, 2, 3...)\n- Both start at 1\n\nUse this to create 3 User IDs and 2 Order IDs, print them.\n\nExpected output:\nUser IDs: 1 2 3\nOrder IDs: 1 2",
+      "starter_code": "// IdGenerator with separate static counters for different entity types\n",
+      "expected_solution": "class IdGenerator {\n    private static int userCount = 0;\n    private static int orderCount = 0;\n    \n    private IdGenerator() {}\n    \n    public static int nextUserId() {\n        return ++userCount;\n    }\n    \n    public static int nextOrderId() {\n        return ++orderCount;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(\"User IDs: \" + IdGenerator.nextUserId() + \" \" + IdGenerator.nextUserId() + \" \" + IdGenerator.nextUserId());\n        System.out.println(\"Order IDs: \" + IdGenerator.nextOrderId() + \" \" + IdGenerator.nextOrderId());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "User IDs: 1 2 3\nOrder IDs: 1 2"
+        }
+      ],
+      "hints": [
+        "Separate static counters: userCount, orderCount",
+        "Pre-increment in return: return ++userCount (increments first, returns new value)",
+        "This gives 1, 2, 3 instead of 0, 1, 2",
+        "Private constructor: utility class isn't instantiated",
+        "User and order counters are independent"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m4_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Conversion utility with constants",
+      "scenario": "Unit conversion utility using constants.",
+      "instructions": "Create a `UnitConverter` class:\n- Constants: KG_TO_LB = 2.20462, KM_TO_MILES = 0.621371, C_TO_F_MULT = 1.8, C_TO_F_ADD = 32\n- Static methods: kgToLbs(double kg), kmToMiles(double km), celsiusToFahrenheit(double c)\n- Each returns the converted value\n\nIn main:\n- 70 kg to lbs\n- 5 km to miles\n- 100°C to F (should be 212)\n\nExpected output:\n70 kg = 154.3234 lbs\n5 km = 3.10686 miles\n100°C = 212.0°F",
+      "starter_code": "// Build UnitConverter with constants and static conversion methods\n",
+      "expected_solution": "class UnitConverter {\n    public static final double KG_TO_LB = 2.20462;\n    public static final double KM_TO_MILES = 0.621371;\n    public static final double C_TO_F_MULT = 1.8;\n    public static final double C_TO_F_ADD = 32;\n    \n    private UnitConverter() {}\n    \n    public static double kgToLbs(double kg) {\n        return kg * KG_TO_LB;\n    }\n    \n    public static double kmToMiles(double km) {\n        return km * KM_TO_MILES;\n    }\n    \n    public static double celsiusToFahrenheit(double c) {\n        return c * C_TO_F_MULT + C_TO_F_ADD;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(\"70 kg = \" + UnitConverter.kgToLbs(70) + \" lbs\");\n        System.out.println(\"5 km = \" + UnitConverter.kmToMiles(5) + \" miles\");\n        System.out.println(\"100°C = \" + UnitConverter.celsiusToFahrenheit(100) + \"°F\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "70 kg = 154.3234 lbs\n5 km = 3.10686 miles\n100°C = 212.0°F"
+        }
+      ],
+      "hints": [
+        "Constants use public static final",
+        "Methods use constants internally",
+        "Private constructor — utility class",
+        "100 * 1.8 + 32 = 212.0 ✓",
+        "70 * 2.20462 = 154.3234 ✓"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m4_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Registry class",
+      "scenario": "Static registry pattern — class-level catalog of instances.",
+      "instructions": "Create a `ServiceRegistry` system:\n1. `Service` class: private final String name, private final String version. Constructor + getters + toString.\n\n2. `ServiceRegistry` class:\n   - Private static `Service[]` registered (max 10)\n   - Private static int count\n   - Private constructor\n   - Static `register(Service s)` — adds to array\n   - Static `findByName(String name)` — returns Service or null\n   - Static `printAll()` — prints all registered services\n   - Static `getCount()` — returns count\n\nIn main:\n- Register 3 services (Auth 1.0, Payment 2.1, Notification 1.5)\n- Print count\n- Find and print 'Payment'\n- printAll()\n\nExpected output:\nRegistered services: 3\nFound: Service[name=Payment, version=2.1]\nAll services:\nService[name=Auth, version=1.0]\nService[name=Payment, version=2.1]\nService[name=Notification, version=1.5]",
+      "starter_code": "// Build Service and ServiceRegistry classes\n// Registry uses static arrays — class-level catalog\n",
+      "expected_solution": "class Service {\n    private final String name;\n    private final String version;\n    \n    public Service(String name, String version) {\n        this.name = name;\n        this.version = version;\n    }\n    \n    public String getName() { return name; }\n    public String getVersion() { return version; }\n    \n    @Override\n    public String toString() {\n        return \"Service[name=\" + name + \", version=\" + version + \"]\";\n    }\n}\n\nclass ServiceRegistry {\n    private static final Service[] registered = new Service[10];\n    private static int count = 0;\n    \n    private ServiceRegistry() {}\n    \n    public static void register(Service s) {\n        if (count < registered.length) {\n            registered[count++] = s;\n        }\n    }\n    \n    public static Service findByName(String name) {\n        for (int i = 0; i < count; i++) {\n            if (registered[i].getName().equals(name)) {\n                return registered[i];\n            }\n        }\n        return null;\n    }\n    \n    public static void printAll() {\n        System.out.println(\"All services:\");\n        for (int i = 0; i < count; i++) {\n            System.out.println(registered[i]);\n        }\n    }\n    \n    public static int getCount() {\n        return count;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        ServiceRegistry.register(new Service(\"Auth\", \"1.0\"));\n        ServiceRegistry.register(new Service(\"Payment\", \"2.1\"));\n        ServiceRegistry.register(new Service(\"Notification\", \"1.5\"));\n        \n        System.out.println(\"Registered services: \" + ServiceRegistry.getCount());\n        \n        Service found = ServiceRegistry.findByName(\"Payment\");\n        System.out.println(\"Found: \" + found);\n        \n        ServiceRegistry.printAll();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Registered services: 3\nFound: Service[name=Payment, version=2.1]\nAll services:\nService[name=Auth, version=1.0]\nService[name=Payment, version=2.1]\nService[name=Notification, version=1.5]"
+        }
+      ],
+      "hints": [
+        "ServiceRegistry has NO instance — only static state and methods",
+        "Private static Service[] registered = new Service[10]",
+        "Private static int count tracks how many are filled",
+        "register: registered[count++] = s",
+        "findByName: linear search using getName().equals(name)",
+        "printAll: loop 0 to count-1, print each"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 10,
+      "debug": 2,
+      "predict_output": 2
+    },
+    "total_xp_possible": 695,
+    "estimated_completion_minutes": 60
+  },
+  
+  "gap_detection_map": {
+    "accessing_instance_from_static": ["ex_4"],
+    "not_making_constants_final": ["ex_9"],
+    "factory_method_pattern": ["ex_7"],
+    "singleton_pattern": ["ex_10"],
+    "static_counter_pattern": ["ex_5"],
+    "static_cached_instances": ["ex_11"]
+  }
+}

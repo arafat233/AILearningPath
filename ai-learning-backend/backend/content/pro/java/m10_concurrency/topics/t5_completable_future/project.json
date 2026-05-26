@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m10_t5_proj",
+  "linked_topic": "java_m10_t5",
+  "level": "mini",
+  "name": "Razorpay-Style Async Payment Gateway",
+  "estimated_minutes": 55,
+  "difficulty": 8,
+
+  "scenario": "Build an async payment gateway using CompletableFuture pipelines. Each payment goes through: card validation → bank authorization → fraud check (parallel with auth) → ledger update → notification. The pipeline is fully non-blocking. Failures at any stage produce graceful degradation with logged errors and status tracking.",
+
+  "description": "A full async payment processing pipeline using CompletableFuture chains, thenCompose for sequential steps, allOf for parallel steps, exceptionally for error handling, and ConcurrentHashMap + AtomicInteger for concurrent state tracking.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Payment` record: paymentId, cardNumber, amount, currency. `PaymentResult` record: paymentId, status (AUTHORIZED/DECLINED/FAILED), message.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "Async pipeline methods as CompletableFuture chains:\n- `validateCard(Payment)` → CF<Payment>: 100ms, fail if amount ≤ 0\n- `authorizeWithBank(Payment)` → CF<Payment>: 200ms, 10% random decline\n- `checkFraud(Payment)` → CF<Boolean>: 150ms, 5% flag as fraud\n- `updateLedger(Payment)` → CF<String>: 80ms, returns txnId\n- `sendNotification(PaymentResult)` → CF<Void>: 50ms, fire-and-forget",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "`processPayment(Payment)` method: thenCompose chain validate → allOf(authorize, fraud-check) → updateLedger → sendNotification. Fraud check and authorization run IN PARALLEL using allOf. Total pipeline: ~350ms vs ~580ms sequential.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Error handling: exceptionally on each step with appropriate fallback. Declined payments return DECLINED status. Fraud-flagged payments are logged but not necessarily blocked (just logged). Failed services return FAILED status.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`ConcurrentHashMap<String, String> paymentStatuses` and `AtomicInteger` counters for: total, authorized, declined, failed.",
+        "weight": 12
+      },
+      {
+        "id": "req_6",
+        "description": "Process 5 payments concurrently. Print individual results as they complete, final summary at end.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "ExecutorService provided as custom pool (not default ForkJoinPool). Proper shutdown.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add timeout: each payment pipeline has a 1-second total timeout using `orTimeout(1, SECONDS)` (Java 9+) or `completeOnTimeout(defaultResult, 1, SECONDS)`. Timed-out payments counted as FAILED.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add retry: if bank authorization fails with a transient error (not card declined), retry up to 2 times with 200ms delay. Use CompletableFuture recursion for retry.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `CompletableFuture<PaymentReport> generateReport()` that completes when ALL payments are done. Uses allOf, produces a sorted summary by status.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Payments:\n- PAY-001: card-4242, ₹1500 — valid\n- PAY-002: card-4343, ₹2000 — valid\n- PAY-003: card-invalid, ₹0 — validation fails\n- PAY-004: card-5555, ₹5000 — valid (may be declined randomly)\n- PAY-005: card-6666, ₹800 — valid",
+
+  "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.concurrent.atomic.*;\nimport java.util.stream.*;\n\n/**\n * Async Payment Gateway — CompletableFuture capstone\n * Uses: thenCompose, allOf, exceptionally, handle, whenComplete\n */\npublic class PaymentGateway {\n    public static void main(String[] args) throws Exception {\n        // Create 5 payments, process all concurrently, print results\n    }\n    // Define: Payment, PaymentResult, pipeline methods, processPayment\n}",
+
+  "example_output": "=== Razorpay Async Payment Gateway ===\nProcessing 5 payments in parallel...\n\nPAY-003: FAILED — invalid amount (₹0)\nPAY-001: AUTHORIZED — TXN-001 ✓\nPAY-005: AUTHORIZED — TXN-005 ✓\nPAY-002: AUTHORIZED — TXN-002 ✓\nPAY-004: DECLINED — insufficient funds\n\n=== Summary ===\nTotal:      5\nAuthorized: 3\nDeclined:   1\nFailed:     1\nPipeline time: ~350ms (sequential: ~580ms)",
+
+  "rubric": [
+    { "category": "CF Pipeline", "points": 30, "criteria": ["thenCompose chain (15 pts)", "allOf for parallel auth+fraud (15 pts)"] },
+    { "category": "Error Handling", "points": 20, "criteria": ["exceptionally at each step (10 pts)", "Status correctly set (10 pts)"] },
+    { "category": "Concurrent State", "points": 15, "criteria": ["ConcurrentHashMap statuses (8 pts)", "AtomicInteger counters (7 pts)"] },
+    { "category": "5 Concurrent Payments", "points": 15, "criteria": ["All 5 start simultaneously (10 pts)", "Results complete out of order (5 pts)"] },
+    { "category": "Compiles & Runs", "points": 10, "criteria": ["Compiles (5 pts)", "Correct total (5 pts)"] },
+    { "category": "Executor + Shutdown", "points": 10, "criteria": ["Custom pool (5 pts)", "Proper shutdown (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Timeout orTimeout (20 pts)", "Retry logic (25 pts)", "generateReport CF (20 pts)"] }
+  ],
+
+  "ai_policy": "no_ai",
+  "ai_policy_explanation": "Module 10 capstone — no AI. All patterns covered in Topics 10.1-10.5. Key design: processPayment returns CF<PaymentResult>. allOf(authCF, fraudCF) wraps parallel steps, thenCompose to updateLedger. whenComplete updates ConcurrentHashMap + AtomicInteger. Main: list of CFs, allOf to wait, thenRun to print summary.",
+
+  "submission_instructions": "Save as PaymentGateway.java. Push to GitHub with commit message: 'Module 10 capstone: async payment gateway'. This is the most production-like code in the course so far.",
+
+  "tips_for_success": [
+    "processPayment: validateCard.thenCompose(p -> allOf(auth, fraud).thenCompose(_ -> updateLedger(p)))",
+    "allOf returns CF<Void> — chain thenCompose from it by using the captured auth/fraud futures",
+    "whenComplete on processPayment final stage updates ConcurrentHashMap and AtomicInteger",
+    "All 5 processPayment calls happen before any join() — true parallel fan-out",
+    "Summary: allOf(all 5 futures).thenRun(() -> print summary)"
+  ],
+
+  "concepts_reinforced": [
+    "supplyAsync with custom executor",
+    "thenCompose for sequential async steps",
+    "allOf for parallel async steps",
+    "exceptionally for graceful degradation",
+    "whenComplete for side effects (audit)",
+    "ConcurrentHashMap + AtomicInteger for concurrent state",
+    "All Module 10 topics synthesized"
+  ]
+}

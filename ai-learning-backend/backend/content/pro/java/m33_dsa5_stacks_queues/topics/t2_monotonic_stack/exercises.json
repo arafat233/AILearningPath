@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m33_t2",
+  "topic_name": "Monotonic Stack",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m33_t2_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Next Greater Element I (LeetCode #496)",
+      "instructions": "Implement: Next Greater Element I (LeetCode #496).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class NGE1 {\n    public static int[] nextGreaterElement(int[] nums1, int[] nums2) {\n        Map<Integer,Integer> map=new HashMap<>();\n        Deque<Integer> stack=new ArrayDeque<>();\n        for(int n:nums2){\n            while(!stack.isEmpty()&&stack.peek()<n) map.put(stack.pop(),n);\n            stack.push(n);\n        }\n        int[] res=new int[nums1.length];\n        for(int i=0;i<nums1.length;i++) res[i]=map.getOrDefault(nums1[i],-1);\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(nextGreaterElement(new int[]{4,1,2},new int[]{1,3,4,2}))); // [-1,3,-1]\n        System.out.println(Arrays.toString(nextGreaterElement(new int[]{2,4},new int[]{1,2,3,4})));   // [3,-1]\n        System.out.println(\"O(n) monotonic decreasing stack + HashMap\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[-1, 3, -1]",
+            "[3, -1]",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m33_t2_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Next Greater Element II circular (LeetCode #503)",
+      "instructions": "Implement: Next Greater Element II circular (LeetCode #503).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class NGE2 {\n    public static int[] nextGreaterElements(int[] nums) {\n        int n=nums.length; int[] res=new int[n]; Arrays.fill(res,-1);\n        Deque<Integer> stack=new ArrayDeque<>();\n        for(int i=0;i<2*n;i++){  // circular: traverse twice\n            while(!stack.isEmpty()&&nums[i%n]>nums[stack.peek()])\n                res[stack.pop()]=nums[i%n];\n            if(i<n) stack.push(i);\n        }\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(nextGreaterElements(new int[]{1,2,1})));    // [2,-1,2]\n        System.out.println(Arrays.toString(nextGreaterElements(new int[]{1,2,3,4,3}))); // [2,3,4,-1,4]\n        System.out.println(\"O(n) \u2014 traverse array twice with i%n for circular\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[2, -1, 2]",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m33_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Largest Rectangle in Histogram (LeetCode #84)",
+      "instructions": "Implement: Largest Rectangle in Histogram (LeetCode #84).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LRH {\n    public static int largestRectangleArea(int[] h) {\n        Deque<Integer> st=new ArrayDeque<>();int max=0,n=h.length;\n        for(int i=0;i<=n;i++){int cur=(i==n)?0:h[i];\n            while(!st.isEmpty()&&cur<h[st.peek()]){int height=h[st.pop()];int width=st.isEmpty()?i:i-st.peek()-1;max=Math.max(max,height*width);}\n            st.push(i);}\n        return max;\n    }\n    public static void main(String[] a){\n        System.out.println(largestRectangleArea(new int[]{2,1,5,6,2,3})); // 10\n        System.out.println(largestRectangleArea(new int[]{2,4}));          // 4\n        System.out.println(largestRectangleArea(new int[]{1,1,1,1,1}));   // 5\n        System.out.println(\"O(n) increasing stack, virtual 0 sentinel\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "10",
+            "4",
+            "5",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m33_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Trapping Rain Water (LeetCode #42) two-pointer",
+      "instructions": "Implement: Trapping Rain Water (LeetCode #42) two-pointer.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class TRW {\n    public static int trap(int[] h) {\n        int l=0,r=h.length-1,lm=0,rm=0,water=0;\n        while(l<r){if(h[l]<h[r]){lm=Math.max(lm,h[l]);water+=lm-h[l];l++;}else{rm=Math.max(rm,h[r]);water+=rm-h[r];r--;}}\n        return water;\n    }\n    public static void main(String[] a){\n        System.out.println(trap(new int[]{0,1,0,2,1,0,1,3,2,1,2,1})); // 6\n        System.out.println(trap(new int[]{4,2,0,3,2,5}));               // 9\n        System.out.println(\"O(n) O(1) two-pointer: process smaller side\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "9",
+            "O(n) O(1)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m33_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Daily Temperatures (LeetCode #739)",
+      "instructions": "Implement: Daily Temperatures (LeetCode #739).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DT {\n    public static int[] dailyTemperatures(int[] T) {\n        int n=T.length; int[] res=new int[n]; Deque<Integer> st=new ArrayDeque<>();\n        for(int i=0;i<n;i++){while(!st.isEmpty()&&T[i]>T[st.peek()]){int idx=st.pop();res[idx]=i-idx;}st.push(i);}\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(dailyTemperatures(new int[]{73,74,75,71,69,72,76,73})));\n        System.out.println(Arrays.toString(dailyTemperatures(new int[]{30,40,50,60})));\n        System.out.println(\"O(n) decreasing stack of indices\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 1, 4, 2, 1, 1, 0, 0]",
+            "[1, 1, 1, 0]",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m33_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Stock Span (Monotonic stack)",
+      "instructions": "Implement: Stock Span (Monotonic stack).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class StockSpan {\n    public static int[] stockSpan(int[] prices) {\n        int n=prices.length; int[] span=new int[n]; Deque<Integer> st=new ArrayDeque<>();\n        for(int i=0;i<n;i++){while(!st.isEmpty()&&prices[st.peek()]<=prices[i])st.pop();span[i]=st.isEmpty()?i+1:i-st.peek();st.push(i);}\n        return span;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(stockSpan(new int[]{100,80,60,70,60,75,85})));\n        System.out.println(Arrays.toString(stockSpan(new int[]{10,4,5,90,120,80})));\n        System.out.println(\"O(n) \u2014 span[i] = i - previous greater element index\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[1, 1, 1, 2, 1, 4, 6]",
+            "[1, 1, 2, 4, 5, 1]",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m33_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sum of Subarray Minimums (LeetCode #907)",
+      "instructions": "Implement: Sum of Subarray Minimums (LeetCode #907).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SubarrayMins {\n    public static int sumSubarrayMins(int[] arr) {\n        int n=arr.length; long res=0; final int MOD=1_000_000_007;\n        int[] left=new int[n],right=new int[n];\n        Deque<Integer> st=new ArrayDeque<>();\n        for(int i=0;i<n;i++){while(!st.isEmpty()&&arr[st.peek()]>=arr[i])st.pop();left[i]=st.isEmpty()?i+1:i-st.peek();}\n        st.clear();\n        for(int i=n-1;i>=0;i--){while(!st.isEmpty()&&arr[st.peek()]>arr[i])st.pop();right[i]=st.isEmpty()?n-i:st.peek()-i;st.push(i);}\n        for(int i=0;i<n;i++) res=(res+(long)arr[i]*left[i]*right[i])%MOD;\n        return (int)res;\n    }\n    public static void main(String[] a){\n        System.out.println(sumSubarrayMins(new int[]{3,1,2,4})); // 17\n        System.out.println(sumSubarrayMins(new int[]{11,81,94,43,3})); // 444\n        System.out.println(\"O(n) left/right boundary arrays using monotonic stack\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "17",
+            "444",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Maximal Rectangle (LeetCode #85)",
+      "instructions": "Implement: Maximal Rectangle (LeetCode #85).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MaxRect {\n    static int hist(int[] h){Deque<Integer> st=new ArrayDeque<>();int max=0,n=h.length;for(int i=0;i<=n;i++){int cur=i==n?0:h[i];while(!st.isEmpty()&&cur<h[st.peek()]){int height=h[st.pop()];int w=st.isEmpty()?i:i-st.peek()-1;max=Math.max(max,height*w);}st.push(i);}return max;}\n    public static int maximalRectangle(char[][] matrix) {\n        if(matrix.length==0)return 0; int n=matrix[0].length; int[] h=new int[n]; int max=0;\n        for(char[] row:matrix){for(int j=0;j<n;j++)h[j]=row[j]=='1'?h[j]+1:0;max=Math.max(max,hist(h));}\n        return max;\n    }\n    public static void main(String[] a){\n        char[][] m={{'1','0','1','0','0'},{'1','0','1','1','1'},{'1','1','1','1','1'},{'1','0','0','1','0'}};\n        System.out.println(maximalRectangle(m)); // 6\n        System.out.println(\"O(m*n) \u2014 histogram per row + largestRectangleArea\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "6",
+            "O(m*n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Previous Smaller Element array",
+      "instructions": "Implement: Previous Smaller Element array.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class PSE {\n    public static int[] prevSmaller(int[] arr) {\n        int n=arr.length; int[] res=new int[n]; Deque<Integer> st=new ArrayDeque<>();\n        for(int i=0;i<n;i++){\n            while(!st.isEmpty()&&st.peek()>=arr[i])st.pop();\n            res[i]=st.isEmpty()?-1:st.peek();\n            st.push(arr[i]);\n        }\n        return res;\n    }\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(prevSmaller(new int[]{4,5,2,10,8}))); // [-1,4,-1,2,2]\n        System.out.println(Arrays.toString(prevSmaller(new int[]{1,3,0,2,5}))); // [-1,1,-1,0,2]\n        System.out.println(\"O(n) increasing stack (pop >= current for strict smaller)\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[-1, 4, -1, 2, 2]",
+            "[-1, 1, -1, 0, 2]",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m33_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Remove Duplicate Letters (LeetCode #316)",
+      "instructions": "Implement: Remove Duplicate Letters (LeetCode #316).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class RemoveDupLetters {\n    public static String removeDuplicateLetters(String s) {\n        int[] cnt=new int[26]; boolean[] inStack=new boolean[26];\n        for(char c:s.toCharArray()) cnt[c-'a']++;\n        Deque<Character> stack=new ArrayDeque<>();\n        for(char c:s.toCharArray()){\n            cnt[c-'a']--;\n            if(inStack[c-'a']) continue;\n            while(!stack.isEmpty()&&stack.peek()>c&&cnt[stack.peek()-'a']>0){inStack[stack.pop()-'a']=false;}\n            stack.push(c); inStack[c-'a']=true;\n        }\n        StringBuilder sb=new StringBuilder();\n        for(char ch:stack)sb.append(ch); return sb.reverse().toString();\n    }\n    public static void main(String[] a){\n        System.out.println(removeDuplicateLetters(\"bcabc\")); // abc\n        System.out.println(removeDuplicateLetters(\"cbacdcbc\")); // acdb\n        System.out.println(\"O(n) monotonic increasing stack + count array\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "abc",
+            "acdb",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m33_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Monotonic stack synthesis",
+      "instructions": "Implement: Monotonic stack synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MonoSynth {\n    static int[] nge(int[] nums){int n=nums.length;int[] res=new int[n];Arrays.fill(res,-1);Deque<Integer> st=new ArrayDeque<>();for(int i=0;i<n;i++){while(!st.isEmpty()&&nums[i]>nums[st.peek()])res[st.pop()]=nums[i];st.push(i);}return res;}\n    static int hist(int[] h){Deque<Integer> st=new ArrayDeque<>();int max=0,n=h.length;for(int i=0;i<=n;i++){int cur=i==n?0:h[i];while(!st.isEmpty()&&cur<h[st.peek()]){int hh=h[st.pop()];int w=st.isEmpty()?i:i-st.peek()-1;max=Math.max(max,hh*w);}st.push(i);}return max;}\n    static int trap(int[] h){int l=0,r=h.length-1,lm=0,rm=0,w=0;while(l<r){if(h[l]<h[r]){lm=Math.max(lm,h[l]);w+=lm-h[l];l++;}else{rm=Math.max(rm,h[r]);w+=rm-h[r];r--;}}return w;}\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(nge(new int[]{2,1,2,4,3})));\n        System.out.println(hist(new int[]{2,1,5,6,2,3}));\n        System.out.println(trap(new int[]{4,2,0,3,2,5}));\n        boolean ok=Arrays.toString(nge(new int[]{2,1,2,4,3})).equals(\"[4, 2, 4, -1, -1]\")&&hist(new int[]{2,1,5,6,2,3})==10&&trap(new int[]{4,2,0,3,2,5})==9;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[4, 2, 4, -1, -1]",
+            "10"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m33_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M33 T2 Synthesis",
+      "instructions": "Implement: Complete M33 T2 Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T2Final {\n    static int[] nge(int[] n){int len=n.length;int[] r=new int[len];Arrays.fill(r,-1);Deque<Integer> st=new ArrayDeque<>();for(int i=0;i<len;i++){while(!st.isEmpty()&&n[i]>n[st.peek()])r[st.pop()]=n[i];st.push(i);}return r;}\n    static int hist(int[] h){Deque<Integer> st=new ArrayDeque<>();int max=0,len=h.length;for(int i=0;i<=len;i++){int cur=i==len?0:h[i];while(!st.isEmpty()&&cur<h[st.peek()]){int hh=h[st.pop()];int w=st.isEmpty()?i:i-st.peek()-1;max=Math.max(max,hh*w);}st.push(i);}return max;}\n    static int[] temps(int[] T){int len=T.length;int[] r=new int[len];Deque<Integer> st=new ArrayDeque<>();for(int i=0;i<len;i++){while(!st.isEmpty()&&T[i]>T[st.peek()]){int idx=st.pop();r[idx]=i-idx;}st.push(i);}return r;}\n    public static void main(String[] a){\n        System.out.println(Arrays.toString(nge(new int[]{2,1,2,4,3})));\n        System.out.println(hist(new int[]{2,1,5,6,2,3}));\n        System.out.println(Arrays.toString(temps(new int[]{73,74,75,71,69,72,76,73})));\n        boolean ok=hist(new int[]{2,1,5,6,2,3})==10&&Arrays.toString(nge(new int[]{2,1,2,4,3})).equals(\"[4, 2, 4, -1, -1]\");\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "[4, 2, 4, -1, -1]",
+            "[1, 1, 4, 2, 1, 1, 0, 0]"
+          ]
+        }
+      ],
+      "hints": [
+        "Use ArrayDeque",
+        "Check isEmpty before peek/pop",
+        "O(n) amortized"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

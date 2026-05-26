@@ -1,0 +1,339 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m14_t2",
+  "topic_name": "@Async and @Scheduled",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m14_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "fixedRate vs fixedDelay — execution timing",
+      "scenario": "fixedRate triggers N ms from start; fixedDelay triggers N ms after completion.",
+      "instructions": "A job takes 8 seconds to run. At t=0 it starts.\n\nWith @Scheduled(fixedRate=10_000):\n- When does the 2nd run START?\n\nWith @Scheduled(fixedDelay=10_000):\n- When does the 2nd run START?\n\nWhich would cause overlapping runs if the job took 15 seconds?",
+      "expected_solution": "fixedRate: 2nd run starts at t=10s (10s after 1st started)\nfixedDelay: 2nd run starts at t=18s (8s job + 10s delay after completion)\nfixedRate would cause overlap if job takes 15s (2nd starts at t=10 while 1st ends at t=15)",
+      "test_cases": [
+        { "type": "text_match", "expected": "fixedRate: 2nd run starts at t=10s (10s after 1st started)\nfixedDelay: 2nd run starts at t=18s (8s job + 10s delay after completion)\nfixedRate would cause overlap if job takes 15s (2nd starts at t=10 while 1st ends at t=15)" }
+      ],
+      "hints": [
+        "fixedRate: measured from START of previous execution",
+        "fixedDelay: measured from COMPLETION of previous execution"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Enable async and add @Async method",
+      "scenario": "@EnableAsync on config + @Async on method.",
+      "instructions": "Fill in the blanks to enable async and mark the notification method.",
+      "starter_code": "@SpringBootApplication\n@_________\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n\n@Service\nclass NotificationService {\n    @_____\n    public void sendAlert(String message) {\n        // runs in background thread pool\n        System.out.println(\"Alert: \" + message + \" on \" + Thread.currentThread().getName());\n    }\n}",
+      "expected_solution": "@SpringBootApplication\n@EnableAsync\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n\n@Service\nclass NotificationService {\n    @Async\n    public void sendAlert(String message) {\n        System.out.println(\"Alert: \" + message + \" on \" + Thread.currentThread().getName());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "EnableAsync", "hint": "Activates Spring's @Async support" },
+        { "position": 2, "answer": "Async",       "hint": "Marks method to run in background thread pool" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Without @EnableAsync, @Async is silently ignored",
+        "@Async on the method: Spring intercepts the call and runs it asynchronously"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m14_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Decode cron expressions",
+      "scenario": "Cron: second minute hour day-of-month month day-of-week",
+      "instructions": "Write the plain English meaning of each cron expression:\n\n1. `0 0 * * * *`\n2. `0 0 9 * * MON-FRI`\n3. `0 0/30 * * * *`\n4. `0 0 0 1 * *`\n5. `0 0 18 * * FRI`",
+      "starter_code": "// Decode the cron expressions:\n// 1. '0 0 * * * *'\n// 2. '0 0 9 * * MON-FRI'\n// 3. '0 0/30 * * * *'\n// 4. '0 0 0 1 * *'\n// 5. '0 0 18 * * FRI'\n",
+      "expected_solution": "// 1. '0 0 * * * *'         → every hour (at 0 seconds, 0 minutes past each hour)\n// 2. '0 0 9 * * MON-FRI'  → 9:00 AM on weekdays\n// 3. '0 0/30 * * * *'     → every 30 minutes (at 0 and 30 past each hour)\n// 4. '0 0 0 1 * *'         → midnight on the 1st of every month\n// 5. '0 0 18 * * FRI'      → 6:00 PM every Friday\n\npublic class CronExplanations {\n    public static void main(String[] args) {\n        System.out.println(\"1: Every hour\");\n        System.out.println(\"2: 9:00 AM weekdays\");\n        System.out.println(\"3: Every 30 minutes\");\n        System.out.println(\"4: Midnight on 1st of month\");\n        System.out.println(\"5: 6PM every Friday\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Every hour", "9:00 AM weekdays", "Every 30 minutes"] }
+      ],
+      "hints": [
+        "Format: second minute hour day-of-month month day-of-week",
+        "0/30 = start at 0, repeat every 30",
+        "MON-FRI = range from Monday to Friday"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m14_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "@Async with CompletableFuture return type",
+      "scenario": "CompletableFuture allows callers to await the async result.",
+      "instructions": "Write a `ReportService.generateReport(String userId)` that:\n1. Is annotated @Async\n2. Returns CompletableFuture<String>\n3. Simulates a 2-second report generation with Thread.sleep\n4. Returns the report string wrapped in CompletableFuture.completedFuture()\n\nShow how the caller can use .get() to wait for the result.",
+      "starter_code": "import java.util.concurrent.CompletableFuture;\n// ReportService with @Async CompletableFuture\n",
+      "expected_solution": "import java.util.concurrent.*;\nimport org.springframework.scheduling.annotation.Async;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class ReportService {\n    \n    @Async\n    public CompletableFuture<String> generateReport(String userId) {\n        try { Thread.sleep(2000); }  // simulate long generation\n        catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        String report = \"Report for user: \" + userId + \" generated at \" + java.time.LocalDateTime.now();\n        return CompletableFuture.completedFuture(report);\n    }\n}\n\n// How a caller uses it:\nclass CallerExample {\n    void example(ReportService reportService) throws Exception {\n        // Starts async, returns immediately:\n        CompletableFuture<String> future = reportService.generateReport(\"U01\");\n        System.out.println(\"Request submitted, doing other work...\");\n        \n        // Wait up to 10s for the result:\n        String report = future.get(10, TimeUnit.SECONDS);\n        System.out.println(report);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Async + CompletableFuture<T>: runs async, result wrapped in CF",
+        "CompletableFuture.completedFuture(value): wraps a value in a completed CF",
+        "future.get(timeout, unit): waits up to timeout for the result"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m14_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Scheduled — three job types",
+      "scenario": "Write the three common scheduling patterns.",
+      "instructions": "Write a `MarketJobs` @Component with:\n1. Price refresh: every 30 seconds (fixedRate)\n2. Queue processor: 60 seconds after completion (fixedDelay)\n3. Market open: 9:15 AM weekdays (cron)\n4. Market close: 3:30 PM weekdays (cron)\n\nEach prints the current time and job name.",
+      "starter_code": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Component;\nimport java.time.*;\n// MarketJobs @Component with 4 scheduled methods\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Component;\nimport java.time.*;\n\n@Component\npublic class MarketJobs {\n    \n    @Scheduled(fixedRate = 30_000)\n    public void refreshPrices() {\n        System.out.println(\"[PRICE REFRESH] \" + LocalTime.now());\n    }\n    \n    @Scheduled(fixedDelay = 60_000)\n    public void processQueue() {\n        System.out.println(\"[QUEUE PROCESS] \" + LocalTime.now());\n    }\n    \n    @Scheduled(cron = \"0 15 9 * * MON-FRI\")\n    public void marketOpen() {\n        System.out.println(\"[MARKET OPEN] NSE opens: \" + LocalDateTime.now());\n    }\n    \n    @Scheduled(cron = \"0 30 15 * * MON-FRI\")\n    public void marketClose() {\n        System.out.println(\"[MARKET CLOSE] NSE closes: \" + LocalDateTime.now());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "fixedRate = 30_000: every 30 seconds from start",
+        "fixedDelay = 60_000: 60 seconds after completion",
+        "Cron for 9:15: '0 15 9 * * MON-FRI' (second=0, minute=15, hour=9)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Custom ThreadPoolTaskExecutor",
+      "scenario": "Custom executor controls thread pool size and naming.",
+      "instructions": "Write an `AsyncConfig` @Configuration that creates two named executors:\n1. 'notificationExecutor': coreSize=5, maxSize=20, queue=100, prefix='notif-'\n2. 'reportExecutor': coreSize=2, maxSize=5, queue=10, prefix='report-'\n\nThen show how to use them on @Async methods.",
+      "starter_code": "import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;\nimport java.util.concurrent.Executor;\n// AsyncConfig with two named executors\n",
+      "expected_solution": "import org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.scheduling.annotation.EnableAsync;\nimport org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;\nimport java.util.concurrent.Executor;\n\n@Configuration\n@EnableAsync\npublic class AsyncConfig {\n    \n    @Bean(\"notificationExecutor\")\n    public Executor notificationExecutor() {\n        ThreadPoolTaskExecutor ex = new ThreadPoolTaskExecutor();\n        ex.setCorePoolSize(5);\n        ex.setMaxPoolSize(20);\n        ex.setQueueCapacity(100);\n        ex.setThreadNamePrefix(\"notif-\");\n        ex.initialize();\n        return ex;\n    }\n    \n    @Bean(\"reportExecutor\")\n    public Executor reportExecutor() {\n        ThreadPoolTaskExecutor ex = new ThreadPoolTaskExecutor();\n        ex.setCorePoolSize(2);\n        ex.setMaxPoolSize(5);\n        ex.setQueueCapacity(10);\n        ex.setThreadNamePrefix(\"report-\");\n        ex.initialize();\n        return ex;\n    }\n}\n\n// Usage on @Async methods:\n// @Async(\"notificationExecutor\") public void sendEmail(...) { ... }\n// @Async(\"reportExecutor\") public CompletableFuture<Report> generate(...) { ... }",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Bean('executorName'): named bean used in @Async('executorName')",
+        "ThreadPoolTaskExecutor: Spring's configurable thread pool",
+        "initialize() must be called after configuration"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m14_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Fast HTTP response with @Async notification",
+      "scenario": "Controller returns immediately while @Async sends notification in background.",
+      "instructions": "Build `OrderController.placeOrder()` that:\n1. Saves the order via OrderService (synchronous, ~50ms)\n2. Calls notificationService.sendEmail(order) — @Async, returns immediately\n3. Returns 201 Created with the saved order\n4. Verify: print thread name in both controller and notification service",
+      "starter_code": "import java.util.concurrent.CompletableFuture;\n// OrderController + NotificationService with @Async\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Async;\nimport org.springframework.stereotype.Service;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.ResponseEntity;\n\n// NotificationService:\n@Service\nclass NotificationService {\n    @Async\n    public void sendEmail(String orderId, String userEmail) {\n        System.out.printf(\"[%s] Sending email for %s to %s%n\",\n            Thread.currentThread().getName(), orderId, userEmail);\n        try { Thread.sleep(1500); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n        System.out.println(\"Email sent for \" + orderId);\n    }\n}\n\n// OrderController:\n@RestController @RequestMapping(\"/api/orders\")\nclass OrderController {\n    private final NotificationService notificationSvc;\n    OrderController(NotificationService n) { notificationSvc = n; }\n    \n    @PostMapping\n    public ResponseEntity<String> placeOrder(@RequestBody java.util.Map<String,String> req) {\n        String orderId = \"ORD-\" + java.util.UUID.randomUUID().toString().substring(0,8);\n        System.out.printf(\"[%s] Order %s saved%n\", Thread.currentThread().getName(), orderId);\n        \n        notificationSvc.sendEmail(orderId, req.getOrDefault(\"email\",\"user@example.com\"));\n        // Email will arrive later — HTTP thread already gone\n        \n        System.out.printf(\"[%s] Returning 201 immediately%n\", Thread.currentThread().getName());\n        return ResponseEntity.status(201).body(orderId);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "The controller and notification run on DIFFERENT threads",
+        "@Async returns void: fire-and-forget, no result needed",
+        "Thread.currentThread().getName() shows the difference"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m14_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Self-invocation anti-pattern — and the fix",
+      "scenario": "@Async doesn't work when called via 'this' in the same class.",
+      "instructions": "Show the self-invocation anti-pattern and the correct fix:\n\nAnti-pattern: `OrderService.placeOrder()` calls `this.sendEmail()` which has @Async — doesn't work.\n\nFix: Extract sendEmail into a separate `EmailService` @Service and inject it.\n\nWrite both versions clearly labeled.",
+      "starter_code": "// ANTI-PATTERN (doesn't work):\n// OrderService calling this.sendEmail() with @Async\n\n// CORRECT (works):\n// Separate EmailService injected into OrderService\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Async;\nimport org.springframework.stereotype.Service;\n\n// ========== ANTI-PATTERN (self-invocation — @Async IGNORED) ==========\n@Service\nclass OrderServiceBad {\n    // @Async on THIS class's method:\n    @Async\n    public void sendEmailAsync(String orderId) {\n        System.out.println(\"Sending email for \" + orderId);  // runs SYNCHRONOUSLY!\n    }\n    \n    public String placeOrder(String symbol) {\n        String id = \"ORD-001\";\n        this.sendEmailAsync(id);  // ANTI-PATTERN: 'this.' bypasses Spring proxy!\n        // ^ Still runs synchronously despite @Async!\n        return id;\n    }\n}\n\n// ========== CORRECT FIX (separate bean — @Async WORKS) ==========\n@Service\nclass EmailService {\n    @Async\n    public void sendEmail(String orderId) {\n        System.out.printf(\"[%s] Sending email for %s%n\",\n            Thread.currentThread().getName(), orderId);  // runs ASYNCHRONOUSLY!\n    }\n}\n\n@Service\nclass OrderServiceGood {\n    private final EmailService emailService;  // INJECTED — separate bean\n    OrderServiceGood(EmailService e) { emailService = e; }\n    \n    public String placeOrder(String symbol) {\n        String id = \"ORD-001\";\n        emailService.sendEmail(id);  // CORRECT: via proxy → @Async works!\n        return id;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "this.method(): bypasses Spring AOP proxy → @Async ignored",
+        "Fix: extract @Async method to separate @Service, inject it",
+        "Spring proxy wraps the injected bean — calls through proxy work"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m14_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Test @Async with CompletableFuture",
+      "scenario": "Test async methods by waiting for the CompletableFuture result.",
+      "instructions": "Write a @SpringBootTest test for `ReportService.generateReport(String userId)` (@Async returning CompletableFuture<String>):\n1. Call the async method\n2. Use future.get(10, SECONDS) to wait for the result\n3. Assert the result contains the userId",
+      "starter_code": "// ReportService with @Async CompletableFuture<String> generateReport(String)\n// @SpringBootTest test\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Async;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.CompletableFuture;\n\n@Service\nclass ReportService {\n    @Async\n    public CompletableFuture<String> generateReport(String userId) {\n        return CompletableFuture.completedFuture(\"Report for: \" + userId);\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.concurrent.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass ReportServiceTest {\n    @Autowired ReportService reportService;\n    \n    @Test\n    void generateReport_async_returnsCorrectReport() throws Exception {\n        CompletableFuture<String> future = reportService.generateReport(\"U01\");\n        \n        // Wait up to 10 seconds for the async result:\n        String report = future.get(10, TimeUnit.SECONDS);\n        \n        assertNotNull(report);\n        assertTrue(report.contains(\"U01\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@SpringBootTest(NONE): loads Spring context without HTTP — @Async works",
+        "future.get(10, TimeUnit.SECONDS): wait up to 10s for async result",
+        "TimeoutException if async method takes > 10s"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m14_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Thread names — sync vs async",
+      "scenario": "Async methods run in a different thread than the caller.",
+      "instructions": "What thread names print for each println, approximately?\n\n```java\n@Service class EmailService {\n    @Async void sendEmail(String to) {\n        System.out.println(\"EMAIL on: \" + Thread.currentThread().getName());\n    }\n}\n@RestController class OrderController {\n    EmailService emailSvc;\n    @PostMapping(\"/orders\")\n    public String create() {\n        System.out.println(\"CONTROLLER on: \" + Thread.currentThread().getName());\n        emailSvc.sendEmail(\"aisha@example.com\");\n        System.out.println(\"AFTER on: \" + Thread.currentThread().getName());\n        return \"saved\";\n    }\n}\n```",
+      "expected_solution": "CONTROLLER on: http-nio-8080-exec-1\nAFTER on: http-nio-8080-exec-1\nEMAIL on: task-1 (or similar async thread name)",
+      "test_cases": [
+        { "type": "text_match", "expected": "CONTROLLER on: http-nio-8080-exec-1\nAFTER on: http-nio-8080-exec-1\nEMAIL on: task-1 (or similar async thread name)" }
+      ],
+      "hints": [
+        "HTTP requests run on http-nio-*-exec-* threads",
+        "@Async methods run on Spring's task executor threads",
+        "AFTER prints on the same HTTP thread — sendEmail() returned immediately"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m14_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Parallel async fan-out",
+      "scenario": "Fan out multiple @Async calls and wait for all to complete.",
+      "instructions": "Write `DataAggregatorService.aggregatePortfolio(String userId)` that:\n1. Calls three @Async services in parallel: fetchStockPrices, fetchMutualFunds, fetchBonds\n2. Uses CompletableFuture.allOf() to wait for all three\n3. Combines and returns a PortfolioSummary\n\nTest: assert all three data types are present in the result.",
+      "starter_code": "import java.util.concurrent.CompletableFuture;\n// DataAggregatorService with 3 parallel @Async calls + allOf\n",
+      "expected_solution": "import java.util.concurrent.CompletableFuture;\nimport org.springframework.scheduling.annotation.Async;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\nrecord PortfolioSummary(List<String> stocks, List<String> funds, List<String> bonds) {}\n\n@Service class StockService     { @Async public CompletableFuture<List<String>> fetchPrices(String uid)  { return CompletableFuture.completedFuture(List.of(\"TCS\",\"RELIANCE\")); } }\n@Service class MutualFundService{ @Async public CompletableFuture<List<String>> fetchFunds(String uid)   { return CompletableFuture.completedFuture(List.of(\"HDFC Fund\")); } }\n@Service class BondService      { @Async public CompletableFuture<List<String>> fetchBonds(String uid)   { return CompletableFuture.completedFuture(List.of(\"GOI Bond 2030\")); } }\n\n@Service\npublic class DataAggregatorService {\n    private final StockService stockSvc;\n    private final MutualFundService fundSvc;\n    private final BondService bondSvc;\n    \n    DataAggregatorService(StockService s, MutualFundService f, BondService b) {\n        stockSvc=s; fundSvc=f; bondSvc=b;\n    }\n    \n    public PortfolioSummary aggregatePortfolio(String userId) throws Exception {\n        // Launch all three in parallel:\n        CompletableFuture<List<String>> stocksFuture = stockSvc.fetchPrices(userId);\n        CompletableFuture<List<String>> fundsFuture  = fundSvc.fetchFunds(userId);\n        CompletableFuture<List<String>> bondsFuture  = bondSvc.fetchBonds(userId);\n        \n        // Wait for all:\n        CompletableFuture.allOf(stocksFuture, fundsFuture, bondsFuture).join();\n        \n        return new PortfolioSummary(\n            stocksFuture.get(), fundsFuture.get(), bondsFuture.get());\n    }\n}\n\n// Test:\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass DataAggregatorTest {\n    @Autowired DataAggregatorService aggregator;\n    @Test void aggregate_allDataTypes_present() throws Exception {\n        PortfolioSummary summary = aggregator.aggregatePortfolio(\"U01\");\n        assertFalse(summary.stocks().isEmpty());\n        assertFalse(summary.funds().isEmpty());\n        assertFalse(summary.bonds().isEmpty());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "Three @Async CF calls launch simultaneously",
+        "CompletableFuture.allOf(f1, f2, f3).join(): wait for all three",
+        "After allOf: each future.get() is instant"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m14_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Test @Scheduled by calling the method directly",
+      "scenario": "Scheduled jobs are @Component methods — test them by direct call.",
+      "instructions": "Write a @SpringBootTest test for `PriceRefreshJob.refreshPrices()` that:\n1. @Autowired the job component\n2. Calls refreshPrices() directly\n3. Verifies the PriceService was invoked\n4. Does NOT test the schedule timing — just the job logic",
+      "starter_code": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Component;\n// PriceRefreshJob + @SpringBootTest test\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Component;\nimport org.springframework.stereotype.Service;\n\n@Service\nclass PriceService {\n    int refreshCount = 0;\n    void refreshAll() { refreshCount++; System.out.println(\"Prices refreshed\"); }\n    int getRefreshCount() { return refreshCount; }\n}\n\n@Component\nclass PriceRefreshJob {\n    private final PriceService priceService;\n    PriceRefreshJob(PriceService p) { priceService = p; }\n    \n    @Scheduled(fixedRate = 30_000)\n    public void refreshPrices() {\n        System.out.println(\"Running scheduled refresh...\");\n        priceService.refreshAll();\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass PriceRefreshJobTest {\n    @Autowired PriceRefreshJob job;\n    @Autowired PriceService priceService;\n    \n    @Test\n    void refreshPrices_callsPriceService() {\n        int before = priceService.getRefreshCount();\n        job.refreshPrices();  // call directly — don't wait for schedule\n        assertEquals(before + 1, priceService.getRefreshCount());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "Don't test the timing — just test what the job DOES when called",
+        "@Autowired the @Component directly in the test",
+        "Call job.method() directly — tests job logic, not schedule"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m14_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@Async exception handling",
+      "scenario": "Exceptions in void @Async methods are silently lost without a handler.",
+      "instructions": "Demonstrate the exception problem and solution:\n1. Show that exceptions in void @Async methods are lost without a handler\n2. Implement an `AsyncUncaughtExceptionHandler` that logs the exception\n3. Register it in the `AsyncConfigurer`\n4. Write a @SpringBootTest that triggers the exception and verifies it was logged",
+      "starter_code": "import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;\nimport org.springframework.scheduling.annotation.AsyncConfigurer;\n// AsyncExceptionConfig + test\n",
+      "expected_solution": "import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;\nimport org.springframework.scheduling.annotation.AsyncConfigurer;\nimport org.springframework.scheduling.annotation.EnableAsync;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.scheduling.annotation.Async;\nimport org.springframework.stereotype.Service;\nimport java.lang.reflect.Method;\nimport java.util.*;\n\n// Custom exception handler:\nclass LoggingAsyncExceptionHandler implements AsyncUncaughtExceptionHandler {\n    List<String> caughtErrors = new ArrayList<>();\n    @Override\n    public void handleUncaughtException(Throwable ex, Method method, Object... params) {\n        String msg = String.format(\"Async error in %s: %s\", method.getName(), ex.getMessage());\n        System.err.println(msg);\n        caughtErrors.add(msg);\n    }\n}\n\n// Register in AsyncConfigurer:\n@Configuration @EnableAsync\nclass AsyncExceptionConfig implements AsyncConfigurer {\n    static LoggingAsyncExceptionHandler handler = new LoggingAsyncExceptionHandler();\n    @Override\n    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() { return handler; }\n}\n\n// Service that throws:\n@Service\nclass FailingService {\n    @Async\n    public void doWork() { throw new RuntimeException(\"Simulated async failure\"); }\n}\n\n// Test:\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass AsyncExceptionTest {\n    @Autowired FailingService failingService;\n    @Test void asyncException_caughtByHandler() throws Exception {\n        failingService.doWork();\n        Thread.sleep(500);  // wait for async to complete\n        assertFalse(AsyncExceptionConfig.handler.caughtErrors.isEmpty());\n        assertTrue(AsyncExceptionConfig.handler.caughtErrors.get(0).contains(\"async failure\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "AsyncUncaughtExceptionHandler: catches exceptions from void @Async methods",
+        "AsyncConfigurer.getAsyncUncaughtExceptionHandler(): registers the handler",
+        "Thread.sleep(500) after calling async: gives it time to throw"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m14_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Write cron expressions for Zerodha-style schedule",
+      "scenario": "Real-world trading platform needs precise scheduling.",
+      "instructions": "Write @Scheduled methods for these Zerodha-like requirements:\n1. Market data refresh: every 5 minutes during trading hours (9:15-15:30 on weekdays)\n2. EOD settlement: 4:00 PM Mon-Fri\n3. Monthly account statement: midnight on 1st of each month\n4. Weekly portfolio summary: 9:00 AM every Monday\n5. Heartbeat check: every 30 seconds (use fixedRate)",
+      "starter_code": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Component;\nimport java.time.*;\n// TradingScheduler with 5 @Scheduled methods\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Component;\nimport java.time.*;\n\n@Component\npublic class TradingScheduler {\n    \n    // 1. Every 5 minutes during trading hours (9:15 to 15:30 weekdays):\n    @Scheduled(cron = \"0 0/5 9-15 * * MON-FRI\")\n    public void refreshMarketData() {\n        System.out.println(\"Market data refresh: \" + LocalTime.now());\n        // Note: this runs 9:00-15:55 (rounds to full hours)\n        // For precise 9:15-15:30, use application-level time check:\n        LocalTime now = LocalTime.now();\n        if (now.isBefore(LocalTime.of(9,15)) || now.isAfter(LocalTime.of(15,30))) return;\n        // ... actual refresh\n    }\n    \n    // 2. EOD settlement at 4:00 PM Mon-Fri:\n    @Scheduled(cron = \"0 0 16 * * MON-FRI\")\n    public void eodSettlement() {\n        System.out.println(\"EOD Settlement: \" + LocalDateTime.now());\n    }\n    \n    // 3. Monthly statement on 1st of month at midnight:\n    @Scheduled(cron = \"0 0 0 1 * *\")\n    public void monthlyStatement() {\n        System.out.println(\"Monthly statement: \" + LocalDateTime.now());\n    }\n    \n    // 4. Weekly portfolio summary at 9 AM Monday:\n    @Scheduled(cron = \"0 0 9 * * MON\")\n    public void weeklyPortfolioSummary() {\n        System.out.println(\"Weekly summary: \" + LocalDateTime.now());\n    }\n    \n    // 5. Heartbeat every 30 seconds:\n    @Scheduled(fixedRate = 30_000)\n    public void heartbeat() {\n        System.out.println(\"Heartbeat: \" + LocalTime.now());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "0/5: every 5 minutes (0, 5, 10, 15...)",
+        "9-15: hours 9 through 15",
+        "0 0 0 1 * *: second=0, minute=0, hour=0, day=1, any month, any dow"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m14_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete async order system — Module 14.2 synthesis",
+      "scenario": "Production-ready order system with async notifications and scheduled jobs.",
+      "instructions": "Build a complete async order system:\n- `NotificationService` with 3 @Async methods: sendConfirmation, notifyWarehouse, sendInvoice\n- `OrderService.placeOrder()`: saves order, fires all 3 async — returns in <100ms\n- `DailyReportJob` @Scheduled: 7:00 AM daily, generates report using OrderRepository\n- Custom ThreadPoolTaskExecutor with core=5, max=15\n- @SpringBootTest test: place order, verify DB persistence, verify notifications fired (within 2s)\n\nAll tests must pass.",
+      "starter_code": "// Complete async order system\n// NotificationService, OrderService, DailyReportJob, AsyncConfig\n// @SpringBootTest test\n",
+      "expected_solution": "import org.springframework.scheduling.annotation.Async;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.CompletableFuture;\n\n@Service class NotificationService {\n    @Async(\"orderExecutor\") public CompletableFuture<Void> sendConfirmation(String orderId) {\n        System.out.printf(\"[%s] Confirmation for %s%n\", Thread.currentThread().getName(), orderId);\n        return CompletableFuture.completedFuture(null);\n    }\n    @Async(\"orderExecutor\") public CompletableFuture<Void> notifyWarehouse(String orderId) {\n        System.out.printf(\"[%s] Warehouse notified for %s%n\", Thread.currentThread().getName(), orderId);\n        return CompletableFuture.completedFuture(null);\n    }\n    @Async(\"orderExecutor\") public CompletableFuture<Void> sendInvoice(String orderId) {\n        System.out.printf(\"[%s] Invoice for %s%n\", Thread.currentThread().getName(), orderId);\n        return CompletableFuture.completedFuture(null);\n    }\n}\n\n@org.springframework.transaction.annotation.Transactional @Service\nclass OrderService {\n    // ... (inject repository + notificationSvc)\n    public String placeOrder(String symbol, int qty) {\n        String orderId = \"ORD-\" + java.util.UUID.randomUUID().toString().substring(0,8);\n        // repo.save(...)\n        var cf1 = notificationSvc.sendConfirmation(orderId);\n        var cf2 = notificationSvc.notifyWarehouse(orderId);\n        var cf3 = notificationSvc.sendInvoice(orderId);\n        // Fire-and-forget: don't wait\n        return orderId;\n    }\n}\n\n@org.springframework.scheduling.annotation.Scheduled(cron=\"0 0 7 * * *\")\npublic void generateDailyReport() { System.out.println(\"Daily report: \" + java.time.LocalDate.now()); }\n\n@org.springframework.context.annotation.Configuration\n@org.springframework.scheduling.annotation.EnableAsync\nclass AsyncConfig {\n    @org.springframework.context.annotation.Bean(\"orderExecutor\")\n    public java.util.concurrent.Executor orderExecutor() {\n        org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor ex = new org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor();\n        ex.setCorePoolSize(5); ex.setMaxPoolSize(15); ex.setQueueCapacity(50);\n        ex.setThreadNamePrefix(\"order-\"); ex.initialize(); return ex;\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass OrderSystemTest {\n    @Autowired OrderService orderService;\n    @Test void placeOrder_returnsIdAndFiresAsync() throws Exception {\n        long start = System.currentTimeMillis();\n        String orderId = orderService.placeOrder(\"TCS\", 10);\n        long elapsed = System.currentTimeMillis() - start;\n        assertNotNull(orderId);\n        assertTrue(elapsed < 500, \"Should return in <500ms, was: \" + elapsed + \"ms\");\n        Thread.sleep(1000);  // give async tasks time to complete\n        System.out.println(\"Order \" + orderId + \" processed\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "Three @Async calls from OrderService: all fire simultaneously",
+        "HTTP/service thread returns in <500ms despite 3 async tasks",
+        "Thread.sleep(1000) in test: gives async tasks time to complete before test ends"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 65
+  }
+}

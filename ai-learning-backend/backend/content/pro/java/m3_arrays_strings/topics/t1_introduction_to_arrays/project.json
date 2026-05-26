@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m3_t1_proj",
+  "linked_topic": "java_m3_t1",
+  "level": "mini",
+  "name": "Stock Portfolio Analyzer",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  
+  "scenario": "You're building a basic portfolio analytics tool — the kind a Zerodha user might run to understand their stock investments. Given a list of daily closing prices for a stock, calculate key metrics that any trader cares about: total gain/loss, best day, worst day, average price, number of profitable days. This is real financial analytics. The data structure (array of prices) is exactly how stock APIs return historical data — every charting library in the world processes data this way.",
+  
+  "description": "Build a `StockAnalyzer` class that analyzes 30 days of closing prices for a hypothetical stock. The program should produce a complete analytics report demonstrating mastery of array iteration patterns: aggregation, finding extremes, counting matches, comparisons between adjacent elements.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `StockAnalyzer` in file StockAnalyzer.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Has a `double[]` array `prices` with at least 15 daily closing prices",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "Prints all daily prices with day numbers (1-based)",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Calculates and prints the AVERAGE price over the period",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Finds and prints the HIGHEST price + its day",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "Finds and prints the LOWEST price + its day",
+        "weight": 15
+      },
+      {
+        "id": "req_8",
+        "description": "Calculates TOTAL CHANGE: last price - first price",
+        "weight": 10
+      },
+      {
+        "id": "req_9",
+        "description": "Counts PROFITABLE DAYS (where price > previous day's price)",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Find the largest single-day GAIN (max increase from one day to next) and the largest single-day DROP",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Calculate the 'volatility score' — count days where the price changed by more than 5% from previous day",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Find the LONGEST WINNING STREAK — most consecutive days where each price was higher than previous",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Print percentage change between first and last day, with format like '+12.5%' or '-8.3%'",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Use these 20 closing prices (₹) for a hypothetical Indian stock (representing recent volatility):\n\n```java\ndouble[] prices = {\n    1250.0, 1278.5, 1265.0, 1290.0, 1310.5,\n    1295.0, 1325.0, 1340.0, 1318.5, 1305.0,\n    1330.0, 1355.0, 1345.0, 1380.0, 1395.5,\n    1370.0, 1410.0, 1425.0, 1402.0, 1450.0\n};\n```\n\nExpected metrics (approximately):\n- Average ≈ 1339.5\n- Highest: 1450.0 (Day 20)\n- Lowest: 1250.0 (Day 1)\n- Total change: +200.0\n- Profitable days: ~13 (count where day N > day N-1)",
+  
+  "starter_code": "// Build your StockAnalyzer class below\n// Use the prices array provided in the scenario\n\npublic class StockAnalyzer {\n    public static void main(String[] args) {\n        double[] prices = {\n            1250.0, 1278.5, 1265.0, 1290.0, 1310.5,\n            1295.0, 1325.0, 1340.0, 1318.5, 1305.0,\n            1330.0, 1355.0, 1345.0, 1380.0, 1395.5,\n            1370.0, 1410.0, 1425.0, 1402.0, 1450.0\n        };\n        \n        // TODO: Print daily prices\n        // TODO: Calculate average\n        // TODO: Find highest and day\n        // TODO: Find lowest and day\n        // TODO: Calculate total change\n        // TODO: Count profitable days\n    }\n}",
+  
+  "example_output": "===================================\n         STOCK ANALYZER\n===================================\nDay 1: ₹1250.0\nDay 2: ₹1278.5\nDay 3: ₹1265.0\n... (all 20 days)\n-----------------------------------\nAverage Price:     ₹1339.5\nHighest Price:     ₹1450.0 (Day 20)\nLowest Price:      ₹1250.0 (Day 1)\nTotal Change:      +₹200.0\nProfitable Days:   13 / 19\n-----------------------------------\n(Bonus) Largest Gain:  +₹35.0\n(Bonus) Largest Drop:  -₹21.5\n(Bonus) Percentage Change: +16.0%\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Required Calculations",
+      "points": 60,
+      "criteria": [
+        "Daily prices printed correctly (10 pts)",
+        "Average calculated correctly (10 pts)",
+        "Highest with day found correctly (15 pts)",
+        "Lowest with day found correctly (15 pts)",
+        "Total change calculated (5 pts)",
+        "Profitable days counted correctly (15 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "Uses .length, not hardcoded sizes (5 pts)",
+        "Appropriate loop style (for-each vs indexed) (5 pts)",
+        "Variable names descriptive (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 10,
+      "criteria": [
+        "Clean, organized output (5 pts)",
+        "Day numbers are 1-based for humans (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 65,
+      "criteria": [
+        "Largest gain and drop (20 pts)",
+        "Volatility count (15 pts)",
+        "Longest winning streak (20 pts)",
+        "Percentage formatting (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The core operations (iterate, sum, find max, find min, count) are now familiar. The interesting challenge is COUNTING PROFITABLE DAYS — that requires comparing each element to the PREVIOUS one (which needs index access). Think about it before asking.",
+  
+  "submission_instructions": "Save as StockAnalyzer.java. Run it. Try replacing the prices array with different data (a declining stock, a volatile stock). The same code should work and produce meaningful results. Push to GitHub portfolio — this is a real financial tool worth showing off.",
+  
+  "tips_for_success": [
+    "Print prices FIRST — verify the data loaded correctly before complex analysis.",
+    "For finding max/min: track BOTH the value AND the index (day). Use classic for loop.",
+    "For 'profitable days': compare nums[i] to nums[i-1]. Start loop at i = 1 (not 0).",
+    "Use .length everywhere — never hardcode 20.",
+    "For percentage: ((last - first) / first) * 100. Format with String.format(\"%+.1f%%\", percent) for the +/- prefix.",
+    "For winning streak: track currentStreak and maxStreak. Reset currentStreak when prices drop."
+  ],
+  
+  "concepts_reinforced": [
+    "Array declaration with literal",
+    "Array iteration (both for-each and classic for)",
+    "Accumulator pattern (sum)",
+    "Find max/min with index tracking",
+    "Counting with conditionals",
+    "Adjacent element comparison (i and i-1)",
+    "Using .length for bounds",
+    "Combining multiple operations on one array"
+  ],
+  
+  "what_youll_learn_by_doing_this": "This project teaches DATA PROCESSING — the actual skill data analysts and backend engineers use daily. Every metric here (average, extremes, count of profitable days, percentage change) is something Bloomberg, Yahoo Finance, Zerodha, or any trading app calculates. Once you can do this with a price array, you can do it with sales data, sensor readings, log timestamps, or user metrics. The pattern is the same. Master the patterns here and you've mastered ~70% of business analytics code.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a 'moving average' calculation (average of last N days)",
+    "Implement a simple buy/sell signal (buy when price drops below average, sell when above)",
+    "Calculate 'maximum drawdown' (largest peak-to-trough decline)",
+    "Find all 'local maxima' (days where price was higher than the days immediately before AND after)",
+    "Convert to method-based design (Module 2 refactor): `calculateAverage(prices)`, `findHighest(prices)`, etc."
+  ]
+}

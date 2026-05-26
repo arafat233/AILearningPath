@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t5",
+  "topic_name": "Testing Spring Boot",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m13_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Which test slice for each scenario?",
+      "scenario": "Each test slice loads different components.",
+      "instructions": "Match each testing need to the correct Spring Boot test approach:\n\nA. Test that GET /api/products returns 200 with JSON array\nB. Test that findByCategory('Electronics') returns 2 products from H2\nC. Test that ProductService.getTotalValue() calculates correctly (no Spring needed)\nD. Test full CRUD: POST, then GET, then DELETE with real HTTP\nE. Test that POST with blank name returns 400 with field error",
+      "expected_solution": "A → @WebMvcTest\nB → @DataJpaTest\nC → Plain JUnit + Mockito (no Spring)\nD → @SpringBootTest RANDOM_PORT\nE → @WebMvcTest",
+      "test_cases": [
+        { "type": "text_match", "expected": "A → @WebMvcTest\nB → @DataJpaTest\nC → Plain JUnit + Mockito (no Spring)\nD → @SpringBootTest RANDOM_PORT\nE → @WebMvcTest" }
+      ],
+      "hints": [
+        "@WebMvcTest: HTTP assertions, validation",
+        "@DataJpaTest: database queries only",
+        "Pure business logic needs no Spring context"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete a @WebMvcTest",
+      "scenario": "@WebMvcTest requires MockMvc and @MockBean for dependencies.",
+      "instructions": "Fill in the blanks to complete this @WebMvcTest.",
+      "starter_code": "import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n@__________(ProductController.class)\nclass ProductControllerTest {\n    @Autowired ________ mvc;\n    @_________ ProductService service;\n    \n    @Test\n    void getAll_returns200() throws Exception {\n        when(service.findAll()).thenReturn(List.of());\n        mvc.perform(get(\"/api/products\"))\n            .andExpect(status().________());\n    }\n}",
+      "expected_solution": "@WebMvcTest(ProductController.class)\nclass ProductControllerTest {\n    @Autowired MockMvc mvc;\n    @MockBean ProductService service;\n    @Test\n    void getAll_returns200() throws Exception {\n        when(service.findAll()).thenReturn(List.of());\n        mvc.perform(get(\"/api/products\"))\n            .andExpect(status().isOk());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "WebMvcTest",  "hint": "Loads only the controller layer" },
+        { "position": 2, "answer": "MockMvc",     "hint": "The HTTP test client injected by @WebMvcTest" },
+        { "position": 3, "answer": "MockBean",    "hint": "Creates a Mockito mock in the Spring context" },
+        { "position": 4, "answer": "isOk",        "hint": "200 OK status matcher" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@WebMvcTest: controller slice",
+        "@MockBean: Spring-managed Mockito mock",
+        "status().isOk() = 200"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal @WebMvcTest — GET all products",
+      "scenario": "Test GET /api/products returns 200 and JSON array.",
+      "instructions": "Write a @WebMvcTest for `ProductController.getAll()`. Mock the service to return 2 products. Assert 200 status and array length 2.",
+      "starter_code": "// Product record, ProductController with GET /api/products\n// ProductService with findAll()\n// @WebMvcTest test\n",
+      "expected_solution": "import org.springframework.web.bind.annotation.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.mockito.Mockito.*;\nimport java.util.*;\nimport org.junit.jupiter.api.*;\n\nrecord Product(String id, String name, double price) {}\n\n@RestController @RequestMapping(\"/api/products\")\nclass ProductController {\n    private final ProductService service;\n    ProductController(ProductService s) { service=s; }\n    @GetMapping public List<Product> getAll() { return service.findAll(); }\n}\n\ninterface ProductService { List<Product> findAll(); }\n\n@WebMvcTest(ProductController.class)\nclass ProductControllerTest {\n    @Autowired MockMvc mvc;\n    @MockBean ProductService service;\n    \n    @Test\n    void getAll_returns200WithTwoProducts() throws Exception {\n        when(service.findAll()).thenReturn(List.of(\n            new Product(\"P001\",\"Mouse\",799),\n            new Product(\"P002\",\"Keyboard\",1999)));\n        mvc.perform(get(\"/api/products\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.length()\").value(2));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "@MockBean ProductService: service not loaded by @WebMvcTest",
+        "jsonPath('$.length()').value(2): array of 2 items"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m13_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "@WebMvcTest — GET by ID with 200 and 404",
+      "scenario": "Test both found and not-found scenarios for GET /{id}.",
+      "instructions": "Write 2 @WebMvcTest tests for `GET /api/products/{id}`:\n1. Service returns product → 200 with name in JSON\n2. Service throws ResourceNotFoundException → 404",
+      "starter_code": "// @WebMvcTest for GET /{id} — found and not-found\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.mockito.Mockito.*;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(ProductController.class)\nclass ProductGetByIdTest {\n    @Autowired MockMvc mvc;\n    @MockBean ProductService service;\n    \n    @Test\n    void getById_found_returns200WithProduct() throws Exception {\n        when(service.findByIdOrThrow(\"P001\"))\n            .thenReturn(new Product(\"P001\",\"Mouse\",799));\n        mvc.perform(get(\"/api/products/P001\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.name\").value(\"Mouse\"));\n    }\n    \n    @Test\n    void getById_notFound_returns404() throws Exception {\n        when(service.findByIdOrThrow(\"P999\"))\n            .thenThrow(new ResourceNotFoundException(\"Product\",\"P999\"));\n        mvc.perform(get(\"/api/products/P999\"))\n            .andExpect(status().isNotFound());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "when(service.findByIdOrThrow('P999')).thenThrow(...)",
+        "status().isNotFound() = 404",
+        "GlobalExceptionHandler must also be loaded by @WebMvcTest (it is auto-detected)"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m13_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@WebMvcTest — POST validation 400",
+      "scenario": "Test that invalid POST returns 400 with field errors.",
+      "instructions": "Write 2 @WebMvcTest tests for `POST /api/products`:\n1. Valid request → 201, response has id and name\n2. Blank name → 400 with 'name' key in error body",
+      "starter_code": "// @WebMvcTest for POST with validation\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport java.util.Map;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(ProductController.class)\nclass ProductCreateTest {\n    @Autowired MockMvc mvc;\n    @Autowired ObjectMapper mapper;\n    @MockBean ProductService service;\n    \n    @Test\n    void create_validRequest_returns201() throws Exception {\n        when(service.create(any()))\n            .thenReturn(new Product(\"P001\",\"Mouse\",799));\n        mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5))))\n            .andExpect(status().isCreated())\n            .andExpect(jsonPath(\"$.id\").value(\"P001\"))\n            .andExpect(jsonPath(\"$.name\").value(\"Mouse\"));\n    }\n    \n    @Test\n    void create_blankName_returns400() throws Exception {\n        mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"name\",\"\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5))))\n            .andExpect(status().isBadRequest())\n            .andExpect(jsonPath(\"$.name\").exists());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "mapper.writeValueAsString(Map.of(...)) builds the JSON body",
+        "status().isCreated() = 201",
+        "jsonPath('$.name').exists() checks the field is present in error response"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@DataJpaTest — save and find round-trip",
+      "scenario": "@DataJpaTest loads H2 + JPA for repository testing.",
+      "instructions": "Write @DataJpaTest tests for `OrderRepository`:\n1. save → auto-assigns id\n2. findById after save → returns saved entity\n3. findByStatus('PENDING') → 2 of 3 seeded orders\n4. deleteById → entity no longer exists",
+      "starter_code": "@Entity class Order {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String userId; String status; double amount;\n    protected Order(){}\n    Order(String uid, String st, double amt){ userId=uid; status=st; amount=amt; }\n    String getId(){ return id; } String getStatus(){ return status; }\n}\npublic interface OrderRepository extends JpaRepository<Order,String> {\n    java.util.List<Order> findByStatus(String status);\n}\n// @DataJpaTest with 4 tests\n",
+      "expected_solution": "// (Order and OrderRepository as above)\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@DataJpaTest\nclass OrderRepositoryTest {\n    @Autowired OrderRepository repo;\n    \n    @BeforeEach void seed() {\n        repo.save(new Order(\"U01\",\"PENDING\",500));\n        repo.save(new Order(\"U01\",\"PENDING\",800));\n        repo.save(new Order(\"U02\",\"PAID\",1200));\n    }\n    \n    @Test void save_assignsId()      { assertNotNull(repo.save(new Order(\"U03\",\"PENDING\",100)).getId()); }\n    @Test void findById_returnsSaved() {\n        Order s = repo.save(new Order(\"U03\",\"PAID\",200));\n        assertTrue(repo.findById(s.getId()).isPresent());\n    }\n    @Test void findByStatus_pending_returns2() {\n        assertEquals(2, repo.findByStatus(\"PENDING\").size());\n    }\n    @Test void deleteById_removesEntity() {\n        Order s = repo.save(new Order(\"U03\",\"PAID\",200));\n        repo.deleteById(s.getId());\n        assertFalse(repo.existsById(s.getId()));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "@BeforeEach seed: data saved before each test, rolled back after",
+        "Each test starts fresh due to @DataJpaTest rollback",
+        "findByStatus: 2 PENDING from seed + any saved in the test"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m13_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@DataJpaTest with @Import for service testing",
+      "scenario": "@Import loads a service bean into the DataJpa slice.",
+      "instructions": "Write @DataJpaTest tests for a `ProductService` that depends on `ProductRepository`. Use @Import to load the service. Test: create (success), create duplicate (throws), delete (removes from DB).",
+      "starter_code": "// ProductService with create and delete, throwing on duplicates\n// ProductRepository, Product @Entity\n// @DataJpaTest with @Import(ProductService.class)\n",
+      "expected_solution": "@Entity class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @Column(nullable=false) String name; double price;\n    protected Product(){}\n    Product(String n, double p){ name=n; price=p; }\n    String getId(){ return id; } String getName(){ return name; }\n}\npublic interface ProductRepository extends JpaRepository<Product,String> {\n    boolean existsByName(String name);\n}\n@org.springframework.stereotype.Service\n@org.springframework.transaction.annotation.Transactional\nclass ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository r){ repo=r; }\n    Product create(String name, double price){\n        if(repo.existsByName(name)) throw new IllegalStateException(\"Duplicate: \"+name);\n        return repo.save(new Product(name,price));\n    }\n    void delete(String id){ repo.deleteById(id); }\n}\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@DataJpaTest @Import(ProductService.class)\nclass ProductServiceTest {\n    @Autowired ProductRepository repo;\n    @Autowired ProductService service;\n    \n    @Test void create_newProduct_assignsId()  { assertNotNull(service.create(\"Mouse\",799).getId()); }\n    @Test void create_duplicate_throws()      { service.create(\"Mouse\",799); assertThrows(IllegalStateException.class,()->service.create(\"Mouse\",900)); }\n    @Test void delete_removesFromRepository() {\n        Product p = service.create(\"Mouse\",799);\n        service.delete(p.getId());\n        assertFalse(repo.existsById(p.getId()));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@Import(ProductService.class): adds service to @DataJpaTest context",
+        "Without @Import: @Autowired ProductService fails with NoSuchBeanDefinitionException",
+        "existsByName: checks for duplicate before save"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "MockMvc jsonPath assertions — complex JSON",
+      "scenario": "jsonPath() navigates nested and array JSON responses.",
+      "instructions": "Write @WebMvcTest tests asserting on complex JSON:\n1. GET /api/products returns array with 3 items, first item name='Mouse'\n2. GET /api/products/P001 returns nested JSON: id, name, price, AND nested category object with id and name\n3. GET /api/products?category=Electronics returns 2-item array",
+      "starter_code": "// @WebMvcTest testing complex jsonPath assertions\n",
+      "expected_solution": "// Assume Product and Category records, ProductController with complex responses\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport java.util.*;\nimport org.junit.jupiter.api.*;\n\nrecord Category(String id, String name){}\nrecord ProductDetail(String id, String name, double price, Category category){}\n\n@WebMvcTest(ProductController.class)\nclass ComplexJsonTest {\n    @Autowired MockMvc mvc;\n    @MockBean ProductService service;\n    \n    @Test\n    void getAll_assertsFirstElementName() throws Exception {\n        when(service.findAll()).thenReturn(List.of(\n            new Product(\"P001\",\"Mouse\",799),\n            new Product(\"P002\",\"Keyboard\",1999),\n            new Product(\"P003\",\"Monitor\",18999)));\n        mvc.perform(get(\"/api/products\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$\").isArray())\n            .andExpect(jsonPath(\"$.length()\").value(3))\n            .andExpect(jsonPath(\"$[0].name\").value(\"Mouse\"))\n            .andExpect(jsonPath(\"$[2].price\").value(18999));\n    }\n    \n    @Test\n    void getById_assertsNestedCategory() throws Exception {\n        when(service.findDetailById(\"P001\")).thenReturn(\n            new ProductDetail(\"P001\",\"Mouse\",799,new Category(\"C01\",\"Electronics\")));\n        mvc.perform(get(\"/api/products/P001/detail\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.id\").value(\"P001\"))\n            .andExpect(jsonPath(\"$.category.id\").value(\"C01\"))\n            .andExpect(jsonPath(\"$.category.name\").value(\"Electronics\"));\n    }\n    \n    @Test\n    void searchByCategory_returns2Items() throws Exception {\n        when(service.findByCategory(\"Electronics\")).thenReturn(List.of(\n            new Product(\"P001\",\"Mouse\",799),\n            new Product(\"P002\",\"Keyboard\",1999)));\n        mvc.perform(get(\"/api/products\").param(\"category\",\"Electronics\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.length()\").value(2));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "jsonPath('$[0].name'): first array element's name field",
+        "jsonPath('$.category.id'): nested object field",
+        ".param('key','value'): adds ?key=value query parameter"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@SpringBootTest NONE — service layer integration",
+      "scenario": "@SpringBootTest(webEnvironment=NONE) tests the service layer with real Spring context.",
+      "instructions": "Write @SpringBootTest(webEnvironment=NONE) tests for `InventoryService`:\n1. @Autowired the service (no mock)\n2. Test addItem and getStock\n3. Test lowStock alert\n4. No HTTP involved — pure service test with Spring context",
+      "starter_code": "// InventoryService @SpringBootTest(NONE) — service layer integration\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass InventoryServiceIntegrationTest {\n    @Autowired InventoryService inventoryService;\n    \n    @BeforeEach\n    void reset() {\n        inventoryService.clear();  // assumes service has a test-only clear()\n    }\n    \n    @Test\n    void addItem_andGetStock_returnsCorrectQty() {\n        inventoryService.addItem(\"TCS\", 100);\n        assertEquals(100, inventoryService.getStock(\"TCS\"));\n    }\n    \n    @Test\n    void isLowStock_below5_returnsTrue() {\n        inventoryService.setMinimum(\"TCS\", 10);\n        inventoryService.addItem(\"TCS\", 3);\n        assertTrue(inventoryService.isLowStock(\"TCS\"));\n    }\n    \n    @Test\n    void isLowStock_above5_returnsFalse() {\n        inventoryService.setMinimum(\"TCS\", 10);\n        inventoryService.addItem(\"TCS\", 50);\n        assertFalse(inventoryService.isLowStock(\"TCS\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "webEnvironment=NONE: loads full Spring context but no Tomcat",
+        "@Autowired real service bean — not a mock",
+        "Useful for testing @Value config, @PostConstruct, @Transactional in real Spring context"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m13_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "@DataJpaTest rollback behavior",
+      "scenario": "Each @Test in @DataJpaTest runs in a rollback transaction.",
+      "instructions": "What does the second test find in the database?\n\n```java\n@DataJpaTest\nclass RollbackTest {\n    @Autowired ProductRepository repo;\n    \n    @Test  // runs first\n    void test1_savesProduct() {\n        repo.save(new Product(\"Mouse\", 799, \"Electronics\"));\n        assertEquals(1, repo.count());\n    }\n    \n    @Test  // runs second\n    void test2_countIsZero() {\n        long count = repo.count();\n        System.out.println(\"Count in test2: \" + count);\n    }\n}\n```",
+      "expected_solution": "Count in test2: 0\nReason: @DataJpaTest wraps each test in a transaction that rolls back.\nThe product saved in test1 is rolled back — test2 sees an empty database.",
+      "test_cases": [
+        { "type": "text_match", "expected": "Count in test2: 0\nReason: @DataJpaTest wraps each test in a transaction that rolls back.\nThe product saved in test1 is rolled back — test2 sees an empty database." }
+      ],
+      "hints": [
+        "@DataJpaTest: each @Test is in a @Transactional that rolls back after",
+        "test1 saves but the transaction never commits",
+        "test2 sees a clean database"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m13_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@SpringBootTest RANDOM_PORT — full integration",
+      "scenario": "Full stack: real HTTP client → real controller → real DB.",
+      "instructions": "Write @SpringBootTest(RANDOM_PORT) integration tests for the Product API:\n1. POST creates a product → 201\n2. GET by created id → 200 with correct name\n3. DELETE the created product → 204\n4. GET deleted product → 404\n\nUse TestRestTemplate. Clean DB in @BeforeEach.",
+      "starter_code": "// @SpringBootTest RANDOM_PORT full integration test\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.http.*;\nimport java.util.Map;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass ProductApiIntegrationTest {\n    @Autowired TestRestTemplate rest;\n    @Autowired ProductRepository repo;\n    \n    @BeforeEach void cleanDb() { repo.deleteAll(); }\n    \n    @Test\n    void fullCrudLifecycle() {\n        // CREATE:\n        var createResp = rest.postForEntity(\"/api/products\",\n            Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Electronics\",\"stockQty\",50),\n            java.util.LinkedHashMap.class);\n        assertEquals(HttpStatus.CREATED, createResp.getStatusCode());\n        String id = (String) createResp.getBody().get(\"id\");\n        assertNotNull(id);\n        \n        // READ:\n        var getResp = rest.getForEntity(\"/api/products/\" + id, java.util.LinkedHashMap.class);\n        assertEquals(HttpStatus.OK, getResp.getStatusCode());\n        assertEquals(\"Mouse\", getResp.getBody().get(\"name\"));\n        \n        // DELETE:\n        rest.delete(\"/api/products/\" + id);\n        \n        // VERIFY 404:\n        var notFound = rest.getForEntity(\"/api/products/\" + id, String.class);\n        assertEquals(HttpStatus.NOT_FOUND, notFound.getStatusCode());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "TestRestTemplate: doesn't throw on 4xx — use getStatusCode() to check",
+        "@BeforeEach repo.deleteAll(): mandatory cleanup in @SpringBootTest",
+        "Use LinkedHashMap.class as response type when Product type may not be accessible"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m13_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full controller test suite — happy path + all errors",
+      "scenario": "Complete @WebMvcTest coverage for a controller.",
+      "instructions": "Write a complete @WebMvcTest for `OrderController` with 6 tests:\n1. POST valid order → 201 with id\n2. POST blank userId → 400 with 'userId' error\n3. POST negative price → 400 with 'price' error\n4. GET by id found → 200 with order data\n5. GET by id not found → 404 with error JSON\n6. DELETE by id → 204",
+      "starter_code": "// Complete @WebMvcTest for OrderController — 6 tests\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport java.util.Map;\nimport org.junit.jupiter.api.*;\n\nrecord Order(String id, String userId, double price, String status){}\n\n@WebMvcTest(OrderController.class)\nclass OrderControllerTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;\n    @MockBean OrderService service;\n    \n    Map<String,Object> validOrder() { return Map.of(\"userId\",\"U01\",\"symbol\",\"TCS\",\"qty\",10,\"price\",3890.0); }\n    \n    @Test void post_valid_201() throws Exception {\n        when(service.placeOrder(any())).thenReturn(new Order(\"ORD-001\",\"U01\",38900,\"PENDING\"));\n        mvc.perform(post(\"/api/orders\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(validOrder())))\n            .andExpect(status().isCreated()).andExpect(jsonPath(\"$.id\").value(\"ORD-001\"));\n    }\n    @Test void post_blankUserId_400() throws Exception {\n        Map<String,Object> bad = new java.util.HashMap<>(validOrder()); bad.put(\"userId\",\"\");\n        mvc.perform(post(\"/api/orders\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(bad)))\n            .andExpect(status().isBadRequest()).andExpect(jsonPath(\"$.userId\").exists());\n    }\n    @Test void post_negativePrice_400() throws Exception {\n        Map<String,Object> bad = new java.util.HashMap<>(validOrder()); bad.put(\"price\",-100);\n        mvc.perform(post(\"/api/orders\").contentType(APPLICATION_JSON).content(mapper.writeValueAsString(bad)))\n            .andExpect(status().isBadRequest()).andExpect(jsonPath(\"$.price\").exists());\n    }\n    @Test void getById_found_200() throws Exception {\n        when(service.findById(\"ORD-001\")).thenReturn(new Order(\"ORD-001\",\"U01\",38900,\"PENDING\"));\n        mvc.perform(get(\"/api/orders/ORD-001\")).andExpect(status().isOk()).andExpect(jsonPath(\"$.status\").value(\"PENDING\"));\n    }\n    @Test void getById_notFound_404() throws Exception {\n        when(service.findById(\"X\")).thenThrow(new ResourceNotFoundException(\"Order\",\"X\"));\n        mvc.perform(get(\"/api/orders/X\")).andExpect(status().isNotFound()).andExpect(jsonPath(\"$.error\").exists());\n    }\n    @Test void delete_204() throws Exception {\n        mvc.perform(delete(\"/api/orders/ORD-001\")).andExpect(status().isNoContent());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "validOrder() helper method: reduces duplication across tests",
+        "For negative price: Map.of() is immutable — use HashMap and put()",
+        "doNothing().when(service).deleteOrder() not needed: void methods don't throw by default"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m13_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Three-slice test strategy — same API",
+      "scenario": "Write all three test types for the same Product API.",
+      "instructions": "Write one test each for all three slices testing the Product API:\n1. @WebMvcTest: POST returns 201 with correct JSON\n2. @DataJpaTest: findByCategory derived query returns correct count\n3. @SpringBootTest NONE: @Autowired ProductService, create product, verify persisted\n\nAll 3 tests must pass.",
+      "starter_code": "// Three test slices for the same Product API\n",
+      "expected_solution": "// (Product @Entity, ProductRepository, ProductService, ProductController as built in T13.3/T13.4)\n\n// 1. @WebMvcTest:\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport java.util.Map;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(ProductController.class)\nclass ProductWebMvcTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;\n    @MockBean ProductService service;\n    @Test void create_returns201() throws Exception {\n        when(service.create(any())).thenReturn(new Product(\"P001\",\"Mouse\",799,\"Electronics\"));\n        mvc.perform(post(\"/api/products\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"name\",\"Mouse\",\"price\",799.0,\"category\",\"Elec\",\"stockQty\",5))))\n            .andExpect(status().isCreated()).andExpect(jsonPath(\"$.id\").exists());\n    }\n}\n\n// 2. @DataJpaTest:\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport static org.junit.jupiter.api.Assertions.*;\n@DataJpaTest\nclass ProductDataJpaTest {\n    @Autowired ProductRepository repo;\n    @BeforeEach void seed() {\n        repo.save(new Product(\"Mouse\",799,\"Electronics\")); repo.save(new Product(\"Keyboard\",1999,\"Electronics\"));\n        repo.save(new Product(\"Chair\",5000,\"Furniture\"));\n    }\n    @Test void findByCategory_electronics_returns2() { assertEquals(2, repo.findByCategory(\"Electronics\").size()); }\n}\n\n// 3. @SpringBootTest NONE:\nimport org.springframework.boot.test.context.SpringBootTest;\nimport static org.junit.jupiter.api.Assertions.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\nclass ProductServiceSpringTest {\n    @Autowired ProductService service;\n    @Autowired ProductRepository repo;\n    @BeforeEach void clean() { repo.deleteAll(); }\n    @Test void create_persistsInDb() {\n        Product p = service.create(new ProductRequest(\"Mouse\",799.0,\"Electronics\",50));\n        assertNotNull(p.getId()); assertTrue(repo.existsById(p.getId()));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Three independent test classes, each targeting a different layer",
+        "@SpringBootTest NONE: no HTTP, full Spring context with DB",
+        "@BeforeEach repo.deleteAll() in SpringBootTest: no auto-rollback"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@WebMvcTest — test DELETE and PUT",
+      "scenario": "Test all HTTP methods including DELETE (204/404) and PUT (200/404).",
+      "instructions": "Write 4 @WebMvcTest tests:\n1. DELETE existing → 204 No Content\n2. DELETE non-existing → 404\n3. PUT valid update → 200 with updated fields\n4. PUT non-existing → 404",
+      "starter_code": "// @WebMvcTest for DELETE and PUT operations\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport java.util.Map;\nimport org.junit.jupiter.api.*;\n\n@WebMvcTest(ProductController.class)\nclass ProductMutationTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper;\n    @MockBean ProductService service;\n    \n    @Test void delete_existing_204() throws Exception {\n        doNothing().when(service).delete(\"P001\");\n        mvc.perform(delete(\"/api/products/P001\")).andExpect(status().isNoContent());\n    }\n    @Test void delete_notFound_404() throws Exception {\n        doThrow(new ResourceNotFoundException(\"Product\",\"P999\")).when(service).delete(\"P999\");\n        mvc.perform(delete(\"/api/products/P999\")).andExpect(status().isNotFound());\n    }\n    @Test void put_valid_200WithUpdatedFields() throws Exception {\n        Product updated = new Product(\"P001\",\"Gaming Mouse\",1299,\"Electronics\");\n        when(service.update(eq(\"P001\"),any())).thenReturn(updated);\n        mvc.perform(put(\"/api/products/P001\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"name\",\"Gaming Mouse\",\"price\",1299.0,\"category\",\"Electronics\",\"stockQty\",20))))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.name\").value(\"Gaming Mouse\"))\n            .andExpect(jsonPath(\"$.price\").value(1299.0));\n    }\n    @Test void put_notFound_404() throws Exception {\n        when(service.update(eq(\"P999\"),any())).thenThrow(new ResourceNotFoundException(\"Product\",\"P999\"));\n        mvc.perform(put(\"/api/products/P999\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"name\",\"X\",\"price\",100.0,\"category\",\"Y\",\"stockQty\",1))))\n            .andExpect(status().isNotFound());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "doNothing().when(service).delete('P001'): void method stub",
+        "doThrow(ex).when(service).delete('P999'): void method that throws",
+        "put(): MockMvcRequestBuilders.put(url)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete test pyramid — Module 13 synthesis",
+      "scenario": "Full test pyramid for the Zerodha order API.",
+      "instructions": "Build a complete test pyramid for the stock order API:\n1. Plain Mockito test for OrderService.calculateTotal (no Spring)\n2. @WebMvcTest: POST valid order 201, POST invalid symbol 400, GET not-found 404\n3. @DataJpaTest: findByUserId returns user's orders, countByStatus aggregation\n4. @SpringBootTest RANDOM_PORT: POST order and GET it back end-to-end\n\nAll tests must pass. Minimum: 7 test methods total.",
+      "starter_code": "// Complete test pyramid for stock order API\n// 1. Plain Mockito (no Spring)\n// 2. @WebMvcTest (3 tests)\n// 3. @DataJpaTest (2 tests)\n// 4. @SpringBootTest RANDOM_PORT (1 integration test)\n",
+      "expected_solution": "// 1. Plain Mockito — no Spring:\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n@ExtendWith(MockitoExtension.class)\nclass OrderServiceUnitTest {\n    @Mock PriceService priceService;\n    @InjectMocks OrderService service;\n    @Test void calculateTotal_qty10_applies10pctDiscount() {\n        when(priceService.getCurrentPrice(\"TCS\")).thenReturn(3890.0);\n        assertEquals(10 * 3890.0 * 0.90, service.calculateTotal(\"TCS\",10), 0.01);\n    }\n}\n\n// 2. @WebMvcTest:\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport java.util.Map;\n@WebMvcTest(OrderController.class)\nclass OrderControllerTest {\n    @Autowired MockMvc mvc; @Autowired ObjectMapper mapper; @MockBean OrderService service;\n    @Test void post_validOrder_201() throws Exception {\n        when(service.placeOrder(any())).thenReturn(new StockOrder(\"ORD-001\",\"TCS\",10,3890,\"PENDING\"));\n        mvc.perform(post(\"/api/orders\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"symbol\",\"TCS\",\"qty\",10,\"price\",3890.0,\"userId\",\"U01\"))))\n            .andExpect(status().isCreated()).andExpect(jsonPath(\"$.id\").exists());\n    }\n    @Test void post_invalidSymbol_400() throws Exception {\n        mvc.perform(post(\"/api/orders\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"symbol\",\"tcs\",\"qty\",10,\"price\",3890.0,\"userId\",\"U01\"))))\n            .andExpect(status().isBadRequest()).andExpect(jsonPath(\"$.symbol\").exists());\n    }\n    @Test void getById_notFound_404() throws Exception {\n        when(service.findById(\"X\")).thenThrow(new ResourceNotFoundException(\"Order\",\"X\"));\n        mvc.perform(get(\"/api/orders/X\")).andExpect(status().isNotFound());\n    }\n}\n\n// 3. @DataJpaTest:\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\n@DataJpaTest\nclass OrderRepositoryTest {\n    @Autowired OrderRepository repo;\n    @BeforeEach void seed() {\n        repo.save(new StockOrder(null,\"TCS\",10,3890,\"U01\",\"PENDING\"));\n        repo.save(new StockOrder(null,\"INFY\",5,1560,\"U01\",\"PAID\"));\n        repo.save(new StockOrder(null,\"TCS\",20,3890,\"U02\",\"PENDING\"));\n    }\n    @Test void findByUserId_U01_returns2() { assertEquals(2, repo.findByUserId(\"U01\").size()); }\n    @Test void countByStatus_PENDING_returns2() { assertEquals(2, repo.countByStatus(\"PENDING\")); }\n}\n\n// 4. @SpringBootTest:\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.http.*;\nimport java.util.Map;\nimport static org.junit.jupiter.api.Assertions.*;\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass OrderIntegrationTest {\n    @Autowired TestRestTemplate rest; @Autowired OrderRepository repo;\n    @BeforeEach void clean() { repo.deleteAll(); }\n    @Test void postAndGetOrder_endToEnd() {\n        var cr = rest.postForEntity(\"/api/orders\",Map.of(\"symbol\",\"TCS\",\"qty\",10,\"price\",3890.0,\"userId\",\"U01\"),java.util.LinkedHashMap.class);\n        assertEquals(HttpStatus.CREATED, cr.getStatusCode());\n        String id = (String) cr.getBody().get(\"id\");\n        var gr = rest.getForEntity(\"/api/orders/\"+id, java.util.LinkedHashMap.class);\n        assertEquals(HttpStatus.OK, gr.getStatusCode());\n        assertEquals(\"TCS\", gr.getBody().get(\"symbol\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Layer 1: plain JUnit + Mockito → no Spring annotations needed",
+        "Layer 2: @WebMvcTest + @MockBean → fastest Spring test",
+        "Layer 3: @DataJpaTest + @BeforeEach seed → rollback per test",
+        "Layer 4: @SpringBootTest RANDOM_PORT + repo.deleteAll() in @BeforeEach"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 720,
+    "estimated_completion_minutes": 70
+  }
+}

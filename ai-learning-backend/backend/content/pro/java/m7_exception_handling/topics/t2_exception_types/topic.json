@@ -1,0 +1,193 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t2",
+  "language": "java",
+  "module_id": "m7",
+  "module_name": "Exception Handling",
+  "topic_number": 2,
+  "name": "Exception Types — Checked vs Unchecked",
+  "slug": "exception-types-checked-unchecked",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m7_t1"],
+    "concepts_taught": [
+      "throwable_hierarchy",
+      "error_vs_exception",
+      "checked_exceptions",
+      "unchecked_exceptions",
+      "runtimeexception_family",
+      "throws_keyword_declaration",
+      "checked_exception_compile_enforcement",
+      "when_to_use_each",
+      "common_checked_exceptions",
+      "common_unchecked_exceptions",
+      "checked_vs_unchecked_design_philosophy"
+    ],
+    "skills_developed": [
+      "reading_the_exception_hierarchy",
+      "identifying_checked_vs_unchecked",
+      "using_throws_in_method_signatures",
+      "deciding_whether_to_catch_or_declare",
+      "recognizing_when_not_to_catch"
+    ],
+    "career_relevance": "Every interview that asks about exceptions goes here: 'What is the difference between checked and unchecked exceptions?' is THE most common Java exception question at every level. The `throws` keyword appears in every JDBC, file I/O, and network method signature you'll use. Understanding why Java's designers made this split — and when each is appropriate — separates engineers who understand Java from those who just copy-paste try-catch. After this topic, you'll read any method signature and instantly know whether you MUST handle its exception or can choose to.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You write this code:\n\n```java\nimport java.io.*;\n\npublic class App {\n    public static void main(String[] args) {\n        FileReader fr = new FileReader(\"data.txt\");  // COMPILE ERROR!\n    }\n}\n```\n\nError: `Unhandled exception type IOException`\n\nBut this code compiles fine:\n```java\npublic class App {\n    public static void main(String[] args) {\n        int[] arr = new int[3];\n        arr[10] = 5;  // no compile error!\n    }\n}\n```\n\nBoth throw exceptions. Why does one require handling and the other doesn't?\n\nBecause Java has TWO categories of exceptions:\n- **Checked**: compiler forces you to handle them (`IOException`, `SQLException`). They represent external failures — file not found, network down, database error. Java reasons: the caller MUST plan for these.\n- **Unchecked** (`RuntimeException` and subclasses): compiler doesn't force handling. They usually represent programming errors — null pointer, array out of bounds, bad argument. Java reasons: these indicate bugs, not expected failures.\n\nUnderstanding this split is fundamental to writing Java professionally. Today you understand it completely.",
+    "what_you_will_build": "By the end of this topic, you'll understand the full Throwable hierarchy, clearly distinguish checked from unchecked exceptions, use the `throws` keyword to declare exceptions, know when to catch vs declare, and be able to answer 'checked vs unchecked' in any interview context."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "throwable_hierarchy": "**The complete Java exception hierarchy:**\n\n```\nThrowable\n├── Error                          ← System-level failures, DON'T CATCH\n│   ├── OutOfMemoryError\n│   ├── StackOverflowError\n│   ├── VirtualMachineError\n│   └── AssertionError\n└── Exception\n    ├── IOException                ← CHECKED\n    │   └── FileNotFoundException\n    ├── SQLException               ← CHECKED\n    ├── CloneNotSupportedException ← CHECKED\n    ├── RuntimeException           ← UNCHECKED (and all its subclasses)\n    │   ├── NullPointerException\n    │   ├── ArrayIndexOutOfBoundsException\n    │   ├── IllegalArgumentException\n    │   ├── IllegalStateException\n    │   ├── NumberFormatException\n    │   ├── ClassCastException\n    │   ├── ArithmeticException\n    │   └── UnsupportedOperationException\n    └── ...\n```\n\n**The rule**: any Exception that is NOT a `RuntimeException` or `Error` is **checked**. `RuntimeException` and all its subclasses are **unchecked**.",
+
+      "errors": "**Errors** — system-level failures your program cannot recover from:\n\n```java\n// These happen — your code can't fix them:\nOutOfMemoryError     // JVM ran out of heap space\nStackOverflowError   // infinite recursion\nVirtualMachineError  // JVM problem\n```\n\n**Never catch Errors** (unless you have a very specific advanced reason). You can't meaningfully recover from running out of memory. Catching it and continuing is dangerous.\n\n```java\n// DON'T DO THIS:\ntry {\n    recursiveMethod();\n} catch (StackOverflowError e) {  // BAD — can't recover meaningfully\n    System.out.println(\"stack overflow!\");\n    // what now? JVM state is corrupted\n}\n```\n\nIf you see a StackOverflowError, fix the recursion. If you see OutOfMemoryError, fix the memory usage or increase heap size. Errors are signals to FIX THE CODE, not handle at runtime.",
+
+      "checked_exceptions": "**Checked exceptions** — the compiler forces you to handle them.\n\nIf a method can throw a checked exception, it MUST either:\n1. Catch it in a try-catch, OR\n2. Declare it with `throws` in the method signature\n\nIf you do neither → compile error.\n\n```java\n// Option 1: Handle it here\npublic void readFile(String path) {\n    try {\n        FileReader fr = new FileReader(path);  // IOException (checked)\n        // ...\n    } catch (IOException e) {\n        System.out.println(\"File error: \" + e.getMessage());\n    }\n}\n\n// Option 2: Declare it — pass responsibility to caller\npublic void readFile(String path) throws IOException {\n    FileReader fr = new FileReader(path);  // caller must handle IOException\n    // ...\n}\n```\n\n**Common checked exceptions:**\n- `IOException` — file/stream operations\n- `FileNotFoundException` (extends IOException) — file not found\n- `SQLException` — database operations\n- `ParseException` — SimpleDateFormat parsing\n- `InterruptedException` — thread interrupted\n- `CloneNotSupportedException` — clone() without Cloneable\n\n**Why checked?** These represent EXTERNAL failures that the program cannot prevent — the file might not exist, the network might be down, the database might be unavailable. Java's designers decided: if your code relies on an external resource, the compiler should force you to have a plan for when it fails.",
+
+      "unchecked_exceptions": "**Unchecked exceptions** — the compiler does NOT force you to handle them.\n\n`RuntimeException` and all its subclasses are unchecked. You CAN catch them, but the compiler won't complain if you don't.\n\n```java\n// Unchecked — compiles fine without try-catch:\npublic void process(String s) {\n    int len = s.length();  // might throw NullPointerException\n    // compiler doesn't require handling\n}\n\n// You CAN still catch if it makes sense:\npublic void process(String s) {\n    try {\n        int len = s.length();\n    } catch (NullPointerException e) {\n        System.out.println(\"null input\");\n    }\n}\n\n// But usually better — validate input first:\npublic void process(String s) {\n    if (s == null) throw new IllegalArgumentException(\"s must not be null\");\n    int len = s.length();  // safe now\n}\n```\n\n**Common unchecked exceptions:**\n- `NullPointerException` — calling method on null\n- `ArrayIndexOutOfBoundsException` — bad array index\n- `IndexOutOfBoundsException` — bad List index\n- `NumberFormatException` — bad number string\n- `ArithmeticException` — divide by zero\n- `IllegalArgumentException` — invalid method argument\n- `IllegalStateException` — method called at wrong time\n- `ClassCastException` — invalid cast\n- `UnsupportedOperationException` — operation not supported\n- `ConcurrentModificationException` — modify while iterating\n\n**Why unchecked?** These usually indicate PROGRAMMING BUGS, not external failures. A NullPointerException means you forgot to check for null — fix the code, don't catch the bug. Requiring catch blocks for NullPointerException everywhere would make code unbearably verbose.",
+
+      "throws_keyword": "**The `throws` keyword** — declare that a method can throw a checked exception:\n\n```java\n// Method signature declares IOException\npublic void loadConfig(String filePath) throws IOException {\n    BufferedReader reader = new BufferedReader(new FileReader(filePath));\n    String line;\n    while ((line = reader.readLine()) != null) {\n        processLine(line);\n    }\n    reader.close();\n}\n```\n\nThis means: 'I'm not handling IOException here. Whoever calls me must handle it.'\n\n**Callers must then either handle or re-declare:**\n```java\n// Caller option 1: handle it\npublic void start() {\n    try {\n        loadConfig(\"config.txt\");\n    } catch (IOException e) {\n        System.out.println(\"Config missing: \" + e.getMessage());\n        useDefaults();\n    }\n}\n\n// Caller option 2: propagate further\npublic void start() throws IOException {\n    loadConfig(\"config.txt\");  // passes responsibility to start()'s caller\n}\n```\n\n**Multiple throws:**\n```java\npublic void processData() throws IOException, SQLException {\n    // can throw either\n}\n```\n\n**`throws` on unchecked?** You CAN declare unchecked exceptions with throws (documentation purposes), but the compiler doesn't require it and callers don't have to handle it.",
+
+      "catch_or_declare": "**When to catch vs when to declare (throws):**\n\n**Catch when:**\n- You can meaningfully RECOVER (retry, use a default, show an error message)\n- You're at the boundary (UI layer, REST controller, main method)\n- You want to wrap in a domain-specific exception\n\n**Declare (throws) when:**\n- You can't recover — let the caller decide what to do\n- You're a library/utility method — callers have context, you don't\n- The exception is part of your method's CONTRACT (callers expect it might fail)\n\n```java\n// Library method — pass the exception to the caller\npublic User loadUser(int id) throws SQLException {\n    return db.query(\"SELECT * FROM users WHERE id = ?\", id);\n}\n\n// Application layer — caller has context, decides what to do:\n// Service layer might rethrow as domain exception\n// Controller might return HTTP 500\n// main() might log and exit\n```\n\n**The worst thing**: catching an exception and doing nothing:\n```java\ntry {\n    user = loadUser(id);\n} catch (SQLException e) {\n    // SILENCE — bug invisible, user gets wrong behavior\n}\n```\n\nIf you don't know what to do → rethrow. Don't swallow.",
+
+      "checked_unchecked_philosophy": "**Why Java has both — the design philosophy:**\n\nJava's creators believed:\n- External failures (file missing, network down) are EXPECTED and RECOVERABLE → checked\n- Programming bugs (null deref, array out of bounds) are UNEXPECTED and indicate broken code → unchecked\n\nThe checked exception system tells you: 'This call depends on something outside your program. You MUST have a plan for when it fails.'\n\n**Modern view (post-Java 5 community shift)**: Many frameworks (Spring, Kotlin, modern Java) now prefer unchecked exceptions because:\n- Checked exceptions in method signatures spread through the call chain (every caller must declare or catch)\n- They make code verbose\n- Streams and lambdas can't easily throw checked exceptions\n\nSpring wraps all SQLExceptions in unchecked `DataAccessException`. Spring's HTTP client throws unchecked `RestClientException`.\n\n**The practical takeaway**: Java's core APIs (I/O, JDBC, threads) use checked exceptions — you MUST handle them. Application code tends toward unchecked — IllegalArgumentException, IllegalStateException. Know both; use each in its context."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Large tree diagram of the Throwable hierarchy. Root: Throwable. Two main branches: Error (red — don't catch) and Exception (green — two sub-branches). Exception left branch: RuntimeException with all unchecked subclasses listed (NullPointerException, ArrayIndexOutOfBoundsException, etc.) — labeled UNCHECKED. Exception right branch: IOException, SQLException, etc. — labeled CHECKED. Decision flowchart below: 'Does it extend RuntimeException?' YES → Unchecked (compiler optional). NO + extends Exception → Checked (compiler mandatory). Right column: 'throws vs catch decision' flowchart — 'Can I recover?' YES → catch. 'Does caller have more context?' YES → throws.",
+      "alt_text": "Throwable hierarchy tree distinguishing checked, unchecked, and Errors with decision flowcharts"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a multi-layer application that correctly propagates checked exceptions through layers — a realistic pattern from every Spring/JDBC application. A data access layer reads from a 'file database', a service layer processes it, and a controller layer handles failures for the user.",
+
+    "problem_statement": "Three-layer architecture:\n1. `DataAccess.loadUsers(String filename)` — throws IOException (file operation)\n2. `UserService.getActiveUsers(String filename)` — catches IOException, throws custom ServiceException\n3. `UserController.listUsers()` — catches ServiceException, returns user-friendly message\n\nDemonstrates the real exception propagation pattern in layered applications.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Data access layer — declares checked IOException",
+        "details": "```java\nimport java.io.*;\nimport java.util.*;\n\nclass DataAccess {\n    // throws IOException — checked, caller must handle\n    public static List<String> loadUsers(String filename) throws IOException {\n        List<String> users = new ArrayList<>();\n        // Simulate: if file doesn't exist, FileNotFoundException (subtype of IOException)\n        // throws automatically because FileReader throws it\n        BufferedReader reader = new BufferedReader(new FileReader(filename));\n        String line;\n        while ((line = reader.readLine()) != null) {\n            users.add(line.trim());\n        }\n        reader.close();\n        return users;\n    }\n}\n```\n\nDataAccess doesn't know what to do if the file is missing — it declares the exception and lets the caller decide."
+      },
+      {
+        "step": 2,
+        "action": "Service layer — catches IOException, throws domain exception",
+        "details": "```java\nclass ServiceException extends RuntimeException {  // unchecked wrapper\n    public ServiceException(String message, Throwable cause) {\n        super(message, cause);\n    }\n}\n\nclass UserService {\n    public static List<String> getActiveUsers(String filename) {\n        try {\n            List<String> all = DataAccess.loadUsers(filename);  // catches IOException\n            // Filter to only active users (contains 'ACTIVE')\n            List<String> active = new ArrayList<>();\n            for (String u : all) {\n                if (u.contains(\"ACTIVE\")) active.add(u);\n            }\n            return active;\n        } catch (IOException e) {\n            // Wrap in unchecked domain exception — controller doesn't need to know about IOException\n            throw new ServiceException(\"Could not load user data\", e);\n        }\n    }\n}\n```\n\nService translates the checked IOException into a domain-meaningful ServiceException (unchecked)."
+      },
+      {
+        "step": 3,
+        "action": "Controller layer — handles domain exception",
+        "details": "```java\nclass UserController {\n    public static String listUsers(String filename) {\n        try {\n            List<String> users = UserService.getActiveUsers(filename);\n            return \"Found \" + users.size() + \" active users: \" + users;\n        } catch (ServiceException e) {\n            // Log and return user-friendly message\n            System.err.println(\"ERROR: \" + e.getMessage() + \" — cause: \" + e.getCause().getMessage());\n            return \"Service temporarily unavailable. Please try again.\";\n        }\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "Demonstrate with good and bad file paths",
+        "details": "```java\npublic static void main(String[] args) {\n    // Good path — would work with a real file\n    // For demo, simulate by using a path that doesn't exist:\n    System.out.println(UserController.listUsers(\"nonexistent.txt\"));\n    System.out.println(UserController.listUsers(\"users.txt\"));\n}\n```"
+      }
+    ],
+
+    "final_code": "import java.io.*;\nimport java.util.*;\n\nclass ServiceException extends RuntimeException {\n    public ServiceException(String message, Throwable cause) { super(message, cause); }\n}\n\nclass DataAccess {\n    // Simulates file reading — throws checked IOException\n    public static List<String> loadUsers(String filename) throws IOException {\n        if (filename.equals(\"nonexistent.txt\")) {\n            throw new FileNotFoundException(\"File not found: \" + filename);\n        }\n        // Simulate file content\n        return Arrays.asList(\"Aisha ACTIVE\", \"Raj INACTIVE\", \"Priya ACTIVE\");\n    }\n}\n\nclass UserService {\n    public static List<String> getActiveUsers(String filename) {\n        try {\n            List<String> all = DataAccess.loadUsers(filename);\n            List<String> active = new ArrayList<>();\n            for (String u : all) { if (u.contains(\"ACTIVE\")) active.add(u); }\n            return active;\n        } catch (IOException e) {\n            throw new ServiceException(\"Could not load user data from: \" + filename, e);\n        }\n    }\n}\n\nclass UserController {\n    public static String listUsers(String filename) {\n        try {\n            List<String> users = UserService.getActiveUsers(filename);\n            return \"Found \" + users.size() + \" active users: \" + users;\n        } catch (ServiceException e) {\n            System.err.println(\"[ERROR] \" + e.getMessage());\n            return \"Service temporarily unavailable.\";\n        }\n    }\n}\n\npublic class LayeredApp {\n    public static void main(String[] args) {\n        System.out.println(UserController.listUsers(\"nonexistent.txt\"));\n        System.out.println(UserController.listUsers(\"users.txt\"));\n    }\n}",
+
+    "expected_output": "[ERROR] Could not load user data from: nonexistent.txt\nService temporarily unavailable.\nFound 2 active users: [Aisha ACTIVE, Priya ACTIVE]",
+
+    "things_to_notice": [
+      "DataAccess.loadUsers() declares `throws IOException` — it's a checked exception. The compiler would reject this method if it didn't declare or handle IOException.",
+      "UserService.getActiveUsers() catches the IOException and rethrows as ServiceException (unchecked). This is the standard Spring pattern — the service layer translates infrastructure exceptions into domain exceptions.",
+      "UserController.listUsers() catches ServiceException — no throws needed (unchecked). The controller is the boundary between the application and the user/caller.",
+      "The cause chain is preserved: ServiceException wraps IOException wraps FileNotFoundException. `e.getCause()` retrieves the original IOException.",
+      "The error is printed to System.err (not System.out) — standard for error logging. User sees only the friendly message on stdout.",
+      "This three-layer exception handling pattern is foundational to Spring MVC, Spring Boot, and virtually every professional Java application."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Boot REST APIs (every Java backend)",
+        "use_case": "Spring wraps JDBC's checked SQLExceptions in unchecked DataAccessException. Your repository methods (findById, save) are unchecked — Spring's designers chose this deliberately. But the underlying JDBC driver throws checked SQLException. Spring handles the translation. Understanding why Spring made this choice requires understanding checked vs unchecked."
+      },
+      {
+        "company_context": "File processing pipelines (Zerodha trade data, HDFC statements)",
+        "use_case": "Importing bank statements or trade histories involves reading files (IOException), parsing dates (ParseException), and database writes (SQLException) — all checked. These methods declare `throws IOException, ParseException, SQLException`. The calling service catches all three and produces a meaningful import result: 'Imported 1234 records. 5 malformed rows skipped.'"
+      },
+      {
+        "company_context": "Android development",
+        "use_case": "Android's APIs use checked exceptions for anything that can fail externally: BluetoothException, IOException for file access, InterruptedException for background threads. Google's Android guidelines are explicit: catch checked exceptions at the appropriate layer, convert to unchecked for propagation through UI layers."
+      }
+    ],
+
+    "interview_relevance": "**THE most common exception interview question** — at every level:\n\n- **'What is the difference between checked and unchecked exceptions?'**\n  → Checked: compiler forces handling; extend Exception but not RuntimeException. Unchecked: optional; extend RuntimeException. Checked = external failures. Unchecked = programming bugs.\n\n- **'Give examples of each.'**\n  → Checked: IOException, SQLException. Unchecked: NullPointerException, IllegalArgumentException.\n\n- **'Why does Spring use unchecked exceptions?'**\n  → Reduces boilerplate; easier with lambdas/streams; service layer shouldn't be polluted with infrastructure exception types.\n\n- **'What does `throws` do in a method signature?'**\n  → Declares that the method can throw a checked exception. Callers must handle or re-declare.\n\n- **'Should you catch RuntimeException?'**\n  → Generally no — RuntimeExceptions usually indicate bugs. Fix the bug. Catch specific unchecked exceptions only when you can meaningfully recover.",
+
+    "real_world_workflow": "Daily checked/unchecked decisions:\n\n- Any file I/O → IOException (checked) — wrap in try-catch or declare throws\n- Any JDBC/database operation → SQLException (checked) — handled by framework or caught explicitly\n- Parsing dates → ParseException (checked) — catch or declare\n- Validating method arguments → IllegalArgumentException (unchecked) — throw when input is bad\n- Method precondition violated → IllegalStateException (unchecked)\n- Null input where not allowed → NullPointerException (unchecked) or explicitly throw IllegalArgumentException\n- Any Spring service method → unchecked by convention (Spring wraps checked for you)"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "confusing_checked_unchecked",
+      "what_students_get_wrong": "Thinking all exceptions need try-catch, or that they NEVER need try-catch.",
+      "remediation": "Simple test: does the exception extend RuntimeException? If yes, unchecked (optional catch). If it extends Exception directly (not via RuntimeException), it's checked — MUST catch or declare throws.",
+      "detection_pattern": "Unnecessary try-catch around RuntimeException; missing try-catch around IOException"
+    },
+    {
+      "gap_id": "forgetting_throws_on_checked",
+      "what_students_get_wrong": "Method calls something that throws IOException but doesn't catch it AND doesn't declare throws — compile error.",
+      "remediation": "Two choices when your method calls checked-exception-throwing code: (1) wrap in try-catch, or (2) add `throws CheckedException` to your method signature.",
+      "detection_pattern": "Compile error: 'Unhandled exception type IOException'"
+    },
+    {
+      "gap_id": "catching_error",
+      "what_students_get_wrong": "Catching StackOverflowError or OutOfMemoryError and trying to recover.",
+      "remediation": "Errors indicate the JVM is in a broken state. You cannot meaningfully recover. Let them propagate. Fix the root cause (infinite recursion, memory leak).",
+      "detection_pattern": "catch (Error e) or catch (StackOverflowError e)"
+    },
+    {
+      "gap_id": "throws_means_throw",
+      "what_students_get_wrong": "Confusing `throws` (declaration) with `throw` (statement). `throws` in method signature = declares it might happen. `throw new X()` = actually throws it.",
+      "remediation": "`throws` is a METHOD SIGNATURE keyword: `public void foo() throws IOException`. `throw` is a STATEMENT inside a method body: `throw new IOException('...')`.",
+      "detection_pattern": "Syntax confusion; wrong placement"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Throwable → Error (don't catch) + Exception → checked + RuntimeException (unchecked)",
+      "Checked exceptions: extend Exception (not RuntimeException). Compiler forces handling.",
+      "Unchecked exceptions: extend RuntimeException. Compiler is silent.",
+      "Errors: system failures (OutOfMemoryError, StackOverflowError). NEVER catch.",
+      "`throws` on method signature: declares the method can throw a checked exception. Caller must handle or re-declare.",
+      "Catch when you can recover. Declare throws when the caller should decide.",
+      "Common checked: IOException, SQLException, ParseException, InterruptedException.",
+      "Common unchecked: NullPointerException, IllegalArgumentException, IllegalStateException.",
+      "Spring converts checked SQLExceptions to unchecked DataAccessException — deliberate design choice.",
+      "The 'checked = external failure, unchecked = programming bug' mental model is the key insight."
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Without looking it up — is NumberFormatException checked or unchecked? How do you know?",
+        "answer": "Unchecked. It's a `RuntimeException` subclass. You can verify: when you write `Integer.parseInt('abc')` in code without a try-catch, it compiles fine. The compiler doesn't complain = unchecked. Also: NumberFormatException represents a PROGRAMMING issue (you passed a bad string) rather than an external failure."
+      },
+      {
+        "question": "A method calls `new FileReader('data.txt')` but doesn't have a try-catch. What are the two legal ways to fix the compile error?",
+        "answer": "Option 1: Wrap in try-catch IOException:\n```java\ntry { FileReader fr = new FileReader('data.txt'); }\ncatch (IOException e) { ... }\n```\nOption 2: Declare throws in method signature:\n```java\npublic void myMethod() throws IOException {\n    FileReader fr = new FileReader('data.txt');\n}\n```\nOption 2 passes responsibility to the caller — they then must catch or re-declare."
+      },
+      {
+        "question": "Why did Spring's designers choose to make DataAccessException (database errors) unchecked?",
+        "answer": "SQLException (JDBC's checked exception) forced every service method to declare `throws SQLException` or wrap in try-catch. This meant database concerns leaked through every layer. With an unchecked DataAccessException, service methods don't need to declare it. Code is cleaner. Callers can handle database errors at the appropriate level (controller, global error handler) without every intermediate method being aware of it. Also enables clean use with lambdas and streams."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Custom Exceptions** — designing your own exception types for your application's domain. Instead of throwing `RuntimeException('Insufficient funds')`, you throw `InsufficientFundsException(accountId, attempted, available)`. Domain-specific exceptions make code self-documenting, enable precise catching, and are the professional way to signal errors from your APIs."
+  }
+}

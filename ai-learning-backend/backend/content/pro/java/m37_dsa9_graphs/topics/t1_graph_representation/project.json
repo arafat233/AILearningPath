@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m37_t1_proj",
+  "linked_topic": "java_m37_t1",
+  "level": "mini",
+  "name": "Graph Representation \u2014 Adjacency List, BFS, DFS",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Build Graph Representation \u2014 Adjacency List, BFS, DFS.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Core algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Graph: adjacency list + BFS/DFS. Union-Find: path compression + rank. Dijkstra: min-heap + dist array + skip if stale.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

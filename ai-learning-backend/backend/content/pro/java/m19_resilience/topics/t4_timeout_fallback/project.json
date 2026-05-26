@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m19_t4_proj",
+  "linked_topic": "java_m19_t4",
+  "level": "mini",
+  "name": "Flipkart Product Page — Timeout & Fallback Resilience",
+  "estimated_minutes": 45,
+  "difficulty": 8,
+  "scenario": "Flipkart product page calls 3 services: recommendation engine (1.5s timeout), review service (1s), related products (1s). Add @TimeLimiter to each with appropriate fallbacks so the page always loads within 2 seconds.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "application.yml: 3 timelimiter configs + 3 circuitbreaker configs. cancelRunningFuture=true on all.", "weight": 15 },
+      { "id": "req_2", "description": "ProductPageService: 3 methods, each with @TimeLimiter + @CircuitBreaker returning CompletableFuture. All fallbacks return safe defaults.", "weight": 30 },
+      { "id": "req_3", "description": "loadPage(productId): calls all 3 in parallel using CompletableFuture.allOf, aggregates results.", "weight": 15 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): page loads when all up, page loads when any one fails, parallel calls complete faster than sequential.", "weight": 35 },
+      { "id": "req_5", "description": "README: explains parallel vs sequential and why cancelling the running future matters.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "HTTP client timeouts: configure RestTemplate with connection=2s, read=5s for each downstream call. Test with WireMock simulating slow server.", "weight": 25 },
+      { "id": "bonus_2", "description": "TimeoutMonitor: tracks TimeoutException count per CB. Alert if > 10 timeouts/minute.", "weight": 20 },
+      { "id": "bonus_3", "description": "Add @Bulkhead(max=50) outside @TimeLimiter on the recommendation call. Test: bulkhead full before timeout fires.", "weight": 25 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. @TimeLimiter REQUIRES CompletableFuture return type. cancelRunningFuture=true: without this, the thread keeps running even after timeout is reported (wastes resources). Parallel pattern: start all CompletableFutures BEFORE calling .get() on any of them. Fallback return type must also be CompletableFuture<T>. Stack order: @TimeLimiter (outer) > @CircuitBreaker (inner).",
+  "rubric": [
+    { "category": "application.yml (6 configs)", "points": 15 },
+    { "category": "ProductPageService (3 methods)", "points": 30 },
+    { "category": "loadPage parallel", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 35 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 70 }
+  ]
+}

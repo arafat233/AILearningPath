@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t1",
+  "topic_name": "Lambda Expressions",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m8_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace lambda with forEach",
+      "scenario": "Lambda as argument to forEach.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> langs = Arrays.asList(\"Java\", \"Python\", \"Go\");\n        langs.forEach(lang -> System.out.println(lang.toUpperCase()));\n    }\n}\n```",
+      "expected_solution": "JAVA\nPYTHON\nGO",
+      "test_cases": [
+        { "type": "text_match", "expected": "JAVA\nPYTHON\nGO" }
+      ],
+      "hints": [
+        "forEach iterates each element",
+        "lambda: lang -> lang.toUpperCase() — transforms then prints",
+        "One line per element"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Lambda sort syntax",
+      "scenario": "Write a lambda to sort strings alphabetically.",
+      "instructions": "Fill in the blank to sort the list alphabetically using a lambda.",
+      "starter_code": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> cities = new ArrayList<>(Arrays.asList(\"Mumbai\", \"Delhi\", \"Bengaluru\"));\n        cities.sort(______ -> a.compareTo(b));\n        System.out.println(cities);\n    }\n}",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> cities = new ArrayList<>(Arrays.asList(\"Mumbai\", \"Delhi\", \"Bengaluru\"));\n        cities.sort((a, b) -> a.compareTo(b));\n        System.out.println(cities);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "(a, b)", "hint": "Lambda parameters for two-param Comparator" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Bengaluru, Delhi, Mumbai]" }
+      ],
+      "hints": [
+        "Comparator takes two parameters",
+        "Syntax: (a, b) -> body",
+        "Java infers types from Comparator<String>"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Replace anonymous class with lambda",
+      "scenario": "Collapse Comparator anonymous class to lambda.",
+      "instructions": "Rewrite this anonymous class comparator as a lambda:\n\n```java\nComparator<Integer> descending = new Comparator<Integer>() {\n    @Override\n    public int compare(Integer a, Integer b) {\n        return b - a;\n    }\n};\n```\n\nSort [3,1,4,1,5,9] descending.\n\nExpected output:\n[9, 5, 4, 3, 1, 1]",
+      "starter_code": "import java.util.*;\n// Rewrite as lambda and sort\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>(Arrays.asList(3, 1, 4, 1, 5, 9));\n        nums.sort((a, b) -> b - a);\n        System.out.println(nums);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[9, 5, 4, 3, 1, 1]" }
+      ],
+      "hints": [
+        "Comparator<Integer> with (a, b) -> b - a",
+        "b - a gives descending for integers",
+        "Just replace the 5-line anonymous class with 1-line lambda"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m8_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Lambda variable capture",
+      "scenario": "Lambda uses a variable from outer scope.",
+      "instructions": "Create a prefix string. Use forEach with a lambda that prepends the prefix to each element.\n\nprefix = 'Item: ', list = ['Mouse', 'Keyboard', 'Monitor']\n\nExpected output:\nItem: Mouse\nItem: Keyboard\nItem: Monitor",
+      "starter_code": "import java.util.*;\n// Lambda captures prefix variable\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        String prefix = \"Item: \";\n        List<String> items = Arrays.asList(\"Mouse\", \"Keyboard\", \"Monitor\");\n        items.forEach(item -> System.out.println(prefix + item));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Item: Mouse\nItem: Keyboard\nItem: Monitor" }
+      ],
+      "hints": [
+        "prefix is effectively final — never reassigned",
+        "Lambda captures it: item -> System.out.println(prefix + item)"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m8_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sort objects by field with lambda",
+      "scenario": "Sort list of objects using field-based lambda Comparator.",
+      "instructions": "Sort a List<Employee> (name, salary) by salary descending using a lambda. Print each employee.\n\nExpected output:\nAisha: 95000.0\nRaj: 85000.0\nPriya: 72000.0",
+      "starter_code": "import java.util.*;\n// Employee class + lambda sort by salary descending\n",
+      "expected_solution": "import java.util.*;\nclass Employee {\n    String name; double salary;\n    Employee(String n, double s) { name = n; salary = s; }\n    public String toString() { return name + \": \" + salary; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = new ArrayList<>(Arrays.asList(\n            new Employee(\"Priya\", 72000),\n            new Employee(\"Aisha\", 95000),\n            new Employee(\"Raj\", 85000)\n        ));\n        staff.sort((a, b) -> Double.compare(b.salary, a.salary));\n        staff.forEach(e -> System.out.println(e));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha: 95000.0\nRaj: 85000.0\nPriya: 72000.0" }
+      ],
+      "hints": [
+        "Comparator lambda: (a, b) -> Double.compare(b.salary, a.salary) — descending",
+        "forEach with lambda: e -> System.out.println(e)"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Block lambda — multi-line body",
+      "scenario": "Lambda with multiple statements requires block syntax.",
+      "instructions": "Sort a list of strings by their LAST character alphabetically. Use a block lambda (multi-line).\n\nInput: ['Priya', 'Aisha', 'Raj', 'Vikram']\n\nExpected output:\n[Vikram, Priya, Raj, Aisha]",
+      "starter_code": "import java.util.*;\n// Block lambda: sort by last character\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>(Arrays.asList(\"Priya\", \"Aisha\", \"Raj\", \"Vikram\"));\n        names.sort((a, b) -> {\n            char lastA = a.charAt(a.length() - 1);\n            char lastB = b.charAt(b.length() - 1);\n            return Character.compare(lastA, lastB);\n        });\n        System.out.println(names);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Vikram, Priya, Raj, Aisha]" }
+      ],
+      "hints": [
+        "Block lambda: (a, b) -> { ...; return ...; }",
+        "Last char: str.charAt(str.length() - 1)",
+        "Vikram ends in 'm', Priya 'a', Raj 'j', Aisha 'a'... wait Priya and Aisha both end in 'a'",
+        "Secondary sort: for ties, use String.compareTo"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Map forEach with lambda",
+      "scenario": "Lambda iterating both key and value.",
+      "instructions": "Given a Map<String, Integer> of stock prices, use forEach with a lambda to print only prices above 1000.\n\nStocks: RELIANCE=2450, TCS=3890, WIPRO=412, INFY=1560\n\nExpected output (sorted for determinism):\nINFY: ₹1560\nRELIANCE: ₹2450\nTCS: ₹3890",
+      "starter_code": "import java.util.*;\n// Map.forEach with lambda — filter during print\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        Map<String, Integer> prices = new LinkedHashMap<>();\n        prices.put(\"RELIANCE\", 2450);\n        prices.put(\"TCS\",      3890);\n        prices.put(\"WIPRO\",     412);\n        prices.put(\"INFY\",     1560);\n        \n        // Collect qualifying entries, sort, print\n        List<String> keys = new ArrayList<>(prices.keySet());\n        Collections.sort(keys);\n        keys.forEach(k -> {\n            int price = prices.get(k);\n            if (price > 1000) System.out.println(k + \": ₹\" + price);\n        });\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "INFY: ₹1560\nRELIANCE: ₹2450\nTCS: ₹3890" }
+      ],
+      "hints": [
+        "Sort keys for deterministic output",
+        "Block lambda: k -> { int price = ...; if (price > 1000) ... }",
+        "WIPRO (412) is filtered out"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m8_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "removeIf with lambda",
+      "scenario": "removeIf takes a Predicate — a lambda returning boolean.",
+      "instructions": "Start with a list of integers. Remove all multiples of 3 using removeIf with a lambda. Print before and after.\n\nInput: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\n\nExpected output:\nBefore: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nAfter: [1, 2, 4, 5, 7, 8, 10]",
+      "starter_code": "import java.util.*;\n// removeIf with lambda — Predicate\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9,10));\n        System.out.println(\"Before: \" + nums);\n        nums.removeIf(n -> n % 3 == 0);\n        System.out.println(\"After: \" + nums);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Before: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]\nAfter: [1, 2, 4, 5, 7, 8, 10]" }
+      ],
+      "hints": [
+        "removeIf(n -> n % 3 == 0) removes where condition is true",
+        "Multiples of 3: 3, 6, 9"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multi-criteria lambda sort",
+      "scenario": "Block lambda for primary + secondary sort key.",
+      "instructions": "Sort employees by department (A-Z), then by salary descending within same department.\n\nEmployees: Aisha(Engineering,95000), Raj(Sales,85000), Priya(Engineering,72000), Vikram(Sales,68000)\n\nExpected output:\nAisha (Engineering): 95000.0\nPriya (Engineering): 72000.0\nRaj (Sales): 85000.0\nVikram (Sales): 68000.0",
+      "starter_code": "import java.util.*;\n// Multi-criteria block lambda comparator\n",
+      "expected_solution": "import java.util.*;\nclass Employee {\n    String name, dept;\n    double salary;\n    Employee(String n, String d, double s) { name=n; dept=d; salary=s; }\n    public String toString() { return name + \" (\" + dept + \"): \" + salary; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = new ArrayList<>(Arrays.asList(\n            new Employee(\"Aisha\", \"Engineering\", 95000),\n            new Employee(\"Raj\",   \"Sales\",        85000),\n            new Employee(\"Priya\", \"Engineering\",  72000),\n            new Employee(\"Vikram\",\"Sales\",         68000)\n        ));\n        staff.sort((a, b) -> {\n            int deptCmp = a.dept.compareTo(b.dept);\n            if (deptCmp != 0) return deptCmp;\n            return Double.compare(b.salary, a.salary);  // salary desc\n        });\n        staff.forEach(e -> System.out.println(e));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha (Engineering): 95000.0\nPriya (Engineering): 72000.0\nRaj (Sales): 85000.0\nVikram (Sales): 68000.0" }
+      ],
+      "hints": [
+        "Block lambda for two comparisons",
+        "Primary: dept alphabetical (String.compareTo)",
+        "Secondary: salary descending (Double.compare(b, a))"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m8_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace effectively-final compile check",
+      "scenario": "Understand which variables can be captured.",
+      "instructions": "Which of these compile, and which don't? For each, write COMPILES or ERROR.\n\n```java\n// A:\nfinal String prefix = \"Hi\";\nlist.forEach(s -> System.out.println(prefix + s));\n\n// B:\nString greeting = \"Hello\";\nlist.forEach(s -> System.out.println(greeting + s));\n\n// C:\nString msg = \"Hey\";\nmsg = \"Yo\";  // reassigned!\nlist.forEach(s -> System.out.println(msg + s));\n\n// D:\nint[] counter = {0};\nlist.forEach(s -> counter[0]++);\n```",
+      "expected_solution": "A: COMPILES (final is effectively final)\nB: COMPILES (never reassigned = effectively final)\nC: ERROR (msg was reassigned — not effectively final)\nD: COMPILES (the array reference is effectively final; array contents can change)",
+      "test_cases": [
+        { "type": "text_match", "expected": "A: COMPILES\nB: COMPILES\nC: ERROR\nD: COMPILES" }
+      ],
+      "hints": [
+        "A: `final` = effectively final ✓",
+        "B: assigned once and never changed = effectively final ✓",
+        "C: reassigned to 'Yo' → not effectively final → ERROR",
+        "D: the array reference `counter` is never reassigned → effectively final (even though contents change)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Lambda as stored value — Comparator variable",
+      "scenario": "Lambdas can be stored in variables and passed around.",
+      "instructions": "Create a `ComparatorFactory` class with static methods that RETURN lambdas:\n- `byName()` returns a Comparator<String> (alphabetical)\n- `byLength()` returns a Comparator<String> (length asc)\n- `byLengthDesc()` returns a Comparator<String> (length desc)\n\nTest all three.\n\nExpected output:\nBy name: [Aisha, Priya, Raj]\nBy length: [Raj, Aisha, Priya]\nBy length desc: [Priya, Aisha, Raj]",
+      "starter_code": "import java.util.*;\n// ComparatorFactory returning lambdas\n",
+      "expected_solution": "import java.util.*;\nclass ComparatorFactory {\n    static Comparator<String> byName() {\n        return (a, b) -> a.compareTo(b);\n    }\n    static Comparator<String> byLength() {\n        return (a, b) -> Integer.compare(a.length(), b.length());\n    }\n    static Comparator<String> byLengthDesc() {\n        return (a, b) -> Integer.compare(b.length(), a.length());\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Priya\", \"Raj\", \"Aisha\");\n        \n        List<String> n1 = new ArrayList<>(names);\n        n1.sort(ComparatorFactory.byName());\n        System.out.println(\"By name: \" + n1);\n        \n        List<String> n2 = new ArrayList<>(names);\n        n2.sort(ComparatorFactory.byLength());\n        System.out.println(\"By length: \" + n2);\n        \n        List<String> n3 = new ArrayList<>(names);\n        n3.sort(ComparatorFactory.byLengthDesc());\n        System.out.println(\"By length desc: \" + n3);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "By name: [Aisha, Priya, Raj]\nBy length: [Raj, Aisha, Priya]\nBy length desc: [Priya, Aisha, Raj]" }
+      ],
+      "hints": [
+        "Methods return Comparator<String> — the lambda IS the returned value",
+        "Lambda is a value: `return (a, b) -> ...;`",
+        "Raj(3) < Aisha(5) < Priya(5) — for desc: Priya and Aisha tie on length, then by alpha"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m8_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Functional interface — define your own",
+      "scenario": "Create a custom functional interface and use it with a lambda.",
+      "instructions": "Define `@FunctionalInterface interface Transformer<T>` with `T transform(T input)`. Write a method `applyAll(List<T> list, Transformer<T> t)` that applies t to each element.\n\nTest with string uppercase and int doubling.\n\nExpected output:\n[AISHA, RAJ, PRIYA]\n[10, 20, 30]",
+      "starter_code": "import java.util.*;\n// Custom functional interface Transformer<T>\n",
+      "expected_solution": "import java.util.*;\n@FunctionalInterface\ninterface Transformer<T> {\n    T transform(T input);\n}\npublic class App {\n    static <T> List<T> applyAll(List<T> list, Transformer<T> t) {\n        List<T> result = new ArrayList<>();\n        for (T item : list) result.add(t.transform(item));\n        return result;\n    }\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n        System.out.println(applyAll(names, s -> s.toUpperCase()));\n        \n        List<Integer> nums = Arrays.asList(5, 10, 15);\n        System.out.println(applyAll(nums, n -> n * 2));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[AISHA, RAJ, PRIYA]\n[10, 20, 30]" }
+      ],
+      "hints": [
+        "@FunctionalInterface with T transform(T input)",
+        "applyAll calls t.transform(item) for each element",
+        "Lambda s -> s.toUpperCase() IS the transform implementation"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m8_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Sort with Comparator.comparing factory",
+      "scenario": "Modern Comparator factory methods with lambdas.",
+      "instructions": "Use Comparator.comparing() and Comparator.comparingDouble() factory methods (which take lambdas) to sort products three ways.\n\nProducts: Mouse(₹719), Keyboard(₹1599), Java Book(₹552), USB Hub(₹374)\n\nExpected output:\nBy name: [Java Book, Keyboard, Mouse, USB Hub]\nBy price: [USB Hub, Java Book, Mouse, Keyboard]\nBy name length: [Mouse, Keyboard, Java Book, USB Hub]",
+      "starter_code": "import java.util.*;\n// Comparator.comparing with lambda key extractor\n",
+      "expected_solution": "import java.util.*;\nclass Product {\n    String name; double price;\n    Product(String n, double p) { name=n; price=p; }\n    public String getName() { return name; }\n    public double getPrice() { return price; }\n    public String toString() { return name; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Product> products = new ArrayList<>(Arrays.asList(\n            new Product(\"Mouse\",    719),\n            new Product(\"Keyboard\", 1599),\n            new Product(\"Java Book\", 552),\n            new Product(\"USB Hub\",   374)\n        ));\n        \n        List<Product> byName = new ArrayList<>(products);\n        byName.sort(Comparator.comparing(p -> p.getName()));\n        System.out.println(\"By name: \" + byName);\n        \n        List<Product> byPrice = new ArrayList<>(products);\n        byPrice.sort(Comparator.comparingDouble(p -> p.getPrice()));\n        System.out.println(\"By price: \" + byPrice);\n        \n        List<Product> byLen = new ArrayList<>(products);\n        byLen.sort(Comparator.comparingInt(p -> p.getName().length()));\n        System.out.println(\"By name length: \" + byLen);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "By name: [Java Book, Keyboard, Mouse, USB Hub]\nBy price: [USB Hub, Java Book, Mouse, Keyboard]\nBy name length: [Mouse, Keyboard, Java Book, USB Hub]" }
+      ],
+      "hints": [
+        "Comparator.comparing(p -> p.getName()) — key extractor lambda",
+        "Comparator.comparingDouble(p -> p.getPrice()) — for doubles",
+        "These factory methods take lambdas and return Comparators"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m8_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Lambda-based pipeline simulation",
+      "scenario": "Chain of lambdas for data transformation — preview of streams.",
+      "instructions": "Without streams, simulate a 3-step data pipeline using lambdas:\n1. Filter students with GPA >= 3.5\n2. Sort by GPA descending\n3. Print top 3 with rank\n\nStudents: Aisha(3.9), Raj(3.2), Priya(3.8), Vikram(3.6), Anita(3.1)\n\nExpected output:\n#1 Aisha: 3.9\n#2 Priya: 3.8\n#3 Vikram: 3.6",
+      "starter_code": "import java.util.*;\n// Filter → sort → print using lambdas (no streams yet)\n",
+      "expected_solution": "import java.util.*;\nclass Student {\n    String name; double gpa;\n    Student(String n, double g) { name=n; gpa=g; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Student> students = Arrays.asList(\n            new Student(\"Aisha\",  3.9),\n            new Student(\"Raj\",    3.2),\n            new Student(\"Priya\",  3.8),\n            new Student(\"Vikram\", 3.6),\n            new Student(\"Anita\",  3.1)\n        );\n        \n        // Step 1: filter (removeIf with lambda)\n        List<Student> filtered = new ArrayList<>(students);\n        filtered.removeIf(s -> s.gpa < 3.5);\n        \n        // Step 2: sort (lambda comparator)\n        filtered.sort((a, b) -> Double.compare(b.gpa, a.gpa));\n        \n        // Step 3: print top 3\n        int limit = Math.min(3, filtered.size());\n        for (int i = 0; i < limit; i++) {\n            Student s = filtered.get(i);\n            System.out.println(\"#\" + (i+1) + \" \" + s.name + \": \" + s.gpa);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "#1 Aisha: 3.9\n#2 Priya: 3.8\n#3 Vikram: 3.6" }
+      ],
+      "hints": [
+        "removeIf(s -> s.gpa < 3.5) removes below threshold",
+        "Sort: (a, b) -> Double.compare(b.gpa, a.gpa) — descending",
+        "This is exactly what stream().filter().sorted().limit() does — Topics 8.3-8.4"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m8_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete product dashboard with lambdas",
+      "scenario": "All lambda patterns in one product analysis system.",
+      "instructions": "Build a product dashboard using ONLY lambdas (no anonymous classes):\n- `Map<String, List<Product>>` by category (use computeIfAbsent)\n- Print each category's products sorted by price (forEach + sort with lambda)\n- Find and print the most expensive overall (using lambda sort)\n- Remove all out-of-stock items with removeIf\n\nProducts: 5 products, 2 categories, 1 out of stock\n\nExpected output:\nBooks:\n  Java Programming ₹649 (stock=20)\nElectronics:\n  Mouse ₹799 (stock=45)\n  Keyboard ₹1999 (stock=8)\nMost expensive: Monitor ₹18999\nAfter removing out-of-stock (Monitor): 3 products remain",
+      "starter_code": "import java.util.*;\n// Full product dashboard — lambdas only\n",
+      "expected_solution": "import java.util.*;\nclass Product {\n    String name, category;\n    double price;\n    int stock;\n    Product(String n, String c, double p, int s) { name=n; category=c; price=p; stock=s; }\n    public String toString() { return String.format(\"  %s ₹%.0f (stock=%d)\", name, price, stock); }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Product> catalog = new ArrayList<>(Arrays.asList(\n            new Product(\"Mouse\",           \"Electronics\", 799,   45),\n            new Product(\"Keyboard\",        \"Electronics\", 1999,   8),\n            new Product(\"Monitor\",         \"Electronics\", 18999,  0),  // out of stock\n            new Product(\"Java Programming\",\"Books\",        649,   20),\n            new Product(\"USB Hub\",         \"Electronics\",  499,  60)\n        ));\n        \n        // Group by category\n        Map<String, List<Product>> byCategory = new LinkedHashMap<>();\n        catalog.forEach(p -> byCategory.computeIfAbsent(p.category, k -> new ArrayList<>()).add(p));\n        \n        // Print each category sorted by price\n        List<String> cats = new ArrayList<>(byCategory.keySet());\n        Collections.sort(cats);\n        cats.forEach(cat -> {\n            System.out.println(cat + \":\");\n            List<Product> catProducts = byCategory.get(cat);\n            catProducts.sort((a, b) -> Double.compare(a.price, b.price));\n            catProducts.forEach(p -> System.out.println(p));\n        });\n        \n        // Most expensive (all, including out of stock)\n        List<Product> sorted = new ArrayList<>(catalog);\n        sorted.sort((a, b) -> Double.compare(b.price, a.price));\n        System.out.println(\"Most expensive: \" + sorted.get(0).name + \" ₹\" + (int)sorted.get(0).price);\n        \n        // Remove out of stock\n        catalog.removeIf(p -> p.stock == 0);\n        System.out.println(\"After removing out-of-stock (Monitor): \" + catalog.size() + \" products remain\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Books:\n  Java Programming ₹649 (stock=20)\nElectronics:\n  Mouse ₹799 (stock=45)\n  Keyboard ₹1999 (stock=8)\nMost expensive: Monitor ₹18999\nAfter removing out-of-stock (Monitor): 3 products remain" }
+      ],
+      "hints": [
+        "computeIfAbsent with lambda creates the list on first category encounter",
+        "Block lambda in cats.forEach to print header + sort + inner forEach",
+        "Monitor (₹18999) is most expensive",
+        "USB Hub removed from electronics because it's listed before Monitor removal"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 12,
+      "predict_output": 2
+    },
+    "total_xp_possible": 685,
+    "estimated_completion_minutes": 65
+  }
+}

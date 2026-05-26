@@ -1,0 +1,186 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t1",
+  "language": "java",
+  "module_id": "m18",
+  "module_name": "Redis Caching & Rate Limiting",
+  "topic_number": 1,
+  "name": "Redis Fundamentals & Spring Cache",
+  "slug": "redis-fundamentals-spring-cache",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m17_t3"],
+    "concepts_taught": [
+      "what_is_redis",
+      "redis_as_cache",
+      "redis_data_structures",
+      "redis_ttl",
+      "docker_redis_setup",
+      "spring_data_redis",
+      "spring_cache_abstraction",
+      "cacheable_annotation",
+      "cache_put_annotation",
+      "cache_evict_annotation",
+      "cache_names_and_keys",
+      "redis_template",
+      "string_serialization",
+      "json_serialization_in_redis",
+      "cache_aside_pattern",
+      "cache_hit_vs_miss"
+    ],
+    "skills_developed": [
+      "running_redis_with_docker",
+      "configuring_spring_cache_with_redis",
+      "annotating_methods_with_cacheable",
+      "evicting_stale_cache_entries",
+      "choosing_ttl_values",
+      "debugging_cache_hits_and_misses"
+    ],
+    "career_relevance": "Redis is the universal caching layer for production Java services. Swiggy caches restaurant menus, Flipkart caches product details, Zerodha caches instrument data — all in Redis. @Cacheable is the fastest win in a Java interview: 'How do you reduce database load?' → 'Cache frequently-read, rarely-changed data in Redis with @Cacheable.' After this topic, you add caching to any Spring Boot service in under 10 minutes.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Swiggy's restaurant listing API: users browse restaurants constantly. Every page load hits PostgreSQL:\n\n```\nGET /api/restaurants?city=Hyderabad\n→ SELECT * FROM restaurants WHERE city='Hyderabad' AND active=true\n→ 15ms per query\n→ 5,000 requests/second during dinner time\n→ 5,000 × 15ms = 75 seconds of DB query time per second\n→ Needs 75 concurrent DB connections just for this one endpoint!\n```\n\n**The restaurant list changes once every few hours. Why query PostgreSQL 5,000 times per second for the same data?**\n\n```java\n// BEFORE — every request hits PostgreSQL:\n@GetMapping(\"/api/restaurants\")\npublic List<Restaurant> getRestaurants(@RequestParam String city) {\n    return restaurantRepo.findByCityAndActiveTrue(city);  // 15ms every time\n}\n\n// AFTER — Redis caches the result for 5 minutes:\n@Cacheable(value = \"restaurants\", key = \"#city\")\npublic List<Restaurant> getRestaurants(String city) {\n    return restaurantRepo.findByCityAndActiveTrue(city);\n    // First call (cache miss):  15ms → stored in Redis for 5 min\n    // Next 14,999 calls (hits): 0.3ms → served from Redis memory\n}\n```\n\n```\nResult:\n  Cache hit rate: ~99% during steady state\n  DB queries: 5,000/s → ~3/s (one per city per 5 minutes)\n  Response time: 15ms → 0.3ms\n  DB connections needed: 75 → 1\n```\n\nOne annotation. Seventy-five times fewer database connections.",
+    "what_you_will_build": "By the end of this topic, you'll run Redis with Docker, configure Spring Cache with Redis, annotate service methods with @Cacheable/@CacheEvict/@CachePut, choose appropriate TTLs, and verify cache behavior with real Redis commands."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "redis_overview": "**What Redis is — and what it isn't:**\n\n```\nRedis = Remote Dictionary Server\n\nWhat it is:\n  - In-memory data store: all data in RAM → microsecond reads\n  - Data structures: Strings, Lists, Sets, Sorted Sets, Hashes, Streams\n  - Optional persistence: can snapshot to disk (RDB) or log all writes (AOF)\n  - TTL support: every key can have an expiry time\n  - Single-threaded: no race conditions on individual commands\n\nWhat it is NOT:\n  - Not a relational database (no SQL, no joins)\n  - Not for primary data storage (use PostgreSQL for that)\n  - Not unlimited: data must fit in RAM\n\nPrimary use cases in Java services:\n  1. Cache: store DB query results for fast re-reads\n  2. Session: user sessions across multiple app instances\n  3. Rate limiting: count requests per user per second\n  4. Distributed lock: coordinate across service instances\n  5. Pub/Sub: broadcast events to multiple consumers\n  6. Leaderboard: Sorted Set for ranked scores\n```\n\n**Docker setup:**\n```yaml\n# docker-compose.yml:\nservices:\n  redis:\n    image: redis:7-alpine\n    container_name: app-redis\n    ports:\n      - \"6379:6379\"\n    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru\n    volumes:\n      - redis-data:/data\n\nvolumes:\n  redis-data:\n```\n\n```bash\ndocker compose up -d\ndocker exec -it app-redis redis-cli\n127.0.0.1:6379> PING\nPONG\n```",
+
+      "spring_cache_setup": "**Spring Cache with Redis — configuration:**\n\n```xml\n<!-- pom.xml: -->\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-data-redis</artifactId>\n</dependency>\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-cache</artifactId>\n</dependency>\n```\n\n```properties\n# application.properties:\nspring.data.redis.host=localhost\nspring.data.redis.port=6379\n# Optional auth:\n# spring.data.redis.password=${REDIS_PASSWORD}\n\n# Spring Cache type = Redis:\nspring.cache.type=redis\n\n# Default TTL for all caches (e.g. 10 minutes):\nspring.cache.redis.time-to-live=600000\n\n# Cache names from @Cacheable will be created automatically\n```\n\n```java\n// Enable caching on the application:\n@SpringBootApplication\n@EnableCaching  // ← activates @Cacheable, @CacheEvict, @CachePut\npublic class Application { ... }\n```\n\n**Custom Redis configuration with JSON serialization:**\n```java\nimport org.springframework.cache.annotation.EnableCaching;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport org.springframework.data.redis.cache.RedisCacheConfiguration;\nimport org.springframework.data.redis.serializer.*;\nimport java.time.Duration;\n\n@Configuration\n@EnableCaching\npublic class CacheConfig {\n    \n    @Bean\n    public RedisCacheConfiguration cacheConfiguration() {\n        return RedisCacheConfiguration.defaultCacheConfig()\n            .entryTtl(Duration.ofMinutes(10))  // default TTL\n            .disableCachingNullValues()         // don't cache null results\n            .serializeValuesWith(\n                RedisSerializationContext.SerializationPair.fromSerializer(\n                    new GenericJackson2JsonRedisSerializer()  // store as JSON\n                )\n            );\n    }\n}\n```",
+
+      "cacheable_annotations": "**The three cache annotations:**\n\n```java\n@Service\npublic class RestaurantService {\n    private final RestaurantRepository repo;\n    \n    // @Cacheable — read cache; call method only on cache miss:\n    @Cacheable(\n        value = \"restaurants\",     // cache name (Redis key prefix)\n        key   = \"#city\",           // cache key (SpEL expression)\n        unless = \"#result.isEmpty()\"  // don't cache empty lists\n    )\n    public List<Restaurant> getByCity(String city) {\n        return repo.findByCityAndActiveTrue(city);\n        // Cache miss:  fires, result stored as 'restaurants::Hyderabad'\n        // Cache hit:   method NOT called, returns from Redis\n    }\n    \n    // @CachePut — always call method AND update cache:\n    @CachePut(\n        value = \"restaurants\",\n        key   = \"#result.id\"       // key from return value\n    )\n    public Restaurant save(Restaurant r) {\n        return repo.save(r);\n        // Always saves to DB; always updates Redis entry\n        // Use to keep cache fresh after writes\n    }\n    \n    // @CacheEvict — remove from cache:\n    @CacheEvict(\n        value = \"restaurants\",\n        key   = \"#city\"            // evict specific city\n    )\n    public void refreshCity(String city) {\n        // Next call to getByCity(city) will be a cache miss → fresh DB read\n    }\n    \n    // @CacheEvict allEntries — clear entire cache:\n    @CacheEvict(value = \"restaurants\", allEntries = true)\n    public void clearAll() {\n        // Removes ALL entries from the 'restaurants' cache\n        // Use after bulk updates\n    }\n}\n\n// Cache key SpEL examples:\n// key = \"#id\"                     → simple parameter\n// key = \"#user.id\"                → nested field\n// key = \"'product:' + #productId\" → constant prefix\n// key = \"#root.methodName + #id\"  → method name + param\n// key = \"T(java.util.Objects).hash(#city, #category)\" → composite\n```",
+
+      "ttl_and_redis_keys": "**TTL (Time-To-Live) and Redis key patterns:**\n\n```java\n// Per-cache TTL with custom configuration:\n@Bean\npublic RedisCacheManager cacheManager(RedisConnectionFactory factory) {\n    Map<String, RedisCacheConfiguration> configs = new HashMap<>();\n    \n    // Short TTL for fast-changing data:\n    configs.put(\"stock-prices\",\n        RedisCacheConfiguration.defaultCacheConfig()\n            .entryTtl(Duration.ofSeconds(30)));  // 30s: stock prices change fast!\n    \n    // Longer TTL for stable data:\n    configs.put(\"restaurants\",\n        RedisCacheConfiguration.defaultCacheConfig()\n            .entryTtl(Duration.ofMinutes(10)));  // 10 min: restaurants don't move\n    \n    // Very long TTL for almost-static data:\n    configs.put(\"cities\",\n        RedisCacheConfiguration.defaultCacheConfig()\n            .entryTtl(Duration.ofHours(24)));    // 24h: city list changes rarely\n    \n    return RedisCacheManager.builder(factory)\n        .cacheDefaults(RedisCacheConfiguration.defaultCacheConfig()\n            .entryTtl(Duration.ofMinutes(5)))    // default: 5 minutes\n        .withInitialCacheConfigurations(configs)\n        .build();\n}\n\n// Redis key format (Spring Cache default):\n// '{cacheName}::{key}'\n// 'restaurants::Hyderabad'  → List<Restaurant> for Hyderabad\n// 'restaurants::Mumbai'     → List<Restaurant> for Mumbai\n// 'stock-prices::TCS'       → price for TCS\n\n// Verify in redis-cli:\n// > KEYS restaurants::*         ← list all restaurant cache entries\n// > GET restaurants::Hyderabad  ← view the JSON\n// > TTL restaurants::Hyderabad  ← seconds until expiry\n// > DEL restaurants::Hyderabad  ← manually evict\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) Cache hit vs miss flow: incoming HTTP request → Spring Cache interceptor. Cache MISS path: interceptor checks Redis (empty) → calls actual service method → method queries PostgreSQL (15ms) → result returned to interceptor → stored in Redis with TTL → returned to client. Cache HIT path: interceptor checks Redis → finds entry → returns immediately from Redis (0.3ms) → method NOT called, PostgreSQL NOT queried. Labels: 'Cache miss: DB hit + store in Redis', 'Cache hit: no DB, no method call'. (2) Key structure diagram: shows Redis keys 'restaurants::Hyderabad', 'restaurants::Mumbai', 'stock-prices::TCS', 'cities::ALL' with TTL values shown (10min, 10min, 30s, 24h). Arrow: '@CacheEvict(restaurants, Hyderabad)' removes the Hyderabad key. Arrow: '@CachePut updates Hyderabad entry without deleting it'.",
+      "alt_text": "Cache hit vs miss request flow, and Redis key naming structure with TTL values"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add Redis caching to the Flipkart product catalog. Products are read 10,000 times per second but updated rarely. Cache individual products by ID, the category list for 1 hour, and evict on update.",
+
+    "problem_statement": "1. Add Redis Docker Compose and Spring Cache dependencies\n2. CacheConfig bean with per-cache TTLs\n3. ProductService: @Cacheable on getById and getByCategory\n4. @CacheEvict when a product is updated\n5. Verify with redis-cli that keys appear/disappear correctly",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "CacheConfig with per-cache TTL",
+        "details": "```java\n@Configuration @EnableCaching\npublic class FlipkartCacheConfig {\n    \n    @Bean\n    public RedisCacheManager cacheManager(RedisConnectionFactory factory) {\n        var serializer = new GenericJackson2JsonRedisSerializer();\n        var valueSerializer = RedisSerializationContext.SerializationPair\n            .fromSerializer(serializer);\n        \n        var defaultConfig = RedisCacheConfiguration.defaultCacheConfig()\n            .serializeValuesWith(valueSerializer)\n            .disableCachingNullValues();\n        \n        return RedisCacheManager.builder(factory)\n            .cacheDefaults(defaultConfig.entryTtl(Duration.ofMinutes(5)))\n            .withInitialCacheConfigurations(Map.of(\n                \"products\",   defaultConfig.entryTtl(Duration.ofMinutes(10)),\n                \"categories\", defaultConfig.entryTtl(Duration.ofHours(1)),\n                \"search\",     defaultConfig.entryTtl(Duration.ofMinutes(2))\n            ))\n            .build();\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "ProductService with caching",
+        "details": "```java\n@Service\npublic class ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository r) { repo = r; }\n    \n    // Cache individual product by ID for 10 minutes:\n    @Cacheable(value = \"products\", key = \"#id\")\n    public Optional<Product> findById(String id) {\n        System.out.println(\"[DB HIT] Loading product \" + id);  // visible in logs\n        return repo.findById(id);\n    }\n    \n    // Cache category listing for 1 hour:\n    @Cacheable(value = \"categories\", key = \"#category\")\n    public List<Product> findByCategory(String category) {\n        return repo.findByCategoryIgnoreCase(category);\n    }\n    \n    // Cache search results for 2 minutes:\n    @Cacheable(value = \"search\", key = \"#query.toLowerCase()\")\n    public List<Product> search(String query) {\n        return repo.findByNameContainingIgnoreCase(query);\n    }\n    \n    // On update: evict the product from cache; categories may also need refresh:\n    @CacheEvict(value = \"products\", key = \"#product.id\")\n    @CacheEvict(value = \"categories\", allEntries = true)  // ← multiple annotations\n    @Transactional\n    public Product update(Product product) {\n        return repo.save(product);\n    }\n    \n    // On delete: evict from all caches:\n    @Caching(evict = {\n        @CacheEvict(value = \"products\",   key = \"#id\"),\n        @CacheEvict(value = \"categories\", allEntries = true),\n        @CacheEvict(value = \"search\",     allEntries = true)\n    })\n    @Transactional\n    public void delete(String id) { repo.deleteById(id); }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Verify with redis-cli",
+        "details": "```bash\n# After first GET /api/products/P001:\n127.0.0.1:6379> KEYS products::*\n1) \"products::P001\"\n\n127.0.0.1:6379> TTL products::P001\n(integer) 598   ← 598 seconds remaining\n\n127.0.0.1:6379> GET products::P001\n\"{\\\"id\\\":\\\"P001\\\",\\\"name\\\":\\\"Wireless Mouse\\\",\\\"price\\\":799.0}\"\n\n# After second GET (cache hit — no [DB HIT] in logs!):\n127.0.0.1:6379> TTL products::P001\n(integer) 591   ← decreasing, key still exists\n\n# After PUT /api/products/P001:\n127.0.0.1:6379> KEYS products::*\n(empty array)   ← evicted! Next GET will be a fresh DB read\n```"
+      }
+    ],
+
+    "final_code": "// @EnableCaching on @SpringBootApplication\n// RedisCacheManager with per-cache TTLs (products=10min, categories=1hr, search=2min)\n// @Cacheable: method called only on cache miss\n// @CacheEvict: removes key after update/delete\n// @Caching: group multiple cache operations on one method\n// Verify: KEYS, TTL, GET in redis-cli",
+
+    "expected_output": "# First request (cache miss):\n[DB HIT] Loading product P001       ← method called, PostgreSQL queried\nGET /api/products/P001 → 15ms\n\n# Second request (cache hit):\n[no DB HIT log]                     ← method NOT called!\nGET /api/products/P001 → 0.3ms     ← from Redis memory\n\n# After PUT /api/products/P001:\nGET /api/products/P001 → 14ms      ← cache miss (evicted), fresh DB read",
+
+    "things_to_notice": [
+      "@Cacheable works only on Spring-managed beans called from OUTSIDE the bean. If ProductService calls its own @Cacheable method internally (this.findById(id)), the cache proxy is bypassed and the method always executes. Fix: inject the service into itself (@Autowired ProductService self) or restructure to call through the proxy.",
+      "disableCachingNullValues(): if findById returns Optional.empty(), we don't want to cache null — the item might be created soon. Without this, a 'product not found' result could be cached, and a newly-created product would appear missing until the TTL expires.",
+      "GenericJackson2JsonRedisSerializer: stores objects as JSON with type information. This allows Spring to deserialize the JSON back to the correct Java class. The alternative (JdkSerializationRedisSerializer) stores as binary — not human-readable and causes issues when classes change.",
+      "@Caching: when you need multiple @CacheEvict on the same method (Java doesn't allow duplicate annotations), use @Caching(evict={...}) to group them. This is the correct pattern for evicting from multiple caches in one operation.",
+      "TTL strategy: choose TTL based on how stale data affects users. Stock prices: 30 seconds (stale price = wrong trade). Restaurant menus: 5 minutes (slightly stale menu is acceptable). City list: 24 hours (cities don't change). Never use zero TTL (no expiry) for application data — Redis memory fills up and the eviction policy kicks in unexpectedly."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy restaurant listings",
+        "use_case": "Swiggy caches restaurant listings per city in Redis with a 5-minute TTL. Every city-level restaurant list query is served from Redis. On restaurant updates (menu change, hours change), Swiggy evicts the specific city cache via @CacheEvict. During peak hours (7-9pm), 99%+ of restaurant listing requests are cache hits — the PostgreSQL restaurant table handles ~100 queries/min instead of millions."
+      },
+      {
+        "company_context": "Flipkart product details",
+        "use_case": "Flipkart's product detail page caches individual products by product ID with a 10-minute TTL. Price and inventory are NOT cached (too dynamic — separate Redis Sorted Set for real-time stock). Static details (name, description, images, specifications) are cached. Seller information is cached separately with a 1-hour TTL. When a seller updates their product, only that product's cache entry is evicted — other products unaffected."
+      },
+      {
+        "company_context": "Zerodha instrument data",
+        "use_case": "Zerodha caches NSE/BSE instrument metadata (company name, ISIN, sector, lot size) in Redis with a 6-hour TTL. This data rarely changes — SEBI approvals are infrequent. The instrument list (~10,000 symbols) is cached as a Hash in Redis. Traders querying 'what sector is TCS in?' get a 0.1ms response from Redis instead of a JOIN query across multiple tables. The cache is pre-warmed at market open (9:15 AM) via a @Scheduled job."
+      }
+    ],
+
+    "interview_relevance": "Redis caching interview questions:\n\n- **'How do you reduce database load in a high-traffic API?'** → Cache frequently-read data in Redis with @Cacheable. Set TTL based on acceptable staleness. Evict on mutation with @CacheEvict.\n- **'What is cache invalidation? What strategies do you use?'** → Eviction on write (@CacheEvict), TTL expiry, event-driven invalidation. The hardest problem: knowing when cached data is stale.\n- **'What is a cache miss? What happens on cache miss?'** → Redis key not found → @Cacheable calls the actual method → result stored in Redis → returned to caller. Next call is a hit.\n- **'What TTL would you set for product prices vs product descriptions?'** → Prices: short TTL (seconds to minutes) or no caching. Descriptions: long TTL (hours to days). Balance between freshness and DB load.",
+
+    "real_world_workflow": "Daily caching workflow:\n\n- Profile first: identify slow queries with EXPLAIN ANALYZE\n- Cache read-heavy, write-light data: product info, category trees, user profiles\n- Set TTL based on data change rate: seconds for prices, hours for static content\n- Evict on mutation: @CacheEvict in save/update/delete methods\n- Monitor hit rate: Spring Actuator exposes cache statistics\n- Pre-warm on startup: load common cache entries before traffic arrives"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "self_invocation_bypasses_cache",
+      "what_students_get_wrong": "Calling a @Cacheable method from within the SAME class — the cache proxy is bypassed and the method always executes.",
+      "remediation": "Spring AOP creates a proxy around the bean. When you call `this.findById(id)` inside ProductService, you're calling the raw object, not the proxy — so @Cacheable has no effect. Fix options: (1) Move the cached method to a separate service class, (2) Inject the proxy via @Autowired ProductService self, (3) Use ApplicationContext.getBean() to get the proxied instance. Most clean solution: separate concerns into ProductCacheService and ProductDbService.",
+      "detection_pattern": "[DB HIT] logged on every call even after caching should work; redis-cli KEYS shows no entries"
+    },
+    {
+      "gap_id": "missing_enable_caching",
+      "what_students_get_wrong": "Adding @Cacheable annotations but forgetting @EnableCaching — cache annotations are silently ignored.",
+      "remediation": "Add @EnableCaching to @SpringBootApplication or a @Configuration class. Without it, Spring doesn't activate the cache proxy, and @Cacheable/@CacheEvict are no-ops — no error, no warning, just no caching. Check: add `spring.cache.type=redis` to application.properties and watch for cache-related startup logs.",
+      "detection_pattern": "Cache annotations compile and run but DB is hit every time; no Redis keys appear"
+    },
+    {
+      "gap_id": "caching_mutable_objects",
+      "what_students_get_wrong": "Caching a List or entity and then mutating it in the service — the cached reference is mutated too.",
+      "remediation": "Redis serializes and deserializes objects on each cache access — the cache returns a new deserialized copy each time. This is actually safer than an in-memory Map cache. But with in-memory caches (like ConcurrentHashMapCacheManager for tests), the same object reference is returned — mutations affect the cache. Best practice: return defensive copies or use immutable DTOs from @Cacheable methods.",
+      "detection_pattern": "Cache returns modified data unexpectedly; test-environment cache behaves differently than Redis"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Redis: in-memory store; microsecond reads; perfect for caching DB query results",
+      "Spring Cache: abstraction over cache providers; swap Redis for Caffeine without code change",
+      "@EnableCaching: required — without it, all cache annotations are silently ignored",
+      "@Cacheable: cache miss → call method + store; cache hit → return from cache, method NOT called",
+      "@CachePut: always call method AND update cache (use for writes that need immediate cache refresh)",
+      "@CacheEvict: remove from cache after write; allEntries=true clears the entire cache",
+      "@Caching: group multiple cache operations on one method",
+      "Cache key: SpEL expression on parameter values; default is all parameters combined",
+      "TTL: short for dynamic data, long for static; never infinity for application data",
+      "disableCachingNullValues(): prevents caching 'not found' results",
+      "GenericJackson2JsonRedisSerializer: stores as human-readable JSON in Redis",
+      "Self-invocation bypass: @Cacheable doesn't work when called from same bean's method",
+      "Redis key pattern: '{cacheName}::{key}' — visible in redis-cli KEYS",
+      "Cache warming: pre-load common entries on startup via @PostConstruct or @Scheduled",
+      "Cache invalidation: hardest problem in CS — use shortest acceptable TTL + explicit eviction"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Your @Cacheable method is being called on every request despite Redis running. How do you diagnose and fix it?",
+        "answer": "Step 1: Check for @EnableCaching — most common cause. Without it, annotations are no-ops. Step 2: Check for self-invocation: is the @Cacheable method called from within the same class (this.method())? If so, the AOP proxy is bypassed. Fix: move cached method to a different bean, or inject self-reference. Step 3: Check Redis connectivity: KEYS '*' in redis-cli — are any keys being created? Step 4: Check if the method returns null and disableCachingNullValues() is set — null is never cached. Step 5: Check application.properties: spring.cache.type=redis must be set. Step 6: Add a log statement inside the method — if it logs every call, the cache isn't working."
+      },
+      {
+        "question": "A product is updated. You call @CacheEvict on 'products' with key='#product.id'. But the next GET still returns stale data. Why might this happen?",
+        "answer": "Several possibilities: (1) The GET uses a different cache name or key than the eviction. Check: GET uses value='products', key='#id'. Evict uses value='products', key='#product.id'. Are they the same resolved key? (2) The update method returns the product, and @CachePut is accidentally storing the result back under a different key. (3) The cache has multiple TTL configurations — maybe 'products' has a very long TTL and you're checking the wrong copy. (4) Another service node in a cluster has the entry still cached — in multi-instance deployment, @CacheEvict only removes from the local Redis (which IS shared) but the instance might have an L1 in-memory cache (Caffeine) in front of Redis. (5) Stale proxy: the Spring cache proxy wasn't rebuilt after a hot-deploy in development."
+      },
+      {
+        "question": "What TTL would you use for: (1) user profile data, (2) stock prices, (3) city list, (4) payment status?",
+        "answer": "(1) User profile: 5-15 minutes. Changes occasionally (profile edits). Staleness acceptable for short period. Evict explicitly on profile update. (2) Stock prices: DO NOT CACHE, or max 1-5 seconds. Prices change every second during market hours. Stale prices = wrong trades = financial harm. Better: real-time feed, not cache. (3) City list: 24 hours or more. Cities almost never change. High TTL safe, dramatically reduces DB calls. Can be pre-warmed on startup. (4) Payment status: DO NOT CACHE. Payment status changes (PENDING → CAPTURED → REFUNDED) and the user must see the current status immediately. Caching payment status could show a completed payment as pending or vice versa — never cache financial status data."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Cache-Aside Pattern & Advanced Strategies** — @Cacheable handles simple cases, but real production systems need more control: conditional caching based on result size, custom key generators, programmatic cache access via CacheManager, cache pre-warming, and cache stampede prevention when thousands of threads miss the cache simultaneously and all rush to rebuild it."
+  }
+}

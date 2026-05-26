@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t5",
+  "language": "java",
+  "module_id": "m16",
+  "module_name": "Apache Kafka & Event-Driven Architecture",
+  "topic_number": 5,
+  "name": "Kafka Schema Registry & Avro",
+  "slug": "schema-registry-avro",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m16_t4"],
+    "concepts_taught": [
+      "schema_evolution_problem",
+      "avro_format",
+      "schema_registry",
+      "avro_schema_definition",
+      "avro_generated_classes",
+      "kafka_avro_serializer",
+      "kafka_avro_deserializer",
+      "schema_compatibility_types",
+      "backward_compatible_changes",
+      "forward_compatible_changes",
+      "breaking_changes",
+      "schema_registry_with_spring_boot",
+      "spring_kafka_avro_producer",
+      "spring_kafka_avro_consumer",
+      "schema_registry_testing"
+    ],
+    "skills_developed": [
+      "defining_avro_schemas",
+      "generating_java_classes_from_avro",
+      "configuring_avro_serializer_deserializer",
+      "understanding_schema_compatibility",
+      "evolving_schemas_safely"
+    ],
+    "career_relevance": "At every mature company using Kafka (Swiggy, Flipkart, Razorpay), JSON is eventually replaced by Avro + Schema Registry. Without it: schema drift silently corrupts data. With it: breaking changes are caught at deploy time, not in production. Understanding Avro and Schema Registry is expected at the senior level and is increasingly asked in mid-level interviews. After this topic, your Kafka pipeline is production-grade.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your Kafka pipeline has been running for 3 months. order-service publishes, portfolio-service consumes. Then order-service renames a field:\n\n```java\n// BEFORE (March):\nrecord TradeExecutedEvent(String tradeId, String symbol, int qty, double price) {}\n\n// AFTER (April — developer renamed 'price' to 'unitPrice'):\nrecord TradeExecutedEvent(String tradeId, String symbol, int qty, double unitPrice) {}\n```\n\n**What happens:**\n```\norder-service: deploys → publishes events with 'unitPrice' field\nportfolio-service: still running old code, expecting 'price' field\n\nWith JSON:\n  portfolio-service receives event:\n  → 'price' field is null (missing from JSON) — no error!\n  → Portfolio calculation uses null → NullPointerException or wrong P&L\n  → Incorrect holdings for thousands of users\n  → Bug discovered 3 hours later when alerts fire\n  → Incident: 4 hours to identify, 2 hours to fix, 6 hours total\n\nWith Avro + Schema Registry:\n  order-service tries to register new schema with 'unitPrice':\n  → Schema Registry: INCOMPATIBLE — 'price' removed without default\n  → Deploy BLOCKED — schema registration fails\n  → Developer forced to add backward-compatible change\n  → Bug caught at deploy time: zero-incident\n```\n\n**Avro + Schema Registry is the contract between producer and consumer.** Nobody deploys a breaking change accidentally.",
+    "what_you_will_build": "By the end of this topic, you'll define Avro schemas, generate Java classes, configure producers and consumers with AvroSerializer/Deserializer, understand schema compatibility rules, and safely evolve schemas."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "avro_schema": "**Avro schema — the contract:**\n\n```json\n// src/main/avro/TradeExecutedEvent.avsc:\n{\n  \"type\": \"record\",\n  \"name\": \"TradeExecutedEvent\",\n  \"namespace\": \"com.codequest.events\",\n  \"fields\": [\n    {\"name\": \"tradeId\",    \"type\": \"string\"},\n    {\"name\": \"userId\",     \"type\": \"string\"},\n    {\"name\": \"symbol\",     \"type\": \"string\"},\n    {\"name\": \"qty\",        \"type\": \"int\"},\n    {\"name\": \"price\",      \"type\": \"double\"},\n    {\"name\": \"totalValue\", \"type\": \"double\"},\n    {\"name\": \"type\",       \"type\": {\"type\": \"enum\", \"name\": \"TradeType\",\n                                     \"symbols\": [\"BUY\", \"SELL\"]}},\n    {\"name\": \"executedAt\", \"type\": \"long\",\n                            \"logicalType\": \"timestamp-millis\"}\n  ]\n}\n```\n\n**Maven plugin generates Java class from .avsc:**\n```xml\n<plugin>\n    <groupId>org.apache.avro</groupId>\n    <artifactId>avro-maven-plugin</artifactId>\n    <version>1.11.3</version>\n    <executions>\n        <execution>\n            <phase>generate-sources</phase>\n            <goals><goal>schema</goal></goals>\n            <configuration>\n                <sourceDirectory>${project.basedir}/src/main/avro</sourceDirectory>\n                <outputDirectory>${project.basedir}/src/main/java</outputDirectory>\n            </configuration>\n        </execution>\n    </executions>\n</plugin>\n```\n\n**Generated class is used like a regular Java class:**\n```java\n// Auto-generated by avro-maven-plugin:\nTradeExecutedEvent event = TradeExecutedEvent.newBuilder()\n    .setTradeId(\"TRD-001\")\n    .setUserId(\"U01\")\n    .setSymbol(\"TCS\")\n    .setQty(10)\n    .setPrice(3890.0)\n    .setTotalValue(38900.0)\n    .setType(TradeType.BUY)\n    .setExecutedAt(Instant.now().toEpochMilli())\n    .build();\n```",
+
+      "schema_registry_setup": "**Schema Registry setup:**\n\n```xml\n<!-- pom.xml -->\n<dependency>\n    <groupId>io.confluent</groupId>\n    <artifactId>kafka-avro-serializer</artifactId>\n    <version>7.5.0</version>\n</dependency>\n```\n\n```yaml\n# Docker Compose:\nservices:\n  zookeeper:\n    image: confluentinc/cp-zookeeper:7.5.0\n    environment: {ZOOKEEPER_CLIENT_PORT: 2181}\n  kafka:\n    image: confluentinc/cp-kafka:7.5.0\n    ports: [\"9092:9092\"]\n    environment:\n      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181\n      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092\n  schema-registry:\n    image: confluentinc/cp-schema-registry:7.5.0\n    ports: [\"8081:8081\"]\n    environment:\n      SCHEMA_REGISTRY_HOST_NAME: schema-registry\n      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: kafka:9092\n```\n\n```properties\n# application.properties:\nspring.kafka.bootstrap-servers=localhost:9092\n\n# Producer:\nspring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer\nspring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer\nspring.kafka.producer.properties.schema.registry.url=http://localhost:8081\n\n# Consumer:\nspring.kafka.consumer.key-deserializer=org.apache.kafka.common.serialization.StringDeserializer\nspring.kafka.consumer.value-deserializer=io.confluent.kafka.serializers.KafkaAvroDeserializer\nspring.kafka.consumer.properties.schema.registry.url=http://localhost:8081\nspring.kafka.consumer.properties.specific.avro.reader=true\n```",
+
+      "schema_compatibility": "**Schema compatibility rules — the key concept:**\n\n```\nBackward Compatible (default — recommended):\n  New schema can READ data written with OLD schema.\n  → SAFE to deploy consumer first, then producer\n  ✓ ADD field with default:     { \"name\": \"sector\", \"type\": \"string\", \"default\": \"UNKNOWN\" }\n  ✗ REMOVE required field:      removes 'price' → old consumers can't read new data\n  ✗ RENAME field:               'price' → 'unitPrice' → old field disappears\n\nForward Compatible:\n  Old schema can READ data written with NEW schema.\n  → SAFE to deploy producer first, then consumer\n  ✓ REMOVE field with default:  old consumer ignores it\n  ✗ ADD required field:         old consumer doesn't know how to read it\n\nFull Compatible:\n  Both backward AND forward compatible.\n  → Safest — can deploy in any order\n  ✓ ADD field with default\n  ✓ REMOVE field with default\n\nBreaking (REJECTED by Schema Registry):\n  ✗ Rename a field\n  ✗ Remove a required field\n  ✗ Change field type (int → string)\n```\n\n**Check compatibility before deploying:**\n```bash\n# Schema Registry REST API:\ncurl -X POST http://localhost:8081/compatibility/subjects/trade-executed-value/versions/latest \\\n  -H 'Content-Type: application/vnd.schemaregistry.v1+json' \\\n  -d '{\"schema\": \"{...new schema JSON...}\"}'\n# → {\"is_compatible\": true}  ← safe to deploy\n# → {\"is_compatible\": false} ← breaking change!\n```",
+
+      "safe_schema_evolution": "**Evolving schemas safely — real examples:**\n\n```json\n// VERSION 1 (current):\n{\"fields\": [\n  {\"name\": \"tradeId\",  \"type\": \"string\"},\n  {\"name\": \"symbol\",   \"type\": \"string\"},\n  {\"name\": \"price\",    \"type\": \"double\"}\n]}\n\n// VERSION 2 — SAFE: add field with default:\n{\"fields\": [\n  {\"name\": \"tradeId\",    \"type\": \"string\"},\n  {\"name\": \"symbol\",     \"type\": \"string\"},\n  {\"name\": \"price\",      \"type\": \"double\"},\n  {\"name\": \"totalValue\", \"type\": \"double\", \"default\": 0.0},  ← NEW, with default\n  {\"name\": \"sector\",     \"type\": [\"null\",\"string\"], \"default\": null}  ← nullable\n]}\n// Schema Registry: COMPATIBLE ✓\n// Old consumers: see totalValue=0.0 (default) — safe\n// New consumers: see actual totalValue — correct\n\n// VERSION 3 — UNSAFE: rename 'price' to 'unitPrice':\n{\"fields\": [\n  {\"name\": \"tradeId\",  \"type\": \"string\"},\n  {\"name\": \"symbol\",   \"type\": \"string\"},\n  {\"name\": \"unitPrice\", \"type\": \"double\"}  ← renamed from 'price'\n]}\n// Schema Registry: INCOMPATIBLE ✗ — old consumers look for 'price', not 'unitPrice'\n// FIX: keep 'price' AND add 'unitPrice' with default,\n//      then remove 'price' in a LATER version\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) Schema Registry flow: Producer builds TradeExecutedEvent using generated class. KafkaAvroSerializer asks Schema Registry: 'Is this schema registered?' → Registry assigns schema ID 42. Serialized bytes on wire: [magic byte][schema ID 4 bytes][Avro binary data]. Consumer receives bytes. KafkaAvroDeserializer reads schema ID 42 → fetches schema from Registry → deserializes binary to TradeExecutedEvent Java object. (2) Compatibility matrix table: rows=change type (add with default, add without default, remove with default, remove without default, rename, type change). Columns: Backward Compatible, Forward Compatible, Full Compatible. Green checkmarks and red X marks per cell. (3) Schema evolution timeline: version 1 (3 fields) → producer adds totalValue with default=0 → version 2 registered (backward compatible) → consumers can still read v1 events → v2 consumers read v2 events with actual totalValue.",
+      "alt_text": "Schema Registry producer/consumer flow with schema ID, compatibility matrix, and safe schema evolution timeline"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add Avro + Schema Registry to the Zerodha trading pipeline. Define the TradeExecutedEvent schema, generate the Java class, configure producer and consumer, then safely add a 'sector' field to the schema.",
+
+    "problem_statement": "1. Write TradeExecutedEvent.avsc schema file\n2. Configure Maven plugin to generate Java class\n3. Configure producer with KafkaAvroSerializer\n4. Configure consumer with KafkaAvroDeserializer\n5. Safely evolve: add 'sector' field with null default (backward compatible)\n6. Show what Schema Registry would reject",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Avro schema file",
+        "details": "```json\n// src/main/avro/TradeExecutedEvent.avsc:\n{\n  \"type\": \"record\",\n  \"name\": \"TradeExecutedEvent\",\n  \"namespace\": \"com.codequest.events.avro\",\n  \"fields\": [\n    {\"name\": \"tradeId\",    \"type\": \"string\"},\n    {\"name\": \"userId\",     \"type\": \"string\"},\n    {\"name\": \"symbol\",     \"type\": \"string\"},\n    {\"name\": \"qty\",        \"type\": \"int\"},\n    {\"name\": \"price\",      \"type\": \"double\"},\n    {\"name\": \"totalValue\", \"type\": \"double\"},\n    {\"name\": \"tradeType\",  \"type\": {\n      \"type\": \"enum\",\n      \"name\": \"TradeType\",\n      \"symbols\": [\"BUY\", \"SELL\"]\n    }}\n  ]\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Producer configuration",
+        "details": "```properties\nspring.kafka.producer.value-serializer=io.confluent.kafka.serializers.KafkaAvroSerializer\nspring.kafka.producer.properties.schema.registry.url=http://localhost:8081\n```\n\n```java\n@Service\npublic class TradeEventPublisher {\n    private final KafkaTemplate<String, TradeExecutedEvent> kafkaTemplate;\n    \n    public void publishTrade(String tradeId, String symbol, int qty,\n                              double price, TradeType type) {\n        // Build from generated Avro class:\n        TradeExecutedEvent event = TradeExecutedEvent.newBuilder()\n            .setTradeId(tradeId)\n            .setUserId(\"U01\")\n            .setSymbol(symbol)\n            .setQty(qty)\n            .setPrice(price)\n            .setTotalValue(qty * price)\n            .setTradeType(type)\n            .build();\n        \n        kafkaTemplate.send(\"trade-executed\", symbol, event);\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Safe schema evolution — add sector with default",
+        "details": "```json\n// VERSION 2: add 'sector' — backward compatible (has default):\n{\n  \"type\": \"record\",\n  \"name\": \"TradeExecutedEvent\",\n  \"namespace\": \"com.codequest.events.avro\",\n  \"fields\": [\n    {\"name\": \"tradeId\",    \"type\": \"string\"},\n    {\"name\": \"userId\",     \"type\": \"string\"},\n    {\"name\": \"symbol\",     \"type\": \"string\"},\n    {\"name\": \"qty\",        \"type\": \"int\"},\n    {\"name\": \"price\",      \"type\": \"double\"},\n    {\"name\": \"totalValue\", \"type\": \"double\"},\n    {\"name\": \"tradeType\",  \"type\": {\"type\": \"enum\", \"name\": \"TradeType\",\n                                     \"symbols\": [\"BUY\", \"SELL\"]}},\n    {\"name\": \"sector\",     \"type\": [\"null\", \"string\"], \"default\": null}\n  ]\n}\n```\n\n```bash\n# Check before registering:\ncurl -X POST http://localhost:8081/compatibility/subjects/trade-executed-value/versions/latest \\\n  -d '{\"schema\": \"...\"}'\n# → {\"is_compatible\": true} ← safe to deploy\n```"
+      }
+    ],
+
+    "final_code": "// 1. TradeExecutedEvent.avsc: Avro schema with all fields\n// 2. pom.xml: avro-maven-plugin generates Java class from .avsc\n// 3. application.properties: KafkaAvroSerializer + schema.registry.url\n// 4. Publisher: builds event using generated builder API\n// 5. Consumer: @KafkaListener with generated TradeExecutedEvent type\n// 6. Schema v2: adds 'sector' field with null default → backward compatible\n// 7. Schema Registry rejects: renaming 'price' → 'unitPrice' (breaking change)",
+
+    "expected_output": "# Producer sends:\nKafkaAvroSerializer: Registered schema ID 42 for 'trade-executed-value'\nSending: TradeExecutedEvent{tradeId=TRD-001, symbol=TCS, qty=10, price=3890.0}\n\n# Consumer receives:\nKafkaAvroDeserializer: Fetched schema ID 42 from Schema Registry\nReceived: TradeExecutedEvent{tradeId=TRD-001, symbol=TCS, qty=10, price=3890.0}\n\n# Schema v2 registration (backward compatible — OK):\n→ {\"is_compatible\": true}\nSchema ID 43 registered: added 'sector' field with null default\n\n# Schema v3 attempted (breaking change — REJECTED):\ncurl PATCH .../fields → rename 'price' to 'unitPrice'\n→ {\"error_code\": 409, \"message\": \"Schema is incompatible\"}\nDeploy BLOCKED. Fix: add 'unitPrice' with default FIRST, deprecate 'price' later.",
+
+    "things_to_notice": [
+      "The .avsc file is the single source of truth. The Maven plugin generates Java at compile time — you write the schema in JSON, the class is auto-generated. Never manually edit the generated class.",
+      "KafkaAvroSerializer writes 5 bytes of metadata before the Avro binary payload: [0x00 magic byte][4-byte schema ID]. The consumer reads the schema ID, fetches the schema from Schema Registry, and deserializes using that schema. This means the wire format is self-describing — any consumer with access to the Registry can read any Avro message.",
+      "specific.avro.reader=true in consumer config: tells KafkaAvroDeserializer to deserialize into the specific generated Java class (TradeExecutedEvent) rather than a generic Avro record (GenericRecord). Always set this to true when using generated classes.",
+      "Nullable field in Avro: `{\"type\": [\"null\", \"string\"], \"default\": null}` — the union type ['null', 'string'] allows null. The default must be null (first type in the union). This pattern is used for optional fields added in schema evolution.",
+      "Schema Registry URL is a required property for both producer and consumer. If Schema Registry is down: producer can't publish (can't register schema), consumer can't deserialize (can't fetch schema). In production: run Schema Registry in HA mode (multiple instances)."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart Kafka pipeline",
+        "use_case": "Flipkart's Kafka backbone uses Avro for all event types. The Schema Registry is a central service that all teams must use. When a team wants to change an event schema, they submit it to the Registry — if it's a breaking change, the CI/CD pipeline rejects the deployment. Schema evolution is governed: adding a field with a default is a self-service operation; removing a field requires a deprecation period (3 months minimum). This prevents the silent data corruption that plagued their early JSON-only Kafka usage."
+      },
+      {
+        "company_context": "Razorpay payment events",
+        "use_case": "Razorpay uses Avro for payment events. The PaymentEvent schema has evolved through 15 versions over 3 years. Each version added fields with defaults (new payment methods, risk scores, merchant metadata). No version was ever backward-incompatible. Old consumers — running different versions — all read all versions of the event correctly because of Avro's backward compatibility. Without Schema Registry, maintaining this across 20+ microservices would be impossible."
+      },
+      {
+        "company_context": "Event schema as API contract",
+        "use_case": "Mature engineering orgs treat the Avro schema like an API contract. When order-service changes TradeExecutedEvent, they open a PR that modifies the .avsc file. Reviewers check: does this violate backward compatibility? Does any consumer need to be updated? The CI runs a compatibility check against Schema Registry. Schema changes go through the same review process as API changes. This is schema governance — the organizational practice around Avro + Schema Registry."
+      }
+    ],
+
+    "interview_relevance": "Schema Registry interview questions:\n\n- **'What is Avro and why use it instead of JSON?'** → Binary format with schema enforcement. Schema is defined in .avsc, registered in Schema Registry, checked for compatibility on every deploy. JSON is schema-less — field renames or removals fail silently. Avro catches breaking changes at deploy time.\n- **'What is backward compatibility in Avro schemas?'** → The new schema can read data written with the old schema. Achieved by: adding new fields with default values. Old consumers see defaults for new fields. New consumers see actual values.\n- **'What changes are breaking in Avro?'** → Renaming a field, removing a required field (no default), changing a field's type. Schema Registry rejects these as incompatible.\n- **'What is specific.avro.reader?'** → Consumer config: deserialize into the specific generated Java class (not GenericRecord). Always set to true when using avro-maven-plugin generated classes.",
+
+    "real_world_workflow": "Daily Avro workflow:\n\n- New field needed: add to .avsc with default value → mvn generate-sources → use in code\n- Before deploy: check compatibility (CI does this automatically)\n- Schema Registry rejection: add field with default first → deprecate old field → remove in future version\n- Consumer update: generated class has new field → use it"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "missing_specific_avro_reader",
+      "what_students_get_wrong": "Forgetting specific.avro.reader=true in consumer config — Avro deserializes to GenericRecord instead of the generated Java class, causing ClassCastException.",
+      "remediation": "Add: `spring.kafka.consumer.properties.specific.avro.reader=true`. Without this, KafkaAvroDeserializer returns GenericRecord (Avro's dynamic type), not your generated TradeExecutedEvent class. The @KafkaListener method parameter is TradeExecutedEvent — ClassCastException at runtime.",
+      "detection_pattern": "ClassCastException: GenericRecord cannot be cast to TradeExecutedEvent"
+    },
+    {
+      "gap_id": "breaking_schema_change",
+      "what_students_get_wrong": "Renaming a field in the .avsc without adding a default — Schema Registry accepts it but old consumers can't read the renamed field.",
+      "remediation": "Never rename a field directly. Safe approach: (1) Add the new field with a default (e.g., 'unitPrice' with default 0.0), (2) Deploy producers to set both old and new field, (3) Deploy consumers to use new field, (4) Deprecate old field, (5) Remove old field in a future version after all consumers are updated. Schema Registry's FULL compatibility mode enforces both backward and forward compatibility.",
+      "detection_pattern": "Schema Registry COMPATIBLE check returns true, but consumers see null/default for the 'renamed' field"
+    },
+    {
+      "gap_id": "wrong_schema_registry_url",
+      "what_students_get_wrong": "Configuring schema.registry.url in application.properties at the top level instead of under producer/consumer properties — URL not picked up by Avro serializer.",
+      "remediation": "The Schema Registry URL must be under: `spring.kafka.producer.properties.schema.registry.url` (for producer) and `spring.kafka.consumer.properties.schema.registry.url` (for consumer). Setting `spring.kafka.properties.schema.registry.url` (global) also works. Setting it at the top level without 'properties' is ignored.",
+      "detection_pattern": "SerializationException: Schema Registry URL not set; producer/consumer throws on first message"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Avro: binary format with schema; more compact and typed than JSON",
+      ".avsc file: Avro schema definition (type, name, namespace, fields)",
+      "avro-maven-plugin: generates Java class from .avsc at compile time",
+      "Generated class: use .newBuilder() to create instances",
+      "KafkaAvroSerializer: serializes generated class → schema registered in Registry",
+      "KafkaAvroDeserializer: fetches schema from Registry → deserializes to Java class",
+      "spring.kafka.producer.properties.schema.registry.url=http://localhost:8081",
+      "spring.kafka.consumer.properties.specific.avro.reader=true: use generated class",
+      "Schema Registry: central schema store; validates compatibility on registration",
+      "Backward compatible: add field WITH default → old consumers see default",
+      "Breaking: rename field, remove required field, change type → Registry rejects",
+      "Nullable field: [\"null\", \"string\"] union type with default null",
+      "schema.registry.url must be under .properties in Spring Boot config",
+      "Check compatibility: POST /compatibility/subjects/{name}/versions/latest"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "The schema for PaymentEvent v1 has a 'merchantId' field (type: string). You want to add a 'merchantName' field (type: string) in v2. Is this backward compatible? What is the correct Avro definition?",
+        "answer": "Adding a field WITH a default value is backward compatible. Old consumers that read v2 messages will see merchantName with its default value. Correct definition: `{\"name\": \"merchantName\", \"type\": [\"null\", \"string\"], \"default\": null}` (nullable string, default null). Or if you know a non-null default makes sense: `{\"name\": \"merchantName\", \"type\": \"string\", \"default\": \"\"}`. Without a default: adding a required string field is NOT backward compatible — old consumers reading v2 messages can't fill in the required field they've never seen before."
+      },
+      {
+        "question": "Your @KafkaListener for TradeExecutedEvent throws ClassCastException: GenericRecord cannot be cast to TradeExecutedEvent. What's wrong?",
+        "answer": "specific.avro.reader=true is missing from consumer configuration. Without it, KafkaAvroDeserializer returns GenericRecord (Avro's dynamic representation) instead of the specific generated class (TradeExecutedEvent). Fix: add `spring.kafka.consumer.properties.specific.avro.reader=true` to application.properties. Also verify: the TradeExecutedEvent class in the consumer project was generated from the SAME .avsc schema (or a compatible version) as the producer. If the generated classes are out of sync, deserialization may also fail."
+      },
+      {
+        "question": "Why does Avro store a 4-byte schema ID in each Kafka message instead of embedding the full schema?",
+        "answer": "Efficiency. The full Avro schema can be hundreds or thousands of bytes. Embedding it in every message would bloat message size enormously. Instead: the schema is registered ONCE in Schema Registry and gets a numeric ID (e.g., 42). Each message carries just 5 bytes of overhead: [0x00 magic byte + 4-byte schema ID]. The consumer reads the ID, fetches the schema from Registry (cached after first fetch — not per-message), and deserializes. For a topic with millions of messages/day, this saves terabytes of schema repetition. The Schema Registry also caches schemas in memory on both producer and consumer side after first fetch."
+      }
+    ],
+
+    "next_topic_preview": "Module 16: Apache Kafka & Event-Driven Architecture is complete! You've covered the full Kafka pipeline: architecture concepts (T16.1), Spring Kafka producer (T16.2), Spring Kafka consumer (T16.3), Kafka Streams (T16.4), and schema governance with Avro (T16.5). The next modules apply these skills to specialized domains — database engineering, cloud deployment, or advanced Spring patterns. Every module from here builds on the distributed systems foundation established in M15-M16."
+  }
+}

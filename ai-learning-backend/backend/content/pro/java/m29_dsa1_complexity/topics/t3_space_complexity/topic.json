@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m29_t3",
+  "language": "java",
+  "module_id": "m29",
+  "topic_number": 3,
+  "name": "Space Complexity — Memory Matters",
+  "slug": "space-complexity-memory-matters",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m29_t1", "java_m29_t2"],
+    "concepts_taught": [
+      "space_complexity_definition", "auxiliary_space", "input_space",
+      "o1_space", "on_space", "olog_n_space", "recursion_call_stack",
+      "in_place_algorithms", "time_space_tradeoff", "memoization_space"
+    ],
+    "skills_developed": [
+      "calculating_space_complexity", "choosing_in_place_vs_extra_space",
+      "understanding_recursion_stack_depth", "time_space_tradeoffs"
+    ],
+    "career_relevance": "Every FAANG interview expects BOTH time AND space complexity. 'My solution is O(n) time and O(1) space' vs 'O(n) time but O(n) space' — the interviewer probes whether you understand the trade-off. Zerodha's embedded trading terminals have 512MB RAM — your O(n) extra space for a billion-trade dataset would crash the system.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha's market data processor: 1 billion trade records per day\nDataset size: ~40GB in RAM\n\nAlgorithm with O(n) extra space:\n  Creates a copy of 40GB = needs 80GB RAM\n  AWS instance with 80GB: ₹15,000/hour\n  In-place algorithm (O(1) extra space):\n  Only needs ~40GB\n  AWS instance with 64GB: ₹8,000/hour\n  Savings: ₹7,000/hour = ₹1.68 crore/day\n\nSpace complexity directly impacts infrastructure costs.\nAlways state BOTH time AND space in interviews.\n```",
+    "what_you_will_build": "Space analysis for common patterns — recursion stacks, memoization, in-place algorithms."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "space_definitions": "**Two types of space:**\n\n```\nTOTAL SPACE = Input Space + Auxiliary Space\n\nInput Space: memory used to store inputs (usually not counted)\nAuxiliary Space: EXTRA memory your algorithm uses\n\nBig-O space complexity = Auxiliary Space\n\nO(1) space — constant: fixed variables, no scaling with input\n  int x = 5; boolean flag = true; (not arrays)\n\nO(log n) space — recursion on halved problem\n  Binary search (recursive): log n stack frames\n\nO(n) space — storing n elements\n  Copy of input array, HashMap with n entries, memoization table\n\nO(n²) space — n × n structure\n  2D matrix, adjacency matrix for n nodes\n```",
+      "recursion_stack": "**Recursion = implicit O(h) space (h = call depth):**\n\n```java\n// O(log n) space: binary search recursion\nint binarySearch(int[] arr, int lo, int hi, int target) {\n    if (lo > hi) return -1;\n    int mid = lo + (hi - lo) / 2;\n    return arr[mid] == target ? mid :\n        arr[mid] < target ? binarySearch(arr, mid+1, hi, target)\n                          : binarySearch(arr, lo, mid-1, target);\n}\n// Stack depth = log₂(n) frames → O(log n) space\n\n// O(n) space: fibonacci recursion\nint fib(int n) {\n    if (n <= 1) return n;\n    return fib(n-1) + fib(n-2); // up to n frames deep on left branch\n}\n// Stack depth = n frames → O(n) space\n// (plus 2ⁿ time — worst of both worlds)\n\n// Merge sort: O(n) space for temp arrays + O(log n) stack\n// Total space: O(n)\n```"
+    },
+    "visual_aid": {"type": "diagram", "description": "Two diagrams side by side. Left: Recursion call stack for binarySearch(n=16) — 4 stack frames (log₂16=4), each frame holds lo, hi, mid, target. Labeled 'O(log n) space'. Right: Fibonacci recursion — deep left branch fib(n)→fib(n-1)→...→fib(0), depth n frames. Labeled 'O(n) space'. Bottom: comparison table: Algorithm | Time | Space. Iterative binary search: O(log n) | O(1). Recursive binary search: O(log n) | O(log n). Merge sort: O(n log n) | O(n). In-place sort (heapsort): O(n log n) | O(1).", "alt_text": "Recursion stack depth determines space complexity"},
+    "worked_example": {
+      "scenario": "Compare space complexity of 3 sorting algorithms.",
+      "problem_statement": "State time AND space complexity for: (1) merge sort, (2) quicksort, (3) heapsort.",
+      "step_by_step_solution": [{"step": 1, "action": "Merge sort", "details": "Time: O(n log n). Space: O(n) — creates temporary arrays in merge step. Plus O(log n) recursion stack. Total: O(n)."}],
+      "final_code": "// Merge sort:  O(n log n) time, O(n) space (temp arrays)\n// Quicksort:   O(n log n) avg time, O(log n) space (recursion depth, in-place pivot)\n// Heapsort:    O(n log n) time, O(1) space — in-place, no recursion",
+      "expected_output": "If space is premium: heapsort (O(1) space)\nIf stability needed: merge sort (stable, O(n) space)\nDefault Java: TimSort (merge sort variant, O(n) space)",
+      "things_to_notice": [
+        "Space complexity = auxiliary space, NOT input space. You don't count the n-element input array itself.",
+        "Recursion has implicit space cost: each function call adds a frame to the call stack. Deep recursion can cause StackOverflowError for large n.",
+        "Time-space trade-off: memoization converts O(2ⁿ) time → O(n) time, but costs O(n) space. In-place algorithms save space but may be slower or harder to implement."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{"company_context": "Zerodha embedded terminal", "use_case": "512MB RAM limit. Sorting 10M trades: merge sort needs 40MB extra, heapsort needs ~0 extra. For embedded systems, O(1) space algorithms are mandatory."}],
+      "interview_relevance": "Always say both: 'O(n log n) time and O(1) space'. Never just time. Interviewers specifically ask 'Can you do it with O(1) extra space?' — usually implies in-place algorithm.",
+      "real_world_workflow": "Space analysis: (1) identify all data structures created (arrays, lists, maps), (2) determine their sizes in terms of n, (3) for recursion: determine max call depth, (4) total = dominant term, (5) state with justification."
+    },
+    "common_gaps": [{"gap_id": "forgetting_recursion_stack", "what_students_get_wrong": "Saying binary search is O(1) space because 'it doesn't create any arrays'. Recursive binary search creates O(log n) stack frames.", "remediation": "For any recursive function: space = O(max recursion depth). Binary search: depth = log n. Naive recursion: depth = n. Iterative version of binary search: O(1) space (no recursion stack).", "detection_pattern": "Student says recursive binary search is O(1) space"}],
+    "reflection": {
+      "key_takeaways": [
+        "Space complexity = auxiliary space only (not counting input)",
+        "Recursion: each call frame = stack space, max depth = space cost",
+        "Iterative vs recursive: same time, different space (iterative = O(1) for simple cases)",
+        "Memoization trade-off: O(2ⁿ) time → O(n) time, costs O(n) space",
+        "In-place algorithm: O(1) extra space (modifies input directly)",
+        "Merge sort: O(n log n) time, O(n) space. Heapsort: O(n log n) time, O(1) space",
+        "Always state BOTH in interviews: 'O(x) time and O(y) space'",
+        "Time-space trade-off: common optimization technique"
+      ],
+      "self_check_questions": [{"question": "Why does recursive Fibonacci use O(n) space even though it makes O(2ⁿ) calls?", "answer": "The 2ⁿ calls don't all exist simultaneously — they're sequential. The maximum number of stack frames at any one time is the depth of the deepest path in the recursion tree. For Fibonacci, the left branch goes fib(n) → fib(n-1) → fib(n-2) → ... → fib(0), which is n frames deep. That's O(n) space. The 2ⁿ time complexity is about total work done, not simultaneous work."}],
+      "next_topic_preview": "Next: Best/Worst/Average Case Analysis — the same algorithm can have wildly different performance depending on input."
+    }
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m33_t5",
+  "module_id": "m33",
+  "topic_number": 5,
+  "name": "Stack & Queue Synthesis \u2014 Calculator, LRU Cache, Task Scheduler",
+  "slug": "stack-queue-synthesis-calculator-lru-cache",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": [
+      "java_m33_t1",
+      "java_m33_t2",
+      "java_m33_t3",
+      "java_m33_t4"
+    ],
+    "concepts_taught": [
+      "basic_calculator",
+      "evaluate_rpn",
+      "lru_cache_design",
+      "task_scheduler",
+      "decode_string",
+      "remove_k_digits",
+      "largest_rectangle_buildings"
+    ],
+    "skills_developed": [
+      "complex_stack_simulation",
+      "lru_cache_implementation",
+      "combining_multiple_stack_queue_patterns"
+    ],
+    "career_relevance": "LRU Cache (LeetCode #146) is the most commonly asked design question at Razorpay/HDFC tech. It combines HashMap + doubly linked list. Basic Calculator tests expression evaluation mastery. These signal ability to combine data structures \u2014 the mark of a mid-senior engineer.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```java\n// Razorpay: cache frequently accessed merchant profiles\n// LRU Cache: evict least recently used when full\n// Operations in O(1): get(key), put(key, value)\n\n// Implementation: HashMap + Doubly Linked List\n// Map: O(1) key lookup\n// DLL: O(1) move to front (most recent), remove tail (least recent)\n// Together: O(1) get and put!\n```",
+    "what_you_will_build": "LRU Cache (O(1) ops), Basic Calculator (stack eval), Decode String (stack)."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "lru_cache": "**LRU Cache \u2014 HashMap + Doubly Linked List:**\n\n```java\nclass LRUCache {\n    // Doubly linked list node:\n    class Node { int key, val; Node prev, next; Node(int k,int v){key=k;val=v;} }\n    Map<Integer,Node> map = new HashMap<>(); // key \u2192 node\n    Node head=new Node(0,0), tail=new Node(0,0); // dummy sentinels\n    int cap;\n    LRUCache(int capacity){\n        cap=capacity;\n        head.next=tail; tail.prev=head; // empty list: head\u27f7tail\n    }\n    // Move node to front (most recent):\n    void moveToFront(Node node){\n        remove(node); addFront(node);\n    }\n    void remove(Node node){\n        node.prev.next=node.next; node.next.prev=node.prev;\n    }\n    void addFront(Node node){\n        node.next=head.next; node.prev=head;\n        head.next.prev=node; head.next=node;\n    }\n    int get(int key){\n        if(!map.containsKey(key)) return -1;\n        moveToFront(map.get(key)); return map.get(key).val;\n    }\n    void put(int key, int val){\n        if(map.containsKey(key)){ map.get(key).val=val; moveToFront(map.get(key)); return; }\n        if(map.size()==cap){ // evict LRU (tail.prev)\n            map.remove(tail.prev.key); remove(tail.prev);\n        }\n        Node node=new Node(key,val); addFront(node); map.put(key,node);\n    }\n}\n// O(1) get and put \u2014 HashMap for lookup, DLL for ordering\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "LRU Cache with capacity 3. Initial state: head\u2194tail (empty). put(1): head\u2194[1]\u2194tail. put(2): head\u2194[2]\u2194[1]\u2194tail. put(3): head\u2194[3]\u2194[2]\u2194[1]\u2194tail. get(1): move 1 to front \u2192 head\u2194[1]\u2194[3]\u2194[2]\u2194tail. put(4): evict LRU (2, at tail.prev) \u2192 head\u2194[4]\u2194[1]\u2194[3]\u2194tail. Map updated at each step.",
+      "alt_text": "LRU Cache with HashMap and doubly linked list"
+    },
+    "worked_example": {
+      "scenario": "Basic Calculator II (LeetCode #227) \u2014 +, -, *, /.",
+      "problem_statement": "Evaluate expression string with +,-,*,/ and spaces. No parentheses.\n'3+2*2'\u21927, '3/2'\u21921, '3+5/2'\u21925.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Stack-based precedence",
+          "details": "Parse number, then apply previous operator to stack. + and -: push \u00b1num. * and /: pop and apply immediately (higher precedence). Sum the stack at end."
+        }
+      ],
+      "final_code": "int calculate(String s){\n    Deque<Integer> stack=new ArrayDeque<>();\n    int num=0; char op='+';\n    for(int i=0;i<s.length();i++){\n        char c=s.charAt(i);\n        if(Character.isDigit(c)) num=num*10+(c-'0');\n        if((!Character.isDigit(c)&&c!=' ')||i==s.length()-1){\n            if(op=='+') stack.push(num);\n            else if(op=='-') stack.push(-num);\n            else if(op=='*') stack.push(stack.pop()*num);\n            else stack.push(stack.pop()/num);\n            op=c; num=0;\n        }\n    }\n    int result=0; while(!stack.isEmpty()) result+=stack.pop();\n    return result;\n}",
+      "expected_output": "'3+2*2'\u21927. Stack after processing: [3,4] \u2192 sum=7.",
+      "things_to_notice": [
+        "Previous operator applied to current number: op is the operator BEFORE current number",
+        "+ push num, - push -num, * pop and multiply, / pop and divide",
+        "Sum stack at end: handles all + case correctly",
+        "Character.isDigit(c) builds multi-digit numbers: num=num*10+(c-'0')"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay",
+          "use_case": "LRU merchant profile cache: O(1) get/put. DLL + HashMap combination."
+        }
+      ],
+      "interview_relevance": "LRU is the definitive cache design question. Basic Calculator series (I, II, III) tests operator precedence with stack. Decode String tests nested structure traversal.",
+      "real_world_workflow": "Stack for: expression eval, brackets, DFS. Queue for: BFS, FIFO scheduling. Deque for: sliding window, palindrome check, work-stealing. HashMap+DLL for: LRU, LFU cache."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "lru_eviction_order",
+        "what_students_get_wrong": "Not knowing which node to evict from the DLL. LRU = Least Recently Used = the node closest to TAIL (tail.prev with our sentinel setup). Most recent = head.next.",
+        "remediation": "Convention: head side = most recent, tail side = least recent. addFront (after head) = mark as most recent. Evict tail.prev = evict LRU. Always use sentinel head and tail \u2014 eliminates null checks for prev/next.",
+        "detection_pattern": "LRU evicts wrong node \u2014 gets MRU instead of LRU"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "LRU: HashMap (O(1) lookup) + DLL (O(1) reorder). Both needed for O(1) total.",
+        "DLL sentinels: head=most recent end, tail=least recent end",
+        "Evict tail.prev. Add to head.next.",
+        "Basic Calculator: previous operator decides how to push current number",
+        "Decode String: stack saves count+StringBuilder on '[', pops on ']'",
+        "Task Scheduler: use count array + cooldown \u2014 no queue needed"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why does LRU Cache need BOTH a HashMap AND a doubly linked list? Why not just one of them?",
+          "answer": "HashMap alone: O(1) lookup by key, but cannot track access order efficiently. To find/evict the LRU item, you'd need to scan all entries = O(n). Doubly linked list alone: O(1) add to front / remove from back (access order maintained), but lookup by key is O(n) linear scan. Combined: HashMap gives O(1) key \u2192 node lookup. DLL gives O(1) node reordering (move to front) and O(1) eviction (remove tail). The doubly-linked part is crucial: to remove a node, you need to update BOTH prev and next. Singly linked list would require O(n) to find prev. That's why Java's LinkedHashMap (which implements LRU) uses a doubly linked list internally."
+        }
+      ],
+      "next_topic_preview": "Module 33 complete! Next: M34 DSA6 \u2014 Hash Tables (HashMap internals, collision resolution, custom hashCode, frequency patterns)."
+    }
+  }
+}

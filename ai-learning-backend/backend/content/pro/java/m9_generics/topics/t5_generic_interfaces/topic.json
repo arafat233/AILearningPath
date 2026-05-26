@@ -1,0 +1,187 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t5",
+  "language": "java",
+  "module_id": "m9",
+  "module_name": "Generics",
+  "topic_number": 5,
+  "name": "Generic Interfaces & Design Patterns",
+  "slug": "generic-interfaces-design-patterns",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m9_t1", "java_m9_t2", "java_m9_t3", "java_m9_t4", "java_m5_t4"],
+    "concepts_taught": [
+      "generic_interface_syntax",
+      "implementing_generic_interfaces",
+      "generic_interface_with_bounds",
+      "repository_pattern",
+      "mapper_pattern",
+      "builder_pattern_generic",
+      "strategy_pattern_generic",
+      "generic_interface_default_methods",
+      "combining_all_generics_concepts",
+      "how_frameworks_use_generic_interfaces"
+    ],
+    "skills_developed": [
+      "defining_generic_interfaces",
+      "implementing_generic_interfaces_concretely",
+      "recognizing_patterns_in_framework_code",
+      "designing_reusable_generic_apis",
+      "combining_generics_with_other_patterns"
+    ],
+    "career_relevance": "Generic interfaces are the backbone of Java enterprise frameworks. Spring Data's Repository<T, ID>, Hibernate's generic DAO, MapStruct's Mapper<S, T>, Java's Comparator<T>, Comparable<T>, Predicate<T>, Function<T,R> — all generic interfaces. After this topic, you understand HOW these frameworks are built, not just how to use them. You can build your own framework-quality generic APIs. This is senior-developer-level design knowledge.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "In a large codebase you need data access for users, products, and orders. Without generic interfaces, you write three separate DAOs:\n\n```java\nclass UserDao    { User findById(int id)    { ... } void save(User u)    { ... } }\nclass ProductDao { Product findById(int id) { ... } void save(Product p) { ... } }\nclass OrderDao   { Order findById(int id)   { ... } void save(Order o)   { ... } }\n```\n\nThree classes, all doing the same thing — find by ID, save — just for different types. This is the exact code duplication generics were designed to eliminate.\n\n**With a generic interface:**\n\n```java\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);\n    void deleteById(ID id);\n}\n\n// One contract, three implementations:\nclass UserRepository    implements Repository<User, Integer>    { ... }\nclass ProductRepository implements Repository<Product, String>  { ... }\nclass OrderRepository   implements Repository<Order, Long>      { ... }\n```\n\nEvery caller works with the interface — not the concrete class. Tests mock it. Different implementations (in-memory, database, cache) are swappable. And the code says EXACTLY what it does: 'this is a repository for T entities identified by ID'.\n\n**This is Spring Data.** When you write `interface UserRepository extends JpaRepository<User, Integer>`, you're implementing a generic interface. Today you learn how to build those interfaces yourself.",
+    "what_you_will_build": "By the end of this topic, you'll define generic interfaces, implement them for concrete types, use bounds on interface type parameters, and implement four real design patterns: Repository, Mapper, Strategy, and Builder — all as generic interfaces."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "generic_interface_syntax": "**Generic interface syntax:**\n\n```java\n// Define: type parameter(s) after interface name\npublic interface Container<T> {\n    void put(T item);\n    T get();\n    boolean isEmpty();\n}\n\n// With bounds:\npublic interface Sortable<T extends Comparable<T>> {\n    void add(T item);\n    T min();\n    T max();\n    List<T> sorted();\n}\n\n// Multiple type parameters:\npublic interface Converter<S, T> {\n    T convert(S source);\n}\n\n// Default method — generic interface can have implementations:\npublic interface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);\n    void deleteById(ID id);\n    \n    default boolean exists(ID id) {  // default = concrete implementation\n        return findById(id).isPresent();\n    }\n}\n```",
+
+      "implementing_generic_interfaces": "**Three ways to implement a generic interface:**\n\n```java\n// 1. Provide concrete types — most common\nclass UserRepository implements Repository<User, Integer> {\n    private Map<Integer, User> store = new HashMap<>();\n    \n    @Override\n    public Optional<User> findById(Integer id) {\n        return Optional.ofNullable(store.get(id));\n    }\n    \n    @Override\n    public List<User> findAll() { return new ArrayList<>(store.values()); }\n    \n    @Override\n    public User save(User user) { store.put(user.getId(), user); return user; }\n    \n    @Override\n    public void deleteById(Integer id) { store.remove(id); }\n}\n\n// 2. Keep generic — propagate the type parameter\nclass InMemoryRepository<T, ID> implements Repository<T, ID> {\n    private Map<ID, T> store = new HashMap<>();\n    // ... all methods stay generic with T and ID\n}\n\n// 3. Partially concrete\nclass IntKeyRepository<T> implements Repository<T, Integer> {\n    // T still generic, ID fixed to Integer\n}\n```",
+
+      "repository_pattern": "**Repository pattern** — generic CRUD data access:\n\n```java\npublic interface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);                    // create or update\n    void delete(T entity);\n    long count();\n    \n    default boolean exists(ID id) {\n        return findById(id).isPresent();\n    }\n    \n    default List<T> saveAll(List<T> entities) {\n        return entities.stream().map(this::save).collect(Collectors.toList());\n    }\n}\n\n// Concrete implementation:\nclass UserRepository implements Repository<User, Integer> {\n    private Map<Integer, User> store = new HashMap<>();\n    private int nextId = 1;\n    \n    @Override\n    public Optional<User> findById(Integer id) {\n        return Optional.ofNullable(store.get(id));\n    }\n    \n    @Override\n    public User save(User user) {\n        if (user.getId() == 0) user.setId(nextId++);\n        store.put(user.getId(), user);\n        return user;\n    }\n    \n    // ... other methods\n    \n    // Domain-specific query:\n    public Optional<User> findByEmail(String email) {\n        return store.values().stream()\n            .filter(u -> u.getEmail().equals(email))\n            .findFirst();\n    }\n}\n\n// This IS what Spring Data does — you just declare:\n// interface UserRepository extends JpaRepository<User, Integer> {}\n// and Spring generates the implementation.\n```",
+
+      "mapper_pattern": "**Mapper pattern** — bidirectional type conversion:\n\n```java\npublic interface Mapper<S, T> {\n    T mapTo(S source);\n    S mapFrom(T target);\n    \n    // Default: convert a list\n    default List<T> mapAllTo(List<S> sources) {\n        return sources.stream().map(this::mapTo).collect(Collectors.toList());\n    }\n}\n\n// Domain classes:\nclass User  { int id; String name; String email; ... }\nclass UserDto { String name; String email; ... }  // no ID — safe for APIs\n\n// Mapper implementation:\nclass UserMapper implements Mapper<User, UserDto> {\n    @Override\n    public UserDto mapTo(User user) {\n        UserDto dto = new UserDto();\n        dto.setName(user.getName());\n        dto.setEmail(user.getEmail());\n        return dto;\n    }\n    \n    @Override\n    public User mapFrom(UserDto dto) {\n        User user = new User();\n        user.setName(dto.getName());\n        user.setEmail(dto.getEmail());\n        return user;\n    }\n}\n\n// Usage:\nUserMapper mapper = new UserMapper();\nUserDto dto = mapper.mapTo(user);     // User → UserDto\nUser fromDto = mapper.mapFrom(dto);   // UserDto → User\nList<UserDto> dtos = mapper.mapAllTo(users);  // default method\n```\n\nThis is what MapStruct (Java's most popular mapping library) does — but MapStruct generates the implementations at compile time.",
+
+      "strategy_pattern": "**Strategy pattern** — generic interchangeable algorithm:\n\n```java\npublic interface SortStrategy<T> {\n    void sort(List<T> list);\n    String name();\n}\n\n// Implementations — each is an algorithm:\nclass BubbleSort<T extends Comparable<T>> implements SortStrategy<T> {\n    @Override\n    public void sort(List<T> list) {\n        int n = list.size();\n        for (int i = 0; i < n-1; i++)\n            for (int j = 0; j < n-i-1; j++)\n                if (list.get(j).compareTo(list.get(j+1)) > 0) {\n                    T temp = list.get(j);\n                    list.set(j, list.get(j+1));\n                    list.set(j+1, temp);\n                }\n    }\n    @Override public String name() { return \"BubbleSort\"; }\n}\n\nclass NaturalSort<T extends Comparable<T>> implements SortStrategy<T> {\n    @Override\n    public void sort(List<T> list) { Collections.sort(list); }\n    @Override public String name() { return \"NaturalSort\"; }\n}\n\n// Context:\nclass Sorter<T extends Comparable<T>> {\n    private SortStrategy<T> strategy;\n    \n    Sorter(SortStrategy<T> strategy) { this.strategy = strategy; }\n    \n    void setStrategy(SortStrategy<T> strategy) { this.strategy = strategy; }\n    \n    void sort(List<T> list) {\n        long start = System.nanoTime();\n        strategy.sort(list);\n        System.out.printf(\"%s: %dms%n\", strategy.name(),\n            (System.nanoTime() - start) / 1_000_000);\n    }\n}\n```",
+
+      "builder_pattern": "**Builder pattern** — generic fluent construction:\n\n```java\npublic interface Builder<T> {\n    T build();  // produce the final object\n}\n\n// Email builder:\nclass EmailBuilder implements Builder<Email> {\n    private String to, subject, body;\n    private List<String> cc = new ArrayList<>();\n    \n    EmailBuilder to(String to)         { this.to = to; return this; }\n    EmailBuilder subject(String sub)    { this.subject = sub; return this; }\n    EmailBuilder body(String body)      { this.body = body; return this; }\n    EmailBuilder cc(String... addrs)    { cc.addAll(Arrays.asList(addrs)); return this; }\n    \n    @Override\n    public Email build() {\n        Objects.requireNonNull(to, \"'to' is required\");\n        Objects.requireNonNull(subject, \"'subject' is required\");\n        return new Email(to, subject, body != null ? body : \"\", cc);\n    }\n}\n\n// Usage:\nEmail email = new EmailBuilder()\n    .to(\"aisha@example.com\")\n    .subject(\"Welcome!\")\n    .body(\"Hello Aisha...\")\n    .cc(\"admin@example.com\")\n    .build();\n```\n\nGeneric Builder<T> interface provides the contract; each builder class provides the fluent steps specific to T.",
+
+      "combining_all_concepts": "**Putting it all together — a complete generic layer:**\n\n```java\n// 1. Generic interface (Repository)\ninterface Repository<T, ID> { ... }\n\n// 2. Generic interface with bound (Sortable)\ninterface Sortable<T extends Comparable<T>> { List<T> sorted(); }\n\n// 3. Implementation with two type params\nclass UserRepo implements Repository<User, Integer>, Sortable<User> { ... }\n\n// 4. Factory method returning generic interface\n<T, ID> Repository<T, ID> createRepo() { return new InMemoryRepository<>(); }\n\n// 5. Method taking generic interface\nvoid process(Repository<?, ?> repo) { System.out.println(repo.count()); }\n```\n\nThis is the architecture of Spring's JpaRepository hierarchy — generic interfaces stacked together, each adding one capability."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show four pattern boxes side by side: Repository<T,ID> (CRUD methods + default exists()), Mapper<S,T> (mapTo/mapFrom + default mapAllTo()), Strategy<T> (algorithm method + name()), Builder<T> (build()). Each box has: interface declaration, one concrete implementation class below with arrows, and a real-world use case label. Center: the Spring Data hierarchy — CrudRepository<T,ID> → JpaRepository<T,ID> → UserRepository (extends) — showing the full chain that students now understand.",
+      "alt_text": "Four generic design patterns: Repository, Mapper, Strategy, Builder with implementations and Spring Data hierarchy"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a mini e-commerce backend using all four generic interface patterns together. A generic Repository for data access, a Mapper between entity and DTO, a validation Strategy, and a Builder for creating Orders.",
+
+    "problem_statement": "Build:\n1. `Repository<T, ID>` interface with default methods\n2. `OrderRepository implements Repository<Order, String>` — in-memory impl\n3. `Mapper<Order, OrderDto>` — entity to API response\n4. `Validator<T>` (strategy) — pluggable validation rule\n5. `OrderBuilder implements Builder<Order>` — fluent construction\n\nDemonstrate saving, finding, converting, and building orders.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Repository<T, ID> interface",
+        "details": "```java\nimport java.util.*;\nimport java.util.stream.*;\n\npublic interface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);\n    void delete(T entity);\n    long count();\n    \n    default boolean exists(ID id) {\n        return findById(id).isPresent();\n    }\n    \n    default List<T> saveAll(List<T> entities) {\n        return entities.stream().map(this::save).collect(Collectors.toList());\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Order entity, DTO, and concrete Repository",
+        "details": "```java\nclass Order {\n    String id, customerId, item;\n    double amount;\n    Order(String id, String cid, String item, double amount) { ... }\n    // getters\n}\n\nclass OrderDto {\n    String orderId, item;\n    double amount;\n    // no customerId — hidden from API response\n}\n\nclass OrderRepository implements Repository<Order, String> {\n    private Map<String, Order> store = new HashMap<>();\n    \n    @Override\n    public Optional<Order> findById(String id) {\n        return Optional.ofNullable(store.get(id));\n    }\n    \n    @Override\n    public Order save(Order order) { store.put(order.getId(), order); return order; }\n    \n    @Override\n    public List<Order> findAll() { return new ArrayList<>(store.values()); }\n    \n    @Override public void delete(Order o) { store.remove(o.getId()); }\n    @Override public long count()         { return store.size(); }\n    \n    // Domain-specific query:\n    public List<Order> findByCustomer(String customerId) {\n        return store.values().stream()\n            .filter(o -> o.getCustomerId().equals(customerId))\n            .collect(Collectors.toList());\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Mapper<Order, OrderDto> and Validator<Order>",
+        "details": "```java\npublic interface Mapper<S, T> {\n    T mapTo(S source);\n    default List<T> mapAllTo(List<S> sources) {\n        return sources.stream().map(this::mapTo).collect(Collectors.toList());\n    }\n}\n\nclass OrderMapper implements Mapper<Order, OrderDto> {\n    @Override\n    public OrderDto mapTo(Order order) {\n        return new OrderDto(order.getId(), order.getItem(), order.getAmount());\n    }\n}\n\npublic interface Validator<T> {\n    boolean isValid(T item);\n    String errorMessage();\n}\n\nclass PositiveAmountValidator implements Validator<Order> {\n    @Override public boolean isValid(Order o) { return o.getAmount() > 0; }\n    @Override public String errorMessage()    { return \"Amount must be positive\"; }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "Builder<Order> and main demo",
+        "details": "```java\npublic interface Builder<T> { T build(); }\n\nclass OrderBuilder implements Builder<Order> {\n    private String id, customerId, item;\n    private double amount;\n    \n    OrderBuilder id(String id)               { this.id = id; return this; }\n    OrderBuilder customer(String customerId)  { this.customerId = customerId; return this; }\n    OrderBuilder item(String item)            { this.item = item; return this; }\n    OrderBuilder amount(double amount)        { this.amount = amount; return this; }\n    \n    @Override\n    public Order build() {\n        Objects.requireNonNull(id, \"id required\");\n        Objects.requireNonNull(customerId, \"customerId required\");\n        return new Order(id, customerId, item, amount);\n    }\n}\n\n// Main demo:\nOrderRepository repo   = new OrderRepository();\nOrderMapper     mapper = new OrderMapper();\nValidator<Order> validator = new PositiveAmountValidator();\n\nOrder order = new OrderBuilder()\n    .id(\"ORD-001\").customer(\"C001\").item(\"Mouse\").amount(799)\n    .build();\n\nif (validator.isValid(order)) {\n    repo.save(order);\n    System.out.println(\"Saved: \" + mapper.mapTo(order));\n} else {\n    System.out.println(\"Invalid: \" + validator.errorMessage());\n}\n\nSystem.out.println(\"Count: \" + repo.count());\nSystem.out.println(\"Exists ORD-001: \" + repo.exists(\"ORD-001\"));\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\nimport java.util.stream.*;\n\ninterface Repository<T, ID> {\n    Optional<T> findById(ID id);\n    List<T> findAll();\n    T save(T entity);\n    void delete(T entity);\n    long count();\n    default boolean exists(ID id) { return findById(id).isPresent(); }\n    default List<T> saveAll(List<T> entities) {\n        return entities.stream().map(this::save).collect(Collectors.toList());\n    }\n}\n\ninterface Mapper<S, T> {\n    T mapTo(S source);\n    default List<T> mapAllTo(List<S> sources) {\n        return sources.stream().map(this::mapTo).collect(Collectors.toList());\n    }\n}\n\ninterface Validator<T> {\n    boolean isValid(T item);\n    String errorMessage();\n}\n\ninterface Builder<T> { T build(); }\n\nclass Order {\n    String id, customerId, item;\n    double amount;\n    Order(String i, String c, String item, double a) { id=i; customerId=c; this.item=item; amount=a; }\n    String getId()         { return id; }\n    String getCustomerId() { return customerId; }\n    String getItem()       { return item; }\n    double getAmount()     { return amount; }\n    public String toString() { return id + \"|\" + item + \"|₹\" + amount; }\n}\n\nclass OrderDto {\n    String orderId, item; double amount;\n    OrderDto(String i, String item, double a) { orderId=i; this.item=item; amount=a; }\n    public String toString() { return \"Dto[\" + orderId + \",\" + item + \",₹\" + amount + \"]\"; }\n}\n\nclass OrderRepository implements Repository<Order, String> {\n    private Map<String, Order> store = new HashMap<>();\n    public Optional<Order> findById(String id) { return Optional.ofNullable(store.get(id)); }\n    public Order save(Order o) { store.put(o.getId(), o); return o; }\n    public List<Order> findAll()  { return new ArrayList<>(store.values()); }\n    public void delete(Order o)   { store.remove(o.getId()); }\n    public long count()           { return store.size(); }\n}\n\nclass OrderMapper implements Mapper<Order, OrderDto> {\n    public OrderDto mapTo(Order o) { return new OrderDto(o.getId(), o.getItem(), o.getAmount()); }\n}\n\nclass PositiveAmountValidator implements Validator<Order> {\n    public boolean isValid(Order o) { return o.getAmount() > 0; }\n    public String errorMessage()    { return \"Amount must be positive\"; }\n}\n\nclass OrderBuilder implements Builder<Order> {\n    private String id, cid, item;\n    private double amount;\n    OrderBuilder id(String i)       { id=i;      return this; }\n    OrderBuilder customer(String c) { cid=c;     return this; }\n    OrderBuilder item(String i)     { item=i;    return this; }\n    OrderBuilder amount(double a)   { amount=a;  return this; }\n    public Order build() {\n        Objects.requireNonNull(id, \"id required\");\n        Objects.requireNonNull(cid, \"customerId required\");\n        return new Order(id, cid, item, amount);\n    }\n}\n\npublic class EcommerceBackend {\n    public static void main(String[] args) {\n        OrderRepository   repo      = new OrderRepository();\n        OrderMapper       mapper    = new OrderMapper();\n        Validator<Order>  validator = new PositiveAmountValidator();\n        \n        List<Order> orders = List.of(\n            new OrderBuilder().id(\"ORD-001\").customer(\"C001\").item(\"Mouse\").amount(799).build(),\n            new OrderBuilder().id(\"ORD-002\").customer(\"C001\").item(\"Keyboard\").amount(1999).build(),\n            new OrderBuilder().id(\"ORD-003\").customer(\"C002\").item(\"Monitor\").amount(-100).build()  // invalid\n        );\n        \n        int saved = 0;\n        for (Order o : orders) {\n            if (validator.isValid(o)) { repo.save(o); saved++; }\n            else System.out.println(\"Rejected \" + o.getId() + \": \" + validator.errorMessage());\n        }\n        \n        System.out.println(\"Saved: \" + saved + \" | Count: \" + repo.count());\n        System.out.println(\"Exists ORD-001: \" + repo.exists(\"ORD-001\"));\n        \n        List<OrderDto> dtos = mapper.mapAllTo(repo.findAll());\n        System.out.println(\"DTOs: \" + dtos.size());\n        \n        repo.findById(\"ORD-001\")\n            .map(mapper::mapTo)\n            .ifPresent(dto -> System.out.println(\"Found: \" + dto));\n    }\n}",
+
+    "expected_output": "Rejected ORD-003: Amount must be positive\nSaved: 2 | Count: 2\nExists ORD-001: true\nDTOs: 2\nFound: Dto[ORD-001,Mouse,₹799.0]",
+
+    "things_to_notice": [
+      "Four generic interfaces work together: Repository<T,ID>, Mapper<S,T>, Validator<T>, Builder<T>. Each is a SINGLE-RESPONSIBILITY generic contract.",
+      "OrderRepository implements Repository<Order, String> — T=Order, ID=String. The type parameters become concrete when implementing the interface.",
+      "Repository.exists() is a default method — it uses findById() (also declared in the interface). Default methods let generic interfaces provide useful behavior built from their own methods.",
+      "Repository.saveAll() also a default method using stream().map(this::save) — method references work seamlessly with interface default methods.",
+      "Validator<Order> is a functional interface (one abstract method) — it can be replaced with a lambda: `Validator<Order> v = o -> o.getAmount() > 0`.",
+      "OrderMapper.mapAllTo() is inherited from the Mapper default method — 'for free'. The concrete class only needs to implement mapTo() and the bulk operation comes along.",
+      "This IS the Spring Data / MapStruct pattern. UserRepository extends JpaRepository<User, Integer> IS implementing Repository<User, Integer>. The framework generates the save/findById/etc."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Data (every Spring Boot application)",
+        "use_case": "`CrudRepository<T, ID>` has save(), findById(), findAll(), deleteById(), existsById(). `JpaRepository<T, ID>` extends it with flush(), saveAndFlush(), deleteAllInBatch(). When you write `interface UserRepository extends JpaRepository<User, Integer>`, you implement this generic interface and Spring generates the code. The interface you wrote today IS what Spring extends."
+      },
+      {
+        "company_context": "MapStruct (popular Java mapping library)",
+        "use_case": "MapStruct's `Mapper` interface (with @Mapper annotation) follows the Mapper<S,T> pattern. `UserMapper` converts User to UserDto and back. MapStruct generates implementations at compile time from your interface definition. The pattern in this topic is exactly what MapStruct builds."
+      },
+      {
+        "company_context": "Flipkart / Razorpay internal frameworks",
+        "use_case": "Internal validation frameworks use `Validator<T>` where T is the entity being validated. `OrderValidator`, `PaymentValidator`, `AddressValidator` all implement the same interface. A validation engine takes `List<Validator<T>>` — runs all validators generically. Builder patterns produce complex order/payment objects with 10+ fields safely."
+      }
+    ],
+
+    "interview_relevance": "Senior-level generic interface questions:\n\n- **'How is Spring Data's Repository implemented?'** → It's a generic interface `CrudRepository<T, ID>`. Spring generates the implementation. The interface declares the contract; the framework fulfills it.\n- **'Implement a generic DAO interface.'** → Show Repository<T, ID> with findById, save, findAll, plus a default exists() method.\n- **'What design pattern is this?'** (showing Repository) → Repository pattern — separates data access logic from business logic. Generic version allows one interface for all entities.\n- **'What is a functional interface?'** → Interface with exactly one abstract method — eligible for lambda. Validator<T> with `boolean isValid(T)` is a functional interface.",
+
+    "real_world_workflow": "Generic interfaces in daily professional work:\n\n- Every JPA repository: `interface XyzRepository extends JpaRepository<Xyz, Long>`\n- Every DTO conversion: implementing Mapper<Entity, Dto> or using MapStruct\n- Validation pipelines: `List<Validator<T>>` with a loop calling isValid()\n- Builder for complex objects with many optional fields\n- Event handlers: `interface EventHandler<E extends Event>` for typed event processing\n- Comparison strategies: `interface RankingStrategy<T>` for pluggable scoring/ranking"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "generic_interface_vs_raw",
+      "what_students_get_wrong": "Implementing a generic interface without providing type arguments — raw type.",
+      "remediation": "Always provide concrete types when implementing: `class UserRepo implements Repository<User, Integer>` — NOT `class UserRepo implements Repository` (raw). Raw implementation loses all type safety.",
+      "detection_pattern": "Raw type warning on the class declaration"
+    },
+    {
+      "gap_id": "forgetting_all_methods",
+      "what_students_get_wrong": "Implementing a generic interface but not implementing all abstract methods.",
+      "remediation": "If you don't implement all abstract methods, declare the class abstract OR implement ALL methods. Default interface methods don't need implementing. Use IDE's 'generate overrides' to scaffold all required methods.",
+      "detection_pattern": "Compile error: class must implement all abstract methods"
+    },
+    {
+      "gap_id": "default_method_confusion",
+      "what_students_get_wrong": "Not knowing that default methods in generic interfaces CAN call other interface methods (both abstract and other defaults).",
+      "remediation": "Default methods can call any other method declared on the interface — including abstract ones (which will resolve to the implementation's version at runtime). This is how `exists()` calls `findById()` without knowing the implementation.",
+      "detection_pattern": "Unnecessarily duplicating default method logic in each implementation"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Generic interface syntax: `interface Name<T>` — same as generic class",
+      "Implement by providing concrete types: `class Impl implements Interface<User, Integer>`",
+      "Or keep generic: `class Impl<T, ID> implements Interface<T, ID>`",
+      "Default methods on generic interfaces: can use interface's abstract methods — 'free' behavior",
+      "Repository<T, ID>: the DAO/data-access pattern — Spring Data's foundation",
+      "Mapper<S, T>: bidirectional type conversion — MapStruct's pattern",
+      "Validator<T>: pluggable validation — functional interface, lambdas work",
+      "Builder<T>: fluent construction with type-safe build()",
+      "These four patterns cover the majority of generic interface use in production",
+      "Understanding these patterns = understanding how Spring Data, MapStruct, and Guava are built"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What is a `default` method on a generic interface and why is it useful?",
+        "answer": "A default method is a concrete method implementation in an interface. On a generic interface, it can call other (abstract) interface methods using `this.methodName()`. This allows adding behavior that all implementations get for free — without them having to implement it. Example: `Repository.exists(id)` calls `this.findById(id)` which will resolve to whatever the concrete implementation of findById is. New methods can be added to generic interfaces without breaking all existing implementations by making them default."
+      },
+      {
+        "question": "How is `interface UserRepository extends JpaRepository<User, Integer>` an implementation of a generic interface?",
+        "answer": "JpaRepository<T, ID> is a generic interface. When UserRepository extends JpaRepository<User, Integer>, it provides concrete types for T (User) and ID (Integer). This is a partial implementation — UserRepository inherits all of JpaRepository's method contracts. Spring's framework provides the full concrete implementation at runtime. The pattern is: generic interface defines contract → framework generates implementation → your interface adds domain-specific methods."
+      },
+      {
+        "question": "Why is `Validator<T>` a functional interface? What does that enable?",
+        "answer": "`Validator<T>` has exactly ONE abstract method: `boolean isValid(T item)`. This makes it a functional interface — eligible for lambda expressions. Instead of creating a named class (`class PositiveAmountValidator implements Validator<Order>`), callers can write: `Validator<Order> v = order -> order.getAmount() > 0`. This is how Java's Predicate<T>, Consumer<T>, Function<T,R> etc. work — they're functional interfaces that accept lambdas."
+      }
+    ],
+
+    "next_topic_preview": "Module 9 is complete! You now understand generics from top to bottom: generic classes, generic methods, bounded type parameters, wildcards, and generic interfaces with real design patterns. These concepts are the foundation of Java's Collections Framework, Spring Data, and virtually every professional Java API. Module 10 covers **Concurrency and Threads** — writing code that does multiple things simultaneously, essential for backend services that handle thousands of users at once."
+  }
+}

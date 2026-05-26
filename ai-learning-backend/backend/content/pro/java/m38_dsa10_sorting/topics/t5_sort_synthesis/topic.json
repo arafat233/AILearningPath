@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m38_t5",
+  "module_id": "m38",
+  "topic_number": 5,
+  "name": "Sort Synthesis \u2014 When to Use Which Sort",
+  "slug": "sort-synthesis-when-to-use",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m38_t1",
+      "java_m38_t3"
+    ],
+    "concepts_taught": [
+      "sort-synthesis-when-to-use"
+    ],
+    "career_relevance": "Core Sort Synthesis \u2014 When to Use Which Sort patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Sort Synthesis \u2014 When to Use Which Sort"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Array of objects, need stable: Arrays.sort (TimSort)",
+        "Primitive array, speed: Arrays.sort (dual-pivot quicksort)",
+        "Linked list: merge sort (no O(1) random access)",
+        "Small range integers: counting sort",
+        "Known d-digit base-k: radix sort",
+        "Nearly sorted: insertion sort O(n) best case",
+        "External sort (disk): merge sort (sequential access)"
+      ],
+      "next_topic_preview": "Module 38 complete! Next: M39 Binary Search."
+    }
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t4",
+  "topic_name": "Custom Hash Keys",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m34_t4_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Grid coordinate as String key",
+      "instructions": "Implement: Grid coordinate as String key.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class GridKey {\n    public static void main(String[] a){\n        Map<String,Integer> grid=new HashMap<>();\n        int[][] cells={{0,0},{1,2},{3,4}};\n        for(int i=0;i<cells.length;i++) grid.put(cells[i][0]+\",\"+cells[i][1],i);\n        System.out.println(grid.get(\"1,2\")); // 1\n        System.out.println(grid.containsKey(\"0,0\")); // true\n        System.out.println(grid.containsKey(\"2,2\")); // false\n        System.out.println(\"String key row+','+col: O(1) O(1) grid lookup\");\n        System.out.println(\"Long key: (long)r<<32|c \u2014 no separator needed, no collision\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "true",
+            "false",
+            "Long key"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t4_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Anagram key \u2014 freq array vs sort",
+      "instructions": "Implement: Anagram key \u2014 freq array vs sort.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class AnaKey {\n    static String sortKey(String s){char[] c=s.toCharArray();Arrays.sort(c);return new String(c);}\n    static String freqKey(String s){int[] f=new int[26];for(char c:s.toCharArray())f[c-'a']++;StringBuilder sb=new StringBuilder();for(int x:f)sb.append(x).append('#');return sb.toString();}\n    public static void main(String[] a){\n        System.out.println(sortKey(\"eat\").equals(sortKey(\"tea\"))); // true O(m log m)\n        System.out.println(freqKey(\"eat\").equals(freqKey(\"tea\"))); // true O(m)\n        System.out.println(sortKey(\"cat\").equals(sortKey(\"dog\"))); // false\n        System.out.println(\"sortKey: O(m log m). freqKey: O(m) \u2014 '#' separator prevents ambiguity\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "false",
+            "sortKey: O(m log m). freqKey: O(m)"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m34_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "hashCode and equals contract",
+      "instructions": "Implement: hashCode and equals contract.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HashContract {\n    static class BadPoint {\n        int x, y; BadPoint(int x,int y){this.x=x;this.y=y;}\n        // Missing hashCode/equals \u2014 uses Object defaults (reference equality)\n    }\n    static class GoodPoint {\n        int x, y; GoodPoint(int x,int y){this.x=x;this.y=y;}\n        public int hashCode(){return Objects.hash(x,y);}\n        public boolean equals(Object o){GoodPoint p=(GoodPoint)o;return x==p.x&&y==p.y;}\n    }\n    public static void main(String[] a){\n        Map<BadPoint,Integer> bad=new HashMap<>();bad.put(new BadPoint(1,2),1);\n        System.out.println(bad.get(new BadPoint(1,2))); // null (different object!)\n        Map<GoodPoint,Integer> good=new HashMap<>();good.put(new GoodPoint(1,2),1);\n        System.out.println(good.get(new GoodPoint(1,2))); // 1 \u2713\n        System.out.println(\"Contract: equals\u2192same hashCode. Override BOTH or NEITHER.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "null",
+            "1",
+            "Override BOTH or NEITHER"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m34_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Number of Distinct Islands (HashSet of shape signatures)",
+      "instructions": "Implement: Number of Distinct Islands (HashSet of shape signatures).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DistinctIslands {\n    static int[][] dirs={{0,1},{0,-1},{1,0},{-1,0}};\n    static char[] dCh={'R','L','D','U'};\n    public static int numDistinctIslands(int[][] grid) {\n        Set<String> shapes=new HashSet<>();int rows=grid.length,cols=grid[0].length;\n        for(int r=0;r<rows;r++) for(int c=0;c<cols;c++){\n            if(grid[r][c]==1){StringBuilder sb=new StringBuilder();dfs(grid,r,c,sb,'S',rows,cols);shapes.add(sb.toString());}\n        }\n        return shapes.size();\n    }\n    static void dfs(int[][] g,int r,int c,StringBuilder sb,char dir,int rows,int cols){\n        if(r<0||r>=rows||c<0||c>=cols||g[r][c]!=1) return;\n        g[r][c]=0; sb.append(dir);\n        for(int i=0;i<4;i++) dfs(g,r+dirs[i][0],c+dirs[i][1],sb,dCh[i],rows,cols);\n        sb.append('B'); // backtrack marker\n    }\n    public static void main(String[] a){\n        int[][] g={{1,1,0,0,0},{1,1,0,0,0},{0,0,0,1,1},{0,0,0,1,1}};\n        System.out.println(numDistinctIslands(g)); // 1\n        System.out.println(\"Shape string + backtrack markers: O(m*n) time O(m*n) space\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "Shape string"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m34_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Java record as HashMap key",
+      "instructions": "Implement: Java record as HashMap key.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class RecordKey {\n    record Point(int x, int y) {}  // auto: hashCode, equals, toString\n    record Interval(int start, int end) {}\n    public static void main(String[] a){\n        Map<Point,String> map=new HashMap<>();\n        map.put(new Point(1,2),\"origin\");\n        map.put(new Point(3,4),\"dest\");\n        System.out.println(map.get(new Point(1,2))); // origin\n        System.out.println(map.containsKey(new Point(3,4))); // true\n        System.out.println(map.containsKey(new Point(0,0))); // false\n        System.out.println(\"record: auto hashCode+equals from all fields. Java 16+\");\n        System.out.println(\"Alternative: Objects.hash(x,y) in manual hashCode\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "origin",
+            "true",
+            "false",
+            "record: auto hashCode"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m34_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Detect squares (using HashMap of point counts)",
+      "instructions": "Implement: Detect squares (using HashMap of point counts).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class DetectSquares {\n    Map<Integer,Map<Integer,Integer>> pts=new HashMap<>();\n    void add(int[] p){pts.computeIfAbsent(p[0],k->new HashMap<>()).merge(p[1],1,Integer::sum);}\n    int count(int[] q){\n        int qx=q[0],qy=q[1],ans=0;\n        Map<Integer,Integer> col=pts.getOrDefault(qx,new HashMap<>());\n        for(Map.Entry<Integer,Integer> e:col.entrySet()){\n            int py=e.getKey(); if(py==qy) continue;\n            int side=py-qy;\n            ans+=e.getValue()*pts.getOrDefault(qx+side,new HashMap<>()).getOrDefault(py,0)*pts.getOrDefault(qx+side,new HashMap<>()).getOrDefault(qy,0);\n            ans+=e.getValue()*pts.getOrDefault(qx-side,new HashMap<>()).getOrDefault(py,0)*pts.getOrDefault(qx-side,new HashMap<>()).getOrDefault(qy,0);\n        }\n        return ans;\n    }\n    public static void main(String[] a){\n        DetectSquares ds=new DetectSquares();\n        ds.add(new int[]{3,10});ds.add(new int[]{11,2});ds.add(new int[]{3,2});\n        System.out.println(ds.count(new int[]{11,10})); // 1\n        ds.add(new int[]{14,8});\n        System.out.println(ds.count(new int[]{11,2}));  // 0\n        System.out.println(\"2D HashMap: x \u2192 (y \u2192 count). O(n) per query.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "0",
+            "2D HashMap"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m34_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Design HashMap (LeetCode #706) \u2014 from scratch",
+      "instructions": "Implement: Design HashMap (LeetCode #706) \u2014 from scratch.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MyHashMap {\n    static final int SIZE=1024;\n    List<int[]>[] buckets=(List<int[]>[])new List[SIZE];\n    int hash(int k){return k%SIZE;}\n    void put(int k,int v){int h=hash(k);if(buckets[h]==null)buckets[h]=new ArrayList<>();for(int[] p:buckets[h])if(p[0]==k){p[1]=v;return;}buckets[h].add(new int[]{k,v});}\n    int get(int k){int h=hash(k);if(buckets[h]==null)return -1;for(int[] p:buckets[h])if(p[0]==k)return p[1];return -1;}\n    void remove(int k){int h=hash(k);if(buckets[h]==null)return;buckets[h].removeIf(p->p[0]==k);}\n    public static void main(String[] a){\n        MyHashMap m=new MyHashMap();m.put(1,1);m.put(2,2);\n        System.out.println(m.get(1));    // 1\n        System.out.println(m.get(3));    // -1\n        m.put(2,1);System.out.println(m.get(2));   // 1\n        m.remove(2);System.out.println(m.get(2));  // -1\n        System.out.println(\"Chaining: bucket = array of (k,v) pairs. O(1) avg, O(n) worst\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1",
+            "-1",
+            "1",
+            "Chaining"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Custom key for 2D prefix sums",
+      "instructions": "Implement: Custom key for 2D prefix sums.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class PrefixSum2D {\n    int[][] prefix;\n    PrefixSum2D(int[][] matrix){\n        int m=matrix.length,n=matrix[0].length; prefix=new int[m+1][n+1];\n        for(int i=1;i<=m;i++) for(int j=1;j<=n;j++)\n            prefix[i][j]=matrix[i-1][j-1]+prefix[i-1][j]+prefix[i][j-1]-prefix[i-1][j-1];\n    }\n    int query(int r1,int c1,int r2,int c2){return prefix[r2+1][c2+1]-prefix[r1][c2+1]-prefix[r2+1][c1]+prefix[r1][c1];}\n    public static void main(String[] a){\n        PrefixSum2D ps=new PrefixSum2D(new int[][]{{3,0,1,4,2},{5,6,3,2,1},{1,2,0,1,5},{4,1,0,1,7},{1,0,3,0,5}});\n        System.out.println(ps.query(2,1,4,3)); // 8\n        System.out.println(ps.query(1,1,2,2)); // 11\n        System.out.println(\"O(1) per query after O(mn) build\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "8",
+            "11",
+            "O(1) per query"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Mutable key danger demonstration",
+      "instructions": "Implement: Mutable key danger demonstration.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MutableKeyDanger {\n    public static void main(String[] a){\n        // WRONG: list as key \u2014 mutable!\n        Map<List<Integer>,String> map=new HashMap<>();\n        List<Integer> key=new ArrayList<>(Arrays.asList(1,2,3));\n        map.put(key,\"value\");\n        System.out.println(map.get(key)); // value \u2713\n        key.add(4); // MUTATE key!\n        System.out.println(map.get(key)); // null \u2717 \u2014 hash changed!\n        System.out.println(map.get(Arrays.asList(1,2,3))); // null \u2717 \u2014 original key gone!\n        System.out.println(\"NEVER mutate HashMap keys. Use immutable: String, Integer, record.\");\n        System.out.println(\"If you need list as key: convert to sorted string first.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "value",
+            "null",
+            "NEVER mutate HashMap keys"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m34_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Snapshot Array (LeetCode #1146)",
+      "instructions": "Implement: Snapshot Array (LeetCode #1146).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SnapshotArr {\n    List<TreeMap<Integer,Integer>> data; int snapId=0;\n    SnapshotArr(int length){data=new ArrayList<>();for(int i=0;i<length;i++){TreeMap<Integer,Integer> m=new TreeMap<>();m.put(0,0);data.add(m);}}\n    void set(int index,int val){data.get(index).put(snapId,val);}\n    int snap(){return snapId++;}\n    int get(int index,int snap_id){return data.get(index).floorEntry(snap_id).getValue();}\n    public static void main(String[] a){\n        SnapshotArr sa=new SnapshotArr(3);\n        sa.set(0,5);\n        System.out.println(sa.snap()); // 0\n        sa.set(0,6);\n        System.out.println(sa.get(0,0)); // 5 (snap 0 value)\n        System.out.println(sa.get(0,1)); // 6 (latest snap)\n        System.out.println(\"TreeMap per index: floorEntry for binary search on snap_id\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "0",
+            "5",
+            "6",
+            "floorEntry"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Custom hash keys synthesis",
+      "instructions": "Implement: Custom hash keys synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HashKeySynth {\n    // Grid coordinate key\n    static Map<String,Integer> buildGrid(int[][] cells){Map<String,Integer> m=new HashMap<>();for(int i=0;i<cells.length;i++)m.put(cells[i][0]+\",\"+cells[i][1],i);return m;}\n    // Anagram sorted key\n    static Map<String,List<String>> groupAna(String[] words){Map<String,List<String>> m=new HashMap<>();for(String w:words){char[] c=w.toCharArray();Arrays.sort(c);m.computeIfAbsent(new String(c),k->new ArrayList<>()).add(w);}return m;}\n    record Point(int x,int y){}\n    public static void main(String[] a){\n        var grid=buildGrid(new int[][]{{0,0},{1,2},{3,4}});System.out.println(grid.get(\"1,2\"));\n        System.out.println(groupAna(new String[]{\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"}).size());\n        Map<Point,Integer> pts=new HashMap<>();pts.put(new Point(1,2),42);System.out.println(pts.get(new Point(1,2)));\n        boolean ok=grid.get(\"1,2\")==1&&groupAna(new String[]{\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"}).size()==3&&pts.get(new Point(1,2))==42;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "1",
+            "3",
+            "42"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m34_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M34 T4 Custom Hash Keys Synthesis",
+      "instructions": "Implement: Complete M34 T4 Custom Hash Keys Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T4Final {\n    record Pt(int x,int y){}\n    static Map<String,Integer> grid(int[][] c){Map<String,Integer> m=new HashMap<>();for(int i=0;i<c.length;i++)m.put(c[i][0]+\",\"+c[i][1],i);return m;}\n    static List<List<String>> grpAna(String[] s){Map<String,List<String>> m=new HashMap<>();for(String w:s){char[]c=w.toCharArray();Arrays.sort(c);m.computeIfAbsent(new String(c),k->new ArrayList<>()).add(w);}return new ArrayList<>(m.values());}\n    // Design HashMap basic\n    static class HM{List<int[]>[] b=(List<int[]>[])new List[64];int h(int k){return k&63;}void put(int k,int v){if(b[h(k)]==null)b[h(k)]=new ArrayList<>();for(int[] p:b[h(k)])if(p[0]==k){p[1]=v;return;}b[h(k)].add(new int[]{k,v});}int get(int k){if(b[h(k)]==null)return -1;for(int[] p:b[h(k)])if(p[0]==k)return p[1];return -1;}}\n    public static void main(String[] a){\n        System.out.println(\"grid=\"+grid(new int[][]{{0,0},{1,2}}).get(\"1,2\"));\n        System.out.println(\"grpAna=\"+grpAna(new String[]{\"eat\",\"tea\",\"tan\",\"ate\"}).size());\n        HM hm=new HM();hm.put(1,100);hm.put(2,200);System.out.println(\"hm=\"+hm.get(1));\n        Map<Pt,Integer> pts=new HashMap<>();pts.put(new Pt(3,4),7);System.out.println(\"record=\"+pts.get(new Pt(3,4)));\n        boolean ok=grid(new int[][]{{0,0},{1,2}}).get(\"1,2\")==1&&grpAna(new String[]{\"eat\",\"tea\",\"tan\",\"ate\"}).size()==2&&hm.get(1)==100&&pts.get(new Pt(3,4))==7;\n        System.out.println(\"All pass: \"+ok);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "grid=1",
+            "grpAna=2",
+            "hm=100",
+            "record=7"
+          ]
+        }
+      ],
+      "hints": [
+        "HashMap/HashSet",
+        "O(1) ops",
+        "Check before access"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

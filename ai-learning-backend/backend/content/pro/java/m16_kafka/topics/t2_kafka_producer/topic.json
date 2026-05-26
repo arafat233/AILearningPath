@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m16_t2",
+  "language": "java",
+  "module_id": "m16",
+  "module_name": "Apache Kafka & Event-Driven Architecture",
+  "topic_number": 2,
+  "name": "Spring Kafka Producer",
+  "slug": "spring-kafka-producer",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m16_t1"],
+    "concepts_taught": [
+      "spring_kafka_dependency",
+      "kafka_template",
+      "kafka_template_send",
+      "producer_record",
+      "send_future_callback",
+      "listenable_future",
+      "completable_future",
+      "send_with_key",
+      "send_to_specific_partition",
+      "producer_acknowledgment_config",
+      "producer_serialization",
+      "kafka_producer_configuration",
+      "embedded_kafka_for_testing",
+      "producer_test_with_kafka_template"
+    ],
+    "skills_developed": [
+      "adding_spring_kafka_to_spring_boot",
+      "publishing_messages_with_kafkatemplate",
+      "configuring_producers",
+      "using_message_keys_for_ordering",
+      "testing_producers_with_embedded_kafka"
+    ],
+    "career_relevance": "KafkaTemplate is the first Spring Kafka skill every backend developer learns. Swiggy uses it to publish order events. Zerodha uses it to stream trade data. Razorpay uses it to publish payment events. Being able to add a Kafka producer to a Spring Boot service is a junior-to-mid engineer skill at any company running event-driven architecture.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your order-service needs to tell notification-service, analytics-service, and inventory-service that an order was placed. Without Kafka:\n\n```java\n// Synchronous calls — all must succeed for the order to complete:\npaymentService.charge(order);\nnotificationService.sendSms(order);        // if down → order fails!\nanalyticsService.recordOrder(order);       // if slow → user waits\ninventoryService.reserveStock(order);      // if down → order fails!\n```\n\n**With Kafka:**\n```java\n// One publish — everything else is decoupled:\npaymentService.charge(order);              // synchronous (critical path)\nkafkaTemplate.send(\"order-events\", order);\n// ↑ notification, analytics, inventory\n//   all receive this event asynchronously\n//   order returns to user immediately ✓\n```\n\n**Spring Kafka KafkaTemplate:**\n```java\n@Service\npublic class OrderService {\n    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;\n    \n    public Order placeOrder(OrderRequest req) {\n        Order order = orderRepo.save(new Order(req));\n        \n        // Publish event — returns immediately:\n        kafkaTemplate.send(\"order-events\",\n            order.getId(),              // key → same partition for same order\n            new OrderEvent(order));     // value → the event\n        \n        return order;  // user gets response in < 50ms\n    }\n}\n// notification-service, analytics-service consume 'order-events' independently\n```\n\nOne line. Order response time drops from 500ms to 50ms. Services are decoupled. That's KafkaTemplate.",
+    "what_you_will_build": "By the end of this topic, you'll configure a Spring Boot Kafka producer, publish events to topics with KafkaTemplate, use message keys for partition routing, handle send failures asynchronously, and test producers with EmbeddedKafka."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "setup": "**Adding Spring Kafka to a Spring Boot service:**\n\n```xml\n<!-- pom.xml -->\n<dependency>\n    <groupId>org.springframework.kafka</groupId>\n    <artifactId>spring-kafka</artifactId>\n</dependency>\n```\n\n```properties\n# application.properties:\nspring.kafka.bootstrap-servers=localhost:9092\n\n# Producer serialization:\nspring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer\nspring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer\n\n# Reliability (all replicas must acknowledge):\nspring.kafka.producer.acks=all\nspring.kafka.producer.retries=3\n\n# Throughput tuning:\nspring.kafka.producer.batch-size=16384\nspring.kafka.producer.linger-ms=1\n```",
+
+      "kafka_template_basics": "**KafkaTemplate — the Spring Kafka producer:**\n\n```java\nimport org.springframework.kafka.core.KafkaTemplate;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.CompletableFuture;\n\n@Service\npublic class OrderEventPublisher {\n    private final KafkaTemplate<String, OrderEvent> kafkaTemplate;\n    \n    OrderEventPublisher(KafkaTemplate<String, OrderEvent> kafkaTemplate) {\n        this.kafkaTemplate = kafkaTemplate;\n    }\n    \n    // Simple send — fire and forget:\n    public void publishOrderPlaced(Order order) {\n        kafkaTemplate.send(\"order-events\", new OrderEvent(order, \"ORDER_PLACED\"));\n    }\n    \n    // Send with KEY — guarantees same-key messages go to same partition:\n    public void publishWithKey(Order order) {\n        kafkaTemplate.send(\n            \"order-events\",         // topic\n            order.getId(),           // key → determines partition\n            new OrderEvent(order, \"ORDER_PLACED\")  // value\n        );\n    }\n    \n    // Async send with callback:\n    public void publishWithCallback(Order order) {\n        kafkaTemplate.send(\"order-events\", order.getId(), new OrderEvent(order))\n            .whenComplete((result, ex) -> {\n                if (ex != null) {\n                    System.err.println(\"Failed to send event: \" + ex.getMessage());\n                    // retry, log to dead-letter, alert oncall...\n                } else {\n                    System.out.printf(\"Sent to topic=%s partition=%d offset=%d%n\",\n                        result.getRecordMetadata().topic(),\n                        result.getRecordMetadata().partition(),\n                        result.getRecordMetadata().offset());\n                }\n            });\n    }\n}\n```\n\n**Spring Boot 3.x note**: `kafkaTemplate.send()` now returns `CompletableFuture<SendResult<K,V>>` (not `ListenableFuture`). Use `.whenComplete()` for callbacks.",
+
+      "producer_configuration": "**Producer configuration via @Bean:**\n\n```java\nimport org.apache.kafka.clients.producer.ProducerConfig;\nimport org.apache.kafka.common.serialization.StringSerializer;\nimport org.springframework.kafka.core.*;\nimport org.springframework.kafka.support.serializer.JsonSerializer;\nimport org.springframework.context.annotation.Bean;\nimport org.springframework.context.annotation.Configuration;\nimport java.util.HashMap;\nimport java.util.Map;\n\n@Configuration\npublic class KafkaProducerConfig {\n    \n    @Bean\n    public ProducerFactory<String, OrderEvent> producerFactory() {\n        Map<String, Object> config = new HashMap<>();\n        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, \"localhost:9092\");\n        config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,   StringSerializer.class);\n        config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);\n        config.put(ProducerConfig.ACKS_CONFIG, \"all\");       // durability\n        config.put(ProducerConfig.RETRIES_CONFIG, 3);         // retry on failure\n        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true); // exactly-once\n        return new DefaultKafkaProducerFactory<>(config);\n    }\n    \n    @Bean\n    public KafkaTemplate<String, OrderEvent> kafkaTemplate(\n            ProducerFactory<String, OrderEvent> pf) {\n        return new KafkaTemplate<>(pf);\n    }\n}\n```\n\n**Key producer configs explained:**\n- `acks=all`: all in-sync replicas must acknowledge → no data loss\n- `retries=3`: retry on transient failures (network blip)\n- `enable.idempotence=true`: exactly-once delivery (deduplicates retries)\n- `batch-size=16384`: batch small messages for efficiency (16KB)\n- `linger.ms=1`: wait 1ms to batch more messages before sending",
+
+      "message_keys": "**Message keys — why they matter:**\n\n```java\n// With key: orders for same orderId always go to same partition\n// → All events for order ORD-001 arrive in order to consumers\n\n// For a Zerodha trade:\nkafkaTemplate.send(\"trade-events\",\n    trade.getSymbol(),    // key='TCS' → all TCS trades in one partition\n    new TradeEvent(trade));\n\n// For order updates:\nkafkaTemplate.send(\"order-events\",\n    order.getId(),        // key='ORD-001' → ORDER_PLACED, ORDER_CONFIRMED,\n    event);               // ORDER_SHIPPED all in partition order\n\n// WITHOUT key: random partition → events for same order out of order!\n// ORD-001: ORDER_PLACED → partition 0\n// ORD-001: ORDER_SHIPPED → partition 2  (consumer 2 gets this FIRST!)\n// ORD-001: ORDER_CONFIRMED → partition 1\n// → Consumer sees: SHIPPED before CONFIRMED → broken logic!\n```\n\n**Rule**: use the entity ID as the key when you need events for the same entity to arrive in order.",
+
+      "testing": "**Testing producers with @EmbeddedKafka:**\n\n```java\nimport org.springframework.kafka.test.context.EmbeddedKafka;\nimport org.springframework.kafka.test.utils.KafkaTestUtils;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.apache.kafka.clients.consumer.ConsumerRecord;\nimport org.springframework.kafka.core.ConsumerFactory;\n\n@SpringBootTest\n@EmbeddedKafka(\n    partitions = 1,\n    brokerProperties = {\"listeners=PLAINTEXT://localhost:9099\",\n                         \"port=9099\"}\n)\nclass OrderEventPublisherTest {\n    @Autowired OrderEventPublisher publisher;\n    @Autowired ConsumerFactory<String, String> consumerFactory;\n    \n    @Test\n    void publishOrderPlaced_messageAppearsOnTopic() throws Exception {\n        // Arrange:\n        Order order = new Order(\"ORD-001\", \"TCS\", 10, 3890.0);\n        \n        // Act:\n        publisher.publishOrderPlaced(order);\n        \n        // Assert — consume from embedded Kafka:\n        Map<String, Object> configs = KafkaTestUtils.consumerProps(\n            \"test-group\", \"true\", embeddedKafka);\n        Consumer<String, String> consumer = consumerFactory.createConsumer(\"g\", \"c\");\n        consumer.subscribe(List.of(\"order-events\"));\n        ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));\n        \n        assertFalse(records.isEmpty());\n        ConsumerRecord<String, String> record = records.iterator().next();\n        assertTrue(record.value().contains(\"ORD-001\"));\n        consumer.close();\n    }\n}\n```\n\n**Test application.properties:**\n```properties\n# Override Kafka URL for tests:\nspring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) KafkaTemplate flow: Service code box shows 'kafkaTemplate.send(topic, key, value)'. Arrow labeled 'serializes to JSON' goes to ProducerRecord box (topic='order-events', partition=hash(key)%3, key='ORD-001', value=JSON). Arrow goes to Kafka Broker showing partition selection (key='TCS' always → partition 0, key='INFY' always → partition 1). (2) Send callback flow: kafkaTemplate.send() returns CompletableFuture. .whenComplete((result, ex) -> ...) splits into two paths: success path shows result.getRecordMetadata() with topic/partition/offset details; error path shows ex.getMessage() → retry/DLQ/alert logic. Side note: returns immediately, callback fires when broker acknowledges.",
+      "alt_text": "KafkaTemplate send flow with partition selection, and CompletableFuture callback on success and failure"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add a Kafka producer to the Zerodha trading order-service. When a trade is executed, publish a TradeExecutedEvent to the 'trade-events' topic. The notification-service and portfolio-service will consume it asynchronously.",
+
+    "problem_statement": "1. Add spring-kafka dependency and configure producer\n2. Create TradeExecutedEvent record\n3. Write TradeEventPublisher @Service with KafkaTemplate\n4. Call publisher from TradeService.executeTrade()\n5. Test with @EmbeddedKafka",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "application.properties",
+        "details": "```properties\nspring.kafka.bootstrap-servers=localhost:9092\nspring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer\nspring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer\nspring.kafka.producer.acks=all\nspring.kafka.producer.retries=3\n```"
+      },
+      {
+        "step": 2,
+        "action": "TradeExecutedEvent and publisher",
+        "details": "```java\npublic record TradeExecutedEvent(\n    String tradeId,\n    String userId,\n    String symbol,\n    int quantity,\n    double price,\n    double totalValue,\n    java.time.Instant executedAt\n) {}\n\n@Service\npublic class TradeEventPublisher {\n    private final KafkaTemplate<String, TradeExecutedEvent> kafkaTemplate;\n    \n    TradeEventPublisher(KafkaTemplate<String, TradeExecutedEvent> kt) {\n        kafkaTemplate = kt;\n    }\n    \n    public void publishTradeExecuted(TradeExecutedEvent event) {\n        kafkaTemplate.send(\"trade-events\", event.symbol(), event)\n            .whenComplete((result, ex) -> {\n                if (ex != null) {\n                    System.err.println(\"Failed to publish trade event: \" + ex.getMessage());\n                } else {\n                    System.out.printf(\"Trade event published: symbol=%s offset=%d%n\",\n                        event.symbol(), result.getRecordMetadata().offset());\n                }\n            });\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "TradeService calls publisher",
+        "details": "```java\n@Service\npublic class TradeService {\n    private final TradeEventPublisher publisher;\n    \n    public TradeResult executeTrade(String userId, String symbol, int qty) {\n        // ... trade logic ...\n        TradeResult result = new TradeResult(\"TRD-001\", symbol, qty, 3890.0);\n        \n        // Publish async — doesn't block the trade response:\n        publisher.publishTradeExecuted(new TradeExecutedEvent(\n            result.tradeId(), userId, symbol, qty,\n            3890.0, qty * 3890.0, java.time.Instant.now()));\n        \n        return result;  // returned to user immediately\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// pom.xml: spring-kafka\n// application.properties: bootstrap-servers, serializers, acks=all\n// TradeExecutedEvent: record with all trade fields\n// TradeEventPublisher: kafkaTemplate.send(topic, symbol_as_key, event)\n// TradeService.executeTrade(): calls publisher after saving trade\n// Test: @EmbeddedKafka, verify message appears on topic",
+
+    "expected_output": "# Trade executed:\n[TradeEventPublisher] Trade event published: symbol=TCS offset=42\n\n# notification-service log (separate process, same Kafka):\n[TradeConsumer] Received trade event: TCS x10 @ ₹3890 for U01\n[NotificationService] SMS sent: 'Trade executed: 10 TCS @ ₹3890'\n\n# portfolio-service log:\n[PortfolioConsumer] Updating holdings for U01: +10 TCS",
+
+    "things_to_notice": [
+      "KafkaTemplate<String, TradeExecutedEvent>: the type parameters match the serializers. String → StringSerializer for key; TradeExecutedEvent → JsonSerializer for value. The types must be consistent.",
+      "The key is event.symbol() (e.g., 'TCS'). This means ALL TCS trade events go to the same partition → consumers see TCS events in order. Different symbols may go to different partitions — that's fine, they're independent.",
+      "kafkaTemplate.send() returns a CompletableFuture — it returns immediately. The actual network send happens asynchronously. The .whenComplete() callback fires when the broker acknowledges (or fails). The trade response is returned to the user without waiting.",
+      "TradeService.executeTrade() calls publisher AFTER saving the trade. This is intentional: if the DB save fails, no event is published. If the event publish fails (caught in callback), the trade is already saved — the event can be retried or replicated from DB. Never publish before saving.",
+      "spring.kafka.producer.acks=all: the broker waits for ALL in-sync replicas to acknowledge before confirming. This means no data loss even if the leader broker dies immediately after the send. The cost: slightly higher latency (tens of ms). Default is acks=1 (leader only)."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Swiggy order events",
+        "use_case": "When a Swiggy user places an order, order-service calls `kafkaTemplate.send('order-events', orderId, new OrderPlacedEvent(...))`. notification-service receives it and sends a push notification. restaurant-service receives it and shows it on the restaurant's tablet. analytics-service receives it and updates real-time dashboards. All three consumer groups receive the same event independently — no coupling between them."
+      },
+      {
+        "company_context": "Zerodha trade streaming",
+        "use_case": "Each trade execution publishes to 'trade-events' with symbol as key. All TCS trades → partition 0. All RELIANCE trades → partition 1. portfolio-service consumers process trades per symbol in order — so a BUY then SELL for TCS are processed in order, keeping the holding calculation correct. Without the key, BUY and SELL might arrive in wrong order."
+      },
+      {
+        "company_context": "Razorpay payment events",
+        "use_case": "When Razorpay processes a payment: `kafkaTemplate.send('payment-events', paymentId, event)`. paymentId as key ensures INITIATED, PROCESSING, COMPLETED events for the same payment arrive in order. Downstream consumers (ledger-service, webhook-service, fraud-analytics) each have their own consumer group and process the events independently."
+      }
+    ],
+
+    "interview_relevance": "Spring Kafka producer interview questions:\n\n- **'How do you publish messages to Kafka from a Spring Boot service?'** → Add spring-kafka dependency. Configure bootstrap-servers and serializers. Inject KafkaTemplate<K, V>. Call kafkaTemplate.send(topic, key, value).\n- **'What is a message key and why use it?'** → Key determines which partition the message goes to (hash(key) % partitions). Use the entity ID as key to guarantee ordering — all events for the same entity go to the same partition.\n- **'What does acks=all mean?'** → All in-sync replicas must acknowledge the message before the producer considers the send complete. Prevents data loss if the broker leader fails after acknowledging but before replication.\n- **'How do you handle Kafka send failures?'** → kafkaTemplate.send() returns CompletableFuture. Use .whenComplete((result, ex) -> { if(ex!=null) handle error }) to log, retry, or send to a dead-letter topic.",
+
+    "real_world_workflow": "Daily KafkaTemplate workflow:\n\n- New event type: create a record class for the event, publish via kafkaTemplate.send()\n- New topic: add it to Kafka (or use auto-create in dev), add to publisher\n- Test: @EmbeddedKafka test verifies message appears on topic\n- Production monitoring: check producer metrics at /actuator/metrics/kafka.producer.*"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "wrong_serializer",
+      "what_students_get_wrong": "Configuring StringSerializer for both key and value — the value must be JsonSerializer for object types.",
+      "remediation": "Key (String → orderId) uses StringSerializer. Value (OrderEvent object) uses JsonSerializer (from spring-kafka, not the Kafka default). Set: `spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer`. Without this, you get SerializationException when trying to send an object.",
+      "detection_pattern": "ClassCastException or SerializationException when sending; messages appear as binary gibberish in Kafka"
+    },
+    {
+      "gap_id": "fire_and_forget_exceptions",
+      "what_students_get_wrong": "Not handling send failures — calling kafkaTemplate.send() without .whenComplete() — failed sends are silently lost.",
+      "remediation": "Always add .whenComplete((result, ex) -> { if (ex != null) /* handle */ }). For critical events (payments, orders), log the failure and either retry immediately or write to a dead-letter database for later replay. Silent failures are impossible to diagnose.",
+      "detection_pattern": "Events missing from downstream consumers with no error visible in the producer service"
+    },
+    {
+      "gap_id": "publishing_before_db_save",
+      "what_students_get_wrong": "Publishing the Kafka event BEFORE saving to the database — if the DB save fails, a ghost event is published that references non-existent data.",
+      "remediation": "Always: save to DB first → then publish to Kafka. If the DB save fails, throw an exception — no event published. If the Kafka publish fails (caught in callback), the data is in DB and can be republished later (outbox pattern). The DB is the source of truth.",
+      "detection_pattern": "Consumers receive events for orders/trades that don't exist in the DB"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "spring-kafka dependency: single dependency enables Spring Kafka",
+      "spring.kafka.bootstrap-servers: Kafka broker address",
+      "spring.kafka.producer.key-serializer=StringSerializer: for String keys",
+      "spring.kafka.producer.value-serializer=JsonSerializer: for object values (spring-kafka's JsonSerializer)",
+      "KafkaTemplate<String, EventType>: injected via constructor, generic types match serializers",
+      "kafkaTemplate.send(topic, value): simplest send — random partition",
+      "kafkaTemplate.send(topic, key, value): with key → consistent partition",
+      "Returns CompletableFuture<SendResult<K,V>>: non-blocking",
+      ".whenComplete((result, ex) -> ...): callback on success or failure",
+      "result.getRecordMetadata().topic/partition/offset(): metadata on success",
+      "acks=all: all replicas must ack — highest durability",
+      "Message key = entity ID: ordering guarantee for same entity",
+      "@EmbeddedKafka: in-process Kafka for unit tests",
+      "Save to DB before publishing event: DB is source of truth"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You publish order events to 'order-events' topic with orderId as key. A consumer receives ORDER_SHIPPED before ORDER_PLACED for the same order. What went wrong?",
+        "answer": "If orderId is used as key, all events for that orderId should go to the same partition — and partitions maintain insertion order. ORDER_PLACED then ORDER_SHIPPED should arrive in that order. Likely causes: (1) The key was NOT set — messages went to random partitions. If partition 0 got ORDER_SHIPPED and partition 1 got ORDER_PLACED, and the consumer processes both partitions, ORDER_SHIPPED might arrive first. Fix: ensure the key is set for every send. (2) The consumer is reading from multiple partitions without maintaining order — consumer needs to process events per partition to preserve order. (3) Events came from different producers — ordering only guaranteed within one partition from one producer."
+      },
+      {
+        "question": "Your Kafka send throws SerializationException for the value. What did you misconfigure?",
+        "answer": "spring.kafka.producer.value-serializer is wrong. For Java objects, it must be `org.springframework.kafka.support.serializer.JsonSerializer` (from spring-kafka), NOT the Kafka built-in StringSerializer or ByteArraySerializer. Also check: the KafkaTemplate generic type <String, OrderEvent> — the value type OrderEvent must match what JsonSerializer can serialize. Common mistake: using `org.apache.kafka.common.serialization.StringSerializer` for an object type (it only handles String → it calls .toString() on the object, which gives class name not JSON). Fix: set spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer."
+      },
+      {
+        "question": "You want to guarantee exactly-once delivery of payment events. Which producer configuration settings do you need?",
+        "answer": "Three settings together enable idempotent/exactly-once producer: (1) `enable.idempotence=true`: deduplicate retries at the broker level (each message gets a sequence number; duplicates are dropped). (2) `acks=all`: ensures all replicas acknowledge before confirming — prevents re-sends on leader failure. (3) `retries=Integer.MAX_VALUE` (or at least 3): retry on transient failures. With these three: each message is delivered exactly once even if the network drops mid-send and the producer retries. Without idempotence, a retry after a network failure could insert a duplicate."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Spring Kafka Consumer** — you've published events. Now read them. @KafkaListener on a @Service method subscribes to a topic. Every time order-service publishes to 'order-events', notification-service's listener method is called with the event. Spring Kafka handles deserialization, offset management, and consumer group assignment automatically. After Topic 16.3, both sides of the event pipeline are built."
+  }
+}

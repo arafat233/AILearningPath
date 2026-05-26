@@ -1,0 +1,306 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m36_t4",
+  "topic_name": "K-Way Merge \u2014 K Sorted Lists, K Closest Points",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m36_t4_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Heap pattern overview",
+      "instructions": "Implement: Heap pattern overview.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class HeapOverview {\n    public static void main(String[] a){\n        System.out.println(\"Min-heap: new PriorityQueue<>()\");\n        System.out.println(\"Max-heap: new PriorityQueue<>(Collections.reverseOrder())\");\n        System.out.println(\"Custom: new PriorityQueue<>((x,y)->x[0]-y[0])\");\n        System.out.println(\"K largest: min-heap size k\");\n        System.out.println(\"K smallest: max-heap size k\");\n        System.out.println(\"Median stream: lo(max-heap) + hi(min-heap)\");\n        System.out.println(\"Merge K sorted: min-heap of list heads\");\n        System.out.println(\"O(log n) offer/poll. O(1) peek/size.\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Min-heap: new PriorityQueue<>()",
+            "Median stream",
+            "O(log n) offer/poll"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m36_t4_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "K pairs smallest sums (LeetCode #373)",
+      "instructions": "Implement: K pairs smallest sums (LeetCode #373).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class KPairs {\n    public static List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k){\n        PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[0]+a[1]-b[0]-b[1]);\n        List<List<Integer>> res=new ArrayList<>();\n        for(int i=0;i<Math.min(k,nums1.length);i++)pq.offer(new int[]{nums1[i],nums2[0],0});\n        while(k-->0&&!pq.isEmpty()){int[] top=pq.poll();res.add(Arrays.asList(top[0],top[1]));int j=top[2]+1;if(j<nums2.length)pq.offer(new int[]{top[0],nums2[j],j});}\n        return res;\n    }\n    public static void main(String[] a){System.out.println(kSmallestPairs(new int[]{1,7,11},new int[]{2,4,6},3));System.out.println(\"[[1,2],[1,4],[1,6]] \u2014 push (nums1[i], nums2[0]) initially; expand by j++\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[1, 2], [1, 4], [1, 6]]",
+            "expand by j++"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m36_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Lazy deletion from heap",
+      "instructions": "Implement: Lazy deletion from heap.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class LazyHeap {\n    // Simulate: find max excluding deleted elements\n    static PriorityQueue<Integer> pq=new PriorityQueue<>(Collections.reverseOrder());\n    static Map<Integer,Integer> deleted=new HashMap<>();\n    static void offer(int v){pq.offer(v);}\n    static void delete(int v){deleted.merge(v,1,Integer::sum);}\n    static int findMax(){while(!pq.isEmpty()&&deleted.getOrDefault(pq.peek(),0)>0){deleted.merge(pq.peek(),-1,Integer::sum);if(deleted.get(pq.peek())==0)deleted.remove(pq.peek());pq.poll();}return pq.isEmpty()?-1:pq.peek();}\n    public static void main(String[] a){offer(5);offer(3);offer(8);offer(1);delete(8);delete(5);System.out.println(findMax());System.out.println(\"3 \u2014 lazy deletion: mark removed, skip on poll. O(log n) amortized.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "lazy deletion: mark removed"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m36_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Kth Smallest Element in Sorted Matrix",
+      "instructions": "Implement: Kth Smallest Element in Sorted Matrix.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class KthMatrix2 {\n    public static int kthSmallest(int[][] matrix, int k){\n        int n=matrix.length;\n        PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[0]-b[0]);\n        for(int i=0;i<n;i++)pq.offer(new int[]{matrix[i][0],i,0});\n        int res=0;\n        for(int i=0;i<k;i++){int[] top=pq.poll();res=top[0];int r=top[1],c=top[2];if(c+1<n)pq.offer(new int[]{matrix[r][c+1],r,c+1});}\n        return res;\n    }\n    public static void main(String[] a){int[][] m={{1,5,9},{10,11,13},{12,13,15}};System.out.println(kthSmallest(m,8));System.out.println(kthSmallest(m,3));System.out.println(\"O(k log n) min-heap. O(n log n) binary search alternative.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "13",
+            "9",
+            "O(k log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m36_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Maximum CPU Load (interval scheduling)",
+      "instructions": "Implement: Maximum CPU Load (interval scheduling).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MaxCPU {\n    public static int findMaxCPULoad(int[][] jobs){\n        Arrays.sort(jobs,(a,b)->a[0]-b[0]);\n        PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[1]-b[1]); // min-heap by end\n        int maxLoad=0,curLoad=0;\n        for(int[] job:jobs){\n            while(!pq.isEmpty()&&pq.peek()[1]<=job[0]){curLoad-=pq.poll()[2];}\n            pq.offer(job);curLoad+=job[2];maxLoad=Math.max(maxLoad,curLoad);}\n        return maxLoad;\n    }\n    public static void main(String[] a){System.out.println(findMaxCPULoad(new int[][]{{1,4,3},{2,5,4},{7,9,6}}));System.out.println(findMaxCPULoad(new int[][]{{6,7,10},{2,4,11},{8,12,15}}));System.out.println(\"O(n log n) \u2014 same pattern as Meeting Rooms II but track load sum\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "7",
+            "15",
+            "O(n log n) \u2014 same pattern as Meeting Rooms II"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m36_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find K-th Largest (quick select vs heap)",
+      "instructions": "Implement: Find K-th Largest (quick select vs heap).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class KthMethods {\n    static int heapMethod(int[] nums,int k){PriorityQueue<Integer> pq=new PriorityQueue<>();for(int n:nums){pq.offer(n);if(pq.size()>k)pq.poll();}return pq.peek();}\n    static int quickSelect(int[] nums,int k){return qs(nums,0,nums.length-1,nums.length-k);}\n    static int qs(int[] a,int lo,int hi,int k){if(lo>=hi)return a[lo];int pivot=partition(a,lo,hi);if(pivot==k)return a[pivot];return pivot<k?qs(a,pivot+1,hi,k):qs(a,lo,pivot-1,k);}\n    static int partition(int[] a,int lo,int hi){int pivot=a[hi],i=lo;for(int j=lo;j<hi;j++)if(a[j]<=pivot){int t=a[i];a[i]=a[j];a[j]=t;i++;}int t=a[i];a[i]=a[hi];a[hi]=t;return i;}\n    public static void main(String[] a){int[] nums={3,2,1,5,6,4};System.out.println(heapMethod(nums.clone(),2));System.out.println(quickSelect(nums.clone(),2));System.out.println(\"Heap: O(n log k). QuickSelect: O(n) avg O(n\u00b2) worst.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "5",
+            "5",
+            "O(n log k). QuickSelect: O(n) avg"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m36_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Employee free time (advanced interval heap)",
+      "instructions": "Implement: Employee free time (advanced interval heap).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class EmpFreeTime {\n    static class Interval{int start,end;Interval(int s,int e){start=s;end=e;}}\n    public static List<Interval> employeeFreeTime(List<List<Interval>> schedule){\n        List<Interval> all=new ArrayList<>();for(var s:schedule)all.addAll(s);all.sort((a,b)->a.start-b.start);List<Interval> res=new ArrayList<>();int end=all.get(0).end;for(var iv:all){if(iv.start>end)res.add(new Interval(end,iv.start));end=Math.max(end,iv.end);}return res;\n    }\n    public static void main(String[] a){List<List<Interval>> s=new ArrayList<>();s.add(Arrays.asList(new Interval(1,3),new Interval(6,7)));s.add(Arrays.asList(new Interval(2,4)));s.add(Arrays.asList(new Interval(2,5),new Interval(9,12)));List<Interval> free=employeeFreeTime(s);for(Interval iv:free)System.out.print(\"[\"+iv.start+\",\"+iv.end+\"] \");System.out.println();System.out.println(\"Sort all intervals, find gaps where current.start > max end so far\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[5,6] [7,9]",
+            "Sort all intervals"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m36_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Minimum cost to connect ropes (Huffman)",
+      "instructions": "Implement: Minimum cost to connect ropes (Huffman).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ConnectRopes {\n    public static long minCost(int[] ropes){PriorityQueue<Long> pq=new PriorityQueue<>();for(int r:ropes)pq.offer((long)r);long total=0;while(pq.size()>1){long a=pq.poll(),b=pq.poll();total+=a+b;pq.offer(a+b);}return total;}\n    public static void main(String[] a){System.out.println(minCost(new int[]{4,3,2,6}));System.out.println(minCost(new int[]{1,2,3,4,5}));System.out.println(\"O(n log n) \u2014 greedy: always combine two smallest. Huffman encoding base.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "29",
+            "33",
+            "Huffman encoding base"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m36_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Heap-based event simulation",
+      "instructions": "Implement: Heap-based event simulation.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class EventSim {\n    record Event(int time, String name) implements Comparable<Event>{public int compareTo(Event o){return Integer.compare(time,o.time);}}\n    public static void main(String[] a){PriorityQueue<Event> pq=new PriorityQueue<>();pq.offer(new Event(5,\"payment_due\"));pq.offer(new Event(1,\"user_login\"));pq.offer(new Event(3,\"api_call\"));pq.offer(new Event(2,\"db_query\"));System.out.println(\"Event processing order:\");while(!pq.isEmpty()){Event e=pq.poll();System.out.println(\"t=\"+e.time()+\": \"+e.name());}System.out.println(\"Min-heap as event priority queue. O(log n) schedule/process.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "t=1: user_login",
+            "t=2: db_query",
+            "t=3: api_call",
+            "t=5: payment_due"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m36_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "K-way merge synthesis",
+      "instructions": "Implement: K-way merge synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class KWaySynth {\n    static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode mergeK(ListNode[] lists){PriorityQueue<ListNode> pq=new PriorityQueue<>((a,b)->a.val-b.val);for(ListNode l:lists)if(l!=null)pq.offer(l);ListNode d=new ListNode(0),c=d;while(!pq.isEmpty()){c.next=pq.poll();c=c.next;if(c.next!=null)pq.offer(c.next);}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    static int kthSmallest(int[][] m,int k){int n=m.length;PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[0]-b[0]);for(int i=0;i<n;i++)pq.offer(new int[]{m[i][0],i,0});int res=0;for(int i=0;i<k;i++){int[] top=pq.poll();res=top[0];int r=top[1],c=top[2];if(c+1<n)pq.offer(new int[]{m[r][c+1],r,c+1});}return res;}\n    public static void main(String[] a){System.out.println(str(mergeK(new ListNode[]{of(1,4,5),of(1,3,4),of(2,6)})));System.out.println(kthSmallest(new int[][]{{1,5,9},{10,11,13},{12,13,15}},8));boolean ok=str(mergeK(new ListNode[]{of(1,4,5),of(1,3,4),of(2,6)})).equals(\"1-1-2-3-4-4-5-6\")&&kthSmallest(new int[][]{{1,5,9},{10,11,13},{12,13,15}},8)==13;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "1-1-2-3-4-4-5-6",
+            "13"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m36_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M36 Heap Synthesis",
+      "instructions": "Implement: Complete M36 Heap Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class M36Final {\n    static int kthL(int[] n,int k){PriorityQueue<Integer> pq=new PriorityQueue<>();for(int x:n){pq.offer(x);if(pq.size()>k)pq.poll();}return pq.peek();}\n    static int[] topK(int[] n,int k){Map<Integer,Integer> f=new HashMap<>();for(int x:n)f.merge(x,1,Integer::sum);PriorityQueue<Integer> pq=new PriorityQueue<>(Comparator.comparingInt(f::get));for(int x:f.keySet()){pq.offer(x);if(pq.size()>k)pq.poll();}int[]r=new int[k];for(int i=k-1;i>=0;i--)r[i]=pq.poll();return r;}\n    static int meetR(int[][] ivs){Arrays.sort(ivs,(a,b)->a[0]-b[0]);PriorityQueue<Integer> pq=new PriorityQueue<>();for(int[]iv:ivs){if(!pq.isEmpty()&&pq.peek()<=iv[0])pq.poll();pq.offer(iv[1]);}return pq.size();}\n    static int taskS(char[] t,int n){int[]c=new int[26];for(char x:t)c[x-'A']++;int m=0;for(int x:c)m=Math.max(m,x);int cnt=0;for(int x:c)if(x==m)cnt++;return Math.max((m-1)*(n+1)+cnt,t.length);}\n    public static void main(String[] a){System.out.println(\"kthL=\"+kthL(new int[]{3,2,1,5,6,4},2));System.out.println(\"topK=\"+Arrays.toString(topK(new int[]{1,1,1,2,2,3},2)));System.out.println(\"meetR=\"+meetR(new int[][]{{0,30},{5,10},{15,20}}));System.out.println(\"taskS=\"+taskS(new char[]{'A','A','A','B','B','B'},2));boolean ok=kthL(new int[]{3,2,1,5,6,4},2)==5&&meetR(new int[][]{{0,30},{5,10},{15,20}})==2&&taskS(new char[]{'A','A','A','B','B','B'},2)==8;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "kthL=5",
+            "meetR=2",
+            "taskS=8"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

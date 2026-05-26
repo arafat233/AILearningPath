@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m16_t5_proj",
+  "linked_topic": "java_m16_t5",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — Avro Schema Governance",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+
+  "scenario": "Upgrade the Zerodha Kafka pipeline from JSON to Avro. Define TradeExecutedEvent schema, generate Java classes, configure producers and consumers with Avro serializers, and demonstrate safe schema evolution: adding fields and what happens when you try to make breaking changes.",
+
+  "description": "Full Avro migration: .avsc schema file, avro-maven-plugin, KafkaAvroSerializer/Deserializer, schema evolution demonstration. Shows two compatible schema versions and one rejected breaking change.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "TradeExecutedEvent.avsc in src/main/avro: 7 fields (tradeId, userId, symbol, qty, price, totalValue, tradeType as enum [BUY,SELL]). Proper namespace: com.codequest.events.avro.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "pom.xml: avro, kafka-avro-serializer (Confluent) dependencies + avro-maven-plugin with generate-sources goal pointing to src/main/avro.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "application.properties (producer): KafkaAvroSerializer + schema.registry.url=http://localhost:8081. application.properties (consumer): KafkaAvroDeserializer + schema.registry.url + specific.avro.reader=true.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "TradeEventPublisher @Service: builds TradeExecutedEvent using generated builder (newBuilder().setX().build()). Sends to 'trade-executed' with symbol as key.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "TradeAnalyticsConsumer @Service: @KafkaListener with TradeExecutedEvent parameter. Uses getX() accessors. Logs symbol, qty, price.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "Schema v2: add 'exchange' field (nullable string, null default) — show is_compatible=true. Schema v3 attempt: rename 'price'→'unitPrice' — show is_compatible=false. README explains both.",
+        "weight": 20
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add OrderPlacedEvent.avsc with nested records (Customer, OrderItem array, Address). Generate and use in producer. 3 nested Avro records in one event.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add schema compatibility check to CI: a test that calls Schema Registry REST API and asserts is_compatible=true for proposed schema v2. Fails the build if compatibility check fails.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Demonstrate schema evolution: write two @KafkaListener versions — one using v1 TradeExecutedEvent (no exchange), one using v2 (with exchange). Both consume from same topic. V1 consumer sees exchange=null (default). V2 consumer sees actual exchange value.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Schema v1 fields: tradeId, userId, symbol, qty, price, totalValue, tradeType\nSchema v2 (backward compatible): + exchange (nullable string, null default)\nSchema v3 attempt (BREAKING): rename price→unitPrice → Schema Registry REJECTS\n\nTest events:\nTradeExecutedEvent v1: TRD-001, U01, TCS, 10, 3890.0, 38900.0, BUY\nTradeExecutedEvent v2: same + exchange='NSE'\n\nCompatibility check:\nv1→v2: {is_compatible: true} (added with default)\nv1→v3: {is_compatible: false} (renamed field)",
+
+  "starter_code": "// Project structure:\n// src/main/avro/\n//   TradeExecutedEvent.avsc\n// src/main/java/com/codequest/\n//   config/KafkaAvroConfig.java\n//   publisher/TradeEventPublisher.java\n//   consumer/TradeAnalyticsConsumer.java\n// src/main/resources/\n//   application.properties\n\n// pom.xml: add Confluent repo, avro + serializer deps, avro-maven-plugin\n// Run: mvn generate-sources → target/generated-sources/avro/\n\n// ALSO: document schema evolution in README.md\n// - Show v2 compatibility check result\n// - Show v3 rejection\n// - Explain 2-step rename migration",
+
+  "example_output": "# mvn generate-sources output:\n[INFO] Processing schema file: TradeExecutedEvent.avsc\n[INFO] Generated TradeExecutedEvent.java, TradeType.java\n\n# Producer startup:\nKafkaAvroSerializer: Registered schema 'com.codequest.events.avro.TradeExecutedEvent'\nSchema ID: 42 for subject 'trade-executed-value'\n\n# Consumer receives:\n[TradeAnalyticsConsumer] Trade: symbol=TCS qty=10 price=3890.0 type=BUY userId=U01\n\n# Schema v2 compatibility check:\ncurl POST /compatibility/... → {\"is_compatible\": true} ✓\nSchema v2 registered as ID: 43\n\n# Schema v3 (rename) rejection:\ncurl POST /compatibility/... → {\"is_compatible\": false} ✗\n[ERROR] Cannot deploy: breaking schema change detected",
+
+  "rubric": [
+    { "category": "TradeExecutedEvent.avsc", "points": 20, "criteria": ["7 fields correct (14 pts)", "TradeType enum (6 pts)"] },
+    { "category": "pom.xml", "points": 15, "criteria": ["Dependencies (8 pts)", "avro-maven-plugin (7 pts)"] },
+    { "category": "application.properties", "points": 15, "criteria": ["Producer config (7 pts)", "Consumer config (8 pts)"] },
+    { "category": "TradeEventPublisher", "points": 15, "criteria": ["Builder pattern (15 pts)"] },
+    { "category": "TradeAnalyticsConsumer", "points": 15, "criteria": ["@KafkaListener + getX() accessors (15 pts)"] },
+    { "category": "Schema evolution", "points": 20, "criteria": ["v2 compatible (10 pts)", "v3 breaking + explanation (10 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["Nested records (25 pts)", "CI compatibility check (20 pts)", "Dual consumer versions (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. specific.avro.reader=true is the most-forgotten consumer property. Confluent repo URL: https://packages.confluent.io/maven/. Nullable Avro field: {type:[null,string], default:null} — null must come FIRST in the union. Generated class uses getX() not x(). avro-maven-plugin phase=generate-sources, goal=schema.",
+
+  "submission_instructions": "GitHub push. README documents schema evolution (v1→v2 compatible, v1→v3 breaking). Include compatibility check curl commands and their responses. pom.xml and .avsc files included.",
+
+  "tips_for_success": [
+    "specific.avro.reader=true: without this, @KafkaListener gets GenericRecord not your class",
+    "Confluent repo: must be declared in pom.xml to download kafka-avro-serializer",
+    "schema.registry.url under .properties: must be spring.kafka.producer.properties.schema.registry.url",
+    "stringType=String in plugin config: generates String instead of CharSequence — cleaner code",
+    "Run mvn generate-sources after changing .avsc — generated class must be recompiled"
+  ],
+
+  "concepts_reinforced": [
+    "Avro schema definition (.avsc) with record, enum, and union types",
+    "avro-maven-plugin generates Java at compile time",
+    "KafkaAvroSerializer with Schema Registry for producer",
+    "KafkaAvroDeserializer + specific.avro.reader for consumer",
+    "Backward compatible schema evolution (add with default)",
+    "Breaking changes rejected by Schema Registry at deploy time"
+  ]
+}

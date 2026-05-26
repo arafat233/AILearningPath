@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m28_t4_proj",
+  "linked_topic": "java_m28_t4",
+  "level": "mini",
+  "name": "Razorpay gRPC Security Layer",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Razorpay's internal gRPC services are currently using plaintext with no authentication. A security audit found that any pod on the cluster can call any gRPC endpoint. Build a complete security layer: TLS, JWT auth, RBAC, rate limiting, and audit logging.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "GrpcTokenExtractor @Service: extract 'authorization' Metadata key. Throws Status.UNAUTHENTICATED if missing or not 'Bearer ' prefix. Returns raw token string.", "weight": 15},
+      {"id": "req_2", "description": "JwtServerInterceptor implements ServerInterceptor + @GrpcGlobalServerInterceptor: validate token, close call with UNAUTHENTICATED on failure. Pass to next.startCall() on success.", "weight": 15},
+      {"id": "req_3", "description": "RbacChecker @Service: Set<String> adminOnlyMethods. check(AuthContext, methodName) throws Status.PERMISSION_DENIED if MERCHANT tries admin method.", "weight": 15},
+      {"id": "req_4", "description": "GrpcRateLimitInterceptor @GrpcGlobalServerInterceptor: Bucket4j per merchantId. 100 RPCs/minute. Status.RESOURCE_EXHAUSTED when exhausted.", "weight": 15},
+      {"id": "req_5", "description": "GrpcAuditService @Service: log(method, merchantId, statusCode, latencyMs). @Async. JPA entity GrpcAuditLog.", "weight": 10},
+      {"id": "req_6", "description": "@SpringBootTest (4 tests): valid token passes, invalid token UNAUTHENTICATED, rate limit RESOURCE_EXHAUSTED, MERCHANT on admin method PERMISSION_DENIED. All pass.", "weight": 25},
+      {"id": "req_7", "description": "README: explains interceptor order (RateLimit → Auth → RBAC → Logging) and why.", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "Context propagation: Context.Key<AuthContext> AUTH_CONTEXT. Interceptor sets it after validation. Service method reads it. Test: context available in service after interceptor.", "weight": 20},
+      {"id": "bonus_2", "description": "mTLS service identity: ServiceIdentity.parse(certificateCN) extracts serviceName/pod/namespace. ServiceAuthValidator checks against ALLOWED_SERVICES set. Tests: allowed passes, unknown PERMISSION_DENIED.", "weight": 20},
+      {"id": "bonus_3", "description": "application.yml TLS config: grpc.server.security.enabled=true, certificate-chain, private-key paths (commented for test). Client TlsChannelCredentials.create() example.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Return empty Listener after call.close(): after closing the call with a status, you MUST return a no-op Listener (new ServerCall.Listener<>() {}) — otherwise the framework may try to process further events on the closed call. UNAUTHENTICATED vs PERMISSION_DENIED: UNAUTHENTICATED = can't verify identity (no token, invalid token, expired token). PERMISSION_DENIED = identity verified but insufficient role. Metadata.Key.of('authorization'): key name is lowercase (gRPC HTTP/2 canonicalization). Status.RESOURCE_EXHAUSTED: gRPC's equivalent of HTTP 429 (rate limit). Rate limiter order: put rate limiting BEFORE auth in the interceptor chain — avoids expensive JWT parsing when limit is already exhausted.",
+  "rubric": [
+    {"category": "GrpcTokenExtractor", "points": 15},
+    {"category": "JwtServerInterceptor", "points": 15},
+    {"category": "RbacChecker", "points": 15},
+    {"category": "GrpcRateLimitInterceptor", "points": 15},
+    {"category": "GrpcAuditService", "points": 10},
+    {"category": "4 tests (all pass)", "points": 25},
+    {"category": "README (interceptor order)", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

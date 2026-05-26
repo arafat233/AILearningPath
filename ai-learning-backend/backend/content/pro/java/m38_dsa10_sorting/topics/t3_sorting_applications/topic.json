@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m38_t3",
+  "module_id": "m38",
+  "topic_number": 3,
+  "name": "Sorting Applications \u2014 Intervals, Anagrams, Custom",
+  "slug": "sorting-applications-intervals-custom",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m38_t1"
+    ],
+    "concepts_taught": [
+      "sorting-applications-intervals-custom"
+    ],
+    "career_relevance": "Core Sorting Applications \u2014 Intervals, Anagrams, Custom patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Sorting Applications \u2014 Intervals, Anagrams, Custom"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Merge intervals: sort by start; merge if prev.end >= curr.start",
+        "Insert interval: find left/right boundaries; merge overlapping",
+        "Largest number: custom comparator (b+a).compareTo(a+b)",
+        "Sort by frequency: freq map + custom comparator",
+        "Minimum platforms: sort arrivals + departures; two-pointer",
+        "Count inversions: O(n log n) via merge sort \u2014 count when right element taken"
+      ],
+      "next_topic_preview": "Next: Custom sort patterns."
+    }
+  }
+}

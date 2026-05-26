@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m18_t3_proj",
+  "linked_topic": "java_m18_t3",
+  "level": "mini",
+  "name": "Razorpay API Protection — Redis Rate Limiting",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+
+  "scenario": "Protect Razorpay's payment API from abuse. A competitor's scraper is firing 5,000 requests/minute to the payment status endpoint. Real merchants are getting 503 errors. Implement Redis-based rate limiting that allows 100 requests/minute for payment creation and 500/minute for status checks — with 429 responses and Retry-After headers.",
+
+  "description": "FixedWindowRateLimiter + Spring Filter + per-endpoint limits + whitelist + RateLimitResult record. MockMvc integration tests verify 429 on limit exceeded and correct Retry-After header.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "RateLimitResult record: allowed, count, limit, remaining, resetInSeconds.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "RazorpayRateLimiter @Service: check(merchantId, endpoint) → RateLimitResult. Endpoint limits: /v1/payments POST=100/min, /v1/payments GET=500/min, /v1/refunds=20/min, default=200/min. Redis INCR + EXPIRE(count==1) pattern.",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "RateLimitFilter @Component @Order(1): extracts X-Merchant-Id header. If missing: IP-based limiting (20/min). Checks rate via RazorpayRateLimiter. On limit: HTTP 429 + Retry-After + JSON body. On allow: X-RateLimit-Remaining header. Never call chain.doFilter after 429.",
+        "weight": 25
+      },
+      {
+        "id": "req_4",
+        "description": "WhitelistService @Service: addToWhitelist(merchantId), isWhitelisted(merchantId). Redis Set 'razorpay:rate:whitelist'. Filter skips rate check for whitelisted merchants.",
+        "weight": 12
+      },
+      {
+        "id": "req_5",
+        "description": "MockMvc integration tests (4): (1) requests 1-100 return 200 for /v1/payments POST, (2) request 101 returns 429 with Retry-After, (3) /v1/payments GET allows 500 (separate counter), (4) whitelisted merchant always gets 200. All 4 pass.",
+        "weight": 25
+      },
+      {
+        "id": "req_6",
+        "description": "application.properties: Redis config. Test uses unique merchantId per test run to prevent interference.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add MerchantTier (STARTUP=50, GROWTH=200, ENTERPRISE=2000) stored in Redis Hash. Filter reads tier and applies tier-specific base limit scaled by endpoint factor. @SpringBootTest verifying STARTUP blocked at 51, GROWTH at 201.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add /api/rate-limit/status endpoint returning JSON with requestsThisWindow, limit, remaining, resetInSeconds for the requesting merchant. @SpringBootTest verifying status reflects actual usage.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Sliding window rate limiter alternative: SlidingWindowRateLimiter using ZSet for /v1/payments endpoint. Compare behavior at minute boundary with fixed window. Write test demonstrating the difference.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Test merchants:\n  M001: normal merchant (not whitelisted)\n  M002: scraper merchant (not whitelisted)\n  M_INTERNAL: whitelisted internal service\n\nRate limits:\n  POST /v1/payments:   100 requests/minute\n  GET  /v1/payments:   500 requests/minute\n  POST /v1/refunds:     20 requests/minute\n  Default:             200 requests/minute\n\nExpected behaviors:\n  M001 makes 100 POST /v1/payments → all 200\n  M001 makes 101st request → 429 + Retry-After\n  M_INTERNAL makes 200 requests → all 200 (whitelisted)\n  M002 POST /v1/refunds: 20th = 200, 21st = 429",
+
+  "starter_code": "// RateLimitResult.java (record)\n// RazorpayRateLimiter.java (@Service)\n// RateLimitFilter.java (@Component @Order(1))\n// WhitelistService.java (@Service)\n// application.properties\n// RazorpayRateLimitTest.java (4 MockMvc tests)",
+
+  "example_output": "# Normal request (within limit):\nHTTP 200 OK\nX-RateLimit-Limit: 100\nX-RateLimit-Remaining: 53\n\n# Over limit:\nHTTP 429 Too Many Requests\nRetry-After: 23\nX-RateLimit-Limit: 100\nX-RateLimit-Remaining: 0\n{\"error\":\"Rate limit exceeded\",\"retryAfterSeconds\":23}\n\n# Whitelisted merchant:\nHTTP 200 OK  (no X-RateLimit headers, or bypass headers)\n\n# Tests:\n✓ first100Requests_return200\n✓ request101_returns429WithRetryAfter\n✓ getEndpoint_hasSeparateHigherLimit\n✓ whitelistedMerchant_neverThrottled",
+
+  "rubric": [
+    { "category": "RateLimitResult record", "points": 8, "criteria": ["All 5 fields (8 pts)"] },
+    { "category": "RazorpayRateLimiter", "points": 25, "criteria": ["INCR + EXPIRE(count==1) (10 pts)", "Endpoint limit resolution (10 pts)", "resetInSeconds correct (5 pts)"] },
+    { "category": "RateLimitFilter", "points": 25, "criteria": ["Extract merchant/IP (5 pts)", "429 with Retry-After (10 pts)", "return after 429 (5 pts)", "Remaining header (5 pts)"] },
+    { "category": "WhitelistService", "points": 12, "criteria": ["Redis Set add/check (7 pts)", "Filter bypass (5 pts)"] },
+    { "category": "MockMvc tests (4)", "points": 25, "criteria": ["4 tests × 6 pts each"] },
+    { "category": "Config", "points": 5, "criteria": ["Properties + test isolation (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["Tiered limits (25 pts)", "Status endpoint (20 pts)", "Sliding window (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. EXPIRE only when count==1 — critical: don't call expire on every request or the window never resets while traffic is active. return after 429 in Filter: chain.doFilter must NOT be called after writing 429 — double processing occurs. GET vs POST same path: separate counter keys need method prefix (e.g., 'rate:M001:GET_v1_payments:window' vs 'rate:M001:POST_v1_payments:window'). Whitelist uses Redis Set: SISMEMBER is O(1). MockMvc test isolation: use unique merchantId per test (System.currentTimeMillis()) to prevent cross-test counter contamination.",
+
+  "submission_instructions": "GitHub push. All 4 MockMvc tests pass. README includes a 'rate limit policy' table showing limits per endpoint. Test output shown in README.",
+
+  "tips_for_success": [
+    "Test isolation: 'test:' + UUID or timestamp as merchantId prefix prevents tests sharing counters",
+    "Endpoint key: include HTTP method to distinguish POST /v1/payments (100/min) from GET (500/min)",
+    "count==1 check: only set TTL on first request; test this explicitly",
+    "return after 429: add a comment 'CRITICAL: must return here' to make it obvious",
+    "MockMvc @SpringBootTest: requires real Redis; use @EmbeddedKafka-equivalent or test Redis"
+  ],
+
+  "concepts_reinforced": [
+    "Redis INCR for atomic distributed counter",
+    "Fixed window rate limiting with minute bucket key",
+    "EXPIRE only on first request (count==1)",
+    "HTTP 429 Too Many Requests with Retry-After header",
+    "Spring Filter @Order(1) for earliest interception",
+    "Per-endpoint rate limits via key granularity",
+    "Redis Set for whitelist membership"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m40_t1",
+  "module_id": "m40",
+  "topic_number": 1,
+  "name": "Backtracking Template \u2014 Choose, Explore, Undo",
+  "slug": "backtracking-template-choose-explore-undo",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m35_t2"
+    ],
+    "concepts_taught": [
+      "backtracking-template-choose-explore-undo"
+    ],
+    "career_relevance": "Core Backtracking Template \u2014 Choose, Explore, Undo.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Backtracking Template \u2014 Choose, Explore, Undo"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Template: choose \u2192 recurse \u2192 undo (3 steps, always)",
+        "State restoration: remove last added element after recursive call",
+        "Base case: when condition met, add copy of current to results",
+        "Pruning: skip invalid choices early (sort + break)",
+        "Combination Sum: i not i+1 to allow element reuse",
+        "Subsets: add current at EVERY call, not just at leaf"
+      ],
+      "next_topic_preview": "Next: Permutations and Combinations."
+    }
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m26_t5",
+  "language": "java",
+  "module_id": "m26",
+  "module_name": "AI-Powered Java Applications",
+  "topic_number": 5,
+  "name": "Testing AI Applications",
+  "slug": "testing-ai-applications",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m26_t1", "java_m12_t3", "java_m25_t2"],
+    "concepts_taught": [
+      "mocking_ai_responses", "deterministic_ai_testing", "prompt_testing",
+      "response_validation", "ai_contract_testing", "wiremock_for_ai",
+      "testing_rag_pipelines", "testing_tools", "ai_fallback_testing",
+      "evaluation_frameworks", "llm_as_judge"
+    ],
+    "skills_developed": [
+      "mocking_chat_client_in_tests",
+      "writing_deterministic_ai_tests",
+      "validating_ai_response_format",
+      "testing_rag_retrieval_quality"
+    ],
+    "career_relevance": "A Razorpay senior engineer reviews a pull request: 'You added AI-powered dispute classification but there are no tests. What happens when Anthropic API is down? What happens if the AI returns an unexpected format? How do I know the prompt is correct?' AI features without tests are a liability. After this topic, you can write comprehensive tests for AI features — mocking the AI, validating prompts, testing fallbacks, and ensuring the RAG pipeline retrieves the right documents.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Untested AI feature in production:\n\n```\nPROBLEM:\n  Payment dispute classifier deployed without tests.\n  Anthropic API outage: ChatClient throws exception\n  Result: entire dispute endpoint throws 500\n         All merchant dispute tickets stuck\n         No fallback, no graceful degradation\n\n  Same day: AI returns unexpected format:\n  Expected: '{\"category\": \"FRAUD\", \"confidence\": 87}'\n  Got:      'Based on my analysis, this appears to be... FRAUD.'\n  Result:   BeanOutputConverter.convert() throws JsonParseException\n            NPE propagates to HTTP response → 500\n\n  Root cause: no test for AI downtime, no test for format validation\n\nWITH PROPER AI TESTING:\n  @Test void apiDown_fallbackActivates():\n    Stub: chatClient returns RuntimeException\n    Assert: dispute classified via rule-based fallback\n    Assert: HTTP 200 (not 500)\n\n  @Test void aiReturnsWrongFormat_handledGracefully():\n    Stub: chatClient returns plain text (not JSON)\n    Assert: retry + fallback activated\n    Assert: response still valid DisputeClassification\n```",
+    "what_you_will_build": "Complete test suite for Razorpay's AI dispute classifier: mock responses, fallback tests, prompt validation, RAG evaluation."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "mocking_chat_client": "**Mocking ChatClient in Spring AI tests:**\n\n```java\n// Test configuration that provides a mock ChatClient:\n@TestConfiguration\nstatic class MockAiConfig {\n    @Bean\n    @Primary\n    ChatClient.Builder mockChatClientBuilder() {\n        // Create mock chain:\n        ChatClient mockClient = mock(ChatClient.class);\n        ChatClient.ChatClientRequest mockRequest = mock(ChatClient.ChatClientRequest.class);\n        ChatClient.CallResponseSpec mockCallSpec = mock(ChatClient.CallResponseSpec.class);\n        ChatClient.ChatClientRequestSpec mockSpec = mock(ChatClient.ChatClientRequestSpec.class);\n\n        when(mockClient.prompt()).thenReturn(mockRequest);\n        when(mockRequest.user(anyString())).thenReturn(mockSpec);\n        when(mockSpec.call()).thenReturn(mockCallSpec);\n        when(mockCallSpec.content()).thenReturn(\n            '{\"category\": \"FRAUD\", \"confidence\": 92, \"requiresHuman\": true}');\n\n        ChatClient.Builder builder = mock(ChatClient.Builder.class);\n        when(builder.defaultSystem(any())).thenReturn(builder);\n        when(builder.build()).thenReturn(mockClient);\n        return builder;\n    }\n}\n\n// Simpler alternative: WireMock for Anthropic API:\n@WireMockTest(httpPort = 8089)\nclass AiContractTest {\n    @Test void stubAnthropicResponse() {\n        stubFor(post(urlEqualTo(\"/v1/messages\"))\n            .willReturn(aResponse()\n                .withStatus(200)\n                .withHeader(\"Content-Type\", \"application/json\")\n                .withBodyFile(\"anthropic-fraud-response.json\")));\n        // Test with real HTTP client pointing to WireMock port\n    }\n}\n```",
+      "deterministic_testing": "**Deterministic AI tests with temperature=0:**\n\n```java\n// application-test.yml:\nspring:\n  ai:\n    anthropic:\n      chat:\n        options:\n          temperature: 0.0  # deterministic output\n          seed: 42          # same seed = same output (model-dependent)\n\n// Test: same prompt → same structured output\n@Test void classification_isDeterministic() {\n    // With temperature=0, same input always produces same output\n    String result1 = classifier.classify(\"payment failed declined\");\n    String result2 = classifier.classify(\"payment failed declined\");\n    assertEquals(result1, result2); // deterministic!\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Testing pyramid for AI applications. Bottom layer (most tests): Unit tests with mocked ChatClient (instant, free). Middle layer: Integration tests with WireMock stubbing Anthropic API (fast, controlled responses). Upper middle: RAG evaluation tests (InMemoryVectorStore + known test cases, measure accuracy). Top layer (fewest): End-to-end tests against real AI API (slow, expensive, non-deterministic — run nightly only). Sidebar: Fallback testing — inject AI error → verify rule-based fallback activates → assert 200 response.",
+      "alt_text": "AI testing pyramid: unit (mock) → integration (WireMock) → RAG evaluation → E2E (real API)"
+    },
+    "worked_example": {
+      "scenario": "Complete test suite for Razorpay dispute classifier.",
+      "problem_statement": "1. Mock ChatClient returns expected JSON\n2. WireMock stubs Anthropic API endpoint\n3. Fallback test: API throws → rule-based classifier\n4. RAG evaluation: 5 test cases, measure accuracy\n5. @SpringBootTest: all test types demonstrated",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Testing strategy for AI features",
+          "details": "Layer 1 (fast, free): Mock ChatClient — test your service logic without real AI calls. 95% of tests here. Layer 2 (medium): WireMock — stub the Anthropic HTTP endpoint with real JSON responses (test JSON parsing, headers). Layer 3 (expensive): Real API with temperature=0 — run only nightly in CI. Layer 4 (evaluation): RAG accuracy — measure retrieval quality on test query set. The AI is NOT what you're testing in unit tests — you're testing YOUR code's handling of AI responses."
+        }
+      ],
+      "final_code": "// Mock: test service logic (fast, free)\n// WireMock: test HTTP integration (controlled responses)\n// Fallback: when(chatClient).thenThrow() → assert fallback activates\n// RAG eval: N test queries → measure top-K hit rate",
+      "expected_output": "Test suite results:\n  MockChatClientTest: 4 tests pass (8ms)\n  FallbackTest: 2 tests pass (12ms)\n  RagEvaluationTest: accuracy=80% on 10 test cases\n  TotalTests: 8 pass, 0 fail, 0 ignored",
+      "things_to_notice": [
+        "Mock the ChatClient, not the AI: you're testing YOUR code (error handling, JSON parsing, routing logic). The AI model is assumed correct.",
+        "JSON format test: mock returns plain text instead of JSON → BeanOutputConverter throws → your code must handle this gracefully (try-catch, fallback).",
+        "RAG accuracy target: 80%+ before deploying to production. Run the evaluation with 20+ real user queries and known correct documents.",
+        "E2E tests: expensive (pay per token). Run maximum once nightly. Mock tests: run on every PR."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay AI dispute classifier testing",
+          "use_case": "Test pyramid: 200 unit tests (mock ChatClient, 2s total), 15 integration tests (WireMock Anthropic, 30s), 10 RAG evaluation tests (InMemoryVectorStore, 20s), 3 E2E tests (real API, 60s, nightly only). Coverage: API downtime fallback, wrong JSON format handling, low-confidence routing, RAG accuracy 85%. PR blocked if any layer fails."
+        }
+      ],
+      "interview_relevance": "'How would you test an AI-powered feature?' → Testing pyramid. Unit: mock ChatClient (test service logic, error handling). Integration: WireMock stub Anthropic API (test JSON parsing, HTTP headers). Fallback: ChatClient throws → verify rule-based fallback → assert 200 HTTP. RAG: InMemoryVectorStore test cases → measure accuracy %. E2E: temperature=0, nightly only. Never test 100% against real AI — too slow, too expensive, non-deterministic.",
+      "real_world_workflow": "AI testing workflow: (1) unit tests with mock ChatClient for all business logic paths, (2) fallback tests: stub AI to throw → assert graceful degradation, (3) JSON format tests: stub AI to return invalid JSON → assert error handling, (4) RAG accuracy: build test set of 20+ question-answer pairs → measure top-K accuracy, (5) E2E smoke test with real API + temperature=0 (nightly), (6) CI gates: unit + integration on every PR, E2E nightly."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "testing_only_happy_path",
+        "what_students_get_wrong": "Only testing the happy path (AI returns correct JSON). Not testing: API timeout, wrong format, low-confidence response, rate limit exceeded, or empty context (RAG).",
+        "remediation": "Test matrix: correct response ✓, API timeout ✓, wrong JSON format ✓, low confidence (< 70) ✓, no RAG context found ✓, rate limit error ✓. Each should have a defined behavior (fallback, error message, retry). If the behavior is undefined: define it in a test FIRST (TDD for AI).",
+        "detection_pattern": "Test class has only one test: testClassify_happyPath() — no error path, no fallback, no format validation"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Mock ChatClient: test service logic (not the AI) — fast, free, deterministic",
+        "WireMock: stub Anthropic HTTP endpoint — test JSON parsing + HTTP integration",
+        "Fallback test: stub AI to throw → assert rule-based fallback activates",
+        "Format test: stub AI to return plain text → assert BeanOutputConverter handles gracefully",
+        "RAG evaluation: test question set → measure top-K accuracy → target 80%+",
+        "temperature=0: deterministic for E2E tests (same input → same output)",
+        "E2E tests: nightly only (expensive, slow, non-deterministic at temp > 0)",
+        "Test matrix: happy path + API error + wrong format + low confidence + no context",
+        "Never mock: rule-based fallback classifier (test it directly — it's pure logic)",
+        "AI prompt test: assert the prompt sent to AI contains required fields/instructions"
+      ],
+      "self_check_questions": [
+        {
+          "question": "A developer says: 'AI tests are pointless because AI responses are non-deterministic. You can't assert the exact output.' How do you respond?",
+          "answer": "Partially true but misses the point. You're NOT testing the AI — you're testing YOUR CODE. What to test: (1) Fallback behavior: stub the AI to throw an exception, assert your fallback activates and returns a valid response. This is purely deterministic. (2) Format handling: stub the AI to return malformed JSON, assert your error handling catches it gracefully. (3) Routing logic: mock returns classification='FRAUD', confidence=92 → assert ticket routed to fraud team (your routing logic, not the AI). (4) RAG retrieval: InMemoryVectorStore with known documents → assert correct documents retrieved (retrieval is deterministic). Only the final E2E 'does the AI actually classify this correctly?' is non-deterministic — run those with temperature=0, limited scope, nightly. 95% of AI tests are deterministic."
+        }
+      ],
+      "next_topic_preview": "Module 26 is complete! You now have the full AI-powered Java toolkit: Spring AI, RAG, AI features (extraction/classification/summarization), LangChain4j, and comprehensive testing strategies for AI applications."
+    }
+  }
+}

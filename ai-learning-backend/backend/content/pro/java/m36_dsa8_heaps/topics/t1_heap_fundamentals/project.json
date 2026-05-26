@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m36_t1_proj",
+  "linked_topic": "java_m36_t1",
+  "level": "mini",
+  "name": "Heap Fundamentals \u2014 Min/Max Heap, PriorityQueue API",
+  "estimated_minutes": 40,
+  "difficulty": 4,
+  "scenario": "Build Heap Fundamentals \u2014 Min/Max Heap, PriorityQueue API.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Core algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Key patterns: min-heap size k for K-largest. max-heap for K-smallest. Two heaps for median. Meeting rooms: sort by start + min-heap of end times.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

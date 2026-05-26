@@ -1,0 +1,343 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m19_t1",
+  "topic_name": "Resilience4j Circuit Breaker",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m19_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace circuit breaker state transitions",
+      "scenario": "Given failure counts, determine circuit state at each point.",
+      "instructions": "```\nConfig: slidingWindowSize=10, minimumNumberOfCalls=5, failureRateThreshold=50%\nwaitDurationInOpenState=30s, permittedNumberOfCallsInHalfOpenState=3\n\nCalls (F=failure, S=success):\n  Calls 1-4:  F, F, F, S\n  Call 5:     F\n  Call 6:     S\n  Calls 7-10: F, F, F, F\n  Call 11:    attempt\n  (30 seconds pass)\n  Calls 12-14: S, S, S  (half-open test)\n  Call 15:    attempt\n```\n\nAfter each milestone, what is the circuit state?",
+      "expected_solution": "After calls 1-4: CLOSED (only 4 calls < minimumNumberOfCalls=5, no state change possible)\n\nAfter call 5: Check: 5 calls = minimumNumberOfCalls met.\n  Failures in window: F,F,F,S,F = 4/5 = 80% ≥ 50% → CIRCUIT OPENS!\n\nAfter call 6 (attempt while OPEN): Fallback called (0ms), not counted in window.\n\nAfter calls 7-10: Circuit is OPEN, all 4 calls → fallback. Not counted.\n\nCall 11: Circuit OPEN. → fallback.\n\n(30s elapse: waitDurationInOpenState expires)\nCircuit transitions to HALF-OPEN.\n\nCalls 12-14 (3 test calls in half-open): S, S, S → 0% failure rate.\nAll 3 permitted calls succeed → circuit transitions to CLOSED.\n\nCall 15: Circuit CLOSED. Real service called normally.",
+      "test_cases": [
+        { "type": "text_match", "expected": "After calls 1-4: CLOSED (only 4 calls < minimumNumberOfCalls=5, no state change possible)\n\nAfter call 5: Check: 5 calls = minimumNumberOfCalls met.\n  Failures in window: F,F,F,S,F = 4/5 = 80% ≥ 50% → CIRCUIT OPENS!\n\nAfter call 6 (attempt while OPEN): Fallback called (0ms), not counted in window.\n\nAfter calls 7-10: Circuit is OPEN, all 4 calls → fallback. Not counted.\n\nCall 11: Circuit OPEN. → fallback.\n\n(30s elapse: waitDurationInOpenState expires)\nCircuit transitions to HALF-OPEN.\n\nCalls 12-14 (3 test calls in half-open): S, S, S → 0% failure rate.\nAll 3 permitted calls succeed → circuit transitions to CLOSED.\n\nCall 15: Circuit CLOSED. Real service called normally." }
+      ],
+      "hints": [
+        "minimumNumberOfCalls: no state change until this many calls recorded",
+        "OPEN state: all calls → fallback, NOT recorded in sliding window",
+        "HALF-OPEN: only permittedNumberOfCalls pass; all must succeed to CLOSE"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m19_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the @CircuitBreaker annotation and fallback",
+      "scenario": "Standard circuit breaker with fallback returning empty list.",
+      "instructions": "Fill in the blanks.",
+      "starter_code": "@Service\npublic class ProductService {\n    \n    @___________(name = \"product-api\", ___________ = \"productFallback\")\n    public List<Product> getProducts(String category) {\n        return productClient.fetchByCategory(category);\n    }\n    \n    // Fallback: same return type + same params + ___ last\n    private List<Product> productFallback(\n            String category, ___________ e) {\n        log.warn(\"Product API down for category {}: {}\", category, e.getMessage());\n        return List.___();\n    }\n}",
+      "expected_solution": "@Service\npublic class ProductService {\n    \n    @CircuitBreaker(name = \"product-api\", fallbackMethod = \"productFallback\")\n    public List<Product> getProducts(String category) {\n        return productClient.fetchByCategory(category);\n    }\n    \n    private List<Product> productFallback(\n            String category, Exception e) {\n        log.warn(\"Product API down for category {}: {}\", category, e.getMessage());\n        return List.of();\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "CircuitBreaker",  "hint": "Resilience4j annotation" },
+        { "position": 2, "answer": "fallbackMethod",  "hint": "Attribute pointing to the fallback method name" },
+        { "position": 3, "answer": "Exception",       "hint": "Last parameter in fallback signature" },
+        { "position": 4, "answer": "of",              "hint": "Java 9+ immutable empty list factory method" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@CircuitBreaker: Resilience4j annotation, not Spring's @CircuitBreaker",
+        "fallbackMethod attribute: string with the exact method name",
+        "Exception last param: Resilience4j passes the exception that caused the fallback"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m19_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write application.yml circuit breaker configuration",
+      "scenario": "Configure two circuit breakers with different thresholds.",
+      "instructions": "Write application.yml for:\n1. 'payment-gateway': failureRate=30%, window=20, min=10, wait=60s, halfOpen=5\n2. 'notification': failureRate=60%, window=10, min=5, wait=15s, halfOpen=2\n3. Both with slow call detection: calls > 3s count as slow, slow rate threshold 70%",
+      "starter_code": "# application.yml\n# resilience4j.circuitbreaker configuration\n",
+      "expected_solution": "# application.yml:\nresilience4j:\n  circuitbreaker:\n    instances:\n      payment-gateway:\n        slidingWindowType: COUNT_BASED\n        slidingWindowSize: 20\n        minimumNumberOfCalls: 10\n        failureRateThreshold: 30\n        waitDurationInOpenState: 60s\n        permittedNumberOfCallsInHalfOpenState: 5\n        slowCallDurationThreshold: 3s\n        slowCallRateThreshold: 70\n      notification:\n        slidingWindowType: COUNT_BASED\n        slidingWindowSize: 10\n        minimumNumberOfCalls: 5\n        failureRateThreshold: 60\n        waitDurationInOpenState: 15s\n        permittedNumberOfCallsInHalfOpenState: 2\n        slowCallDurationThreshold: 3s\n        slowCallRateThreshold: 70\n\n# payment-gateway: strict (30% failure → open) — payments are critical\n# notification: lenient (60% failure → open) — notifications are non-critical",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["payment-gateway", "failureRateThreshold: 30", "notification", "failureRateThreshold: 60"] }
+      ],
+      "hints": [
+        "slidingWindowType: COUNT_BASED (last N calls) or TIME_BASED (last N seconds)",
+        "minimumNumberOfCalls: prevents false open on early low-traffic calls",
+        "waitDurationInOpenState format: '60s' (seconds) or '1m' (minutes)"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m19_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Circuit breaker with cached fallback",
+      "scenario": "Fallback returns the last cached value when the real service is down.",
+      "instructions": "Write ZerodhaInstrumentService:\n1. fetchInstrumentData(symbol): @CircuitBreaker('instrument-feed')\n2. Fallback: return last known price from a local Map cache\n3. updateCache(symbol, data): updates the local cache\n4. The Map acts as an L0 in-memory cache for degraded mode\n5. What is the risk of returning stale cached data?",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.ConcurrentHashMap;\n// ZerodhaInstrumentService with cached fallback\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.ConcurrentHashMap;\n\n@Service\npublic class ZerodhaInstrumentService {\n    private final InstrumentFeedClient feedClient;\n    // L0 in-memory cache for fallback (survives circuit open state):\n    private final Map<String, InstrumentData> lastKnownData = new ConcurrentHashMap<>();\n    \n    ZerodhaInstrumentService(InstrumentFeedClient c) { feedClient = c; }\n    \n    @CircuitBreaker(\n        name = \"instrument-feed\",\n        fallbackMethod = \"cachedInstrumentFallback\"\n    )\n    public InstrumentData fetchInstrumentData(String symbol) {\n        InstrumentData data = feedClient.fetch(symbol);\n        lastKnownData.put(symbol, data);  // update cache on success\n        return data;\n    }\n    \n    private InstrumentData cachedInstrumentFallback(String symbol, Exception e) {\n        InstrumentData cached = lastKnownData.get(symbol);\n        if (cached != null) {\n            System.out.printf(\"[CB Fallback] Returning STALE data for %s (feed down)%n\", symbol);\n            return cached.withStaleFlag(true);  // mark as potentially stale\n        }\n        System.out.printf(\"[CB Fallback] No cached data for %s — returning empty%n\", symbol);\n        return InstrumentData.empty(symbol);\n    }\n    \n    // RISK of stale data:\n    // Stock prices change every second during market hours.\n    // A stale price from 2 minutes ago could cause:\n    //   - Wrong P&L display\n    //   - Incorrect margin calculations\n    //   - Bad limit order placement\n    // Mitigation: mark data as stale + short circuit wait time (10-15s)\n    //             so service recovers quickly\n    \n    interface InstrumentFeedClient { InstrumentData fetch(String s); }\n    record InstrumentData(String symbol, double price, boolean stale) {\n        static InstrumentData empty(String s) { return new InstrumentData(s, 0, true); }\n        InstrumentData withStaleFlag(boolean s) { return new InstrumentData(symbol, price, s); }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ConcurrentHashMap: thread-safe for multi-threaded request handling",
+        "Update cache on success: ensures lastKnownData is always the freshest successful response",
+        "Stale flag: mark the returned data so callers know it may be outdated"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m19_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Multiple circuit breakers in one service",
+      "scenario": "A service calling multiple external APIs — each gets its own circuit breaker.",
+      "instructions": "Write BookMyShow EventService:\n1. getEventDetails(eventId): @CircuitBreaker('event-db') → fallback empty optional\n2. getSeatMap(eventId): @CircuitBreaker('seat-service') → fallback zone pricing\n3. getVenueInfo(venueId): @CircuitBreaker('venue-db') → fallback cached venue\n4. Different configs for each — seat-service is strictest (real-time critical)\n5. Show application.yml for the three named circuit breakers",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n// BookMyShowEventService with 3 circuit breakers\n",
+      "expected_solution": "// application.yml (shown as comment — separate file in real project):\n// resilience4j:\n//   circuitbreaker:\n//     instances:\n//       event-db:\n//         slidingWindowSize: 10\n//         failureRateThreshold: 50\n//         waitDurationInOpenState: 30s\n//       seat-service:\n//         slidingWindowSize: 10\n//         minimumNumberOfCalls: 3\n//         failureRateThreshold: 30   # strictest — seat availability is critical\n//         waitDurationInOpenState: 10s  # recover quickly\n//       venue-db:\n//         slidingWindowSize: 5\n//         failureRateThreshold: 60   # lenient — venue info rarely changes\n//         waitDurationInOpenState: 60s\n\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\n@Service\npublic class BookMyShowEventService {\n    \n    @CircuitBreaker(name = \"event-db\", fallbackMethod = \"emptyEvent\")\n    public Optional<Event> getEventDetails(String eventId) {\n        return eventClient.findById(eventId);\n    }\n    private Optional<Event> emptyEvent(String eventId, Exception e) {\n        System.out.println(\"[CB] Event DB down for \" + eventId);\n        return Optional.empty();  // page shows 'event not found' gracefully\n    }\n    \n    @CircuitBreaker(name = \"seat-service\", fallbackMethod = \"zonePricingFallback\")\n    public SeatMap getSeatMap(String eventId) {\n        return seatClient.getInteractiveMap(eventId);\n    }\n    private SeatMap zonePricingFallback(String eventId, Exception e) {\n        System.out.println(\"[CB] Seat service down — returning zone pricing for \" + eventId);\n        return SeatMap.zonePricing(eventId);  // simplified, still bookable\n    }\n    \n    @CircuitBreaker(name = \"venue-db\", fallbackMethod = \"cachedVenueFallback\")\n    public VenueInfo getVenueInfo(String venueId) {\n        return venueClient.getInfo(venueId);\n    }\n    private VenueInfo cachedVenueFallback(String venueId, Exception e) {\n        return VenueInfo.UNKNOWN;  // venue info is non-critical for booking\n    }\n    \n    // Stubs:\n    interface EventClient { Optional<Event> findById(String id); }\n    interface SeatClient  { SeatMap getInteractiveMap(String id); }\n    interface VenueClient { VenueInfo getInfo(String id); }\n    record Event(String id, String name) {}\n    record SeatMap(String eventId, String type) {\n        static SeatMap zonePricing(String id) { return new SeatMap(id, \"ZONE\"); }\n    }\n    record VenueInfo(String id, String name) {\n        static final VenueInfo UNKNOWN = new VenueInfo(\"?\",\"Venue info unavailable\");\n    }\n    EventClient eventClient = id -> Optional.empty();\n    SeatClient  seatClient  = id -> SeatMap.zonePricing(id);\n    VenueClient venueClient = id -> VenueInfo.UNKNOWN;\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Each circuit breaker is independent: seat-service opening doesn't affect event-db",
+        "Strictest for critical path (seat selection): lowest failureRateThreshold, shortest waitDuration",
+        "Lenient for non-critical (venue info): higher threshold, longer wait"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m19_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Reading circuit breaker state programmatically",
+      "scenario": "CircuitBreakerRegistry allows runtime inspection of circuit state.",
+      "instructions": "Write CircuitBreakerMonitor:\n1. Inject CircuitBreakerRegistry\n2. getState(name): returns the current state of a named circuit breaker\n3. getMetrics(name): returns failure rate, slow call rate, number of calls\n4. @Scheduled: log all circuit breaker states every 30 seconds\n5. Show: how to check if circuit is OPEN before making a call",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\n// CircuitBreakerMonitor\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class CircuitBreakerMonitor {\n    private final CircuitBreakerRegistry registry;\n    \n    CircuitBreakerMonitor(CircuitBreakerRegistry r) { registry = r; }\n    \n    public CircuitBreaker.State getState(String name) {\n        return registry.circuitBreaker(name).getState();\n        // Returns: CLOSED, OPEN, HALF_OPEN, DISABLED, FORCED_OPEN\n    }\n    \n    public void logMetrics(String name) {\n        CircuitBreaker cb = registry.circuitBreaker(name);\n        CircuitBreaker.Metrics m = cb.getMetrics();\n        System.out.printf(\n            \"[CB %s] state=%s failureRate=%.1f%% slowRate=%.1f%% calls=%d%n\",\n            name,\n            cb.getState(),\n            m.getFailureRate(),\n            m.getSlowCallRate(),\n            m.getNumberOfBufferedCalls()\n        );\n    }\n    \n    @Scheduled(fixedRate = 30_000)\n    public void logAllStates() {\n        registry.getAllCircuitBreakers().forEach(cb -> {\n            CircuitBreaker.Metrics m = cb.getMetrics();\n            System.out.printf(\n                \"[CB %s] state=%-12s failures=%.0f%% slow=%.0f%% buffered=%d%n\",\n                cb.getName(), cb.getState(),\n                m.getFailureRate(), m.getSlowCallRate(),\n                m.getNumberOfBufferedCalls()\n            );\n        });\n    }\n    \n    // Check before call (optional — usually let annotation handle it):\n    public boolean isCircuitOpen(String name) {\n        return registry.circuitBreaker(name).getState() == CircuitBreaker.State.OPEN;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "CircuitBreakerRegistry: Spring bean auto-configured by resilience4j-spring-boot3",
+        "cb.getMetrics(): failure rate, slow call rate, buffered calls in sliding window",
+        "getAllCircuitBreakers(): iterate all named instances for dashboard/alerting"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m19_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test circuit breaker with a mocked failing client",
+      "scenario": "Verify circuit breaker behavior: fallback fires after failures, circuit reopens.",
+      "instructions": "Write a @SpringBootTest test:\n1. Mock the downstream client to always throw RuntimeException\n2. Call the protected method 6 times (window=10, min=5, threshold=50%)\n3. Verify: first 5 calls trigger fallback (real exceptions count)\n4. Verify: circuit is now OPEN (6th failure crossed 50%)\n5. Verify: fallback return value is correct",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n// CircuitBreakerTest\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.List;\n\n@SpringBootTest\nclass CircuitBreakerTest {\n    @Autowired BookMyShowEventService eventService;\n    @MockBean BookMyShowEventService.SeatClient seatClient;\n    @Autowired CircuitBreakerRegistry registry;\n    \n    @BeforeEach void resetCircuit() {\n        // Reset circuit breaker to CLOSED state before each test:\n        CircuitBreaker cb = registry.circuitBreaker(\"seat-service\");\n        cb.reset();\n    }\n    \n    @Test\n    void fallback_firesWhenCircuitOpens() {\n        // Mock client to always fail:\n        when(seatClient.getInteractiveMap(anyString()))\n            .thenThrow(new RuntimeException(\"Seat service unavailable\"));\n        \n        // First 5 calls: real exceptions recorded + fallback called\n        for (int i = 0; i < 5; i++) {\n            SeatMap result = eventService.getSeatMap(\"EVT-001\");\n            // Fallback returns zone pricing:\n            assertEquals(\"ZONE\", result.type(),\n                \"Should return zone pricing from fallback\");\n        }\n        \n        // Circuit should now be OPEN (5/5 = 100% failure ≥ 30% threshold):\n        CircuitBreaker cb = registry.circuitBreaker(\"seat-service\");\n        assertEquals(CircuitBreaker.State.OPEN, cb.getState(),\n            \"Circuit should be OPEN after 5 failures\");\n    }\n    \n    @Test\n    void fallback_returnsCorrectDefault() {\n        when(seatClient.getInteractiveMap(\"EVT-999\"))\n            .thenThrow(new RuntimeException(\"Not found\"));\n        \n        SeatMap result = eventService.getSeatMap(\"EVT-999\");\n        \n        assertEquals(\"ZONE\", result.type(), \"Fallback should return ZONE pricing\");\n        assertEquals(\"EVT-999\", result.eventId());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "cb.reset(): programmatic circuit reset to CLOSED state for clean test",
+        "@MockBean: replaces the real client with a Mockito mock in Spring context",
+        "5 failures with failureRateThreshold=30 and minimumNumberOfCalls=3: 5/5=100% ≥ 30% → OPEN"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m19_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Slow call detection circuit breaker",
+      "scenario": "Circuit opens even on successful but slow calls — prevents thread exhaustion.",
+      "instructions": "Configure and test slow call circuit breaker:\n1. application.yml: slowCallDurationThreshold=2s, slowCallRateThreshold=60%\n2. ZerodhaMarketDataService.getMarketDepth(symbol): wrapped with CB\n3. Fallback: return empty market depth with 'delayed' flag\n4. Test: mock client to sleep 3 seconds (slow but successful)\n5. After threshold met: verify circuit opens despite no failures",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n// ZerodhaMarketDataService + slow call test\n",
+      "expected_solution": "// application.yml:\n// resilience4j.circuitbreaker.instances.market-data:\n//   slidingWindowSize: 10\n//   minimumNumberOfCalls: 5\n//   failureRateThreshold: 50\n//   slowCallDurationThreshold: 2s\n//   slowCallRateThreshold: 60\n//   waitDurationInOpenState: 15s\n\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n\n@Service\nclass ZerodhaMarketDataService {\n    private final MarketDataClient client;\n    ZerodhaMarketDataService(MarketDataClient c) { client = c; }\n    \n    @CircuitBreaker(name = \"market-data\", fallbackMethod = \"emptyMarketDepth\")\n    public MarketDepth getMarketDepth(String symbol) {\n        return client.fetchDepth(symbol);  // may be slow\n    }\n    \n    private MarketDepth emptyMarketDepth(String symbol, Exception e) {\n        System.out.println(\"[CB] Market data slow/down for \" + symbol);\n        return MarketDepth.empty(symbol);  // 'delayed data' fallback\n    }\n    \n    interface MarketDataClient { MarketDepth fetchDepth(String s); }\n    record MarketDepth(String symbol, boolean delayed, java.util.List<Double> bids) {\n        static MarketDepth empty(String s){\n            return new MarketDepth(s, true, java.util.List.of());\n        }\n    }\n}\n\n// Test:\n// When client.fetchDepth() sleeps 3s (> slowCallDurationThreshold=2s)\n// Each slow call (even if successful) contributes to slowCallRate\n// After 6/10 calls are slow → 60% ≥ slowCallRateThreshold=60% → CIRCUIT OPENS\n// Even though there are ZERO failures!\n// This prevents: 500 threads each waiting 3s = 1500 seconds of blocked threads\n\nclass SlowCallTest {\n    public static void main(String[] a) {\n        System.out.println(\"Slow calls (>2s) count toward circuit opening\");\n        System.out.println(\"After 60% of calls are slow → circuit OPENS\");\n        System.out.println(\"Fallback returns empty data immediately (0ms)\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Slow calls"] }
+      ],
+      "hints": [
+        "slowCallDurationThreshold: calls longer than this are marked 'slow' even if successful",
+        "slowCallRateThreshold: independent threshold from failureRateThreshold",
+        "Either threshold can independently open the circuit"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m19_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Circuit breaker event listener for alerting",
+      "scenario": "Subscribe to circuit breaker state change events for monitoring.",
+      "instructions": "Write CircuitBreakerEventListener:\n1. Subscribe to state transition events (CLOSED→OPEN, OPEN→CLOSED etc)\n2. On OPEN: log CRITICAL + simulate PagerDuty alert\n3. On CLOSED (recovery): log INFO + simulate recovery notification\n4. Show how to register the listener via CircuitBreakerRegistry\n5. @SpringBootTest: trigger failure, verify OPEN event fires",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.stereotype.Service;\nimport jakarta.annotation.PostConstruct;\n// CircuitBreakerEventListener\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.stereotype.Service;\nimport jakarta.annotation.PostConstruct;\nimport java.util.concurrent.atomic.AtomicInteger;\n\n@Service\npublic class CircuitBreakerEventListener {\n    private final CircuitBreakerRegistry registry;\n    public final AtomicInteger openEventCount = new AtomicInteger(0);\n    \n    CircuitBreakerEventListener(CircuitBreakerRegistry r) { registry = r; }\n    \n    @PostConstruct\n    public void registerListeners() {\n        // Register listener for ALL circuit breakers:\n        registry.getAllCircuitBreakers().forEach(this::attachListener);\n        \n        // Also attach to any future-registered circuit breakers:\n        registry.getEventPublisher()\n            .onEntryAdded(event -> attachListener(event.getAddedEntry()));\n    }\n    \n    private void attachListener(CircuitBreaker cb) {\n        cb.getEventPublisher()\n            .onStateTransition(event -> {\n                CircuitBreaker.StateTransition transition = event.getStateTransition();\n                String name = cb.getName();\n                \n                switch (transition) {\n                    case CLOSED_TO_OPEN:\n                        openEventCount.incrementAndGet();\n                        System.err.printf(\n                            \"[ALERT CRITICAL] Circuit '%s' OPENED! \" +\n                            \"Failure/slow rate exceeded threshold.%n\", name);\n                        // pagerDutyClient.createIncident(name, \"CRITICAL\");\n                        break;\n                    case OPEN_TO_HALF_OPEN:\n                        System.out.printf(\n                            \"[INFO] Circuit '%s' testing recovery (HALF-OPEN)%n\", name);\n                        break;\n                    case HALF_OPEN_TO_CLOSED:\n                        System.out.printf(\n                            \"[INFO] Circuit '%s' RECOVERED (CLOSED)%n\", name);\n                        // pagerDutyClient.resolveIncident(name);\n                        break;\n                    case HALF_OPEN_TO_OPEN:\n                        System.err.printf(\n                            \"[WARN] Circuit '%s' recovery FAILED — back to OPEN%n\", name);\n                        break;\n                }\n            });\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "getEventPublisher().onStateTransition(): subscribe to state change events",
+        "StateTransition enum: CLOSED_TO_OPEN, OPEN_TO_HALF_OPEN, HALF_OPEN_TO_CLOSED etc",
+        "@PostConstruct: register after all circuit breakers are initialized"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m19_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What happens with a void fallback for a non-void method?",
+      "scenario": "Fallback signature must exactly match the original method's return type.",
+      "instructions": "```java\n@CircuitBreaker(name=\"products\", fallbackMethod=\"fallback\")\npublic List<Product> getProducts(String category) {\n    return client.fetch(category);\n}\n\n// WRONG fallback (void return type):\nprivate void fallback(String category, Exception e) {\n    log.warn(\"Circuit open for {}\", category);\n}\n```\n\n1. When does the error occur (compile time or runtime)?\n2. What is the exact error message?\n3. How do you fix it?\n4. What if you have TWO possible exception types — can you write two fallbacks?",
+      "expected_solution": "1. RUNTIME — at application startup (not compile time)\n   Java allows void and non-void methods with the same name and params.\n   Resilience4j discovers the mismatch when it tries to register the CB.\n\n2. Error message at startup:\n   NoFallbackAvailableException: No fallback available for 'getProducts'\n   OR:\n   FallbackMethodNotFoundException: Fallback method 'fallback(String, Exception)'\n   with return type 'void' does not match expected 'List'.\n\n3. Fix — matching return type:\n   private List<Product> fallback(String category, Exception e) {\n       log.warn(\"Circuit open for {}\", category);\n       return List.of();  // ← correct return type!\n   }\n\n4. TWO fallbacks for different exception types — YES!\n   Resilience4j matches the most specific exception type first:\n   \n   // More specific exception:\n   private List<Product> fallback(String category, ConnectException e) {\n       log.error(\"Network error for {}\", category);\n       return List.of();\n   }\n   \n   // General exception:\n   private List<Product> fallback(String category, Exception e) {\n       log.warn(\"General error for {}\", category);\n       return List.of();\n   }\n   \n   Resilience4j tries the most specific matching fallback first.\n   ConnectException is more specific than Exception → used for network errors.",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. RUNTIME — at application startup (not compile time)\n   Java allows void and non-void methods with the same name and params.\n   Resilience4j discovers the mismatch when it tries to register the CB.\n\n2. Error message at startup:\n   NoFallbackAvailableException: No fallback available for 'getProducts'\n   OR:\n   FallbackMethodNotFoundException: Fallback method 'fallback(String, Exception)'\n   with return type 'void' does not match expected 'List'.\n\n3. Fix — matching return type:\n   private List<Product> fallback(String category, Exception e) {\n       log.warn(\"Circuit open for {}\", category);\n       return List.of();  // ← correct return type!\n   }\n\n4. TWO fallbacks for different exception types — YES!\n   Resilience4j matches the most specific exception type first:\n   \n   // More specific exception:\n   private List<Product> fallback(String category, ConnectException e) {\n       log.error(\"Network error for {}\", category);\n       return List.of();\n   }\n   \n   // General exception:\n   private List<Product> fallback(String category, Exception e) {\n       log.warn(\"General error for {}\", category);\n       return List.of();\n   }\n   \n   Resilience4j tries the most specific matching fallback first.\n   ConnectException is more specific than Exception → used for network errors." }
+      ],
+      "hints": [
+        "Resilience4j does runtime method discovery, not compile-time checking",
+        "Return type must match exactly — void for void methods, T for T-returning methods",
+        "Multiple fallbacks: Resilience4j selects by most specific exception type"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m19_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Razorpay payment service with circuit breaker protection",
+      "scenario": "Full circuit breaker for external payment gateway calls.",
+      "instructions": "Build Razorpay's PaymentGatewayService:\n1. chargeCard(request): calls external Visa/Mastercard gateway\n2. Circuit breaker 'payment-gateway': failureRate=20%, window=20, min=10, wait=60s\n3. Fallback: queue for async retry, return PENDING status\n4. refundPayment(paymentId): separate CB 'refund-gateway'\n5. Test (2 tests): charge returns PENDING on fallback, retry queue receives it",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n// PaymentGatewayService + tests\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\nimport java.util.concurrent.*;\n\nrecord ChargeRequest(String cardToken, double amount, String currency) {}\nrecord ChargeResult(String id, String status, String errorCode) {}\n\n@Service\nclass PaymentGatewayService {\n    private final GatewayClient client;\n    private final Queue<ChargeRequest> retryQueue = new ConcurrentLinkedQueue<>();\n    \n    PaymentGatewayService(GatewayClient c) { client=c; }\n    \n    @CircuitBreaker(name=\"payment-gateway\", fallbackMethod=\"chargeFallback\")\n    public ChargeResult chargeCard(ChargeRequest req) {\n        return client.charge(req);\n    }\n    \n    private ChargeResult chargeFallback(ChargeRequest req, Exception e) {\n        System.out.println(\"[CB] Payment gateway down — queuing \" + req.cardToken());\n        retryQueue.offer(req);\n        return new ChargeResult(\"PENDING-\" + UUID.randomUUID().toString().substring(0,8),\n            \"PENDING\", \"GATEWAY_UNAVAILABLE\");\n    }\n    \n    @CircuitBreaker(name=\"refund-gateway\", fallbackMethod=\"refundFallback\")\n    public ChargeResult refundPayment(String paymentId) {\n        return client.refund(paymentId);\n    }\n    \n    private ChargeResult refundFallback(String paymentId, Exception e) {\n        System.out.println(\"[CB] Refund gateway down for \" + paymentId + \" — queuing\");\n        return new ChargeResult(paymentId, \"REFUND_QUEUED\", null);\n    }\n    \n    Queue<ChargeRequest> getRetryQueue() { return retryQueue; }\n    \n    interface GatewayClient {\n        ChargeResult charge(ChargeRequest r);\n        ChargeResult refund(String paymentId);\n    }\n}\n\n@SpringBootTest\nclass PaymentGatewayServiceTest {\n    @Autowired PaymentGatewayService svc;\n    @MockBean PaymentGatewayService.GatewayClient client;\n    @Autowired io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry reg;\n    \n    @BeforeEach void reset() { reg.circuitBreaker(\"payment-gateway\").reset(); }\n    \n    @Test void fallback_returnsPendingStatus() {\n        when(client.charge(any())).thenThrow(new RuntimeException(\"Gateway timeout\"));\n        ChargeRequest req = new ChargeRequest(\"tok_visa_4242\", 999.0, \"INR\");\n        ChargeResult result = svc.chargeCard(req);\n        assertEquals(\"PENDING\", result.status());\n    }\n    \n    @Test void fallback_addsToRetryQueue() {\n        when(client.charge(any())).thenThrow(new RuntimeException(\"Unavailable\"));\n        ChargeRequest req = new ChargeRequest(\"tok_mc_5555\", 1499.0, \"INR\");\n        svc.chargeCard(req);\n        assertFalse(svc.getRetryQueue().isEmpty(), \"Failed charge should be in retry queue\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "ConcurrentLinkedQueue: thread-safe queue for retry items",
+        "PENDING status: tells the caller the charge will be retried",
+        "@BeforeEach reset(): circuit must be CLOSED before each test"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m19_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Actuator health check integration for circuit breakers",
+      "scenario": "Expose circuit breaker state in /actuator/health for operational monitoring.",
+      "instructions": "Configure and verify Actuator circuit breaker health:\n1. application.yml: expose health + circuitbreakers actuator endpoints\n2. Show health JSON structure for CLOSED and OPEN states\n3. Write a custom HealthIndicator that flags DEGRADED when any CB is OPEN\n4. @SpringBootTest: trigger circuit open, verify health shows DOWN/DEGRADED\n5. Explain: why exposing CB state in health matters for Kubernetes/load balancers",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n// CircuitBreakerHealthIndicator + config + test\n",
+      "expected_solution": "// application.yml:\n// management:\n//   health:\n//     circuitbreakers:\n//       enabled: true\n//   endpoint:\n//     health:\n//       show-details: always\n//   endpoints:\n//     web:\n//       exposure:\n//         include: health,metrics\n\nimport io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.boot.actuate.health.*;\nimport org.springframework.stereotype.Component;\n\n@Component(\"circuitBreakerOverallHealth\")\npublic class CircuitBreakerHealthIndicator implements HealthIndicator {\n    private final CircuitBreakerRegistry registry;\n    \n    CircuitBreakerHealthIndicator(CircuitBreakerRegistry r) { registry = r; }\n    \n    @Override\n    public Health health() {\n        boolean anyOpen = registry.getAllCircuitBreakers()\n            .stream()\n            .anyMatch(cb -> cb.getState() == CircuitBreaker.State.OPEN);\n        \n        if (anyOpen) {\n            // List which circuits are open:\n            var openCircuits = registry.getAllCircuitBreakers()\n                .stream()\n                .filter(cb -> cb.getState() == CircuitBreaker.State.OPEN)\n                .map(cb -> cb.getName() + \"=OPEN (\" +\n                    String.format(\"%.0f\", cb.getMetrics().getFailureRate()) + \"% failures)\")\n                .toList();\n            return Health.down()\n                .withDetail(\"openCircuits\", openCircuits)\n                .withDetail(\"message\", \"One or more dependencies unavailable\")\n                .build();\n        }\n        \n        return Health.up()\n            .withDetail(\"allCircuits\", \"CLOSED\")\n            .build();\n    }\n    \n    // WHY THIS MATTERS FOR KUBERNETES:\n    // Kubernetes readiness probe: GET /actuator/health\n    // If health returns DOWN (circuit open = dependency down):\n    //   Kubernetes removes this pod from load balancer rotation.\n    //   Traffic routed to healthy pods that haven't opened circuits.\n    //   THIS pod: no new traffic + existing circuits test recovery.\n    //   When circuits CLOSE: health returns UP → Kubernetes adds back to rotation.\n    // Result: automatic traffic routing away from degraded instances!\n    \n    public static void main(String[] a) {\n        System.out.println(\"Circuit OPEN → Health DOWN → K8s removes pod from LB\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Circuit OPEN → Health DOWN"] }
+      ],
+      "hints": [
+        "HealthIndicator: Spring Actuator interface for /actuator/health contribution",
+        "Health.down(): status DOWN with details map",
+        "Kubernetes readiness: removes unhealthy pods from load balancer rotation"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m19_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Swiggy order service — multi-CB cascade protection",
+      "scenario": "Order placement calls 4 services — each protected by an independent circuit breaker.",
+      "instructions": "Build Swiggy order flow with 4 circuit breakers:\n1. validateAddress(orderId) → 'address-validator' CB, fallback: skip validation\n2. checkRestaurantAvailability(restaurantId) → 'restaurant-api' CB, fallback: assume open\n3. applyDiscounts(order) → 'discount-engine' CB, fallback: no discount\n4. notifyRestaurant(orderId) → 'notification' CB, fallback: queue for later\n5. placeOrder() calls all 4 in sequence\n6. Test (2 tests): all services fail → order still completes with degraded fallbacks",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n// SwiggyOrderService with 4 circuit breakers\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\n\nrecord SwiggyOrder(String id, String restaurantId, double total) {}\nrecord OrderResult(String orderId, String status, List<String> warnings) {}\n\n@Service\nclass SwiggyOrderService {\n    interface AddressValidator { void validate(String id); }\n    interface RestaurantApi     { boolean isOpen(String rid); }\n    interface DiscountEngine    { double apply(SwiggyOrder o); }\n    interface RestaurantNotifier{ void notify(String id); }\n    \n    private final AddressValidator av;\n    private final RestaurantApi ra;\n    private final DiscountEngine de;\n    private final RestaurantNotifier rn;\n    private final List<String> retryQueue = new ArrayList<>();\n    \n    SwiggyOrderService(AddressValidator av,RestaurantApi ra,DiscountEngine de,RestaurantNotifier rn){\n        this.av=av;this.ra=ra;this.de=de;this.rn=rn;\n    }\n    \n    @CircuitBreaker(name=\"address-validator\",fallbackMethod=\"skipAddressValidation\")\n    public void validateAddress(String orderId){ av.validate(orderId); }\n    private void skipAddressValidation(String id,Exception e){\n        System.out.println(\"[CB] Address validation skipped for \"+id);\n    }\n    \n    @CircuitBreaker(name=\"restaurant-api\",fallbackMethod=\"assumeOpen\")\n    public boolean checkRestaurantAvailability(String rid){ return ra.isOpen(rid); }\n    private boolean assumeOpen(String rid,Exception e){\n        System.out.println(\"[CB] Restaurant API down — assuming open for \"+rid);\n        return true;\n    }\n    \n    @CircuitBreaker(name=\"discount-engine\",fallbackMethod=\"noDiscount\")\n    public double applyDiscounts(SwiggyOrder order){ return de.apply(order); }\n    private double noDiscount(SwiggyOrder order,Exception e){\n        System.out.println(\"[CB] Discount engine down — no discount\");\n        return 0.0;\n    }\n    \n    @CircuitBreaker(name=\"notification\",fallbackMethod=\"queueNotification\")\n    public void notifyRestaurant(String orderId){ rn.notify(orderId); }\n    private void queueNotification(String id,Exception e){\n        retryQueue.add(id);\n        System.out.println(\"[CB] Notification queued for \"+id);\n    }\n    \n    public OrderResult placeOrder(SwiggyOrder order) {\n        List<String> warnings = new ArrayList<>();\n        validateAddress(order.id());\n        boolean available = checkRestaurantAvailability(order.restaurantId());\n        if (!available) warnings.add(\"availability_unconfirmed\");\n        double discount = applyDiscounts(order);\n        if (discount == 0.0) warnings.add(\"discount_unavailable\");\n        notifyRestaurant(order.id());\n        return new OrderResult(order.id(), \"PLACED\", warnings);\n    }\n    \n    List<String> getRetryQueue() { return retryQueue; }\n}\n\n@SpringBootTest\nclass SwiggyOrderServiceTest {\n    @Autowired SwiggyOrderService svc;\n    @MockBean SwiggyOrderService.AddressValidator av;\n    @MockBean SwiggyOrderService.RestaurantApi ra;\n    @MockBean SwiggyOrderService.DiscountEngine de;\n    @MockBean SwiggyOrderService.RestaurantNotifier rn;\n    @Autowired io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry reg;\n    \n    @BeforeEach void reset(){\n        for(String n:List.of(\"address-validator\",\"restaurant-api\",\"discount-engine\",\"notification\"))\n            reg.circuitBreaker(n).reset();\n        svc.getRetryQueue().clear();\n    }\n    @Test void allServicesDown_orderStillPlaced(){\n        doThrow(new RuntimeException(\"down\")).when(av).validate(any());\n        when(ra.isOpen(any())).thenThrow(new RuntimeException(\"down\"));\n        when(de.apply(any())).thenThrow(new RuntimeException(\"down\"));\n        doThrow(new RuntimeException(\"down\")).when(rn).notify(any());\n        SwiggyOrder o=new SwiggyOrder(\"O001\",\"R001\",499.0);\n        OrderResult result=svc.placeOrder(o);\n        assertEquals(\"PLACED\",result.status(),\"Order should be placed despite all services failing\");\n        assertFalse(result.warnings().isEmpty(),\"Should have degradation warnings\");\n    }\n    @Test void notificationFailed_queuedForRetry(){\n        doThrow(new RuntimeException(\"notif down\")).when(rn).notify(any());\n        svc.placeOrder(new SwiggyOrder(\"O002\",\"R001\",299.0));\n        assertTrue(svc.getRetryQueue().contains(\"O002\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "Each CB is independent: 4 breakers can each be in different states",
+        "Core order (PLACED) never blocked: all non-critical calls have safe fallbacks",
+        "@BeforeEach reset all: 4 separate circuit breakers to reset"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m19_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "TIME_BASED sliding window circuit breaker",
+      "scenario": "TIME_BASED window tracks calls in the last N seconds instead of last N calls.",
+      "instructions": "Configure and use TIME_BASED sliding window:\n1. application.yml: slidingWindowType=TIME_BASED, slidingWindowSize=30 (30 seconds)\n2. Explain: when TIME_BASED is better than COUNT_BASED\n3. Write application.yml for both types with comparison\n4. FlipkartInventoryService with TIME_BASED CB\n5. Explain: what happens during idle periods with each window type",
+      "starter_code": "# application.yml comparison\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\n// FlipkartInventoryService + window type comparison\n",
+      "expected_solution": "# application.yml:\n# resilience4j:\n#   circuitbreaker:\n#     instances:\n#       inventory-count:\n#         slidingWindowType: COUNT_BASED\n#         slidingWindowSize: 10  # last 10 calls regardless of when\n#         # Problem: 10 failures at 2am (low traffic) keep circuit open for 30s\n#         # even though it's the middle of the night with no real traffic\n#\n#       inventory-availability:\n#         slidingWindowType: TIME_BASED\n#         slidingWindowSize: 30  # calls in the last 30 SECONDS\n#         minimumNumberOfCalls: 5\n#         # Better for variable traffic:\n#         # During peak (500 calls/30s): 50% failures → opens quickly\n#         # During off-peak (2 calls/30s): needs 5 calls minimum first\n#\n# WHEN TIME_BASED IS BETTER:\n# - Variable traffic (spikes during dinner, quiet at night)\n# - Want to track failures in a time period regardless of call volume\n# - COUNT_BASED can open circuit on old failures from low-traffic periods\n#\n# WHAT HAPPENS DURING IDLE:\n# COUNT_BASED: old failures stay in the window until replaced by new calls\n#   → circuit may stay open based on stale historical failures\n# TIME_BASED: failures older than the window duration drop off automatically\n#   → circuit may close on its own when old failures age out (no minimumCalls met)\n\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\n@Service\npublic class FlipkartInventoryService {\n    private final InventoryClient client;\n    FlipkartInventoryService(InventoryClient c) { client = c; }\n    \n    @CircuitBreaker(name = \"inventory-availability\", fallbackMethod = \"inventoryFallback\")\n    public Integer getAvailableStock(String productId) {\n        return client.fetchStock(productId);\n    }\n    \n    private Integer inventoryFallback(String productId, Exception e) {\n        System.out.println(\"[CB TIME_BASED] Inventory service down for \" + productId);\n        return null;  // unknown stock — UI shows 'Limited availability'\n    }\n    \n    interface InventoryClient { Integer fetchStock(String id); }\n    \n    public static void main(String[] a) {\n        System.out.println(\"TIME_BASED: tracks failures in last N seconds\");\n        System.out.println(\"COUNT_BASED: tracks last N calls regardless of time\");\n        System.out.println(\"During idle: TIME_BASED auto-ages; COUNT_BASED holds old failures\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["TIME_BASED: tracks failures"] }
+      ],
+      "hints": [
+        "TIME_BASED: slidingWindowSize = number of SECONDS to look back",
+        "COUNT_BASED: slidingWindowSize = number of CALLS to track",
+        "Idle period: COUNT_BASED holds old data; TIME_BASED auto-expires old failures"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m19_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete BookMyShow resilience — circuit breaker synthesis",
+      "scenario": "Full microservice protection for a ticket booking flow.",
+      "instructions": "Build BookMyShow's complete resilient booking service:\n1. 4 circuit breakers: event-api(50%), seat-service(30%), payment-gw(20%), notification(80%)\n2. BookingService.book(request): calls all 4, graceful degradation on each failure\n3. Payment failure → return PAYMENT_FAILED (can't degrade this one)\n4. EventListener for CB state changes → logs ALERT on OPEN\n5. @SpringBootTest (3 tests): all pass with mocked clients\n\nAll tests pass.",
+      "starter_code": "// Complete BookMyShow resilience synthesis\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.circuitbreaker.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport jakarta.annotation.PostConstruct;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\nimport java.util.concurrent.atomic.*;\n\nrecord BookingReq(String eventId,String seatId,String cardToken,String userId){}\nrecord BookingRes(String bookingId,String status,List<String> warnings){}\n\n@Service\nclass BMSBookingService {\n    interface EventApi      { String getEventName(String id); }\n    interface SeatService   { boolean reserveSeat(String id); }\n    interface PaymentGw     { String charge(String token, double amt); }\n    interface NotifService  { void notify(String userId, String msg); }\n    \n    private final EventApi ea; private final SeatService ss;\n    private final PaymentGw pg; private final NotifService ns;\n    private final List<String> notifQueue = new ArrayList<>();\n    \n    BMSBookingService(EventApi ea,SeatService ss,PaymentGw pg,NotifService ns){\n        this.ea=ea;this.ss=ss;this.pg=pg;this.ns=ns;\n    }\n    \n    @CircuitBreaker(name=\"event-api\",fallbackMethod=\"unknownEvent\")\n    String getEventName(String id){ return ea.getEventName(id); }\n    private String unknownEvent(String id,Exception e){ return \"Concert (details unavailable)\"; }\n    \n    @CircuitBreaker(name=\"seat-service\",fallbackMethod=\"seatReservedOptimistically\")\n    boolean reserveSeat(String id){ return ss.reserveSeat(id); }\n    private boolean seatReservedOptimistically(String id,Exception e){\n        System.out.println(\"[CB] Seat service down — optimistic reserve for \"+id);\n        return true;\n    }\n    \n    @CircuitBreaker(name=\"payment-gw\",fallbackMethod=\"paymentFailed\")\n    String chargeCard(String token,double amt){ return pg.charge(token,amt); }\n    private String paymentFailed(String token,double amt,Exception e){\n        return \"FAILED\"; // payment is critical — must surface failure\n    }\n    \n    @CircuitBreaker(name=\"notification\",fallbackMethod=\"queueNotif\")\n    void notifyUser(String uid,String msg){ ns.notify(uid,msg); }\n    private void queueNotif(String uid,String msg,Exception e){ notifQueue.add(uid+\":\"+msg); }\n    \n    public BookingRes book(BookingReq req){\n        List<String> warn=new ArrayList<>();\n        String event=getEventName(req.eventId());\n        if(event.contains(\"unavailable\")) warn.add(\"event_details_degraded\");\n        boolean seatOk=reserveSeat(req.seatId());\n        if(!seatOk) return new BookingRes(null,\"SEAT_UNAVAILABLE\",warn);\n        String payResult=chargeCard(req.cardToken(),500.0);\n        if(\"FAILED\".equals(payResult)) return new BookingRes(null,\"PAYMENT_FAILED\",warn);\n        notifyUser(req.userId(),\"Your ticket for \"+event+\" is confirmed!\");\n        return new BookingRes(\"BKG-\"+System.currentTimeMillis(),\"CONFIRMED\",warn);\n    }\n    List<String> getNotifQueue(){ return notifQueue; }\n}\n\n@Service\nclass BMSCBAlerts {\n    public final AtomicInteger openCount=new AtomicInteger(0);\n    private final CircuitBreakerRegistry reg;\n    BMSCBAlerts(CircuitBreakerRegistry r){reg=r;}\n    @PostConstruct void listen(){\n        reg.getAllCircuitBreakers().forEach(cb->cb.getEventPublisher()\n            .onStateTransition(e->{\n                if(e.getStateTransition()==CircuitBreaker.StateTransition.CLOSED_TO_OPEN){\n                    openCount.incrementAndGet();\n                    System.err.println(\"[ALERT] \"+cb.getName()+\" OPENED!\");\n                }\n            }));\n    }\n}\n\n@SpringBootTest\nclass BMSBookingTest {\n    @Autowired BMSBookingService svc;\n    @Autowired BMSCBAlerts alerts;\n    @MockBean BMSBookingService.EventApi ea;\n    @MockBean BMSBookingService.SeatService ss;\n    @MockBean BMSBookingService.PaymentGw pg;\n    @MockBean BMSBookingService.NotifService ns;\n    @Autowired CircuitBreakerRegistry reg;\n    \n    @BeforeEach void reset(){\n        for(String n:List.of(\"event-api\",\"seat-service\",\"payment-gw\",\"notification\"))\n            try{reg.circuitBreaker(n).reset();}catch(Exception ignore){}\n        svc.getNotifQueue().clear();\n    }\n    @Test void booking_confirmedDespiteNonCriticalFailures(){\n        when(ea.getEventName(any())).thenThrow(new RuntimeException(\"down\"));\n        when(ss.reserveSeat(any())).thenReturn(true);\n        when(pg.charge(any(),anyDouble())).thenReturn(\"TXN-123\");\n        doThrow(new RuntimeException(\"notif down\")).when(ns).notify(any(),any());\n        BookingRes r=svc.book(new BookingReq(\"EVT1\",\"S1\",\"tok_4242\",\"U1\"));\n        assertEquals(\"CONFIRMED\",r.status());\n        assertFalse(r.warnings().isEmpty());\n    }\n    @Test void paymentFailure_returnsPaymentFailed(){\n        when(ea.getEventName(any())).thenReturn(\"Concert\");\n        when(ss.reserveSeat(any())).thenReturn(true);\n        when(pg.charge(any(),anyDouble())).thenThrow(new RuntimeException(\"card error\"));\n        BookingRes r=svc.book(new BookingReq(\"EVT1\",\"S1\",\"tok_4242\",\"U1\"));\n        assertEquals(\"PAYMENT_FAILED\",r.status());\n    }\n    @Test void notificationQueued_whenServiceDown(){\n        when(ea.getEventName(any())).thenReturn(\"Concert\");\n        when(ss.reserveSeat(any())).thenReturn(true);\n        when(pg.charge(any(),anyDouble())).thenReturn(\"TXN-456\");\n        doThrow(new RuntimeException(\"notif down\")).when(ns).notify(any(),any());\n        svc.book(new BookingReq(\"EVT1\",\"S1\",\"tok_4242\",\"U2\"));\n        assertFalse(svc.getNotifQueue().isEmpty());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "Payment is critical: fallback returns FAILED (not a silent degradation)",
+        "@BeforeEach: try-catch reset for CBs that may not exist yet in test context",
+        "@PostConstruct listener: registered after all CBs initialized by Spring"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  }
+}

@@ -1,0 +1,228 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t5",
+  "language": "java",
+  "module_id": "m1",
+  "module_name": "Java Fundamentals",
+  "topic_number": 5,
+  "name": "Loops: for, while, do-while",
+  "slug": "loops-iteration",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m1_t1", "java_m1_t2", "java_m1_t3", "java_m1_t4"],
+    "concepts_taught": [
+      "for_loop",
+      "while_loop",
+      "do_while_loop",
+      "loop_control_break",
+      "loop_control_continue",
+      "nested_loops",
+      "infinite_loop_recognition",
+      "off_by_one_errors",
+      "loop_counter_patterns",
+      "accumulator_pattern"
+    ],
+    "skills_developed": [
+      "writing_iterative_logic",
+      "choosing_loop_type",
+      "avoiding_infinite_loops",
+      "preventing_off_by_one_errors",
+      "thinking_in_iterations"
+    ],
+    "career_relevance": "Loops are how software scales. A program without loops can do one thing. A program with loops can process millions of records, handle thousands of users, retry failed operations, and animate game frames. Every production application has dozens of loops running constantly. More importantly, the patterns you learn here — accumulators, counters, search loops, validation loops — are the building blocks of every algorithm you'll ever write. DSA problems, business logic, data processing — it all comes down to loops + conditionals.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "When YouTube serves you a video recommendation, what happened? A loop ran through thousands of videos in their catalog, scored each one based on your history, and picked the top 10. When your bank processes daily interest, a loop iterates through millions of accounts, calculates accrued interest, and updates balances. When Netflix encodes a movie, loops process billions of pixels. Loops are how software handles SCALE. You wouldn't write the same line of code 1000 times — you'd write it once and put it in a loop. The difference between a program that processes 10 items and one that processes 10 million is just a loop.",
+    "what_you_will_build": "By the end of this topic, you'll know every type of loop in Java: `for`, `while`, `do-while`, and `for-each` (enhanced for loop). You'll understand when to use which, how to control them with `break` and `continue`, and how to avoid the two most common bugs: infinite loops (programs that never stop) and off-by-one errors (loops that process one too many or one too few items). You'll also build a proper Indian tax calculator that computes cumulative bracket tax — fixing the simplified version from Topic 4."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A loop is a block of code that runs REPEATEDLY based on a condition. Three main types in Java:\n\n1. **`for`** — when you know HOW MANY times to loop\n2. **`while`** — when you loop UNTIL some condition changes\n3. **`do-while`** — like while, but runs AT LEAST ONCE\n\nThere's also `for-each` (enhanced for) for collections — we'll preview it but cover it properly with arrays.\n\nEvery loop has the same anatomy:\n- A **condition** that's checked (usually before each iteration)\n- A **body** that runs while the condition is true\n- Something that **changes** so the condition eventually becomes false (or you have an infinite loop)\n\nThat last part is critical. Forget to change the condition variable, and your program runs forever.",
+      
+      "for_loop": "The `for` loop is the workhorse. Three parts in the parentheses, separated by semicolons:\n\n```java\nfor (initialization; condition; update) {\n    // body runs while condition is true\n}\n```\n\nMost common pattern — print 1 through 5:\n\n```java\nfor (int i = 1; i <= 5; i++) {\n    System.out.println(i);\n}\n```\n\nWhat happens:\n1. **Initialization**: `int i = 1` — runs ONCE at the start. Declares the loop variable.\n2. **Check condition**: `i <= 5` — if true, run the body. If false, exit the loop.\n3. **Run body**: `System.out.println(i)`\n4. **Update**: `i++` — runs after each iteration\n5. **Go back to step 2**\n\nOutput: 1, 2, 3, 4, 5\n\nThen `i` becomes 6, condition `6 <= 5` is false, loop exits.\n\n**The variable `i`** (for 'index' or 'iterator') is conventional in loops. So is `j` for inner loops, `k` for triple-nested. Don't use these for non-loop variables — they signal 'I'm a loop counter' to readers.\n\n**Different patterns**:\n\n```java\n// Count up\nfor (int i = 0; i < 10; i++) { ... }\n\n// Count down\nfor (int i = 10; i > 0; i--) { ... }\n\n// Skip by 2 (only evens)\nfor (int i = 0; i < 20; i += 2) { ... }\n\n// Power of 2\nfor (int i = 1; i < 1000; i *= 2) { ... }  // 1, 2, 4, 8, ... 512\n```\n\n**Common pattern: 0 to n-1 (zero-indexed)**:\n```java\nfor (int i = 0; i < n; i++) { ... }  // Runs n times: 0, 1, 2, ..., n-1\n```\n\nThis pattern matters because arrays are zero-indexed (we'll cover next module). Internalize this: `i < n` not `i <= n` for n iterations starting at 0.",
+      
+      "off_by_one": "**Off-by-one errors** are among the most common bugs in programming. They happen when your loop runs one too many or one too few times.\n\nClassic examples:\n\n```java\n// BUG: prints 1 to 10 but we wanted 1 to 9\nfor (int i = 1; i <= 10; i++) { ... }\n\n// BUG: prints 0 to 9 but we wanted 1 to 10\nfor (int i = 0; i < 10; i++) { ... }\n```\n\nHow to think about it:\n- `i < n` runs n times (starting at 0): 0, 1, ..., n-1\n- `i <= n` runs n+1 times (starting at 0): 0, 1, ..., n\n- `i = 1; i <= n` runs n times: 1, 2, ..., n\n- `i = 1; i < n` runs n-1 times: 1, 2, ..., n-1\n\n**Best practice**: when in doubt, manually trace the first and last iteration to verify.",
+      
+      "while_loop": "The `while` loop is simpler — just a condition, no init/update built in:\n\n```java\nwhile (condition) {\n    // body\n}\n```\n\nYou must initialize variables BEFORE the loop, and update them INSIDE the body.\n\n```java\nint count = 0;\nwhile (count < 5) {\n    System.out.println(count);\n    count++;  // Critical: update inside loop\n}\n```\n\n**When to use `while` instead of `for`**: when you don't know exactly how many iterations you need.\n\n**Real-world example — retrying a failed operation:**\n\n```java\nint attempts = 0;\nboolean success = false;\nwhile (!success && attempts < 5) {\n    // try the operation\n    // if it works, success = true\n    attempts++;\n}\n```\n\nWith a for loop, this is awkward (two stop conditions). With while, natural.\n\n**The classic infinite loop bug**:\n\n```java\nint count = 0;\nwhile (count < 5) {\n    System.out.println(count);\n    // FORGOT to increment count! Loops forever.\n}\n```\n\nIf you ever see your program hang, check for missing update statements in while loops.",
+      
+      "do_while_loop": "The `do-while` loop runs at LEAST ONCE — the condition is checked AFTER the body:\n\n```java\ndo {\n    // body\n} while (condition);  // Note the semicolon!\n```\n\nExample — input validation pattern (we'll use Scanner properly later):\n\n```java\nint userInput;\ndo {\n    System.out.println(\"Enter a positive number: \");\n    userInput = readNumber();  // hypothetical\n} while (userInput <= 0);\n```\n\nWith a regular `while`, you'd have to call `readNumber()` BEFORE the loop AND inside it — awkward. With `do-while`, the body runs first, then we check.\n\n**Honest assessment**: do-while is rarely used in modern code. Most cases can be handled with regular while or for. But you'll see it occasionally, so know it exists.",
+      
+      "break_continue": "Two keywords for controlling loops:\n\n**`break`** — exit the loop immediately, skipping remaining iterations:\n\n```java\nfor (int i = 0; i < 100; i++) {\n    if (i == 5) {\n        break;  // Exit loop now\n    }\n    System.out.println(i);\n}\n// Prints 0, 1, 2, 3, 4\n```\n\nUseful for 'search' patterns: loop until you find something, then stop.\n\n**`continue`** — skip the rest of THIS iteration, jump to the next:\n\n```java\nfor (int i = 0; i < 10; i++) {\n    if (i % 2 == 0) {\n        continue;  // Skip even numbers\n    }\n    System.out.println(i);\n}\n// Prints 1, 3, 5, 7, 9\n```\n\n**When to use each**:\n- `break`: 'I found what I needed, stop now'\n- `continue`: 'Not interested in this one, but keep checking the rest'\n\nIn nested loops, both only affect the INNERMOST loop. For nested loops, use labeled break (advanced — rare in practice).",
+      
+      "nested_loops": "Loops inside loops. Common for grids, matrices, comparisons:\n\n```java\nfor (int i = 1; i <= 3; i++) {\n    for (int j = 1; j <= 3; j++) {\n        System.out.println(\"i=\" + i + \", j=\" + j);\n    }\n}\n```\n\nOutput:\n```\ni=1, j=1\ni=1, j=2\ni=1, j=3\ni=2, j=1\ni=2, j=2\ni=2, j=3\ni=3, j=1\ni=3, j=2\ni=3, j=3\n```\n\nInner loop runs COMPLETELY for each iteration of outer loop. With outer=3 and inner=3, body runs 9 times.\n\n**Critical performance note**: nested loops multiply. If outer runs 1000 and inner runs 1000, body runs 1,000,000 times. This is O(n²) complexity — covered in detail in DSA module. For now: be cautious with deeply nested loops on large data.",
+      
+      "for_each_preview": "Java 5 added the enhanced for loop (for-each) for iterating over collections:\n\n```java\nint[] numbers = {10, 20, 30, 40};\nfor (int num : numbers) {\n    System.out.println(num);\n}\n```\n\nReads as: 'for each int num in numbers, do this'\n\nCleaner than:\n```java\nfor (int i = 0; i < numbers.length; i++) {\n    int num = numbers[i];\n    System.out.println(num);\n}\n```\n\n**When to use for-each**:\n- Just need to access each element\n- Don't need the index\n- Not modifying the collection\n\n**When to use regular for**:\n- Need the index\n- Modifying elements\n- Iterating in reverse\n- Skipping elements\n\nWe'll cover arrays in the next module — for-each will become the default choice for iteration."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show side-by-side flowcharts of for, while, and do-while loops. For: shows init → condition diamond → body → update → back to condition. While: shows condition diamond → body → back to condition. Do-while: shows body → condition diamond → back to body. Annotation: 'do-while runs at least once'. Below: a single 'infinite loop trap' diagram showing what happens when update never changes condition.",
+      "alt_text": "Three flowchart diagrams comparing for, while, and do-while loop execution flow"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Remember the tax calculator from Topic 4? It used a single tax rate, which isn't how Indian tax actually works. The real system is CUMULATIVE — you pay the first bracket's rate on income in that bracket, the second bracket's rate on income in the next slice, etc. This is a perfect loop problem because you process each bracket one at a time and accumulate the total. Let's build it properly.",
+    
+    "problem_statement": "Calculate the REAL Indian tax for a person earning ₹12,00,000 using these slabs:\n- ₹0 - ₹3,00,000: 0%\n- ₹3,00,001 - ₹6,00,000: 5%\n- ₹6,00,001 - ₹9,00,000: 10%\n- ₹9,00,001 - ₹12,00,000: 15%\n- ₹12,00,001+: 20% (we'll stop at 12L for simplicity)\n\nExpected calculation:\n- First 3L: 0% = ₹0\n- Next 3L (3L-6L): 5% = ₹15,000\n- Next 3L (6L-9L): 10% = ₹30,000\n- Next 3L (9L-12L): 15% = ₹45,000\n- Total tax: ₹90,000\n\nWe'll use a for loop to iterate through the brackets.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Plan the approach",
+        "details": "We're going to:\n1. Have arrays of bracket thresholds and rates (preview of arrays — fine for now)\n2. Loop through each bracket\n3. For each bracket, calculate how much income falls in it\n4. Multiply by that bracket's rate\n5. Add to running total\n\nThis is the **accumulator pattern** — one of the most important patterns in programming. Initialize a total at 0, loop through items, add to total."
+      },
+      {
+        "step": 2,
+        "action": "Set up the data",
+        "details": "Hardcode the brackets for now (loops will iterate them):\n\n```java\npublic class TaxCalculator {\n    public static void main(String[] args) {\n        double income = 1200000;  // 12 lakh\n        \n        // Bracket upper bounds and rates (paired)\n        double[] bracketUpperBounds = {300000, 600000, 900000, 1200000};\n        double[] bracketRates = {0.0, 5.0, 10.0, 15.0};\n        \n        double totalTax = 0;\n        double previousBracket = 0;\n    }\n}\n```\n\nNote: arrays will be covered in detail next module. For now, just trust that `bracketUpperBounds[0]` is `300000`, `[1]` is `600000`, etc."
+      },
+      {
+        "step": 3,
+        "action": "Write the loop",
+        "details": "Iterate through brackets, calculating tax for each:\n\n```java\nfor (int i = 0; i < bracketUpperBounds.length; i++) {\n    double upperBound = bracketUpperBounds[i];\n    double rate = bracketRates[i];\n    \n    // How much income falls in this bracket?\n    double incomeInThisBracket;\n    if (income > upperBound) {\n        // All of this bracket is filled\n        incomeInThisBracket = upperBound - previousBracket;\n    } else {\n        // Only partial — from previousBracket to income\n        incomeInThisBracket = income - previousBracket;\n    }\n    \n    // Tax for this bracket\n    double taxInBracket = incomeInThisBracket * (rate / 100);\n    totalTax += taxInBracket;\n    \n    // Print bracket breakdown\n    System.out.println(\"Bracket \" + (i + 1) + \": ₹\" + previousBracket + \" - ₹\" + upperBound \n        + \" @ \" + rate + \"% = ₹\" + taxInBracket);\n    \n    // Move to next bracket\n    previousBracket = upperBound;\n    \n    // If we've covered the whole income, stop\n    if (income <= upperBound) {\n        break;\n    }\n}\n```\n\nLook at all the concepts in play:\n- `for` loop iterating through brackets\n- Conditional logic inside the loop\n- **Accumulator pattern**: `totalTax += taxInBracket`\n- `break` to exit early when income is covered\n- `previousBracket` tracking state across iterations\n\nThis is REAL business logic. Production tax software does exactly this."
+      },
+      {
+        "step": 4,
+        "action": "Print summary",
+        "details": "After the loop, print totals:\n\n```java\nSystem.out.println(\"-----------------------------------------\");\nSystem.out.println(\"Total Income:   ₹\" + income);\nSystem.out.println(\"Total Tax:      ₹\" + totalTax);\nSystem.out.println(\"Take Home:      ₹\" + (income - totalTax));\n```\n\nNote: `(income - totalTax)` is calculated inline — concise and clear."
+      }
+    ],
+    
+    "final_code": "public class TaxCalculator {\n    public static void main(String[] args) {\n        double income = 1200000;\n        \n        double[] bracketUpperBounds = {300000, 600000, 900000, 1200000};\n        double[] bracketRates = {0.0, 5.0, 10.0, 15.0};\n        \n        double totalTax = 0;\n        double previousBracket = 0;\n        \n        System.out.println(\"=========================================\");\n        System.out.println(\"        CUMULATIVE TAX CALCULATION\");\n        System.out.println(\"=========================================\");\n        \n        for (int i = 0; i < bracketUpperBounds.length; i++) {\n            double upperBound = bracketUpperBounds[i];\n            double rate = bracketRates[i];\n            \n            double incomeInThisBracket;\n            if (income > upperBound) {\n                incomeInThisBracket = upperBound - previousBracket;\n            } else {\n                incomeInThisBracket = income - previousBracket;\n            }\n            \n            double taxInBracket = incomeInThisBracket * (rate / 100);\n            totalTax += taxInBracket;\n            \n            System.out.println(\"Bracket \" + (i + 1) + \": ₹\" + previousBracket + \" - ₹\" + upperBound \n                + \" @ \" + rate + \"% = ₹\" + taxInBracket);\n            \n            previousBracket = upperBound;\n            \n            if (income <= upperBound) {\n                break;\n            }\n        }\n        \n        System.out.println(\"-----------------------------------------\");\n        System.out.println(\"Total Income:   ₹\" + income);\n        System.out.println(\"Total Tax:      ₹\" + totalTax);\n        System.out.println(\"Take Home:      ₹\" + (income - totalTax));\n        System.out.println(\"=========================================\");\n    }\n}",
+    
+    "expected_output": "=========================================\n        CUMULATIVE TAX CALCULATION\n=========================================\nBracket 1: ₹0.0 - ₹300000.0 @ 0.0% = ₹0.0\nBracket 2: ₹300000.0 - ₹600000.0 @ 5.0% = ₹15000.0\nBracket 3: ₹600000.0 - ₹900000.0 @ 10.0% = ₹30000.0\nBracket 4: ₹900000.0 - ₹1200000.0 @ 15.0% = ₹45000.0\n-----------------------------------------\nTotal Income:   ₹1200000.0\nTotal Tax:      ₹90000.0\nTake Home:      ₹1110000.0\n=========================================",
+    
+    "things_to_notice": [
+      "Compare to the simplified version in Topic 4: this is the SAME problem, solved properly with loops. The simplified version said 15% on the whole 12L = ₹180,000. The correct calculation: ₹90,000. Half the tax. Loops let us model the real world.",
+      "The accumulator pattern: `totalTax += taxInBracket` is the heart of this. Initialize total to 0, add each iteration's contribution. You'll use this EVERYWHERE.",
+      "The `break` is important — once income is fully covered, we don't process remaining (empty) brackets.",
+      "Notice we used `i + 1` in output for human-friendly numbering (1-indexed) even though arrays are 0-indexed. Small UX detail.",
+      "If we added a new bracket (say 12L-15L at 20%), we'd just add to the arrays. The loop logic doesn't change. THIS is the power of loops + data structures."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Amazon / Flipkart (E-commerce)",
+        "use_case": "Calculating order totals: loop through cart items, sum prices, apply per-item discounts, accumulate tax. Iterating product lists for search results. Pagination — loop to show next 20 results. Every product page involves dozens of loops."
+      },
+      {
+        "company_context": "Banking & Finance",
+        "use_case": "End-of-day batch jobs loop through millions of accounts to calculate interest, send statements, identify suspicious activity. The 'overnight processing' you read about — that's loops running on huge data. Loop optimization affects whether the job finishes by morning or fails."
+      },
+      {
+        "company_context": "Social media feeds (Twitter, Instagram, LinkedIn)",
+        "use_case": "Generating your feed: loop through followed accounts, score recent posts, sort, paginate. Notification delivery: loop through users with new activity. Engagement metrics: loop through posts to count likes/comments."
+      },
+      {
+        "company_context": "Video streaming (Netflix, YouTube)",
+        "use_case": "Recommendation engines loop through your viewing history and the catalog. Encoding: nested loops process every frame, every pixel. Buffering: loops continuously check network and adjust quality. CDN routing: loops to find nearest server."
+      }
+    ],
+    
+    "interview_relevance": "Loops appear in nearly every coding interview:\n\n- **'Find the largest number in an array'** — single loop, track max\n- **'Reverse a string'** — loop from end to start\n- **'Count vowels in a string'** — loop with conditional\n- **'Fibonacci sequence'** — loop with two accumulators\n- **'Find duplicate numbers'** — nested loops (brute force) or single loop with HashMap (optimized)\n- **'Sum of digits'** — while loop with modulo\n- **'Print prime numbers'** — nested loops\n\nThe **accumulator pattern** and the **search pattern** (loop until you find something, then break) appear constantly. Master these and you've handled 70% of basic algorithm questions.\n\nAdvanced interviews test your ability to recognize when nested loops are too slow (O(n²)) and refactor to a single loop with a data structure (O(n)). That's the bread and butter of DSA.",
+    
+    "real_world_workflow": "Open any production Java codebase and you'll see loops everywhere. They process database results, iterate API responses, validate batch inputs, retry failed operations, animate UIs (frame-by-frame loops), encrypt files block-by-block. Whenever code does the same thing N times, it's a loop. Modern Java often uses Streams (functional style) instead — but Streams are themselves loops underneath, just written differently. Understanding loops deeply is non-negotiable."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "off_by_one_errors",
+      "what_students_get_wrong": "Loop runs one too many or one too few times due to wrong condition. `<=` vs `<`. Starting at 0 vs 1. Calculating size as `length` vs `length - 1`.",
+      "remediation": "Drill: for n iterations starting at 0, use `i < n` (not `i <= n`). Always trace first and last iteration mentally. When in doubt, add a print inside the loop to verify.",
+      "detection_pattern": "Off-by-one in exercises"
+    },
+    {
+      "gap_id": "infinite_loop_missing_update",
+      "what_students_get_wrong": "While loop without updating the condition variable. Or for loop with no update statement.",
+      "remediation": "Drill: every loop MUST have something that changes the condition. Before writing a while loop, identify: what gets updated? where? what makes it eventually false?",
+      "detection_pattern": "Programs that hang, missing increment in while"
+    },
+    {
+      "gap_id": "loop_variable_scope_confusion",
+      "what_students_get_wrong": "Trying to use a `for` loop's counter variable AFTER the loop ends. The variable is scoped to the loop.",
+      "remediation": "If you need the value after the loop (e.g., 'how many iterations did we do?'), declare the variable OUTSIDE the loop.",
+      "detection_pattern": "Compilation error: variable not found after loop"
+    },
+    {
+      "gap_id": "forgotten_initialization",
+      "what_students_get_wrong": "Using a variable inside a loop without initializing it. Especially accumulator variables (sum, total, count).",
+      "remediation": "Always initialize accumulators to 0 (or appropriate starting value) BEFORE the loop. Use `0` for sum/count, `1` for product, max/min values for tracking extremes.",
+      "detection_pattern": "Compilation errors, wrong accumulator values"
+    },
+    {
+      "gap_id": "nested_loop_performance",
+      "what_students_get_wrong": "Not realizing nested loops multiply. 1000 outer × 1000 inner = 1,000,000 operations. On large data, this is slow.",
+      "remediation": "Be aware. For now, just recognize it. Optimization techniques come in DSA module.",
+      "detection_pattern": "Slow code with large inputs"
+    },
+    {
+      "gap_id": "wrong_loop_type_chosen",
+      "what_students_get_wrong": "Using while when for is clearer, or vice versa. Especially: using while for fixed counts, or for for unknown counts.",
+      "remediation": "Rule of thumb: fixed count → for. Unknown count (until condition) → while. Always runs at least once → do-while (rare).",
+      "detection_pattern": "Code that works but is awkward"
+    },
+    {
+      "gap_id": "break_continue_confusion",
+      "what_students_get_wrong": "Using `break` when `continue` is needed, or vice versa. Or thinking `break` exits the program (it doesn't — just exits the loop).",
+      "remediation": "Mantra: break = STOP this loop entirely. continue = SKIP this iteration, continue with next.",
+      "detection_pattern": "Loop produces wrong output"
+    },
+    {
+      "gap_id": "modifying_loop_variable_in_body",
+      "what_students_get_wrong": "Manually modifying the loop counter inside the for body. Causes unexpected behavior — for already updates it.",
+      "remediation": "Don't change `i` inside a `for` loop body. If you need to skip ahead, use `continue` or refactor to while.",
+      "detection_pattern": "Loop skipping iterations or running unexpected number of times"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Loops let code SCALE — process N items with the same code that processes 1",
+      "for: fixed iterations. while: until condition changes. do-while: at least once.",
+      "Off-by-one errors are extremely common — trace first/last iterations to verify",
+      "Forgotten updates cause infinite loops — every while needs something to change the condition",
+      "break exits the loop entirely. continue skips to next iteration.",
+      "The accumulator pattern (init to 0, add in loop) is foundational",
+      "Loop counters by convention: i, j, k for nested loops",
+      "Nested loops multiply — be aware of performance with large data",
+      "for-each is cleanest for collections (preview — covered with arrays)"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's wrong with this code?\n```java\nint count = 0;\nwhile (count < 10) {\n    System.out.println(count);\n}\n```",
+        "answer": "Infinite loop. `count` never changes — it's always 0, so `count < 10` is always true. Need `count++` inside the loop to eventually exit."
+      },
+      {
+        "question": "How many times does this loop run?\n```java\nfor (int i = 1; i <= 10; i++) { ... }\n```",
+        "answer": "10 times. i takes values 1, 2, 3, ..., 10. When i becomes 11, condition `11 <= 10` is false, loop exits."
+      },
+      {
+        "question": "What's the difference between break and continue?",
+        "answer": "`break` exits the loop entirely — skips all remaining iterations. `continue` skips the rest of the CURRENT iteration but continues with the next. Use break for 'I'm done', use continue for 'not this one, try the next'."
+      },
+      {
+        "question": "Why does the for-loop variable not work after the loop?\n```java\nfor (int i = 0; i < 5; i++) { ... }\nSystem.out.println(i);  // Compilation error\n```",
+        "answer": "Variables declared in the for-loop initialization are scoped to the loop. They exist only inside the loop body and condition. If you need the value after, declare the variable outside: `int i; for (i = 0; ...) { ... }; System.out.println(i);`"
+      },
+      {
+        "question": "When would you use a do-while instead of a regular while?",
+        "answer": "When the loop body MUST run at least once before checking the condition. Classic case: input validation — ask user for input, check if valid, repeat if not. The 'ask' must happen before the check. In practice, do-while is uncommon — most cases can be handled with while and a flag."
+      }
+    ],
+    
+    "next_topic_preview": "🎉 You've completed Module 1! You now know variables, types, operators, conditionals, and loops — the absolute foundation of every program. Next module: Methods. Until now, all your code lives in `main()`. Methods let you organize code into reusable named blocks. This is where code starts feeling professional — and where you'll really start to think like a software engineer."
+  }
+}

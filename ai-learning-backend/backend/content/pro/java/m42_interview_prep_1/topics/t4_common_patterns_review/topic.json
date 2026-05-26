@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m42_t4",
+  "module_id": "m42",
+  "topic_number": 4,
+  "name": "Common Patterns Review \u2014 Final Pattern Drill",
+  "slug": "common-patterns-review-final-drill",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t1"
+    ],
+    "concepts_taught": [
+      "common-patterns-review-final-drill"
+    ],
+    "career_relevance": "Core interview preparation topic.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Common Patterns Review \u2014 Final Pattern Drill"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Two pointers: sorted array, pair sum, palindrome, remove duplicates",
+        "Sliding window: subarray/substring, variable window (shrink when invalid)",
+        "Prefix sum: range query, subarray sum k, contiguous array",
+        "Monotonic stack: next greater, histogram, daily temperatures",
+        "Fast/slow: cycle detection, middle of list, palindrome LL",
+        "Binary search on answer: Koko, split array, minimum capacity",
+        "DP patterns: 1D (coin change, LIS), 2D (grid, edit distance, knapsack)",
+        "Graph: BFS for shortest path, DFS for connectivity, topo for ordering"
+      ],
+      "next_topic_preview": "Next: Coding Interview Synthesis \u2014 full mock coding round."
+    }
+  }
+}

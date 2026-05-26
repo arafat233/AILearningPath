@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m29_t4_proj",
+  "linked_topic": "java_m29_t4",
+  "level": "mini",
+  "name": "Flipkart Algorithm Selection Tool",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Flipkart's engineering team is selecting sorting and search algorithms for Big Billion Days. Last year, a naive quicksort caused a 47-minute outage on sorted product catalog data (worst case O(n²)). Build an Algorithm Selection Tool that analyzes inputs and recommends the safest, fastest algorithm for each scenario.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "AlgorithmProfile record: name, bestCase, worstCase, averageCase, space, stable. At minimum: quicksort, mergesort, insertionsort, binarysearch, hashmap. All fields accurate.", "weight": 20},
+      {"id": "req_2", "description": "InputAnalyzer.analyze(int[] arr) → returns InputType enum: SORTED, REVERSE_SORTED, RANDOM, NEARLY_SORTED. Detection: sorted if arr[i]<=arr[i+1] always; reverse if arr[i]>=arr[i+1]; nearly sorted if <5% elements out of place.", "weight": 15},
+      {"id": "req_3", "description": "AlgorithmSelector.recommend(InputType, int n) → returns best algorithm for that input + reason. E.g., SORTED + large n → timsort/insertionsort (O(n) best case). RANDOM + large n → quicksort with random pivot.", "weight": 20},
+      {"id": "req_4", "description": "AmortizedDemo: show ArrayList.add() amortized O(1) by tracking total cost across 1000 adds. Verify total_cost/n < 3.", "weight": 15},
+      {"id": "req_5", "description": "@SpringBootTest (4 tests): SORTED detected correctly, quicksort worst triggered on sorted, recommendation avoids quicksort for sorted, amortized ratio < 3. All pass.", "weight": 25},
+      {"id": "req_6", "description": "README: explains the Flipkart quicksort incident — what went wrong, why, and how the tool prevents it.", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "QuicksortComparison: naive vs random-pivot on sorted n=2000. Count comparisons for each. Naive should be ≥ 10x more comparisons than random-pivot. Verify both sort correctly.", "weight": 20},
+      {"id": "bonus_2", "description": "Union-Find with path compression: 1M operations on n=100K elements in under 2 seconds. Print operations/second.", "weight": 20},
+      {"id": "bonus_3", "description": "InsertionSortBestCase: show sorted input → O(n) comparisons (≈ n). Random input → O(n²) comparisons (≈ n²/4). Ratio should be ≥ n/8.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Worst case vs average case: quicksort's O(n²) worst case requires a SPECIFIC input pattern — sorted array with last-element pivot. Random input → average O(n log n). Your InputAnalyzer must detect this trigger. Amortized O(1): track cumulative cost, not per-operation cost. Total cost for n ArrayList.add() calls = 2n (geometric series of resize costs). Divide by n → 2 = O(1) amortized. Insertion sort O(n) best case: on already-sorted input, the inner while loop never executes (arr[j] <= key always). Count inner-loop iterations: sorted → 0 per element → O(n) total. Nearly sorted detection: count inversions or elements where arr[i] > arr[i+1]. If < 5% of n, classify as NEARLY_SORTED.",
+  "rubric": [
+    {"category": "AlgorithmProfile record (5 algorithms)", "points": 20},
+    {"category": "InputAnalyzer (4 types)", "points": 15},
+    {"category": "AlgorithmSelector.recommend()", "points": 20},
+    {"category": "AmortizedDemo", "points": 15},
+    {"category": "4 tests pass", "points": 25},
+    {"category": "README", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

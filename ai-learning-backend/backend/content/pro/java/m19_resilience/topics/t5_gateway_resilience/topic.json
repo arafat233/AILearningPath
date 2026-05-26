@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m19_t5",
+  "language": "java",
+  "module_id": "m19",
+  "module_name": "Microservice Resilience",
+  "topic_number": 5,
+  "name": "Spring Cloud Gateway with Resilience",
+  "slug": "spring-cloud-gateway-resilience",
+
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m19_t4"],
+    "concepts_taught": [
+      "api_gateway_overview",
+      "spring_cloud_gateway",
+      "gateway_route_configuration",
+      "circuit_breaker_filter",
+      "retry_filter",
+      "request_rate_limiter_filter",
+      "redis_rate_limiter_in_gateway",
+      "fallback_uri",
+      "fallback_controller",
+      "timeout_filter",
+      "path_rewriting",
+      "load_balancing_with_gateway",
+      "gateway_actuator"
+    ],
+    "skills_developed": [
+      "configuring_spring_cloud_gateway_routes",
+      "adding_circuit_breaker_filter_to_route",
+      "adding_retry_filter_to_route",
+      "adding_rate_limiter_filter_to_route",
+      "writing_fallback_controller"
+    ],
+    "career_relevance": "API Gateways are the entry point to microservice architectures. Spring Cloud Gateway applies circuit breakers, retries, and rate limiting to ALL incoming requests before they reach any service — centralizing resilience rather than duplicating it in every microservice. This is the production pattern at companies like Razorpay, Flipkart, and Zerodha.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+
+  "hook": {
+    "real_world_problem": "Razorpay has 15 microservices. Without a gateway, each service needs its own rate limiter, circuit breaker, and retry logic — duplicated 15 times. With Spring Cloud Gateway:\n\n```yaml\n# ONE gateway config protects ALL services:\nspring.cloud.gateway.routes:\n  - id: payment-service\n    uri: lb://payment-service\n    predicates:\n      - Path=/api/payments/**\n    filters:\n      - name: CircuitBreaker\n        args: { name: payment-cb, fallbackUri: forward:/fallback/payments }\n      - name: Retry\n        args: { retries: 3, statuses: SERVICE_UNAVAILABLE }\n      - name: RequestRateLimiter\n        args:\n          redis-rate-limiter.replenishRate: 100\n          redis-rate-limiter.burstCapacity: 200\n```",
+    "what_you_will_build": "Configure a Spring Cloud Gateway with circuit breaker, retry, and rate limiting filters. Write fallback controllers for graceful degradation at the gateway level."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "gateway_setup": "**Spring Cloud Gateway setup:**\n\n```xml\n<!-- pom.xml: -->\n<dependency>\n    <groupId>org.springframework.cloud</groupId>\n    <artifactId>spring-cloud-starter-gateway</artifactId>\n</dependency>\n<dependency>\n    <groupId>org.springframework.cloud</groupId>\n    <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>\n</dependency>\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-data-redis-reactive</artifactId>\n</dependency>\n```\n\n```yaml\n# application.yml:\nspring:\n  cloud:\n    gateway:\n      routes:\n        - id: payment-service\n          uri: lb://payment-service  # load-balanced\n          predicates:\n            - Path=/api/payments/**\n          filters:\n            # Rate limiting:\n            - name: RequestRateLimiter\n              args:\n                redis-rate-limiter.replenishRate: 100\n                redis-rate-limiter.burstCapacity: 150\n                key-resolver: '#{@apiKeyResolver}'\n            # Circuit breaker:\n            - name: CircuitBreaker\n              args:\n                name: payment-circuit\n                fallbackUri: forward:/fallback/payments\n            # Retry:\n            - name: Retry\n              args:\n                retries: 3\n                statuses: SERVICE_UNAVAILABLE\n                methods: GET\n```",
+      "fallback_controller": "**Fallback controller for gateway:**\n\n```java\n@RestController\n@RequestMapping(\"/fallback\")\npublic class GatewayFallbackController {\n    \n    @GetMapping(\"/payments\")\n    public ResponseEntity<Map<String, String>> paymentFallback(\n            ServerHttpRequest request) {\n        return ResponseEntity\n            .status(HttpStatus.SERVICE_UNAVAILABLE)\n            .body(Map.of(\n                \"error\",  \"Payment service temporarily unavailable\",\n                \"status\", \"DEGRADED\",\n                \"retry\",  \"true\"\n            ));\n    }\n    \n    @GetMapping(\"/catalog\")\n    public ResponseEntity<Map<String, Object>> catalogFallback() {\n        return ResponseEntity.ok(Map.of(\n            \"products\", List.of(),\n            \"message\",  \"Product catalog temporarily unavailable\",\n            \"cached\",   \"false\"\n        ));\n    }\n}\n```",
+      "key_resolver": "**Rate limit key resolver (per API key):**\n\n```java\n@Configuration\npublic class GatewayConfig {\n    \n    // Rate limit by API key header:\n    @Bean(\"apiKeyResolver\")\n    public KeyResolver apiKeyResolver() {\n        return exchange -> {\n            String apiKey = exchange.getRequest()\n                .getHeaders().getFirst(\"X-API-Key\");\n            return Mono.just(\n                apiKey != null ? apiKey : exchange.getRequest().getRemoteAddress().toString()\n            );\n        };\n    }\n    \n    // Rate limit by user ID:\n    @Bean(\"userIdResolver\")\n    public KeyResolver userIdResolver() {\n        return exchange -> Mono.just(\n            exchange.getRequest().getHeaders()\n                .getOrDefault(\"X-User-Id\", List.of(\"anonymous\")).get(0)\n        );\n    }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Gateway as single entry point: Client → Gateway → [Rate Limiter] → [Circuit Breaker] → [Retry] → Microservice. If circuit OPEN: → Fallback Controller → returns degraded response. All 15 microservices have the same gateway protection without needing their own implementations. Redis stores rate limiter counters shared across gateway instances.",
+      "alt_text": "Spring Cloud Gateway with three filters: rate limiter, circuit breaker, retry protecting all downstream microservices"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Configure Spring Cloud Gateway to protect Zerodha's order and market data services with rate limiting, circuit breaker, and retry.",
+    "problem_statement": "1. pom.xml: spring-cloud-starter-gateway + circuit breaker + redis-reactive\n2. application.yml: 2 routes with all 3 filters\n3. FallbackController for each route\n4. KeyResolver bean for API key-based rate limiting",
+    "step_by_step_solution": [
+      { "step": 1, "action": "application.yml gateway routes", "details": "```yaml\nspring.cloud.gateway.routes:\n  - id: order-service\n    uri: lb://order-service\n    predicates:\n      - Path=/api/orders/**\n    filters:\n      - name: RequestRateLimiter\n        args: { redis-rate-limiter.replenishRate: 200, redis-rate-limiter.burstCapacity: 300, key-resolver: '#{@userIdResolver}' }\n      - name: CircuitBreaker\n        args: { name: order-cb, fallbackUri: forward:/fallback/orders }\n      - name: Retry\n        args: { retries: 2, statuses: SERVICE_UNAVAILABLE }\n  - id: market-data\n    uri: lb://market-data-service\n    predicates:\n      - Path=/api/market/**\n    filters:\n      - name: CircuitBreaker\n        args: { name: market-cb, fallbackUri: forward:/fallback/market }\n```" }
+    ],
+    "final_code": "// Gateway: centralized resilience for all microservices\n// Filters applied in order: rate limiter → CB → retry\n// Fallback: forward to /fallback/* controller endpoint\n// KeyResolver: determines rate limit key (user ID, API key, IP)",
+    "expected_output": "# Normal request:\nGET /api/orders/ORD-001 → gateway → order-service → 200 OK\n\n# Rate limit exceeded:\nGET /api/orders/ORD-002 → rate limiter → 429 Too Many Requests\n\n# Order service down:\nGET /api/orders/ORD-003 → CB OPEN → fallback → /fallback/orders → 503 Degraded",
+    "things_to_notice": [
+      "Gateway applies filters to EVERY request — no duplication across microservices.",
+      "Retry filter: only retries GET requests (safe to retry) and 503 responses. Never retry POST/PUT (non-idempotent).",
+      "Redis reactive: gateway uses reactive stack (WebFlux). Use spring-boot-starter-data-redis-reactive, not the standard redis starter.",
+      "FallbackController: must be in the SAME gateway application, not in downstream services. It's registered at path /fallback/*.",
+      "KeyResolver: determines what uniquely identifies a rate-limit subject. By API key → per-merchant limits. By user ID → per-user limits. By IP → anonymous limits."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay API gateway", "use_case": "Single gateway entry point for 15 microservices. Rate limiting per merchant API key. Circuit breakers per downstream service. Retry on 503s. Fallback controllers return structured error responses." }
+    ],
+    "interview_relevance": "'How do you apply resilience patterns in a microservice architecture without duplicating code?' → API Gateway. Spring Cloud Gateway applies circuit breaker, retry, and rate limiter via configuration to all routes. Individual services don't need their own resilience implementations for gateway-level protection.",
+    "real_world_workflow": "Gateway first: add CB + rate limiter at gateway for all services. Service-specific: add @CircuitBreaker inside services for inter-service calls. Don't duplicate gateway-level resilience inside downstream services."
+  },
+
+  "common_gaps": [
+    { "gap_id": "retry_on_post", "what_students_get_wrong": "Configuring Retry filter without specifying methods: GET — POST requests get retried, causing double orders.", "remediation": "Always specify methods: GET for retry. Never retry POST, PUT, DELETE (non-idempotent). The Retry filter defaults to retrying all methods if methods not specified.", "detection_pattern": "Duplicate orders, payments, or other state-changing operations on retry" }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Spring Cloud Gateway: centralized resilience for all microservices",
+      "CircuitBreaker filter: fallbackUri for graceful degradation",
+      "Retry filter: only for GET (never POST/PUT/DELETE)",
+      "RequestRateLimiter filter: Redis-backed, KeyResolver selects rate limit key",
+      "FallbackController: in the gateway app, handles /fallback/* paths",
+      "KeyResolver: determines rate limit subject (user, API key, IP)"
+    ],
+    "self_check_questions": [
+      { "question": "Why should the Retry filter only be applied to GET requests at the gateway level?", "answer": "GET requests are idempotent: calling GET /api/orders/123 twice returns the same result without side effects. Retrying a GET on 503 is safe. POST/PUT/DELETE are NOT idempotent: POST /api/orders would create a duplicate order if retried. PUT/DELETE would double-apply updates. At the gateway level, you can't easily detect if a POST was partially processed — so never retry non-GET requests without idempotency key infrastructure." }
+    ],
+    "next_topic_preview": "Module 19: Microservice Resilience is complete! You've mastered circuit breakers (T19.1), retry + rate limiter (T19.2), bulkhead isolation (T19.3), timeout + fallback (T19.4), and gateway-level resilience (T19.5). Module 20 — Observability covers the patterns for understanding what your service is doing in production."
+  }
+}

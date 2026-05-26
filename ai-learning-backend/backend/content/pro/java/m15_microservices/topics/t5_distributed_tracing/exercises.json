@@ -1,0 +1,341 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t5",
+  "topic_name": "Distributed Tracing",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m15_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "TraceId in logs — what appears?",
+      "scenario": "Micrometer Tracing populates MDC with traceId for log patterns.",
+      "instructions": "A request hits order-service. order-service calls market-service via Feign. Both services have:\n```properties\nlogging.pattern.console=%d [%X{traceId}] %msg%n\n```\nAnd Micrometer Tracing is configured.\n\nWhich traceId appears in:\n- order-service log lines during this request?\n- market-service log lines for the same request?\n- The NEXT independent request that comes in?",
+      "expected_solution": "order-service log: traceId=abc123 (the trace started by this request)\nmarket-service log: traceId=abc123 (SAME traceId — propagated via Feign B3 headers)\nNext request: traceId=xyz789 (NEW traceId — each request gets its own)",
+      "test_cases": [
+        { "type": "text_match", "expected": "order-service log: traceId=abc123 (the trace started by this request)\nmarket-service log: traceId=abc123 (SAME traceId — propagated via Feign B3 headers)\nNext request: traceId=xyz789 (NEW traceId — each request gets its own)" }
+      ],
+      "hints": [
+        "One request = one traceId across all services",
+        "Feign propagates traceId as B3 HTTP headers to downstream services",
+        "Each new HTTP request gets a new unique traceId"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Configure Micrometer Tracing properties",
+      "scenario": "Two properties control tracing: sampling rate and Zipkin endpoint.",
+      "instructions": "Fill in the application.properties for distributed tracing.",
+      "starter_code": "# Send 100% of traces (dev only):\nmanagement.tracing.sampling.___________=1.0\n\n# Where to send traces:\nmanagement.zipkin.tracing.________=http://localhost:9411/api/v2/spans\n\n# Include traceId in log output:\nlogging.pattern.console=%d{HH:mm:ss} [%______{traceId}] %-5level %msg%n",
+      "expected_solution": "management.tracing.sampling.probability=1.0\nmanagement.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans\nlogging.pattern.console=%d{HH:mm:ss} [%X{traceId}] %-5level %msg%n",
+      "blanks": [
+        { "position": 1, "answer": "probability", "hint": "0.0 to 1.0; percentage of traces sent to Zipkin" },
+        { "position": 2, "answer": "endpoint",    "hint": "URL where Zipkin is listening for spans" },
+        { "position": 3, "answer": "X",           "hint": "Logback MDC lookup: %X{key} reads from MDC" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected": "management.tracing.sampling.probability=1.0\nmanagement.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans\nlogging.pattern.console=%d{HH:mm:ss} [%X{traceId}] %-5level %msg%n" }
+      ],
+      "hints": [
+        "sampling.probability: 1.0=100%, 0.1=10%, 0.01=1%",
+        "%X{traceId}: reads traceId from Logback's MDC (populated by Micrometer Tracing)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Add Micrometer Tracing to a Spring Boot service",
+      "scenario": "Two Maven dependencies enable full distributed tracing.",
+      "instructions": "Write the complete setup for adding distributed tracing to market-service:\n1. The three Maven dependencies (bridge, reporter, feign integration)\n2. The four required application.properties entries\n3. Explain what each dependency does",
+      "starter_code": "<!-- pom.xml dependencies -->\n<!-- application.properties -->\n<!-- Explain what each dependency does -->\n",
+      "expected_solution": "// pom.xml dependencies:\n// 1. micrometer-tracing-bridge-brave:\n//    The core bridge between Micrometer Tracing API and Brave (Zipkin's tracer)\n// <dependency>\n//   <groupId>io.micrometer</groupId>\n//   <artifactId>micrometer-tracing-bridge-brave</artifactId>\n// </dependency>\n\n// 2. zipkin-reporter-brave:\n//    Sends spans to Zipkin server over HTTP\n// <dependency>\n//   <groupId>io.zipkin.reporter2</groupId>\n//   <artifactId>zipkin-reporter-brave</artifactId>\n// </dependency>\n\n// 3. feign-micrometer:\n//    Enables Feign to propagate B3 trace headers in outgoing requests\n// <dependency>\n//   <groupId>io.github.openfeign</groupId>\n//   <artifactId>feign-micrometer</artifactId>\n// </dependency>\n\n// application.properties:\n// management.tracing.sampling.probability=1.0\n// management.zipkin.tracing.endpoint=http://localhost:9411/api/v2/spans\n// spring.application.name=market-service\n// logging.pattern.console=%d{HH:mm:ss.SSS} [%X{traceId}] %-5level %logger{20} - %msg%n\n\npublic class SetupExplanation {\n    public static void main(String[] args) {\n        System.out.println(\"micrometer-tracing-bridge-brave: core tracing\");\n        System.out.println(\"zipkin-reporter-brave: sends spans to Zipkin\");\n        System.out.println(\"feign-micrometer: propagates traceId via Feign\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["micrometer-tracing", "zipkin-reporter", "feign-micrometer"] }
+      ],
+      "hints": [
+        "micrometer-tracing-bridge-brave: the API bridge",
+        "zipkin-reporter-brave: the reporter (sender to Zipkin)",
+        "feign-micrometer: critical for trace propagation across Feign calls"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m15_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Custom span — instrument a business operation",
+      "scenario": "Custom spans create named segments visible in Zipkin.",
+      "instructions": "Write `PortfolioService.calculatePortfolioValue(String userId)` that:\n1. Creates a custom span named 'calculate-portfolio-value'\n2. Tags it with userId\n3. Calculates value (mock: return random double)\n4. Tags the span with the result value\n5. Always ends the span in finally",
+      "starter_code": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.Service;\n// PortfolioService with custom span\n",
+      "expected_solution": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PortfolioService {\n    private final Tracer tracer;\n    PortfolioService(Tracer tracer) { this.tracer = tracer; }\n    \n    public double calculatePortfolioValue(String userId) {\n        Span span = tracer.nextSpan()\n            .name(\"calculate-portfolio-value\")\n            .tag(\"userId\", userId)\n            .start();\n        \n        try (Tracer.SpanInScope ignored = tracer.withSpan(span)) {\n            // Simulate portfolio calculation:\n            double value = Math.round(Math.random() * 100000) / 100.0;\n            span.tag(\"portfolioValue\", String.valueOf(value));\n            span.event(\"calculation-complete\");\n            return value;\n        } catch (Exception e) {\n            span.error(e);\n            throw e;\n        } finally {\n            span.end();  // ALWAYS end the span!\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Tracer.nextSpan().name('...').tag('k','v').start()",
+        "SpanInScope: auto-sets this span as current in the thread context",
+        "span.end() in finally: non-negotiable — prevents span leaks"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m15_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Log with traceId — MDC correlation",
+      "scenario": "With Micrometer Tracing, traceId appears in every log line automatically.",
+      "instructions": "Show the complete logging configuration for a service that:\n1. Logs traceId and spanId in every log line\n2. Also logs the service name and log level\n3. Logs to both console and a file (file without ANSI colors)\n4. Show what the output looks like for a request with traceId=abc123",
+      "starter_code": "# logback-spring.xml or application.properties logging config\n// Expected log output example\n",
+      "expected_solution": "# application.properties:\n# Console pattern with traceId and spanId:\nlogging.pattern.console=%d{HH:mm:ss.SSS} [%X{traceId}/%X{spanId}] [${spring.application.name:-app}] %-5level %logger{30} - %msg%n\n\n# File pattern (no colors):\nlogging.file.name=logs/${spring.application.name}.log\nlogging.pattern.file=%d{yyyy-MM-dd HH:mm:ss.SSS} [%X{traceId}/%X{spanId}] [%-5level] %logger{40} - %msg%n\n\n// Expected console output for traceId=abc123, spanId=def456:\n// 10:15:32.001 [abc123/def456] [market-service] INFO  StockController - GET /api/stocks/TCS received\n// 10:15:32.012 [abc123/def456] [market-service] DEBUG StockRepository - Executing DB query\n// 10:15:34.812 [abc123/def456] [market-service] INFO  StockController - TCS=3890.00 (2800ms)\n\n// To grep all logs for one request:\n// grep 'abc123' logs/market-service.log\n// → shows every log line for that specific request\n\npublic class LogExample {\n    public static void main(String[] args) {\n        System.out.println(\"10:15:32 [abc123/def456] [market-service] INFO StockController - received\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["abc123"] }
+      ],
+      "hints": [
+        "%X{traceId}: Logback MDC lookup — populated by Micrometer Tracing automatically",
+        "%X{spanId}: the span ID (different per service/operation)",
+        "${spring.application.name}: reads the Spring property"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sampling configuration per environment",
+      "scenario": "Different sampling rates for dev (all traces) vs prod (fraction).",
+      "instructions": "Write the sampling configuration for:\n1. application.properties: common settings\n2. application-dev.properties: 100% sampling for debugging\n3. application-prod.properties: 5% sampling (reduce Zipkin load)\n\nShow also how to calculate: at 200 req/s in prod, how many spans sent per hour with 5% sampling (assume 8 spans per trace)?",
+      "starter_code": "# application.properties (shared)\n# application-dev.properties\n# application-prod.properties\n# Math: 200 req/s × 5% × 8 spans × 3600s = ?\n",
+      "expected_solution": "# application.properties (shared):\nmanagement.zipkin.tracing.endpoint=http://zipkin:9411/api/v2/spans\nspring.application.name=order-service\n# traceId in logs:\nlogging.pattern.console=%d{HH:mm:ss} [%X{traceId}] %-5level %msg%n\n\n# application-dev.properties:\nmanagement.tracing.sampling.probability=1.0\n# 100%: see every single request's trace in Zipkin\n\n# application-prod.properties:\nmanagement.tracing.sampling.probability=0.05\n# 5%: 1 in 20 requests traced\n\n# Math:\n# 200 req/s × 0.05 (5%) = 10 traced requests/s\n# 10 × 8 spans = 80 spans/s\n# 80 × 3600 = 288,000 spans/hour\n# Very manageable for Zipkin!\n\n# vs 100% sampling:\n# 200 × 8 × 3600 = 5,760,000 spans/hour → would need large Zipkin cluster\n\npublic class SamplingMath {\n    public static void main(String[] args) {\n        int reqPerSec = 200; double sampling = 0.05; int spansPerTrace = 8;\n        long spansPerHour = (long)(reqPerSec * sampling * spansPerTrace * 3600);\n        System.out.println(\"Spans/hour at 5% sampling: \" + spansPerHour);\n        // Output: 288000\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["288000"] }
+      ],
+      "hints": [
+        "Dev: 1.0 (see everything), Prod: 0.01-0.1 (statistical sample)",
+        "200 req/s × 5% = 10 traced/s; × 8 spans = 80 spans/s; × 3600 = 288000/hr",
+        "Use @ActiveProfiles in test to verify dev vs prod settings"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@SpringBootTest — verify traceId in logs",
+      "scenario": "Verify traceId appears in logs during a request.",
+      "instructions": "Write a @SpringBootTest test that:\n1. Makes a POST /api/trades request via TestRestTemplate\n2. Captures the log output\n3. Asserts a traceId appears in the log output (non-empty string matching [a-f0-9]{32})\n\nHint: use a custom log appender or check MDC-populated fields via Tracer injection.",
+      "starter_code": "import io.micrometer.tracing.Tracer;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\n// @SpringBootTest tracing verification\n",
+      "expected_solution": "import io.micrometer.tracing.Tracer;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.web.client.TestRestTemplate;\nimport org.springframework.http.HttpStatus;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)\nclass TracingTest {\n    @Autowired TestRestTemplate rest;\n    @Autowired Tracer tracer;\n    \n    @Test\n    void requestCreatesTrace() {\n        // Make a request that triggers tracing:\n        var response = rest.getForEntity(\"/api/stocks/TCS/quote\", String.class);\n        assertEquals(HttpStatus.OK, response.getStatusCode());\n        // Tracing is working if no exception was thrown (Zipkin reporter is async)\n    }\n    \n    @Test\n    void tracer_isInjectable_andActive() {\n        // Verify Tracer is in the context:\n        assertNotNull(tracer);\n        // Create a test span to verify tracer works:\n        var span = tracer.nextSpan().name(\"test-span\").start();\n        assertNotNull(span);\n        // Verify span has a context (traceId assigned):\n        assertNotNull(span.context());\n        assertTrue(span.context().traceId() != null\n            && !span.context().traceId().isEmpty());\n        span.end();\n    }\n    \n    @Test\n    void currentSpan_inRequestContext_hasTraceId() {\n        // Make a request; in the request context, span has a traceId\n        // This is a structural test — tracer is correctly configured\n        assertNotNull(tracer);\n        var span = tracer.nextSpan().name(\"verification\").start();\n        String traceId = span.context().traceId();\n        assertNotNull(traceId);\n        assertFalse(traceId.isBlank());\n        span.end();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Tracer @Autowired: Spring Boot auto-configures it with Micrometer Tracing",
+        "span.context().traceId(): the 32-char hex traceId",
+        "Zipkin reporting is async — test doesn't need to verify Zipkin received it"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Instrument a DB query with a custom span",
+      "scenario": "Wrap a repository call in a custom span to see DB timing in Zipkin.",
+      "instructions": "Write `StockRepository` wrapper service that:\n1. Wraps `stockRepo.findBySymbol(symbol)` in a custom span 'stock-db-query'\n2. Tags span with symbol and the query result (price)\n3. Adds an event 'cache-miss' or 'db-hit' depending on whether the result was cached\n4. Records the elapsed time as a tag",
+      "starter_code": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.Service;\n// Instrumented StockRepository wrapper\n",
+      "expected_solution": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.ConcurrentHashMap;\n\nrecord StockData(String symbol, double price, boolean tradeable) {}\n\ninterface StockRepo {\n    Optional<StockData> findBySymbol(String symbol);\n}\n\n@Service\npublic class InstrumentedStockService {\n    private final Tracer tracer;\n    private final StockRepo repo;\n    private final Map<String, StockData> cache = new ConcurrentHashMap<>();\n    \n    InstrumentedStockService(Tracer tracer, StockRepo repo) {\n        this.tracer = tracer; this.repo = repo;\n    }\n    \n    public StockData getStock(String symbol) {\n        // Check cache first:\n        if (cache.containsKey(symbol)) {\n            // Still create a span to show the cache hit in Zipkin:\n            Span span = tracer.nextSpan().name(\"stock-lookup\")\n                .tag(\"symbol\", symbol).tag(\"source\", \"cache\").start();\n            try (Tracer.SpanInScope s = tracer.withSpan(span)) {\n                span.event(\"cache-hit\");\n                return cache.get(symbol);\n            } finally { span.end(); }\n        }\n        \n        // Cache miss — query DB:\n        Span dbSpan = tracer.nextSpan().name(\"stock-db-query\")\n            .tag(\"symbol\", symbol).tag(\"source\", \"database\").start();\n        long start = System.currentTimeMillis();\n        \n        try (Tracer.SpanInScope s = tracer.withSpan(dbSpan)) {\n            dbSpan.event(\"cache-miss\");\n            StockData result = repo.findBySymbol(symbol)\n                .orElseThrow(() -> new NoSuchElementException(\"Symbol not found: \" + symbol));\n            \n            long elapsed = System.currentTimeMillis() - start;\n            dbSpan.tag(\"price\", String.valueOf(result.price()))\n                  .tag(\"elapsed_ms\", String.valueOf(elapsed));\n            dbSpan.event(\"db-query-complete\");\n            \n            cache.put(symbol, result);\n            return result;\n        } catch (Exception e) {\n            dbSpan.error(e);\n            throw e;\n        } finally {\n            dbSpan.end();\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Create two different spans: one for cache hit, one for DB miss",
+        "span.tag('elapsed_ms', ...): visible in Zipkin as a filterable tag",
+        "span.event('cache-hit'): point-in-time event within the span"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m15_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Trace propagation — read traceId from incoming request",
+      "scenario": "Services receive and continue the trace from upstream services.",
+      "instructions": "Write an `AuditFilter` (OncePerRequestFilter) that:\n1. Reads the traceId from the current span (Micrometer Tracing auto-populates it)\n2. Logs: '[AUDIT] request: {method} {uri} | trace: {traceId}'\n3. Logs the response status after the request completes\n4. This creates an audit trail with traceId for every request",
+      "starter_code": "import io.micrometer.tracing.Tracer;\nimport org.springframework.web.filter.OncePerRequestFilter;\nimport jakarta.servlet.*; import jakarta.servlet.http.*;\nimport org.springframework.stereotype.Component;\n// AuditFilter with traceId logging\n",
+      "expected_solution": "import io.micrometer.tracing.Tracer;\nimport org.springframework.web.filter.OncePerRequestFilter;\nimport org.springframework.stereotype.Component;\nimport jakarta.servlet.*; import jakarta.servlet.http.*;\nimport java.io.IOException;\n\n@Component\npublic class AuditFilter extends OncePerRequestFilter {\n    private final Tracer tracer;\n    AuditFilter(Tracer tracer) { this.tracer = tracer; }\n    \n    @Override\n    protected void doFilterInternal(HttpServletRequest req,\n                                     HttpServletResponse res,\n                                     FilterChain chain)\n            throws ServletException, IOException {\n        \n        // Read traceId from current span (set by Micrometer Tracing):\n        String traceId = \"unknown\";\n        if (tracer.currentSpan() != null && tracer.currentSpan().context() != null) {\n            traceId = tracer.currentSpan().context().traceId();\n        }\n        \n        long start = System.currentTimeMillis();\n        System.out.printf(\"[AUDIT] %s %s | trace=%s%n\",\n            req.getMethod(), req.getRequestURI(), traceId);\n        \n        try {\n            chain.doFilter(req, res);\n        } finally {\n            long elapsed = System.currentTimeMillis() - start;\n            System.out.printf(\"[AUDIT] %s %s | status=%d | %dms | trace=%s%n\",\n                req.getMethod(), req.getRequestURI(),\n                res.getStatus(), elapsed, traceId);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "tracer.currentSpan(): the active span for this thread (set by Micrometer Tracing)",
+        "span.context().traceId(): the 32-char hex trace identifier",
+        "Log before chain.doFilter (request) and after (response)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Reading a Zipkin waterfall — find the bottleneck",
+      "scenario": "The Zipkin waterfall shows relative timing of all spans.",
+      "instructions": "A Zipkin trace shows these spans (start time relative to trace start):\n\n```\nSpan A: order-service POST /api/trades          [0ms → 510ms]\nSpan B:   feign: market-service                  [5ms → 120ms]\nSpan C:     market-service GET /api/stocks/TCS  [5ms → 120ms]\nSpan D:       stock-db-query (custom)           [10ms → 115ms]\nSpan E:   feign: user-service                    [125ms → 140ms]\nSpan F:     user-service GET /api/users/U01     [125ms → 140ms]\nSpan G:   feign: payment-service                 [150ms → 505ms]\nSpan H:     payment-service POST /api/payments  [150ms → 505ms]\nSpan I:       payment-gateway-call (custom)     [155ms → 500ms]\n```\n\nWhich service is the bottleneck? What is its duration? What should the team investigate?",
+      "expected_solution": "Bottleneck: payment-service (span H: 355ms)\nSpecifically: payment-gateway-call (span I: 345ms)\nstock-db-query is also notable (105ms) but secondary\n\nTotal trace: 510ms\nBreakdown:\n- market-service (stock-db-query): 105ms\n- user-service: 15ms (fast, no concern)\n- payment-service (payment-gateway-call): 345ms ← INVESTIGATE THIS\n\nTeam should investigate:\n1. payment-gateway-call latency: is the external payment gateway slow?\n2. Consider: caching payment gateway responses? Circuit breaker timeout?\n3. stock-db-query: 105ms is acceptable but worth monitoring for trends",
+      "test_cases": [
+        { "type": "text_match", "expected": "Bottleneck: payment-service (span H: 355ms)\nSpecifically: payment-gateway-call (span I: 345ms)\nstock-db-query is also notable (105ms) but secondary\n\nTotal trace: 510ms\nBreakdown:\n- market-service (stock-db-query): 105ms\n- user-service: 15ms (fast, no concern)\n- payment-service (payment-gateway-call): 345ms ← INVESTIGATE THIS\n\nTeam should investigate:\n1. payment-gateway-call latency: is the external payment gateway slow?\n2. Consider: caching payment gateway responses? Circuit breaker timeout?\n3. stock-db-query: 105ms is acceptable but worth monitoring for trends" }
+      ],
+      "hints": [
+        "Duration = end - start for each span",
+        "Spans are nested: children run inside parent's time window",
+        "The LONGEST span is the bottleneck — look for the widest bar"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "MDC baggage — carry userId across the entire trace",
+      "scenario": "Business context (userId) propagated through all services' logs.",
+      "instructions": "Write a `UserContextFilter` (OncePerRequestFilter) that:\n1. Reads userId from 'X-User-Id' request header\n2. Puts it in MDC: MDC.put('userId', userId)\n3. Removes it in finally\n4. Write a logging pattern that includes userId\n5. Show: all log lines in ALL services (order-service AND market-service) will have userId",
+      "starter_code": "import org.slf4j.MDC;\nimport org.springframework.web.filter.OncePerRequestFilter;\nimport org.springframework.stereotype.Component;\nimport jakarta.servlet.*; import jakarta.servlet.http.*;\n// UserContextFilter + logging pattern\n",
+      "expected_solution": "import org.slf4j.MDC;\nimport org.springframework.web.filter.OncePerRequestFilter;\nimport org.springframework.stereotype.Component;\nimport jakarta.servlet.*; import jakarta.servlet.http.*;\nimport java.io.IOException;\n\n@Component\npublic class UserContextFilter extends OncePerRequestFilter {\n    \n    @Override\n    protected void doFilterInternal(HttpServletRequest req,\n                                     HttpServletResponse res,\n                                     FilterChain chain)\n            throws ServletException, IOException {\n        String userId = req.getHeader(\"X-User-Id\");\n        if (userId != null) {\n            MDC.put(\"userId\", userId);  // put in MDC before chain.doFilter\n        }\n        try {\n            chain.doFilter(req, res);\n        } finally {\n            MDC.remove(\"userId\");  // always clean up!\n        }\n    }\n}\n\n// Note: MDC values propagate within the same thread.\n// For async operations (@Async, Feign calls), MDC must be explicitly propagated.\n// Feign: add a RequestInterceptor to forward X-User-Id header:\n// @Bean RequestInterceptor userId() { return t -> {\n//     String uid = MDC.get('userId');\n//     if (uid != null) t.header('X-User-Id', uid);\n// }; }\n\n// application.properties logging pattern:\n// logging.pattern.console=%d{HH:mm:ss} [%X{traceId}] userId=%X{userId} %-5level %msg%n\n\n// Expected log output:\n// order-service: 10:15:32 [abc123] userId=U01 INFO Trade received\n// market-service: 10:15:32 [abc123] userId=U01 INFO Quote fetched  ← SAME userId!\n\npublic class LogExample {\n    public static void main(String[] args) {\n        System.out.println(\"MDC propagates userId through the request thread\");\n        System.out.println(\"Feign RequestInterceptor propagates to downstream services\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["MDC propagates"] }
+      ],
+      "hints": [
+        "MDC.put('key', value) + MDC.remove('key') in finally: basic MDC pattern",
+        "Feign RequestInterceptor: forward X-User-Id header so market-service also has it",
+        "logging pattern %X{userId}: reads userId from MDC in each log line"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Custom span with error tracking",
+      "scenario": "Spans record errors — failed spans are visible in Zipkin.",
+      "instructions": "Write `PaymentProcessor.processPayment(String userId, double amount)` with:\n1. Custom span 'process-payment' with userId and amount tags\n2. If amount > 100000 → throw IllegalArgumentException (tagged as error in span)\n3. If payment gateway throws → mark span as error with the exception\n4. On success → add 'payment-id' tag to span\n5. Spans with errors show in RED in Zipkin",
+      "starter_code": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.Service;\n// PaymentProcessor with error tracking\n",
+      "expected_solution": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PaymentProcessor {\n    private final Tracer tracer;\n    PaymentProcessor(Tracer tracer) { this.tracer = tracer; }\n    \n    public String processPayment(String userId, double amount) {\n        Span span = tracer.nextSpan()\n            .name(\"process-payment\")\n            .tag(\"userId\", userId)\n            .tag(\"amount\", String.valueOf(amount))\n            .start();\n        \n        try (Tracer.SpanInScope s = tracer.withSpan(span)) {\n            // Validation:\n            if (amount > 100_000) {\n                IllegalArgumentException ex =\n                    new IllegalArgumentException(\"Amount exceeds limit: \" + amount);\n                span.error(ex);  // marks span as ERROR in Zipkin (RED)\n                span.tag(\"error.reason\", \"amount-limit-exceeded\");\n                throw ex;\n            }\n            \n            // Simulate gateway call:\n            String paymentId = callGateway(userId, amount);\n            \n            // Success:\n            span.tag(\"paymentId\", paymentId);\n            span.event(\"payment-confirmed\");\n            return paymentId;\n            \n        } catch (IllegalArgumentException e) {\n            throw e;  // already marked as error above\n        } catch (Exception e) {\n            span.error(e);  // mark any other exception as error\n            throw new RuntimeException(\"Payment gateway error\", e);\n        } finally {\n            span.end();\n        }\n    }\n    \n    private String callGateway(String userId, double amount) {\n        return \"PAY-\" + userId + \"-\" + (long)amount;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "span.error(exception): marks span as FAILED in Zipkin (shows in red)",
+        "span.tag('paymentId', id): visible in Zipkin span details on success",
+        "span.end() in finally: runs even when exception thrown"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full trading platform tracing — order through market to payment",
+      "scenario": "End-to-end trace across three services with custom spans.",
+      "instructions": "Instrument the complete trade execution path:\n1. `order-service.TradeController`: custom span 'trade-request' with userId, symbol, qty tags\n2. `order-service.TradeService`: span 'trade-orchestration', child spans for each Feign call\n3. `market-service.StockController`: span 'market-quote-fetch' with DB timing tag\n4. `payment-service.PaymentController`: span 'payment-processing' with transactionId\n\nWrite @SpringBootTest verifying: Tracer is injected, spans are created with correct names.",
+      "starter_code": "// Full trading platform tracing\n// TradeController + TradeService + custom spans + @SpringBootTest\n",
+      "expected_solution": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.http.*;\n\n// TradeController:\n@RestController @RequestMapping(\"/api/trades\")\nclass TradeController {\n    private final Tracer tracer; private final TradeService tradeService;\n    TradeController(Tracer t, TradeService s) { tracer=t; tradeService=s; }\n    \n    @PostMapping public ResponseEntity<String> trade(@RequestBody java.util.Map<String,Object> req) {\n        Span span = tracer.nextSpan().name(\"trade-request\")\n            .tag(\"userId\", String.valueOf(req.get(\"userId\")))\n            .tag(\"symbol\", String.valueOf(req.get(\"symbol\")))\n            .tag(\"qty\",    String.valueOf(req.get(\"qty\")))\n            .start();\n        try (Tracer.SpanInScope s = tracer.withSpan(span)) {\n            String result = tradeService.executeTrade(\n                (String)req.get(\"userId\"),(String)req.get(\"symbol\"),(Integer)req.get(\"qty\"));\n            span.tag(\"result\", result);\n            return ResponseEntity.status(201).body(result);\n        } catch(Exception e) { span.error(e); throw e; } finally { span.end(); }\n    }\n}\n\n// TradeService:\n@Service class TradeService {\n    private final Tracer tracer;\n    TradeService(Tracer t) { tracer=t; }\n    public String executeTrade(String userId, String symbol, int qty) {\n        Span span = tracer.nextSpan().name(\"trade-orchestration\")\n            .tag(\"userId\",userId).tag(\"symbol\",symbol).start();\n        try(Tracer.SpanInScope s=tracer.withSpan(span)) {\n            span.event(\"checking-market-quote\");\n            // ... Feign calls here create child spans automatically ...\n            span.event(\"processing-payment\");\n            String orderId = \"ORD-\"+symbol+\"-\"+qty;\n            span.tag(\"orderId\",orderId);\n            return orderId;\n        } catch(Exception e){ span.error(e); throw e; } finally { span.end(); }\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties=\"eureka.client.enabled=false\")\nclass TracingInstrumentationTest {\n    @Autowired Tracer tracer;\n    @Autowired TradeService tradeService;\n    \n    @Test void tracer_isConfigured() { assertNotNull(tracer); }\n    \n    @Test void tradeService_createsSpanWithCorrectTags() {\n        assertNotNull(tradeService);\n        // Service is instrumented — spans created during execution\n        String result = tradeService.executeTrade(\"U01\",\"TCS\",10);\n        assertNotNull(result);\n        assertTrue(result.startsWith(\"ORD-\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "tracer.nextSpan().name().tag().start(): creates named span with tags",
+        "Feign calls automatically create child spans (with feign-micrometer dependency)",
+        "span.event('name'): point-in-time annotation visible in Zipkin timeline"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m15_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Log aggregation — grep by traceId across services",
+      "scenario": "With traceId in logs, a single grep finds all related events.",
+      "instructions": "Write a `LogCorrelationDemo` that:\n1. Creates a request with a known traceId (simulate by creating a span)\n2. Makes log calls across two 'simulated services' (just two classes)\n3. Shows how grep 'traceId=abc123' finds all log lines\n4. Includes a helper that filters log lines by traceId from a string list\n5. @SpringBootTest: verify filtering works correctly",
+      "starter_code": "import io.micrometer.tracing.Tracer;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\nimport org.slf4j.MDC;\n// LogCorrelationDemo + test\n",
+      "expected_solution": "import io.micrometer.tracing.Tracer;\nimport org.slf4j.Logger;\nimport org.slf4j.LoggerFactory;\nimport org.slf4j.MDC;\nimport org.springframework.stereotype.Component;\nimport java.util.*;\nimport java.util.stream.Collectors;\n\n@Component\npublic class LogCorrelationDemo {\n    private static final Logger log = LoggerFactory.getLogger(LogCorrelationDemo.class);\n    private final Tracer tracer;\n    LogCorrelationDemo(Tracer tracer) { this.tracer = tracer; }\n    \n    // Simulate request processing across 'services':\n    public List<String> simulateMultiServiceRequest(String operationName) {\n        var span = tracer.nextSpan().name(operationName).start();\n        List<String> capturedLogs = new ArrayList<>();\n        \n        try (Tracer.SpanInScope s = tracer.withSpan(span)) {\n            String traceId = span.context().traceId();\n            MDC.put(\"traceId\", traceId);\n            \n            // Simulate order-service log:\n            String log1 = String.format(\"[%s] order-service: Processing trade\", traceId);\n            capturedLogs.add(log1);\n            log.info(\"Processing trade for {}\", operationName);\n            \n            // Simulate market-service log (same traceId):\n            String log2 = String.format(\"[%s] market-service: Fetching quote\", traceId);\n            capturedLogs.add(log2);\n            log.info(\"Fetching market quote\");\n            \n            // Simulate payment-service log:\n            String log3 = String.format(\"[%s] payment-service: Processing payment\", traceId);\n            capturedLogs.add(log3);\n            \n            return capturedLogs;\n        } finally {\n            MDC.remove(\"traceId\");\n            span.end();\n        }\n    }\n    \n    // Filter logs by traceId (simulates 'grep traceId=abc123 *.log'):\n    public static List<String> filterByTraceId(List<String> allLogs, String traceId) {\n        return allLogs.stream()\n            .filter(line -> line.contains(traceId))\n            .collect(Collectors.toList());\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties=\"eureka.client.enabled=false\")\nclass LogCorrelationTest {\n    @Autowired LogCorrelationDemo demo;\n    @Autowired Tracer tracer;\n    \n    @Test void allLogsHaveSameTraceId() {\n        List<String> logs = demo.simulateMultiServiceRequest(\"test-trade\");\n        assertEquals(3, logs.size());\n        // All logs contain the same traceId:\n        String firstTraceId = logs.get(0).split(\"\\\\[\")[1].split(\"\\\\]\")[0];\n        logs.forEach(line -> assertTrue(line.contains(firstTraceId),\n            \"Expected traceId \" + firstTraceId + \" in: \" + line));\n    }\n    \n    @Test void filterByTraceId_returnsOnlyMatchingLogs() {\n        List<String> allLogs = List.of(\n            \"[abc123] order-service: trade\",\n            \"[xyz789] order-service: other trade\",\n            \"[abc123] market-service: quote\");\n        var filtered = LogCorrelationDemo.filterByTraceId(allLogs, \"abc123\");\n        assertEquals(2, filtered.size());\n        assertTrue(filtered.stream().allMatch(l -> l.contains(\"abc123\")));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "span.context().traceId(): the actual traceId assigned by Micrometer Tracing",
+        "MDC.put('traceId', id): make traceId available to %X{traceId} in patterns",
+        "filterByTraceId: simulates `grep traceId=abc123 order-service.log market-service.log`"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m15_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete traced trading platform — Module 15.5 synthesis",
+      "scenario": "Full distributed tracing across the Zerodha trading platform.",
+      "instructions": "Build the fully instrumented trading platform:\n1. market-service: custom span 'stock-quote-fetch' with DB-timing tags\n2. order-service: span 'trade-execution' wrapping all Feign calls\n3. UserContextFilter: puts userId in MDC + X-User-Id header forwarded via Feign RequestInterceptor\n4. Logging pattern includes traceId AND userId\n5. AuditFilter: logs every request/response with traceId\n6. @SpringBootTest tests: Tracer injected, span created correctly, userId appears in MDC, audit filter logs both request/response\n\nAll 3 tests pass.",
+      "starter_code": "// Complete traced trading platform\n// market-service spans, order-service spans,\n// UserContextFilter (MDC + Feign forwarding),\n// AuditFilter, logging config, 3 tests\n",
+      "expected_solution": "import io.micrometer.tracing.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.web.filter.OncePerRequestFilter;\nimport org.slf4j.*;\nimport jakarta.servlet.*; import jakarta.servlet.http.*;\nimport java.io.IOException;\nimport java.util.*;\n\n// UserContextFilter:\n@Component\nclass UserContextFilter extends OncePerRequestFilter {\n    @Override protected void doFilterInternal(HttpServletRequest req,HttpServletResponse res,FilterChain chain)throws ServletException,IOException{\n        String uid=req.getHeader(\"X-User-Id\");\n        if(uid!=null) MDC.put(\"userId\",uid);\n        try{ chain.doFilter(req,res); }finally{ MDC.remove(\"userId\"); }\n    }\n}\n\n// AuditFilter:\n@Component\nclass AuditFilter extends OncePerRequestFilter {\n    private final Tracer tracer;\n    AuditFilter(Tracer t){tracer=t;}\n    @Override protected void doFilterInternal(HttpServletRequest req,HttpServletResponse res,FilterChain chain)throws ServletException,IOException{\n        String tid=tracer.currentSpan()!=null?tracer.currentSpan().context().traceId():\"none\";\n        System.out.printf(\"[AUDIT-IN]  %s %s trace=%s userId=%s%n\",req.getMethod(),req.getRequestURI(),tid,MDC.get(\"userId\"));\n        try{chain.doFilter(req,res);}finally{\n            System.out.printf(\"[AUDIT-OUT] %s %s status=%d trace=%s%n\",req.getMethod(),req.getRequestURI(),res.getStatus(),tid);\n        }\n    }\n}\n\n// InstrumentedTradeService:\n@Service\nclass InstrumentedTradeService {\n    private final Tracer tracer;\n    InstrumentedTradeService(Tracer t){tracer=t;}\n    public String executeTrade(String userId,String symbol,int qty){\n        Span span=tracer.nextSpan().name(\"trade-execution\")\n            .tag(\"userId\",userId).tag(\"symbol\",symbol).tag(\"qty\",String.valueOf(qty)).start();\n        try(Tracer.SpanInScope s=tracer.withSpan(span)){\n            span.event(\"market-quote-requested\");\n            // simulate market + payment calls\n            span.event(\"payment-processed\");\n            String orderId=\"ORD-\"+symbol+\"-\"+qty;\n            span.tag(\"orderId\",orderId);\n            return orderId;\n        }catch(Exception e){span.error(e);throw e;}finally{span.end();}\n    }\n}\n\n// logging pattern:\n// logging.pattern.console=%d{HH:mm:ss} [%X{traceId}] userId=%X{userId} %-5level %msg%n\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties=\"eureka.client.enabled=false\")\nclass FullTracingTest {\n    @Autowired Tracer tracer;\n    @Autowired InstrumentedTradeService tradeService;\n    \n    @Test void tracer_isAvailable_andFunctional(){\n        var span=tracer.nextSpan().name(\"test-span\").start();\n        assertNotNull(span.context().traceId());\n        assertFalse(span.context().traceId().isBlank());\n        span.end();\n    }\n    @Test void tradeService_executesWithSpan(){\n        String result=tradeService.executeTrade(\"U01\",\"TCS\",10);\n        assertTrue(result.startsWith(\"ORD-TCS\"));\n    }\n    @Test void mdc_userId_propagates(){\n        MDC.put(\"userId\",\"U01-test\");\n        assertEquals(\"U01-test\",MDC.get(\"userId\"));\n        MDC.remove(\"userId\");\n        assertNull(MDC.get(\"userId\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "UserContextFilter: MDC.put before chain.doFilter, MDC.remove in finally",
+        "AuditFilter: tracer.currentSpan() provides the active span for the request",
+        "Test MDC: put, assert, remove, assert null — verifies filter cleanup"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 65
+  }
+}

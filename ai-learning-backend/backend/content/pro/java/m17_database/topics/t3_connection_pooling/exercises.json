@@ -1,0 +1,344 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t3",
+  "topic_name": "Connection Pooling & Query Optimization",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m17_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Calculate the correct HikariCP pool size",
+      "scenario": "Pool size formula: (cores × 2) + spindle_count.",
+      "instructions": "Calculate the recommended maximum-pool-size for each scenario:\n\n1. Server: 4-core CPU, SSD storage (spindle=1)\n2. Server: 8-core CPU, 5-disk RAID HDD (spindle=5)\n3. Server: 16-core CPU, SSD (spindle=1)\n4. 2 Spring Boot instances sharing one 4-core PostgreSQL server (SSD)\n5. Why should you NOT set pool size to 500 on a 4-core server?",
+      "expected_solution": "1. 4-core SSD: (4×2)+1 = 9 connections\n2. 8-core RAID-5 HDD: (8×2)+5 = 21 connections\n3. 16-core SSD: (16×2)+1 = 33 connections\n4. 2 instances sharing 4-core DB: total=(4×2)+1=9; per instance=9/2≈5 connections each\n5. 500 connections on 4-core: DB server has 4 CPUs.\n   500 concurrent queries = 500 threads competing for 4 CPU cores.\n   Massive context switching overhead slows ALL queries.\n   Optimal: 9 connections (well below CPU saturation).\n   Too many connections = slower, not faster.",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. 4-core SSD: (4×2)+1 = 9 connections\n2. 8-core RAID-5 HDD: (8×2)+5 = 21 connections\n3. 16-core SSD: (16×2)+1 = 33 connections\n4. 2 instances sharing 4-core DB: total=(4×2)+1=9; per instance=9/2≈5 connections each\n5. 500 connections on 4-core: DB server has 4 CPUs.\n   500 concurrent queries = 500 threads competing for 4 CPU cores.\n   Massive context switching overhead slows ALL queries.\n   Optimal: 9 connections (well below CPU saturation).\n   Too many connections = slower, not faster." }
+      ],
+      "hints": [
+        "Formula: (core_count × 2) + effective_spindle_count",
+        "SSD has 1 effective spindle; HDD RAID-5 = number of disks",
+        "Multiple app instances: divide total pool by instance count"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete HikariCP application.properties",
+      "scenario": "Production HikariCP configuration for a Spring Boot payment service.",
+      "instructions": "Fill in the correct property values for a production HikariCP config on an 8-core SSD server.",
+      "starter_code": "# Maximum connections (formula: 8-core SSD):\nspring.datasource.hikari.maximum-pool-size=____\n\n# Minimum idle connections:\nspring.datasource.hikari.minimum-idle=____\n\n# Fail fast after 2 seconds if no connection available:\nspring.datasource.hikari.connection-timeout=____\n\n# Max connection lifetime (20 minutes in ms):\nspring.datasource.hikari.max-lifetime=____\n\n# Warn if connection held more than 5 seconds:\nspring.datasource.hikari.____-____-threshold=5000",
+      "expected_solution": "spring.datasource.hikari.maximum-pool-size=17\nspring.datasource.hikari.minimum-idle=5\nspring.datasource.hikari.connection-timeout=2000\nspring.datasource.hikari.max-lifetime=1200000\nspring.datasource.hikari.leak-detection-threshold=5000",
+      "blanks": [
+        { "position": 1, "answer": "17",          "hint": "(8×2)+1=17" },
+        { "position": 2, "answer": "5",            "hint": "25-50% of max, keeps connections warm" },
+        { "position": 3, "answer": "2000",         "hint": "2 seconds = 2000ms" },
+        { "position": 4, "answer": "1200000",      "hint": "20 min × 60s × 1000ms" },
+        { "position": 5, "answer": "leak-detection", "hint": "Property name for connection leak detection" }
+      ],
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["maximum-pool-size=17", "connection-timeout=2000", "leak-detection-threshold=5000"] }
+      ],
+      "hints": [
+        "8-core SSD: (8×2)+1 = 17",
+        "connection-timeout: milliseconds, not seconds",
+        "leak-detection-threshold: logs WARNING if connection held longer than threshold"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Read EXPLAIN ANALYZE output — identify the problem",
+      "scenario": "Interpret EXPLAIN ANALYZE to identify whether an index is being used.",
+      "instructions": "For each EXPLAIN ANALYZE output snippet, state: (1) is an index being used, (2) what is the problem or conclusion:\n\n```\nA: Seq Scan on payments (cost=0..4892341)\n   Filter: (merchant_id = 'M001')\n   Rows Removed by Filter: 49999108\n   Execution Time: 9823.4ms\n\nB: Index Scan using idx_payments_merchant ON payments\n   Index Cond: (merchant_id = 'M001')\n   Execution Time: 0.8ms\n\nC: Index Only Scan using idx_payments_cover ON payments\n   Index Cond: (merchant_id = 'M001')\n   Heap Fetches: 0\n   Execution Time: 0.2ms\n\nD: Seq Scan on payments\n   Filter: (LOWER(email) = 'aisha@test.com')\n   Rows Removed by Filter: 9999999\n   Execution Time: 3421ms\n```",
+      "starter_code": "// Interpret each EXPLAIN ANALYZE output\n",
+      "expected_solution": "// A: Seq Scan — NO index used\n//    Problem: full table scan of 50M rows to find 1\n//    Rows Removed = 49999108 (almost entire table scanned and discarded)\n//    Fix: CREATE INDEX idx_payments_merchant ON payments(merchant_id);\n\n// B: Index Scan — YES, index being used\n//    Good: using idx_payments_merchant, fast (0.8ms)\n//    Still needs heap access (fetches actual row from table)\n//    Could be improved with covering index if selecting many columns\n\n// C: Index Only Scan — YES, BEST index type\n//    All data served from index itself (Heap Fetches: 0)\n//    No table access needed → covering index with INCLUDE\n//    0.2ms — fastest possible\n\n// D: Seq Scan — NO index used\n//    Problem: LOWER(email) disables regular email index!\n//    A regular CREATE INDEX ON payments(email) won't work for LOWER(email)\n//    Fix: CREATE INDEX idx_payments_lower_email ON payments(LOWER(email));\n//    Or: CREATE INDEX ON payments(email) and use WHERE email = lower_value\n\npublic class ExplainInterpretation {\n    public static void main(String[] args) {\n        System.out.println(\"A: Seq Scan → MISSING INDEX on merchant_id\");\n        System.out.println(\"B: Index Scan → good, but heap access needed\");\n        System.out.println(\"C: Index Only Scan → optimal, covering index\");\n        System.out.println(\"D: Seq Scan → index on LOWER(email) needed\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Seq Scan", "Index Only Scan"] }
+      ],
+      "hints": [
+        "Seq Scan + Rows Removed: scanning entire table — missing index",
+        "Index Only Scan + Heap Fetches: 0 — best, covering index",
+        "Function in WHERE (LOWER(col)): regular index not used; need expression index"
+      ],
+      "xp_reward": 25
+    },
+
+    {
+      "id": "java_m17_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write indexes as Flyway migration",
+      "scenario": "Database indexes are added as Flyway migration SQL files.",
+      "instructions": "Write V5__add_performance_indexes.sql for the orders table:\n1. Single index on user_id\n2. Composite index on (status, created_at DESC) for active order queries\n3. Composite index on (merchant_id, status) for merchant dashboard\n4. Partial index on (user_id) WHERE status IN ('PLACED','PROCESSING') — only active orders\n5. Use CREATE INDEX CONCURRENTLY for all (zero-downtime)\n\nNote: CONCURRENTLY cannot be inside a transaction; Flyway must be configured for this.",
+      "starter_code": "-- V5__add_performance_indexes.sql\n-- Performance indexes for orders table\n-- Note: All use CONCURRENTLY for zero-downtime deployment\n",
+      "expected_solution": "-- V5__add_performance_indexes.sql\n-- Note: CONCURRENTLY indexes cannot run inside a transaction.\n-- Add to Flyway config: spring.flyway.mixed=true (to allow non-transactional statements)\n-- Or: prefix with SQL comment-- flyway:executeInTransaction=false\n\nCREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_user_id\n    ON orders(user_id);\n\nCREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_status_created\n    ON orders(status, created_at DESC);\n-- Good for: ORDER BY created_at DESC WHERE status = 'PLACED'\n\nCREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_merchant_status\n    ON orders(merchant_id, status);\n-- Good for: WHERE merchant_id = ? AND status = ?\n\nCREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_active_user\n    ON orders(user_id)\n    WHERE status IN ('PLACED', 'PROCESSING');\n-- Partial: only indexes active orders (small index, fast for open order queries)\n-- Good for: WHERE user_id = ? AND status IN ('PLACED','PROCESSING')",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["CREATE INDEX CONCURRENTLY", "INCLUDE", "WHERE status IN"] }
+      ],
+      "hints": [
+        "CONCURRENTLY: builds index without blocking writes",
+        "IF NOT EXISTS: idempotent — safe to re-run if migration was partially applied",
+        "Partial index WHERE: only indexes matching rows (smaller, faster)"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m17_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Apply composite index leftmost prefix rule",
+      "scenario": "Understanding which queries use an index is critical for effective indexing.",
+      "instructions": "Given this composite index:\n```sql\nCREATE INDEX idx_trades ON trades(user_id, symbol, executed_at);\n```\n\nFor each query, state: (1) does the index help, (2) why/why not:\n\n```sql\nA: WHERE user_id = 'U001'\nB: WHERE user_id = 'U001' AND symbol = 'TCS'\nC: WHERE symbol = 'TCS'\nD: WHERE executed_at > '2024-01-01'\nE: WHERE symbol = 'TCS' AND executed_at > '2024-01-01'\nF: WHERE user_id = 'U001' AND executed_at > '2024-01-01'\nG: WHERE user_id = 'U001' AND symbol = 'TCS' AND executed_at > '2024-01-01'\n```",
+      "starter_code": "// Leftmost prefix rule analysis for idx_trades(user_id, symbol, executed_at)\n",
+      "expected_solution": "// Index: idx_trades(user_id, symbol, executed_at)\n// Leftmost prefix rule: must start from user_id to use this index\n\n// A: WHERE user_id = 'U001'\n//    YES: uses index. user_id is the leftmost column. Finds U001's trades.\n\n// B: WHERE user_id = 'U001' AND symbol = 'TCS'\n//    YES: uses index on (user_id, symbol). Two-column prefix. Finds U001's TCS trades.\n\n// C: WHERE symbol = 'TCS'\n//    NO: does NOT use index. symbol is not the leftmost column.\n//    PostgreSQL would need a separate index on (symbol) or (symbol, ...)\n\n// D: WHERE executed_at > '2024-01-01'\n//    NO: does NOT use index. executed_at is third column, no leftmost prefix.\n\n// E: WHERE symbol = 'TCS' AND executed_at > '2024-01-01'\n//    NO: neither is the leftmost column. Full table scan.\n\n// F: WHERE user_id = 'U001' AND executed_at > '2024-01-01'\n//    PARTIAL: uses index for user_id (leftmost match), then filters executed_at.\n//    NOT as efficient as F with all three columns. PostgreSQL may use index\n//    on user_id alone, then filter executed_at from heap.\n\n// G: WHERE user_id = 'U001' AND symbol = 'TCS' AND executed_at > '2024-01-01'\n//    YES: full index used for all three columns. Most efficient.\n\npublic class LeftmostPrefixAnalysis {\n    public static void main(String[] args) {\n        System.out.println(\"A: YES - user_id is leftmost\");\n        System.out.println(\"B: YES - (user_id, symbol) prefix\");\n        System.out.println(\"C: NO  - symbol is not leftmost\");\n        System.out.println(\"D: NO  - executed_at is not leftmost\");\n        System.out.println(\"E: NO  - neither is leftmost\");\n        System.out.println(\"F: PARTIAL - user_id only\");\n        System.out.println(\"G: YES - all three columns used\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["YES", "NO", "PARTIAL"] }
+      ],
+      "hints": [
+        "Leftmost prefix: must include the first column to use the index",
+        "Skipping a middle column: index used for left portion only",
+        "Equality on all left columns + range on right = efficient index scan"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Add Actuator metrics for HikariCP monitoring",
+      "scenario": "Spring Actuator exposes HikariCP pool metrics for monitoring.",
+      "instructions": "Write the configuration and a test method for HikariCP monitoring:\n1. pom.xml: actuator + micrometer-registry-prometheus dependencies\n2. application.properties: expose health + metrics + prometheus\n3. A @RestController /admin/pool endpoint that returns pool stats\n4. Show example curl output for checking pool exhaustion",
+      "starter_code": "<!-- pom.xml snippets -->\n# application.properties — Actuator config\n// PoolMonitorController.java\n// Example curl commands\n",
+      "expected_solution": "<!-- pom.xml:\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-actuator</artifactId>\n</dependency>\n<dependency>\n    <groupId>io.micrometer</groupId>\n    <artifactId>micrometer-registry-prometheus</artifactId>\n    <scope>runtime</scope>\n</dependency>\n-->\n\n# application.properties:\nmanagement.endpoints.web.exposure.include=health,metrics,prometheus\nmanagement.endpoint.health.show-details=always\n# Pool name for metrics:\nspring.datasource.hikari.pool-name=Zerodha-Pool\n\n// PoolMonitorController.java:\nimport org.springframework.web.bind.annotation.*;\nimport io.micrometer.core.instrument.MeterRegistry;\nimport io.micrometer.core.instrument.Gauge;\nimport java.util.*;\n\n@RestController\n@RequestMapping(\"/admin\")\npublic class PoolMonitorController {\n    private final MeterRegistry registry;\n    PoolMonitorController(MeterRegistry r) { registry = r; }\n    \n    @GetMapping(\"/pool\")\n    public Map<String, Object> poolStats() {\n        return Map.of(\n            \"total\",   getMetric(\"hikaricp.connections\"),\n            \"active\",  getMetric(\"hikaricp.connections.active\"),\n            \"idle\",    getMetric(\"hikaricp.connections.idle\"),\n            \"pending\", getMetric(\"hikaricp.connections.pending\"),\n            \"status\",  getMetric(\"hikaricp.connections.pending\") > 0 ? \"EXHAUSTED\" : \"HEALTHY\"\n        );\n    }\n    private double getMetric(String name) {\n        return registry.find(name).gauge() != null\n            ? registry.find(name).gauge().value() : 0.0;\n    }\n}\n// Example output (healthy):\n// {\"total\":20,\"active\":7,\"idle\":13,\"pending\":0,\"status\":\"HEALTHY\"}\n\n// Example output (exhausted):\n// {\"total\":20,\"active\":20,\"idle\":0,\"pending\":47,\"status\":\"EXHAUSTED\"}\n\n// Curl commands:\n// curl localhost:8080/actuator/metrics/hikaricp.connections.pending\n// curl localhost:8080/actuator/prometheus | grep hikari\n// curl localhost:8080/admin/pool",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "MeterRegistry: Micrometer's metric registry injected by Spring",
+        "hikaricp.connections.pending: key metric — if > 0, pool is exhausted",
+        "Prometheus: /actuator/prometheus → Grafana dashboard for pool trends"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Pool exhaustion simulation and diagnosis",
+      "scenario": "Understand what pool exhaustion looks like and how to diagnose it.",
+      "instructions": "Write a diagnostic checklist and code:\n1. List 4 symptoms of pool exhaustion (log messages, metrics)\n2. Write a @Scheduled method that logs pool health every minute\n3. Write the SQL to check active connections in PostgreSQL\n4. Show the HikariCP leak detection output when a connection is held too long",
+      "starter_code": "// Pool exhaustion diagnostic checklist + monitoring code\n",
+      "expected_solution": "// 4 SYMPTOMS OF POOL EXHAUSTION:\n// 1. Log: 'HikariPool-1 - Connection is not available, request timed out after Nms'\n// 2. Actuator: hikaricp.connections.pending > 0 (requests waiting for connection)\n// 3. Application: 503/504 HTTP responses under load (requests timing out)\n// 4. Actuator: hikaricp.connections.active == hikaricp.connections.total (100% pool used)\n\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport io.micrometer.core.instrument.MeterRegistry;\n\n@Service\npublic class PoolHealthMonitor {\n    private final MeterRegistry registry;\n    PoolHealthMonitor(MeterRegistry r) { registry = r; }\n    \n    @Scheduled(fixedRate = 60000)  // every minute\n    public void logPoolHealth() {\n        double active  = getValue(\"hikaricp.connections.active\");\n        double idle    = getValue(\"hikaricp.connections.idle\");\n        double pending = getValue(\"hikaricp.connections.pending\");\n        double total   = getValue(\"hikaricp.connections\");\n        \n        System.out.printf(\"[Pool] total=%.0f active=%.0f idle=%.0f pending=%.0f%n\",\n            total, active, idle, pending);\n        \n        if (pending > 0) {\n            System.err.printf(\"[Pool ALERT] %d requests waiting for connection!%n\", (int)pending);\n        }\n        if (active / total > 0.8) {\n            System.err.println(\"[Pool WARN] Pool >80% utilized — consider increasing size\");\n        }\n    }\n    private double getValue(String name) {\n        var gauge = registry.find(name).gauge();\n        return gauge != null ? gauge.value() : 0;\n    }\n}\n\n// PostgreSQL: check active connections:\n// SELECT count(*) FROM pg_stat_activity WHERE state='active';\n// SELECT pid, query, state, query_start FROM pg_stat_activity;\n\n// HikariCP leak detection log (when a connection is held > 5s):\n// [WARN] HikariPool-1 - Connection leak detection triggered for\n//   org.postgresql.jdbc.PgConnection@1234abcd\n//   on thread http-nio-8080-exec-4, stack trace follows\n//   java.lang.Exception: Apparent connection leak detected\n//       at com.zaxxer.hikari.HikariDataSource.getConnection(...)\n//       at com.example.PaymentService.processPayment(...) ← the culprit!\n\npublic class DiagnosticExample { public static void main(String[] a) { System.out.println(\"Monitoring active\"); }}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Scheduled(fixedRate=60000): runs every 60 seconds",
+        "pending > 0: key alert condition for pool exhaustion",
+        "Leak detection log: shows exact stack trace of the connection that wasn't returned"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m17_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Design indexes for a trading platform query set",
+      "scenario": "Given query patterns, design the minimal set of indexes needed.",
+      "instructions": "For the trades table (user_id, symbol, trade_type, price, qty, executed_at), write SQL for indexes that cover these queries efficiently:\n\n1. `WHERE user_id = ? ORDER BY executed_at DESC` (portfolio history)\n2. `WHERE symbol = ? AND executed_at > ? ORDER BY executed_at DESC` (market activity)\n3. `WHERE user_id = ? AND symbol = ?` (position check)\n4. `WHERE trade_type = 'BUY' AND executed_at > ?` (analytics — large but selective on type+date)\n5. `SELECT symbol, SUM(qty) WHERE user_id = ?` (needs total qty per symbol)",
+      "starter_code": "-- Design indexes for Zerodha trades table\n-- Minimize index count while maximizing query coverage\n",
+      "expected_solution": "-- INDEX DESIGN FOR 5 QUERY PATTERNS:\n\n-- Query 1: WHERE user_id = ? ORDER BY executed_at DESC\n-- Index: user_id + executed_at DESC for index-ordered retrieval\nCREATE INDEX CONCURRENTLY idx_trades_user_time\n    ON trades(user_id, executed_at DESC);\n-- Also serves: WHERE user_id = ? AND symbol = ? (leftmost prefix: user_id)\n\n-- Query 2: WHERE symbol = ? AND executed_at > ? ORDER BY executed_at DESC\nCREATE INDEX CONCURRENTLY idx_trades_symbol_time\n    ON trades(symbol, executed_at DESC);\n-- symbol is leftmost for this access pattern\n\n-- Query 3: WHERE user_id = ? AND symbol = ?\n-- Already served by idx_trades_user_time (user_id leftmost)\n-- But user_id+symbol more selective than user_id+time for this query\n-- Add specific composite for best performance:\nCREATE INDEX CONCURRENTLY idx_trades_user_symbol\n    ON trades(user_id, symbol)\n    INCLUDE (qty);  -- INCLUDE qty for covering index on Query 5!\n\n-- Query 4: WHERE trade_type = 'BUY' AND executed_at > ?\n-- Partial index for BUY only (50% of data):\nCREATE INDEX CONCURRENTLY idx_trades_buy_time\n    ON trades(executed_at)\n    WHERE trade_type = 'BUY';\n-- trade_type='BUY' is encoded in partial index, not as a column\n-- Only half the rows indexed → smaller, faster\n\n-- Query 5: SELECT symbol, SUM(qty) WHERE user_id = ?\n-- Covered by idx_trades_user_symbol with INCLUDE(qty)\n-- PostgreSQL can answer: SELECT symbol, qty WHERE user_id=? from index alone\n-- → Index Only Scan (no heap access)\n\n-- SUMMARY: 4 indexes cover 5 query patterns efficiently\n-- Could combine 1+3 into idx_trades_user_symbol_time(user_id, symbol, executed_at)\n-- but that index would be larger; depends on actual query frequency",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["CREATE INDEX CONCURRENTLY", "INCLUDE", "WHERE trade_type = 'BUY'"] }
+      ],
+      "hints": [
+        "One index can serve multiple queries via leftmost prefix rule",
+        "INCLUDE: add SELECT columns for Index Only Scan on analytics queries",
+        "Partial index: WHERE trade_type='BUY' shrinks the index by 50%"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Full HikariCP production configuration with read/write split",
+      "scenario": "High-traffic apps use separate pools for read replicas vs primary DB.",
+      "instructions": "Write Spring Boot configuration for a 2-pool setup:\n1. Primary pool: PostgreSQL primary (read-write), pool-size=15, for writes\n2. Replica pool: PostgreSQL read-replica (read-only), pool-size=30, for reads\n3. application-prod.properties for both datasources\n4. @Primary DataSource bean + secondary DataSource bean\n5. Explain when to route to replica vs primary",
+      "starter_code": "# application-prod.properties — primary + replica pools\n// DataSourceConfig.java — two pool configuration\n",
+      "expected_solution": "# application-prod.properties:\n# Primary (write) datasource:\nspring.datasource.url=jdbc:postgresql://primary.db:5432/orders\nspring.datasource.username=${DB_USER}\nspring.datasource.password=${DB_PASSWORD}\nspring.datasource.hikari.maximum-pool-size=15\nspring.datasource.hikari.minimum-idle=3\nspring.datasource.hikari.pool-name=Primary-Pool\nspring.datasource.hikari.connection-timeout=2000\n\n# Read replica datasource (custom property name):\napp.datasource.replica.url=jdbc:postgresql://replica.db:5432/orders\napp.datasource.replica.username=${DB_USER}\napp.datasource.replica.password=${DB_PASSWORD}\n\nimport com.zaxxer.hikari.HikariConfig;\nimport com.zaxxer.hikari.HikariDataSource;\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.context.annotation.*;\nimport javax.sql.DataSource;\n\n@Configuration\npublic class DataSourceConfig {\n    \n    // Primary (write) — @Primary used by default JPA/repositories:\n    @Bean @Primary\n    public DataSource primaryDataSource(\n            @Value(\"${spring.datasource.url}\") String url,\n            @Value(\"${spring.datasource.username}\") String user,\n            @Value(\"${spring.datasource.password}\") String pass) {\n        HikariConfig cfg = new HikariConfig();\n        cfg.setJdbcUrl(url); cfg.setUsername(user); cfg.setPassword(pass);\n        cfg.setMaximumPoolSize(15);\n        cfg.setPoolName(\"Primary-Write-Pool\");\n        cfg.setConnectionTimeout(2000);\n        return new HikariDataSource(cfg);\n    }\n    \n    // Read replica — inject explicitly where needed:\n    @Bean(\"replicaDataSource\")\n    public DataSource replicaDataSource(\n            @Value(\"${app.datasource.replica.url}\") String url,\n            @Value(\"${app.datasource.replica.username}\") String user,\n            @Value(\"${app.datasource.replica.password}\") String pass) {\n        HikariConfig cfg = new HikariConfig();\n        cfg.setJdbcUrl(url); cfg.setUsername(user); cfg.setPassword(pass);\n        cfg.setMaximumPoolSize(30);  // larger: handles more read traffic\n        cfg.setReadOnly(true);       // prevents accidental writes\n        cfg.setPoolName(\"Replica-Read-Pool\");\n        return new HikariDataSource(cfg);\n    }\n}\n// Route to REPLICA: read-heavy queries (order history, search, reports)\n// Route to PRIMARY: any write (INSERT, UPDATE, DELETE) + reads that must be current\n// Rule: use replica for analytics, dashboards, search; primary for user-facing mutations",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Primary: default DataSource used by Spring JPA repositories",
+        "setReadOnly(true): prevents accidental writes to replica",
+        "Replica pool larger: read traffic >> write traffic in most apps"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t3_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Which index is used for each query?",
+      "scenario": "Given multiple indexes, determine which one PostgreSQL uses for each query.",
+      "instructions": "Given these indexes on the orders table:\n```sql\nidx_a: CREATE INDEX ON orders(user_id);\nidx_b: CREATE INDEX ON orders(user_id, status);\nidx_c: CREATE INDEX ON orders(status, created_at);\nidx_d: CREATE INDEX ON orders(user_id) WHERE status = 'ACTIVE';\n```\n\nFor each query, which index (if any) is most likely used?\n```\nQ1: WHERE user_id = 'U001'\nQ2: WHERE user_id = 'U001' AND status = 'ACTIVE'\nQ3: WHERE status = 'ACTIVE' ORDER BY created_at DESC\nQ4: WHERE user_id = 'U001' AND status = 'ACTIVE' (searching active orders only)\nQ5: WHERE status = 'PENDING'\nQ6: WHERE user_id = 'U001' ORDER BY status ASC\n```",
+      "expected_solution": "Q1: WHERE user_id = 'U001'\n  → idx_a OR idx_b (both start with user_id; PostgreSQL picks most efficient)\n  idx_b may be preferred if smaller due to fewer heap fetches\n\nQ2: WHERE user_id = 'U001' AND status = 'ACTIVE'\n  → idx_b (user_id, status) — two-column match, most specific\n  → idx_d (partial: user_id WHERE status='ACTIVE') — also a good match\n  → PostgreSQL compares cost; idx_d is smaller so likely chosen for this query\n\nQ3: WHERE status = 'ACTIVE' ORDER BY created_at DESC\n  → idx_c (status, created_at) — status is leftmost, created_at for ordering\n  → Best option; supports both filter and order without sort step\n\nQ4: WHERE user_id = 'U001' AND status = 'ACTIVE' (active orders only)\n  → idx_d (partial index for ACTIVE only) — smallest, fastest for this exact query\n  → idx_b also works but indexes all statuses (larger)\n\nQ5: WHERE status = 'PENDING'\n  → idx_c (status, created_at) — status is leftmost\n  → idx_d NOT used (partial: WHERE status='ACTIVE', not PENDING)\n\nQ6: WHERE user_id = 'U001' ORDER BY status ASC\n  → idx_b (user_id, status) — user_id filter + status already ordered in index\n  → May avoid Sort step entirely → Index Scan in order",
+      "test_cases": [
+        { "type": "text_match", "expected": "Q1: WHERE user_id = 'U001'\n  → idx_a OR idx_b (both start with user_id; PostgreSQL picks most efficient)\n  idx_b may be preferred if smaller due to fewer heap fetches\n\nQ2: WHERE user_id = 'U001' AND status = 'ACTIVE'\n  → idx_b (user_id, status) — two-column match, most specific\n  → idx_d (partial: user_id WHERE status='ACTIVE') — also a good match\n  → PostgreSQL compares cost; idx_d is smaller so likely chosen for this query\n\nQ3: WHERE status = 'ACTIVE' ORDER BY created_at DESC\n  → idx_c (status, created_at) — status is leftmost, created_at for ordering\n  → Best option; supports both filter and order without sort step\n\nQ4: WHERE user_id = 'U001' AND status = 'ACTIVE' (active orders only)\n  → idx_d (partial index for ACTIVE only) — smallest, fastest for this exact query\n  → idx_b also works but indexes all statuses (larger)\n\nQ5: WHERE status = 'PENDING'\n  → idx_c (status, created_at) — status is leftmost\n  → idx_d NOT used (partial: WHERE status='ACTIVE', not PENDING)\n\nQ6: WHERE user_id = 'U001' ORDER BY status ASC\n  → idx_b (user_id, status) — user_id filter + status already ordered in index\n  → May avoid Sort step entirely → Index Scan in order" }
+      ],
+      "hints": [
+        "PostgreSQL picks the index with lowest estimated cost",
+        "Partial index only used when WHERE condition matches its partial WHERE",
+        "Ordered index scan: avoids Sort node when ORDER BY matches index column order"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Covering index for analytics query",
+      "scenario": "INCLUDE columns enable Index Only Scan — fastest possible query execution.",
+      "instructions": "Write a migration with a covering index for this analytics query:\n```sql\nSELECT symbol, SUM(qty * price) AS total_value\nFROM trades\nWHERE user_id = ?\n  AND executed_at BETWEEN ? AND ?\nGROUP BY symbol;\n```\n\n1. Identify which columns need to be in the index (leftmost prefix)\n2. Identify which columns to INCLUDE (in the SELECT but not filter)\n3. Write the CREATE INDEX CONCURRENTLY statement\n4. Write the EXPLAIN ANALYZE output you'd expect (Index Only Scan)\n5. Explain what Heap Fetches: 0 means",
+      "starter_code": "-- Covering index for trades analytics query\n-- V6__add_covering_index_trades.sql\n",
+      "expected_solution": "-- Analysis:\n-- WHERE columns (need to be INDEX key columns): user_id, executed_at\n-- SELECT/GROUP BY columns (can go in INCLUDE): symbol, qty, price\n\n-- V6__add_covering_index_trades.sql\nCREATE INDEX CONCURRENTLY IF NOT EXISTS idx_trades_user_time_cover\n    ON trades(user_id, executed_at)   -- key columns (leftmost for filter + range)\n    INCLUDE (symbol, qty, price);     -- covering: all SELECT/GROUP BY columns\n\n-- Expected EXPLAIN ANALYZE output after adding index:\n-- HashAggregate (cost=... rows=15)\n--   Group Key: symbol\n--   -> Index Only Scan using idx_trades_user_time_cover on trades\n--        Index Cond: (user_id='U001') AND\n--                    (executed_at BETWEEN '2024-01-01' AND '2024-03-31')\n--        Heap Fetches: 0    ← key indicator: all data from index!\n-- Execution Time: 0.8ms    ← no heap access = very fast\n\n-- Without covering index (regular index on user_id, executed_at):\n-- Index Scan using idx_trades_user_time on trades\n--   Heap Fetches: 8923    ← must access heap for symbol, qty, price\n-- Execution Time: 45ms    ← slower (45× slower!)\n\n-- Heap Fetches: 0 meaning:\n-- PostgreSQL satisfied the ENTIRE query from the index structure alone.\n-- No access to the actual table rows (heap) needed.\n-- Index contains: (user_id, executed_at) [key] + (symbol, qty, price) [included]\n-- All columns in SELECT and WHERE are in the index → zero heap reads → fastest possible",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["INCLUDE (symbol, qty, price)", "Index Only Scan", "Heap Fetches: 0"] }
+      ],
+      "hints": [
+        "INCLUDE columns: not part of index key, but stored in leaf pages for fast lookup",
+        "Index Only Scan: entire query answered from index — fastest execution plan",
+        "Heap Fetches: 0 = Index Only Scan — no need to access table rows"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "HikariCP configuration @Bean with complete production settings",
+      "scenario": "Programmatic HikariCP configuration for multiple environments.",
+      "instructions": "Write a @Configuration class `DataSourceConfig` that:\n1. Reads pool settings from application properties using @ConfigurationProperties\n2. Creates a HikariDataSource @Bean with all production settings\n3. Registers the DataSource with Micrometer for metrics\n4. Handles the max-lifetime < DB server timeout rule\n5. Show the @ConfigurationProperties POJO for pool settings",
+      "starter_code": "import com.zaxxer.hikari.*;\nimport org.springframework.boot.context.properties.*;\nimport org.springframework.context.annotation.*;\nimport io.micrometer.core.instrument.MeterRegistry;\n// Complete DataSourceConfig\n",
+      "expected_solution": "import com.zaxxer.hikari.*;\nimport org.springframework.boot.context.properties.*;\nimport org.springframework.context.annotation.*;\nimport org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;\nimport io.micrometer.core.instrument.MeterRegistry;\nimport io.micrometer.core.instrument.binder.db.HikariDataSourceMetrics;\nimport javax.sql.DataSource;\n\n// Pool settings POJO:\n@ConfigurationProperties(prefix = \"app.datasource\")\npublic class AppDataSourceProperties {\n    private String url;\n    private String username;\n    private String password;\n    private String poolName = \"App-Pool\";\n    private int maxPoolSize = 10;\n    private int minIdle = 3;\n    private long connectionTimeout = 2000;      // 2 seconds\n    private long idleTimeout = 300000;          // 5 minutes\n    private long maxLifetime = 1200000;         // 20 minutes (< PostgreSQL's 30min default)\n    private long leakDetectionThreshold = 5000; // 5 seconds\n    \n    // getters + setters\n    public String getUrl()                     { return url; }\n    public String getUsername()                { return username; }\n    public String getPassword()                { return password; }\n    public String getPoolName()                { return poolName; }\n    public int getMaxPoolSize()                { return maxPoolSize; }\n    public int getMinIdle()                    { return minIdle; }\n    public long getConnectionTimeout()         { return connectionTimeout; }\n    public long getIdleTimeout()               { return idleTimeout; }\n    public long getMaxLifetime()               { return maxLifetime; }\n    public long getLeakDetectionThreshold()    { return leakDetectionThreshold; }\n    \n    public void setUrl(String u)                    { url = u; }\n    public void setUsername(String u)               { username = u; }\n    public void setPassword(String p)               { password = p; }\n    public void setPoolName(String n)               { poolName = n; }\n    public void setMaxPoolSize(int s)               { maxPoolSize = s; }\n    public void setMinIdle(int m)                   { minIdle = m; }\n    public void setConnectionTimeout(long t)        { connectionTimeout = t; }\n    public void setIdleTimeout(long t)              { idleTimeout = t; }\n    public void setMaxLifetime(long t)              { maxLifetime = t; }\n    public void setLeakDetectionThreshold(long t)   { leakDetectionThreshold = t; }\n}\n\n@Configuration\n@EnableConfigurationProperties(AppDataSourceProperties.class)\npublic class DataSourceConfig {\n    \n    @Bean\n    public DataSource dataSource(AppDataSourceProperties props, MeterRegistry registry) {\n        // Validate max-lifetime < DB timeout:\n        if (props.getMaxLifetime() >= 1800000) {  // 30 min\n            throw new IllegalStateException(\n                \"max-lifetime must be < PostgreSQL's wait_timeout (30min)\");\n        }\n        \n        HikariConfig cfg = new HikariConfig();\n        cfg.setJdbcUrl(props.getUrl());\n        cfg.setUsername(props.getUsername());\n        cfg.setPassword(props.getPassword());\n        cfg.setPoolName(props.getPoolName());\n        cfg.setMaximumPoolSize(props.getMaxPoolSize());\n        cfg.setMinimumIdle(props.getMinIdle());\n        cfg.setConnectionTimeout(props.getConnectionTimeout());\n        cfg.setIdleTimeout(props.getIdleTimeout());\n        cfg.setMaxLifetime(props.getMaxLifetime());\n        cfg.setLeakDetectionThreshold(props.getLeakDetectionThreshold());\n        \n        HikariDataSource ds = new HikariDataSource(cfg);\n        \n        // Register metrics with Micrometer:\n        new HikariDataSourceMetrics(ds, java.util.List.of()).bindTo(registry);\n        \n        return ds;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@ConfigurationProperties: binds application.properties to a POJO automatically",
+        "max-lifetime validation: throw at startup if configured wrongly",
+        "HikariDataSourceMetrics: Micrometer integration for Actuator/Prometheus"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "EXPLAIN ANALYZE driven index migration",
+      "scenario": "Diagnose, write migration, re-verify — the full production optimization cycle.",
+      "instructions": "Given this slow query on the Flipkart products table (10M rows):\n```sql\nSELECT id, name, price FROM products\nWHERE category = 'Electronics'\n  AND price BETWEEN 500 AND 5000\n  AND active = true\nORDER BY price ASC\nLIMIT 20;\n```\n\nWrite:\n1. The EXPLAIN output BEFORE (Seq Scan scenario)\n2. The migration SQL (V6) with optimal indexes\n3. The EXPLAIN output AFTER (expected Index Scan/Only Scan)\n4. A @DataJpaTest that verifies the query returns correct results\n\n(Simulated EXPLAIN: write as SQL comments, actual query tested in @DataJpaTest)",
+      "starter_code": "-- BEFORE index: EXPLAIN output (expected Seq Scan)\n-- V6__add_product_search_indexes.sql\n-- AFTER index: EXPLAIN output (expected Index Scan)\n// @DataJpaTest ProductSearchTest\n",
+      "expected_solution": "-- BEFORE (no indexes on category, price):\n-- Seq Scan on products (cost=0.00..192341.00 rows=87543)\n--   Filter: ((category='Electronics') AND\n--           (price BETWEEN 500 AND 5000) AND (active=true))\n--   Rows Removed by Filter: 9912457\n-- Execution Time: 3241.5ms   ← 3 seconds, scanning 10M rows\n\n-- V6__add_product_search_indexes.sql:\nCREATE INDEX CONCURRENTLY IF NOT EXISTS idx_products_category_price\n    ON products(category, price)\n    INCLUDE (id, name, active)\n    WHERE active = true;  -- partial: only active products\n-- category leftmost for equality filter\n-- price second for BETWEEN range filter (range scan on index)\n-- INCLUDE id, name, active: covering for SELECT + WHERE active check\n-- WHERE active=true: partial - halves index size if 50% inactive\n\n-- AFTER index:\n-- Limit  (cost=0.25..1.23 rows=20)\n--   -> Index Only Scan using idx_products_category_price on products\n--        Index Cond: (category='Electronics') AND\n--                    (price BETWEEN 500 AND 5000)\n--        Filter: (active = true)  [from INCLUDE column]\n--        Heap Fetches: 0\n-- Execution Time: 0.6ms   ← 5000× faster!\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.math.BigDecimal;\nimport java.util.List;\n\n@DataJpaTest\nclass ProductSearchTest {\n    @Autowired TestEntityManager testEm;\n    @Autowired ProductRepository repo;\n    \n    @BeforeEach void seed() {\n        testEm.persistAndFlush(new Product(\"TV\",new BigDecimal(\"8000\"),\"Electronics\",true));\n        testEm.persistAndFlush(new Product(\"Mouse\",new BigDecimal(\"799\"),\"Electronics\",true));\n        testEm.persistAndFlush(new Product(\"Keyboard\",new BigDecimal(\"1999\"),\"Electronics\",true));\n        testEm.persistAndFlush(new Product(\"Chair\",new BigDecimal(\"3000\"),\"Furniture\",true));\n        testEm.persistAndFlush(new Product(\"Monitor\",new BigDecimal(\"15000\"),\"Electronics\",true));\n        testEm.persistAndFlush(new Product(\"USB Hub\",new BigDecimal(\"499\"),\"Electronics\",false));// inactive\n        testEm.clear();\n    }\n    @Test void searchElectronics_500to5000_returnsCorrect() {\n        List<Product> results = repo.findByCategoryAndPriceBetweenAndActiveTrueOrderByPriceAsc(\n            \"Electronics\", new BigDecimal(\"500\"), new BigDecimal(\"5000\"));\n        assertEquals(2, results.size()); // Mouse(799) + Keyboard(1999)\n        assertEquals(\"Mouse\", results.get(0).getName());\n        assertEquals(\"Keyboard\", results.get(1).getName());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "Composite index: equality column first (category), then range column (price)",
+        "Partial index WHERE active=true: only half the index needed",
+        "INCLUDE id,name,active: covers SELECT columns for Index Only Scan"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m17_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete HikariCP + slow query alert integration",
+      "scenario": "Production monitoring: pool metrics + slow query detection via Actuator.",
+      "instructions": "Build a production monitoring setup:\n1. HikariCP config with metrics exposed\n2. MeterRegistry alert: if hikaricp.connections.pending > 5, log CRITICAL\n3. Slow query interceptor using P6Spy or Spring's TraceInterceptor\n4. application.properties: p6spy driver configuration\n5. @SpringBootTest (integration test) verifying: pool connects, pool metrics available\n\nAll compiles and integration test passes.",
+      "starter_code": "# pom.xml: p6spy dependency\n# application.properties: p6spy driver wrapping PostgreSQL\n// HikariPoolAlertService.java\n// @SpringBootTest pool connectivity test\n",
+      "expected_solution": "<!-- pom.xml:\n<dependency>\n    <groupId>com.github.gavlyukovskiy</groupId>\n    <artifactId>p6spy-spring-boot-starter</artifactId>\n    <version>1.9.0</version>\n</dependency>\n-->\n\n# application.properties (with P6Spy wrapping PostgreSQL):\n# P6Spy wraps the real driver to log SQL with timing:\nspring.datasource.url=jdbc:p6spy:postgresql://localhost:5432/orders\nspring.datasource.driver-class-name=com.p6spy.engine.spy.P6SpyDriver\ndecorator.datasource.p6spy.log-format=%(currentTime)|%(executionTime)|%(category)|%(sql)\ndecorator.datasource.p6spy.multiline=true\ndecorator.datasource.p6spy.logging=slf4j\n# Log queries slower than 200ms:\ndecorator.datasource.p6spy.slow-query-threshold=200\n\nspring.datasource.hikari.maximum-pool-size=17\nspring.datasource.hikari.connection-timeout=2000\nspring.datasource.hikari.pool-name=Orders-Pool\n\nmanagement.endpoints.web.exposure.include=health,metrics,prometheus\n\nimport io.micrometer.core.instrument.MeterRegistry;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class HikariPoolAlertService {\n    private final MeterRegistry registry;\n    HikariPoolAlertService(MeterRegistry r) { registry = r; }\n    \n    @Scheduled(fixedRate = 30000)  // every 30 seconds\n    public void checkPoolHealth() {\n        double pending = getValue(\"hikaricp.connections.pending\");\n        double active  = getValue(\"hikaricp.connections.active\");\n        double total   = getValue(\"hikaricp.connections\");\n        \n        if (pending > 5) {\n            System.err.printf(\"[CRITICAL] Pool exhausted! pending=%.0f active=%.0f/%0.f%n\",\n                pending, active, total);\n            // In production: trigger PagerDuty / Slack alert\n        } else if (active / total > 0.85) {\n            System.out.printf(\"[WARN] Pool >85%% utilized: active=%.0f/%.0f%n\", active, total);\n        }\n    }\n    private double getValue(String m) {\n        var g = registry.find(m).gauge();\n        return g != null ? g.value() : 0;\n    }\n}\n\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport javax.sql.DataSource;\nimport java.sql.Connection;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest\nclass PoolIntegrationTest {\n    @Autowired DataSource dataSource;\n    @Autowired io.micrometer.core.instrument.MeterRegistry registry;\n    \n    @Test void pool_canConnect() throws Exception {\n        try (Connection conn = dataSource.getConnection()) {\n            assertTrue(conn.isValid(2));\n        }\n    }\n    @Test void pool_metricsAvailable() {\n        var gauge = registry.find(\"hikaricp.connections\").gauge();\n        assertNotNull(gauge, \"HikariCP metrics should be registered\");\n        assertTrue(gauge.value() > 0, \"Pool should have connections\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "P6Spy: wraps the JDBC driver, logs SQL with timing before passing to real driver",
+        "slow-query-threshold=200: P6Spy logs queries > 200ms to SLOW_QUERY logger",
+        "@Scheduled alert: run every 30s, check pending > threshold"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m17_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Swiggy order search — pool + index synthesis",
+      "scenario": "End-to-end: pool config + query optimization + migration + monitoring.",
+      "instructions": "Build complete production-ready Swiggy order search:\n1. HikariCP: pool-size=17 (8-core SSD), connection-timeout=2000, leak-detection=5000\n2. Flyway V5: 3 indexes on orders (user_id+created_at, status+created_at partial ACTIVE, restaurant_id)\n3. OrderRepository: 3 query methods using indexes correctly\n4. Spring Actuator: expose metrics\n5. @DataJpaTest (3 tests): verify query results (H2 — indexes exist but not tested for speed)\n6. PoolHealthMonitor @Service: logs pool stats every minute\n\nAll 3 tests pass.",
+      "starter_code": "// Complete Swiggy order search — pool, indexes, monitoring, tests\n",
+      "expected_solution": "# application-prod.properties:\nspring.datasource.hikari.maximum-pool-size=17\nspring.datasource.hikari.minimum-idle=4\nspring.datasource.hikari.connection-timeout=2000\nspring.datasource.hikari.idle-timeout=300000\nspring.datasource.hikari.max-lifetime=1200000\nspring.datasource.hikari.leak-detection-threshold=5000\nspring.datasource.hikari.pool-name=Swiggy-Orders-Pool\nmanagement.endpoints.web.exposure.include=health,metrics\n\n-- V5__add_order_search_indexes.sql:\n-- CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_user_time\n--     ON orders(user_id, created_at DESC);\n-- CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_active_status\n--     ON orders(status, created_at DESC)\n--     WHERE status IN ('PLACED', 'PREPARING', 'ON_THE_WAY');\n-- CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_orders_restaurant\n--     ON orders(restaurant_id, created_at DESC);\n\nimport jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport io.micrometer.core.instrument.MeterRegistry;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport java.util.*;\nimport java.time.*;\n\n@Entity class SwiggyOrder2 {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String userId; String restaurantId; String status; double total;\n    LocalDateTime createdAt = LocalDateTime.now();\n    protected SwiggyOrder2(){}\n    SwiggyOrder2(String uid,String rid,String s,double t){userId=uid;restaurantId=rid;status=s;total=t;}\n    String getId(){return id;} String getUserId(){return userId;}\n    String getStatus(){return status;} double getTotal(){return total;}\n    String getRestaurantId(){return restaurantId;}\n}\ninterface SwiggyOrderRepository2 extends JpaRepository<SwiggyOrder2,String>{\n    List<SwiggyOrder2> findByUserIdOrderByCreatedAtDesc(String userId);\n    List<SwiggyOrder2> findByStatusIn(List<String> statuses);\n    List<SwiggyOrder2> findByRestaurantId(String restaurantId);\n}\n@Service\nclass SwiggyPoolMonitor {\n    private final MeterRegistry registry;\n    SwiggyPoolMonitor(MeterRegistry r){registry=r;}\n    @Scheduled(fixedRate=60000)\n    public void log(){\n        var pg=registry.find(\"hikaricp.connections.pending\").gauge();\n        double pending=pg!=null?pg.value():0;\n        if(pending>0)System.err.printf(\"[Pool ALERT] pending=%.0f%n\",pending);\n        else System.out.println(\"[Pool] healthy\");\n    }\n}\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@DataJpaTest\nclass SwiggyOrderRepositoryTest {\n    @Autowired SwiggyOrderRepository2 repo;\n    @Autowired TestEntityManager testEm;\n    @BeforeEach void seed(){\n        testEm.persistAndFlush(new SwiggyOrder2(\"U01\",\"R01\",\"PLACED\",350));\n        testEm.persistAndFlush(new SwiggyOrder2(\"U01\",\"R02\",\"DELIVERED\",280));\n        testEm.persistAndFlush(new SwiggyOrder2(\"U02\",\"R01\",\"PLACED\",500));\n        testEm.clear();\n    }\n    @Test void findByUserId_returns2(){ assertEquals(2,repo.findByUserIdOrderByCreatedAtDesc(\"U01\").size()); }\n    @Test void findActiveOrders_returns2(){\n        assertEquals(2,repo.findByStatusIn(List.of(\"PLACED\",\"PREPARING\",\"ON_THE_WAY\")).size());\n    }\n    @Test void findByRestaurant_returns2(){\n        assertEquals(2,repo.findByRestaurantId(\"R01\").size());\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "application-prod.properties: not tested (tests use H2 via test properties)",
+        "V5 migration SQL: comments fine — @DataJpaTest uses create-drop not Flyway",
+        "@Scheduled pool monitor: needs @EnableScheduling on @SpringBootApplication"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 745,
+    "estimated_completion_minutes": 70
+  }
+}

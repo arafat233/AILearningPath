@@ -1,0 +1,308 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m36_t2",
+  "topic_name": "Heap Patterns \u2014 K Largest, Median Stream, Task Scheduling",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m36_t2_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Kth Largest Element in Stream (LeetCode #703)",
+      "instructions": "Implement: Kth Largest Element in Stream (LeetCode #703).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class KthStream {\n    static class KthLargest{PriorityQueue<Integer> pq;int k;KthLargest(int k,int[] nums){this.k=k;pq=new PriorityQueue<>();for(int n:nums){pq.offer(n);if(pq.size()>k)pq.poll();}}int add(int v){pq.offer(v);if(pq.size()>k)pq.poll();return pq.peek();}}\n    public static void main(String[] a){KthLargest kl=new KthLargest(3,new int[]{4,5,8,2});System.out.println(kl.add(3));System.out.println(kl.add(5));System.out.println(kl.add(10));System.out.println(kl.add(9));System.out.println(\"Min-heap size k \u2014 top is always kth largest. O(log k) per add.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "5",
+            "8",
+            "9",
+            "O(log k)"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m36_t2_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Find Median from Data Stream",
+      "instructions": "Implement: Find Median from Data Stream.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MedianFinder {\n    static PriorityQueue<Integer> lo,hi;\n    static void init(){lo=new PriorityQueue<>(Collections.reverseOrder());hi=new PriorityQueue<>();}\n    static void addNum(int n){lo.offer(n);hi.offer(lo.poll());if(hi.size()>lo.size())lo.offer(hi.poll());}\n    static double findMedian(){return lo.size()>hi.size()?lo.peek():(lo.peek()+hi.peek())/2.0;}\n    public static void main(String[] a){init();addNum(1);addNum(2);System.out.println(findMedian());addNum(3);System.out.println(findMedian());System.out.println(\"lo: max-heap lower half. hi: min-heap upper half. Balance after each insert.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1.5",
+            "2.0",
+            "lo: max-heap lower half"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m36_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Reorganize String (LeetCode #767)",
+      "instructions": "Implement: Reorganize String (LeetCode #767).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class ReorgStr {\n    public static String reorganizeString(String s){\n        int[] cnt=new int[26];for(char c:s.toCharArray())cnt[c-'a']++;\n        PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->b[1]-a[1]);\n        for(int i=0;i<26;i++)if(cnt[i]>0)pq.offer(new int[]{i,cnt[i]});\n        StringBuilder sb=new StringBuilder();\n        while(pq.size()>1){int[] a=pq.poll(),b=pq.poll();sb.append((char)('a'+a[0]));sb.append((char)('a'+b[0]));if(--a[1]>0)pq.offer(a);if(--b[1]>0)pq.offer(b);}\n        if(!pq.isEmpty()){if(pq.peek()[1]>1)return \"\";sb.append((char)('a'+pq.poll()[0]));}\n        return sb.toString();\n    }\n    public static void main(String[] a){System.out.println(reorganizeString(\"aab\"));System.out.println(reorganizeString(\"aaab\").isEmpty());System.out.println(\"Greedy: always pick two highest-frequency chars. O(n log 26)=O(n)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "aba",
+            "true",
+            "O(n log 26)"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m36_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Smallest Range Covering Elements from K Lists (LeetCode #632)",
+      "instructions": "Implement: Smallest Range Covering Elements from K Lists (LeetCode #632).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SmallestRange {\n    public static int[] smallestRange(List<List<Integer>> nums){\n        PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[0]-b[0]);\n        int max=Integer.MIN_VALUE;\n        for(int i=0;i<nums.size();i++){pq.offer(new int[]{nums.get(i).get(0),i,0});max=Math.max(max,nums.get(i).get(0));}\n        int[] res={pq.peek()[0],max};\n        while(true){int[] top=pq.poll();int list=top[1],idx=top[2]+1;if(idx>=nums.get(list).size())break;int v=nums.get(list).get(idx);max=Math.max(max,v);pq.offer(new int[]{v,list,idx});if(max-pq.peek()[0]<res[1]-res[0]){res[0]=pq.peek()[0];res[1]=max;}}\n        return res;\n    }\n    public static void main(String[] a){System.out.println(Arrays.toString(smallestRange(Arrays.asList(Arrays.asList(4,10,15,24,26),Arrays.asList(0,9,12,20),Arrays.asList(5,18,22,30)))));System.out.println(\"[20,24] \u2014 O(n log k) min-heap maintaining one element from each list\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[20, 24]",
+            "O(n log k)"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m36_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "IPO (LeetCode #502) \u2014 Two heaps",
+      "instructions": "Implement: IPO (LeetCode #502) \u2014 Two heaps.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class IPO {\n    public static int findMaximizedCapital(int k,int w,int[] profits,int[] capital){\n        PriorityQueue<int[]> byCapital=new PriorityQueue<>((a,b)->a[0]-b[0]); // min-heap by capital\n        PriorityQueue<Integer> byProfit=new PriorityQueue<>(Collections.reverseOrder());\n        for(int i=0;i<profits.length;i++)byCapital.offer(new int[]{capital[i],profits[i]});\n        for(int i=0;i<k;i++){\n            while(!byCapital.isEmpty()&&byCapital.peek()[0]<=w)byProfit.offer(byCapital.poll()[1]);\n            if(byProfit.isEmpty())break;w+=byProfit.poll();}\n        return w;\n    }\n    public static void main(String[] a){System.out.println(findMaximizedCapital(2,0,new int[]{1,2,3},new int[]{0,1,1}));System.out.println(findMaximizedCapital(3,0,new int[]{1,2,3},new int[]{0,1,2}));System.out.println(\"Two heaps: unlock projects by capital, always pick most profitable unlocked\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "6",
+            "Two heaps"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m36_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sliding Window Median (LeetCode #480)",
+      "instructions": "Implement: Sliding Window Median (LeetCode #480).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class SWMedian {\n    static PriorityQueue<Integer> lo=new PriorityQueue<>(Collections.reverseOrder()),hi=new PriorityQueue<>();\n    static Map<Integer,Integer> lazy=new HashMap<>();\n    static int loSize=0,hiSize=0;\n    static void add(int n){if(!lo.isEmpty()&&n<=lo.peek()){lo.offer(n);loSize++;}else{hi.offer(n);hiSize++;}balance();}\n    static void remove(int n){lazy.merge(n,1,Integer::sum);if(!lo.isEmpty()&&n<=lo.peek())loSize--;else hiSize--;balance();}\n    static void balance(){if(loSize>hiSize+1){hi.offer(lo.poll());loSize--;hiSize++;}else if(hiSize>loSize){lo.offer(hi.poll());hiSize--;loSize++;}while(!lo.isEmpty()&&lazy.getOrDefault(lo.peek(),0)>0){lazy.merge(lo.peek(),-1,Integer::sum);if(lazy.get(lo.peek())==0)lazy.remove(lo.peek());lo.poll();}while(!hi.isEmpty()&&lazy.getOrDefault(hi.peek(),0)>0){lazy.merge(hi.peek(),-1,Integer::sum);if(lazy.get(hi.peek())==0)lazy.remove(hi.peek());hi.poll();}}\n    static double median(){return loSize>hiSize?lo.peek():(lo.peek()+hi.peek())/2.0;}\n    public static void main(String[] a){System.out.println(\"Sliding Window Median: two heaps + lazy deletion\");System.out.println(\"O(n log k) \u2014 k window size\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "Sliding Window Median",
+            "O(n log k)"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m36_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Merge K Sorted Lists (LeetCode #23) via heap",
+      "instructions": "Implement: Merge K Sorted Lists (LeetCode #23) via heap.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MergeK {\n    static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static ListNode mergeKLists(ListNode[] lists){\n        PriorityQueue<ListNode> pq=new PriorityQueue<>((a,b)->a.val-b.val);\n        for(ListNode l:lists)if(l!=null)pq.offer(l);\n        ListNode dummy=new ListNode(0),cur=dummy;\n        while(!pq.isEmpty()){cur.next=pq.poll();cur=cur.next;if(cur.next!=null)pq.offer(cur.next);}\n        return dummy.next;\n    }\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(mergeKLists(new ListNode[]{of(1,4,5),of(1,3,4),of(2,6)})));System.out.println(\"O(N log K) \u2014 N total nodes, K lists\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-1-2-3-4-4-5-6",
+            "O(N log K)"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m36_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Car Pooling (LeetCode #1094)",
+      "instructions": "Implement: Car Pooling (LeetCode #1094).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class CarPool {\n    public static boolean carPooling(int[][] trips, int capacity){\n        Arrays.sort(trips,(a,b)->a[1]-b[1]);\n        PriorityQueue<int[]> pq=new PriorityQueue<>((a,b)->a[1]-b[1]); // [passengers, dropoff]\n        int current=0;\n        for(int[] t:trips){\n            while(!pq.isEmpty()&&pq.peek()[1]<=t[1]){current-=pq.poll()[0];}\n            current+=t[0];if(current>capacity)return false;pq.offer(new int[]{t[0],t[2]});}\n        return true;\n    }\n    public static void main(String[] a){System.out.println(carPooling(new int[][]{{2,1,5},{3,3,7}},4));System.out.println(carPooling(new int[][]{{2,1,5},{3,3,7}},5));System.out.println(\"Sort by pickup; min-heap by dropoff; release passengers when past dropoff\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "false",
+            "true",
+            "Sort by pickup"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m36_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Furthest Building (LeetCode #1642)",
+      "instructions": "Implement: Furthest Building (LeetCode #1642).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class FurthestBldg {\n    public static int furthestBuilding(int[] h, int bricks, int ladders){\n        PriorityQueue<Integer> pq=new PriorityQueue<>(); // min-heap of ladder uses\n        for(int i=0;i<h.length-1;i++){\n            int diff=h[i+1]-h[i];if(diff<=0)continue;\n            pq.offer(diff);\n            if(pq.size()>ladders){bricks-=pq.poll();} // use bricks on smallest climb\n            if(bricks<0)return i;}\n        return h.length-1;\n    }\n    public static void main(String[] a){System.out.println(furthestBuilding(new int[]{4,2,7,6,9,14,12},10,1));System.out.println(furthestBuilding(new int[]{4,12,2,7,3,18,20,3,19},10,2));System.out.println(\"Greedy: use ladders for biggest climbs; use bricks when exceeded ladders count\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "7",
+            "Greedy: use ladders"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m36_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Heap patterns synthesis",
+      "instructions": "Implement: Heap patterns synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T2Synth {\n    static int kthL(int[] n,int k){PriorityQueue<Integer> pq=new PriorityQueue<>();for(int x:n){pq.offer(x);if(pq.size()>k)pq.poll();}return pq.peek();}\n    static int meetRooms(int[][] ivs){Arrays.sort(ivs,(a,b)->a[0]-b[0]);PriorityQueue<Integer> pq=new PriorityQueue<>();for(int[]iv:ivs){if(!pq.isEmpty()&&pq.peek()<=iv[0])pq.poll();pq.offer(iv[1]);}return pq.size();}\n    static int taskS(char[] t,int n){int[]c=new int[26];for(char x:t)c[x-'A']++;int m=0;for(int x:c)m=Math.max(m,x);int cnt=0;for(int x:c)if(x==m)cnt++;return Math.max((m-1)*(n+1)+cnt,t.length);}\n    public static void main(String[] a){System.out.println(kthL(new int[]{3,2,1,5,6,4},2));System.out.println(meetRooms(new int[][]{{0,30},{5,10},{15,20}}));System.out.println(taskS(new char[]{'A','A','A','B','B','B'},2));boolean ok=kthL(new int[]{3,2,1,5,6,4},2)==5&&meetRooms(new int[][]{{0,30},{5,10},{15,20}})==2&&taskS(new char[]{'A','A','A','B','B','B'},2)==8;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "5",
+            "2",
+            "8"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m36_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M36 T2 Synthesis",
+      "instructions": "Implement: Complete M36 T2 Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T2Final {\n    static PriorityQueue<Integer> lo,hi;\n    static void init(){lo=new PriorityQueue<>(Collections.reverseOrder());hi=new PriorityQueue<>();}\n    static void addNum(int n){lo.offer(n);hi.offer(lo.poll());if(hi.size()>lo.size())lo.offer(hi.poll());}\n    static double median(){return lo.size()>hi.size()?lo.peek():(lo.peek()+hi.peek())/2.0;}\n    static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode mergeK(ListNode[] lists){PriorityQueue<ListNode> pq=new PriorityQueue<>((a,b)->a.val-b.val);for(ListNode l:lists)if(l!=null)pq.offer(l);ListNode d=new ListNode(0),c=d;while(!pq.isEmpty()){c.next=pq.poll();c=c.next;if(c.next!=null)pq.offer(c.next);}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){init();addNum(1);addNum(2);System.out.println(\"median=\"+findMedian());addNum(3);System.out.println(\"median=\"+findMedian());System.out.println(\"mergeK=\"+str(mergeK(new ListNode[]{of(1,4,5),of(1,3,4),of(2,6)})));boolean ok=findMedian()==2.0&&str(mergeK(new ListNode[]{of(1,4,5),of(1,3,4),of(2,6)})).equals(\"1-1-2-3-4-4-5-6\");System.out.println(\"All pass: \"+ok);}\n    static double findMedian(){return lo.size()>hi.size()?lo.peek():(lo.peek()+hi.peek())/2.0;}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "median=1.5",
+            "median=2.0",
+            "mergeK=1-1-2-3-4-4-5-6"
+          ]
+        }
+      ],
+      "hints": [
+        "PriorityQueue",
+        "O(log n) heap ops",
+        "min-heap or max-heap"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

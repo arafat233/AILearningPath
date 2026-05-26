@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m43_t5",
+  "topic_name": "System Design Synthesis \u2014 Full Practice Designs",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m43_t5_ex_1",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "URL Shortener Design",
+      "instructions": "Walk through designing a URL shortener.",
+      "expected_solution": "Requirements\u2192API\u2192DB\u2192Algorithm\u2192Scale. Use Base62 encoding for short codes. Cache with Redis. NoSQL for scale.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Requirements\u2192API\u2192DB\u2192Algorithm\u2192Scale. Use Base62 encoding for short codes. Cache with Redis. NoSQL for scale."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m43_t5_ex_2",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "Rate Limiter",
+      "instructions": "Explain token bucket algorithm.",
+      "expected_solution": "Tokens added at rate R. Each request consumes 1. If empty: 429. Redis for distributed. O(1) per check.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Tokens added at rate R. Each request consumes 1. If empty: 429. Redis for distributed. O(1) per check."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m43_t5_ex_3",
+      "level": "warmup",
+      "type": "written_response",
+      "difficulty": 2,
+      "title": "CAP Theorem",
+      "instructions": "Explain CAP with 3 examples.",
+      "expected_solution": "CP: MongoDB (banking). AP: Cassandra (social). CA: single-node RDBMS. Network partitions always happen \u2192 choose C or A.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "CP: MongoDB (banking). AP: Cassandra (social). CA: single-node RDBMS. Network partitions always happen \u2192 choose C or A."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m43_t5_ex_4",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "Design Zerodha Trading",
+      "instructions": "High-level architecture for 1M orders/day.",
+      "expected_solution": "Order gateway\u2192Matching engine\u2192PostgreSQL+Redis+Kafka. CP for money, AP for analytics.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Order gateway\u2192Matching engine\u2192PostgreSQL+Redis+Kafka. CP for money, AP for analytics."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m43_t5_ex_5",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "SQL vs NoSQL Framework",
+      "instructions": "Decision framework for database choice.",
+      "expected_solution": "SQL: ACID, joins, stable schema. Redis: cache. MongoDB: flexible schema. Cassandra: write-heavy scale.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "SQL: ACID, joins, stable schema. Redis: cache. MongoDB: flexible schema. Cassandra: write-heavy scale."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m43_t5_ex_6",
+      "level": "easy",
+      "type": "written_response",
+      "difficulty": 3,
+      "title": "URL Shortener DB Schema",
+      "instructions": "Design the exact schema and indexes.",
+      "expected_solution": "urls(short_code VARCHAR(7) PK, original_url TEXT, user_id, created_at). Index on user_id. Cache hot URLs.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "urls(short_code VARCHAR(7) PK, original_url TEXT, user_id, created_at). Index on user_id. Cache hot URLs."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m43_t5_ex_7",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Design a Notification Service",
+      "instructions": "Push+email+SMS notifications at scale.",
+      "expected_solution": "Kafka topics per channel. Consumer groups per type. Idempotency keys. Retry with exponential backoff.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Kafka topics per channel. Consumer groups per type. Idempotency keys. Retry with exponential backoff."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m43_t5_ex_8",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Design Twitter Feed",
+      "instructions": "Timeline generation approaches.",
+      "expected_solution": "Fan-out on write (precompute): O(1) read, O(n) write. Fan-out on read: O(n) read, O(1) write. Hybrid for celebrities.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Fan-out on write (precompute): O(1) read, O(n) write. Fan-out on read: O(n) read, O(1) write. Hybrid for celebrities."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m43_t5_ex_9",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 4,
+      "title": "Design WhatsApp",
+      "instructions": "Chat system with delivery receipts.",
+      "expected_solution": "WebSocket for real-time. Message queue for offline delivery. Cassandra for message storage (write-heavy).",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "WebSocket for real-time. Message queue for offline delivery. Cassandra for message storage (write-heavy)."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m43_t5_ex_10",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Caching strategies",
+      "instructions": "LRU vs LFU vs TTL-based caching.",
+      "expected_solution": "LRU: recency. LFU: frequency. TTL: time-based expiry. Cache-aside vs write-through vs write-behind.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "LRU: recency. LFU: frequency. TTL: time-based expiry. Cache-aside vs write-through vs write-behind."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m43_t5_ex_11",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Design Razorpay Payment API",
+      "instructions": "Payment processing with idempotency.",
+      "expected_solution": "Idempotency key per request. Outbox pattern for reliability. Saga pattern for distributed transactions.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Idempotency key per request. Outbox pattern for reliability. Saga pattern for distributed transactions."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m43_t5_ex_12",
+      "level": "medium",
+      "type": "written_response",
+      "difficulty": 5,
+      "title": "Load balancing algorithms",
+      "instructions": "Round-robin, least connections, IP hash.",
+      "expected_solution": "Round-robin: equal load. Least connections: variable workloads. IP hash: session stickiness.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Round-robin: equal load. Least connections: variable workloads. IP hash: session stickiness."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m43_t5_ex_13",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "SD synthesis: rate limiter + URL shortener",
+      "instructions": "Design both systems in 20 minutes combined.",
+      "expected_solution": "Rate limiter: Redis + token bucket. URL shortener: Base62 + Redis cache + PostgreSQL/Cassandra.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Rate limiter: Redis + token bucket. URL shortener: Base62 + Redis cache + PostgreSQL/Cassandra."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m43_t5_ex_14",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "SD synthesis: Zerodha + Razorpay",
+      "instructions": "Compare architectural choices between trading and payments.",
+      "expected_solution": "Both need ACID. Trading: CP, sub-ms latency. Payments: idempotency, saga, eventual consistency for reconciliation.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Both need ACID. Trading: CP, sub-ms latency. Payments: idempotency, saga, eventual consistency for reconciliation."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m43_t5_ex_15",
+      "level": "hard",
+      "type": "written_response",
+      "difficulty": 6,
+      "title": "Complete SD Framework Synthesis",
+      "instructions": "Apply 6-step framework to a new system: Flipkart search.",
+      "expected_solution": "Requirements\u2192Estimate\u2192API\u2192Data(Elasticsearch+product DB)\u2192Algorithm(inverted index)\u2192Scale(horizontal sharding).",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Requirements\u2192Estimate\u2192API\u2192Data(Elasticsearch+product DB)\u2192Algorithm(inverted index)\u2192Scale(horizontal sharding)."
+        }
+      ],
+      "hints": [
+        "Be specific",
+        "Use STAR",
+        "Practice aloud"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "written_response": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 60
+  }
+}

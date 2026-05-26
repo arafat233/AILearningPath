@@ -1,0 +1,417 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t6",
+  "topic_name": "Composition & Complete OOP Design",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m4_t6_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Identify composition",
+      "scenario": "Recognize the has-a relationship in code.",
+      "instructions": "Fill in the blank: a Car class that CONTAINS an Engine object is using ______.",
+      "starter_code": "class Engine {\n    private int horsepower;\n    public Engine(int hp) { this.horsepower = hp; }\n}\n\nclass Car {\n    private String make;\n    private ______ engine;  // This is composition!\n    \n    public Car(String make, Engine engine) {\n        this.make = make;\n        this.engine = engine;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Engine v6 = new Engine(300);\n        Car bmw = new Car(\"BMW\", v6);\n        System.out.println(\"Built\");\n    }\n}",
+      "expected_solution": "class Engine {\n    private int horsepower;\n    public Engine(int hp) { this.horsepower = hp; }\n}\n\nclass Car {\n    private String make;\n    private Engine engine;\n    \n    public Car(String make, Engine engine) {\n        this.make = make;\n        this.engine = engine;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Engine v6 = new Engine(300);\n        Car bmw = new Car(\"BMW\", v6);\n        System.out.println(\"Built\");\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Engine", "hint": "The type of the contained class" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Built"
+        }
+      ],
+      "hints": [
+        "Composition: field whose type is another class",
+        "Car HAS an Engine → Engine is the field type"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m4_t6_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Method chain through composition",
+      "scenario": "Trace method calls through composed objects.",
+      "instructions": "What does this print?\n\n```java\nclass City {\n    private String name;\n    public City(String name) { this.name = name; }\n    public String getName() { return name; }\n}\n\nclass User {\n    private String username;\n    private City city;\n    public User(String username, City city) {\n        this.username = username;\n        this.city = city;\n    }\n    public String getUsername() { return username; }\n    public City getCity() { return city; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        City hyd = new City(\"Hyderabad\");\n        User u = new User(\"aisha_k\", hyd);\n        System.out.println(u.getUsername() + \" lives in \" + u.getCity().getName());\n    }\n}\n```",
+      "expected_solution": "aisha_k lives in Hyderabad",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "aisha_k lives in Hyderabad"
+        }
+      ],
+      "hints": [
+        "u.getUsername() returns 'aisha_k'",
+        "u.getCity() returns the City object 'hyd'",
+        "hyd.getName() returns 'Hyderabad'",
+        "Chain: u.getCity().getName()"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m4_t6_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Simple composition",
+      "scenario": "Create two classes where one contains the other.",
+      "instructions": "Create a `Publisher` class with private String name and a `Book` class with private String title and a Publisher field. Constructor + getters + toString.\n\nIn main, create publisher and book, then print the book (which shows publisher info).\n\nExpected output:\nBook[Java Basics by O'Reilly]",
+      "starter_code": "// Create Publisher and Book classes\n// Book has-a Publisher (composition)\n",
+      "expected_solution": "class Publisher {\n    private String name;\n    \n    public Publisher(String name) {\n        this.name = name;\n    }\n    \n    public String getName() { return name; }\n}\n\nclass Book {\n    private String title;\n    private Publisher publisher;\n    \n    public Book(String title, Publisher publisher) {\n        this.title = title;\n        this.publisher = publisher;\n    }\n    \n    public String getTitle() { return title; }\n    public Publisher getPublisher() { return publisher; }\n    \n    @Override\n    public String toString() {\n        return \"Book[\" + title + \" by \" + publisher.getName() + \"]\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Publisher oreilly = new Publisher(\"O'Reilly\");\n        Book book = new Book(\"Java Basics\", oreilly);\n        System.out.println(book);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Book[Java Basics by O'Reilly]"
+        }
+      ],
+      "hints": [
+        "Publisher is a simple class with name",
+        "Book has a Publisher field (not String)",
+        "toString calls publisher.getName() via the composed object"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m4_t6_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Person with Address",
+      "scenario": "Classic composition example with full OOP treatment.",
+      "instructions": "Create an immutable `Address` (final fields, getters, toString). Create a `Person` with name and Address field.\n\nPrint in format: 'Aisha lives at 123 MG Road, Hyderabad'\n\nExpected output:\nAisha lives at 123 MG Road, Hyderabad",
+      "starter_code": "// Create Address (immutable) and Person with composed Address\n",
+      "expected_solution": "class Address {\n    private final String street;\n    private final String city;\n    \n    public Address(String street, String city) {\n        this.street = street;\n        this.city = city;\n    }\n    \n    public String getStreet() { return street; }\n    public String getCity() { return city; }\n    \n    @Override\n    public String toString() { return street + \", \" + city; }\n}\n\nclass Person {\n    private String name;\n    private Address address;\n    \n    public Person(String name, Address address) {\n        this.name = name;\n        this.address = address;\n    }\n    \n    public String getName() { return name; }\n    public Address getAddress() { return address; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Address addr = new Address(\"123 MG Road\", \"Hyderabad\");\n        Person p = new Person(\"Aisha\", addr);\n        System.out.println(p.getName() + \" lives at \" + p.getAddress());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha lives at 123 MG Road, Hyderabad"
+        }
+      ],
+      "hints": [
+        "Address has final fields (immutable)",
+        "Person constructor takes Address (not individual street/city)",
+        "p.getAddress() calls Address.toString() implicitly in string concat"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m4_t6_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Team with array of Members",
+      "scenario": "Class that contains an array of another class.",
+      "instructions": "Create a `Member` class (name, role). Create a `Team` class with name and Member[5] members field.\n- `addMember(Member m)` adds to array (up to 5)\n- `printRoster()` prints all members\n\nIn main:\n- Create team 'Engineering'\n- Add 3 members\n- Print roster\n\nExpected output:\nEngineering Team:\nAisha — Backend\nRaj — Frontend\nPriya — DevOps",
+      "starter_code": "// Create Member and Team classes\n// Team has-many Members (array)\n",
+      "expected_solution": "class Member {\n    private String name;\n    private String role;\n    \n    public Member(String name, String role) {\n        this.name = name;\n        this.role = role;\n    }\n    \n    public String getName() { return name; }\n    public String getRole() { return role; }\n}\n\nclass Team {\n    private String name;\n    private Member[] members;\n    private int count;\n    \n    public Team(String name) {\n        this.name = name;\n        this.members = new Member[5];\n        this.count = 0;\n    }\n    \n    public void addMember(Member m) {\n        if (count < members.length) {\n            members[count++] = m;\n        }\n    }\n    \n    public void printRoster() {\n        System.out.println(name + \" Team:\");\n        for (int i = 0; i < count; i++) {\n            System.out.println(members[i].getName() + \" — \" + members[i].getRole());\n        }\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Team team = new Team(\"Engineering\");\n        team.addMember(new Member(\"Aisha\", \"Backend\"));\n        team.addMember(new Member(\"Raj\", \"Frontend\"));\n        team.addMember(new Member(\"Priya\", \"DevOps\"));\n        team.printRoster();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Engineering Team:\nAisha — Backend\nRaj — Frontend\nPriya — DevOps"
+        }
+      ],
+      "hints": [
+        "Member array in Team: Member[] members = new Member[5]",
+        "int count tracks how many members are added",
+        "addMember: members[count++] = m",
+        "printRoster: loop 0 to count-1",
+        "Access member fields through getters"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m4_t6_ex_6",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the null composition bug",
+      "scenario": "NPE when composed field is null.",
+      "instructions": "This code crashes. Fix it by checking for null before using the address.\n\nExpected output:\nAisha: 123 MG Road, Hyderabad\nRaj: Address not set",
+      "starter_code": "class Address {\n    private String street;\n    private String city;\n    public Address(String street, String city) {\n        this.street = street;\n        this.city = city;\n    }\n    public String toString() { return street + \", \" + city; }\n}\n\nclass Person {\n    private String name;\n    private Address address;\n    \n    public Person(String name) { this.name = name; }\n    public Person(String name, Address address) {\n        this.name = name;\n        this.address = address;\n    }\n    \n    public String getLocation() {\n        return address.toString();  // CRASHES if address is null\n    }\n    \n    public String getName() { return name; }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Person p1 = new Person(\"Aisha\", new Address(\"123 MG Road\", \"Hyderabad\"));\n        Person p2 = new Person(\"Raj\");  // no address\n        System.out.println(p1.getName() + \": \" + p1.getLocation());\n        System.out.println(p2.getName() + \": \" + p2.getLocation());\n    }\n}",
+      "expected_solution": "class Address {\n    private String street;\n    private String city;\n    public Address(String street, String city) {\n        this.street = street;\n        this.city = city;\n    }\n    public String toString() { return street + \", \" + city; }\n}\n\nclass Person {\n    private String name;\n    private Address address;\n    \n    public Person(String name) { this.name = name; }\n    public Person(String name, Address address) {\n        this.name = name;\n        this.address = address;\n    }\n    \n    public String getLocation() {\n        if (address == null) return \"Address not set\";\n        return address.toString();\n    }\n    \n    public String getName() { return name; }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Person p1 = new Person(\"Aisha\", new Address(\"123 MG Road\", \"Hyderabad\"));\n        Person p2 = new Person(\"Raj\");\n        System.out.println(p1.getName() + \": \" + p1.getLocation());\n        System.out.println(p2.getName() + \": \" + p2.getLocation());\n    }\n}",
+      "bugs": [
+        {
+          "line": "15",
+          "issue": "address.toString() crashes if address is null — NullPointerException",
+          "fix": "Check if address == null first; return default message if so"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Aisha: 123 MG Road, Hyderabad\nRaj: Address not set",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "address can be null when created with 1-arg constructor",
+        "Calling any method on null → NullPointerException",
+        "Guard: if (address == null) return 'Address not set'",
+        "Defensive coding for optional composed fields"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m4_t6_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Defensive copy in getter",
+      "scenario": "Protect internal array from external modification.",
+      "instructions": "Create a `Playlist` class with private Song[] tracks (max 10) and int count. Songs have a name.\n\n- `addTrack(Song s)` adds to array\n- `getTracks()` returns a DEFENSIVE COPY using Arrays.copyOf(tracks, count)\n\nIn main:\n- Create playlist, add 3 songs\n- Call getTracks(), modify the returned array\n- Verify original playlist still has 3 tracks (not modified)\n\nExpected output:\nPlaylist tracks: 3\nAfter modifying returned copy: still 3",
+      "starter_code": "import java.util.Arrays;\n\n// Create Song and Playlist classes\n// Playlist.getTracks() must return a defensive copy\n",
+      "expected_solution": "import java.util.Arrays;\n\nclass Song {\n    private String name;\n    public Song(String name) { this.name = name; }\n    public String getName() { return name; }\n}\n\nclass Playlist {\n    private Song[] tracks;\n    private int count;\n    \n    public Playlist() {\n        this.tracks = new Song[10];\n        this.count = 0;\n    }\n    \n    public void addTrack(Song s) {\n        if (count < tracks.length) {\n            tracks[count++] = s;\n        }\n    }\n    \n    public Song[] getTracks() {\n        return Arrays.copyOf(tracks, count);  // defensive copy!\n    }\n    \n    public int getCount() { return count; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Playlist pl = new Playlist();\n        pl.addTrack(new Song(\"Song A\"));\n        pl.addTrack(new Song(\"Song B\"));\n        pl.addTrack(new Song(\"Song C\"));\n        \n        System.out.println(\"Playlist tracks: \" + pl.getCount());\n        \n        Song[] copy = pl.getTracks();\n        copy[0] = null;  // modify the returned copy\n        copy[1] = null;\n        \n        System.out.println(\"After modifying returned copy: still \" + pl.getCount());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Playlist tracks: 3\nAfter modifying returned copy: still 3"
+        }
+      ],
+      "hints": [
+        "Arrays.copyOf(tracks, count) creates a new array with only filled slots",
+        "Modifying the copy doesn't affect the original 'tracks' array",
+        "The count stays 3 because the original array is untouched"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m4_t6_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Order with LineItems",
+      "scenario": "Classic e-commerce composition — Order has LineItems.",
+      "instructions": "Create:\n- `LineItem` class: product name (String), quantity (int), unitPrice (double). lineTotal() method.\n- `Order` class: orderId (int, auto-assigned from static), LineItem[] (max 10), `addItem(LineItem)`, `orderTotal()` returns sum of all lineTotals.\n\nIn main:\n- Create order, add 3 items, print total\n\nExpected output:\nOrder #1 total: ₹3598.0",
+      "starter_code": "// Create LineItem and Order classes\n// Order has-many LineItems\n",
+      "expected_solution": "class LineItem {\n    private String productName;\n    private int quantity;\n    private double unitPrice;\n    \n    public LineItem(String productName, int quantity, double unitPrice) {\n        this.productName = productName;\n        this.quantity = quantity;\n        this.unitPrice = unitPrice;\n    }\n    \n    public double lineTotal() {\n        return quantity * unitPrice;\n    }\n}\n\nclass Order {\n    private static int nextId = 1;\n    private final int orderId;\n    private LineItem[] items;\n    private int itemCount;\n    \n    public Order() {\n        this.orderId = nextId++;\n        this.items = new LineItem[10];\n        this.itemCount = 0;\n    }\n    \n    public void addItem(LineItem item) {\n        if (itemCount < items.length) {\n            items[itemCount++] = item;\n        }\n    }\n    \n    public double orderTotal() {\n        double total = 0;\n        for (int i = 0; i < itemCount; i++) {\n            total += items[i].lineTotal();\n        }\n        return total;\n    }\n    \n    public int getOrderId() { return orderId; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Order order = new Order();\n        order.addItem(new LineItem(\"Mouse\", 1, 599.0));\n        order.addItem(new LineItem(\"Cable\", 3, 149.0));\n        order.addItem(new LineItem(\"Keyboard\", 1, 1999.0 - (3 * 0.0)));\n        order.addItem(new LineItem(\"Keyboard\", 1, 1999.0));\n        \n        Order order2 = new Order();\n        order2.addItem(new LineItem(\"Mouse\", 1, 599.0));\n        order2.addItem(new LineItem(\"Cable\", 3, 149.0));\n        order2.addItem(new LineItem(\"Keyboard\", 1, 1999.0));\n        System.out.println(\"Order #\" + order2.getOrderId() + \" total: ₹\" + order2.orderTotal());\n    }\n}",
+      "expected_solution": "class LineItem {\n    private String productName;\n    private int quantity;\n    private double unitPrice;\n    \n    public LineItem(String productName, int quantity, double unitPrice) {\n        this.productName = productName;\n        this.quantity = quantity;\n        this.unitPrice = unitPrice;\n    }\n    \n    public double lineTotal() { return quantity * unitPrice; }\n}\n\nclass Order {\n    private static int nextId = 1;\n    private final int orderId;\n    private LineItem[] items;\n    private int itemCount;\n    \n    public Order() {\n        this.orderId = nextId++;\n        this.items = new LineItem[10];\n        this.itemCount = 0;\n    }\n    \n    public void addItem(LineItem item) {\n        if (itemCount < items.length) items[itemCount++] = item;\n    }\n    \n    public double orderTotal() {\n        double total = 0;\n        for (int i = 0; i < itemCount; i++) total += items[i].lineTotal();\n        return total;\n    }\n    \n    public int getOrderId() { return orderId; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Order order = new Order();\n        order.addItem(new LineItem(\"Mouse\", 1, 599.0));\n        order.addItem(new LineItem(\"Cable\", 3, 149.0));\n        order.addItem(new LineItem(\"Keyboard\", 1, 1999.0));\n        System.out.println(\"Order #\" + order.getOrderId() + \" total: ₹\" + order.orderTotal());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Order #1 total: ₹3045.0"
+        }
+      ],
+      "hints": [
+        "LineItem.lineTotal = quantity × unitPrice",
+        "Order.orderTotal sums all item lineTotals",
+        "Order auto-id via static nextId",
+        "Mouse: 1×599=599, Cable: 3×149=447, Keyboard: 1×1999=1999 → total 3045"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m4_t6_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Module 4 synthesis: full class with all patterns",
+      "scenario": "Write a class using all 6 Module 4 topics.",
+      "instructions": "Create a `Vehicle` class using ALL of these:\n- Static counter for auto-id (4.5)\n- Static final constant: MIN_YEAR = 1900 (4.5)\n- Private final id, private make, model, year (4.3)\n- Constructor validates year >= MIN_YEAR (4.2)\n- Getter for all fields (4.3)\n- Composed Engine object (4.6): Engine has horsepower (int) and fuelType (String)\n- toString showing all info (4.4)\n- equals by id (4.4)\n\nIn main, create 2 vehicles and print them.\n\nExpected output:\nVehicle[#1 BMW 3-Series 2022, Engine(300hp, Petrol)]\nVehicle[#2 Tesla Model 3 2023, Engine(450hp, Electric)]",
+      "starter_code": "import java.util.Objects;\n\n// Create Engine and Vehicle classes\n// Vehicle synthesizes all Module 4 patterns\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Engine {\n    private final int horsepower;\n    private final String fuelType;\n    \n    public Engine(int horsepower, String fuelType) {\n        this.horsepower = horsepower;\n        this.fuelType = fuelType;\n    }\n    \n    public int getHorsepower() { return horsepower; }\n    public String getFuelType() { return fuelType; }\n    \n    @Override\n    public String toString() { return \"Engine(\" + horsepower + \"hp, \" + fuelType + \")\"; }\n}\n\nclass Vehicle {\n    private static int nextId = 1;\n    public static final int MIN_YEAR = 1900;\n    \n    private final int id;\n    private String make;\n    private String model;\n    private int year;\n    private Engine engine;\n    \n    public Vehicle(String make, String model, int year, Engine engine) {\n        if (year < MIN_YEAR) throw new IllegalArgumentException(\"Year must be >= \" + MIN_YEAR);\n        this.id = nextId++;\n        this.make = make;\n        this.model = model;\n        this.year = year;\n        this.engine = engine;\n    }\n    \n    public int getId() { return id; }\n    public String getMake() { return make; }\n    public String getModel() { return model; }\n    public int getYear() { return year; }\n    public Engine getEngine() { return engine; }\n    \n    @Override\n    public String toString() {\n        return \"Vehicle[#\" + id + \" \" + make + \" \" + model + \" \" + year + \", \" + engine + \"]\";\n    }\n    \n    @Override\n    public boolean equals(Object o) {\n        if (!(o instanceof Vehicle)) return false;\n        return this.id == ((Vehicle) o).id;\n    }\n    \n    @Override\n    public int hashCode() { return Objects.hash(id); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Vehicle v1 = new Vehicle(\"BMW\", \"3-Series\", 2022, new Engine(300, \"Petrol\"));\n        Vehicle v2 = new Vehicle(\"Tesla\", \"Model 3\", 2023, new Engine(450, \"Electric\"));\n        System.out.println(v1);\n        System.out.println(v2);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Vehicle[#1 BMW 3-Series 2022, Engine(300hp, Petrol)]\nVehicle[#2 Tesla Model 3 2023, Engine(450hp, Electric)]"
+        }
+      ],
+      "hints": [
+        "All 6 patterns at once: static fields, constants, constructors, encapsulation, Object methods, composition",
+        "Vehicle has-a Engine → Engine is a field",
+        "toString shows engine via engine.toString() — implicit in string concat"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "module4_synthesis"
+    },
+    
+    {
+      "id": "java_m4_t6_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Hospital appointment system",
+      "scenario": "Multi-class composition modeling a real domain.",
+      "instructions": "Create:\n- `Doctor` class: name (String), specialty (String). Getters. toString.\n- `Patient` class: name (String), age (int). Getters. toString.\n- `Appointment` class: Doctor, Patient, date (String). Method `describe()` returns full appointment info.\n\nIn main, create 2 appointments and print descriptions.\n\nExpected output:\nAppointment: Dr. Priya (Cardiology) with Raj (35) on 2024-02-15\nAppointment: Dr. Aisha (Dermatology) with Vikram (28) on 2024-02-16",
+      "starter_code": "// Create Doctor, Patient, Appointment classes\n// Appointment has-a Doctor and a Patient\n",
+      "expected_solution": "class Doctor {\n    private String name;\n    private String specialty;\n    \n    public Doctor(String name, String specialty) {\n        this.name = name;\n        this.specialty = specialty;\n    }\n    \n    public String getName() { return name; }\n    public String getSpecialty() { return specialty; }\n    \n    @Override\n    public String toString() { return \"Dr. \" + name + \" (\" + specialty + \")\"; }\n}\n\nclass Patient {\n    private String name;\n    private int age;\n    \n    public Patient(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n    \n    public String getName() { return name; }\n    public int getAge() { return age; }\n    \n    @Override\n    public String toString() { return name + \" (\" + age + \")\"; }\n}\n\nclass Appointment {\n    private Doctor doctor;\n    private Patient patient;\n    private String date;\n    \n    public Appointment(Doctor doctor, Patient patient, String date) {\n        this.doctor = doctor;\n        this.patient = patient;\n        this.date = date;\n    }\n    \n    public String describe() {\n        return \"Appointment: \" + doctor + \" with \" + patient + \" on \" + date;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Doctor d1 = new Doctor(\"Priya\", \"Cardiology\");\n        Doctor d2 = new Doctor(\"Aisha\", \"Dermatology\");\n        Patient p1 = new Patient(\"Raj\", 35);\n        Patient p2 = new Patient(\"Vikram\", 28);\n        \n        Appointment a1 = new Appointment(d1, p1, \"2024-02-15\");\n        Appointment a2 = new Appointment(d2, p2, \"2024-02-16\");\n        \n        System.out.println(a1.describe());\n        System.out.println(a2.describe());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Appointment: Dr. Priya (Cardiology) with Raj (35) on 2024-02-15\nAppointment: Dr. Aisha (Dermatology) with Vikram (28) on 2024-02-16"
+        }
+      ],
+      "hints": [
+        "Appointment has-a Doctor AND a Patient",
+        "describe() uses doctor.toString() and patient.toString() implicitly",
+        "Three independent classes compose into one system"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m4_t6_ex_11",
+      "level": "medium",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "Find most expensive item in composed structure",
+      "scenario": "Iterate composed objects to find a value.",
+      "instructions": "Using a Cart that has CartItem[] (each CartItem has product name and price):\n- Create a cart with 5 items at different prices\n- Write method `mostExpensiveItem()` returning the CartItem with highest price\n\nExpected output:\nMost expensive: Gaming Monitor at ₹24999.0",
+      "starter_code": "// Create CartItem and Cart classes\n// Cart.mostExpensiveItem() iterates composed CartItems\n",
+      "expected_solution": "class CartItem {\n    private String productName;\n    private double price;\n    \n    public CartItem(String productName, double price) {\n        this.productName = productName;\n        this.price = price;\n    }\n    \n    public String getProductName() { return productName; }\n    public double getPrice() { return price; }\n}\n\nclass Cart {\n    private CartItem[] items;\n    private int count;\n    \n    public Cart() {\n        this.items = new CartItem[20];\n        this.count = 0;\n    }\n    \n    public void add(CartItem item) {\n        if (count < items.length) items[count++] = item;\n    }\n    \n    public CartItem mostExpensiveItem() {\n        if (count == 0) return null;\n        CartItem max = items[0];\n        for (int i = 1; i < count; i++) {\n            if (items[i].getPrice() > max.getPrice()) {\n                max = items[i];\n            }\n        }\n        return max;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cart cart = new Cart();\n        cart.add(new CartItem(\"Mouse\", 599.0));\n        cart.add(new CartItem(\"Keyboard\", 1999.0));\n        cart.add(new CartItem(\"Gaming Monitor\", 24999.0));\n        cart.add(new CartItem(\"Headphones\", 3499.0));\n        cart.add(new CartItem(\"USB Hub\", 499.0));\n        \n        CartItem most = cart.mostExpensiveItem();\n        System.out.println(\"Most expensive: \" + most.getProductName() + \" at ₹\" + most.getPrice());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Most expensive: Gaming Monitor at ₹24999.0"
+        }
+      ],
+      "hints": [
+        "mostExpensiveItem returns a CartItem object (not just a double!)",
+        "Start max = items[0]",
+        "Compare items[i].getPrice() > max.getPrice()",
+        "Return the CartItem itself — the caller can get any info from it"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m4_t6_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Module 4 recap: class with everything",
+      "scenario": "Synthesis exercise — write a well-designed class from scratch.",
+      "instructions": "Design a `Product` class FROM SCRATCH with ALL Module 4 patterns:\n\n- static int nextId counter\n- static final double TAX_RATE = 0.18\n- private final id, private name, price, category\n- Constructor: validates name not empty, price > 0\n- Getters\n- `priceWithTax()` computed method: price * (1 + TAX_RATE)\n- toString: 'Product[#id name — ₹price (₹tax incl.)]'\n- equals by id\n- hashCode by id\n\nIn main, create 2 products, print including tax.\n\nExpected output:\nProduct[#1 Laptop — ₹50000.0 (₹59000.0 incl.)]\nProduct[#2 Phone — ₹30000.0 (₹35400.0 incl.)]",
+      "starter_code": "import java.util.Objects;\n\n// Design Product class with ALL Module 4 patterns from memory\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Product {\n    private static int nextId = 1;\n    public static final double TAX_RATE = 0.18;\n    \n    private final int id;\n    private String name;\n    private double price;\n    private String category;\n    \n    public Product(String name, double price, String category) {\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        if (price <= 0) throw new IllegalArgumentException(\"Price must be positive\");\n        this.id = nextId++;\n        this.name = name;\n        this.price = price;\n        this.category = category;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    public double getPrice() { return price; }\n    public String getCategory() { return category; }\n    \n    public double priceWithTax() {\n        return price * (1 + TAX_RATE);\n    }\n    \n    @Override\n    public String toString() {\n        return \"Product[#\" + id + \" \" + name + \" — ₹\" + price + \" (₹\" + priceWithTax() + \" incl.)]\";\n    }\n    \n    @Override\n    public boolean equals(Object o) {\n        if (!(o instanceof Product)) return false;\n        return this.id == ((Product) o).id;\n    }\n    \n    @Override\n    public int hashCode() { return Objects.hash(id); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Product p1 = new Product(\"Laptop\", 50000.0, \"Electronics\");\n        Product p2 = new Product(\"Phone\", 30000.0, \"Electronics\");\n        System.out.println(p1);\n        System.out.println(p2);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Product[#1 Laptop — ₹50000.0 (₹59000.0 incl.)]\nProduct[#2 Phone — ₹30000.0 (₹35400.0 incl.)]"
+        }
+      ],
+      "hints": [
+        "All patterns from memory — no peeking!",
+        "priceWithTax = price * 1.18",
+        "50000 × 1.18 = 59000 ✓",
+        "30000 × 1.18 = 35400 ✓"
+      ],
+      "xp_reward": 80
+    },
+    
+    {
+      "id": "java_m4_t6_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Library with Books and Members",
+      "scenario": "Full library system with 3 classes, composition, and operations.",
+      "instructions": "Build a mini library system:\n\n1. `Book` class: title, author, isbn. isAvailable() (boolean). checkOut() and returnBook() change availability.\n\n2. `Member` class: name, id (auto-assigned). toString.\n\n3. `Library` class: name, Book[] (max 20), Member[] (max 50). addBook(), addMember(), checkOut(memberId, isbn) method, getAvailableCount().\n\nIn main:\n- Add 3 books, 2 members\n- Check out one book\n- Print available count\n\nExpected output:\nAvailable books: 2",
+      "starter_code": "// Build Book, Member, Library classes\n// Library orchestrates composition\n",
+      "expected_solution": "class Book {\n    private String title;\n    private String author;\n    private String isbn;\n    private boolean available;\n    \n    public Book(String title, String author, String isbn) {\n        this.title = title;\n        this.author = author;\n        this.isbn = isbn;\n        this.available = true;\n    }\n    \n    public String getIsbn() { return isbn; }\n    public boolean isAvailable() { return available; }\n    public void checkOut() { this.available = false; }\n    public void returnBook() { this.available = true; }\n}\n\nclass Member {\n    private static int nextId = 1;\n    private final int id;\n    private String name;\n    \n    public Member(String name) {\n        this.id = nextId++;\n        this.name = name;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    \n    @Override\n    public String toString() { return \"Member[#\" + id + \" \" + name + \"]\"; }\n}\n\nclass Library {\n    private String name;\n    private Book[] books;\n    private int bookCount;\n    private Member[] members;\n    private int memberCount;\n    \n    public Library(String name) {\n        this.name = name;\n        this.books = new Book[20];\n        this.members = new Member[50];\n    }\n    \n    public void addBook(Book b) {\n        if (bookCount < books.length) books[bookCount++] = b;\n    }\n    \n    public void addMember(Member m) {\n        if (memberCount < members.length) members[memberCount++] = m;\n    }\n    \n    public boolean checkOut(int memberId, String isbn) {\n        for (int i = 0; i < bookCount; i++) {\n            if (books[i].getIsbn().equals(isbn) && books[i].isAvailable()) {\n                books[i].checkOut();\n                return true;\n            }\n        }\n        return false;\n    }\n    \n    public int getAvailableCount() {\n        int count = 0;\n        for (int i = 0; i < bookCount; i++) {\n            if (books[i].isAvailable()) count++;\n        }\n        return count;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Library lib = new Library(\"City Library\");\n        lib.addBook(new Book(\"Dune\", \"Herbert\", \"ISBN-001\"));\n        lib.addBook(new Book(\"Foundation\", \"Asimov\", \"ISBN-002\"));\n        lib.addBook(new Book(\"1984\", \"Orwell\", \"ISBN-003\"));\n        \n        lib.addMember(new Member(\"Aisha\"));\n        lib.addMember(new Member(\"Raj\"));\n        \n        lib.checkOut(1, \"ISBN-002\");\n        \n        System.out.println(\"Available books: \" + lib.getAvailableCount());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Available books: 2"
+        }
+      ],
+      "hints": [
+        "Three classes, each with own responsibilities",
+        "Library orchestrates the composition — it contains Books and Members",
+        "checkOut finds book by isbn using .equals(), marks unavailable",
+        "getAvailableCount loops and checks isAvailable()"
+      ],
+      "xp_reward": 90
+    },
+    
+    {
+      "id": "java_m4_t6_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "School with Departments and Courses",
+      "scenario": "Three levels of composition — Department contains Courses.",
+      "instructions": "Three-level composition:\n- `Course` class: code (String), title, credits (int)\n- `Department` class: name, Course[] (max 20), `addCourse()`, `totalCredits()` sums all course credits\n- `School` class: name, Department[] (max 10), `addDepartment()`, `findByCode(String code)` searches all departments' courses and returns the Course or null\n\nIn main:\n- Create a school with 2 departments, each with 2-3 courses\n- Print total credits in one department\n- Find a course by code\n\nExpected output:\nEngineering credits: 12\nFound: CS202 Data Structures (4 credits)",
+      "starter_code": "// Three-level composition: School → Department → Course\n",
+      "expected_solution": "class Course {\n    private String code;\n    private String title;\n    private int credits;\n    \n    public Course(String code, String title, int credits) {\n        this.code = code;\n        this.title = title;\n        this.credits = credits;\n    }\n    \n    public String getCode() { return code; }\n    public String getTitle() { return title; }\n    public int getCredits() { return credits; }\n    \n    @Override\n    public String toString() { return code + \" \" + title + \" (\" + credits + \" credits)\"; }\n}\n\nclass Department {\n    private String name;\n    private Course[] courses;\n    private int courseCount;\n    \n    public Department(String name) {\n        this.name = name;\n        this.courses = new Course[20];\n        this.courseCount = 0;\n    }\n    \n    public String getName() { return name; }\n    \n    public void addCourse(Course c) {\n        if (courseCount < courses.length) courses[courseCount++] = c;\n    }\n    \n    public int totalCredits() {\n        int total = 0;\n        for (int i = 0; i < courseCount; i++) total += courses[i].getCredits();\n        return total;\n    }\n    \n    public Course findByCode(String code) {\n        for (int i = 0; i < courseCount; i++) {\n            if (courses[i].getCode().equals(code)) return courses[i];\n        }\n        return null;\n    }\n}\n\nclass School {\n    private String name;\n    private Department[] departments;\n    private int deptCount;\n    \n    public School(String name) {\n        this.name = name;\n        this.departments = new Department[10];\n        this.deptCount = 0;\n    }\n    \n    public void addDepartment(Department d) {\n        if (deptCount < departments.length) departments[deptCount++] = d;\n    }\n    \n    public Department getDepartment(String name) {\n        for (int i = 0; i < deptCount; i++) {\n            if (departments[i].getName().equals(name)) return departments[i];\n        }\n        return null;\n    }\n    \n    public Course findByCode(String code) {\n        for (int i = 0; i < deptCount; i++) {\n            Course found = departments[i].findByCode(code);\n            if (found != null) return found;\n        }\n        return null;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        School school = new School(\"CodeQuest Academy\");\n        \n        Department cs = new Department(\"Engineering\");\n        cs.addCourse(new Course(\"CS101\", \"Java Fundamentals\", 3));\n        cs.addCourse(new Course(\"CS202\", \"Data Structures\", 4));\n        cs.addCourse(new Course(\"CS303\", \"Algorithms\", 5));\n        \n        Department math = new Department(\"Mathematics\");\n        math.addCourse(new Course(\"MA101\", \"Linear Algebra\", 3));\n        math.addCourse(new Course(\"MA202\", \"Statistics\", 3));\n        \n        school.addDepartment(cs);\n        school.addDepartment(math);\n        \n        System.out.println(\"Engineering credits: \" + cs.totalCredits());\n        \n        Course found = school.findByCode(\"CS202\");\n        System.out.println(\"Found: \" + found);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Engineering credits: 12\nFound: CS202 Data Structures (4 credits)"
+        }
+      ],
+      "hints": [
+        "Three levels: School → Department → Course",
+        "totalCredits loops through Department's courses",
+        "school.findByCode: search each department, return first match",
+        "3 + 4 + 5 = 12 engineering credits"
+      ],
+      "xp_reward": 90
+    },
+    
+    {
+      "id": "java_m4_t6_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Module 4 capstone: E-commerce system",
+      "scenario": "Full OOP design — every pattern from every topic.",
+      "instructions": "Build a mini e-commerce system WITH EVERY MODULE 4 PATTERN:\n\n1. `Category` (value class): name, description. Immutable.\n2. `Product` (entity): static auto-id, static final MAX_PRICE, private fields, validating constructor, getters, setters with validation, computed `discountedPrice(double percent)`, toString, equals by id, hashCode.\n3. `CartItem`: Product + quantity. lineTotal() method.\n4. `ShoppingCart`: CartItem[] (max 20), addItem(Product, qty), cartTotal(), `countItems()`, toString.\n\nIn main: add 3 products to cart, print cart total.\n\nExpected output:\nCart total: ₹5097.0",
+      "starter_code": "import java.util.Objects;\n\n// Build the full e-commerce system using every Module 4 pattern\n// Category (immutable), Product (entity with static + encapsulation + Object methods)\n// CartItem (composition), ShoppingCart (array composition)\n",
+      "expected_solution": "import java.util.Objects;\n\nclass Category {\n    private final String name;\n    private final String description;\n    \n    public Category(String name, String description) {\n        this.name = name;\n        this.description = description;\n    }\n    \n    public String getName() { return name; }\n    public String getDescription() { return description; }\n    \n    @Override\n    public String toString() { return name; }\n}\n\nclass Product {\n    private static int nextId = 1;\n    public static final double MAX_PRICE = 999999.0;\n    \n    private final int id;\n    private String name;\n    private double price;\n    private Category category;\n    \n    public Product(String name, double price, Category category) {\n        if (name == null || name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        if (price <= 0 || price > MAX_PRICE) throw new IllegalArgumentException(\"Invalid price\");\n        this.id = nextId++;\n        this.name = name;\n        this.price = price;\n        this.category = category;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    public double getPrice() { return price; }\n    public Category getCategory() { return category; }\n    \n    public void setPrice(double price) {\n        if (price <= 0 || price > MAX_PRICE) throw new IllegalArgumentException(\"Invalid price\");\n        this.price = price;\n    }\n    \n    public double discountedPrice(double percent) {\n        return price * (1 - percent / 100);\n    }\n    \n    @Override\n    public String toString() {\n        return \"Product[#\" + id + \" \" + name + \" ₹\" + price + \" (\" + category + \")]\";\n    }\n    \n    @Override\n    public boolean equals(Object o) {\n        if (!(o instanceof Product)) return false;\n        return this.id == ((Product) o).id;\n    }\n    \n    @Override\n    public int hashCode() { return Objects.hash(id); }\n}\n\nclass CartItem {\n    private Product product;\n    private int quantity;\n    \n    public CartItem(Product product, int quantity) {\n        this.product = product;\n        this.quantity = quantity;\n    }\n    \n    public double lineTotal() { return product.getPrice() * quantity; }\n    public Product getProduct() { return product; }\n    public int getQuantity() { return quantity; }\n}\n\nclass ShoppingCart {\n    private CartItem[] items;\n    private int count;\n    \n    public ShoppingCart() {\n        this.items = new CartItem[20];\n        this.count = 0;\n    }\n    \n    public void addItem(Product product, int quantity) {\n        if (count < items.length) {\n            items[count++] = new CartItem(product, quantity);\n        }\n    }\n    \n    public double cartTotal() {\n        double total = 0;\n        for (int i = 0; i < count; i++) total += items[i].lineTotal();\n        return total;\n    }\n    \n    public int countItems() { return count; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Category electronics = new Category(\"Electronics\", \"Electronic devices\");\n        \n        Product p1 = new Product(\"USB Hub\", 499.0, electronics);\n        Product p2 = new Product(\"Keyboard\", 1999.0, electronics);\n        Product p3 = new Product(\"Mouse\", 599.0, electronics);\n        \n        ShoppingCart cart = new ShoppingCart();\n        cart.addItem(p1, 2);\n        cart.addItem(p2, 1);\n        cart.addItem(p3, 1);\n        \n        System.out.println(\"Cart total: ₹\" + cart.cartTotal());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Cart total: ₹3596.0"
+        }
+      ],
+      "hints": [
+        "USB Hub 499×2 = 998, Keyboard 1999×1 = 1999, Mouse 599×1 = 599 → total 3596",
+        "Category → Product (composition: has-a Category)",
+        "CartItem → Product (composition: has-a Product)",
+        "ShoppingCart → CartItem[] (composition: has-many CartItems)",
+        "Three levels of composition"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 12,
+      "debug": 1,
+      "predict_output": 1,
+      "algorithm": 1
+    },
+    "total_xp_possible": 755,
+    "estimated_completion_minutes": 75
+  },
+  
+  "gap_detection_map": {
+    "null_composed_field": ["ex_6"],
+    "defensive_copy": ["ex_7"],
+    "composition_modeling": ["ex_3", "ex_4", "ex_5"],
+    "module4_synthesis": ["ex_9", "ex_12"],
+    "three_level_composition": ["ex_14"],
+    "full_oop_design": ["ex_15"]
+  }
+}

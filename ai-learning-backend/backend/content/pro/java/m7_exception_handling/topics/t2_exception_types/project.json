@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m7_t2_proj",
+  "linked_topic": "java_m7_t2",
+  "level": "mini",
+  "name": "Layered Banking System — Exception Architecture",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+
+  "scenario": "Build the exception handling architecture for a three-layer banking system (like HDFC's core banking backend). The system has a data layer (simulating JDBC), a service layer, and a presentation layer. Each layer uses the right exception type: data layer throws checked exceptions (external resource failures), service layer wraps into unchecked domain exceptions, presentation layer catches and returns messages. This is the architecture behind every professional Java backend.",
+
+  "description": "Three-layer banking application demonstrating the complete checked-vs-unchecked exception pattern: checked IOException/DataException in the data layer, unchecked BankingException subclasses in the service layer, try-catch at the presentation boundary.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Exception hierarchy:\n- `BankingException extends RuntimeException` (unchecked base)\n- `AccountNotFoundException extends BankingException` (account doesn't exist)\n- `InsufficientFundsException extends BankingException` (not enough balance — include available and attempted amounts)\n- `DataLayerException extends Exception` (checked — simulates JDBC/file failure)",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "`AccountRepository` (data layer): `Map<String, Double>` balances. `getBalance(String id)` throws checked `DataLayerException` when id starts with 'ERR'. `updateBalance(String id, double amount)` also throws DataLayerException for 'ERR' accounts.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`AccountService` (service layer): `transfer(from, to, amount)` — no throws declaration (unchecked). Validates then calls repository. Catches DataLayerException and rethrows as BankingException. Throws AccountNotFoundException or InsufficientFundsException for business rule failures.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`BankingPresentation` (presentation layer): `executeTransfer(from, to, amountStr)` — parses amount (NumberFormatException), calls service, catches all exceptions, returns user-friendly String messages.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Test 5 scenarios: successful transfer, insufficient funds, account not found, data layer failure (ERR prefix), invalid amount string.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "Each exception carries relevant data: InsufficientFundsException has available and attempted fields; AccountNotFoundException has the missing account ID.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `TransactionLog` using `List<String>`. BankingPresentation appends every transfer attempt (success or failure) using finally.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `DailyLimitException extends BankingException` — throws if a single transfer exceeds ₹100,000.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `transferBatch(List<String[]> transfers)` — processes multiple transfers, continues on per-transfer failure (BankingException), stops on DataLayerException. Returns summary.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Accounts:\n- ACC-001: ₹50000\n- ACC-002: ₹10000\n- ACC-003: ₹5000\n\nTest transfers:\n1. ACC-001 → ACC-002 ₹15000 → success\n2. ACC-003 → ACC-001 ₹10000 → InsufficientFundsException (has 5000)\n3. ACC-999 → ACC-001 ₹1000 → AccountNotFoundException\n4. ERR-001 → ACC-001 ₹1000 → DataLayerException wrapped in BankingException\n5. ACC-001 → ACC-002 'abc' → NumberFormatException",
+
+  "starter_code": "import java.util.*;\n\npublic class BankingSystem {\n    public static void main(String[] args) {\n        // Create layers\n        // Run 5 test transfers\n        // Print results\n    }\n    \n    // Define: exception hierarchy, AccountRepository, AccountService, BankingPresentation\n}",
+
+  "example_output": "Transfer ACC-001→ACC-002 ₹15000: SUCCESS — ₹15000.0 transferred\nTransfer ACC-003→ACC-001 ₹10000: FAILED — Insufficient funds: ACC-003 has ₹5000.0, needed ₹10000.0\nTransfer ACC-999→ACC-001 ₹1000: FAILED — Account not found: ACC-999\nTransfer ERR-001→ACC-001 ₹1000: FAILED — System error: Cannot access account ERR-001\nTransfer ACC-001→ACC-002 abc: FAILED — Invalid amount: 'abc'",
+
+  "rubric": [
+    { "category": "Exception Hierarchy", "points": 25, "criteria": ["Correct checked/unchecked types (15 pts)", "InsufficientFundsException with fields (10 pts)"] },
+    { "category": "Layer Implementation", "points": 30, "criteria": ["Repository throws DataLayerException (10 pts)", "Service wraps checked in unchecked (10 pts)", "Presentation catches all + parses amount (10 pts)"] },
+    { "category": "5 Test Scenarios", "points": 20, "criteria": ["All 5 produce correct output (20 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Code Quality", "points": 10, "criteria": ["Correct checked/unchecked placement (5 pts)", "Meaningful messages with context data (5 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["TransactionLog with finally (15 pts)", "DailyLimitException (15 pts)", "transferBatch (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The key design choice: DataLayerException is checked because it simulates JDBC/file I/O failures — external. BankingException family is unchecked because they're domain rules — the service layer controls when they happen. The presentation layer is the right place to catch ALL exceptions and produce user-facing messages.",
+
+  "submission_instructions": "Save as BankingSystem.java. Add a comment above each exception class explaining why it's checked or unchecked. Run all 5 scenarios. Push to GitHub — this is the architecture pattern used in every production Java banking system.",
+
+  "tips_for_success": [
+    "DataLayerException extends Exception — the repository method signature includes `throws DataLayerException`.",
+    "Service layer: catch DataLayerException (checked), throw new BankingException('System error: '+cause.getMessage(), cause).",
+    "InsufficientFundsException constructor: (String accountId, double available, double attempted) — store all three fields.",
+    "Presentation layer: wrap the whole thing in try-catch, handle NumberFormatException for amount, BankingException for domain failures.",
+    "Use `e.getCause()` to show the original DataLayerException message in the BankingException."
+  ],
+
+  "concepts_reinforced": [
+    "Checked exceptions for external resource failures",
+    "Unchecked exceptions for domain/business rule violations",
+    "throws declaration in data layer",
+    "Catching checked, rethrowing as unchecked (Spring pattern)",
+    "Multi-exception catch in presentation layer",
+    "Custom exceptions carrying domain-specific fields",
+    "Module 7.1 finally (bonus TransactionLog)"
+  ]
+}

@@ -1,0 +1,452 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t5",
+  "topic_name": "Loops: for, while, do-while",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m1_t5_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Basic for loop",
+      "scenario": "Print numbers 1 through 5.",
+      "instructions": "Fill in the blanks to make the loop print 1, 2, 3, 4, 5 on separate lines.",
+      "starter_code": "public class Counter {\n    public static void main(String[] args) {\n        for (int i = ______; i ______ 5; i______) {\n            System.out.println(i);\n        }\n    }\n}",
+      "expected_solution": "public class Counter {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 5; i++) {\n            System.out.println(i);\n        }\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "1", "hint": "Starting value" },
+        { "position": 2, "answer": "<=", "hint": "Inclusive comparison — we want to include 5" },
+        { "position": 3, "answer": "++", "hint": "Increment by 1" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1\n2\n3\n4\n5"
+        }
+      ],
+      "hints": [
+        "Start i at 1",
+        "Loop while i is less than or equal to 5",
+        "Increment i by 1 each time"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t5_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Count how many iterations",
+      "scenario": "Trace through a for loop.",
+      "instructions": "What does this code print?\n\n```java\npublic class Count {\n    public static void main(String[] args) {\n        int count = 0;\n        for (int i = 0; i < 5; i++) {\n            count++;\n        }\n        System.out.println(\"Count: \" + count);\n    }\n}\n```",
+      "expected_solution": "Count: 5",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Count: 5"
+        }
+      ],
+      "hints": [
+        "i takes values 0, 1, 2, 3, 4 (when i becomes 5, loop exits)",
+        "Each iteration adds 1 to count",
+        "Loop runs 5 times → count = 5"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sum 1 to 10",
+      "scenario": "Calculate the sum of integers from 1 to 10 using a loop (the accumulator pattern).",
+      "instructions": "Write a class `SumOneToTen` that:\n1. Uses a for loop to sum numbers from 1 to 10\n2. Prints the result\n\nExpected output:\nSum from 1 to 10: 55",
+      "starter_code": "// Write your SumOneToTen class below\n",
+      "expected_solution": "public class SumOneToTen {\n    public static void main(String[] args) {\n        int sum = 0;\n        for (int i = 1; i <= 10; i++) {\n            sum += i;\n        }\n        System.out.println(\"Sum from 1 to 10: \" + sum);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Sum from 1 to 10: 55"
+        }
+      ],
+      "hints": [
+        "Accumulator pattern: int sum = 0 before loop",
+        "Inside loop: sum += i",
+        "Loop from 1 to 10 inclusive: i <= 10",
+        "Print after loop completes"
+      ],
+      "xp_reward": 20,
+      "concept_tested": "accumulator_pattern"
+    },
+    
+    {
+      "id": "java_m1_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Multiplication table",
+      "scenario": "Print a multiplication table for a given number.",
+      "instructions": "Write a class `MultTable` that prints the multiplication table for 7 (from 1 to 10):\n\n7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n...continuing through...\n7 x 10 = 70",
+      "starter_code": "// Write your MultTable class below\n",
+      "expected_solution": "public class MultTable {\n    public static void main(String[] args) {\n        int number = 7;\n        for (int i = 1; i <= 10; i++) {\n            System.out.println(number + \" x \" + i + \" = \" + (number * i));\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "7 x 1 = 7\n7 x 2 = 14\n7 x 3 = 21\n7 x 4 = 28\n7 x 5 = 35\n7 x 6 = 42\n7 x 7 = 49\n7 x 8 = 56\n7 x 9 = 63\n7 x 10 = 70"
+        }
+      ],
+      "hints": [
+        "Loop from 1 to 10",
+        "Inside loop, calculate number * i",
+        "Use parens in println: + (number * i) — without them, you'd get string concatenation",
+        "Format: number + \" x \" + i + \" = \" + product"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Count down",
+      "scenario": "A rocket launch countdown — print 10 to 1, then 'LIFTOFF!'",
+      "instructions": "Write a class `Countdown` that uses a for loop to print numbers 10 down to 1 (each on its own line), then prints 'LIFTOFF!'\n\nExpected output:\n10\n9\n8\n7\n6\n5\n4\n3\n2\n1\nLIFTOFF!",
+      "starter_code": "// Write your Countdown class below\n",
+      "expected_solution": "public class Countdown {\n    public static void main(String[] args) {\n        for (int i = 10; i >= 1; i--) {\n            System.out.println(i);\n        }\n        System.out.println(\"LIFTOFF!\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "10\n9\n8\n7\n6\n5\n4\n3\n2\n1\nLIFTOFF!"
+        }
+      ],
+      "hints": [
+        "Start i at 10",
+        "Continue while i >= 1",
+        "Decrement: i--",
+        "After loop, print LIFTOFF!"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "While loop basics",
+      "scenario": "Use a while loop instead of a for loop.",
+      "instructions": "Write a class `WhileExample` that uses a `while` loop to print powers of 2 less than 1000.\n\nStart with 1, double it each time, print, continue while it's less than 1000.\n\nExpected output:\n1\n2\n4\n8\n16\n32\n64\n128\n256\n512",
+      "starter_code": "// Write your WhileExample class below\n// Must use WHILE loop (not for)\n",
+      "expected_solution": "public class WhileExample {\n    public static void main(String[] args) {\n        int power = 1;\n        while (power < 1000) {\n            System.out.println(power);\n            power *= 2;\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1\n2\n4\n8\n16\n32\n64\n128\n256\n512"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["while"],
+          "must_not_contain": ["for (", "for("]
+        }
+      ],
+      "hints": [
+        "Initialize power = 1 BEFORE the loop",
+        "Condition: power < 1000",
+        "Inside loop: print power, then power *= 2",
+        "1024 is the next value, which exceeds 1000, so loop stops at 512"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m1_t5_ex_7",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the infinite loop",
+      "scenario": "Your colleague's code is hanging in production. Find why.",
+      "instructions": "This code is supposed to print 1 to 5, then 'Done'. But it hangs (infinite loop). Fix it.\n\nExpected output:\n1\n2\n3\n4\n5\nDone",
+      "starter_code": "public class HungLoop {\n    public static void main(String[] args) {\n        int i = 1;\n        while (i <= 5) {\n            System.out.println(i);\n            // Missing something here\n        }\n        System.out.println(\"Done\");\n    }\n}",
+      "expected_solution": "public class HungLoop {\n    public static void main(String[] args) {\n        int i = 1;\n        while (i <= 5) {\n            System.out.println(i);\n            i++;\n        }\n        System.out.println(\"Done\");\n    }\n}",
+      "bugs": [
+        {
+          "line": 6,
+          "issue": "Missing increment of i. Condition `i <= 5` is always true because i never changes. Infinite loop.",
+          "fix": "Add `i++;` inside the loop"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "1\n2\n3\n4\n5\nDone",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Trace through the loop: i starts at 1, prints, then... what happens?",
+        "The condition variable (i) is never modified",
+        "Add `i++;` inside the loop body",
+        "Always check: does the condition variable change inside a while loop?"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["infinite_loop_missing_update"]
+    },
+    
+    {
+      "id": "java_m1_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sum of even numbers",
+      "scenario": "Calculate the sum of even numbers from 1 to 20.",
+      "instructions": "Write a class `EvenSum` that:\n1. Loops from 1 to 20\n2. Uses `continue` to skip odd numbers\n3. Accumulates sum of evens\n4. Prints the total\n\nExpected output:\nSum of evens 1-20: 110",
+      "starter_code": "// Write your EvenSum class below\n// Must use 'continue' to skip odd numbers\n",
+      "expected_solution": "public class EvenSum {\n    public static void main(String[] args) {\n        int sum = 0;\n        for (int i = 1; i <= 20; i++) {\n            if (i % 2 != 0) {\n                continue;  // Skip odd numbers\n            }\n            sum += i;\n        }\n        System.out.println(\"Sum of evens 1-20: \" + sum);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Sum of evens 1-20: 110"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["continue"]
+        }
+      ],
+      "hints": [
+        "Loop 1 to 20",
+        "Use if (i % 2 != 0) to detect odd",
+        "Inside that if, use `continue` to skip to next iteration",
+        "Otherwise (even), add to sum",
+        "Result: 2+4+6+...+20 = 110"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "continue_keyword"
+    },
+    
+    {
+      "id": "java_m1_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Find first multiple",
+      "scenario": "Find the first number greater than 100 that's divisible by both 7 and 11.",
+      "instructions": "Write a class `FindMultiple` that:\n1. Loops starting from 101\n2. For each number, check if divisible by BOTH 7 AND 11\n3. When found, print it and use `break` to exit\n4. Print 'Done'\n\nExpected output:\nFound: 154\nDone",
+      "starter_code": "// Write your FindMultiple class below\n",
+      "expected_solution": "public class FindMultiple {\n    public static void main(String[] args) {\n        for (int i = 101; i <= 1000; i++) {\n            if (i % 7 == 0 && i % 11 == 0) {\n                System.out.println(\"Found: \" + i);\n                break;\n            }\n        }\n        System.out.println(\"Done\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Found: 154\nDone"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["break"]
+        }
+      ],
+      "hints": [
+        "Loop starting from 101 (next after 100)",
+        "Upper bound: pick something safe like 1000",
+        "Check: i % 7 == 0 && i % 11 == 0",
+        "When found, print and break",
+        "After loop: print Done",
+        "7 × 11 = 77, so first multiple of both is 77, then 154, 231..."
+      ],
+      "xp_reward": 50,
+      "concept_tested": "break_keyword"
+    },
+    
+    {
+      "id": "java_m1_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Factorial",
+      "scenario": "Calculate factorial of a number (n! = n × (n-1) × ... × 2 × 1).",
+      "instructions": "Write a class `Factorial` that calculates 6! using a for loop.\n\n6! = 6 × 5 × 4 × 3 × 2 × 1 = 720\n\nExpected output:\n6! = 720",
+      "starter_code": "// Write your Factorial class below\n",
+      "expected_solution": "public class Factorial {\n    public static void main(String[] args) {\n        int n = 6;\n        long factorial = 1;  // start at 1 for multiplication\n        \n        for (int i = 1; i <= n; i++) {\n            factorial *= i;\n        }\n        \n        System.out.println(n + \"! = \" + factorial);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "6! = 720"
+        }
+      ],
+      "hints": [
+        "Initialize factorial = 1 (NOT 0 — that would give 0 every time)",
+        "Loop from 1 to n inclusive",
+        "Inside: factorial *= i (multiplicative accumulator)",
+        "Use long for factorial — factorials grow huge fast (20! exceeds int range)"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "accumulator_pattern_multiplicative"
+    },
+    
+    {
+      "id": "java_m1_t5_ex_11",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Nested loop trace",
+      "scenario": "Predict the output of a nested loop.",
+      "instructions": "What does this code print?\n\n```java\npublic class Nested {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 3; i++) {\n            for (int j = 1; j <= i; j++) {\n                System.out.print(\"*\");\n            }\n            System.out.println();\n        }\n    }\n}\n```",
+      "expected_solution": "*\n**\n***",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "*\n**\n***"
+        }
+      ],
+      "hints": [
+        "Outer loop: i goes 1, 2, 3",
+        "Inner loop: j goes from 1 to i (so 1 then 2 then 3 stars)",
+        "When i=1: inner loop runs once, prints '*'",
+        "When i=2: inner loop runs twice, prints '**'",
+        "When i=3: inner loop runs 3 times, prints '***'",
+        "println() after inner loop adds the newline"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "nested_loops"
+    },
+    
+    {
+      "id": "java_m1_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Triangle pattern",
+      "scenario": "Print a right triangle of stars using nested loops.",
+      "instructions": "Write a class `TrianglePattern` that prints this exact output:\n\n*\n**\n***\n****\n*****\n\nUse nested for loops.",
+      "starter_code": "// Write your TrianglePattern class below\n",
+      "expected_solution": "public class TrianglePattern {\n    public static void main(String[] args) {\n        for (int i = 1; i <= 5; i++) {\n            for (int j = 1; j <= i; j++) {\n                System.out.print(\"*\");\n            }\n            System.out.println();\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "*\n**\n***\n****\n*****"
+        }
+      ],
+      "hints": [
+        "Outer loop controls rows (1 to 5)",
+        "Inner loop controls stars in each row (1 to i)",
+        "Use print() (no newline) for the stars",
+        "Use println() (empty, just newline) after inner loop completes",
+        "Same pattern as ex 11 but 5 rows instead of 3"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m1_t5_ex_13",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "Sum of digits",
+      "scenario": "Calculate the sum of digits of a number (e.g., 12345 → 1+2+3+4+5 = 15). Classic interview question.",
+      "instructions": "Write a class `DigitSum` that calculates the sum of digits of 9876.\n\nUse a while loop with modulo and division:\n- Get last digit: number % 10\n- Add to sum\n- Remove last digit: number /= 10\n- Repeat until number is 0\n\nExpected output:\nNumber: 9876\nSum of digits: 30",
+      "starter_code": "// Write your DigitSum class below\n// Algorithm: while number > 0, extract last digit and add to sum\n",
+      "expected_solution": "public class DigitSum {\n    public static void main(String[] args) {\n        int original = 9876;\n        int number = original;\n        int sum = 0;\n        \n        while (number > 0) {\n            int lastDigit = number % 10;\n            sum += lastDigit;\n            number /= 10;\n        }\n        \n        System.out.println(\"Number: \" + original);\n        System.out.println(\"Sum of digits: \" + sum);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Number: 9876\nSum of digits: 30"
+        }
+      ],
+      "hints": [
+        "9876 % 10 = 6 (last digit)",
+        "9876 / 10 = 987 (drops last digit, integer division)",
+        "Save the original number for output (because we'll modify number in the loop)",
+        "while (number > 0): keeps going until all digits extracted",
+        "Trace: 9876 → 987 → 98 → 9 → 0 (exit). Sum: 6+7+8+9 = 30"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "while_loop_with_modulo_division"
+    },
+    
+    {
+      "id": "java_m1_t5_ex_14",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Check if prime",
+      "scenario": "Determine if a number is prime. Common interview question that tests multiple loop concepts.",
+      "instructions": "Write a class `PrimeCheck` that determines if 29 is prime.\n\nA prime number is greater than 1 and has no divisors other than 1 and itself.\n\nAlgorithm:\n- If number <= 1: not prime\n- Loop from 2 to number-1\n- If any of those evenly divides the number, it's NOT prime — break\n- If loop completes without finding divisor, it IS prime\n\nUse a boolean flag.\n\nExpected output:\n29 is prime: true",
+      "starter_code": "// Write your PrimeCheck class below\n",
+      "expected_solution": "public class PrimeCheck {\n    public static void main(String[] args) {\n        int number = 29;\n        boolean isPrime;\n        \n        if (number <= 1) {\n            isPrime = false;\n        } else {\n            isPrime = true;  // Assume prime until we find a divisor\n            for (int i = 2; i < number; i++) {\n                if (number % i == 0) {\n                    isPrime = false;\n                    break;\n                }\n            }\n        }\n        \n        System.out.println(number + \" is prime: \" + isPrime);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "29 is prime: true"
+        }
+      ],
+      "hints": [
+        "Edge case first: numbers <= 1 are not prime",
+        "Start with isPrime = true (innocent until proven guilty)",
+        "Loop from 2 to number-1: for (int i = 2; i < number; i++)",
+        "If number % i == 0, we found a divisor — set isPrime = false and break",
+        "For 29: check 2, 3, 4, ..., 28. None divide 29 evenly. Loop completes. Still prime.",
+        "Optimization (advanced): only need to check up to sqrt(number), but not required here"
+      ],
+      "xp_reward": 80
+    },
+    
+    {
+      "id": "java_m1_t5_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Fibonacci sequence",
+      "scenario": "Generate the Fibonacci sequence — another classic. Each number is the sum of the previous two: 0, 1, 1, 2, 3, 5, 8, 13...",
+      "instructions": "Write a class `Fibonacci` that prints the first 10 Fibonacci numbers, comma-separated.\n\nExpected output:\nFibonacci (first 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34",
+      "starter_code": "// Write your Fibonacci class below\n// First 10 numbers: 0, 1, 1, 2, 3, 5, 8, 13, 21, 34\n",
+      "expected_solution": "public class Fibonacci {\n    public static void main(String[] args) {\n        int count = 10;\n        long a = 0;\n        long b = 1;\n        \n        System.out.print(\"Fibonacci (first \" + count + \"): \");\n        \n        for (int i = 0; i < count; i++) {\n            // Print current\n            if (i > 0) {\n                System.out.print(\", \");\n            }\n            System.out.print(a);\n            \n            // Calculate next\n            long next = a + b;\n            a = b;\n            b = next;\n        }\n        \n        System.out.println();\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Fibonacci (first 10): 0, 1, 1, 2, 3, 5, 8, 13, 21, 34"
+        }
+      ],
+      "hints": [
+        "Track TWO numbers: a (current) and b (next)",
+        "Start: a = 0, b = 1",
+        "Each iteration: print a, then compute next = a + b, shift: a = b, b = next",
+        "Loop 10 times to get 10 numbers",
+        "Use long type — Fibonacci grows fast, can exceed int range quickly",
+        "Handle the comma carefully: print before each number except the first"
+      ],
+      "xp_reward": 90,
+      "concept_tested": "complex_iteration_pattern"
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 8,
+      "debug": 1,
+      "predict_output": 2,
+      "algorithm": 3
+    },
+    "total_xp_possible": 645,
+    "estimated_completion_minutes": 50
+  },
+  
+  "gap_detection_map": {
+    "infinite_loop_missing_update": ["ex_7"],
+    "accumulator_pattern": ["ex_3", "ex_8", "ex_10"],
+    "continue_keyword": ["ex_8"],
+    "break_keyword": ["ex_9"],
+    "nested_loops": ["ex_11", "ex_12"],
+    "while_loop_with_modulo_division": ["ex_13"],
+    "complex_iteration_pattern": ["ex_14", "ex_15"]
+  }
+}

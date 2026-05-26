@@ -1,0 +1,362 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t5",
+  "topic_name": "Comparator & Polymorphism in Practice",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m5_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace Comparator compare return",
+      "scenario": "Understand what compare() return value means.",
+      "instructions": "What order does this produce after sorting?\n\n```java\nimport java.util.Arrays;\nimport java.util.Comparator;\n\npublic class App {\n    public static void main(String[] args) {\n        Integer[] nums = {5, 1, 3, 2, 4};\n        Arrays.sort(nums, new Comparator<Integer>() {\n            public int compare(Integer a, Integer b) {\n                return b - a;  // note: b - a, not a - b\n            }\n        });\n        System.out.println(Arrays.toString(nums));\n    }\n}\n```",
+      "expected_solution": "[5, 4, 3, 2, 1]",
+      "test_cases": [
+        { "type": "text_match", "expected": "[5, 4, 3, 2, 1]" }
+      ],
+      "hints": [
+        "b - a: when b > a, result is positive → b comes BEFORE a",
+        "So larger numbers come first → descending order",
+        "Output: 5, 4, 3, 2, 1"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m5_t5_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Write a Comparator for descending sort",
+      "scenario": "Practice Comparator syntax and reverse logic.",
+      "instructions": "Fill in the blanks to sort Strings by length DESCENDING (longest first).",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] words = {\"hi\", \"programming\", \"java\", \"go\"};\n        Arrays.sort(words, new Comparator<String>() {\n            public int compare(String a, String b) {\n                return Integer.compare(______.length(), ______.length());\n            }\n        });\n        System.out.println(Arrays.toString(words));\n    }\n}",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] words = {\"hi\", \"programming\", \"java\", \"go\"};\n        Arrays.sort(words, new Comparator<String>() {\n            public int compare(String a, String b) {\n                return Integer.compare(b.length(), a.length());\n            }\n        });\n        System.out.println(Arrays.toString(words));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "b", "hint": "For descending, put the 'larger should come first' argument first" },
+        { "position": 2, "answer": "a", "hint": "Second argument" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[programming, java, hi, go]" }
+      ],
+      "hints": [
+        "Descending: compare(b, a) not compare(a, b)",
+        "Integer.compare(b.length(), a.length()) returns positive when b.length > a.length",
+        "Positive → a comes after b → b (longer) comes first"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m5_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sort strings alphabetically with Comparator",
+      "scenario": "Basic Comparator implementation for String.",
+      "instructions": "Given String[] cities, write a Comparator to sort alphabetically and print.\n\nExpected output:\n[Bengaluru, Chennai, Hyderabad, Mumbai]",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Sort cities alphabetically with a Comparator\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] cities = {\"Hyderabad\", \"Mumbai\", \"Bengaluru\", \"Chennai\"};\n        Arrays.sort(cities, new Comparator<String>() {\n            @Override\n            public int compare(String a, String b) {\n                return a.compareTo(b);  // String's natural comparison\n            }\n        });\n        System.out.println(Arrays.toString(cities));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Bengaluru, Chennai, Hyderabad, Mumbai]" }
+      ],
+      "hints": [
+        "Comparator<String> with compare(String a, String b)",
+        "For alphabetical: a.compareTo(b) — String's built-in comparison",
+        "Arrays.sort(cities, comparator)"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m5_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sort employees by salary descending",
+      "scenario": "Comparator for domain object — descending order.",
+      "instructions": "Create simple `Employee` class (name, salary). Write Comparator to sort by salary DESCENDING. Sort and print names with salaries.\n\nExpected output:\nAisha: 95000.0\nRaj: 85000.0\nPriya: 72000.0",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Employee class + Comparator for descending salary\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Employee {\n    String name;\n    double salary;\n    Employee(String name, double salary) { this.name = name; this.salary = salary; }\n    public String toString() { return name + \": \" + salary; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Employee[] staff = {\n            new Employee(\"Priya\", 72000),\n            new Employee(\"Aisha\", 95000),\n            new Employee(\"Raj\", 85000)\n        };\n        \n        Comparator<Employee> bySalaryDesc = new Comparator<Employee>() {\n            @Override\n            public int compare(Employee a, Employee b) {\n                return Double.compare(b.salary, a.salary);\n            }\n        };\n        \n        Arrays.sort(staff, bySalaryDesc);\n        for (Employee e : staff) System.out.println(e);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha: 95000.0\nRaj: 85000.0\nPriya: 72000.0" }
+      ],
+      "hints": [
+        "Descending salary: Double.compare(b.salary, a.salary)",
+        "Anonymous class implementing Comparator<Employee>",
+        "Arrays.sort(staff, bySalaryDesc)"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m5_t5_ex_5",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix reversed Comparator direction",
+      "scenario": "Common mix-up between ascending and descending arguments.",
+      "instructions": "This sorts descending but should be ascending (cheapest first). Fix it.\n\nExpected output:\nMouse: 599.0\nKeyboard: 1999.0\nMonitor: 18999.0",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Item {\n    String name;\n    double price;\n    Item(String name, double price) { this.name = name; this.price = price; }\n    public String toString() { return name + \": \" + price; }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Item[] items = {\n            new Item(\"Monitor\", 18999),\n            new Item(\"Mouse\", 599),\n            new Item(\"Keyboard\", 1999)\n        };\n        Arrays.sort(items, new Comparator<Item>() {\n            public int compare(Item a, Item b) {\n                return Double.compare(b.price, a.price);  // wrong direction\n            }\n        });\n        for (Item i : items) System.out.println(i);\n    }\n}",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Item {\n    String name;\n    double price;\n    Item(String name, double price) { this.name = name; this.price = price; }\n    public String toString() { return name + \": \" + price; }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Item[] items = {\n            new Item(\"Monitor\", 18999),\n            new Item(\"Mouse\", 599),\n            new Item(\"Keyboard\", 1999)\n        };\n        Arrays.sort(items, new Comparator<Item>() {\n            public int compare(Item a, Item b) {\n                return Double.compare(a.price, b.price);  // ascending: a before b\n            }\n        });\n        for (Item i : items) System.out.println(i);\n    }\n}",
+      "bugs": [
+        { "line": "17", "issue": "Double.compare(b.price, a.price) gives descending order. Should be a before b for ascending.", "fix": "Change to Double.compare(a.price, b.price)" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Mouse: 599.0\nKeyboard: 1999.0\nMonitor: 18999.0", "must_compile": true }
+      ],
+      "hints": [
+        "Ascending: Double.compare(a.price, b.price) — a comes before b when a.price < b.price",
+        "Descending: Double.compare(b.price, a.price) — b comes before a when b.price > a.price",
+        "Currently: Double.compare(b, a) → descending. Fix: swap to (a, b)"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["wrong_compare_return_logic"]
+    },
+    
+    {
+      "id": "java_m5_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Named comparator class",
+      "scenario": "Reusable comparator as a named class.",
+      "instructions": "Create `Student` class (name, grade). Create a NAMED class `GradeComparator implements Comparator<Student>` that sorts by grade descending.\n\nExpected output:\nAisha: A\nRaj: B\nPriya: C",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Student class and named GradeComparator class\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Student {\n    String name;\n    char grade;\n    Student(String name, char grade) { this.name = name; this.grade = grade; }\n    public String toString() { return name + \": \" + grade; }\n}\n\nclass GradeComparator implements Comparator<Student> {\n    @Override\n    public int compare(Student a, Student b) {\n        // Grade 'A' < 'B' in char comparison, so ascending char = ascending grade\n        // We want A first (best grade) so ascending char order\n        return Character.compare(a.grade, b.grade);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Student[] students = {\n            new Student(\"Priya\", 'C'),\n            new Student(\"Aisha\", 'A'),\n            new Student(\"Raj\", 'B')\n        };\n        Arrays.sort(students, new GradeComparator());\n        for (Student s : students) System.out.println(s);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha: A\nRaj: B\nPriya: C" }
+      ],
+      "hints": [
+        "Named class: class GradeComparator implements Comparator<Student>",
+        "Character.compare(a.grade, b.grade) — 'A' < 'B' in ASCII, so ascending gives A first",
+        "Arrays.sort(students, new GradeComparator())"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m5_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Multi-criteria Comparator",
+      "scenario": "Primary and secondary sort key.",
+      "instructions": "Sort `Employee` objects: PRIMARY by department (A-Z), SECONDARY by salary DESCENDING within same department.\n\nExpected output:\nAisha (Engineering): 95000.0\nPriya (Engineering): 72000.0\nRaj (Sales): 85000.0\nVikram (Sales): 68000.0",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Employee with department\n// Multi-criteria Comparator: department asc, then salary desc\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Employee {\n    String name, dept;\n    double salary;\n    Employee(String name, String dept, double salary) {\n        this.name = name; this.dept = dept; this.salary = salary;\n    }\n    public String toString() { return name + \" (\" + dept + \"): \" + salary; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Employee[] staff = {\n            new Employee(\"Raj\", \"Sales\", 85000),\n            new Employee(\"Aisha\", \"Engineering\", 95000),\n            new Employee(\"Vikram\", \"Sales\", 68000),\n            new Employee(\"Priya\", \"Engineering\", 72000)\n        };\n        \n        Comparator<Employee> byDeptThenSalaryDesc = new Comparator<Employee>() {\n            @Override\n            public int compare(Employee a, Employee b) {\n                int deptCmp = a.dept.compareTo(b.dept);\n                if (deptCmp != 0) return deptCmp;\n                return Double.compare(b.salary, a.salary);  // salary descending\n            }\n        };\n        \n        Arrays.sort(staff, byDeptThenSalaryDesc);\n        for (Employee e : staff) System.out.println(e);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha (Engineering): 95000.0\nPriya (Engineering): 72000.0\nRaj (Sales): 85000.0\nVikram (Sales): 68000.0" }
+      ],
+      "hints": [
+        "Compare department first with a.dept.compareTo(b.dept)",
+        "If deptCmp != 0, return it (different departments → department order wins)",
+        "If deptCmp == 0, compare salary descending: Double.compare(b.salary, a.salary)"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "multi_criteria_comparator"
+    },
+    
+    {
+      "id": "java_m5_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multiple Comparators on same class",
+      "scenario": "One class, multiple sort options selected at runtime.",
+      "instructions": "Create `Book` with title, author, year, rating (double).\n\nCreate three Comparators: BY_TITLE (alphabetical), BY_YEAR_DESC (newest first), BY_RATING_DESC (highest first).\n\nSort and print each way.\n\nExpected output:\n--- By title ---\nClean Code\nDune\nFoundation\n--- By year (newest first) ---\nClean Code (2008)\nDune (1965)\nFoundation (1951)\n--- By rating (highest first) ---\nDune: 9.1\nFoundation: 8.9\nClean Code: 8.7",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Book class with three Comparators\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Book {\n    String title, author;\n    int year;\n    double rating;\n    \n    Book(String title, String author, int year, double rating) {\n        this.title = title; this.author = author;\n        this.year = year; this.rating = rating;\n    }\n}\n\npublic class App {\n    static final Comparator<Book> BY_TITLE = new Comparator<Book>() {\n        public int compare(Book a, Book b) { return a.title.compareTo(b.title); }\n    };\n    \n    static final Comparator<Book> BY_YEAR_DESC = new Comparator<Book>() {\n        public int compare(Book a, Book b) { return Integer.compare(b.year, a.year); }\n    };\n    \n    static final Comparator<Book> BY_RATING_DESC = new Comparator<Book>() {\n        public int compare(Book a, Book b) { return Double.compare(b.rating, a.rating); }\n    };\n    \n    static void printSorted(Book[] books, Comparator<Book> cmp, String label) {\n        Book[] copy = Arrays.copyOf(books, books.length);\n        Arrays.sort(copy, cmp);\n        System.out.println(\"--- \" + label + \" ---\");\n        for (Book b : copy) System.out.println(b.title);\n    }\n    \n    public static void main(String[] args) {\n        Book[] books = {\n            new Book(\"Foundation\", \"Asimov\", 1951, 8.9),\n            new Book(\"Dune\", \"Herbert\", 1965, 9.1),\n            new Book(\"Clean Code\", \"Martin\", 2008, 8.7)\n        };\n        printSorted(books, BY_TITLE, \"By title\");\n        \n        Book[] byYear = Arrays.copyOf(books, books.length);\n        Arrays.sort(byYear, BY_YEAR_DESC);\n        System.out.println(\"--- By year (newest first) ---\");\n        for (Book b : byYear) System.out.println(b.title + \" (\" + b.year + \")\");\n        \n        Book[] byRating = Arrays.copyOf(books, books.length);\n        Arrays.sort(byRating, BY_RATING_DESC);\n        System.out.println(\"--- By rating (highest first) ---\");\n        for (Book b : byRating) System.out.println(b.title + \": \" + b.rating);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "--- By title ---\nClean Code\nDune\nFoundation\n--- By year (newest first) ---\nClean Code (2008)\nDune (1965)\nFoundation (1951)\n--- By rating (highest first) ---\nDune: 9.1\nFoundation: 8.9\nClean Code: 8.7" }
+      ],
+      "hints": [
+        "Three static Comparators as constants",
+        "Copy array before each sort: Arrays.copyOf(books, books.length)",
+        "BY_YEAR_DESC: Integer.compare(b.year, a.year) — newer year first",
+        "BY_RATING_DESC: Double.compare(b.rating, a.rating)"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m5_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Comparator-driven sort selector",
+      "scenario": "Map of comparators, selected by string key — real web app pattern.",
+      "instructions": "Create a simple sort system: a static Map (hint: use String→Comparator lookup). Given `Product` (name, price), support sort keys: 'name', 'price_asc', 'price_desc'.\n\nNote: since Maps aren't formally covered yet, implement as a helper method `getComparator(String key)` returning the right Comparator.\n\nExpected output:\nSorted by name:\nKeyboard,Monitor,Mouse\nSorted by price_asc:\nMouse,Keyboard,Monitor\nSorted by price_desc:\nMonitor,Keyboard,Mouse",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Product with getComparator(String key) method\n// Returns correct Comparator based on key string\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Product {\n    String name;\n    double price;\n    Product(String name, double price) { this.name = name; this.price = price; }\n    public String toString() { return name; }\n}\n\npublic class App {\n    static Comparator<Product> getComparator(String key) {\n        switch (key) {\n            case \"name\":\n                return new Comparator<Product>() {\n                    public int compare(Product a, Product b) { return a.name.compareTo(b.name); }\n                };\n            case \"price_asc\":\n                return new Comparator<Product>() {\n                    public int compare(Product a, Product b) { return Double.compare(a.price, b.price); }\n                };\n            case \"price_desc\":\n                return new Comparator<Product>() {\n                    public int compare(Product a, Product b) { return Double.compare(b.price, a.price); }\n                };\n            default:\n                return new Comparator<Product>() {\n                    public int compare(Product a, Product b) { return 0; }\n                };\n        }\n    }\n    \n    static void sortAndPrint(Product[] products, String key) {\n        Product[] copy = Arrays.copyOf(products, products.length);\n        Arrays.sort(copy, getComparator(key));\n        System.out.print(\"Sorted by \" + key + \":\\n\");\n        StringBuilder sb = new StringBuilder();\n        for (int i = 0; i < copy.length; i++) {\n            if (i > 0) sb.append(\",\");\n            sb.append(copy[i].name);\n        }\n        System.out.println(sb);\n    }\n    \n    public static void main(String[] args) {\n        Product[] catalog = {\n            new Product(\"Monitor\", 18999),\n            new Product(\"Mouse\", 599),\n            new Product(\"Keyboard\", 1999)\n        };\n        sortAndPrint(catalog, \"name\");\n        sortAndPrint(catalog, \"price_asc\");\n        sortAndPrint(catalog, \"price_desc\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Sorted by name:\nKeyboard,Monitor,Mouse\nSorted by price_asc:\nMouse,Keyboard,Monitor\nSorted by price_desc:\nMonitor,Keyboard,Mouse" }
+      ],
+      "hints": [
+        "getComparator(String key) returns different Comparator based on key",
+        "switch/if-else on the key string",
+        "Each case returns an anonymous Comparator",
+        "Real web apps: map the HTTP query param sort_by to the Comparator"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m5_t5_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace multi-criteria sort",
+      "scenario": "Predict the result of a two-level sort.",
+      "instructions": "What order do these end up in?\n\n```java\nimport java.util.Arrays;\nimport java.util.Comparator;\n\nclass P {\n    String cat; int price;\n    P(String c, int p) { cat = c; price = p; }\n    public String toString() { return cat + \"-\" + price; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        P[] items = {new P(\"B\",30), new P(\"A\",20), new P(\"B\",10), new P(\"A\",40)};\n        Arrays.sort(items, (a, b) -> {\n            int c = a.cat.compareTo(b.cat);\n            return c != 0 ? c : Integer.compare(a.price, b.price);\n        });\n        for (P p : items) System.out.println(p);\n    }\n}\n```",
+      "expected_solution": "A-20\nA-40\nB-10\nB-30",
+      "test_cases": [
+        { "type": "text_match", "expected": "A-20\nA-40\nB-10\nB-30" }
+      ],
+      "hints": [
+        "Primary sort: category A-Z (A before B)",
+        "Secondary: price ascending within same category",
+        "A group: 20, 40. B group: 10, 30"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m5_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Comparable AND Comparator on same class",
+      "scenario": "Natural order plus additional sort options.",
+      "instructions": "Create `Movie` implementing `Comparable<Movie>` (natural sort: by year ascending). Also create static Comparators: BY_TITLE and BY_RATING_DESC.\n\nDemonstrate all three sorts.\n\nExpected output:\n--- Natural (year) ---\nGodfather (1972): 9.2\nPulp Fiction (1994): 8.9\nInterstellar (2014): 8.6\n--- By title ---\nGodfather\nInterstellar\nPulp Fiction\n--- By rating (highest) ---\nGodfather: 9.2\nPulp Fiction: 8.9\nInterstellar: 8.6",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Movie with Comparable (year) + static Comparators BY_TITLE, BY_RATING_DESC\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Movie implements Comparable<Movie> {\n    String title;\n    int year;\n    double rating;\n    \n    Movie(String title, int year, double rating) {\n        this.title = title; this.year = year; this.rating = rating;\n    }\n    \n    @Override\n    public int compareTo(Movie other) {\n        return Integer.compare(this.year, other.year);  // natural: by year\n    }\n    \n    static final Comparator<Movie> BY_TITLE =\n        new Comparator<Movie>() {\n            public int compare(Movie a, Movie b) { return a.title.compareTo(b.title); }\n        };\n    \n    static final Comparator<Movie> BY_RATING_DESC =\n        new Comparator<Movie>() {\n            public int compare(Movie a, Movie b) { return Double.compare(b.rating, a.rating); }\n        };\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Movie[] movies = {\n            new Movie(\"Pulp Fiction\", 1994, 8.9),\n            new Movie(\"Interstellar\", 2014, 8.6),\n            new Movie(\"Godfather\", 1972, 9.2)\n        };\n        \n        Movie[] nat = Arrays.copyOf(movies, movies.length);\n        Arrays.sort(nat);\n        System.out.println(\"--- Natural (year) ---\");\n        for (Movie m : nat) System.out.println(m.title + \" (\" + m.year + \"): \" + m.rating);\n        \n        Movie[] byTitle = Arrays.copyOf(movies, movies.length);\n        Arrays.sort(byTitle, Movie.BY_TITLE);\n        System.out.println(\"--- By title ---\");\n        for (Movie m : byTitle) System.out.println(m.title);\n        \n        Movie[] byRating = Arrays.copyOf(movies, movies.length);\n        Arrays.sort(byRating, Movie.BY_RATING_DESC);\n        System.out.println(\"--- By rating (highest) ---\");\n        for (Movie m : byRating) System.out.println(m.title + \": \" + m.rating);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "--- Natural (year) ---\nGodfather (1972): 9.2\nPulp Fiction (1994): 8.9\nInterstellar (2014): 8.6\n--- By title ---\nGodfather\nInterstellar\nPulp Fiction\n--- By rating (highest) ---\nGodfather: 9.2\nPulp Fiction: 8.9\nInterstellar: 8.6" }
+      ],
+      "hints": [
+        "Comparable: compareTo by year ascending (Integer.compare(this.year, other.year))",
+        "Comparators defined as static final inside Movie class",
+        "Arrays.sort(nat) uses Comparable; Arrays.sort(copy, comparator) uses Comparator"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m5_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "instanceof safe downcast pattern",
+      "scenario": "When instanceof is appropriate — type-specific action after polymorphic call.",
+      "instructions": "Create abstract class `Vehicle` with abstract `describe()`. Subclasses `Car` (numDoors) and `Motorcycle` (hasSidecar). \n\nWrite `printDetails(Vehicle v)` that:\n1. Calls describe() polymorphically (no instanceof needed)\n2. If it's a Car, also prints doors\n3. If it's a Motorcycle, also prints sidecar info\n\nExpected output:\nRed Car — 4 doors\nBlue Motorcycle — no sidecar",
+      "starter_code": "// Abstract Vehicle, Car, Motorcycle\n// printDetails uses instanceof only for type-specific extras\n",
+      "expected_solution": "abstract class Vehicle {\n    protected String color;\n    Vehicle(String color) { this.color = color; }\n    public abstract String describe();\n}\n\nclass Car extends Vehicle {\n    private int numDoors;\n    Car(String color, int numDoors) { super(color); this.numDoors = numDoors; }\n    @Override public String describe() { return color + \" Car\"; }\n    public int getNumDoors() { return numDoors; }\n}\n\nclass Motorcycle extends Vehicle {\n    private boolean hasSidecar;\n    Motorcycle(String color, boolean hasSidecar) { super(color); this.hasSidecar = hasSidecar; }\n    @Override public String describe() { return color + \" Motorcycle\"; }\n    public boolean hasSidecar() { return hasSidecar; }\n}\n\npublic class App {\n    static void printDetails(Vehicle v) {\n        System.out.print(v.describe());  // polymorphic\n        if (v instanceof Car c) {\n            System.out.println(\" — \" + c.getNumDoors() + \" doors\");\n        } else if (v instanceof Motorcycle m) {\n            System.out.println(\" — \" + (m.hasSidecar() ? \"with sidecar\" : \"no sidecar\"));\n        } else {\n            System.out.println();\n        }\n    }\n    \n    public static void main(String[] args) {\n        printDetails(new Car(\"Red\", 4));\n        printDetails(new Motorcycle(\"Blue\", false));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Red Car — 4 doors\nBlue Motorcycle — no sidecar" }
+      ],
+      "hints": [
+        "describe() is polymorphic — no instanceof needed for it",
+        "instanceof only for the TYPE-SPECIFIC extras (numDoors, hasSidecar)",
+        "Pattern matching: if (v instanceof Car c) — check and cast in one",
+        "This is appropriate instanceof use: extras that don't belong in Vehicle"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m5_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Leaderboard with configurable sort",
+      "scenario": "Real leaderboard where sort order is selectable.",
+      "instructions": "Build `Player` (name, score, level, country). `Leaderboard` class with Player[] and:\n- `rank(Comparator<Player> cmp)` sorts and returns ranked list\n- Static Comparators: BY_SCORE_DESC, BY_LEVEL_DESC, BY_NAME\n\nPrint top 3 for each sort.\n\nExpected output:\n=== By Score ===\n1. Aisha: 9500 pts\n2. Raj: 8200 pts\n3. Priya: 7800 pts\n=== By Level ===\n1. Aisha: lvl 12\n2. Vikram: lvl 10\n3. Raj: lvl 9\n=== By Name ===\n1. Aisha\n2. Priya\n3. Raj",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Player + Leaderboard with configurable Comparators\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Player {\n    String name, country;\n    int score, level;\n    \n    Player(String name, int score, int level, String country) {\n        this.name = name; this.score = score;\n        this.level = level; this.country = country;\n    }\n}\n\nclass Leaderboard {\n    private Player[] players;\n    private int count;\n    \n    Leaderboard(int capacity) {\n        players = new Player[capacity];\n        count = 0;\n    }\n    \n    void addPlayer(Player p) {\n        if (count < players.length) players[count++] = p;\n    }\n    \n    Player[] rank(Comparator<Player> cmp) {\n        Player[] copy = Arrays.copyOf(players, count);\n        Arrays.sort(copy, cmp);\n        return copy;\n    }\n    \n    static final Comparator<Player> BY_SCORE_DESC =\n        new Comparator<Player>() {\n            public int compare(Player a, Player b) { return Integer.compare(b.score, a.score); }\n        };\n    \n    static final Comparator<Player> BY_LEVEL_DESC =\n        new Comparator<Player>() {\n            public int compare(Player a, Player b) { return Integer.compare(b.level, a.level); }\n        };\n    \n    static final Comparator<Player> BY_NAME =\n        new Comparator<Player>() {\n            public int compare(Player a, Player b) { return a.name.compareTo(b.name); }\n        };\n}\n\npublic class App {\n    static void printTop3(Player[] ranked, String label, java.util.function.Function<Player, String> fmt) {\n        System.out.println(\"=== \" + label + \" ===\");\n        int n = Math.min(3, ranked.length);\n        for (int i = 0; i < n; i++) {\n            System.out.println((i + 1) + \". \" + fmt.apply(ranked[i]));\n        }\n    }\n    \n    public static void main(String[] args) {\n        Leaderboard lb = new Leaderboard(10);\n        lb.addPlayer(new Player(\"Aisha\", 9500, 12, \"India\"));\n        lb.addPlayer(new Player(\"Raj\", 8200, 9, \"India\"));\n        lb.addPlayer(new Player(\"Priya\", 7800, 8, \"India\"));\n        lb.addPlayer(new Player(\"Vikram\", 7200, 10, \"India\"));\n        lb.addPlayer(new Player(\"Anita\", 6500, 7, \"India\"));\n        \n        Player[] byScore = lb.rank(Leaderboard.BY_SCORE_DESC);\n        System.out.println(\"=== By Score ===\");\n        for (int i = 0; i < 3; i++) System.out.println((i+1) + \". \" + byScore[i].name + \": \" + byScore[i].score + \" pts\");\n        \n        Player[] byLevel = lb.rank(Leaderboard.BY_LEVEL_DESC);\n        System.out.println(\"=== By Level ===\");\n        for (int i = 0; i < 3; i++) System.out.println((i+1) + \". \" + byLevel[i].name + \": lvl \" + byLevel[i].level);\n        \n        Player[] byName = lb.rank(Leaderboard.BY_NAME);\n        System.out.println(\"=== By Name ===\");\n        for (int i = 0; i < 3; i++) System.out.println((i+1) + \". \" + byName[i].name);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "=== By Score ===\n1. Aisha: 9500 pts\n2. Raj: 8200 pts\n3. Priya: 7800 pts\n=== By Level ===\n1. Aisha: lvl 12\n2. Vikram: lvl 10\n3. Raj: lvl 9\n=== By Name ===\n1. Aisha\n2. Priya\n3. Raj" }
+      ],
+      "hints": [
+        "rank(Comparator cmp) copies players array then sorts",
+        "Three static Comparators on Leaderboard",
+        "Print top 3 from each ranked array",
+        "By Name: alphabetical — Aisha, Priya, Raj (Anita and Vikram are 4th/5th)"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "comparator_leaderboard"
+    },
+    
+    {
+      "id": "java_m5_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Polymorphism design: replace instanceof chain",
+      "scenario": "Refactor bad instanceof usage into proper polymorphism.",
+      "instructions": "Refactor this bad code (uses instanceof chain) into proper polymorphism with an overridden method:\n\n```java\n// BAD CODE (given):\npublic static double computeTax(Object obj) {\n    if (obj instanceof IncomeSource is) {\n        return is.getAmount() * 0.30;  // 30% income tax\n    } else if (obj instanceof Investment inv) {\n        return inv.getValue() * 0.10;  // 10% capital gains\n    } else if (obj instanceof FreelanceWork fw) {\n        return fw.getEarnings() * 0.18 + 500;  // 18% + flat fee\n    }\n    return 0;\n}\n```\n\nCreate an abstract base class `Taxable` with `abstract double computeTax()`. Create IncomeSource, Investment, FreelanceWork extending it. Each computes its own tax.\n\nExpected output:\nIncome tax: 30000.0\nCapital gains: 5000.0\nFreelance tax: 3320.0",
+      "starter_code": "// Refactor the instanceof chain into a polymorphic design\n// Abstract Taxable with computeTax(), three concrete subclasses\n",
+      "expected_solution": "abstract class Taxable {\n    public abstract double computeTax();\n}\n\nclass IncomeSource extends Taxable {\n    private double amount;\n    IncomeSource(double amount) { this.amount = amount; }\n    @Override public double computeTax() { return amount * 0.30; }\n}\n\nclass Investment extends Taxable {\n    private double value;\n    Investment(double value) { this.value = value; }\n    @Override public double computeTax() { return value * 0.10; }\n}\n\nclass FreelanceWork extends Taxable {\n    private double earnings;\n    FreelanceWork(double earnings) { this.earnings = earnings; }\n    @Override public double computeTax() { return earnings * 0.18 + 500; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Taxable[] taxables = {\n            new IncomeSource(100000),\n            new Investment(50000),\n            new FreelanceWork(15666.67)\n        };\n        \n        String[] labels = {\"Income tax\", \"Capital gains\", \"Freelance tax\"};\n        for (int i = 0; i < taxables.length; i++) {\n            System.out.printf(\"%s: %.1f%n\", labels[i], taxables[i].computeTax());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Income tax: 30000.0\nCapital gains: 5000.0\nFreelance tax: 3320.0" }
+      ],
+      "hints": [
+        "Extract computeTax() into abstract method on Taxable base class",
+        "Each subclass overrides it with the specific formula",
+        "No instanceof chain needed — polymorphism handles dispatch",
+        "Freelance: 15666.67 * 0.18 + 500 = 2820 + 500 = 3320"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "replace_instanceof_with_polymorphism"
+    },
+    
+    {
+      "id": "java_m5_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Full OOP design: multi-sorted product feed",
+      "scenario": "Synthesis — Comparable, Comparator, interface, polymorphism all together.",
+      "instructions": "Build a product recommendation feed:\n\n1. `Recommendable` interface: `double relevanceScore()`, default `boolean isHighRelevance()` → score >= 8.0\n\n2. `Product` implementing `Comparable<Product>` (by relevanceScore desc) and `Recommendable`:\n   - Fields: name, category, price, relevance\n\n3. `Feed` class: Product[] (max 20), static Comparators: BY_PRICE_ASC, BY_CATEGORY, BY_RELEVANCE_DESC\n   - `getHighRelevance()` returns only products with isHighRelevance()\n   - `sortedBy(Comparator<Product> cmp)` returns sorted copy\n\nIn main:\n- Add 5 products\n- Print high-relevance products\n- Print sorted by price\n\nExpected output:\nHigh relevance (>=8.0):\nMouse (9.2)\nKeyboard (8.5)\n\nSorted by price:\nUSB Hub: ₹499\nMouse: ₹799\nPython Book: ₹849\nKeyboard: ₹1999\nMonitor: ₹18999",
+      "starter_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\n// Interface Recommendable, Product, Feed — full synthesis\n",
+      "expected_solution": "import java.util.Arrays;\nimport java.util.Comparator;\n\ninterface Recommendable {\n    double relevanceScore();\n    default boolean isHighRelevance() { return relevanceScore() >= 8.0; }\n}\n\nclass Product implements Comparable<Product>, Recommendable {\n    private String name, category;\n    private double price, relevance;\n    \n    Product(String name, String category, double price, double relevance) {\n        this.name = name; this.category = category;\n        this.price = price; this.relevance = relevance;\n    }\n    \n    public String getName() { return name; }\n    public String getCategory() { return category; }\n    public double getPrice() { return price; }\n    @Override public double relevanceScore() { return relevance; }\n    \n    @Override\n    public int compareTo(Product other) {\n        return Double.compare(other.relevance, this.relevance); // desc\n    }\n    \n    @Override\n    public String toString() { return name + \": ₹\" + (int)price; }\n}\n\nclass Feed {\n    private Product[] products;\n    private int count;\n    \n    Feed(int capacity) { products = new Product[capacity]; count = 0; }\n    \n    void add(Product p) { if (count < products.length) products[count++] = p; }\n    \n    static final Comparator<Product> BY_PRICE_ASC =\n        new Comparator<Product>() {\n            public int compare(Product a, Product b) { return Double.compare(a.getPrice(), b.getPrice()); }\n        };\n    \n    static final Comparator<Product> BY_CATEGORY =\n        new Comparator<Product>() {\n            public int compare(Product a, Product b) { return a.getCategory().compareTo(b.getCategory()); }\n        };\n    \n    static final Comparator<Product> BY_RELEVANCE_DESC =\n        new Comparator<Product>() {\n            public int compare(Product a, Product b) { return Double.compare(b.relevanceScore(), a.relevanceScore()); }\n        };\n    \n    Product[] getHighRelevance() {\n        int cnt = 0;\n        for (int i = 0; i < count; i++) if (products[i].isHighRelevance()) cnt++;\n        Product[] result = new Product[cnt];\n        int j = 0;\n        for (int i = 0; i < count; i++) {\n            if (products[i].isHighRelevance()) result[j++] = products[i];\n        }\n        Arrays.sort(result, BY_RELEVANCE_DESC);\n        return result;\n    }\n    \n    Product[] sortedBy(Comparator<Product> cmp) {\n        Product[] copy = Arrays.copyOf(products, count);\n        Arrays.sort(copy, cmp);\n        return copy;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Feed feed = new Feed(20);\n        feed.add(new Product(\"Monitor\", \"Electronics\", 18999, 7.5));\n        feed.add(new Product(\"Mouse\", \"Electronics\", 799, 9.2));\n        feed.add(new Product(\"Keyboard\", \"Electronics\", 1999, 8.5));\n        feed.add(new Product(\"Python Book\", \"Books\", 849, 7.8));\n        feed.add(new Product(\"USB Hub\", \"Electronics\", 499, 6.9));\n        \n        System.out.println(\"High relevance (>=8.0):\");\n        for (Product p : feed.getHighRelevance()) {\n            System.out.println(p.getName() + \" (\" + p.relevanceScore() + \")\");\n        }\n        \n        System.out.println(\"\\nSorted by price:\");\n        for (Product p : feed.sortedBy(Feed.BY_PRICE_ASC)) {\n            System.out.println(p);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "High relevance (>=8.0):\nMouse (9.2)\nKeyboard (8.5)\n\nSorted by price:\nUSB Hub: ₹499\nMouse: ₹799\nPython Book: ₹849\nKeyboard: ₹1999\nMonitor: ₹18999" }
+      ],
+      "hints": [
+        "Product implements both Comparable and Recommendable",
+        "getHighRelevance: count first, build array, sort by relevance desc",
+        "Comparators defined as static final on Feed",
+        "sortedBy copies then sorts with given comparator"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 11,
+      "debug": 1,
+      "predict_output": 2
+    },
+    "total_xp_possible": 755,
+    "estimated_completion_minutes": 70
+  },
+  
+  "gap_detection_map": {
+    "wrong_compare_return_logic": ["ex_5"],
+    "multi_criteria_comparator": ["ex_7"],
+    "replace_instanceof_with_polymorphism": ["ex_14"],
+    "comparator_leaderboard": ["ex_13"]
+  }
+}

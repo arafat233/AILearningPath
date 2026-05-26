@@ -1,0 +1,484 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m1_t2",
+  "topic_name": "Variables & Data Types",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m1_t2_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Declare an int variable",
+      "scenario": "You're tracking the number of items in a shopping cart.",
+      "instructions": "Fill in the blanks to declare a variable named `cartItemCount` of type `int` with the value `5`.",
+      "starter_code": "public class Cart {\n    public static void main(String[] args) {\n        ______ ______ = ______;\n        System.out.println(\"Items in cart: \" + cartItemCount);\n    }\n}",
+      "expected_solution": "public class Cart {\n    public static void main(String[] args) {\n        int cartItemCount = 5;\n        System.out.println(\"Items in cart: \" + cartItemCount);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "int", "hint": "What type holds whole numbers?" },
+        { "position": 2, "answer": "cartItemCount", "hint": "Use the exact name specified" },
+        { "position": 3, "answer": "5", "hint": "The value we want to store" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Items in cart: 5"
+        }
+      ],
+      "hints": [
+        "Variable declaration pattern: type name = value;",
+        "Use 'int' for whole numbers",
+        "The name must match cartItemCount exactly (camelCase)"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m1_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Choose the right type",
+      "scenario": "You're building a user profile. Each piece of data needs the right type.",
+      "instructions": "Fill in the correct primitive types for each variable. Hint: think about what kind of data each holds.",
+      "starter_code": "public class Profile {\n    public static void main(String[] args) {\n        ______ userId = 12345;\n        ______ accountBalance = 4250.75;\n        ______ isPremium = true;\n        ______ middleInitial = 'K';\n        \n        System.out.println(\"Profile loaded\");\n    }\n}",
+      "expected_solution": "public class Profile {\n    public static void main(String[] args) {\n        int userId = 12345;\n        double accountBalance = 4250.75;\n        boolean isPremium = true;\n        char middleInitial = 'K';\n        \n        System.out.println(\"Profile loaded\");\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "int", "hint": "Whole number that fits in 2.1 billion" },
+        { "position": 2, "answer": "double", "hint": "Has a decimal point" },
+        { "position": 3, "answer": "boolean", "hint": "true or false only" },
+        { "position": 4, "answer": "char", "hint": "Single character in single quotes" }
+      ],
+      "test_cases": [
+        {
+          "type": "code_analysis",
+          "must_contain": ["int userId", "double accountBalance", "boolean isPremium", "char middleInitial"],
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "userId is a whole number — use int (12345 fits comfortably)",
+        "accountBalance has a decimal — use double",
+        "isPremium is true/false — use boolean",
+        "middleInitial is a single character in single quotes — use char"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m1_t2_ex_3",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Create a constant",
+      "scenario": "Maximum login attempts is a value that should NEVER change during program execution. Use a constant.",
+      "instructions": "Declare a constant named MAX_LOGIN_ATTEMPTS with the value 5. Use the appropriate keyword to make it a constant.",
+      "starter_code": "public class Auth {\n    public static void main(String[] args) {\n        ______ ______ MAX_LOGIN_ATTEMPTS = ______;\n        System.out.println(\"Max attempts: \" + MAX_LOGIN_ATTEMPTS);\n    }\n}",
+      "expected_solution": "public class Auth {\n    public static void main(String[] args) {\n        final int MAX_LOGIN_ATTEMPTS = 5;\n        System.out.println(\"Max attempts: \" + MAX_LOGIN_ATTEMPTS);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "final", "hint": "Keyword that prevents reassignment" },
+        { "position": 2, "answer": "int", "hint": "Type for whole number 5" },
+        { "position": 3, "answer": "5", "hint": "The value as specified" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Max attempts: 5"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["final int MAX_LOGIN_ATTEMPTS"]
+        }
+      ],
+      "hints": [
+        "Constants use the `final` keyword before the type",
+        "Pattern: final type NAME = value;",
+        "Constants by convention use SCREAMING_SNAKE_CASE (already in the name)"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m1_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Store user information",
+      "scenario": "You're starting to build a simple user registration system. Store the basic info first.",
+      "instructions": "Write a complete Java program in a class named `UserInfo` that:\n1. Declares variables for: name (String), age (int), height in meters (double), and isStudent (boolean)\n2. Use these values: name='Raj Patel', age=22, height=1.75, isStudent=true\n3. Prints each on its own line with a label, like: 'Name: Raj Patel'",
+      "starter_code": "// Write your program below\n",
+      "expected_solution": "public class UserInfo {\n    public static void main(String[] args) {\n        String name = \"Raj Patel\";\n        int age = 22;\n        double height = 1.75;\n        boolean isStudent = true;\n        \n        System.out.println(\"Name: \" + name);\n        System.out.println(\"Age: \" + age);\n        System.out.println(\"Height: \" + height);\n        System.out.println(\"Is Student: \" + isStudent);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Name: Raj Patel\nAge: 22\nHeight: 1.75\nIs Student: true"
+        }
+      ],
+      "hints": [
+        "Use String for text (double quotes)",
+        "Use int for age (whole number)",
+        "Use double for height (has decimals)",
+        "Use boolean for isStudent (true/false)",
+        "Use + to concatenate strings with variables in println"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t2_ex_5",
+      "level": "easy",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Predict variable output",
+      "scenario": "Reading code is half of programming. Predict what this program prints.",
+      "instructions": "What does this code print? Type the exact output.\n\n```java\npublic class Math1 {\n    public static void main(String[] args) {\n        int a = 10;\n        int b = 3;\n        int c = a + b;\n        int d = a * b;\n        System.out.println(\"a=\" + a + \", b=\" + b);\n        System.out.println(\"sum=\" + c);\n        System.out.println(\"product=\" + d);\n    }\n}\n```",
+      "expected_solution": "a=10, b=3\nsum=13\nproduct=30",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "a=10, b=3\nsum=13\nproduct=30"
+        }
+      ],
+      "hints": [
+        "c = a + b = 10 + 3 = 13",
+        "d = a * b = 10 * 3 = 30",
+        "Strings concatenate with + when mixed with variables"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m1_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Simple calculation",
+      "scenario": "You're building a tip calculator for a restaurant app.",
+      "instructions": "Write a class `TipCalculator` that:\n1. Stores a bill amount of 1250.00 (use double)\n2. Stores a tip percentage of 15.0 (use double)\n3. Calculates the tip amount\n4. Calculates the total (bill + tip)\n5. Prints all three values\n\nExpected output:\nBill: 1250.0\nTip (15.0%): 187.5\nTotal: 1437.5",
+      "starter_code": "// Write your TipCalculator class below\n",
+      "expected_solution": "public class TipCalculator {\n    public static void main(String[] args) {\n        double billAmount = 1250.00;\n        double tipPercentage = 15.0;\n        \n        double tipAmount = billAmount * (tipPercentage / 100);\n        double total = billAmount + tipAmount;\n        \n        System.out.println(\"Bill: \" + billAmount);\n        System.out.println(\"Tip (\" + tipPercentage + \"%): \" + tipAmount);\n        System.out.println(\"Total: \" + total);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Bill: 1250.0\nTip (15.0%): 187.5\nTotal: 1437.5"
+        }
+      ],
+      "hints": [
+        "Use double for all monetary values (decimals)",
+        "Tip percentage 15.0 needs to be converted to decimal: divide by 100",
+        "tipAmount = billAmount * (tipPercentage / 100)",
+        "Format the println carefully — match the expected output exactly"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m1_t2_ex_7",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the type errors",
+      "scenario": "Your colleague's code won't compile. They mixed up types. Find and fix all the bugs.",
+      "instructions": "This code has 4 type-related bugs. Fix them so it compiles and prints correctly.",
+      "starter_code": "public class Inventory {\n    public static void main(String[] args) {\n        int productPrice = 99.99;\n        String quantity = 50;\n        boolean inStock = \"yes\";\n        char category = \"A\";\n        \n        System.out.println(\"Price: \" + productPrice);\n        System.out.println(\"Quantity: \" + quantity);\n        System.out.println(\"In stock: \" + inStock);\n        System.out.println(\"Category: \" + category);\n    }\n}",
+      "expected_solution": "public class Inventory {\n    public static void main(String[] args) {\n        double productPrice = 99.99;\n        int quantity = 50;\n        boolean inStock = true;\n        char category = 'A';\n        \n        System.out.println(\"Price: \" + productPrice);\n        System.out.println(\"Quantity: \" + quantity);\n        System.out.println(\"In stock: \" + inStock);\n        System.out.println(\"Category: \" + category);\n    }\n}",
+      "bugs": [
+        {
+          "line": 3,
+          "issue": "productPrice has a decimal (99.99) but declared as int. Should be double.",
+          "fix": "Change int to double"
+        },
+        {
+          "line": 4,
+          "issue": "quantity is the number 50 but declared as String. Should be int.",
+          "fix": "Change String to int (and remove the quotes? No, value 50 is already a number, just type was wrong)"
+        },
+        {
+          "line": 5,
+          "issue": "inStock is boolean but assigned String 'yes'. Should be true.",
+          "fix": "Change \"yes\" to true (no quotes)"
+        },
+        {
+          "line": 6,
+          "issue": "category is char but uses double quotes 'A' (which is String). Use single quotes.",
+          "fix": "Change \"A\" to 'A'"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Price: 99.99\nQuantity: 50\nIn stock: true\nCategory: A",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Look at each variable's value — does it match the declared type?",
+        "Decimals need double, not int",
+        "Numbers without quotes are int/double, with quotes they're String",
+        "boolean is true/false (no quotes), char is single quotes, String is double quotes"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["primitive_vs_reference_confusion", "type_mismatch_assignment"]
+    },
+    
+    {
+      "id": "java_m1_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Handle large numbers",
+      "scenario": "You're storing the total number of YouTube views for a viral video. Some videos have over 5 billion views — way beyond int's range.",
+      "instructions": "Write a class `ViewCounter` that:\n1. Stores video title as String: 'Most Viewed Video'\n2. Stores view count: 5_234_891_753 (5.2 billion)\n3. Prints both with labels\n\nHint: int won't work for this number. You'll need a different type and a special suffix.\n\nExpected output:\nTitle: Most Viewed Video\nViews: 5234891753",
+      "starter_code": "// Write your ViewCounter class below\n",
+      "expected_solution": "public class ViewCounter {\n    public static void main(String[] args) {\n        String title = \"Most Viewed Video\";\n        long viewCount = 5234891753L;\n        \n        System.out.println(\"Title: \" + title);\n        System.out.println(\"Views: \" + viewCount);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Title: Most Viewed Video\nViews: 5234891753"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["long"],
+          "description": "Must use long type for views"
+        }
+      ],
+      "hints": [
+        "int maxes at about 2.1 billion. 5.2 billion needs `long`.",
+        "Long literals need an L suffix: 5234891753L (capital L preferred to avoid confusion with 1)",
+        "You can use underscores in number literals for readability: 5_234_891_753L"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["int_overflow"]
+    },
+    
+    {
+      "id": "java_m1_t2_ex_9",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Integer vs decimal division",
+      "scenario": "There's a famous gotcha in Java involving integer division. Test if you spot it.",
+      "instructions": "What does this code print? Pay close attention to types.\n\n```java\npublic class Division {\n    public static void main(String[] args) {\n        int a = 10;\n        int b = 3;\n        double c = 10;\n        double d = 3;\n        \n        System.out.println(a / b);\n        System.out.println(c / d);\n        System.out.println(a / d);\n    }\n}\n```",
+      "expected_solution": "3\n3.3333333333333335\n3.3333333333333335",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "3\n3.3333333333333335\n3.3333333333333335"
+        }
+      ],
+      "hints": [
+        "When BOTH operands are int, Java does INTEGER division (truncates decimals)",
+        "10 / 3 with both ints = 3 (the .333 is dropped)",
+        "If EITHER operand is double, result is double",
+        "10.0 / 3.0 = 3.3333... (about)",
+        "The strange last digit (5) is floating-point precision quirk"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "integer_division_gotcha"
+    },
+    
+    {
+      "id": "java_m1_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Distance converter",
+      "scenario": "You're working on a fitness app. Convert kilometers to miles.",
+      "instructions": "Write a class `DistanceConverter` that:\n1. Stores a distance in km as 10.0 (double)\n2. Uses the conversion factor 0.621371 (constant — must be `final`)\n3. Calculates miles = km * conversion factor\n4. Prints both values formatted as:\nKilometers: 10.0\nMiles: 6.21371",
+      "starter_code": "// Write your DistanceConverter class below\n",
+      "expected_solution": "public class DistanceConverter {\n    public static void main(String[] args) {\n        double kilometers = 10.0;\n        final double KM_TO_MILES = 0.621371;\n        \n        double miles = kilometers * KM_TO_MILES;\n        \n        System.out.println(\"Kilometers: \" + kilometers);\n        System.out.println(\"Miles: \" + miles);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Kilometers: 10.0\nMiles: 6.21371"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["final"],
+          "description": "Conversion factor should be final (constant)"
+        }
+      ],
+      "hints": [
+        "The conversion factor never changes — make it a constant with `final`",
+        "Constants use SCREAMING_SNAKE_CASE: KM_TO_MILES",
+        "Multiply km by the factor to get miles",
+        "All values should be double (decimals)"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m1_t2_ex_11",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the constant error",
+      "scenario": "Your teammate tried to modify a constant. The compiler is angry.",
+      "instructions": "This code won't compile. Identify why and fix it. You need to change the LOGIC (not just remove the final keyword) so the program produces this output:\n\nOriginal price: 1000.0\nDiscount: 10.0%\nFinal price: 900.0",
+      "starter_code": "public class Discount {\n    public static void main(String[] args) {\n        final double originalPrice = 1000.0;\n        final double discountPercent = 10.0;\n        \n        // Trying to update the price after discount\n        originalPrice = originalPrice - (originalPrice * discountPercent / 100);\n        \n        System.out.println(\"Original price: 1000.0\");\n        System.out.println(\"Discount: \" + discountPercent + \"%\");\n        System.out.println(\"Final price: \" + originalPrice);\n    }\n}",
+      "expected_solution": "public class Discount {\n    public static void main(String[] args) {\n        final double originalPrice = 1000.0;\n        final double discountPercent = 10.0;\n        \n        double finalPrice = originalPrice - (originalPrice * discountPercent / 100);\n        \n        System.out.println(\"Original price: \" + originalPrice);\n        System.out.println(\"Discount: \" + discountPercent + \"%\");\n        System.out.println(\"Final price: \" + finalPrice);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Original price: 1000.0\nDiscount: 10.0%\nFinal price: 900.0",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "You can't reassign a `final` variable — that's the whole point",
+        "The fix: create a NEW variable for the discounted price",
+        "originalPrice and discountPercent should stay final (they don't change)",
+        "Add: `double finalPrice = ...` for the calculated result"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "final_keyword_semantics"
+    },
+    
+    {
+      "id": "java_m1_t2_ex_12",
+      "level": "medium",
+      "type": "refactor",
+      "difficulty": 4,
+      "title": "Improve variable naming",
+      "scenario": "Code review: your teammate's code works but has terrible variable names. Refactor it.",
+      "instructions": "The code below works correctly but uses bad variable names. Refactor it with proper, descriptive names. Keep the same output. Bad names to fix: `x`, `y`, `z`, `temp`.\n\nUse: `monthlyIncome`, `monthlyExpenses`, `monthlySavings`, `yearlySavings`",
+      "starter_code": "public class Finance {\n    public static void main(String[] args) {\n        double x = 75000.0;\n        double y = 50000.0;\n        double z = x - y;\n        double temp = z * 12;\n        \n        System.out.println(\"Monthly income: \" + x);\n        System.out.println(\"Monthly expenses: \" + y);\n        System.out.println(\"Monthly savings: \" + z);\n        System.out.println(\"Yearly savings: \" + temp);\n    }\n}",
+      "expected_solution": "public class Finance {\n    public static void main(String[] args) {\n        double monthlyIncome = 75000.0;\n        double monthlyExpenses = 50000.0;\n        double monthlySavings = monthlyIncome - monthlyExpenses;\n        double yearlySavings = monthlySavings * 12;\n        \n        System.out.println(\"Monthly income: \" + monthlyIncome);\n        System.out.println(\"Monthly expenses: \" + monthlyExpenses);\n        System.out.println(\"Monthly savings: \" + monthlySavings);\n        System.out.println(\"Yearly savings: \" + yearlySavings);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Monthly income: 75000.0\nMonthly expenses: 50000.0\nMonthly savings: 25000.0\nYearly savings: 300000.0"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["monthlyIncome", "monthlyExpenses", "monthlySavings", "yearlySavings"],
+          "must_not_contain": ["int x ", "double x ", " temp "]
+        }
+      ],
+      "hints": [
+        "Find-and-replace each variable: x → monthlyIncome, y → monthlyExpenses, etc.",
+        "Update both the declarations AND every place the variable is used",
+        "Don't forget to update inside println statements too"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "naming_conventions"
+    },
+    
+    {
+      "id": "java_m1_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Build an order summary",
+      "scenario": "You're building part of an e-commerce checkout system. Calculate the full order summary.",
+      "instructions": "Write a class `OrderSummary` that:\n\n1. Declares variables for an order:\n   - customer name (String): 'Aisha Khan'\n   - item count (int): 3\n   - unit price (double): 599.99\n   - tax rate constant (final double): 18.0 (representing 18%)\n   - shipping fee constant (final double): 50.0\n\n2. Calculates:\n   - subtotal = item count × unit price\n   - tax amount = subtotal × (tax rate / 100)\n   - total = subtotal + tax amount + shipping fee\n\n3. Prints a clean order summary matching this exact format:\n\n========================================\n            ORDER SUMMARY\n========================================\nCustomer: Aisha Khan\nItems:    3\nUnit Price: 599.99\n----------------------------------------\nSubtotal:   1799.97\nTax (18.0%): 323.9946\nShipping:   50.0\n----------------------------------------\nTotal:      2173.9646\n========================================",
+      "starter_code": "// Write your OrderSummary class below\n",
+      "expected_solution": "public class OrderSummary {\n    public static void main(String[] args) {\n        // Order data\n        String customerName = \"Aisha Khan\";\n        int itemCount = 3;\n        double unitPrice = 599.99;\n        final double TAX_RATE = 18.0;\n        final double SHIPPING_FEE = 50.0;\n        \n        // Calculations\n        double subtotal = itemCount * unitPrice;\n        double taxAmount = subtotal * (TAX_RATE / 100);\n        double total = subtotal + taxAmount + SHIPPING_FEE;\n        \n        // Output\n        System.out.println(\"========================================\");\n        System.out.println(\"            ORDER SUMMARY\");\n        System.out.println(\"========================================\");\n        System.out.println(\"Customer: \" + customerName);\n        System.out.println(\"Items:    \" + itemCount);\n        System.out.println(\"Unit Price: \" + unitPrice);\n        System.out.println(\"----------------------------------------\");\n        System.out.println(\"Subtotal:   \" + subtotal);\n        System.out.println(\"Tax (\" + TAX_RATE + \"%): \" + taxAmount);\n        System.out.println(\"Shipping:   \" + SHIPPING_FEE);\n        System.out.println(\"----------------------------------------\");\n        System.out.println(\"Total:      \" + total);\n        System.out.println(\"========================================\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "========================================\n            ORDER SUMMARY\n========================================\nCustomer: Aisha Khan\nItems:    3\nUnit Price: 599.99\n----------------------------------------\nSubtotal:   1799.97\nTax (18.0%): 323.9946\nShipping:   50.0\n----------------------------------------\nTotal:      2173.9646\n========================================",
+          "must_compile": true
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["final double TAX_RATE", "final double SHIPPING_FEE"]
+        }
+      ],
+      "hints": [
+        "Use the right type for each variable (String, int, double)",
+        "Make TAX_RATE and SHIPPING_FEE final (constants)",
+        "Calculations: subtotal first, then tax, then total",
+        "Match the spacing in the output exactly — labels are aligned",
+        "Header has 12 spaces before 'ORDER SUMMARY' (centered in 40 chars)"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m1_t2_ex_14",
+      "level": "hard",
+      "type": "predict_output",
+      "difficulty": 5,
+      "title": "Type conversion challenge",
+      "scenario": "Type conversion has subtle gotchas. Read this carefully.",
+      "instructions": "What does this print? Watch out for integer division and type interactions.\n\n```java\npublic class TypeQuiz {\n    public static void main(String[] args) {\n        int a = 7;\n        int b = 2;\n        double c = 7;\n        \n        System.out.println(a / b);\n        System.out.println(a / b + 0.0);\n        System.out.println((double) a / b);\n        System.out.println(c / b);\n    }\n}\n```",
+      "expected_solution": "3\n3.0\n3.5\n3.5",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "3\n3.0\n3.5\n3.5"
+        }
+      ],
+      "hints": [
+        "Line 1: int/int = int. 7/2 = 3 (truncated).",
+        "Line 2: a/b is calculated FIRST (= 3), THEN + 0.0 converts to double = 3.0",
+        "Line 3: (double) a converts a to double BEFORE division. 7.0/2 = 3.5",
+        "Line 4: c is already double. double/int = double. 7.0/2 = 3.5"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "type_conversion_and_casting"
+    },
+    
+    {
+      "id": "java_m1_t2_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Build a savings goal tracker",
+      "scenario": "You're building a financial planning tool. Calculate how much someone needs to save monthly to reach a goal.",
+      "instructions": "Write a class `SavingsGoal` that calculates monthly savings needed:\n\nDATA:\n- Goal amount: 500000.0 (₹5 lakh)\n- Current savings: 75000.0\n- Months to save: 24\n- Annual interest rate (constant): 6.5%\n\nCALCULATIONS:\n1. Remaining amount needed = goal - current savings\n2. Monthly interest rate = annual rate / 12 / 100\n3. Estimated total interest over the period: current savings × monthly interest rate × months\n4. Adjusted amount needed = remaining - estimated interest\n5. Monthly savings required = adjusted amount needed / months\n\nOUTPUT EXACTLY:\n=====================================\n        SAVINGS GOAL PLANNER\n=====================================\nGoal amount:        500000.0\nCurrent savings:    75000.0\nMonths to save:     24\nInterest rate:      6.5% per year\n-------------------------------------\nRemaining needed:   425000.0\nEst. interest gain: 9750.0\nMonthly savings:    17302.083333333332\n=====================================",
+      "starter_code": "// Write your SavingsGoal class below\n",
+      "expected_solution": "public class SavingsGoal {\n    public static void main(String[] args) {\n        // Goal data\n        double goalAmount = 500000.0;\n        double currentSavings = 75000.0;\n        int months = 24;\n        final double ANNUAL_INTEREST_RATE = 6.5;\n        \n        // Calculations\n        double remainingNeeded = goalAmount - currentSavings;\n        double monthlyInterestRate = ANNUAL_INTEREST_RATE / 12 / 100;\n        double estimatedInterest = currentSavings * monthlyInterestRate * months;\n        double adjustedRemaining = remainingNeeded - estimatedInterest;\n        double monthlySavings = adjustedRemaining / months;\n        \n        // Output\n        System.out.println(\"=====================================\");\n        System.out.println(\"        SAVINGS GOAL PLANNER\");\n        System.out.println(\"=====================================\");\n        System.out.println(\"Goal amount:        \" + goalAmount);\n        System.out.println(\"Current savings:    \" + currentSavings);\n        System.out.println(\"Months to save:     \" + months);\n        System.out.println(\"Interest rate:      \" + ANNUAL_INTEREST_RATE + \"% per year\");\n        System.out.println(\"-------------------------------------\");\n        System.out.println(\"Remaining needed:   \" + remainingNeeded);\n        System.out.println(\"Est. interest gain: \" + estimatedInterest);\n        System.out.println(\"Monthly savings:    \" + monthlySavings);\n        System.out.println(\"=====================================\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "=====================================\n        SAVINGS GOAL PLANNER\n=====================================\nGoal amount:        500000.0\nCurrent savings:    75000.0\nMonths to save:     24\nInterest rate:      6.5% per year\n-------------------------------------\nRemaining needed:   425000.0\nEst. interest gain: 9750.0\nMonthly savings:    17302.083333333332\n=====================================",
+          "must_compile": true
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["final"],
+          "description": "Interest rate should be final"
+        }
+      ],
+      "hints": [
+        "Follow the calculations in order — each step uses the previous result",
+        "ANNUAL_INTEREST_RATE / 12 / 100 — order matters: first divide by 12 (to get monthly), then by 100 (to convert percentage)",
+        "All money values should be double",
+        "The strange decimal in 'Monthly savings' (17302.083333333332) is normal floating-point",
+        "Make the interest rate a constant with `final`"
+      ],
+      "xp_reward": 90
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 3,
+      "code_scratch": 6,
+      "debug": 2,
+      "predict_output": 3,
+      "refactor": 1
+    },
+    "total_xp_possible": 615,
+    "estimated_completion_minutes": 35
+  },
+  
+  "gap_detection_map": {
+    "int_overflow": ["ex_8"],
+    "primitive_vs_reference_confusion": ["ex_7"],
+    "type_mismatch_assignment": ["ex_7"],
+    "integer_division_gotcha": ["ex_9", "ex_14"],
+    "type_conversion_and_casting": ["ex_14"],
+    "final_keyword_semantics": ["ex_3", "ex_10", "ex_11"],
+    "naming_conventions": ["ex_12"]
+  }
+}

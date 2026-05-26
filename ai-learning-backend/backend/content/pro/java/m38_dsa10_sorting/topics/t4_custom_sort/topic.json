@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m38_t4",
+  "module_id": "m38",
+  "topic_number": 4,
+  "name": "Custom Sort \u2014 Comparators, Stable Sort, Sort by Multiple Keys",
+  "slug": "custom-sort-comparators-stable",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m38_t2"
+    ],
+    "concepts_taught": [
+      "custom-sort-comparators-stable"
+    ],
+    "career_relevance": "Core Custom Sort \u2014 Comparators, Stable Sort, Sort by Multiple Keys patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Custom Sort \u2014 Comparators, Stable Sort, Sort by Multiple Keys"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Custom comparator: (a,b)->a[0]-b[0] for int[] by first element",
+        "Multi-key sort: .thenComparingInt().thenComparingInt()",
+        "Comparator.comparing(f).thenComparing(g): fluent API",
+        "Stable sort guarantees: Arrays.sort(objects) is TimSort (stable)",
+        "Negative comparator warning: a-b can overflow for large negatives \u2014 use Integer.compare(a,b)",
+        "Sort with lambda: Arrays.sort(arr, (a,b)->Integer.compare(a,b))"
+      ],
+      "next_topic_preview": "Next: Sort synthesis."
+    }
+  }
+}

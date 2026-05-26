@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t5",
+  "language": "java",
+  "module_id": "m11",
+  "module_name": "I/O, Files, and Networking",
+  "topic_number": 5,
+  "name": "Async I/O with HttpClient and CompletableFuture",
+  "slug": "async-io-completable-future",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m10_t5", "java_m11_t4"],
+    "concepts_taught": [
+      "httpclient_send_async",
+      "completable_future_http_response",
+      "then_apply_for_json_parsing",
+      "then_accept_for_response_handling",
+      "exceptionally_for_http_errors",
+      "all_of_for_parallel_requests",
+      "any_of_for_fastest_response",
+      "fan_out_collect_pattern",
+      "async_error_handling_chain",
+      "blocking_vs_non_blocking_http",
+      "combining_io_with_concurrency"
+    ],
+    "skills_developed": [
+      "making_async_http_requests",
+      "chaining_json_parsing_to_async_calls",
+      "fanning_out_to_multiple_endpoints",
+      "handling_async_http_errors",
+      "collecting_parallel_api_responses",
+      "writing_non_blocking_http_pipelines"
+    ],
+    "career_relevance": "Async HTTP is the pattern behind every modern reactive backend. Spring WebFlux, Vert.x, Quarkus Reactive — all use this model. A blocking thread per HTTP call is fine for 100 concurrent users; async is what allows 10,000. HttpClient.sendAsync() returning CompletableFuture is the bridge between Modules 10 and 11. After this topic, you write production-grade non-blocking HTTP pipelines — the most valuable concurrent programming skill in modern Java.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Flipkart's search results page calls 8 microservices simultaneously: catalog, pricing, ratings, inventory, ads, recommendations, shipping, promotions.\n\n**Blocking approach (Topic 11.4) — 8 threads all waiting:**\n```java\n// Sequential or using ExecutorService + Future.get():\nfor (String service : services) {\n    HttpResponse<String> r = client.send(request, BodyHandlers.ofString());\n    // Thread BLOCKED until each response arrives\n    results.add(parse(r.body()));\n}\n// If each service takes 100ms: total = 800ms\n```\n\n**Async approach — 8 requests fire simultaneously, zero threads blocked:**\n```java\nList<CompletableFuture<ServiceResult>> futures = services.stream()\n    .map(service -> client\n        .sendAsync(buildRequest(service), BodyHandlers.ofString())\n        .thenApply(response -> parse(response.body()))\n        .exceptionally(ex -> defaultResult(service)))\n    .collect(Collectors.toList());\n\nCompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n    .thenRun(() -> {\n        List<ServiceResult> results = futures.stream()\n            .map(CompletableFuture::join)\n            .collect(Collectors.toList());\n        assemblePage(results);\n    })\n    .join();\n// 8 services in parallel → total = ~100ms (the slowest service)\n```\n\nThis is the difference between `client.send()` (blocking, Topic 11.4) and `client.sendAsync()` (non-blocking, Topic 11.5). The only change is one method name — but the implications for throughput are enormous.\n\nThis topic combines everything: Module 10's CompletableFuture + Module 11's HttpClient. You've built to this point.",
+    "what_you_will_build": "By the end of this topic, you'll use `sendAsync()` to fire multiple HTTP requests simultaneously, chain JSON parsing with `thenApply()`, handle errors with `exceptionally()`, combine parallel requests with `allOf()`, and understand when async HTTP provides real advantages over blocking."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "send_async": "**`client.sendAsync()` — the non-blocking alternative to `send()`:**\n\n```java\nimport java.net.http.*;\nimport java.util.concurrent.*;\n\nHttpClient client = HttpClient.newHttpClient();\nHttpRequest request = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.example.com/quotes/TCS\"))\n    .GET().build();\n\n// BLOCKING (Topic 11.4):\nHttpResponse<String> response = client.send(request,\n    HttpResponse.BodyHandlers.ofString());  // thread BLOCKS here\n\n// NON-BLOCKING (Topic 11.5):\nCompletableFuture<HttpResponse<String>> future = client.sendAsync(request,\n    HttpResponse.BodyHandlers.ofString());  // returns IMMEDIATELY — no blocking\n// The thread is free to do other work\n// future completes when the response arrives\n```\n\n**`sendAsync()` returns `CompletableFuture<HttpResponse<T>>`** — the same CF you learned in Topic 10.5, but produced by an HTTP operation.\n\nFrom here, all CF operations apply: `thenApply()`, `thenCompose()`, `exceptionally()`, `allOf()`, `anyOf()`.",
+
+      "chaining_parse": "**Chaining JSON parsing to the async response:**\n\n```java\nObjectMapper mapper = new ObjectMapper();\n\n// Pattern: sendAsync → thenApply (check status) → thenApply (parse JSON):\nCompletableFuture<StockQuote> quoteFuture = client\n    .sendAsync(request, HttpResponse.BodyHandlers.ofString())\n    .thenApply(response -> {\n        if (response.statusCode() != 200) {\n            throw new RuntimeException(\"HTTP \" + response.statusCode());\n        }\n        return response.body();\n    })\n    .thenApply(body -> {\n        try {\n            return mapper.readValue(body, StockQuote.class);\n        } catch (Exception e) {\n            throw new RuntimeException(\"Parse error: \" + e.getMessage(), e);\n        }\n    })\n    .exceptionally(ex -> {\n        System.err.println(\"Fetch failed: \" + ex.getMessage());\n        return StockQuote.empty();  // fallback\n    });\n\n// Don't block yet — the future is running in the background\n// ... do other setup work ...\n\n// Later, when you need the result:\nStockQuote quote = quoteFuture.join();  // block here, result is likely already ready\n```",
+
+      "fan_out_collect": "**Fan-out pattern — multiple async requests simultaneously:**\n\n```java\nList<String> symbols = List.of(\"TCS\", \"RELIANCE\", \"INFY\", \"HDFC\", \"WIPRO\");\n\n// Fire ALL 5 requests simultaneously — none blocks:\nList<CompletableFuture<StockQuote>> futures = symbols.stream()\n    .map(symbol -> client\n        .sendAsync(buildRequest(symbol), HttpResponse.BodyHandlers.ofString())\n        .thenApply(r -> r.statusCode() == 200 ? parseQuote(r.body()) : null)\n        .exceptionally(ex -> null))\n    .collect(Collectors.toList());\n\n// Wait for ALL to complete:\nCompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n    .thenRun(() -> {\n        List<StockQuote> quotes = futures.stream()\n            .map(CompletableFuture::join)  // join() is instant — already done\n            .filter(Objects::nonNull)\n            .collect(Collectors.toList());\n        \n        System.out.printf(\"Fetched %d quotes%n\", quotes.size());\n        quotes.forEach(q -> System.out.printf(\"%-12s ₹%,.0f  %+.1f%%%n\",\n            q.symbol(), q.price(), q.changePercent()));\n    })\n    .join();  // main thread blocks here until all done\n\n// Total time: ~max(all response times), not ~sum\n```",
+
+      "error_handling_async": "**Error handling in async HTTP chains:**\n\n```java\n// Three layers of error: network, HTTP status, JSON parse\nCompletableFuture<String> result = client\n    .sendAsync(request, HttpResponse.BodyHandlers.ofString())\n    \n    // Layer 1: check HTTP status\n    .thenApply(response -> {\n        int status = response.statusCode();\n        if (status == 404) throw new RuntimeException(\"NOT_FOUND\");\n        if (status == 429) throw new RuntimeException(\"RATE_LIMITED\");\n        if (status >= 500) throw new RuntimeException(\"SERVER_ERROR:\" + status);\n        return response.body();\n    })\n    \n    // Layer 2: parse JSON\n    .thenApply(body -> {\n        try { return mapper.readTree(body).path(\"result\").asText(); }\n        catch (Exception e) { throw new RuntimeException(\"PARSE_ERROR\", e); }\n    })\n    \n    // Layer 3: catch ANYTHING from above\n    .exceptionally(ex -> {\n        String cause = ex.getCause() != null ? ex.getCause().getMessage() : ex.getMessage();\n        if (cause.startsWith(\"NOT_FOUND\"))    return \"[not found]\"; \n        if (cause.startsWith(\"RATE_LIMITED\")) return \"[rate limited]\";\n        return \"[error: \" + cause + \"]\";\n    });\n```",
+
+      "any_of_fastest": "**anyOf — first successful response wins:**\n\n```java\n// Redundant request to 3 CDN endpoints — use whichever responds first:\nString[] cdnUrls = {\n    \"https://cdn1.example.com/data\",\n    \"https://cdn2.example.com/data\",\n    \"https://cdn3.example.com/data\"\n};\n\nList<CompletableFuture<String>> futures = Arrays.stream(cdnUrls)\n    .map(url -> client\n        .sendAsync(\n            HttpRequest.newBuilder().uri(URI.create(url)).GET().build(),\n            HttpResponse.BodyHandlers.ofString())\n        .thenApply(HttpResponse::body)\n        .exceptionally(ex -> null))\n    .collect(Collectors.toList());\n\nCompletableFuture.anyOf(futures.toArray(new CompletableFuture[0]))\n    .thenAccept(fastest -> System.out.println(\"Fastest CDN: \" + fastest))\n    .join();\n```",
+
+      "blocking_vs_async": "**When to use async vs blocking:**\n\n```\n                    Blocking          Async\n                    (send)            (sendAsync)\n─────────────────────────────────────────────\nSequential calls    OK                Same speed\nParallel calls      1 thread each     0 threads blocked\nSimple scripts      ✓ easier          ✗ more complex\nHigh concurrency    ✗ threads scale   ✓ ideal\nCallback style      ✗ doesn't fit     ✓ natural\n─────────────────────────────────────────────\n```\n\n**Use blocking when:**\n- Simple script or one-off tool\n- Sequential operations where each depends on the previous\n- Low concurrency (< 100 parallel calls)\n\n**Use async when:**\n- Fan-out to multiple services simultaneously\n- High-throughput API gateway\n- Reactive/WebFlux application\n- You need to maximise throughput with minimal threads"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two-part timing diagram: (1) Blocking - 5 HTTP calls sequential, each a solid bar taking 100ms, total = 500ms. One thread active throughout, labeled 'BLOCKED'. (2) Async - 5 HTTP calls all starting at t=0 as thin launch arrows, all completing around t=100ms. Thread only active at start (launch) and end (process results). Total = ~100ms. Below: the CF chain diagram for sendAsync: sendAsync() → thenApply(check status) → thenApply(parse JSON) → exceptionally(fallback) — each as a connected box. Bottom: allOf fan-out visual — one root launching 5 parallel branches, all converging at allOf, then one final thenRun callback.",
+      "alt_text": "Blocking vs async HTTP timing, sendAsync CompletableFuture chain, and allOf fan-out pattern"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a parallel stock market aggregator. Fetch prices for 5 Nifty 50 stocks simultaneously using sendAsync, parse responses, compute portfolio value, and identify the top mover — all without blocking threads between fetches.",
+
+    "problem_statement": "Use `sendAsync()` to fetch 5 stock quotes simultaneously. Chain JSON parsing with `thenApply()`. Collect all results with `allOf()`. Handle one simulated 404. Print results sorted by change%, then compute portfolio value assuming 10 shares of each.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Define async fetch method",
+        "details": "```java\nstatic CompletableFuture<StockQuote> fetchQuoteAsync(HttpClient client,\n        ObjectMapper mapper, String symbol) {\n    \n    // In real code: actual HTTP request\n    // Here: simulate with mock data:\n    return CompletableFuture.supplyAsync(() -> {\n        // Simulate network: sleep 50-150ms\n        Map<String, double[]> data = Map.of(\n            \"TCS\",      new double[]{3890, 4.1},\n            \"RELIANCE\", new double[]{2450, 1.2},\n            \"INFY\",     new double[]{1560, -3.8},\n            \"HDFC\",     new double[]{1679, 0.8},\n            \"WIPRO\",    new double[]{412,  -1.1}\n        );\n        if (!data.containsKey(symbol))\n            throw new RuntimeException(\"HTTP 404: \" + symbol);\n        double[] d = data.get(symbol);\n        return new StockQuote(symbol, d[0], d[1]);\n    })\n    .exceptionally(ex -> StockQuote.unknown(symbol));\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Fan-out and collect with allOf",
+        "details": "```java\nList<String> symbols = List.of(\"TCS\", \"RELIANCE\", \"INFY\", \"HDFC\", \"WIPRO\", \"UNKNOWN\");\nlong start = System.currentTimeMillis();\n\n// Fire ALL requests simultaneously:\nList<CompletableFuture<StockQuote>> futures = symbols.stream()\n    .map(sym -> fetchQuoteAsync(client, mapper, sym))\n    .collect(Collectors.toList());\n\n// Wait for ALL, then process:\nCompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n    .thenRun(() -> {\n        long elapsed = System.currentTimeMillis() - start;\n        List<StockQuote> quotes = futures.stream()\n            .map(CompletableFuture::join)\n            .collect(Collectors.toList());\n        \n        // Display sorted by change%:\n        System.out.printf(\"Fetched %d quotes in %dms%n\",\n            quotes.stream().filter(q -> !q.isUnknown()).count(), elapsed);\n        quotes.stream()\n            .filter(q -> !q.isUnknown())\n            .sorted((a, b) -> Double.compare(b.changePercent(), a.changePercent()))\n            .forEach(q -> System.out.printf(\"%-12s ₹%,6.0f  %+.1f%%%n\",\n                q.symbol(), q.price(), q.changePercent()));\n    })\n    .join();\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.stream.*;\nimport com.fasterxml.jackson.databind.*;\n\nrecord StockQuote(String symbol, double price, double changePercent) {\n    boolean isUnknown() { return price == 0; }\n    static StockQuote unknown(String sym) { return new StockQuote(sym, 0, 0); }\n}\n\npublic class AsyncStockAggregator {\n    private static final ObjectMapper MAPPER = new ObjectMapper();\n    \n    // Simulates sendAsync + thenApply parse:\n    static CompletableFuture<StockQuote> fetchAsync(String symbol) {\n        return CompletableFuture.supplyAsync(() -> {\n            try { Thread.sleep(50 + (int)(Math.random() * 80)); }\n            catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            \n            Map<String, double[]> data = Map.of(\n                \"TCS\",      new double[]{3890, 4.1},\n                \"RELIANCE\", new double[]{2450, 1.2},\n                \"INFY\",     new double[]{1560, -3.8},\n                \"HDFC\",     new double[]{1679, 0.8},\n                \"WIPRO\",    new double[]{412, -1.1}\n            );\n            if (!data.containsKey(symbol))\n                throw new RuntimeException(\"HTTP 404: \" + symbol);\n            double[] d = data.get(symbol);\n            return new StockQuote(symbol, d[0], d[1]);\n        }).exceptionally(ex -> {\n            System.out.printf(\"  [%-8s] ERROR: %s%n\", symbol, ex.getCause().getMessage());\n            return StockQuote.unknown(symbol);\n        });\n    }\n    \n    public static void main(String[] args) throws Exception {\n        List<String> symbols = List.of(\"TCS\", \"RELIANCE\", \"INFY\", \"HDFC\", \"WIPRO\", \"BADSTOCK\");\n        long start = System.currentTimeMillis();\n        \n        System.out.println(\"Fetching \" + symbols.size() + \" quotes in parallel...\");\n        \n        List<CompletableFuture<StockQuote>> futures = symbols.stream()\n            .map(AsyncStockAggregator::fetchAsync)\n            .collect(Collectors.toList());\n        \n        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n            .thenRun(() -> {\n                long ms = System.currentTimeMillis() - start;\n                List<StockQuote> valid = futures.stream()\n                    .map(CompletableFuture::join)\n                    .filter(q -> !q.isUnknown())\n                    .sorted((a, b) -> Double.compare(b.changePercent(), a.changePercent()))\n                    .collect(Collectors.toList());\n                \n                System.out.printf(\"%nFetched %d quotes in %dms (sequential would be ~%dms)%n%n\",\n                    valid.size(), ms, symbols.size() * 90);\n                System.out.printf(\"%-12s %8s  %8s  %12s%n\", \"Symbol\", \"Price\", \"Change\", \"Value@10\");\n                System.out.println(\"-\".repeat(45));\n                valid.forEach(q -> System.out.printf(\"%-12s ₹%,6.0f  %+6.1f%%  ₹%,10.0f%n\",\n                    q.symbol(), q.price(), q.changePercent(), q.price() * 10));\n                \n                double total = valid.stream().mapToDouble(q -> q.price() * 10).sum();\n                System.out.printf(\"%n%-12s %8s  %8s  ₹%,10.0f%n\", \"TOTAL\", \"\", \"\", total);\n                \n                valid.stream().max(Comparator.comparingDouble(StockQuote::changePercent))\n                    .ifPresent(top -> System.out.println(\"\\nTop mover: \" + top.symbol() +\n                        \" at \" + String.format(\"%+.1f%%\", top.changePercent())));\n            })\n            .join();\n    }\n}",
+
+    "expected_output": "Fetching 6 quotes in parallel...\n  [BADSTOCK ] ERROR: HTTP 404: BADSTOCK\n\nFetched 5 quotes in ~80ms (sequential would be ~540ms)\n\nSymbol       Price    Change      Value@10\n---------------------------------------------\nTCS         ₹3,890    +4.1%    ₹38,900\nRELIANCE    ₹2,450    +1.2%    ₹24,500\nHDFC        ₹1,679    +0.8%    ₹16,790\nWIPRO         ₹412    -1.1%     ₹4,120\nINFY        ₹1,560    -3.8%    ₹15,600\n\nTOTAL                          ₹99,910\n\nTop mover: TCS at +4.1%",
+
+    "things_to_notice": [
+      "All 6 requests fire simultaneously — total time is ~80ms (the slowest request), not 6 × 90ms = 540ms sequential. This is the core benefit of async HTTP.",
+      "The error for BADSTOCK is printed immediately when that future completes — not at the end. Exceptions in the supplyAsync lambda are wrapped and delivered to exceptionally().",
+      "join() inside thenRun doesn't block — by the time allOf fires thenRun, all futures are already complete. join() is instant there.",
+      "The main thread's single join() at the very end is the only place the main thread blocks — and only for the ~80ms total. In a real server, you'd return the CompletableFuture to the framework and never call join() at all.",
+      "The sorted() and filter() inside thenRun use the same Stream API from Module 8 — I/O, concurrency, and streams all compose naturally."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart product search page",
+        "use_case": "When you search 'laptop' on Flipkart, the backend fans out to: catalog service (name/images), pricing service (current price + discounts), inventory service (availability), ratings service (review scores), ad service (sponsored products), recommendation service (related items). All 6 calls are fired simultaneously with sendAsync. allOf waits for all, then the page is assembled. If ads service takes >200ms, it's cancelled — the page loads without ads rather than making everyone wait."
+      },
+      {
+        "company_context": "Zerodha market data aggregation",
+        "use_case": "Zerodha's Kite platform shows prices for all stocks in a user's watchlist simultaneously. For a 25-stock watchlist, 25 async HTTP calls fire in parallel — instead of 25 sequential calls taking 2500ms. With sendAsync + allOf, all 25 complete in ~100ms (time of the slowest response). This is why watching prices on Kite feels real-time."
+      },
+      {
+        "company_context": "Spring WebFlux microservices",
+        "use_case": "Spring WebFlux's `WebClient` is the reactive analogue of HttpClient.sendAsync(). A WebFlux endpoint: `return Mono.zip(productService.get(id), ratingService.get(id), inventoryService.get(id)).map(tuple -> assemble(tuple))` — identical conceptually to sendAsync + allOf + thenRun. Understanding sendAsync deeply prepares you for WebClient and reactive programming."
+      }
+    ],
+
+    "interview_relevance": "Async HTTP questions at senior level:\n\n- **'What is the difference between HttpClient.send() and sendAsync()?'** → send() blocks the calling thread until the response arrives. sendAsync() returns immediately with a CompletableFuture — the thread is freed to do other work.\n- **'How would you fetch 10 stock prices in parallel and combine the results?'** → Create 10 CFs from sendAsync, collect to list, CompletableFuture.allOf(list.toArray()), thenRun to join all and process results.\n- **'Why is async HTTP better for high-throughput services?'** → Blocking HTTP requires one thread per concurrent request. Threads are expensive (~1MB stack each). Async HTTP uses I/O threads from the HttpClient pool — far fewer threads handle far more concurrent requests.",
+
+    "real_world_workflow": "Daily async HTTP usage:\n\n- Fan-out to services: stream of symbols → map to sendAsync() → allOf → thenRun collect\n- Error fallback: `.exceptionally(ex -> defaultValue)`\n- Timeout: `.orTimeout(5, TimeUnit.SECONDS)` on the CF (Java 9+)\n- Parse chain: `.thenApply(HttpResponse::body).thenApply(body -> mapper.readValue(body, Type.class))`\n- Combine sequential async steps: `.thenCompose(result -> sendAsync(nextRequest))`"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "join_in_stream_map",
+      "what_students_get_wrong": "Calling `.join()` inside the `.map()` that creates the futures — making them sequential, not parallel.",
+      "remediation": "Create ALL futures first (they all start immediately), THEN allOf, THEN join inside thenRun where they're already complete. Never join() inside the creation stream — that blocks each before the next starts.",
+      "detection_pattern": "Total time is sum of all requests rather than max — async provides no speedup"
+    },
+    {
+      "gap_id": "exception_wrapping_in_then_apply",
+      "what_students_get_wrong": "Calling `mapper.readValue()` directly in thenApply without try-catch — checked IOException causes compile error.",
+      "remediation": "thenApply's Function can't throw checked exceptions. Either: (1) wrap in try-catch inside the lambda, re-throw as RuntimeException; (2) extract to a helper method that handles the exception. exceptionally() at the end catches any RuntimeException from the chain.",
+      "detection_pattern": "Compile error: unhandled JsonProcessingException in lambda"
+    },
+    {
+      "gap_id": "not_joining_main_thread",
+      "what_students_get_wrong": "Not calling .join() on the final allOf chain — program exits before any async work completes.",
+      "remediation": "The main thread must wait for async work to finish. In demos/tests: call .join() on the final CompletableFuture. In Spring/server frameworks: return the CF to the framework — it handles waiting. Without join(), main() returns, JVM exits, all pending async work is abandoned.",
+      "detection_pattern": "Nothing prints, program exits immediately, or incomplete output"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "sendAsync() returns CF<HttpResponse<T>> immediately — no thread blocked",
+      "Chain JSON parsing: .thenApply(r -> checkStatus(r)).thenApply(body -> parse(body))",
+      "Checked exceptions in thenApply → wrap as RuntimeException or use helper method",
+      "Fan-out: stream symbols → map to sendAsync → collect to List<CF> — all start immediately",
+      "allOf(futures.toArray()).thenRun(() -> join each) — wait for all, then collect results",
+      "join() inside thenRun is instant — futures already done when allOf fires",
+      "exceptionally() on each individual CF — per-request fallback (not all-or-nothing)",
+      "Main thread needs .join() on final CF — or pass CF to framework (never need join)",
+      "Async speedup = parallel: total time ≈ max(individual times) vs sum for sequential",
+      "Use blocking when sequential; use async when fan-out or high concurrency",
+      "anyOf() = first-wins: redundant requests to CDN endpoints for fastest response"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Why is this code sequential even though it uses sendAsync?\n```java\nList<StockQuote> results = symbols.stream()\n    .map(sym -> client.sendAsync(req(sym), BodyHandlers.ofString())\n        .thenApply(r -> parse(r.body())).join())  // ← join here!\n    .collect(Collectors.toList());\n```",
+        "answer": "join() is called inside the .map() for each symbol before moving to the next. This means: symbol 1 fires, waits for completion, then symbol 2 fires, waits, etc. All requests are sequential. The fix: remove join() from .map(), collect the CompletableFutures to a list, then call allOf().thenRun(() -> join each). Now all requests fire before any blocking."
+      },
+      {
+        "question": "A thenApply step calls `mapper.readValue(body, Product.class)` which throws checked JsonProcessingException. How do you handle this?",
+        "answer": "thenApply's Function<T,R> cannot declare checked exceptions. Wrap in try-catch inside the lambda and re-throw as unchecked: `try { return mapper.readValue(body, Product.class); } catch (JsonProcessingException e) { throw new RuntimeException(\"JSON parse error\", e); }`. Then add `.exceptionally(ex -> defaultProduct)` at the end of the chain to catch this and any other exception."
+      },
+      {
+        "question": "You have 10 CompletableFutures from sendAsync calls. How do you wait for all of them and collect results, then print them?",
+        "answer": "```java\nCompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n    .thenRun(() -> {\n        List<Result> results = futures.stream()\n            .map(CompletableFuture::join)  // instant — all already done\n            .filter(Objects::nonNull)\n            .collect(Collectors.toList());\n        results.forEach(System.out::println);\n    })\n    .join();  // main thread waits here (or return CF to framework)\n```\njoin() inside thenRun is instant because allOf only fires thenRun after all 10 futures are complete."
+      }
+    ],
+
+    "next_topic_preview": "Module 11: I/O, Files, and Networking is complete! You've covered the full I/O stack: NIO files → buffered streams → structured data → HTTP → async HTTP. The next module (Module 12) moves into databases: JDBC for direct SQL, and an introduction to JPA/Hibernate for object-relational mapping. After Module 12, your Java programs can persist data to databases — the foundation of every real-world backend system."
+  }
+}

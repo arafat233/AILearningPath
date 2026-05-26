@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m36_t4",
+  "module_id": "m36",
+  "topic_number": 4,
+  "name": "K-Way Merge \u2014 K Sorted Lists, K Closest Points",
+  "slug": "k-way-merge-k-sorted-lists",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m36_t2"
+    ],
+    "concepts_taught": [
+      "merge_k_sorted",
+      "k_closest_points",
+      "sort_k_sorted_array",
+      "find_kth_smallest_sorted_matrix",
+      "smallest_range_covering"
+    ],
+    "career_relevance": "Merge K Sorted Lists is the canonical heap-of-heaps problem. K Closest Points is Flipkart's most common medium. Both appear in Amazon's final rounds.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "K-Way Merge \u2014 K Sorted Lists, K Closest Points"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Merge K sorted: PriorityQueue<ListNode> by val. Push heads; extract min; push next.",
+        "K Closest: max-heap of size k on distance\u00b2; evict farthest",
+        "Kth smallest in sorted matrix: min-heap starting from (0,0); push right and down",
+        "Smallest range: push first element from each list; track max; range=[min,max]",
+        "K-way merge complexity: O(N log K) \u2014 N total elements, K lists"
+      ],
+      "next_topic_preview": "Next: Heap Synthesis \u2014 putting it all together."
+    }
+  }
+}

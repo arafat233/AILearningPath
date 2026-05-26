@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t2",
+  "module_id": "m34",
+  "topic_number": 2,
+  "name": "HashMap Patterns \u2014 Grouping, Frequency, Sliding Window",
+  "slug": "hashmap-patterns-grouping-frequency-sliding-window",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m34_t1",
+      "java_m33_t4"
+    ],
+    "concepts_taught": [
+      "group_anagrams",
+      "top_k_frequent",
+      "word_pattern_bijection",
+      "isomorphic_strings",
+      "min_window_substring",
+      "brick_wall",
+      "max_points_line"
+    ],
+    "career_relevance": "Group Anagrams and Top K Frequent are the two most common medium HashMap problems at Flipkart/Amazon. Min Window Substring is a Google hard. Word Pattern bijection (two-way mapping) is a common gotcha question.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```java\n// Zerodha: group stocks by sector signature\n// [RELIANCE, BPCL, ONGC] all in energy sector\n// sorted-name as key \u2192 same group\n// HashMap<sortedKey, List<stock>> \u2192 O(n*m log m)\n```",
+    "what_you_will_build": "Group Anagrams, Top K Frequent, Min Window, Word Pattern, Isomorphic Strings."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "patterns": "Group Anagrams: sorted word as key. Top K: freq map + min-heap of size k. Min Window: required counter."
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Group Anagrams: sorted chars as key O(m log m); freq-encoded key O(m)",
+        "Top K Frequent: freq map + min-heap size k \u2192 O(n log k)",
+        "Word Pattern: two-way bijection needs TWO maps",
+        "Isomorphic: int[128] index trick (store i+1 to distinguish 'not set' from index 0)",
+        "Min Window: required counter, shrink when all satisfied",
+        "Brick Wall: count interior edge positions, answer = rows - max edges"
+      ],
+      "next_topic_preview": "Next: HashSet Applications \u2014 O(1) membership, dedup, union, intersection, cycle detection."
+    }
+  }
+}

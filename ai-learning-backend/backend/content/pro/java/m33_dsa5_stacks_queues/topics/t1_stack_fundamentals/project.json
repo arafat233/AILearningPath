@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m33_t1_proj",
+  "linked_topic": "java_m33_t1",
+  "level": "mini",
+  "name": "Zerodha Expression Validator",
+  "estimated_minutes": 40,
+  "difficulty": 6,
+  "scenario": "Build Zerodha Expression Validator using Valid parens, Min Stack, Daily Temperatures, Calculator II, Histogram.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Implement core algorithms: Valid parens, Min Stack, Daily Temperatures, Calculator II, Histogram. All O(n) unless stated.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 @SpringBootTest tests all pass.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README: key insight for the hardest algorithm.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 additional bonus algorithms with tests.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Key hints for t1_stack_fundamentals: valid+minStack+temps+calc+histogram. See topic README for patterns.",
+  "rubric": [
+    {
+      "category": "Core algorithms",
+      "points": 50
+    },
+    {
+      "category": "4 tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

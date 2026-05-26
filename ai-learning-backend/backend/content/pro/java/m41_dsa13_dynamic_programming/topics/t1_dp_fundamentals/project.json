@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m41_t1_proj",
+  "linked_topic": "java_m41_t1",
+  "level": "mini",
+  "name": "DP Fundamentals \u2014 Memoization, Tabulation, Optimal Substructure",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  "scenario": "Build DP Fundamentals \u2014 Memoization, Tabulation, Optimal Substructure.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Core DP algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Space-optimized versions",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "DP state: define dp[i] meaning. Base case. Recurrence. Coin Change: dp[0]=0, dp[i]=min(dp[i-c]+1). 0/1 Knapsack: iterate j BACKWARDS. LIS: dp[i]=max(dp[j]+1) for all j<i where nums[j]<nums[i]. Edit Distance: match\u2192dp[i-1][j-1]; mismatch\u21921+min(replace,delete,insert).",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t5",
+  "module_id": "m35",
+  "topic_number": 5,
+  "name": "Trie \u2014 Prefix Tree for Autocomplete and Word Search",
+  "slug": "trie-prefix-tree-autocomplete-word-search",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m35_t1",
+      "java_m34_t3"
+    ],
+    "concepts_taught": [
+      "trie_node",
+      "trie_insert",
+      "trie_search",
+      "trie_startsWith",
+      "autocomplete",
+      "word_search_ii",
+      "replace_words",
+      "design_add_search",
+      "map_sum"
+    ],
+    "career_relevance": "Trie is the go-to data structure for string prefix problems. Word Search II (Trie+backtracking) is a Google hard. Autocomplete is implemented in every production search box \u2014 Flipkart, Zerodha, Amazon all use Trie variants.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "// Zerodha stock search: type 'REL' \u2192 suggest [RELIANCE, RELIGARE, RELINFRA]\n// HashMap: O(n) scan all stocks per keystroke\n// Trie: O(m) traverse prefix once, then collect O(k) results\n",
+    "what_you_will_build": "Trie with insert/search/startsWith/autocomplete, Word Search II, Replace Words."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "trie": "Trie node: ch[26] + boolean end. Insert: traverse creating nodes. Search: traverse checking end flag. StartsWith: traverse without checking end."
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Trie node: Trie[] ch=new Trie[26]; boolean end",
+        "Insert: O(m) \u2014 create nodes for each char",
+        "Search: O(m) \u2014 traverse, return ch[i].end",
+        "startsWith: O(m) \u2014 traverse, return true if reached (no end check)",
+        "Autocomplete: DFS from prefix endpoint, collect end-marked words",
+        "Word Search II: build Trie of target words, DFS on grid with Trie traversal",
+        "Replace Words: stop at first complete word in Trie",
+        "MapSum: store cumulative val at each Trie node; insert updates diff"
+      ],
+      "next_topic_preview": "Module 35 complete! Next: M36 DSA8 \u2014 Heaps & Priority Queues."
+    }
+  }
+}

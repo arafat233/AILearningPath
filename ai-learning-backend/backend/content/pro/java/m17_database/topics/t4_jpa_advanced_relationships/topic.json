@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t4",
+  "language": "java",
+  "module_id": "m17",
+  "module_name": "Advanced Database Engineering",
+  "topic_number": 4,
+  "name": "JPA Advanced Relationships",
+  "slug": "jpa-advanced-relationships",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m17_t3"],
+    "concepts_taught": [
+      "many_to_many_relationship",
+      "join_table_configuration",
+      "cascade_types",
+      "cascade_all_vs_specific",
+      "orphan_removal",
+      "bidirectional_relationship_maintenance",
+      "embeddable_value_objects",
+      "embedded_annotation",
+      "attribute_overrides",
+      "element_collection",
+      "collection_table",
+      "soft_delete_pattern",
+      "auditing_with_spring_data",
+      "created_by_last_modified_by"
+    ],
+    "skills_developed": [
+      "modeling_many_to_many_with_join_table",
+      "choosing_correct_cascade_type",
+      "using_embeddable_for_value_objects",
+      "implementing_element_collection",
+      "maintaining_bidirectional_relationships",
+      "soft_deleting_entities"
+    ],
+    "career_relevance": "Real-world domain models always have @ManyToMany (products ↔ categories at Flipkart, users ↔ roles at Razorpay) and value objects (@Embeddable Address, Money at HDFC). Cascade types and orphanRemoval are asked in every senior JPA interview. After this topic, you model complex domains without the usual JPA gotchas that cause data corruption or accidental deletes.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Flipkart's product catalog: a Product belongs to multiple Categories (Electronics, Mobiles, 5G Phones). A Category contains thousands of Products. Standard JPA without the right relationship config:\n\n```java\n// WRONG: causes data corruption\n@ManyToMany(cascade = CascadeType.ALL)  // ← NEVER cascade ALL on @ManyToMany!\nprivate Set<Category> categories;\n\n// What happens:\nproduct.getCategories().clear();  // removes ALL categories from the product\n// CascadeType.ALL includes CascadeType.REMOVE\n// → deletes ALL Category entities from the database!\n// → 'Electronics' category GONE from all products!\n\n// WRONG: orphanRemoval on @ManyToMany\n@OneToMany(orphanRemoval = true)\nprivate List<OrderItem> items;\n// Removing an item from the list deletes it from DB\n// But if two orders reference the same item... both try to delete it!\n```\n\n**The correct patterns:**\n```java\n// @ManyToMany: NEVER cascade REMOVE or use orphanRemoval\n@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})\n@JoinTable(\n    name = \"product_categories\",\n    joinColumns = @JoinColumn(name = \"product_id\"),\n    inverseJoinColumns = @JoinColumn(name = \"category_id\")\n)\nprivate Set<Category> categories;\n\n// @OneToMany with orphanRemoval: SAFE because items are owned by ONE order\n@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)\n@JoinColumn(name = \"order_id\")\nprivate List<OrderItem> items;\n// orphanRemoval = true: removing item from list → deletes from DB (safe: one owner)\n```\n\nUnderstanding cascade types and ownership is what separates 'JPA works by luck' from 'JPA works correctly'.",
+    "what_you_will_build": "By the end of this topic, you'll model @ManyToMany with @JoinTable, choose the right cascade type for each scenario, use @Embeddable for value objects, implement @ElementCollection for simple lists, and safely delete entities with soft delete."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "many_to_many": "**@ManyToMany — bidirectional with @JoinTable:**\n\n```java\n// Product.java (owning side):\n@Entity\npublic class Product {\n    @Id String id;\n    String name;\n    \n    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})\n    @JoinTable(\n        name = \"product_categories\",             // join table name\n        joinColumns = @JoinColumn(name = \"product_id\"),         // FK to this entity\n        inverseJoinColumns = @JoinColumn(name = \"category_id\")  // FK to other entity\n    )\n    private Set<Category> categories = new HashSet<>();\n    \n    // Helper methods to maintain bidirectional relationship:\n    public void addCategory(Category cat) {\n        categories.add(cat);\n        cat.getProducts().add(this);    // ← always update both sides!\n    }\n    public void removeCategory(Category cat) {\n        categories.remove(cat);\n        cat.getProducts().remove(this); // ← always update both sides!\n    }\n}\n\n// Category.java (non-owning / mapped-by side):\n@Entity\npublic class Category {\n    @Id String id;\n    String name;\n    \n    @ManyToMany(mappedBy = \"categories\")  // ← 'categories' field on Product\n    private Set<Product> products = new HashSet<>();\n    \n    public Set<Product> getProducts() { return products; }\n}\n\n// Usage:\nProduct phone = new Product(\"iPhone 15\", 89999);\nCategory electronics = new Category(\"Electronics\");\nCategory mobiles = new Category(\"Mobiles\");\n\nphone.addCategory(electronics);  // helper method updates both sides\nphone.addCategory(mobiles);\nproductRepo.save(phone);  // saves phone + categories (cascade PERSIST)\n// DB: product_categories table has 2 rows\n```",
+
+      "cascade_types": "**Cascade types — what propagates to children:**\n\n```java\n// CascadeType enum values:\nCascadeType.PERSIST  // save parent → save new children too\nCascadeType.MERGE    // update parent → update children too\nCascadeType.REMOVE   // delete parent → delete children\nCascadeType.REFRESH  // refresh parent → refresh children\nCascadeType.DETACH   // detach parent → detach children\nCascadeType.ALL      // all of the above\n\n// SAFE patterns:\n\n// @OneToMany (parent owns children exclusively):\n@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)\n// ALL is safe: order owns its items exclusively; deleting order deletes items\n\n// @ManyToOne (child reference, don't cascade):\n@ManyToOne  // no cascade: saving an Order shouldn't modify/delete its User!\n\n// @ManyToMany (shared references):\n@ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})\n// NEVER REMOVE: categories are shared; deleting product shouldn't delete Electronics!\n// NEVER orphanRemoval on @ManyToMany\n\n// DANGEROUS anti-patterns:\n@ManyToMany(cascade = CascadeType.ALL)  // WRONG: deletes shared entities!\n@ManyToMany(orphanRemoval = true)       // WRONG: doesn't compile (JPA error)\n\n// orphanRemoval:\n@OneToMany(orphanRemoval = true)\n// When an item is removed from the collection, DELETE it from DB.\n// Safe for: exclusive ownership (Order → OrderItem)\n// UNSAFE for: shared references (Product → Category)\n```",
+
+      "embeddable": "**@Embeddable — value objects with no identity:**\n\n```java\nimport jakarta.persistence.*;\n\n// Address is a value object — no ID, no lifecycle of its own:\n@Embeddable\npublic class Address {\n    @Column(name = \"street\", length = 200)\n    private String street;\n    \n    @Column(name = \"city\", length = 100)\n    private String city;\n    \n    @Column(name = \"pincode\", length = 10)\n    private String pincode;\n    \n    @Column(name = \"state\", length = 50)\n    private String state;\n    \n    // No @Id! Embeddable has no identity\n    protected Address() {}\n    public Address(String street, String city, String pincode, String state) {\n        this.street=street; this.city=city; this.pincode=pincode; this.state=state;\n    }\n    // getters...\n}\n\n@Entity @Table(name = \"orders\")\npublic class Order {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    \n    @Embedded  // embedded: Address columns go INTO the orders table\n    private Address shippingAddress;    // columns: street, city, pincode, state\n    \n    // Override column names when embedding twice:\n    @Embedded\n    @AttributeOverrides({\n        @AttributeOverride(name=\"street\",  column=@Column(name=\"billing_street\")),\n        @AttributeOverride(name=\"city\",    column=@Column(name=\"billing_city\")),\n        @AttributeOverride(name=\"pincode\", column=@Column(name=\"billing_pincode\")),\n        @AttributeOverride(name=\"state\",   column=@Column(name=\"billing_state\"))\n    })\n    private Address billingAddress;     // columns: billing_street, billing_city...\n}\n```\n\n**Why @Embeddable instead of @Entity?**\n```\n@Entity Address: needs @Id, own table, own lifecycle, JPA creates proxy\n@Embeddable Address: no ID, columns in parent table, no separate queries\n\nRule: if the concept has no independent identity (only exists as part of another entity)\n      → @Embeddable\n      If it exists independently (other entities reference it) → @Entity\n```",
+
+      "element_collection": "**@ElementCollection — collections of simple values or embeddables:**\n\n```java\n@Entity\npublic class Product {\n    @Id String id;\n    String name;\n    \n    // Collection of simple Strings (stored in a separate table):\n    @ElementCollection\n    @CollectionTable(\n        name = \"product_tags\",\n        joinColumns = @JoinColumn(name = \"product_id\")\n    )\n    @Column(name = \"tag\")\n    private Set<String> tags = new HashSet<>();\n    // product_tags table: (product_id, tag)\n    \n    // Collection of embeddable (value object list):\n    @ElementCollection\n    @CollectionTable(\n        name = \"product_images\",\n        joinColumns = @JoinColumn(name = \"product_id\")\n    )\n    private List<ProductImage> images = new ArrayList<>();\n    // product_images table: (product_id, url, alt_text, display_order)\n}\n\n@Embeddable\npublic class ProductImage {\n    private String url;\n    @Column(name = \"alt_text\") private String altText;\n    @Column(name = \"display_order\") private int displayOrder;\n    // no @Id\n}\n\n// Usage:\nproduct.getTags().add(\"5G\");\nproduct.getTags().add(\"Smartphone\");\nproduct.getImages().add(new ProductImage(\"https://cdn.../img1.jpg\", \"Front view\", 1));\nproductRepo.save(product);\n// → INSERT INTO product_tags (product_id, tag) VALUES (?, '5G'), (?, 'Smartphone')\n// → INSERT INTO product_images (product_id, url, ...) VALUES ...\n\n// WARNING: Hibernate deletes all @ElementCollection rows then re-inserts on every save!\n// Bad for large collections. Fine for small lists (< 20 items).\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) @ManyToMany join table: Product entity box and Category entity box connected by 'product_categories' join table in the middle. product_categories has two FK columns: product_id and category_id. Arrow from Product labeled '@JoinTable(joinColumns=product_id, inverseJoinColumns=category_id)'. Arrow from Category labeled '@ManyToMany(mappedBy=categories)'. Helper methods addCategory/removeCategory shown updating both sides. (2) Cascade type safety matrix: rows=relationship type (@OneToMany, @ManyToMany, @ManyToOne), columns=cascade type (PERSIST, MERGE, REMOVE, ALL, orphanRemoval). Color coding: green for safe, red for dangerous. @ManyToMany + REMOVE = red X with label 'DELETES SHARED ENTITY'. @OneToMany + ALL + orphanRemoval = green checkmark. (3) @Embeddable storage: Order table columns shown including id, status, street, city, pincode (from @Embedded Address) — all in one table. Compare to @Entity Address: separate table with FK join. Label: '@Embeddable = no extra table, no extra query'.",
+      "alt_text": "@ManyToMany join table structure, cascade type safety matrix, and @Embeddable vs @Entity storage comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Model the Flipkart product catalog: Products belong to multiple Categories, each Category has multiple Products. Products have an embedded Address for warehouse location, a collection of String tags, and a soft-delete flag.",
+
+    "problem_statement": "1. Product ↔ Category @ManyToMany with helper methods\n2. @Embeddable WarehouseAddress embedded in Product\n3. @ElementCollection tags (Set<String>)\n4. Soft delete: deleted boolean field + @Where annotation\n5. @DataJpaTest: verify many-to-many works, soft delete hides records",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Product with @ManyToMany, @Embedded, @ElementCollection",
+        "details": "```java\n@Entity @Table(name=\"products\")\n@org.hibernate.annotations.Where(clause=\"deleted = false\")  // soft delete filter\npublic class Product {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false) private String name;\n    @Column(nullable=false) private double price;\n    private boolean deleted = false;  // soft delete flag\n    \n    // @ManyToMany — safe cascades only:\n    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE})\n    @JoinTable(\n        name=\"product_categories\",\n        joinColumns=@JoinColumn(name=\"product_id\"),\n        inverseJoinColumns=@JoinColumn(name=\"category_id\")\n    )\n    private Set<Category> categories = new HashSet<>();\n    \n    // @Embedded warehouse address:\n    @Embedded\n    private WarehouseAddress warehouseAddress;\n    \n    // @ElementCollection tags:\n    @ElementCollection\n    @CollectionTable(name=\"product_tags\", joinColumns=@JoinColumn(name=\"product_id\"))\n    @Column(name=\"tag\")\n    private Set<String> tags = new HashSet<>();\n    \n    // Helper methods (bidirectional maintenance):\n    public void addCategory(Category cat) {\n        categories.add(cat);\n        cat.getProducts().add(this);\n    }\n    public void removeCategory(Category cat) {\n        categories.remove(cat);\n        cat.getProducts().remove(this);\n    }\n    \n    // Soft delete:\n    public void softDelete() { this.deleted = true; }\n    \n    // Constructor, getters...\n    protected Product() {}\n    public Product(String name, double price) { this.name=name; this.price=price; }\n    public String getId()       { return id; }\n    public String getName()     { return name; }\n    public Set<Category> getCategories() { return categories; }\n    public Set<String> getTags() { return tags; }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Category (non-owning side)",
+        "details": "```java\n@Entity @Table(name=\"categories\")\npublic class Category {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) private String id;\n    @Column(nullable=false,unique=true) private String name;\n    \n    @ManyToMany(mappedBy=\"categories\")  // 'categories' = field name on Product\n    private Set<Product> products = new HashSet<>();\n    \n    protected Category() {}\n    public Category(String name) { this.name=name; }\n    public String getId()   { return id; }\n    public String getName() { return name; }\n    public Set<Product> getProducts() { return products; }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "@Embeddable WarehouseAddress",
+        "details": "```java\n@Embeddable\npublic class WarehouseAddress {\n    @Column(name=\"wh_city\")    private String city;\n    @Column(name=\"wh_pincode\") private String pincode;\n    @Column(name=\"wh_state\")   private String state;\n    \n    protected WarehouseAddress() {}\n    public WarehouseAddress(String city, String pincode, String state) {\n        this.city=city; this.pincode=pincode; this.state=state;\n    }\n    public String getCity()    { return city; }\n    public String getPincode() { return pincode; }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "@DataJpaTest — verify relationships",
+        "details": "```java\n@DataJpaTest\nclass ProductCategoryTest {\n    @Autowired TestEntityManager testEm;\n    @Autowired ProductRepository repo;\n    \n    @Test void addCategory_bothSidesLinked() {\n        Category elec = testEm.persistAndFlush(new Category(\"Electronics\"));\n        Product phone = new Product(\"iPhone 15\", 89999);\n        phone.addCategory(elec);\n        phone.getTags().add(\"5G\"); phone.getTags().add(\"Smartphone\");\n        phone.setWarehouseAddress(new WarehouseAddress(\"Mumbai\",\"400001\",\"MH\"));\n        Product saved = repo.save(phone);\n        testEm.clear();\n        \n        Product loaded = repo.findById(saved.getId()).orElseThrow();\n        assertEquals(1, loaded.getCategories().size());\n        assertEquals(\"Electronics\", loaded.getCategories().iterator().next().getName());\n        assertEquals(2, loaded.getTags().size());\n        assertEquals(\"Mumbai\", loaded.getWarehouseAddress().getCity());\n    }\n    \n    @Test void softDelete_hiddenFromFindAll() {\n        Product p = repo.save(new Product(\"Widget\", 99));\n        testEm.clear();\n        p = repo.findById(p.getId()).orElseThrow();\n        p.softDelete();\n        repo.save(p);\n        testEm.clear();\n        \n        assertEquals(0, repo.findAll().size());  // @Where filters deleted=true\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// Product: @ManyToMany(cascade={PERSIST,MERGE}), @Embedded, @ElementCollection, soft delete\n// Category: @ManyToMany(mappedBy='categories')\n// WarehouseAddress: @Embeddable\n// Helper methods addCategory/removeCategory update both sides\n// @Where(clause='deleted=false'): Hibernate adds WHERE deleted=false to all queries",
+
+    "expected_output": "# DataJpaTest output:\n[Hibernate] insert into categories (name, id) values ('Electronics', ?)\n[Hibernate] insert into products (name, price, wh_city, wh_pincode, wh_state, deleted, id) values ...\n[Hibernate] insert into product_categories (product_id, category_id) values (?, ?)\n[Hibernate] insert into product_tags (product_id, tag) values (?, '5G'), (?, 'Smartphone')\n\n# Tests:\n✓ addCategory_bothSidesLinked\n✓ softDelete_hiddenFromFindAll",
+
+    "things_to_notice": [
+      "The @JoinTable is on the OWNING side — the side that doesn't have mappedBy. Hibernate uses the @JoinTable to create and manage the product_categories join table. The Category side has mappedBy='categories' — this tells JPA 'the Product entity owns this relationship; look there for the join table definition'.",
+      "addCategory() updates BOTH sides: categories.add(cat) AND cat.getProducts().add(this). This is the #1 JPA gotcha: Hibernate writes to the DB based on the OWNING side (Product). But within the same Hibernate Session (same request), in-memory objects must also be consistent. Without updating Category.products, loading category.getProducts() in the same transaction returns stale data.",
+      "cascade={PERSIST, MERGE}: saving/updating a Product cascades to Category. This is safe because Category might be new (needs PERSIST) or might have been changed (needs MERGE). NOT cascade REMOVE: deleting a Product does NOT delete the Electronics category. The join table row is automatically removed (Hibernate manages this), but the Category entity stays.",
+      "@Where(clause='deleted=false'): Hibernate adds WHERE deleted=false to ALL queries against the Product table — findAll(), findById(), derived queries, even JOIN FETCH. This is Hibernate's filter mechanism for soft delete. The deleted row stays in the database but is invisible to JPA. Use @SQLDelete for truly soft-deleting: @SQLDelete(sql='UPDATE products SET deleted=true WHERE id=?') to intercept DELETE.",
+      "@ElementCollection tags: Hibernate deletes ALL rows in product_tags for this product, then re-inserts them, on EVERY save that modifies tags. For 2-3 tags this is fine. For 100+ items, use a separate @Entity instead of @ElementCollection. Rule: @ElementCollection for small, simple value lists; @Entity for larger or queryable collections."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart product categories",
+        "use_case": "Flipkart's product catalog has Product ↔ Category as @ManyToMany. A single product like 'Samsung Galaxy S24' belongs to Electronics, Mobiles, Smartphones, 5G Phones (4 categories). Each category has thousands of products. The join table product_categories is the pivot. When a product is deleted (soft delete with @Where), no categories are affected. When a category is deleted, its rows in product_categories are removed via ON DELETE CASCADE in the DB schema."
+      },
+      {
+        "company_context": "HDFC bank account addresses",
+        "use_case": "HDFC's Account entity has @Embedded Address for both residential and correspondence addresses: account has two @Embedded Address fields (residential + correspondence), differentiated with @AttributeOverrides. The Address embeddable (street, city, pincode, state) stores as columns in the account table — no address table, no JOIN needed to display an account's address. HDFC added KYC verification timestamp directly to the Address @Embeddable (verified_at column) — one field on Address propagates to all 200 columns using it."
+      },
+      {
+        "company_context": "Razorpay user roles",
+        "use_case": "Razorpay's User ↔ Role relationship is @ManyToMany. A user (merchant, developer, admin) can have multiple roles. A role (VIEW_PAYMENTS, INITIATE_REFUNDS, MANAGE_KEYS) is shared across many users. cascade={PERSIST, MERGE} — updating a user's roles works; REMOVE is excluded — deleting a user doesn't delete roles. When a user is soft-deleted (@Where deleted=false), their role assignments remain in the DB for audit purposes but the user is invisible."
+      }
+    ],
+
+    "interview_relevance": "JPA advanced relationships interview questions:\n\n- **'What cascade type should you use on @ManyToMany?'** → Never CascadeType.REMOVE or CascadeType.ALL. Use cascade={PERSIST, MERGE}. Deleting a product should not delete the Electronics category.\n- **'What is orphanRemoval?'** → When an entity is removed from a @OneToMany collection, it gets deleted from the database. Safe only when the parent has exclusive ownership. Never on @ManyToMany.\n- **'What is @Embeddable?'** → A class without its own identity that's stored as columns in the owning entity's table. Used for value objects: Address, Money, DateRange. No separate table, no JOIN.\n- **'What is the difference between the owning and non-owning side in @ManyToMany?'** → Owning side: has @JoinTable. Non-owning: has mappedBy pointing to the field on the owning side. Hibernate reads the owning side to know what to write to the join table. Both sides must be kept in sync for in-memory consistency.",
+
+    "real_world_workflow": "Daily JPA relationship workflow:\n\n- New @ManyToMany: owning side has @JoinTable, non-owning has mappedBy\n- Always write helper methods to maintain bidirectional relationships\n- Choose cascade: PERSIST+MERGE for most cases; ALL only for exclusive ownership\n- Use orphanRemoval=true only when parent exclusively owns the child\n- Value objects (Address, Money): @Embeddable, not @Entity\n- Simple string/enum lists: @ElementCollection (small) or @Entity (large/queryable)\n- Soft delete: add deleted column + @Where filter + @SQLDelete interceptor"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "cascade_all_on_many_to_many",
+      "what_students_get_wrong": "Using CascadeType.ALL on @ManyToMany — deleting a product cascades delete to shared Category entities.",
+      "remediation": "Only use cascade={PERSIST, MERGE} on @ManyToMany. REMOVE and ALL are dangerous because the target entities are shared (multiple products share the same category). When you delete a product, you want to remove the join table rows (Hibernate does this automatically) but NOT delete the Category entity itself. CascadeType.REMOVE would delete 'Electronics' from the database.",
+      "detection_pattern": "Categories disappear from the database after deleting a product; DataIntegrityViolationException when other products still reference the deleted category"
+    },
+    {
+      "gap_id": "forgetting_helper_methods",
+      "what_students_get_wrong": "Only updating one side of a bidirectional relationship — product.getCategories().add(cat) without cat.getProducts().add(product).",
+      "remediation": "In a bidirectional relationship, always update BOTH sides. Hibernate writes to the DB based on the owning side, but in-memory consistency requires both. Write helper methods: addCategory(cat) that updates both product.categories and cat.products. Without it: within the same Hibernate Session, category.getProducts() returns stale (empty) results even though the DB will be correct after commit.",
+      "detection_pattern": "category.getProducts() returns empty list right after product.addCategory(category) in the same transaction"
+    },
+    {
+      "gap_id": "element_collection_performance",
+      "what_students_get_wrong": "Using @ElementCollection for large collections (100+ items) — Hibernate deletes all rows and re-inserts on every save.",
+      "remediation": "Hibernate's @ElementCollection management: on every save that touches the collection, Hibernate executes DELETE FROM collection_table WHERE owner_id=? then inserts all items. For 3 tags: 1 delete + 3 inserts = acceptable. For 500 image URLs: 1 delete + 500 inserts = terrible. Rule: @ElementCollection for small (<20 items), simple value lists. For large or frequently updated collections, create a separate @Entity with its own lifecycle.",
+      "detection_pattern": "Logs show DELETE + many INSERTs for product_tags every time a product is saved"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@ManyToMany: owning side has @JoinTable, non-owning has mappedBy",
+      "@JoinTable: name, joinColumns, inverseJoinColumns",
+      "@ManyToMany cascade: {PERSIST, MERGE} only — NEVER REMOVE or ALL",
+      "Bidirectional: always update BOTH sides in helper methods",
+      "orphanRemoval=true: removes child from DB when removed from collection",
+      "orphanRemoval safe: exclusive ownership (@OneToMany owned by one parent)",
+      "orphanRemoval UNSAFE: @ManyToMany (shared references)",
+      "CascadeType.ALL: only for exclusive @OneToMany (orders → items)",
+      "@Embeddable: value object with no identity; columns in parent table",
+      "@Embedded: places @Embeddable columns into owning entity's table",
+      "@AttributeOverrides: rename columns when embedding the same type twice",
+      "@ElementCollection: stores simple values or embeddables in separate table",
+      "@CollectionTable: specifies table name and FK column for @ElementCollection",
+      "@ElementCollection limitation: DELETE all + re-INSERT on every collection change",
+      "Soft delete: deleted boolean + @Where(clause='deleted=false') on entity",
+      "@SQLDelete: intercepts DELETE to execute UPDATE SET deleted=true instead"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "A User entity has @ManyToMany List<Role> roles with mappedBy='users'. You call user.getRoles().add(role) and save. Later in the same transaction, you check role.getUsers() — it's empty. Why?",
+        "answer": "mappedBy='users' on List<Role> means Role is the OWNING side of this relationship. Hibernate writes the join table based on role.getUsers() (the owning side), not user.getRoles(). More importantly, within the same Hibernate Session, you only updated user.getRoles() but not role.getUsers(). The in-memory state of role.getUsers() is still empty even though the DB will be correct after commit (because user is the non-owning side and Hibernate reads the owning side role.getUsers() at flush). Fix: write helper method that updates both: user.getRoles().add(role); role.getUsers().add(user). Re-check which side has mappedBy — if Role has mappedBy='users', then User has @JoinTable and is the owning side. If User has mappedBy='roles', Role is the owning side."
+      },
+      {
+        "question": "When would you use @Embeddable Address vs @Entity Address?",
+        "answer": "@Embeddable Address: use when Address only exists as part of another entity, has no independent identity, is never referenced by other entities, and you don't need to query addresses independently. Benefits: no separate table, no JOIN, address fields are in the parent table (faster). @Entity Address: use when: (1) multiple entities reference the same address (User and Order both point to the same Address), (2) you need to query addresses independently (e.g., find all orders delivered to a specific pincode), (3) Address has its own lifecycle (created/updated separately from the parent). Rule: if Address is purely 'part of' one entity with no independent identity → @Embeddable. If it could stand alone or be shared → @Entity."
+      },
+      {
+        "question": "A Product has @ElementCollection Set<String> tags. You update one tag (remove 'electronics', add 'mobile'). What SQL does Hibernate execute?",
+        "answer": "Hibernate executes: DELETE FROM product_tags WHERE product_id = ? (deletes ALL tags) then INSERT INTO product_tags (product_id, tag) VALUES (?, 'mobile'), (?, '5G') ... (re-inserts ALL remaining tags plus the new one). Even though you only changed one tag, Hibernate deletes the entire collection and re-inserts everything. This is because @ElementCollection has no entity identity per element — Hibernate treats the collection as a whole. For a set of 3 tags: 1 DELETE + 3 INSERTs. For a set of 500 image URLs: 1 DELETE + 500 INSERTs on every tiny change. Fix for large collections: create a @Entity ProductTag with its own @Id — then Hibernate can add/remove individual rows."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Database Transactions & Locking** — the final Module 17 topic. @Transactional is straightforward for single-service operations. But what happens when two users simultaneously try to book the last concert ticket? Or two trades try to update the same portfolio position at the same millisecond? Topic 17.5 covers transaction isolation levels, optimistic locking (@Version), pessimistic locking (SELECT FOR UPDATE), and how to prevent lost updates in concurrent systems — the most critical database safety patterns in any high-traffic application."
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m18_t5_proj",
+  "linked_topic": "java_m18_t5",
+  "level": "mini",
+  "name": "Flipkart Cluster Consistency — Redis Pub/Sub Cache Invalidation",
+  "estimated_minutes": 45,
+  "difficulty": 8,
+
+  "scenario": "Flipkart has 10 app instances each with Caffeine L1 caches. When a seller updates a product, 9 instances remain stale. Build a Redis Pub/Sub system that broadcasts invalidation events to all instances, evicting their L1 cache entries within milliseconds.",
+
+  "description": "CacheInvalidationService (publish) + CacheEvictionHandler (subscribe) + PubSubConfig + ProductService (@Cacheable + publish on write) + 3 @SpringBootTest tests verifying immediate cluster-wide eviction.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "PubSubConfig @Configuration: RedisMessageListenerContainer subscribing to PatternTopic('cache.invalidate.*'). MessageListenerAdapter routing to CacheEvictionHandler.onEvict(message, channel).",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "CacheEvictionHandler @Component: onEvict(message, channel). Extracts cache name from channel suffix. Evicts specific key OR clears all if message='*'. Logs every eviction.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "CacheInvalidationService @Service: invalidate(cacheName, key) — evict local + publish. invalidateAll(cacheName) — clear local + publish '*'. Channel format: 'cache.invalidate.{cacheName}'.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "ProductService @Service: findById(id) @Cacheable('products'), updateProduct(product) — save to DB + invalidate, createProduct(product) — save + invalidateAll('categories').",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "@SpringBootTest (3 tests): (1) update product → L1 cache evicted, (2) invalidateAll → all entries cleared, (3) findById after eviction → fresh load (DB logged). All 3 pass.",
+        "weight": 35
+      },
+      {
+        "id": "req_6",
+        "description": "docker-compose.yml Redis 7. application.properties Redis config. README: before/after comparison of TTL-based vs Pub/Sub-based consistency.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "RestaurantStatusBroadcaster: OPEN/CLOSED status. Channel 'restaurant.status.{restaurantId}'. Handler evicts from 'restaurantStatus' cache. Test: setClosed → L1 evicted, next request loads fresh CLOSED status.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "RedisReconnectListener: on reconnect event, clear ALL L1 caches (conservative). Log each cleared cache. Test: trigger manual clear, verify caches empty.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "MessageListenerAdapter method receives (String message, String channel): demonstrate pattern-based routing in CacheEvictionHandler. Test three different channels routing to three different caches.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Products in DB:\n  P001: 'Wireless Mouse', ₹799, category=Electronics\n  P002: 'Keyboard', ₹1999, category=Electronics\n\nTest scenario:\n  1. findById('P001') → DB hit, cached\n  2. updateProduct(P001, ₹599) → evicted\n  3. findById('P001') → DB hit again (cache miss), ₹599\n  4. invalidateAll('products') → all products evicted\n\nChannel: 'cache.invalidate.products'\nMessage: 'P001' or '*'",
+
+  "starter_code": "// PubSubConfig.java\n// CacheEvictionHandler.java\n// CacheInvalidationService.java\n// ProductService.java\n// ClusterConsistencyTest.java (3 tests)\n// docker-compose.yml\n// application.properties",
+
+  "example_output": "# Update flow:\n[DB] Saved product P001 (₹599)\n[Invalidated] products::P001 (local+broadcast)\n[PubSub] Evicted P001 from products cache  ← received by all subscribers\n\n# Next request:\n[DB] Loading product P001  ← fresh load from DB\n\n# Tests:\n✓ updateProduct_evictsCache\n✓ invalidateAll_clearsAllEntries\n✓ findById_afterEviction_freshLoad",
+
+  "rubric": [
+    { "category": "PubSubConfig", "points": 15, "criteria": ["Container + PatternTopic (8 pts)", "Adapter routing (7 pts)"] },
+    { "category": "CacheEvictionHandler", "points": 15, "criteria": ["Channel routing (8 pts)", "evict vs clear (7 pts)"] },
+    { "category": "CacheInvalidationService", "points": 15, "criteria": ["Local + publish (10 pts)", "Channel format (5 pts)"] },
+    { "category": "ProductService", "points": 15, "criteria": ["@Cacheable read (5 pts)", "invalidation on write (10 pts)"] },
+    { "category": "@SpringBootTest (3 tests)", "points": 35, "criteria": ["3 tests × 11 pts each"] },
+    { "category": "Config + README", "points": 5, "criteria": ["Docker + README comparison (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Restaurant status (20 pts)", "Reconnect clear (20 pts)", "Channel routing (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. MessageListenerAdapter second arg: method name string (e.g., 'onEvict'). If you want both message AND channel in the handler method, the adapter passes both when the method signature is (String message, String channel) and the subscription is PatternTopic. Thread.sleep(50-100ms) in tests: Pub/Sub delivery is async; assert after brief wait. Local evict before publish: this instance is immediately consistent. PatternTopic('cache.invalidate.*'): covers all cache types with one subscription.",
+
+  "submission_instructions": "GitHub push. All 3 @SpringBootTest tests pass. README includes 'before/after' table: Without Pub/Sub (TTL expiry in N seconds) vs With Pub/Sub (milliseconds). Show Channel.format in README.",
+
+  "tips_for_success": [
+    "Local evict BEFORE publish: this instance is immediately consistent when the method returns",
+    "Test with Thread.sleep(50): pub/sub is async; your assertion must wait for delivery",
+    "PatternTopic vs ChannelTopic: PatternTopic for flexible routing, ChannelTopic for exact match",
+    "Handler method signature: (String message, String channel) for PatternTopic routing",
+    "CacheManager.getCache(name).clear(): clears ALL entries; .evict(key): removes one entry"
+  ],
+
+  "concepts_reinforced": [
+    "Redis Pub/Sub fan-out to all subscribers simultaneously",
+    "At-most-once delivery: fire-and-forget, TTL as fallback",
+    "RedisMessageListenerContainer + MessageListenerAdapter + handler",
+    "PatternTopic for wildcard channel subscription",
+    "Local evict + publish = complete cluster-wide invalidation",
+    "Thread.sleep in async tests: wait for pub/sub delivery before asserting"
+  ]
+}

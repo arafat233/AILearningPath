@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t4",
+  "language": "java",
+  "module_id": "m12",
+  "module_name": "Unit Testing with JUnit 5",
+  "topic_number": 4,
+  "name": "Testing I/O and HTTP",
+  "slug": "testing-io-http",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m12_t3", "java_m11_t1", "java_m11_t4"],
+    "concepts_taught": [
+      "temp_dir_annotation",
+      "writing_test_files_in_temp_dir",
+      "testing_file_readers",
+      "testing_file_writers",
+      "testing_csv_parsers_with_real_files",
+      "mocking_httpclient",
+      "mocking_httpresponse",
+      "testing_api_clients",
+      "string_reader_writer_in_tests",
+      "asserting_file_contents",
+      "testing_error_cases_io"
+    ],
+    "skills_developed": [
+      "using_tempdir_for_file_tests",
+      "creating_test_files_programmatically",
+      "mocking_http_client_and_response",
+      "testing_csv_and_json_processing",
+      "testing_file_error_paths"
+    ],
+    "career_relevance": "I/O code — file readers, CSV parsers, API clients, log writers — is in every real application. Testing it without a real filesystem or network requires the right strategies. @TempDir gives you a real filesystem sandbox that auto-cleans. Mocking HttpClient lets you test API clients without a server. After this topic, every class from Module 11 (NIO files, BufferedReader, HttpClient) has a proper test suite.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You've built an inventory CSV importer from Module 11. How do you test it?\n\n```java\n// The class you built:\nclass InventoryImporter {\n    List<Product> importFromFile(Path csvFile) throws IOException {\n        return Files.readAllLines(csvFile).stream()\n            .skip(1)  // header\n            .map(line -> parseProduct(line))\n            .collect(Collectors.toList());\n    }\n}\n```\n\n**Naive approach:** create real files on disk, run test, manually clean up:\n```java\n@Test void importFromFile_validCsv_returns3Products() throws Exception {\n    Files.writeString(Path.of(\"/tmp/test.csv\"), \"name,price\\nMouse,799\\nKeyboard,1999\");\n    // ...test...\n    Files.delete(Path.of(\"/tmp/test.csv\"));  // must clean up!\n    // What if test fails mid-way? File stays forever!\n}\n```\n\n**JUnit 5 way — @TempDir:**\n```java\n@Test\nvoid importFromFile_validCsv_returns2Products(@TempDir Path tempDir) throws Exception {\n    // JUnit creates a real temporary directory, auto-deleted after the test:\n    Path csvFile = tempDir.resolve(\"products.csv\");\n    Files.writeString(csvFile, \"name,price\\nMouse,799\\nKeyboard,1999\\n\");\n    \n    List<Product> products = importer.importFromFile(csvFile);\n    \n    assertEquals(2, products.size());\n    assertEquals(\"Mouse\", products.get(0).name());\n}\n// @TempDir directory is AUTOMATICALLY deleted after the test — even if it fails!\n```\n\nFor HTTP clients — mock the HttpClient just like any other dependency. No real server needed.",
+    "what_you_will_build": "By the end of this topic, you'll use @TempDir for file-based tests, write test data programmatically, assert on file contents, mock HttpClient and HttpResponse to test API clients without a server, and use StringReader/StringWriter to test I/O code without files."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "temp_dir": "**@TempDir — JUnit 5's built-in file sandbox:**\n\n```java\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\n\nclass FileProcessorTest {\n    \n    // Option 1: inject per-test (different dir per test):\n    @Test\n    void readFile_validContent_parsesCorrectly(@TempDir Path tempDir) throws Exception {\n        Path file = tempDir.resolve(\"data.txt\");\n        Files.writeString(file, \"line1\\nline2\\nline3\");\n        // Use file in test...\n    }  // tempDir auto-deleted here\n    \n    // Option 2: shared across all tests in class:\n    @TempDir\n    static Path sharedDir;  // static = shared; non-static = per-test\n    \n    @BeforeAll\n    static void setUp() throws Exception {\n        Files.writeString(sharedDir.resolve(\"shared.csv\"), \"data\");\n    }\n    \n    @Test\n    void readFromSharedDir_works() throws Exception {\n        Path file = sharedDir.resolve(\"shared.csv\");\n        assertTrue(Files.exists(file));\n    }\n}\n```\n\n**@TempDir guarantees:**\n- Real temporary directory created by JUnit\n- Unique per test (no collision between parallel tests)\n- Automatically deleted after the test, even if it fails or throws",
+
+      "writing_test_files": "**Writing test data to @TempDir:**\n\n```java\n@Test\nvoid processCSV_headerAndRows_parsesAll(@TempDir Path tempDir) throws Exception {\n    // Build CSV content:\n    String csvContent = String.join(\"\\n\",\n        \"sku,name,qty,price\",\n        \"P001,Wireless Mouse,50,799\",\n        \"P002,Keyboard,12,1999\",\n        \"P003,USB Hub,60,499\"\n    );\n    Path csvFile = tempDir.resolve(\"products.csv\");\n    Files.writeString(csvFile, csvContent);\n    \n    // Run the class under test:\n    List<Product> products = importer.importCSV(csvFile);\n    \n    // Assert:\n    assertEquals(3, products.size());\n    assertEquals(\"P001\", products.get(0).sku());\n    assertEquals(799, products.get(0).price());\n}\n\n// Writing multiple files:\n@Test\nvoid processDirectory_threeCSVFiles_processeAll(@TempDir Path tempDir) throws Exception {\n    Files.writeString(tempDir.resolve(\"jan.csv\"), \"name,price\\nMouse,799\");\n    Files.writeString(tempDir.resolve(\"feb.csv\"), \"name,price\\nKeyboard,1999\");\n    Files.writeString(tempDir.resolve(\"mar.csv\"), \"name,price\\nMonitor,18999\");\n    \n    int count = processor.processDirectory(tempDir);\n    \n    assertEquals(3, count);\n}\n```",
+
+      "asserting_file_output": "**Asserting on files written by the class under test:**\n\n```java\n@Test\nvoid writeReport_generatesCorrectContent(@TempDir Path tempDir) throws Exception {\n    Path reportFile = tempDir.resolve(\"report.txt\");\n    \n    // Run: service writes to the file\n    reportService.writeReport(reportFile, orders);\n    \n    // Assert file was created:\n    assertTrue(Files.exists(reportFile), \"Report file should be created\");\n    \n    // Assert content:\n    String content = Files.readString(reportFile);\n    assertTrue(content.contains(\"ORD-001\"), \"Report should contain order ID\");\n    assertTrue(content.contains(\"Mouse\"),   \"Report should contain product name\");\n    \n    // Assert line count:\n    List<String> lines = Files.readAllLines(reportFile);\n    assertEquals(4, lines.size());  // header + 3 orders\n    \n    // Assert specific line:\n    assertEquals(\"Order Report\", lines.get(0));\n}\n```",
+
+      "string_reader_writer": "**StringReader/StringWriter — test I/O without files:**\n\n```java\n// Test a method that reads from a Reader without needing a real file:\n@Test\nvoid parse_csvFromReader_returnsCorrectRecords() throws Exception {\n    String csvData = \"name,price\\nMouse,799\\nKeyboard,1999\";\n    \n    // StringReader simulates reading from a file:\n    try (BufferedReader reader = new BufferedReader(new StringReader(csvData))) {\n        List<Product> products = parser.parse(reader);\n        assertEquals(2, products.size());\n    }\n}\n\n// Test a method that writes to a Writer:\n@Test\nvoid generateReport_formattedOutput_containsExpectedLines() throws Exception {\n    StringWriter sw = new StringWriter();\n    try (PrintWriter writer = new PrintWriter(sw)) {\n        reportGenerator.generate(writer, orders);\n    }\n    String output = sw.toString();\n    \n    assertTrue(output.contains(\"=== Order Report ===\"));\n    assertTrue(output.contains(\"ORD-001\"));\n    assertFalse(output.isBlank());\n}\n```",
+
+      "mocking_http_client": "**Mocking HttpClient for API client tests:**\n\n```java\nimport java.net.http.*;\nimport org.mockito.*;\n\n@ExtendWith(MockitoExtension.class)\nclass StockApiClientTest {\n    @Mock HttpClient httpClient;\n    @Mock HttpResponse<String> httpResponse;\n    @InjectMocks StockApiClient apiClient;  // or inject manually\n    \n    @Test\n    void fetchPrice_validSymbol_returnsPrice() throws Exception {\n        // Stub the response:\n        String responseBody = \"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890}\";\n        when(httpResponse.statusCode()).thenReturn(200);\n        when(httpResponse.body()).thenReturn(responseBody);\n        when(httpClient.send(any(HttpRequest.class), any()))\n            .thenReturn(httpResponse);\n        \n        // Call the API client:\n        StockQuote quote = apiClient.fetchPrice(\"TCS\");\n        \n        // Assert:\n        assertEquals(\"TCS\", quote.symbol());\n        assertEquals(3890,   quote.price());\n    }\n    \n    @Test\n    void fetchPrice_serverError_returnsEmpty() throws Exception {\n        when(httpResponse.statusCode()).thenReturn(500);\n        when(httpResponse.body()).thenReturn(\"Internal Server Error\");\n        when(httpClient.send(any(), any())).thenReturn(httpResponse);\n        \n        assertTrue(apiClient.fetchPrice(\"TCS\").isEmpty());\n    }\n    \n    @Test\n    void fetchPrice_networkError_throwsIOException() throws Exception {\n        when(httpClient.send(any(), any()))\n            .thenThrow(new IOException(\"Connection refused\"));\n        \n        assertThrows(IOException.class, () -> apiClient.fetchPrice(\"TCS\"));\n    }\n}\n```",
+
+      "testing_error_paths": "**Testing file I/O error paths:**\n\n```java\n@Test\nvoid readFile_nonExistentPath_throwsNoSuchFileException(@TempDir Path tempDir) {\n    Path nonExistent = tempDir.resolve(\"does-not-exist.csv\");\n    \n    assertThrows(NoSuchFileException.class,\n        () -> importer.importCSV(nonExistent));\n}\n\n@Test\nvoid readFile_emptyFile_returnsEmptyList(@TempDir Path tempDir) throws Exception {\n    Path emptyFile = tempDir.resolve(\"empty.csv\");\n    Files.createFile(emptyFile);  // creates empty file\n    \n    List<Product> result = importer.importCSV(emptyFile);\n    \n    assertTrue(result.isEmpty());\n}\n\n@Test\nvoid readFile_headerOnly_returnsEmptyList(@TempDir Path tempDir) throws Exception {\n    Path csvFile = tempDir.resolve(\"header-only.csv\");\n    Files.writeString(csvFile, \"name,price,qty\\n\");  // header but no data rows\n    \n    List<Product> result = importer.importCSV(csvFile);\n    assertTrue(result.isEmpty());\n}\n\n@Test\nvoid readFile_malformedRow_skipsAndContinues(@TempDir Path tempDir) throws Exception {\n    Path csvFile = tempDir.resolve(\"bad-row.csv\");\n    Files.writeString(csvFile, \"name,price\\nMouse,799\\nBAD_ROW\\nKeyboard,1999\");\n    \n    List<Product> result = importer.importCSV(csvFile);\n    assertEquals(2, result.size());  // skipped bad row, parsed 2 good ones\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three panels: (1) @TempDir lifecycle — timeline showing: JUnit creates temp dir → @BeforeEach → @Test runs (writes/reads files inside tempDir) → @AfterEach → JUnit deletes temp dir (even if test failed). Contrast with manual approach: files left on disk if test throws. (2) HttpClient mock setup: HttpClient (mock) → returns HttpResponse (mock) → response.statusCode() = 200, response.body() = JSON string → ApiClient parses with Jackson. Arrow from 'when(client.send(...))' to stubbed response. (3) StringReader/StringWriter as I/O surrogates: String → StringReader → BufferedReader → class under test vs class under test → PrintWriter → StringWriter → String. Both avoid filesystem entirely.",
+      "alt_text": "@TempDir auto-cleanup lifecycle, mocked HttpClient chain, StringReader/Writer as file surrogates"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Write a complete test suite for an `InventoryReportService` that reads a CSV file, processes it, and writes a report. Tests cover reading, writing, error paths, and edge cases — all using @TempDir and StringReader/Writer.",
+
+    "problem_statement": "Test `InventoryReportService` with:\n1. Valid CSV → correct report file created\n2. Empty CSV → empty report\n3. CSV with malformed rows → valid rows processed, bad rows skipped\n4. Write report to @TempDir and assert its contents\n5. Non-existent input file → NoSuchFileException\n6. Report format: header line + one line per product",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Production class under test",
+        "details": "```java\nrecord Product(String sku, String name, int qty, double price) {}\n\nclass InventoryReportService {\n    List<Product> readProducts(Path csvPath) throws IOException {\n        return Files.readAllLines(csvPath).stream()\n            .skip(1)  // skip header\n            .filter(line -> !line.isBlank())\n            .map(line -> {\n                try {\n                    String[] cols = line.split(\",\");\n                    return new Product(cols[0].trim(), cols[1].trim(),\n                        Integer.parseInt(cols[2].trim()),\n                        Double.parseDouble(cols[3].trim()));\n                } catch (Exception e) { return null; }  // skip bad rows\n            })\n            .filter(Objects::nonNull)\n            .collect(Collectors.toList());\n    }\n    \n    void writeReport(List<Product> products, Path reportPath) throws IOException {\n        List<String> lines = new ArrayList<>();\n        lines.add(\"=== Inventory Report ===\");\n        lines.add(\"Items: \" + products.size());\n        products.forEach(p -> lines.add(\n            String.format(\"%s | %s | qty:%d | ₹%.2f\", p.sku(), p.name(), p.qty(), p.price())));\n        Files.write(reportPath, lines);\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Tests using @TempDir",
+        "details": "```java\n@Test\nvoid readProducts_validCsv_returns3Products(@TempDir Path tempDir) throws Exception {\n    Path csv = tempDir.resolve(\"inventory.csv\");\n    Files.writeString(csv, String.join(\"\\n\",\n        \"sku,name,qty,price\",\n        \"P001,Wireless Mouse,50,799.0\",\n        \"P002,Keyboard,12,1999.0\",\n        \"P003,USB Hub,60,499.0\"));\n    \n    List<Product> products = service.readProducts(csv);\n    \n    assertEquals(3, products.size());\n    assertEquals(\"P001\", products.get(0).sku());\n    assertEquals(50, products.get(0).qty());\n}\n\n@Test\nvoid writeReport_3products_createsFileWithCorrectLines(@TempDir Path tempDir) throws Exception {\n    List<Product> products = List.of(\n        new Product(\"P001\", \"Mouse\", 50, 799.0),\n        new Product(\"P002\", \"Keyboard\", 12, 1999.0)\n    );\n    Path report = tempDir.resolve(\"report.txt\");\n    \n    service.writeReport(products, report);\n    \n    List<String> lines = Files.readAllLines(report);\n    assertEquals(4, lines.size());  // header + items line + 2 products\n    assertEquals(\"=== Inventory Report ===\", lines.get(0));\n    assertEquals(\"Items: 2\", lines.get(1));\n    assertTrue(lines.get(2).contains(\"P001\"));\n    assertTrue(lines.get(3).contains(\"Keyboard\"));\n}\n```"
+      }
+    ],
+
+    "final_code": "import org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass InventoryReportServiceTest {\n    InventoryReportService service = new InventoryReportService();\n    \n    @Test\n    void readProducts_validCsv_returns3Products(@TempDir Path tempDir) throws Exception {\n        Path csv = tempDir.resolve(\"inventory.csv\");\n        Files.writeString(csv, \"sku,name,qty,price\\nP001,Mouse,50,799.0\\nP002,Keyboard,12,1999.0\\nP003,Hub,60,499.0\");\n        List<Product> p = service.readProducts(csv);\n        assertEquals(3, p.size());\n        assertEquals(\"P001\", p.get(0).sku());\n    }\n    \n    @Test\n    void readProducts_emptyFile_returnsEmptyList(@TempDir Path tempDir) throws Exception {\n        Path csv = tempDir.resolve(\"empty.csv\");\n        Files.writeString(csv, \"sku,name,qty,price\\n\");  // header only\n        assertTrue(service.readProducts(csv).isEmpty());\n    }\n    \n    @Test\n    void readProducts_malformedRow_skipsAndContinues(@TempDir Path tempDir) throws Exception {\n        Path csv = tempDir.resolve(\"mixed.csv\");\n        Files.writeString(csv, \"sku,name,qty,price\\nP001,Mouse,50,799.0\\nBAD_ROW\\nP002,Keyboard,12,1999.0\");\n        List<Product> p = service.readProducts(csv);\n        assertEquals(2, p.size());\n    }\n    \n    @Test\n    void readProducts_nonExistentFile_throwsNoSuchFileException(@TempDir Path tempDir) {\n        Path missing = tempDir.resolve(\"missing.csv\");\n        assertThrows(NoSuchFileException.class, () -> service.readProducts(missing));\n    }\n    \n    @Test\n    void writeReport_3products_correctContent(@TempDir Path tempDir) throws Exception {\n        List<Product> products = List.of(\n            new Product(\"P001\", \"Mouse\", 50, 799.0),\n            new Product(\"P002\", \"Keyboard\", 12, 1999.0),\n            new Product(\"P003\", \"Hub\", 60, 499.0));\n        Path report = tempDir.resolve(\"report.txt\");\n        service.writeReport(products, report);\n        List<String> lines = Files.readAllLines(report);\n        assertEquals(5, lines.size());\n        assertEquals(\"=== Inventory Report ===\", lines.get(0));\n        assertEquals(\"Items: 3\", lines.get(1));\n        assertTrue(lines.get(2).contains(\"P001\"));\n        assertTrue(lines.get(4).contains(\"Hub\"));\n    }\n    \n    @Test\n    void fullPipeline_readThenWrite_roundTrip(@TempDir Path tempDir) throws Exception {\n        Path csv = tempDir.resolve(\"input.csv\");\n        Files.writeString(csv, \"sku,name,qty,price\\nP001,Mouse,50,799.0\");\n        Path report = tempDir.resolve(\"report.txt\");\n        List<Product> products = service.readProducts(csv);\n        service.writeReport(products, report);\n        String reportContent = Files.readString(report);\n        assertTrue(reportContent.contains(\"P001\"));\n        assertTrue(reportContent.contains(\"Mouse\"));\n    }\n}",
+
+    "expected_output": "Test Results:\n✓ readProducts_validCsv_returns3Products\n✓ readProducts_emptyFile_returnsEmptyList\n✓ readProducts_malformedRow_skipsAndContinues\n✓ readProducts_nonExistentFile_throwsNoSuchFileException\n✓ writeReport_3products_correctContent\n✓ fullPipeline_readThenWrite_roundTrip\n\n6 tests passed, 0 failed",
+
+    "things_to_notice": [
+      "@TempDir is injected as a method parameter (`@TempDir Path tempDir`). JUnit creates the directory before the test and deletes everything in it after the test — even if the test fails. No manual cleanup ever needed.",
+      "Files.writeString(tempDir.resolve('name.csv'), content) — combine tempDir with resolve() to get a path inside the sandbox. Never hardcode paths like '/tmp/test.csv' — that causes test collisions and leaves files on disk.",
+      "The empty file test writes only a header line. The service skips the header (skip(1)) and finds no data rows — returning an empty list. This tests the boundary between 'file has data' and 'file has no data'.",
+      "The malformed row test verifies the service gracefully skips bad rows (caught by the try-catch returning null, then filtered out) while still processing valid rows. This is a common real-world requirement.",
+      "The full pipeline test (read → write → verify) is an integration test within the unit test suite — it tests the two methods together. This catches bugs that individual tests might miss (e.g., the writer doesn't write what the reader parsed).",
+      "Files.readAllLines(report) after writing lets you assert line-by-line. Files.readString(report) lets you assert on the full content with contains(). Both are appropriate — choose based on what you're checking."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart batch file processing",
+        "use_case": "The inventory import service reads seller CSV uploads from S3 (or local file). Tests use @TempDir to simulate the file system: write a test CSV, run the importer, assert on the result. Error path tests: write a CSV with bad rows, verify error report is written to @TempDir. No real S3 needed for unit tests — just the file parsing logic."
+      },
+      {
+        "company_context": "Spring Boot @WebMvcTest",
+        "use_case": "Spring Boot's @WebMvcTest slice mocks the service layer and tests only the HTTP controller layer. For REST APIs that return file downloads, tests use MockMvc (similar to mocking HttpClient) to send GET requests and assert on the response body and headers — without starting a real server."
+      },
+      {
+        "company_context": "Log analysis services",
+        "use_case": "Log parser tests write sample log files to @TempDir (apache-style, JSON, or custom format), run the parser, and assert on the extracted error counts, timestamps, and endpoints. Testing error paths: write a log file with a corrupted JSON line, verify the parser skips it. @TempDir makes this simple and clean."
+      }
+    ],
+
+    "interview_relevance": "I/O testing questions:\n\n- **'How do you test a method that reads from a file?'** → Write a test file to @TempDir, pass the path to the method, assert on the result.\n- **'How do you test a method that writes a file?'** → Pass a path in @TempDir to the method, then read the file back and assert its content.\n- **'How do you test an HTTP client without a real server?'** → Mock HttpClient with @Mock, stub client.send() to return a mock HttpResponse, stub response.statusCode() and response.body().\n- **'What is @TempDir in JUnit 5?'** → A JUnit 5 annotation that creates a temporary directory for use in tests. It's automatically deleted after the test — even if it fails.",
+
+    "real_world_workflow": "Daily I/O testing patterns:\n\n- File reader: `@TempDir Path dir; Files.writeString(dir.resolve('data.csv'), testData); List<T> result = reader.read(csvPath)`\n- File writer: `service.write(dir.resolve('out.txt'), data); assertEquals(expected, Files.readString(outPath))`\n- Stream/Reader: `new BufferedReader(new StringReader(testData))` — no file needed\n- HTTP client: `@Mock HttpClient client; when(client.send(any(), any())).thenReturn(mockResponse)`\n- Error paths: nonexistent path, empty file, malformed content, network timeout"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "hardcoded_temp_paths",
+      "what_students_get_wrong": "Using hardcoded paths like `/tmp/test.csv` or `test.csv` (relative) instead of @TempDir.",
+      "remediation": "Always use @TempDir for file-based tests. Hardcoded paths cause: test collisions when tests run in parallel, leftover files when tests fail, failures on machines where /tmp doesn't exist. `@TempDir Path tempDir; tempDir.resolve('file.csv')` is always correct.",
+      "detection_pattern": "Tests pass locally but fail on CI; file cleanup errors in test output"
+    },
+    {
+      "gap_id": "not_checking_tempdir_file_exists",
+      "what_students_get_wrong": "Asserting on file content without first checking the file was created.",
+      "remediation": "Before asserting content, always assert the file exists: `assertTrue(Files.exists(reportPath), 'Report file should be created')`. Otherwise a missing file gives a confusing NoSuchFileException instead of a clear 'file not found' assertion failure.",
+      "detection_pattern": "NoSuchFileException from Files.readAllLines() with unclear error message"
+    },
+    {
+      "gap_id": "httpclient_response_type_mismatch",
+      "what_students_get_wrong": "Mocking HttpResponse without type parameter: `@Mock HttpResponse response` instead of `@Mock HttpResponse<String> response` — type warnings and potential mismatches.",
+      "remediation": "Always parameterize: `@Mock HttpResponse<String> response`. The send() method is typed as `send(HttpRequest, BodyHandler<T>) → HttpResponse<T>`. Matching the type parameter avoids unchecked warnings and type errors.",
+      "detection_pattern": "Unchecked cast warnings; type mismatch compilation errors"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@TempDir Path tempDir: JUnit creates real temp directory, auto-deleted after test",
+      "tempDir.resolve('filename.csv'): create path inside temp dir",
+      "Files.writeString(path, content): write test data; Files.readAllLines(path): read output",
+      "Non-existent file path: assertThrows(NoSuchFileException.class, () -> service.read(path))",
+      "Empty file / header-only CSV: assertTrue(result.isEmpty())",
+      "StringReader: test BufferedReader-accepting methods without a file",
+      "StringWriter: test PrintWriter-accepting methods, capture output as String",
+      "@Mock HttpResponse<String> response: typed mock for HttpResponse",
+      "when(httpClient.send(any(), any())).thenReturn(mockResponse): stub HTTP",
+      "when(mockResponse.statusCode()).thenReturn(200): stub status",
+      "when(mockResponse.body()).thenReturn(json): stub body",
+      "Test all HTTP status scenarios: 200, 404, 500, and IOException"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You need to test that `LogWriter.writeLine(Path file, String line)` appends a line to an existing file. How do you set this up with @TempDir?",
+        "answer": "```java\n@Test\nvoid writeLine_appendsToExistingFile(@TempDir Path tempDir) throws Exception {\n    Path logFile = tempDir.resolve('app.log');\n    Files.writeString(logFile, 'first line\\n');  // pre-existing content\n    writer.writeLine(logFile, 'second line');\n    List<String> lines = Files.readAllLines(logFile);\n    assertEquals(2, lines.size());\n    assertEquals('first line', lines.get(0));\n    assertEquals('second line', lines.get(1));\n}\n```\n@TempDir provides a clean directory. You write the initial content with Files.writeString, then call the method under test, then assert using Files.readAllLines."
+      },
+      {
+        "question": "Your ApiClient has a `private static final HttpClient HTTP = HttpClient.newHttpClient()`. Can you mock it with @Mock?",
+        "answer": "No — static final fields can't be injected by Mockito. You need to make the HttpClient injectable: either pass it via constructor (`ApiClient(HttpClient client)`) or via a setter. @InjectMocks only works when Mockito can inject via constructor, setter, or field. Redesign the class to accept HttpClient as a dependency rather than creating it internally. This is the dependency injection principle — and it makes the code testable."
+      },
+      {
+        "question": "What is the benefit of testing file parsing with StringReader instead of @TempDir?",
+        "answer": "StringReader is faster (no filesystem), simpler (no @TempDir setup), and works at the Reader/InputStream level. Use StringReader when the method accepts a Reader/InputStream — you don't need to create a file at all. Use @TempDir when the method accepts a Path/File directly. If you can refactor the method to accept a Reader instead of Path, testing becomes even simpler. Many file parsing methods follow this pattern: one method takes a Path and creates a reader, another takes the reader directly — test the reader version with StringReader."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 12 topic: **Test-Driven Development (TDD)** — write the test FIRST, then write the code to make it pass. Red (test fails — no code yet) → Green (write minimum code to pass) → Refactor (improve code, tests still pass). After Topic 12.5, you have a complete testing toolkit: JUnit 5, parameterized tests, Mockito, I/O testing, and TDD. Module 12 is the final foundational module before the course moves into specialized topics."
+  }
+}

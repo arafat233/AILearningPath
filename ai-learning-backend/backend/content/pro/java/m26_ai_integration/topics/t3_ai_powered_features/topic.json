@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m26_t3",
+  "language": "java",
+  "module_id": "m26",
+  "module_name": "AI-Powered Java Applications",
+  "topic_number": 3,
+  "name": "AI-Powered Features — Classification, Extraction & Summarization",
+  "slug": "ai-powered-features-classification-extraction-summarization",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m26_t1", "java_m26_t2"],
+    "concepts_taught": [
+      "document_extraction", "entity_recognition", "ai_classification",
+      "sentiment_analysis", "ai_summarization", "structured_ai_output",
+      "invoice_processing", "support_ticket_routing", "batch_ai_processing",
+      "ai_as_data_transformation", "fallback_for_ai_errors"
+    ],
+    "skills_developed": [
+      "extracting_structured_data_from_documents",
+      "building_ai_classification_pipeline",
+      "ai_summarization_service",
+      "batch_processing_with_ai"
+    ],
+    "career_relevance": "HDFC Bank processes 50,000 loan application documents daily — salary slips, bank statements, identity proofs. Before AI: 200 agents manually extract data (name, income, employer) from each PDF. After AI: Spring AI extracts all fields in 2 seconds per document, flagged fields go to human review. Zerodha processes 100,000 trade confirmations (contract notes) nightly — AI extracts trade details into structured records. These are not research projects; they're running in production today. After this topic, you can build AI-powered data pipelines that save hundreds of person-hours per week.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "HDFC Bank loan processing without AI extraction:\n\n```\nPROBLEM:\n  Salary slip (PDF) → agent reads manually:\n  - Name: 'Raj Kumar Sharma'\n  - Employer: 'Wipro Technologies Ltd'\n  - Monthly Gross: ₹85,000\n  - Employment Date: 12 March 2022\n  Time per document: 8 minutes\n  Volume: 50,000/day\n  Staff needed: 667 agents × ₹30,000/month = ₹2 crore/month\n\nWITH AI EXTRACTION:\n  PDF text → Spring AI → ExtractedSalarySlip {\n    applicantName: 'Raj Kumar Sharma',\n    employer: 'Wipro Technologies Ltd',\n    monthlyGrossIncome: 85000,\n    employmentDate: '2022-03-12',\n    extractionConfidence: 94\n  }\n  Time: 2 seconds per document\n  Staff: 50 agents (review only 6% flagged for low confidence)\n  Cost reduction: 93% (₹2 crore → ₹1.5 lakh/month)\n```",
+    "what_you_will_build": "AI-powered salary slip extractor and support ticket classifier for HDFC Bank."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "document_extraction": "**Structured extraction from unstructured text:**\n\n```java\n// Target: extract this from any salary slip text:\npublic record SalarySlipExtract(\n    String applicantName,\n    String employer,\n    long monthlyGrossIncomePaise, // in paise for precision\n    String employmentDate,        // ISO: yyyy-MM-dd\n    int extractionConfidence      // 0-100: AI's self-reported confidence\n) {}\n\n@Service\npublic class SalarySlipExtractor {\n    private final ChatClient chatClient;\n    private final BeanOutputConverter<SalarySlipExtract> converter;\n\n    public SalarySlipExtractor(ChatClient.Builder builder) {\n        converter = new BeanOutputConverter<>(SalarySlipExtract.class);\n        chatClient = builder\n            .defaultSystem(\"\"\"\n                Extract salary slip details precisely.\n                Convert amounts to paise (₹1 = 100 paise).\n                Use ISO date format (yyyy-MM-dd) for dates.\n                If a field is not found, use null.\n                Rate your extraction confidence 0-100.\n                \"\"\")\n            .build();\n    }\n\n    public SalarySlipExtract extract(String salarySlipText) {\n        String response = chatClient.prompt()\n            .user(u -> u.text(\"\"\"\n                Extract the following from this salary slip:\n                {format}\n\n                SALARY SLIP TEXT:\n                {text}\n                \"\"\")\n                .param(\"format\", converter.getFormat())\n                .param(\"text\", salarySlipText))\n            .call()\n            .content();\n        return converter.convert(response);\n    }\n}\n```",
+      "classification": "**AI classification pipeline:**\n\n```java\n// Support ticket routing:\npublic enum TicketCategory {\n    PAYMENT_FAILURE, REFUND_REQUEST, TECHNICAL_ISSUE,\n    ACCOUNT_LOCKED, FRAUD_REPORT, GENERAL_ENQUIRY\n}\n\npublic record TicketClassification(\n    TicketCategory category,\n    int urgency,        // 1 (low) to 5 (critical)\n    String summary,     // one-sentence summary\n    boolean requiresHuman\n) {}\n\n@Service\nclass SupportTicketClassifier {\n    public TicketClassification classify(String ticketText) {\n        // BeanOutputConverter: AI returns JSON matching TicketClassification\n        // urgency=5 + fraudReport → immediate human escalation\n    }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three AI feature pipelines side by side. Left (Extraction): PDF text → ChatClient (extract prompt + BeanOutputConverter schema) → SalarySlipExtract record → DB. Center (Classification): Support ticket text → ChatClient (classify prompt) → TicketClassification record → routing (urgency 5 → human, 1-3 → automated). Right (Summarization): Long document (500 words) → ChatClient (summarize in 3 bullets) → SummaryResult → dashboard card. Each shows the same pattern: text in → structured record out.",
+      "alt_text": "AI feature pipelines: extraction, classification, summarization — all producing structured Java records"
+    },
+    "worked_example": {
+      "scenario": "HDFC salary slip extractor with confidence scoring and fallback.",
+      "problem_statement": "1. SalarySlipExtract record with all fields\n2. SalarySlipExtractor: extract() returns typed record\n3. extractWithFallback(): returns Optional.empty() if confidence < 70\n4. BatchExtractor: process list of salary slips, separate high/low confidence\n5. @SpringBootTest: extractor and classifier wired up",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Confidence as a first-class field",
+          "details": "Ask the AI to rate its own confidence in the extraction (0-100). This isn't perfect but it's directionally accurate — the AI knows when it's uncertain. Use confidence < 70 to flag documents for human review. This creates a human-AI hybrid: AI handles 94% automatically, humans review the 6% flagged cases. Better than 100% human review (slow) or 100% AI (errors). Rule: always have a fallback path for low-confidence AI output."
+        }
+      ],
+      "final_code": "// extractWithFallback: if confidence < 70 → Optional.empty() → route to human agent\n// BatchExtractor: split list into auto-processed (high confidence) vs review queue (low)",
+      "expected_output": "SalarySlipExtract{\n  applicantName='Raj Kumar Sharma',\n  employer='Wipro Technologies Ltd',\n  monthlyGrossIncomePaise=8500000,\n  employmentDate='2022-03-12',\n  extractionConfidence=94\n}",
+      "things_to_notice": [
+        "Amounts in paise (not rupees): eliminates decimal precision issues in Java. ₹85,000 = 8,500,000 paise. Always work with integers for money.",
+        "Temperature=0.0 for extraction: you want deterministic, consistent extraction — not creative interpretation. Same document should always extract the same fields.",
+        "BeanOutputConverter.getFormat() in the prompt: without this, the AI doesn't know what JSON structure you expect. Include it as a parameter in the user message.",
+        "Batch processing: for 50,000 documents, use virtual threads (Java 21) or reactive pipeline. Don't process sequentially — parallelize across N AI calls with rate limit awareness."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha contract note processing",
+          "use_case": "100,000 trade contract notes (PDFs) arrive nightly from NSE/BSE. Spring AI batch job: extract trade date, symbol, quantity, price, brokerage from each PDF text. Structured records go to reconciliation DB. Previously: 12 agents, 8 hours overnight. Now: AI batch job, 45 minutes, 3 agents review flagged extractions. Trade reconciliation accuracy improved from 97.2% (manual errors) to 99.8%."
+        }
+      ],
+      "interview_relevance": "'How would you add AI document processing to our loan system?' → Structured extraction with Spring AI. BeanOutputConverter: AI returns JSON, Spring converts to typed Java record. Fields: all required document fields + extractionConfidence. Low confidence (< 70) → human review queue. Batch: virtual threads for parallel processing, Bucket4j for API rate limiting. Temperature=0 for consistent extraction. Test with real sample documents before production deployment.",
+      "real_world_workflow": "AI extraction workflow: (1) extract text from PDF (Apache PDFBox or AWS Textract), (2) build structured extraction prompt with BeanOutputConverter schema, (3) call AI with temperature=0, (4) parse JSON response to Java record, (5) check confidence threshold — route low-confidence to review queue, (6) validate critical fields (PAN format, date ranges), (7) store in DB + audit log for compliance."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "no_confidence_threshold",
+        "what_students_get_wrong": "Using AI extraction output directly without confidence checking. AI returns extractionConfidence=45 (uncertain) but the code uses the data anyway — incorrect income extracted, loan approved incorrectly.",
+        "remediation": "Always gate on confidence: if extractionConfidence < 70, route to human review queue. Don't pass low-confidence extractions downstream. Include confidence in every extraction record. Alert if average confidence drops below 80% (may indicate document format change).",
+        "detection_pattern": "Code calls extract() and immediately uses the result without checking confidence — no if (result.extractionConfidence() < threshold) branch"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "BeanOutputConverter<T>: AI returns JSON → automatically converts to Java record",
+        "Temperature=0 for extraction: deterministic, consistent — same doc → same output",
+        "Confidence field: AI rates its own certainty — use < 70 to flag for human review",
+        "Paise not rupees: always integers for money in AI extraction",
+        "Batch processing: virtual threads for parallelism, Bucket4j for rate limiting",
+        "Classification: urgency + category + requiresHuman → automated routing",
+        "Summarization: max 3 bullet points, one sentence each — constraints in system prompt",
+        "Fallback path: ALWAYS have a non-AI path for when AI is wrong or unavailable",
+        "Temperature=0 + seed: reproducible output for testing",
+        "Audit every AI extraction: store prompt + response + confidence for compliance"
+      ],
+      "self_check_questions": [
+        {
+          "question": "HDFC's AI extracts loan income as ₹85,000 from a salary slip. The actual slip says '₹85,000 gross, ₹72,000 net'. The AI returned monthlyGrossIncome=85000 with confidence=88. Should this be auto-approved or sent to human review?",
+          "answer": "Confidence=88 > 70 threshold: auto-approve extraction technically. However: this specific case reveals a system design issue. The extraction is correct (gross = 85,000) but: (1) the prompt must explicitly say 'extract GROSS income, not net' — ambiguity in the prompt causes ambiguity in extraction. (2) Downstream validation should check: gross > net (if net is also extracted). (3) Add a 'extractedField' field to clarify which number was used: 'GROSS'. In production: extract BOTH gross and net, store both, use gross for eligibility but flag cases where gross/net ratio > 25% (unusual, may indicate errors). Rule: extraction is only as good as the prompt. If gross vs net is ambiguous in real documents, your prompt must resolve the ambiguity explicitly."
+        }
+      ],
+      "next_topic_preview": "Next: LangChain4j — an alternative AI framework for Java with AiServices interface magic, built-in memory, and a rich ecosystem of integrations."
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version":"1.0","project_id":"java_m24_t4_proj","linked_topic":"java_m24_t4",
+  "level":"mini","name":"Zerodha ODIN Migration — Strangler Fig",
+  "estimated_minutes":45,"difficulty":6,
+  "scenario":"Zerodha's 15-year-old ODIN monolith needs to be replaced by new Spring Boot microservices without downtime. Implement the Strangler Fig pattern with feature flags, dark launch, and health-gated rollout.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"FeatureFlagService @Service: rolloutPercent (0-100) field, betaMerchants Set. isEnabled(merchantId): beta first, then hash-based (Math.abs(hashCode())%100 < rolloutPercent). setRolloutPercent validates 0-100.","weight":15},
+    {"id":"req_2","description":"StranglerFigFilter OncePerRequestFilter: for /api/orders, call flags.isEnabled(merchantId). True → forward to new service (set X-Routed-To: new header). False → chain.doFilter (legacy).","weight":20},
+    {"id":"req_3","description":"DarkLaunchService @Service: execute(operation, legacy, newImpl) — runs both Suppliers, compares String results, logs mismatch, always returns legacy result. Never throws (new service errors caught).","weight":20},
+    {"id":"req_4","description":"MigrationMonitor @Service: Micrometer counters (orders.legacy, orders.new, migration.mismatch), Gauge for rollout_percent. Methods: recordLegacy(), recordNew(), recordMismatch().","weight":10},
+    {"id":"req_5","description":"@SpringBootTest (4 tests): rollout=0→legacy, beta→new, dark launch mismatch detected, rollout=100→all new. All 4 pass.","weight":30},
+    {"id":"req_6","description":"README: Explains why hash-based routing beats random routing (consistency — same user always same service).","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"MigrationPhaseController: DARK_LAUNCH → BETA_1_PERCENT → ROLLOUT_10 → ROLLOUT_50 → FULLY_MIGRATED enum with rolloutPercent per phase. advance() + rollback() methods.","weight":15},
+    {"id":"bonus_2","description":"HealthGatedRolloutService: tryAdvance() only if error rate < 1%. Auto-rollback to 0% if error rate > 2%. Micrometer counter: migration.auto_rollback.","weight":25},
+    {"id":"bonus_3","description":"ContractCompatibilityTest: OrderContract record with assertValid() method. Test: legacy and new service both satisfy the contract (same status, amount, merchantId).","weight":15}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. Hash-based routing: Math.abs(merchantId.hashCode()) % 100 < rolloutPercent — deterministic, same merchant always same service. NOT Math.random(). Beta list checked first: if merchant in betaMerchants Set, always return true (regardless of rolloutPercent). Dark launch: ALWAYS return legacy result — new service runs in shadow (user unaffected). chain.doFilter: continue to existing Spring controllers (legacy path) — no code change needed in legacy controllers. rolloutPercent=0 → all traffic legacy; rolloutPercent=100 → all traffic new service.",
+  "rubric":[
+    {"category":"FeatureFlagService","points":15},
+    {"category":"StranglerFigFilter","points":20},
+    {"category":"DarkLaunchService","points":20},
+    {"category":"MigrationMonitor","points":10},
+    {"category":"4 tests (all pass)","points":30},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

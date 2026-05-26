@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m2_t4_proj",
+  "linked_topic": "java_m2_t4",
+  "level": "mini",
+  "name": "Game Statistics Tracker",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  
+  "scenario": "You're building the statistics tracking system for a turn-based game (think chess, Catan, online card games). The system needs to track: per-game state (this game's scores, moves, time), shared totals across all games (how many games played total, high score ever), and constants (max moves per game, game time limit). Each piece of data belongs at a DIFFERENT scope. Getting this right is what professional codebases look like. Getting it wrong means bugs that only show up after multiple game sessions — the worst kind to debug.",
+  
+  "description": "Build a `GameStatsTracker` class that demonstrates correct use of every Java scope: class-level constants, class-level mutable state, method parameters, method locals, and block-level variables. This project doubles as a great review of all of Module 2.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `GameStatsTracker` in file GameStatsTracker.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Has at least 2 `static final` constants (e.g., MAX_MOVES, MAX_GAME_TIME_MINUTES)",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Has at least 2 `static` mutable variables (e.g., totalGamesPlayed, highestScoreEver)",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Has `playGame(String playerName, int moves, int score, int durationMinutes)` method that takes 4 parameters and updates statistics",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "playGame uses LOCAL variables for per-game data (validity checks, normalized values)",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Has a `printOverallStats()` method that prints the cumulative statistics",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "main() plays at least 3 games and prints overall stats at the end",
+        "weight": 10
+      },
+      {
+        "id": "req_9",
+        "description": "NO unnecessary use of static (data that should be local stays local)",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a `isValidGame(int moves, int duration)` helper method that returns true if both are within limits (uses constants)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Track the longest game and shortest game (in moves) — additional static variables that update across calls",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `getAverageScore()` method that returns average across all games played (track total score separately)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_4",
+        "description": "Demonstrate that local variables in playGame don't leak: call playGame multiple times with different values, prove they're independent",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Use this test scenario:\n\nConstants:\n- MAX_MOVES = 200\n- MAX_GAME_TIME_MINUTES = 60\n\nGames to play:\n1. Aisha — 85 moves, 1200 score, 35 minutes\n2. Raj — 120 moves, 1500 score, 50 minutes\n3. Priya — 65 moves, 1750 score, 25 minutes\n\nExpected stats after all games:\n- Total games: 3\n- Highest score: 1750 (Priya)\n- (with bonus) Average score: 1483.33\n- (with bonus) Longest game: 120 moves\n- (with bonus) Shortest game: 65 moves",
+  
+  "starter_code": "// Build your GameStatsTracker class below\n// Practice: use the RIGHT scope for each piece of data\n\npublic class GameStatsTracker {\n    // TODO: Constants (static final)\n    \n    // TODO: Mutable static variables (the ones that persist across games)\n    \n    public static void main(String[] args) {\n        // TODO: Play several games\n        // TODO: Print overall stats\n    }\n    \n    // TODO: playGame method with parameters\n    \n    // TODO: printOverallStats method\n}",
+  
+  "example_output": "===================================\n         GAME 1\n===================================\nPlayer: Aisha\nMoves: 85\nScore: 1200\nDuration: 35 minutes\nValid game: true\n-----------------------------------\n         GAME 2\n===================================\nPlayer: Raj\nMoves: 120\nScore: 1500\nDuration: 50 minutes\nValid game: true\n-----------------------------------\n         GAME 3\n===================================\nPlayer: Priya\nMoves: 65\nScore: 1750\nDuration: 25 minutes\nValid game: true\n-----------------------------------\n         OVERALL STATS\n===================================\nTotal games played: 3\nHighest score ever: 1750\nMax allowed moves: 200\nMax allowed time: 60 minutes\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Correct Scope Usage",
+      "points": 40,
+      "criteria": [
+        "Constants are static final (10 pts)",
+        "Mutable shared state is static (10 pts)",
+        "Per-game data uses parameters/locals (15 pts)",
+        "No inappropriate use of static (5 pts)"
+      ]
+    },
+    {
+      "category": "Method Design",
+      "points": 20,
+      "criteria": [
+        "playGame takes appropriate parameters (10 pts)",
+        "Methods do one thing (5 pts)",
+        "Method names are descriptive (5 pts)"
+      ]
+    },
+    {
+      "category": "Output Quality",
+      "points": 15,
+      "criteria": [
+        "Clear sections for each game (5 pts)",
+        "Stats summary is readable (5 pts)",
+        "Consistent formatting (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 10,
+      "criteria": [
+        "Clean variable names (5 pts)",
+        "Logical organization (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 55,
+      "criteria": [
+        "isValidGame helper method (15 pts)",
+        "Longest/shortest tracking (15 pts)",
+        "Average score (15 pts)",
+        "Demonstrate scope independence (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. This project is a CAPSTONE for Module 2 so far — pulls together methods, parameters, returns, AND scope. Think before coding. List out each piece of data and decide its scope first.",
+  
+  "submission_instructions": "Save as GameStatsTracker.java. Run it. Try modifying the input games and see how class-level statics persist but locals don't. This is a great portfolio piece showing you understand how to structure stateful applications. Push to GitHub.",
+  
+  "tips_for_success": [
+    "Before coding, list every piece of data and write next to it: 'local', 'static', or 'static final'.",
+    "Constants are easy: anything that NEVER changes is static final.",
+    "Shared state across method calls: static (NOT final).",
+    "Per-game data (player name, this game's score): parameters or locals.",
+    "If you find yourself making something static, ask: 'does it need to persist between method calls?' If no, it's a local.",
+    "Test by playing each game and checking: totalGamesPlayed should INCREASE, but moves/score for one game shouldn't affect another's locals.",
+    "For the average score bonus: you need to track running TOTAL of all scores too."
+  ],
+  
+  "concepts_reinforced": [
+    "static final for constants",
+    "static for shared mutable state",
+    "Parameters as method-local variables",
+    "Local variables for per-call data",
+    "Lifetime: class vs method scope",
+    "Choosing the RIGHT scope for each piece of data"
+  ],
+  
+  "what_youll_learn_by_doing_this": "This project teaches a senior-engineer skill: SCOPE AS ARCHITECTURE. The decision of where each piece of data lives is a small architecture decision, multiplied across thousands of variables in real code. Get scope right and your code is maintainable. Get it wrong and you have either: (1) too much static, creating global mutable state that's a nightmare, or (2) too much being passed around as parameters, making method signatures bloated. Finding the right balance — usually toward more local, less static — is the discipline this project teaches.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a 'recent games' list (preview of arrays/collections, next module)",
+    "Add a 'reset stats' method — what's the scope implication?",
+    "Persist stats to a file at program end (file I/O later)",
+    "Add 'player rankings' — sort by score (preview of sorting)",
+    "Convert to instance-based class (preview of OOP)"
+  ]
+}

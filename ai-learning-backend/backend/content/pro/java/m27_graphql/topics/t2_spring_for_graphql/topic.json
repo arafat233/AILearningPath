@@ -1,0 +1,101 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m27_t2",
+  "language": "java",
+  "module_id": "m27",
+  "module_name": "GraphQL with Spring Boot",
+  "topic_number": 2,
+  "name": "Spring for GraphQL — Resolvers & Controllers",
+  "slug": "spring-for-graphql-resolvers-controllers",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m27_t1", "java_m13_t2", "java_m13_t3"],
+    "concepts_taught": [
+      "spring_graphql_setup", "query_mapping", "mutation_mapping", "schema_mapping",
+      "argument_annotation", "graphql_controller", "data_fetching_environment",
+      "graphiql_playground", "graphql_error_handling", "context_variables",
+      "field_resolvers", "spring_graphql_testing"
+    ],
+    "skills_developed": [
+      "implementing_graphql_resolvers", "mapping_schema_to_java",
+      "handling_graphql_errors", "testing_with_graphqltester"
+    ],
+    "career_relevance": "Flipkart's Spring Boot backend team needed to add a GraphQL API alongside their existing REST endpoints without a full rewrite. Spring for GraphQL: add one starter, put the schema file in resources/graphql/, annotate methods with @QueryMapping and @MutationMapping — existing Spring Boot patterns, zero new learning curve. After this topic, you can add a production-ready GraphQL API to any existing Spring Boot application in an afternoon.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Flipkart REST API explosion:\n\n```\n150 REST endpoints for the product catalog:\n  GET /products, GET /products/{id}\n  GET /products/{id}/reviews, GET /products/{id}/images\n  GET /products/{id}/seller, GET /products/{id}/shipping\n  GET /categories, GET /categories/{id}/products\n  GET /search?keyword=&category=&minPrice=&maxPrice=&sort=...\n  ... (142 more)\n\nProblem:\n  Mobile team: 'I need these 3 fields from product + seller name only'\n  Backend: 'Our endpoints don't support partial responses'\n  Mobile: 'OK I'll just ignore the other 200KB of JSON'\n  Backend: 'Please stop DDoSing us with unnecessary data'\n\nWith Spring for GraphQL:\n  One new file: src/main/resources/graphql/schema.graphqls\n  One new annotation: @QueryMapping, @MutationMapping\n  Mobile gets: exactly the 3 fields it needs\n  No new endpoints. Same @Service, @Repository beans.\n```",
+    "what_you_will_build": "Flipkart product catalog GraphQL API implemented in Spring Boot with @QueryMapping resolvers and @GraphQlTest."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "setup": "**Spring for GraphQL setup:**\n\n```xml\n<!-- pom.xml -->\n<dependency>\n  <groupId>org.springframework.boot</groupId>\n  <artifactId>spring-boot-starter-graphql</artifactId>\n</dependency>\n<dependency>\n  <groupId>org.springframework.boot</groupId>\n  <artifactId>spring-boot-starter-web</artifactId>  <!-- HTTP transport -->\n</dependency>\n```\n\n```yaml\n# application.yml\nspring:\n  graphql:\n    graphiql:\n      enabled: true  # http://localhost:8080/graphiql (browser playground)\n    schema:\n      locations: classpath:graphql/  # where to find .graphqls files\n```",
+      "resolvers": "**Spring for GraphQL resolvers:**\n\n```java\n// src/main/resources/graphql/schema.graphqls\n// type Query { product(id: ID!): Product  products: [Product!]! }\n// type Mutation { createProduct(input: CreateProductInput!): Product! }\n\n@Controller\npublic class ProductController {\n\n    private final ProductService productService;\n\n    // Maps to: type Query { product(id: ID!): Product }\n    @QueryMapping\n    public Product product(@Argument String id) {\n        return productService.findById(id);  // null = field returns null\n    }\n\n    // Maps to: type Query { products(category: Category): [Product!]! }\n    @QueryMapping\n    public List<Product> products(\n            @Argument(name = \"category\") String category) {\n        return productService.findByCategory(category);\n    }\n\n    // Maps to: type Mutation { createProduct(input: CreateProductInput!): Product! }\n    @MutationMapping\n    public Product createProduct(@Argument CreateProductInput input) {\n        return productService.create(input);\n    }\n\n    // Maps to: type Product { reviews: [Review!]! } — field resolver\n    // Called for EACH product that has 'reviews' in the query\n    @SchemaMapping(typeName = \"Product\", field = \"reviews\")\n    public List<Review> reviews(Product product) {\n        return reviewService.findByProductId(product.getId());\n    }\n\n    // Or shorthand:\n    @SchemaMapping  // method name 'reviews' on type inferred from parent class context\n    public List<Review> reviews(Product product) { ... }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Spring for GraphQL architecture. Left: HTTP client sends POST /graphql with query body. Center-left: Spring Web layer receives request. Center: GraphQL Engine (parses query, validates against schema). Center-right: @Controller with @QueryMapping methods (product, products, searchProducts) and @SchemaMapping (Product.reviews, Product.seller). Right: @Service and @Repository beans (existing Spring beans, no changes needed). Bottom: schema.graphqls file (in resources/graphql/) being read at startup. Annotation: 'Same @Service beans as REST — just new @Controller annotations'.",
+      "alt_text": "Spring for GraphQL: @QueryMapping connects schema to Spring @Controller methods"
+    },
+    "worked_example": {
+      "scenario": "Implement Flipkart product catalog GraphQL resolvers.",
+      "problem_statement": "1. schema.graphqls: Product, Category, Query, Mutation types\n2. @Controller ProductGraphQlController with @QueryMapping product() and @MutationMapping createProduct()\n3. @SchemaMapping for Product.reviews (field resolver)\n4. @GraphQlTest: test product query returns correct data",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "@SchemaMapping vs @QueryMapping",
+          "details": "@QueryMapping: shorthand for top-level query fields (type Query). @SchemaMapping: for all other type fields. Product.reviews is a field resolver — called once per Product in the result set (N+1 risk — solved by DataLoader in T3). When a client queries { product { reviews { rating } } }, Spring calls product() first, then reviews(product) for each product returned."
+        }
+      ],
+      "final_code": "// @QueryMapping product(@Argument String id) → handles product(id: ID!) query\n// @SchemaMapping(typeName='Product') reviews(Product product) → handles product.reviews field\n// @GraphQlTest: loads only GraphQL controller (not full context)",
+      "expected_output": "# POST /graphql:\n# { 'query': '{ product(id: \"PROD-001\") { name price { amount } } }' }\n#\n# Response:\n# { 'data': { 'product': { 'name': 'iPhone 15', 'price': { 'amount': 134900.0 } } } }",
+      "things_to_notice": [
+        "@Argument maps query arguments to Java parameters. For simple scalars: @Argument String id. For complex input types: @Argument CreateProductInput input — Spring auto-deserializes the GraphQL input map to the Java record/class.",
+        "@GraphQlTest: loads only the GraphQL layer (controllers + schema) — much faster than @SpringBootTest. Use GraphQlTester to execute queries and assert on the result.",
+        "Method name matters: @QueryMapping method named 'product' maps to schema Query.product. If names differ: @QueryMapping(name='product') public Product getProduct(...) — explicitly specify the mapping.",
+        "Null return from @QueryMapping: if product() returns null, GraphQL response has `data: { product: null }`. This is correct for 'not found' — not an exception. Throw an exception only for server errors."
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay merchant dashboard GraphQL API",
+          "use_case": "Spring Boot REST API coexists with new GraphQL API on same application. Payment @Service beans reused unchanged. New @Controller with @QueryMapping payment(id), @QueryMapping payments(merchantId, status), @MutationMapping initiateRefund(input). Dashboard web app uses GraphQL for complex nested queries; webhook integrations still use REST. Both /api/payments (REST) and /graphql coexist on port 8080."
+        }
+      ],
+      "interview_relevance": "'How would you add GraphQL to our existing Spring Boot app?' → spring-boot-starter-graphql dependency, schema.graphqls in resources/graphql/, @Controller with @QueryMapping/@MutationMapping methods. Existing @Service beans reused unchanged. @SchemaMapping for nested field resolvers. @GraphQlTest for testing. GraphiQL enabled for development. N+1 problem: @BatchMapping or DataLoader (T3). No architecture rewrite needed — additive change.",
+      "real_world_workflow": "Spring for GraphQL integration: (1) add starter dependency, (2) create schema.graphqls matching existing domain model, (3) add @Controller with @QueryMapping methods delegating to existing @Service, (4) add @SchemaMapping for nested fields (reviews, seller), (5) enable GraphiQL for team exploration, (6) @GraphQlTest for each resolver, (7) monitor: slow field resolvers → add DataLoader."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "returning_null_for_nonnull_field",
+        "what_students_get_wrong": "Java method annotated with @QueryMapping returns null, but schema declares the field as non-null (Product!). Spring for GraphQL propagates this as an error.",
+        "remediation": "Schema field type and Java return type must match nullability. If schema says Product! (non-null), never return null — throw a GraphQlException if not found. If schema says Product (nullable), returning null is correct for 'not found'. Rule: nullable in schema = may return null; non-null in schema = must return non-null or throw.",
+        "detection_pattern": "@QueryMapping returns Optional<Product> or null for a schema field declared as Product! (non-null) — GraphQL engine propagates null upward, potentially nulling out the parent type"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "@QueryMapping: maps method to Query type field (method name = field name by default)",
+        "@MutationMapping: maps method to Mutation type field",
+        "@SchemaMapping(typeName='X', field='y'): maps method to field y on type X",
+        "@Argument: extracts query argument into Java parameter (auto-deserializes input types)",
+        "Schema file: src/main/resources/graphql/schema.graphqls",
+        "GraphiQL: spring.graphql.graphiql.enabled=true (browser UI for query testing)",
+        "@GraphQlTest: slice test for GraphQL layer (loads controller + schema only)",
+        "GraphQlTester: test API — .document(query).execute().path('product.name').entity(String.class)",
+        "Method name = schema field name: @QueryMapping product() → Query.product",
+        "Null return: nullable field → returns null in response; non-null field → error (don't return null)",
+        "Existing @Service: unchanged — @Controller delegates to @Service (same pattern as REST)"
+      ],
+      "self_check_questions": [
+        {
+          "question": "When should you use @SchemaMapping vs @QueryMapping, and what's the N+1 risk with @SchemaMapping?",
+          "answer": "@QueryMapping: top-level Query type fields only — `product(id)`, `products()`, `searchProducts()`. @SchemaMapping: field resolvers on non-Query types — `Product.reviews`, `Product.seller`, `Order.items`. N+1 risk: when a query returns a list of products and each product has @SchemaMapping for 'reviews', Spring calls reviews() ONCE PER PRODUCT. 10 products → 10 reviews() calls → 10 database queries. Example: client queries 10 products with reviews → 1 query for products + 10 queries for reviews = 11 total (N+1). This is why T3 covers DataLoader: DataLoader batches all 10 reviews() calls into ONE database query: SELECT * FROM reviews WHERE product_id IN (1,2,3,...10). Rule: if a field resolver (Product.reviews) will be called for many parent objects, use @BatchMapping or DataLoader to avoid N+1."
+        }
+      ],
+      "next_topic_preview": "Next: DataLoader — solving the N+1 query problem in GraphQL. When 10 products each load their reviews, DataLoader batches all 10 into a single database query."
+    }
+  }
+}

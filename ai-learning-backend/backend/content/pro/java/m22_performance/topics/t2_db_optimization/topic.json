@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m22_t2",
+  "language": "java",
+  "module_id": "m22",
+  "module_name": "Performance & Optimization",
+  "topic_number": 2,
+  "name": "Database Query Optimization",
+  "slug": "database-query-optimization",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m17_t2"],
+    "concepts_taught": [
+      "explain_analyze", "sequential_scan_vs_index_scan", "index_types",
+      "composite_index_column_order", "partial_index", "covering_index",
+      "slow_query_log", "pg_stat_statements", "query_planner_statistics",
+      "n_plus_one_in_production", "spring_data_jpa_query_hints",
+      "read_replicas", "pagination_optimization", "batch_operations"
+    ],
+    "skills_developed": [
+      "reading_explain_analyze_output", "creating_targeted_indexes",
+      "identifying_slow_queries_in_production", "optimizing_jpa_queries",
+      "implementing_efficient_pagination"
+    ],
+    "career_relevance": "The database is almost always the performance bottleneck. Razorpay's payment search was taking 4.2 seconds. EXPLAIN ANALYZE revealed a full sequential scan of 50M rows. Adding a two-column index made it 0.003 seconds — a 1,400× improvement. After this topic, you can diagnose and fix production database performance issues in minutes.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Razorpay dashboard: 'List payments for merchant MRC-001 in the last 30 days' takes 4.2 seconds.\n\n```sql\nEXPLAIN ANALYZE\nSELECT * FROM payments\nWHERE merchant_id = 'MRC-001' AND created_at > NOW() - INTERVAL '30 days'\nORDER BY created_at DESC LIMIT 20;\n\n-- Output:\n-- Seq Scan on payments  (actual time=0.018..4198.341 ms)\n--   Rows Removed by Filter: 49,987,891\n-- Planning Time: 0.8 ms\n-- Execution Time: 4198.7 ms  ← 4.2 SECONDS for 20 rows!\n```\n\nFix:\n```sql\nCREATE INDEX CONCURRENTLY idx_payments_merchant_date\n  ON payments(merchant_id, created_at DESC);\n\n-- After index:\n-- Index Scan using idx_payments_merchant_date  (actual time=0.031..0.187 ms)\n-- Execution Time: 0.3 ms  ← 14,000× faster!\n```",
+    "what_you_will_build": "EXPLAIN ANALYZE skills, targeted index creation, slow query detection via pg_stat_statements, and Spring Data JPA query optimization."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "explain_analyze": "**Reading EXPLAIN ANALYZE:**\n\n```sql\nEXPLAIN ANALYZE\nSELECT p.id, p.amount, m.name\nFROM payments p\nJOIN merchants m ON m.id = p.merchant_id\nWHERE p.status = 'PENDING'\n  AND p.created_at > NOW() - INTERVAL '24 hours';\n\n-- Output (read bottom-up):\n-- Hash Join  (cost=1234.56..5678.90 rows=142 width=64) (actual time=45.2..892.3 ms)\n--   Hash Cond: (p.merchant_id = m.id)\n--   ->  Seq Scan on payments p  (actual time=0.02..831.4 ms)\n--         Filter: ((status = 'PENDING') AND (created_at > ...))\n--         Rows Removed by Filter: 4,987,809  ← scanning 5M rows!\n--   ->  Hash  (actual time=12.1..12.1 ms)\n--         ->  Seq Scan on merchants m  (actual time=0.1..11.9 ms)\n-- Planning Time: 3.2 ms\n-- Execution Time: 893.1 ms\n\n-- DIAGNOSIS:\n-- 1. Seq Scan: no index on payments(status, created_at)\n-- 2. 4.9M rows filtered: index would reduce to ~142 rows scanned\n-- 3. Hash Join is fine (merchants table is small)\n\n-- FIX:\n-- CREATE INDEX CONCURRENTLY idx_payments_status_date\n--   ON payments(status, created_at DESC)\n--   WHERE status = 'PENDING';  ← partial index: only index PENDING rows\n```",
+      "index_design": "**Index design rules:**\n\n```sql\n-- COMPOSITE INDEX COLUMN ORDER:\n-- Rule: equality columns first, range column last\n-- Query: WHERE merchant_id = ? AND created_at > ?\n-- GOOD: INDEX ON payments(merchant_id, created_at)  ← equality first\n-- BAD:  INDEX ON payments(created_at, merchant_id)  ← range first (can't use merchant_id filter!)\n\n-- COVERING INDEX: include all queried columns → avoid table heap access\n-- Query: SELECT id, amount, status FROM payments WHERE merchant_id = ?\n-- GOOD: INDEX ON payments(merchant_id) INCLUDE (id, amount, status)\n-- → 'Index Only Scan' — never touches the table!\n\n-- PARTIAL INDEX: only index rows matching a condition\n-- Only 1% of payments are PENDING → index just those 1%:\n-- CREATE INDEX idx_pending_payments ON payments(created_at) WHERE status = 'PENDING'\n-- → 99% smaller index, much faster for PENDING queries\n\n-- ALWAYS use CONCURRENTLY in production:\n-- CREATE INDEX (without CONCURRENTLY): locks the table for the duration!\n-- CREATE INDEX CONCURRENTLY: no lock, runs in background\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Side-by-side comparison: Seq Scan (left) — database reads all 50M rows one by one, arrow sweeping through table, most rows crossed out (not matching). Time: 4.2s. Index Scan (right) — B-tree index structure, arrow goes directly to matching node, retrieves 23 rows from table. Time: 0.3ms. Below: execution plan tree for each, showing cost estimates and actual times.",
+      "alt_text": "Sequential scan vs index scan: 50M rows vs 23 rows retrieved"
+    }
+  },
+  "worked_example": {
+    "scenario": "Zerodha order history search: find all SELL orders for symbol RELIANCE in last 7 days.",
+    "problem_statement": "1. EXPLAIN ANALYZE the slow query\n2. Design the optimal composite + partial index\n3. Add to Flyway migration\n4. Spring Data JPA: @QueryHints for read-only queries\n5. @SpringBootTest: verify query count drops",
+    "step_by_step_solution": [
+      { "step": 1, "action": "Diagnose with EXPLAIN ANALYZE", "details": "```sql\nEXPLAIN ANALYZE SELECT * FROM orders\nWHERE symbol = 'RELIANCE' AND order_type = 'SELL'\nAND created_at > NOW() - INTERVAL '7 days';\n-- Seq Scan: 2.8 million rows removed by filter\n```" },
+      { "step": 2, "action": "Create targeted index", "details": "```sql\nCREATE INDEX CONCURRENTLY idx_orders_symbol_type_date\n  ON orders(symbol, order_type, created_at DESC);\n-- Order: equality (symbol, order_type) then range (created_at)\n```" },
+      { "step": 3, "action": "Spring Data @QueryHints", "details": "```java\n@QueryHints(@QueryHint(name=HINT_READONLY, value='true'))\nList<Order> findBySymbolAndOrderTypeAndCreatedAtAfter(\n    String symbol, String type, LocalDateTime since);\n// HINT_READONLY: skips Hibernate dirty-check overhead on reads\n```" }
+    ],
+    "final_code": "-- Flyway V8__idx_orders_symbol_type_date.sql\nCREATE INDEX CONCURRENTLY idx_orders_symbol_type_date\n  ON orders(symbol, order_type, created_at DESC);",
+    "expected_output": "-- Before: Seq Scan on orders (actual time=0.02..2847.1 ms) Rows Removed: 2,800,000\n-- After:  Index Scan using idx_orders_symbol_type_date (actual time=0.03..0.41 ms)",
+    "things_to_notice": [
+      "CONCURRENTLY is essential in production. Without it: CREATE INDEX acquires a full table lock — no reads or writes until indexing completes. On a 50M-row table this can take 10+ minutes of complete downtime.",
+      "Column order in composite index matters. `INDEX ON orders(symbol, order_type, created_at)` allows queries filtering by: symbol alone, symbol+order_type, or symbol+order_type+created_at. But NOT by order_type alone or created_at alone. Leading columns must be present in the WHERE clause.",
+      "@QueryHint HINT_READONLY: tells Hibernate to skip dirty checking (comparing entity state to snapshot after every read) for read-only queries. On large result sets this can save significant CPU.",
+      "ANALYZE (without EXPLAIN): updates planner statistics. Run `ANALYZE payments;` after a large data import or schema change to ensure the query planner chooses the right execution plan."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay payment reconciliation", "use_case": "Daily reconciliation query: sum of payments by merchant, gateway, status. Without index: full table scan of 200M rows, 45 seconds. With composite index on (merchant_id, gateway, status, created_at) + partial indexes per status: 0.3 seconds. Reconciliation runs in real-time instead of nightly batch." }
+    ],
+    "interview_relevance": "'How would you diagnose and fix a slow database query?' → EXPLAIN ANALYZE to find Seq Scan and rows removed. Design composite index: equality columns first, range column last. CONCURRENTLY to avoid locking. pg_stat_statements to find slow queries automatically. @QueryHints for read-only JPA queries.",
+    "real_world_workflow": "Slow query workflow: (1) identify via pg_stat_statements or slow query log, (2) EXPLAIN ANALYZE in staging, (3) design index, (4) CREATE INDEX CONCURRENTLY in production, (5) verify EXPLAIN ANALYZE uses Index Scan, (6) monitor query time in Prometheus."
+  },
+  "common_gaps": [
+    { "gap_id": "wrong_index_column_order", "what_students_get_wrong": "Putting the range column (date) first in a composite index, then equality columns. The index can't be used for the equality filter.", "remediation": "Rule: equality columns come first, range column comes last. Query: WHERE a = ? AND b = ? AND c > ? → INDEX ON (a, b, c). The planner can use an index prefix: (a), (a,b), (a,b,c) — but not skip columns.", "detection_pattern": "EXPLAIN ANALYZE still shows Seq Scan after adding an index; index is listed in `pg_indexes` but not used by the planner" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "EXPLAIN ANALYZE: read bottom-up; 'Seq Scan' + high 'Rows Removed' = missing index",
+      "Composite index: equality columns FIRST, range column LAST",
+      "CONCURRENTLY: always use in production — avoids table lock",
+      "Partial index: index only the rows you query (e.g., WHERE status = 'PENDING')",
+      "Covering index: INCLUDE all SELECT columns → Index Only Scan (no table access)",
+      "pg_stat_statements: find slowest queries by total_time automatically",
+      "@QueryHint HINT_READONLY: skip dirty checking for read-only queries",
+      "Keyset pagination (WHERE id > last_id): O(1) vs OFFSET O(n)"
+    ],
+    "self_check_questions": [
+      { "question": "Query: WHERE merchant_id = ? AND status = 'PENDING' AND created_at > ?. Design the optimal index.", "answer": "CREATE INDEX CONCURRENTLY idx_payments_merchant_pending_date ON payments(merchant_id, created_at DESC) WHERE status = 'PENDING'; Reasoning: (1) merchant_id: equality, goes first. (2) created_at: range, goes last. (3) status = 'PENDING': use partial index since only querying PENDING — makes the index ~5× smaller (assuming 20% of payments are PENDING). Skip including status in composite index since it's in the WHERE condition of the partial index. The partial index WHERE clause automatically filters to PENDING rows." }
+    ],
+    "next_topic_preview": "Next: Connection Pool Tuning — HikariCP configuration, pool sizing formula, and detecting pool exhaustion before it brings down your service."
+  }
+}

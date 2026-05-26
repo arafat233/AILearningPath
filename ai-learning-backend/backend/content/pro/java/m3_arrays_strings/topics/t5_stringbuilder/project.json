@@ -1,0 +1,172 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m3_t5_proj",
+  "linked_topic": "java_m3_t5",
+  "level": "mini",
+  "name": "Log Analyzer",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "You're building an internal tool for your DevOps team. Every backend service produces logs — text files with millions of lines containing timestamps, log levels, and messages. When something breaks at 3 AM, engineers need to quickly find: how many errors happened, which endpoint had the most issues, what time range was affected. Your tool parses these logs and produces a summary report. This is real production tooling — companies like Splunk, Datadog, Sumo Logic build entire products around this. You're building a simplified version.",
+  
+  "description": "Build a `LogAnalyzer` class that processes a string containing multiple log lines and produces a formatted summary report. Each log line has format: `[TIMESTAMP] [LEVEL] [ENDPOINT] message`. Practice: string parsing (split), text processing (StringBuilder), formatted output (String.format), and converting between strings and numbers.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `LogAnalyzer` in file LogAnalyzer.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`parseLog(String logs)` splits the input by newline into individual log lines",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`countByLevel(String[] lines, String level)` counts how many lines contain the given level (INFO, WARN, ERROR, DEBUG). Uses .contains.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`getMostActiveEndpoint(String[] lines)` finds the endpoint mentioned most often. Returns its name.",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "`generateReport(String logs)` produces a formatted summary report using StringBuilder",
+        "weight": 25
+      },
+      {
+        "id": "req_7",
+        "description": "Report includes: total lines, count of each level (INFO, WARN, ERROR), most active endpoint",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "Uses String.format for at least one aligned column in the report",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `extractErrors(String[] lines)` returning only the ERROR lines as a String[] for further analysis",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `getErrorRate(String[] lines)` returning percentage of ERROR lines (e.g., '12.5%')",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Parse the timestamp from each line and find time range (earliest, latest)",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Print error counts BY ENDPOINT — which endpoint had the most errors",
+        "weight": 25
+      }
+    ]
+  },
+  
+  "data_to_use": "Use this hardcoded multi-line log string:\n\n```java\nString logs = \n    \"[09:01:23] [INFO] [/api/users] Request received\\n\" +\n    \"[09:01:24] [INFO] [/api/users] Response sent 200\\n\" +\n    \"[09:02:15] [WARN] [/api/payments] Slow query detected\\n\" +\n    \"[09:03:45] [ERROR] [/api/payments] Database timeout\\n\" +\n    \"[09:04:12] [INFO] [/api/users] Request received\\n\" +\n    \"[09:04:13] [ERROR] [/api/payments] Connection refused\\n\" +\n    \"[09:05:01] [INFO] [/api/orders] Request received\\n\" +\n    \"[09:05:30] [ERROR] [/api/payments] Database timeout\\n\" +\n    \"[09:06:15] [WARN] [/api/orders] Retry triggered\\n\" +\n    \"[09:07:00] [INFO] [/api/users] Response sent 200\";\n```\n\nExpected counts:\n- Total lines: 10\n- INFO: 5\n- WARN: 2\n- ERROR: 3\n- Most active endpoint: /api/users (4 mentions) — though /api/payments also has 4. Either is acceptable based on tie-breaking strategy.\n\nActually let me count more carefully:\n- /api/users: 4 (lines 1, 2, 5, 7, 10) — that's 5\n- /api/payments: 4 (lines 3, 4, 6, 8)\n- /api/orders: 2 (lines 7, 9)\n\nMost active: /api/users with 5 mentions.",
+  
+  "starter_code": "public class LogAnalyzer {\n    public static void main(String[] args) {\n        String logs = \n            \"[09:01:23] [INFO] [/api/users] Request received\\n\" +\n            \"[09:01:24] [INFO] [/api/users] Response sent 200\\n\" +\n            \"[09:02:15] [WARN] [/api/payments] Slow query detected\\n\" +\n            \"[09:03:45] [ERROR] [/api/payments] Database timeout\\n\" +\n            \"[09:04:12] [INFO] [/api/users] Request received\\n\" +\n            \"[09:04:13] [ERROR] [/api/payments] Connection refused\\n\" +\n            \"[09:05:01] [INFO] [/api/orders] Request received\\n\" +\n            \"[09:05:30] [ERROR] [/api/payments] Database timeout\\n\" +\n            \"[09:06:15] [WARN] [/api/orders] Retry triggered\\n\" +\n            \"[09:07:00] [INFO] [/api/users] Response sent 200\";\n        \n        String report = generateReport(logs);\n        System.out.println(report);\n    }\n    \n    // TODO: Define parseLog, countByLevel, getMostActiveEndpoint, generateReport\n}",
+  
+  "example_output": "===================================\n         LOG ANALYSIS REPORT\n===================================\nTotal log lines: 10\n-----------------------------------\nLog Levels:\n  INFO     :    5\n  WARN     :    2\n  ERROR    :    3\n  DEBUG    :    0\n-----------------------------------\nMost active endpoint: /api/users\n===================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs without errors (5 pts)"
+      ]
+    },
+    {
+      "category": "Required Methods",
+      "points": 50,
+      "criteria": [
+        "parseLog splits correctly (10 pts)",
+        "countByLevel uses contains correctly (15 pts)",
+        "getMostActiveEndpoint finds most-mentioned endpoint (20 pts)",
+        "generateReport uses StringBuilder (5 pts)"
+      ]
+    },
+    {
+      "category": "Report Quality",
+      "points": 20,
+      "criteria": [
+        "All counts displayed (5 pts)",
+        "Most active endpoint shown (5 pts)",
+        "Uses String.format for alignment (5 pts)",
+        "Clean, readable output (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "Methods do single tasks (5 pts)",
+        "No String + in loops (5 pts)",
+        "Descriptive variable names (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 75,
+      "criteria": [
+        "extractErrors method (15 pts)",
+        "getErrorRate with percentage formatting (15 pts)",
+        "Time range parsing (20 pts)",
+        "Error counts by endpoint (25 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. The trickiest method is getMostActiveEndpoint — you need to extract endpoint substrings from each line and count their frequencies. Without HashMap (Collections module), you'll use parallel arrays or nested loops.",
+  
+  "submission_instructions": "Save as LogAnalyzer.java. Run it. Test with different log inputs — change levels, add lines, see report adapt. Push to GitHub — this is real DevOps tooling. Add to your portfolio with note 'string processing + report generation' as the highlight.",
+  
+  "tips_for_success": [
+    "Split by \"\\n\" to get array of log lines",
+    "For countByLevel: simple — loop, check if line.contains(\"[\" + level + \"]\"), count.",
+    "For endpoint extraction: each line has [/api/...] pattern. Find indexOf('[/'), then next ']' after.",
+    "For most-active endpoint without HashMap: collect all endpoints in a String[], then for each unique one, count occurrences.",
+    "Pre-OOP approach: parallel arrays for endpoint names and counts.",
+    "Use String.format with %-10s and %4d for the level table alignment.",
+    "Build the entire report in a single StringBuilder — don't print line by line."
+  ],
+  
+  "concepts_reinforced": [
+    "Split for parsing multi-line input",
+    "String.contains for level detection",
+    "indexOf and substring for endpoint extraction",
+    "StringBuilder for building reports",
+    "String.format for aligned output",
+    "Multi-method composition",
+    "Real-world text processing pattern"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond the syntax, you experience LOG PROCESSING — the foundation of observability in modern software. Every major company runs log analysis on TB of logs daily. The patterns you're using (parse → extract → count → report) are universal. With small tweaks, your code could process Apache server logs, application crash reports, transaction histories. The architecture is the architecture used by Splunk, ELK Stack, Sumo Logic. You're now thinking like an SRE.",
+  
+  "extensions_for_advanced_learners": [
+    "Add severity scoring: ERROR = 10, WARN = 3, INFO = 1. Calculate total severity score.",
+    "Detect patterns: 'database timeout' appears 2x in errors. Flag repeat errors.",
+    "Compute statistics: avg errors per minute (parse timestamps)",
+    "Output as JSON instead of plain text",
+    "Filter by time range (only count errors in last N minutes)",
+    "Convert to use HashMap (preview of Collections module — endpoint counts become a HashMap)"
+  ]
+}

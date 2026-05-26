@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t1",
+  "topic_name": "Spring Boot Introduction",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m13_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What does @SpringBootApplication expand to?",
+      "scenario": "@SpringBootApplication is a composed annotation.",
+      "instructions": "Which THREE annotations make up @SpringBootApplication?\n\n```java\n@SpringBootApplication  // what does this equal?\npublic class App {\n    public static void main(String[] args) {\n        SpringApplication.run(App.class, args);\n    }\n}\n```",
+      "expected_solution": "@Configuration\n@EnableAutoConfiguration\n@ComponentScan",
+      "test_cases": [
+        { "type": "text_match", "expected": "@Configuration\n@EnableAutoConfiguration\n@ComponentScan" }
+      ],
+      "hints": [
+        "@Configuration: marks as Spring configuration source",
+        "@EnableAutoConfiguration: activates Spring Boot's auto-configuration",
+        "@ComponentScan: scans current package for @Components"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Annotate a service class",
+      "scenario": "@Service marks a class as a Spring-managed business logic bean.",
+      "instructions": "Fill in the annotation to make Spring manage this class.",
+      "starter_code": "import org.springframework.stereotype.Service;\n\n@______\npublic class OrderService {\n    public String processOrder(String productId) {\n        return \"Processing order for: \" + productId;\n    }\n}",
+      "expected_solution": "import org.springframework.stereotype.Service;\n\n@Service\npublic class OrderService {\n    public String processOrder(String productId) {\n        return \"Processing order for: \" + productId;\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Service", "hint": "Spring annotation for business logic layer" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Service registers the class as a Spring bean",
+        "Spring creates one instance and manages it"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal Spring Boot application",
+      "scenario": "The smallest possible Spring Boot application.",
+      "instructions": "Write a complete minimal Spring Boot application that:\n1. Has @SpringBootApplication on the main class\n2. Prints 'Spring Boot started!' after SpringApplication.run()\n3. Compiles (don't need to run)\n\nShow all required imports.",
+      "starter_code": "// Minimal Spring Boot application\n",
+      "expected_solution": "import org.springframework.boot.SpringApplication;\nimport org.springframework.boot.autoconfigure.SpringBootApplication;\n\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) {\n        SpringApplication.run(Application.class, args);\n        System.out.println(\"Spring Boot started!\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Two imports: SpringApplication and @SpringBootApplication",
+        "SpringApplication.run() returns ApplicationContext — you don't need to use it"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m13_t1_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Constructor injection — the preferred way",
+      "scenario": "Constructor injection: Spring injects on the single constructor.",
+      "instructions": "Rewrite this class to use constructor injection (no @Autowired on fields).\n\nInput:\n```java\n@Service\nclass OrderService {\n    @Autowired\n    private OrderRepository repo;\n    @Autowired\n    private EmailService emailSvc;\n}\n```\n\nExpected: constructor injection, final fields.",
+      "starter_code": "// Rewrite with constructor injection\n@Service\nclass OrderService {\n    @Autowired\n    private OrderRepository repo;\n    @Autowired\n    private EmailService emailSvc;\n}",
+      "expected_solution": "import org.springframework.stereotype.Service;\n@Service\nclass OrderService {\n    private final OrderRepository repo;\n    private final EmailService emailSvc;\n    \n    // Single constructor — @Autowired is implicit:\n    OrderService(OrderRepository repo, EmailService emailSvc) {\n        this.repo = repo;\n        this.emailSvc = emailSvc;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Single constructor: @Autowired is optional",
+        "final fields: better — immutable after construction"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m13_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@Value from application.properties",
+      "scenario": "@Value reads configuration values without hardcoding.",
+      "instructions": "Write a @Service that reads three values from application.properties:\n- `app.name` → String\n- `app.max-requests` → int\n- `app.debug-mode` → boolean\n\nPrint all three in a @PostConstruct method.",
+      "starter_code": "// @Service with three @Value fields\n",
+      "expected_solution": "import org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\nimport javax.annotation.PostConstruct;\n\n@Service\npublic class AppConfig {\n    @Value(\"${app.name:MyApp}\")\n    private String appName;\n    \n    @Value(\"${app.max-requests:100}\")\n    private int maxRequests;\n    \n    @Value(\"${app.debug-mode:false}\")\n    private boolean debugMode;\n    \n    @PostConstruct\n    public void printConfig() {\n        System.out.println(\"App: \" + appName);\n        System.out.println(\"Max requests: \" + maxRequests);\n        System.out.println(\"Debug: \" + debugMode);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Value(\"${property.name:default}\"): reads property with fallback",
+        "@PostConstruct: runs after @Value fields are injected"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m13_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@PostConstruct vs constructor — initialization order",
+      "scenario": "@PostConstruct runs after @Value is set; constructor runs before.",
+      "instructions": "Write a @Service that demonstrates the difference:\n- Constructor prints @Value field (will be null/default)\n- @PostConstruct prints the same field (correct value)\n\nShow why @PostConstruct is needed for initialization.",
+      "starter_code": "// Demonstrate constructor vs @PostConstruct initialization order\n",
+      "expected_solution": "import org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\nimport javax.annotation.PostConstruct;\n\n@Service\npublic class InitDemoService {\n    @Value(\"${app.name:ProductService}\")\n    private String name;\n    \n    public InitDemoService() {\n        // @Value not yet injected at constructor time:\n        System.out.println(\"Constructor: name = \" + name);  // null!\n    }\n    \n    @PostConstruct\n    public void init() {\n        // @Value is now injected:\n        System.out.println(\"PostConstruct: name = \" + name);  // ProductService\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Constructor: Spring hasn't injected @Value yet → null",
+        "@PostConstruct: all injections done → correct value"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Spring Bean wiring — three layer service",
+      "scenario": "Controller → Service → Repository pattern.",
+      "instructions": "Write a three-class Spring Bean setup:\n- `ProductRepository` (@Repository) with `findAll()` returning List\n- `ProductService` (@Service) with `getProducts()` calling repo\n- `ProductController` (@Component) with `listProducts()` calling service\n\nAll wired with constructor injection. No @Autowired annotations.",
+      "starter_code": "// Three-layer Spring Bean wiring\nimport java.util.*;\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.stereotype.*;\n\n@Repository\nclass ProductRepository {\n    List<String> findAll() { return List.of(\"Mouse\", \"Keyboard\", \"Monitor\"); }\n}\n\n@Service\nclass ProductService {\n    private final ProductRepository repo;\n    ProductService(ProductRepository repo) { this.repo = repo; }\n    List<String> getProducts() { return repo.findAll(); }\n}\n\n@Component\nclass ProductController {\n    private final ProductService service;\n    ProductController(ProductService service) { this.service = service; }\n    List<String> listProducts() { return service.getProducts(); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Each class gets its dependency via constructor",
+        "No @Autowired needed on single constructors"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m13_t1_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "application.properties — configure the server",
+      "scenario": "application.properties controls Spring Boot behavior.",
+      "instructions": "Write an `application.properties` file that:\n1. Sets server port to 9090\n2. Sets app name to 'flipkart-catalog'\n3. Sets root logging level to WARN\n4. Adds custom property: `catalog.items-per-page=25`\n5. Sets Jackson to produce pretty-printed JSON\n\nThen write a @Service that reads `catalog.items-per-page` with @Value.",
+      "starter_code": "# application.properties\n# Fill in the 5 properties\n\n# Then write the @Service that reads items-per-page:\n",
+      "expected_solution": "# application.properties:\nserver.port=9090\nspring.application.name=flipkart-catalog\nlogging.level.root=WARN\ncatalog.items-per-page=25\nspring.jackson.serialization.indent-output=true\n\n# CatalogService.java:\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\n@Service\npublic class CatalogService {\n    @Value(\"${catalog.items-per-page:20}\")\n    private int itemsPerPage;\n    public int getItemsPerPage() { return itemsPerPage; }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "spring.jackson.serialization.indent-output=true for pretty JSON",
+        "@Value with :20 default in case property isn't set"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m13_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "CommandLineRunner — run code after startup",
+      "scenario": "CommandLineRunner runs after the Spring context is ready.",
+      "instructions": "Write a @Component that implements CommandLineRunner. It should:\n1. Be injected with a @Service (UserService with a loadUsers() method)\n2. In run(), call service.loadUsers() and print the count\n3. Print 'Application ready!' at the end\n\nAlso write the UserService.",
+      "starter_code": "import java.util.*;\n// CommandLineRunner with UserService dependency\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.boot.CommandLineRunner;\nimport org.springframework.stereotype.*;\n\n@Service\nclass UserService {\n    private final List<String> users = List.of(\"Aisha\", \"Raj\", \"Priya\");\n    List<String> loadUsers() { return users; }\n}\n\n@Component\nclass AppStartup implements CommandLineRunner {\n    private final UserService userService;\n    AppStartup(UserService s) { userService = s; }\n    \n    @Override\n    public void run(String... args) throws Exception {\n        List<String> users = userService.loadUsers();\n        System.out.println(\"Loaded \" + users.size() + \" users: \" + users);\n        System.out.println(\"Application ready!\");\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "CommandLineRunner is a functional interface with run(String... args)",
+        "Spring calls run() after all beans are created and wired"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m13_t1_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Stereotype annotation equivalence",
+      "scenario": "All stereotypes register Spring beans — semantic differences only.",
+      "instructions": "Which of these correctly register Spring beans? Which doesn't?\n\n```java\n@Component class A { }         // 1\n@Service   class B { }         // 2\n@Repository class C { }        // 3\n@Controller class D { }        // 4\nclass E { }                    // 5 — no annotation\n@Value(\"${x}\") class F { }    // 6\n```",
+      "expected_solution": "Registers: 1 (A), 2 (B), 3 (C), 4 (D)\nDoes not register: 5 (E - no annotation), 6 (F - @Value is not a stereotype)",
+      "test_cases": [
+        { "type": "text_match", "expected": "Registers: 1 (A), 2 (B), 3 (C), 4 (D)\nDoes not register: 5 (E - no annotation), 6 (F - @Value is not a stereotype)" }
+      ],
+      "hints": [
+        "@Component, @Service, @Repository, @Controller all register beans",
+        "class without annotation: ignored by component scan",
+        "@Value is for field injection, not bean registration"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Spring profiles — dev vs prod configuration",
+      "scenario": "Different properties for different environments.",
+      "instructions": "Create three files:\n1. `application.properties` — shared properties: `app.name=OrderService`\n2. `application-dev.properties` — `server.port=8080`, `logging.level.root=DEBUG`\n3. `application-prod.properties` — `server.port=80`, `logging.level.root=WARN`\n\nThen write a @Service that prints which profile is active using `@Value(\"${spring.profiles.active:default}\")`.",
+      "starter_code": "# application.properties\n# application-dev.properties\n# application-prod.properties\n# ProfileAwareService.java\n",
+      "expected_solution": "# application.properties:\napp.name=OrderService\n\n# application-dev.properties:\nserver.port=8080\nlogging.level.root=DEBUG\n\n# application-prod.properties:\nserver.port=80\nlogging.level.root=WARN\n\n# ProfileAwareService.java:\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\nimport javax.annotation.PostConstruct;\n\n@Service\npublic class ProfileAwareService {\n    @Value(\"${spring.profiles.active:default}\")\n    private String activeProfile;\n    \n    @Value(\"${app.name}\")\n    private String appName;\n    \n    @PostConstruct\n    public void printProfile() {\n        System.out.println(appName + \" running in profile: \" + activeProfile);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "application-{profile}.properties: Spring loads for that profile",
+        "Activate with: spring.profiles.active=dev in application.properties",
+        "Or run: java -jar app.jar --spring.profiles.active=prod"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t1_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Unit test a Spring @Service without Spring context",
+      "scenario": "Constructor injection makes @Service classes testable without Spring.",
+      "instructions": "Write a JUnit 5 test for `DiscountService.calculate(int qty, double price)` WITHOUT using Spring test context. Use plain `new DiscountService(mockRepo)` with Mockito mock.\n\nTest: qty=10, price=100 → expects 900 (10% discount).",
+      "starter_code": "// DiscountService depends on PricingRepository\ninterface PricingRepository { double getDiscountRate(int qty); }\n\n@Service\nclass DiscountService {\n    private final PricingRepository pricingRepo;\n    DiscountService(PricingRepository repo) { this.pricingRepo = repo; }\n    double calculate(int qty, double price) {\n        double rate = pricingRepo.getDiscountRate(qty);\n        return qty * price * (1 - rate);\n    }\n}\n\n// Write the unit test (no Spring context needed):\n",
+      "expected_solution": "// (DiscountService and PricingRepository as above)\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\n\n@ExtendWith(MockitoExtension.class)\nclass DiscountServiceTest {\n    @Mock PricingRepository pricingRepo;\n    \n    @Test\n    void calculate_qty10_applies10pctDiscount() {\n        when(pricingRepo.getDiscountRate(10)).thenReturn(0.10);\n        DiscountService service = new DiscountService(pricingRepo);  // no Spring!\n        assertEquals(900.0, service.calculate(10, 100), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "1 test passes" }
+      ],
+      "hints": [
+        "Constructor injection means: new Service(mockDep) works without Spring",
+        "No @SpringBootTest needed — pure Mockito test",
+        "10 * 100 * (1 - 0.10) = 900"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m13_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full Spring Boot application skeleton",
+      "scenario": "Write the complete skeleton of a production-ready Spring Boot app.",
+      "instructions": "Write a complete, multi-class Spring Boot application skeleton for a 'StockPriceService':\n1. `Application.java` — @SpringBootApplication with main()\n2. `StockPriceService.java` — @Service with getPrices() and @PostConstruct\n3. `CacheService.java` — @Service that StockPriceService depends on\n4. `PriceConfig.java` — @Component reading 3 @Value properties\n5. `application.properties` — set port=9090 + 3 custom price config values\n\nAll constructor-injected. Compile-ready.",
+      "starter_code": "// Complete production-ready Spring Boot skeleton\n",
+      "expected_solution": "// Application.java:\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\n@SpringBootApplication\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}\n\n// CacheService.java:\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n@Service\npublic class CacheService {\n    private final Map<String, Double> cache = new HashMap<>();\n    public void put(String sym, double price) { cache.put(sym, price); }\n    public Optional<Double> get(String sym)  { return Optional.ofNullable(cache.get(sym)); }\n}\n\n// StockPriceService.java:\nimport org.springframework.stereotype.Service;\nimport javax.annotation.PostConstruct;\nimport java.util.*;\n@Service\npublic class StockPriceService {\n    private final CacheService cache;\n    StockPriceService(CacheService cache) { this.cache = cache; }\n    @PostConstruct void init() {\n        System.out.println(\"StockPriceService initialized\");\n        cache.put(\"TCS\", 3890.0); cache.put(\"RELIANCE\", 2450.0);\n    }\n    public Map<String, Double> getPrices() {\n        Map<String, Double> prices = new HashMap<>();\n        List.of(\"TCS\",\"RELIANCE\").forEach(s -> cache.get(s).ifPresent(p -> prices.put(s, p)));\n        return prices;\n    }\n}\n\n// PriceConfig.java:\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Component;\n@Component\npublic class PriceConfig {\n    @Value(\"${price.refresh-interval:30}\") private int refreshInterval;\n    @Value(\"${price.symbols:TCS,RELIANCE}\") private String symbols;\n    @Value(\"${price.currency:INR}\") private String currency;\n    public int getRefreshInterval() { return refreshInterval; }\n}\n\n// application.properties:\n// server.port=9090\n// price.refresh-interval=60\n// price.symbols=TCS,RELIANCE,INFY\n// price.currency=INR",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "All 5 classes in sub-packages of Application's package",
+        "StockPriceService constructor takes CacheService",
+        "@Value in PriceConfig reads from application.properties"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Spring Boot test — no HTTP context",
+      "scenario": "Test Spring beans by loading just the Spring context (no HTTP).",
+      "instructions": "Write a @SpringBootTest test that verifies:\n1. `GreetingService.greet(String name)` returns 'Hello, Aisha!'\n2. @Value property `app.greeting=Hello` is read correctly\n3. The GreetingService is not null (Spring wired it)\n\nUse @SpringBootTest without webEnvironment.",
+      "starter_code": "import org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\n@Service\npublic class GreetingService {\n    @Value(\"${app.greeting:Hello}\")\n    private String greeting;\n    public String greet(String name) { return greeting + \", \" + name + \"!\"; }\n}\n// application.properties: app.greeting=Hello\n\n// Write the @SpringBootTest test:\n",
+      "expected_solution": "// (GreetingService as above)\nimport org.junit.jupiter.api.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass GreetingServiceTest {\n    @Autowired\n    GreetingService greetingService;\n    \n    @Test\n    void greet_returnsCorrectGreeting() {\n        assertNotNull(greetingService);\n        assertEquals(\"Hello, Aisha!\", greetingService.greet(\"Aisha\"));\n    }\n    \n    @Test\n    void greet_appName_isConfigured() {\n        // @Value was read from properties — greeting starts with 'Hello'\n        assertTrue(greetingService.greet(\"test\").startsWith(\"Hello\"));\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "2 tests pass" }
+      ],
+      "hints": [
+        "@SpringBootTest(webEnvironment = NONE): loads Spring context, no Tomcat",
+        "@Autowired in test: Spring injects the bean automatically",
+        "NONE is faster than RANDOM_PORT when you don't need HTTP"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete service layer with full test — Module 13.1 synthesis",
+      "scenario": "Production-ready Spring Boot service layer with tests.",
+      "instructions": "Build a complete `PaymentConfigService` for a Razorpay-style app:\n1. `PaymentConfigService` (@Service): reads 4 @Value properties, validates in @PostConstruct\n2. `PaymentGatewayService` (@Service): depends on PaymentConfigService, has isEnabled() and getMaxAmount()\n3. Unit test (no Spring): plain new with Mockito or actual values\n4. Integration test (@SpringBootTest NONE): both beans wired\n\napplication.properties: payment.enabled=true, payment.max-amount=100000, payment.currency=INR, payment.provider=razorpay",
+      "starter_code": "// Complete Spring Boot service layer + tests\n",
+      "expected_solution": "// application.properties:\n// payment.enabled=true\n// payment.max-amount=100000\n// payment.currency=INR\n// payment.provider=razorpay\n\n// PaymentConfigService.java:\nimport org.springframework.beans.factory.annotation.Value;\nimport org.springframework.stereotype.Service;\nimport javax.annotation.PostConstruct;\n@Service\npublic class PaymentConfigService {\n    @Value(\"${payment.enabled:false}\") private boolean enabled;\n    @Value(\"${payment.max-amount:50000}\") private int maxAmount;\n    @Value(\"${payment.currency:INR}\") private String currency;\n    @Value(\"${payment.provider:razorpay}\") private String provider;\n    \n    @PostConstruct\n    void validate() {\n        if (maxAmount <= 0) throw new IllegalStateException(\"Max amount must be positive\");\n        System.out.println(\"Payment config: \" + provider + \" (\" + currency + \") max=\" + maxAmount);\n    }\n    public boolean isEnabled() { return enabled; }\n    public int getMaxAmount()   { return maxAmount; }\n    public String getCurrency() { return currency; }\n    public String getProvider() { return provider; }\n}\n\n// PaymentGatewayService.java:\nimport org.springframework.stereotype.Service;\n@Service\npublic class PaymentGatewayService {\n    private final PaymentConfigService config;\n    PaymentGatewayService(PaymentConfigService config) { this.config = config; }\n    public boolean isEnabled()      { return config.isEnabled(); }\n    public boolean canProcess(double amount) { return isEnabled() && amount <= config.getMaxAmount(); }\n}\n\n// Unit test:\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\nclass PaymentGatewayServiceTest {\n    PaymentConfigService config;\n    PaymentGatewayService gateway;\n    @BeforeEach void setUp() {\n        config = new PaymentConfigService();\n        // Would need Spring to inject @Value — or use real Spring test\n    }\n}\n\n// Integration test:\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.context.SpringBootTest;\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\nclass PaymentGatewayIntegrationTest {\n    @Autowired PaymentGatewayService gateway;\n    @Test void gateway_isEnabled() { assertTrue(gateway.isEnabled()); }\n    @Test void gateway_canProcess_within_limit() { assertTrue(gateway.canProcess(50000)); }\n    @Test void gateway_cannotProcess_overLimit() { assertFalse(gateway.canProcess(200000)); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "PaymentConfigService: 4 @Value fields + @PostConstruct validation",
+        "PaymentGatewayService: constructor-injected config, delegates to it",
+        "@SpringBootTest(NONE): loads context without web server — faster"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 685,
+    "estimated_completion_minutes": 65
+  }
+}

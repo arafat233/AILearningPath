@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m27_t3",
+  "language": "java",
+  "module_id": "m27",
+  "module_name": "GraphQL with Spring Boot",
+  "topic_number": 3,
+  "name": "DataLoader — Solving the N+1 Problem",
+  "slug": "dataloader-solving-n-plus-one-problem",
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m27_t2", "java_m17_t2"],
+    "concepts_taught": [
+      "n_plus_one_problem", "dataloader_concept", "batch_mapping",
+      "batch_loader_registry", "dataloader_caching", "spring_graphql_batch_mapping",
+      "async_dataloader", "dataloader_per_request"
+    ],
+    "skills_developed": [
+      "identifying_n_plus_one_in_graphql", "implementing_batch_mapping",
+      "measuring_query_count_reduction"
+    ],
+    "career_relevance": "Flipkart's product list query with reviews was running 201 database queries for 200 products (1 for products + 200 for reviews). DataLoader collapsed it to 2 queries: 1 for products, 1 for all reviews (WHERE product_id IN (...)). At 10,000 QPS, this reduced DB load by 99.5%. After this topic, you can diagnose and fix the most common GraphQL performance bug.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "Flipkart product list page N+1 problem:\n\n```\nGraphQL query:\n  { products { id name reviews { rating } } }\n\nWith @SchemaMapping (NAIVE):\n  Query 1: SELECT * FROM products              (returns 200 products)\n  Query 2: SELECT * FROM reviews WHERE product_id = 'P1'\n  Query 3: SELECT * FROM reviews WHERE product_id = 'P2'\n  ... (one per product)\n  Query 201: SELECT * FROM reviews WHERE product_id = 'P200'\n\n  Total: 201 DB queries, 2.5 seconds\n\nWith @BatchMapping (DataLoader):\n  Query 1: SELECT * FROM products              (returns 200 products)\n  Query 2: SELECT * FROM reviews WHERE product_id IN ('P1','P2',...,'P200')\n\n  Total: 2 DB queries, 80ms\n  Improvement: 100× faster, 99% fewer queries\n```",
+    "what_you_will_build": "Flipkart product reviews BatchMapping that collapses 200 DB queries into 1."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "n_plus_one": "**N+1 with @SchemaMapping:**\n\n```java\n// NAIVE (N+1 problem):\n@SchemaMapping(typeName = \"Product\")\npublic List<Review> reviews(Product product) {\n    // Called ONCE PER PRODUCT in the result!\n    // 200 products → 200 separate DB calls\n    return reviewRepository.findByProductId(product.getId());\n}\n```",
+      "batch_mapping": "**@BatchMapping — the fix:**\n\n```java\n// BATCHED (N+1 solved):\n@BatchMapping(typeName = \"Product\", field = \"reviews\")\npublic Map<Product, List<Review>> reviews(List<Product> products) {\n    // Called ONCE with ALL products in the result!\n    // Extract all IDs:\n    List<String> productIds = products.stream()\n        .map(Product::getId).toList();\n\n    // ONE query for all reviews:\n    List<Review> allReviews = reviewRepository\n        .findByProductIdIn(productIds); // IN query\n\n    // Group by product:\n    Map<String, List<Review>> byProductId = allReviews.stream()\n        .collect(Collectors.groupingBy(Review::getProductId));\n\n    // Return Map<Product, List<Review>>:\n    return products.stream()\n        .collect(Collectors.toMap(\n            Function.identity(),\n            p -> byProductId.getOrDefault(p.getId(), List.of())\n        ));\n}\n// Key difference:\n// @SchemaMapping: (Product) → List<Review>   (called N times)\n// @BatchMapping:  (List<Product>) → Map<Product, List<Review>>  (called once)\n```"
+    },
+    "visual_aid": {"type": "diagram", "description": "Two diagrams. Left (N+1, naive): 200 product boxes each with their own arrow going down to the DB (200 arrows = 200 queries). Right (DataLoader/BatchMapping): 200 products collected into one batch, single arrow to DB with 'IN (P1, P2... P200)', results grouped and distributed back. Performance numbers: N+1: 201 queries, 2500ms. DataLoader: 2 queries, 80ms.", "alt_text": "N+1: one DB call per product. DataLoader: one DB call for all products."},
+    "worked_example": {
+      "scenario": "Flipkart product reviews: @BatchMapping to eliminate N+1.",
+      "problem_statement": "1. Add @BatchMapping reviews(List<Product>) to existing controller\n2. ReviewRepository: findByProductIdIn(List<String>)\n3. Group results by productId → return Map<Product, List<Review>>\n4. @SpringBootTest: verify ONE query executed for multiple products",
+      "step_by_step_solution": [{"step": 1, "action": "DataLoader caching within request", "details": "DataLoader caches results within a single GraphQL request. If two parts of a query both request the same product's reviews, DataLoader calls the batch function once and serves the cached result to both. This is request-scoped (cleared between requests) — no stale data risk."}],
+      "final_code": "// @BatchMapping: called once with all products that need their reviews\n// findByProductIdIn(): one SQL IN query\n// groupingBy(productId): groups reviews back to each product",
+      "expected_output": "// Without DataLoader: 201 queries for 200 products\n// With @BatchMapping: 2 queries total\n// SQL: SELECT * FROM reviews WHERE product_id IN ('P1','P2',...,'P200')",
+      "things_to_notice": [
+        "@BatchMapping return type: Map<ParentType, ChildType>. The key is the parent object (Product), the value is what the field should return (List<Review>). Spring uses this map to match each product to its reviews.",
+        "@BatchMapping replaces @SchemaMapping entirely — don't use both for the same field. One or the other.",
+        "Missing products in the map: if a product has no reviews, include it with an empty list (not missing from the map). If a product is missing from the map, Spring propagates null for that field.",
+        "DataLoader works even for single-item queries: { product(id: P1) { reviews { } } }. Even for one product, DataLoader still batches (though it's trivial — 1 item in the batch)."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{"company_context": "Razorpay payment dashboard", "use_case": "Merchant dashboard: 50 payments shown with their merchant details. @SchemaMapping merchant() called 50 times → 50 queries. @BatchMapping merchant(List<Payment>) → 1 query: SELECT * FROM merchants WHERE id IN (50 merchant IDs). Response time: 800ms → 45ms. Same pattern for payment.refunds, payment.dispute."}],
+      "interview_relevance": "'How do you solve the N+1 problem in GraphQL?' → DataLoader / @BatchMapping. Instead of @SchemaMapping calling DB once per parent (N times), @BatchMapping receives all parents as a list, executes ONE batch query (SELECT * FROM table WHERE id IN (...)), groups results by parent, returns Map<Parent, Child>. Spring for GraphQL: @BatchMapping annotation handles the DataLoader machinery automatically.",
+      "real_world_workflow": "DataLoader adoption: (1) identify slow queries in logs (repeated similar queries = N+1), (2) replace @SchemaMapping with @BatchMapping, (3) add JPA repository method: findByXxx idIn(List<String> ids), (4) group results: Collectors.groupingBy, (5) return Map<ParentType, List<ChildType>>, (6) verify: query count drops from N+1 to 2."
+    },
+    "common_gaps": [{"gap_id": "wrong_batch_return_type", "what_students_get_wrong": "Returning List<Review> instead of Map<Product, List<Review>> from @BatchMapping. Spring can't map reviews back to the correct product.", "remediation": "BatchMapping must return Map<ParentType, ReturnType>. The key is the parent object (Product), not the parent ID. Spring uses reference equality to match. Alternative: use Map<String, List<Review>> (key = productId String) if you prefer String keys — but the Map key must match what Spring can correlate.", "detection_pattern": "@BatchMapping method returns List<Review> instead of Map<Product, List<Review>> — compilation error or ClassCastException at runtime"}],
+    "reflection": {
+      "key_takeaways": ["N+1: @SchemaMapping called N times for N parents = N+1 DB queries total", "@BatchMapping: called ONCE with ALL parents → one batch query → Map<Parent, Child>", "Repository: add findByIdIn(List<String>) for the batch query", "groupingBy: Collectors.groupingBy(Review::getProductId) groups reviews by parent", "Map return: key=parent object, value=child list (products with no reviews → empty list, not missing)", "DataLoader cache: within one request, same key = cached (no duplicate batch calls)", "@BatchMapping replaces @SchemaMapping — don't use both for the same field", "Performance: N+1 → 2 queries (100× improvement for large lists)"],
+      "self_check_questions": [{"question": "A Swiggy query returns 30 restaurants, each with their menu (items list). How many DB queries are made without DataLoader vs with DataLoader?", "answer": "Without DataLoader (@SchemaMapping): 31 queries. 1 query for 30 restaurants + 1 menu query per restaurant = 30 menu queries. Total: 31. With DataLoader (@BatchMapping): 2 queries. 1 query for 30 restaurants + 1 batch query 'SELECT * FROM menus WHERE restaurant_id IN (R1, R2, ..., R30)'. Total: 2. At 500 concurrent users each loading 30 restaurants: Without: 500 × 31 = 15,500 DB queries/second. With DataLoader: 500 × 2 = 1,000 DB queries/second. DataLoader is not optional for production GraphQL with nested data."}],
+      "next_topic_preview": "Next: GraphQL Subscriptions — real-time updates via WebSocket. Track live stock prices on Zerodha or order status changes on Swiggy."
+    }
+  }
+}

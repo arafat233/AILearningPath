@@ -1,0 +1,336 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t3",
+  "topic_name": "CSV and Structured Data Processing",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m11_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Why split(',') breaks on CSV",
+      "scenario": "Naive split on quoted CSV returns wrong field count.",
+      "instructions": "What does this print? Why is it wrong for CSV?\n\n```java\npublic class App {\n    public static void main(String[] args) {\n        String csvLine = \"\\\"Smith, John\\\",Engineering,95000\";\n        String[] cols = csvLine.split(\",\");\n        System.out.println(\"Fields: \" + cols.length);\n        System.out.println(\"Field 0: \" + cols[0]);\n    }\n}\n```",
+      "expected_solution": "Fields: 4\nField 0: \"Smith",
+      "test_cases": [
+        { "type": "text_match", "expected": "Fields: 4\nField 0: \"Smith" }
+      ],
+      "hints": [
+        "split splits on EVERY comma — including those in quotes",
+        "\"Smith, John\" splits into '\"Smith' and ' John\"' — now 4 fields instead of 3",
+        "This is why real CSV parsers track quote state"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Jackson readValue for simple POJO",
+      "scenario": "ObjectMapper.readValue converts JSON string to Java object.",
+      "instructions": "Fill in the blank to parse JSON to a Product record.",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\npublic class App {\n    record Product(String name, int price) {}\n    public static void main(String[] args) throws Exception {\n        ObjectMapper mapper = new ObjectMapper();\n        String json = \"{\\\"name\\\":\\\"Mouse\\\",\\\"price\\\":799}\";\n        Product p = mapper._____________(json, Product.class);\n        System.out.println(p.name() + \": ₹\" + p.price());\n    }\n}",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\npublic class App {\n    record Product(String name, int price) {}\n    public static void main(String[] args) throws Exception {\n        ObjectMapper mapper = new ObjectMapper();\n        String json = \"{\\\"name\\\":\\\"Mouse\\\",\\\"price\\\":799}\";\n        Product p = mapper.readValue(json, Product.class);\n        System.out.println(p.name() + \": ₹\" + p.price());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "readValue", "hint": "Method to parse JSON → Java object" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Mouse: ₹799" }
+      ],
+      "hints": [
+        "mapper.readValue(jsonString, TargetClass.class)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m11_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Jackson writeValueAsString",
+      "scenario": "Serialize a Java object to JSON string.",
+      "instructions": "Use Jackson to serialize a Person object to JSON. Print compact and pretty-printed forms.\n\nExpected output (compact):\n{\"name\":\"Aisha\",\"age\":28,\"city\":\"Hyderabad\"}\n(then pretty-printed with indentation)",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\n// Jackson: POJO → JSON\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\npublic class App {\n    static class Person {\n        public String name; public int age; public String city;\n        Person() {}\n        Person(String name, int age, String city) { this.name=name; this.age=age; this.city=city; }\n    }\n    public static void main(String[] args) throws Exception {\n        ObjectMapper mapper = new ObjectMapper();\n        Person aisha = new Person(\"Aisha\", 28, \"Hyderabad\");\n        System.out.println(mapper.writeValueAsString(aisha));\n        System.out.println(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(aisha));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["{\"name\":\"Aisha\",\"age\":28,\"city\":\"Hyderabad\"}"] }
+      ],
+      "hints": [
+        "mapper.writeValueAsString(obj) — compact",
+        "mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj) — indented"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m11_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "parseCSVLine state machine",
+      "scenario": "Implement a correct CSV line parser.",
+      "instructions": "Implement `parseCSVLine(String line)` that handles quoted fields with commas. Test with lines that split(,) would get wrong.\n\nExpected output:\nFields: 3\nField 0: Smith, John\nField 1: Engineering\nField 2: 95000",
+      "starter_code": "import java.util.*;\n// parseCSVLine state machine — handle quoted fields\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    static List<String> parseCSVLine(String line) {\n        List<String> fields = new ArrayList<>();\n        StringBuilder current = new StringBuilder();\n        boolean inQuotes = false;\n        for (int i = 0; i < line.length(); i++) {\n            char c = line.charAt(i);\n            if (c == '\"') {\n                if (inQuotes && i+1 < line.length() && line.charAt(i+1) == '\"') {\n                    current.append('\"'); i++;\n                } else inQuotes = !inQuotes;\n            } else if (c == ',' && !inQuotes) {\n                fields.add(current.toString()); current.setLength(0);\n            } else current.append(c);\n        }\n        fields.add(current.toString());\n        return fields;\n    }\n    public static void main(String[] args) {\n        List<String> cols = parseCSVLine(\"\\\"Smith, John\\\",Engineering,95000\");\n        System.out.println(\"Fields: \" + cols.size());\n        System.out.println(\"Field 0: \" + cols.get(0));\n        System.out.println(\"Field 1: \" + cols.get(1));\n        System.out.println(\"Field 2: \" + cols.get(2));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Fields: 3\nField 0: Smith, John\nField 1: Engineering\nField 2: 95000" }
+      ],
+      "hints": [
+        "Track boolean inQuotes — toggled on each lone '\"'",
+        "Comma when inQuotes=false → field separator",
+        "\"\" inside quotes → single literal '\"'"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m11_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Write correct CSV with quoting",
+      "scenario": "toCSVField escapes fields that need quoting.",
+      "instructions": "Implement `toCSVField(String value)` that returns the value quoted if it contains commas or double-quotes. Write 3 product rows to CSV.\n\nExpected output (first line of file):\nname,price,description\n\"Wireless Mouse, 2.4GHz\",799,Compact design\n\"Dell 27\"\" Monitor\",18999,\"4K, HDMI\"\nUSB Hub,499,7-port",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\n// CSV writer with proper quoting\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\npublic class App {\n    static String toCSVField(String value) {\n        if (value == null) return \"\";\n        boolean needsQuoting = value.contains(\",\") || value.contains(\"\\\"\") || value.contains(\"\\n\");\n        if (!needsQuoting) return value;\n        return \"\\\"\" + value.replace(\"\\\"\", \"\\\"\\\"\") + \"\\\"\";\n    }\n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"products.csv\");\n        try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(csv.toFile())))) {\n            pw.println(\"name,price,description\");\n            pw.printf(\"%s,%s,%s%n\", toCSVField(\"Wireless Mouse, 2.4GHz\"), \"799\", toCSVField(\"Compact design\"));\n            pw.printf(\"%s,%s,%s%n\", toCSVField(\"Dell 27\\\" Monitor\"), \"18999\", toCSVField(\"4K, HDMI\"));\n            pw.printf(\"%s,%s,%s%n\", toCSVField(\"USB Hub\"), \"499\", toCSVField(\"7-port\"));\n        }\n        Files.readAllLines(csv).forEach(System.out::println);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "name,price,description\n\"Wireless Mouse, 2.4GHz\",799,Compact design\n\"Dell 27\"\" Monitor\",18999,\"4K, HDMI\"\nUSB Hub,499,7-port" }
+      ],
+      "hints": [
+        "Wrap in quotes if contains comma, quote, or newline",
+        "Escape existing quotes: replace '\"' with '\"\"'",
+        "USB Hub has no special chars — no quoting needed"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m11_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Jackson JsonNode tree navigation",
+      "scenario": "Navigate JSON without a POJO class.",
+      "instructions": "Parse a JSON stock object using JsonNode. Extract fields by name.\n\nExpected output:\nSymbol: TCS\nPrice: 3890.0\nChange: +4.1%\nHas volume: false",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\n// JsonNode tree model\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ObjectMapper mapper = new ObjectMapper();\n        String json = \"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890,\\\"changePercent\\\":4.1}\";\n        JsonNode root = mapper.readTree(json);\n        System.out.println(\"Symbol: \" + root.get(\"symbol\").asText());\n        System.out.println(\"Price: \" + root.get(\"price\").asDouble());\n        System.out.println(\"Change: +\" + root.get(\"changePercent\").asDouble() + \"%\");\n        System.out.println(\"Has volume: \" + root.has(\"volume\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Symbol: TCS\nPrice: 3890.0\nChange: +4.1%\nHas volume: false" }
+      ],
+      "hints": [
+        "mapper.readTree(json) → JsonNode",
+        "root.get('key').asText() / .asDouble() / .asInt()",
+        "root.has('key') checks if field exists"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m11_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Read CSV file with quoted fields",
+      "scenario": "Use parseCSVLine to correctly parse a real CSV with quotes.",
+      "instructions": "Read an employee CSV that has a 'bio' field with commas and quotes. Parse correctly and print names and bios.\n\nExpected output:\nAisha: 'Java developer, 5 years experience'\nRaj: 'Sales lead, \"top performer\" award'",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\n// Read CSV with quoted fields using parseCSVLine\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\npublic class App {\n    static List<String> parseCSVLine(String line) {\n        List<String> fields = new ArrayList<>();\n        StringBuilder cur = new StringBuilder();\n        boolean inQ = false;\n        for (int i = 0; i < line.length(); i++) {\n            char c = line.charAt(i);\n            if (c == '\"') {\n                if (inQ && i+1 < line.length() && line.charAt(i+1) == '\"') { cur.append('\"'); i++; }\n                else inQ = !inQ;\n            } else if (c == ',' && !inQ) { fields.add(cur.toString()); cur.setLength(0); }\n            else cur.append(c);\n        }\n        fields.add(cur.toString());\n        return fields;\n    }\n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"employees.csv\");\n        Files.writeString(csv,\n            \"name,dept,bio\\n\" +\n            \"Aisha,Engineering,\\\"Java developer, 5 years experience\\\"\\n\" +\n            \"Raj,Sales,\\\"Sales lead, \\\"\\\"top performer\\\"\\\" award\\\"\");\n        try (BufferedReader br = Files.newBufferedReader(csv)) {\n            br.readLine();  // header\n            String line;\n            while ((line = br.readLine()) != null) {\n                List<String> cols = parseCSVLine(line);\n                System.out.println(cols.get(0) + \": '\" + cols.get(2) + \"'\");\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha: 'Java developer, 5 years experience'\nRaj: 'Sales lead, \"top performer\" award'" }
+      ],
+      "hints": [
+        "Raj's bio has escaped quotes: \\\"\\\"top performer\\\"\\\" → \"top performer\"",
+        "State machine handles both comma-in-quotes and escaped-quote"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m11_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Build JSON from data using ObjectNode",
+      "scenario": "Construct JSON programmatically without a POJO.",
+      "instructions": "Build a JSON report for 3 employees using ObjectMapper.createObjectNode(). Add an ArrayNode of skills per employee. Print the result.\n\nExpected output:\n[{\"name\":\"Aisha\",\"dept\":\"Engineering\",\"skills\":[\"Java\",\"Python\"]},{\"name\":\"Raj\",...}]",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\n// Build JSON programmatically\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ObjectMapper mapper = new ObjectMapper();\n        ArrayNode staff = mapper.createArrayNode();\n        \n        String[][] data = {\n            {\"Aisha\", \"Engineering\", \"Java\", \"Python\"},\n            {\"Raj\",   \"Sales\",       \"CRM\",  \"Excel\"},\n            {\"Priya\", \"Engineering\", \"Java\", \"Spring\"}\n        };\n        for (String[] emp : data) {\n            ObjectNode node = mapper.createObjectNode();\n            node.put(\"name\", emp[0]);\n            node.put(\"dept\", emp[1]);\n            ArrayNode skills = mapper.createArrayNode();\n            skills.add(emp[2]); skills.add(emp[3]);\n            node.set(\"skills\", skills);\n            staff.add(node);\n        }\n        System.out.println(mapper.writeValueAsString(staff));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Aisha", "Engineering", "Java", "Python", "skills"] }
+      ],
+      "hints": [
+        "mapper.createObjectNode() for each employee",
+        "mapper.createArrayNode() for skills list",
+        "node.set('skills', skillsArray)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Parse JSON array to Java List",
+      "scenario": "readValue with TypeReference for typed collections.",
+      "instructions": "Parse a JSON array of stock objects to `List<Stock>`. Print each stock's details.\n\nExpected output:\nRELIANCE: ₹2450 (+1.2%)\nTCS: ₹3890 (+4.1%)\nINFY: ₹1560 (-3.8%)",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.core.type.*;\nimport java.util.*;\n// Parse JSON array to List<Stock>\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.core.type.*;\nimport java.util.*;\npublic class App {\n    static class Stock {\n        public String symbol; public double price; public double changePercent;\n        Stock() {}\n    }\n    public static void main(String[] args) throws Exception {\n        ObjectMapper mapper = new ObjectMapper();\n        String json = \"[{\\\"symbol\\\":\\\"RELIANCE\\\",\\\"price\\\":2450,\\\"changePercent\\\":1.2},\" +\n                      \"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890,\\\"changePercent\\\":4.1},\" +\n                      \"{\\\"symbol\\\":\\\"INFY\\\",\\\"price\\\":1560,\\\"changePercent\\\":-3.8}]\";\n        \n        List<Stock> stocks = mapper.readValue(json, new TypeReference<List<Stock>>(){});\n        for (Stock s : stocks) {\n            System.out.printf(\"%s: ₹%.0f (%+.1f%%)%n\",\n                s.symbol, s.price, s.changePercent);\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "RELIANCE: ₹2450 (+1.2%)\nTCS: ₹3890 (+4.1%)\nINFY: ₹1560 (-3.8%)" }
+      ],
+      "hints": [
+        "TypeReference<List<Stock>>{} preserves generic type info at runtime",
+        "OR: mapper.getTypeFactory().constructCollectionType(List.class, Stock.class)",
+        "Stock needs no-arg constructor and public fields (or getters/setters)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m11_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "CSV to JSON transformation",
+      "scenario": "Read CSV, transform each row to JSON, write output file.",
+      "instructions": "Read a product CSV (name, category, price). Use parseCSVLine for safety. Transform to JSON array. Write to file. Print row count.\n\nExpected output:\nConverted 4 products to JSON\nJSON preview: [{\"name\":\"Mouse\",\"category\":\"Electronics\",\"price\":\"799\"},...",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\n// CSV → JSON transformation\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\npublic class App {\n    static List<String> parseCSVLine(String line) {\n        List<String> f = new ArrayList<>(); StringBuilder c = new StringBuilder(); boolean inQ = false;\n        for (int i = 0; i < line.length(); i++) {\n            char ch = line.charAt(i);\n            if (ch == '\"') { if (inQ && i+1 < line.length() && line.charAt(i+1) == '\"') { c.append('\"'); i++; } else inQ = !inQ; }\n            else if (ch == ',' && !inQ) { f.add(c.toString()); c.setLength(0); }\n            else c.append(ch);\n        } f.add(c.toString()); return f;\n    }\n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"products.csv\");\n        Files.writeString(csv, \"name,category,price\\nMouse,Electronics,799\\nKeyboard,Electronics,1999\\n\\\"USB Hub, 7-port\\\",Accessories,499\\nMonitor,Electronics,18999\");\n        \n        ObjectMapper mapper = new ObjectMapper();\n        ArrayNode products = mapper.createArrayNode();\n        String[] headers;\n        try (BufferedReader br = Files.newBufferedReader(csv)) {\n            headers = parseCSVLine(br.readLine()).toArray(new String[0]);\n            String line;\n            while ((line = br.readLine()) != null) {\n                List<String> cols = parseCSVLine(line);\n                ObjectNode node = mapper.createObjectNode();\n                for (int i = 0; i < headers.length && i < cols.size(); i++)\n                    node.put(headers[i], cols.get(i));\n                products.add(node);\n            }\n        }\n        Path jsonFile = Path.of(\"products.json\");\n        Files.writeString(jsonFile, mapper.writerWithDefaultPrettyPrinter().writeValueAsString(products));\n        System.out.println(\"Converted \" + products.size() + \" products to JSON\");\n        System.out.println(\"JSON preview: \" + mapper.writeValueAsString(products).substring(0, 60) + \"...\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Converted 4 products to JSON", "JSON preview:"] }
+      ],
+      "hints": [
+        "Read header line first → array of column names",
+        "For each data row: create ObjectNode, put(headers[i], values[i])",
+        "Add to ArrayNode, then writeValueAsString"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m11_t3_ex_11",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "JsonNode path navigation",
+      "scenario": "path() returns MissingNode (safe) when key absent.",
+      "instructions": "What does this print?\n\n```java\nimport com.fasterxml.jackson.databind.*;\npublic class App {\n    public static void main(String[] args) throws Exception {\n        ObjectMapper m = new ObjectMapper();\n        JsonNode root = m.readTree(\"{\\\"user\\\":{\\\"name\\\":\\\"Aisha\\\",\\\"age\\\":28}}\");\n        System.out.println(root.path(\"user\").path(\"name\").asText());\n        System.out.println(root.path(\"user\").path(\"email\").asText(\"no-email\"));\n        System.out.println(root.path(\"address\").path(\"city\").asText(\"unknown\"));\n        System.out.println(root.path(\"user\").path(\"age\").asInt());\n    }\n}\n```",
+      "expected_solution": "Aisha\nno-email\nunknown\n28",
+      "test_cases": [
+        { "type": "text_match", "expected": "Aisha\nno-email\nunknown\n28" }
+      ],
+      "hints": [
+        "path() returns MissingNode (not null) when key absent — safe to chain",
+        "asText('default') returns default if node is missing/null",
+        "path('address') → MissingNode; further path('city') → still MissingNode"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m11_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Order summary: CSV in, JSON out",
+      "scenario": "Full data transformation with aggregation.",
+      "instructions": "Read order CSV (orderId, product, qty, price). Aggregate: total revenue, count per product, top product. Write JSON summary file. Print key stats.\n\nExpected output:\nOrders processed: 6\nTotal revenue: ₹38586\nTop product: Mouse (3 orders)\nJSON written.",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\n// CSV aggregation → JSON summary\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport java.util.stream.*;\npublic class App {\n    static List<String> parseLine(String line) {\n        List<String> f = new ArrayList<>(); StringBuilder c = new StringBuilder(); boolean inQ = false;\n        for (int i=0;i<line.length();i++) { char ch=line.charAt(i);\n            if(ch=='\"'){if(inQ&&i+1<line.length()&&line.charAt(i+1)=='\"'){c.append('\"');i++;}else inQ=!inQ;}\n            else if(ch==','&&!inQ){f.add(c.toString());c.setLength(0);}else c.append(ch);}\n        f.add(c.toString()); return f;\n    }\n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"orders.csv\");\n        Files.writeString(csv, \"orderId,product,qty,price\\nORD-1,Mouse,2,799\\nORD-2,Keyboard,1,1999\\nORD-3,Mouse,1,799\\nORD-4,Monitor,1,18999\\nORD-5,Mouse,3,799\\nORD-6,Keyboard,1,1999\");\n        \n        Map<String, Long> productCount = new LinkedHashMap<>();\n        Map<String, Long> productRevenue = new LinkedHashMap<>();\n        long totalRevenue = 0; int totalOrders = 0;\n        \n        try (BufferedReader br = Files.newBufferedReader(csv)) {\n            br.readLine();\n            String line;\n            while ((line = br.readLine()) != null) {\n                List<String> cols = parseLine(line);\n                String product = cols.get(1);\n                long qty = Long.parseLong(cols.get(2));\n                long price = Long.parseLong(cols.get(3));\n                long revenue = qty * price;\n                productCount.merge(product, qty, Long::sum);\n                productRevenue.merge(product, revenue, Long::sum);\n                totalRevenue += revenue; totalOrders++;\n            }\n        }\n        String topProduct = productCount.entrySet().stream()\n            .max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(\"?\");\n        \n        ObjectMapper mapper = new ObjectMapper();\n        ObjectNode summary = mapper.createObjectNode();\n        summary.put(\"totalOrders\", totalOrders);\n        summary.put(\"totalRevenue\", totalRevenue);\n        summary.put(\"topProduct\", topProduct);\n        ObjectNode byProduct = mapper.createObjectNode();\n        productCount.forEach((k, v) -> byProduct.put(k, v));\n        summary.set(\"byProduct\", byProduct);\n        Files.writeString(Path.of(\"summary.json\"), mapper.writerWithDefaultPrettyPrinter().writeValueAsString(summary));\n        \n        System.out.println(\"Orders processed: \" + totalOrders);\n        System.out.println(\"Total revenue: ₹\" + totalRevenue);\n        System.out.println(\"Top product: \" + topProduct + \" (\" + productCount.get(topProduct) + \" orders)\");\n        System.out.println(\"JSON written.\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Orders processed: 6", "JSON written."] }
+      ],
+      "hints": [
+        "qty × price = line revenue; sum across all lines for total",
+        "productCount.merge(product, qty, Long::sum) accumulates qty-based count",
+        "Max entry by value for top product"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m11_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "JSON to CSV transformation",
+      "scenario": "Reverse pipeline: read JSON array, write CSV with correct quoting.",
+      "instructions": "Parse a JSON array of employee objects. Write a properly quoted CSV. Fields with commas must be quoted.\n\nExpected CSV output:\nname,department,salary,notes\nAisha,Engineering,95000,Team lead\nRaj,Sales,72000,\"Top performer, Q4\"\nPriya,Engineering,88000,\"Works on \\\"auth\\\" module\"",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport java.io.*;\nimport java.nio.file.*;\n// JSON array → CSV with proper quoting\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport java.io.*;\nimport java.nio.file.*;\npublic class App {\n    static String q(String v) {\n        if (v == null) return \"\";\n        if (!v.contains(\",\") && !v.contains(\"\\\"\")) return v;\n        return \"\\\"\" + v.replace(\"\\\"\", \"\\\"\\\"\") + \"\\\"\";\n    }\n    public static void main(String[] args) throws Exception {\n        String json = \"[\" +\n            \"{\\\"name\\\":\\\"Aisha\\\",\\\"department\\\":\\\"Engineering\\\",\\\"salary\\\":95000,\\\"notes\\\":\\\"Team lead\\\"},\" +\n            \"{\\\"name\\\":\\\"Raj\\\",\\\"department\\\":\\\"Sales\\\",\\\"salary\\\":72000,\\\"notes\\\":\\\"Top performer, Q4\\\"},\" +\n            \"{\\\"name\\\":\\\"Priya\\\",\\\"department\\\":\\\"Engineering\\\",\\\"salary\\\":88000,\\\"notes\\\":\\\"Works on \\\\\\\"auth\\\\\\\" module\\\"}\" +\n            \"]\";\n        ObjectMapper mapper = new ObjectMapper();\n        JsonNode arr = mapper.readTree(json);\n        \n        Path csv = Path.of(\"employees.csv\");\n        try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(csv.toFile())))) {\n            pw.println(\"name,department,salary,notes\");\n            for (JsonNode emp : arr) {\n                pw.printf(\"%s,%s,%s,%s%n\",\n                    q(emp.path(\"name\").asText()),\n                    q(emp.path(\"department\").asText()),\n                    q(emp.path(\"salary\").asText()),\n                    q(emp.path(\"notes\").asText()));\n            }\n        }\n        Files.readAllLines(csv).forEach(System.out::println);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["name,department,salary,notes", "Aisha", "\"Top performer, Q4\""] }
+      ],
+      "hints": [
+        "readTree returns JsonNode — iterate as Iterable<JsonNode>",
+        "path('key').asText() for safe field access",
+        "q() function: wrap in quotes if contains comma or quote"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m11_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multi-file CSV merge with deduplication",
+      "scenario": "Merge two CSVs, deduplicate by key, write combined output.",
+      "instructions": "Read two CSV files with product data (sku, name, price). Merge with deduplication by SKU (file2 takes precedence on conflict). Write merged CSV. Print stats.\n\nExpected output:\nFile 1 rows: 3\nFile 2 rows: 3\nUnique SKUs after merge: 5\nMerged CSV written.",
+      "starter_code": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\n// Merge two CSVs, dedup by SKU key\n",
+      "expected_solution": "import java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\npublic class App {\n    static List<String> parseLine(String line) {\n        List<String> f=new ArrayList<>(); StringBuilder c=new StringBuilder(); boolean inQ=false;\n        for(int i=0;i<line.length();i++){char ch=line.charAt(i);\n            if(ch=='\"'){if(inQ&&i+1<line.length()&&line.charAt(i+1)=='\"'){c.append('\"');i++;}else inQ=!inQ;}\n            else if(ch==','&&!inQ){f.add(c.toString());c.setLength(0);}else c.append(ch);}\n        f.add(c.toString());return f;\n    }\n    static String q(String v) { return v.contains(\",\")||v.contains(\"\\\"\") ? \"\\\"\"+v.replace(\"\\\"\",\"\\\"\\\"\")+\"\\\"\" : v; }\n    \n    public static void main(String[] args) throws Exception {\n        Path f1=Path.of(\"file1.csv\"), f2=Path.of(\"file2.csv\");\n        Files.writeString(f1, \"sku,name,price\\nSKU-001,Mouse,799\\nSKU-002,Keyboard,1999\\nSKU-003,USB Hub,499\");\n        Files.writeString(f2, \"sku,name,price\\nSKU-002,Keyboard Pro,2499\\nSKU-004,Monitor,18999\\nSKU-005,Webcam,4999\");\n        \n        Map<String, String[]> merged = new LinkedHashMap<>();\n        for (Path file : new Path[]{f1, f2}) {\n            try (BufferedReader br = Files.newBufferedReader(file)) {\n                br.readLine();\n                String line; int count = 0;\n                while ((line = br.readLine()) != null) {\n                    List<String> cols = parseLine(line);\n                    merged.put(cols.get(0), cols.toArray(new String[0]));\n                    count++;\n                }\n                System.out.println((file == f1 ? \"File 1\" : \"File 2\") + \" rows: \" + count);\n            }\n        }\n        Path out = Path.of(\"merged.csv\");\n        try (PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(out.toFile())))) {\n            pw.println(\"sku,name,price\");\n            merged.values().forEach(cols -> pw.printf(\"%s,%s,%s%n\", q(cols[0]), q(cols[1]), q(cols[2])));\n        }\n        System.out.println(\"Unique SKUs after merge: \" + merged.size());\n        System.out.println(\"Merged CSV written.\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "File 1 rows: 3\nFile 2 rows: 3\nUnique SKUs after merge: 5\nMerged CSV written." }
+      ],
+      "hints": [
+        "LinkedHashMap<String, String[]> preserves insertion order",
+        "File2 processed second — overwrites file1 entries for same SKU",
+        "SKU-002 appears in both: file2's 'Keyboard Pro' wins"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m11_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete ETL pipeline: CSV → validate → enrich → JSON report",
+      "scenario": "Full Extract-Transform-Load pipeline with validation and enrichment.",
+      "instructions": "Build a complete ETL pipeline:\n1. Read product CSV (sku, name, qty, price) — parse correctly with quotes\n2. Validate: qty > 0, price > 0, name non-blank\n3. Enrich: add 'totalValue' (qty×price), 'tier' (PREMIUM>5000, STANDARD>1000, BUDGET)\n4. Write valid records to JSON file\n5. Write error records to errors.csv\n6. Print summary\n\nExpected output:\nValid: 4 | Invalid: 2\nTotal inventory value: ₹[sum]\nPREMIUM: N, STANDARD: M, BUDGET: P\nFiles written.",
+      "starter_code": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\n// Full ETL: CSV → validate → enrich → JSON + error CSV\n",
+      "expected_solution": "import com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\nimport java.io.*;\nimport java.nio.file.*;\nimport java.util.*;\npublic class App {\n    static List<String> pl(String line) {\n        List<String> f=new ArrayList<>(); StringBuilder c=new StringBuilder(); boolean q=false;\n        for(int i=0;i<line.length();i++){char ch=line.charAt(i);\n            if(ch=='\"'){if(q&&i+1<line.length()&&line.charAt(i+1)=='\"'){c.append('\"');i++;}else q=!q;}\n            else if(ch==','&&!q){f.add(c.toString());c.setLength(0);}else c.append(ch);}\n        f.add(c.toString());return f;\n    }\n    static String tier(double price) {\n        return price > 5000 ? \"PREMIUM\" : price > 1000 ? \"STANDARD\" : \"BUDGET\";\n    }\n    public static void main(String[] args) throws Exception {\n        Path csv = Path.of(\"inventory.csv\");\n        Files.writeString(csv,\n            \"sku,name,qty,price\\n\" +\n            \"P001,Mouse,50,799\\n\" +\n            \"P002,\\\"Mechanical Keyboard, RGB\\\",10,2499\\n\" +\n            \"P003,,5,1299\\n\" +  // invalid: blank name\n            \"P004,Monitor,2,18999\\n\" +\n            \"P005,USB Hub,-1,499\\n\" +  // invalid: negative qty\n            \"P006,Headphones,15,3999\");\n        \n        ObjectMapper mapper = new ObjectMapper();\n        ArrayNode validJson = mapper.createArrayNode();\n        List<String> errors = new ArrayList<>();\n        errors.add(\"sku,name,qty,price,error\");\n        \n        Map<String, Long> tierCount = new HashMap<>();\n        long totalValue = 0;\n        \n        try (BufferedReader br = Files.newBufferedReader(csv)) {\n            br.readLine();\n            String line;\n            while ((line = br.readLine()) != null) {\n                List<String> cols = pl(line);\n                String sku = cols.get(0), name = cols.get(1);\n                int qty; double price;\n                try { qty=Integer.parseInt(cols.get(2)); price=Double.parseDouble(cols.get(3)); }\n                catch (NumberFormatException e) { errors.add(line + \",invalid number\"); continue; }\n                \n                if (name.isBlank()) { errors.add(line + \",blank name\"); continue; }\n                if (qty <= 0) { errors.add(line + \",invalid qty\"); continue; }\n                \n                long val = (long)(qty * price);\n                totalValue += val;\n                String t = tier(price);\n                tierCount.merge(t, 1L, Long::sum);\n                \n                ObjectNode n = mapper.createObjectNode();\n                n.put(\"sku\",sku).put(\"name\",name).put(\"qty\",qty)\n                 .put(\"price\",price).put(\"totalValue\",val).put(\"tier\",t);\n                validJson.add(n);\n            }\n        }\n        Files.writeString(Path.of(\"valid.json\"),\n            mapper.writerWithDefaultPrettyPrinter().writeValueAsString(validJson));\n        Files.write(Path.of(\"errors.csv\"), errors);\n        \n        int valid = validJson.size(), invalid = errors.size() - 1;\n        System.out.println(\"Valid: \" + valid + \" | Invalid: \" + invalid);\n        System.out.println(\"Total inventory value: ₹\" + totalValue);\n        System.out.println(\"PREMIUM: \" + tierCount.getOrDefault(\"PREMIUM\",0L) +\n            \", STANDARD: \" + tierCount.getOrDefault(\"STANDARD\",0L) +\n            \", BUDGET: \" + tierCount.getOrDefault(\"BUDGET\",0L));\n        System.out.println(\"Files written.\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Valid: 4 | Invalid: 2", "Total inventory value:", "Files written."] }
+      ],
+      "hints": [
+        "Validate: name blank, qty <= 0, unparseable numbers",
+        "Enrich: totalValue = qty × price; tier() function",
+        "Valid → JSON array; invalid → errors.csv with reason column"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 710,
+    "estimated_completion_minutes": 65
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m21_t1_proj",
+  "linked_topic": "java_m21_t1",
+  "level": "mini",
+  "name": "Razorpay Payment Service — Production Container Setup",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Razorpay needs to containerize the payment service for consistent deployments across dev, staging, and production. Build a production-grade Docker setup: multi-stage Dockerfile, docker-compose for the full stack, and Spring Boot configuration for the container environment.",
+
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "Multi-stage Dockerfile: stage 1 = eclipse-temurin:21-jdk-alpine (Maven build + layertools extract). Stage 2 = eclipse-temurin:21-jre-alpine (non-root user 'razorpay', 4 COPY layers). JVM flags: MaxRAMPercentage=75.0, UseContainerSupport, urandom.", "weight": 25 },
+      { "id": "req_2", "description": ".dockerignore: excludes target/, .git/, .idea/, *.log, docker-compose*.", "weight": 5 },
+      { "id": "req_3", "description": "docker-compose.yml: app (build from Dockerfile) + postgres:15-alpine (pg_isready healthcheck) + redis:7-alpine (redis-cli ping healthcheck). Named pgdata volume. app depends_on postgres+redis with service_healthy.", "weight": 25 },
+      { "id": "req_4", "description": "application-docker.yml: datasource URL (postgres:5432), redis host (redis), actuator endpoints exposed, health show-details: always, Zipkin URL.", "weight": 15 },
+      { "id": "req_5", "description": "@SpringBootTest (3 tests): health endpoint returns UP, /actuator/prometheus returns 200 with jvm_memory, custom counter registers. All 3 pass.", "weight": 25 },
+      { "id": "req_6", "description": "README: one docker compose up command and expected output.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Add zipkin + prometheus services to docker-compose.yml with correct port mappings. prometheus.yml scrape config for the app.", "weight": 20 },
+      { "id": "bonus_2", "description": "Docker secrets: db_password via Docker secret (not env var). application-docker.yml reads from /run/secrets/. Create scripts/setup-secrets.sh.", "weight": 20 },
+      { "id": "bonus_3", "description": "Container resource limits in docker-compose deploy.resources: 768m limit, 512m reservation. Calculate correct MaxRAMPercentage. Add MaxMetaspaceSize=128m.", "weight": 15 }
+    ]
+  },
+
+  "data_to_use": "Image: eclipse-temurin:21-jdk-alpine (builder), eclipse-temurin:21-jre-alpine (runtime)\nPostgres: POSTGRES_DB=payments, POSTGRES_USER=payments_user, POSTGRES_PASSWORD=${DB_PASSWORD:-changeme}\nRedis: default config, port 6379\nApp port: 8080\nNon-root user: razorpay",
+
+  "rubric": [
+    { "category": "Multi-stage Dockerfile", "points": 25 },
+    { "category": ".dockerignore", "points": 5 },
+    { "category": "docker-compose.yml", "points": 25 },
+    { "category": "application-docker.yml", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 25 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Layertools extract: `java -Djarmode=layertools -jar target/*.jar extract` — creates 4 directories: dependencies/, spring-boot-loader/, snapshot-dependencies/, application/. COPY --from=builder: copies from the named builder stage by path. condition: service_healthy: requires a healthcheck defined on the dependency service. -XX:+UseContainerSupport: must be explicit (even though default in Java 11+ on some OSes) — good documentation practice. Spring Boot service names in docker-compose = hostname: application-docker.yml uses 'postgres' as hostname, not 'localhost'.",
+
+  "submission_instructions": "GitHub push. Include a screenshot or terminal output showing `docker compose up` with all 4 services (app, postgres, redis) running and the app health endpoint returning UP."
+}

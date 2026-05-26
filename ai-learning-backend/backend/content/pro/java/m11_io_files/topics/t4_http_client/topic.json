@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m11_t4",
+  "language": "java",
+  "module_id": "m11",
+  "module_name": "I/O, Files, and Networking",
+  "topic_number": 4,
+  "name": "Java HttpClient",
+  "slug": "java-http-client",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m11_t3", "java_m8_t5"],
+    "concepts_taught": [
+      "httpclient_introduction",
+      "httpclient_builder",
+      "httprequest_builder",
+      "http_methods_get_post_put_delete",
+      "http_response_body_handlers",
+      "response_status_code_headers",
+      "sending_request_body",
+      "http_headers",
+      "basic_auth_bearer_token",
+      "httpclient_timeout",
+      "parse_response_with_jackson",
+      "http_error_handling",
+      "httpclient_singleton_pattern"
+    ],
+    "skills_developed": [
+      "making_get_requests",
+      "posting_json_data",
+      "handling_http_responses",
+      "parsing_json_responses",
+      "adding_auth_headers",
+      "handling_timeouts_and_errors"
+    ],
+    "career_relevance": "HTTP is the language of the modern web. Every external service — payment gateways, weather APIs, stock prices, maps, SMS, email — is accessed via HTTP. Spring's RestTemplate, WebClient, and Feign clients all build on the same concepts. After this topic, you call any REST API from Java without a third-party library, parse the response with Jackson, and handle errors properly. This is a skill used in literally every backend project.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your app needs live Bitcoin prices. Or stock data. Or weather. Or to send a payment via Razorpay's API. All of these are HTTP calls:\n\n```\nGET https://api.coindesk.com/v1/bpi/currentprice.json\n→ {\"bpi\":{\"USD\":{\"rate_float\":45123.78}}}\n```\n\nBefore Java 11, you needed Apache HttpClient (third-party) or URLConnection (clunky):\n```java\n// Old way — URLConnection (ugly):\nURL url = new URL(\"https://api.example.com/data\");\nHttpURLConnection conn = (HttpURLConnection) url.openConnection();\nconn.setRequestMethod(\"GET\");\nint code = conn.getResponseCode();\nBufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));\n// ... more boilerplate ...\n```\n\n**Java 11+ HttpClient — clean and modern:**\n```java\nHttpClient client = HttpClient.newHttpClient();\nHttpRequest request = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.coindesk.com/v1/bpi/currentprice.json\"))\n    .GET()\n    .build();\nHttpResponse<String> response = client.send(request,\n    HttpResponse.BodyHandlers.ofString());\n\nif (response.statusCode() == 200) {\n    JsonNode root = mapper.readTree(response.body());\n    double price = root.path(\"bpi\").path(\"USD\").path(\"rate_float\").asDouble();\n    System.out.println(\"BTC: $\" + price);\n}\n```\n\nFluent builder API, immutable requests, built-in HTTP/2 support, async with CompletableFuture. This is the standard in modern Java.",
+    "what_you_will_build": "By the end of this topic, you'll make GET and POST requests, read response bodies as strings, parse JSON responses with Jackson, set headers and auth tokens, handle HTTP errors (4xx, 5xx), set timeouts, and understand the HttpClient lifecycle."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "httpclient_creation": "**Creating an HttpClient:**\n\n```java\nimport java.net.http.*;\nimport java.net.URI;\nimport java.time.Duration;\n\n// Simple client (uses default settings):\nHttpClient client = HttpClient.newHttpClient();\n\n// Configured client:\nHttpClient client = HttpClient.newBuilder()\n    .version(HttpClient.Version.HTTP_2)     // prefer HTTP/2, fallback to HTTP/1.1\n    .connectTimeout(Duration.ofSeconds(10)) // connection timeout\n    .followRedirects(HttpClient.Redirect.NORMAL)  // follow 3xx redirects\n    .build();\n\n// HttpClient is thread-safe — create ONCE, reuse everywhere:\npublic class ApiClient {\n    private static final HttpClient HTTP = HttpClient.newBuilder()\n        .connectTimeout(Duration.ofSeconds(10))\n        .build();\n    private static final ObjectMapper MAPPER = new ObjectMapper();\n    // ...\n}\n```\n\nHttpClient is expensive to create (manages connection pools, thread pools). Create once as a static field.",
+
+      "http_request": "**Building HTTP requests:**\n\n```java\n// GET request:\nHttpRequest getReq = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.example.com/products\"))\n    .GET()\n    .timeout(Duration.ofSeconds(5))  // per-request timeout\n    .header(\"Accept\", \"application/json\")\n    .build();\n\n// POST with JSON body:\nString jsonBody = \"{\\\"name\\\":\\\"Mouse\\\",\\\"price\\\":799}\";\nHttpRequest postReq = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.example.com/products\"))\n    .POST(HttpRequest.BodyPublishers.ofString(jsonBody))\n    .header(\"Content-Type\", \"application/json\")\n    .header(\"Accept\",       \"application/json\")\n    .build();\n\n// PUT (update):\nHttpRequest putReq = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.example.com/products/123\"))\n    .PUT(HttpRequest.BodyPublishers.ofString(updateJson))\n    .header(\"Content-Type\", \"application/json\")\n    .build();\n\n// DELETE:\nHttpRequest deleteReq = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.example.com/products/123\"))\n    .DELETE()\n    .build();\n```",
+
+      "http_response": "**Sending requests and reading responses:**\n\n```java\n// Synchronous send (blocks until response arrives):\nHttpResponse<String> response = client.send(\n    request,\n    HttpResponse.BodyHandlers.ofString()  // response body as String\n);\n\n// Response properties:\nint statusCode = response.statusCode();   // 200, 404, 500 etc.\nString body    = response.body();          // response body as String\nHttpHeaders headers = response.headers(); // response headers\nString contentType = headers.firstValue(\"Content-Type\").orElse(\"unknown\");\n\n// Other BodyHandlers:\nHttpResponse.BodyHandlers.ofString()      // body as String\nHttpResponse.BodyHandlers.ofBytes()       // body as byte[]\nHttpResponse.BodyHandlers.ofFile(path)    // body saved directly to file\nHttpResponse.BodyHandlers.discarding()    // ignore body (for DELETE etc.)\n\n// Check status and handle:\nif (response.statusCode() >= 200 && response.statusCode() < 300) {\n    // Success\n} else if (response.statusCode() == 404) {\n    System.err.println(\"Resource not found\");\n} else if (response.statusCode() >= 500) {\n    System.err.println(\"Server error: \" + response.statusCode());\n}\n```",
+
+      "auth_headers": "**Authentication — the two most common patterns:**\n\n```java\n// Bearer token (JWT — most common for REST APIs):\nHttpRequest request = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.razorpay.com/v1/orders\"))\n    .GET()\n    .header(\"Authorization\", \"Bearer \" + jwtToken)\n    .header(\"Accept\", \"application/json\")\n    .build();\n\n// API key in header:\nHttpRequest apiKeyReq = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.weather.example.com/current\"))\n    .GET()\n    .header(\"X-API-Key\", apiKey)\n    .build();\n\n// Basic auth (username:password base64-encoded):\nimport java.util.Base64;\nString credentials = Base64.getEncoder()\n    .encodeToString((username + \":\" + password).getBytes());\nHttpRequest basicReq = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.example.com/secure\"))\n    .GET()\n    .header(\"Authorization\", \"Basic \" + credentials)\n    .build();\n\n// Query parameters (appended to URL):\nString url = \"https://api.example.com/search?q=laptop&limit=10&page=1\";\nHttpRequest searchReq = HttpRequest.newBuilder()\n    .uri(URI.create(url))\n    .GET()\n    .build();\n```",
+
+      "error_handling": "**Error handling patterns:**\n\n```java\ntry {\n    HttpResponse<String> response = client.send(request,\n        HttpResponse.BodyHandlers.ofString());\n    \n    switch (response.statusCode()) {\n        case 200, 201 -> handleSuccess(response.body());\n        case 400       -> throw new IllegalArgumentException(\"Bad request: \" + response.body());\n        case 401, 403  -> throw new SecurityException(\"Auth error: \" + response.statusCode());\n        case 404       -> System.out.println(\"Resource not found\");\n        case 429       -> System.out.println(\"Rate limited — retry after: \" +\n                              response.headers().firstValue(\"Retry-After\").orElse(\"unknown\"));\n        default        -> System.err.println(\"HTTP error \" + response.statusCode());\n    }\n} catch (IOException e) {\n    System.err.println(\"Network error: \" + e.getMessage());\n} catch (InterruptedException e) {\n    Thread.currentThread().interrupt();\n    System.err.println(\"Request interrupted\");\n}\n```\n\n**IOException** is thrown for network failures (connection refused, DNS resolution failure). **InterruptedException** if the thread is interrupted while waiting. Always handle both.",
+
+      "post_json": "**POST with Jackson-serialized body:**\n\n```java\nObjectMapper mapper = new ObjectMapper();\n\n// Serialize request body with Jackson:\nOrderRequest orderReq = new OrderRequest(\"Mouse\", 2, 799.0);\nString requestJson = mapper.writeValueAsString(orderReq);\n\nHttpRequest request = HttpRequest.newBuilder()\n    .uri(URI.create(\"https://api.example.com/v1/orders\"))\n    .POST(HttpRequest.BodyPublishers.ofString(requestJson))\n    .header(\"Content-Type\", \"application/json\")\n    .header(\"Authorization\", \"Bearer \" + token)\n    .build();\n\nHttpResponse<String> response = client.send(request,\n    HttpResponse.BodyHandlers.ofString());\n\n// Parse response with Jackson:\nif (response.statusCode() == 201) {\n    OrderResponse order = mapper.readValue(response.body(), OrderResponse.class);\n    System.out.println(\"Order created: \" + order.getId());\n} else {\n    ErrorResponse error = mapper.readValue(response.body(), ErrorResponse.class);\n    System.err.println(\"Error: \" + error.getMessage());\n}\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "HTTP request/response lifecycle diagram: Client code → HttpClient.send() → [network] → Server. Request box shows: method (GET/POST), URI, headers (Authorization, Content-Type), body (for POST/PUT). Response box shows: statusCode (200/404/500), headers (Content-Type, Retry-After), body (JSON string). Below: HttpRequest.Builder fluent chain with each method: .uri() → .GET()/.POST() → .header() → .timeout() → .build(). Status code ranges: 2xx success (green), 4xx client error (orange), 5xx server error (red). Jackson integration: response.body() → mapper.readValue() → Java object.",
+      "alt_text": "HTTP request/response flow, HttpRequest builder chain, status code ranges, and Jackson JSON parsing integration"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a stock price dashboard that fetches data from a simulated REST API. Because real external APIs require network access and may not be available in all environments, we simulate the API responses with a local mock — demonstrating all the real patterns without network dependency.",
+
+    "problem_statement": "Build `StockDashboard` that:\n1. Makes GET requests to fetch stock prices\n2. Parses JSON responses with Jackson\n3. Makes a POST request to create a watchlist\n4. Handles 404 (unknown symbol) gracefully\n5. Demonstrates headers and timeout\n\nSince real external APIs require network, we simulate using a mock server concept — showing the complete code pattern that works against any real REST API.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "HttpClient and request setup",
+        "details": "```java\nimport java.net.http.*;\nimport java.net.URI;\nimport java.time.Duration;\nimport com.fasterxml.jackson.databind.*;\n\npublic class StockDashboard {\n    // Singleton HttpClient — create once:\n    private static final HttpClient HTTP = HttpClient.newBuilder()\n        .connectTimeout(Duration.ofSeconds(10))\n        .followRedirects(HttpClient.Redirect.NORMAL)\n        .build();\n    \n    private static final ObjectMapper MAPPER = new ObjectMapper();\n    private static final String BASE_URL = \"https://api.example.com/v1\";\n    private static final String API_KEY = \"test-key-123\";\n    \n    static HttpRequest get(String path) {\n        return HttpRequest.newBuilder()\n            .uri(URI.create(BASE_URL + path))\n            .GET()\n            .header(\"X-API-Key\", API_KEY)\n            .header(\"Accept\",    \"application/json\")\n            .timeout(Duration.ofSeconds(5))\n            .build();\n    }\n```"
+      },
+      {
+        "step": 2,
+        "action": "GET stock price with JSON parsing",
+        "details": "```java\n    static void fetchQuote(String symbol) throws Exception {\n        HttpResponse<String> response = HTTP.send(\n            get(\"/quotes/\" + symbol),\n            HttpResponse.BodyHandlers.ofString());\n        \n        switch (response.statusCode()) {\n            case 200 -> {\n                JsonNode json = MAPPER.readTree(response.body());\n                System.out.printf(\"%-12s ₹%,.2f  %+.2f%%%n\",\n                    json.path(\"symbol\").asText(),\n                    json.path(\"price\").asDouble(),\n                    json.path(\"changePercent\").asDouble());\n            }\n            case 404 -> System.out.println(symbol + \": Symbol not found\");\n            default  -> System.err.println(\"Error \" + response.statusCode() +\n                            \" for \" + symbol);\n        }\n    }\n```"
+      },
+      {
+        "step": 3,
+        "action": "POST to create watchlist",
+        "details": "```java\n    static void createWatchlist(String name, List<String> symbols) throws Exception {\n        // Build request body with Jackson:\n        ObjectNode body = MAPPER.createObjectNode();\n        body.put(\"name\", name);\n        ArrayNode syms = MAPPER.createArrayNode();\n        symbols.forEach(syms::add);\n        body.set(\"symbols\", syms);\n        \n        HttpRequest request = HttpRequest.newBuilder()\n            .uri(URI.create(BASE_URL + \"/watchlists\"))\n            .POST(HttpRequest.BodyPublishers.ofString(MAPPER.writeValueAsString(body)))\n            .header(\"Content-Type\",  \"application/json\")\n            .header(\"Authorization\", \"Bearer \" + API_KEY)\n            .timeout(Duration.ofSeconds(5))\n            .build();\n        \n        HttpResponse<String> response = HTTP.send(request,\n            HttpResponse.BodyHandlers.ofString());\n        System.out.println(\"Create watchlist: HTTP \" + response.statusCode());\n        // In real code: parse response.body() for watchlist ID\n    }\n```"
+      }
+    ],
+
+    "final_code": "import java.net.http.*;\nimport java.net.URI;\nimport java.time.Duration;\nimport java.util.*;\nimport com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\n\npublic class StockDashboard {\n    // Production pattern: singletons\n    private static final HttpClient HTTP = HttpClient.newBuilder()\n        .connectTimeout(Duration.ofSeconds(10))\n        .build();\n    private static final ObjectMapper MAPPER = new ObjectMapper();\n    \n    // Simulate what a real GET response looks like:\n    static String simulateQuote(String symbol) {\n        Map<String, String> data = Map.of(\n            \"TCS\",      \"{\\\"symbol\\\":\\\"TCS\\\",\\\"price\\\":3890,\\\"changePercent\\\":4.1}\",\n            \"RELIANCE\", \"{\\\"symbol\\\":\\\"RELIANCE\\\",\\\"price\\\":2450,\\\"changePercent\\\":1.2}\",\n            \"INFY\",     \"{\\\"symbol\\\":\\\"INFY\\\",\\\"price\\\":1560,\\\"changePercent\\\":-3.8}\"\n        );\n        return data.getOrDefault(symbol, null);  // null = 404\n    }\n    \n    static void fetchQuote(String symbol) throws Exception {\n        String mockBody = simulateQuote(symbol);\n        int mockStatus = mockBody != null ? 200 : 404;\n        \n        // In real code: HttpResponse<String> response = HTTP.send(request, ...)\n        System.out.printf(\"[GET /quotes/%s] → HTTP %d%n\", symbol, mockStatus);\n        if (mockStatus == 200) {\n            JsonNode json = MAPPER.readTree(mockBody);\n            System.out.printf(\"  %-12s ₹%,.0f  %+.1f%%%n\",\n                json.path(\"symbol\").asText(),\n                json.path(\"price\").asDouble(),\n                json.path(\"changePercent\").asDouble());\n        } else {\n            System.out.println(\"  \" + symbol + \": Symbol not found\");\n        }\n    }\n    \n    static void createWatchlist(String name, List<String> symbols) throws Exception {\n        ObjectNode body = MAPPER.createObjectNode();\n        body.put(\"name\", name);\n        ArrayNode syms = MAPPER.createArrayNode();\n        symbols.forEach(syms::add);\n        body.set(\"symbols\", syms);\n        \n        String requestJson = MAPPER.writeValueAsString(body);\n        System.out.printf(\"%n[POST /watchlists]%n  Body: %s%n  → HTTP 201 Created%n\",\n            requestJson);\n    }\n    \n    public static void main(String[] args) throws Exception {\n        System.out.println(\"=== Stock Dashboard ===\");\n        for (String sym : new String[]{\"TCS\", \"RELIANCE\", \"INFY\", \"WIPRO\"}) {\n            fetchQuote(sym);\n        }\n        createWatchlist(\"My Portfolio\", List.of(\"TCS\", \"RELIANCE\"));\n    }\n}",
+
+    "expected_output": "=== Stock Dashboard ===\n[GET /quotes/TCS] → HTTP 200\n  TCS          ₹3,890  +4.1%\n[GET /quotes/RELIANCE] → HTTP 200\n  RELIANCE     ₹2,450  +1.2%\n[GET /quotes/INFY] → HTTP 200\n  INFY         ₹1,560  -3.8%\n[GET /quotes/WIPRO] → HTTP 404\n  WIPRO: Symbol not found\n\n[POST /watchlists]\n  Body: {\"name\":\"My Portfolio\",\"symbols\":[\"TCS\",\"RELIANCE\"]}\n  → HTTP 201 Created",
+
+    "things_to_notice": [
+      "HttpClient and ObjectMapper are both static final singletons. Creating them per-request would be extremely wasteful — both manage thread pools and connection pools internally.",
+      "The response.statusCode() switch: 200 is success, 404 is 'not found' (caller's problem, handled gracefully), other codes get logged as errors. This is the real-world response handling pattern.",
+      "POST request: the body is built with Jackson's ObjectNode, serialized with writeValueAsString(), and passed to BodyPublishers.ofString(). Content-Type must be set explicitly.",
+      "Duration.ofSeconds(5) as timeout — this is per-request. If the server doesn't respond within 5 seconds, an HttpTimeoutException is thrown. Without a timeout, the request could wait forever.",
+      "In real code, the mock simulation lines are replaced by: `HttpRequest request = HttpRequest.newBuilder().uri(URI.create(BASE_URL + \"/quotes/\" + symbol)).GET().header('X-API-Key', API_KEY).build(); HttpResponse<String> response = HTTP.send(request, BodyHandlers.ofString());` — the rest of the logic is identical."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment integration",
+        "use_case": "Creating a payment order: POST to `https://api.razorpay.com/v1/orders` with amount and currency, Basic auth with key_id:key_secret. Response contains order_id used in the frontend checkout. Verifying payment status: GET to `/v1/payments/{payment_id}`. This is standard Java HttpClient usage — every payment gateway integration follows this pattern."
+      },
+      {
+        "company_context": "OpenWeatherMap / weather APIs",
+        "use_case": "GET `https://api.openweathermap.org/data/2.5/weather?q=Hyderabad&appid={key}`. Parse the JSON response with Jackson to extract temperature, description, humidity. Used in delivery ETA calculations (bad weather → longer delivery), agricultural apps, and event planning tools. One GET request, Jackson parsing, done."
+      },
+      {
+        "company_context": "WhatsApp Business API (Meta)",
+        "use_case": "Sending order confirmation messages: POST to Meta's Graph API with JSON body containing recipient phone, template name, parameters. Bearer token auth. Response confirms message_id. This is how Flipkart, Swiggy, and Zerodha send you WhatsApp order notifications — a Java HttpClient POST with JSON body."
+      }
+    ],
+
+    "interview_relevance": "HTTP client questions at all levels:\n\n- **'How do you make an HTTP GET request in Java?'** → `HttpClient.newHttpClient().send(HttpRequest.newBuilder().uri(URI.create(url)).GET().build(), BodyHandlers.ofString())`\n- **'What is the difference between 400 and 500 status codes?'** → 4xx: client error (bad request, unauthorized, not found). 5xx: server error (internal server error, gateway timeout). Handling them differently is essential.\n- **'Why use HttpClient as a singleton?'** → It manages connection pools and thread pools internally. Creating per-request wastes resources and breaks keep-alive connections.\n- **'How do you add a Bearer token to an HTTP request?'** → `.header('Authorization', 'Bearer ' + token)` in the HttpRequest.Builder.",
+
+    "real_world_workflow": "Daily HTTP client usage:\n\n- Fetch external data: GET with accept JSON header + Jackson parse\n- Create resources: POST JSON body (Jackson serialize) + check 201 Created\n- Update resources: PUT or PATCH with JSON body\n- Auth: `header('Authorization', 'Bearer ' + getToken())`\n- Error handling: switch on statusCode for specific 4xx, catch IOException for network\n- Timeout always: `timeout(Duration.ofSeconds(5))` on every request"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "httpclient_per_request",
+      "what_students_get_wrong": "Creating `HttpClient.newHttpClient()` inside a loop or per-method — extremely wasteful.",
+      "remediation": "HttpClient is a heavyweight object with an internal thread pool and connection pool. Create ONCE as a static field. Reuse for all requests. Same rule as ObjectMapper.",
+      "detection_pattern": "Slow performance, many threads created, connection overhead"
+    },
+    {
+      "gap_id": "not_checking_status_code",
+      "what_students_get_wrong": "Parsing response.body() as success without checking statusCode — parses error JSON as success object.",
+      "remediation": "ALWAYS check statusCode before parsing the body. A 4xx/5xx response has a different body format (usually an error message, not the success payload). Pattern: `if (response.statusCode() == 200) { parse success } else { parse or log error }`",
+      "detection_pattern": "JsonParseException or ClassCastException when parsing error responses"
+    },
+    {
+      "gap_id": "forgetting_content_type_on_post",
+      "what_students_get_wrong": "POSTing JSON without `Content-Type: application/json` — server may reject or misparse.",
+      "remediation": "Any POST/PUT with a JSON body must include `.header('Content-Type', 'application/json')`. Without it, the server doesn't know to parse the body as JSON.",
+      "detection_pattern": "HTTP 415 Unsupported Media Type, or server misparses the request body"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "HttpClient: Java 11+ built-in; create ONCE as static singleton (manages connection pool)",
+      "HttpRequest.newBuilder().uri().GET()/POST()/PUT()/DELETE().header().timeout().build()",
+      "client.send(request, BodyHandlers.ofString()) → HttpResponse<String>",
+      "response.statusCode(): 2xx=success, 4xx=client error, 5xx=server error",
+      "response.body(): response body as String (then parse with Jackson)",
+      "response.headers().firstValue('key'): get a response header value",
+      "POST body: BodyPublishers.ofString(jsonString) + Content-Type header",
+      "Auth: header('Authorization', 'Bearer ' + token) OR 'Basic ' + base64",
+      "Timeout: .timeout(Duration.ofSeconds(5)) on builder — prevents hanging",
+      "Exceptions: IOException (network failure), InterruptedException, HttpTimeoutException",
+      "Always check statusCode before parsing body — error responses have different format",
+      "Jackson integration: mapper.readTree(response.body()) or mapper.readValue(body, Type.class)"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Write the code to make a GET request to `https://api.example.com/users/42` with a Bearer token and parse the response body to a User object.",
+        "answer": "```java\nHttpClient client = HttpClient.newHttpClient();  // or use singleton\nHttpRequest request = HttpRequest.newBuilder()\n    .uri(URI.create('https://api.example.com/users/42'))\n    .GET()\n    .header('Authorization', 'Bearer ' + token)\n    .header('Accept', 'application/json')\n    .timeout(Duration.ofSeconds(5))\n    .build();\n    \nHttpResponse<String> response = client.send(request,\n    HttpResponse.BodyHandlers.ofString());\n\nif (response.statusCode() == 200) {\n    User user = mapper.readValue(response.body(), User.class);\n    System.out.println(user.getName());\n} else {\n    System.err.println('HTTP error: ' + response.statusCode());\n}\n```"
+      },
+      {
+        "question": "What exceptions do you need to handle when calling `client.send()`?",
+        "answer": "Two checked exceptions: `IOException` — thrown for network problems (connection refused, DNS failure, connection reset). `InterruptedException` — thrown if the thread is interrupted while waiting for the response. For `InterruptedException`, always call `Thread.currentThread().interrupt()` in the catch block to restore the interrupt flag. Additionally, `HttpTimeoutException` (subclass of IOException) is thrown if the request timeout elapses."
+      },
+      {
+        "question": "You POST JSON to an API and get HTTP 400. What's the likely cause and how do you debug?",
+        "answer": "HTTP 400 Bad Request means the server rejected the request — most likely: (1) missing or wrong Content-Type header (add `.header('Content-Type', 'application/json')`), (2) malformed JSON body (validate with Jackson before sending), (3) missing required fields (check the API documentation), (4) invalid field values. To debug: print `response.body()` — the 400 response body usually contains an error message explaining exactly what was wrong."
+      }
+    ],
+
+    "next_topic_preview": "Final Module 11 topic: **Async I/O with HttpClient + CompletableFuture** — sending multiple HTTP requests concurrently without blocking threads. `client.sendAsync()` returns a `CompletableFuture<HttpResponse<T>>` — combining Topics 10.5 and 11.4. Fetch 10 stock prices simultaneously, each in a non-blocking async chain. After Topic 11.5, you write production-quality async HTTP code: the same pattern used by Spring WebFlux and every modern reactive service."
+  }
+}

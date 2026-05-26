@@ -1,0 +1,373 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t1",
+  "topic_name": "ArrayList",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m6_t1_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace ArrayList basics",
+      "scenario": "Core ArrayList operations.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.ArrayList;\nimport java.util.List;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> list = new ArrayList<>();\n        list.add(\"A\");\n        list.add(\"B\");\n        list.add(\"C\");\n        System.out.println(list.size());\n        list.remove(\"B\");\n        System.out.println(list.get(1));\n        System.out.println(list.isEmpty());\n    }\n}\n```",
+      "expected_solution": "3\nC\nfalse",
+      "test_cases": [
+        { "type": "text_match", "expected": "3\nC\nfalse" }
+      ],
+      "hints": [
+        "Add 3 elements → size 3",
+        "Remove 'B' → [A, C]. get(1) = 'C' (0-indexed)",
+        "Still has 2 elements → not empty → false"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m6_t1_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Declare and populate ArrayList",
+      "scenario": "Practice ArrayList syntax.",
+      "instructions": "Fill in the blanks to create, populate, and iterate an ArrayList.",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.______;\n\npublic class App {\n    public static void main(String[] args) {\n        ______<String> cities = new ArrayList<>();\n        cities.______(\"Hyderabad\");\n        cities.add(\"Mumbai\");\n        for (______ city : cities) {\n            System.out.println(city);\n        }\n    }\n}",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> cities = new ArrayList<>();\n        cities.add(\"Hyderabad\");\n        cities.add(\"Mumbai\");\n        for (String city : cities) {\n            System.out.println(city);\n        }\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "List", "hint": "Interface to import" },
+        { "position": 2, "answer": "List", "hint": "Declare as interface type" },
+        { "position": 3, "answer": "add", "hint": "Method to add elements" },
+        { "position": 4, "answer": "String", "hint": "Type in for-each" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Hyderabad\nMumbai" }
+      ],
+      "hints": [
+        "Import java.util.List",
+        "Declare as List<String> not ArrayList<String>",
+        "list.add() adds to end",
+        "For-each: (String city : cities)"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m6_t1_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Numbers list — sum and max",
+      "scenario": "Build numeric ArrayList and compute stats.",
+      "instructions": "Create a `List<Integer>` with these scores: 85, 92, 78, 95, 88.\nCompute and print the sum and the maximum.\n\nExpected output:\nSum: 438\nMax: 95",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// Create scores list, compute sum and max\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> scores = new ArrayList<>();\n        scores.add(85);\n        scores.add(92);\n        scores.add(78);\n        scores.add(95);\n        scores.add(88);\n        \n        int sum = 0;\n        int max = scores.get(0);\n        for (int score : scores) {\n            sum += score;\n            if (score > max) max = score;\n        }\n        \n        System.out.println(\"Sum: \" + sum);\n        System.out.println(\"Max: \" + max);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Sum: 438\nMax: 95" }
+      ],
+      "hints": [
+        "List<Integer> with autoboxing (add int, stored as Integer)",
+        "For-each with int score — auto-unboxed",
+        "Initialize max = scores.get(0) before loop"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m6_t1_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the List<int> error",
+      "scenario": "Primitives can't be generic type parameters.",
+      "instructions": "This code doesn't compile. Fix it using the correct type.\n\nExpected output:\n[10, 20, 30]",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Broken {\n    public static void main(String[] args) {\n        List<int> numbers = new ArrayList<>();  // broken\n        numbers.add(10);\n        numbers.add(20);\n        numbers.add(30);\n        System.out.println(numbers);\n    }\n}",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Broken {\n    public static void main(String[] args) {\n        List<Integer> numbers = new ArrayList<>();\n        numbers.add(10);\n        numbers.add(20);\n        numbers.add(30);\n        System.out.println(numbers);\n    }\n}",
+      "bugs": [
+        { "line": "5", "issue": "List<int> — primitives cannot be type parameters. Must use Integer.", "fix": "Change to List<Integer>" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[10, 20, 30]", "must_compile": true }
+      ],
+      "hints": [
+        "Primitives (int, double, boolean) cannot be generic type arguments",
+        "Use wrapper class: int → Integer, double → Double, boolean → Boolean",
+        "Java autoboxes: numbers.add(10) works even though 10 is an int literal"
+      ],
+      "xp_reward": 25,
+      "common_misconceptions_tested": ["using_list_int_not_integer"]
+    },
+    
+    {
+      "id": "java_m6_t1_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Filter strings into new list",
+      "scenario": "Build filtered subset using ArrayList.",
+      "instructions": "Given a list of city names, create a new list containing only cities with more than 7 characters.\n\nInput: Hyderabad, Mumbai, Bengaluru, Pune, Chennai, Delhi\n\nExpected output:\n[Hyderabad, Bengaluru]",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// Filter: only cities with length > 7\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class App {\n    public static void main(String[] args) {\n        List<String> cities = new ArrayList<>();\n        cities.add(\"Hyderabad\");\n        cities.add(\"Mumbai\");\n        cities.add(\"Bengaluru\");\n        cities.add(\"Pune\");\n        cities.add(\"Chennai\");\n        cities.add(\"Delhi\");\n        \n        List<String> longCities = new ArrayList<>();\n        for (String city : cities) {\n            if (city.length() > 7) {\n                longCities.add(city);\n            }\n        }\n        System.out.println(longCities);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Hyderabad, Bengaluru]" }
+      ],
+      "hints": [
+        "Create source list with all cities",
+        "Create empty longCities list",
+        "Loop source, check length > 7, add to result",
+        "Print — ArrayList.toString() shows [elem1, elem2]"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m6_t1_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "ArrayList of objects",
+      "scenario": "Store and iterate objects in ArrayList.",
+      "instructions": "Create a `Point` class with x (int) and y (int). Store 4 points in a `List<Point>`. Print each point and the one closest to origin (smallest distance √(x²+y²)).\n\nExpected output:\n(0,3)\n(2,1)\n(4,4)\n(1,5)\nClosest to origin: (2,1)",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// Point class and ArrayList usage\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\nclass Point {\n    int x, y;\n    Point(int x, int y) { this.x = x; this.y = y; }\n    double distanceFromOrigin() { return Math.sqrt(x * x + y * y); }\n    public String toString() { return \"(\" + x + \",\" + y + \")\"; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<Point> points = new ArrayList<>();\n        points.add(new Point(0, 3));\n        points.add(new Point(2, 1));\n        points.add(new Point(4, 4));\n        points.add(new Point(1, 5));\n        \n        for (Point p : points) System.out.println(p);\n        \n        Point closest = points.get(0);\n        for (Point p : points) {\n            if (p.distanceFromOrigin() < closest.distanceFromOrigin()) {\n                closest = p;\n            }\n        }\n        System.out.println(\"Closest to origin: \" + closest);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "(0,3)\n(2,1)\n(4,4)\n(1,5)\nClosest to origin: (2,1)" }
+      ],
+      "hints": [
+        "List<Point> holds Point objects",
+        "Iterate with for-each to print",
+        "Track closest: initialize with first point, update if smaller distance found",
+        "(2,1): √5 ≈ 2.24 is smallest"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m6_t1_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Replace manual array with ArrayList",
+      "scenario": "Refactor array-with-count pattern to ArrayList.",
+      "instructions": "Refactor this class to use ArrayList instead of array+count:\n\n```java\nclass StudentRoster {\n    private String[] names;\n    private int count;\n    public StudentRoster() { names = new String[30]; count = 0; }\n    public void add(String name) { if (count < names.length) names[count++] = name; }\n    public void remove(String name) { /* painful shifting logic */ }\n    public int size() { return count; }\n}\n```\n\nThe refactored version should support add, remove, size, and printAll.\n\nExpected output:\n[Aisha, Raj, Priya]\nSize: 2",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// Refactored StudentRoster using ArrayList\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\nclass StudentRoster {\n    private List<String> names = new ArrayList<>();\n    \n    public void add(String name) { names.add(name); }\n    public void remove(String name) { names.remove(name); }\n    public int size() { return names.size(); }\n    public void printAll() { System.out.println(names); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        StudentRoster roster = new StudentRoster();\n        roster.add(\"Aisha\");\n        roster.add(\"Raj\");\n        roster.add(\"Priya\");\n        roster.printAll();\n        roster.remove(\"Raj\");\n        System.out.println(\"Size: \" + roster.size());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha, Raj, Priya]\nSize: 2" }
+      ],
+      "hints": [
+        "Replace String[] + int count with List<String>",
+        "No constructor needed (initialize inline)",
+        "add → names.add(name)",
+        "remove → names.remove(name)",
+        "size → names.size()"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "replace_array_with_arraylist"
+    },
+    
+    {
+      "id": "java_m6_t1_ex_8",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix ConcurrentModificationException",
+      "scenario": "Can't remove while iterating with for-each.",
+      "instructions": "This code throws ConcurrentModificationException. Fix it.\n\nExpected output:\n[Priya, Vikram]",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Broken {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>();\n        names.add(\"Aisha\");\n        names.add(\"Raj\");\n        names.add(\"Priya\");\n        names.add(\"Vikram\");\n        \n        // Remove names with 3 or fewer characters\n        for (String name : names) {\n            if (name.length() <= 3) {\n                names.remove(name);  // WRONG — modifying during iteration\n            }\n        }\n        System.out.println(names);\n    }\n}",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class Broken {\n    public static void main(String[] args) {\n        List<String> names = new ArrayList<>();\n        names.add(\"Aisha\");\n        names.add(\"Raj\");\n        names.add(\"Priya\");\n        names.add(\"Vikram\");\n        \n        names.removeIf(name -> name.length() <= 3);\n        System.out.println(names);\n    }\n}",
+      "bugs": [
+        { "line": "11-13", "issue": "Removing from list while iterating with for-each causes ConcurrentModificationException", "fix": "Use removeIf() instead" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Priya, Vikram]", "must_compile": true }
+      ],
+      "hints": [
+        "Cannot modify list in for-each loop body",
+        "Use names.removeIf(condition) — Java 8+ safe removal",
+        "Or iterate backwards by index: for (int i = size-1; i >= 0; i--)",
+        "removeIf: names.removeIf(name -> name.length() <= 3)"
+      ],
+      "xp_reward": 50,
+      "common_misconceptions_tested": ["modifying_during_iteration"]
+    },
+    
+    {
+      "id": "java_m6_t1_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sort ArrayList of objects",
+      "scenario": "Sort list by a field using Comparator.",
+      "instructions": "Create a `List<Student>` (name, gpa). Sort by GPA DESCENDING. Print sorted list.\n\nExpected output:\nAisha (3.95)\nPriya (3.80)\nRaj (3.75)\nVikram (3.50)",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\n// Student class and sorted ArrayList\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.Comparator;\nimport java.util.List;\n\nclass Student {\n    String name;\n    double gpa;\n    Student(String name, double gpa) { this.name = name; this.gpa = gpa; }\n    public String toString() { return name + \" (\" + gpa + \")\"; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        List<Student> students = new ArrayList<>();\n        students.add(new Student(\"Raj\", 3.75));\n        students.add(new Student(\"Aisha\", 3.95));\n        students.add(new Student(\"Vikram\", 3.50));\n        students.add(new Student(\"Priya\", 3.80));\n        \n        students.sort(new Comparator<Student>() {\n            @Override\n            public int compare(Student a, Student b) {\n                return Double.compare(b.gpa, a.gpa);  // descending\n            }\n        });\n        \n        for (Student s : students) System.out.println(s);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Aisha (3.95)\nPriya (3.80)\nRaj (3.75)\nVikram (3.50)" }
+      ],
+      "hints": [
+        "students.sort(comparator) — sort in-place",
+        "Comparator: Double.compare(b.gpa, a.gpa) for descending",
+        "Anonymous class or lambda both work"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m6_t1_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Deduplicate ArrayList",
+      "scenario": "Remove duplicates while preserving order.",
+      "instructions": "Write a method `removeDuplicates(List<String> list)` that returns a new list with duplicates removed, preserving first-occurrence order.\n\nInput: [\"apple\", \"banana\", \"apple\", \"cherry\", \"banana\", \"date\"]\nExpected output:\n[apple, banana, cherry, date]",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// removeDuplicates: preserve first-occurrence order\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\npublic class App {\n    static List<String> removeDuplicates(List<String> list) {\n        List<String> result = new ArrayList<>();\n        for (String item : list) {\n            if (!result.contains(item)) {\n                result.add(item);\n            }\n        }\n        return result;\n    }\n    \n    public static void main(String[] args) {\n        List<String> fruits = new ArrayList<>();\n        fruits.add(\"apple\"); fruits.add(\"banana\"); fruits.add(\"apple\");\n        fruits.add(\"cherry\"); fruits.add(\"banana\"); fruits.add(\"date\");\n        \n        System.out.println(removeDuplicates(fruits));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[apple, banana, cherry, date]" }
+      ],
+      "hints": [
+        "Create empty result list",
+        "For each item: only add if !result.contains(item)",
+        "contains() uses equals() — works for Strings",
+        "Order is preserved: items added in first-seen order"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m6_t1_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Shopping cart with ArrayList",
+      "scenario": "Practical domain — cart operations on object list.",
+      "instructions": "Create `CartItem` (productName, price, qty). Build a `ShoppingCart` using `List<CartItem>`:\n- `addItem(CartItem)` — adds item\n- `removeByName(String)` — removes first item with that name\n- `totalPrice()` — sums price × qty for all items\n- `printReceipt()` — prints each item and total\n\nExpected output:\nWireless Mouse x1 = ₹719.1\nKeyboard x2 = ₹3998.0\nUSB Hub x3 = ₹1497.0\nTOTAL: ₹6214.1",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// CartItem class and ShoppingCart with ArrayList\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\nclass CartItem {\n    String productName;\n    double price;\n    int qty;\n    \n    CartItem(String productName, double price, int qty) {\n        this.productName = productName; this.price = price; this.qty = qty;\n    }\n    \n    double lineTotal() { return price * qty; }\n    \n    public String toString() {\n        return productName + \" x\" + qty + \" = ₹\" + lineTotal();\n    }\n}\n\nclass ShoppingCart {\n    private List<CartItem> items = new ArrayList<>();\n    \n    public void addItem(CartItem item) { items.add(item); }\n    \n    public void removeByName(String name) {\n        items.removeIf(item -> item.productName.equals(name));\n    }\n    \n    public double totalPrice() {\n        double total = 0;\n        for (CartItem item : items) total += item.lineTotal();\n        return total;\n    }\n    \n    public void printReceipt() {\n        for (CartItem item : items) System.out.println(item);\n        System.out.println(\"TOTAL: ₹\" + totalPrice());\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        ShoppingCart cart = new ShoppingCart();\n        cart.addItem(new CartItem(\"Wireless Mouse\", 719.1, 1));\n        cart.addItem(new CartItem(\"Keyboard\", 1999.0, 2));\n        cart.addItem(new CartItem(\"USB Hub\", 499.0, 3));\n        cart.printReceipt();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Wireless Mouse x1 = ₹719.1\nKeyboard x2 = ₹3998.0\nUSB Hub x3 = ₹1497.0\nTOTAL: ₹6214.1" }
+      ],
+      "hints": [
+        "List<CartItem> items in ShoppingCart",
+        "removeByName: items.removeIf(item -> item.productName.equals(name))",
+        "totalPrice: sum lineTotal() for each item",
+        "1999 × 2 = 3998, 499 × 3 = 1497, total = 719.1 + 3998 + 1497 = 6214.1"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m6_t1_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace ArrayList remove overloads",
+      "scenario": "remove(int) vs remove(Object) on Integer list.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.ArrayList;\nimport java.util.List;\n\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = new ArrayList<>();\n        nums.add(10);\n        nums.add(20);\n        nums.add(30);\n        nums.add(40);\n        \n        nums.remove(1);                  // remove by INDEX\n        System.out.println(nums);\n        \n        nums.remove(Integer.valueOf(30)); // remove by VALUE\n        System.out.println(nums);\n    }\n}\n```",
+      "expected_solution": "[10, 30, 40]\n[10, 40]",
+      "test_cases": [
+        { "type": "text_match", "expected": "[10, 30, 40]\n[10, 40]" }
+      ],
+      "hints": [
+        "remove(1): removes element at INDEX 1 → removes 20 → [10, 30, 40]",
+        "remove(Integer.valueOf(30)): removes VALUE 30 → [10, 40]",
+        "This is the classic remove ambiguity with Integer lists"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m6_t1_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Contact list manager",
+      "scenario": "Full ArrayList class with add, remove, search, sort.",
+      "instructions": "Build a `ContactManager` using `List<Contact>` (name, phone, email):\n- `add(Contact)` — validates non-empty name\n- `removeByEmail(String)` — remove by email\n- `findByName(String)` — case-insensitive search, returns list of matches\n- `sortByName()` — sort alphabetically\n- `countByDomain(String)` — count contacts with email at given domain (after @)\n\nTest with 5 contacts, remove one, find by partial name, count gmail.com.\n\nExpected output:\nFound 2 with 'ra': Raj Kumar, Priya Rao\ngmail.com contacts: 2",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// Contact class and ContactManager with List<Contact>\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\nclass Contact {\n    String name, phone, email;\n    Contact(String name, String phone, String email) {\n        this.name = name; this.phone = phone; this.email = email;\n    }\n    public String toString() { return name; }\n}\n\nclass ContactManager {\n    private List<Contact> contacts = new ArrayList<>();\n    \n    public void add(Contact c) {\n        if (c.name == null || c.name.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        contacts.add(c);\n    }\n    \n    public void removeByEmail(String email) {\n        contacts.removeIf(c -> c.email.equalsIgnoreCase(email));\n    }\n    \n    public List<Contact> findByName(String query) {\n        List<Contact> result = new ArrayList<>();\n        for (Contact c : contacts) {\n            if (c.name.toLowerCase().contains(query.toLowerCase())) {\n                result.add(c);\n            }\n        }\n        return result;\n    }\n    \n    public void sortByName() {\n        contacts.sort((a, b) -> a.name.compareTo(b.name));\n    }\n    \n    public int countByDomain(String domain) {\n        int count = 0;\n        for (Contact c : contacts) {\n            int at = c.email.indexOf('@');\n            if (at >= 0 && c.email.substring(at + 1).equalsIgnoreCase(domain)) count++;\n        }\n        return count;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        ContactManager cm = new ContactManager();\n        cm.add(new Contact(\"Aisha Khan\", \"9876543210\", \"aisha@gmail.com\"));\n        cm.add(new Contact(\"Raj Kumar\", \"8765432109\", \"raj@company.com\"));\n        cm.add(new Contact(\"Priya Rao\", \"7654321098\", \"priya@gmail.com\"));\n        cm.add(new Contact(\"Vikram Singh\", \"6543210987\", \"vikram@yahoo.com\"));\n        cm.add(new Contact(\"Anita Das\", \"5432109876\", \"anita@company.com\"));\n        \n        cm.removeByEmail(\"anita@company.com\");\n        \n        List<Contact> found = cm.findByName(\"ra\");\n        System.out.print(\"Found \" + found.size() + \" with 'ra': \");\n        for (int i = 0; i < found.size(); i++) {\n            if (i > 0) System.out.print(\", \");\n            System.out.print(found.get(i).name);\n        }\n        System.out.println();\n        \n        System.out.println(\"gmail.com contacts: \" + cm.countByDomain(\"gmail.com\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found 2 with 'ra': Raj Kumar, Priya Rao\ngmail.com contacts: 2" }
+      ],
+      "hints": [
+        "findByName: case-insensitive contains check",
+        "countByDomain: indexOf('@') gives the split point",
+        "removeByEmail: removeIf with equalsIgnoreCase",
+        "'ra' matches 'Raj Kumar' (Ra) and 'Priya Rao' (Rao)"
+      ],
+      "xp_reward": 80
+    },
+    
+    {
+      "id": "java_m6_t1_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Grade histogram from ArrayList",
+      "scenario": "Process ArrayList data into statistics.",
+      "instructions": "Given `List<Integer> scores`, write:\n- `average(List<Integer>)` → double average\n- `countAbove(List<Integer>, int threshold)` → count scores > threshold  \n- `topN(List<Integer>, int n)` → returns new sorted List<Integer> of top N scores\n\nTest with: [72, 88, 91, 65, 78, 95, 83, 67, 91, 79]\n\nExpected output:\nAverage: 80.9\nAbove 80: 4\nTop 3: [95, 91, 91]",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// Three utility methods for List<Integer> analysis\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.Collections;\nimport java.util.List;\n\npublic class App {\n    static double average(List<Integer> scores) {\n        int sum = 0;\n        for (int s : scores) sum += s;\n        return (double) sum / scores.size();\n    }\n    \n    static int countAbove(List<Integer> scores, int threshold) {\n        int count = 0;\n        for (int s : scores) if (s > threshold) count++;\n        return count;\n    }\n    \n    static List<Integer> topN(List<Integer> scores, int n) {\n        List<Integer> sorted = new ArrayList<>(scores);  // copy\n        sorted.sort((a, b) -> b - a);  // descending\n        return sorted.subList(0, Math.min(n, sorted.size()));\n    }\n    \n    public static void main(String[] args) {\n        List<Integer> scores = new ArrayList<>();\n        int[] raw = {72, 88, 91, 65, 78, 95, 83, 67, 91, 79};\n        for (int s : raw) scores.add(s);\n        \n        System.out.println(\"Average: \" + average(scores));\n        System.out.println(\"Above 80: \" + countAbove(scores, 80));\n        System.out.println(\"Top 3: \" + topN(scores, 3));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Average: 80.9\nAbove 80: 4\nTop 3: [95, 91, 91]" }
+      ],
+      "hints": [
+        "average: sum all, divide by size(). Cast to double.",
+        "countAbove: loop and count where s > threshold",
+        "topN: copy list, sort descending, return subList(0, n)",
+        "new ArrayList<>(scores) creates a COPY of the list",
+        "Average: (72+88+91+65+78+95+83+67+91+79)/10 = 809/10 = 80.9"
+      ],
+      "xp_reward": 75
+    },
+    
+    {
+      "id": "java_m6_t1_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Polymorphic notification queue",
+      "scenario": "ArrayList of abstract parent type — Module 5 meets Module 6.",
+      "instructions": "Create abstract class `Notification` with abstract `deliver()` and `getPriority()` (int). Create `EmailNotification`, `SMSNotification`, `PushNotification` (each with different priority and delivery message).\n\nBuild a `NotificationQueue` using `List<Notification>` (abstract parent):\n- `enqueue(Notification)` adds to list\n- `deliverAll()` sorts by priority DESCENDING, then calls deliver() on each\n- `countByType(String type)` — counts using instanceof check\n\nExpected output:\n[PUSH-P1] App update available\n[SMS-P2] Your OTP is 123456\n[EMAIL-P3] Welcome to CodeQuest!\nPush: 1, SMS: 1, Email: 1",
+      "starter_code": "import java.util.ArrayList;\nimport java.util.List;\n\n// Abstract Notification hierarchy + NotificationQueue with List<Notification>\n",
+      "expected_solution": "import java.util.ArrayList;\nimport java.util.List;\n\nabstract class Notification {\n    protected String message;\n    Notification(String message) { this.message = message; }\n    public abstract void deliver();\n    public abstract int getPriority();\n}\n\nclass EmailNotification extends Notification {\n    EmailNotification(String message) { super(message); }\n    @Override public void deliver() { System.out.println(\"[EMAIL-P3] \" + message); }\n    @Override public int getPriority() { return 3; }\n}\n\nclass SMSNotification extends Notification {\n    SMSNotification(String message) { super(message); }\n    @Override public void deliver() { System.out.println(\"[SMS-P2] \" + message); }\n    @Override public int getPriority() { return 2; }\n}\n\nclass PushNotification extends Notification {\n    PushNotification(String message) { super(message); }\n    @Override public void deliver() { System.out.println(\"[PUSH-P1] \" + message); }\n    @Override public int getPriority() { return 1; }\n}\n\nclass NotificationQueue {\n    private List<Notification> queue = new ArrayList<>();\n    \n    public void enqueue(Notification n) { queue.add(n); }\n    \n    public void deliverAll() {\n        queue.sort((a, b) -> Integer.compare(a.getPriority(), b.getPriority()));\n        for (Notification n : queue) n.deliver();\n    }\n    \n    public void countByType() {\n        int email = 0, sms = 0, push = 0;\n        for (Notification n : queue) {\n            if (n instanceof EmailNotification) email++;\n            else if (n instanceof SMSNotification) sms++;\n            else if (n instanceof PushNotification) push++;\n        }\n        System.out.println(\"Push: \" + push + \", SMS: \" + sms + \", Email: \" + email);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        NotificationQueue nq = new NotificationQueue();\n        nq.enqueue(new EmailNotification(\"Welcome to CodeQuest!\"));\n        nq.enqueue(new SMSNotification(\"Your OTP is 123456\"));\n        nq.enqueue(new PushNotification(\"App update available\"));\n        \n        nq.deliverAll();\n        nq.countByType();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[PUSH-P1] App update available\n[SMS-P2] Your OTP is 123456\n[EMAIL-P3] Welcome to CodeQuest!\nPush: 1, SMS: 1, Email: 1" }
+      ],
+      "hints": [
+        "List<Notification> holds all subclasses (polymorphism!)",
+        "Sort by priority ascending: Integer.compare(a.getPriority(), b.getPriority())",
+        "deliver() is polymorphic — each subclass's version runs",
+        "countByType uses instanceof — appropriate here for type-specific counting",
+        "Priority 1 (Push) first, then 2 (SMS), then 3 (Email)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 10,
+      "debug": 2,
+      "predict_output": 2
+    },
+    "total_xp_possible": 705,
+    "estimated_completion_minutes": 65
+  },
+  
+  "gap_detection_map": {
+    "using_list_int_not_integer": ["ex_4"],
+    "modifying_during_iteration": ["ex_8"],
+    "replace_array_with_arraylist": ["ex_7"],
+    "contains_without_equals": ["ex_6"]
+  }
+}

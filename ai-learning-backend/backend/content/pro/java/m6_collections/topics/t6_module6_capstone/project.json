@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m6_t6_proj",
+  "linked_topic": "java_m6_t6",
+  "level": "capstone",
+  "name": "Job Board Backend — Module 6 Capstone",
+  "estimated_minutes": 90,
+  "difficulty": 8,
+
+  "scenario": "Build the backend data layer for a job board platform (think Naukri.com, LinkedIn Jobs, or Indeed India). Companies post jobs. Candidates apply. The system must support fast lookup by job ID, browsing by category, salary range filtering, tracking who applied, and closing filled positions. Every Module 6 collection type plays a role — and choosing the wrong one means the system breaks under load.",
+
+  "description": "A complete in-memory job board backend using all six Module 6 collection tools: ArrayList for ordered listings, HashMap for O(1) ID lookup, HashSet for closed-job tracking, TreeMap for salary-range queries, Map<String, List> for category grouping and applicant tracking, Iterator for safe removal with audit log, and Collections utilities throughout.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`JobPosting` class: jobId (String), title, company, category, salaryMin (double), description, postedDate (String). Getters + toString: 'jobId: title @ company (category) ₹salaryMin+'.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`JobBoard` class with FIVE data structures — each commented with the reason it exists:\n- `List<JobPosting>` allPostings (ordered master list)\n- `Map<String, JobPosting>` byId (O(1) lookup)\n- `Map<String, List<JobPosting>>` byCategory (grouped, fast category filter)\n- `TreeMap<Double, List<JobPosting>>` bySalary (sorted, for range queries)\n- `Set<String>` closedJobIds (fast membership — is this job still open?)",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`Map<String, List<String>>` applicantsByJob (jobId → list of applicant names) as a sixth structure. Applicants can apply multiple times (duplicates allowed per spec — some platforms allow multiple applications).",
+        "weight": 7
+      },
+      {
+        "id": "req_4",
+        "description": "`postJob(JobPosting)` — populates ALL six structures simultaneously.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`apply(String jobId, String applicantName)` — adds applicant if job is open (not in closedJobIds). Returns true if successful, false if job is closed.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`closeJob(String jobId)` — adds to closedJobIds. Returns the list of applicants for the now-closed job.",
+        "weight": 8
+      },
+      {
+        "id": "req_7",
+        "description": "`jobsInSalaryRange(double min, double max)` — uses TreeMap.subMap() to return all postings in the range. No manual loop over all jobs.",
+        "weight": 12
+      },
+      {
+        "id": "req_8",
+        "description": "`removeExpiredPostings(String beforeDate)` — uses Iterator to remove jobs posted before the given date string (String comparison is OK for YYYY-MM-DD format). Builds and returns an audit log of removed job IDs.",
+        "weight": 12
+      },
+      {
+        "id": "req_9",
+        "description": "`getStats()` — prints: total open jobs, total closed jobs, total applicants across all jobs, top category (most postings), min/max salary using Collections.min/max.",
+        "weight": 10
+      },
+      {
+        "id": "req_10",
+        "description": "main() demonstrates all operations with at least 7 job postings across 3 categories, some applications, some closures, a salary range query, and expired posting removal.",
+        "weight": 8
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `Map<String, Set<String>>` companiesByCategory (category → set of unique company names). `companiesHiring(String category)` returns sorted list of companies actively hiring in that category.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `topApplicants(int n)` — finds the n applicants who have applied to the most jobs. Use a Map<String, Integer> frequency count across all applicantsByJob values.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `getOpenPostings()` returning `Collections.unmodifiableList` of only open postings (not in closedJobIds), sorted by salaryMin descending.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Job postings:\n- JOB-001, 'Senior Java Developer', TCS, Engineering, ₹180000, posted 2024-01-15\n- JOB-002, 'Product Manager', Flipkart, Product, ₹220000, posted 2024-01-20\n- JOB-003, 'Data Analyst', Zerodha, Analytics, ₹120000, posted 2024-01-10\n- JOB-004, 'Frontend Engineer', Zomato, Engineering, ₹140000, posted 2024-02-01\n- JOB-005, 'Backend Engineer', Razorpay, Engineering, ₹160000, posted 2024-02-05\n- JOB-006, 'ML Engineer', Google, Analytics, ₹250000, posted 2024-01-28\n- JOB-007, 'UX Designer', Swiggy, Product, ₹110000, posted 2024-01-08\n\nApplications:\n- JOB-001: Aisha, Raj, Priya\n- JOB-003: Aisha, Vikram\n- JOB-005: Raj, Aisha\n\nClose: JOB-001, JOB-003\n\nRemove expired (before 2024-01-15): JOB-007 (Jan 8), JOB-003 (Jan 10) — but JOB-003 already closed\n\nSalary range ₹130000-₹180000: JOB-001 (180000), JOB-004 (140000), JOB-005 (160000)",
+
+  "starter_code": "import java.util.*;\n\npublic class JobBoardSystem {\n    public static void main(String[] args) {\n        // Create JobBoard\n        // Post 7 jobs\n        // Process applications\n        // Close some jobs\n        // Query salary range\n        // Remove expired\n        // Print stats\n    }\n    \n    // Define: JobPosting, JobBoard\n}",
+
+  "example_output": "========================================\n     JOB BOARD BACKEND — DEMO\n========================================\n\n--- Salary Range ₹130K-₹180K ---\nJOB-004: Frontend Engineer @ Zomato (Engineering) ₹140000.0+\nJOB-005: Backend Engineer @ Razorpay (Engineering) ₹160000.0+\nJOB-001: Senior Java Developer @ TCS (Engineering) ₹180000.0+\n\n--- Applications for JOB-001 ---\nApplicants: [Aisha, Raj, Priya]\n\n--- Closing JOB-001 ---\nClosed. Final applicants: [Aisha, Raj, Priya]\n\n--- Removing expired (before 2024-01-15) ---\nRemoved: [JOB-007]\n\n--- Stats ---\nOpen jobs: 5\nClosed jobs: 2\nTotal applicants: 5\nTop category: Engineering (3 postings)\nMin salary: ₹110000.0 | Max salary: ₹250000.0\n========================================",
+
+  "rubric": [
+    {
+      "category": "Data Structure Design",
+      "points": 25,
+      "criteria": [
+        "All 6 structures correct types (15 pts)",
+        "Each structure commented with reason (10 pts)"
+      ]
+    },
+    {
+      "category": "Core Operations",
+      "points": 30,
+      "criteria": [
+        "postJob populates all 6 structures (10 pts)",
+        "apply() checks closedJobIds before adding (8 pts)",
+        "closeJob() returns applicant list (6 pts)",
+        "removeExpiredPostings uses Iterator (6 pts)"
+      ]
+    },
+    {
+      "category": "Query Methods",
+      "points": 20,
+      "criteria": [
+        "jobsInSalaryRange uses TreeMap.subMap() (12 pts)",
+        "getStats uses Collections.min/max (8 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without warnings (10 pts)",
+        "Runs with expected output (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration",
+      "points": 10,
+      "criteria": [
+        "All operations demonstrated in main() (10 pts)"
+      ]
+    },
+    {
+      "category": "Bonus",
+      "points": 65,
+      "criteria": [
+        "companiesHiring with sorted output (20 pts)",
+        "topApplicants frequency analysis (25 pts)",
+        "getOpenPostings unmodifiable sorted (20 pts)"
+      ]
+    }
+  ],
+
+  "ai_policy": "no_ai",
+  "ai_policy_explanation": "This is the Module 6 capstone. No AI assistance. You should be able to design and implement this entirely from what you've learned. If you're stuck, re-read the topic content and look at your exercise solutions — every pattern here appeared in an exercise.",
+
+  "submission_instructions": "Save as JobBoardSystem.java. Run it. Every data structure field must have a comment explaining why that collection type was chosen. Push to GitHub with commit message: 'Module 6 capstone: Job Board Backend — all Collection types applied.' This is a portfolio piece.",
+
+  "tips_for_success": [
+    "Start with the data structures — declare all six fields with comments before writing any methods.",
+    "postJob() is the most important method — it must touch all six structures. Write and test it first.",
+    "TreeMap for bySalary: key is salaryMin (Double), value is List<JobPosting> (multiple jobs at same salary).",
+    "jobsInSalaryRange: bySalary.subMap(min, true, max, true).values() gives a Collection<List<JobPosting>>. Flatten it with a nested loop.",
+    "removeExpiredPostings: YYYY-MM-DD string comparison works correctly for chronological ordering (lexicographic = chronological for this format).",
+    "Iterator for removeExpiredPostings: remove from allPostings via iterator, then also remove from byId, bySalary, byCategory, closedJobIds.",
+    "getStats for top category: iterate byCategory.entrySet(), track the key with the largest list size."
+  ],
+
+  "concepts_reinforced": [
+    "All six Module 6 collection types in one system",
+    "Multi-structure consistency (add/remove touches all)",
+    "TreeMap.subMap() for range queries",
+    "Iterator for safe removal with audit log",
+    "HashSet for O(1) membership (closedJobIds)",
+    "Collections.min/max for statistics",
+    "Commenting collection choices (professional practice)"
+  ],
+
+  "what_youll_learn_by_doing_this": "Real job board backends at Naukri, LinkedIn, Indeed have this exact architecture — or more sophisticated versions of it. The TreeMap for salary search is what powers 'Show me jobs ₹150K-₹250K'. The HashSet for closed jobs is what prevents applying to a filled position. The Map of Lists is what generates 'All applicants for this role'. After building this, you've built a simplified version of production infrastructure. That's what 'mastered Module 6' means.",
+
+  "extensions_for_advanced_learners": [
+    "Add pagination: getPage(int pageNum, int pageSize) using List.subList()",
+    "Add a search method that queries by title keyword (case-insensitive contains)",
+    "Track application timestamps — use TreeMap<Long, String> per job for time-ordered applicant history",
+    "Add a featured jobs Set<String> with a getFeaturedJobs() returning unmodifiable list",
+    "Implement job recommendation: given a job category, return jobs from same category the applicant hasn't applied to yet (Set difference)"
+  ]
+}

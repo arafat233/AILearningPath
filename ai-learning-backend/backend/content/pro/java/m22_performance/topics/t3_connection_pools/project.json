@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0", "project_id": "java_m22_t3_proj", "linked_topic": "java_m22_t3",
+  "level": "mini", "name": "Razorpay DB Pool Tuning — HikariCP Optimization",
+  "estimated_minutes": 40, "difficulty": 6,
+  "scenario": "Razorpay's payment service goes down for 8 minutes when DB slows. Root cause: connectionTimeout=30s and pool too small. Configure HikariCP correctly and add pool monitoring.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "application.yml: maximum-pool-size=(4×2)+1=10, minimum-idle=3, connection-timeout=3000, max-lifetime=1800000, keepalive-time=60000, pool-name=RazorpayPool.", "weight": 20 },
+      { "id": "req_2", "description": "PoolMonitoringService @Service: Gauge 'hikari.pool.utilization' (active/max). Counter 'hikari.pool.timeouts'. recordTimeout() method.", "weight": 20 },
+      { "id": "req_3", "description": "HikariPoolHealthIndicator @Component('hikariPool'): returns DOWN with pending count detail if pending > 5, UP otherwise.", "weight": 15 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): utilization gauge registered (0-1 range), health is UP, SELECT 1 executes successfully. All 3 pass.", "weight": 40 },
+      { "id": "req_5", "description": "README: explains the 8-minute outage root cause and how each config fix prevents it.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "Multi-DataSource: payments (pool=10) + analytics (pool=20) with separate pool names. Test: both pool metrics available.", "weight": 20 },
+      { "id": "bonus_2", "description": "PgBouncer documentation: pgbouncer.ini config file + application.yml changes needed for transaction mode.", "weight": 15 },
+      { "id": "bonus_3", "description": "Pool exhaustion Grafana alert: PromQL for pending>5 AND acquire p99 > 1s. alertmanager routing to payments Slack channel.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. connectionTimeout=3000ms: how long a Tomcat thread waits for a free connection from the pool. 30s (old default) = threads queue for 30s during DB pressure. 3s = fail fast, circuit breaker fires. max-lifetime must be less than PostgreSQL's wait_timeout (8 hours by default) — set to 30 minutes (1800000ms). keepalive-time: HikariCP sends keepalive query every N ms to prevent firewall/NAT from killing idle connections. Pool formula: (DB_server_cores × 2) + effective_spindle_count — counterintuitively small! hikaricp.connections.pending: the key metric for pool health.",
+  "rubric": [
+    { "category": "application.yml HikariCP config", "points": 20 },
+    { "category": "PoolMonitoringService", "points": 20 },
+    { "category": "HikariPoolHealthIndicator", "points": 15 },
+    { "category": "@SpringBootTest (3 tests)", "points": 40 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

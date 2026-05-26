@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t5",
+  "topic_name": "Try-With-Resources",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m7_t5_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace AutoCloseable close() call order",
+      "scenario": "close() is called when try exits.",
+      "instructions": "What does this print?\n\n```java\nclass Resource implements AutoCloseable {\n    String name;\n    Resource(String name) {\n        this.name = name;\n        System.out.println(name + \" opened\");\n    }\n    @Override public void close() {\n        System.out.println(name + \" closed\");\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try (Resource r = new Resource(\"R1\")) {\n            System.out.println(\"using R1\");\n        }\n        System.out.println(\"after try\");\n    }\n}\n```",
+      "expected_solution": "R1 opened\nusing R1\nR1 closed\nafter try",
+      "test_cases": [
+        { "type": "text_match", "expected": "R1 opened\nusing R1\nR1 closed\nafter try" }
+      ],
+      "hints": [
+        "Constructor runs first: 'R1 opened'",
+        "Try body: 'using R1'",
+        "Try exits: close() called automatically → 'R1 closed'",
+        "Execution continues: 'after try'"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t5_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Multiple resources — closing order",
+      "scenario": "Two resources close in reverse declaration order.",
+      "instructions": "What does this print?\n\n```java\nclass Res implements AutoCloseable {\n    String name;\n    Res(String n) { name = n; System.out.println(\"open: \" + n); }\n    public void close() { System.out.println(\"close: \" + name); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try (Res a = new Res(\"A\");\n             Res b = new Res(\"B\")) {\n            System.out.println(\"working\");\n        }\n    }\n}\n```",
+      "expected_solution": "open: A\nopen: B\nworking\nclose: B\nclose: A",
+      "test_cases": [
+        { "type": "text_match", "expected": "open: A\nopen: B\nworking\nclose: B\nclose: A" }
+      ],
+      "hints": [
+        "Open in declaration order: A then B",
+        "Close in REVERSE: B then A (LIFO)",
+        "Ensures A is still open when B closes (B might depend on A)"
+      ],
+      "xp_reward": 15
+    },
+
+    {
+      "id": "java_m7_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Simple try-with-resources",
+      "scenario": "Use try-with-resources with a custom AutoCloseable.",
+      "instructions": "Create a `FileSimulator implements AutoCloseable` with name field. open() prints 'opened: name', readLine() returns 'line from name', close() prints 'closed: name'. Use it in try-with-resources.\n\nExpected output:\nopened: data.txt\nline from data.txt\nclosed: data.txt",
+      "starter_code": "// FileSimulator with AutoCloseable, use in try-with-resources\n",
+      "expected_solution": "class FileSimulator implements AutoCloseable {\n    private final String name;\n    \n    FileSimulator(String name) {\n        this.name = name;\n        System.out.println(\"opened: \" + name);\n    }\n    \n    String readLine() { return \"line from \" + name; }\n    \n    @Override\n    public void close() {\n        System.out.println(\"closed: \" + name);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try (FileSimulator fs = new FileSimulator(\"data.txt\")) {\n            System.out.println(fs.readLine());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "opened: data.txt\nline from data.txt\nclosed: data.txt" }
+      ],
+      "hints": [
+        "implements AutoCloseable and override close()",
+        "try (FileSimulator fs = new FileSimulator('data.txt')) { ... }",
+        "close() prints closed automatically when try exits"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m7_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "close() called even on exception",
+      "scenario": "Resource is closed regardless of whether try body throws.",
+      "instructions": "Use try-with-resources. Throw an exception inside the try block and confirm the resource is still closed.\n\nExpected output:\nResource opened\nResource closed\nCaught: Simulated error",
+      "starter_code": "// Show close() is called even when exception thrown in try body\n",
+      "expected_solution": "class ManagedResource implements AutoCloseable {\n    ManagedResource() { System.out.println(\"Resource opened\"); }\n    @Override public void close() { System.out.println(\"Resource closed\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try (ManagedResource r = new ManagedResource()) {\n            throw new RuntimeException(\"Simulated error\");\n        } catch (RuntimeException e) {\n            System.out.println(\"Caught: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Resource opened\nResource closed\nCaught: Simulated error" }
+      ],
+      "hints": [
+        "close() is called BEFORE the catch block runs",
+        "Output order: opened → closed → caught message",
+        "This is the core guarantee of try-with-resources"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m7_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Read simulated file line by line",
+      "scenario": "Classic file reading pattern with try-with-resources.",
+      "instructions": "Use BufferedReader + StringReader (simulates FileReader) to read lines and count them.\n\nContent: 'line1\\nline2\\nline3'\n\nExpected output:\nline1\nline2\nline3\nTotal lines: 3",
+      "starter_code": "import java.io.*;\n\n// BufferedReader in try-with-resources to read simulated file content\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    public static void main(String[] args) throws IOException {\n        String content = \"line1\\nline2\\nline3\";\n        int lineCount = 0;\n        \n        try (BufferedReader reader = new BufferedReader(new StringReader(content))) {\n            String line;\n            while ((line = reader.readLine()) != null) {\n                System.out.println(line);\n                lineCount++;\n            }\n        }  // reader auto-closed\n        \n        System.out.println(\"Total lines: \" + lineCount);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "line1\nline2\nline3\nTotal lines: 3" }
+      ],
+      "hints": [
+        "try (BufferedReader reader = new BufferedReader(new StringReader(content)))",
+        "readLine() returns null at end of stream",
+        "lineCount variable declared outside try — accessible after block"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m7_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Write to StringWriter with PrintWriter",
+      "scenario": "File writing pattern with try-with-resources.",
+      "instructions": "Use PrintWriter + StringWriter (simulates file writing) to write a report. Read the result after the try block.\n\nExpected output:\nName: Aisha\nScore: 95\nGrade: A",
+      "starter_code": "import java.io.*;\n\n// PrintWriter in try-with-resources to write simulated report\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    public static void main(String[] args) {\n        StringWriter sw = new StringWriter();\n        \n        try (PrintWriter pw = new PrintWriter(sw)) {\n            pw.println(\"Name: Aisha\");\n            pw.println(\"Score: 95\");\n            pw.println(\"Grade: A\");\n        }  // pw.close() flushes buffer\n        \n        System.out.print(sw.toString());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Name: Aisha\nScore: 95\nGrade: A" }
+      ],
+      "hints": [
+        "StringWriter sw declared outside try — accessible after to read result",
+        "try (PrintWriter pw = new PrintWriter(sw))",
+        "close() flushes — important for buffered writers"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m7_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Idempotent AutoCloseable",
+      "scenario": "close() safe to call multiple times.",
+      "instructions": "Implement `DatabaseConnection implements AutoCloseable` with a `closed` boolean flag. `close()` should only print 'disconnected' ONCE — second call is ignored. Show both uses.\n\nExpected output:\nConnected\nDisconnected\nclose() again: no-op\nconnected: false",
+      "starter_code": "// Idempotent AutoCloseable — close() safe to call multiple times\n",
+      "expected_solution": "class DatabaseConnection implements AutoCloseable {\n    private boolean closed = false;\n    \n    DatabaseConnection() {\n        System.out.println(\"Connected\");\n    }\n    \n    public boolean isOpen() { return !closed; }\n    \n    @Override\n    public void close() {\n        if (!closed) {\n            System.out.println(\"Disconnected\");\n            closed = true;\n        }\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        DatabaseConnection conn;\n        try (DatabaseConnection c = new DatabaseConnection()) {\n            conn = c;\n        }  // close() called once\n        \n        System.out.println(\"close() again: no-op\");\n        conn.close();  // safe — no second 'Disconnected'\n        System.out.println(\"connected: \" + conn.isOpen());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Connected\nDisconnected\nclose() again: no-op\nconnected: false" }
+      ],
+      "hints": [
+        "private boolean closed = false",
+        "if (!closed) { ... closed = true; } in close()",
+        "Second call to close(): closed is true, condition false, nothing printed"
+      ],
+      "xp_reward": 45,
+      "concept_tested": "idempotent_close"
+    },
+
+    {
+      "id": "java_m7_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multiple resources — three in one try",
+      "scenario": "Three resources, reverse closing order.",
+      "instructions": "Create three AutoCloseable resources: `Connection`, `Statement`, `ResultSet` (simulated). Declare all three in one try-with-resources. Print opening/closing order.\n\nExpected output:\nConnection opened\nStatement opened\nResultSet opened\nQuerying...\nResultSet closed\nStatement closed\nConnection closed",
+      "starter_code": "// Three resources in one try — demonstrates LIFO closing order\n",
+      "expected_solution": "class SimConn implements AutoCloseable {\n    SimConn() { System.out.println(\"Connection opened\"); }\n    public void close() { System.out.println(\"Connection closed\"); }\n}\n\nclass SimStmt implements AutoCloseable {\n    SimStmt() { System.out.println(\"Statement opened\"); }\n    public void close() { System.out.println(\"Statement closed\"); }\n}\n\nclass SimRs implements AutoCloseable {\n    SimRs() { System.out.println(\"ResultSet opened\"); }\n    public void close() { System.out.println(\"ResultSet closed\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try (SimConn conn = new SimConn();\n             SimStmt stmt = new SimStmt();\n             SimRs rs = new SimRs()) {\n            System.out.println(\"Querying...\");\n        }  // rs closed, stmt closed, conn closed — reverse order\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Connection opened\nStatement opened\nResultSet opened\nQuerying...\nResultSet closed\nStatement closed\nConnection closed" }
+      ],
+      "hints": [
+        "Three resources in one try header, separated by semicolons",
+        "Opened in order: Conn, Stmt, Rs",
+        "Closed in reverse: Rs, Stmt, Conn"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m7_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Suppressed exceptions",
+      "scenario": "Both try body and close() throw — suppressed is attached.",
+      "instructions": "Create a resource where close() always throws. Throw a different exception in the try body. Show that the primary exception propagates and the close() exception is suppressed (accessible via getSuppressed()).\n\nExpected output:\nPrimary: body failed\nSuppressed: close failed",
+      "starter_code": "// Resource that throws in both work() and close()\n",
+      "expected_solution": "class LeakyResource implements AutoCloseable {\n    void work() throws Exception {\n        throw new Exception(\"body failed\");\n    }\n    @Override\n    public void close() throws Exception {\n        throw new Exception(\"close failed\");\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try {\n            try (LeakyResource r = new LeakyResource()) {\n                r.work();\n            }\n        } catch (Exception e) {\n            System.out.println(\"Primary: \" + e.getMessage());\n            for (Throwable s : e.getSuppressed()) {\n                System.out.println(\"Suppressed: \" + s.getMessage());\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Primary: body failed\nSuppressed: close failed" }
+      ],
+      "hints": [
+        "'body failed' is the primary exception from work()",
+        "'close failed' from close() is suppressed — attached to primary",
+        "e.getSuppressed() returns array of suppressed exceptions"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "suppressed_exceptions"
+    },
+
+    {
+      "id": "java_m7_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Try-with-resources + catch + finally",
+      "scenario": "All three sections combined.",
+      "instructions": "Combine try-with-resources with catch and finally. Show the order: resource closes before catch and before finally.\n\nExpected output:\nResource opened\nError occurred\nResource closed\nHandled: oops\nFinally runs",
+      "starter_code": "// try-with-resources + catch + finally — verify ordering\n",
+      "expected_solution": "class Resource implements AutoCloseable {\n    Resource() { System.out.println(\"Resource opened\"); }\n    public void work() { \n        System.out.println(\"Error occurred\");\n        throw new RuntimeException(\"oops\"); \n    }\n    @Override public void close() { System.out.println(\"Resource closed\"); }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        try (Resource r = new Resource()) {\n            r.work();\n        } catch (RuntimeException e) {\n            System.out.println(\"Handled: \" + e.getMessage());\n        } finally {\n            System.out.println(\"Finally runs\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Resource opened\nError occurred\nResource closed\nHandled: oops\nFinally runs" }
+      ],
+      "hints": [
+        "Order: try body (partial) → resource close → catch → finally",
+        "Resource closed BEFORE catch block runs",
+        "Finally still runs after catch"
+      ],
+      "xp_reward": 50
+    },
+
+    {
+      "id": "java_m7_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Refactor finally to try-with-resources",
+      "scenario": "Modernise old-style resource management.",
+      "instructions": "Refactor this old-style finally code to use try-with-resources:\n\n```java\n// OLD — refactor this:\nBufferedReader reader = null;\ntry {\n    reader = new BufferedReader(new StringReader(\"hello\\nworld\"));\n    String line;\n    while ((line = reader.readLine()) != null) {\n        System.out.println(line.toUpperCase());\n    }\n} catch (IOException e) {\n    System.out.println(\"Error: \" + e.getMessage());\n} finally {\n    if (reader != null) try { reader.close(); } catch (IOException ignored) {}\n}\n```\n\nExpected output:\nHELLO\nWORLD",
+      "starter_code": "import java.io.*;\n\n// Refactor to try-with-resources\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    public static void main(String[] args) {\n        try (BufferedReader reader = new BufferedReader(new StringReader(\"hello\\nworld\"))) {\n            String line;\n            while ((line = reader.readLine()) != null) {\n                System.out.println(line.toUpperCase());\n            }\n        } catch (IOException e) {\n            System.out.println(\"Error: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "HELLO\nWORLD" }
+      ],
+      "hints": [
+        "Declare BufferedReader in the try header",
+        "No null check needed — if constructor throws, nothing to close",
+        "The entire 5-line finally block disappears"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m7_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Report generator with two resources",
+      "scenario": "Reading and writing simultaneously with two resources.",
+      "instructions": "Read CSV data (via StringReader → BufferedReader), parse it, write a report (via StringWriter → PrintWriter). Both resources in try-with-resources.\n\nInput CSV: 'Aisha,A\\nRaj,B\\nPriya,A'\n\nExpected output:\n=== Grade Report ===\nAisha: A\nRaj: B\nPriya: A\nA count: 2, B count: 1",
+      "starter_code": "import java.io.*;\nimport java.util.*;\n\n// Two resources: BufferedReader for input, PrintWriter for output\n",
+      "expected_solution": "import java.io.*;\nimport java.util.*;\n\npublic class App {\n    public static void main(String[] args) throws IOException {\n        String csv = \"Aisha,A\\nRaj,B\\nPriya,A\";\n        StringWriter output = new StringWriter();\n        Map<String, Integer> counts = new HashMap<>();\n        \n        try (BufferedReader reader = new BufferedReader(new StringReader(csv));\n             PrintWriter writer = new PrintWriter(output)) {\n            \n            writer.println(\"=== Grade Report ===\");\n            String line;\n            while ((line = reader.readLine()) != null) {\n                String[] parts = line.split(\",\");\n                String name = parts[0], grade = parts[1];\n                writer.println(name + \": \" + grade);\n                counts.merge(grade, 1, Integer::sum);\n            }\n        }  // both closed: PrintWriter first (declared 2nd), BufferedReader second\n        \n        System.out.print(output);\n        System.out.println(\"A count: \" + counts.getOrDefault(\"A\", 0) +\n                           \", B count: \" + counts.getOrDefault(\"B\", 0));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "=== Grade Report ===\nAisha: A\nRaj: B\nPriya: A\nA count: 2, B count: 1" }
+      ],
+      "hints": [
+        "Two resources: BufferedReader + PrintWriter in same try header",
+        "StringWriter declared OUTSIDE try — to read result after close",
+        "Closes in reverse: PrintWriter (declared 2nd) first, then BufferedReader"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m7_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full AutoCloseable with state guard",
+      "scenario": "Custom resource with full defensive implementation.",
+      "instructions": "Implement `TransactionManager implements AutoCloseable`:\n- Opens on construction, sets `active = true`\n- `execute(String sql)` throws `IllegalStateException` if not active\n- `commit()` marks committed\n- `close()` — if committed, prints 'committed and closed'; if not, prints 'rolled back and closed'. Idempotent.\n\nExpected output:\nTransaction started\nexecute: INSERT users\nexecute: UPDATE accounts\ncommitted and closed\nRolled back (not committed):\nTransaction started\nexecute: DELETE logs\nrolled back and closed",
+      "starter_code": "// Full TransactionManager with state guard and AutoCloseable\n",
+      "expected_solution": "class TransactionManager implements AutoCloseable {\n    private boolean active = false;\n    private boolean committed = false;\n    private boolean closed = false;\n    \n    TransactionManager() {\n        active = true;\n        System.out.println(\"Transaction started\");\n    }\n    \n    void execute(String sql) {\n        if (!active || closed)\n            throw new IllegalStateException(\"Transaction is not active\");\n        System.out.println(\"execute: \" + sql);\n    }\n    \n    void commit() {\n        if (!active || closed) throw new IllegalStateException(\"Cannot commit: not active\");\n        committed = true;\n    }\n    \n    @Override\n    public void close() {\n        if (closed) return;  // idempotent\n        closed = true;\n        active = false;\n        if (committed) System.out.println(\"committed and closed\");\n        else           System.out.println(\"rolled back and closed\");\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        // Committed transaction\n        try (TransactionManager tx = new TransactionManager()) {\n            tx.execute(\"INSERT users\");\n            tx.execute(\"UPDATE accounts\");\n            tx.commit();\n        }\n        \n        // Rolled back (exception)\n        System.out.println(\"Rolled back (not committed):\");\n        try (TransactionManager tx = new TransactionManager()) {\n            tx.execute(\"DELETE logs\");\n            // no commit — rolls back on close\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Transaction started\nexecute: INSERT users\nexecute: UPDATE accounts\ncommitted and closed\nRolled back (not committed):\nTransaction started\nexecute: DELETE logs\nrolled back and closed" }
+      ],
+      "hints": [
+        "Three state flags: active, committed, closed",
+        "close() checks committed flag to decide commit vs rollback",
+        "Idempotent: if (closed) return; at the top of close()"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m7_t5_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Batch file processor — resource pipeline",
+      "scenario": "Read multiple simulated files with try-with-resources in a loop.",
+      "instructions": "Process 3 'files' (simulated with StringReader). For each: open a reader in try-with-resources, count words, accumulate total. Handle individual file failures without stopping the batch.\n\nFiles: 'hello world java', 'one two', 'this is a test line'\n\nExpected output:\nFile 1: 3 words\nFile 2: 2 words\nFile 3: 5 words\nTotal words: 10",
+      "starter_code": "import java.io.*;\n\n// Process each file in its own try-with-resources\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    public static void main(String[] args) {\n        String[] files = {\"hello world java\", \"one two\", \"this is a test line\"};\n        int total = 0;\n        \n        for (int i = 0; i < files.length; i++) {\n            int wordCount = 0;\n            try (BufferedReader reader = new BufferedReader(new StringReader(files[i]))) {\n                String line;\n                while ((line = reader.readLine()) != null) {\n                    wordCount += line.split(\"\\\\s+\").length;\n                }\n                System.out.println(\"File \" + (i + 1) + \": \" + wordCount + \" words\");\n                total += wordCount;\n            } catch (IOException e) {\n                System.out.println(\"File \" + (i + 1) + \": error — \" + e.getMessage());\n            }\n        }\n        System.out.println(\"Total words: \" + total);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "File 1: 3 words\nFile 2: 2 words\nFile 3: 5 words\nTotal words: 10" }
+      ],
+      "hints": [
+        "Each file gets its own try-with-resources in the loop",
+        "Per-file catch handles failure without stopping other files",
+        "split('\\\\s+') splits on any whitespace — handles multiple spaces"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m7_t5_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete JDBC-style resource chain",
+      "scenario": "All Module 7 exception tools in a realistic JDBC simulation.",
+      "instructions": "Simulate a complete JDBC query lifecycle with custom AutoCloseable classes:\n- `SimConnection` (opens/closes connection pool slot)\n- `SimStatement` (depends on connection)\n- `SimResultSet` (depends on statement, iterates rows)\n\nAll three in one try-with-resources. Process results. Handle a 'bad SQL' scenario that throws mid-query. Show suppressed exceptions work correctly.\n\nExpected output:\nConn opened\nStmt prepared: SELECT * FROM users\nRS opened\nRow: Aisha | Engineering\nRow: Raj | Sales\nRS closed\nStmt closed\nConn closed\n---\nConn opened\nStmt prepared: BAD SQL\nPrimary error: Syntax error in: BAD SQL\nRS closed (suppressed in real JDBC)\nStmt closed\nConn closed",
+      "starter_code": "import java.util.*;\n\n// Full JDBC-style AutoCloseable chain simulation\n",
+      "expected_solution": "import java.util.*;\n\nclass SimConnection implements AutoCloseable {\n    SimConnection() { System.out.println(\"Conn opened\"); }\n    public void close() { System.out.println(\"Conn closed\"); }\n}\n\nclass SimStatement implements AutoCloseable {\n    private final String sql;\n    SimStatement(SimConnection conn, String sql) {\n        this.sql = sql;\n        System.out.println(\"Stmt prepared: \" + sql);\n    }\n    String getSql() { return sql; }\n    public void close() { System.out.println(\"Stmt closed\"); }\n}\n\nclass SimResultSet implements AutoCloseable {\n    private final List<String[]> rows;\n    private int idx = 0;\n    private boolean throwOnClose;\n    \n    SimResultSet(SimStatement stmt) throws Exception {\n        System.out.println(\"RS opened\");\n        if (stmt.getSql().startsWith(\"BAD\")) {\n            throwOnClose = true;\n            throw new Exception(\"Syntax error in: \" + stmt.getSql());\n        }\n        rows = List.of(\n            new String[]{\"Aisha\", \"Engineering\"},\n            new String[]{\"Raj\", \"Sales\"}\n        );\n    }\n    \n    boolean next() { return idx < rows.size(); }\n    String getString(int col) { return rows.get(idx)[col]; }\n    void advance() { idx++; }\n    \n    public void close() {\n        System.out.println(throwOnClose ? \"RS closed (suppressed in real JDBC)\" : \"RS closed\");\n    }\n}\n\npublic class App {\n    static void runQuery(String sql) {\n        try (SimConnection conn = new SimConnection();\n             SimStatement stmt = new SimStatement(conn, sql)) {\n            try (SimResultSet rs = new SimResultSet(stmt)) {\n                while (rs.next()) {\n                    System.out.println(\"Row: \" + rs.getString(0) + \" | \" + rs.getString(1));\n                    rs.advance();\n                }\n            } catch (Exception e) {\n                System.out.println(\"Primary error: \" + e.getMessage());\n                for (Throwable s : e.getSuppressed())\n                    System.out.println(\"Suppressed: \" + s.getMessage());\n            }\n        }\n    }\n    \n    public static void main(String[] args) {\n        runQuery(\"SELECT * FROM users\");\n        System.out.println(\"---\");\n        runQuery(\"BAD SQL\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Conn opened", "Stmt prepared", "RS opened", "Row: Aisha", "RS closed", "Stmt closed", "Conn closed"] }
+      ],
+      "hints": [
+        "Three resources: Connection, Statement, ResultSet — nested or combined try",
+        "BAD SQL: SimResultSet constructor throws after printing 'RS opened'",
+        "Connection and Statement close regardless (outer try-with-resources)",
+        "Suppressed exceptions from RS.close() attach to the primary exception"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 14,
+      "predict_output": 1
+    },
+    "total_xp_possible": 715,
+    "estimated_completion_minutes": 60
+  }
+}

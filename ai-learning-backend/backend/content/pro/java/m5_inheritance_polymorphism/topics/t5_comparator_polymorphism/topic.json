@@ -1,0 +1,190 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t5",
+  "language": "java",
+  "module_id": "m5",
+  "module_name": "Inheritance & Polymorphism",
+  "topic_number": 5,
+  "name": "Comparator & Polymorphism in Practice",
+  "slug": "comparator-polymorphism-practice",
+  
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m5_t1", "java_m5_t2", "java_m5_t3", "java_m5_t4"],
+    "concepts_taught": [
+      "comparator_interface",
+      "comparator_vs_comparable",
+      "anonymous_class_comparator",
+      "method_reference_preview",
+      "chained_comparators",
+      "collections_sort",
+      "instanceof_patterns_revisited",
+      "safe_downcasting",
+      "polymorphism_design_patterns",
+      "open_closed_revisited",
+      "when_to_use_which_oop_tool"
+    ],
+    "skills_developed": [
+      "writing_comparator_implementations",
+      "sorting_with_multiple_criteria",
+      "choosing_comparable_vs_comparator",
+      "performing_safe_downcast_patterns",
+      "designing_polymorphic_systems",
+      "synthesizing_module5_concepts"
+    ],
+    "career_relevance": "Comparator is everywhere in production Java: sorting search results by relevance, sorting products by price/rating/discount, leaderboards, financial reports ordered by date. You cannot have a serious data-driven application without it. Combined with the polymorphism depth from Topics 5.1–5.4, this topic closes the gap between 'knows OOP' and 'designs with OOP.' After this topic, students understand the full inheritance and polymorphism toolkit and can confidently participate in architecture discussions.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Your e-commerce catalog can now sort products by price (from Topic 5.4's Comparable). But users want MORE:\n- 'Sort by name A-Z'\n- 'Sort by discount — highest first'\n- 'Sort by category, then by price within category'\n\nComparable gives ONE natural ordering. `Arrays.sort(products)` uses it. But you need MANY orderings — and they change depending on what the user requests.\n\nThis is `Comparator<T>` — a SEPARATE object that compares two items. You can create as many comparators as you like:\n\n```java\nComparator<Product> byName     = new NameComparator();\nComparator<Product> byDiscount = new DiscountComparator();\nComparator<Product> byCategory = new CategoryComparator();\n\nArrays.sort(products, byName);       // sort alphabetically\nArrays.sort(products, byDiscount);   // sort by discount\nArrays.sort(products, byCategory);   // sort by category\n```\n\nSame products, same sort method — completely different orders. Comparator is the solution.",
+    "what_you_will_build": "By the end of this topic, you'll deeply understand `Comparator<T>` (the flexible sorting interface), how to chain comparators for multi-criteria sort, when to use Comparable vs Comparator, and several safe instanceof/casting patterns. You'll also synthesize everything from Module 5 — seeing when to use inheritance, abstract classes, interfaces, and polymorphism together."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**`Comparator<T>`** is a functional interface for comparing two objects — separate from the objects being compared.\n\n```java\n@FunctionalInterface\npublic interface Comparator<T> {\n    int compare(T a, T b);\n    // negative: a comes before b\n    // zero: equal\n    // positive: a comes after b\n}\n```\n\nYou pass a `Comparator` to `Arrays.sort(array, comparator)`. The sort algorithm uses THAT comparator's comparison logic instead of the objects' natural order.\n\n**Comparable vs Comparator**:\n\n| | `Comparable<T>` | `Comparator<T>` |\n|-|-----------------|------------------|\n| Defined in | The class being sorted | A SEPARATE class or object |\n| Method | `compareTo(T other)` | `compare(T a, T b)` |\n| Number allowed | ONE per class | UNLIMITED |\n| Sort call | `Arrays.sort(arr)` | `Arrays.sort(arr, comparator)` |\n| Use when | Natural order is obvious | Need flexible/multiple orderings |\n\nPractical decision: `Comparable` for the most natural sort (Product by price, Employee by ID). `Comparator` for every other sort order.",
+      
+      "writing_comparator": "Three ways to write a Comparator:\n\n**1. Named class (cleanest for complex logic)**:\n```java\nclass ByNameComparator implements Comparator<Product> {\n    @Override\n    public int compare(Product a, Product b) {\n        return a.getName().compareTo(b.getName());  // String's compareTo: alphabetical\n    }\n}\n\nArrays.sort(products, new ByNameComparator());\n```\n\n**2. Anonymous class (inline, no separate file)**:\n```java\nComparator<Product> byDiscount = new Comparator<Product>() {\n    @Override\n    public int compare(Product a, Product b) {\n        return Double.compare(b.getDiscount(), a.getDiscount());  // descending\n    }\n};\n\nArrays.sort(products, byDiscount);\n```\n\n**3. Lambda expression (cleanest for simple comparisons — Java 8+)**:\n```java\nArrays.sort(products, (a, b) -> Double.compare(b.getDiscount(), a.getDiscount()));\n```\n\nLambdas work because Comparator is a `@FunctionalInterface` — one abstract method. The lambda IS that method. We'll cover lambdas fully in a later module; for now, recognize the pattern.\n\n**Comparator utility methods (Java 8+)**:\n```java\n// Comparator.comparing builds a comparator from a key extractor:\nComparator<Product> byName = Comparator.comparing(p -> p.getName());\n\n// Or with method reference (cleaner):\nComparator<Product> byName = Comparator.comparing(Product::getName);\nComparator<Product> byPrice = Comparator.comparingDouble(Product::getPrice);\n```\n\nWe'll use these where appropriate — students should recognize them even if method references aren't yet fully covered.",
+      
+      "chained_comparators": "**Multi-criteria sorting** — sort by primary key, then by secondary key for ties:\n\n```java\n// Sort by category (A-Z), then by price within each category:\nComparator<Product> byCategoryThenPrice = new Comparator<Product>() {\n    @Override\n    public int compare(Product a, Product b) {\n        int categoryCmp = a.getCategory().compareTo(b.getCategory());\n        if (categoryCmp != 0) return categoryCmp;  // different categories\n        return Double.compare(a.getPrice(), b.getPrice());  // same category → by price\n    }\n};\n\n// Java 8+ fluent API:\nComparator<Product> byNameDesc = Comparator.comparing(Product::getName).reversed();\nComparator<Product> byCatThenPrice = Comparator\n    .comparing(Product::getCategory)\n    .thenComparingDouble(Product::getPrice);\n```\n\nThe `.thenComparing()` chaining is clean and self-documenting. Same pattern as SQL: `ORDER BY category ASC, price ASC`.\n\n**Reversed comparator**:\n```java\nComparator<Product> byPriceDesc = Comparator\n    .comparingDouble(Product::getPrice)\n    .reversed();\n```\n\nInstead of manually negating, `.reversed()` wraps any comparator to reverse its order.",
+      
+      "null_safe_comparator": "**Null-safe sorting** — real data has nulls:\n\n```java\n// Comparator.nullsFirst / nullsLast:\nComparator<String> nullSafe = Comparator.nullsFirst(\n    Comparator.naturalOrder()  // alphabetical for non-null strings\n);\n\n// nulls go first, then alphabetical:\nString[] names = {\"Alice\", null, \"Bob\", null, \"Charlie\"};\nArrays.sort(names, nullSafe);\n// result: null, null, Alice, Bob, Charlie\n```\n\n`Comparator.naturalOrder()` uses the natural order (Comparable). `Comparator.reverseOrder()` reverses it. These are utility factory methods — no new class needed.",
+      
+      "instanceof_patterns": "Revisiting `instanceof` with a focus on WHEN it's appropriate vs when polymorphism should replace it:\n\n**Pattern 1 — Safe downcast before calling subtype-specific method**:\n```java\npublic void processAnimal(Animal a) {\n    a.makeSound();  // polymorphic — no instanceof needed\n    \n    if (a instanceof Dog d) {   // pattern matching (Java 16+)\n        d.fetch();               // Dog-specific, can't be in Animal\n    }\n    if (a instanceof Cat c) {\n        c.purr();               // Cat-specific\n    }\n}\n```\n\n**Pattern 2 — Type-checking in equals() (correct use)**:\n```java\n@Override\npublic boolean equals(Object o) {\n    if (!(o instanceof Product p)) return false;  // standard equals pattern\n    return this.id == p.id;\n}\n```\n\n**Pattern 3 — Factory with different return paths**:\n```java\npublic static void printDetails(Object obj) {\n    if (obj instanceof String s)   System.out.println(\"String: \" + s.toUpperCase());\n    else if (obj instanceof Integer i) System.out.println(\"Int: \" + (i * 2));\n    else System.out.println(\"Unknown: \" + obj);\n}\n```\n\n**When NOT to use instanceof** — this is the anti-pattern:\n```java\n// BAD: replaces polymorphism\npublic double calculateSalary(Employee e) {\n    if (e instanceof Manager m) return m.getBase() + m.getBonus();\n    else if (e instanceof Developer d) return d.getBase() + d.getStockBonus();\n    else return e.getBase();  // add a new type → update this\n}\n\n// GOOD: let polymorphism handle it\npublic double calculateSalary(Employee e) {\n    return e.calculateSalary();  // each subclass implements\n}\n```\n\nRule: if an instanceof chain handles logic that EACH class should own (overriding a method) — move the logic to override. If instanceof handles TRULY type-specific behavior that doesn't belong in the base class — instanceof is fine.",
+      
+      "module5_synthesis": "**When to use which OOP tool** — the Module 5 synthesis:\n\n**Inheritance (extends)**:\n- Clear 'is-a' relationship (Manager IS AN Employee)\n- Want to share fields and concrete methods\n- Sub-hierarchy makes conceptual sense\n- Use sparingly — inheritance creates tight coupling\n\n**Abstract class**:\n- Like inheritance, plus: parent has no meaningful implementation of some methods\n- Template Method pattern — fixed algorithm, variable steps\n- Prevents accidental instantiation of incomplete types\n\n**Interface**:\n- 'Can-do' capability (Comparable, Printable, Runnable)\n- Multiple capabilities needed (implements A, B, C)\n- Unrelated classes need the same contract\n- Programming to abstractions (always use List<T> not ArrayList<T>)\n\n**Polymorphism**:\n- Write code once that works for many types\n- Add new types without changing existing code (Open/Closed Principle)\n- Replace instanceof chains with method overrides where possible\n\n**Comparator**:\n- Need multiple/flexible sort orders (users can choose sort criterion)\n- Separating sort logic from the sorted class\n- Runtime-switchable ordering\n\n**Composition (from Module 4.6)**:\n- 'Has-a' relationship (Order HAS LineItems, not IS A LineItem)\n- Mixing unrelated capabilities\n- More flexible than inheritance for complex systems\n\nFinal advice: **default to interfaces and composition; reach for inheritance when 'is-a' is genuinely clear.** This is the modern Java style."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show side-by-side: Comparable (built INTO the class — arrow from class to sort box labeled 'fixed natural order') vs Comparator (EXTERNAL object — three separate boxes for ByName, ByPrice, ByDiscount comparators, each with arrow to the SAME array being sorted). Below: decision flowchart — 'Is there ONE obvious natural order?' → YES → Comparable. 'Need multiple/flexible orders?' → YES → Comparator. 'Need both?' → Comparable for natural + Comparators for alternatives. Bottom: Module 5 OOP tool selector — quick reference table: inheritance for is-a, abstract for forced contract + partial impl, interface for capability + multiple roles, polymorphism for one-call many behaviors, Comparator for flexible sorting.",
+      "alt_text": "Visual comparing Comparable (built-in) vs Comparator (external) and Module 5 OOP tool selection guide"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Extend the product catalog from Topic 5.4 with flexible multi-criteria sorting using Comparators. The same product array sorted in four different ways: by price (natural Comparable), by name alphabetically, by discount descending, and by category-then-price. Demonstrate all sorting approaches cleanly.",
+    
+    "problem_statement": "Given a Product class with Comparable (price), add four Comparator-based sorts:\n1. `BY_NAME` — alphabetical, ascending\n2. `BY_DISCOUNT_DESC` — discount percentage, highest first\n3. `BY_CATEGORY_THEN_PRICE` — category A-Z, then price ascending within category\n4. `BY_STOCK_DESC` — most stock first (critical inventory check)\n\nDemonstrate all four on the same product array.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Define static Comparators on the ProductSorter utility class",
+        "details": "```java\nclass ProductSorter {\n    // Named comparator as static constant\n    public static final Comparator<Product> BY_NAME =\n        new Comparator<Product>() {\n            @Override\n            public int compare(Product a, Product b) {\n                return a.getName().compareTo(b.getName());\n            }\n        };\n    \n    public static final Comparator<Product> BY_DISCOUNT_DESC =\n        new Comparator<Product>() {\n            @Override\n            public int compare(Product a, Product b) {\n                return Double.compare(b.getDiscount(), a.getDiscount());\n            }\n        };\n    \n    public static final Comparator<Product> BY_CATEGORY_THEN_PRICE =\n        new Comparator<Product>() {\n            @Override\n            public int compare(Product a, Product b) {\n                int catCmp = a.getCategory().compareTo(b.getCategory());\n                if (catCmp != 0) return catCmp;\n                return Double.compare(a.getPrice(), b.getPrice());\n            }\n        };\n    \n    public static final Comparator<Product> BY_STOCK_DESC =\n        new Comparator<Product>() {\n            @Override\n            public int compare(Product a, Product b) {\n                return Integer.compare(b.getStock(), a.getStock());\n            }\n        };\n    \n    private ProductSorter() {}  // utility class\n}\n```\n\nFour static Comparators as constants. Each is an anonymous class implementing `Comparator<Product>`. They're STATELESS — can be constants, shared safely."
+      },
+      {
+        "step": 2,
+        "action": "Sorting helper method",
+        "details": "```java\npublic static void printSorted(Product[] products, Comparator<Product> comparator, String label) {\n    Product[] copy = Arrays.copyOf(products, products.length);\n    Arrays.sort(copy, comparator);\n    System.out.println(\"--- \" + label + \" ---\");\n    for (Product p : copy) {\n        System.out.println(p);\n    }\n}\n```\n\nCrucial: sort a COPY of the array, not the original. Each sort demo shows the products in a different order without affecting the next demo."
+      },
+      {
+        "step": 3,
+        "action": "Demonstrate all four sorts",
+        "details": "```java\nProduct[] catalog = {\n    new Product(\"Mouse\", \"Electronics\", 45, 799, 10),\n    new Product(\"Keyboard\", \"Electronics\", 8, 4999, 20),\n    new Product(\"Java Book\", \"Books\", 12, 649, 15),\n    new Product(\"Python Book\", \"Books\", 5, 549, 5),\n    new Product(\"USB Hub\", \"Electronics\", 30, 499, 25)\n};\n\n// Sort 1: Natural Comparable order (by price ascending)\nProduct[] naturalOrder = Arrays.copyOf(catalog, catalog.length);\nArrays.sort(naturalOrder);\nSystem.out.println(\"--- Natural order (by price) ---\");\nfor (Product p : naturalOrder) System.out.println(p);\n\n// Sort 2–4: Comparators\nprintSorted(catalog, ProductSorter.BY_NAME, \"Alphabetical\");\nprintSorted(catalog, ProductSorter.BY_DISCOUNT_DESC, \"Highest discount first\");\nprintSorted(catalog, ProductSorter.BY_CATEGORY_THEN_PRICE, \"Category then price\");\n```"
+      }
+    ],
+    
+    "final_code": "import java.util.Arrays;\nimport java.util.Comparator;\n\nclass Product implements Comparable<Product> {\n    private String name;\n    private String category;\n    private int stock;\n    private double price;\n    private double discount;\n    \n    public Product(String name, String category, int stock, double price, double discount) {\n        this.name = name; this.category = category; this.stock = stock;\n        this.price = price; this.discount = discount;\n    }\n    \n    public String getName() { return name; }\n    public String getCategory() { return category; }\n    public int getStock() { return stock; }\n    public double getPrice() { return price; }\n    public double getDiscount() { return discount; }\n    public double finalPrice() { return price * (1 - discount / 100); }\n    \n    @Override\n    public int compareTo(Product other) {\n        return Double.compare(this.finalPrice(), other.finalPrice());\n    }\n    \n    @Override\n    public String toString() {\n        return String.format(\"%s [%s] ₹%.0f (%.0f%% off, stock=%d)\",\n            name, category, finalPrice(), discount, stock);\n    }\n}\n\nclass ProductSorter {\n    public static final Comparator<Product> BY_NAME =\n        new Comparator<Product>() {\n            @Override public int compare(Product a, Product b) {\n                return a.getName().compareTo(b.getName());\n            }\n        };\n    \n    public static final Comparator<Product> BY_DISCOUNT_DESC =\n        new Comparator<Product>() {\n            @Override public int compare(Product a, Product b) {\n                return Double.compare(b.getDiscount(), a.getDiscount());\n            }\n        };\n    \n    public static final Comparator<Product> BY_CATEGORY_THEN_PRICE =\n        new Comparator<Product>() {\n            @Override public int compare(Product a, Product b) {\n                int cat = a.getCategory().compareTo(b.getCategory());\n                return cat != 0 ? cat : Double.compare(a.getPrice(), b.getPrice());\n            }\n        };\n    \n    private ProductSorter() {}\n    \n    public static void printSorted(Product[] arr, Comparator<Product> cmp, String label) {\n        Product[] copy = Arrays.copyOf(arr, arr.length);\n        Arrays.sort(copy, cmp);\n        System.out.println(\"--- \" + label + \" ---\");\n        for (Product p : copy) System.out.println(p);\n    }\n}\n\npublic class CatalogSort {\n    public static void main(String[] args) {\n        Product[] catalog = {\n            new Product(\"Mouse\", \"Electronics\", 45, 799, 10),\n            new Product(\"Keyboard\", \"Electronics\", 8, 4999, 20),\n            new Product(\"Java Book\", \"Books\", 12, 649, 15),\n            new Product(\"Python Book\", \"Books\", 5, 549, 5),\n            new Product(\"USB Hub\", \"Electronics\", 30, 499, 25)\n        };\n        \n        Product[] natural = Arrays.copyOf(catalog, catalog.length);\n        Arrays.sort(natural);\n        System.out.println(\"--- Natural (final price) ---\");\n        for (Product p : natural) System.out.println(p);\n        \n        System.out.println();\n        ProductSorter.printSorted(catalog, ProductSorter.BY_NAME, \"Alphabetical\");\n        System.out.println();\n        ProductSorter.printSorted(catalog, ProductSorter.BY_DISCOUNT_DESC, \"Highest discount\");\n        System.out.println();\n        ProductSorter.printSorted(catalog, ProductSorter.BY_CATEGORY_THEN_PRICE, \"Category then price\");\n    }\n}",
+    
+    "expected_output": "--- Natural (final price) ---\nUSB Hub [Electronics] ₹374 (25% off, stock=30)\nMouse [Electronics] ₹719 (10% off, stock=45)\nPython Book [Books] ₹522 (5% off, stock=5)\nJava Book [Books] ₹552 (15% off, stock=12)\nKeyboard [Electronics] ₹3999 (20% off, stock=8)\n\n--- Alphabetical ---\nJava Book [Books] ₹552 (15% off, stock=12)\nKeyboard [Electronics] ₹3999 (20% off, stock=8)\nMouse [Electronics] ₹719 (10% off, stock=45)\nPython Book [Books] ₹522 (5% off, stock=5)\nUSB Hub [Electronics] ₹374 (25% off, stock=30)\n\n--- Highest discount ---\nUSB Hub [Electronics] ₹374 (25% off, stock=30)\nKeyboard [Electronics] ₹3999 (20% off, stock=8)\nJava Book [Books] ₹552 (15% off, stock=12)\nMouse [Electronics] ₹719 (10% off, stock=45)\nPython Book [Books] ₹522 (5% off, stock=5)\n\n--- Category then price ---\nPython Book [Books] ₹522 (5% off, stock=5)\nJava Book [Books] ₹552 (15% off, stock=12)\nUSB Hub [Electronics] ₹374 (25% off, stock=30)\nMouse [Electronics] ₹719 (10% off, stock=45)\nKeyboard [Electronics] ₹3999 (20% off, stock=8)",
+    
+    "things_to_notice": [
+      "The SAME products sorted in four different ways — zero changes to Product itself. Comparators are truly external.",
+      "printSorted copies the array before sorting — original order preserved between demos. This matters in real apps where you need multiple sort views of the same data.",
+      "BY_CATEGORY_THEN_PRICE: Books come before Electronics (alphabetical). Within Books: Python Book (₹549) before Java Book (₹649). Within Electronics: USB Hub (₹499) before Mouse (₹799) before Keyboard (₹4999). Multi-level sort working exactly as specified.",
+      "BY_DISCOUNT_DESC: USB Hub (25%) first, then Keyboard (20%), Java Book (15%), Mouse (10%), Python Book (5%). Reversed comparison: `Double.compare(b.discount, a.discount)` — b before a = descending.",
+      "Natural order uses Comparable (finalPrice). The three Comparator sorts use their own logic. Both coexist — natural ordering is the default, comparators are alternatives.",
+      "ProductSorter has a private constructor — it's a utility class (no instantiation needed, just static Comparator constants). Same pattern as Math or Collections."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Flipkart / Amazon India — search result ranking",
+        "use_case": "When you search for 'headphones' on Flipkart and choose 'Sort: Price Low to High' vs 'Sort: Relevance' vs 'Sort: Customer Rating' — each is a different Comparator applied to the same result set. The backend builds the product list once, then applies the user-selected comparator for ordering. Zero duplication of the product-fetch logic."
+      },
+      {
+        "company_context": "Zerodha / Groww — portfolio and watchlist sorting",
+        "use_case": "Stock watchlists need multiple sort orders: by symbol name, by daily % change, by market cap, by volume. Each is a Comparator on the stock entity. When a trader clicks the 'Sort by %change' column header, the frontend sends the sort preference, the backend applies the corresponding Comparator. This pattern is in every data table in every financial app."
+      },
+      {
+        "company_context": "Java's Collections.sort and TreeMap",
+        "use_case": "`Collections.sort(list, comparator)` is the standard library implementation. `TreeMap(comparator)` maintains keys in custom order (not natural order). `PriorityQueue(comparator)` uses custom priority. Every sorted Java collection uses Comparator under the hood. Understanding Comparator is understanding how sorted data structures work."
+      },
+      {
+        "company_context": "Spring Data JPA — database result ordering",
+        "use_case": "Spring Data's `findAll(Sort sort)` translates Java Sort specifications to SQL ORDER BY clauses. The Sort specification is essentially a Comparator description. When you write `Sort.by('price').ascending()`, you're defining the comparison logic that becomes `ORDER BY price ASC` in SQL. Comparators bridge in-memory Java sorting and database sorting."
+      }
+    ],
+    
+    "interview_relevance": "Comparator is a frequent interview topic, increasingly at junior levels:\n\n- **'What's the difference between Comparable and Comparator?'** — Comparable is in the class (one order); Comparator is external (many orders).\n- **'How would you sort a list of employees by salary descending?'** — Implement Comparator, pass to sort.\n- **'How do you sort by multiple criteria?'** — Chain comparisons: primary key first, tie-break by secondary.\n- **'What is a functional interface?'** — One abstract method; enables lambda. Comparator is one.\n- **Live coding**: 'Sort this list of objects by field X then Y.' Expect to write the Comparator implementation.\n\nSystem design: 'How would you implement the sort-by-column feature in a data table?' — Comparator map keyed by column name, look up and apply on user click.",
+    
+    "real_world_workflow": "Daily Comparator work:\n\n- Product or entity list needs to be sorted differently by different parts of the app\n- User can choose sort order → map of String→Comparator, look up by user selection\n- Multiple sort criteria → chained comparators or thenComparing()\n- Writing Collections.sort(list, comparator) instead of calling sort on the list itself\n- Using Comparator.comparing(getter) as a cleaner alternative to anonymous class\n- Stream sorting (covered in Streams module): `list.stream().sorted(comparator).collect(...)`"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "wrong_compare_return_logic",
+      "what_students_get_wrong": "Getting confused about which way to return for ascending vs descending. Is negative 'a comes first' or 'b comes first'?",
+      "remediation": "negative → a comes BEFORE b. So for ascending: `compare(this=5, other=10)` → negative (5 before 10). For descending: flip the arguments: `Double.compare(b.price, a.price)` → when b > a, positive, so a goes after b (b first).",
+      "detection_pattern": "Sort produces reverse of intended order"
+    },
+    {
+      "gap_id": "modifying_original_array",
+      "what_students_get_wrong": "Sorting the original array when showing multiple sort orders — each sort changes the array for the next test.",
+      "remediation": "When showing multiple sort orders, copy first: `Arrays.copyOf(arr, arr.length)`. Sort the copy.",
+      "detection_pattern": "Second sort starting from already-sorted data instead of original"
+    },
+    {
+      "gap_id": "comparable_and_comparator_confused",
+      "what_students_get_wrong": "Thinking Comparable takes two arguments like Comparator, or that Comparator is a method on the class.",
+      "remediation": "Comparable: `this.compareTo(other)` — one argument, compares self to other. Comparator: `compare(a, b)` — two arguments, external class comparing two objects of type T.",
+      "detection_pattern": "Wrong method signature; using compareTo where compare is needed"
+    },
+    {
+      "gap_id": "overusing_instanceof_chains",
+      "what_students_get_wrong": "Writing if-instanceof chains instead of using polymorphism where appropriate.",
+      "remediation": "Ask: 'Could this logic live in an override?' If the classes SHARE the operation concept (just different implementations) → override. If the classes have TRULY DIFFERENT roles that don't belong in the base class → instanceof is fine.",
+      "detection_pattern": "Long if-instanceof chains; adding new type requires editing the chain"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Comparable: ONE natural order, built into the class via `compareTo(T other)`",
+      "Comparator: EXTERNAL, UNLIMITED sort orders via `compare(T a, T b)`",
+      "Use Comparable for the most natural sort; Comparator for flexible/multiple orderings",
+      "Descending sort: reverse the arguments in compare: `Double.compare(b.x, a.x)`",
+      "Multi-criteria: chain comparisons — return secondary compare only if primary is 0",
+      "Comparator.comparing(getter): clean factory method for simple key-based comparators",
+      "Sort a COPY of arrays when showing multiple orderings",
+      "instanceof: fine for truly type-specific behavior; bad for logic that should be an override",
+      "Module 5 OOP tool guide: extends (is-a), abstract (forced contract), interface (can-do), polymorphism (one call many behaviors), Comparator (flexible sorting)"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "When would you choose Comparator over Comparable?",
+        "answer": "When you need MULTIPLE sort orders, or when the sort order changes at runtime (user selects it), or when you can't modify the class being sorted (third-party code). Examples: sorting products by price by default (Comparable), but also offering name/discount/category sorts at user request (Comparators). Or sorting String objects in a custom way without modifying String."
+      },
+      {
+        "question": "What does this Comparator do?\n```java\nnew Comparator<Employee>() {\n    public int compare(Employee a, Employee b) {\n        return Double.compare(b.getSalary(), a.getSalary());\n    }\n}```",
+        "answer": "Sorts Employees in DESCENDING salary order (highest first). When b's salary > a's salary, Double.compare returns positive → a comes AFTER b (b first). This is the standard trick for descending: swap the arguments."
+      },
+      {
+        "question": "Is this instanceof usage good or bad? Why?\n```java\npublic void print(Object obj) {\n    if (obj instanceof Integer i) System.out.println(\"Int: \" + i);\n    else if (obj instanceof String s) System.out.println(\"Str: \" + s);\n}```",
+        "answer": "This is fine. The method accepts Object (not a specific hierarchy), and the types Integer and String are unrelated — no common override is possible. There's no polymorphic alternative here. Compare to BAD instanceof: `if (e instanceof Manager) calculateManager(e) else if (e instanceof Developer)...` — where the logic should be in `e.calculateSalary()` instead."
+      }
+    ],
+    
+    "next_topic_preview": "Topic 5.6 wraps up Module 5 with the capstone. We've covered all the inheritance tools — extends, super, @Override, polymorphism, abstract classes, interfaces, Comparable, Comparator. The final topic is the synthesis: a substantial multi-class design exercise that uses every Module 5 concept. It's also where we close out with the Module 5 Complete summary and set up Module 6 (Collections Framework — ArrayList, HashMap, HashSet). After that, Java really starts to feel like a professional toolkit."
+  }
+}

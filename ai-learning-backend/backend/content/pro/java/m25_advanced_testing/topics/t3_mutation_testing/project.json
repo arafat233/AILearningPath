@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m25_t3_proj",
+  "linked_topic": "java_m25_t3",
+  "level": "mini",
+  "name": "Razorpay Payment Validation — Mutation Testing",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Razorpay's payment validation has 95% line coverage but a production bug slipped through. Investigation reveals the tests never verify boundary conditions or side-effect calls. Achieve 85%+ mutation score with PITest.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "PaymentValidator @Service: validate(merchantId, amount, gateway). Amount: 1-1_000_000. Gateway: Set of HDFC, VISA, RUPAY, AXIS. MerchantId: not blank. Throws IllegalArgumentException for each failure.", "weight": 15 },
+      { "id": "req_2", "description": "AuditLogger interface + verify calls: audit.log(event, merchantId) called on successful validation. NOT called on validation failure.", "weight": 10 },
+      { "id": "req_3", "description": "Boundary tests for amount: 0 → throws, 1 → valid, 1_000_000 → valid, 1_000_001 → throws. These 4 tests kill ConditionalBoundary mutations.", "weight": 20 },
+      { "id": "req_4", "description": "Branch tests: null merchantId, blank merchantId, invalid gateway — each independently throws with the correct exception message.", "weight": 15 },
+      { "id": "req_5", "description": "Mockito verify assertions: verify(audit).log(\"validated\", merchantId) on success. verifyNoInteractions(audit) on any failure.", "weight": 15 },
+      { "id": "req_6", "description": "PITest pom.xml config: targetClasses, targetTests, mutationThreshold=80, pitest-junit5-plugin dependency. Maven profile 'pitest-ci'.", "weight": 10 },
+      { "id": "req_7", "description": "@ExtendWith(MockitoExtension) tests: minimum 9 tests, all pass. Mutation score must be 85%+ when PITest is run.", "weight": 10 },
+      { "id": "req_8", "description": "README: explains mutation score vs line coverage, with one example of a surviving mutation and the test that kills it.", "weight": 5 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "PaymentRouter with 4-branch routing logic. Separate mutation test class killing ConditionalBoundary mutations at each branch boundary. 8 tests.", "weight": 20 },
+      { "id": "bonus_2", "description": "Equivalent mutant documentation: identify 2 surviving mutations that are equivalent (e.g., log.debug removal) and document why they're acceptable in a MutationAnalysis.md file.", "weight": 15 },
+      { "id": "bonus_3", "description": "OrderEligibility (4-condition AND): eligible(age, kyc, balance, riskScore). Write 11 tests achieving near-100% mutation score. All boundary values covered.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. ConditionalBoundary kills: test exactly AT boundary (e.g., amount=1 to kill mutation of < 1 to <= 1), and ONE value on each side. VoidMethodCall kills: use Mockito verify(mock).method(exactArgs) — not just verify(mock).method(any()). Exact argument matching is stronger and kills more mutations. Equivalent mutants: log.debug() removal is typically equivalent — debug logging has no functional effect. mutationThreshold: build fails if score below threshold — 80 means 80% of non-equivalent mutations must be killed by tests. PITest skips: use -DskipMutationTests=true for local builds; enable in CI via Maven profile.",
+  "rubric": [
+    { "category": "PaymentValidator (3 checks)", "points": 15 },
+    { "category": "AuditLogger interface", "points": 10 },
+    { "category": "Boundary tests (4)", "points": 20 },
+    { "category": "Branch failure tests (3)", "points": 15 },
+    { "category": "Mockito verify assertions", "points": 15 },
+    { "category": "PITest pom.xml config", "points": 10 },
+    { "category": "9+ tests passing", "points": 10 },
+    { "category": "README", "points": 5 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

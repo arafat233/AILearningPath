@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m20_t5",
+  "language": "java",
+  "module_id": "m20",
+  "module_name": "Observability",
+  "topic_number": 5,
+  "name": "Alerting & SLO Monitoring",
+  "slug": "alerting-slo-monitoring",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m20_t4"],
+    "concepts_taught": ["sla_slo_sli_overview","error_budget","burn_rate_alerts","multi_window_alerting","alert_fatigue","on_call_best_practices","runbooks","pagerduty_integration","dead_man_switch","alertmanager_inhibition","actionable_alerts"],
+    "skills_developed": ["designing_slo_targets","writing_burn_rate_alerts","creating_runbooks","configuring_alert_routing","reducing_alert_fatigue"],
+    "career_relevance": "SLOs and error budgets are how mature engineering teams make reliability decisions. When Razorpay's error budget hits 50%, the team freezes feature development and focuses on reliability. This is the difference between reactive firefighting and proactive reliability engineering. After this topic, you can design a complete alerting strategy for a production service.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Without SLO:\n  Engineering team ships features constantly.\n  Users experience occasional outages — team reacts after user complaints.\n  No accountability: 'we're mostly up' is unmeasurable.\n\nWith SLO (99.9% availability for Razorpay payments):\n  0.1% error budget = 43.2 minutes downtime per month\n  When 50% of budget consumed by mid-month → freeze feature deployments\n  When budget healthy → team can take calculated risks (experiments, migrations)\n  Measurement: sum(failed_payments) / sum(total_payments) in rolling 30 days < 0.001",
+    "what_you_will_build": "Complete SLO framework: SLI definitions, error budget computation, multi-window burn rate alerts, runbook templates, and dead man switch monitoring."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "slo_framework": "**SLO framework:**\n\n```\nSLA (Service Level Agreement): contractual commitment to customers\n  'Razorpay guarantees 99.9% payment availability'\n  Breach → SLA penalty (refunds, credits)\n\nSLO (Service Level Objective): internal engineering target\n  'Payments succeed 99.95% of the time (stricter than SLA)'\n  Buffer: SLO stricter than SLA to detect issues before SLA breach\n\nSLI (Service Level Indicator): the measured metric\n  'This week: 99.97% of payments succeeded'\n  PromQL: successful_payments / total_payments\n\nError Budget: 1 - SLO = allowed failure space\n  SLO = 99.95% → error budget = 0.05% = 21.6 minutes/month\n  When budget > 50% consumed: alert reliability team\n  When budget exhausted: freeze feature work, focus on reliability\n```",
+      "burn_rate": "**Multi-window burn rate alerts (Google SRE pattern):**\n\n```promql\n# FAST BURN (5% budget in 1 hour → 30-day budget in 5 days):\n# Multiplier: (5% / 1h) / (0.05% / 720h) = (0.05/1) / (0.0005/720) = 72×\n\n# 1h and 5m windows (both must be high):\n# error_rate_1h > 72 × error_budget_rate\n# AND error_rate_5m > 72 × error_budget_rate\n# → Confirmed spike (not a fluke) → PAGE the team NOW\n\n# SLOW BURN (10% budget in 6 hours → full budget in 2.5 days):\n# Multiplier: (10% / 6h) / (0.05% / 720h) = 24×\n# 6h and 30m windows:\n# error_rate_6h > 24 × error_budget_rate AND error_rate_30m > 24×\n# → Sustained issue → TICKET (investigate within 1 hour)\n\n# Why multi-window?\n# Single window: 1 bad minute in an hour skews 1h rate\n# Two windows: both must agree → confirmed issue, not fluke\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "Error budget consumption chart: 30-day period, horizontal axis = days, vertical axis = error budget remaining (%). Blue shaded area shows allowed 0.05% error budget. Red line shows actual error consumption. Day 15: budget at 60% remaining (good). Day 20: fast burn event → budget drops to 30%. Day 25: alert fires at 20% remaining (freeze deployments). SLO breach at 0%.", "alt_text": "Error budget consumption chart showing burn rate events and alert thresholds" }
+  },
+  "worked_example": {
+    "scenario": "Define SLO for Razorpay payments: write SLI PromQL, error budget tracking, and burn rate alert rules.",
+    "problem_statement": "1. SLO: 99.9% availability (error budget = 0.1% = 43.2 min/month)\n2. PromQL for SLI: successful payments / total\n3. Error budget remaining gauge\n4. Fast burn alert (1h window, 14.4× multiplier)\n5. Slow burn alert (6h window, 6× multiplier)",
+    "step_by_step_solution": [
+      { "step": 1, "action": "SLI and error budget PromQL", "details": "```promql\n# SLI:\nsum(rate(payments_total_total{status='success'}[30d])) /\nsum(rate(payments_total_total[30d]))\n\n# Error budget remaining %:\n(0.001 - (1 - <sli_above>)) / 0.001 * 100\n\n# Fast burn (14.4×, 1h):\nsum(rate(payments_total_total{status='failure'}[1h])) /\nsum(rate(payments_total_total[1h])) > 14.4 * 0.001\n```" }
+    ],
+    "final_code": "// Multi-window burn rate alerts: 2 windows must both fire for high confidence\n// Fast burn: 14.4× over 1h+5m → page NOW\n// Slow burn: 6× over 6h+30m → ticket within 1 hour\n// Error budget gauge: dashboard shows days remaining at current burn rate",
+    "expected_output": "# prometheus/rules.yml burn rate alerts\n# Fast burn: page immediately when 5% budget consumed in 1 hour\n# Slow burn: ticket when 10% budget consumed in 6 hours",
+    "things_to_notice": [
+      "14.4× burn rate means: if this rate continues for 30 days × (1/14.4) = ~2 days, budget is exhausted.",
+      "Both windows must fire: 1h confirms sustained issue; 5m confirms it's still happening NOW.",
+      "Error budget freeze: when remaining < 20%, stop feature work. Reliability takes priority.",
+      "Dead man switch: alert that fires when metrics STOP arriving. Ensures monitoring is alive."
+    ]
+  },
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Razorpay SLO program", "use_case": "SLO 99.95% for payment processing. Monthly error budget review: if < 50% remaining, reliability sprint replaces feature work. Teams earn back feature deployment permission by investigating + fixing reliability issues." }
+    ],
+    "interview_relevance": "'What is an error budget and how do you use it?' → Error budget = 1 - SLO. It quantifies how much unreliability is allowed. When budget is healthy: deploy features, run experiments. When budget is low: freeze risky deployments, focus on reliability. Budget is the negotiating point between product (wants features) and SRE (wants reliability).",
+    "real_world_workflow": "SLO implementation: (1) define SLIs for critical user journeys, (2) set SLO targets with product team, (3) implement PromQL for SLI measurement, (4) create error budget dashboard, (5) configure burn rate alerts, (6) hold weekly error budget review."
+  },
+  "common_gaps": [
+    { "gap_id": "alerting_on_everything", "what_students_get_wrong": "Adding an alert for every metric with a threshold — creates dozens of alerts, most of which are noise. On-call team starts ignoring them.", "remediation": "Alert only when: (1) a USER is impacted, (2) the issue will worsen without action, (3) someone can actually FIX it right now. Use symptom-based alerting (error rate) not cause-based (CPU > 80%). CPU high without errors = not your problem yet.", "detection_pattern": "On-call receives > 20 alerts per week; most are false positives or auto-resolving; alert fatigue visible" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "SLA: commitment to customers. SLO: internal target (stricter). SLI: measured value.",
+      "Error budget: 1 - SLO. Permission to take risks. Exhausted = reliability sprint.",
+      "Burn rate alert: error rate / SLO rate. Fast (14.4×) = page. Slow (6×) = ticket.",
+      "Multi-window: two time windows both firing = confirmed issue, not fluke.",
+      "Alert fatigue: too many alerts → on-call ignores them. Alert only on user-impacting symptoms.",
+      "Runbook URL in every alert: reduces MTTR by giving responder a starting point.",
+      "Dead man switch: alert that fires when monitoring STOPS (the most important alert)."
+    ],
+    "self_check_questions": [
+      { "question": "Razorpay's error budget is 50% consumed on day 15 of 30. Is this acceptable?", "answer": "It depends. 50% consumed in 50% of the time (day 15 of 30) is perfectly proportional — budget consumption matches time consumption exactly. This is acceptable but worth monitoring. If the burn was concentrated (e.g., 40% consumed in 2 days, then stable), the recent pattern is good but the historical incident needs a postmortem. If on track to exhaust the budget (consuming > 50% with > 50% of the month remaining), a slow burn alert should have fired. The error budget review on day 15 should show: 'on track' (green), 'at risk' (yellow), or 'freeze deployments' (red) based on projected remaining budget at month-end." }
+    ],
+    "next_topic_preview": "Module 20: Observability is complete! You've mastered the full three-pillar observability stack: Metrics (Micrometer + Prometheus), Traces (Micrometer Tracing + Zipkin), Logs (Structured logging + MDC + Loki), Dashboards (Grafana + PromQL), and Alerting (SLO + burn rate). Module 21 covers Production Deployment — Docker, Kubernetes, CI/CD, and blue-green deployments."
+  }
+}

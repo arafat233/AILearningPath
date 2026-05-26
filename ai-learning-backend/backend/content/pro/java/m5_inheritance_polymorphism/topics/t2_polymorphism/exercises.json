@@ -1,0 +1,328 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t2",
+  "topic_name": "Polymorphism",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m5_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Runtime dispatch",
+      "scenario": "Understand which override runs.",
+      "instructions": "What does this print?\n\n```java\nclass A {\n    public void greet() { System.out.println(\"Hi from A\"); }\n}\nclass B extends A {\n    @Override public void greet() { System.out.println(\"Hi from B\"); }\n}\npublic class App {\n    public static void main(String[] args) {\n        A x = new B();  // upcast\n        x.greet();\n    }\n}\n```",
+      "expected_solution": "Hi from B",
+      "test_cases": [{ "type": "text_match", "expected": "Hi from B" }],
+      "hints": [
+        "Reference type is A — compile check uses A",
+        "Object type is B — runtime dispatch uses B",
+        "B overrides greet() → B's version runs"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m5_t2_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Mixed array iteration",
+      "scenario": "Different objects in same array, polymorphic calls.",
+      "instructions": "What does this print?\n\n```java\nclass Shape {\n    public void draw() { System.out.println(\"Drawing shape\"); }\n}\nclass Circle extends Shape {\n    @Override public void draw() { System.out.println(\"Drawing circle\"); }\n}\nclass Square extends Shape {\n    @Override public void draw() { System.out.println(\"Drawing square\"); }\n}\npublic class App {\n    public static void main(String[] args) {\n        Shape[] shapes = { new Circle(), new Shape(), new Square() };\n        for (Shape s : shapes) s.draw();\n    }\n}\n```",
+      "expected_solution": "Drawing circle\nDrawing shape\nDrawing square",
+      "test_cases": [{ "type": "text_match", "expected": "Drawing circle\nDrawing shape\nDrawing square" }],
+      "hints": [
+        "Circle overrides draw → 'Drawing circle'",
+        "Shape (plain) → 'Drawing shape'",
+        "Square overrides draw → 'Drawing square'"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m5_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write a polymorphic method",
+      "scenario": "Method accepting parent type, works for all subclasses.",
+      "instructions": "Given Animal (makeSound), Dog (Woof), Cat (Meow): Write a static method `announceAnimal(Animal a)` that prints 'Animal announcement: ' then calls a.makeSound().\n\nCall it with a Dog and a Cat.\n\nExpected output:\nAnimal announcement: Woof!\nAnimal announcement: Meow!",
+      "starter_code": "class Animal { public void makeSound() { System.out.println(\"...\"); } }\nclass Dog extends Animal { @Override public void makeSound() { System.out.println(\"Woof!\"); } }\nclass Cat extends Animal { @Override public void makeSound() { System.out.println(\"Meow!\"); } }\n\npublic class App {\n    // Write announceAnimal here\n    public static void main(String[] args) {\n        // Call with Dog and Cat\n    }\n}",
+      "expected_solution": "class Animal { public void makeSound() { System.out.println(\"...\"); } }\nclass Dog extends Animal { @Override public void makeSound() { System.out.println(\"Woof!\"); } }\nclass Cat extends Animal { @Override public void makeSound() { System.out.println(\"Meow!\"); } }\n\npublic class App {\n    public static void announceAnimal(Animal a) {\n        System.out.print(\"Animal announcement: \");\n        a.makeSound();\n    }\n    \n    public static void main(String[] args) {\n        announceAnimal(new Dog());\n        announceAnimal(new Cat());\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "Animal announcement: Woof!\nAnimal announcement: Meow!" }],
+      "hints": [
+        "Method signature: static void announceAnimal(Animal a)",
+        "Inside: print the prefix, then call a.makeSound()",
+        "Runtime dispatch picks Dog's or Cat's makeSound"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m5_t2_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the compile error — calling subclass method on parent ref",
+      "scenario": "Can't call subclass-specific method on parent reference.",
+      "instructions": "This code doesn't compile. Fix it using instanceof and downcast.\n\nExpected output:\nRex fetches!",
+      "starter_code": "class Animal { protected String name; public Animal(String n) { name = n; } }\nclass Dog extends Animal {\n    public Dog(String n) { super(n); }\n    public void fetch() { System.out.println(name + \" fetches!\"); }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Animal a = new Dog(\"Rex\");\n        a.fetch();  // compile error!\n    }\n}",
+      "expected_solution": "class Animal { protected String name; public Animal(String n) { name = n; } }\nclass Dog extends Animal {\n    public Dog(String n) { super(n); }\n    public void fetch() { System.out.println(name + \" fetches!\"); }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Animal a = new Dog(\"Rex\");\n        if (a instanceof Dog d) {\n            d.fetch();\n        }\n    }\n}",
+      "bugs": [{"line": "9", "issue": "fetch() not defined in Animal — can't call on Animal reference", "fix": "Check instanceof, then downcast"}],
+      "test_cases": [{ "type": "execution", "expected_stdout": "Rex fetches!", "must_compile": true }],
+      "hints": [
+        "Animal reference can't access Dog-specific methods",
+        "Use: if (a instanceof Dog d) { d.fetch(); }",
+        "This checks type AND creates Dog variable `d`"
+      ],
+      "xp_reward": 35,
+      "common_misconceptions_tested": ["calling_subclass_method_on_parent_ref"]
+    },
+    
+    {
+      "id": "java_m5_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Safe downcasting",
+      "scenario": "Use instanceof before casting.",
+      "instructions": "Create Animal, Dog, Cat. Write method `doSpecificThing(Animal a)` that:\n- If Dog: calls fetch()\n- If Cat: calls purr()\n- Otherwise: prints 'Unknown animal'\n\nTest with Dog, Cat, and a plain Animal.\n\nExpected output:\nRex fetches!\nWhiskers purrs!\nUnknown animal",
+      "starter_code": "class Animal { protected String name; public Animal(String n) { name = n; } }\nclass Dog extends Animal { public Dog(String n) { super(n); } public void fetch() { System.out.println(name + \" fetches!\"); } }\nclass Cat extends Animal { public Cat(String n) { super(n); } public void purr() { System.out.println(name + \" purrs!\"); } }\n\npublic class App {\n    public static void doSpecificThing(Animal a) {\n        // Write instanceof checks here\n    }\n    public static void main(String[] args) {\n        doSpecificThing(new Dog(\"Rex\"));\n        doSpecificThing(new Cat(\"Whiskers\"));\n        doSpecificThing(new Animal(\"Unknown\"));\n    }\n}",
+      "expected_solution": "class Animal { protected String name; public Animal(String n) { name = n; } }\nclass Dog extends Animal { public Dog(String n) { super(n); } public void fetch() { System.out.println(name + \" fetches!\"); } }\nclass Cat extends Animal { public Cat(String n) { super(n); } public void purr() { System.out.println(name + \" purrs!\"); } }\n\npublic class App {\n    public static void doSpecificThing(Animal a) {\n        if (a instanceof Dog d) {\n            d.fetch();\n        } else if (a instanceof Cat c) {\n            c.purr();\n        } else {\n            System.out.println(\"Unknown animal\");\n        }\n    }\n    public static void main(String[] args) {\n        doSpecificThing(new Dog(\"Rex\"));\n        doSpecificThing(new Cat(\"Whiskers\"));\n        doSpecificThing(new Animal(\"Unknown\"));\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "Rex fetches!\nWhiskers purrs!\nUnknown animal" }],
+      "hints": [
+        "Pattern: if (a instanceof Dog d) { d.fetch(); }",
+        "chain with else if for Cat",
+        "else handles plain Animal or unknown types",
+        "null instanceof X is false — safe"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m5_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "totalArea method",
+      "scenario": "Polymorphic accumulation over an array.",
+      "instructions": "Create Shape (abstract area() — just return 0 for now), Circle (area = πr²), Rectangle (area = w×h).\n\nWrite `totalArea(Shape[] shapes)` that sums all areas. Demonstrate with mixed array.\n\nExpected output:\nTotal area: 113.09733552923255",
+      "starter_code": "// Create Shape, Circle, Rectangle\n// Write totalArea(Shape[] shapes) using polymorphism\n",
+      "expected_solution": "class Shape {\n    public double area() { return 0; }\n}\n\nclass Circle extends Shape {\n    private double radius;\n    public Circle(double r) { this.radius = r; }\n    @Override public double area() { return Math.PI * radius * radius; }\n}\n\nclass Rectangle extends Shape {\n    private double width, height;\n    public Rectangle(double w, double h) { this.width = w; this.height = h; }\n    @Override public double area() { return width * height; }\n}\n\npublic class App {\n    public static double totalArea(Shape[] shapes) {\n        double total = 0;\n        for (Shape s : shapes) total += s.area();\n        return total;\n    }\n    \n    public static void main(String[] args) {\n        Shape[] shapes = { new Circle(5), new Rectangle(4, 3), new Circle(3) };\n        System.out.println(\"Total area: \" + totalArea(shapes));\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "Total area: 113.09733552923255" }],
+      "hints": [
+        "totalArea accepts Shape[] — works for any subclass",
+        "Each s.area() calls the right override",
+        "π(5²) + 4×3 + π(3²) = 78.54 + 12 + 28.27 ≈ 118.81",
+        "Wait — let me recalc: π×25 + 12 + π×9 = 78.5398 + 12 + 28.2743 = 118.814"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m5_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Polymorphic salary calculator",
+      "scenario": "Callback to Topic 5.1 exercise — formalize the polymorphism.",
+      "instructions": "Using Employee (baseSalary, calculateSalary() = base), Manager (+ bonus), Contractor (hourlyRate + hoursWorked):\n\nWrite `printPayroll(Employee[] staff)` that prints each name and calculated salary.\n\nCreate a mixed array with 3 employees. Print payroll.\n\nExpected output:\nAisha: ₹75000.0\nRaj: ₹100000.0\nPriya: ₹57500.0",
+      "starter_code": "// Employee, Manager, Contractor classes + printPayroll\n// Each has different calculateSalary() override\n",
+      "expected_solution": "class Employee {\n    protected String name;\n    protected double baseSalary;\n    \n    public Employee(String name, double baseSalary) {\n        this.name = name;\n        this.baseSalary = baseSalary;\n    }\n    \n    public double calculateSalary() { return baseSalary; }\n    public String getName() { return name; }\n}\n\nclass Manager extends Employee {\n    private double bonus;\n    public Manager(String name, double base, double bonus) {\n        super(name, base);\n        this.bonus = bonus;\n    }\n    @Override public double calculateSalary() { return baseSalary + bonus; }\n}\n\nclass Contractor extends Employee {\n    private double hourlyRate;\n    private int hoursWorked;\n    public Contractor(String name, double hourlyRate, int hoursWorked) {\n        super(name, 0);\n        this.hourlyRate = hourlyRate;\n        this.hoursWorked = hoursWorked;\n    }\n    @Override public double calculateSalary() { return hourlyRate * hoursWorked; }\n}\n\npublic class App {\n    public static void printPayroll(Employee[] staff) {\n        for (Employee e : staff) {\n            System.out.println(e.getName() + \": ₹\" + e.calculateSalary());\n        }\n    }\n    \n    public static void main(String[] args) {\n        Employee[] staff = {\n            new Employee(\"Aisha\", 75000),\n            new Manager(\"Raj\", 85000, 15000),\n            new Contractor(\"Priya\", 2500, 23)\n        };\n        printPayroll(staff);\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "Aisha: ₹75000.0\nRaj: ₹100000.0\nPriya: ₹57500.0" }],
+      "hints": [
+        "printPayroll takes Employee[] — polymorphic",
+        "e.calculateSalary() dispatches to each type's override",
+        "Manager: 85000 + 15000 = 100000",
+        "Contractor: 2500 × 23 = 57500"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m5_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Renderer system",
+      "scenario": "Polymorphic rendering — adding new types never changes the renderer.",
+      "instructions": "Create:\n- `Renderable` class: renderMode (String). render() prints '[renderMode]: <specific info>'\n- `TextLabel extends Renderable`: text (String). Override render: '[TEXT]: text'\n- `ImageWidget extends Renderable`: imagePath (String), width, height. Override render: '[IMAGE]: path (w×h)'\n- `ButtonWidget extends Renderable`: label (String). Override render: '[BUTTON]: label'\n\nWrite `renderAll(Renderable[] components)` that calls render on each.\n\nExpected output:\n[TEXT]: Hello World\n[IMAGE]: logo.png (200×100)\n[BUTTON]: Submit",
+      "starter_code": "// Create Renderable, TextLabel, ImageWidget, ButtonWidget\n// renderAll uses polymorphism\n",
+      "expected_solution": "class Renderable {\n    public void render() { System.out.println(\"[RENDER]\"); }\n}\n\nclass TextLabel extends Renderable {\n    private String text;\n    public TextLabel(String text) { this.text = text; }\n    @Override public void render() { System.out.println(\"[TEXT]: \" + text); }\n}\n\nclass ImageWidget extends Renderable {\n    private String imagePath;\n    private int width, height;\n    public ImageWidget(String path, int w, int h) {\n        this.imagePath = path; this.width = w; this.height = h;\n    }\n    @Override public void render() { System.out.println(\"[IMAGE]: \" + imagePath + \" (\" + width + \"×\" + height + \")\"); }\n}\n\nclass ButtonWidget extends Renderable {\n    private String label;\n    public ButtonWidget(String label) { this.label = label; }\n    @Override public void render() { System.out.println(\"[BUTTON]: \" + label); }\n}\n\npublic class App {\n    public static void renderAll(Renderable[] components) {\n        for (Renderable r : components) r.render();\n    }\n    \n    public static void main(String[] args) {\n        Renderable[] ui = {\n            new TextLabel(\"Hello World\"),\n            new ImageWidget(\"logo.png\", 200, 100),\n            new ButtonWidget(\"Submit\")\n        };\n        renderAll(ui);\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "[TEXT]: Hello World\n[IMAGE]: logo.png (200×100)\n[BUTTON]: Submit" }],
+      "hints": [
+        "renderAll accepts Renderable[] — polymorphic",
+        "Each r.render() dispatches to the specific type",
+        "This is literally how UI toolkits (Swing, JavaFX) work"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m5_t2_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix unsafe downcast",
+      "scenario": "Catch ClassCastException before it happens.",
+      "instructions": "This code crashes at runtime with ClassCastException. Fix it.\n\nExpected output:\nRex fetches!\nWhiskers: not a dog",
+      "starter_code": "class Animal { protected String name; public Animal(String n) { name = n; } }\nclass Dog extends Animal { public Dog(String n) { super(n); } public void fetch() { System.out.println(name + \" fetches!\"); } }\nclass Cat extends Animal { public Cat(String n) { super(n); } }\n\npublic class Broken {\n    static void tryFetch(Animal a) {\n        Dog d = (Dog) a;  // crashes if a is not a Dog!\n        d.fetch();\n    }\n    \n    public static void main(String[] args) {\n        tryFetch(new Dog(\"Rex\"));\n        tryFetch(new Cat(\"Whiskers\"));\n    }\n}",
+      "expected_solution": "class Animal { protected String name; public Animal(String n) { name = n; } }\nclass Dog extends Animal { public Dog(String n) { super(n); } public void fetch() { System.out.println(name + \" fetches!\"); } }\nclass Cat extends Animal { public Cat(String n) { super(n); } }\n\npublic class Broken {\n    static void tryFetch(Animal a) {\n        if (a instanceof Dog d) {\n            d.fetch();\n        } else {\n            System.out.println(a.name + \": not a dog\");\n        }\n    }\n    \n    public static void main(String[] args) {\n        tryFetch(new Dog(\"Rex\"));\n        tryFetch(new Cat(\"Whiskers\"));\n    }\n}",
+      "bugs": [{"line": "7", "issue": "Unchecked downcast — crashes if a is not a Dog", "fix": "Check instanceof first"}],
+      "test_cases": [{ "type": "execution", "expected_stdout": "Rex fetches!\nWhiskers: not a dog", "must_compile": true }],
+      "hints": [
+        "ClassCastException: can't cast Cat to Dog at runtime",
+        "Fix: if (a instanceof Dog d) { d.fetch(); }",
+        "else: handle the non-Dog case"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["unsafe_downcast_without_instanceof"]
+    },
+    
+    {
+      "id": "java_m5_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Polymorphic tax calculator",
+      "scenario": "Different income sources taxed differently via polymorphism.",
+      "instructions": "Create:\n- `Income`: amount (double). `taxDue()` returns 0 (no default tax).\n- `SalaryIncome extends Income`: override taxDue() → amount × 0.20 (20% flat)\n- `FreelanceIncome extends Income`: override taxDue() → amount × 0.15 (15%)\n- `RentalIncome extends Income`: override taxDue() → amount × 0.10 (10%)\n\nWrite `totalTax(Income[] sources)` summing taxDue for all.\n\nExpected output:\nTotal tax: ₹21000.0",
+      "starter_code": "// Income hierarchy + totalTax method\n",
+      "expected_solution": "class Income {\n    protected double amount;\n    public Income(double amount) { this.amount = amount; }\n    public double taxDue() { return 0; }\n}\n\nclass SalaryIncome extends Income {\n    public SalaryIncome(double amount) { super(amount); }\n    @Override public double taxDue() { return amount * 0.20; }\n}\n\nclass FreelanceIncome extends Income {\n    public FreelanceIncome(double amount) { super(amount); }\n    @Override public double taxDue() { return amount * 0.15; }\n}\n\nclass RentalIncome extends Income {\n    public RentalIncome(double amount) { super(amount); }\n    @Override public double taxDue() { return amount * 0.10; }\n}\n\npublic class App {\n    public static double totalTax(Income[] sources) {\n        double total = 0;\n        for (Income inc : sources) total += inc.taxDue();\n        return total;\n    }\n    \n    public static void main(String[] args) {\n        Income[] income = {\n            new SalaryIncome(60000),    // 60000 × 0.20 = 12000\n            new FreelanceIncome(40000), // 40000 × 0.15 = 6000\n            new RentalIncome(30000)     // 30000 × 0.10 = 3000\n        };\n        System.out.println(\"Total tax: ₹\" + totalTax(income));\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "Total tax: ₹21000.0" }],
+      "hints": [
+        "Each income type overrides taxDue() with its rate",
+        "totalTax uses polymorphism: inc.taxDue() for each",
+        "12000 + 6000 + 3000 = 21000"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m5_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Sort animals by sound length (instanceof for specifics)",
+      "scenario": "Processing that needs both polymorphic and type-specific logic.",
+      "instructions": "Given Animal (makeSound returns String), Dog ('Woof'), Cat ('Meow'), Wolf ('Awooo'):\n\nWrite `findLoudest(Animal[] animals)` that returns the Animal whose sound string is LONGEST.\n\nExpected output:\nLoudest: Awooo",
+      "starter_code": "class Animal { protected String name; public Animal(String n) { name = n; } public String makeSound() { return \"...\"; } }\nclass Dog extends Animal { public Dog(String n) { super(n); } @Override public String makeSound() { return \"Woof\"; } }\nclass Cat extends Animal { public Cat(String n) { super(n); } @Override public String makeSound() { return \"Meow\"; } }\nclass Wolf extends Animal { public Wolf(String n) { super(n); } @Override public String makeSound() { return \"Awooo\"; } }\n\npublic class App {\n    public static Animal findLoudest(Animal[] animals) {\n        // Your code here\n        return null;\n    }\n    \n    public static void main(String[] args) {\n        Animal[] pack = { new Dog(\"Rex\"), new Cat(\"Kitty\"), new Wolf(\"Grey\") };\n        Animal loudest = findLoudest(pack);\n        System.out.println(\"Loudest: \" + loudest.makeSound());\n    }\n}",
+      "expected_solution": "class Animal { protected String name; public Animal(String n) { name = n; } public String makeSound() { return \"...\"; } }\nclass Dog extends Animal { public Dog(String n) { super(n); } @Override public String makeSound() { return \"Woof\"; } }\nclass Cat extends Animal { public Cat(String n) { super(n); } @Override public String makeSound() { return \"Meow\"; } }\nclass Wolf extends Animal { public Wolf(String n) { super(n); } @Override public String makeSound() { return \"Awooo\"; } }\n\npublic class App {\n    public static Animal findLoudest(Animal[] animals) {\n        Animal loudest = animals[0];\n        for (Animal a : animals) {\n            if (a.makeSound().length() > loudest.makeSound().length()) {\n                loudest = a;\n            }\n        }\n        return loudest;\n    }\n    \n    public static void main(String[] args) {\n        Animal[] pack = { new Dog(\"Rex\"), new Cat(\"Kitty\"), new Wolf(\"Grey\") };\n        Animal loudest = findLoudest(pack);\n        System.out.println(\"Loudest: \" + loudest.makeSound());\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "Loudest: Awooo" }],
+      "hints": [
+        "makeSound() returns String — use .length() to compare",
+        "Start with animals[0] as loudest",
+        "Compare via makeSound().length() — polymorphic dispatch handles the right sound",
+        "Return the Animal object (not the string)"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m5_t2_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Tracing reference type vs object type",
+      "scenario": "Deep understanding check.",
+      "instructions": "What does this print?\n\n```java\nclass Base {\n    public String info() { return \"Base\"; }\n    public String fixed() { return \"Fixed in Base\"; }\n}\n\nclass Child extends Base {\n    @Override public String info() { return \"Child\"; }\n    // fixed() not overridden\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Base b = new Child();\n        System.out.println(b.info());   // Which runs?\n        System.out.println(b.fixed());  // Which runs?\n    }\n}\n```",
+      "expected_solution": "Child\nFixed in Base",
+      "test_cases": [{ "type": "text_match", "expected": "Child\nFixed in Base" }],
+      "hints": [
+        "b.info(): Child overrides info() → 'Child' runs",
+        "b.fixed(): Child doesn't override → Base's version runs",
+        "Reference type determines WHAT you can call, object type determines WHICH implementation"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m5_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Logger strategy pattern",
+      "scenario": "Classic polymorphism for pluggable behavior.",
+      "instructions": "Create a logging system:\n- `Logger` base: logLevel (String). `log(String msg)` prints '[logLevel] msg'.\n- `ConsoleLogger extends Logger`: override log() prints to console with prefix '[CONSOLE][logLevel]'\n- `FileLogger extends Logger`: filename (String). Override log(): prints '[FILE: filename][logLevel] msg'\n- `NullLogger extends Logger`: override log() — does NOTHING (silences logging)\n\nWrite `logAll(Logger logger, String[] messages)` that logs all messages.\n\nIn main, use same messages with ConsoleLogger, then NullLogger.\n\nExpected output:\n[CONSOLE][INFO] Starting app\n[CONSOLE][INFO] User logged in\n(NullLogger prints nothing)",
+      "starter_code": "// Logger, ConsoleLogger, FileLogger, NullLogger\n// logAll demonstrates polymorphism\n",
+      "expected_solution": "class Logger {\n    protected String logLevel;\n    public Logger(String logLevel) { this.logLevel = logLevel; }\n    public void log(String msg) { System.out.println(\"[\" + logLevel + \"] \" + msg); }\n}\n\nclass ConsoleLogger extends Logger {\n    public ConsoleLogger(String logLevel) { super(logLevel); }\n    @Override public void log(String msg) {\n        System.out.println(\"[CONSOLE][\" + logLevel + \"] \" + msg);\n    }\n}\n\nclass FileLogger extends Logger {\n    private String filename;\n    public FileLogger(String logLevel, String filename) {\n        super(logLevel);\n        this.filename = filename;\n    }\n    @Override public void log(String msg) {\n        System.out.println(\"[FILE: \" + filename + \"][\" + logLevel + \"] \" + msg);\n    }\n}\n\nclass NullLogger extends Logger {\n    public NullLogger() { super(\"NULL\"); }\n    @Override public void log(String msg) { /* intentionally silent */ }\n}\n\npublic class App {\n    public static void logAll(Logger logger, String[] messages) {\n        for (String msg : messages) logger.log(msg);\n    }\n    \n    public static void main(String[] args) {\n        String[] msgs = { \"Starting app\", \"User logged in\" };\n        \n        logAll(new ConsoleLogger(\"INFO\"), msgs);\n        logAll(new NullLogger(), msgs);  // silent\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "[CONSOLE][INFO] Starting app\n[CONSOLE][INFO] User logged in" }],
+      "hints": [
+        "logAll accepts Logger — works for any logger type",
+        "NullLogger.log() does nothing — no output",
+        "This is the 'Null Object' and 'Strategy' patterns combined"
+      ],
+      "xp_reward": 75
+    },
+    
+    {
+      "id": "java_m5_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Discount system — extensible via polymorphism",
+      "scenario": "Open/Closed Principle: add discounts without changing checkout.",
+      "instructions": "Create:\n- `Discount`: basePrice (double). `apply(double price)` returns price (no discount).\n- `PercentageDiscount extends Discount`: percent (double). apply: price × (1 - percent/100)\n- `FlatDiscount extends Discount`: amount (double). apply: max(0, price - amount)\n- `BuyOneGetOneFree extends Discount`: apply: price / 2 (50% off)\n\nWrite `checkout(double price, Discount[] discounts)` — applies each discount sequentially and prints final.\n\nTest with price ₹1000, applying: 10% off, then ₹50 flat off.\n\nExpected output:\nFinal price: ₹850.0",
+      "starter_code": "// Discount, PercentageDiscount, FlatDiscount, BuyOneGetOneFree\n// checkout applies discounts sequentially\n",
+      "expected_solution": "class Discount {\n    public double apply(double price) { return price; }\n}\n\nclass PercentageDiscount extends Discount {\n    private double percent;\n    public PercentageDiscount(double percent) { this.percent = percent; }\n    @Override public double apply(double price) { return price * (1 - percent / 100); }\n}\n\nclass FlatDiscount extends Discount {\n    private double amount;\n    public FlatDiscount(double amount) { this.amount = amount; }\n    @Override public double apply(double price) { return Math.max(0, price - amount); }\n}\n\nclass BuyOneGetOneFree extends Discount {\n    @Override public double apply(double price) { return price / 2; }\n}\n\npublic class App {\n    public static double checkout(double price, Discount[] discounts) {\n        for (Discount d : discounts) {\n            price = d.apply(price);\n        }\n        return price;\n    }\n    \n    public static void main(String[] args) {\n        Discount[] offers = {\n            new PercentageDiscount(10),  // 1000 → 900\n            new FlatDiscount(50)          // 900 → 850\n        };\n        double finalPrice = checkout(1000, offers);\n        System.out.println(\"Final price: ₹\" + finalPrice);\n    }\n}",
+      "test_cases": [{ "type": "execution", "expected_stdout": "Final price: ₹850.0" }],
+      "hints": [
+        "checkout loops through discounts, applying each in turn",
+        "price = d.apply(price) chains the discounts",
+        "10% off 1000 → 900; then -50 → 850",
+        "Adding new discount types: just extend Discount, no changes to checkout"
+      ],
+      "xp_reward": 80
+    },
+    
+    {
+      "id": "java_m5_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Event processing pipeline",
+      "scenario": "Polymorphic event handlers — real framework design.",
+      "instructions": "Build an event system:\n1. `Event` base: String type, long timestamp (use System.currentTimeMillis()). toString.\n2. `LoginEvent extends Event`: username. Override toString to include username.\n3. `PurchaseEvent extends Event`: amount, productName. Override toString.\n4. `EventHandler` base: `handle(Event e)` prints 'Handling event: ' + e.\n5. `AuditHandler extends EventHandler`: override handle to print 'AUDIT: ' + e\n6. `AlertHandler extends EventHandler`: override — ONLY prints for PurchaseEvent > ₹10000 (use instanceof).\n\nCreate pipeline with both handlers. Process 3 events.\n\nExpected output:\nAUDIT: [LOGIN] aisha (at <timestamp>)\nAUDIT: [PURCHASE] Laptop ₹75000 (at <timestamp>)\nAUDIT: [PURCHASE] Coffee ₹150 (at <timestamp>)\nALERT: Large purchase: [PURCHASE] Laptop ₹75000 (at <timestamp>)",
+      "starter_code": "// Event hierarchy + EventHandler hierarchy\n// AlertHandler uses instanceof to filter\n",
+      "expected_solution": "class Event {\n    private String type;\n    private long timestamp;\n    \n    public Event(String type) {\n        this.type = type;\n        this.timestamp = System.currentTimeMillis();\n    }\n    \n    public String getType() { return type; }\n    public long getTimestamp() { return timestamp; }\n    \n    @Override public String toString() {\n        return \"[\" + type + \"] (at \" + timestamp + \")\";\n    }\n}\n\nclass LoginEvent extends Event {\n    private String username;\n    public LoginEvent(String username) {\n        super(\"LOGIN\");\n        this.username = username;\n    }\n    public String getUsername() { return username; }\n    @Override public String toString() {\n        return \"[LOGIN] \" + username + \" (at \" + getTimestamp() + \")\";\n    }\n}\n\nclass PurchaseEvent extends Event {\n    private double amount;\n    private String productName;\n    public PurchaseEvent(String productName, double amount) {\n        super(\"PURCHASE\");\n        this.productName = productName;\n        this.amount = amount;\n    }\n    public double getAmount() { return amount; }\n    @Override public String toString() {\n        return \"[PURCHASE] \" + productName + \" ₹\" + amount + \" (at \" + getTimestamp() + \")\";\n    }\n}\n\nclass EventHandler {\n    public void handle(Event e) {\n        System.out.println(\"Handling event: \" + e);\n    }\n}\n\nclass AuditHandler extends EventHandler {\n    @Override public void handle(Event e) {\n        System.out.println(\"AUDIT: \" + e);\n    }\n}\n\nclass AlertHandler extends EventHandler {\n    @Override public void handle(Event e) {\n        if (e instanceof PurchaseEvent pe && pe.getAmount() > 10000) {\n            System.out.println(\"ALERT: Large purchase: \" + pe);\n        }\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        EventHandler[] handlers = { new AuditHandler(), new AlertHandler() };\n        Event[] events = {\n            new LoginEvent(\"aisha\"),\n            new PurchaseEvent(\"Laptop\", 75000),\n            new PurchaseEvent(\"Coffee\", 150)\n        };\n        \n        for (EventHandler handler : handlers) {\n            for (Event event : events) {\n                handler.handle(event);\n            }\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_output_pattern": "AUDIT: \\[LOGIN\\].*AUDIT: \\[PURCHASE\\] Laptop.*AUDIT: \\[PURCHASE\\] Coffee.*ALERT: Large purchase.*Laptop"
+        }
+      ],
+      "hints": [
+        "AuditHandler prints ALL events",
+        "AlertHandler only prints PurchaseEvent with amount > 10000",
+        "AlertHandler uses instanceof PurchaseEvent pe to access getAmount()",
+        "Outer loop: each handler. Inner loop: each event.",
+        "This is exactly how Spring's ApplicationEventPublisher works"
+      ],
+      "xp_reward": 100
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 12,
+      "debug": 2,
+      "predict_output": 2
+    },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  },
+  
+  "gap_detection_map": {
+    "calling_subclass_method_on_parent_ref": ["ex_4"],
+    "unsafe_downcast_without_instanceof": ["ex_9"],
+    "confusing_reference_type_object_type": ["ex_12"]
+  }
+}

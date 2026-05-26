@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m10_t3_proj",
+  "linked_topic": "java_m10_t3",
+  "level": "mini",
+  "name": "Flipkart-Style Product Search Engine — Parallel Data Fetcher",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "When Flipkart displays a search results page, it fans out to multiple services simultaneously: product catalog, ratings service, inventory, pricing engine, recommendation engine. These run in parallel and the page assembles when all respond. Build this fan-out pattern using ExecutorService and Future<T>.",
+
+  "description": "A parallel search engine that fans out to 5 simulated data services concurrently using a thread pool. Demonstrates invokeAll, Future result collection, timeout handling, graceful degradation on service failures, and proper executor shutdown.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`SearchResult` record: productId, name, price, rating, inStock, description. At minimum 4 fields required.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`DataService` interface with `Callable<SearchResult> fetchFor(String productId, String query)`. At least 3 implementations: CatalogService (simulated 100-200ms), RatingsService (50-150ms), InventoryService (80-120ms).",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`SearchEngine` with a `FixedThreadPool` of size 5. `search(String query, List<String> productIds)` method: submit one Callable per product-service combination, collect via invokeAll.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Timeout handling: each service call has max 500ms timeout via future.get(500, MILLISECONDS). Timed-out services are treated as unavailable (use default/fallback value).",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "Graceful degradation: if a service throws ExecutionException, the result is partial (null fields) but search still returns results for other products/services.",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "print results sorted by rating descending. Print per-search timing (parallel vs estimated sequential).",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "Proper executor shutdown with awaitTermination.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add ScheduledExecutorService that runs a cache-warmup task every 30 seconds (simulated with shorter interval for demo). Print 'Cache warmed at HH:mm:ss'.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add invokeAny-based 'fast path': if ANY service returns a result in under 100ms, immediately render a partial result to show the user something fast, then fill in the rest.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add Circuit Breaker pattern: if a service fails 3 times consecutively (AtomicInteger failure counter), mark it as 'open' (volatile boolean circuitOpen) and skip it for 5 seconds, then half-open to retry.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Products to search: P001(Mouse), P002(Keyboard), P003(Monitor), P004(USB Hub), P005(Headphones)\nQuery: 'computer accessories'\n\nService delays:\n- CatalogService: 100-200ms\n- RatingsService: 50-150ms  \n- InventoryService: 80-120ms",
+
+  "starter_code": "import java.util.*;\nimport java.util.concurrent.*;\nimport java.util.stream.*;\n\npublic class FlipkartSearch {\n    public static void main(String[] args) throws Exception {\n        // Create search engine\n        // Run search for 5 products\n        // Print results sorted by rating\n        // Print timing comparison\n    }\n    // Define: SearchResult, DataService, CatalogService,\n    // RatingsService, InventoryService, SearchEngine\n}",
+
+  "example_output": "=== Flipkart Search: 'computer accessories' ===\n\nFetching from 3 services for 5 products (15 parallel calls)...\nCompleted in 203ms (sequential estimate: 2250ms, speedup: 11.1x)\n\n=== Results (sorted by rating) ===\nMonitor      ₹18999  ★4.8  In Stock  - High-res display\nKeyboard     ₹1999   ★4.7  In Stock  - Mechanical keys\nHeadphones   ₹2999   ★4.5  In Stock  - Noise cancelling\nMouse        ₹799    ★4.2  In Stock  - Wireless\nUSB Hub      ₹499    ★4.0  In Stock  - 7-port\n\n=== Service Performance ===\nCatalogService:   5/5 successful\nRatingsService:   5/5 successful\nInventoryService: 5/5 successful",
+
+  "rubric": [
+    { "category": "Thread Pool + Submit", "points": 25, "criteria": ["FixedThreadPool(5) created (5 pts)", "Callables submitted correctly (10 pts)", "invokeAll used (10 pts)"] },
+    { "category": "Timeout Handling", "points": 20, "criteria": ["get(500, MILLISECONDS) on each future (10 pts)", "TimeoutException caught and degraded gracefully (10 pts)"] },
+    { "category": "Exception Handling", "points": 15, "criteria": ["ExecutionException caught (10 pts)", "Partial results returned (5 pts)"] },
+    { "category": "Results + Timing", "points": 20, "criteria": ["Sorted by rating (10 pts)", "Speedup printed (10 pts)"] },
+    { "category": "Shutdown", "points": 10, "criteria": ["shutdown + awaitTermination (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 10, "criteria": ["Compiles (5 pts)", "Results correct (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["ScheduledExecutor cache warmup (20 pts)", "invokeAny fast path (20 pts)", "Circuit breaker (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key design: 15 parallel calls (5 products × 3 services). Use invokeAll for all 15. Each future's result merges into the SearchResult for that product. Speedup = (sum of all service times) / actual elapsed. Partial results: if a service times out, use default value for that field.",
+
+  "submission_instructions": "Save as FlipkartSearch.java. Push to GitHub. This demonstrates production-grade parallel service fan-out.",
+
+  "tips_for_success": [
+    "Create 15 Callable tasks (5 products × 3 services), submit all via invokeAll",
+    "Map each future back to (productId, serviceType) to merge results",
+    "Merge strategy: CatalogService provides name/price/description; RatingsService provides rating; InventoryService provides inStock",
+    "Timeout: future.get(500, TimeUnit.MILLISECONDS) — wrap in try-catch(TimeoutException)",
+    "Speedup calculation: sum(all service average times) / actual elapsed"
+  ],
+
+  "concepts_reinforced": [
+    "FixedThreadPool for bounded concurrent tasks",
+    "invokeAll for fan-out pattern",
+    "Future.get() with timeout",
+    "ExecutionException for failed tasks",
+    "Graceful degradation on partial failures",
+    "Speedup measurement"
+  ]
+}

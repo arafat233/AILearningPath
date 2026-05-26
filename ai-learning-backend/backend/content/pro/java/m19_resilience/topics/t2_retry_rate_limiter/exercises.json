@@ -1,0 +1,245 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m19_t2",
+  "topic_name": "Retry & Rate Limiter",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m19_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace retry attempts for a transient failure",
+      "scenario": "maxAttempts=3, client fails twice then succeeds.",
+      "instructions": "```java\n// Config: maxAttempts=3, waitDuration=100ms, exponentialBackoff=true, multiplier=2.0\n// Client: fails on call 1 (IOException), fails on call 2 (IOException), succeeds on call 3\n\n@Retry(name=\"gateway\")\npublic String callService() { return client.call(); }\n```\n\n1. How many times is client.call() invoked?\n2. What are the wait durations between attempts?\n3. What does the caller receive?\n4. Is a IOException on attempt 3 retried further?",
+      "expected_solution": "1. client.call() is invoked 3 times (all maxAttempts):\n   Attempt 1: IOException (fail)\n   Attempt 2: IOException (fail)\n   Attempt 3: SUCCESS\n\n2. Wait durations:\n   Before attempt 2: 100ms (waitDuration)\n   Before attempt 3: 200ms (100ms × 2.0 multiplier)\n   Total added latency: ~300ms\n\n3. Caller receives: the successful result from attempt 3.\n   No exception thrown. Retry is transparent to the caller.\n\n4. No — attempt 3 is the last attempt (maxAttempts=3).\n   If attempt 3 also failed: fallback would be called (or exception propagated).",
+      "test_cases": [{ "type": "text_match", "expected": "1. client.call() is invoked 3 times (all maxAttempts):\n   Attempt 1: IOException (fail)\n   Attempt 2: IOException (fail)\n   Attempt 3: SUCCESS\n\n2. Wait durations:\n   Before attempt 2: 100ms (waitDuration)\n   Before attempt 3: 200ms (100ms × 2.0 multiplier)\n   Total added latency: ~300ms\n\n3. Caller receives: the successful result from attempt 3.\n   No exception thrown. Retry is transparent to the caller.\n\n4. No — attempt 3 is the last attempt (maxAttempts=3).\n   If attempt 3 also failed: fallback would be called (or exception propagated)." }],
+      "hints": ["maxAttempts includes the first attempt", "Exponential: delay × multiplier on each retry", "Success on any attempt: stops retry and returns result"],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m19_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the retry application.yml",
+      "scenario": "Configure retry with exponential backoff and exception filtering.",
+      "instructions": "Fill in the blanks.",
+      "starter_code": "resilience4j:\n  retry:\n    instances:\n      visa-api:\n        ___________: 3            # total attempts\n        waitDuration: ____ms      # initial wait\n        enable___________Backoff: true\n        exponentialBackoffMultiplier: 2.0\n        ___________Exceptions:    # only retry these\n          - java.io.IOException\n        ___________Exceptions:    # never retry these\n          - com.razorpay.InvalidCardException",
+      "expected_solution": "resilience4j:\n  retry:\n    instances:\n      visa-api:\n        maxAttempts: 3\n        waitDuration: 100ms\n        enableExponentialBackoff: true\n        exponentialBackoffMultiplier: 2.0\n        retryExceptions:\n          - java.io.IOException\n        ignoreExceptions:\n          - com.razorpay.InvalidCardException",
+      "blanks": [
+        { "position": 1, "answer": "maxAttempts",       "hint": "Total number of attempts including first" },
+        { "position": 2, "answer": "100",               "hint": "100ms = 0.1 second" },
+        { "position": 3, "answer": "Exponential",       "hint": "enableExponentialBackoff" },
+        { "position": 4, "answer": "retry",             "hint": "retryExceptions: whitelist" },
+        { "position": 5, "answer": "ignore",            "hint": "ignoreExceptions: blacklist" }
+      ],
+      "test_cases": [{ "type": "text_match", "expected_contains": ["maxAttempts: 3", "retryExceptions", "ignoreExceptions"] }],
+      "hints": ["retryExceptions: whitelist — only retry listed types", "ignoreExceptions: blacklist — never retry listed types", "enableExponentialBackoff: grows wait time each retry"],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m19_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Add @Retry to a service method",
+      "scenario": "Retry transient HTTP failures with exponential backoff.",
+      "instructions": "Write SwiggyDeliveryService.estimateDelivery(orderId):\n1. @Retry(name='delivery-api', fallbackMethod='defaultEstimate')\n2. Calls delivery tracking API\n3. Fallback: returns 45 minutes (default estimate)\n4. Config in application.yml: maxAttempts=3, 200ms, exponential\n5. Show why ConnectException should be retried but NotFoundException should not",
+      "starter_code": "import io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "// application.yml:\n// resilience4j.retry.instances.delivery-api:\n//   maxAttempts: 3\n//   waitDuration: 200ms\n//   enableExponentialBackoff: true\n//   exponentialBackoffMultiplier: 2.0\n//   retryExceptions:\n//     - java.net.ConnectException\n//     - java.io.IOException\n//   ignoreExceptions:\n//     - com.swiggy.OrderNotFoundException\n\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\nimport java.net.ConnectException;\n\n@Service\npublic class SwiggyDeliveryService {\n    private final DeliveryClient client;\n    SwiggyDeliveryService(DeliveryClient c) { client = c; }\n    \n    @Retry(name = \"delivery-api\", fallbackMethod = \"defaultEstimate\")\n    public int estimateDelivery(String orderId) throws ConnectException {\n        return client.estimate(orderId);\n    }\n    \n    private int defaultEstimate(String orderId, Exception e) {\n        System.out.println(\"[Retry exhausted] Using default estimate for \" + orderId);\n        return 45;  // 45 minute default\n    }\n    \n    // ConnectException: RETRY — delivery API server is temporarily unreachable\n    // OrderNotFoundException: DON'T RETRY — order doesn't exist, retry won't help\n    \n    interface DeliveryClient { int estimate(String id) throws ConnectException; }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["@Retry fallbackMethod: same as @CircuitBreaker — called after all retries exhausted", "retryExceptions vs ignoreExceptions: transient vs permanent errors", "Fallback receives the last exception from the final retry attempt"],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m19_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "@RateLimiter to respect downstream API quota",
+      "scenario": "Zerodha calls NSE with a 200 requests/second limit.",
+      "instructions": "Write ZerodhaNseService.submitOrder():\n1. @RateLimiter(name='nse-api', fallbackMethod='orderThrottled')\n2. Fallback: throw OrderThrottledException (pass exception up for retry)\n3. application.yml: limitForPeriod=200, limitRefreshPeriod=1s, timeoutDuration=200ms\n4. Show: how @RateLimiter protects NSE from being overwhelmed by Zerodha",
+      "starter_code": "import io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RequestNotPermittedException;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "// application.yml:\n// resilience4j.ratelimiter.instances.nse-api:\n//   limitForPeriod: 200\n//   limitRefreshPeriod: 1s\n//   timeoutDuration: 200ms\n\nimport io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RequestNotPermittedException;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class ZerodhaNseService {\n    private final NseClient client;\n    ZerodhaNseService(NseClient c) { client = c; }\n    \n    @RateLimiter(name = \"nse-api\", fallbackMethod = \"orderThrottled\")\n    public OrderAck submitOrder(Order order) {\n        return client.submit(order);\n    }\n    \n    private OrderAck orderThrottled(Order order, RequestNotPermittedException e) {\n        // Caller can retry after the rate limit window refreshes:\n        System.out.println(\"[Rate limit] NSE API quota exceeded — throttling order\");\n        throw new OrderThrottledException(\"Rate limit exceeded — retry in 1s\");\n    }\n    \n    // PROTECTION:\n    // Without @RateLimiter: Zerodha's 500 order threads all hit NSE\n    // → NSE rate-limits Zerodha's IP → all orders blocked\n    // With @RateLimiter: Zerodha self-throttles to 200/s\n    // → NSE sees clean traffic → no IP block\n    \n    interface NseClient { OrderAck submit(Order o); }\n    record Order(String id) {}\n    record OrderAck(String orderId, String status) {}\n    static class OrderThrottledException extends RuntimeException {\n        OrderThrottledException(String m) { super(m); }\n    }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["RateLimiter fallback: receives RequestNotPermittedException specifically", "limitForPeriod: max calls in one limitRefreshPeriod", "timeoutDuration: how long to wait for a permit before throwing"],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m19_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test @Retry with a mock that fails then succeeds",
+      "scenario": "Verify retry behavior: method called N times on N-1 failures + 1 success.",
+      "instructions": "Write a @SpringBootTest test:\n1. Mock: fails with IOException twice, then returns 'SUCCESS'\n2. Call the @Retry-protected method\n3. Assert: the mock was called 3 times total\n4. Assert: the returned value is 'SUCCESS'\n5. Assert: no fallback was invoked",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.io.IOException;\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.io.IOException;\n\n@SpringBootTest\nclass RetryTest {\n    @Autowired SwiggyDeliveryService svc;\n    @MockBean  SwiggyDeliveryService.DeliveryClient client;\n    \n    @Test\n    void retry_succeedsOnThirdAttempt() throws Exception {\n        // Mock: fail twice, succeed third:\n        when(client.estimate(anyString()))\n            .thenThrow(new java.net.ConnectException(\"blip\"))\n            .thenThrow(new java.net.ConnectException(\"blip\"))\n            .thenReturn(30);  // 30 minute estimate on 3rd attempt\n        \n        int result = svc.estimateDelivery(\"ORD-001\");\n        \n        // Method called 3 times (maxAttempts=3):\n        verify(client, times(3)).estimate(\"ORD-001\");\n        \n        // Returns successful result (not fallback 45):\n        assertEquals(30, result);\n    }\n    \n    @Test\n    void retry_usesFallback_afterAllAttemptsFail() throws Exception {\n        when(client.estimate(anyString()))\n            .thenThrow(new java.net.ConnectException(\"down\"));\n        \n        // All 3 attempts fail → fallback returns 45:\n        int result = svc.estimateDelivery(\"ORD-002\");\n        assertEquals(45, result, \"Fallback should return 45 min default\");\n        verify(client, times(3)).estimate(\"ORD-002\");\n    }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["thenThrow().thenThrow().thenReturn(): chain multiple behaviors", "verify(mock, times(3)): assert exact call count", "Fallback returns 45: verify expected fallback value, not mock value"],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m19_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Combine @Retry + @CircuitBreaker with correct order",
+      "scenario": "Both annotations applied — order determines which failures the CB counts.",
+      "instructions": "Write Razorpay's VisaGatewayService:\n1. @CircuitBreaker(name='visa', fallbackMethod='visaCBFallback') OUTER\n2. @Retry(name='visa') INNER\n3. Both share the same name for shared configuration\n4. Fallback only on CB fallbackMethod\n5. Comment explaining: why CB counts 1 failure per retry-sequence, not 3",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class VisaGatewayService {\n    private final VisaClient client;\n    VisaGatewayService(VisaClient c) { client = c; }\n    \n    // @CircuitBreaker OUTER wraps the ENTIRE retry sequence:\n    @CircuitBreaker(name = \"visa\", fallbackMethod = \"visaCBFallback\")\n    @Retry(name = \"visa\")  // ← INNER: retries happen inside the CB\n    public PaymentResult charge(ChargeRequest req) {\n        return client.charge(req);\n    }\n    \n    private PaymentResult visaCBFallback(ChargeRequest req, Exception e) {\n        System.out.println(\"[CB Fallback] Visa gateway unavailable\");\n        return PaymentResult.queued(req.getId());\n    }\n    \n    // WHY CB COUNTS 1 (not 3):\n    // @Retry executes: attempt 1 → attempt 2 → attempt 3 (all fail)\n    // Only after ALL retries fail does the exception propagate up\n    // @CircuitBreaker (outer) sees: ONE call, ONE failure\n    // CB records 1 failure per retry sequence\n    //\n    // WRONG ORDER (Retry outside CB):\n    // @Retry executes attempt 1 → CB records failure\n    //                attempt 2 → CB records failure\n    //                attempt 3 → CB records failure\n    // CB records 3 failures per retry sequence → opens 3× faster!\n    \n    interface VisaClient { PaymentResult charge(ChargeRequest r); }\n    record ChargeRequest(String id, double amount) { String getId(){return id;} }\n    record PaymentResult(String id, String status) {\n        static PaymentResult queued(String id) { return new PaymentResult(id, \"QUEUED\"); }\n    }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["@CircuitBreaker outer, @Retry inner: top annotation is outer wrapper", "CB records 1 failure per retry sequence", "Wrong order: CB opens 3× faster than designed"],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m19_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Retry with randomized jitter backoff",
+      "scenario": "Randomized jitter prevents all retrying threads from hitting the server at the same instant.",
+      "instructions": "Write FlipkartInventoryService.checkStock():\n1. @Retry with exponentialRandomBackoff\n2. application.yml: maxAttempts=4, initial 200ms, multiplier=1.5, randomFactor=0.5\n3. Explain: without jitter, 1000 threads all retry at T=200ms → new spike\n4. With jitter: retries spread across 100ms-300ms window\n5. Test: mock that fails 3 times, succeeds on 4th",
+      "starter_code": "import io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "// application.yml:\n// resilience4j.retry.instances.inventory-api:\n//   maxAttempts: 4\n//   waitDuration: 200ms\n//   enableExponentialBackoff: true\n//   exponentialBackoffMultiplier: 1.5\n//   # randomizedWaitFactor applies jitter:\n//   enableRandomizedWait: false  # alternative to exponential\n//   # For exponential + jitter: use custom RetryConfig in @Bean\n//   # Effective delays: 200ms ±50% → 100-300ms\n//\n// OR: programmatic config:\n// RetryConfig config = RetryConfig.custom()\n//   .maxAttempts(4)\n//   .waitDuration(Duration.ofMillis(200))\n//   .intervalFunction(IntervalFunction.ofExponentialRandomBackoff(200, 1.5, 0.5))\n//   .build();\n\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class FlipkartInventoryService {\n    private final InventoryClient client;\n    FlipkartInventoryService(InventoryClient c) { client = c; }\n    \n    @Retry(name = \"inventory-api\", fallbackMethod = \"stockUnknown\")\n    public int checkStock(String productId) {\n        return client.getStock(productId);\n    }\n    \n    private int stockUnknown(String productId, Exception e) {\n        System.out.println(\"[Retry exhausted] Stock unknown for \" + productId);\n        return -1;  // -1 signals 'stock unknown' to UI → show 'Check availability'\n    }\n    \n    // WHY JITTER MATTERS:\n    // Without jitter: 1000 threads fail → all retry at exactly 200ms\n    //   → 1000 requests hit inventory server at T=200ms → new spike → all fail again\n    // With jitter: each thread picks random delay in [100ms, 300ms]\n    //   → retries spread across 200ms window → smooth load on server\n    \n    interface InventoryClient { int getStock(String id); }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["Jitter: random factor prevents synchronized retry spikes", "exponentialRandomBackoff: Resilience4j provides IntervalFunction.ofExponentialRandomBackoff()", "maxAttempts=4: 1 original + 3 retries"],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m19_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Rate limiter with queue-based fallback",
+      "scenario": "When rate limit exceeded, queue the request instead of dropping it.",
+      "instructions": "Write Swiggy's AnalyticsService:\n1. @RateLimiter('swiggy-analytics'): 50 events/second\n2. Fallback: add to bounded BlockingQueue (capacity 1000)\n3. @Scheduled: drain queue and send events when capacity allows\n4. Show: how this gives smooth analytics ingestion vs bursty direct calls",
+      "starter_code": "import io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RequestNotPermittedException;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.*;\n",
+      "expected_solution": "import io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RequestNotPermittedException;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.util.concurrent.*;\nimport java.util.*;\n\n@Service\npublic class SwiggyAnalyticsService {\n    private static final int QUEUE_CAPACITY = 1000;\n    private final BlockingQueue<AnalyticsEvent> overflow = new LinkedBlockingQueue<>(QUEUE_CAPACITY);\n    private final AnalyticsClient client;\n    \n    SwiggyAnalyticsService(AnalyticsClient c) { client = c; }\n    \n    // app.yml: ratelimiter.instances.swiggy-analytics:\n    //   limitForPeriod: 50, limitRefreshPeriod: 1s, timeoutDuration: 0ms\n    @RateLimiter(name = \"swiggy-analytics\", fallbackMethod = \"queueEvent\")\n    public void recordEvent(AnalyticsEvent event) {\n        client.send(event);  // direct send if within rate\n    }\n    \n    private void queueEvent(AnalyticsEvent event, RequestNotPermittedException e) {\n        boolean added = overflow.offer(event);\n        if (!added) System.err.println(\"[Analytics] Queue full — dropping event: \" + event.id());\n    }\n    \n    @Scheduled(fixedRate = 1000)  // drain queue every second\n    public void drainQueue() {\n        List<AnalyticsEvent> batch = new ArrayList<>();\n        overflow.drainTo(batch, 50);  // drain up to 50 per second\n        batch.forEach(e -> {\n            try { client.send(e); } catch (Exception ex) { overflow.offer(e); }\n        });\n        if (!batch.isEmpty())\n            System.out.printf(\"[Analytics] Drained %d queued events%n\", batch.size());\n    }\n    \n    interface AnalyticsClient { void send(AnalyticsEvent e); }\n    record AnalyticsEvent(String id, String type) {}\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["BlockingQueue.offer(): non-blocking add, returns false if full", "drainTo(list, maxElements): moves up to maxElements from queue to list", "timeoutDuration=0ms: immediately fallback on rate limit (don't wait for permit)"],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m19_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Razorpay: @Retry + @CircuitBreaker integrated test",
+      "scenario": "Test the combined retry + circuit breaker behavior end-to-end.",
+      "instructions": "Write 2 @SpringBootTest tests for VisaGatewayService:\n1. Test A: fails 2 times, succeeds 3rd — verify called 3 times, returns success\n2. Test B: fails all 3 attempts — verify called 3 times, fallback returns QUEUED status\n3. Use @MockBean VisaClient, verify exact call counts\n4. Reset circuit breaker in @BeforeEach",
+      "starter_code": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n",
+      "expected_solution": "import org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest\nclass VisaGatewayIntegrationTest {\n    @Autowired VisaGatewayService svc;\n    @MockBean  VisaGatewayService.VisaClient client;\n    @Autowired CircuitBreakerRegistry registry;\n    \n    @BeforeEach void reset() {\n        registry.circuitBreaker(\"visa\").reset();\n    }\n    \n    @Test\n    void retry_succeedsOnThirdAttempt() {\n        var req = new VisaGatewayService.ChargeRequest(\"REQ-1\", 999.0);\n        when(client.charge(any()))\n            .thenThrow(new RuntimeException(\"blip\"))\n            .thenThrow(new RuntimeException(\"blip\"))\n            .thenReturn(new VisaGatewayService.PaymentResult(\"TXN-1\", \"APPROVED\"));\n        \n        VisaGatewayService.PaymentResult result = svc.charge(req);\n        \n        verify(client, times(3)).charge(any());\n        assertEquals(\"APPROVED\", result.status());\n    }\n    \n    @Test\n    void allRetriesExhausted_fallbackQueuesPayment() {\n        var req = new VisaGatewayService.ChargeRequest(\"REQ-2\", 499.0);\n        when(client.charge(any())).thenThrow(new RuntimeException(\"down\"));\n        \n        VisaGatewayService.PaymentResult result = svc.charge(req);\n        \n        verify(client, times(3)).charge(any());  // maxAttempts=3\n        assertEquals(\"QUEUED\", result.status(),  \"CB fallback should queue the payment\");\n    }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["registry.circuitBreaker(name).reset(): resets to CLOSED before each test", "times(3): verify retry attempted all maxAttempts", "CB fallback: 'QUEUED' status indicates payment was queued for later"],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m19_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Wrong annotation order — circuit opens too fast",
+      "scenario": "Retry outside CircuitBreaker records 3 failures instead of 1.",
+      "instructions": "```java\n// WRONG order:\n@Retry(name = \"svc\")  // ← OUTER (wrong!)\n@CircuitBreaker(name = \"svc\", fallbackMethod = \"fb\")\npublic String call() { return client.call(); }\n\n// Config: maxAttempts=3, CB failureRateThreshold=50, slidingWindow=10, min=5\n```\n\n1. One call fails all 3 retries. How many failures does the CB record?\n2. How many calls are needed to open the circuit?\n3. With correct order (@CB outer, @Retry inner): same scenario — how many calls to open?\n4. What is the ratio difference?",
+      "expected_solution": "1. WRONG order: @Retry outer, @CB inner\n   Each retry attempt passes through @CB independently.\n   One call × 3 retry attempts = 3 CB failures recorded.\n\n2. CB opens at ≥50% failure rate with min=5 calls.\n   With wrong order: 2 original calls × 3 retries each = 6 CB failures.\n   → After just 2 original calls: 6 failures → 60% failure rate → CIRCUIT OPENS.\n\n3. CORRECT order: @CB outer, @Retry inner\n   The entire retry sequence (3 attempts) = 1 CB failure.\n   2 original calls × 1 CB failure each = 2 CB failures recorded.\n   Need 5 failures to reach threshold → needs 5 original calls to open.\n\n4. Ratio: wrong order opens at 2 calls; correct order opens at 5 calls.\n   Wrong order: circuit opens 2.5× faster than designed!\n   Impact: circuit opens during normal transient failures that retry would handle.",
+      "test_cases": [{ "type": "text_match", "expected": "1. WRONG order: @Retry outer, @CB inner\n   Each retry attempt passes through @CB independently.\n   One call × 3 retry attempts = 3 CB failures recorded.\n\n2. CB opens at ≥50% failure rate with min=5 calls.\n   With wrong order: 2 original calls × 3 retries each = 6 CB failures.\n   → After just 2 original calls: 6 failures → 60% failure rate → CIRCUIT OPENS.\n\n3. CORRECT order: @CB outer, @Retry inner\n   The entire retry sequence (3 attempts) = 1 CB failure.\n   2 original calls × 1 CB failure each = 2 CB failures recorded.\n   Need 5 failures to reach threshold → needs 5 original calls to open.\n\n4. Ratio: wrong order opens at 2 calls; correct order opens at 5 calls.\n   Wrong order: circuit opens 2.5× faster than designed!\n   Impact: circuit opens during normal transient failures that retry would handle." }],
+      "hints": ["Wrong order: CB sees each retry attempt separately", "Correct order: CB sees one result from entire retry sequence", "Math: 3 retries × N calls = 3N CB failures instead of N"],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m19_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "RateLimiter event listener for monitoring",
+      "scenario": "Subscribe to rate limiter events for operational visibility.",
+      "instructions": "Write RateLimiterMonitor:\n1. Subscribe to all rate limiter events (success + rejected)\n2. Track: total calls, rejected calls, rejection rate\n3. @Scheduled every minute: log metrics\n4. Alert if rejection rate > 10% (too many rate limited calls)\n5. Show: how this identifies when to increase limitForPeriod",
+      "starter_code": "import io.github.resilience4j.ratelimiter.*;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport jakarta.annotation.PostConstruct;\nimport java.util.concurrent.atomic.AtomicLong;\n",
+      "expected_solution": "import io.github.resilience4j.ratelimiter.*;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport jakarta.annotation.PostConstruct;\nimport java.util.concurrent.atomic.AtomicLong;\n\n@Service\npublic class RateLimiterMonitor {\n    private final RateLimiterRegistry registry;\n    private final AtomicLong totalCalls    = new AtomicLong(0);\n    private final AtomicLong rejectedCalls = new AtomicLong(0);\n    \n    RateLimiterMonitor(RateLimiterRegistry r) { registry = r; }\n    \n    @PostConstruct\n    public void listen() {\n        registry.getAllRateLimiters().forEach(rl -> {\n            rl.getEventPublisher()\n                .onSuccess(e -> totalCalls.incrementAndGet())\n                .onFailure(e -> {\n                    totalCalls.incrementAndGet();\n                    rejectedCalls.incrementAndGet();\n                });\n        });\n    }\n    \n    @Scheduled(fixedRate = 60_000)\n    public void reportMetrics() {\n        long total    = totalCalls.getAndSet(0);\n        long rejected = rejectedCalls.getAndSet(0);\n        if (total == 0) return;\n        \n        double rejectionRate = 100.0 * rejected / total;\n        System.out.printf(\"[RateLimiter] calls=%d rejected=%d rate=%.1f%%%n\",\n            total, rejected, rejectionRate);\n        \n        if (rejectionRate > 10) {\n            System.err.printf(\"[ALERT] Rate limit rejection rate %.1f%% > 10%%%n\" +\n                \"Consider increasing limitForPeriod%n\", rejectionRate);\n        }\n    }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["RateLimiterRegistry: similar to CircuitBreakerRegistry", "onSuccess/onFailure: event types for rate limiter", "getAndSet(0): atomic read + reset for rolling window metrics"],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m19_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Zerodha complete order submission resilience",
+      "scenario": "Production-grade: @RateLimiter + @Retry + @CircuitBreaker stacked.",
+      "instructions": "Write ZerodhaOrderSubmissionService:\n1. @RateLimiter (200/s) outer\n2. @CircuitBreaker (40% threshold) middle\n3. @Retry (3 attempts) inner\n4. Correct stacking order: RL → CB → Retry\n5. Three distinct fallbacks for each annotation\n6. Show: what each layer handles",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RequestNotPermittedException;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.RequestNotPermittedException;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class ZerodhaOrderSubmissionService {\n    private final NseClient client;\n    ZerodhaOrderSubmissionService(NseClient c) { client = c; }\n    \n    // Layer 1 (OUTERMOST): RateLimiter — controls call frequency\n    @RateLimiter(name = \"nse\", fallbackMethod = \"rateLimitedOrder\")\n    // Layer 2: CircuitBreaker — stops calls when NSE is struggling\n    @CircuitBreaker(name = \"nse\", fallbackMethod = \"circuitOpenOrder\")\n    // Layer 3 (INNERMOST): Retry — handles transient connection failures\n    @Retry(name = \"nse\")\n    public OrderAck submitOrder(Order order) {\n        return client.submit(order);\n    }\n    \n    // Fallback for @RateLimiter (called when quota exceeded):\n    private OrderAck rateLimitedOrder(Order o, RequestNotPermittedException e) {\n        System.out.println(\"[RL] Rate limit exceeded — queuing order\");\n        return OrderAck.of(o.id(), \"QUEUED_RATE_LIMIT\");\n    }\n    \n    // Fallback for @CircuitBreaker (called when NSE circuit is OPEN):\n    private OrderAck circuitOpenOrder(Order o, Exception e) {\n        System.out.println(\"[CB] NSE circuit open — queuing order\");\n        return OrderAck.of(o.id(), \"QUEUED_NSE_DOWN\");\n    }\n    \n    // No separate @Retry fallback: @CircuitBreaker's fallback handles retry exhaustion too\n    \n    // WHAT EACH LAYER HANDLES:\n    // @RateLimiter (outer): 'Am I calling too fast?' → queue/drop excess calls\n    // @CircuitBreaker (mid): 'Is NSE struggling?' → fast-fail to fallback\n    // @Retry (inner): 'Was this a transient blip?' → retry automatically\n    \n    interface NseClient { OrderAck submit(Order o); }\n    record Order(String id) { String id(){return id;} }\n    record OrderAck(String orderId, String status) {\n        static OrderAck of(String id, String s){return new OrderAck(id,s);}\n    }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["Stack order: RateLimiter (outer) > CircuitBreaker > Retry (inner)", "Each layer handles a different failure mode", "RateLimiter fallback receives RequestNotPermittedException specifically"],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m19_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Razorpay card retry with idempotency protection",
+      "scenario": "Retry card charges safely using idempotency keys to prevent double charges.",
+      "instructions": "Write IdempotentChargeService:\n1. @Retry(maxAttempts=3) on chargeWithRetry(idempotencyKey, request)\n2. Each retry uses the SAME idempotency key (prevents double charge)\n3. If Visa returns 'already_processed' for the idempotency key: return cached result\n4. ignoreExceptions: CardDeclinedException (permanent — don't retry)\n5. Test: mock returns 'already_processed' on 2nd attempt → idempotency handled",
+      "starter_code": "import io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n",
+      "expected_solution": "import io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.concurrent.ConcurrentHashMap;\n\n@Service\npublic class IdempotentChargeService {\n    private final VisaClient client;\n    // Cache results by idempotency key:\n    private final Map<String,ChargeResult> resultCache = new ConcurrentHashMap<>();\n    \n    IdempotentChargeService(VisaClient c) { client = c; }\n    \n    @Retry(name = \"idempotent-charge\", fallbackMethod = \"chargeFailed\")\n    public ChargeResult chargeWithRetry(String idempotencyKey, ChargeRequest req) {\n        // Check if already processed (idempotency hit):\n        ChargeResult cached = resultCache.get(idempotencyKey);\n        if (cached != null) {\n            System.out.println(\"[Idempotency] Returning cached result for \" + idempotencyKey);\n            return cached;\n        }\n        \n        // Always pass the same idempotency key to Visa:\n        ChargeResult result = client.charge(idempotencyKey, req);\n        resultCache.put(idempotencyKey, result);\n        return result;\n    }\n    \n    private ChargeResult chargeFailed(String iKey, ChargeRequest req, Exception e) {\n        return ChargeResult.failed(iKey, e.getMessage());\n    }\n    \n    // Idempotency + retry interaction:\n    // Attempt 1: IOException → retry\n    // Attempt 2: Visa returns result (possibly 'already_processed')\n    //            → cached in resultCache → safe return\n    // Even if attempt 1 was partially processed, idempotency key prevents double charge\n    \n    interface VisaClient { ChargeResult charge(String iKey, ChargeRequest r); }\n    record ChargeRequest(double amount) {}\n    record ChargeResult(String id, String status) {\n        static ChargeResult failed(String id, String reason) {\n            return new ChargeResult(id, \"FAILED:\" + reason);\n        }\n    }\n}",
+      "test_cases": [{ "type": "compilation", "expected": "Compiles" }],
+      "hints": ["Same idempotency key on all retries: Visa recognizes it as same request", "Cache result on success: idempotency cache prevents re-processing", "ignoreExceptions: CardDeclinedException — don't retry declined cards"],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m19_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "BookMyShow payment retry with backoff and test",
+      "scenario": "Full retry implementation for payment processing with tests.",
+      "instructions": "Build BookMyShow PaymentRetryService:\n1. @CircuitBreaker + @Retry on processPayment()\n2. 3 attempts, 100ms exponential backoff\n3. Retry: IOException, SocketTimeoutException\n4. Ignore: CardDeclinedException, InsufficientFundsException\n5. @SpringBootTest (3 tests): transient success, permanent fail skips retries, fallback correct",
+      "starter_code": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.Service;\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport org.springframework.stereotype.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.io.*;\nimport java.net.SocketTimeoutException;\n\nclass CardDeclinedException extends RuntimeException{CardDeclinedException(String m){super(m);}}\nclass InsufficientFundsException extends RuntimeException{InsufficientFundsException(String m){super(m);}}\nrecord PaymentRequest(String id,double amount){}\nrecord PaymentResult(String id,String status){}\n\n@Service\nclass BookMyShowPaymentService{\n    interface PaymentGw{PaymentResult process(PaymentRequest r) throws IOException;}\n    private final PaymentGw gw;\n    BookMyShowPaymentService(PaymentGw g){gw=g;}\n    \n    @CircuitBreaker(name=\"bms-payment\",fallbackMethod=\"paymentFallback\")\n    @Retry(name=\"bms-payment\")\n    public PaymentResult processPayment(PaymentRequest req) throws IOException{\n        return gw.process(req);\n    }\n    private PaymentResult paymentFallback(PaymentRequest req,Exception e){\n        return new PaymentResult(req.id(),\"PAYMENT_FAILED:\"+e.getMessage());\n    }\n}\n\n@SpringBootTest\nclass BookMyShowPaymentTest{\n    @Autowired BookMyShowPaymentService svc;\n    @MockBean BookMyShowPaymentService.PaymentGw gw;\n    @Autowired CircuitBreakerRegistry reg;\n    @BeforeEach void reset(){reg.circuitBreaker(\"bms-payment\").reset();}\n    \n    @Test void transient_retriesToSuccess() throws Exception{\n        when(gw.process(any()))\n            .thenThrow(new IOException(\"blip\")).thenThrow(new IOException(\"blip\"))\n            .thenReturn(new PaymentResult(\"P1\",\"APPROVED\"));\n        var r=svc.processPayment(new PaymentRequest(\"P1\",500));\n        assertEquals(\"APPROVED\",r.status());\n        verify(gw,times(3)).process(any());\n    }\n    @Test void cardDeclined_noRetry() throws Exception{\n        when(gw.process(any())).thenThrow(new CardDeclinedException(\"declined\"));\n        var r=svc.processPayment(new PaymentRequest(\"P2\",500));\n        assertTrue(r.status().contains(\"PAYMENT_FAILED\"));\n        verify(gw,times(1)).process(any());// NOT retried\n    }\n    @Test void allRetries_fallbackFires() throws Exception{\n        when(gw.process(any())).thenThrow(new IOException(\"down\"));\n        var r=svc.processPayment(new PaymentRequest(\"P3\",500));\n        assertTrue(r.status().contains(\"PAYMENT_FAILED\"));\n    }\n}",
+      "test_cases": [{ "type": "tests_pass", "expected": "3 tests pass" }],
+      "hints": ["ignoreExceptions configured in application.yml: CardDeclinedException not retried", "times(1) for CardDeclined: verify only 1 attempt made", "fallback status contains 'PAYMENT_FAILED': check with contains(), not equals()"],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m19_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha resilience: RateLimiter + Retry + CircuitBreaker synthesis",
+      "scenario": "Full M19 Topic 2 synthesis — all three resilience patterns stacked.",
+      "instructions": "Build complete ZerodhaResilienceDemo:\n1. Three stacked annotations on submitOrder: @RateLimiter (200/s) → @CircuitBreaker (40%) → @Retry (3 attempts)\n2. Separate application.yml configs for each resilience4j type\n3. Event listeners: RL rejection count, CB state transitions, Retry attempts count\n4. Three @SpringBootTest tests: rate limit triggers, retry succeeds on 3rd attempt, CB opens after failures\n\nAll 3 tests pass.",
+      "starter_code": "// Complete Zerodha resilience synthesis\n",
+      "expected_solution": "import io.github.resilience4j.circuitbreaker.*;\nimport io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;\nimport io.github.resilience4j.retry.annotation.Retry;\nimport io.github.resilience4j.ratelimiter.annotation.RateLimiter;\nimport io.github.resilience4j.ratelimiter.*;\nimport org.springframework.stereotype.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport jakarta.annotation.PostConstruct;\nimport static org.mockito.Mockito.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.concurrent.atomic.*;\n\n@Service\nclass ZResilient{\n    interface NseClient{String submit(String id);}\n    private final NseClient c;\n    ZResilient(NseClient c){this.c=c;}\n    @RateLimiter(name=\"z\",fallbackMethod=\"rlFb\")\n    @CircuitBreaker(name=\"z\",fallbackMethod=\"cbFb\")\n    @Retry(name=\"z\")\n    public String submit(String id){return c.submit(id);}\n    private String rlFb(String id, RequestNotPermittedException e){return \"RATE_LIMITED\";}\n    private String cbFb(String id, Exception e){return \"CB_OPEN\";}\n}\n\n@Service\nclass ZMonitor{\n    public final AtomicInteger rlRejected=new AtomicInteger(0);\n    public final AtomicInteger cbOpened=new AtomicInteger(0);\n    private final CircuitBreakerRegistry cbReg;\n    private final RateLimiterRegistry rlReg;\n    ZMonitor(CircuitBreakerRegistry cb,RateLimiterRegistry rl){cbReg=cb;rlReg=rl;}\n    @PostConstruct void listen(){\n        cbReg.getAllCircuitBreakers().forEach(cb->cb.getEventPublisher()\n            .onStateTransition(e->{\n                if(e.getStateTransition()==io.github.resilience4j.circuitbreaker.CircuitBreaker.StateTransition.CLOSED_TO_OPEN)\n                    cbOpened.incrementAndGet();\n            }));\n        rlReg.getAllRateLimiters().forEach(rl->rl.getEventPublisher()\n            .onFailure(e->rlRejected.incrementAndGet()));\n    }\n}\n\n@SpringBootTest\nclass ZResilienceTest{\n    @Autowired ZResilient svc;\n    @Autowired ZMonitor mon;\n    @MockBean ZResilient.NseClient client;\n    @Autowired CircuitBreakerRegistry cbReg;\n    @Autowired RateLimiterRegistry rlReg;\n    @BeforeEach void reset(){\n        cbReg.circuitBreaker(\"z\").reset();\n        mon.cbOpened.set(0); mon.rlRejected.set(0);\n    }\n    @Test void retrySucceedsOnThird(){\n        when(client.submit(any()))\n            .thenThrow(new RuntimeException(\"blip\"))\n            .thenThrow(new RuntimeException(\"blip\"))\n            .thenReturn(\"ACCEPTED\");\n        assertEquals(\"ACCEPTED\",svc.submit(\"ORD-1\"));\n        verify(client,times(3)).submit(any());\n    }\n    @Test void cbOpens_afterFailures(){\n        when(client.submit(any())).thenThrow(new RuntimeException(\"down\"));\n        for(int i=0;i<10;i++) svc.submit(\"ORD-\"+i);\n        assertTrue(cbReg.circuitBreaker(\"z\").getState()==\n            io.github.resilience4j.circuitbreaker.CircuitBreaker.State.OPEN||\n            mon.cbOpened.get()>0,\"CB should have opened\");\n    }\n    @Test void fallback_returnsExpectedStatus(){\n        when(client.submit(any())).thenThrow(new RuntimeException(\"down\"));\n        String result=svc.submit(\"ORD-X\");\n        assertTrue(result.equals(\"CB_OPEN\")||result.equals(\"RATE_LIMITED\"),\n            \"Should return fallback status\");\n    }\n}",
+      "test_cases": [{ "type": "tests_pass", "expected": "3 tests pass" }],
+      "hints": ["Stack order: @RateLimiter (outer) > @CircuitBreaker > @Retry (inner)", "@PostConstruct listeners: run after all Resilience4j beans initialized", "cbOpened counter: easier to assert than direct state (state may vary by test timing)"],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": { "warmup": 3, "easy": 3, "medium": 6, "hard": 3 },
+    "by_type": { "fill_blank": 1, "code_scratch": 13, "predict_output": 1 },
+    "total_xp_possible": 735,
+    "estimated_completion_minutes": 70
+  }
+}

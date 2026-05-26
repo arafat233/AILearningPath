@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t2",
+  "topic_name": "The N+1 Query Problem",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m17_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Count the queries — spot the N+1",
+      "scenario": "Identify how many SQL queries are fired for a given code block.",
+      "instructions": "```java\n@Entity class Product {\n    @Id String id;\n    @ManyToOne(fetch = FetchType.LAZY) Seller seller;\n    String name;\n}\n\n// Repository uses default findAll():\nList<Product> products = repo.findAll();\n// Result: 5 products in DB\n\nfor (Product p : products) {\n    System.out.println(p.getSeller().getBusinessName());\n}\n```\n\nHow many SQL queries fire total?\nWhat would change if seller was FetchType.EAGER?\nWhat is the formula for N+1 query count?",
+      "expected_solution": "Total queries with FetchType.LAZY:\n  1 query: SELECT id, seller_id, name FROM products\n  5 queries: SELECT * FROM sellers WHERE id=? (one per product)\n  = 6 total (N+1 where N=5)\n\nWith FetchType.EAGER:\n  Same or worse: Hibernate still fires SELECT * FROM sellers WHERE id=?\n  for each product row (unless using JOIN)\n  = Still N+1 (EAGER doesn't automatically use JOIN FETCH)\n\nN+1 formula: 1 + N queries\n  1 = main entity query\n  N = one query per entity for each lazy association accessed",
+      "test_cases": [
+        { "type": "text_match", "expected": "Total queries with FetchType.LAZY:\n  1 query: SELECT id, seller_id, name FROM products\n  5 queries: SELECT * FROM sellers WHERE id=? (one per product)\n  = 6 total (N+1 where N=5)\n\nWith FetchType.EAGER:\n  Same or worse: Hibernate still fires SELECT * FROM sellers WHERE id=?\n  for each product row (unless using JOIN)\n  = Still N+1 (EAGER doesn't automatically use JOIN FETCH)\n\nN+1 formula: 1 + N queries\n  1 = main entity query\n  N = one query per entity for each lazy association accessed" }
+      ],
+      "hints": [
+        "LAZY: association loaded on first access (in the loop)",
+        "Each .getSeller() call can trigger a query if seller is not cached",
+        "FetchType.EAGER doesn't prevent N+1 — it just makes it fire earlier"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the JOIN FETCH query",
+      "scenario": "JOIN FETCH resolves N+1 by loading association in the main query.",
+      "instructions": "Fill in the JPQL to load orders with their user in a single query.",
+      "starter_code": "@Query(\"_______ o FROM Order o _____ _______ o.user WHERE o.status = :status\")\nList<Order> findByStatusWithUser(@Param(\"status\") String status);",
+      "expected_solution": "@Query(\"SELECT o FROM Order o JOIN FETCH o.user WHERE o.status = :status\")\nList<Order> findByStatusWithUser(@Param(\"status\") String status);",
+      "blanks": [
+        { "position": 1, "answer": "SELECT",    "hint": "JPQL starts with SELECT" },
+        { "position": 2, "answer": "JOIN",       "hint": "The join type" },
+        { "position": 3, "answer": "FETCH",      "hint": "Keyword that loads the association into memory" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "JOIN FETCH: the two keywords that make Hibernate eagerly load the association",
+        "o.user: the association field name on the Order entity",
+        "Result: SELECT o.*, u.* FROM orders o INNER JOIN users u ON o.user_id=u.id WHERE o.status=?"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m17_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Enable SQL logging to detect N+1",
+      "scenario": "application.properties settings to see every SQL query in logs.",
+      "instructions": "Write the application.properties settings that:\n1. Show all SQL queries in logs\n2. Format SQL nicely (multi-line)\n3. Show parameter values bound to queries\n4. Enable Hibernate statistics",
+      "starter_code": "# application.properties — enable SQL logging\n",
+      "expected_solution": "# application.properties:\n# Show SQL statements:\nspring.jpa.show-sql=true\n\n# Format multi-line (easier to read):\nspring.jpa.properties.hibernate.format_sql=true\n\n# Show bound parameter values:\nlogging.level.org.hibernate.type.descriptor.sql=trace\n# Or for Hibernate 6+:\nlogging.level.org.hibernate.orm.jdbc.bind=trace\n\n# Enable statistics (for programmatic query counting):\nspring.jpa.properties.hibernate.generate_statistics=true\nlogging.level.org.hibernate.stat=debug",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["spring.jpa.show-sql=true", "format_sql=true"] }
+      ],
+      "hints": [
+        "spring.jpa.show-sql=true: bare minimum",
+        "format_sql=true: indents SQL for readability",
+        "generate_statistics=true: allows programmatic query counting"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m17_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write the N+1 causing code and identify it",
+      "scenario": "Recognizing N+1 is the first step to fixing it.",
+      "instructions": "Given these entities:\n- Trade (id, symbol, qty, price) with @ManyToOne User (name, email)\n- User has many trades\n\nWrite the N+1 causing code in TradeService.getAllTradeSummaries() that:\n1. Loads all trades\n2. Maps each to TradeSummaryDto(symbol, qty, price, userName)\n3. Mark every line that causes N+1 with a comment\n4. State how many queries fire for 10 trades",
+      "starter_code": "// TradeService.java — write N+1 causing code and identify it\nrecord TradeSummaryDto(String symbol, int qty, double price, String userName) {}\n// TradeService with getAllTradeSummaries()\n",
+      "expected_solution": "record TradeSummaryDto(String symbol, int qty, double price, String userName) {}\n\n@Service\npublic class TradeService {\n    private final TradeRepository tradeRepo;\n    TradeService(TradeRepository r) { tradeRepo = r; }\n    \n    public List<TradeSummaryDto> getAllTradeSummaries() {\n        // Query 1: SELECT id, symbol, qty, price, user_id FROM trades\n        List<Trade> trades = tradeRepo.findAll();  // ← 1 query\n        \n        return trades.stream().map(trade -> new TradeSummaryDto(\n            trade.getSymbol(),\n            trade.getQty(),\n            trade.getPrice(),\n            trade.getUser().getName()  // ← N+1 HERE! One query per trade:\n            // Query 2: SELECT * FROM users WHERE id='U001'\n            // Query 3: SELECT * FROM users WHERE id='U002'\n            // ...\n            // Query N+1: SELECT * FROM users WHERE id='U00N'\n        )).toList();\n    }\n}\n// For 10 trades: 1 + 10 = 11 queries total\n// For 10,000 trades: 1 + 10,000 = 10,001 queries!",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "The N+1 happens inside the .map() — each trade.getUser() fires a query",
+        "1 query for findAll() + N queries for .getUser() = N+1 total",
+        "Mark with comments: // ← N+1: fires SELECT * FROM users WHERE id=?"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m17_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Fix N+1 with JOIN FETCH",
+      "scenario": "Rewrite the repository to eliminate N+1 with JOIN FETCH.",
+      "instructions": "Fix the N+1 from Ex 4 by adding a JOIN FETCH query to TradeRepository:\n1. Add findAllWithUser() using @Query + JOIN FETCH\n2. Update TradeService to use the new method\n3. Show the SQL that Hibernate generates",
+      "starter_code": "// TradeRepository before fix:\n// public interface TradeRepository extends JpaRepository<Trade, String> {}\n\n// Fix: add JOIN FETCH query\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport java.util.List;\n// TradeRepository with JOIN FETCH\n",
+      "expected_solution": "import org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport java.util.List;\n\npublic interface TradeRepository extends JpaRepository<Trade, String> {\n    \n    // Fix: JOIN FETCH loads user in the same query\n    @Query(\"SELECT t FROM Trade t JOIN FETCH t.user\")\n    List<Trade> findAllWithUser();\n    // Generates:\n    // SELECT t.id, t.symbol, t.qty, t.price,\n    //        u.id, u.name, u.email\n    // FROM trades t\n    // INNER JOIN users u ON t.user_id = u.id\n    // → 1 query total, all user data already loaded\n}\n\n// Updated service:\n@Service\npublic class TradeServiceFixed {\n    private final TradeRepository repo;\n    TradeServiceFixed(TradeRepository r) { repo = r; }\n    \n    public List<TradeSummaryDto> getAllTradeSummaries() {\n        return repo.findAllWithUser()    // ← 1 query with JOIN\n            .stream()\n            .map(t -> new TradeSummaryDto(\n                t.getSymbol(),\n                t.getQty(),\n                t.getPrice(),\n                t.getUser().getName()    // ← no extra query! user already loaded\n            )).toList();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@Query(\"SELECT t FROM Trade t JOIN FETCH t.user\"): loads t and user together",
+        "JOIN FETCH produces INNER JOIN in SQL",
+        "After JOIN FETCH: t.getUser() hits L1 cache, no extra query"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Fix N+1 with @EntityGraph",
+      "scenario": "@EntityGraph is an alternative to JOIN FETCH — no JPQL required.",
+      "instructions": "Fix N+1 in ProductRepository using @EntityGraph instead of JOIN FETCH:\n1. Product has @ManyToOne Seller\n2. Add @EntityGraph on findAll() to eagerly load seller\n3. Add @EntityGraph on findByCategory() to eagerly load seller\n4. Explain: when would you choose @EntityGraph over JOIN FETCH?",
+      "starter_code": "import org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.EntityGraph;\nimport java.util.List;\n// ProductRepository with @EntityGraph\n",
+      "expected_solution": "import org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.EntityGraph;\nimport java.util.List;\n\npublic interface ProductRepository extends JpaRepository<Product, String> {\n    \n    // @EntityGraph overrides default findAll() with LEFT JOIN for seller:\n    @EntityGraph(attributePaths = {\"seller\"})\n    List<Product> findAll();\n    // Generates: SELECT p.*, s.*\n    //            FROM products p LEFT JOIN sellers s ON p.seller_id = s.id\n    \n    // Works with any derived query method:\n    @EntityGraph(attributePaths = {\"seller\"})\n    List<Product> findByCategory(String category);\n    // Generates: SELECT p.*, s.*\n    //            FROM products p LEFT JOIN sellers s ON p.seller_id = s.id\n    //            WHERE p.category = ?\n    \n    // Multiple associations:\n    @EntityGraph(attributePaths = {\"seller\", \"warehouse\"})\n    List<Product> findByPriceLessThan(double maxPrice);\n}\n\n// @EntityGraph vs JOIN FETCH:\n// @EntityGraph: use when the base method already exists (findAll, findByX)\n//               always LEFT JOIN (null associations are null, not an error)\n//               no JPQL needed\n// JOIN FETCH: use when writing custom JPQL anyway\n//             INNER JOIN (association must exist)\n//             more control in complex queries (WHERE, ORDER BY in same JPQL)",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@EntityGraph(attributePaths={\"seller\"}): loads seller with LEFT JOIN",
+        "Works on any method — derived queries, findAll, custom methods",
+        "LEFT JOIN: null seller allowed; INNER JOIN (JOIN FETCH): seller must exist"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Hibernate statistics query count assertion",
+      "scenario": "Test-driven verification that exactly 1 query fires (no N+1).",
+      "instructions": "Write a @DataJpaTest that:\n1. Seeds 3 orders with their users using TestEntityManager\n2. Calls testEm.clear() to evict L1 cache\n3. Loads orders via findAllWithUser() (JOIN FETCH version)\n4. Accesses user.getName() for each order\n5. Asserts query count == 1 using Hibernate statistics",
+      "starter_code": "import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.hibernate.SessionFactory;\nimport jakarta.persistence.EntityManager;\n// Hibernate statistics N+1 assertion test\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.hibernate.SessionFactory;\nimport jakarta.persistence.EntityManager;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.List;\n\n@DataJpaTest\nclass OrderRepositoryN1Test {\n    @Autowired OrderRepository repo;\n    @Autowired TestEntityManager testEm;\n    @Autowired EntityManager em;\n    \n    @BeforeEach void seed() {\n        User u1 = testEm.persistAndFlush(new User(\"Aisha Sharma\", \"aisha@test.com\"));\n        User u2 = testEm.persistAndFlush(new User(\"Raj Patel\",   \"raj@test.com\"));\n        testEm.persistAndFlush(new Order(u1, \"PLACED\",   1500.0));\n        testEm.persistAndFlush(new Order(u1, \"DELIVERED\", 800.0));\n        testEm.persistAndFlush(new Order(u2, \"PLACED\",    400.0));\n        testEm.clear();  // ← CRITICAL: evict L1 cache after seeding\n    }\n    \n    @Test\n    void findAllWithUser_exactlyOneQuery() {\n        SessionFactory sf = em.getEntityManagerFactory()\n            .unwrap(SessionFactory.class);\n        sf.getStatistics().setStatisticsEnabled(true);\n        sf.getStatistics().clear();\n        \n        // Execute and access associations:\n        List<Order> orders = repo.findAllWithUser();\n        orders.forEach(o -> {\n            assertNotNull(o.getUser().getName());  // should NOT fire extra queries\n        });\n        \n        long count = sf.getStatistics().getPreparedStatementCount();\n        assertEquals(1, count,\n            \"N+1 detected: expected 1 query, got \" + count);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "testEm.clear(): MUST be called after seeding — evicts L1 cache",
+        "sf.getStatistics().clear(): reset count before the test query",
+        "getPreparedStatementCount(): counts actual SQL statements sent to DB"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m17_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@OneToMany N+1 — restaurant with orders",
+      "scenario": "@OneToMany relationships also suffer N+1 when traversed.",
+      "instructions": "Restaurant has @OneToMany List<Order> orders (lazy).\nWrite:\n1. The N+1 causing code: load all restaurants and print order count\n2. Fix using JOIN FETCH with DISTINCT\n3. Alternative: @BatchSize(size=20) on the collection\n4. Explain which fix to prefer and when",
+      "starter_code": "// @Entity Restaurant with @OneToMany List<Order> orders\n// Show N+1 cause, JOIN FETCH DISTINCT fix, and @BatchSize alternative\n",
+      "expected_solution": "// N+1 CAUSE:\n// List<Restaurant> restaurants = restaurantRepo.findAll(); // Query 1\n// for (Restaurant r : restaurants) {\n//     System.out.println(r.getOrders().size()); // N queries: SELECT * FROM orders WHERE restaurant_id=?\n// }\n// = N+1 for N restaurants\n\n// FIX 1: JOIN FETCH with DISTINCT\n// @Query(\"SELECT DISTINCT r FROM Restaurant r JOIN FETCH r.orders\")\n// Without DISTINCT: 10 restaurants × 100 orders = 1000 rows returned!\n// → 1000 Restaurant objects (duplicates). DISTINCT deduplicates at Hibernate level.\n// Use when: collection is small, no pagination needed\n\n// FIX 2: @BatchSize on the collection:\nimport jakarta.persistence.*;\n@Entity\npublic class Restaurant {\n    @Id String id;\n    String name;\n    \n    @OneToMany(mappedBy = \"restaurant\", fetch = FetchType.LAZY)\n    @org.hibernate.annotations.BatchSize(size = 20)\n    private java.util.List<Order> orders;\n    // Without @BatchSize: N queries (one per restaurant)\n    // With @BatchSize(20): SELECT * FROM orders WHERE restaurant_id IN (id1, ..., id20)\n    // N/20 queries instead of N queries\n}\n// Use @BatchSize when: collection can be large, pagination is needed,\n//                     or JOIN FETCH would create too much data\n\n// WHEN TO USE EACH:\n// JOIN FETCH DISTINCT: small collections, no pagination, must access all orders\n// @BatchSize:          large collections, or when paginating restaurants\n//                     cannot combine JOIN FETCH (OneToMany) + Pageable\n\npublic class NplusOneExample {\n    public static void main(String[] args) {\n        System.out.println(\"N+1 fix: JOIN FETCH DISTINCT for small collections\");\n        System.out.println(\"BatchSize: for large collections or with pagination\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["JOIN FETCH DISTINCT", "BatchSize"] }
+      ],
+      "hints": [
+        "JOIN FETCH on @OneToMany: DISTINCT needed to prevent duplicate parent entities",
+        "@BatchSize: Hibernate batches N loads into IN (...) queries",
+        "JOIN FETCH + Pageable (OneToMany): HHH90003004 warning → in-memory pagination"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multiple associations — choosing what to JOIN FETCH",
+      "scenario": "Not all associations need JOIN FETCH — only those actually used.",
+      "instructions": "Order has @ManyToOne User, @ManyToOne Restaurant, @OneToMany List<OrderItem>.\n\nWrite 3 specific repository methods:\n1. findAllForDashboard(): needs user name and restaurant name (not items)\n2. findByIdWithItems(id): needs all order items (for order detail page)\n3. findByUserIdSummary(userId): needs only user and status (for history page)\n\nEach should JOIN FETCH only what it needs — minimize data transfer.",
+      "starter_code": "import org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport java.util.*;\n// OrderRepository with 3 targeted JOIN FETCH methods\n",
+      "expected_solution": "import org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport org.springframework.data.repository.query.Param;\nimport java.util.*;\n\npublic interface OrderRepository extends JpaRepository<Order, String> {\n    \n    // 1. Dashboard: needs user + restaurant, NOT items\n    // Avoids loading potentially hundreds of order items per order\n    @Query(\"SELECT o FROM Order o \" +\n           \"JOIN FETCH o.user \" +\n           \"JOIN FETCH o.restaurant\")\n    List<Order> findAllForDashboard();\n    \n    // 2. Order detail: needs items (but not restaurant repeated info)\n    // DISTINCT prevents duplicate Order per item\n    @Query(\"SELECT DISTINCT o FROM Order o \" +\n           \"JOIN FETCH o.items \" +\n           \"JOIN FETCH o.user \" +\n           \"WHERE o.id = :id\")\n    Optional<Order> findByIdWithItems(@Param(\"id\") String id);\n    \n    // 3. History: only needs user (for identification), status, totals\n    // Don't JOIN FETCH restaurant or items — not displayed in history list\n    @Query(\"SELECT o FROM Order o \" +\n           \"JOIN FETCH o.user \" +\n           \"WHERE o.user.id = :userId \" +\n           \"ORDER BY o.createdAt DESC\")\n    List<Order> findByUserIdSummary(@Param(\"userId\") String userId);\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Only JOIN FETCH what the caller actually accesses in the response",
+        "JOIN FETCH unused associations wastes memory and bandwidth",
+        "DISTINCT for @OneToMany JOIN FETCH: avoids duplicate parent objects"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m17_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "L1 cache and query count — tricky scenario",
+      "scenario": "The first-level cache can hide N+1 in tests.",
+      "instructions": "```java\n@DataJpaTest\nclass CacheTest {\n    @Autowired TradeRepository repo;\n    @Autowired TestEntityManager testEm;\n    @Autowired EntityManager em;\n    \n    @Test void queryCountTest() {\n        // Seed:\n        User u = testEm.persistAndFlush(new User(\"Aisha\"));\n        Trade t1 = testEm.persistAndFlush(new Trade(\"TCS\", 10, u));\n        Trade t2 = testEm.persistAndFlush(new Trade(\"INFY\", 5, u));\n        // NOTE: testEm.clear() NOT called\n        \n        SessionFactory sf = em.getEntityManagerFactory().unwrap(SessionFactory.class);\n        sf.getStatistics().setStatisticsEnabled(true);\n        sf.getStatistics().clear();\n        \n        List<Trade> trades = repo.findAll();  // no JOIN FETCH\n        trades.forEach(t -> t.getUser().getName());\n        \n        long count = sf.getStatistics().getPreparedStatementCount();\n        System.out.println(\"Query count: \" + count);\n    }\n}\n```\n\nPredicate: what does `count` print? Why might it NOT be 3 (expected N+1)?",
+      "expected_solution": "count may print 1 (or fewer than expected N+1)\n\nReason: L1 cache (Session cache) masking the N+1.\n\nWhen testEm.persistAndFlush(new Trade(\"TCS\", u)) is called,\nHibernate stores User 'Aisha' in the current Session's L1 cache.\n\nWhen repo.findAll() loads the trades (1 query),\nand then t.getUser().getName() is called:\n→ Hibernate checks L1 cache FIRST\n→ Finds User 'Aisha' already cached\n→ Returns from cache — NO additional SQL query!\n\nSo query count = 1 (just findAll), even though no JOIN FETCH.\nThis HIDES the N+1 bug.\n\nFix: call testEm.clear() BEFORE the action being tested.\nclear() evicts the L1 cache → getUser() must hit DB → N+1 becomes visible.",
+      "test_cases": [
+        { "type": "text_match", "expected": "count may print 1 (or fewer than expected N+1)\n\nReason: L1 cache (Session cache) masking the N+1.\n\nWhen testEm.persistAndFlush(new Trade(\"TCS\", u)) is called,\nHibernate stores User 'Aisha' in the current Session's L1 cache.\n\nWhen repo.findAll() loads the trades (1 query),\nand then t.getUser().getName() is called:\n→ Hibernate checks L1 cache FIRST\n→ Finds User 'Aisha' already cached\n→ Returns from cache — NO additional SQL query!\n\nSo query count = 1 (just findAll), even though no JOIN FETCH.\nThis HIDES the N+1 bug.\n\nFix: call testEm.clear() BEFORE the action being tested.\nclear() evicts the L1 cache → getUser() must hit DB → N+1 becomes visible." }
+      ],
+      "hints": [
+        "L1 cache stores entities per Hibernate Session — persisted entities are cached",
+        "clear() evicts all entities — forces DB hit on next access",
+        "Without clear(), your 'fix' test may pass for the wrong reason"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m17_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Named @EntityGraph on @Entity class",
+      "scenario": "@NamedEntityGraph defines reusable fetch plans at the entity level.",
+      "instructions": "Define a @NamedEntityGraph on the Order @Entity, then use it in the repository:\n1. @NamedEntityGraph named 'Order.withUserAndRestaurant' loading user + restaurant\n2. Second graph 'Order.withItems' loading items (OneToMany)\n3. Repository uses named graphs on findByStatus() and findById()\n4. Explain benefit of named graphs vs @EntityGraph inline",
+      "starter_code": "// @Entity Order with @NamedEntityGraph(s)\n// OrderRepository using named graphs\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport java.util.List;\n\n// Order.java with named entity graphs:\n@NamedEntityGraphs({\n    @NamedEntityGraph(\n        name = \"Order.withUserAndRestaurant\",\n        attributeNodes = {\n            @NamedAttributeNode(\"user\"),\n            @NamedAttributeNode(\"restaurant\")\n        }\n    ),\n    @NamedEntityGraph(\n        name = \"Order.withItems\",\n        attributeNodes = {\n            @NamedAttributeNode(\"items\")\n        }\n    )\n})\n@Entity @Table(name = \"orders\")\npublic class Order {\n    @Id String id;\n    String status;\n    double total;\n    @ManyToOne(fetch = FetchType.LAZY) User user;\n    @ManyToOne(fetch = FetchType.LAZY) Restaurant restaurant;\n    @OneToMany(mappedBy = \"order\", fetch = FetchType.LAZY) List<OrderItem> items;\n    // constructors, getters...\n}\n\n// OrderRepository.java:\nimport org.springframework.data.jpa.repository.EntityGraph;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport java.util.*;\npublic interface OrderRepository extends JpaRepository<Order, String> {\n    \n    @EntityGraph(\"Order.withUserAndRestaurant\")   // ← named graph by name\n    List<Order> findByStatus(String status);\n    \n    @EntityGraph(\"Order.withItems\")               // ← different graph for detail view\n    Optional<Order> findById(String id);\n}\n\n// BENEFIT of named graphs:\n// - Defined once on @Entity, reused across multiple repositories and methods\n// - Centralized definition: schema of what's fetched is visible on the entity\n// - No JPQL required in repository\n// - Multiple named graphs for different use cases per entity",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@NamedEntityGraphs: multiple graphs on one entity",
+        "@NamedAttributeNode: lists the association paths to eagerly load",
+        "Repository uses the named graph by string name in @EntityGraph(\"name\")"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "DTO projection — avoid loading entities entirely",
+      "scenario": "For read-only responses, load only what you need into a DTO.",
+      "instructions": "Write a DTO projection for the order listing page:\n1. Interface-based projection: OrderListView with getSymbol(), getQty(), getUserName()\n2. @Query returning the projection with nested field access (user.name)\n3. Class-based DTO: OrderSummaryDto record with constructor\n4. Compare: projection vs JOIN FETCH — when to use each",
+      "starter_code": "// Interface-based projection:\n// OrderListView\n\n// Class-based DTO record:\n// OrderSummaryDto\n\n// TradeRepository with projection queries\n",
+      "expected_solution": "import org.springframework.beans.factory.annotation.Value;\nimport org.springframework.data.jpa.repository.JpaRepository;\nimport org.springframework.data.jpa.repository.Query;\nimport java.util.List;\n\n// 1. Interface-based projection (Spring creates proxy):\npublic interface TradeListView {\n    String getSymbol();\n    int    getQty();\n    double getPrice();\n    \n    // Access nested association field using SpEL:\n    @Value(\"#{target.user.name}\")\n    String getUserName();\n}\n\n// 2. Class-based DTO record:\npublic record TradeSummaryDto(\n    String symbol,\n    int qty,\n    double price,\n    String userName\n) {}\n\n// 3. Repository with projections:\npublic interface TradeRepository extends JpaRepository<Trade, String> {\n    \n    // Interface projection:\n    List<TradeListView> findByStatus(String status);\n    // → Spring generates query for only projected fields\n    \n    // Class-based DTO projection (most flexible):\n    @Query(\"SELECT new com.codequest.TradeSummaryDto(\" +\n           \"t.symbol, t.qty, t.price, t.user.name) \" +\n           \"FROM Trade t WHERE t.status = :status\")\n    List<TradeSummaryDto> findSummaryByStatus(@Param(\"status\") String status);\n    // → 1 query, only loads needed columns (not all entity columns)\n    // → No @Entity loaded — pure data transfer\n}\n\n// PROJECTION vs JOIN FETCH:\n// JOIN FETCH: loads full @Entity objects (useful if you need to update them)\n//             all columns loaded even if unused\n// DTO Projection: read-only, select only needed columns\n//                 more efficient for read-heavy list APIs\n//                 can't update/save the result\n// Rule: read-only API response → DTO projection\n//       may need to modify the entity → JOIN FETCH",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Interface projection: Spring generates SQL for only the fields in the interface",
+        "@Value(\"#{target.user.name}\"): SpEL for nested field in interface projection",
+        "Class DTO JPQL: new fully.qualified.ClassName(field1, field2, ...)"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m17_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete N+1 fix + test for Swiggy order service",
+      "scenario": "End-to-end: identify N+1, fix, test with query count assertion.",
+      "instructions": "Build a Swiggy order service:\n1. Order @Entity: user @ManyToOne, restaurant @ManyToOne, status, total\n2. OrderRepository: N+1 causing findAll() AND fixed findAllWithDetails()\n3. OrderService: getAllOrderDtos() uses fixed method\n4. @DataJpaTest (3 tests): seed 5 orders, verify query count=1, verify 5 results, verify user name correct\n\nAll 3 tests pass.",
+      "starter_code": "// Swiggy order service with N+1 fix\n// Order @Entity, OrderRepository, OrderService, OrderServiceTest (@DataJpaTest)\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.repository.query.Param;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport java.util.*;\n\n@Entity class SwiggyUser {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String name; String phone;\n    protected SwiggyUser(){}\n    SwiggyUser(String n, String p){name=n;phone=p;}\n    String getId(){return id;} String getName(){return name;}\n}\n@Entity class SwiggyRestaurant {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String name;\n    protected SwiggyRestaurant(){}\n    SwiggyRestaurant(String n){name=n;}\n    String getId(){return id;} String getName(){return name;}\n}\n@Entity class SwiggyOrder {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name=\"user_id\") SwiggyUser user;\n    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name=\"restaurant_id\") SwiggyRestaurant restaurant;\n    String status; double total;\n    protected SwiggyOrder(){}\n    SwiggyOrder(SwiggyUser u, SwiggyRestaurant r, String s, double t){user=u;restaurant=r;status=s;total=t;}\n    String getId(){return id;} SwiggyUser getUser(){return user;}\n    SwiggyRestaurant getRestaurant(){return restaurant;} double getTotal(){return total;}\n}\nrecord SwiggyOrderDto(String orderId, String userName, String restaurantName, double total){}\n\ninterface SwiggyOrderRepository extends JpaRepository<SwiggyOrder,String>{\n    @Query(\"SELECT o FROM SwiggyOrder o JOIN FETCH o.user JOIN FETCH o.restaurant\")\n    List<SwiggyOrder> findAllWithDetails();\n}\n\n@Service @Transactional\nclass SwiggyOrderService {\n    private final SwiggyOrderRepository repo;\n    SwiggyOrderService(SwiggyOrderRepository r){repo=r;}\n    public List<SwiggyOrderDto> getAllOrderDtos(){\n        return repo.findAllWithDetails().stream()\n            .map(o->new SwiggyOrderDto(\n                o.getId(), o.getUser().getName(),\n                o.getRestaurant().getName(), o.getTotal()))\n            .toList();\n    }\n}\n\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.context.annotation.Import;\nimport org.hibernate.SessionFactory;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@DataJpaTest @Import(SwiggyOrderService.class)\nclass SwiggyOrderServiceTest {\n    @Autowired SwiggyOrderService service;\n    @Autowired TestEntityManager testEm;\n    @Autowired jakarta.persistence.EntityManager em;\n    \n    @BeforeEach void seed(){\n        SwiggyUser u=testEm.persistAndFlush(new SwiggyUser(\"Aisha\",\"9999\"));\n        SwiggyRestaurant r=testEm.persistAndFlush(new SwiggyRestaurant(\"Biryani House\"));\n        for(int i=0;i<5;i++) testEm.persistAndFlush(new SwiggyOrder(u,r,\"DELIVERED\",500+i));\n        testEm.clear();\n    }\n    @Test void returns5Orders(){\n        assertEquals(5,service.getAllOrderDtos().size());\n    }\n    @Test void correctUserName(){\n        assertEquals(\"Aisha\",service.getAllOrderDtos().get(0).userName());\n    }\n    @Test void exactlyOneQuery(){\n        SessionFactory sf=em.getEntityManagerFactory().unwrap(SessionFactory.class);\n        sf.getStatistics().setStatisticsEnabled(true); sf.getStatistics().clear();\n        service.getAllOrderDtos();\n        assertEquals(1,sf.getStatistics().getPreparedStatementCount(),\"N+1 detected!\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "testEm.clear() after seeding: mandatory for honest query count testing",
+        "@Import(SwiggyOrderService.class): makes service available in @DataJpaTest",
+        "JOIN FETCH both user AND restaurant: else 2N+1 queries"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m17_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "JOIN FETCH vs pagination — the in-memory trap",
+      "scenario": "JOIN FETCH + Pageable on @OneToMany causes Hibernate to paginate in memory.",
+      "instructions": "Write code that demonstrates the problem and the fix:\n1. Show: Restaurant findAll(Pageable) with @OneToMany orders JOIN FETCH → HHH90003004 warning\n2. Show: correct fix using @BatchSize(size=20) on the orders collection\n3. Show: alternative fix using 2-step approach (IDs first, then IN query)\n4. Write a comparison method comment explaining which to use when",
+      "starter_code": "// Restaurant @Entity with @OneToMany orders\n// Show the JOIN FETCH + Pageable problem and 3 fix approaches\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.hibernate.annotations.BatchSize;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.data.domain.*;\nimport java.util.*;\n\n// APPROACH 1 (BAD — triggers HHH90003004):\n// @Query(\"SELECT DISTINCT r FROM Restaurant r JOIN FETCH r.orders\")\n// Page<Restaurant> findAllWithOrders(Pageable pageable);\n// → HHH90003004: firstResult/maxResults specified with collection fetch;\n//   applying in memory! ALL restaurants loaded before paginating!\n\n@Entity\npublic class Restaurant {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String name;\n    \n    // APPROACH 2 FIX: @BatchSize instead of JOIN FETCH\n    @OneToMany(mappedBy=\"restaurant\", fetch=FetchType.LAZY)\n    @BatchSize(size=20)\n    private List<Order> orders;\n    // → repo.findAll(pageable) fires N/20 batched queries\n    //   (SELECT * FROM orders WHERE restaurant_id IN (id1,...,id20))\n    //   instead of N individual queries\n    //   → safe with pagination!\n    \n    protected Restaurant(){}\n    Restaurant(String n){name=n;}\n    String getId(){return id;} String getName(){return name;}\n    List<Order> getOrders(){return orders;}\n}\n\npublic interface RestaurantRepository extends JpaRepository<Restaurant,String> {\n    \n    // APPROACH 2: @BatchSize, safe with Pageable:\n    Page<Restaurant> findAll(Pageable pageable);\n    // orders loaded via IN batches when accessed\n    \n    // APPROACH 3 FIX: 2-step — IDs first, then JOIN FETCH:\n    @Query(\"SELECT r.id FROM Restaurant r\")\n    Page<String> findAllIds(Pageable pageable);  // Step 1: paginate on IDs\n    \n    @Query(\"SELECT DISTINCT r FROM Restaurant r JOIN FETCH r.orders WHERE r.id IN :ids\")\n    List<Restaurant> findAllWithOrders(@Param(\"ids\") List<String> ids); // Step 2: fetch full\n    // → 2 queries, correct pagination, no in-memory problem\n    \n    // WHEN TO USE WHICH:\n    // @BatchSize: simpler code, slightly more queries, works with any Pageable\n    // 2-step: more complex, exactly 2 queries, better for very large collections\n    // JOIN FETCH DISTINCT (no Pageable): when you DON'T paginate the parent\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@BatchSize: replaces N SELECT WHERE id=? with SELECT WHERE id IN (...)",
+        "2-step approach: paginate on IDs (scalable), then fetch full with IN query",
+        "JOIN FETCH + @OneToMany + Pageable = always wrong (HHH90003004)"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m17_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha portfolio service — N+1 synthesis",
+      "scenario": "Full service with multiple association types, each fixed correctly.",
+      "instructions": "Build Zerodha portfolio service with N+1 fixes:\n1. Trade @Entity: user @ManyToOne, @ManyToOne Instrument (symbol, fullName, sector)\n2. User @Entity: @OneToMany List<Trade> trades (lazy, @BatchSize=30)\n3. TradeRepository: 3 methods — all with @EntityGraph/JOIN FETCH as appropriate\n4. PortfolioService: getTradeSummaries(userId) + getInstrumentStats(symbol)\n5. @DataJpaTest (3 tests): query count=1 for getTradeSummaries, correct results\n\nAll 3 tests pass.",
+      "starter_code": "// Complete Zerodha portfolio service\n// Trade, User, Instrument @Entity\n// TradeRepository + PortfolioService + @DataJpaTest\n",
+      "expected_solution": "import jakarta.persistence.*;\nimport org.hibernate.annotations.BatchSize;\nimport org.springframework.data.jpa.repository.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport org.springframework.context.annotation.Import;\nimport org.springframework.boot.test.autoconfigure.orm.jpa.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.hibernate.SessionFactory;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\nimport java.util.*;\n\n@Entity class ZUser {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String name; String email;\n    @OneToMany(mappedBy=\"user\", fetch=FetchType.LAZY)\n    @BatchSize(size=30) List<ZTrade> trades = new ArrayList<>();\n    protected ZUser(){} ZUser(String n,String e){name=n;email=e;}\n    String getId(){return id;} String getName(){return name;}\n}\n@Entity class ZInstrument {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    String symbol; String fullName; String sector;\n    protected ZInstrument(){} ZInstrument(String s,String fn,String sec){symbol=s;fullName=fn;sector=sec;}\n    String getId(){return id;} String getSymbol(){return symbol;} String getSector(){return sector;}\n}\n@Entity class ZTrade {\n    @Id @GeneratedValue(strategy=GenerationType.UUID) String id;\n    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name=\"user_id\") ZUser user;\n    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name=\"instrument_id\") ZInstrument instrument;\n    String tradeType; int qty; double price;\n    protected ZTrade(){}\n    ZTrade(ZUser u,ZInstrument i,String t,int q,double p){user=u;instrument=i;tradeType=t;qty=q;price=p;}\n    ZUser getUser(){return user;} ZInstrument getInstrument(){return instrument;}\n    int getQty(){return qty;} double getPrice(){return price;} String getTradeType(){return tradeType;}\n}\nrecord TradeSummaryDto(String symbol, String sector, int qty, double price, String type){}\n\ninterface ZTradeRepository extends JpaRepository<ZTrade,String>{\n    @Query(\"SELECT t FROM ZTrade t JOIN FETCH t.user JOIN FETCH t.instrument WHERE t.user.id=:uid\")\n    List<ZTrade> findByUserIdWithDetails(@Param(\"uid\") String userId);\n    \n    @EntityGraph(attributePaths={\"instrument\"})\n    List<ZTrade> findByInstrumentSymbol(String symbol);\n}\n\n@Service @Transactional\nclass ZPortfolioService {\n    private final ZTradeRepository repo;\n    ZPortfolioService(ZTradeRepository r){repo=r;}\n    public List<TradeSummaryDto> getTradeSummaries(String userId){\n        return repo.findByUserIdWithDetails(userId).stream()\n            .map(t->new TradeSummaryDto(\n                t.getInstrument().getSymbol(), t.getInstrument().getSector(),\n                t.getQty(), t.getPrice(), t.getTradeType()))\n            .toList();\n    }\n    public long getInstrumentTradeCount(String symbol){\n        return repo.findByInstrumentSymbol(symbol).size();\n    }\n}\n\n@DataJpaTest @Import(ZPortfolioService.class)\nclass ZPortfolioServiceTest {\n    @Autowired ZPortfolioService service;\n    @Autowired TestEntityManager testEm;\n    @Autowired jakarta.persistence.EntityManager em;\n    ZUser u; ZInstrument inst;\n    @BeforeEach void seed(){\n        u=testEm.persistAndFlush(new ZUser(\"Priya\",\"priya@z.com\"));\n        inst=testEm.persistAndFlush(new ZInstrument(\"TCS\",\"Tata Consultancy\",\"IT\"));\n        testEm.persistAndFlush(new ZTrade(u,inst,\"BUY\",10,3890));\n        testEm.persistAndFlush(new ZTrade(u,inst,\"SELL\",5,3950));\n        testEm.clear();\n    }\n    @Test void returns2Trades(){ assertEquals(2,service.getTradeSummaries(u.getId()).size()); }\n    @Test void correctSector(){\n        assertEquals(\"IT\",service.getTradeSummaries(u.getId()).get(0).sector());\n    }\n    @Test void exactlyOneQuery(){\n        SessionFactory sf=em.getEntityManagerFactory().unwrap(SessionFactory.class);\n        sf.getStatistics().setStatisticsEnabled(true); sf.getStatistics().clear();\n        service.getTradeSummaries(u.getId());\n        assertEquals(1,sf.getStatistics().getPreparedStatementCount(),\"N+1 detected!\");\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "@BatchSize on @OneToMany: batches lazy loads into IN queries",
+        "JOIN FETCH both user AND instrument: 1 query loads all 3 tables",
+        "testEm.clear() mandatory before query count assertion"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 70
+  }
+}

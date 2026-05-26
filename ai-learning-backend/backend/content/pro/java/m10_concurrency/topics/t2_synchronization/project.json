@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m10_t2_proj",
+  "linked_topic": "java_m10_t2",
+  "level": "mini",
+  "name": "Layered Banking System — Thread-Safe Transactions",
+  "estimated_minutes": 55,
+  "difficulty": 7,
+
+  "scenario": "Build the backend of a simple banking system where multiple clients (threads) concurrently deposit, withdraw, and transfer money. Without synchronization: lost transactions, negative balances, inconsistent state. With synchronized: every transaction is safe.",
+
+  "description": "A concurrent banking system with thread-safe accounts and transactions. Demonstrates race conditions on an unsafe version, then a fully synchronized version with transfer() as an atomic two-account operation.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`BankAccount` class: accountId, ownerName, balance. Synchronized: deposit(double), withdraw(double) → boolean (false if insufficient), getBalance(). Non-mutable fields final.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "`BankSystem` class: holds Map<String, BankAccount>. Synchronized: createAccount(String, double), getAccount(String) → Optional<BankAccount>, transfer(String fromId, String toId, double amount) → boolean.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "transfer() is atomic: deduct from source AND add to destination atomically — no partial transfers. If source has insufficient funds, return false without modifying either account.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "Concurrent test: 5 threads each do 10 deposits of ₹100, 3 threads each do 10 withdrawals of ₹100, 2 threads each do 5 transfers of ₹50 between accounts. Verify final balance consistency.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "`TransactionLog` class: synchronized addLog(String message), getLogs() → List<String>. Log every deposit, withdrawal, and transfer.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "volatile boolean systemOpen flag. Transactions should check this flag and refuse if system is closed.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "All tests pass: no negative balances, total money in system is conserved (sum before = sum after), transaction count correct.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Demonstrate the UNSAFE version first (without synchronized), show incorrect balance, then show fixed version with consistent balance.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add deadlock-safe transfer(): always lock the lower accountId first to establish consistent lock ordering.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `getStatement(String accountId)` returning a thread-safe snapshot of the account's transaction history.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Accounts:\n- ACC-001: Aisha, ₹5000 initial\n- ACC-002: Raj, ₹3000 initial\n- ACC-003: Priya, ₹4000 initial\n\nConcurrent operations:\n- 5 threads × 10 deposits of ₹100 to ACC-001\n- 3 threads × 10 withdrawals of ₹100 from ACC-001\n- 2 threads × 5 transfers of ₹50 from ACC-001 to ACC-002\n\nExpected final balance for ACC-001:\n₹5000 + (5×10×100) - (3×10×100) - (2×5×50) = ₹5000 + 5000 - 3000 - 500 = ₹6500",
+
+  "starter_code": "import java.util.*;\n\npublic class BankingSystem {\n    public static void main(String[] args) throws InterruptedException {\n        // Create accounts, run concurrent ops, verify consistency\n    }\n    \n    // Define: BankAccount, BankSystem, TransactionLog\n}",
+
+  "example_output": "=== Banking System Test ===\nCreated 3 accounts | Total: ₹12000.00\n\nRunning concurrent transactions...\n  5 depositor threads × 10 × ₹100\n  3 withdrawer threads × 10 × ₹100\n  2 transfer threads × 5 × ₹50\n\n=== Results ===\nACC-001 (Aisha): ₹6500.00\nACC-002 (Raj):   ₹3500.00\nACC-003 (Priya): ₹4000.00\nTotal: ₹14000.00\n\nMoney conserved: true\nNo negative balances: true\nTransactions logged: [N]",
+
+  "rubric": [
+    { "category": "BankAccount", "points": 20, "criteria": ["Synchronized deposit/withdraw/balance (15 pts)", "withdraw returns boolean (5 pts)"] },
+    { "category": "BankSystem + transfer()", "points": 25, "criteria": ["Atomic transfer (15 pts)", "Insufficient funds handling (10 pts)"] },
+    { "category": "Concurrent Test", "points": 20, "criteria": ["Correct final balances (15 pts)", "No negative balances (5 pts)"] },
+    { "category": "TransactionLog", "points": 10, "criteria": ["Synchronized log (10 pts)"] },
+    { "category": "volatile flag", "points": 10, "criteria": ["systemOpen flag used correctly (10 pts)"] },
+    { "category": "Money Conservation", "points": 10, "criteria": ["Total sum before = after (10 pts)"] },
+    { "category": "Code Quality", "points": 5, "criteria": ["Handles InterruptedException properly (5 pts)"] },
+    { "category": "Bonus", "points": 60, "criteria": ["Unsafe vs safe demo (15 pts)", "Deadlock-safe transfer (25 pts)", "Statement snapshot (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key design: transfer() needs to lock BOTH accounts — but naive synchronized(account1) then synchronized(account2) risks deadlock if Thread A transfers A→B while Thread B transfers B→A. Bonus requires consistent lock ordering (by accountId string comparison) to prevent deadlock.",
+
+  "submission_instructions": "Save as BankingSystem.java. Push to GitHub. Comment: 'Thread-safe banking with synchronized transactions and volatile state flag'.",
+
+  "tips_for_success": [
+    "BankAccount.deposit/withdraw: simple synchronized methods on this",
+    "BankSystem.transfer(): withdraw from source first (returns false if insufficient) then deposit to dest — both synchronized on their respective accounts",
+    "Money conservation test: sum all account balances before and after concurrent ops",
+    "volatile boolean systemOpen = true — check at start of each operation",
+    "TransactionLog: synchronized void addLog(String) — thread-safe list append"
+  ],
+
+  "concepts_reinforced": [
+    "synchronized method for thread-safe operations",
+    "atomic compound operation (transfer = deduct + credit)",
+    "volatile for visibility of shutdown flag",
+    "synchronized log for thread-safe audit trail",
+    "Money conservation as correctness invariant"
+  ]
+}

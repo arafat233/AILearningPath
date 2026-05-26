@@ -1,0 +1,180 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m4_t6_proj",
+  "linked_topic": "java_m4_t6",
+  "level": "mini",
+  "name": "Restaurant Order System",
+  "estimated_minutes": 60,
+  "difficulty": 7,
+  
+  "scenario": "Build the backend order management system for a restaurant chain (think Zomato's restaurant portal, Swiggy's kitchen management). Restaurants take orders for menu items. Each order has a table number, items ordered, and status. The system needs to track active orders, mark them complete, and generate reports. This uses EVERY Module 4 concept — classes, constructors with validation, encapsulation, Object methods, static members, and composition — in one realistic, cohesive system.",
+  
+  "description": "Build a complete restaurant management system using composition: MenuItem, OrderItem, Order, and Restaurant classes. Every class should use all Module 4 patterns. This is the Module 4 capstone project.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`MenuItem` class: private final name, price, category. Validate price > 0. toString. equals by name+category. hashCode.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`OrderItem` class: MenuItem + quantity. lineTotal() = price × quantity.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`Order` class: static auto-orderId, tableNumber (int), OrderItem[] (max 15), status ('OPEN'/'SERVED'). Validate tableNumber > 0.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "Order: `addItem(MenuItem item, int qty)`, `orderTotal()`, `markServed()`, `isOpen()`. toString. equals by orderId.",
+        "weight": 20
+      },
+      {
+        "id": "req_5",
+        "description": "`Restaurant` class: name, Order[] (max 50). `placeOrder(tableNumber)` creates + stores new Order and returns it. `getActiveOrders()` returns array of OPEN orders.",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "main() demonstrates: create restaurant, place 3 orders, add items, serve one order, print active orders and revenue",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "Restaurant: `totalRevenue()` sums orderTotal() for ALL SERVED orders.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `findOrdersByTable(int tableNumber)` in Restaurant — returns all orders for that table",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `bestSellingItem()` to Restaurant — iterates all orders' items, finds most frequently ordered MenuItem by name",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `applyDiscount(double percent)` to Order — applies discount to all items (needs MenuItem to allow price modification or store discount at OrderItem level)",
+        "weight": 20
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add static Restaurant.getOrderCount() showing total orders created system-wide",
+        "weight": 10
+      }
+    ]
+  },
+  
+  "data_to_use": "Test scenario:\n\n1. Create restaurant 'Spice Garden'\n\n2. Place orders and add items:\n   - Order 1 (table 5): Dal Makhani ₹320×2, Naan ₹50×4\n   - Order 2 (table 3): Paneer Butter Masala ₹380×1, Jeera Rice ₹180×2, Mango Lassi ₹120×2\n   - Order 3 (table 7): Tandoori Chicken ₹450×1, Garlic Naan ₹60×3\n\n3. Mark Order 1 as SERVED\n\n4. Print:\n   - Active orders (should show orders 2 and 3)\n   - Revenue from served orders (Order 1 total)\n   - Bonus: best selling item",
+  
+  "starter_code": "import java.util.Arrays;\nimport java.util.Objects;\n\npublic class RestaurantSystem {\n    public static void main(String[] args) {\n        // Create restaurant, place orders, add items, serve, report\n    }\n    \n    // Define: MenuItem, OrderItem, Order, Restaurant\n}",
+  
+  "example_output": "===================================\n      SPICE GARDEN ORDER SYSTEM\n===================================\n\nOrder #1 placed for Table 5\nOrder #2 placed for Table 3\nOrder #3 placed for Table 7\n\nOrder 1 served.\n\nActive orders:\nOrder[#2 Table 3 OPEN] total: ₹980.0\nOrder[#3 Table 7 OPEN] total: ₹630.0\n\nRevenue from served orders: ₹840.0\n\n(Bonus) Best selling item: Naan (4 ordered)\n===================================",
+  
+  "rubric": [
+    {
+      "category": "MenuItem Class",
+      "points": 15,
+      "criteria": [
+        "Immutable (final fields) (5 pts)",
+        "Validation in constructor (5 pts)",
+        "toString, equals, hashCode (5 pts)"
+      ]
+    },
+    {
+      "category": "Order Class",
+      "points": 25,
+      "criteria": [
+        "Static auto-id (5 pts)",
+        "Status management with markServed/isOpen (10 pts)",
+        "addItem and orderTotal correct (10 pts)"
+      ]
+    },
+    {
+      "category": "Restaurant Class",
+      "points": 20,
+      "criteria": [
+        "placeOrder creates and stores order (10 pts)",
+        "getActiveOrders filters by status (5 pts)",
+        "totalRevenue sums served orders (5 pts)"
+      ]
+    },
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles (10 pts)",
+        "Runs (5 pts)"
+      ]
+    },
+    {
+      "category": "Demonstration",
+      "points": 15,
+      "criteria": [
+        "All required operations shown (10 pts)",
+        "Output clear (5 pts)"
+      ]
+    },
+    {
+      "category": "Composition Quality",
+      "points": 10,
+      "criteria": [
+        "Each class uses all OOP patterns (5 pts)",
+        "Defensive copying used appropriately (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 70,
+      "criteria": [
+        "findOrdersByTable (15 pts)",
+        "bestSellingItem (25 pts)",
+        "applyDiscount (20 pts)",
+        "getOrderCount (10 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "no_ai",
+  "ai_policy_explanation": "This is the Module 4 capstone project — no AI assistance. Every pattern needed is in your notes from the last 6 topics. You have all the tools. Build it.",
+  
+  "submission_instructions": "Save as RestaurantSystem.java. Run it. Add to GitHub portfolio with description 'Restaurant Order Management System — Module 4 OOP Capstone. Demonstrates composition, encapsulation, constructor validation, Object methods, and static members.' This is your Module 4 trophy project.",
+  
+  "tips_for_success": [
+    "Design first: draw the 4 classes and their relationships before coding.",
+    "Order creates and stores OrderItems internally. Restaurant creates and stores Orders.",
+    "For getActiveOrders(): first count OPEN orders, then create array of right size and fill it.",
+    "totalRevenue: iterate ALL orders, add total only for SERVED ones.",
+    "MenuItem should be immutable (final fields) — it's a menu item, not an inventory item.",
+    "For bestSellingItem (bonus): track item names and counts in parallel arrays, find max."
+  ],
+  
+  "concepts_reinforced": [
+    "Composition at three levels (Restaurant → Order → OrderItem → MenuItem)",
+    "Static auto-id generation",
+    "Encapsulation throughout",
+    "Immutable value class (MenuItem)",
+    "Status management (open/served)",
+    "Filtering composed arrays by property",
+    "Aggregation (summing across composed objects)",
+    "Complete class design with all Module 4 patterns"
+  ],
+  
+  "what_youll_learn_by_doing_this": "This project IS Module 4. Every topic comes together: static auto-ids and constants (4.5), constructors with validation (4.2), private fields and getters (4.3), toString/equals/hashCode (4.4), classes (4.1), and composition layered three-deep (4.6). This architecture mirrors real restaurant POS systems (used by Zomato, Swiggy) and any order management system. After this project, you've genuinely written professional OOP code. Your understanding isn't theoretical — it's demonstrated in working software.",
+  
+  "extensions_for_advanced_learners": [
+    "Add a Kitchen class that receives orders and tracks cooking time",
+    "Add payment processing: Order has PaymentMethod (CASH/CARD) set on serve",
+    "Add table reservation: Table class with capacity, reserved, currentOrder",
+    "Build a daily report: group orders by table, compute per-table revenue",
+    "Add item modifier support (e.g., 'no onion') — OrderItem has String[] modifications"
+  ]
+}

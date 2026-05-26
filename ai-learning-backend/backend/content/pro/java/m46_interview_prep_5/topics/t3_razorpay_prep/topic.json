@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m46_t3",
+  "module_id": "m46",
+  "topic_number": 3,
+  "name": "Razorpay Preparation \u2014 Payments, Reliability, Compliance",
+  "slug": "razorpay-prep",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m45_t5"
+    ],
+    "concepts_taught": [
+      "razorpay-prep"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Razorpay Preparation \u2014 Payments, Reliability, Compliance"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Razorpay focus: payments, reliability, idempotency, ACID guarantees",
+        "Payment-specific: idempotency keys, saga pattern, outbox pattern, reconciliation",
+        "Reliability: 99.99% uptime = 52 min downtime/year. Circuit breakers, graceful degradation",
+        "Compliance: PCI DSS concepts (no need to know in depth, but aware), audit logging",
+        "Round structure: 2-3 coding + 1 system design + 1 behavioral (Razorpay values customer impact stories)",
+        "Interview style: problem-first, then discuss scaling and edge cases"
+      ],
+      "next_topic_preview": "Next: HDFC/CTS prep."
+    }
+  }
+}

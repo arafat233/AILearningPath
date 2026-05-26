@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m34_t4",
+  "module_id": "m34",
+  "topic_number": 4,
+  "name": "Custom Hash Keys \u2014 Composite Keys, 2D Grid, Tuple Hashing",
+  "slug": "t4_custom_hash_keys",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m34_t3"
+    ],
+    "concepts_taught": [
+      "t4_custom_hash_keys"
+    ],
+    "career_relevance": "Core Custom Hash Keys \u2014 Composite Keys, 2D Grid, Tuple Hashing patterns \u2014 critical for FAANG interviews.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Custom Hash Keys \u2014 Composite Keys, 2D Grid, Tuple Hashing"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "- **String key**: `row+\",\"+col` for 2D grid coordinates \u2192 O(1) HashMap lookup\n- **Sorted string key**: group anagrams `Arrays.sort(chars)` + `new String(chars)`\n- **Frequency string key**: `int[26]` \u2192 `\"1#0#0...\"` \u2192 O(m) vs O(m log m) sort key\n- **Pair key**: `x + \",\" + y` or use `long key = (long)x << 32 | y` (no separator needed)\n- **`hashCode()` contract**: equal objects MUST have same hashCode\n- **`equals()` contract**: hashCode same \u2192 check equals (collision); equals true \u2192 same bucket chain\n- **Record as key**: Java 16+ `record Point(int x, int y){}` \u2014 auto hashCode/equals\n- **Mutable keys BREAK HashMap**: never use mutable objects as HashMap keys"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "- **String key**: `row+\",\"+col` for 2D grid coordinates \u2192 O(1) HashMap lookup",
+        "- **Sorted string key**: group anagrams `Arrays.sort(chars)` + `new String(chars)`",
+        "- **Frequency string key**: `int[26]` \u2192 `\"1#0#0...\"` \u2192 O(m) vs O(m log m) sort key",
+        "- **Pair key**: `x + \",\" + y` or use `long key = (long)x << 32 | y` (no separator needed)",
+        "- **`hashCode()` contract**: equal objects MUST have same hashCode",
+        "- **`equals()` contract**: hashCode same \u2192 check equals (collision); equals true \u2192 same bucket chain"
+      ],
+      "next_topic_preview": "Next topic"
+    }
+  }
+}

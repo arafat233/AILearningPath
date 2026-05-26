@@ -1,0 +1,177 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t4",
+  "language": "java",
+  "module_id": "m18",
+  "module_name": "Redis Caching & Rate Limiting",
+  "topic_number": 4,
+  "name": "Redis Distributed Locks",
+  "slug": "redis-distributed-locks",
+
+  "metadata": {
+    "difficulty": 7,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m18_t3"],
+    "concepts_taught": [
+      "distributed_lock_problem",
+      "setnx_based_lock",
+      "set_nx_ex_atomic",
+      "lock_expiry_safety",
+      "lock_owner_verification",
+      "lua_script_for_safe_release",
+      "scheduled_task_deduplication",
+      "idempotency_key_pattern",
+      "lock_timeout_and_retry",
+      "try_finally_lock_release",
+      "fencing_token_concept",
+      "redisson_distributed_lock",
+      "lock_vs_rate_limit"
+    ],
+    "skills_developed": [
+      "implementing_setnx_distributed_lock",
+      "safe_lock_release_with_value_check",
+      "preventing_duplicate_scheduled_tasks",
+      "implementing_idempotency_keys",
+      "choosing_lock_ttl"
+    ],
+    "career_relevance": "Distributed locks are essential for multi-instance Spring Boot deployments. Zerodha's end-of-day settlement, Razorpay's payment deduplication, and Swiggy's order confirmation all use Redis locks to ensure critical operations run exactly once. Every senior Java engineer is expected to implement and reason about distributed locks. After this topic, your @Scheduled jobs run exactly once regardless of cluster size.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Zerodha scales to 5 Spring Boot instances at market peak. A @Scheduled job runs end-of-day settlement at 3:30pm:\n\n```java\n@Scheduled(cron = \"0 30 15 * * MON-FRI\")\npublic void runSettlement() {\n    // This runs on ALL 5 instances simultaneously!\n    settlementService.calculatePositions();  // 5× calculations\n    ledgerService.postEntries();             // 5× ledger entries → duplicate debits!\n    notificationService.sendStatements();   // 5× emails to each user!\n}\n```\n\nResult: every user gets 5 settlement emails. Every position calculated 5 times. Some ledger entries duplicated → wrong balances.\n\n**The fix — Redis distributed lock:**\n```java\n@Scheduled(cron = \"0 30 15 * * MON-FRI\")\npublic void runSettlement() {\n    String lockKey = \"lock:settlement:\" + LocalDate.now();\n    String lockVal = UUID.randomUUID().toString();  // unique owner ID\n    \n    // Atomic SETNX + EX: acquire lock OR fail instantly:\n    Boolean acquired = redis.opsForValue()\n        .setIfAbsent(lockKey, lockVal, Duration.ofMinutes(10));\n    \n    if (!Boolean.TRUE.equals(acquired)) {\n        log.info(\"Settlement already running on another instance — skipping\");\n        return;  // another instance has the lock\n    }\n    \n    try {\n        settlementService.calculatePositions();  // runs ONCE across all 5 instances\n        ledgerService.postEntries();\n        notificationService.sendStatements();\n    } finally {\n        // Safe release: only delete if WE own the lock (value check):\n        String currentVal = redis.opsForValue().get(lockKey);\n        if (lockVal.equals(currentVal)) {\n            redis.delete(lockKey);\n        }\n    }\n}\n```\n\nNow regardless of cluster size: exactly one instance runs settlement. The others detect the lock and skip. The lock expires automatically if the instance crashes.",
+    "what_you_will_build": "By the end of this topic, you'll implement SETNX-based distributed locks, use unique owner values for safe release, apply lock TTL for crash safety, deduplicate @Scheduled tasks across clusters, and implement idempotency keys for payment deduplication."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "setnx_lock": "**SETNX distributed lock — the core pattern:**\n\n```java\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.UUID;\n\n@Service\npublic class RedisDistributedLock {\n    private final RedisTemplate<String, String> redis;\n    \n    RedisDistributedLock(RedisTemplate<String,String> r) { redis = r; }\n    \n    /**\n     * Acquire a lock. Returns the lock value (owner ID) if acquired, null if not.\n     * Caller must store the returned value to release the lock later.\n     */\n    public String tryAcquire(String lockKey, Duration ttl) {\n        String lockValue = UUID.randomUUID().toString();  // unique per acquisition\n        \n        // SET lockKey lockValue NX EX ttlSeconds\n        // NX = only set if Not eXists (atomic SETNX)\n        // EX = set expiry simultaneously (atomic — no separate EXPIRE call needed)\n        Boolean acquired = redis.opsForValue()\n            .setIfAbsent(lockKey, lockValue, ttl);\n        \n        return Boolean.TRUE.equals(acquired) ? lockValue : null;\n    }\n    \n    /**\n     * Release the lock ONLY if we own it.\n     * Uses value comparison to avoid releasing someone else's lock.\n     */\n    public boolean release(String lockKey, String lockValue) {\n        // Check-then-delete is NOT atomic without Lua.\n        // Simple version (race condition exists but is acceptable for most use cases):\n        String current = redis.opsForValue().get(lockKey);\n        if (lockValue.equals(current)) {\n            redis.delete(lockKey);\n            return true;\n        }\n        return false;  // lock already expired or taken by another\n    }\n    \n    /**\n     * Safe pattern for one-time execution.\n     */\n    public boolean executeOnce(String lockKey, Duration ttl, Runnable task) {\n        String lockValue = tryAcquire(lockKey, ttl);\n        if (lockValue == null) return false;  // already locked\n        \n        try {\n            task.run();\n            return true;\n        } finally {\n            release(lockKey, lockValue);\n        }\n    }\n}\n```\n\n**Why unique lock value (not just '1')?**\n```\nScenario without unique value:\n  Instance A: acquires lock 'lock:settlement' with value '1'\n  Instance A: settlement takes longer than TTL (10 min)\n  TTL expires! Lock auto-released by Redis.\n  Instance B: sees lock available → acquires it with value '1'\n  Instance B: starts running settlement (second run!)\n  Instance A: finishes, calls redis.delete('lock:settlement')\n              DELETES INSTANCE B's LOCK! Now Instance C can run too.\n\nWith unique value (UUID):\n  Instance A: acquires with value 'a1b2c3' (UUID)\n  TTL expires → Instance B acquires with value 'x7y8z9'\n  Instance A: tries to release — gets('lock') = 'x7y8z9' ≠ 'a1b2c3' → won't delete!\n  Instance B's lock is safe.\n```",
+
+      "scheduled_task_dedup": "**Deduplicating @Scheduled tasks across cluster:**\n\n```java\n@Service\npublic class ClusterSafeScheduledService {\n    private final RedisDistributedLock lock;\n    private final String instanceId = UUID.randomUUID().toString();\n    \n    ClusterSafeScheduledService(RedisDistributedLock l) { lock = l; }\n    \n    @Scheduled(cron = \"0 30 15 * * MON-FRI\")  // 3:30 PM weekdays\n    public void endOfDaySettlement() {\n        String key = \"lock:settlement:\" + java.time.LocalDate.now();\n        // Date in key: ensures a new lock for each day's settlement\n        // If settlement for today already ran, the lock was deleted after completion.\n        // If it's still running, the lock exists → other instances skip.\n        \n        boolean ran = lock.executeOnce(key, Duration.ofMinutes(15), () -> {\n            log.info(\"[{}] Running settlement — holding distributed lock\", instanceId);\n            settlementService.process();\n            log.info(\"[{}] Settlement complete — releasing lock\", instanceId);\n        });\n        \n        if (!ran) {\n            log.info(\"[{}] Settlement already running on another instance — skipped\", instanceId);\n        }\n    }\n    \n    @Scheduled(fixedRate = 60_000)  // every minute\n    public void refreshExpiringCaches() {\n        // For recurring jobs: use a short TTL lock to ensure at-most-one concurrent run\n        // Different from settlement: multiple runs are expected (just not concurrent)\n        String key = \"lock:cache-refresh:\" + (System.currentTimeMillis() / 60_000);\n        lock.executeOnce(key, Duration.ofSeconds(55), () -> {\n            cacheRefreshService.refreshHotKeys();\n        });\n        // Key includes minute window → naturally one run per minute\n    }\n    \n    private SettlementService settlementService = () -> {};\n    private CacheRefreshService cacheRefreshService = () -> {};\n    \n    interface SettlementService { void process(); }\n    interface CacheRefreshService { void refreshHotKeys(); }\n}\n```",
+
+      "idempotency_keys": "**Idempotency keys — prevent duplicate payment processing:**\n\n```java\n@Service\npublic class PaymentIdempotencyService {\n    private final RedisTemplate<String, String> redis;\n    private final PaymentRepository paymentRepo;\n    \n    PaymentIdempotencyService(\n            RedisTemplate<String,String> r, PaymentRepository pr) {\n        redis=r; paymentRepo=pr;\n    }\n    \n    /**\n     * Process payment exactly once per idempotency key.\n     * Razorpay: each payment request carries an X-Idempotency-Key header.\n     * If the same key arrives twice (network retry), return the FIRST result.\n     */\n    public PaymentResponse processPayment(String idempotencyKey, PaymentRequest req) {\n        String lockKey   = \"idem:lock:\"   + idempotencyKey;\n        String resultKey = \"idem:result:\" + idempotencyKey;\n        \n        // Check if already processed (result cached):\n        String cached = redis.opsForValue().get(resultKey);\n        if (cached != null) {\n            log.info(\"Idempotency hit: returning cached result for key {}\", idempotencyKey);\n            return deserialize(cached, PaymentResponse.class);\n        }\n        \n        // Try to acquire processing lock:\n        Boolean acquired = redis.opsForValue()\n            .setIfAbsent(lockKey, \"processing\", Duration.ofSeconds(30));\n        \n        if (!Boolean.TRUE.equals(acquired)) {\n            // Another request is currently processing this key:\n            throw new PaymentInProgressException(\n                \"Payment \" + idempotencyKey + \" is already being processed\");\n        }\n        \n        try {\n            // Double-check: was it processed while we acquired the lock?\n            String doubleCheck = redis.opsForValue().get(resultKey);\n            if (doubleCheck != null) return deserialize(doubleCheck, PaymentResponse.class);\n            \n            // Process the payment:\n            PaymentResponse response = paymentRepo.create(req);\n            \n            // Cache result for 24 hours (cover retry window):\n            redis.opsForValue().set(\n                resultKey, serialize(response), Duration.ofHours(24));\n            \n            return response;\n        } finally {\n            redis.delete(lockKey);  // release processing lock\n        }\n    }\n    \n    private String serialize(Object o) { return o.toString(); }  // use Jackson in real code\n    private <T> T deserialize(String s, Class<T> c) { return null; }  // stub\n    \n    interface PaymentRepository { PaymentResponse create(PaymentRequest r); }\n    record PaymentRequest(String merchantId, double amount) {}\n    record PaymentResponse(String paymentId, String status) {}\n    static class PaymentInProgressException extends RuntimeException {\n        PaymentInProgressException(String m) { super(m); }\n    }\n}\n```",
+
+      "lock_ttl_choice": "**Choosing the right lock TTL:**\n\n```java\n// TTL must be > expected task duration:\n// Settlement (takes ~5 min): lock TTL = 15 min (3× buffer)\n// Cache refresh (takes ~2 sec): lock TTL = 30 sec\n// Payment dedup (takes ~200ms): lock TTL = 10 sec\n// Batch job (takes ~1 hour): lock TTL = 2 hours\n\n// What happens if TTL is too short?\n//   TTL = 5 min, settlement takes 8 min:\n//   At 5 min: lock auto-expires → another instance acquires → DUPLICATE RUN!\n//   Always: TTL >> expected_duration (3× is a common rule of thumb)\n\n// What happens if TTL is too long?\n//   TTL = 1 hour, instance crashes after 10 min:\n//   Lock remains for 1 hour → no other instance can run settlement for 1 hour\n//   Always: TTL << recovery_window (next expected run time minus now)\n\n// Lock TTL tradeoff:\n//   Too short: duplicate runs on crash-recovery overlap\n//   Too long: delayed retry after crash\n//   Sweet spot: 3× expected duration, within safety margin of next scheduled run\n\n// Lock key includes date/run-period to allow re-run next day/period:\nString key = \"lock:settlement:\" + LocalDate.now();    // re-runnable tomorrow\nString key = \"lock:report:\" + YearMonth.now();         // re-runnable next month\nString key = \"lock:migration:V5\";                      // never re-run same version\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) Distributed lock lifecycle: 5 app instances shown as boxes. All fire @Scheduled at 3:30pm simultaneously. Instance 1: SETNX 'lock:settlement:today' → true → acquires lock (box turns green). Instances 2-5: SETNX → false → skip (boxes show 'skipped'). Instance 1 runs settlement. At finish: DELETE 'lock:settlement:today'. Next day: all 5 can compete for the new key. (2) Idempotency key flow: Client sends POST /payments with X-Idempotency-Key: abc123. Server: check 'idem:result:abc123' in Redis → miss → acquire 'idem:lock:abc123' → process → store result in 'idem:result:abc123'. Second identical request (network retry): check 'idem:result:abc123' → HIT → return cached result. No duplicate charge. Timeline shows result cached for 24 hours.",
+      "alt_text": "Distributed lock deduplicating @Scheduled tasks across 5 instances, and idempotency key preventing duplicate payment processing"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Zerodha's end-of-day settlement must run exactly once across a cluster of 5 instances. Implement: SETNX lock, safe release with owner verification, try-finally guarantee, and integration test proving only one instance runs.",
+
+    "problem_statement": "1. RedisDistributedLock service with tryAcquire + release\n2. SettlementService with distributed lock guard\n3. @Scheduled settlement job: runs once per cluster per day\n4. Unit test: simulate two concurrent acquisition attempts — only one wins",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Distributed lock service",
+        "details": "```java\n@Service\npublic class RedisDistributedLock {\n    private final RedisTemplate<String, String> redis;\n    RedisDistributedLock(RedisTemplate<String,String> r) { redis=r; }\n    \n    public String tryAcquire(String key, Duration ttl) {\n        String val = UUID.randomUUID().toString();\n        Boolean ok  = redis.opsForValue().setIfAbsent(key, val, ttl);\n        return Boolean.TRUE.equals(ok) ? val : null;\n    }\n    \n    public void release(String key, String expectedValue) {\n        String current = redis.opsForValue().get(key);\n        if (expectedValue.equals(current)) {\n            redis.delete(key);\n        }\n        // If current != expected: lock expired and re-acquired by another → safe to ignore\n    }\n    \n    public boolean runOnce(String key, Duration ttl, Runnable task) {\n        String val = tryAcquire(key, ttl);\n        if (val == null) return false;\n        try {\n            task.run();\n            return true;\n        } finally {\n            release(key, val);\n        }\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Settlement service with lock",
+        "details": "```java\n@Service @Slf4j\npublic class SettlementService {\n    private final RedisDistributedLock lock;\n    \n    @Scheduled(cron = \"0 30 15 * * MON-FRI\")\n    public void runDailySettlement() {\n        String key = \"lock:settlement:\" + java.time.LocalDate.now();\n        boolean ran = lock.runOnce(key, Duration.ofMinutes(15), () -> {\n            log.info(\"Running settlement...\");\n            // ... settlement logic ...\n            log.info(\"Settlement done.\");\n        });\n        if (!ran) log.info(\"Settlement skipped — already running elsewhere\");\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// setIfAbsent(key, uuid, ttl): atomic SET NX EX — one winner across all instances\n// UUID lock value: prevents wrong instance releasing lock after TTL expiry\n// try-finally: lock always released even on exception\n// Date in key: allows re-run each day; prevents old lock blocking tomorrow's job",
+
+    "expected_output": "# 5 instances all trigger at 3:30:00pm:\n[Instance 1] SETNX lock:settlement:2024-06-15 → acquired\n[Instance 2] SETNX lock:settlement:2024-06-15 → skipped (lock exists)\n[Instance 3] SETNX lock:settlement:2024-06-15 → skipped\n[Instance 4] SETNX lock:settlement:2024-06-15 → skipped\n[Instance 5] SETNX lock:settlement:2024-06-15 → skipped\n[Instance 1] Running settlement...\n[Instance 1] Settlement done. Lock released.",
+
+    "things_to_notice": [
+      "setIfAbsent with TTL is atomic (single Redis command: SET NX EX). This is critical: if you call setIfAbsent(key, val) and then separately call expire(key, ttl), there's a window between the two calls where the key has no expiry. If the instance crashes in that window, the lock never expires — permanent deadlock. SET NX EX eliminates this window.",
+      "Date in key 'lock:settlement:2024-06-15': this makes the lock single-use per day. If settlement finishes and releases the lock, no instance can accidentally run it again today (the key is gone, but even if re-acquired, the settlement would try to double-process). In practice: add a 'completed' marker or include date in the key design.",
+      "Why UUID for lock value, not hostname or IP? In containerized/Kubernetes deployments, hostnames aren't unique across pod restarts. A new pod could reuse a hostname and accidentally match the old lock's value. UUID is always unique. If you want readability for debugging, use hostname + UUID: 'payment-svc-pod-3:a1b2c3-...'.",
+      "The release check (get → compare → delete) is not atomic — there's a tiny window where another instance could acquire between our get and delete. For most use cases this is acceptable. For true atomicity: use a Lua script: 'if redis.call(\"get\", KEYS[1]) == ARGV[1] then return redis.call(\"del\", KEYS[1]) else return 0 end'. Redisson library handles this correctly.",
+      "TTL = 15 minutes for a job that takes 5 minutes: the 3× buffer covers unexpected slowness (DB under load, GC pause, network blip). If settlement takes 12 minutes due to a slow DB, the lock still holds. If it takes 16 minutes (exceeds TTL), another instance would start — design settlement to be idempotent to handle this edge case."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment idempotency",
+        "use_case": "Razorpay's payment API receives retries from mobile clients on network timeout. Each payment request carries an X-Idempotency-Key header (UUID generated client-side). If the server hasn't processed it: acquire lock, process payment, cache result in Redis for 24 hours. If already processed: return cached result immediately. If currently processing: return 409 Conflict (retry later). This ensures a user who retries a timed-out payment never gets double-charged."
+      },
+      {
+        "company_context": "Zerodha settlement deduplication",
+        "use_case": "Zerodha's settlement service runs on 5 auto-scaled instances. End-of-day settlement at 3:30pm calculates P&L, posts ledger entries, and sends account statements. A Redis lock 'lock:settlement:YYYYMMDD' ensures exactly one instance runs settlement. TTL is 30 minutes. The lock key includes the date, making it naturally single-use per trading day. If the lock-holding instance crashes during settlement, the TTL auto-expires (30 min), and an on-call engineer can manually trigger re-settlement."
+      },
+      {
+        "company_context": "Swiggy order confirmation deduplication",
+        "use_case": "When a user's payment completes, Swiggy sends an order confirmation to the restaurant. The payment callback can arrive multiple times (from the payment gateway's retry mechanism). An idempotency lock 'order:confirm:ORDER_ID' ensures the confirmation is sent only once. If the callback arrives while processing is in-flight: 409 Conflict returned to gateway. After 30 seconds (TTL), the lock is released, and if the confirmation status is still pending (crash case), the gateway's next retry triggers re-processing."
+      }
+    ],
+
+    "interview_relevance": "Distributed lock interview questions:\n\n- **'How do you prevent duplicate execution of @Scheduled jobs in a cluster?'** → Redis distributed lock. Use setIfAbsent(key, uuid, ttl) before executing. Only the instance that gets 'true' runs the job. Include date/period in key for natural reset. TTL prevents permanent deadlock on crash.\n- **'Why use UUID as the lock value instead of just \"1\"?'** → If TTL expires while the task is running, another instance acquires the lock. When the first instance finishes and calls DELETE, it would delete the NEW lock, allowing a third instance to start. UUID ownership check prevents this.\n- **'What is an idempotency key?'** → A client-provided unique key for an operation. The server stores the result against this key. If the same operation arrives again (network retry), the cached result is returned without re-processing. Prevents double charges, duplicate settlements, and duplicate notifications.\n- **'What happens if the instance holding the lock crashes?'** → The lock TTL auto-expires. After TTL, another instance can acquire the lock. This is why TTL is critical — without it, a crashed instance creates a permanent deadlock.",
+
+    "real_world_workflow": "Distributed lock deployment workflow:\n\n- Identify concurrent execution risk: @Scheduled jobs, payment processing, batch operations\n- Choose lock scope: per-day key for daily jobs, per-request key for idempotency\n- Set TTL = 3× expected duration, within recovery window\n- Add try-finally: guarantee lock release even on exception\n- Log acquire/skip: visibility into which instance ran the job\n- Alert on TTL expiry without release: long-running task or crash — investigate"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "no_lock_expiry",
+      "what_students_get_wrong": "Acquiring the lock (SETNX) but not setting TTL — if the instance crashes, the lock is never released and all other instances are permanently blocked.",
+      "remediation": "Always use setIfAbsent(key, value, duration) — the three-argument version that sets TTL atomically. Never use setIfAbsent(key, value) and then expire(key, ttl) separately. There's a gap between the two calls where a crash creates a permanent lock. The three-argument overload generates SET NX EX in one atomic Redis command.",
+      "detection_pattern": "After instance crash: other instances never execute the job again; Redis KEYS shows the lock key with TTL=-1 (no expiry)"
+    },
+    {
+      "gap_id": "skipping_value_check_on_release",
+      "what_students_get_wrong": "Releasing the lock with redis.delete(key) without checking if we still own it — may delete another instance's lock if TTL expired and they re-acquired.",
+      "remediation": "Before deleting: get the current value and compare with the UUID stored when acquired. If they match: we own it, delete it. If they differ: our TTL expired and another instance acquired it — do NOT delete. Without this check: instance A's delayed finish deletes instance B's lock, creating a window for instance C to start as well.",
+      "detection_pattern": "Concurrent runs despite having a lock; log shows instance B acquiring but instance A also deleting"
+    },
+    {
+      "gap_id": "reusing_lock_key_without_period",
+      "what_students_get_wrong": "Using a static key like 'lock:settlement' — the lock is released after each run, but the key is shared across all dates. If settlement runs twice in one day (manual retry), the second run sees no lock (it was released) and executes again.",
+      "remediation": "Include the date or run-period in the lock key: 'lock:settlement:2024-06-15'. This makes the lock naturally single-use per period. After the first run releases the lock, the second run re-acquires the same date key — which succeeds. Fix: either leave the key in Redis (don't delete) until the next run period, or check a 'completed' marker separately.",
+      "detection_pattern": "Manual retry triggers a second settlement run on the same day; duplicate ledger entries"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Distributed lock: ensures exactly one instance executes a critical operation",
+      "setIfAbsent(key, value, duration): atomic SET NX EX — acquire lock or fail atomically",
+      "TTL is mandatory: crash safety — lock auto-expires if holder crashes",
+      "UUID lock value: ownership proof; prevents wrong instance from releasing",
+      "Release: compare current value to UUID before deleting (ownership check)",
+      "try-finally: always release the lock even on exception",
+      "Date in key: 'lock:settlement:YYYY-MM-DD' — natural single-use per period",
+      "TTL = 3× expected duration: buffer for slowness; within recovery window",
+      "Idempotency key: client-provided; cache result in Redis for 24h; prevent double charge",
+      "@Scheduled deduplication: runOnce() with lock ensures one execution per cluster",
+      "log.info on skip: visibility which instance ran, which skipped",
+      "Lock scope: per-day for daily jobs; per-request for idempotency",
+      "No lock expiry = permanent deadlock on crash — always set TTL",
+      "Lua script: atomic get-compare-delete for strict correctness (Redisson handles this)",
+      "Lock vs rate limit: lock = exactly one; rate limit = at most N per window"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Instance A acquires lock 'lock:settlement:today' with value 'abc123' and TTL=15 min. Settlement takes 20 minutes. What happens?",
+        "answer": "At minute 15: TTL expires. Redis automatically deletes 'lock:settlement:today'. Instance B sees no lock → SETNX → acquires lock with value 'xyz789'. Instance B starts running settlement (second run — overlapping with A!). At minute 20: Instance A finishes. Instance A calls release('lock:settlement:today', 'abc123'). Current value is 'xyz789' (Instance B's). 'abc123' ≠ 'xyz789' → Instance A does NOT delete. Instance B's lock is safe. Instance B finishes and releases correctly. The duplicate run problem exists but the ownership check prevented Instance A from corrupting B's lock. Prevention: design settlement to be idempotent (safe to run twice) OR extend TTL to well beyond maximum expected duration."
+      },
+      {
+        "question": "Two instances (A and B) call setIfAbsent('lock:settlement:today', uuid, 15min) at exactly the same millisecond. Can both get 'true'?",
+        "answer": "No. Redis is single-threaded for command processing. Even if A and B send SETNX at the exact same millisecond, Redis processes them sequentially. One arrives microseconds before the other. The first to arrive: key doesn't exist → SET is successful → returns 1 (true). The second to arrive: key now exists → NX condition fails → returns 0 (false/null). Only one winner guaranteed. This is the fundamental atomicity guarantee that makes Redis suitable as a distributed lock server. In a multi-node Redis Cluster, this guarantee holds for a single key (always routed to one node)."
+      },
+      {
+        "question": "What is the difference between a distributed lock and an idempotency key?",
+        "answer": "Distributed lock: mutual exclusion across time — only ONE instance executes the protected code CONCURRENTLY. Used for @Scheduled tasks, batch jobs, leader election. The lock is acquired before execution and released after. Multiple sequential runs are possible (one at a time). Idempotency key: deduplication across requests — the SAME operation is identified by a client-provided key and executed at most ONCE. Used for payment processing, order confirmation. The key is stored with the result so subsequent requests with the same key return the cached result without re-execution. The lock is ephemeral (processing in-flight); the result is durable (cached for 24h+). In payment idempotency: the lock prevents concurrent processing of the same key; the result cache prevents re-execution even after the lock is released."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Redis Pub/Sub & Cache Invalidation** — the final Module 18 topic. You have 5 app instances with L1 Caffeine caches. When product data changes on one instance, the other 4 still serve stale data from their local caches. Redis Pub/Sub broadcasts cache invalidation events across all instances: one instance publishes 'product:P001:updated', all 5 subscribe and evict their local cache entry. Zero stale reads across the cluster."
+  }
+}

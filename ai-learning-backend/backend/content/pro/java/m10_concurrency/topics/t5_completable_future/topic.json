@@ -1,0 +1,188 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t5",
+  "language": "java",
+  "module_id": "m10",
+  "module_name": "Concurrency and Threads",
+  "topic_number": 5,
+  "name": "CompletableFuture",
+  "slug": "completable-future",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m10_t3", "java_m8_t1", "java_m8_t5"],
+    "concepts_taught": [
+      "what_is_completable_future",
+      "supply_async",
+      "run_async",
+      "then_apply",
+      "then_accept",
+      "then_run",
+      "exceptionally",
+      "handle",
+      "when_complete",
+      "then_compose",
+      "all_of",
+      "any_of",
+      "combining_completable_futures",
+      "completable_future_vs_future",
+      "custom_executor_with_completable_future"
+    ],
+    "skills_developed": [
+      "building_async_pipelines",
+      "chaining_async_operations",
+      "handling_async_exceptions",
+      "combining_multiple_futures",
+      "writing_non_blocking_concurrent_code"
+    ],
+    "career_relevance": "CompletableFuture is the foundation of modern async Java. Spring WebFlux (reactive HTTP), Retrofit (Android networking), Async database drivers, gRPC async stubs — all built on CompletableFuture or its reactor/rx analogues. The key insight: don't block threads waiting for results. Instead, declare what to do WHEN the result arrives. After this topic, you write non-blocking code that scales to 10x more concurrent users than blocking equivalents — critical for any production backend.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "A payment API makes 3 external calls: fetch user, check balance, validate card. With `Future.get()`:\n\n```java\n// Blocking style — each step waits for previous:\nFuture<User>    userFuture    = executor.submit(() -> fetchUser(id));\nUser user = userFuture.get();           // Thread blocked here!\n\nFuture<Balance> balanceFuture = executor.submit(() -> checkBalance(user));\nBalance balance = balanceFuture.get();  // Thread blocked here!\n\nFuture<Boolean> validFuture = executor.submit(() -> validateCard(user, balance));\nboolean valid = validFuture.get();      // Thread blocked here!\n```\n\n3 blocking calls = 3 threads doing nothing while waiting. Under load (1000 concurrent payments), 3000 threads just sit blocked. Memory: 3GB wasted on idle threads.\n\n**With CompletableFuture:**\n```java\n// Non-blocking chain — each step registers what to do WHEN ready:\nCompletableFuture.supplyAsync(() -> fetchUser(id))\n    .thenCompose(user  -> CompletableFuture.supplyAsync(() -> checkBalance(user)))\n    .thenCompose(bal   -> CompletableFuture.supplyAsync(() -> validateCard(bal)))\n    .thenAccept(valid  -> sendResponse(valid))\n    .exceptionally(ex  -> { sendError(ex); return null; });\n// Zero threads blocked — each step triggers the next via callback\n```\n\n**The shift**: instead of 'wait for result, then do next thing', it's 'when result arrives, do next thing'. Threads are freed immediately after submitting the task — they don't wait.\n\nThis is the programming model behind every modern reactive framework. Today you master it.",
+    "what_you_will_build": "By the end of this topic, you'll create async computations with supplyAsync/runAsync, chain transformations with thenApply/thenCompose, handle errors with exceptionally/handle, combine multiple futures with allOf/anyOf, and understand how CompletableFuture differs from Future."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "cf_vs_future": "**CompletableFuture vs Future — key differences:**\n\n| Feature | Future | CompletableFuture |\n|---------|--------|-------------------|\n| Get result | `get()` — BLOCKS | `thenApply()` — callback |\n| Chain ops | Manual (block + submit) | Fluent `.thenApply().thenCompose()` |\n| Error handling | try-catch around get() | `.exceptionally()` |\n| Combine multiple | Manual with multiple get() | `allOf()`, `anyOf()` |\n| Manual completion | Not possible | `complete(value)` |\n| Cancel | `cancel()` only | `cancel()` + `completeExceptionally()` |\n\nCompletableFuture implements Future — so it IS a Future, just much more powerful.",
+
+      "supply_run_async": "**Creating CompletableFutures:**\n\n```java\nimport java.util.concurrent.*;\n\n// supplyAsync — async computation that returns a value:\nCompletableFuture<String> cf = CompletableFuture.supplyAsync(\n    () -> fetchDataFromDatabase()  // Supplier<T>\n);\n\n// Runs in ForkJoinPool.commonPool() by default.\n// Use custom executor for control:\nExecutorService pool = Executors.newFixedThreadPool(4);\nCompletableFuture<String> cf2 = CompletableFuture.supplyAsync(\n    () -> fetchDataFromDatabase(),\n    pool  // second arg = executor\n);\n\n// runAsync — async computation that returns nothing (Runnable):\nCompletableFuture<Void> log = CompletableFuture.runAsync(\n    () -> logger.info(\"Background logging\")\n);\n\n// completedFuture — already-done future (useful for testing/wrapping):\nCompletableFuture<String> done = CompletableFuture.completedFuture(\"cached result\");\n```",
+
+      "then_apply_accept_run": "**Chaining — what to do when result arrives:**\n\n```java\nCompletableFuture<String> cf = CompletableFuture.supplyAsync(() -> \"hello\");\n\n// thenApply — transform result (Function<T, R>): returns new CF with R\nCompletableFuture<Integer> lengthCf = cf.thenApply(s -> s.length());\n// \"hello\" → 5\n\n// thenAccept — consume result (Consumer<T>): returns CF<Void>\nCompletableFuture<Void> printCf = cf.thenAccept(s -> System.out.println(s));\n// Prints \"hello\", no return value\n\n// thenRun — run after, no access to result (Runnable): CF<Void>\nCompletableFuture<Void> afterCf = cf.thenRun(() -> System.out.println(\"Finished!\"));\n// Runs after CF completes; doesn't see the result\n\n// Chain multiple steps:\nCompletableFuture\n    .supplyAsync(() -> \"  hello world  \")\n    .thenApply(String::strip)\n    .thenApply(String::toUpperCase)\n    .thenAccept(s -> System.out.println(s));\n// Prints: HELLO WORLD\n```\n\n**Async variants** — run the next step in a new thread:\n```java\n// thenApplyAsync — next step runs in thread pool, not calling thread:\ncf.thenApplyAsync(s -> expensiveTransform(s), pool);\n// Use when the next step itself is long-running\n```",
+
+      "then_compose": "**thenCompose — for async steps that return CompletableFuture:**\n\n```java\n// thenApply when next step returns CF → CF<CF<String>> (nested!) WRONG:\nCompletableFuture<CompletableFuture<String>> bad = cf\n    .thenApply(user -> CompletableFuture.supplyAsync(() -> fetchOrder(user)));\n\n// thenCompose unwraps — CF<String>:\nCompletableFuture<String> good = cf\n    .thenCompose(user -> CompletableFuture.supplyAsync(() -> fetchOrder(user)));\n\n// Practical pipeline:\nCompletableFuture.supplyAsync(() -> fetchUser(userId))\n    .thenCompose(user  -> CompletableFuture.supplyAsync(() -> fetchBalance(user)))\n    .thenCompose(bal   -> CompletableFuture.supplyAsync(() -> authorizePayment(bal)))\n    .thenAccept(result -> sendResponse(result));\n// Three sequential async steps — but the thread is never blocked between them!\n```\n\n**thenApply vs thenCompose rule**:\n- `step → plain value` → use `thenApply`\n- `step → CompletableFuture` → use `thenCompose` (like flatMap for CFs)",
+
+      "error_handling": "**Error handling in async chains:**\n\n```java\n// exceptionally — handle error, provide fallback value:\nCompletableFuture.supplyAsync(() -> {\n    if (userId < 0) throw new IllegalArgumentException(\"Invalid user ID\");\n    return fetchUser(userId);\n})\n.thenApply(user -> user.getName())\n.exceptionally(ex -> {\n    System.err.println(\"Error: \" + ex.getMessage());\n    return \"Guest\";  // fallback value — same type as the CF\n});\n\n// handle — always runs, handles both success and error:\nCompletableFuture.supplyAsync(() -> fetchUser(id))\n    .handle((user, ex) -> {\n        if (ex != null) {\n            System.err.println(\"Fetch failed: \" + ex.getMessage());\n            return defaultUser;\n        }\n        return user;\n    });\n// handle always runs; both args can't be non-null simultaneously\n\n// whenComplete — side effect on completion (doesn't transform):\nCompletableFuture.supplyAsync(() -> doWork())\n    .whenComplete((result, ex) -> {\n        if (ex != null) System.err.println(\"Failed: \" + ex);\n        else            System.out.println(\"Succeeded: \" + result);\n    });\n// Like handle but doesn't change the CF's result\n```",
+
+      "all_of_any_of": "**Combining multiple CompletableFutures:**\n\n```java\nCompletableFuture<String>  catalog   = CompletableFuture.supplyAsync(() -> fetchCatalog());\nCompletableFuture<String>  ratings   = CompletableFuture.supplyAsync(() -> fetchRatings());\nCompletableFuture<Boolean> inventory = CompletableFuture.supplyAsync(() -> checkInventory());\n\n// allOf — wait for ALL to complete (returns CF<Void>):\nCompletableFuture<Void> allDone = CompletableFuture.allOf(catalog, ratings, inventory);\nallDone.thenRun(() -> {\n    // All three are done here — call .join() on each to get results:\n    String cat = catalog.join();    // join() = get() but unchecked\n    String rat = ratings.join();\n    boolean inv = inventory.join();\n    System.out.println(\"All data ready: \" + cat + \", \" + rat + \", \" + inv);\n});\n\n// anyOf — completes when ANY one completes (returns CF<Object>):\nCompletableFuture<Object> fastest = CompletableFuture.anyOf(catalog, ratings, inventory);\nfastest.thenAccept(result -> System.out.println(\"Fastest result: \" + result));\n\n// Pattern: collect all futures into list, allOf, then join each:\nList<CompletableFuture<String>> futures = productIds.stream()\n    .map(id -> CompletableFuture.supplyAsync(() -> fetchProduct(id)))\n    .collect(Collectors.toList());\n\nCompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))\n    .thenRun(() -> {\n        List<String> results = futures.stream()\n            .map(CompletableFuture::join)\n            .collect(Collectors.toList());\n        System.out.println(results);\n    });\n```",
+
+      "manual_completion": "**Manual completion and CompletableFuture as a promise:**\n\n```java\n// CompletableFuture can be completed manually:\nCompletableFuture<String> promise = new CompletableFuture<>();\n\n// In a callback or event handler:\nCallback cb = result -> promise.complete(result);  // completes on success\nCallback err = ex    -> promise.completeExceptionally(ex);  // completes on error\n\n// Chain from the promise:\npromise.thenApply(String::toUpperCase)\n       .thenAccept(System.out::println);\n\n// Useful for bridging callback-based APIs to CompletableFuture:\npublic CompletableFuture<String> fetchAsync(String url) {\n    CompletableFuture<String> cf = new CompletableFuture<>();\n    httpClient.get(url,\n        response -> cf.complete(response.body()),    // success\n        error    -> cf.completeExceptionally(error)  // failure\n    );\n    return cf;\n}\n```\n\n**join() vs get():**\n```java\ncf.get();   // throws checked exceptions (InterruptedException, ExecutionException)\ncf.join();  // throws unchecked CompletionException — use inside lambdas/streams\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Three-tier diagram: (1) Blocking Future pipeline — three thread bars each with a long BLOCKED section (thread waiting for get()), only a small ACTIVE section (actual work). Total latency = sum of all waits. (2) CompletableFuture pipeline — same three stages as callbacks: supplyAsync (thread active briefly), arrow to thenApply (triggers automatically), arrow to thenAccept (triggers automatically). No thread blocked between stages. Total latency = only the active work time. (3) allOf fan-out — one root CF spawning 5 simultaneous branches (arrow down), all converging at allOf(), then one thenRun at the bottom. Compare: sequential = sum(5 times), parallel = max(5 times).",
+      "alt_text": "Blocking Future thread waste vs CompletableFuture callback chain, and allOf fan-out pattern"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build an async product detail page loader. Three data sources fetch simultaneously: product catalog (main details), ratings service, inventory check. Results combined when all ready. Errors degrade gracefully.",
+
+    "problem_statement": "Fetch product details for a Flipkart-style product page:\n1. `fetchProductInfo(id)` → async, 200ms, returns name+price\n2. `fetchRating(id)` → async, 150ms, returns rating (double)\n3. `checkInventory(id)` → async, 100ms, returns inStock boolean\n\nAll three start simultaneously. Combine when all done. Handle failures gracefully. Print total load time.",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Three independent async fetches",
+        "details": "```java\nExecutorService pool = Executors.newFixedThreadPool(4);\n\nCompletableFuture<String> productCF = CompletableFuture.supplyAsync(\n    () -> {\n        sleep(200);\n        return \"Wireless Mouse | ₹799\";\n    }, pool);\n\nCompletableFuture<Double> ratingCF = CompletableFuture.supplyAsync(\n    () -> {\n        sleep(150);\n        return 4.3;\n    }, pool);\n\nCompletableFuture<Boolean> stockCF = CompletableFuture.supplyAsync(\n    () -> {\n        sleep(100);\n        return true;  // in stock\n    }, pool)\n    .exceptionally(ex -> false);  // default to out-of-stock on error\n```"
+      },
+      {
+        "step": 2,
+        "action": "Combine with allOf and collect results",
+        "details": "```java\nlong start = System.currentTimeMillis();\n\nCompletableFuture.allOf(productCF, ratingCF, stockCF)\n    .thenRun(() -> {\n        // All three done — join() each (no blocking, they're already done):\n        String  product = productCF.join();\n        double  rating  = ratingCF.join();\n        boolean inStock = stockCF.join();\n        long elapsed = System.currentTimeMillis() - start;\n        \n        System.out.println(\"Product: \" + product);\n        System.out.printf(\"Rating:  %.1f ★%n\", rating);\n        System.out.println(\"Status:  \" + (inStock ? \"In Stock\" : \"Out of Stock\"));\n        System.out.printf(\"Loaded in %dms (sequential: 450ms)%n\", elapsed);\n    })\n    .join();  // block main thread until all done (in demo only)\n```"
+      },
+      {
+        "step": 3,
+        "action": "Add error handling to the chain",
+        "details": "```java\n// Rating service might be down — use default:\nCompletableFuture<Double> safeRating = CompletableFuture\n    .supplyAsync(() -> { sleep(150); return 4.3; }, pool)\n    .exceptionally(ex -> {\n        System.err.println(\"Rating service down: \" + ex.getMessage());\n        return 0.0;  // default rating\n    });\n\n// OR use handle for both success and failure:\nCompletableFuture<Double> handledRating = CompletableFuture\n    .supplyAsync(() -> { sleep(150); return 4.3; }, pool)\n    .handle((rating, ex) -> {\n        if (ex != null) { System.err.println(\"Rating failed\"); return 0.0; }\n        return rating;\n    });\n```"
+      }
+    ],
+
+    "final_code": "import java.util.concurrent.*;\n\npublic class ProductPageLoader {\n    static ExecutorService pool = Executors.newFixedThreadPool(4);\n    \n    static void sleep(long ms) {\n        try { Thread.sleep(ms); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n    }\n    \n    static CompletableFuture<String>  fetchProduct(int id) {\n        return CompletableFuture.supplyAsync(() -> { sleep(200); return \"Wireless Mouse | ₹799\"; }, pool);\n    }\n    static CompletableFuture<Double>  fetchRating(int id) {\n        return CompletableFuture.supplyAsync(() -> { sleep(150); return 4.3; }, pool)\n            .exceptionally(ex -> 0.0);\n    }\n    static CompletableFuture<Boolean> checkStock(int id) {\n        return CompletableFuture.supplyAsync(() -> { sleep(100); return true; }, pool)\n            .exceptionally(ex -> false);\n    }\n    \n    public static void main(String[] args) {\n        long start = System.currentTimeMillis();\n        \n        CompletableFuture<String>  productCF = fetchProduct(101);\n        CompletableFuture<Double>  ratingCF  = fetchRating(101);\n        CompletableFuture<Boolean> stockCF   = checkStock(101);\n        \n        CompletableFuture.allOf(productCF, ratingCF, stockCF)\n            .thenRun(() -> {\n                System.out.println(\"=== Product Page ===\");\n                System.out.println(\"Product: \" + productCF.join());\n                System.out.printf(\"Rating:  %.1f ★%n\", ratingCF.join());\n                System.out.println(\"Status:  \" + (stockCF.join() ? \"In Stock\" : \"Out of Stock\"));\n                System.out.printf(\"Loaded in %dms%n\", System.currentTimeMillis() - start);\n            })\n            .join();\n        \n        pool.shutdown();\n    }\n}",
+
+    "expected_output": "=== Product Page ===\nProduct: Wireless Mouse | ₹799\nRating:  4.3 ★\nStatus:  In Stock\nLoaded in ~200ms",
+
+    "things_to_notice": [
+      "All three fetches START immediately — productCF, ratingCF, stockCF all launch in parallel. No blocking between them.",
+      "allOf() creates a new CF that completes when ALL three are done. It's the coordination point — the callback only runs when every fetch has a result.",
+      "join() inside the thenRun callback doesn't block — the CFs are already complete by the time allOf fires thenRun.",
+      "The load time is ~200ms (the slowest fetch), not 450ms (sequential sum). Three services fetched in the time of one.",
+      "exceptionally on ratingCF and stockCF provides graceful degradation — if these services are down, the page still loads with default values. The main product fetch is the only one without a fallback.",
+      "join() at the end of main() blocks the main thread until the entire async chain completes — this is only needed in demos/tests. In a real web server, you'd return the CompletableFuture to the framework, which handles the blocking."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring WebFlux / Project Reactor",
+        "use_case": "Spring WebFlux is built on CompletableFuture principles (via Project Reactor's Mono<T> and Flux<T>). A reactive HTTP endpoint: `@GetMapping('/product/{id}') Mono<ProductDTO> getProduct(@PathVariable id) { return productService.fetch(id).map(mapper::toDTO); }`. No thread is ever blocked. Under load, WebFlux handles 10x more concurrent requests than blocking Spring MVC with the same thread count."
+      },
+      {
+        "company_context": "Flipkart search aggregation",
+        "use_case": "A Flipkart search for 'laptop' fans out to 10+ downstream microservices (catalog, inventory, pricing, ads, recommendations...). Each fan-out is a CompletableFuture.supplyAsync(). allOf() waits for all. Partial failures are handled with exceptionally — missing ad data just skips the ad slot. Total response time = slowest service, not sum of all."
+      },
+      {
+        "company_context": "Razorpay async payment pipeline",
+        "use_case": "Payment validation involves sequential dependent steps: validate card → authorize with bank → update ledger → send notification. With thenCompose, each step triggers the next only when the previous completes — sequential logic, no thread blocking between steps. If authorization fails, exceptionally logs and returns a declined response. The entire pipeline is declared upfront and executes non-blocking."
+      }
+    ],
+
+    "interview_relevance": "CompletableFuture is asked at senior and staff levels:\n\n- **'What is the difference between thenApply and thenCompose?'** — thenApply maps T→R. thenCompose maps T→CF<R> and unwraps (like flatMap). Use thenCompose when the next step itself is async.\n- **'How do you combine 5 CompletableFutures and wait for all?'** → `CompletableFuture.allOf(cf1, cf2, cf3, cf4, cf5).thenRun(() -> join each)`. \n- **'What does exceptionally do?'** — Provides a fallback value when the CF completes exceptionally. Only called on failure; result flows through on success.\n- **'join() vs get()?'** — Both block until completion. get() throws checked exceptions. join() throws unchecked CompletionException — safe inside lambdas.",
+
+    "real_world_workflow": "Daily CompletableFuture usage:\n\n- Async REST call: `CompletableFuture.supplyAsync(() -> restTemplate.getForObject(url, User.class))`\n- Fan-out: `allOf(cfA, cfB, cfC).thenRun(() -> merge results)`\n- Sequential async chain: `cf.thenCompose(user -> fetchOrders(user))`\n- Error fallback: `cf.exceptionally(ex -> defaultUser)`\n- Timeout: `cf.completeOnTimeout(defaultValue, 5, SECONDS)` (Java 9+)\n- Stream of CFs: `allOf(stream.map(cf supplier).toArray(CF[]::new)).thenRun(collect)`"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "then_apply_vs_then_compose",
+      "what_students_get_wrong": "Using thenApply when the mapping function returns a CompletableFuture — creates nested CF<CF<T>>.",
+      "remediation": "If the function returns CF<R>: use thenCompose (flatMap equivalent). If it returns plain R: use thenApply (map equivalent). Check the return type — nested CompletableFuture is always wrong.",
+      "detection_pattern": "Compiler infers CF<CF<T>> — confusing type"
+    },
+    {
+      "gap_id": "join_in_stream_blocks",
+      "what_students_get_wrong": "Calling join() inside a stream pipeline — blocks the thread processing the stream, defeating the purpose of async.",
+      "remediation": "Create all CFs first (all start immediately). Then allOf, then collect. Never join() inside .map() before allOf — that makes it sequential.",
+      "detection_pattern": "All fetches appear sequential in timing despite using CompletableFuture"
+    },
+    {
+      "gap_id": "forgetting_default_thread_pool",
+      "what_students_get_wrong": "supplyAsync without a pool uses ForkJoinPool.commonPool() — shared with parallel streams, may cause contention.",
+      "remediation": "Always provide a dedicated ExecutorService for production code: `supplyAsync(task, myPool)`. ForkJoinPool is fine for demos and quick scripts.",
+      "detection_pattern": "Unexpected thread pool saturation in production"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "CompletableFuture = Future + non-blocking callbacks + combinators",
+      "supplyAsync(Supplier): starts async computation, returns CF<T>",
+      "thenApply(Function): transform T→R when done; returns CF<R>",
+      "thenCompose(Function returning CF): flatMap — unwraps nested CF",
+      "thenAccept(Consumer): consume result; returns CF<Void>",
+      "exceptionally(Function): handle error, provide fallback value",
+      "handle(BiFunction): always runs on both success and failure",
+      "allOf(cfs...): completes when ALL complete → use join() to get results",
+      "anyOf(cfs...): completes when ANY completes",
+      "join() = get() but throws unchecked; safe inside lambdas/streams",
+      "Always provide custom executor to supplyAsync in production",
+      "thenApply for T→R; thenCompose for T→CF<R>"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What is wrong with this code?\n```java\nList<CompletableFuture<String>> futures = ids.stream()\n    .map(id -> CompletableFuture.supplyAsync(() -> fetch(id)))\n    .collect(Collectors.toList());\n\nList<String> results = futures.stream()\n    .map(CompletableFuture::join)  // ← problem?\n    .collect(Collectors.toList());\n```",
+        "answer": "The join() calls in the second stream make the fetches effectively sequential. While all futures start simultaneously (first stream), join() in the second stream blocks the main thread for each future in order: waits for futures.get(0).join(), then futures.get(1).join(), etc. It's sequential blocking. Fix: use CompletableFuture.allOf(futures.toArray(...)).thenRun(() -> futures.stream().map(CF::join).collect()) — the joins inside thenRun are instant because allOf already waited for all to complete."
+      },
+      {
+        "question": "When do you use thenCompose instead of thenApply?",
+        "answer": "When the function you're applying itself returns a CompletableFuture. thenApply expects T → R (plain value). thenCompose expects T → CompletableFuture<R>. Using thenApply when the function returns CF gives you CF<CF<R>> — nested. thenCompose unwraps one level to give CF<R>. Rule: thenCompose is to CompletableFuture what flatMap is to Stream or Optional — use it when the next step is itself async."
+      },
+      {
+        "question": "Where does this chain's callback run if no explicit executor is provided?\n`cf.thenApply(x -> transform(x)).thenAccept(y -> print(y))`",
+        "answer": "If cf is already complete when thenApply is called, the callback runs on the calling thread. If cf is not yet complete, the callback runs on the thread that completes cf (the thread pool thread). This is implementation-dependent and can cause subtle bugs in production — the thread pool thread might be held longer than expected. In production, use thenApplyAsync(fn, myPool) to always run the callback on a known thread pool."
+      }
+    ],
+
+    "next_topic_preview": "Module 10: Concurrency and Threads is complete! You've covered the full arc: raw threads → synchronization → thread pools → concurrent collections → async non-blocking pipelines. This is the complete modern Java concurrency toolkit.\n\nModule 11 covers **I/O, Files, and Networking** — reading/writing files, working with file paths, and making HTTP connections from Java. Essential for any application that reads config files, processes CSVs, logs to disk, or calls external APIs."
+  }
+}

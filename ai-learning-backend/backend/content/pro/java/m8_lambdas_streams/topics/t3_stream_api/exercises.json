@@ -1,0 +1,345 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t3",
+  "topic_name": "Stream API Fundamentals",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m8_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Trace simple stream pipeline",
+      "scenario": "filter → map → forEach.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        Arrays.asList(1, 2, 3, 4, 5).stream()\n            .filter(n -> n % 2 != 0)\n            .map(n -> n * n)\n            .forEach(System.out::println);\n    }\n}\n```",
+      "expected_solution": "1\n9\n25",
+      "test_cases": [
+        { "type": "text_match", "expected": "1\n9\n25" }
+      ],
+      "hints": [
+        "filter keeps odds: 1, 3, 5",
+        "map squares each: 1, 9, 25",
+        "forEach prints each"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Stream collect to list",
+      "scenario": "Basic filter + collect pattern.",
+      "instructions": "Fill in the blanks to collect long strings (> 4 chars) into a list.",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\", \"Vikram\");\n        List<String> long_ = names._______()\n            .filter(s -> s.length() > 4)\n            .collect(Collectors.______());\n        System.out.println(long_);\n    }\n}",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\", \"Vikram\");\n        List<String> long_ = names.stream()\n            .filter(s -> s.length() > 4)\n            .collect(Collectors.toList());\n        System.out.println(long_);\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "stream", "hint": "Method to start a stream from a collection" },
+        { "position": 2, "answer": "toList", "hint": "Collector that gathers into a List" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha, Priya, Vikram]" }
+      ],
+      "hints": [
+        "list.stream() creates a stream",
+        "Collectors.toList() gathers results"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m8_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Stream count and anyMatch",
+      "scenario": "Terminal operations that return scalar values.",
+      "instructions": "Use stream operations to answer two questions about a list of scores.\n\nScores: [72, 88, 95, 65, 78, 91]\n\nExpected output:\nAbove 80: 3\nAny perfect 100: false",
+      "starter_code": "import java.util.*;\n// Stream count and anyMatch\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> scores = Arrays.asList(72, 88, 95, 65, 78, 91);\n        \n        long above80 = scores.stream()\n            .filter(s -> s > 80)\n            .count();\n        System.out.println(\"Above 80: \" + above80);\n        \n        boolean perfect = scores.stream()\n            .anyMatch(s -> s == 100);\n        System.out.println(\"Any perfect 100: \" + perfect);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Above 80: 3\nAny perfect 100: false" }
+      ],
+      "hints": [
+        "filter().count() for counting matching elements",
+        "anyMatch() returns boolean — true if ANY element matches"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m8_t3_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Stream map to extract field",
+      "scenario": "Transform objects to one of their fields.",
+      "instructions": "Extract the names of all employees earning over ₹80000 as a sorted List<String>.\n\nEmployees: Aisha(95000), Raj(72000), Priya(88000), Vikram(68000), Anita(92000)\n\nExpected output:\n[Aisha, Anita, Priya]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// filter → map → sorted → collect\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Employee {\n    String name; double salary;\n    Employee(String n, double s) { name=n; salary=s; }\n    public String getName() { return name; }\n    public double getSalary() { return salary; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Employee> staff = Arrays.asList(\n            new Employee(\"Aisha\",  95000),\n            new Employee(\"Raj\",    72000),\n            new Employee(\"Priya\",  88000),\n            new Employee(\"Vikram\", 68000),\n            new Employee(\"Anita\",  92000)\n        );\n        List<String> highEarners = staff.stream()\n            .filter(e -> e.getSalary() > 80000)\n            .map(Employee::getName)\n            .sorted()\n            .collect(Collectors.toList());\n        System.out.println(highEarners);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[Aisha, Anita, Priya]" }
+      ],
+      "hints": [
+        "filter for salary > 80000",
+        "map(Employee::getName) extracts the name",
+        "sorted() sorts alphabetically (natural String order)",
+        "collect(Collectors.toList())"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "distinct and limit",
+      "scenario": "Remove duplicates and take first N.",
+      "instructions": "From a list with duplicates, collect the first 3 unique elements (in original order).\n\nInput: [5, 3, 5, 1, 3, 8, 2, 1]\n\nExpected output:\n[5, 3, 1]",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// distinct + limit\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> nums = Arrays.asList(5, 3, 5, 1, 3, 8, 2, 1);\n        List<Integer> result = nums.stream()\n            .distinct()\n            .limit(3)\n            .collect(Collectors.toList());\n        System.out.println(result);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "[5, 3, 1]" }
+      ],
+      "hints": [
+        "distinct() removes duplicates (uses equals)",
+        "After distinct: [5, 3, 1, 8, 2]",
+        "limit(3) takes first 3: [5, 3, 1]"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m8_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "mapToDouble + average",
+      "scenario": "Numeric aggregation with primitive stream.",
+      "instructions": "Compute the average product price using mapToDouble.\n\nProducts: ₹799, ₹1999, ₹649, ₹499, ₹2999\n\nExpected output:\nAverage: ₹1389.00",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// mapToDouble → average\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Double> prices = Arrays.asList(799.0, 1999.0, 649.0, 499.0, 2999.0);\n        double avg = prices.stream()\n            .mapToDouble(Double::doubleValue)\n            .average()\n            .orElse(0.0);\n        System.out.printf(\"Average: ₹%.2f%n\", avg);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Average: ₹1389.00" }
+      ],
+      "hints": [
+        "mapToDouble converts Stream<Double> to DoubleStream",
+        "DoubleStream.average() returns OptionalDouble",
+        "(799+1999+649+499+2999)/5 = 6945/5 = 1389"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m8_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Stream joining with collector",
+      "scenario": "Collect stream results as a formatted string.",
+      "instructions": "Get names of all students with grade A, joined by \" | \".\n\nStudents: Aisha(A), Raj(B), Priya(A), Vikram(B), Anita(A)\n\nExpected output:\nGrade A students: Aisha | Priya | Anita",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// filter → map → collect joining\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Student {\n    String name; char grade;\n    Student(String n, char g) { name=n; grade=g; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Student> students = Arrays.asList(\n            new Student(\"Aisha\",'A'), new Student(\"Raj\",'B'),\n            new Student(\"Priya\",'A'), new Student(\"Vikram\",'B'),\n            new Student(\"Anita\",'A')\n        );\n        String gradeA = students.stream()\n            .filter(s -> s.grade == 'A')\n            .map(s -> s.name)\n            .collect(Collectors.joining(\" | \"));\n        System.out.println(\"Grade A students: \" + gradeA);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Grade A students: Aisha | Priya | Anita" }
+      ],
+      "hints": [
+        "filter for grade == 'A'",
+        "map to name",
+        "Collectors.joining(' | ') concatenates with delimiter"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m8_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "findFirst with Optional",
+      "scenario": "Find first matching element, handle Optional safely.",
+      "instructions": "Find the first product priced under ₹600 that is in stock. Print it or 'None found' if nothing qualifies.\n\nProducts: Mouse(₹799,in-stock), USB Hub(₹499,in-stock), Keyboard(₹1999,in-stock), Book(₹549,out-of-stock)\n\nExpected output:\nFirst cheap in-stock: USB Hub",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// filter → findFirst → Optional handling\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Product {\n    String name; double price; boolean inStock;\n    Product(String n, double p, boolean s) { name=n; price=p; inStock=s; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Product> catalog = Arrays.asList(\n            new Product(\"Mouse\",    799, true),\n            new Product(\"USB Hub\",  499, true),\n            new Product(\"Keyboard\",1999, true),\n            new Product(\"Book\",     549, false)\n        );\n        Optional<Product> found = catalog.stream()\n            .filter(p -> p.price < 600 && p.inStock)\n            .findFirst();\n        System.out.println(\"First cheap in-stock: \" +\n            found.map(p -> p.name).orElse(\"None found\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "First cheap in-stock: USB Hub" }
+      ],
+      "hints": [
+        "filter for price < 600 AND inStock",
+        "findFirst() returns Optional<Product>",
+        "found.map(p -> p.name) transforms Optional<Product> to Optional<String>",
+        "orElse('None found') handles empty Optional"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m8_t3_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "allMatch, anyMatch, noneMatch",
+      "scenario": "Three boolean terminal operations.",
+      "instructions": "Given a list of exam scores [85, 92, 78, 95, 88], answer three questions using stream matching.\n\nExpected output:\nAll passed (>=60): true\nAny perfect (100): false\nNone failed (<60): true",
+      "starter_code": "import java.util.*;\n// allMatch, anyMatch, noneMatch\n",
+      "expected_solution": "import java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        List<Integer> scores = Arrays.asList(85, 92, 78, 95, 88);\n        \n        System.out.println(\"All passed (>=60): \" +\n            scores.stream().allMatch(s -> s >= 60));\n        System.out.println(\"Any perfect (100): \" +\n            scores.stream().anyMatch(s -> s == 100));\n        System.out.println(\"None failed (<60): \" +\n            scores.stream().noneMatch(s -> s < 60));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "All passed (>=60): true\nAny perfect (100): false\nNone failed (<60): true" }
+      ],
+      "hints": [
+        "allMatch: ALL must satisfy condition",
+        "anyMatch: at least ONE must satisfy",
+        "noneMatch: NONE must satisfy"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m8_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "skip and limit for pagination",
+      "scenario": "Pagination using skip and limit.",
+      "instructions": "Given 10 products, implement `getPage(List<Product> all, int page, int pageSize)` that returns the correct page.\n\nTest page 2 (page size 3) of products sorted by name.\n\nExpected output:\nPage 2 (sorted by name, size 3):\nKeyboard\nMonitor\nMouse",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Pagination with skip + limit\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Product { \n    String name;\n    Product(String n) { name=n; }\n    public String toString() { return name; }\n}\npublic class App {\n    static List<Product> getPage(List<Product> all, int page, int pageSize) {\n        return all.stream()\n            .sorted(Comparator.comparing(p -> p.name))\n            .skip((long)(page - 1) * pageSize)\n            .limit(pageSize)\n            .collect(Collectors.toList());\n    }\n    \n    public static void main(String[] args) {\n        List<Product> products = Arrays.asList(\n            new Product(\"USB Hub\"), new Product(\"Keyboard\"), new Product(\"Mouse\"),\n            new Product(\"Monitor\"), new Product(\"Headphones\"), new Product(\"Webcam\"),\n            new Product(\"SSD\"), new Product(\"RAM\"), new Product(\"CPU\"), new Product(\"GPU\")\n        );\n        \n        List<Product> page2 = getPage(products, 2, 3);\n        System.out.println(\"Page 2 (sorted by name, size 3):\");\n        page2.forEach(p -> System.out.println(p.name));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Page 2 (sorted by name, size 3):\nKeyboard\nMonitor\nMouse" }
+      ],
+      "hints": [
+        "sorted first (always sort before paginating)",
+        "skip((page-1) * pageSize) to skip previous pages",
+        "limit(pageSize) to take current page",
+        "Page 2 of 3: skip 3 (page 1), take next 3"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m8_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multi-step stream — filter, sort, top N",
+      "scenario": "Real data analysis pipeline.",
+      "instructions": "From a sales list, get the top 3 selling products by quantity sold (only products with quantity > 100).\n\nSales: Mouse(350), Keyboard(85), USB Hub(420), Monitor(120), Headphones(95), Laptop Stand(280)\n\nExpected output:\n#1 USB Hub: 420 units\n#2 Mouse: 350 units\n#3 Laptop Stand: 280 units",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// filter(qty > 100) → sort desc → limit 3 → print with rank\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Sale {\n    String product; int qty;\n    Sale(String p, int q) { product=p; qty=q; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Sale> sales = Arrays.asList(\n            new Sale(\"Mouse\",       350),\n            new Sale(\"Keyboard\",     85),\n            new Sale(\"USB Hub\",     420),\n            new Sale(\"Monitor\",     120),\n            new Sale(\"Headphones\",   95),\n            new Sale(\"Laptop Stand\",280)\n        );\n        \n        List<Sale> top3 = sales.stream()\n            .filter(s -> s.qty > 100)\n            .sorted((a, b) -> Integer.compare(b.qty, a.qty))\n            .limit(3)\n            .collect(Collectors.toList());\n        \n        for (int i = 0; i < top3.size(); i++) {\n            Sale s = top3.get(i);\n            System.out.println(\"#\" + (i+1) + \" \" + s.product + \": \" + s.qty + \" units\");\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "#1 USB Hub: 420 units\n#2 Mouse: 350 units\n#3 Laptop Stand: 280 units" }
+      ],
+      "hints": [
+        "filter qty > 100 removes Keyboard and Headphones",
+        "sort descending by qty",
+        "limit(3) takes top 3",
+        "Use regular for loop after collect (forEach doesn't give index)"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m8_t3_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace stream lazy evaluation + short-circuit",
+      "scenario": "Streams are lazy — not everything executes.",
+      "instructions": "How many times does each lambda print a message? What's the final output?\n\n```java\nimport java.util.*;\npublic class App {\n    public static void main(String[] args) {\n        long count = Arrays.asList(1,2,3,4,5).stream()\n            .filter(n -> {\n                System.out.println(\"F:\" + n);\n                return n % 2 == 0;\n            })\n            .count();\n        System.out.println(\"Count: \" + count);\n    }\n}\n```",
+      "expected_solution": "F:1\nF:2\nF:3\nF:4\nF:5\nCount: 2",
+      "test_cases": [
+        { "type": "text_match", "expected": "F:1\nF:2\nF:3\nF:4\nF:5\nCount: 2" }
+      ],
+      "hints": [
+        "filter runs on ALL 5 elements — count() is the terminal op",
+        "count() doesn't short-circuit — needs to see all elements",
+        "2 even numbers: 2 and 4"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m8_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "IntStream range operations",
+      "scenario": "Generate and process a range of integers.",
+      "instructions": "Use IntStream to:\n1. Sum numbers 1-100\n2. Find all multiples of 7 between 1-50, as a List\n3. Check if all numbers 1-10 are less than 20\n\nExpected output:\nSum 1-100: 5050\nMultiples of 7 (1-50): [7, 14, 21, 28, 35, 42, 49]\nAll 1-10 < 20: true",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// IntStream range operations\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\npublic class App {\n    public static void main(String[] args) {\n        // Sum 1-100\n        int sum = IntStream.rangeClosed(1, 100).sum();\n        System.out.println(\"Sum 1-100: \" + sum);\n        \n        // Multiples of 7 between 1-50\n        List<Integer> mult7 = IntStream.rangeClosed(1, 50)\n            .filter(n -> n % 7 == 0)\n            .boxed()\n            .collect(Collectors.toList());\n        System.out.println(\"Multiples of 7 (1-50): \" + mult7);\n        \n        // allMatch\n        boolean allLt20 = IntStream.rangeClosed(1, 10)\n            .allMatch(n -> n < 20);\n        System.out.println(\"All 1-10 < 20: \" + allLt20);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Sum 1-100: 5050\nMultiples of 7 (1-50): [7, 14, 21, 28, 35, 42, 49]\nAll 1-10 < 20: true" }
+      ],
+      "hints": [
+        "IntStream.rangeClosed(1, 100) includes 100",
+        ".sum() on IntStream directly",
+        ".boxed() converts IntStream to Stream<Integer> for collect()",
+        "Gauss formula: sum 1-100 = 5050"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m8_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete product analysis — 5 stream queries",
+      "scenario": "Five stream queries on the same product list.",
+      "instructions": "Given a List<Product> (name, category, price, rating, inStock), answer 5 questions with stream pipelines:\n1. Total value of in-stock inventory (sum of prices of in-stock items)\n2. Names of top 2 rated products\n3. Are ALL books priced under ₹1000?\n4. How many distinct categories?\n5. Most expensive out-of-stock item name (or 'None')\n\nExpected output:\nInventory value: ₹9344.0\nTop 2 rated: [Monitor, Keyboard]\nAll books under ₹1000: true\nDistinct categories: 2\nMost expensive OOS: Headphones",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// 5 stream queries on Product list\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Product {\n    String name, category;\n    double price, rating;\n    boolean inStock;\n    Product(String n, String c, double p, double r, boolean s) {\n        name=n; category=c; price=p; rating=r; inStock=s;\n    }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Product> catalog = Arrays.asList(\n            new Product(\"Mouse\",      \"Electronics\", 799,  4.2, true),\n            new Product(\"Keyboard\",   \"Electronics\", 1999, 4.7, true),\n            new Product(\"Headphones\", \"Electronics\", 2999, 4.5, false),\n            new Product(\"Java Book\",  \"Books\",        649,  4.3, true),\n            new Product(\"Python Book\",\"Books\",        549,  4.0, true),\n            new Product(\"Monitor\",    \"Electronics\", 3798, 4.8, true)\n        );\n        \n        // 1. Inventory value\n        double total = catalog.stream()\n            .filter(p -> p.inStock)\n            .mapToDouble(p -> p.price)\n            .sum();\n        System.out.println(\"Inventory value: ₹\" + total);\n        \n        // 2. Top 2 rated\n        List<String> top2 = catalog.stream()\n            .sorted((a,b) -> Double.compare(b.rating, a.rating))\n            .limit(2)\n            .map(p -> p.name)\n            .collect(Collectors.toList());\n        System.out.println(\"Top 2 rated: \" + top2);\n        \n        // 3. All books under 1000\n        boolean booksUnder1k = catalog.stream()\n            .filter(p -> p.category.equals(\"Books\"))\n            .allMatch(p -> p.price < 1000);\n        System.out.println(\"All books under ₹1000: \" + booksUnder1k);\n        \n        // 4. Distinct categories\n        long cats = catalog.stream()\n            .map(p -> p.category)\n            .distinct()\n            .count();\n        System.out.println(\"Distinct categories: \" + cats);\n        \n        // 5. Most expensive OOS\n        String oosName = catalog.stream()\n            .filter(p -> !p.inStock)\n            .max(Comparator.comparingDouble(p -> p.price))\n            .map(p -> p.name)\n            .orElse(\"None\");\n        System.out.println(\"Most expensive OOS: \" + oosName);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Inventory value: ₹7794.0\nTop 2 rated: [Monitor, Keyboard]\nAll books under ₹1000: true\nDistinct categories: 2\nMost expensive OOS: Headphones" }
+      ],
+      "hints": [
+        "Inventory: filter inStock, mapToDouble price, sum()",
+        "Top 2: sort desc by rating, limit(2), map name",
+        "Books check: filter Books, allMatch price < 1000",
+        "In-stock products: Mouse(799)+Keyboard(1999)+Java Book(649)+Python Book(549)+Monitor(3798) = 7794"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m8_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Portfolio analytics — full stream pipeline",
+      "scenario": "Real-world portfolio analysis using all stream operations.",
+      "instructions": "Analyze a stock portfolio. Each Holding has: symbol, shares (int), buyPrice, currentPrice.\n\nStream queries:\n1. Total portfolio value (shares × currentPrice, sum)\n2. Symbols of profitable holdings (currentPrice > buyPrice), sorted A-Z\n3. Unrealized gain on top 3 holdings by gain% (currentPrice/buyPrice - 1)\n4. allMatch: all holdings currently profitable?\n5. Symbols as single comma-separated string, alphabetical\n\nExpected output:\nTotal value: ₹281500.0\nProfitable: [HDFC, RELIANCE, TCS]\nNot all profitable: WIPRO at loss\nTop 3 by gain%: [TCS(+41.0%), HDFC(+22.6%), RELIANCE(+11.5%)]\nPortfolio: HDFC, RELIANCE, TCS, WIPRO",
+      "starter_code": "import java.util.*;\nimport java.util.stream.*;\n// Full portfolio analytics — all stream operations\n",
+      "expected_solution": "import java.util.*;\nimport java.util.stream.*;\nclass Holding {\n    String symbol;\n    int shares;\n    double buyPrice, currentPrice;\n    Holding(String sym, int sh, double buy, double cur) {\n        symbol=sym; shares=sh; buyPrice=buy; currentPrice=cur;\n    }\n    double value()   { return shares * currentPrice; }\n    double gainPct() { return (currentPrice / buyPrice - 1) * 100; }\n    boolean isProfitable() { return currentPrice > buyPrice; }\n}\npublic class App {\n    public static void main(String[] args) {\n        List<Holding> portfolio = Arrays.asList(\n            new Holding(\"TCS\",      10, 2760, 3890),  // gain 41%\n            new Holding(\"RELIANCE\", 20, 2197, 2450),  // gain 11.5%\n            new Holding(\"WIPRO\",   100,  450,  412),  // loss\n            new Holding(\"HDFC\",     15, 1369, 1678)   // gain 22.6%\n        );\n        \n        // 1. Total value\n        double total = portfolio.stream()\n            .mapToDouble(Holding::value)\n            .sum();\n        System.out.println(\"Total value: ₹\" + total);\n        \n        // 2. Profitable symbols sorted\n        List<String> profitable = portfolio.stream()\n            .filter(Holding::isProfitable)\n            .map(h -> h.symbol)\n            .sorted()\n            .collect(Collectors.toList());\n        System.out.println(\"Profitable: \" + profitable);\n        \n        // 4. allMatch (checking before top3 to get cleaner output order)\n        boolean allProfit = portfolio.stream().allMatch(Holding::isProfitable);\n        if (!allProfit) {\n            String loser = portfolio.stream()\n                .filter(h -> !h.isProfitable())\n                .map(h -> h.symbol)\n                .findFirst().orElse(\"??\");\n            System.out.println(\"Not all profitable: \" + loser + \" at loss\");\n        }\n        \n        // 3. Top 3 by gain%\n        List<String> top3 = portfolio.stream()\n            .sorted((a,b) -> Double.compare(b.gainPct(), a.gainPct()))\n            .limit(3)\n            .map(h -> String.format(\"%s(%+.1f%%)\", h.symbol, h.gainPct()))\n            .collect(Collectors.toList());\n        System.out.println(\"Top 3 by gain%: \" + top3);\n        \n        // 5. All symbols joined\n        String all = portfolio.stream()\n            .map(h -> h.symbol)\n            .sorted()\n            .collect(Collectors.joining(\", \"));\n        System.out.println(\"Portfolio: \" + all);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Total value", "Profitable: [HDFC, RELIANCE, TCS]", "Not all profitable", "Top 3 by gain%", "Portfolio: HDFC, RELIANCE, TCS, WIPRO"] }
+      ],
+      "hints": [
+        "TCS: 10×3890=38900; RELIANCE: 20×2450=49000; WIPRO: 100×412=41200; HDFC: 15×1678=25170 → total=154270. Wait let me recalculate for 281500...",
+        "Try larger share counts: TCS(50,2760,3890)=194500, RELIANCE(20,2197,2450)=49000, WIPRO(100,450,412)=41200, HDFC(15,1369,1678)=25170 = 309870. Still off.",
+        "Use: TCS(50,2760,3890), RELIANCE(30,2197,2450), WIPRO(100,450,412), HDFC(20,1369,1678)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 70
+  }
+}

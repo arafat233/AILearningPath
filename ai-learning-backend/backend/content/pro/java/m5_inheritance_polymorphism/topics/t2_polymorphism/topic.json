@@ -1,0 +1,214 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t2",
+  "language": "java",
+  "module_id": "m5",
+  "module_name": "Inheritance & Polymorphism",
+  "topic_number": 2,
+  "name": "Polymorphism",
+  "slug": "polymorphism",
+  
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m5_t1"],
+    "concepts_taught": [
+      "polymorphism_definition",
+      "upcasting",
+      "runtime_method_dispatch",
+      "liskov_substitution_principle",
+      "downcasting",
+      "instanceof_operator",
+      "pattern_matching_instanceof",
+      "reference_type_vs_object_type",
+      "polymorphic_method_design",
+      "open_closed_principle_preview"
+    ],
+    "skills_developed": [
+      "using_parent_type_references",
+      "writing_polymorphic_methods",
+      "safe_downcasting",
+      "designing_extensible_systems",
+      "understanding_runtime_vs_compile_time"
+    ],
+    "career_relevance": "Polymorphism is WHY Java's type system is so powerful. Every collection you'll use (ArrayList<Animal>) relies on it. Every method that accepts an interface or abstract class relies on it. Spring's dependency injection works BECAUSE of polymorphism — your service gets an EmailSender, and the runtime decides whether it's a RealEmailSender or a TestEmailSender. The Liskov Substitution Principle (the 'L' in SOLID) is built on polymorphism. Understanding this topic is the difference between writing 'Java code' and understanding the DESIGN PHILOSOPHY behind Java.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "You're a developer at a payment platform. The product team says: 'We need to support credit card, UPI, and net banking payments.' Your first instinct might be three separate methods: `processCredit()`, `processUPI()`, `processNetBanking()`. Then two months later: 'Add crypto payments.' You add `processCrypto()`. Then 'Add BNPL.' You add another. Your payment engine becomes a chain of if/else or switch cases that grows with every new payment type.\n\nPolymorphism lets you write this ONCE:\n\n```java\nvoid processPayment(PaymentMethod method, double amount) {\n    method.pay(amount);  // works for ANY payment type\n}\n```\n\nCreditCard, UPI, NetBanking, Crypto — they ALL extend PaymentMethod and implement `pay()`. The single `processPayment` method works for every type you'll EVER add. You add new payment types WITHOUT modifying the method.\n\nThis is the Open/Closed Principle: 'Open for extension, closed for modification.' Polymorphism makes it possible. After this topic, you'll design code that naturally extends this way.",
+    "what_you_will_build": "By the end of this topic, you'll understand polymorphism completely: upcasting (storing subclass as parent type), runtime method dispatch (which method ACTUALLY runs?), the Liskov Substitution Principle, safe downcasting with `instanceof`, and how to design polymorphic methods. You'll build the payment processing system from the hook — a clean, extensible design where new payment types need zero changes to the processing engine."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**Polymorphism** means 'many forms.' A single method call can result in different behavior depending on the ACTUAL type of the object.\n\nYou already SAW this in Topic 5.1:\n```java\nAnimal[] animals = { new Dog(\"Rex\"), new Cat(\"Whiskers\") };\nfor (Animal a : animals) {\n    a.makeSound();  // Woof! or Meow! — different per object\n}\n```\n\nThe reference type is `Animal`. The actual objects are `Dog` and `Cat`. The method called is `makeSound()`. But the BEHAVIOR differs per object — that's polymorphism.\n\nTwo key mechanics:\n1. **Upcasting**: storing a Dog/Cat reference as Animal type\n2. **Runtime dispatch**: when `makeSound()` is called, Java finds the ACTUAL object's method at runtime",
+      
+      "upcasting": "**Upcasting**: storing a subclass reference as a parent-type variable. Always safe — a Dog IS an Animal.\n\n```java\nDog rex = new Dog(\"Rex\");  // Dog reference\nAnimal a = rex;             // upcast — valid, automatic\nAnimal b = new Dog(\"Buddy\"); // implicit upcast in one step\n```\n\nWith an `Animal` reference, you can ONLY call methods defined in `Animal` — even though the actual object is a `Dog`:\n\n```java\nAnimal a = new Dog(\"Rex\");\na.makeSound();  // OK — defined in Animal, overridden in Dog\na.fetch();      // COMPILE ERROR — 'fetch' not in Animal type\n```\n\nThe COMPILER only knows the reference type is `Animal`. At RUNTIME, Java dispatches to `Dog.makeSound()` because the actual object is a Dog.\n\n**Why upcast at all?** Because you can then write ONE method/array that handles all subclasses:\n\n```java\nAnimal[] zoo = new Animal[3];\nzoo[0] = new Dog(\"Rex\");    // implicit upcast\nzoo[1] = new Cat(\"Kitty\");  // implicit upcast\nzoo[2] = new Bird(\"Tweety\"); // implicit upcast\n```",
+      
+      "runtime_dispatch": "The heart of polymorphism: **runtime method dispatch** (also called 'dynamic dispatch').\n\nWhen you call a method through a parent-type reference, Java decides WHICH implementation to run at RUNTIME based on the ACTUAL object type:\n\n```java\nAnimal a;\n\na = new Dog(\"Rex\");\na.makeSound();    // Java runs: Dog.makeSound() → 'Rex says: Woof!'\n\na = new Cat(\"Kitty\");\na.makeSound();    // Java runs: Cat.makeSound() → 'Kitty says: Meow!'\n```\n\nSame reference `a`, same line `a.makeSound()`, DIFFERENT behavior each time. The actual object (Dog vs Cat) determines which method runs.\n\n**Compile time vs runtime**:\n- **Compile time**: Java checks the REFERENCE TYPE (Animal). Is `makeSound()` defined in Animal? Yes → OK. Is `fetch()` defined in Animal? No → compile error.\n- **Runtime**: Java looks at the ACTUAL OBJECT TYPE (Dog/Cat). Does it override `makeSound()`? Yes → call that version.\n\nThis distinction is fundamental. The compiler's perspective and the runtime's perspective differ. This is WHY you can put different subclass objects in an `Animal[]` — they're all Animals at compile time; they're specific types at runtime.",
+      
+      "polymorphic_method": "The real power: write a method once that works for all subclasses, current AND FUTURE:\n\n```java\n// Works for ANY Animal — now and forever\npublic static void makeItSpeak(Animal a) {\n    a.makeSound();\n}\n\n// Works for current types\nmakeItSpeak(new Dog(\"Rex\"));    // Woof!\nmakeItSpeak(new Cat(\"Kitty\"));  // Meow!\n\n// Works for FUTURE types you haven't written yet!\n// When you add a Snake class that extends Animal:\nmakeItSpeak(new Snake(\"Sly\"));  // Hiss! — makeItSpeak never changes\n```\n\nThe `makeItSpeak` method is written once. Every new Animal subclass automatically works with it. This is the OPEN/CLOSED principle in action: `makeItSpeak` is **closed** for modification (you don't change it) but **open** for extension (it handles new types automatically).\n\n**This is the killer app of polymorphism.** Collections, frameworks, libraries — they're all written to accept parent types. You add new subclasses and existing code 'magically' works with them.",
+      
+      "liskov_substitution": "**Liskov Substitution Principle (LSP)**: if S is a subtype of T, objects of type S can be used wherever objects of type T are expected, without breaking correctness.\n\nSimpler: **A subclass should be usable anywhere its parent is usable.**\n\n**Good LSP** (Rectangle → Square is actually BAD):\n```java\n// Bird IS an Animal. Using a Bird where Animal is expected works:\nvoid feed(Animal a) { a.eat(); }\nfeed(new Dog());   // Dog.eat() — works\nfeed(new Bird());  // Bird.eat() — works\n```\n\n**LSP violation** — infamous example:\n```java\nclass Rectangle {\n    protected int width, height;\n    public void setWidth(int w) { this.width = w; }\n    public void setHeight(int h) { this.height = h; }\n    public int area() { return width * height; }\n}\n\nclass Square extends Rectangle {\n    @Override\n    public void setWidth(int w) { width = height = w; }  // squares have equal sides\n    @Override\n    public void setHeight(int h) { width = height = h; }\n}\n\n// This BREAKS with Square:\nvoid resize(Rectangle r) {\n    r.setWidth(5);\n    r.setHeight(3);\n    // Expected area: 15 for Rectangle\n    // Actual area: 9 for Square (setHeight(3) also set width to 3!)\n}\n```\n\nSquare IS NOT a proper subtype of Rectangle — substituting Square for Rectangle breaks expected behavior. This is an LSP violation. The fix: don't make Square extend Rectangle; make both extend Shape.\n\n**Practical rule**: if the 'is-a' is real AND using the subclass everywhere the parent is used makes sense → good LSP. If the subclass needs to constrain or break parent behavior → don't use inheritance.",
+      
+      "downcasting": "Sometimes you need to get BACK to the specific type. **Downcasting** casts a parent reference to a subclass type:\n\n```java\nAnimal a = new Dog(\"Rex\");  // upcasted\nDog d = (Dog) a;             // downcast — must cast explicitly\nd.fetch();                   // now can call Dog-specific method\n```\n\n**Danger**: if the actual object isn't a Dog, you get ClassCastException at RUNTIME:\n\n```java\nAnimal a = new Cat(\"Kitty\");\nDog d = (Dog) a;  // compiles, but... ClassCastException at runtime!\n```\n\nThe compiler can't check this — both Dog and Cat are Animals. You must check first with `instanceof`.",
+      
+      "instanceof": "**`instanceof`** checks if an object is actually a specific type — safe before downcasting:\n\n```java\npublic static void processAnimal(Animal a) {\n    // Call common behavior\n    a.makeSound();\n    \n    // Type-specific behavior only when appropriate\n    if (a instanceof Dog) {\n        Dog d = (Dog) a;  // safe — we KNOW it's a Dog\n        d.fetch();\n    } else if (a instanceof Cat) {\n        Cat c = (Cat) a;\n        c.purr();\n    }\n}\n```\n\n**Pattern matching for instanceof (Java 16+)** — cleaner syntax combining check and cast:\n\n```java\npublic static void processAnimal(Animal a) {\n    a.makeSound();\n    \n    if (a instanceof Dog d) {  // checks AND binds to `d` simultaneously\n        d.fetch();\n    } else if (a instanceof Cat c) {\n        c.purr();\n    }\n}\n```\n\nThe `instanceof Dog d` checks if `a` is a Dog AND if so, creates variable `d` of type Dog. No separate cast needed.\n\n**Warning**: lots of `instanceof` checks in code is often a design smell — usually means you should have more polymorphism, not less. If you're checking types to do different things, consider whether each type should handle its own behavior instead.",
+      
+      "reference_vs_object_type": "Critical concept to nail down — the difference between REFERENCE TYPE and OBJECT TYPE:\n\n```java\nAnimal a = new Dog(\"Rex\");\n```\n\n- **Reference type**: `Animal` — what the COMPILER knows\n- **Object type**: `Dog` — what's ACTUALLY in memory at RUNTIME\n\nThis determines:\n- **What you can call**: reference type decides (only Animal methods)\n- **Which implementation runs**: object type decides (Dog's overrides)\n\n```java\nAnimal a = new Dog(\"Rex\");\n// Compile-time check uses Animal:\na.makeSound();  // OK — Animal has makeSound\na.fetch();      // COMPILE ERROR — Animal doesn't have fetch\n\n// Runtime execution uses Dog:\na.makeSound();  // Runs Dog.makeSound() → Woof!\n```\n\n**Key tests**:\n- `a.getClass()` → returns `class Dog` (actual runtime type)\n- `a instanceof Dog` → true (object is actually a Dog)\n- `a instanceof Animal` → true (Dog IS an Animal)\n- `(Animal) new Dog(\"Rex\")` → valid upcast\n- `(Dog) a` → valid downcast (if a IS a Dog)"
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show two parallel timelines. LEFT (Compile time): compiler sees 'Animal a' → allows makeSound(), rejects fetch(). RIGHT (Runtime): JVM sees actual Dog object → runs Dog.makeSound(). Connected by an arrow labeled 'Runtime dispatch bridges the gap.' Below: a method `processPayment(PaymentMethod pm)` box in the center. Arrows coming IN from: CreditCard, UPI, NetBanking — all labeled 'at runtime, Java calls the right pay()'. Arrow from processPayment box labeled 'one method, unlimited implementations.' Bottom: Liskov panel — 'Dog works here ✓' vs 'Square breaks Rectangle ✗' — visual contrast.",
+      "alt_text": "Visual showing compile-time vs runtime type resolution, polymorphic method receiving multiple subclass types"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Build the payment processing system from the hook. Multiple payment methods (CreditCard, UPI, NetBanking), a central payment engine that processes any of them using polymorphism. When the business adds a new payment method (Crypto, BNPL), the engine needs ZERO changes. This is production-style design — Razorpay, Stripe, PayU all have architectures like this.",
+    
+    "problem_statement": "Design:\n1. `PaymentMethod` base class: amount (double), transactionId (static auto), validate() returns boolean.\n2. `CreditCard extends PaymentMethod`: cardNumber (masked for security). Overrides validate() and pay().\n3. `UPI extends PaymentMethod`: upiId (String). Overrides validate() and pay().\n4. `NetBanking extends PaymentMethod`: bankCode (String). Overrides validate() and pay().\n5. `PaymentEngine`: single `processPayment(PaymentMethod method)` — validates, then processes. Works for ALL types. Never changes when new types are added.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Design the PaymentMethod base class",
+        "details": "```java\nclass PaymentMethod {\n    private static int nextTxnId = 1;\n    \n    protected double amount;\n    private final int transactionId;\n    \n    public PaymentMethod(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Amount must be positive\");\n        this.amount = amount;\n        this.transactionId = nextTxnId++;\n    }\n    \n    public int getTransactionId() { return transactionId; }\n    public double getAmount() { return amount; }\n    \n    // Subclasses SHOULD override these:\n    public boolean validate() {\n        return amount > 0;  // basic validation\n    }\n    \n    public void pay() {\n        System.out.println(\"Processing generic payment of ₹\" + amount);\n    }\n}\n```\n\n`validate()` and `pay()` are designed to be overridden. The base class provides a default, subclasses can specialize."
+      },
+      {
+        "step": 2,
+        "action": "Implement CreditCard with override",
+        "details": "```java\nclass CreditCard extends PaymentMethod {\n    private String maskedCardNumber;\n    \n    public CreditCard(double amount, String cardNumber) {\n        super(amount);\n        // Store only last 4 digits — security practice\n        this.maskedCardNumber = \"****-****-****-\" + cardNumber.substring(cardNumber.length() - 4);\n    }\n    \n    @Override\n    public boolean validate() {\n        return amount <= 100000.0;  // credit limit check\n    }\n    \n    @Override\n    public void pay() {\n        System.out.println(\"Credit card \" + maskedCardNumber + \": ₹\" + amount + \" charged [TXN #\" + getTransactionId() + \"]\");\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Implement UPI and NetBanking",
+        "details": "```java\nclass UPI extends PaymentMethod {\n    private String upiId;\n    \n    public UPI(double amount, String upiId) {\n        super(amount);\n        this.upiId = upiId;\n    }\n    \n    @Override\n    public boolean validate() {\n        return amount <= 100000.0 && upiId.contains(\"@\");\n    }\n    \n    @Override\n    public void pay() {\n        System.out.println(\"UPI \" + upiId + \": ₹\" + amount + \" transferred [TXN #\" + getTransactionId() + \"]\");\n    }\n}\n\nclass NetBanking extends PaymentMethod {\n    private String bankCode;\n    \n    public NetBanking(double amount, String bankCode) {\n        super(amount);\n        this.bankCode = bankCode;\n    }\n    \n    @Override\n    public boolean validate() {\n        return amount > 0;  // Net banking has high limits\n    }\n    \n    @Override\n    public void pay() {\n        System.out.println(\"Net Banking [\" + bankCode + \"]: ₹\" + amount + \" transferred [TXN #\" + getTransactionId() + \"]\");\n    }\n}\n```"
+      },
+      {
+        "step": 4,
+        "action": "The PaymentEngine — the polymorphic magic",
+        "details": "```java\nclass PaymentEngine {\n    // One method — handles ALL PaymentMethod subclasses\n    // Will NEVER need to change as new payment methods are added\n    public void processPayment(PaymentMethod method) {\n        System.out.print(\"Processing payment... \");\n        if (!method.validate()) {\n            System.out.println(\"REJECTED: validation failed\");\n            return;\n        }\n        method.pay();  // Runtime dispatch — calls the actual type's pay()\n        System.out.println(\"Payment complete!\");\n    }\n}\n```\n\n**This is the heart of the example.** `processPayment` takes `PaymentMethod`. At runtime:\n- When given a CreditCard → calls CreditCard.pay()\n- When given a UPI → calls UPI.pay()\n- When you add `Crypto extends PaymentMethod` later → processPayment works immediately, no changes"
+      },
+      {
+        "step": 5,
+        "action": "Demonstrate in main",
+        "details": "```java\npublic static void main(String[] args) {\n    PaymentEngine engine = new PaymentEngine();\n    \n    // All different types — same processing engine\n    PaymentMethod[] payments = {\n        new CreditCard(5000, \"4532123456789012\"),\n        new UPI(1200, \"aisha@okicici\"),\n        new NetBanking(25000, \"HDFC\"),\n        new CreditCard(150000, \"9876543210001234\")  // exceeds limit\n    };\n    \n    for (PaymentMethod p : payments) {\n        engine.processPayment(p);\n    }\n}\n```\n\nFour different payments. One `for` loop. One `processPayment()` call. Runtime dispatch handles the rest."
+      }
+    ],
+    
+    "final_code": "class PaymentMethod {\n    private static int nextTxnId = 1;\n    protected double amount;\n    private final int transactionId;\n    \n    public PaymentMethod(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Amount must be positive\");\n        this.amount = amount;\n        this.transactionId = nextTxnId++;\n    }\n    \n    public int getTransactionId() { return transactionId; }\n    public double getAmount() { return amount; }\n    public boolean validate() { return amount > 0; }\n    public void pay() { System.out.println(\"Processing ₹\" + amount); }\n}\n\nclass CreditCard extends PaymentMethod {\n    private String maskedCardNumber;\n    public CreditCard(double amount, String cardNumber) {\n        super(amount);\n        this.maskedCardNumber = \"****-****-****-\" + cardNumber.substring(cardNumber.length() - 4);\n    }\n    @Override public boolean validate() { return amount <= 100000.0; }\n    @Override public void pay() {\n        System.out.println(\"Credit card \" + maskedCardNumber + \": ₹\" + amount + \" [TXN #\" + getTransactionId() + \"]\");\n    }\n}\n\nclass UPI extends PaymentMethod {\n    private String upiId;\n    public UPI(double amount, String upiId) {\n        super(amount);\n        this.upiId = upiId;\n    }\n    @Override public boolean validate() { return amount <= 100000.0 && upiId.contains(\"@\"); }\n    @Override public void pay() {\n        System.out.println(\"UPI \" + upiId + \": ₹\" + amount + \" [TXN #\" + getTransactionId() + \"]\");\n    }\n}\n\nclass NetBanking extends PaymentMethod {\n    private String bankCode;\n    public NetBanking(double amount, String bankCode) {\n        super(amount);\n        this.bankCode = bankCode;\n    }\n    @Override public void pay() {\n        System.out.println(\"Net Banking [\" + bankCode + \"]: ₹\" + amount + \" [TXN #\" + getTransactionId() + \"]\");\n    }\n}\n\nclass PaymentEngine {\n    public void processPayment(PaymentMethod method) {\n        System.out.print(\"Processing... \");\n        if (!method.validate()) {\n            System.out.println(\"REJECTED\");\n            return;\n        }\n        method.pay();\n    }\n}\n\npublic class PaymentSystem {\n    public static void main(String[] args) {\n        PaymentEngine engine = new PaymentEngine();\n        PaymentMethod[] payments = {\n            new CreditCard(5000, \"4532123456789012\"),\n            new UPI(1200, \"aisha@okicici\"),\n            new NetBanking(25000, \"HDFC\"),\n            new CreditCard(150000, \"9876543210001234\")\n        };\n        for (PaymentMethod p : payments) {\n            engine.processPayment(p);\n        }\n    }\n}",
+    
+    "expected_output": "Processing... Credit card ****-9012: ₹5000.0 [TXN #1]\nProcessing... UPI aisha@okicici: ₹1200.0 [TXN #2]\nProcessing... Net Banking [HDFC]: ₹25000.0 [TXN #3]\nProcessing... REJECTED",
+    
+    "things_to_notice": [
+      "PaymentEngine.processPayment() is written ONCE and handles CreditCard, UPI, NetBanking — and would handle any future PaymentMethod subclass without changes.",
+      "The `for` loop calls `engine.processPayment(p)` identically for all four payments. Runtime dispatch dispatches to each type's pay().",
+      "The last CreditCard (₹150,000) is rejected by validate(). The reject logic is in PaymentEngine, but the VALIDATION logic is in CreditCard — each type knows its own rules.",
+      "Notice `method.validate()` calls each subclass's override, not the base class's. Runtime dispatch again.",
+      "The PaymentMethod[] holds all three types. Implicit upcast at array assignment. Runtime dispatch at method call.",
+      "Security: maskedCardNumber shows only last 4 digits. The full card number is NEVER stored — even in a 'closed' internal field.",
+      "If you add `class Crypto extends PaymentMethod` tomorrow: just implement validate() and pay(). processPayment() works immediately."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Framework dependency injection",
+        "use_case": "Your service declares: `private final EmailSender sender;`. At runtime, Spring injects a RealEmailSender in production or a MockEmailSender in tests. Your code works identically — it just calls `sender.send()`. The actual sender is determined at runtime. Pure polymorphism enables this. Without it, Spring dependency injection doesn't work."
+      },
+      {
+        "company_context": "Payment gateways (Razorpay, Stripe, PayU)",
+        "use_case": "Exactly the worked example. Stripe's PaymentIntent can be Charge, Transfer, Refund — all implement the same interface. Processing code handles all of them via the common type. Adding Apple Pay required no changes to the core processing engine — just a new PaymentMethod subclass."
+      },
+      {
+        "company_context": "Java Collections framework",
+        "use_case": "`List<Animal>` holds Dog, Cat, Bird. `Collections.sort(list)` works on any List. Your method accepting `Collection<T>` works whether you pass ArrayList, LinkedList, TreeSet. All built on polymorphism — accept the parent type, works with any subtype."
+      },
+      {
+        "company_context": "Game AI and strategy patterns",
+        "use_case": "Enemy base class with attack() method. GoblinEnemy, OrcEnemy, DragonEnemy all extend Enemy with different attack implementations. The game loop calls `enemy.attack(player)` for all enemies in the level — each runs its own attack. Adding new enemy types requires zero changes to the game loop."
+      }
+    ],
+    
+    "interview_relevance": "Polymorphism is among the TOP Java interview topics:\n\n- **'What is polymorphism? Give an example.'** — 'Many forms. Same method call, different behavior based on actual object type.'\n- **'What is runtime polymorphism (dynamic dispatch)?'** — Method version selected at runtime based on actual object, not reference type.\n- **'What is the Liskov Substitution Principle?'** — A subtype should be substitutable for its supertype without breaking correctness. Square-Rectangle is the famous violation.\n- **'What is the difference between compile-time and runtime polymorphism?'** — Compile-time: overloading (selected at compile time by parameter types). Runtime: overriding (selected at runtime by object type).\n- **'How does `instanceof` work? When should you use it?'** — Checks actual type at runtime. Use sparingly — lots of instanceof often signals missing polymorphism.\n- **'Explain the Open/Closed Principle.'** — Open for extension, closed for modification. Polymorphism enables it.",
+    
+    "real_world_workflow": "Daily life with polymorphism:\n\n- Reading framework code: 'This method accepts HttpHandler — what types implement it?' Understanding the hierarchy.\n- Designing new features: 'I can add a new type without touching the existing code' — this is the payoff.\n- Spring injection: declaring interfaces/abstract types, letting the container inject the right implementation.\n- Testing: injecting mock/stub implementations via the parent type.\n- Collections: everything works with List, Collection, Iterable — not specific implementations.\n- Switch on type (anti-pattern): if you see lots of `instanceof` checks doing different things, refactor to polymorphism."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "calling_subclass_method_on_parent_ref",
+      "what_students_get_wrong": "Trying to call a subclass-specific method on a parent-type reference. `Animal a = new Dog(); a.fetch()` — compilation error.",
+      "remediation": "The compiler only knows the reference type. If `fetch()` isn't in Animal, you can't call it via an Animal reference. Downcast or use instanceof + cast.",
+      "detection_pattern": "Compilation error: 'method fetch() not found in Animal'"
+    },
+    {
+      "gap_id": "unsafe_downcast_without_instanceof",
+      "what_students_get_wrong": "Directly casting without instanceof check. `Dog d = (Dog) animal` when animal might be a Cat.",
+      "remediation": "Always check with instanceof before downcasting: `if (animal instanceof Dog d) { d.fetch(); }`",
+      "detection_pattern": "ClassCastException at runtime"
+    },
+    {
+      "gap_id": "confusing_reference_type_object_type",
+      "what_students_get_wrong": "Thinking the declared type of the variable determines which method runs. It doesn't — the actual object does.",
+      "remediation": "Reference type → what methods you can call (compile-time). Object type → which override runs (runtime).",
+      "detection_pattern": "Confused when override runs instead of base method, or vice versa"
+    },
+    {
+      "gap_id": "overusing_instanceof",
+      "what_students_get_wrong": "Using lots of instanceof checks to do type-specific things — defeats the purpose of polymorphism.",
+      "remediation": "If you're using instanceof to call different methods on different types, that logic should be IN the overriding methods. Let polymorphism do the dispatch.",
+      "detection_pattern": "Long if-instanceof-elsif chains where overriding would work"
+    },
+    {
+      "gap_id": "lsp_violation",
+      "what_students_get_wrong": "Designing a subclass that breaks the parent's expected behavior (the Square-Rectangle problem).",
+      "remediation": "Ask: 'Can I use this subclass everywhere the parent is expected without anything breaking?' If no → inheritance may be wrong. Use composition instead.",
+      "detection_pattern": "Subclass overrides methods in ways that violate parent's contract"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Polymorphism: 'many forms' — one method call, different behavior based on actual object type",
+      "Upcasting: storing subclass as parent type — always safe, automatic",
+      "Reference type (compile-time) determines WHAT methods you can call",
+      "Object type (runtime) determines WHICH implementation runs",
+      "Runtime dispatch: Java finds the most specific override at runtime",
+      "Polymorphic method: accepts parent type, works for ALL subclasses — current and future",
+      "Open/Closed: open for extension (add subclasses), closed for modification (engine doesn't change)",
+      "Liskov Substitution: subclass usable everywhere parent expected, without breaking behavior",
+      "Downcasting: explicit cast to subclass — use instanceof first to stay safe",
+      "Too much instanceof = design smell; better polymorphism usually fixes it"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why does this fail?\n```java\nAnimal a = new Dog(\"Rex\");\na.fetch();  // compile error\n```",
+        "answer": "The REFERENCE TYPE is Animal. The compiler only knows about Animal's methods. `fetch()` is Dog-specific — not declared in Animal. Even though the actual object is a Dog, the compiler won't allow it without a cast. Fix: `if (a instanceof Dog d) { d.fetch(); }` or declare `a` as `Dog a = new Dog(\"Rex\")`."
+      },
+      {
+        "question": "In this code, which `makeSound()` runs?\n```java\nAnimal a = new Cat(\"Kitty\");\na.makeSound();\n```",
+        "answer": "Cat's makeSound() runs. Reference type is Animal (what compiler checks). Object type is Cat (what JVM looks at). Runtime dispatch finds Cat.makeSound() because Cat overrides it. This is dynamic dispatch — the ACTUAL object's method runs, not the reference type's."
+      },
+      {
+        "question": "What does the Liskov Substitution Principle say, and why does Square-extends-Rectangle violate it?",
+        "answer": "LSP: a subtype should be usable wherever its supertype is used without breaking behavior. Square violates this because setWidth() and setHeight() in Square link both dimensions. Code expecting Rectangle behavior (set width, set height independently) breaks when given a Square. A method that sets width=5, height=3 and expects area=15 gets area=9 for a Square. Substituting Square for Rectangle breaks correctness."
+      },
+      {
+        "question": "Why is polymorphism said to enable the Open/Closed Principle?",
+        "answer": "Open/Closed: code should be open for extension but closed for modification. With polymorphism, you write a method accepting a parent type (like processPayment(PaymentMethod)). To add a new type (Crypto), you extend PaymentMethod — that's extension. The processPayment method never changes — that's closed. Without polymorphism, you'd add an if-else branch every time (modification). Polymorphism lets new types 'plug in' without modifying existing code."
+      }
+    ],
+    
+    "next_topic_preview": "Next: Abstract Classes. So far, PaymentMethod had a `pay()` method with a generic implementation. But conceptually, a bare 'PaymentMethod' shouldn't exist — you should only have CreditCards, UPIs, etc. Abstract classes let you define a class that CANNOT be instantiated directly, but FORCES subclasses to implement specific methods. Abstract `pay()` in PaymentMethod would make implementing it in every subclass mandatory — not optional. This is the formal design pattern for 'define the structure, let subclasses fill in the details.'"
+  }
+}

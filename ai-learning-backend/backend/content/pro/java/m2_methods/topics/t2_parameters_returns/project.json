@@ -1,0 +1,176 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m2_t2_proj",
+  "linked_topic": "java_m2_t2",
+  "level": "mini",
+  "name": "Build a Tax Calculator Library",
+  "estimated_minutes": 45,
+  "difficulty": 5,
+  
+  "scenario": "You're building utility methods that will be used across multiple financial apps your company is developing — a budgeting app, a salary negotiation tool, and a tax-filing helper. Different teams need the same calculations. Your job: build a TAX UTILITIES class with cleanly designed methods (parameters in, results out, no side effects). This is exactly how real Java libraries are built — Math, String, Collections — all utility methods other code can call. After this project, you'll understand WHY the Java standard library is structured the way it is.",
+  
+  "description": "Build a TaxUtils class containing several methods for tax-related calculations. Each method should have a clean signature, do ONE thing, and return its result. Then build a demo main() that uses your library to produce a complete tax report.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Class named `TaxUtils` in file TaxUtils.java",
+        "weight": 5
+      },
+      {
+        "id": "req_2",
+        "description": "Compiles and runs without errors",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "`calculateTaxableIncome(double grossIncome, double deductions)` returns income after deductions",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "`calculateTax(double taxableIncome, double rate)` returns tax amount",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "`calculateNetIncome(double grossIncome, double tax)` returns income after tax",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "`getTaxBracket(double income)` returns the bracket NAME as String (using if-else if)",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "`getEffectiveTaxRate(double income, double tax)` returns the actual percentage rate paid",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "main() uses ALL methods to produce a tax report for one person",
+        "weight": 15
+      },
+      {
+        "id": "req_9",
+        "description": "NO class-level static variables — only parameters and returns",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a `formatCurrency(double amount)` helper method that returns a String like '₹1,23,456.00' (use String.format with %,.2f)",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `calculateCumulativeTax(double income)` that uses the loop-based cumulative bracket calculation from Module 1, returning the proper total tax",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Compare two scenarios in main() — same income, different deductions — showing how deductions reduce tax",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Use these values for your test scenario:\n\n- Name: 'Aisha Khan'\n- Gross annual income: ₹1,200,000\n- Total deductions: ₹150,000 (HRA, 80C, etc.)\n- Single tax rate (for simple version): 15%\n\nFor the bonus cumulative version, use 2024 Indian tax slabs:\n- 0 - 3L: 0%\n- 3L - 6L: 5%\n- 6L - 9L: 10%\n- 9L - 12L: 15%\n- 12L+: 20%",
+  
+  "starter_code": "// Build your TaxUtils class below\n// All methods use parameters and returns — NO class-level static variables\n\npublic class TaxUtils {\n    public static void main(String[] args) {\n        // Employee data\n        String name = \"Aisha Khan\";\n        double grossIncome = 1200000.0;\n        double deductions = 150000.0;\n        double taxRate = 15.0;\n        \n        // TODO: Use your methods to:\n        // 1. Calculate taxable income (gross - deductions)\n        // 2. Calculate tax\n        // 3. Calculate net income\n        // 4. Get tax bracket name\n        // 5. Get effective tax rate\n        // 6. Print formatted report\n    }\n    \n    // TODO: Define your methods below\n    // Each method: clear signature, does ONE thing, returns its result\n}",
+  
+  "example_output": "===========================================\n         INCOME TAX SUMMARY\n===========================================\nName:             Aisha Khan\nGross Income:     ₹1200000.0\nDeductions:       ₹150000.0\n-------------------------------------------\nTaxable Income:   ₹1050000.0\nTax Bracket:      ₹9,00,001 to ₹12,00,000 (15%)\nTax Amount:       ₹157500.0\nNet Income:       ₹1042500.0\nEffective Rate:   13.125%\n===========================================",
+  
+  "rubric": [
+    {
+      "category": "Compiles & Runs",
+      "points": 15,
+      "criteria": [
+        "Compiles without errors (10 pts)",
+        "Runs and produces output (5 pts)"
+      ]
+    },
+    {
+      "category": "Method Design",
+      "points": 30,
+      "criteria": [
+        "All 5 required methods present (15 pts)",
+        "Each method does ONE thing (10 pts)",
+        "Methods named descriptively (5 pts)"
+      ]
+    },
+    {
+      "category": "Parameters & Returns",
+      "points": 25,
+      "criteria": [
+        "All methods use parameters appropriately (10 pts)",
+        "Return types match what's being computed (10 pts)",
+        "NO class-level static variables (5 pts)"
+      ]
+    },
+    {
+      "category": "Main Composition",
+      "points": 15,
+      "criteria": [
+        "main calls methods in logical order (5 pts)",
+        "Results flow correctly between methods (5 pts)",
+        "Output is well formatted (5 pts)"
+      ]
+    },
+    {
+      "category": "Code Quality",
+      "points": 15,
+      "criteria": [
+        "Descriptive variable names (5 pts)",
+        "No duplication (5 pts)",
+        "Clean structure (5 pts)"
+      ]
+    },
+    {
+      "category": "Bonus Points",
+      "points": 50,
+      "criteria": [
+        "formatCurrency method (15 pts)",
+        "Cumulative bracket calculation (20 pts)",
+        "Scenario comparison (15 pts)"
+      ]
+    }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 AI hints. You've now built simple methods many times. This project is about ASSEMBLY — putting methods together cleanly. The thinking happens in YOUR head: what should each method take? What should it return? If you find yourself wanting to use class-level static variables, STOP and rethink — that's the lazy fix this topic is teaching you to avoid.",
+  
+  "submission_instructions": "Save as TaxUtils.java. Run it. Try changing the values at the top of main — the methods should still work without code changes (proving they're reusable). Push to GitHub portfolio. This is the kind of utility code you'd see in real Java projects.",
+  
+  "tips_for_success": [
+    "Design before you code: write each method signature on paper FIRST. Inputs in, output out.",
+    "Each method should fit in your head — if you can't summarize it in one sentence, it's doing too much.",
+    "Don't put println inside calculation methods. Calculations return values; printing is separate.",
+    "Test individual methods by changing main() to call just one method and print its return value.",
+    "When you find yourself wanting class-level state, ask: 'what parameter could I add to this method instead?'",
+    "Bonus formatCurrency hint: `String.format(\"%,.2f\", amount)` gives currency formatting with commas and 2 decimal places."
+  ],
+  
+  "concepts_reinforced": [
+    "Method parameters of various types",
+    "Return values flowing between methods",
+    "Method composition (output of one → input of another)",
+    "Avoiding global state",
+    "Single Responsibility Principle",
+    "Building reusable utility methods",
+    "Clean code organization"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Beyond the syntax, you learn HOW REAL LIBRARIES ARE BUILT. Java's Math class is exactly this pattern — utility methods that take parameters and return results. So is String, so is Integer. After this project, you understand: a 'library' isn't magic. It's just a class with well-designed methods. You could publish your TaxUtils to GitHub and people could import it in their projects. That's how every JAR file you'll ever depend on was built.",
+  
+  "extensions_for_advanced_learners": [
+    "Add error handling for invalid inputs (negative income, etc.)",
+    "Add the New vs Old regime comparison for Indian taxes",
+    "Add support for multiple tax brackets in a loop (cumulative tax)",
+    "Convert to a proper class with private state (preview of OOP)",
+    "Write JUnit tests for each method (preview of testing module)"
+  ]
+}

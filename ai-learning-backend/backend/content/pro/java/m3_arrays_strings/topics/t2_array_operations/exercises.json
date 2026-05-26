@@ -1,0 +1,445 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m3_t2",
+  "topic_name": "Array Operations & Algorithms",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m3_t2_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Print array with Arrays.toString",
+      "scenario": "Use the most-used Arrays method.",
+      "instructions": "Fill in the blanks to print the array readably.",
+      "starter_code": "import java.util.______;\n\npublic class App {\n    public static void main(String[] args) {\n        int[] nums = {5, 10, 15};\n        System.out.println(______.toString(nums));\n    }\n}",
+      "expected_solution": "import java.util.Arrays;\n\npublic class App {\n    public static void main(String[] args) {\n        int[] nums = {5, 10, 15};\n        System.out.println(Arrays.toString(nums));\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "Arrays", "hint": "Import java.util.Arrays" },
+        { "position": 2, "answer": "Arrays", "hint": "The utility class" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[5, 10, 15]"
+        }
+      ],
+      "hints": [
+        "Import: java.util.Arrays",
+        "Call: Arrays.toString(arr)",
+        "Output format: [element, element, ...]"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m3_t2_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Predict sorted output",
+      "scenario": "Understand Arrays.sort behavior.",
+      "instructions": "What does this print?\n\n```java\nimport java.util.Arrays;\n\npublic class App {\n    public static void main(String[] args) {\n        int[] nums = {5, 2, 8, 1, 9, 3};\n        Arrays.sort(nums);\n        System.out.println(Arrays.toString(nums));\n    }\n}\n```",
+      "expected_solution": "[1, 2, 3, 5, 8, 9]",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "[1, 2, 3, 5, 8, 9]"
+        }
+      ],
+      "hints": [
+        "Arrays.sort sorts ASCENDING (low to high)",
+        "Modifies the array in-place",
+        "Sorted: 1, 2, 3, 5, 8, 9"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m3_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Sort and display",
+      "scenario": "Combine sort and toString.",
+      "instructions": "Write a class `SortDemo` that:\n1. Has String array {\"Raj\", \"Aisha\", \"Priya\", \"Vikram\"}\n2. Sorts it alphabetically using Arrays.sort\n3. Prints the sorted array using Arrays.toString\n\nExpected output:\n[Aisha, Priya, Raj, Vikram]",
+      "starter_code": "// Write your SortDemo class below\n// Don't forget the import\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class SortDemo {\n    public static void main(String[] args) {\n        String[] names = {\"Raj\", \"Aisha\", \"Priya\", \"Vikram\"};\n        Arrays.sort(names);\n        System.out.println(Arrays.toString(names));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[Aisha, Priya, Raj, Vikram]"
+        }
+      ],
+      "hints": [
+        "Import: java.util.Arrays",
+        "Arrays.sort works on Strings too (alphabetical)",
+        "Modifies array in-place — no need to assign result",
+        "Then print with Arrays.toString"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m3_t2_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix array comparison",
+      "scenario": "Using == on arrays gives wrong result.",
+      "instructions": "This code SHOULD print true (arrays have same contents) but prints false. Fix it.\n\nExpected output:\nEqual: true",
+      "starter_code": "import java.util.Arrays;\n\npublic class Broken {\n    public static void main(String[] args) {\n        int[] a = {1, 2, 3};\n        int[] b = {1, 2, 3};\n        boolean equal = (a == b);\n        System.out.println(\"Equal: \" + equal);\n    }\n}",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Broken {\n    public static void main(String[] args) {\n        int[] a = {1, 2, 3};\n        int[] b = {1, 2, 3};\n        boolean equal = Arrays.equals(a, b);\n        System.out.println(\"Equal: \" + equal);\n    }\n}",
+      "bugs": [
+        {
+          "line": "6",
+          "issue": "`a == b` compares REFERENCES (memory locations), not contents. Different array objects → false.",
+          "fix": "Use Arrays.equals(a, b) to compare contents"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Equal: true",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "== for arrays compares references, not values",
+        "Even with identical contents, two separately-created arrays have different references",
+        "Use Arrays.equals(a, b) to compare CONTENTS",
+        "Same length AND each element equal → true"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["using_equals_for_arrays"]
+    },
+    
+    {
+      "id": "java_m3_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Copy and modify",
+      "scenario": "Practice creating an independent copy of an array.",
+      "instructions": "Write a class `CopyDemo`:\n1. Original array: {10, 20, 30}\n2. Create a copy using Arrays.copyOf\n3. Modify copy[0] = 999\n4. Print both arrays — original should be unchanged\n\nExpected output:\nOriginal: [10, 20, 30]\nCopy: [999, 20, 30]",
+      "starter_code": "// Write your CopyDemo class below\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class CopyDemo {\n    public static void main(String[] args) {\n        int[] original = {10, 20, 30};\n        int[] copy = Arrays.copyOf(original, original.length);\n        copy[0] = 999;\n        System.out.println(\"Original: \" + Arrays.toString(original));\n        System.out.println(\"Copy: \" + Arrays.toString(copy));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Original: [10, 20, 30]\nCopy: [999, 20, 30]"
+        }
+      ],
+      "hints": [
+        "Use Arrays.copyOf(original, original.length) to create a copy of same length",
+        "This creates a NEW array — modifications to copy don't affect original",
+        "Compare to int[] copy = original which would share the same array"
+      ],
+      "xp_reward": 30
+    },
+    
+    {
+      "id": "java_m3_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Fill an array",
+      "scenario": "Initialize an array to a non-default value.",
+      "instructions": "Write a class `FillDemo`:\n1. Create a new int array of size 7\n2. Fill it with value 100 using Arrays.fill\n3. Print using Arrays.toString\n\nExpected output:\n[100, 100, 100, 100, 100, 100, 100]",
+      "starter_code": "// Write your FillDemo class below\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class FillDemo {\n    public static void main(String[] args) {\n        int[] arr = new int[7];\n        Arrays.fill(arr, 100);\n        System.out.println(Arrays.toString(arr));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[100, 100, 100, 100, 100, 100, 100]"
+        }
+      ],
+      "hints": [
+        "Create array with `new int[7]` (size 7, all zeros initially)",
+        "Arrays.fill(arr, 100) sets every element to 100",
+        "Print with Arrays.toString"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m3_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Linear search method",
+      "scenario": "Write a method that searches for a value and returns its index.",
+      "instructions": "Write a class `Search`:\n1. Method `findIndex(int[] arr, int target)` that returns index of target, or -1 if not found\n2. main demonstrates:\n   - findIndex({10, 20, 30, 40, 50}, 30) → 2\n   - findIndex({10, 20, 30, 40, 50}, 99) → -1\n\nExpected output:\nIndex of 30: 2\nIndex of 99: -1",
+      "starter_code": "// Write your Search class below\n",
+      "expected_solution": "public class Search {\n    public static void main(String[] args) {\n        int[] nums = {10, 20, 30, 40, 50};\n        System.out.println(\"Index of 30: \" + findIndex(nums, 30));\n        System.out.println(\"Index of 99: \" + findIndex(nums, 99));\n    }\n    \n    public static int findIndex(int[] arr, int target) {\n        for (int i = 0; i < arr.length; i++) {\n            if (arr[i] == target) {\n                return i;\n            }\n        }\n        return -1;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Index of 30: 2\nIndex of 99: -1"
+        }
+      ],
+      "hints": [
+        "Method signature: public static int findIndex(int[] arr, int target)",
+        "Loop with index",
+        "If arr[i] == target, return i (immediately)",
+        "After loop (nothing found), return -1",
+        "Standard convention: -1 means not found"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "linear_search_method"
+    },
+    
+    {
+      "id": "java_m3_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Method returning new array",
+      "scenario": "Write a method that produces a new array (doesn't modify input).",
+      "instructions": "Write a class `Multiply`:\n1. Method `multiplyAll(int[] arr, int factor)` returns a NEW array with each element multiplied by factor (original unchanged)\n2. main:\n   - Original: {2, 4, 6, 8}\n   - Multiply by 3\n   - Print both\n\nExpected output:\nOriginal: [2, 4, 6, 8]\nMultiplied: [6, 12, 18, 24]",
+      "starter_code": "// Write your Multiply class below\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Multiply {\n    public static void main(String[] args) {\n        int[] original = {2, 4, 6, 8};\n        int[] multiplied = multiplyAll(original, 3);\n        System.out.println(\"Original: \" + Arrays.toString(original));\n        System.out.println(\"Multiplied: \" + Arrays.toString(multiplied));\n    }\n    \n    public static int[] multiplyAll(int[] arr, int factor) {\n        int[] result = new int[arr.length];\n        for (int i = 0; i < arr.length; i++) {\n            result[i] = arr[i] * factor;\n        }\n        return result;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Original: [2, 4, 6, 8]\nMultiplied: [6, 12, 18, 24]"
+        }
+      ],
+      "hints": [
+        "Return type: int[]",
+        "Create new array same size as input: new int[arr.length]",
+        "Fill it with arr[i] * factor",
+        "Return the new array",
+        "Original is untouched because we didn't modify arr"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m3_t2_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the Arrays.sort assignment error",
+      "scenario": "Arrays.sort returns void, can't be assigned.",
+      "instructions": "This won't compile. Fix it.\n\nExpected output:\n[1, 2, 3, 5, 8, 9]",
+      "starter_code": "import java.util.Arrays;\n\npublic class Broken {\n    public static void main(String[] args) {\n        int[] nums = {5, 2, 8, 1, 9, 3};\n        int[] sorted = Arrays.sort(nums);\n        System.out.println(Arrays.toString(sorted));\n    }\n}",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Broken {\n    public static void main(String[] args) {\n        int[] nums = {5, 2, 8, 1, 9, 3};\n        Arrays.sort(nums);\n        System.out.println(Arrays.toString(nums));\n    }\n}",
+      "bugs": [
+        {
+          "line": "6",
+          "issue": "Arrays.sort returns void, can't be assigned to int[]",
+          "fix": "Just call Arrays.sort(nums); then use nums directly"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[1, 2, 3, 5, 8, 9]",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Error: 'incompatible types: void cannot be converted to int[]'",
+        "Arrays.sort modifies the input in-place and returns nothing",
+        "Don't assign: just call Arrays.sort(nums);",
+        "Then use nums directly (it's now sorted)"
+      ],
+      "xp_reward": 40,
+      "common_misconceptions_tested": ["expecting_arrays_sort_to_return"]
+    },
+    
+    {
+      "id": "java_m3_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Reverse array in-place",
+      "scenario": "Two-pointer technique — the most important interview pattern.",
+      "instructions": "Write a class `Reverse`:\n1. Method `reverseInPlace(int[] arr)` reverses array using two-pointer swap\n2. main:\n   - Array: {1, 2, 3, 4, 5}\n   - Reverse it\n   - Print result\n\nNo new array allowed — modify in place.\n\nExpected output:\nReversed: [5, 4, 3, 2, 1]",
+      "starter_code": "// Write your Reverse class below\n// Use two pointers — NO new array\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Reverse {\n    public static void main(String[] args) {\n        int[] nums = {1, 2, 3, 4, 5};\n        reverseInPlace(nums);\n        System.out.println(\"Reversed: \" + Arrays.toString(nums));\n    }\n    \n    public static void reverseInPlace(int[] arr) {\n        int left = 0;\n        int right = arr.length - 1;\n        while (left < right) {\n            int temp = arr[left];\n            arr[left] = arr[right];\n            arr[right] = temp;\n            left++;\n            right--;\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Reversed: [5, 4, 3, 2, 1]"
+        }
+      ],
+      "hints": [
+        "Two pointers: left = 0, right = arr.length - 1",
+        "While left < right: swap arr[left] and arr[right]",
+        "Need a temp variable for the swap (Java doesn't have a, b = b, a)",
+        "After swap, move pointers inward: left++ and right--",
+        "Stops when pointers meet (or cross)"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "two_pointer_reverse"
+    },
+    
+    {
+      "id": "java_m3_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Check if palindrome",
+      "scenario": "Use two-pointer technique to check if array reads the same forwards and backwards.",
+      "instructions": "Write a class `Palindrome`:\n1. Method `isPalindrome(int[] arr)` returns true if array is a palindrome\n2. main tests:\n   - {1, 2, 3, 2, 1} → true\n   - {1, 2, 3, 4, 5} → false\n   - {5, 5, 5, 5} → true\n\nExpected output:\n[1, 2, 3, 2, 1] palindrome? true\n[1, 2, 3, 4, 5] palindrome? false\n[5, 5, 5, 5] palindrome? true",
+      "starter_code": "// Write your Palindrome class below\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Palindrome {\n    public static void main(String[] args) {\n        int[] a = {1, 2, 3, 2, 1};\n        int[] b = {1, 2, 3, 4, 5};\n        int[] c = {5, 5, 5, 5};\n        \n        System.out.println(Arrays.toString(a) + \" palindrome? \" + isPalindrome(a));\n        System.out.println(Arrays.toString(b) + \" palindrome? \" + isPalindrome(b));\n        System.out.println(Arrays.toString(c) + \" palindrome? \" + isPalindrome(c));\n    }\n    \n    public static boolean isPalindrome(int[] arr) {\n        int left = 0;\n        int right = arr.length - 1;\n        while (left < right) {\n            if (arr[left] != arr[right]) {\n                return false;\n            }\n            left++;\n            right--;\n        }\n        return true;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[1, 2, 3, 2, 1] palindrome? true\n[1, 2, 3, 4, 5] palindrome? false\n[5, 5, 5, 5] palindrome? true"
+        }
+      ],
+      "hints": [
+        "Two pointers: left from start, right from end",
+        "If arr[left] != arr[right] → not palindrome, return false",
+        "Otherwise move pointers inward",
+        "If we get through the loop, it IS a palindrome → return true",
+        "Same two-pointer pattern as reversal"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m3_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Binary search implementation",
+      "scenario": "Implement binary search yourself (the classic interview).",
+      "instructions": "Write a class `BinarySearch`:\n1. Method `binarySearch(int[] sortedArr, int target)` returns index or -1\n2. Don't use Arrays.binarySearch — implement it yourself\n3. main tests:\n   - {2, 5, 8, 12, 16, 23, 38, 56, 72, 91}, target 23 → 5\n   - Same array, target 100 → -1\n\nExpected output:\nIndex of 23: 5\nIndex of 100: -1",
+      "starter_code": "// Write your BinarySearch class below\n// Implement binary search WITHOUT Arrays.binarySearch\n",
+      "expected_solution": "public class BinarySearch {\n    public static void main(String[] args) {\n        int[] arr = {2, 5, 8, 12, 16, 23, 38, 56, 72, 91};\n        System.out.println(\"Index of 23: \" + binarySearch(arr, 23));\n        System.out.println(\"Index of 100: \" + binarySearch(arr, 100));\n    }\n    \n    public static int binarySearch(int[] sortedArr, int target) {\n        int left = 0;\n        int right = sortedArr.length - 1;\n        \n        while (left <= right) {\n            int mid = (left + right) / 2;\n            if (sortedArr[mid] == target) {\n                return mid;\n            } else if (sortedArr[mid] < target) {\n                left = mid + 1;\n            } else {\n                right = mid - 1;\n            }\n        }\n        return -1;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Index of 23: 5\nIndex of 100: -1"
+        }
+      ],
+      "hints": [
+        "Initialize: left = 0, right = arr.length - 1",
+        "Loop: while (left <= right)",
+        "Calculate mid: (left + right) / 2",
+        "If arr[mid] == target → return mid",
+        "If arr[mid] < target → search right half: left = mid + 1",
+        "If arr[mid] > target → search left half: right = mid - 1",
+        "If loop exits without finding: return -1"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "binary_search_implementation"
+    },
+    
+    {
+      "id": "java_m3_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Merge two sorted arrays",
+      "scenario": "Classic two-pointer interview problem.",
+      "instructions": "Write a class `Merge`:\n1. Method `merge(int[] a, int[] b)` takes two SORTED arrays, returns a new SORTED array combining both\n2. Use two-pointer technique (one pointer in each array)\n3. main tests:\n   - merge({1, 3, 5}, {2, 4, 6}) → {1, 2, 3, 4, 5, 6}\n   - merge({10, 20}, {5, 15, 25, 35}) → {5, 10, 15, 20, 25, 35}\n\nExpected output:\nMerged: [1, 2, 3, 4, 5, 6]\nMerged: [5, 10, 15, 20, 25, 35]",
+      "starter_code": "// Write your Merge class below\n// Use two pointers — don't just concatenate and sort\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Merge {\n    public static void main(String[] args) {\n        int[] a1 = {1, 3, 5};\n        int[] b1 = {2, 4, 6};\n        System.out.println(\"Merged: \" + Arrays.toString(merge(a1, b1)));\n        \n        int[] a2 = {10, 20};\n        int[] b2 = {5, 15, 25, 35};\n        System.out.println(\"Merged: \" + Arrays.toString(merge(a2, b2)));\n    }\n    \n    public static int[] merge(int[] a, int[] b) {\n        int[] result = new int[a.length + b.length];\n        int i = 0, j = 0, k = 0;\n        \n        while (i < a.length && j < b.length) {\n            if (a[i] <= b[j]) {\n                result[k++] = a[i++];\n            } else {\n                result[k++] = b[j++];\n            }\n        }\n        \n        while (i < a.length) {\n            result[k++] = a[i++];\n        }\n        while (j < b.length) {\n            result[k++] = b[j++];\n        }\n        \n        return result;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Merged: [1, 2, 3, 4, 5, 6]\nMerged: [5, 10, 15, 20, 25, 35]"
+        }
+      ],
+      "hints": [
+        "Result array size: a.length + b.length",
+        "Three pointers: i (into a), j (into b), k (into result)",
+        "While both have elements: take the smaller, advance that pointer",
+        "After main loop, one array may have remaining elements — append them",
+        "k++ post-increments: uses current value then increments. Common pattern.",
+        "This is the 'merge' step of merge sort"
+      ],
+      "xp_reward": 85,
+      "concept_tested": "merge_two_sorted"
+    },
+    
+    {
+      "id": "java_m3_t2_ex_14",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 5,
+      "title": "Remove duplicates from sorted array",
+      "scenario": "Common interview problem — remove duplicates in-place from a sorted array.",
+      "instructions": "Write a class `Dedupe`:\n1. Method `removeDuplicates(int[] arr)` returns the count of unique elements\n2. The method should also move all unique elements to the front of the array (in-place)\n3. main:\n   - Array: {1, 1, 2, 2, 3, 4, 4, 5, 5, 5}\n   - Call removeDuplicates, get count\n   - Print first `count` elements\n\nExpected output:\nUnique count: 5\nUnique elements: [1, 2, 3, 4, 5]",
+      "starter_code": "// Write your Dedupe class below\n// Use two pointers — one for read, one for write\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Dedupe {\n    public static void main(String[] args) {\n        int[] arr = {1, 1, 2, 2, 3, 4, 4, 5, 5, 5};\n        int uniqueCount = removeDuplicates(arr);\n        \n        System.out.println(\"Unique count: \" + uniqueCount);\n        int[] unique = Arrays.copyOf(arr, uniqueCount);\n        System.out.println(\"Unique elements: \" + Arrays.toString(unique));\n    }\n    \n    public static int removeDuplicates(int[] arr) {\n        if (arr.length == 0) return 0;\n        \n        int writeIndex = 1;\n        for (int readIndex = 1; readIndex < arr.length; readIndex++) {\n            if (arr[readIndex] != arr[readIndex - 1]) {\n                arr[writeIndex] = arr[readIndex];\n                writeIndex++;\n            }\n        }\n        return writeIndex;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Unique count: 5\nUnique elements: [1, 2, 3, 4, 5]"
+        }
+      ],
+      "hints": [
+        "Two pointers: readIndex traverses entire array, writeIndex tracks where to put next unique",
+        "First element is always unique — start writeIndex = 1, readIndex = 1",
+        "If arr[readIndex] != arr[readIndex - 1] (different from previous), it's unique",
+        "Copy arr[readIndex] to arr[writeIndex], advance writeIndex",
+        "Always advance readIndex (in the for loop)",
+        "Return writeIndex (count of unique elements)",
+        "Then Arrays.copyOf to get just the unique part"
+      ],
+      "xp_reward": 85
+    },
+    
+    {
+      "id": "java_m3_t2_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Rotate array right by K positions",
+      "scenario": "Classic interview problem testing array manipulation.",
+      "instructions": "Write a class `Rotate`:\n1. Method `rotateRight(int[] arr, int k)` rotates array right by k positions, returning a NEW array\n2. main:\n   - Array: {1, 2, 3, 4, 5, 6, 7}\n   - Rotate right by 3\n   - Result: {5, 6, 7, 1, 2, 3, 4} — last 3 elements moved to front\n\nUse this approach: result[(i + k) % n] = arr[i]\n\nExpected output:\nOriginal: [1, 2, 3, 4, 5, 6, 7]\nRotated by 3: [5, 6, 7, 1, 2, 3, 4]",
+      "starter_code": "// Write your Rotate class below\n// Method should return a new array (not modify input)\n",
+      "expected_solution": "import java.util.Arrays;\n\npublic class Rotate {\n    public static void main(String[] args) {\n        int[] arr = {1, 2, 3, 4, 5, 6, 7};\n        System.out.println(\"Original: \" + Arrays.toString(arr));\n        int[] rotated = rotateRight(arr, 3);\n        System.out.println(\"Rotated by 3: \" + Arrays.toString(rotated));\n    }\n    \n    public static int[] rotateRight(int[] arr, int k) {\n        int n = arr.length;\n        k = k % n;  // handle k > n\n        int[] result = new int[n];\n        \n        for (int i = 0; i < n; i++) {\n            result[(i + k) % n] = arr[i];\n        }\n        \n        return result;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Original: [1, 2, 3, 4, 5, 6, 7]\nRotated by 3: [5, 6, 7, 1, 2, 3, 4]"
+        }
+      ],
+      "hints": [
+        "Create result array of same size",
+        "For each i in original: result[(i + k) % n] = arr[i]",
+        "Modulo handles wrap-around: index 6 + 3 = 9, % 7 = 2",
+        "Handle k > n: k = k % n (rotating 10 times in size 7 = rotating 3 times)",
+        "Trace: i=0 (value 1) → position 3; i=1 (value 2) → position 4; ... ",
+        "i=4 (value 5) → position (4+3)%7 = 0; i=5 → position 1; i=6 → position 2"
+      ],
+      "xp_reward": 90
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 9,
+      "debug": 2,
+      "predict_output": 1,
+      "algorithm": 2
+    },
+    "total_xp_possible": 775,
+    "estimated_completion_minutes": 60
+  },
+  
+  "gap_detection_map": {
+    "using_equals_for_arrays": ["ex_4"],
+    "expecting_arrays_sort_to_return": ["ex_9"],
+    "linear_search_method": ["ex_7"],
+    "two_pointer_reverse": ["ex_10", "ex_11"],
+    "binary_search_implementation": ["ex_12"],
+    "merge_two_sorted": ["ex_13"]
+  }
+}

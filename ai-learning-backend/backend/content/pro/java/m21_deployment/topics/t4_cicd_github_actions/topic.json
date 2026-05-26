@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m21_t4",
+  "language": "java",
+  "module_id": "m21",
+  "module_name": "Production Deployment",
+  "topic_number": 4,
+  "name": "CI/CD with GitHub Actions",
+  "slug": "cicd-github-actions",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m21_t3"],
+    "concepts_taught": ["cicd_overview","github_actions_workflow","trigger_events","jobs_steps","actions_marketplace","docker_build_push","kubernetes_deploy_from_actions","github_environments","secrets_in_actions","matrix_builds","caching_in_actions","artifact_upload"],
+    "skills_developed": ["writing_github_actions_workflow","automated_test_build_push","k8s_deploy_from_ci","secure_secrets_in_actions","caching_maven_dependencies"],
+    "career_relevance": "Every production-grade Java project uses CI/CD. 'I manually deploy' is a red flag in any interview. GitHub Actions is the most common CI/CD tool for new projects. After this topic: every git push triggers automated tests, Docker build, registry push, and Kubernetes deployment — no manual steps.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+  "hook": {
+    "real_world_problem": "Manual deploy process at a small fintech:\n```\n1. Developer runs mvn package locally (5 min)\n2. Builds Docker image (3 min)\n3. Pushes to registry manually (2 min)\n4. SSH into staging server (2 min)\n5. kubectl apply manually (2 min)\nTotal: 14 minutes, error-prone, requires developer attention\n\nWith GitHub Actions:\nDeveloper: git push origin main\n→ GitHub Actions starts automatically\n→ Tests run (parallel: unit + integration) → 4 min\n→ Docker build + push to ECR → 2 min\n→ kubectl apply to staging → 1 min\n→ Health check verification → 1 min\nTotal: 8 min, fully automated, no human error\n```",
+    "what_you_will_build": "A GitHub Actions workflow that tests, builds, pushes to Docker Hub, and deploys to Kubernetes on every push to main."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "workflow": "**Complete CI/CD GitHub Actions workflow:**\n\n```yaml\n# .github/workflows/cicd.yml\nname: Payment Service CI/CD\n\non:\n  push:\n    branches: [main]\n  pull_request:\n    branches: [main]\n\nenv:\n  REGISTRY: ghcr.io\n  IMAGE_NAME: razorpay/payment-service\n\njobs:\n  test:\n    runs-on: ubuntu-latest\n    steps:\n    - uses: actions/checkout@v4\n    - name: Set up Java 21\n      uses: actions/setup-java@v4\n      with:\n        java-version: '21'\n        distribution: 'temurin'\n        cache: maven\n    - name: Run tests\n      run: mvn test --batch-mode\n    - name: Upload test results\n      if: always()\n      uses: actions/upload-artifact@v4\n      with:\n        name: test-results\n        path: target/surefire-reports/\n\n  build-push:\n    needs: test\n    runs-on: ubuntu-latest\n    if: github.event_name == 'push' && github.ref == 'refs/heads/main'\n    steps:\n    - uses: actions/checkout@v4\n    - name: Log in to GitHub Container Registry\n      uses: docker/login-action@v3\n      with:\n        registry: ghcr.io\n        username: ${{ github.actor }}\n        password: ${{ secrets.GITHUB_TOKEN }}\n    - name: Build and push Docker image\n      uses: docker/build-push-action@v5\n      with:\n        push: true\n        tags: ghcr.io/razorpay/payment-service:${{ github.sha }}\n        cache-from: type=gha\n        cache-to: type=gha,mode=max\n\n  deploy-staging:\n    needs: build-push\n    runs-on: ubuntu-latest\n    environment: staging\n    steps:\n    - uses: actions/checkout@v4\n    - name: Deploy to k8s\n      run: |\n        kubectl set image deployment/payment-service \\\n          payment-service=ghcr.io/razorpay/payment-service:${{ github.sha }} \\\n          --namespace payments\n        kubectl rollout status deployment/payment-service -n payments --timeout=5m\n      env:\n        KUBECONFIG: ${{ secrets.KUBECONFIG_STAGING }}\n```"
+    },
+    "visual_aid": { "type": "diagram", "description": "GitHub Actions pipeline: git push → GitHub Actions triggers. 3 jobs: test (parallel: unit + integration) → build-push (Docker build → GHCR push) → deploy-staging (kubectl set image → rollout status). Arrows show dependencies (test → build-push → deploy-staging). Secret icons on GHCR login and kubectl steps. GitHub Environment 'staging' shown as approval gate.", "alt_text": "GitHub Actions CI/CD pipeline with test, build-push, and deploy stages" }
+  },
+  "worked_example": {
+    "scenario": "Full CI/CD for Razorpay payment service: test → build → push to GHCR → deploy to k8s.",
+    "problem_statement": "Write GitHub Actions workflow. Explain: GITHUB_TOKEN, SHA-based image tags, environment protection.",
+    "step_by_step_solution": [
+      { "step": 1, "action": "Why SHA-based image tags?", "details": "Image tag = git commit SHA (e.g., :abc1234f). This makes every image immutable and traceable: see an image in production → know exactly which commit it contains. Never use :latest in production — :latest is mutable, makes rollbacks impossible." },
+      { "step": 2, "action": "GitHub Environments", "details": "environment: staging creates a protection gate. Can require manual approval before deploy. Has its own secrets (KUBECONFIG_STAGING vs KUBECONFIG_PROD). Audit trail: who approved what deployment." }
+    ],
+    "final_code": "# Trigger: git push origin main\n# Actions: test → Docker build → push GHCR → kubectl deploy → rollout verify",
+    "expected_output": "✓ Run tests (2m 34s)\n✓ Build and push Docker image (1m 12s)\n✓ Deploy to k8s (1m 06s)\nAll checks passed! Deployed: ghcr.io/razorpay/payment-service:abc1234f",
+    "things_to_notice": [
+      "cache: maven in setup-java: downloads Maven deps once and caches them. Without this: every run re-downloads 150MB of dependencies (1-2 minutes wasted). With cache: cache hit saves ~90s per run.",
+      "cache-from: type=gha in build-push-action: caches Docker layers in GitHub Actions cache. The 'dependencies' layer (rarely changes) is reused across runs. Saves 60+ seconds per build.",
+      "if: always() on upload-artifact: uploads test results even when tests fail. Without this: you lose test reports on the most important runs (the failing ones).",
+      "github.sha for image tag: every commit = unique immutable image. If a deployment causes issues: rollback = change image tag back to previous SHA. Deterministic and auditable.",
+      "needs: test: jobs run in parallel by default; needs: creates explicit dependency chain. test must pass before build-push starts."
+    ]
+  },
+  "applications": {
+    "industry_examples": [{ "company_context": "Razorpay payment CI/CD", "use_case": "~50 merges/day to main. Each merge triggers: 800 unit tests + 200 integration tests (parallel) → Docker build → push to ECR → deploy to staging → automatic smoke tests → if all pass → deploy to production. Engineers never manually deploy." }],
+    "interview_relevance": "'Describe your CI/CD pipeline.' → GitHub Actions triggered on push to main. Jobs: test (mvn test), build (docker build + push to registry with SHA tag), deploy (kubectl set image → rollout status). Environment gates for staging/prod. Secrets managed via GitHub Secrets.",
+    "real_world_workflow": "CI/CD maturity: manual deploy → script → GitHub Actions → multi-stage (staging→prod with approval) → automated smoke tests + rollback."
+  },
+  "common_gaps": [
+    { "gap_id": "using_latest_tag", "what_students_get_wrong": "Tagging Docker images with :latest in CI/CD. Impossible to know which code is running in production.", "remediation": "Always use immutable tags: git SHA (${{ github.sha }}), version tags (${{ github.ref_name }}), or semantic version. :latest should only exist as an alias that also gets the SHA tag.", "detection_pattern": "kubectl describe pod shows image: myapp:latest — impossible to determine deployment history" }
+  ],
+  "reflection": {
+    "key_takeaways": [
+      "GitHub Actions: event-driven automation (push → test → build → deploy)",
+      "jobs run in parallel; `needs`: creates sequential dependency",
+      "`cache: maven` in setup-java: skip re-downloading 150MB deps per run",
+      "SHA image tag: immutable, traceable, rollback-friendly",
+      "`if: github.ref == 'refs/heads/main'`: only deploy from main branch",
+      "GitHub Environments: protection gates + per-environment secrets",
+      "`kubectl set image`: targeted image update without full apply",
+      "`rollout status --timeout`: CI waits for k8s to confirm successful deploy"
+    ],
+    "self_check_questions": [
+      { "question": "Why use SHA-based image tags instead of :latest?", "answer": ":latest is mutable — it points to a different image every build. If you need to rollback production, you'd run kubectl rollout undo, which undoes to the previous deployment. But if both deployments used :latest, the previous deployment would pull the same :latest image (the bad one) when pods restart. SHA tags are immutable: abc1234f always refers to exactly that commit's image. Rollback = set image back to the known-good SHA. Incident investigation: see SHA in production → know exact code. Audit: every deployment in history shows which commit was deployed and when." }
+    ],
+    "next_topic_preview": "Final Module 21 topic: Blue-Green & Canary Deployments — shipping to a small percentage of users first, measuring metrics, and progressively rolling out (or instantly rolling back) before all users are affected."
+  }
+}

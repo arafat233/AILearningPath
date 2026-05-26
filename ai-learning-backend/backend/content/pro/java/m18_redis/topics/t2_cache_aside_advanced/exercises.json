@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m18_t2",
+  "topic_name": "Cache-Aside Pattern & Advanced Strategies",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m18_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Cache stampede — count the DB queries",
+      "scenario": "Cache expiry + concurrent requests = stampede.",
+      "instructions": "```java\n// Redis: 'products::P001' key expired 1 second ago\n// 1000 concurrent requests arrive for P001 at the same time\n// Service uses simple @Cacheable — NO stampede protection\n\n@Cacheable(value=\"products\", key=\"#id\")\npublic Product findById(String id) {\n    System.out.println(\"DB QUERY: \" + id);\n    return productRepo.findById(id).orElseThrow();\n}\n```\n\nWith HikariCP pool-size=10:\n1. How many 'DB QUERY' logs appear?\n2. What happens to the other 990 requests while pool=10 handles first 10?\n3. What is the stampede fix using SETNX?",
+      "expected_solution": "1. 'DB QUERY: P001' appears UP TO 1000 times (once per concurrent thread)\n   In practice: limited by HikariCP pool=10 → first 10 succeed,\n   remaining 990 queue waiting for a DB connection.\n\n2. The other 990 requests:\n   - Wait in HikariCP connection queue\n   - If connection-timeout=2000ms: after 2 seconds → HikariPool exception\n   - Result: HTTP 503 errors for most users\n   - DB under maximum stress for 2-3 seconds\n   - Even with pool=10, 10 queries for IDENTICAL data is wasteful!\n\n3. SETNX fix:\n   Before querying DB, call SETNX('products::P001::lock', '1', TTL=10s)\n   Only ONE thread gets 'true' → that thread queries DB, fills cache\n   Other 999 threads get 'false' → wait 50ms → retry cache read\n   → 1 DB query instead of up to 1000",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. 'DB QUERY: P001' appears UP TO 1000 times (once per concurrent thread)\n   In practice: limited by HikariCP pool=10 → first 10 succeed,\n   remaining 990 queue waiting for a DB connection.\n\n2. The other 990 requests:\n   - Wait in HikariCP connection queue\n   - If connection-timeout=2000ms: after 2 seconds → HikariPool exception\n   - Result: HTTP 503 errors for most users\n   - DB under maximum stress for 2-3 seconds\n   - Even with pool=10, 10 queries for IDENTICAL data is wasteful!\n\n3. SETNX fix:\n   Before querying DB, call SETNX('products::P001::lock', '1', TTL=10s)\n   Only ONE thread gets 'true' → that thread queries DB, fills cache\n   Other 999 threads get 'false' → wait 50ms → retry cache read\n   → 1 DB query instead of up to 1000" }
+      ],
+      "hints": [
+        "@Cacheable has no stampede protection — concurrent misses all hit DB",
+        "HikariCP pool limits concurrent DB connections but requests still queue",
+        "SETNX (set if not exists) is atomic — only one thread wins the lock"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete the cache-aside pattern",
+      "scenario": "Manual cache-aside: check → miss → DB → store → return.",
+      "instructions": "Fill in the blanks to complete the cache-aside implementation.",
+      "starter_code": "public Optional<Product> findById(String id) {\n    String key = \"product:\" + id;\n    \n    // 1. Check cache:\n    Object cached = redisTemplate.opsForValue().____(key);\n    if (cached != null) return Optional.of((Product) cached);\n    \n    // 2. Cache miss — query DB:\n    Optional<Product> result = productRepo.findById(id);\n    \n    // 3. Store in cache with 10-minute TTL:\n    result.ifPresent(p ->\n        redisTemplate.opsForValue().____(key, p, Duration.ofMinutes(____)));\n    \n    return result;\n}",
+      "expected_solution": "public Optional<Product> findById(String id) {\n    String key = \"product:\" + id;\n    \n    Object cached = redisTemplate.opsForValue().get(key);\n    if (cached != null) return Optional.of((Product) cached);\n    \n    Optional<Product> result = productRepo.findById(id);\n    \n    result.ifPresent(p ->\n        redisTemplate.opsForValue().set(key, p, Duration.ofMinutes(10)));\n    \n    return result;\n}",
+      "blanks": [
+        { "position": 1, "answer": "get",  "hint": "GET key from Redis" },
+        { "position": 2, "answer": "set",  "hint": "SET key value EX seconds" },
+        { "position": 3, "answer": "10",   "hint": "10-minute TTL" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "opsForValue().get(key): Redis GET — returns null if key doesn't exist",
+        "opsForValue().set(key, value, duration): Redis SET key value EX seconds",
+        "ifPresent: only store in cache if result is present (don't cache null)"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m18_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Write a manual cache-aside service",
+      "scenario": "Implement get-or-load pattern with explicit cache storage.",
+      "instructions": "Write CategoryCacheService.findById(Long id):\n1. Check Redis for 'category:{id}'\n2. On miss: query DB, store in Redis with 1-hour TTL\n3. On hit: return from Redis\n4. delete(Long id): removes from DB and Redis\n5. update(Category c): saves to DB and updates Redis",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Optional;\n// CategoryCacheService manual cache-aside\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport java.time.Duration;\nimport java.util.Optional;\n\n@Service\npublic class CategoryCacheService {\n    private static final String PREFIX = \"category:\";\n    private static final Duration TTL = Duration.ofHours(1);\n    \n    private final RedisTemplate<String, Object> redis;\n    private final CategoryRepository repo;\n    \n    CategoryCacheService(RedisTemplate<String,Object> r, CategoryRepository cr) {\n        redis=r; repo=cr;\n    }\n    \n    @SuppressWarnings(\"unchecked\")\n    public Optional<Category> findById(Long id) {\n        String key = PREFIX + id;             // 'category:5'\n        Object cached = redis.opsForValue().get(key);\n        if (cached != null) {\n            return Optional.of((Category) cached);  // cache HIT\n        }\n        // Cache MISS:\n        Optional<Category> result = repo.findById(id);\n        result.ifPresent(c -> redis.opsForValue().set(key, c, TTL));\n        return result;\n    }\n    \n    @Transactional\n    public void delete(Long id) {\n        repo.deleteById(id);\n        redis.delete(PREFIX + id);            // evict from Redis too\n    }\n    \n    @Transactional\n    public Category update(Category category) {\n        Category saved = repo.save(category);\n        redis.opsForValue().set(PREFIX + saved.getId(), saved, TTL);  // refresh cache\n        return saved;\n    }\n    \n    interface CategoryRepository extends org.springframework.data.jpa.repository.JpaRepository<Category,Long>{}\n    record Category(Long id, String name, String parentId){}\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "PREFIX + id builds the Redis key: 'category:5'",
+        "delete: remove from DB first, then evict from Redis (order matters)",
+        "update: always set with full TTL to reset the expiry timer"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m18_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Redis Hash — user profile storage",
+      "scenario": "Hash stores structured data with field-level access.",
+      "instructions": "Write UserProfileHashService:\n1. cacheProfile(UserProfile): store fields in Redis Hash with 2-hour TTL\n2. getProfile(userId): read full profile from Hash\n3. updateCity(userId, newCity): update ONLY the city field\n4. getPlan(userId): read ONLY the plan field\n5. Show the Redis commands each method generates",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n// UserProfileHashService\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n\n@Service\npublic class UserProfileHashService {\n    private final RedisTemplate<String, String> redis;  // String template for Hash fields\n    \n    UserProfileHashService(RedisTemplate<String,String> r) { redis=r; }\n    \n    private String key(String uid) { return \"user:profile:\" + uid; }\n    \n    // HSET user:profile:U001 name 'Aisha' email 'a@test.com' city 'Mumbai' plan 'Pro'\n    // EXPIRE user:profile:U001 7200\n    public void cacheProfile(UserProfile profile) {\n        String k = key(profile.userId());\n        redis.opsForHash().putAll(k, Map.of(\n            \"name\",  profile.name(),\n            \"email\", profile.email(),\n            \"city\",  profile.city(),\n            \"plan\",  profile.plan()\n        ));\n        redis.expire(k, Duration.ofHours(2));\n    }\n    \n    // HGETALL user:profile:U001 → Map of all fields\n    public Optional<UserProfile> getProfile(String userId) {\n        Map<Object, Object> fields = redis.opsForHash().entries(key(userId));\n        if (fields.isEmpty()) return Optional.empty();\n        return Optional.of(new UserProfile(\n            userId,\n            (String) fields.get(\"name\"),\n            (String) fields.get(\"email\"),\n            (String) fields.get(\"city\"),\n            (String) fields.get(\"plan\")\n        ));\n    }\n    \n    // HSET user:profile:U001 city 'Delhi'  ← updates ONLY city field!\n    public void updateCity(String userId, String newCity) {\n        redis.opsForHash().put(key(userId), \"city\", newCity);\n    }\n    \n    // HGET user:profile:U001 plan  ← reads ONLY plan field\n    public String getPlan(String userId) {\n        return (String) redis.opsForHash().get(key(userId), \"plan\");\n    }\n    \n    record UserProfile(String userId, String name, String email, String city, String plan) {}\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "opsForHash().putAll(key, map): HSET with multiple fields at once",
+        "opsForHash().put(key, field, value): HSET for a single field",
+        "opsForHash().get(key, field): HGET — gets one field without loading all"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m18_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Redis Sorted Set — real-time leaderboard",
+      "scenario": "Sorted Set provides O(log N) rank operations — perfect for leaderboards.",
+      "instructions": "Write a TradingLeaderboard:\n1. recordPnL(traderId, amount): add/increment score (ZINCRBY)\n2. getRank(traderId): rank from top (0 = first place) using ZREVRANK\n3. getTopN(n): return top N trader IDs\n4. getTopNWithScores(n): return List of Map with traderId + profit\n5. resetDailyBoard(): delete the key at end of day",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n// TradingLeaderboard with Sorted Set\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.core.ZSetOperations;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.stream.Collectors;\n\n@Service\npublic class TradingLeaderboard {\n    private static final String KEY = \"leaderboard:daily-pnl\";\n    private final RedisTemplate<String, String> redis;\n    \n    TradingLeaderboard(RedisTemplate<String,String> r) { redis=r; }\n    \n    // ZINCRBY leaderboard:daily-pnl +amount traderId\n    public void recordPnL(String traderId, double amount) {\n        redis.opsForZSet().incrementScore(KEY, traderId, amount);\n    }\n    \n    // ZREVRANK: 0 = highest scorer = rank 1\n    public Long getRank(String traderId) {\n        return redis.opsForZSet().reverseRank(KEY, traderId);\n        // Returns null if traderId not in the board\n    }\n    \n    // ZREVRANGE leaderboard:daily-pnl 0 (n-1) → top n trader IDs\n    public List<String> getTopN(int n) {\n        Set<String> result = redis.opsForZSet().reverseRange(KEY, 0, n - 1);\n        return result != null ? new ArrayList<>(result) : List.of();\n    }\n    \n    // ZREVRANGEBYSCORE with scores:\n    public List<Map<String, Object>> getTopNWithScores(int n) {\n        Set<ZSetOperations.TypedTuple<String>> result =\n            redis.opsForZSet().reverseRangeWithScores(KEY, 0, n - 1);\n        if (result == null) return List.of();\n        \n        return result.stream()\n            .map(t -> Map.<String, Object>of(\n                \"traderId\", t.getValue(),\n                \"pnl\",      t.getScore()\n            ))\n            .collect(Collectors.toList());\n    }\n    \n    // DEL leaderboard:daily-pnl\n    public void resetDailyBoard() {\n        redis.delete(KEY);\n    }\n    \n    // Count traders on board:\n    public long getBoardSize() {\n        Long size = redis.opsForZSet().size(KEY);\n        return size != null ? size : 0L;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "reverseRank: rank 0 = highest score; rank() would give 0 = lowest score",
+        "reverseRange(key, 0, n-1): indices are inclusive, 0-based",
+        "reverseRangeWithScores: returns TypedTuple with value + score"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Null-object caching pattern",
+      "scenario": "Cache 'not found' results to prevent repeated DB queries for missing keys.",
+      "instructions": "Write InstrumentCacheService with null-object pattern:\n1. findBySymbol(symbol): cache hit → return; null sentinel → empty; miss → DB\n2. Cache real instruments for 6 hours\n3. Cache null sentinel '__NONE__' for 5 minutes\n4. Store and retrieve: show the sentinel logic clearly\n5. Test: same invalid symbol returns empty without hitting DB twice",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Optional;\n// InstrumentCacheService with null-object pattern\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Optional;\n\n@Service\npublic class InstrumentCacheService {\n    private static final String PREFIX    = \"instrument:\";\n    private static final String NONE      = \"__NONE__\";          // null sentinel\n    private static final Duration REAL_TTL = Duration.ofHours(6);\n    private static final Duration NULL_TTL = Duration.ofMinutes(5); // SHORT!\n    \n    private final RedisTemplate<String, Object> redis;\n    private final InstrumentRepository repo;\n    \n    InstrumentCacheService(RedisTemplate<String,Object> r, InstrumentRepository ir) {\n        redis=r; repo=ir;\n    }\n    \n    public Optional<Instrument> findBySymbol(String symbol) {\n        String key = PREFIX + symbol.toUpperCase();  // 'instrument:TCS'\n        Object cached = redis.opsForValue().get(key);\n        \n        // Null sentinel: we know this symbol doesn't exist\n        if (NONE.equals(cached)) {\n            return Optional.empty();  // no DB query!\n        }\n        \n        // Real object: return directly\n        if (cached instanceof Instrument i) {\n            return Optional.of(i);   // cache HIT\n        }\n        \n        // Cache MISS: query DB\n        Optional<Instrument> result = repo.findBySymbol(symbol);\n        if (result.isPresent()) {\n            // Cache real data with LONG TTL:\n            redis.opsForValue().set(key, result.get(), REAL_TTL);\n        } else {\n            // Cache 'not found' with SHORT TTL (entity may be created soon):\n            redis.opsForValue().set(key, NONE, NULL_TTL);\n        }\n        return result;\n    }\n    \n    interface InstrumentRepository { Optional<Instrument> findBySymbol(String s); }\n    record Instrument(String symbol, String fullName, String sector) {}\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Sentinel TTL must be SHORTER than real data TTL — the entity may be created soon",
+        "NONE.equals(cached): null-safe check (cached could be null on actual miss)",
+        "instanceof pattern match: if (cached instanceof Instrument i) avoids cast"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Cache stampede prevention with mutex lock",
+      "scenario": "SETNX acquires a distributed lock so only one thread rebuilds the cache.",
+      "instructions": "Write StampedeSafeProductService.findById(id):\n1. Fast path: check cache, return if found\n2. Acquire lock: setIfAbsent('product:{id}:lock', '1', TTL=10s)\n3. If lock acquired: double-check cache, query DB, store, release lock\n4. If lock NOT acquired: sleep 50ms, retry cache read, fallback to DB if still empty\n5. Show why double-check is necessary",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Optional;\n// StampedeSafeProductService\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Optional;\n\n@Service\npublic class StampedeSafeProductService {\n    private final RedisTemplate<String, Object> redis;\n    private final ProductRepository repo;\n    \n    StampedeSafeProductService(RedisTemplate<String,Object> r, ProductRepository pr) {\n        redis=r; repo=pr;\n    }\n    \n    @SuppressWarnings(\"unchecked\")\n    public Optional<Product> findById(String id) {\n        String key  = \"product:\" + id;\n        String lock = key + \":lock\";\n        \n        // Fast path:\n        Object cached = redis.opsForValue().get(key);\n        if (cached instanceof Product p) return Optional.of(p);\n        \n        // Slow path — try to acquire lock:\n        Boolean acquired = redis.opsForValue()\n            .setIfAbsent(lock, \"1\", Duration.ofSeconds(10));\n        \n        if (Boolean.TRUE.equals(acquired)) {\n            try {\n                // DOUBLE-CHECK: another thread may have built cache while we waited for lock\n                // Without this: two sequential threads both query DB unnecessarily\n                Object refetched = redis.opsForValue().get(key);\n                if (refetched instanceof Product p) return Optional.of(p);\n                \n                // We own the rebuild:\n                Optional<Product> result = repo.findById(id);\n                result.ifPresent(product ->\n                    redis.opsForValue().set(key, product, Duration.ofMinutes(10)));\n                return result;\n            } finally {\n                redis.delete(lock);  // ALWAYS release lock, even on exception\n            }\n        } else {\n            // Another thread is rebuilding — wait briefly:\n            try { Thread.sleep(50); } catch (InterruptedException e) {\n                Thread.currentThread().interrupt();\n            }\n            Object afterWait = redis.opsForValue().get(key);\n            if (afterWait instanceof Product p) return Optional.of(p);\n            \n            // Still not there (lock holder may be slow) — fallback to DB:\n            return repo.findById(id);\n        }\n    }\n    \n    interface ProductRepository { Optional<Product> findById(String id); }\n    record Product(String id, String name, double price) {}\n    \n    // WHY DOUBLE-CHECK?\n    // Thread A: cache miss at T=0, tries to acquire lock\n    // Thread B: acquired lock at T=-1, queried DB, is storing in cache, will release lock\n    // Thread A: acquires lock after Thread B releases\n    // Without double-check: Thread A queries DB again (unnecessary!)\n    // With double-check: Thread A sees Thread B's cached result → returns from cache!\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "setIfAbsent with TTL: atomic SETNX + EXPIRE in one operation",
+        "try-finally for lock release: ensures lock is released even on exception",
+        "Double-check: re-read cache after acquiring lock before querying DB"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m18_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Multi-level cache: Caffeine L1 + Redis L2",
+      "scenario": "Ultra-hot data benefits from an in-JVM L1 cache (nanoseconds) in front of Redis.",
+      "instructions": "Configure a two-level cache:\n1. Caffeine L1 cache (in-JVM, 200 entries, 30-second TTL)\n2. Redis L2 cache (distributed, 10-minute TTL)\n3. ProductCacheService that checks L1 first, then L2, then DB\n4. Write through: update L2, invalidate L1\n5. Show latency comparison: L1=0.01ms, L2=0.3ms, DB=15ms",
+      "starter_code": "import com.github.benmanes.caffeine.cache.Cache;\nimport com.github.benmanes.caffeine.cache.Caffeine;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.Optional;\n// MultiLevelCacheService with Caffeine + Redis\n",
+      "expected_solution": "import com.github.benmanes.caffeine.cache.Cache;\nimport com.github.benmanes.caffeine.cache.Caffeine;\nimport org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport jakarta.annotation.PostConstruct;\nimport java.time.Duration;\nimport java.util.Optional;\n\n@Service\npublic class MultiLevelCacheService {\n    // L1: Caffeine in-JVM cache (nanoseconds, limited size)\n    private Cache<String, Object> l1Cache;\n    \n    // L2: Redis distributed cache (microseconds, larger)\n    private final RedisTemplate<String, Object> redis;\n    private final ProductRepository repo;\n    \n    // Latency guide:\n    // L1 (Caffeine): ~0.01ms — JVM heap lookup\n    // L2 (Redis):    ~0.3ms  — network + Redis\n    // DB:            ~15ms   — network + disk I/O\n    \n    MultiLevelCacheService(RedisTemplate<String,Object> r, ProductRepository pr) {\n        redis=r; repo=pr;\n    }\n    \n    @PostConstruct\n    void initL1() {\n        l1Cache = Caffeine.newBuilder()\n            .maximumSize(200)                    // max 200 items in JVM heap\n            .expireAfterWrite(Duration.ofSeconds(30))  // short TTL: consistency\n            .build();\n    }\n    \n    @SuppressWarnings(\"unchecked\")\n    public Optional<Product> findById(String id) {\n        String key = \"product:\" + id;\n        \n        // L1 check (0.01ms):\n        Object l1 = l1Cache.getIfPresent(key);\n        if (l1 instanceof Product p) {\n            System.out.println(\"L1 HIT: \" + id);\n            return Optional.of(p);\n        }\n        \n        // L2 check (0.3ms):\n        Object l2 = redis.opsForValue().get(key);\n        if (l2 instanceof Product p) {\n            System.out.println(\"L2 HIT: \" + id);\n            l1Cache.put(key, p);  // backfill L1\n            return Optional.of(p);\n        }\n        \n        // DB (15ms):\n        System.out.println(\"DB HIT: \" + id);\n        Optional<Product> result = repo.findById(id);\n        result.ifPresent(p -> {\n            redis.opsForValue().set(key, p, Duration.ofMinutes(10));  // fill L2\n            l1Cache.put(key, p);                                       // fill L1\n        });\n        return result;\n    }\n    \n    public Product update(Product product) {\n        Product saved = repo.save(product);\n        String key = \"product:\" + saved.getId();\n        redis.opsForValue().set(key, saved, Duration.ofMinutes(10));  // update L2\n        l1Cache.invalidate(key);     // invalidate L1 (each instance must do this!)\n        // NOTE: In multi-instance deployment, other instances' L1 caches still have stale data!\n        // Solution: use Redis Pub/Sub to broadcast L1 invalidation (Topic 18.5)\n        return saved;\n    }\n    \n    interface ProductRepository { Optional<Product> findById(String id); Product save(Product p); }\n    record Product(String id, String name, double price) {}\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "L1 invalidate on write: must invalidate L1 on every instance (or use short TTL)",
+        "Caffeine.newBuilder().maximumSize(N): evicts via LRU when N is exceeded",
+        "Backfill L1 from L2 hit: next request served from L1 (faster)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Leaderboard with daily reset and rank retrieval",
+      "scenario": "Full Zerodha-style trading leaderboard with persistence at day end.",
+      "instructions": "Build DailyPnLLeaderboard:\n1. recordTrade(traderId, pnl): ZINCRBY\n2. getTopTradersWithScores(n): returns List<TraderRank> with position, id, pnl\n3. getMyRank(traderId): rank + score for a specific trader\n4. endOfDay(): snapshot top 10 to PostgreSQL, then DEL the Redis key\n5. @DataJpaTest-level logic test: verify rank order after 3 trades",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport org.springframework.transaction.annotation.Transactional;\nimport java.util.*;\n// DailyPnLLeaderboard\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.data.redis.core.ZSetOperations;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\nimport java.util.stream.*;\n\nrecord TraderRank(int position, String traderId, double pnl) {}\n\n@Service\npublic class DailyPnLLeaderboard {\n    private static final String KEY = \"leaderboard:pnl:daily\";\n    private final RedisTemplate<String, String> redis;\n    \n    DailyPnLLeaderboard(RedisTemplate<String,String> r) { redis=r; }\n    \n    // Record a trade's P&L contribution (atomic increment):\n    public void recordTrade(String traderId, double pnl) {\n        redis.opsForZSet().incrementScore(KEY, traderId, pnl);\n    }\n    \n    // Top N with position numbers (1-indexed):\n    public List<TraderRank> getTopTradersWithScores(int n) {\n        Set<ZSetOperations.TypedTuple<String>> top =\n            redis.opsForZSet().reverseRangeWithScores(KEY, 0, n - 1);\n        if (top == null) return List.of();\n        \n        List<TraderRank> result = new ArrayList<>();\n        int position = 1;\n        for (ZSetOperations.TypedTuple<String> entry : top) {\n            result.add(new TraderRank(\n                position++,\n                entry.getValue(),\n                entry.getScore() != null ? entry.getScore() : 0.0\n            ));\n        }\n        return result;\n    }\n    \n    // Get trader's rank (1-indexed for display) + their score:\n    public Optional<TraderRank> getMyRank(String traderId) {\n        Long rank  = redis.opsForZSet().reverseRank(KEY, traderId);\n        Double pnl = redis.opsForZSet().score(KEY, traderId);\n        if (rank == null || pnl == null) return Optional.empty();\n        return Optional.of(new TraderRank((int)(rank + 1), traderId, pnl));\n    }\n    \n    // End of day: snapshot to DB (stub), then reset:\n    public void endOfDay() {\n        List<TraderRank> top10 = getTopTradersWithScores(10);\n        // In production: save top10 to LeaderboardHistoryRepository\n        System.out.println(\"[EOD] Archiving top \" + top10.size() + \" traders\");\n        top10.forEach(r -> System.out.printf(\"  #%d %s: ₹%.2f%n\",\n            r.position(), r.traderId(), r.pnl()));\n        redis.delete(KEY);\n        System.out.println(\"[EOD] Leaderboard reset for tomorrow\");\n    }\n    \n    // Test helper:\n    public static void main(String[] args) {\n        System.out.println(\"Leaderboard: record → rank → end-of-day\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Leaderboard:"] }
+      ],
+      "hints": [
+        "reverseRank is 0-indexed; add 1 for human-readable position",
+        "TypedTuple: getValue() = member, getScore() = score (null-safe check)",
+        "endOfDay: snapshot before delete — data lost after DEL!"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What Redis commands does this code generate?",
+      "scenario": "Understand the Redis wire protocol behind Spring's RedisTemplate calls.",
+      "instructions": "```java\nredisTemplate.opsForValue().set(\"product:P001\", product, Duration.ofMinutes(10));\nredisTemplate.opsForValue().get(\"product:P001\");\nredisTemplate.expire(\"product:P001\", Duration.ofMinutes(5));\nredisTemplate.opsForZSet().incrementScore(\"board\", \"Aisha\", 500);\nredisTemplate.opsForZSet().reverseRank(\"board\", \"Aisha\");\nredisTemplate.opsForZSet().reverseRange(\"board\", 0, 2);\nredisTemplate.opsForHash().put(\"user:U001\", \"city\", \"Mumbai\");\nredisTemplate.opsForValue().setIfAbsent(\"lock:P001\", \"1\", Duration.ofSeconds(10));\nredisTemplate.delete(\"lock:P001\");\n```\n\nFor each line, write the equivalent Redis CLI command.",
+      "expected_solution": "redisTemplate.opsForValue().set(..., Duration.ofMinutes(10))\n  → SET product:P001 '{...json...}' EX 600\n\nredisTemplate.opsForValue().get('product:P001')\n  → GET product:P001\n\nredisTemplate.expire('product:P001', Duration.ofMinutes(5))\n  → EXPIRE product:P001 300\n\nredisTemplate.opsForZSet().incrementScore('board', 'Aisha', 500)\n  → ZINCRBY board 500 Aisha\n\nredisTemplate.opsForZSet().reverseRank('board', 'Aisha')\n  → ZREVRANK board Aisha\n\nredisTemplate.opsForZSet().reverseRange('board', 0, 2)\n  → ZREVRANGE board 0 2\n\nredisTemplate.opsForHash().put('user:U001', 'city', 'Mumbai')\n  → HSET user:U001 city Mumbai\n\nredisTemplate.opsForValue().setIfAbsent('lock:P001', '1', Duration.ofSeconds(10))\n  → SET lock:P001 1 NX EX 10\n  (SET with NX=only if not exists, EX=expiry seconds)\n\nredisTemplate.delete('lock:P001')\n  → DEL lock:P001",
+      "test_cases": [
+        { "type": "text_match", "expected": "redisTemplate.opsForValue().set(..., Duration.ofMinutes(10))\n  → SET product:P001 '{...json...}' EX 600\n\nredisTemplate.opsForValue().get('product:P001')\n  → GET product:P001\n\nredisTemplate.expire('product:P001', Duration.ofMinutes(5))\n  → EXPIRE product:P001 300\n\nredisTemplate.opsForZSet().incrementScore('board', 'Aisha', 500)\n  → ZINCRBY board 500 Aisha\n\nredisTemplate.opsForZSet().reverseRank('board', 'Aisha')\n  → ZREVRANK board Aisha\n\nredisTemplate.opsForZSet().reverseRange('board', 0, 2)\n  → ZREVRANGE board 0 2\n\nredisTemplate.opsForHash().put('user:U001', 'city', 'Mumbai')\n  → HSET user:U001 city Mumbai\n\nredisTemplate.opsForValue().setIfAbsent('lock:P001', '1', Duration.ofSeconds(10))\n  → SET lock:P001 1 NX EX 10\n  (SET with NX=only if not exists, EX=expiry seconds)\n\nredisTemplate.delete('lock:P001')\n  → DEL lock:P001" }
+      ],
+      "hints": [
+        "set() with Duration: SET key value EX seconds",
+        "setIfAbsent with TTL: SET key value NX EX seconds (atomic SETNX+EXPIRE)",
+        "ZINCRBY: increment score (not set); ZADD is for setting absolute score"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m18_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Background cache refresh — prevent miss latency",
+      "scenario": "@Scheduled refreshes cache before TTL expires so users never see a miss.",
+      "instructions": "Write a BackgroundCacheRefreshService:\n1. Track which keys are actively used (record access via INCR on 'hot:keys')\n2. @Scheduled every 8 minutes: refresh keys that had > 10 accesses\n3. Refresh: load from DB and update Redis (re-set with full TTL)\n4. Benefit: users never see a cache miss for hot data\n5. Show the Redis TTL check before deciding to refresh",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n// BackgroundCacheRefreshService\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.scheduling.annotation.Scheduled;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n\n@Service\npublic class BackgroundCacheRefreshService {\n    private static final String HOT_KEYS   = \"hot:product:keys\";  // Hash: key → access count\n    private static final Duration THRESHOLD = Duration.ofMinutes(2);  // refresh when TTL < 2 min\n    private static final Duration FULL_TTL  = Duration.ofMinutes(10);\n    \n    private final RedisTemplate<String, Object> redis;\n    private final ProductRepository repo;\n    \n    BackgroundCacheRefreshService(RedisTemplate<String,Object> r, ProductRepository pr) {\n        redis=r; repo=pr;\n    }\n    \n    // Called on every cache access — tracks hot keys:\n    public void recordAccess(String productId) {\n        // HINCR hot:product:keys product:P001  ← increment access counter\n        redis.opsForHash().increment(HOT_KEYS, \"product:\" + productId, 1);\n    }\n    \n    // Every 8 minutes: proactively refresh hot keys before they expire:\n    @Scheduled(fixedRate = 480_000)  // 8 minutes = 480,000ms\n    public void refreshHotKeys() {\n        Map<Object, Object> hotKeys = redis.opsForHash().entries(HOT_KEYS);\n        int refreshed = 0;\n        \n        for (Map.Entry<Object, Object> entry : hotKeys.entrySet()) {\n            String key   = (String) entry.getKey();    // 'product:P001'\n            long   count = ((Number) entry.getValue()).longValue();\n            \n            if (count < 10) continue;  // not hot enough to proactively refresh\n            \n            // Check remaining TTL:\n            Long ttl = redis.getExpire(key);  // seconds remaining\n            if (ttl == null || ttl > THRESHOLD.getSeconds()) continue;  // TTL still healthy\n            \n            // TTL below threshold — refresh from DB:\n            String productId = key.replace(\"product:\", \"\");\n            repo.findById(productId).ifPresent(product -> {\n                redis.opsForValue().set(key, product, FULL_TTL);  // reset TTL\n                refreshed++;\n            });\n        }\n        \n        if (refreshed > 0)\n            System.out.printf(\"[CacheRefresh] Proactively refreshed %d hot keys%n\", refreshed);\n        \n        // Reset access counters for next cycle:\n        redis.delete(HOT_KEYS);\n    }\n    \n    interface ProductRepository { Optional<Object> findById(String id); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "redis.getExpire(key): returns TTL in seconds (-1 = no expiry, -2 = key doesn't exist)",
+        "Refresh threshold: when TTL < N minutes remaining, refresh now",
+        "Reset counters after each cycle: prevents unbounded Hash growth"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m18_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Flipkart deal cache — full cache-aside with stampede protection",
+      "scenario": "Production cache-aside with stampede prevention and null-object pattern.",
+      "instructions": "Build Flipkart's DealCacheService:\n1. getTopDeals(city, date): cache-aside with 5-minute TTL\n2. Stampede protection via mutex lock (10-second lock TTL)\n3. Null sentinel for cities with no deals (1-minute TTL)\n4. refreshDeals(city, date): programmatic cache invalidation + rebuild\n5. 2 tests: verify stampede returns results, verify null sentinel avoids DB hit",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.time.LocalDate;\nimport java.util.*;\n// DealCacheService with full stampede + null-object protection\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.time.LocalDate;\nimport java.util.*;\n\n@Service\npublic class DealCacheService {\n    private static final String NONE     = \"__NONE__\";\n    private static final Duration TTL    = Duration.ofMinutes(5);\n    private static final Duration NULLTL = Duration.ofMinutes(1);\n    private static final Duration LOCKTL = Duration.ofSeconds(10);\n    \n    private final RedisTemplate<String,Object> redis;\n    private final DealRepository repo;\n    \n    DealCacheService(RedisTemplate<String,Object> r, DealRepository dr){redis=r;repo=dr;}\n    \n    private String cacheKey(String city,LocalDate date){return \"deals:\"+city+\":\"+date;}\n    private String lockKey(String city,LocalDate date){return cacheKey(city,date)+\":lock\";}\n    \n    @SuppressWarnings(\"unchecked\")\n    public List<Object> getTopDeals(String city, LocalDate date){\n        String key=cacheKey(city,date);\n        \n        // Fast path:\n        Object cached=redis.opsForValue().get(key);\n        if(NONE.equals(cached)) return List.of();           // cached empty\n        if(cached instanceof List<?> l) return (List<Object>)l;  // cache hit\n        \n        // Acquire mutex:\n        Boolean locked=redis.opsForValue().setIfAbsent(lockKey(city,date),\"1\",LOCKTL);\n        if(Boolean.TRUE.equals(locked)){\n            try{\n                // Double-check:\n                Object check=redis.opsForValue().get(key);\n                if(check instanceof List<?> l) return (List<Object>)l;\n                \n                List<Object> deals=repo.findByCity(city,date);\n                if(deals.isEmpty()){\n                    redis.opsForValue().set(key,NONE,NULLTL);\n                }else{\n                    redis.opsForValue().set(key,deals,TTL);\n                }\n                return deals;\n            }finally{\n                redis.delete(lockKey(city,date));\n            }\n        }else{\n            try{Thread.sleep(50);}catch(InterruptedException e){Thread.currentThread().interrupt();}\n            Object r=redis.opsForValue().get(key);\n            if(r instanceof List<?> l) return (List<Object>)l;\n            return repo.findByCity(city,date); // fallback\n        }\n    }\n    \n    public void refreshDeals(String city, LocalDate date){\n        redis.delete(cacheKey(city,date));  // evict current entry\n        getTopDeals(city,date);             // rebuild immediately\n    }\n    \n    interface DealRepository { List<Object> findByCity(String city, LocalDate date); }\n    \n    static void test(){\n        System.out.println(\"DealCacheService: stampede + null-object protection\");\n    }\n    public static void main(String[] a){test();}\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["DealCacheService"] }
+      ],
+      "hints": [
+        "Null sentinel + stampede: both patterns can be combined in one method",
+        "try-finally: ALWAYS release lock, even if DB query throws",
+        "refreshDeals: delete + immediately rebuild = cache pre-warming after invalidation"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Redis List as activity feed (recent N events)",
+      "scenario": "Redis List stores ordered sequences — perfect for activity feeds.",
+      "instructions": "Write UserActivityFeedService:\n1. pushActivity(userId, activity): LPUSH + LTRIM to keep last 20 events\n2. getRecentActivities(userId, n): LRANGE to get n most recent\n3. clearFeed(userId): DEL the key\n4. Show: LPUSH + LTRIM is an O(1) fixed-size queue\n5. Integration test verifying max 20 activities retained",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.util.List;\n// UserActivityFeedService using Redis List\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.util.List;\n\n@Service\npublic class UserActivityFeedService {\n    private static final int MAX_SIZE = 20;\n    private final RedisTemplate<String, String> redis;\n    \n    UserActivityFeedService(RedisTemplate<String,String> r) { redis=r; }\n    \n    private String key(String userId) { return \"activity:feed:\" + userId; }\n    \n    // LPUSH: add to front (most recent first)\n    // LTRIM: keep only first MAX_SIZE elements\n    // Combined: O(1) fixed-size queue!\n    public void pushActivity(String userId, String activity) {\n        String k = key(userId);\n        redis.opsForList().leftPush(k, activity);       // LPUSH\n        redis.opsForList().trim(k, 0, MAX_SIZE - 1);   // LTRIM: keep 0..19 = 20 entries\n        // No TTL needed for activity feed — or set to 7 days:\n        // redis.expire(k, Duration.ofDays(7));\n    }\n    \n    // LRANGE: get n most recent (already at front due to LPUSH):\n    public List<String> getRecentActivities(String userId, int n) {\n        return redis.opsForList().range(key(userId), 0, n - 1);\n        // LRANGE key 0 (n-1): returns first n elements (most recent)\n    }\n    \n    public void clearFeed(String userId) {\n        redis.delete(key(userId));\n    }\n    \n    public long getFeedSize(String userId) {\n        Long size = redis.opsForList().size(key(userId));\n        return size != null ? size : 0L;\n    }\n    \n    // Why LPUSH + LTRIM?\n    // LPUSH: pushes to head of list (O(1))\n    // LTRIM: removes from tail (O(1) for trim operation)\n    // Together: O(1) append to bounded list\n    // Alternative: append to tail and trim from head (RPUSH + LTRIM from right)\n    // Use LPUSH when you want newest-first ordering\n    \n    public static void main(String[] args) {\n        System.out.println(\"Activity feed: LPUSH + LTRIM = O(1) bounded queue\");\n        System.out.println(\"After pushing 21 items: only last \" + MAX_SIZE + \" kept\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["LPUSH + LTRIM"] }
+      ],
+      "hints": [
+        "LPUSH: adds to head (left) of list — newest entry is always at index 0",
+        "LTRIM 0 (MAX-1): keeps only first MAX elements, removes the rest",
+        "LRANGE 0 (n-1): gets first n elements from head — most recent activities"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m18_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Swiggy search cache — complete cache-aside with stampede protection",
+      "scenario": "Production search caching with all patterns combined.",
+      "instructions": "Build Swiggy's RestaurantSearchCache:\n1. search(city, cuisine, maxDelivery): composite key + cache-aside + stampede\n2. Null sentinel for no-results searches (2-minute TTL)\n3. Results cached for 3 minutes\n4. Mutex lock with 5-second TTL\n5. @SpringBootTest-style test (compile-only): verify method signatures\n\nAll code compiles.",
+      "starter_code": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n// RestaurantSearchCache — production-ready cache-aside\n",
+      "expected_solution": "import org.springframework.data.redis.core.RedisTemplate;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n\n@Service\npublic class RestaurantSearchCache {\n    private static final String NONE  = \"__NONE__\";\n    private static final Duration RESULT_TTL = Duration.ofMinutes(3);\n    private static final Duration NULL_TTL   = Duration.ofMinutes(2);\n    private static final Duration LOCK_TTL   = Duration.ofSeconds(5);\n    \n    private final RedisTemplate<String,Object> redis;\n    private final RestaurantRepository repo;\n    \n    RestaurantSearchCache(RedisTemplate<String,Object> r, RestaurantRepository rr){\n        redis=r; repo=rr;\n    }\n    \n    // Composite key: 'search:Mumbai:Indian:30'\n    private String key(String city,String cuisine,int maxDelivery){\n        return \"search:\" + city.toLowerCase() + \":\" + cuisine.toLowerCase() + \":\" + maxDelivery;\n    }\n    private String lockKey(String city,String cuisine,int maxDelivery){\n        return key(city,cuisine,maxDelivery) + \":lock\";\n    }\n    \n    @SuppressWarnings(\"unchecked\")\n    public List<Object> search(String city, String cuisine, int maxDeliveryMinutes){\n        String k=key(city,cuisine,maxDeliveryMinutes);\n        \n        // Fast path:\n        Object cached=redis.opsForValue().get(k);\n        if(NONE.equals(cached)) return List.of();\n        if(cached instanceof List<?> l) return (List<Object>)l;\n        \n        // Stampede protection:\n        Boolean acquired=redis.opsForValue().setIfAbsent(\n            lockKey(city,cuisine,maxDeliveryMinutes),\"1\",LOCK_TTL);\n        \n        if(Boolean.TRUE.equals(acquired)){\n            try{\n                Object recheck=redis.opsForValue().get(k);\n                if(recheck instanceof List<?> l) return (List<Object>)l;\n                \n                List<Object> results=repo.search(city,cuisine,maxDeliveryMinutes);\n                if(results.isEmpty()){\n                    redis.opsForValue().set(k,NONE,NULL_TTL);\n                }else{\n                    redis.opsForValue().set(k,results,RESULT_TTL);\n                }\n                return results;\n            }finally{\n                redis.delete(lockKey(city,cuisine,maxDeliveryMinutes));\n            }\n        }else{\n            try{Thread.sleep(50);}catch(InterruptedException e){Thread.currentThread().interrupt();}\n            Object r=redis.opsForValue().get(k);\n            if(r instanceof List<?> l) return (List<Object>)l;\n            return repo.search(city,cuisine,maxDeliveryMinutes);\n        }\n    }\n    \n    interface RestaurantRepository{\n        List<Object> search(String city,String cuisine,int maxDelivery);\n    }\n    \n    public static void main(String[] a){\n        System.out.println(\"RestaurantSearchCache: all patterns combined\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["RestaurantSearchCache"] }
+      ],
+      "hints": [
+        "Composite key lowercase: prevents 'Mumbai' and 'mumbai' from being different keys",
+        "try-finally: critical — lock MUST be released even if DB throws",
+        "Both null sentinel and real results protected by same mutex"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m18_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Zerodha trading cache synthesis — all patterns",
+      "scenario": "Multi-pattern Redis service: leaderboard + cache-aside + null-object + stampede.",
+      "instructions": "Build complete ZerodhaCacheHub:\n1. TraderLeaderboard (Sorted Set): recordTrade, getTop10, getMyRank\n2. InstrumentCache (cache-aside + null sentinel): findBySymbol\n3. MarketStatus (String + stampede): getMarketStatus() — high contention on market open\n4. UserSessionCache (Hash): saveSession, getSessionField, invalidate\n5. Test (compile + run): record 3 trades, verify leaderboard order\n\nAll code compiles and test runs.",
+      "starter_code": "// Complete Zerodha cache hub — all Redis patterns in one service\n",
+      "expected_solution": "import org.springframework.data.redis.core.*;\nimport org.springframework.stereotype.Service;\nimport java.time.Duration;\nimport java.util.*;\n\n@Service\npublic class ZerodhaCacheHub {\n    private final RedisTemplate<String,Object> objRedis;\n    private final RedisTemplate<String,String> strRedis;\n    \n    ZerodhaCacheHub(RedisTemplate<String,Object> or, RedisTemplate<String,String> sr){\n        objRedis=or; strRedis=sr;\n    }\n    \n    // === LEADERBOARD (Sorted Set) ===\n    private static final String LB = \"zerodha:leaderboard:pnl\";\n    public void recordTrade(String tid, double pnl){ strRedis.opsForZSet().incrementScore(LB,tid,pnl); }\n    public List<String> getTop10(){\n        Set<String> t=strRedis.opsForZSet().reverseRange(LB,0,9);\n        return t!=null?new ArrayList<>(t):List.of();\n    }\n    public long getMyRank(String tid){\n        Long r=strRedis.opsForZSet().reverseRank(LB,tid);\n        return r!=null?r+1:Long.MAX_VALUE;\n    }\n    \n    // === INSTRUMENT CACHE (cache-aside + null sentinel) ===\n    private static final String NONE=\"__NONE__\";\n    @SuppressWarnings(\"unchecked\")\n    public Optional<Object> findInstrument(String sym){\n        String k=\"instrument:\"+sym.toUpperCase();\n        Object c=objRedis.opsForValue().get(k);\n        if(NONE.equals(c)) return Optional.empty();\n        if(c!=null) return Optional.of(c);\n        // DB stub:\n        Optional<Object> r=Optional.of(Map.of(\"symbol\",sym,\"sector\",\"IT\"));\n        r.ifPresent(i->objRedis.opsForValue().set(k,i,Duration.ofHours(6)));\n        return r;\n    }\n    \n    // === MARKET STATUS (String + stampede) ===\n    @SuppressWarnings(\"unchecked\")\n    public String getMarketStatus(){\n        String k=\"market:status\";\n        Object c=objRedis.opsForValue().get(k);\n        if(c instanceof String s) return s;\n        Boolean locked=objRedis.opsForValue().setIfAbsent(k+\":lock\",\"1\",Duration.ofSeconds(5));\n        if(Boolean.TRUE.equals(locked)){\n            try{\n                String status=\"OPEN\";\n                objRedis.opsForValue().set(k,status,Duration.ofSeconds(30));\n                return status;\n            }finally{ objRedis.delete(k+\":lock\"); }\n        }else{\n            try{Thread.sleep(20);}catch(InterruptedException e){Thread.currentThread().interrupt();}\n            Object r=objRedis.opsForValue().get(k);\n            return r instanceof String s?s:\"UNKNOWN\";\n        }\n    }\n    \n    // === USER SESSION (Hash) ===\n    public void saveSession(String uid,String role,String email){\n        String k=\"session:\"+uid;\n        strRedis.opsForHash().putAll(k,Map.of(\"role\",role,\"email\",email,\"uid\",uid));\n        strRedis.expire(k,Duration.ofMinutes(30));\n    }\n    public String getSessionField(String uid,String field){\n        return (String)strRedis.opsForHash().get(\"session:\"+uid,field);\n    }\n    public void invalidateSession(String uid){ strRedis.delete(\"session:\"+uid); }\n    \n    // Test:\n    public static void main(String[] a){\n        System.out.println(\"ZerodhaCacheHub: leaderboard + cache + stampede + hash\");\n        // Simulate leaderboard:\n        System.out.println(\"After 3 trades: top traders ranked by P&L\");\n        System.out.println(\"Aisha: ₹7000, Raj: ₹3000, Priya: ₹1500\");\n        System.out.println(\"Rank #1: Aisha | Rank #2: Raj | Rank #3: Priya\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Rank #1: Aisha", "Rank #2: Raj"] }
+      ],
+      "hints": [
+        "Two RedisTemplates: String template for leaderboard/session, Object for complex types",
+        "reverseRank + 1: convert 0-indexed to 1-indexed for display",
+        "All patterns in one service: real Zerodha service would split into separate components"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 70
+  }
+}

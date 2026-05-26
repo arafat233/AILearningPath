@@ -1,0 +1,342 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m15_t2",
+  "topic_name": "Feign Client",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m15_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What does Feign generate?",
+      "scenario": "Feign generates a proxy implementing the declared interface.",
+      "instructions": "Given this Feign interface, what does Spring generate at startup?\n\n```java\n@FeignClient(name = \"user-service\", url = \"http://localhost:8081\")\npublic interface UserServiceClient {\n    @GetMapping(\"/api/users/{id}\")\n    UserDto getUser(@PathVariable String id);\n    \n    @PostMapping(\"/api/users\")\n    UserDto createUser(@RequestBody CreateUserRequest request);\n}\n```\n\nWhat HTTP calls do these method invocations make?\n- userServiceClient.getUser('U001')\n- userServiceClient.createUser(new CreateUserRequest('Aisha', 'aisha@example.com'))",
+      "expected_solution": "Spring generates: a proxy class implementing UserServiceClient\nSpring registers it as a Spring bean (injectable via constructor)\n\nuserServiceClient.getUser('U001'):\n→ HTTP GET http://localhost:8081/api/users/U001\n→ Deserializes response JSON to UserDto\n\nuserServiceClient.createUser(request):\n→ HTTP POST http://localhost:8081/api/users\n→ Body: {\"name\":\"Aisha\",\"email\":\"aisha@example.com\"} (Jackson serialized)\n→ Deserializes response JSON to UserDto",
+      "test_cases": [
+        { "type": "text_match", "expected": "Spring generates: a proxy class implementing UserServiceClient\nSpring registers it as a Spring bean (injectable via constructor)\n\nuserServiceClient.getUser('U001'):\n→ HTTP GET http://localhost:8081/api/users/U001\n→ Deserializes response JSON to UserDto\n\nuserServiceClient.createUser(request):\n→ HTTP POST http://localhost:8081/api/users\n→ Body: {\"name\":\"Aisha\",\"email\":\"aisha@example.com\"} (Jackson serialized)\n→ Deserializes response JSON to UserDto" }
+      ],
+      "hints": [
+        "Feign generates a Spring bean implementing the interface",
+        "@PathVariable: substituted into the URL path",
+        "@RequestBody: serialized as JSON request body"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Complete a @FeignClient interface",
+      "scenario": "Feign interfaces use Spring MVC annotations.",
+      "instructions": "Fill in the blanks to declare a complete inventory service client.",
+      "starter_code": "import org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n\n@____________(name = \"inventory-service\", url = \"${inventory.service.url}\")\npublic interface InventoryServiceClient {\n    \n    @_________(\"/api/inventory\")\n    List<InventoryItem> getAll();\n    \n    @GetMapping(\"/api/inventory/{id}\")\n    InventoryItem getById(@___________ String id);\n    \n    @____________(\"/api/inventory\")\n    InventoryItem addItem(@____________ InventoryItem item);\n}",
+      "expected_solution": "@FeignClient(name = \"inventory-service\", url = \"${inventory.service.url}\")\npublic interface InventoryServiceClient {\n    @GetMapping(\"/api/inventory\")\n    List<InventoryItem> getAll();\n    @GetMapping(\"/api/inventory/{id}\")\n    InventoryItem getById(@PathVariable String id);\n    @PostMapping(\"/api/inventory\")\n    InventoryItem addItem(@RequestBody InventoryItem item);\n}",
+      "blanks": [
+        { "position": 1, "answer": "FeignClient",  "hint": "Annotation that declares this as a Feign client" },
+        { "position": 2, "answer": "GetMapping",   "hint": "HTTP GET method mapping" },
+        { "position": 3, "answer": "PathVariable", "hint": "Extracts {id} from the URL path" },
+        { "position": 4, "answer": "PostMapping",  "hint": "HTTP POST method mapping" },
+        { "position": 5, "answer": "RequestBody",  "hint": "The request body serialized as JSON" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@FeignClient: marks interface as a generated HTTP client",
+        "Same annotations as @RestController, but from the caller's side"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m15_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Minimal @FeignClient declaration",
+      "scenario": "The simplest possible Feign client.",
+      "instructions": "Write a complete `UserServiceClient` @FeignClient for a user service at `${user.service.url}` with:\n1. `getUser(String id)` → GET /api/users/{id}\n2. `createUser(CreateUserRequest req)` → POST /api/users\n3. `deleteUser(String id)` → DELETE /api/users/{id}\n\nAlso show @EnableFeignClients on the Application class.",
+      "starter_code": "import org.springframework.cloud.openfeign.*;\nimport org.springframework.web.bind.annotation.*;\n// UserServiceClient + Application with @EnableFeignClients\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.*;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.boot.*;\nimport org.springframework.boot.autoconfigure.*;\n\nrecord UserDto(String id, String name, String email) {}\nrecord CreateUserRequest(String name, String email) {}\n\n@FeignClient(name = \"user-service\", url = \"${user.service.url}\")\npublic interface UserServiceClient {\n    @GetMapping(\"/api/users/{id}\")\n    UserDto getUser(@PathVariable String id);\n    \n    @PostMapping(\"/api/users\")\n    UserDto createUser(@RequestBody CreateUserRequest req);\n    \n    @DeleteMapping(\"/api/users/{id}\")\n    void deleteUser(@PathVariable String id);\n}\n\n@SpringBootApplication\n@EnableFeignClients\npublic class Application {\n    public static void main(String[] args) { SpringApplication.run(Application.class, args); }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@EnableFeignClients: scans for @FeignClient interfaces and generates proxies",
+        "void return type: for DELETE that returns no body"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m15_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Feign with @RequestParam — query string parameters",
+      "scenario": "@RequestParam in Feign builds the query string automatically.",
+      "instructions": "Write a `SearchServiceClient` @FeignClient with:\n1. `searchProducts(String query, String category, int page, int size)` → GET /api/search/products\n2. `searchOrders(String userId, String status, String fromDate)` where fromDate is optional\n3. Show how query params become the URL: search('mouse', 'electronics', 0, 20) → /api/search/products?query=mouse&category=electronics&page=0&size=20",
+      "starter_code": "import org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n// SearchServiceClient with @RequestParam methods\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\nimport java.util.List;\n\nrecord SearchResult(String id, String name, double score) {}\nrecord OrderSummary(String id, String status, double amount) {}\n\n@FeignClient(name = \"search-service\", url = \"${search.service.url}\")\npublic interface SearchServiceClient {\n    \n    // GET /api/search/products?query=mouse&category=electronics&page=0&size=20\n    @GetMapping(\"/api/search/products\")\n    List<SearchResult> searchProducts(\n        @RequestParam String query,\n        @RequestParam String category,\n        @RequestParam(defaultValue = \"0\") int page,\n        @RequestParam(defaultValue = \"20\") int size\n    );\n    \n    // GET /api/search/orders?userId=U01&status=PENDING\n    // (fromDate omitted if null)\n    @GetMapping(\"/api/search/orders\")\n    List<OrderSummary> searchOrders(\n        @RequestParam String userId,\n        @RequestParam(required = false) String status,\n        @RequestParam(required = false) String fromDate\n    );\n}\n\n// When called: searchProducts('mouse', 'electronics', 0, 20)\n// Feign builds: GET http://search-service/api/search/products\n//                   ?query=mouse&category=electronics&page=0&size=20",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@RequestParam(defaultValue='0'): optional with default",
+        "@RequestParam(required=false): null means param omitted from URL",
+        "Feign builds the query string automatically from @RequestParam"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m15_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Inject @FeignClient into a @Service",
+      "scenario": "Feign clients are injected like any Spring bean.",
+      "instructions": "Write `TradeOrderService` that:\n1. Constructor-injects `MarketServiceClient` (a @FeignClient interface)\n2. `executeTrade(userId, symbol, qty)` calls marketClient.getQuote(symbol) and marketClient.reserveShares(symbol, qty) — use Feign\n3. Returns a TradeConfirmation record\n\nThe service never uses RestTemplate — only the Feign interface.",
+      "starter_code": "record StockQuote(String symbol, double price, boolean tradeable) {}\nrecord TradeConfirmation(String tradeId, String symbol, int qty, double totalValue) {}\n\nimport org.springframework.cloud.openfeign.FeignClient;\nimport org.springframework.web.bind.annotation.*;\n\n@FeignClient(name=\"market-service\", url=\"${market.service.url}\")\ninterface MarketServiceClient {\n    @GetMapping(\"/api/stocks/{symbol}/quote\") StockQuote getQuote(@PathVariable String symbol);\n    @PostMapping(\"/api/stocks/{symbol}/reserve\") void reserveShares(@PathVariable String symbol, @RequestParam int qty);\n}\n\nimport org.springframework.stereotype.Service;\n// TradeOrderService injecting MarketServiceClient\n",
+      "expected_solution": "// (MarketServiceClient as above)\nimport org.springframework.stereotype.Service;\nimport java.util.UUID;\n\n@Service\npublic class TradeOrderService {\n    private final MarketServiceClient marketClient;\n    \n    TradeOrderService(MarketServiceClient marketClient) {\n        this.marketClient = marketClient;  // Feign proxy injected\n    }\n    \n    public TradeConfirmation executeTrade(String userId, String symbol, int qty) {\n        // Looks like local method calls — Feign makes HTTP calls:\n        StockQuote quote = marketClient.getQuote(symbol);\n        \n        if (!quote.tradeable()) {\n            throw new IllegalStateException(symbol + \" is not currently tradeable\");\n        }\n        \n        marketClient.reserveShares(symbol, qty);\n        \n        String tradeId = \"TRD-\" + UUID.randomUUID().toString().substring(0, 8);\n        return new TradeConfirmation(tradeId, symbol, qty, quote.price() * qty);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "MarketServiceClient is injected like any Spring bean — via constructor",
+        "marketClient.getQuote(): looks local, actually makes HTTP GET",
+        "No URL building, no try-catch inside the service method"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Custom ErrorDecoder — map HTTP to domain exceptions",
+      "scenario": "ErrorDecoder translates HTTP status codes to domain exceptions once.",
+      "instructions": "Write a `PaymentServiceErrorDecoder` implementing `feign.codec.ErrorDecoder` that:\n1. 404 → PaymentNotFoundException\n2. 402 (Payment Required) → InsufficientFundsException\n3. 409 → DuplicatePaymentException\n4. 503 → PaymentServiceUnavailableException\n5. other → RuntimeException with status code\n\nRegister in @Configuration.",
+      "starter_code": "class PaymentNotFoundException extends RuntimeException { PaymentNotFoundException(String m){super(m);} }\nclass InsufficientFundsException extends RuntimeException { InsufficientFundsException(String m){super(m);} }\nclass DuplicatePaymentException extends RuntimeException { DuplicatePaymentException(String m){super(m);} }\nclass PaymentServiceUnavailableException extends RuntimeException { PaymentServiceUnavailableException(String m){super(m);} }\n\nimport feign.*;\nimport feign.codec.ErrorDecoder;\nimport org.springframework.context.annotation.*;\n// PaymentServiceErrorDecoder + @Configuration\n",
+      "expected_solution": "// (exception classes as above)\nimport feign.*;\nimport feign.codec.ErrorDecoder;\nimport org.springframework.context.annotation.*;\n\npublic class PaymentServiceErrorDecoder implements ErrorDecoder {\n    @Override\n    public Exception decode(String methodKey, Response response) {\n        int status = response.status();\n        return switch (status) {\n            case 404 -> new PaymentNotFoundException(\"Payment not found\");\n            case 402 -> new InsufficientFundsException(\"Insufficient funds for payment\");\n            case 409 -> new DuplicatePaymentException(\"Duplicate payment detected\");\n            case 503 -> new PaymentServiceUnavailableException(\"Payment service unavailable\");\n            default  -> new RuntimeException(\"Payment service error: HTTP \" + status);\n        };\n    }\n}\n\n@Configuration\nclass PaymentFeignConfig {\n    @Bean\n    public ErrorDecoder errorDecoder() {\n        return new PaymentServiceErrorDecoder();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ErrorDecoder.decode(methodKey, response): called for all non-2xx responses",
+        "response.status(): the HTTP status code as int",
+        "switch(status) with int: Java 14+ enhanced switch or traditional switch"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m15_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Test Feign with @MockBean",
+      "scenario": "In @WebMvcTest, replace the Feign client with a Mockito mock.",
+      "instructions": "Write a @WebMvcTest for `TradeController` that:\n1. @MockBean the MarketServiceClient (Feign interface)\n2. Mocks getQuote() to return a successful quote\n3. Tests POST /api/trades → 201\n4. Tests POST /api/trades when getQuote() throws SymbolNotFoundException → 404",
+      "starter_code": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n// @WebMvcTest for TradeController with @MockBean MarketServiceClient\n",
+      "expected_solution": "import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport com.fasterxml.jackson.databind.ObjectMapper;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\nimport static org.springframework.http.MediaType.*;\nimport java.util.Map;\nimport org.junit.jupiter.api.*;\n\nclass SymbolNotFoundException extends RuntimeException { SymbolNotFoundException(String m){super(m);} }\n\n@WebMvcTest(TradeController.class)\nclass TradeControllerTest {\n    @Autowired MockMvc mvc;\n    @Autowired ObjectMapper mapper;\n    @MockBean MarketServiceClient marketClient;  // Feign interface mocked\n    @MockBean TradeOrderService tradeService;    // service also mocked\n    \n    @Test\n    void placeTrade_validSymbol_returns201() throws Exception {\n        when(tradeService.executeTrade(anyString(), eq(\"TCS\"), anyInt()))\n            .thenReturn(new TradeConfirmation(\"TRD-001\",\"TCS\",10,38900.0));\n        mvc.perform(post(\"/api/trades\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"userId\",\"U01\",\"symbol\",\"TCS\",\"qty\",10))))\n            .andExpect(status().isCreated())\n            .andExpect(jsonPath(\"$.tradeId\").value(\"TRD-001\"));\n    }\n    \n    @Test\n    void placeTrade_unknownSymbol_returns404() throws Exception {\n        when(tradeService.executeTrade(anyString(), eq(\"UNKNOWN\"), anyInt()))\n            .thenThrow(new SymbolNotFoundException(\"UNKNOWN not found\"));\n        mvc.perform(post(\"/api/trades\").contentType(APPLICATION_JSON)\n                .content(mapper.writeValueAsString(Map.of(\"userId\",\"U01\",\"symbol\",\"UNKNOWN\",\"qty\",5))))\n            .andExpect(status().isNotFound());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@MockBean MarketServiceClient: Mockito mock replaces the Feign proxy in @WebMvcTest",
+        "Mock the service layer, not the Feign client — the controller calls the service",
+        "SymbolNotFoundException → 404 via @ExceptionHandler in @RestControllerAdvice"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Test Feign with WireMock",
+      "scenario": "WireMock starts a real HTTP stub — tests the Feign client itself.",
+      "instructions": "Write a @SpringBootTest test using WireMock that tests `UserServiceClient` @FeignClient directly:\n1. Start WireMock on a random port\n2. Stub GET /api/users/U001 → 200 with user JSON\n3. Stub GET /api/users/UNKNOWN → 404\n4. Assert client.getUser('U001') returns correct user\n5. Assert client.getUser('UNKNOWN') throws the mapped exception",
+      "starter_code": "import com.github.tomakehurst.wiremock.WireMockServer;\nimport com.github.tomakehurst.wiremock.client.WireMock;\nimport static com.github.tomakehurst.wiremock.client.WireMock.*;\nimport org.springframework.boot.test.context.SpringBootTest;\n// WireMock @SpringBootTest for UserServiceClient\n",
+      "expected_solution": "import com.github.tomakehurst.wiremock.*;\nimport com.github.tomakehurst.wiremock.client.WireMock;\nimport static com.github.tomakehurst.wiremock.client.WireMock.*;\nimport static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties = \"user.service.url=http://localhost:8099\")\nclass UserServiceClientTest {\n    static WireMockServer wireMock = new WireMockServer(wireMockConfig().port(8099));\n    @Autowired UserServiceClient client;\n    \n    @BeforeAll static void startWireMock() { wireMock.start(); }\n    @AfterAll  static void stopWireMock()  { wireMock.stop();  }\n    @BeforeEach void reset()               { wireMock.resetAll(); }\n    \n    @Test void getUser_found_returnsUser() {\n        wireMock.stubFor(get(urlEqualTo(\"/api/users/U001\"))\n            .willReturn(okJson(\"{\\\"id\\\":\\\"U001\\\",\\\"name\\\":\\\"Aisha\\\",\\\"email\\\":\\\"a@b.com\\\"}\")));\n        UserDto user = client.getUser(\"U001\");\n        assertEquals(\"Aisha\", user.name());\n    }\n    \n    @Test void getUser_notFound_throwsMappedException() {\n        wireMock.stubFor(get(urlEqualTo(\"/api/users/UNKNOWN\"))\n            .willReturn(aResponse().withStatus(404)));\n        assertThrows(UserNotFoundException.class, () -> client.getUser(\"UNKNOWN\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "WireMockServer(wireMockConfig().port(8099)): stub HTTP server on port 8099",
+        "@TestPropertySource(properties='user.service.url=http://localhost:8099'): point Feign to WireMock",
+        "okJson(jsonString): shorthand for 200 OK with JSON body"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m15_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "@RequestHeader — pass authentication token in Feign",
+      "scenario": "Feign can pass custom headers on every call.",
+      "instructions": "Write a `PortfolioServiceClient` @FeignClient that:\n1. `getPortfolio(String userId)` → GET /api/portfolio/{userId} + @RequestHeader 'X-Auth-Token'\n2. `getHoldings(String userId, String symbol)` → GET with both path variable and auth header\n3. Write a `PortfolioService` that gets the auth token from SecurityContext and passes it to Feign",
+      "starter_code": "import org.springframework.cloud.openfeign.*;\nimport org.springframework.web.bind.annotation.*;\n// PortfolioServiceClient + PortfolioService\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.*;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.stereotype.Service;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport java.util.List;\n\nrecord PortfolioDto(String userId, List<String> holdings, double totalValue) {}\nrecord HoldingDto(String symbol, int qty, double avgPrice) {}\n\n@FeignClient(name=\"portfolio-service\", url=\"${portfolio.service.url}\")\npublic interface PortfolioServiceClient {\n    \n    @GetMapping(\"/api/portfolio/{userId}\")\n    PortfolioDto getPortfolio(\n        @PathVariable String userId,\n        @RequestHeader(\"X-Auth-Token\") String authToken\n    );\n    \n    @GetMapping(\"/api/portfolio/{userId}/holdings/{symbol}\")\n    HoldingDto getHolding(\n        @PathVariable String userId,\n        @PathVariable String symbol,\n        @RequestHeader(\"X-Auth-Token\") String authToken\n    );\n}\n\n@Service\npublic class PortfolioService {\n    private final PortfolioServiceClient client;\n    PortfolioService(PortfolioServiceClient c) { client = c; }\n    \n    private String getCurrentToken() {\n        var auth = SecurityContextHolder.getContext().getAuthentication();\n        return auth != null ? (String) auth.getCredentials() : \"\";\n    }\n    \n    public PortfolioDto getMyPortfolio(String userId) {\n        return client.getPortfolio(userId, getCurrentToken());\n    }\n    \n    public HoldingDto getMyHolding(String userId, String symbol) {\n        return client.getHolding(userId, symbol, getCurrentToken());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@RequestHeader('X-Auth-Token'): Feign adds this as an HTTP header on the call",
+        "SecurityContextHolder.getContext().getAuthentication().getCredentials(): JWT string",
+        "Alternatively: use a RequestInterceptor to automatically add headers (cleaner)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "What happens when Feign gets 500?",
+      "scenario": "Unconfigured Feign error handling bubbles up differently.",
+      "instructions": "Given this Feign client with NO custom ErrorDecoder:\n\n```java\n@FeignClient(name = \"stock-service\", url = \"http://localhost:8083\")\ninterface StockServiceClient {\n    @GetMapping(\"/api/stocks/{symbol}\") StockDto getStock(@PathVariable String symbol);\n}\n```\n\nstock-service returns 500 Internal Server Error. What exception does Feign throw? What HTTP status does YOUR API (the one calling stock-service) return to ITS client?",
+      "expected_solution": "Feign throws: FeignException.InternalServerError (subclass of FeignException)\nwith message: '[500] during [GET] to [http://localhost:8083/api/stocks/TCS]'\n\nYour API: returns 500 Internal Server Error\n(FeignException bubbles up, unhandled, becomes 500)\n\nFix: add ErrorDecoder OR catch FeignException in service layer OR add @ExceptionHandler(FeignException.class) in @ControllerAdvice",
+      "test_cases": [
+        { "type": "text_match", "expected": "Feign throws: FeignException.InternalServerError (subclass of FeignException)\nwith message: '[500] during [GET] to [http://localhost:8083/api/stocks/TCS]'\n\nYour API: returns 500 Internal Server Error\n(FeignException bubbles up, unhandled, becomes 500)\n\nFix: add ErrorDecoder OR catch FeignException in service layer OR add @ExceptionHandler(FeignException.class) in @ControllerAdvice" }
+      ],
+      "hints": [
+        "Without ErrorDecoder: Feign throws FeignException for any non-2xx",
+        "FeignException bubbles up through Spring MVC as an unhandled exception → 500",
+        "ErrorDecoder translates HTTP errors to domain exceptions before they escape"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m15_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Feign timeout configuration",
+      "scenario": "Set per-client connection and read timeouts.",
+      "instructions": "Write the application.properties configuration for:\n1. Default timeout: connect=3s, read=5s\n2. payment-service: connect=2s, read=10s (payments can be slow)\n3. market-service: connect=1s, read=2s (must be fast for trading)\n4. Enable FULL logging for payment-service (dev)\n\nAlso show a @Configuration approach using `Request.Options`.",
+      "starter_code": "# application.properties — Feign timeout configuration\n\n// Also show @Configuration approach:\n",
+      "expected_solution": "# application.properties:\n\n# Default timeouts for all Feign clients:\nspring.cloud.openfeign.client.config.default.connect-timeout=3000\nspring.cloud.openfeign.client.config.default.read-timeout=5000\n\n# payment-service: slower (payment processing takes longer)\nspring.cloud.openfeign.client.config.payment-service.connect-timeout=2000\nspring.cloud.openfeign.client.config.payment-service.read-timeout=10000\n\n# market-service: must be fast (trading latency sensitive)\nspring.cloud.openfeign.client.config.market-service.connect-timeout=1000\nspring.cloud.openfeign.client.config.market-service.read-timeout=2000\n\n# Full logging for payment-service in dev:\nspring.cloud.openfeign.client.config.payment-service.logger-level=FULL\nlogging.level.com.codequest.client.PaymentServiceClient=DEBUG\n\n// @Configuration approach:\nimport feign.Request;\nimport org.springframework.context.annotation.*;\n@Configuration\nclass MarketFeignConfig {\n    @Bean\n    public Request.Options requestOptions() {\n        return new Request.Options(\n            1000,  java.util.concurrent.TimeUnit.MILLISECONDS,  // connect\n            2000,  java.util.concurrent.TimeUnit.MILLISECONDS,  // read\n            true                                                  // follow redirects\n        );\n    }\n}",
+      "test_cases": [
+        { "type": "text_match", "expected_contains": ["spring.cloud.openfeign.client.config.default.connect-timeout", "payment-service", "market-service"] }
+      ],
+      "hints": [
+        "spring.cloud.openfeign.client.config.{client-name}: per-client config",
+        "connect-timeout: time to establish TCP connection",
+        "read-timeout: time to wait for response after connection established"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m15_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Feign RequestInterceptor — auto-inject auth token",
+      "scenario": "A RequestInterceptor adds headers to ALL calls from a Feign client.",
+      "instructions": "Write a `JwtRequestInterceptor` implementing `feign.RequestInterceptor` that:\n1. Reads JWT from the current SecurityContext\n2. Adds 'Authorization: Bearer {token}' header to every Feign call\n3. Register it as @Bean applied to ALL Feign clients\n4. Write @SpringBootTest verifying the header is sent (use WireMock to capture headers)",
+      "starter_code": "import feign.RequestInterceptor;\nimport feign.RequestTemplate;\nimport org.springframework.context.annotation.*;\n// JwtRequestInterceptor + @Bean config + WireMock test\n",
+      "expected_solution": "import feign.*;\nimport org.springframework.security.core.Authentication;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.context.annotation.*;\n\n@Configuration\npublic class GlobalFeignConfig {\n    @Bean\n    public RequestInterceptor jwtRequestInterceptor() {\n        return template -> {\n            Authentication auth = SecurityContextHolder.getContext().getAuthentication();\n            if (auth != null && auth.getCredentials() instanceof String token) {\n                template.header(\"Authorization\", \"Bearer \" + token);\n            }\n        };\n    }\n}\n\n// WireMock test verifying header is sent:\nimport com.github.tomakehurst.wiremock.*;\nimport com.github.tomakehurst.wiremock.client.WireMock;\nimport static com.github.tomakehurst.wiremock.client.WireMock.*;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.security.authentication.UsernamePasswordAuthenticationToken;\nimport org.springframework.security.core.context.SecurityContextHolder;\nimport org.springframework.test.context.TestPropertySource;\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties=\"user.service.url=http://localhost:9099\")\nclass JwtInterceptorTest {\n    static WireMockServer wm = new WireMockServer(com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig().port(9099));\n    @Autowired UserServiceClient client;\n    \n    @BeforeAll static void start() { wm.start(); }\n    @AfterAll  static void stop()  { wm.stop();  }\n    @BeforeEach void reset()        { wm.resetAll(); }\n    \n    @Test void feignCall_includesJwtHeader() {\n        // Set JWT in SecurityContext:\n        var auth = new UsernamePasswordAuthenticationToken(\"aisha\", \"test-jwt-token\");\n        SecurityContextHolder.getContext().setAuthentication(auth);\n        \n        wm.stubFor(get(urlEqualTo(\"/api/users/U001\"))\n            .withHeader(\"Authorization\", equalTo(\"Bearer test-jwt-token\"))\n            .willReturn(okJson(\"{\\\"id\\\":\\\"U001\\\",\\\"name\\\":\\\"Aisha\\\",\\\"email\\\":\\\"a@b.com\\\"}\")));\n        \n        assertDoesNotThrow(() -> client.getUser(\"U001\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "RequestInterceptor: lambda (template) -> template.header('key','value')",
+        "@Bean in @Configuration: applies to ALL @FeignClient instances",
+        "WireMock withHeader(): asserts that the header was sent by Feign"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m15_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Feign client with full error handling — Razorpay style",
+      "scenario": "Production Feign client with error decoder, timeout, and @SpringBootTest.",
+      "instructions": "Build a complete Razorpay-style payment Feign client:\n1. `PaymentServiceClient` @FeignClient with 3 methods: createPayment, getPayment, refundPayment\n2. `PaymentErrorDecoder`: 402→InsufficientFundsException, 404→PaymentNotFoundException, 409→DuplicatePaymentException, 503→PaymentServiceDownException\n3. `PaymentFeignConfig` @Configuration with error decoder + 10s read timeout\n4. @SpringBootTest + WireMock: test all 4 error scenarios",
+      "starter_code": "// Complete Razorpay-style Feign client\n// PaymentServiceClient, PaymentErrorDecoder, PaymentFeignConfig\n// WireMock tests for all error scenarios\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.*;\nimport org.springframework.web.bind.annotation.*;\nimport feign.*;\nimport feign.codec.ErrorDecoder;\nimport org.springframework.context.annotation.*;\nimport java.util.concurrent.TimeUnit;\n\nrecord PaymentRequest3(String orderId, double amount, String currency) {}\nrecord PaymentResponse(String paymentId, String status, double amount) {}\nrecord RefundRequest(String reason) {}\n\nclass InsufficientFundsException extends RuntimeException { InsufficientFundsException(String m){super(m);} }\nclass PaymentNotFoundException extends RuntimeException { PaymentNotFoundException(String m){super(m);} }\nclass DuplicatePaymentException extends RuntimeException { DuplicatePaymentException(String m){super(m);} }\nclass PaymentServiceDownException extends RuntimeException { PaymentServiceDownException(String m){super(m);} }\n\n@FeignClient(name=\"payment-service\", url=\"${payment.service.url}\", configuration=PaymentFeignConfig.class)\npublic interface PaymentServiceClient {\n    @PostMapping(\"/api/v1/payments\") PaymentResponse createPayment(@RequestBody PaymentRequest3 req);\n    @GetMapping(\"/api/v1/payments/{id}\") PaymentResponse getPayment(@PathVariable String id);\n    @PostMapping(\"/api/v1/payments/{id}/refund\") PaymentResponse refundPayment(@PathVariable String id, @RequestBody RefundRequest req);\n}\n\n@Configuration\nclass PaymentFeignConfig {\n    @Bean ErrorDecoder errorDecoder() {\n        return (m, r) -> switch(r.status()) {\n            case 402 -> new InsufficientFundsException(\"Insufficient funds\");\n            case 404 -> new PaymentNotFoundException(\"Payment not found\");\n            case 409 -> new DuplicatePaymentException(\"Duplicate payment\");\n            case 503 -> new PaymentServiceDownException(\"Payment service down\");\n            default  -> new RuntimeException(\"Payment error: \" + r.status());\n        };\n    }\n    @Bean Request.Options options() {\n        return new Request.Options(2000, TimeUnit.MILLISECONDS, 10000, TimeUnit.MILLISECONDS, true);\n    }\n}\n\nimport com.github.tomakehurst.wiremock.*;\nimport static com.github.tomakehurst.wiremock.client.WireMock.*;\nimport static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties=\"payment.service.url=http://localhost:9191\")\nclass PaymentErrorDecoderTest {\n    static WireMockServer wm = new WireMockServer(wireMockConfig().port(9191));\n    @Autowired PaymentServiceClient client;\n    @BeforeAll static void start() { wm.start(); }\n    @AfterAll  static void stop()  { wm.stop();  }\n    @BeforeEach void reset()        { wm.resetAll(); }\n    \n    @Test void get_404_throwsNotFound()  { wm.stubFor(get(\"/api/v1/payments/X\").willReturn(aResponse().withStatus(404))); assertThrows(PaymentNotFoundException.class,()->client.getPayment(\"X\")); }\n    @Test void create_402_throwsInsufficient() { wm.stubFor(post(\"/api/v1/payments\").willReturn(aResponse().withStatus(402))); assertThrows(InsufficientFundsException.class,()->client.createPayment(new PaymentRequest3(\"O1\",100,\"INR\"))); }\n    @Test void create_409_throwsDuplicate() { wm.stubFor(post(\"/api/v1/payments\").willReturn(aResponse().withStatus(409))); assertThrows(DuplicatePaymentException.class,()->client.createPayment(new PaymentRequest3(\"O1\",100,\"INR\"))); }\n    @Test void get_503_throwsDown() { wm.stubFor(get(\"/api/v1/payments/X\").willReturn(aResponse().withStatus(503))); assertThrows(PaymentServiceDownException.class,()->client.getPayment(\"X\")); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "configuration=PaymentFeignConfig.class: apply config to this client only",
+        "WireMock stub: get('/api/v1/payments/X').willReturn(aResponse().withStatus(404))",
+        "All 4 tests use different WireMock stubs and assert different exceptions"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m15_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Multiple Feign clients in one service",
+      "scenario": "A service often calls multiple downstream services.",
+      "instructions": "Write an `OrderOrchestrationService` that injects 3 Feign clients:\n- `UserServiceClient`: verifyUser(userId)\n- `InventoryServiceClient`: checkAndReserve(productId, qty)\n- `PaymentServiceClient`: charge(userId, amount)\n\nThe method orchestrates these 3 calls. Write @SpringBootTest with 3 WireMock servers (or one WireMock with different URL paths). Test: success, user invalid, inventory insufficient, payment declined.",
+      "starter_code": "// 3 @FeignClient interfaces + OrderOrchestrationService + WireMock test\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.*;\nimport org.springframework.web.bind.annotation.*;\nimport org.springframework.stereotype.Service;\n\n@FeignClient(name=\"user-svc\",      url=\"${user.url}\")      interface UserSvcClient      { @GetMapping(\"/api/users/{id}/verify\") boolean verifyUser(@PathVariable String id); }\n@FeignClient(name=\"inventory-svc\", url=\"${inventory.url}\") interface InventorySvcClient { @PostMapping(\"/api/inventory/reserve\") boolean checkAndReserve(@RequestParam String productId, @RequestParam int qty); }\n@FeignClient(name=\"payment-svc\",   url=\"${payment.url}\")   interface PaymentSvcClient   { @PostMapping(\"/api/payments\") String charge(@RequestParam String userId, @RequestParam double amount); }\n\n@Service\npublic class OrderOrchestrationService {\n    private final UserSvcClient userClient;\n    private final InventorySvcClient inventoryClient;\n    private final PaymentSvcClient paymentClient;\n    OrderOrchestrationService(UserSvcClient u, InventorySvcClient i, PaymentSvcClient p) {\n        userClient=u; inventoryClient=i; paymentClient=p;\n    }\n    public String placeOrder(String userId, String productId, int qty, double amount) {\n        if (!userClient.verifyUser(userId)) throw new IllegalStateException(\"Invalid user\");\n        if (!inventoryClient.checkAndReserve(productId, qty)) throw new IllegalStateException(\"Insufficient inventory\");\n        String paymentId = paymentClient.charge(userId, amount);\n        return \"ORD-\" + paymentId.substring(0,8);\n    }\n}\n\n// WireMock uses a SINGLE server with different paths:\nimport com.github.tomakehurst.wiremock.*;\nimport static com.github.tomakehurst.wiremock.client.WireMock.*;\nimport static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties={\"user.url=http://localhost:9500\",\"inventory.url=http://localhost:9500\",\"payment.url=http://localhost:9500\"})\nclass OrchestrationTest {\n    static WireMockServer wm = new WireMockServer(wireMockConfig().port(9500));\n    @Autowired OrderOrchestrationService svc;\n    @BeforeAll static void start(){wm.start();} @AfterAll static void stop(){wm.stop();} @BeforeEach void reset(){wm.resetAll();}\n    \n    void stubUser(boolean valid)     { wm.stubFor(get(urlPathEqualTo(\"/api/users/U01/verify\")).willReturn(okJson(String.valueOf(valid)))); }\n    void stubInventory(boolean avail){ wm.stubFor(post(urlPathEqualTo(\"/api/inventory/reserve\")).willReturn(okJson(String.valueOf(avail)))); }\n    void stubPayment()               { wm.stubFor(post(urlPathEqualTo(\"/api/payments\")).willReturn(okJson(\"\\\"PAY-12345678\\\"\")));  }\n    \n    @Test void success()          { stubUser(true); stubInventory(true); stubPayment(); assertNotNull(svc.placeOrder(\"U01\",\"P01\",5,500.0)); }\n    @Test void invalidUser()      { stubUser(false); assertThrows(IllegalStateException.class,()->svc.placeOrder(\"U01\",\"P01\",5,500.0)); }\n    @Test void noInventory()      { stubUser(true); stubInventory(false); assertThrows(IllegalStateException.class,()->svc.placeOrder(\"U01\",\"P01\",5,500.0)); }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "3 tests pass" }
+      ],
+      "hints": [
+        "One WireMock server handles all clients pointing to localhost:9500",
+        "urlPathEqualTo: matches path only (ignores query params)",
+        "Helper methods (stubUser, stubInventory, stubPayment) reduce duplication"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m15_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete Feign service — Topic 15.2 synthesis",
+      "scenario": "Full production Feign stack: client, config, error decoder, WireMock tests.",
+      "instructions": "Build a complete Zerodha-style portfolio Feign service:\n1. `HoldingServiceClient` @FeignClient: getHoldings(userId), updateHolding(holding), deleteHolding(id)\n2. `MarketDataClient` @FeignClient: getCurrentPrices(List<String> symbols) → Map<String, Double>\n3. `PortfolioService`: getPortfolioValue(userId) = sum of holding.qty * currentPrice for each symbol\n4. Custom ErrorDecoder for HoldingServiceClient (404→HoldingNotFoundException, 503→ServiceDownException)\n5. RequestInterceptor adds X-Request-Id header (UUID per request) to all Feign calls\n6. 4 WireMock @SpringBootTest tests: value calculated, holding not found, service down, market prices fetched\n\nAll 4 tests pass.",
+      "starter_code": "// Complete portfolio Feign stack\n// 2 Feign clients + PortfolioService + ErrorDecoder + RequestInterceptor + 4 tests\n",
+      "expected_solution": "import org.springframework.cloud.openfeign.*;\nimport org.springframework.web.bind.annotation.*;\nimport feign.*;\nimport feign.codec.ErrorDecoder;\nimport org.springframework.context.annotation.*;\nimport org.springframework.stereotype.Service;\nimport java.util.*;\n\nrecord Holding(String id, String userId, String symbol, int qty, double avgBuyPrice) {}\nclass HoldingNotFoundException extends RuntimeException{ HoldingNotFoundException(String m){super(m);} }\nclass ServiceDownException extends RuntimeException{ ServiceDownException(String m){super(m);} }\n\n@FeignClient(name=\"holding-svc\", url=\"${holding.url}\", configuration=HoldingFeignConfig.class)\ninterface HoldingServiceClient {\n    @GetMapping(\"/api/holdings\") List<Holding> getHoldings(@RequestParam String userId);\n    @PutMapping(\"/api/holdings/{id}\") Holding updateHolding(@PathVariable String id, @RequestBody Holding h);\n    @DeleteMapping(\"/api/holdings/{id}\") void deleteHolding(@PathVariable String id);\n}\n\n@FeignClient(name=\"market-data\", url=\"${market.url}\")\ninterface MarketDataClient {\n    @GetMapping(\"/api/prices\") Map<String,Double> getCurrentPrices(@RequestParam List<String> symbols);\n}\n\n@Configuration class HoldingFeignConfig {\n    @Bean ErrorDecoder errorDecoder(){ return (m,r)->r.status()==404?new HoldingNotFoundException(\"Not found\"):r.status()==503?new ServiceDownException(\"Down\"):new RuntimeException(\"Error: \"+r.status()); }\n    @Bean RequestInterceptor requestIdInterceptor(){ return t->t.header(\"X-Request-Id\", UUID.randomUUID().toString()); }\n}\n\n@Service\npublic class PortfolioService {\n    private final HoldingServiceClient holdingClient;\n    private final MarketDataClient marketClient;\n    PortfolioService(HoldingServiceClient h, MarketDataClient m){ holdingClient=h; marketClient=m; }\n    public double getPortfolioValue(String userId){\n        List<Holding> holdings = holdingClient.getHoldings(userId);\n        List<String> symbols = holdings.stream().map(Holding::symbol).toList();\n        if(symbols.isEmpty()) return 0.0;\n        Map<String,Double> prices = marketClient.getCurrentPrices(symbols);\n        return holdings.stream().mapToDouble(h->h.qty()*prices.getOrDefault(h.symbol(),h.avgBuyPrice())).sum();\n    }\n}\n\nimport com.github.tomakehurst.wiremock.*;\nimport static com.github.tomakehurst.wiremock.client.WireMock.*;\nimport static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;\nimport org.springframework.boot.test.context.SpringBootTest;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.test.context.TestPropertySource;\nimport static org.junit.jupiter.api.Assertions.*;\nimport org.junit.jupiter.api.*;\n\n@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.NONE)\n@TestPropertySource(properties={\"holding.url=http://localhost:9700\",\"market.url=http://localhost:9700\"})\nclass PortfolioServiceTest {\n    static WireMockServer wm = new WireMockServer(wireMockConfig().port(9700));\n    @Autowired PortfolioService svc;\n    @BeforeAll static void start(){wm.start();} @AfterAll static void stop(){wm.stop();} @BeforeEach void reset(){wm.resetAll();}\n    \n    @Test void portfolioValue_calculated() {\n        wm.stubFor(get(urlPathEqualTo(\"/api/holdings\")).willReturn(okJson(\"[{\\\"id\\\":\\\"H1\\\",\\\"userId\\\":\\\"U01\\\",\\\"symbol\\\":\\\"TCS\\\",\\\"qty\\\":10,\\\"avgBuyPrice\\\":3500}]\")));\n        wm.stubFor(get(urlPathEqualTo(\"/api/prices\")).willReturn(okJson(\"{\\\"TCS\\\":3890.0}\")));\n        assertEquals(38900.0, svc.getPortfolioValue(\"U01\"), 0.01);\n    }\n    @Test void holdingNotFound_throws(){\n        wm.stubFor(get(urlPathEqualTo(\"/api/holdings\")).willReturn(aResponse().withStatus(404)));\n        assertThrows(HoldingNotFoundException.class,()->svc.getPortfolioValue(\"U01\"));\n    }\n    @Test void serviceDown_throws(){\n        wm.stubFor(get(urlPathEqualTo(\"/api/holdings\")).willReturn(aResponse().withStatus(503)));\n        assertThrows(ServiceDownException.class,()->svc.getPortfolioValue(\"U01\"));\n    }\n    @Test void emptyPortfolio_returnsZero(){\n        wm.stubFor(get(urlPathEqualTo(\"/api/holdings\")).willReturn(okJson(\"[]\")));\n        assertEquals(0.0, svc.getPortfolioValue(\"U01\"), 0.01);\n    }\n}",
+      "test_cases": [
+        { "type": "tests_pass", "expected": "4 tests pass" }
+      ],
+      "hints": [
+        "RequestInterceptor as @Bean: applies to ALL Feign clients in the context",
+        "urlPathEqualTo: ignores query params — safe for ?userId=U01",
+        "Empty holdings list: short-circuit before calling market-data"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 745,
+    "estimated_completion_minutes": 65
+  }
+}

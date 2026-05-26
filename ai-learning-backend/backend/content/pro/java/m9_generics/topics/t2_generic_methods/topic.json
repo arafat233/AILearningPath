@@ -1,0 +1,178 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m9_t2",
+  "language": "java",
+  "module_id": "m9",
+  "module_name": "Generics",
+  "topic_number": 2,
+  "name": "Generic Methods",
+  "slug": "generic-methods",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m9_t1"],
+    "concepts_taught": [
+      "generic_method_syntax",
+      "type_parameter_on_method",
+      "type_inference_at_call_site",
+      "generic_static_methods",
+      "generic_instance_methods",
+      "return_type_inference",
+      "explicit_type_witness",
+      "utility_method_pattern",
+      "generic_method_vs_generic_class",
+      "streams_and_collections_utility_methods"
+    ],
+    "skills_developed": [
+      "writing_generic_static_utility_methods",
+      "writing_generic_instance_methods",
+      "reading_generic_method_signatures",
+      "understanding_type_inference",
+      "building_type_safe_utility_classes"
+    ],
+    "career_relevance": "Generic methods are the foundation of Java's utility APIs. `Collections.sort()`, `Collections.min()`, `Arrays.asList()`, `Objects.requireNonNull()`, `Optional.of()` — all generic methods. After this topic, you understand and can write the same kind of type-safe utility code. In production, utility classes with generic static methods are extremely common: `CollectionUtils.firstOrDefault()`, `StringUtils.coalesce()`, `MapUtils.getOrCompute()` — all generic methods.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You want to write a utility method `getFirst(List<T>)` that returns the first element of any list, or a default value if empty. Without generic methods, you'd have to write separate versions for every type:\n\n```java\n// Without generic methods — redundant:\nstatic String  getFirstString(List<String>  list) { return list.isEmpty() ? null : list.get(0); }\nstatic Integer getFirstInt(List<Integer>    list) { return list.isEmpty() ? null : list.get(0); }\nstatic Product getFirstProduct(List<Product> list) { return list.isEmpty() ? null : list.get(0); }\n// ... one per type, forever\n```\n\nOr use Object and lose type safety:\n```java\nstatic Object getFirst(List<?> list) { return list.isEmpty() ? null : list.get(0); }\n// But caller needs to cast: String s = (String) getFirst(names); // ugh\n```\n\n**With a generic method:**\n```java\nstatic <T> T getFirst(List<T> list, T defaultValue) {\n    return list.isEmpty() ? defaultValue : list.get(0);\n}\n\n// Caller — no casts, type inferred automatically:\nString  s = getFirst(names, \"unknown\");      // T inferred as String\nInteger n = getFirst(numbers, 0);            // T inferred as Integer\nProduct p = getFirst(products, defaultProduct); // T inferred as Product\n```\n\nOne method. Any type. Type-safe. This is exactly how `Collections.min()`, `Collections.sort()`, and `Arrays.asList()` work. Today you learn to write them.",
+    "what_you_will_build": "By the end of this topic, you'll write generic static utility methods with their own type parameters, understand how the compiler infers T from call-site arguments, write generic instance methods, distinguish when a method needs its own `<T>` vs inheriting from the class, and build a complete utility class of generic methods."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "syntax": "**Generic method syntax:**\n\n```java\n// The <T> comes BEFORE the return type:\npublic static <T> T getFirst(List<T> list, T defaultValue) {\n    return list.isEmpty() ? defaultValue : list.get(0);\n}\n\n//        ↑       ↑\n//  declares T   uses T as return type and parameter type\n```\n\n**Anatomy of a generic method:**\n```java\n[access] [static] <TypeParams> ReturnType methodName(parameters) {\n    ...\n}\n\n// Examples:\npublic static  <T>     T      getFirst(List<T> list, T def)\npublic static  <T>     List<T> repeat(T item, int n)\npublic         <T, R>  R      transform(T input, Function<T, R> fn)\n```\n\n**Where `<T>` goes**: BEFORE the return type. This is the declaration — it tells Java 'this method introduces a new type parameter T.'\n\n**Compare with generic class:**\n```java\n// Class: <T> on class declaration — all methods share it\nclass Box<T> { T get() { ... } }  // T declared on class, used in method\n\n// Method: <T> on the method — independent type parameter\nstatic <T> T getFirst(List<T> list) { ... }  // T declared here, local to method\n```",
+
+      "type_inference": "**Type inference** — the compiler figures out T from the arguments:\n\n```java\npublic static <T> T getFirst(List<T> list, T defaultValue) { ... }\n\nList<String>  names    = Arrays.asList(\"Aisha\", \"Raj\");\nList<Integer> numbers  = Arrays.asList(1, 2, 3);\n\n// Type inferred from arguments:\nString  s = getFirst(names, \"unknown\");  // T = String (from List<String>)\nInteger n = getFirst(numbers, -1);       // T = Integer (from List<Integer>)\n\n// The compiler sees: names is List<String> → T must be String\n// Then checks: second arg 'unknown' IS a String → OK\n// Then knows return type is T = String → OK to assign to String\n```\n\n**Explicit type witness** (rarely needed):\n```java\n// When inference can't figure it out, specify explicitly:\nList<String> empty = Collections.<String>emptyList();  // explicit <String>\nString s = Collections.<String>emptyList().get(0);     // explicit too\n\n// Most of the time, inference works:\nList<String> empty = Collections.emptyList();  // infers from context\n```\n\nYou almost never need to specify the type explicitly — the compiler infers it in 99% of cases.",
+
+      "static_utility_methods": "**Generic static utility methods** — the bread and butter:\n\n```java\npublic class CollectionUtils {\n    \n    // Get first element or default\n    public static <T> T firstOrDefault(List<T> list, T defaultValue) {\n        return list.isEmpty() ? defaultValue : list.get(0);\n    }\n    \n    // Get last element or default\n    public static <T> T lastOrDefault(List<T> list, T defaultValue) {\n        return list.isEmpty() ? defaultValue : list.get(list.size() - 1);\n    }\n    \n    // Repeat a value n times into a list\n    public static <T> List<T> repeat(T value, int times) {\n        List<T> result = new ArrayList<>();\n        for (int i = 0; i < times; i++) result.add(value);\n        return result;\n    }\n    \n    // Zip two lists into pairs\n    public static <A, B> List<Pair<A, B>> zip(List<A> as, List<B> bs) {\n        int size = Math.min(as.size(), bs.size());\n        List<Pair<A, B>> result = new ArrayList<>();\n        for (int i = 0; i < size; i++) result.add(new Pair<>(as.get(i), bs.get(i)));\n        return result;\n    }\n    \n    // Safe cast — returns null instead of ClassCastException\n    @SuppressWarnings(\"unchecked\")\n    public static <T> T safeCast(Object obj, Class<T> clazz) {\n        return clazz.isInstance(obj) ? (T) obj : null;\n    }\n}\n```",
+
+      "generic_instance_methods": "**Generic instance methods** — when a method on a non-generic class needs a type parameter:\n\n```java\n// Non-generic class, but method needs type flexibility:\nclass DataProcessor {\n    private List<Object> buffer = new ArrayList<>();\n    \n    // Generic instance method — has its own <T>\n    public <T> T process(T input, Function<T, T> transform) {\n        T result = transform.apply(input);\n        buffer.add(result);\n        return result;\n    }\n    \n    // Another generic instance method\n    public <T> List<T> getBufferedAs(Class<T> clazz) {\n        return buffer.stream()\n            .filter(clazz::isInstance)\n            .map(clazz::cast)\n            .collect(Collectors.toList());\n    }\n}\n```\n\nGeneric instance methods let non-generic classes have type-safe methods.",
+
+      "method_vs_class_parameter": "**When to put `<T>` on the method vs the class:**\n\n**Put `<T>` on the CLASS** when:\n- The type is central to the object's identity\n- Multiple methods share the same T\n- The T describes WHAT the object holds\n\n```java\nclass Box<T> {      // T on class — Box IS a Box of T\n    T get() { ... } // methods use class's T\n    void set(T v) { ... }\n}\n```\n\n**Put `<T>` on the METHOD** when:\n- The type is specific to one operation\n- The class works on multiple unrelated types\n- It's a static utility method (no 'this' context)\n\n```java\nclass CollectionUtils {  // no class type parameter\n    static <T> T first(List<T> list) { ... }   // T per method\n    static <A, B> List<Pair<A,B>> zip(List<A> a, List<B> b) { ... }\n}\n```\n\n**Hybrid** — generic class + generic method with its own parameter:\n```java\nclass Container<T> {\n    private T value;\n    \n    // Uses class T:\n    public T get() { return value; }\n    \n    // Has OWN R — independent of class T:\n    public <R> Container<R> map(Function<T, R> fn) {\n        return new Container<>(fn.apply(value));\n    }\n}\n```",
+
+      "java_library_generic_methods": "**Java library generic methods you've been using:**\n\n```java\n// Arrays.asList — generic static method\npublic static <T> List<T> asList(T... a)\n// Usage: Arrays.asList(\"a\", \"b\", \"c\") — T inferred as String\n\n// Collections.sort — generic static method  \npublic static <T extends Comparable<? super T>> void sort(List<T> list)\n// Works for any Comparable type\n\n// Collections.min / max — generic static method\npublic static <T extends Object & Comparable<? super T>> T min(Collection<? extends T> coll)\n// Returns the minimum element\n\n// Optional.of — generic static method\npublic static <T> Optional<T> of(T value)\n// T inferred from value\n\n// Objects.requireNonNull — generic static method\npublic static <T> T requireNonNull(T obj, String message)\n// Returns T — that's why you can chain: this.name = Objects.requireNonNull(name, ...)\n```\n\nEvery time you've called these methods, you've been calling generic methods. The T was being inferred from your arguments."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show generic method anatomy: access modifier, `<T>` (highlighted as 'type param declaration'), return type T, method name, parameters using T. Arrow from `<T>` to each usage of T. Below: type inference diagram — List<String> passed as argument → compiler identifies T=String → return type becomes String → no cast needed. Side-by-side: method-level `<T>` vs class-level `<T>` — when each is appropriate. Bottom: Java library method signatures showing `<T>` placement in real APIs.",
+      "alt_text": "Generic method anatomy, type inference flow, and method vs class type parameter placement"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Build a complete `Generics` utility class with type-safe static methods that mirror what professional Java utility libraries like Apache Commons or Google Guava provide. Each method solves a real daily programming problem generically.",
+
+    "problem_statement": "Build `GenericUtils` with six utility methods:\n1. `<T> T firstOrDefault(List<T>, T)` — first element or default\n2. `<T> List<T> repeat(T, int)` — repeat value N times\n3. `<A, B> List<Pair<A,B>> zip(List<A>, List<B>)` — zip two lists\n4. `<T> T requireNonNull(T, String)` — like Objects.requireNonNull\n5. `<T, R> List<R> transform(List<T>, Function<T, R>)` — like stream.map\n6. `<T> Optional<T> findFirst(List<T>, Predicate<T>)` — like stream.filter.findFirst",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "firstOrDefault and repeat",
+        "details": "```java\npublic static <T> T firstOrDefault(List<T> list, T defaultValue) {\n    return list.isEmpty() ? defaultValue : list.get(0);\n}\n\npublic static <T> List<T> repeat(T value, int times) {\n    List<T> result = new ArrayList<>(times);\n    for (int i = 0; i < times; i++) result.add(value);\n    return result;\n}\n\n// Usage:\nString first = firstOrDefault(names, \"unknown\");  // T = String inferred\nList<Integer> zeros = repeat(0, 5);               // T = Integer inferred\n// [0, 0, 0, 0, 0]\n```"
+      },
+      {
+        "step": 2,
+        "action": "zip — two type parameters",
+        "details": "```java\npublic static <A, B> List<Pair<A, B>> zip(List<A> as, List<B> bs) {\n    int size = Math.min(as.size(), bs.size());\n    List<Pair<A, B>> result = new ArrayList<>(size);\n    for (int i = 0; i < size; i++) {\n        result.add(new Pair<>(as.get(i), bs.get(i)));\n    }\n    return result;\n}\n\n// Usage:\nList<String>  names  = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\nList<Integer> scores = Arrays.asList(95, 87, 92);\nList<Pair<String, Integer>> zipped = zip(names, scores);\n// [(Aisha, 95), (Raj, 87), (Priya, 92)]\n```"
+      },
+      {
+        "step": 3,
+        "action": "transform and findFirst",
+        "details": "```java\npublic static <T, R> List<R> transform(List<T> list, Function<T, R> fn) {\n    List<R> result = new ArrayList<>(list.size());\n    for (T item : list) result.add(fn.apply(item));\n    return result;\n}\n\npublic static <T> Optional<T> findFirst(List<T> list, Predicate<T> condition) {\n    for (T item : list) {\n        if (condition.test(item)) return Optional.of(item);\n    }\n    return Optional.empty();\n}\n\n// Usage:\nList<String> upper = transform(names, String::toUpperCase);  // T=String, R=String\nList<Integer> lengths = transform(names, String::length);    // T=String, R=Integer\n\nOptional<String> long_ = findFirst(names, s -> s.length() > 4);  // T=String\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\nimport java.util.function.*;\n\nclass Pair<A, B> {\n    final A first; final B second;\n    Pair(A a, B b) { first=a; second=b; }\n    public String toString() { return \"(\" + first + \", \" + second + \")\"; }\n}\n\npublic class GenericUtils {\n    public static <T> T firstOrDefault(List<T> list, T def) {\n        return list.isEmpty() ? def : list.get(0);\n    }\n    \n    public static <T> List<T> repeat(T value, int times) {\n        List<T> r = new ArrayList<>(times);\n        for (int i = 0; i < times; i++) r.add(value);\n        return r;\n    }\n    \n    public static <A, B> List<Pair<A, B>> zip(List<A> as, List<B> bs) {\n        int size = Math.min(as.size(), bs.size());\n        List<Pair<A, B>> r = new ArrayList<>(size);\n        for (int i = 0; i < size; i++) r.add(new Pair<>(as.get(i), bs.get(i)));\n        return r;\n    }\n    \n    public static <T> T requireNonNull(T value, String name) {\n        if (value == null) throw new NullPointerException(name + \" must not be null\");\n        return value;\n    }\n    \n    public static <T, R> List<R> transform(List<T> list, Function<T, R> fn) {\n        List<R> r = new ArrayList<>(list.size());\n        for (T item : list) r.add(fn.apply(item));\n        return r;\n    }\n    \n    public static <T> Optional<T> findFirst(List<T> list, Predicate<T> p) {\n        for (T item : list) if (p.test(item)) return Optional.of(item);\n        return Optional.empty();\n    }\n    \n    public static void main(String[] args) {\n        List<String>  names  = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n        List<Integer> scores = Arrays.asList(95, 87, 92);\n        \n        System.out.println(firstOrDefault(names, \"none\"));\n        System.out.println(repeat(0, 4));\n        System.out.println(zip(names, scores));\n        System.out.println(transform(names, String::toUpperCase));\n        System.out.println(transform(names, String::length));\n        System.out.println(findFirst(names, s -> s.length() > 4));\n    }\n}",
+
+    "expected_output": "Aisha\n[0, 0, 0, 0]\n[(Aisha, 95), (Raj, 87), (Priya, 92)]\n[AISHA, RAJ, PRIYA]\n[5, 3, 5]\nOptional[Aisha]",
+
+    "things_to_notice": [
+      "Each method declares `<T>` (or `<A, B>` or `<T, R>`) BEFORE its return type. This is the method-level type parameter — independent of any class-level type parameter.",
+      "Type inference in action: `repeat(0, 4)` — T is inferred as Integer from the argument `0`. `transform(names, String::toUpperCase)` — T=String from names (List<String>), R=String from String::toUpperCase return type.",
+      "zip uses TWO method-level type parameters A and B. The compiler infers A=String from names and B=Integer from scores.",
+      "transform is essentially what `stream().map()` does — but written as a plain generic method. The Stream API is built from generic methods like these.",
+      "findFirst is what `stream().filter().findFirst()` does. Both return Optional<T>.",
+      "requireNonNull returns T — this is the key! `String validated = requireNonNull(name, 'name')` — the compiler knows the return is String because T=String. No cast needed, same as Objects.requireNonNull."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Apache Commons / Google Guava",
+        "use_case": "Guava's `Iterables.getFirst(Iterable<T>, T)`, `Lists.transform(List<F>, Function<F,T>)`, `Collections2.filter(Collection<E>, Predicate<E>)` — all generic static methods. These look exactly like what you learn today. Every Java team uses or has built similar utility libraries."
+      },
+      {
+        "company_context": "Spring Framework utility classes",
+        "use_case": "Spring's `CollectionUtils.firstElement(List<T>)`, `ObjectUtils.getDisplayString(Object)`, `ReflectionUtils.invokeMethod(Method, Object)` — all generic methods. The entire Spring framework utility layer is built from generic methods that make code type-safe and reusable."
+      },
+      {
+        "company_context": "Project internal utility classes (every company)",
+        "use_case": "Every Java project has a `Utils.java` or `CollectionHelper.java` full of generic static methods: `getOrDefault(Map<K,V>, K, V)`, `firstMatch(List<T>, Predicate<T>)`, `mapToList(List<T>, Function<T,R>)`. These are what interns write in their first week and senior devs use daily."
+      }
+    ],
+
+    "interview_relevance": "Generic method questions at mid-senior level:\n\n- **'What is the difference between a generic class and a generic method?'** — Generic class: T on class, all instances share the type. Generic method: T on method, each call can have different T, inferred at call site.\n- **'Write a generic method that swaps two elements in a list.'** → `static <T> void swap(List<T> list, int i, int j)` — uses the generic T without needing a generic class.\n- **'Why does `Collections.emptyList()` return `List<T>` without explicitly passing a type?'** → Type inference from context. Assigning to `List<String>` tells the compiler T=String.\n- **'When would you use `<T>` on a method vs on a class?'** → Method: when T is specific to one operation, especially static utilities. Class: when T defines what the object IS.",
+
+    "real_world_workflow": "Daily generic method usage:\n\n- Writing a utility: `static <T> T coalesce(T... values)` — return first non-null\n- Wrapping a stream: `static <T, R> List<R> mapList(List<T> list, Function<T,R> fn)` — common helper\n- Safe lookup: `static <K, V> V getOrThrow(Map<K,V> map, K key, String msg)` — typed getOrDefault with exception\n- Test helpers: `static <T> T assertPresent(Optional<T> opt)` — unwrap or fail assertion"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "forgetting_method_level_T",
+      "what_students_get_wrong": "Trying to use `<T>` from a static method as if it's from the class — or forgetting to declare `<T>` on the method entirely.",
+      "remediation": "Static methods CANNOT use class-level type parameters (static context has no `this`). A generic static method must declare its own `<T>` before the return type: `static <T> T method(...)`, not just `static T method(...)`.",
+      "detection_pattern": "Compile error: 'Cannot make a static reference to the non-static type T'"
+    },
+    {
+      "gap_id": "wrong_type_parameter_position",
+      "what_students_get_wrong": "Putting `<T>` after the method name or return type instead of before the return type.",
+      "remediation": "`<T>` goes BEFORE the return type: `public static <T> List<T> method()` — not `public static List<T> <T> method()` or `public static List<T> method<T>()`.",
+      "detection_pattern": "Syntax error in method declaration"
+    },
+    {
+      "gap_id": "inference_failure_on_empty_collection",
+      "what_students_get_wrong": "Expecting `Collections.emptyList()` to always infer correctly — it can't when there's no context.",
+      "remediation": "Type inference needs context. `var list = Collections.emptyList()` — can't infer, gets `List<Object>`. `List<String> list = Collections.emptyList()` — infers from declaration. `return Collections.emptyList()` where return type is `List<String>` — infers from return type.",
+      "detection_pattern": "Unexpected List<Object> instead of typed empty list"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Generic method: `<T>` declared BEFORE the return type — independent type parameter per method call",
+      "Static methods MUST declare their own `<T>` — cannot use class-level type parameters",
+      "Type inference: compiler deduces T from arguments — rarely need explicit `<String>method(...)` syntax",
+      "Generic instance methods: useful on non-generic classes for per-operation type flexibility",
+      "Multiple type params on a method: `<A, B> Pair<A,B> makePair(A a, B b)` — each independently inferred",
+      "When class has T and method adds R: `<R> Result<R> map(Function<T,R>)` — both in scope",
+      "Java library generic methods: Arrays.asList, Collections.sort/min/max, Optional.of, Objects.requireNonNull",
+      "Pattern: utility class (no class T) + generic static methods (each with own T) = Apache/Guava style",
+      "transform() is stream.map() as a plain method; findFirst() is stream.filter().findFirst()"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Why does this code fail to compile?\n```java\nclass Processor {\n    static T process(T input) { return input; }  // ERROR\n}\n```",
+        "answer": "Static methods cannot reference the class-level type parameter T — but there isn't even a class-level T here. The method needs to declare its OWN type parameter: `static <T> T process(T input) { return input; }`. The `<T>` before the return type is mandatory for generic static methods."
+      },
+      {
+        "question": "What does the compiler infer for T in `repeat('x', 5)`?",
+        "answer": "T = Character. The first argument 'x' is a char literal auto-boxed to Character. So the method `<T> List<T> repeat(T value, int times)` returns `List<Character>`. Type inference happens from the first argument — Character."
+      },
+      {
+        "question": "This generic method has two type parameters. What are A and B inferred as?\n```java\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\");\nList<Integer> scores = Arrays.asList(95, 87);\nList<Pair<String,Integer>> zipped = zip(names, scores);\n```",
+        "answer": "A = String (from `List<String>` names), B = Integer (from `List<Integer>` scores). The compiler sees `zip(List<A>, List<B>)` and matches A to the element type of the first argument (String) and B to the element type of the second (Integer). Return type Pair<A,B> becomes Pair<String,Integer>, which matches the declared variable type."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Bounded Type Parameters** — restricting what types can be substituted for T. `<T extends Comparable<T>>` means T must implement Comparable. This unlocks methods like finding the maximum of any list, writing sort algorithms, and building type-safe numeric containers. Bounded type parameters are how `Collections.sort()` guarantees its list elements are sortable."
+  }
+}

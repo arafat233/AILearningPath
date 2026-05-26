@@ -1,0 +1,457 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m4_t3",
+  "topic_name": "Encapsulation",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m4_t3_ex_1",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add private and getter",
+      "scenario": "Encapsulate a simple class.",
+      "instructions": "Fill in the blanks to make the field private and add a getter method.",
+      "starter_code": "class Cat {\n    ______ String name;\n    \n    public Cat(String name) {\n        this.name = name;\n    }\n    \n    public ______ getName() {\n        return ______;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new Cat(\"Whiskers\");\n        System.out.println(c.getName());\n    }\n}",
+      "expected_solution": "class Cat {\n    private String name;\n    \n    public Cat(String name) {\n        this.name = name;\n    }\n    \n    public String getName() {\n        return name;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Cat c = new Cat(\"Whiskers\");\n        System.out.println(c.getName());\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "private", "hint": "Access modifier that restricts to same class" },
+        { "position": 2, "answer": "String", "hint": "Return type" },
+        { "position": 3, "answer": "name", "hint": "Field to return" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Whiskers"
+        }
+      ],
+      "hints": [
+        "private restricts access to same class only",
+        "Getter returns the field's type",
+        "Inside the class, access field directly: return name"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m4_t3_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 2,
+      "title": "Trace setter validation",
+      "scenario": "Predict what happens when setter rejects bad data.",
+      "instructions": "What does this print?\n\n```java\nclass BankAccount {\n    private double balance;\n    \n    public BankAccount(double balance) { this.balance = balance; }\n    \n    public void setBalance(double balance) {\n        if (balance < 0) throw new IllegalArgumentException(\"Negative balance not allowed\");\n        this.balance = balance;\n    }\n    \n    public double getBalance() { return balance; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount(1000);\n        try {\n            acc.setBalance(-50);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Caught: \" + e.getMessage());\n        }\n        System.out.println(\"Balance: \" + acc.getBalance());\n    }\n}\n```",
+      "expected_solution": "Caught: Negative balance not allowed\nBalance: 1000.0",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Caught: Negative balance not allowed\nBalance: 1000.0"
+        }
+      ],
+      "hints": [
+        "setBalance(-50) throws exception",
+        "Exception caught — error message printed",
+        "Balance was NOT updated (validation prevented assignment)",
+        "Balance is still the original 1000.0"
+      ],
+      "xp_reward": 15
+    },
+    
+    {
+      "id": "java_m4_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Encapsulated Person class",
+      "scenario": "Build a class with private fields and getters.",
+      "instructions": "Create a `Person` class with:\n- Private fields: name (String), age (int)\n- Constructor takes both\n- Getter for name (`getName`)\n- Getter for age (`getAge`)\n\nIn main, create a Person and print using getters.\n\nExpected output:\nName: Aisha\nAge: 28",
+      "starter_code": "// Build Person class with private fields and getters\n",
+      "expected_solution": "class Person {\n    private String name;\n    private int age;\n    \n    public Person(String name, int age) {\n        this.name = name;\n        this.age = age;\n    }\n    \n    public String getName() { return name; }\n    public int getAge() { return age; }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Person p = new Person(\"Aisha\", 28);\n        System.out.println(\"Name: \" + p.getName());\n        System.out.println(\"Age: \" + p.getAge());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Name: Aisha\nAge: 28"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["private String name", "private int age", "getName", "getAge"]
+        }
+      ],
+      "hints": [
+        "Fields are private",
+        "Getters: getName, getAge — public methods with no parameters",
+        "Return type matches field type",
+        "Use getters in main: p.getName()"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m4_t3_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the private field access",
+      "scenario": "Public code can't access private fields.",
+      "instructions": "This code doesn't compile. Use a getter to fix it (don't change the field to public).\n\nExpected output:\nRex",
+      "starter_code": "class Dog {\n    private String name;\n    \n    public Dog(String name) {\n        this.name = name;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\");\n        System.out.println(d.name);\n    }\n}",
+      "expected_solution": "class Dog {\n    private String name;\n    \n    public Dog(String name) {\n        this.name = name;\n    }\n    \n    public String getName() {\n        return name;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        Dog d = new Dog(\"Rex\");\n        System.out.println(d.getName());\n    }\n}",
+      "bugs": [
+        {
+          "line": "11",
+          "issue": "d.name is private — can't access from outside Dog class.",
+          "fix": "Add a getName() method to Dog, then call d.getName()"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Rex",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Compilation error: name has private access in Dog",
+        "Don't make name public — add a getter instead",
+        "getName() returns the private field",
+        "Use d.getName() in main"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["leaving_fields_public"]
+    },
+    
+    {
+      "id": "java_m4_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Class with setter and validation",
+      "scenario": "Setter that rejects invalid values.",
+      "instructions": "Create a `Temperature` class:\n- Private field: celsius (double)\n- Constructor sets initial value (no validation needed)\n- Getter: getCelsius()\n- Setter: setCelsius() — REJECTS values below -273.15 (absolute zero)\n\nIn main:\n1. Create Temperature with 25\n2. Set to 100 — works, print new value\n3. Try to set -300 — catch and print error\n4. Print final value\n\nExpected output:\nAfter set to 100: 100.0\nRejected: Temperature cannot be below absolute zero\nFinal: 100.0",
+      "starter_code": "// Build Temperature class with validating setter\n",
+      "expected_solution": "class Temperature {\n    private double celsius;\n    \n    public Temperature(double celsius) {\n        this.celsius = celsius;\n    }\n    \n    public double getCelsius() {\n        return celsius;\n    }\n    \n    public void setCelsius(double celsius) {\n        if (celsius < -273.15) {\n            throw new IllegalArgumentException(\"Temperature cannot be below absolute zero\");\n        }\n        this.celsius = celsius;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Temperature t = new Temperature(25);\n        t.setCelsius(100);\n        System.out.println(\"After set to 100: \" + t.getCelsius());\n        \n        try {\n            t.setCelsius(-300);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Rejected: \" + e.getMessage());\n        }\n        \n        System.out.println(\"Final: \" + t.getCelsius());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "After set to 100: 100.0\nRejected: Temperature cannot be below absolute zero\nFinal: 100.0"
+        }
+      ],
+      "hints": [
+        "Field is private double celsius",
+        "Setter checks < -273.15 (absolute zero)",
+        "Invalid values throw IllegalArgumentException",
+        "After rejected set: value stays unchanged (100.0)",
+        "Note: validation prevents the assignment from happening"
+      ],
+      "xp_reward": 40,
+      "concept_tested": "validating_setter"
+    },
+    
+    {
+      "id": "java_m4_t3_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Boolean getter with isXxx pattern",
+      "scenario": "JavaBean convention for boolean getters.",
+      "instructions": "Create a `LightSwitch` class:\n- Private field: on (boolean), starts false\n- Constructor: no args needed\n- Boolean getter: `isOn()` — note: 'is' prefix for booleans\n- Method `turnOn()` sets on=true\n- Method `turnOff()` sets on=false\n\nIn main:\n1. Create switch\n2. Print 'On: false'\n3. Turn on, print 'On: true'\n4. Turn off, print 'On: false'\n\nExpected output:\nOn: false\nOn: true\nOn: false",
+      "starter_code": "// Build LightSwitch class with isOn() getter\n",
+      "expected_solution": "class LightSwitch {\n    private boolean on;\n    \n    public boolean isOn() {\n        return on;\n    }\n    \n    public void turnOn() {\n        on = true;\n    }\n    \n    public void turnOff() {\n        on = false;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        LightSwitch sw = new LightSwitch();\n        System.out.println(\"On: \" + sw.isOn());\n        sw.turnOn();\n        System.out.println(\"On: \" + sw.isOn());\n        sw.turnOff();\n        System.out.println(\"On: \" + sw.isOn());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "On: false\nOn: true\nOn: false"
+        }
+      ],
+      "hints": [
+        "Boolean fields default to false (no need to initialize)",
+        "Boolean getter uses 'is' prefix, not 'get': isOn() not getOn()",
+        "turnOn/turnOff are methods, not setters (named for clarity)",
+        "No-arg constructor isn't needed — Java provides it if no other constructor"
+      ],
+      "xp_reward": 35
+    },
+    
+    {
+      "id": "java_m4_t3_ex_7",
+      "level": "medium",
+      "type": "refactor",
+      "difficulty": 3,
+      "title": "Refactor public fields to encapsulated",
+      "scenario": "Convert a public-fields class to encapsulated form.",
+      "instructions": "Refactor this Movie class:\n- Make all fields private\n- Add getters for all fields\n- Add setters ONLY for rating (with validation: 0 <= rating <= 10)\n- title and year should be read-only (no setters)\n- Update main to use getters\n\nExpected output:\nInception (2010): 8.8\nAfter rating update: 9.0\nRejected: Rating must be between 0 and 10",
+      "starter_code": "class Movie {\n    String title;\n    int year;\n    double rating;\n    \n    public Movie(String title, int year, double rating) {\n        this.title = title;\n        this.year = year;\n        this.rating = rating;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Movie m = new Movie(\"Inception\", 2010, 8.8);\n        System.out.println(m.title + \" (\" + m.year + \"): \" + m.rating);\n        // Update rating (must validate)\n        // Try invalid update\n    }\n}",
+      "expected_solution": "class Movie {\n    private String title;\n    private int year;\n    private double rating;\n    \n    public Movie(String title, int year, double rating) {\n        this.title = title;\n        this.year = year;\n        this.rating = rating;\n    }\n    \n    public String getTitle() { return title; }\n    public int getYear() { return year; }\n    public double getRating() { return rating; }\n    \n    public void setRating(double rating) {\n        if (rating < 0 || rating > 10) {\n            throw new IllegalArgumentException(\"Rating must be between 0 and 10\");\n        }\n        this.rating = rating;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Movie m = new Movie(\"Inception\", 2010, 8.8);\n        System.out.println(m.getTitle() + \" (\" + m.getYear() + \"): \" + m.getRating());\n        \n        m.setRating(9.0);\n        System.out.println(\"After rating update: \" + m.getRating());\n        \n        try {\n            m.setRating(15);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"Rejected: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Inception (2010): 8.8\nAfter rating update: 9.0\nRejected: Rating must be between 0 and 10"
+        }
+      ],
+      "hints": [
+        "Make all 3 fields private",
+        "Add getTitle, getYear, getRating",
+        "ONLY add setRating — title and year remain read-only",
+        "setRating validates: rating < 0 OR rating > 10 throws exception",
+        "main uses getters instead of direct field access"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "encapsulation_refactor"
+    },
+    
+    {
+      "id": "java_m4_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Encapsulated Counter",
+      "scenario": "Class that exposes operations, not direct field access.",
+      "instructions": "Create a `Counter` class:\n- Private field: count (int), starts at 0\n- Method `increment()` — adds 1\n- Method `decrement()` — subtracts 1, but NEVER goes below 0\n- Method `reset()` — sets to 0\n- Getter: `getCount()`\n- NO setter for count — only the operations can change it\n\nIn main:\n- Increment 5 times\n- Decrement 8 times (should stop at 0, not go negative)\n- Print 'Count: 0'\n\nExpected output:\nCount: 0",
+      "starter_code": "// Build Counter class with controlled mutation\n// No setCount — only the operations modify count\n",
+      "expected_solution": "class Counter {\n    private int count;\n    \n    public void increment() {\n        count++;\n    }\n    \n    public void decrement() {\n        if (count > 0) {\n            count--;\n        }\n    }\n    \n    public void reset() {\n        count = 0;\n    }\n    \n    public int getCount() {\n        return count;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Counter c = new Counter();\n        for (int i = 0; i < 5; i++) c.increment();\n        for (int i = 0; i < 8; i++) c.decrement();\n        System.out.println(\"Count: \" + c.getCount());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Count: 0"
+        }
+      ],
+      "hints": [
+        "Field private int count (defaults to 0)",
+        "increment: count++",
+        "decrement: only if count > 0 (prevent going negative)",
+        "No setter — count can only change through these methods",
+        "5 increments → 5, then 8 decrements but stops at 0",
+        "This is encapsulation FORCING valid state through limited operations"
+      ],
+      "xp_reward": 55
+    },
+    
+    {
+      "id": "java_m4_t3_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 3,
+      "title": "Fix the boolean getter name",
+      "scenario": "Wrong naming convention breaks frameworks.",
+      "instructions": "This code uses an unconventional name. Rename the getter to follow JavaBean convention.\n\nExpected output:\nActive: true\nActive: false",
+      "starter_code": "class User {\n    private boolean active;\n    \n    public User(boolean active) {\n        this.active = active;\n    }\n    \n    public boolean getActive() {\n        return active;\n    }\n    \n    public void deactivate() {\n        active = false;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        User u = new User(true);\n        System.out.println(\"Active: \" + u.isActive());\n        u.deactivate();\n        System.out.println(\"Active: \" + u.isActive());\n    }\n}",
+      "expected_solution": "class User {\n    private boolean active;\n    \n    public User(boolean active) {\n        this.active = active;\n    }\n    \n    public boolean isActive() {\n        return active;\n    }\n    \n    public void deactivate() {\n        active = false;\n    }\n}\n\npublic class Broken {\n    public static void main(String[] args) {\n        User u = new User(true);\n        System.out.println(\"Active: \" + u.isActive());\n        u.deactivate();\n        System.out.println(\"Active: \" + u.isActive());\n    }\n}",
+      "bugs": [
+        {
+          "line": "9",
+          "issue": "Boolean getter named getActive() — should be isActive() per JavaBean convention",
+          "fix": "Rename to isActive"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Active: true\nActive: false",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "main calls u.isActive() — but the class only has getActive()",
+        "Compilation error: method isActive() not found",
+        "Boolean getters should use 'is' prefix",
+        "Rename getActive() → isActive()"
+      ],
+      "xp_reward": 35,
+      "common_misconceptions_tested": ["boolean_using_get_prefix"]
+    },
+    
+    {
+      "id": "java_m4_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Immutable Point class",
+      "scenario": "Build an immutable class — no setters, all fields final.",
+      "instructions": "Create an IMMUTABLE `Point` class for 2D coordinates:\n- Private FINAL fields: x (double), y (double)\n- Constructor: takes x, y\n- Getters: getX(), getY()\n- NO setters\n- Method `translate(double dx, double dy)` returns a NEW Point with shifted coords (doesn't modify this!)\n\nIn main:\n- Create p1 at (3, 4)\n- Get p2 = p1.translate(1, 2) → new point at (4, 6)\n- Print both — p1 unchanged\n\nExpected output:\np1: (3.0, 4.0)\np2: (4.0, 6.0)\np1 still: (3.0, 4.0)",
+      "starter_code": "// Build Point class as IMMUTABLE\n// No setters! translate returns a NEW Point\n",
+      "expected_solution": "class Point {\n    private final double x;\n    private final double y;\n    \n    public Point(double x, double y) {\n        this.x = x;\n        this.y = y;\n    }\n    \n    public double getX() { return x; }\n    public double getY() { return y; }\n    \n    public Point translate(double dx, double dy) {\n        return new Point(x + dx, y + dy);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Point p1 = new Point(3, 4);\n        Point p2 = p1.translate(1, 2);\n        \n        System.out.println(\"p1: (\" + p1.getX() + \", \" + p1.getY() + \")\");\n        System.out.println(\"p2: (\" + p2.getX() + \", \" + p2.getY() + \")\");\n        System.out.println(\"p1 still: (\" + p1.getX() + \", \" + p1.getY() + \")\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "p1: (3.0, 4.0)\np2: (4.0, 6.0)\np1 still: (3.0, 4.0)"
+        },
+        {
+          "type": "code_analysis",
+          "must_contain": ["private final double x", "private final double y"]
+        }
+      ],
+      "hints": [
+        "Fields: private final double x, y",
+        "Final means even the class can't reassign after constructor",
+        "translate doesn't change this object — creates and returns a NEW Point",
+        "This is how String works: every operation returns a new String",
+        "Original p1 stays at (3, 4) — immutability guarantees this"
+      ],
+      "xp_reward": 70,
+      "concept_tested": "immutability"
+    },
+    
+    {
+      "id": "java_m4_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Read-only ID, settable name",
+      "scenario": "Different fields, different access levels.",
+      "instructions": "Create an `Employee` class:\n- Private final field: id (int) — read-only forever\n- Private fields: name (String), salary (double) — modifiable\n- Constructor takes all three\n- Getters for all three\n- Setter for name (validates: non-empty)\n- Setter for salary (validates: >= 0)\n- NO setId method\n\nIn main:\n1. Create employee #101 \"Aisha\" with salary 75000\n2. Increase salary to 85000\n3. Print info\n4. Verify can't set id (commented out for clarity)\n\nExpected output:\nEmployee #101 Aisha — ₹85000.0",
+      "starter_code": "// Build Employee class\n// id is read-only (final, no setter)\n// name and salary have validating setters\n",
+      "expected_solution": "class Employee {\n    private final int id;\n    private String name;\n    private double salary;\n    \n    public Employee(int id, String name, double salary) {\n        this.id = id;\n        this.name = name;\n        this.salary = salary;\n    }\n    \n    public int getId() { return id; }\n    public String getName() { return name; }\n    public double getSalary() { return salary; }\n    \n    public void setName(String name) {\n        if (name == null || name.isBlank()) {\n            throw new IllegalArgumentException(\"Name cannot be empty\");\n        }\n        this.name = name;\n    }\n    \n    public void setSalary(double salary) {\n        if (salary < 0) {\n            throw new IllegalArgumentException(\"Salary cannot be negative\");\n        }\n        this.salary = salary;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Employee e = new Employee(101, \"Aisha\", 75000);\n        e.setSalary(85000);\n        System.out.println(\"Employee #\" + e.getId() + \" \" + e.getName() + \" — ₹\" + e.getSalary());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Employee #101 Aisha — ₹85000.0"
+        }
+      ],
+      "hints": [
+        "id is final — set once in constructor, never changes",
+        "No setId method — IDs shouldn't change after creation",
+        "name and salary have validating setters",
+        "All fields private, all access via methods"
+      ],
+      "xp_reward": 60
+    },
+    
+    {
+      "id": "java_m4_t3_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Computed property (no field)",
+      "scenario": "Getter that computes a value instead of returning a field.",
+      "instructions": "Create a `Circle` class:\n- Private final field: radius (double)\n- Constructor sets radius (validates: > 0)\n- Getter: getRadius()\n- 'getter' for area: `getArea()` — COMPUTES π × r², no underlying area field\n- 'getter' for circumference: `getCircumference()` — COMPUTES 2 × π × r\n\nIn main:\n- Create circle with radius 5\n- Print radius, area, circumference\n\nExpected output:\nRadius: 5.0\nArea: 78.53981633974483\nCircumference: 31.41592653589793",
+      "starter_code": "// Circle class with computed area and circumference\n// No 'area' or 'circumference' fields — compute them on demand\n",
+      "expected_solution": "class Circle {\n    private final double radius;\n    \n    public Circle(double radius) {\n        if (radius <= 0) throw new IllegalArgumentException(\"Radius must be positive\");\n        this.radius = radius;\n    }\n    \n    public double getRadius() { return radius; }\n    \n    public double getArea() {\n        return Math.PI * radius * radius;\n    }\n    \n    public double getCircumference() {\n        return 2 * Math.PI * radius;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Circle c = new Circle(5);\n        System.out.println(\"Radius: \" + c.getRadius());\n        System.out.println(\"Area: \" + c.getArea());\n        System.out.println(\"Circumference: \" + c.getCircumference());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Radius: 5.0\nArea: 78.53981633974483\nCircumference: 31.41592653589793"
+        }
+      ],
+      "hints": [
+        "Only ONE field: radius",
+        "getArea computes π × r × r on demand",
+        "getCircumference computes 2 × π × r",
+        "Math.PI is the constant",
+        "Computed properties avoid stale data — always reflects current radius"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "computed_property"
+    },
+    
+    {
+      "id": "java_m4_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Password class (no getter!)",
+      "scenario": "Encapsulation can also mean RESTRICTING reading.",
+      "instructions": "Create a `Password` class for secure storage:\n- Private field: hashedValue (String)\n- Constructor: takes plain password, stores its 'hash' (use a simple transformation: reverse the string for this exercise — real apps use SHA-256)\n- Method `matches(String plainAttempt)` — checks if reversed attempt equals stored hash\n- NO getter for hashedValue (callers shouldn't see the hash directly)\n\nIn main:\n1. Create password from \"secret123\"\n2. Verify matches(\"secret123\") returns true\n3. Verify matches(\"wrong\") returns false\n\nExpected output:\nCorrect password? true\nWrong password? false",
+      "starter_code": "// Password class - the hash should NOT be retrievable\n// Use reverse as our 'hash' function for this exercise\n",
+      "expected_solution": "class Password {\n    private String hashedValue;\n    \n    public Password(String plain) {\n        this.hashedValue = hash(plain);\n    }\n    \n    private String hash(String s) {\n        return new StringBuilder(s).reverse().toString();\n    }\n    \n    public boolean matches(String plainAttempt) {\n        return hash(plainAttempt).equals(hashedValue);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        Password pwd = new Password(\"secret123\");\n        System.out.println(\"Correct password? \" + pwd.matches(\"secret123\"));\n        System.out.println(\"Wrong password? \" + pwd.matches(\"wrong\"));\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Correct password? true\nWrong password? false"
+        }
+      ],
+      "hints": [
+        "Use a PRIVATE helper method hash() to do the 'hashing'",
+        "Reverse: new StringBuilder(s).reverse().toString() (callback to Topic 3.5!)",
+        "matches() hashes the attempt and compares with stored hash",
+        "Use .equals() for String comparison (not ==)",
+        "NO getter for hashedValue — that's the whole point",
+        "Real apps use SHA-256 or bcrypt; we use reverse for simplicity"
+      ],
+      "xp_reward": 75,
+      "concept_tested": "encapsulation_for_security"
+    },
+    
+    {
+      "id": "java_m4_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Encapsulated BankAccount with operations",
+      "scenario": "Real banking class — encapsulated, with deposit/withdraw operations.",
+      "instructions": "Create a `BankAccount` class:\n- Private final field: accountNumber (int)\n- Private fields: holderName (String), balance (double)\n- Constructor: takes all three; validates accountNumber > 0, name non-empty, balance >= 0\n- Getters for all three\n- Setter for holderName (validates non-empty)\n- NO setBalance — that would defeat the purpose!\n- Method `deposit(double amount)` — validates > 0, adds to balance\n- Method `withdraw(double amount)` — validates > 0 and <= balance, subtracts\n\nIn main:\n1. Create account #1001 for Aisha with ₹5000\n2. Deposit 2000 → balance 7000\n3. Withdraw 1500 → balance 5500\n4. Try withdraw 10000 (should fail)\n5. Print final state\n\nExpected output:\nAccount #1001 Aisha — ₹5500.0",
+      "starter_code": "// Build encapsulated BankAccount\n// NO setBalance method! Only deposit and withdraw can modify balance\n",
+      "expected_solution": "class BankAccount {\n    private final int accountNumber;\n    private String holderName;\n    private double balance;\n    \n    public BankAccount(int accountNumber, String holderName, double balance) {\n        if (accountNumber <= 0) throw new IllegalArgumentException(\"Account number must be positive\");\n        if (holderName == null || holderName.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        if (balance < 0) throw new IllegalArgumentException(\"Initial balance cannot be negative\");\n        this.accountNumber = accountNumber;\n        this.holderName = holderName;\n        this.balance = balance;\n    }\n    \n    public int getAccountNumber() { return accountNumber; }\n    public String getHolderName() { return holderName; }\n    public double getBalance() { return balance; }\n    \n    public void setHolderName(String holderName) {\n        if (holderName == null || holderName.isBlank()) throw new IllegalArgumentException(\"Name required\");\n        this.holderName = holderName;\n    }\n    \n    public void deposit(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Deposit must be positive\");\n        balance += amount;\n    }\n    \n    public void withdraw(double amount) {\n        if (amount <= 0) throw new IllegalArgumentException(\"Withdrawal must be positive\");\n        if (amount > balance) throw new IllegalArgumentException(\"Insufficient funds\");\n        balance -= amount;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        BankAccount acc = new BankAccount(1001, \"Aisha\", 5000);\n        acc.deposit(2000);\n        acc.withdraw(1500);\n        \n        try {\n            acc.withdraw(10000);\n        } catch (IllegalArgumentException e) {\n            // Silently caught - expected to fail\n        }\n        \n        System.out.println(\"Account #\" + acc.getAccountNumber() + \" \" + acc.getHolderName() + \" — ₹\" + acc.getBalance());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Account #1001 Aisha — ₹5500.0"
+        }
+      ],
+      "hints": [
+        "accountNumber is final (never changes)",
+        "NO setBalance method — that's the encapsulation point",
+        "deposit validates amount > 0, adds to balance",
+        "withdraw validates amount > 0 AND amount <= balance",
+        "Failed withdraw doesn't change balance",
+        "5000 + 2000 - 1500 = 5500 (the 10000 attempt was rejected)"
+      ],
+      "xp_reward": 80,
+      "concept_tested": "operations_instead_of_setters"
+    },
+    
+    {
+      "id": "java_m4_t3_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "URL builder (immutable + fluent)",
+      "scenario": "Immutable class with fluent interface — common production pattern.",
+      "instructions": "Create an immutable `URL` class:\n- Private final fields: protocol, host, path (all String)\n- Constructor takes all three (defaults each to empty string if null)\n- Getters: getProtocol(), getHost(), getPath()\n- Method `withProtocol(String p)` returns a NEW URL with new protocol (other fields unchanged)\n- Method `withHost(String h)` returns a NEW URL with new host\n- Method `withPath(String p)` returns a NEW URL with new path\n- Method `toUrl()` returns formatted string\n\nIn main:\n- Start with new URL(\"https\", \"google.com\", \"/\")\n- Chain: change path to '/search', then change host to 'bing.com'\n- Print original (unchanged) and modified\n\nExpected output:\nOriginal: https://google.com/\nModified: https://bing.com/search",
+      "starter_code": "// Immutable URL with 'with' methods (fluent builder style)\n// Each 'with' method returns a NEW URL with that change\n",
+      "expected_solution": "class URL {\n    private final String protocol;\n    private final String host;\n    private final String path;\n    \n    public URL(String protocol, String host, String path) {\n        this.protocol = protocol == null ? \"\" : protocol;\n        this.host = host == null ? \"\" : host;\n        this.path = path == null ? \"\" : path;\n    }\n    \n    public String getProtocol() { return protocol; }\n    public String getHost() { return host; }\n    public String getPath() { return path; }\n    \n    public URL withProtocol(String p) {\n        return new URL(p, host, path);\n    }\n    \n    public URL withHost(String h) {\n        return new URL(protocol, h, path);\n    }\n    \n    public URL withPath(String p) {\n        return new URL(protocol, host, p);\n    }\n    \n    public String toUrl() {\n        return protocol + \"://\" + host + path;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        URL original = new URL(\"https\", \"google.com\", \"/\");\n        URL modified = original.withPath(\"/search\").withHost(\"bing.com\");\n        \n        System.out.println(\"Original: \" + original.toUrl());\n        System.out.println(\"Modified: \" + modified.toUrl());\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Original: https://google.com/\nModified: https://bing.com/search"
+        }
+      ],
+      "hints": [
+        "All fields private final",
+        "'with' methods create a NEW URL with one field changed",
+        "Chain: url.withPath(...).withHost(...) returns final URL",
+        "Original is NEVER modified — immutability",
+        "This pattern is used by HttpClient.Builder, ResponseBuilder, etc."
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 11,
+      "debug": 2,
+      "predict_output": 1
+    },
+    "total_xp_possible": 725,
+    "estimated_completion_minutes": 65
+  },
+  
+  "gap_detection_map": {
+    "leaving_fields_public": ["ex_4"],
+    "validating_setter": ["ex_5"],
+    "encapsulation_refactor": ["ex_7"],
+    "boolean_using_get_prefix": ["ex_9"],
+    "immutability": ["ex_10"],
+    "computed_property": ["ex_12"],
+    "encapsulation_for_security": ["ex_13"],
+    "operations_instead_of_setters": ["ex_14"]
+  }
+}

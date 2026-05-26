@@ -1,0 +1,102 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m6_t4_proj",
+  "linked_topic": "java_m6_t4",
+  "level": "mini",
+  "name": "Batch Data Processor",
+  "estimated_minutes": 50,
+  "difficulty": 6,
+  
+  "scenario": "You're building a batch data processing tool for a FinTech company (Razorpay-style). Payments come in bulk. You need to: clean invalid payments (Iterator removal with audit log), apply tier-based fee adjustments (ListIterator in-place transformation), rank payments (Collections.sort), generate a report (Collections min/max/frequency), and return read-only summaries (unmodifiableList). This is realistic data pipeline code seen in every banking/payment backend.",
+  
+  "description": "Build a payment batch processor that exercises Iterator, ListIterator, and the full Collections utility class in a cohesive pipeline.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`Payment` class: paymentId (String), amount (double), status (String: VALID/INVALID/PENDING), tier (String: BASIC/PREMIUM). Constructor + getters + toString.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`BatchProcessor.removeInvalid(List<Payment>)` — uses Iterator to remove INVALID payments, returns List<String> audit log of removed payment IDs.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "`BatchProcessor.applyFees(List<Payment>)` — uses ListIterator to apply fee: PREMIUM gets 1% fee (amount = amount * 0.99), BASIC gets 2% fee. Modifies in-place.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`BatchProcessor.rankByAmount(List<Payment>)` — returns new List sorted by amount descending (unmodifiable). Does NOT modify original list.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`BatchProcessor.generateReport(List<Payment>)` — prints: total payments, min/max amount (Collections.min/max, needs Comparable), count PENDING, frequency of BASIC tier.",
+        "weight": 20
+      },
+      {
+        "id": "req_6",
+        "description": "main() demonstrates full pipeline: start with 7+ payments, remove invalids, apply fees, rank, report.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `Collections.shuffle` before processing to simulate random arrival order, then re-sort for processing.",
+        "weight": 10
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `disjointCheck(List<Payment> a, List<Payment> b)` — checks if two batches share no payment IDs (using Collections.disjoint on ID lists).",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `getImmutableSnapshot(List<Payment>)` that returns truly immutable List (not just unmodifiable view) by copying to List.of().",
+        "weight": 15
+      }
+    ]
+  },
+  
+  "data_to_use": "Payments:\n- PAY-001, ₹5000, VALID, PREMIUM\n- PAY-002, ₹1200, INVALID, BASIC\n- PAY-003, ₹8500, PENDING, PREMIUM\n- PAY-004, ₹500, VALID, BASIC\n- PAY-005, ₹3200, INVALID, BASIC\n- PAY-006, ₹15000, PENDING, PREMIUM\n- PAY-007, ₹2800, VALID, BASIC\n\nAfter removing INVALID (PAY-002, PAY-005):\n- 5 remaining payments\n\nAfter applying fees:\n- PREMIUM: PAY-001: 5000×0.99=4950, PAY-003: 8500×0.99=8415, PAY-006: 15000×0.99=14850\n- BASIC: PAY-004: 500×0.98=490, PAY-007: 2800×0.98=2744",
+  
+  "starter_code": "import java.util.*;\n\npublic class PaymentBatch {\n    public static void main(String[] args) {\n        // Create payment list\n        // removeInvalid → log removed\n        // applyFees → in-place transformation\n        // rankByAmount → sorted unmodifiable view\n        // generateReport\n    }\n    \n    // Define: Payment, BatchProcessor classes\n}",
+  
+  "example_output": "=== PAYMENT BATCH PROCESSOR ===\n\nRemoving invalid payments...\nAudit log: [PAY-002, PAY-005]\nRemaining: 5 payments\n\nApplying tier fees...\nFees applied (PREMIUM=1%, BASIC=2%)\n\nRanking by amount:\n1. PAY-006: ₹14850.0\n2. PAY-003: ₹8415.0\n3. PAY-001: ₹4950.0\n4. PAY-007: ₹2744.0\n5. PAY-004: ₹490.0\n\n=== BATCH REPORT ===\nTotal: 5\nMin: PAY-004 (₹490.0)\nMax: PAY-006 (₹14850.0)\nPENDING count: 2\nBASIC tier count: 2",
+  
+  "rubric": [
+    { "category": "removeInvalid with audit log", "points": 25, "criteria": ["Uses Iterator (10 pts)", "Audit log built correctly (10 pts)", "No ConcurrentModificationException (5 pts)"] },
+    { "category": "applyFees with ListIterator", "points": 25, "criteria": ["Uses ListIterator.set() (15 pts)", "Correct fee per tier (10 pts)"] },
+    { "category": "rankByAmount + report", "points": 25, "criteria": ["Returns unmodifiable sorted copy (15 pts)", "Report uses Collections.min/max/frequency (10 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 10, "criteria": ["Full pipeline shown (10 pts)"] },
+    { "category": "Bonus", "points": 40, "criteria": ["shuffle (10 pts)", "disjointCheck (15 pts)", "immutableSnapshot (15 pts)"] }
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The trickiest part is Payment implementing Comparable for Collections.min/max. Iterator for audit log builds the log before calling it.remove(). ListIterator.set() creates a new Payment with adjusted amount.",
+  
+  "submission_instructions": "Save as PaymentBatch.java. Run it. This is realistic payment processing pipeline code.",
+  
+  "tips_for_success": [
+    "Payment must implement Comparable<Payment> for Collections.min/max to work.",
+    "removeInvalid: `it.next()` gives you the payment, `removed.add(payment.getPaymentId())`, then `it.remove()`.",
+    "applyFees: ListIterator.set() needs to create a new Payment with adjusted amount (or add a setAmount() method).",
+    "rankByAmount: copy the list first, sort descending, wrap in unmodifiableList(new ArrayList<>(...)).",
+    "frequency(payments, element) compares by equals — so Payment needs equals() or just count manually."
+  ],
+  
+  "concepts_reinforced": [
+    "Iterator for safe removal with side effects (audit log)",
+    "ListIterator.set() for in-place transformation",
+    "Collections.sort() on a copy (original preserved)",
+    "Collections.unmodifiableList() for read-only return",
+    "Collections.min/max with Comparable",
+    "Collections.frequency() or manual count"
+  ]
+}

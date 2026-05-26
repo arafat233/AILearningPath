@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m12_t4_proj",
+  "linked_topic": "java_m12_t4",
+  "level": "mini",
+  "name": "Data Pipeline Test Suite — File I/O and HTTP Integration Tests",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Write a comprehensive test suite for a data pipeline that reads product CSVs, calls a pricing API to enrich each product, and writes a formatted JSON report. The pipeline combines everything from Module 11 — file reading, JSON processing, and HTTP calls. Tests use @TempDir for file operations and Mockito for HTTP mocking.",
+
+  "description": "The `ProductEnrichmentPipeline` reads a CSV, calls a price enrichment API for each product, and writes a JSON report. Students write tests covering happy paths, file error paths, HTTP error paths, partial failures, and edge cases — using @TempDir and mocked HttpClient throughout.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Happy path test: write a 3-product CSV to @TempDir, mock API to return prices, run pipeline, assert JSON report exists and contains all 3 enriched products with correct prices.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "Empty CSV test: header-only CSV → empty JSON array in output, pipeline returns 0 enriched count.",
+        "weight": 10
+      },
+      {
+        "id": "req_3",
+        "description": "Missing input file test: pipeline throws NoSuchFileException or IOException for non-existent CSV path.",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "API 404 for one product: product with API 404 gets price=0 (default), others are enriched correctly. Pipeline continues despite partial failure.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "API IOException for one product: network failure on one SKU → same graceful handling as 404. Other products still enriched.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "Report format verification: read the output JSON from @TempDir, parse with Jackson, assert each product has: sku, name, qty, apiPrice fields.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "URL verification test: use ArgumentCaptor to capture the HttpRequest and verify the URL contains the product SKU.",
+        "weight": 10
+      },
+      {
+        "id": "req_8",
+        "description": "All tests use @TempDir for file isolation and @Mock HttpClient. At least 6 test methods total.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add a @ParameterizedTest using @MethodSource to test multiple CSV files (different column counts, empty rows, headers-only, malformed rows). Each case uses @TempDir.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a concurrency test: call pipeline.sync() from 5 threads simultaneously with the same @TempDir. Verify the report is complete and correct (no partial writes, no duplicates).",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a StringWriter-based test: refactor pipeline to accept a Writer for output. Test using StringWriter — no file needed for the output side of the test.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Input CSV (products.csv):\nsku,name,qty\nP001,Wireless Mouse,50\nP002,Keyboard,12\nP003,Monitor,5\n\nAPI endpoint: GET /api/prices/{sku}\nSuccess response: {\"sku\":\"P001\",\"price\":799}\n404 response for unknown SKU\n\nOutput JSON: products.json\n[{\"sku\":\"P001\",\"name\":\"Wireless Mouse\",\"qty\":50,\"apiPrice\":799}, ...]",
+
+  "starter_code": "// Production code (provided):\nimport java.net.http.*;\nimport java.nio.file.*;\nimport java.util.*;\nimport com.fasterxml.jackson.databind.*;\nimport com.fasterxml.jackson.databind.node.*;\n\npublic class ProductEnrichmentPipeline {\n    private final HttpClient httpClient;\n    private final ObjectMapper mapper = new ObjectMapper();\n    private static final String API_BASE = \"https://api.pricing.com\";\n    \n    public ProductEnrichmentPipeline(HttpClient client) { this.httpClient = client; }\n    \n    public int enrich(Path csvPath, Path outputPath) throws Exception {\n        // reads CSV, calls API per product, writes JSON\n        // returns count of successfully enriched products\n    }\n}\n\n// YOUR TEST CLASS:\nimport org.junit.jupiter.api.*;\nimport org.junit.jupiter.api.io.TempDir;\nimport org.junit.jupiter.api.extension.ExtendWith;\nimport org.mockito.*;\nimport org.mockito.junit.jupiter.MockitoExtension;\nimport java.nio.file.*;\nimport static org.junit.jupiter.api.Assertions.*;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\n\n@ExtendWith(MockitoExtension.class)\nclass ProductEnrichmentPipelineTest {\n    @Mock HttpClient httpClient;\n    @Mock HttpResponse<String> httpResponse;\n    @Captor ArgumentCaptor<HttpRequest> requestCaptor;\n    \n    ProductEnrichmentPipeline pipeline() {\n        return new ProductEnrichmentPipeline(httpClient);\n    }\n    // Your 6+ tests here\n}",
+
+  "example_output": "Test Results:\n✓ enrich_3products_allSucceed_jsonReportCorrect\n✓ enrich_emptyCsv_emptyJsonOutput\n✓ enrich_missingFile_throwsException\n✓ enrich_oneProduct404_continuesOthers\n✓ enrich_networkError_gracefulDegradation\n✓ enrich_verifyCorrectApiUrl\n\n6 tests passed, 0 failed",
+
+  "rubric": [
+    { "category": "Happy Path (@TempDir + mock)", "points": 20, "criteria": ["CSV written to tempDir (5 pts)", "API mocked correctly (5 pts)", "JSON report asserted (10 pts)"] },
+    { "category": "Empty CSV", "points": 10, "criteria": ["Header-only → empty array (10 pts)"] },
+    { "category": "Missing File", "points": 10, "criteria": ["assertThrows for IOException (10 pts)"] },
+    { "category": "Partial Failures", "points": 25, "criteria": ["404 → default price, continues (12 pts)", "IOException → graceful (13 pts)"] },
+    { "category": "JSON Report Verification", "points": 15, "criteria": ["Jackson parse of output JSON (8 pts)", "4 fields verified per product (7 pts)"] },
+    { "category": "URL Captor", "points": 10, "criteria": ["ArgumentCaptor verifies SKU in URL (10 pts)"] },
+    { "category": "Test Count + Isolation", "points": 10, "criteria": ["6+ tests (5 pts)", "@TempDir + @Mock used correctly (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Parameterized CSV tests (20 pts)", "Concurrency test (25 pts)", "StringWriter output test (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. File tests: write CSV to tempDir, run pipeline, read JSON from tempDir, assert with Jackson. HTTP partial failure: when(httpResponse.statusCode()).thenReturn(200, 404) — first product 200, second 404. URL captor: verify(client).send(captor.capture(), any()); assertTrue(captor.getValue().uri().toString().contains(sku)).",
+
+  "submission_instructions": "Save as ProductEnrichmentPipelineTest.java. Push to GitHub. This combines all Module 11 + Module 12 testing skills.",
+
+  "tips_for_success": [
+    "Both CSV input and JSON output paths in same @TempDir",
+    "For partial failure: when(response.statusCode()).thenReturn(200, 404) — Mockito returns 200 first call, 404 second call",
+    "Jackson parse output: mapper.readTree(Files.readString(outputPath)) → ArrayNode",
+    "URL check: verify(httpClient).send(captor.capture(), any()); captor.getValue().uri().toString()",
+    "Empty CSV: Files.writeString(path, 'header1,header2\\n') — header with trailing newline"
+  ],
+
+  "concepts_reinforced": [
+    "@TempDir for file isolation",
+    "@Mock HttpClient and HttpResponse<String>",
+    "Files.writeString for test setup",
+    "Files.readString / readAllLines for output assertion",
+    "ArgumentCaptor for URL verification",
+    "when(mock).thenReturn(first, second) for successive calls"
+  ]
+}

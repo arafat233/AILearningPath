@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m42_t4_proj",
+  "linked_topic": "java_m42_t4",
+  "level": "mini",
+  "name": "Common Patterns Review \u2014 Final Pattern Drill",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "Build Common Patterns Review \u2014 Final Pattern Drill.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Complete all exercises.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "Record 4 timed practice sessions.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "Written reflection on areas to improve.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Peer review session.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Practice with timer: set a 10-min timer per problem. Communicate aloud throughout.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Timed Practice",
+      "points": 35
+    },
+    {
+      "category": "Reflection",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

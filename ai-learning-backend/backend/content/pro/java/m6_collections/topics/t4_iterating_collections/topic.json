@@ -1,0 +1,206 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t4",
+  "language": "java",
+  "module_id": "m6",
+  "module_name": "Collections Framework",
+  "topic_number": 4,
+  "name": "Iterating Collections & the Collections Utility Class",
+  "slug": "iterating-collections",
+  
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m6_t1", "java_m6_t2", "java_m6_t3"],
+    "concepts_taught": [
+      "iterator_interface",
+      "iterator_safe_removal",
+      "listiterator_bidirectional",
+      "for_each_loop_internally",
+      "entrySet_iteration_pattern",
+      "collections_class_sort",
+      "collections_min_max",
+      "collections_frequency_disjoint",
+      "collections_reverse_shuffle",
+      "collections_unmodifiable",
+      "collections_fill_copy_ncopies",
+      "streams_preview"
+    ],
+    "skills_developed": [
+      "using_iterator_for_safe_removal",
+      "iterating_maps_efficiently",
+      "applying_collections_utility_methods",
+      "making_collections_unmodifiable",
+      "choosing_right_iteration_approach"
+    ],
+    "career_relevance": "The Collections utility class is one of the most used APIs in production Java. Every `Collections.sort`, every `Collections.unmodifiableList` for defensive API design, every `Collections.min/max` for simple extremes — these appear in virtually every Java codebase. Iterator is the pattern behind every for-each loop and is essential when you need to remove elements during iteration. Understanding these makes your code more idiomatic, more readable, and more resilient. After this topic, you can read and write professional collection code fluently.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Two problems you've hit before:\n\n**Problem 1**: You tried to remove elements while iterating a list — ConcurrentModificationException. You needed `removeIf()` as a workaround. But `removeIf()` only works for simple conditions. What about complex removal logic that needs to check multiple things, maintain state between items, or remove by index?\n\n**Problem 2**: Your code is full of repetitive patterns:\n\n```java\n// Find minimum:\nint min = list.get(0);\nfor (int x : list) if (x < min) min = x;\n\n// Sort:\nArrays.sort(arr);  // for arrays\nlist.sort(...);     // for lists\n\n// Reverse:\n// ??? manual loop\n```\n\nThe Java Collections Framework solved both. `Iterator` lets you safely remove during iteration. `Collections` utility class has `min()`, `max()`, `sort()`, `reverse()`, `shuffle()`, `frequency()` and more — one-liners that replace your manual loops.\n\nToday: the complete toolkit for working with collections.",
+    "what_you_will_build": "By the end of this topic, you'll know how to use Iterator for safe removal during iteration, iterate Map entries efficiently with entrySet(), and use the Collections utility class comprehensively: sort, reverse, shuffle, min, max, frequency, disjoint, unmodifiableList. You'll also see a preview of streams — the modern, declarative alternative to loops."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "This topic has two distinct halves:\n\n**Half 1**: How to iterate collections correctly and safely — including removing during iteration.\n\n**Half 2**: The `Collections` utility class — a toolbox of static methods that operate on collections, saving you from writing manual loops for common tasks.\n\nBoth halves are used constantly in professional Java code.",
+      
+      "iterator_basics": "**Iterator** is the interface that powers all for-each loops internally. You can also use it explicitly when you need more control.\n\n```java\nList<String> names = new ArrayList<>(Arrays.asList(\"Aisha\", \"Raj\", \"Priya\"));\n\n// For-each (internally uses Iterator)\nfor (String name : names) {\n    System.out.println(name);\n}\n\n// Explicit Iterator\nIterator<String> it = names.iterator();\nwhile (it.hasNext()) {\n    String name = it.next();\n    System.out.println(name);\n}\n```\n\n**Why use explicit Iterator?** One reason: **safe removal during iteration**.\n\n```java\nIterator<String> it = names.iterator();\nwhile (it.hasNext()) {\n    String name = it.next();\n    if (name.startsWith(\"R\")) {\n        it.remove();  // SAFE — removes current element via Iterator\n    }\n}\n// names is now [Aisha, Priya]\n```\n\n`it.remove()` removes the element that `it.next()` last returned. It's coordinated with the iterator's internal state — no ConcurrentModificationException.\n\n**The three Iterator methods**:\n- `hasNext()` — true if more elements remain\n- `next()` — returns next element and advances iterator\n- `remove()` — removes the element last returned by next()\n\n**Important**: call `next()` before `remove()`. Calling `remove()` twice in a row (without `next()` in between) throws IllegalStateException.",
+      
+      "iterator_vs_removeif": "**Iterator vs removeIf** — when to use which:\n\n```java\n// removeIf: perfect for simple lambda conditions\nlist.removeIf(s -> s.startsWith(\"R\"));\n\n// Iterator: better when:\n// - logic is complex (needs multiple lines)\n// - you need to do something BEFORE removing\n// - you need the index or other state\n// - you're modifying related data structures while iterating\n\nIterator<Order> it = orders.iterator();\nwhile (it.hasNext()) {\n    Order order = it.next();\n    if (order.isExpired()) {\n        archiveLog.add(order);      // log it first\n        refundAmount += order.total; // track total refund\n        it.remove();                  // then remove\n    }\n}\n```\n\nRule: `removeIf` for simple condition-based removal. `Iterator` when you need to do more around the removal.",
+      
+      "listiterator": "**ListIterator** extends Iterator for Lists — adds bidirectional traversal:\n\n```java\nList<String> list = new ArrayList<>(Arrays.asList(\"A\", \"B\", \"C\", \"D\"));\nListIterator<String> lit = list.listIterator(list.size()); // start at end\n\n// Traverse BACKWARDS:\nwhile (lit.hasPrevious()) {\n    System.out.print(lit.previous() + \" \");  // D C B A\n}\n\n// Can also set() to replace current element:\nListIterator<String> lit2 = list.listIterator();\nwhile (lit2.hasNext()) {\n    String s = lit2.next();\n    lit2.set(s.toLowerCase());  // replace with lowercase\n}\n// list is now [a, b, c, d]\n```\n\n**ListIterator's extra methods**:\n- `hasPrevious()`, `previous()` — go backwards\n- `nextIndex()`, `previousIndex()` — current position\n- `set(element)` — replace last returned element\n- `add(element)` — insert at current position\n\n**Common use**: transforming elements in-place (replace as you iterate — much cleaner than `list.set(i, transform(list.get(i)))` in a for loop).",
+      
+      "entrySet_iteration": "**Iterating Maps** — use `entrySet()` when you need both key and value:\n\n```java\nMap<String, Integer> scores = new HashMap<>();\nscores.put(\"Aisha\", 95); scores.put(\"Raj\", 87); scores.put(\"Priya\", 92);\n\n// EFFICIENT: one access per entry\nfor (Map.Entry<String, Integer> entry : scores.entrySet()) {\n    System.out.println(entry.getKey() + \": \" + entry.getValue());\n}\n\n// INEFFICIENT: two lookups per entry (get() on each key)\nfor (String key : scores.keySet()) {\n    System.out.println(key + \": \" + scores.get(key));  // get() is extra work\n}\n```\n\n`entrySet()` gives you key+value together in one object — no second lookup. For large maps, this matters. For small maps, it's just the idiomatic style.\n\n**Modifying values during iteration** — use `entry.setValue()`:\n```java\nfor (Map.Entry<String, Integer> entry : scores.entrySet()) {\n    entry.setValue(entry.getValue() + 5);  // add 5 bonus points to everyone\n}\n```\n\n**Never put/remove keys during entrySet iteration** — ConcurrentModificationException. Use a separate list of keys to update, or iterate the list after.",
+      
+      "collections_sort_and_order": "**`Collections` utility class** — `java.util.Collections` — static methods for operating on collections.\n\n**Sorting**:\n```java\nList<Integer> nums = new ArrayList<>(Arrays.asList(5, 2, 8, 1, 9));\n\nCollections.sort(nums);                    // natural order: [1, 2, 5, 8, 9]\nCollections.sort(nums, Collections.reverseOrder());  // reverse: [9, 8, 5, 2, 1]\nCollections.reverse(nums);                // reverses in-place\nCollections.shuffle(nums);                // random order (for games, tests)\n```\n\n**`Collections.sort()` vs `list.sort()`**: both sort in-place. `list.sort()` is the modern Java 8+ way; `Collections.sort()` is older but still widely used. Both accept a Comparator.",
+      
+      "collections_min_max_frequency": "**Finding extremes and counts**:\n\n```java\nList<Integer> scores = Arrays.asList(72, 88, 95, 65, 88, 91);\n\nint max = Collections.max(scores);  // 95\nint min = Collections.min(scores);  // 65\n\n// With Comparator (for objects):\nList<Product> products = ...;\nProduct cheapest = Collections.min(products);          // uses Comparable\nProduct priciest = Collections.max(products, Comparator.comparingDouble(Product::getPrice));\n\n// Count occurrences:\nint eighty8count = Collections.frequency(scores, 88);  // 2\n\n// Check if two collections share NO elements:\nList<String> a = Arrays.asList(\"cat\", \"dog\");\nList<String> b = Arrays.asList(\"fish\", \"bird\");\nboolean noCommon = Collections.disjoint(a, b);  // true\n```\n\n`Collections.frequency(list, element)` counts how many times element appears — uses equals().",
+      
+      "collections_unmodifiable": "**Making collections read-only** — defensive API design:\n\n```java\nclass Library {\n    private List<Book> books = new ArrayList<>();\n    \n    // Return unmodifiable view — callers cannot add/remove\n    public List<Book> getBooks() {\n        return Collections.unmodifiableList(books);\n    }\n}\n\n// Caller:\nList<Book> lib = library.getBooks();\nlib.add(new Book(...));     // throws UnsupportedOperationException!\nlib.get(0).setTitle(\"...\"); // OK — can still modify elements themselves\n```\n\n`Collections.unmodifiableList(list)` returns a WRAPPER — any mutation attempts throw `UnsupportedOperationException`. The underlying list is unchanged but hidden behind the wrapper.\n\n**Also available**: `unmodifiableMap()`, `unmodifiableSet()`.\n\n**Modern alternative (Java 9+)**: `List.of(...)`, `Map.of(...)`, `Set.of(...)` — truly immutable collections that can't be modified even from inside. Prefer these for creating fixed data.\n\n```java\nList<String> fixed = List.of(\"Java\", \"Python\", \"Go\");  // immutable\n// fixed.add(\"Rust\");  // UnsupportedOperationException\n```",
+      
+      "collections_fill_copy": "**Other useful Collections methods**:\n\n```java\nList<String> list = new ArrayList<>(Arrays.asList(\"a\", \"b\", \"c\"));\n\n// Replace all elements with one value:\nCollections.fill(list, \"x\");   // [x, x, x]\n\n// Copy src into dest (dest must be same size or larger):\nList<String> dest = new ArrayList<>(Arrays.asList(\"1\", \"2\", \"3\"));\nCollections.copy(dest, Arrays.asList(\"a\", \"b\"));  // dest = [a, b, 3]\n\n// Create a list of N copies of one element:\nList<String> nines = Collections.nCopies(5, \"nine\");  // [nine, nine, nine, nine, nine]\n\n// Swap two elements:\nCollections.swap(list, 0, 2);  // swaps elements at index 0 and 2\n\n// Binary search (list must be SORTED first):\nList<Integer> sorted = Arrays.asList(1, 3, 5, 7, 9);\nint idx = Collections.binarySearch(sorted, 5);  // returns 2\n```\n\n`binarySearch` only works correctly on **sorted** lists. If unsorted, result is undefined.",
+      
+      "streams_preview": "**Streams — a brief preview** (covered fully in Module 9):\n\nJava 8 introduced streams as a declarative alternative to loops for processing collections:\n\n```java\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\", \"Vikram\");\n\n// Traditional loop:\nList<String> longNames = new ArrayList<>();\nfor (String name : names) {\n    if (name.length() > 3) longNames.add(name.toUpperCase());\n}\n\n// Stream equivalent:\nList<String> longNames = names.stream()\n    .filter(name -> name.length() > 3)\n    .map(String::toUpperCase)\n    .collect(java.util.stream.Collectors.toList());\n```\n\nStreams are expressive and composable — but they have a learning curve. We'll cover them fully in Module 9. For now, recognize the pattern when you see it and know that `list.stream()` starts a pipeline."
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three diagrams: (1) Iterator state machine — hasNext? → next() → [can remove()] → repeat. Safe removal shown with arrow: next() returns element, then remove() removes THAT element. Contrast with for-each: no safe removal. (2) Collections utility class as a toolbox — grid of utility methods organized by category: Sort (sort, reverse, shuffle), Extremes (min, max), Counts (frequency, disjoint), Protection (unmodifiable*), Creation (nCopies, fill). (3) Stream pipeline preview: source (list) → filter → map → collect, with each step labeled. Caption: 'Streams = functional loops. Full coverage in Module 9.'",
+      "alt_text": "Iterator state machine, Collections utility toolbox, and Stream pipeline preview"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Build a student management system that exercises both halves of this topic: Iterator for safe batch operations (removing inactive students, transforming grades), and Collections utility methods for ranking and reporting.",
+    
+    "problem_statement": "StudentManager with operations:\n1. `removeInactive(threshold)` — remove students with GPA below threshold using Iterator (also logs who was removed)\n2. `awardBonus(double bonus)` — add bonus to all GPAs using ListIterator\n3. `topStudents(n)` — get top N by GPA using Collections.sort + subList\n4. `classStats()` — min, max, avg GPA using Collections utilities\n5. `getReadOnlyRoster()` — return unmodifiable view of student list",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Setup — Student class and list",
+        "details": "```java\nclass Student implements Comparable<Student> {\n    String name;\n    double gpa;\n    \n    Student(String name, double gpa) { this.name = name; this.gpa = gpa; }\n    \n    @Override public int compareTo(Student other) {\n        return Double.compare(this.gpa, other.gpa);  // ascending GPA\n    }\n    \n    @Override public String toString() {\n        return String.format(\"%s (%.2f)\", name, gpa);\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "removeInactive — Iterator with side effect",
+        "details": "```java\npublic List<String> removeInactive(List<Student> students, double threshold) {\n    List<String> removed = new ArrayList<>();\n    \n    Iterator<Student> it = students.iterator();\n    while (it.hasNext()) {\n        Student s = it.next();\n        if (s.gpa < threshold) {\n            removed.add(s.name + \" (\" + s.gpa + \")\");  // log before removing\n            it.remove();\n        }\n    }\n    return removed;\n}\n```\n\nCannot use `removeIf` here cleanly because we need to build the log list simultaneously. Iterator gives us access to the element before removal."
+      },
+      {
+        "step": 3,
+        "action": "awardBonus — ListIterator with set()",
+        "details": "```java\npublic void awardBonus(List<Student> students, double bonus) {\n    ListIterator<Student> lit = students.listIterator();\n    while (lit.hasNext()) {\n        Student s = lit.next();\n        lit.set(new Student(s.name, Math.min(4.0, s.gpa + bonus)));\n    }\n}\n```\n\n`lit.set()` replaces the current element in-place. Capped at 4.0 (max GPA)."
+      },
+      {
+        "step": 4,
+        "action": "Statistics and ranking with Collections",
+        "details": "```java\npublic void classStats(List<Student> students) {\n    if (students.isEmpty()) return;\n    \n    Student best = Collections.max(students);   // uses Comparable\n    Student worst = Collections.min(students);\n    \n    double total = 0;\n    for (Student s : students) total += s.gpa;\n    double avg = total / students.size();\n    \n    System.out.printf(\"Best: %s | Worst: %s | Avg: %.2f%n\",\n        best, worst, avg);\n}\n\npublic List<Student> topStudents(List<Student> students, int n) {\n    List<Student> sorted = new ArrayList<>(students);  // copy!\n    Collections.sort(sorted, Collections.reverseOrder()); // descending\n    return sorted.subList(0, Math.min(n, sorted.size()));\n}\n\npublic List<Student> getReadOnlyRoster(List<Student> students) {\n    return Collections.unmodifiableList(students);\n}\n```"
+      }
+    ],
+    
+    "final_code": "import java.util.*;\n\nclass Student implements Comparable<Student> {\n    String name;\n    double gpa;\n    Student(String name, double gpa) { this.name = name; this.gpa = gpa; }\n    @Override public int compareTo(Student o) { return Double.compare(this.gpa, o.gpa); }\n    @Override public String toString() { return String.format(\"%s(%.2f)\", name, gpa); }\n}\n\npublic class StudentManager {\n    static List<String> removeInactive(List<Student> students, double threshold) {\n        List<String> log = new ArrayList<>();\n        Iterator<Student> it = students.iterator();\n        while (it.hasNext()) {\n            Student s = it.next();\n            if (s.gpa < threshold) { log.add(s.toString()); it.remove(); }\n        }\n        return log;\n    }\n    \n    static void awardBonus(List<Student> students, double bonus) {\n        ListIterator<Student> lit = students.listIterator();\n        while (lit.hasNext()) {\n            Student s = lit.next();\n            lit.set(new Student(s.name, Math.min(4.0, s.gpa + bonus)));\n        }\n    }\n    \n    static void classStats(List<Student> students) {\n        double total = 0;\n        for (Student s : students) total += s.gpa;\n        System.out.printf(\"Best: %s | Worst: %s | Avg: %.2f%n\",\n            Collections.max(students), Collections.min(students), total / students.size());\n    }\n    \n    static List<Student> topN(List<Student> students, int n) {\n        List<Student> copy = new ArrayList<>(students);\n        copy.sort(Collections.reverseOrder());\n        return copy.subList(0, Math.min(n, copy.size()));\n    }\n    \n    public static void main(String[] args) {\n        List<Student> roster = new ArrayList<>(Arrays.asList(\n            new Student(\"Aisha\", 3.8),\n            new Student(\"Raj\", 2.1),\n            new Student(\"Priya\", 3.5),\n            new Student(\"Vikram\", 1.9),\n            new Student(\"Anita\", 3.9)\n        ));\n        \n        System.out.println(\"Initial: \" + roster);\n        \n        List<String> removed = removeInactive(roster, 2.5);\n        System.out.println(\"Removed (below 2.5): \" + removed);\n        System.out.println(\"After removal: \" + roster);\n        \n        awardBonus(roster, 0.1);\n        System.out.println(\"After bonus: \" + roster);\n        \n        classStats(roster);\n        System.out.println(\"Top 2: \" + topN(roster, 2));\n        \n        List<Student> readOnly = Collections.unmodifiableList(roster);\n        System.out.println(\"Read-only size: \" + readOnly.size());\n        try {\n            readOnly.add(new Student(\"Extra\", 4.0));\n        } catch (UnsupportedOperationException e) {\n            System.out.println(\"Cannot modify read-only list!\");\n        }\n    }\n}",
+    
+    "expected_output": "Initial: [Aisha(3.80), Raj(2.10), Priya(3.50), Vikram(1.90), Anita(3.90)]\nRemoved (below 2.5): [Raj(2.10), Vikram(1.90)]\nAfter removal: [Aisha(3.80), Priya(3.50), Anita(3.90)]\nAfter bonus: [Aisha(3.90), Priya(3.60), Anita(4.00)]\nBest: Anita(4.00) | Worst: Priya(3.60) | Avg: 3.83\nTop 2: [Anita(4.00), Aisha(3.90)]\nRead-only size: 3\nCannot modify read-only list!",
+    
+    "things_to_notice": [
+      "`removeInactive` uses Iterator because it needs to build the log list simultaneously. A plain `removeIf` would work for removal but couldn't build the log elegantly.",
+      "`awardBonus` uses `ListIterator.set()` to replace each student with a new one with a higher GPA. This is cleaner than `list.set(i, ...)` in a for loop.",
+      "`Collections.max(students)` and `Collections.min(students)` use Student's `Comparable` implementation — that's why Student implements Comparable<Student>.",
+      "`topN` copies the list before sorting — `Collections.sort()` sorts IN PLACE. Sorting the original would change `roster` permanently. The copy is essential.",
+      "`Collections.unmodifiableList(roster)` returns a VIEW — it wraps roster. When roster changes, the view changes. It's not a snapshot — just a read-only window.",
+      "Anita gets bonus 0.1: 3.9 + 0.1 = 4.0 (exactly at cap). Math.min(4.0, 4.0) = 4.0. ✓"
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Framework batch processing",
+        "use_case": "Spring Batch jobs process lists of records. Invalid records need to be removed while tracking what failed for the error report — Iterator is the tool. The job's `removeIf` can't capture the failures; explicit Iterator with parallel error-list building is the pattern."
+      },
+      {
+        "company_context": "API design (every library/framework)",
+        "use_case": "Returning `Collections.unmodifiableList(internalList)` is the standard defensive pattern for getters in public APIs. Spring's `Environment.getActiveProfiles()` returns an unmodifiable collection — callers can read, not modify. Every well-designed Java library does this."
+      },
+      {
+        "company_context": "Ranking systems (Zerodha leaderboards, gaming)",
+        "use_case": "`Collections.sort` + `subList(0, n)` is the canonical 'get top N' implementation for small-to-medium datasets. Zerodha's daily trading leaderboard, game achievement rankings — this exact pattern. For large datasets, a priority queue or sorted data structure is used instead."
+      },
+      {
+        "company_context": "Test data generation",
+        "use_case": "`Collections.shuffle(list)` randomizes test data. `Collections.nCopies(n, element)` creates mock data. `Collections.fill(list, sentinel)` initializes lists. These utility methods are everywhere in test setup code."
+      }
+    ],
+    
+    "interview_relevance": "Collections utility questions appear at all levels:\n\n- **'How do you safely remove elements from a list while iterating?'** — Iterator.remove() or removeIf(). Know both.\n- **'How do you find the maximum element in a list?'** — Collections.max(list).\n- **'How do you shuffle a list?'** — Collections.shuffle(list).\n- **'How do you return a read-only view of a list?'** — Collections.unmodifiableList().\n- **'What's the difference between Collections.sort and list.sort?'** — Both in-place. list.sort() is Java 8+, more modern.\n- **'When would you use Iterator explicitly instead of for-each?'** — When you need to remove() during iteration.",
+    
+    "real_world_workflow": "Daily Collections utility usage:\n\n- `Collections.sort(list)` — the standard sort call you'll write daily\n- `Collections.unmodifiableList(list)` — defensive getter pattern in every well-designed class\n- `Collections.min/max` — quick extremes without sorting\n- `Collections.shuffle` — test randomization\n- `Collections.frequency` — count occurrences (alternative to building a freq HashMap for simple cases)\n- `Collections.disjoint` — quick check if two collections share nothing\n- Iterator — when removeIf isn't expressive enough"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "calling_remove_without_next",
+      "what_students_get_wrong": "Calling `it.remove()` at the start of a loop before calling `it.next()` — IllegalStateException.",
+      "remediation": "Must call `next()` before `remove()`. The pattern is always: `next()` to get the element, then `remove()` to remove it.",
+      "detection_pattern": "IllegalStateException: no current element"
+    },
+    {
+      "gap_id": "sorting_original_when_copy_needed",
+      "what_students_get_wrong": "Calling `Collections.sort(list)` when they want a sorted view but need the original unchanged.",
+      "remediation": "Collections.sort() modifies IN PLACE. To sort a copy: `List<T> copy = new ArrayList<>(list); Collections.sort(copy);`",
+      "detection_pattern": "Original list unexpectedly sorted after calling sort on it"
+    },
+    {
+      "gap_id": "unmodifiable_vs_immutable",
+      "what_students_get_wrong": "Thinking unmodifiableList is a snapshot — it's a view. Modifying the underlying list WILL change what the unmodifiable view shows.",
+      "remediation": "unmodifiableList is a read-only WINDOW onto the original. For a true snapshot, make a copy first: `Collections.unmodifiableList(new ArrayList<>(original))`",
+      "detection_pattern": "Unmodifiable list contents changing when underlying list is modified"
+    },
+    {
+      "gap_id": "collections_min_max_on_empty_list",
+      "what_students_get_wrong": "Calling Collections.min() or max() on an empty list — NoSuchElementException.",
+      "remediation": "Always check `list.isEmpty()` before calling min/max.",
+      "detection_pattern": "NoSuchElementException at runtime"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Iterator: explicit iteration with safe `remove()` — call `next()` before `remove()`",
+      "ListIterator: bidirectional, can `set()` and `add()` during iteration",
+      "removeIf(lambda) for simple removal; Iterator for complex removal with side effects",
+      "`entrySet()` iteration: most efficient for Map key+value access",
+      "Collections.sort(list): in-place sort — copy first if you need the original",
+      "Collections.reverse(list): reverse in-place",
+      "Collections.shuffle(list): randomize order",
+      "Collections.min(list), max(list): find extremes — uses Comparable or Comparator",
+      "Collections.frequency(list, element): count occurrences",
+      "Collections.disjoint(a, b): true if no common elements",
+      "Collections.unmodifiableList(list): read-only view — not a snapshot",
+      "List.of(...): truly immutable (Java 9+) — prefer for fixed data"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's wrong with this?\n```java\nIterator<String> it = list.iterator();\nit.remove();  // first line!\n```",
+        "answer": "IllegalStateException. You must call `it.next()` before `it.remove()`. The iterator doesn't have a 'current element' until next() has been called. Always: `String s = it.next(); it.remove();` — next first, then remove."
+      },
+      {
+        "question": "You have `List<String> original` and you want a sorted version without changing original. What's the correct code?",
+        "answer": "`List<String> sorted = new ArrayList<>(original); Collections.sort(sorted);` — copy first, then sort. If you call `Collections.sort(original)`, it modifies the original directly. Always copy before sort when the original matters."
+      },
+      {
+        "question": "What's the difference between `Collections.unmodifiableList(list)` and `List.of(elements...)`?",
+        "answer": "`Collections.unmodifiableList(list)` is a READ-ONLY VIEW of an existing list — the underlying list can still be modified by whoever has a reference to it, and those changes show through the view. `List.of(...)` creates a truly IMMUTABLE list — no modifications possible from any reference. For APIs where you want callers to have read-only access but still control the list internally, use unmodifiableList. For genuinely fixed data that never changes, use `List.of()`."
+      }
+    ],
+    
+    "next_topic_preview": "Next: **Choosing the Right Collection** — the Module 6 synthesis. After seeing List, Map, Set, and how to work with all three, Topic 6.5 gives you the complete decision framework: which collection to reach for given any problem. It's the reference card you'll use for your whole career. Then Module 6 wraps up and Module 7 begins."
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m37_t1",
+  "module_id": "m37",
+  "topic_number": 1,
+  "name": "Graph Representation \u2014 Adjacency List, BFS, DFS",
+  "slug": "graph-representation-bfs-dfs",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m35_t1",
+      "java_m34_t1"
+    ],
+    "concepts_taught": [
+      "graph-representation-bfs-dfs"
+    ],
+    "career_relevance": "Core Graph Representation \u2014 Adjacency List, BFS, DFS patterns.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Graph Representation \u2014 Adjacency List, BFS, DFS"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Adjacency list: List<List<Integer>> \u2014 O(V+E) space",
+        "BFS: shortest path unweighted; queue + visited",
+        "DFS: cycle detection, connected components, topological order",
+        "Directed vs undirected: undirected adds edge both ways",
+        "Weighted: List<List<int[]>> \u2014 each int[] is [neighbor, weight]",
+        "Matrix: int[n][n] \u2014 O(V\u00b2) space, use for dense graphs only",
+        "Union-Find: O(\u03b1(n)) amortized \u2014 best for connectivity queries"
+      ],
+      "next_topic_preview": "Next: Advanced graph algorithms."
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t2",
+  "module_id": "m32",
+  "topic_number": 2,
+  "name": "Two-Pointer Techniques on Linked Lists",
+  "slug": "two-pointer-linked-list-fast-slow",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m32_t1",
+      "java_m30_t1"
+    ],
+    "concepts_taught": [
+      "fast_slow_pointers",
+      "find_middle",
+      "nth_from_end",
+      "linked_list_cycle",
+      "intersection_two_lists",
+      "palindrome_linked_list"
+    ],
+    "skills_developed": [
+      "fast_slow_runner_pattern",
+      "detecting_cycle_in_linked_list",
+      "finding_middle_node",
+      "checking_palindrome_linked_list"
+    ],
+    "career_relevance": "Fast/slow pointer (Floyd's tortoise and hare) is the most elegant linked list pattern. 'Find the middle' and 'detect cycle' are asked in virtually every LinkedIn/Flipkart/Amazon linked list round. One pattern, many applications.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha: detect infinite loop in order processing pipeline\nOrder links: order A \u2192 order B \u2192 order C \u2192 order B (cycle!)\nProcessor will loop forever unless we detect the cycle\n\nNaive: HashSet of visited nodes \u2014 O(n) time, O(n) space\nFloyds: fast+slow pointers \u2014 O(n) time, O(1) space\nFast moves 2 steps, slow moves 1 step\nIf cycle exists: fast catches slow (like circular track)\nIf no cycle: fast reaches null\n```",
+    "what_you_will_build": "Fast/slow pointer solutions: middle node, nth from end, cycle detection, intersection."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "fast_slow": "**Fast/Slow runner pattern:**\n\n```java\n// Find MIDDLE of linked list:\nListNode slow = head, fast = head;\nwhile (fast != null && fast.next != null) {\n    slow = slow.next;       // 1 step\n    fast = fast.next.next;  // 2 steps\n}\n// When fast reaches end: slow is at middle\n// Odd length [1,2,3,4,5]: slow=3 (true middle)\n// Even length [1,2,3,4]: slow=3 (second middle)\n\n// Detect CYCLE:\nslow = head; fast = head;\nwhile (fast != null && fast.next != null) {\n    slow = slow.next; fast = fast.next.next;\n    if (slow == fast) return true; // cycle detected!\n}\nreturn false;\n// Why it works: in a cycle, fast gains 1 step per iteration\n// \u2192 will eventually lap slow and meet\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two diagrams. Left: Find middle of 1\u21922\u21923\u21924\u21925. Slow/fast both start at 1. Iteration 1: slow=2,fast=3. Iteration 2: slow=3,fast=5. fast.next=null \u2192 stop. Middle=slow=3. Right: Cycle detection on 1\u21922\u21923\u21924\u21925\u21923(cycle). Iteration 1: slow=2,fast=3. Iter 2: slow=3,fast=5. Iter 3: slow=4,fast=4. slow==fast: CYCLE!",
+      "alt_text": "Fast/slow pointer for middle detection and cycle detection"
+    },
+    "worked_example": {
+      "scenario": "Palindrome Linked List \u2014 check in O(n) O(1) space.",
+      "problem_statement": "Return true if linked list is palindrome. [1,2,2,1]\u2192true, [1,2]\u2192false.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Find middle + reverse second half",
+          "details": "(1) Find middle with slow/fast. (2) Reverse second half in-place. (3) Compare first and second halves. (4) Optionally restore list."
+        }
+      ],
+      "final_code": "// Find middle:\nListNode slow=head,fast=head;\nwhile(fast!=null&&fast.next!=null){slow=slow.next;fast=fast.next.next;}\n// Reverse second half:\nListNode prev=null,curr=slow;\nwhile(curr!=null){ListNode next=curr.next;curr.next=prev;prev=curr;curr=next;}\n// Compare:\nListNode left=head,right=prev;\nwhile(right!=null){if(left.val!=right.val) return false;left=left.next;right=right.next;}\nreturn true;",
+      "expected_output": "[1,2,2,1]\u2192true, [1,2]\u2192false",
+      "things_to_notice": [
+        "Find middle + reverse: O(n) time O(1) space \u2014 no extra array needed",
+        "Even length: slow stops at second middle \u2014 still works",
+        "This pattern (find middle, reverse half, compare) solves palindrome in optimal space",
+        "Restore: after comparison, reverse second half back \u2014 good practice in interviews"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay payment pipeline",
+          "use_case": "Detect circular reference in payment gateway routing (cycle = infinite retry loop). Floyd's O(1) space vs HashSet O(n)."
+        }
+      ],
+      "interview_relevance": "'Find middle', 'detect cycle', 'find cycle start', 'palindrome LL' \u2014 all fast/slow. Master one pattern, solve four problems.",
+      "real_world_workflow": "Fast/slow decision: (1) need middle? fast/slow. (2) detect cycle? fast/slow + meet check. (3) find cycle start? after meeting, reset slow to head, move both at speed 1. (4) palindrome? middle + reverse + compare."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "cycle_start_confusion",
+        "what_students_get_wrong": "Knowing how to detect a cycle but not how to find the cycle ENTRY point (where the cycle starts).",
+        "remediation": "After fast and slow meet: reset slow to head. Move BOTH at speed 1. They meet at the cycle entry. Proof: distance from head to entry = distance from meet point to entry (mod cycle length).",
+        "detection_pattern": "Student can detect cycle but returns meeting point instead of cycle start"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Fast=2 steps, slow=1 step \u2192 fast catches slow in O(n) if cycle",
+        "Find middle: stop when fast==null or fast.next==null",
+        "Cycle detection: fast==slow after start = cycle",
+        "Cycle start: after meeting, reset slow to head, both at speed 1, meet at start",
+        "Palindrome: find middle + reverse second half + compare",
+        "Nth from end: fast N steps ahead, both advance until fast==null"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why does resetting slow to head and advancing both at speed 1 find the cycle entry?",
+          "answer": "Let d = distance from head to cycle entry, c = cycle length, k = distance from cycle entry to meeting point. When slow enters cycle at step d, fast has lapped it and is at position (2d - d) mod c = d mod c within the cycle. The meeting occurs when fast catches slow: after (c-k) more steps from the entry. The key property: d \u2261 c - k (mod c), which means d and c-k are equivalent mod c. So resetting slow to head and advancing both at speed 1: slow travels d steps to reach the entry, fast travels d steps from the meeting point (which is c-k steps before the entry in the cycle direction) \u2014 they arrive at the entry simultaneously."
+        }
+      ],
+      "next_topic_preview": "Next: Linked List Reversal \u2014 full reverse, partial reverse (reverse between positions), reverse in k-groups."
+    }
+  }
+}

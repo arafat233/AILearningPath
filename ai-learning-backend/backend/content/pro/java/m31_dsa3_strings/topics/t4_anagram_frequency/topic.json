@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m31_t4",
+  "language": "java",
+  "module_id": "m31",
+  "topic_number": 4,
+  "name": "Anagram & Frequency Problems",
+  "slug": "anagram-frequency-problems",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m31_t1",
+      "java_m30_t2"
+    ],
+    "concepts_taught": [
+      "anagram_detection",
+      "frequency_array",
+      "group_anagrams",
+      "find_all_anagrams",
+      "ransom_note",
+      "minimum_window_anagram",
+      "character_frequency_tricks"
+    ],
+    "skills_developed": [
+      "frequency_array_over_hashmap",
+      "sliding_window_anagram",
+      "sorting_as_anagram_key"
+    ],
+    "career_relevance": "'Group anagrams' appears in the first technical phone screen at virtually every Indian tech company. Zerodha, Razorpay, CRED all ask frequency-based string problems in screening rounds.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha ticker normalization:\nAre 'ICICI' and 'ICICI' the same? Yes \u2014 trivial.\nAre 'silent' and 'listen' anagrams? Yes \u2014 same frequency!\n\nSorting approach: O(k log k) per string\nFrequency approach: O(k) per string + O(26) comparison\n\nFor 10M strings: frequency wins decisively\n```",
+    "what_you_will_build": "Anagram checker, group anagrams, find all anagrams in string (sliding window)."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "frequency_array": "**int[26] frequency array \u2014 fastest for lowercase alpha:**\n\n```java\n// Anagram check:\nbool isAnagram(String s, String t) {\n    if(s.length()!=t.length()) return false;\n    int[] freq = new int[26];\n    for(int i=0;i<s.length();i++) {\n        freq[s.charAt(i)-'a']++;\n        freq[t.charAt(i)-'a']--;\n    }\n    for(int f:freq) if(f!=0) return false;\n    return true; // O(n) time, O(1) space\n}\n\n// Group anagrams key:\n// Sort chars \u2192 canonical form: 'eat','tea','ate' all \u2192 'aet'\n// Or use frequency tuple: [1,0,0,...,1,0,...] (26 values)\n```",
+      "sliding_window_anagram": "**Find all anagrams \u2014 fixed window + int[26]:**\n\n```java\n// Fixed window of size p.length()\n// Compare int[26] arrays: O(26) = O(1) per slide\nint[] need=new int[26], have=new int[26];\nfor(char c:p.toCharArray()) need[c-'a']++;\nfor(int i=0;i<p.length();i++) have[s.charAt(i)-'a']++;\nif(Arrays.equals(need,have)) result.add(0);\nfor(int i=p.length();i<s.length();i++) {\n    have[s.charAt(i)-'a']++;\n    have[s.charAt(i-p.length())-'a']--;\n    if(Arrays.equals(need,have)) result.add(i-p.length()+1);\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Group anagrams diagram. Input: ['eat','tea','tan','ate','nat','bat']. Process: sort each word as key. 'eat'\u2192'aet', 'tea'\u2192'aet', 'tan'\u2192'ant', 'ate'\u2192'aet', 'nat'\u2192'ant', 'bat'\u2192'abt'. HashMap: 'aet'\u2192[eat,tea,ate], 'ant'\u2192[tan,nat], 'abt'\u2192[bat]. Output: [[eat,tea,ate],[tan,nat],[bat]]",
+      "alt_text": "Group anagrams using sorted key HashMap"
+    },
+    "worked_example": {
+      "scenario": "Find All Anagrams in a String (LeetCode #438).",
+      "problem_statement": "s='cbaebabacd', p='abc' \u2192 [0,6]",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Fixed window slide",
+          "details": "Window size = p.length()=3. Compare int[26] freq arrays. O(26)=O(1) comparison. Slide: add right char, remove leftmost char."
+        }
+      ],
+      "final_code": "See exercises \u2014 fixed window with int[26] comparison.",
+      "expected_output": "[0, 6]",
+      "things_to_notice": [
+        "int[26] comparison: O(26) = O(1) constant \u2014 much faster than HashMap",
+        "Arrays.equals() on int[26]: clean idiom for frequency comparison",
+        "Fixed window: add nums[i], remove nums[i-k] \u2014 same sliding window pattern as T30.2"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Razorpay",
+          "use_case": "Find duplicate merchant IDs that are anagrams of each other (possible fraud detection). Group anagrams O(n\u00d7k) where k=ID length."
+        }
+      ],
+      "interview_relevance": "Anagram patterns: (1) check \u2192 int[26] freq array O(n), (2) group \u2192 sort as key O(n\u00d7k log k) or freq as key O(n\u00d7k), (3) find all in string \u2192 fixed sliding window O(n).",
+      "real_world_workflow": "Default to int[26] for lowercase alpha (O(1) space and comparison). Use HashMap<Character,Integer> for arbitrary character sets (Unicode). Sorted key for grouping when O(k log k) is acceptable."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "hashmap_when_array_sufficient",
+        "what_students_get_wrong": "Using HashMap<Character,Integer> when int[26] would work (lowercase alpha only). HashMap: O(1) average but with hash overhead. int[26]: O(1) constant, O(1) space comparison with Arrays.equals().",
+        "remediation": "Rule: lowercase 'a'-'z' \u2192 int[26]. Uppercase+lowercase \u2192 int[128]. Any Unicode \u2192 HashMap. int arrays are always faster for fixed-size character sets.",
+        "detection_pattern": "Student uses HashMap for lowercase-only anagram problem \u2014 correct but suboptimal"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "int[26]: O(1) space and O(1) comparison for lowercase alpha",
+        "Group anagrams: sort key O(k log k) or freq array key O(k)",
+        "Find all anagrams: fixed window + int[26] comparison O(n)",
+        "int[26] comparison: always char-'a' for lowercase",
+        "Never HashMap when int[26] works \u2014 faster, simpler, O(1) space"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why use int[26] instead of HashMap<Character,Integer> for anagram problems?",
+          "answer": "Three reasons: (1) Speed \u2014 int[] array access is direct memory offset O(1) with no hashing overhead; (2) Space \u2014 int[26] is exactly 26 integers = 104 bytes, constant regardless of input; (3) Comparison \u2014 Arrays.equals(freq1, freq2) is O(26) = O(1) constant time. HashMap comparison requires O(k) where k is the number of unique characters. For lowercase alpha problems, int[26] is always the right choice."
+        }
+      ],
+      "next_topic_preview": "Next: String DP \u2014 Longest Common Subsequence, Edit Distance, and Longest Palindromic Subsequence."
+    }
+  }
+}

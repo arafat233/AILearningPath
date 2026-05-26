@@ -1,0 +1,350 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m7_t2",
+  "topic_name": "Exception Types — Checked vs Unchecked",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m7_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Identify checked vs unchecked",
+      "scenario": "Classify exceptions from the hierarchy.",
+      "instructions": "For each exception, write C (checked) or U (unchecked):\n\n1. `IOException`\n2. `NullPointerException`\n3. `SQLException`\n4. `NumberFormatException`\n5. `FileNotFoundException`\n6. `IllegalArgumentException`",
+      "expected_solution": "1. C\n2. U\n3. C\n4. U\n5. C\n6. U",
+      "test_cases": [
+        { "type": "text_match", "expected": "1. C\n2. U\n3. C\n4. U\n5. C\n6. U" }
+      ],
+      "hints": [
+        "Extends RuntimeException → Unchecked",
+        "Extends Exception (not via RuntimeException) → Checked",
+        "FileNotFoundException extends IOException"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "throws keyword syntax",
+      "scenario": "Declare a checked exception in method signature.",
+      "instructions": "Fill in the blank to correctly declare that this method can throw IOException.",
+      "starter_code": "import java.io.*;\n\npublic class App {\n    public static void readFile(String path) ______ IOException {\n        new FileReader(path);  // throws checked IOException\n    }\n    \n    public static void main(String[] args) {\n        try {\n            readFile(\"test.txt\");\n        } catch (IOException e) {\n            System.out.println(\"handled\");\n        }\n    }\n}",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    public static void readFile(String path) throws IOException {\n        new FileReader(path);\n    }\n    \n    public static void main(String[] args) {\n        try {\n            readFile(\"test.txt\");\n        } catch (IOException e) {\n            System.out.println(\"handled\");\n        }\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "throws", "hint": "Keyword to declare checked exception in method signature" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "handled", "must_compile": true }
+      ],
+      "hints": [
+        "`throws` (not `throw`) in the method signature",
+        "Position: after parameter list, before opening brace"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m7_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Simulate and handle IOException",
+      "scenario": "Work with a method that throws a checked exception.",
+      "instructions": "Write a method `openFile(String name)` that throws IOException when name starts with 'bad'. In main, handle the IOException.\n\nExpected output:\nbad-data.csv not found\ngood-data.csv opened",
+      "starter_code": "import java.io.*;\n\n// openFile throws IOException for 'bad' files; catch in main\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    static void openFile(String name) throws IOException {\n        if (name.startsWith(\"bad\")) {\n            throw new IOException(name + \" not found\");\n        }\n        System.out.println(name + \" opened\");\n    }\n    \n    public static void main(String[] args) {\n        String[] files = {\"bad-data.csv\", \"good-data.csv\"};\n        for (String f : files) {\n            try {\n                openFile(f);\n            } catch (IOException e) {\n                System.out.println(e.getMessage());\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "bad-data.csv not found\ngood-data.csv opened" }
+      ],
+      "hints": [
+        "Method signature: static void openFile(String name) throws IOException",
+        "throw new IOException(message) inside method",
+        "try-catch IOException in caller"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m7_t2_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix missing throws declaration",
+      "scenario": "Checked exception not declared — compile error.",
+      "instructions": "This code won't compile. Fix it by adding the correct throws declaration. Don't add a try-catch — propagate the exception.\n\nExpected: compile and run successfully.",
+      "starter_code": "import java.io.*;\n\npublic class Broken {\n    // Fix this method signature:\n    static String readFirstLine(String filename) {\n        BufferedReader br = new BufferedReader(new FileReader(filename));\n        return br.readLine();\n    }\n    \n    public static void main(String[] args) {\n        try {\n            System.out.println(readFirstLine(\"data.txt\"));\n        } catch (IOException e) {\n            System.out.println(\"caught: \" + e.getMessage());\n        }\n    }\n}",
+      "expected_solution": "import java.io.*;\n\npublic class Broken {\n    static String readFirstLine(String filename) throws IOException {\n        BufferedReader br = new BufferedReader(new FileReader(filename));\n        return br.readLine();\n    }\n    \n    public static void main(String[] args) {\n        try {\n            System.out.println(readFirstLine(\"data.txt\"));\n        } catch (IOException e) {\n            System.out.println(\"caught: \" + e.getMessage());\n        }\n    }\n}",
+      "bugs": [
+        { "issue": "readFirstLine calls FileReader and readLine() — both throw checked IOException. Method must declare throws IOException.", "fix": "Add `throws IOException` to the method signature" }
+      ],
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "caught:", "must_compile": true }
+      ],
+      "hints": [
+        "FileReader() throws FileNotFoundException (extends IOException)",
+        "readLine() throws IOException",
+        "Solution: add `throws IOException` after the parameter list"
+      ],
+      "xp_reward": 30,
+      "concept_tested": "throws_declaration"
+    },
+
+    {
+      "id": "java_m7_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Propagate vs catch — two versions",
+      "scenario": "Same operation implemented both ways: catch and declare throws.",
+      "instructions": "Implement `loadConfig` TWO ways:\n1. `loadConfigCatch(String name)` — catches IOException, returns default message\n2. `loadConfigThrows(String name)` — declares throws IOException, propagates\n\nShow both called from main — one handles inline, one needs try-catch in main.\n\nExpected output:\nVersion 1: Config load failed, using defaults\nVersion 2: caught in main: missing.cfg unavailable",
+      "starter_code": "import java.io.*;\n\n// Two versions: catch internally vs declare throws\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    // Version 1: handles internally\n    static String loadConfigCatch(String name) {\n        try {\n            if (name.startsWith(\"missing\")) throw new IOException(name + \" unavailable\");\n            return \"Config loaded: \" + name;\n        } catch (IOException e) {\n            return \"Config load failed, using defaults\";\n        }\n    }\n    \n    // Version 2: propagates to caller\n    static String loadConfigThrows(String name) throws IOException {\n        if (name.startsWith(\"missing\")) throw new IOException(name + \" unavailable\");\n        return \"Config loaded: \" + name;\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(\"Version 1: \" + loadConfigCatch(\"missing.cfg\"));\n        \n        try {\n            System.out.println(\"Version 2: \" + loadConfigThrows(\"missing.cfg\"));\n        } catch (IOException e) {\n            System.out.println(\"Version 2: caught in main: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Version 1: Config load failed, using defaults\nVersion 2: caught in main: missing.cfg unavailable" }
+      ],
+      "hints": [
+        "Version 1: no throws keyword, catch inside",
+        "Version 2: throws IOException in signature, no catch",
+        "main needs try-catch for version 2"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m7_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Throw IllegalArgumentException (unchecked)",
+      "scenario": "Throw unchecked exception for invalid input — no throws declaration needed.",
+      "instructions": "Write `createUser(String name, int age)` that throws IllegalArgumentException (unchecked) if:\n- name is null or blank: 'Name cannot be blank'\n- age < 0 or > 150: 'Invalid age: [age]'\n\nNote: no throws declaration needed (it's unchecked).\n\nExpected output:\nUser: Aisha, 28\nIllegalArgumentException: Name cannot be blank\nIllegalArgumentException: Invalid age: 200",
+      "starter_code": "// createUser validates and throws unchecked IllegalArgumentException\n",
+      "expected_solution": "public class App {\n    static String createUser(String name, int age) {\n        if (name == null || name.isBlank()) {\n            throw new IllegalArgumentException(\"Name cannot be blank\");\n        }\n        if (age < 0 || age > 150) {\n            throw new IllegalArgumentException(\"Invalid age: \" + age);\n        }\n        return \"User: \" + name + \", \" + age;\n    }\n    \n    public static void main(String[] args) {\n        System.out.println(createUser(\"Aisha\", 28));\n        \n        try {\n            createUser(\"\", 25);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"IllegalArgumentException: \" + e.getMessage());\n        }\n        \n        try {\n            createUser(\"Raj\", 200);\n        } catch (IllegalArgumentException e) {\n            System.out.println(\"IllegalArgumentException: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "User: Aisha, 28\nIllegalArgumentException: Name cannot be blank\nIllegalArgumentException: Invalid age: 200" }
+      ],
+      "hints": [
+        "No throws declaration needed — IllegalArgumentException is unchecked",
+        "throw new IllegalArgumentException(message) inside method",
+        "Callers can optionally catch (no compiler requirement)"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m7_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Multiple throws declarations",
+      "scenario": "Method can throw multiple checked exceptions.",
+      "instructions": "Write `processPayment(String amountStr, String filePath)` that:\n- Parses amount (throws NumberFormatException — unchecked, no declaration needed)\n- Simulates logging to file (throws IOException — checked, MUST declare)\n- Both errors should propagate to caller\n\nExpected output:\n₹5000.0 logged to payments.log\nNumberFormatException caught: For input string: \"abc\"\nIOException caught: payments-bad.log write failed",
+      "starter_code": "import java.io.*;\n\n// processPayment throws both IOException (checked)\n// NumberFormatException is unchecked — no declaration needed\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    // Only needs to declare checked IOException\n    static void processPayment(String amountStr, String filePath) throws IOException {\n        double amount = Double.parseDouble(amountStr);  // NumberFormatException — unchecked\n        // Simulate file write\n        if (filePath.contains(\"bad\")) throw new IOException(filePath + \" write failed\");\n        System.out.println(\"₹\" + amount + \" logged to \" + filePath);\n    }\n    \n    public static void main(String[] args) {\n        // Success case\n        try {\n            processPayment(\"5000\", \"payments.log\");\n        } catch (IOException e) {\n            System.out.println(\"IOException caught: \" + e.getMessage());\n        }\n        \n        // NumberFormatException (unchecked — can catch or not)\n        try {\n            processPayment(\"abc\", \"payments.log\");\n        } catch (NumberFormatException e) {\n            System.out.println(\"NumberFormatException caught: \" + e.getMessage());\n        } catch (IOException e) {\n            System.out.println(\"IOException caught: \" + e.getMessage());\n        }\n        \n        // IOException\n        try {\n            processPayment(\"1000\", \"payments-bad.log\");\n        } catch (NumberFormatException e) {\n            System.out.println(\"NumberFormatException caught: \" + e.getMessage());\n        } catch (IOException e) {\n            System.out.println(\"IOException caught: \" + e.getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "₹5000.0 logged to payments.log\nNumberFormatException caught: For input string: \"abc\"\nIOException caught: payments-bad.log write failed" }
+      ],
+      "hints": [
+        "Only IOException needs to be declared in throws — NFE is unchecked",
+        "Caller catches NFE first (more specific), then IOException (broader)",
+        "NFE from Double.parseDouble occurs before the file write"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m7_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Wrap checked in unchecked — Spring pattern",
+      "scenario": "Convert infrastructure exception to domain exception.",
+      "instructions": "Implement the Spring-style exception wrapping pattern:\n1. `DataRepository.findUser(int id)` throws checked `SQLException` when id < 0\n2. `UserService.getUser(int id)` catches SQLException and rethrows as unchecked `DataAccessException`\n3. `UserService.getUser()` can be called without try-catch\n\nExpected output:\nUser found: Aisha\nDataAccessException: Database error for id=-1 — caused by: negative id",
+      "starter_code": "// Simulate Spring's checked→unchecked exception wrapping\n",
+      "expected_solution": "class SQLException extends Exception {\n    public SQLException(String msg) { super(msg); }\n}\n\nclass DataAccessException extends RuntimeException {\n    public DataAccessException(String msg, Throwable cause) { super(msg, cause); }\n}\n\nclass DataRepository {\n    static String findUser(int id) throws SQLException {\n        if (id < 0) throw new SQLException(\"negative id\");\n        return id == 1 ? \"Aisha\" : \"Unknown\";\n    }\n}\n\nclass UserService {\n    // No throws — wraps checked in unchecked\n    static String getUser(int id) {\n        try {\n            return \"User found: \" + DataRepository.findUser(id);\n        } catch (SQLException e) {\n            throw new DataAccessException(\"Database error for id=\" + id, e);\n        }\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(UserService.getUser(1));\n        \n        try {\n            System.out.println(UserService.getUser(-1));\n        } catch (DataAccessException e) {\n            System.out.println(\"DataAccessException: \" + e.getMessage() +\n                \" — caused by: \" + e.getCause().getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "User found: Aisha\nDataAccessException: Database error for id=-1 — caused by: negative id" }
+      ],
+      "hints": [
+        "DataAccessException extends RuntimeException — unchecked",
+        "UserService catches SQLException (checked), rethrows as DataAccessException (unchecked)",
+        "No throws declaration needed on getUser()",
+        "e.getCause() retrieves the original SQLException"
+      ],
+      "xp_reward": 60,
+      "concept_tested": "checked_to_unchecked_wrap"
+    },
+
+    {
+      "id": "java_m7_t2_ex_9",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Throws propagates up the call chain",
+      "scenario": "Throws declaration must propagate or be caught at each level.",
+      "instructions": "What does this print? Trace where the IOException is caught.\n\n```java\nimport java.io.*;\n\npublic class App {\n    static void level3() throws IOException {\n        throw new IOException(\"deep failure\");\n    }\n    \n    static void level2() throws IOException {\n        level3();  // propagates\n    }\n    \n    static void level1() {\n        try {\n            level2();\n        } catch (IOException e) {\n            System.out.println(\"Caught at level1: \" + e.getMessage());\n        }\n    }\n    \n    public static void main(String[] args) {\n        level1();\n        System.out.println(\"After level1\");\n    }\n}\n```",
+      "expected_solution": "Caught at level1: deep failure\nAfter level1",
+      "test_cases": [
+        { "type": "text_match", "expected": "Caught at level1: deep failure\nAfter level1" }
+      ],
+      "hints": [
+        "level3 throws IOException",
+        "level2 declares throws IOException — passes responsibility up",
+        "level1 catches IOException — caught here",
+        "main sees normal execution after level1 returns"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m7_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Three-layer exception architecture",
+      "scenario": "Real-world layered exception handling.",
+      "instructions": "Implement three classes:\n- `Repository.fetch(String id)` — throws checked `DataException` when id='MISSING'\n- `Service.process(String id)` — wraps DataException in unchecked `ServiceException`\n- `Controller.handleRequest(String id)` — catches ServiceException, returns user message\n\nExpected output:\nResult: Data for ID-001\nError: Data unavailable — please retry",
+      "starter_code": "// Three-layer exception architecture\n",
+      "expected_solution": "class DataException extends Exception {\n    DataException(String msg) { super(msg); }\n}\n\nclass ServiceException extends RuntimeException {\n    ServiceException(String msg, Throwable cause) { super(msg, cause); }\n}\n\nclass Repository {\n    static String fetch(String id) throws DataException {\n        if (\"MISSING\".equals(id)) throw new DataException(\"No data for: \" + id);\n        return \"Data for \" + id;\n    }\n}\n\nclass Service {\n    static String process(String id) {\n        try {\n            return Repository.fetch(id);\n        } catch (DataException e) {\n            throw new ServiceException(\"Service failed\", e);\n        }\n    }\n}\n\nclass Controller {\n    static String handleRequest(String id) {\n        try {\n            return \"Result: \" + Service.process(id);\n        } catch (ServiceException e) {\n            return \"Error: Data unavailable — please retry\";\n        }\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(Controller.handleRequest(\"ID-001\"));\n        System.out.println(Controller.handleRequest(\"MISSING\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Result: Data for ID-001\nError: Data unavailable — please retry" }
+      ],
+      "hints": [
+        "DataException extends Exception — checked, needs throws or catch",
+        "ServiceException extends RuntimeException — unchecked",
+        "Service translates DataException (infrastructure) to ServiceException (domain)",
+        "Controller is the final boundary — handles ServiceException for the user"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m7_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Exception hierarchy instanceof check",
+      "scenario": "Use hierarchy to catch parent and identify child.",
+      "instructions": "Catch IOException in one block and identify whether it's a FileNotFoundException (subtype) or a general IOException. Use instanceof.\n\nExpected output:\nFileNotFoundException: missing.txt (No such file or directory)\nGeneral IOException: network error",
+      "starter_code": "import java.io.*;\n\n// Catch IOException, identify whether it's FileNotFoundException using instanceof\n",
+      "expected_solution": "import java.io.*;\n\npublic class App {\n    static void process(String source) throws IOException {\n        if (source.equals(\"missing.txt\")) {\n            throw new FileNotFoundException(source + \" (No such file or directory)\");\n        } else if (source.equals(\"network\")) {\n            throw new IOException(\"network error\");\n        }\n    }\n    \n    public static void main(String[] args) {\n        String[] sources = {\"missing.txt\", \"network\"};\n        for (String s : sources) {\n            try {\n                process(s);\n            } catch (IOException e) {\n                if (e instanceof FileNotFoundException fnfe) {\n                    System.out.println(\"FileNotFoundException: \" + fnfe.getMessage());\n                } else {\n                    System.out.println(\"General IOException: \" + e.getMessage());\n                }\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "FileNotFoundException: missing.txt (No such file or directory)\nGeneral IOException: network error" }
+      ],
+      "hints": [
+        "FileNotFoundException extends IOException — one catch block catches both",
+        "Use instanceof to distinguish at runtime",
+        "Pattern matching: if (e instanceof FileNotFoundException fnfe)"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m7_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Checked exception in multi-step pipeline",
+      "scenario": "Multiple checked exceptions in a data processing pipeline.",
+      "instructions": "Simulate an import pipeline: validate → parse → save. Each step can fail with a checked ProcessingException.\n\n```java\nclass ProcessingException extends Exception { ... }\n```\n\nRun three records through: one succeeds, one fails validation, one fails parsing.\n\nExpected output:\nRecord 1: imported\nRecord 2: FAILED — validation: Name required\nRecord 3: FAILED — parsing: Invalid date format",
+      "starter_code": "// Import pipeline with checked ProcessingException per step\n",
+      "expected_solution": "class ProcessingException extends Exception {\n    ProcessingException(String step, String msg) {\n        super(step + \": \" + msg);\n    }\n}\n\nclass Importer {\n    static void validate(String record) throws ProcessingException {\n        if (record.startsWith(\"NONAME\")) throw new ProcessingException(\"validation\", \"Name required\");\n    }\n    \n    static void parse(String record) throws ProcessingException {\n        if (record.contains(\"BADDATE\")) throw new ProcessingException(\"parsing\", \"Invalid date format\");\n    }\n    \n    static void save(String record) throws ProcessingException {\n        // Simulate save — no failures here\n    }\n    \n    static String importRecord(String record) throws ProcessingException {\n        validate(record);\n        parse(record);\n        save(record);\n        return \"imported\";\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        String[] records = {\"Aisha,2024-01-15,₹5000\", \"NONAME,2024-01-16,₹3000\", \"Raj,BADDATE,₹2000\"};\n        \n        for (int i = 0; i < records.length; i++) {\n            try {\n                String result = Importer.importRecord(records[i]);\n                System.out.println(\"Record \" + (i + 1) + \": \" + result);\n            } catch (ProcessingException e) {\n                System.out.println(\"Record \" + (i + 1) + \": FAILED — \" + e.getMessage());\n            }\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Record 1: imported\nRecord 2: FAILED — validation: Name required\nRecord 3: FAILED — parsing: Invalid date format" }
+      ],
+      "hints": [
+        "ProcessingException extends Exception — checked",
+        "importRecord declares throws ProcessingException",
+        "Caller catches it for each record individually — other records continue"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m7_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Library API with correct checked/unchecked design",
+      "scenario": "Design exceptions appropriately for a public API.",
+      "instructions": "Design a `BookLibrary` class with proper exception design:\n- `addBook(Book)` — throws unchecked `IllegalArgumentException` if book is null or duplicate ISBN\n- `checkout(String isbn, String patron)` — throws checked `BookUnavailableException` if book doesn't exist or already checked out\n- `getBook(String isbn)` — throws unchecked `IllegalArgumentException` if isbn is null\n\nExpected output:\nAdded: Clean Code (ISBN-001)\nIllegalArgumentException: Book cannot be null\nChecked out: Clean Code to Aisha\nBookUnavailableException: ISBN-001 is already checked out\nFound: Clean Code",
+      "starter_code": "import java.util.*;\n\n// BookLibrary with correct checked/unchecked exception design\n",
+      "expected_solution": "import java.util.*;\n\nclass BookUnavailableException extends Exception {\n    BookUnavailableException(String msg) { super(msg); }\n}\n\nclass Book {\n    String isbn, title;\n    boolean checkedOut;\n    Book(String isbn, String title) { this.isbn = isbn; this.title = title; }\n}\n\nclass BookLibrary {\n    private Map<String, Book> books = new HashMap<>();\n    \n    public void addBook(Book book) {\n        if (book == null) throw new IllegalArgumentException(\"Book cannot be null\");\n        if (books.containsKey(book.isbn)) throw new IllegalArgumentException(\"Duplicate ISBN: \" + book.isbn);\n        books.put(book.isbn, book);\n        System.out.println(\"Added: \" + book.title + \" (\" + book.isbn + \")\");\n    }\n    \n    public void checkout(String isbn, String patron) throws BookUnavailableException {\n        Book b = books.get(isbn);\n        if (b == null)          throw new BookUnavailableException(isbn + \" not found\");\n        if (b.checkedOut)       throw new BookUnavailableException(isbn + \" is already checked out\");\n        b.checkedOut = true;\n        System.out.println(\"Checked out: \" + b.title + \" to \" + patron);\n    }\n    \n    public Book getBook(String isbn) {\n        if (isbn == null) throw new IllegalArgumentException(\"ISBN cannot be null\");\n        return books.get(isbn);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        BookLibrary lib = new BookLibrary();\n        lib.addBook(new Book(\"ISBN-001\", \"Clean Code\"));\n        \n        try { lib.addBook(null); }\n        catch (IllegalArgumentException e) { System.out.println(\"IllegalArgumentException: \" + e.getMessage()); }\n        \n        try {\n            lib.checkout(\"ISBN-001\", \"Aisha\");\n            lib.checkout(\"ISBN-001\", \"Raj\");  // already checked out\n        } catch (BookUnavailableException e) {\n            System.out.println(\"BookUnavailableException: \" + e.getMessage());\n        }\n        \n        Book found = lib.getBook(\"ISBN-001\");\n        System.out.println(\"Found: \" + (found != null ? found.title : \"null\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Added: Clean Code (ISBN-001)\nIllegalArgumentException: Book cannot be null\nChecked out: Clean Code to Aisha\nBookUnavailableException: ISBN-001 is already checked out\nFound: Clean Code" }
+      ],
+      "hints": [
+        "IllegalArgumentException is unchecked — no throws declaration",
+        "BookUnavailableException extends Exception — checked, needs throws on checkout()",
+        "checkout throws BookUnavailableException — 'book might not be available' is an EXPECTED outcome in a library system"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m7_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Simulate JDBC-style checked exception flow",
+      "scenario": "Real JDBC pattern — checked SQL exceptions through layers.",
+      "instructions": "Simulate a JDBC-style data access:\n- `QueryRunner.execute(String sql)` throws checked `QueryException` for bad SQL\n- `UserDAO.findByName(String name)` uses QueryRunner, wraps QueryException in unchecked `DAOException`\n- `UserService.lookupUser(String name)` calls UserDAO — no try-catch needed\n\nTest finding existing and missing users.\n\nExpected output:\nFound: User[Aisha,aisha@x.com]\nDAOException: DAO failed for query: name='BADUSER' — Simulated: record not found",
+      "starter_code": "// JDBC-style layered exception: QueryException → DAOException wrapping\n",
+      "expected_solution": "class QueryException extends Exception {\n    QueryException(String msg) { super(msg); }\n}\n\nclass DAOException extends RuntimeException {\n    DAOException(String msg, Throwable cause) { super(msg, cause); }\n}\n\nclass QueryRunner {\n    static String execute(String sql) throws QueryException {\n        if (sql.contains(\"BADUSER\")) throw new QueryException(\"Simulated: record not found\");\n        if (sql.contains(\"Aisha\"))  return \"User[Aisha,aisha@x.com]\";\n        return null;\n    }\n}\n\nclass UserDAO {\n    static String findByName(String name) {\n        String sql = \"SELECT * FROM users WHERE name='\" + name + \"'\";\n        try {\n            return QueryRunner.execute(sql);\n        } catch (QueryException e) {\n            throw new DAOException(\"DAO failed for query: name='\" + name + \"'\", e);\n        }\n    }\n}\n\nclass UserService {\n    // No try-catch needed — DAOException is unchecked\n    static String lookupUser(String name) {\n        String result = UserDAO.findByName(name);\n        return result != null ? \"Found: \" + result : \"Not found: \" + name;\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        System.out.println(UserService.lookupUser(\"Aisha\"));\n        \n        try {\n            System.out.println(UserService.lookupUser(\"BADUSER\"));\n        } catch (DAOException e) {\n            System.out.println(\"DAOException: \" + e.getMessage() + \" — \" + e.getCause().getMessage());\n        }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Found: User[Aisha,aisha@x.com]\nDAOException: DAO failed for query: name='BADUSER' — Simulated: record not found" }
+      ],
+      "hints": [
+        "QueryException is checked (extends Exception)",
+        "DAOException is unchecked (extends RuntimeException)",
+        "UserDAO wraps QueryException in DAOException",
+        "UserService has no try-catch — DAOException propagates naturally"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m7_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Design full exception hierarchy for a payment system",
+      "scenario": "Complete exception design for a real-world domain.",
+      "instructions": "Design a payment exception hierarchy:\n\n```\nPaymentException (checked — extends Exception)\n├── InsufficientFundsException (checked — has: accountId, available, attempted)\n└── InvalidPaymentException (unchecked — extends RuntimeException)\n    ├── InvalidAmountException  (zero or negative amount)\n    └── InvalidAccountException (unknown account)\n```\n\nImplement `PaymentProcessor.transfer(from, to, amount)` that throws appropriate exceptions. Process 4 transfers demonstrating each exception type.\n\nExpected output:\nTransferred ₹1000.0: A001→A002\nInvalidAmountException: Amount must be positive, got: -500.0\nInvalidAccountException: Account not found: A999\nInsufficientFundsException: A001 has ₹4000.0, needed ₹5000.0",
+      "starter_code": "import java.util.*;\n\n// Full payment exception hierarchy and processor\n",
+      "expected_solution": "import java.util.*;\n\nclass PaymentException extends Exception {\n    PaymentException(String msg) { super(msg); }\n}\n\nclass InsufficientFundsException extends PaymentException {\n    final String accountId;\n    final double available, attempted;\n    InsufficientFundsException(String accountId, double available, double attempted) {\n        super(accountId + \" has ₹\" + available + \", needed ₹\" + attempted);\n        this.accountId = accountId; this.available = available; this.attempted = attempted;\n    }\n}\n\nclass InvalidPaymentException extends RuntimeException {\n    InvalidPaymentException(String msg) { super(msg); }\n}\n\nclass InvalidAmountException extends InvalidPaymentException {\n    InvalidAmountException(double amount) {\n        super(\"Amount must be positive, got: \" + amount);\n    }\n}\n\nclass InvalidAccountException extends InvalidPaymentException {\n    InvalidAccountException(String id) { super(\"Account not found: \" + id); }\n}\n\nclass PaymentProcessor {\n    private Map<String, Double> accounts = new HashMap<>();\n    \n    PaymentProcessor() {\n        accounts.put(\"A001\", 5000.0);\n        accounts.put(\"A002\", 2000.0);\n    }\n    \n    void transfer(String from, String to, double amount) throws PaymentException {\n        if (amount <= 0) throw new InvalidAmountException(amount);\n        if (!accounts.containsKey(from)) throw new InvalidAccountException(from);\n        if (!accounts.containsKey(to))   throw new InvalidAccountException(to);\n        \n        double balance = accounts.get(from);\n        if (balance < amount) throw new InsufficientFundsException(from, balance, amount);\n        \n        accounts.put(from, balance - amount);\n        accounts.put(to, accounts.get(to) + amount);\n        System.out.println(\"Transferred ₹\" + amount + \": \" + from + \"→\" + to);\n    }\n}\n\npublic class App {\n    public static void main(String[] args) {\n        PaymentProcessor pp = new PaymentProcessor();\n        \n        // Success\n        try { pp.transfer(\"A001\", \"A002\", 1000); } \n        catch (PaymentException e) { System.out.println(e.getClass().getSimpleName() + \": \" + e.getMessage()); }\n        \n        // Invalid amount\n        try { pp.transfer(\"A001\", \"A002\", -500); }\n        catch (InvalidAmountException e) { System.out.println(\"InvalidAmountException: \" + e.getMessage()); }\n        \n        // Invalid account\n        try { pp.transfer(\"A999\", \"A002\", 100); }\n        catch (InvalidAccountException e) { System.out.println(\"InvalidAccountException: \" + e.getMessage()); }\n        \n        // Insufficient funds\n        try { pp.transfer(\"A001\", \"A002\", 5000); }  // A001 has 4000 now\n        catch (InsufficientFundsException e) { System.out.println(\"InsufficientFundsException: \" + e.getMessage()); }\n        catch (PaymentException e) { System.out.println(e.getMessage()); }\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Transferred ₹1000.0: A001→A002\nInvalidAmountException: Amount must be positive, got: -500.0\nInvalidAccountException: Account not found: A999\nInsufficientFundsException: A001 has ₹4000.0, needed ₹5000.0" }
+      ],
+      "hints": [
+        "PaymentException is checked — transfer declares `throws PaymentException`",
+        "InvalidPaymentException is unchecked — doesn't need throws",
+        "After first transfer: A001 has 4000 (started 5000, sent 1000)",
+        "Catch specific types first (InsufficientFundsException before PaymentException)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 12,
+      "debug": 1,
+      "predict_output": 1
+    },
+    "total_xp_possible": 745,
+    "estimated_completion_minutes": 65
+  }
+}

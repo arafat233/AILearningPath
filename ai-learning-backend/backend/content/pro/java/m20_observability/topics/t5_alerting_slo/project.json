@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m20_t5_proj",
+  "linked_topic": "java_m20_t5",
+  "level": "mini",
+  "name": "Razorpay SRE — SLO Monitoring & Alerting Strategy",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+  "scenario": "Razorpay wants to implement SLO-based reliability engineering. Build an error budget tracker, define burn rate alerts, write runbooks, and configure alertmanager routing so the on-call team gets actionable, well-routed alerts.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "SLOConfig: define SLO=99.9%, error budget=0.1%, error budget in minutes=43.2. As constants.", "weight": 5 },
+      { "id": "req_2", "description": "ErrorBudgetTracker @Service: Counter for success/failure, Gauge for budget.remaining.percent and budget.consumed.minutes. Methods: record(), budgetRemaining(), shouldFreezeDeployments().", "weight": 20 },
+      { "id": "req_3", "description": "HeartbeatService @Service: @Scheduled(30s) heartbeat counter. prometheus alert rule: absent() for 3 minutes.", "weight": 10 },
+      { "id": "req_4", "description": "prometheus/rules.yml: 4 rules — PaymentErrorHigh (1%), PaymentP99High (500ms), PaymentFastBurn (14.4×), PaymentServiceDown (absent). All have for: duration and runbook_url.", "weight": 20 },
+      { "id": "req_5", "description": "@SpringBootTest (4 tests): full budget healthy, exhausted budget freezes deploys, heartbeat increments, error budget gauge registers. All 4 pass.", "weight": 35 },
+      { "id": "req_6", "description": "README: explains SLI/SLO/SLA distinction + what each alert rule does.", "weight": 10 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "alertmanager.yml: routing (critical→PagerDuty, warning→Slack) + inhibition (ServiceDown suppresses ErrorHigh + P99High).", "weight": 20 },
+      { "id": "bonus_2", "description": "SlowBurnAlert: 6× burn rate on 6h+30m windows. Separate @SpringBootTest test verifying slow burn detection.", "weight": 20 },
+      { "id": "bonus_3", "description": "ErrorBudgetDashboard: runbook as a Java constant (multiline string), all 5 anti-patterns documented with fixes.", "weight": 15 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. Error budget = 1 - SLO (0.001 for 99.9% SLO). budgetRemaining% = (1 - currentErrorRate/errorBudget) × 100. Fast burn multiplier 14.4 means: at this rate, the full 30-day budget is exhausted in 30/14.4 ≈ 2 days. absent() fires when the metric has NO data points — the service stopped sending metrics. for: 5m in alert rules means the condition must be true continuously for 5 minutes before the alert fires — prevents alerting on momentary spikes.",
+  "rubric": [
+    { "category": "SLOConfig constants", "points": 5 },
+    { "category": "ErrorBudgetTracker", "points": 20 },
+    { "category": "HeartbeatService + alert rule", "points": 10 },
+    { "category": "prometheus/rules.yml (4 rules)", "points": 20 },
+    { "category": "@SpringBootTest (4 tests)", "points": 35 },
+    { "category": "README", "points": 10 },
+    { "category": "Bonus", "points": 55 }
+  ]
+}

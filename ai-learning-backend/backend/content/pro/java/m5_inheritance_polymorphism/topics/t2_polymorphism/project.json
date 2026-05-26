@@ -1,0 +1,114 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m5_t2_proj",
+  "linked_topic": "java_m5_t2",
+  "level": "mini",
+  "name": "Content Delivery System",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+  
+  "scenario": "You're building the content delivery backend for an OTT platform (think Hotstar, Netflix India, Amazon Prime). The platform delivers different content types: Movies, Series (episodes), Podcasts, and LiveStreams. Each type delivers content differently — movies stream a file, series stream a specific episode, podcasts serve audio, livestreams redirect to a CDN URL. A single delivery engine handles all content types. When new content types are added (documentaries, shorts, sports), the delivery engine needs NO CHANGES. Pure polymorphism.",
+  
+  "description": "Build a content delivery system demonstrating the Open/Closed Principle via polymorphism: ContentItem base class, specialized subclasses, a single DeliveryEngine that processes any content type without modification.",
+  
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`ContentItem` base: title, durationMinutes, contentId (static auto), isActive (boolean). deliver() prints generic message. getMetadata() returns formatted string.",
+        "weight": 10
+      },
+      {
+        "id": "req_2",
+        "description": "`Movie extends ContentItem`: resolution (String, e.g. '4K'). Override deliver(): 'Streaming [title] in [resolution]'. Override getMetadata() using super.",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`Series extends ContentItem`: seasonNumber, episodeNumber. Override deliver(): 'Streaming [title] S[season]E[episode]'. Override getMetadata().",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "`Podcast extends ContentItem`: hostName. Override deliver(): 'Playing podcast [title] by [host]'. Override getMetadata().",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`LiveStream extends ContentItem`: cdnUrl. Override deliver(): 'Connecting to livestream [title] at [url]'. Override getMetadata().",
+        "weight": 15
+      },
+      {
+        "id": "req_6",
+        "description": "`DeliveryEngine` class: `deliver(ContentItem item)` — checks isActive, then calls item.deliver(). NEVER modified when new content types are added.",
+        "weight": 15
+      },
+      {
+        "id": "req_7",
+        "description": "main(): create one of each type, create DeliveryEngine, process all via engine. Also test with inactive content.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `ContentCatalog` class with ContentItem[] (max 50), addItem(), getActiveItems(), findByTitle(String) using equals.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add `TrailerContent extends ContentItem` (a 5th type) and verify DeliveryEngine requires NO changes.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `totalDuration(ContentItem[] items)` that uses polymorphism to sum durations. Returns total minutes.",
+        "weight": 10
+      },
+      {
+        "id": "bonus_4",
+        "description": "Add `generateReport(ContentItem[] items)` — prints type distribution: how many Movies, Series, Podcasts, LiveStreams (uses instanceof for counting).",
+        "weight": 20
+      }
+    ]
+  },
+  
+  "data_to_use": "Create:\n- Movie: 'RRR', 179 min, '4K'\n- Series: 'Scam 1992', 60 min (per ep), season 1, episode 3\n- Podcast: 'Lex Fridman #400', 120 min, host 'Lex Fridman'\n- LiveStream: 'IPL Match', 240 min, 'cdn.hotstar.com/ipl-live'\n- One inactive Movie for testing\n\nExpected (core):\n```\n[#1] Streaming RRR in 4K\n[#2] Streaming Scam 1992 S1E3\n[#3] Playing podcast Lex Fridman #400 by Lex Fridman\n[#4] Connecting to livestream IPL Match at cdn.hotstar.com/ipl-live\n[#5] Content unavailable (inactive)\n```",
+  
+  "starter_code": "public class OTTPlatform {\n    public static void main(String[] args) {\n        // Create content items\n        // Create DeliveryEngine\n        // Process all via engine\n    }\n    // Define: ContentItem, Movie, Series, Podcast, LiveStream, DeliveryEngine\n}",
+  
+  "example_output": "Streaming RRR in 4K [179 min]\nStreaming Scam 1992 S1E3 [60 min]\nPlaying podcast Lex Fridman #400 by Lex Fridman [120 min]\nConnecting to livestream IPL Match at cdn.hotstar.com/ipl-live [240 min]\nContent not available: Old Movie",
+  
+  "rubric": [
+    {"category": "Content Class Hierarchy", "points": 30, "criteria": ["Each subclass with correct fields (10 pts)", "Each overrides deliver() (10 pts)", "Each overrides getMetadata() using super (10 pts)"]},
+    {"category": "DeliveryEngine Polymorphism", "points": 25, "criteria": ["Accepts ContentItem (5 pts)", "Calls item.deliver() (10 pts)", "Handles isActive check (10 pts)"]},
+    {"category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"]},
+    {"category": "Demonstration", "points": 15, "criteria": ["All types demonstrated (10 pts)", "Inactive item shown (5 pts)"]},
+    {"category": "Open/Closed Principle", "points": 15, "criteria": ["DeliveryEngine truly generic (10 pts)", "Adding bonus TrailerContent required no DeliveryEngine changes (5 pts)"]},
+    {"category": "Bonus", "points": 65, "criteria": ["ContentCatalog (20 pts)", "5th content type (15 pts)", "totalDuration (10 pts)", "generateReport with instanceof (20 pts)"]}
+  ],
+  
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. The key insight: DeliveryEngine.deliver(ContentItem item) calls item.deliver() — runtime dispatch handles everything. Each content type's deliver() is standalone. When you add a new type, DeliveryEngine literally doesn't change.",
+  
+  "submission_instructions": "Save as OTTPlatform.java. Run it. Push to GitHub. Note in your README: 'DeliveryEngine never changes as new content types are added — Open/Closed Principle via polymorphism.' This is real OTT backend architecture.",
+  
+  "tips_for_success": [
+    "Start with ContentItem and get it right before writing subclasses.",
+    "Each subclass: super() in constructor, @Override on deliver() and getMetadata().",
+    "getMetadata() in subclass: 'Title: [super.getMetadata()] | Resolution: 4K' — chain super's info.",
+    "DeliveryEngine.deliver() checks item.isActive() (or getIsActive()) first.",
+    "Test: add a 5th content type (SportContent, ShortFilm, anything). Does DeliveryEngine need changes? No — that's the proof."
+  ],
+  
+  "concepts_reinforced": [
+    "Polymorphism — one method works for all subclasses",
+    "Runtime dispatch — item.deliver() calls the right override",
+    "Open/Closed Principle — engine closed for modification, open for extension",
+    "Upcasting — ContentItem[] holds Movie, Series, Podcast, LiveStream",
+    "instanceof for bonus report — acceptable use for counting types",
+    "super.getMetadata() — extends parent's info"
+  ],
+  
+  "what_youll_learn_by_doing_this": "Netflix, Hotstar, Prime — their content delivery systems ARE this architecture. MediaItem → VideoContent, AudioContent → Movie, Series, Short, Documentary. A single delivery layer routes everything. New content types plug in. The polymorphism IS the scalability.\n\nThis project PROVES the Open/Closed Principle to you empirically: add the 5th content type (the bonus), and confirm DeliveryEngine touches nothing. This feeling — 'I added a type and everything just worked' — is the PAYOFF of OOP design. Chase this feeling in your career."
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m29_t2",
+  "language": "java",
+  "module_id": "m29",
+  "topic_number": 2,
+  "name": "Analyzing Code Complexity — Step by Step",
+  "slug": "analyzing-code-complexity-step-by-step",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m29_t1"],
+    "concepts_taught": [
+      "systematic_complexity_analysis", "loop_analysis", "recursive_complexity",
+      "recurrence_relations", "master_theorem_basics", "multi_variable_complexity",
+      "conditional_complexity", "amortized_intro", "reading_recursive_trees"
+    ],
+    "skills_developed": [
+      "analyzing_any_code_block_for_big_o", "writing_recurrence_relations",
+      "identifying_hidden_complexity", "comparing_iterative_vs_recursive"
+    ],
+    "career_relevance": "The Razorpay interviewer hands you code and asks 'What's the complexity?' in 30 seconds. This topic gives you the systematic process to answer any code correctly — loops, recursion, nested calls, everything.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "```java\n// Razorpay technical round:\nvoid processPayments(List<Payment> payments) {\n    Collections.sort(payments, Comparator.comparing(p -> p.merchantId));\n    Map<String, List<Payment>> byMerchant = new HashMap<>();\n    for (Payment p : payments) {\n        byMerchant.computeIfAbsent(p.merchantId, k -> new ArrayList<>()).add(p);\n    }\n    for (var entry : byMerchant.entrySet()) {\n        reconcile(entry.getValue()); // O(m log m) where m = merchant's payment count\n    }\n}\n// Interviewer: What is the time complexity?\n// Wrong answer: 'O(n²)' — nervous guess\n// Right answer: 'O(n log n) — dominated by the initial sort; the map building\n// and per-merchant reconcile are collectively O(n log n) in the worst case'\n```",
+    "what_you_will_build": "A systematic framework to analyze ANY code — loops, recursion, sorting calls, method chains."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "systematic_approach": "**5-step framework for any code:**\n\n```\nStep 1: Identify all loops and recursive calls\nStep 2: For each loop, determine iterations in terms of n\nStep 3: For nested structures: multiply; for sequential: add\nStep 4: For recursion: write recurrence → solve (or use Master Theorem)\nStep 5: Drop constants and non-dominant terms → Big-O\n\nExample:\nvoid example(int[] arr) {\n    // Step 1: sort + loop + inner search\n    Arrays.sort(arr);                           // O(n log n)\n    for (int x : arr) {                         // O(n) iterations\n        int idx = Arrays.binarySearch(arr, x);  // O(log n) each\n    }\n    // Step 2: sort=O(n log n), loop=O(n), each iteration=O(log n)\n    // Step 3: sequential: O(n log n) + O(n × log n) = O(n log n) + O(n log n)\n    // Step 5: O(n log n) — both terms are equal dominance\n}\n```",
+      "recurrence_relations": "**Recursive complexity via recurrence:**\n\n```java\n// Binary search:\nint search(int[] arr, int lo, int hi, int target) {\n    if (lo > hi) return -1;\n    int mid = lo + (hi - lo) / 2;\n    if (arr[mid] == target) return mid;\n    if (arr[mid] < target) return search(arr, mid+1, hi, target); // half\n    return search(arr, lo, mid-1, target);                         // half\n}\n// Recurrence: T(n) = T(n/2) + O(1)\n// T(n) = T(n/4) + O(1) + O(1) = T(n/8) + 3O(1) = ... = O(log n) ✓\n\n// Merge sort:\nvoid mergeSort(int[] arr, int l, int r) {\n    if (l >= r) return;\n    int mid = l + (r - l) / 2;\n    mergeSort(arr, l, mid);       // T(n/2)\n    mergeSort(arr, mid+1, r);    // T(n/2)\n    merge(arr, l, mid, r);       // O(n)\n}\n// Recurrence: T(n) = 2T(n/2) + O(n) → O(n log n) ✓\n```"
+    },
+    "visual_aid": {"type": "diagram", "description": "Recursion tree for merge sort. Root: T(n) splits into two T(n/2), each splits into two T(n/4), down to T(1) leaves. Each level: work = n (merge step). Number of levels = log n. Total work = n × log n = O(n log n). Labeled: 'Level 0: n work, Level 1: n/2 + n/2 = n work, Level log n: 1+1+...=n work. Total = n × log n levels'.", "alt_text": "Merge sort recursion tree showing O(n log n) derivation"},
+    "worked_example": {
+      "scenario": "Analyze processPayments() from the hook — step by step.",
+      "problem_statement": "Determine Big-O of: sort(n) + loop building HashMap + nested reconcile calls.",
+      "step_by_step_solution": [{"step": 1, "action": "Sort: O(n log n)", "details": "Collections.sort() uses TimSort. Dominant cost for many interview answers."}],
+      "final_code": "// sort: O(n log n)\n// map building loop: O(n) — n payments, O(1) per put\n// reconcile: O(n log n) total across all merchants (each payment sorted once)\n// Total: O(n log n) dominated by sort and reconcile",
+      "expected_output": "Total complexity: O(n log n)",
+      "things_to_notice": [
+        "Collections.sort() hidden cost: it's O(n log n) — often the dominant term in data-processing code.",
+        "Sum over all merchants: if each merchant m has mᵢ payments and Σmᵢ = n, then Σ(mᵢ log mᵢ) ≤ n log n.",
+        "Method calls cost: analyze WHAT the method does — a method call isn't always O(1)."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{"company_context": "Razorpay", "use_case": "Every code review includes complexity analysis. Senior engineers reject PRs where O(n²) queries run per HTTP request."}],
+      "interview_relevance": "The systematic framework: identify expensive operations → express in terms of n → drop constants → state with justification. Takes 30-60 seconds with practice.",
+      "real_world_workflow": "Code review: annotate each block with its Big-O as comments. Flag any O(n²) in a hot path."
+    },
+    "common_gaps": [{"gap_id": "ignoring_method_calls", "what_students_get_wrong": "Treating all method calls as O(1). `list.contains(x)` inside a loop is O(n) per call → O(n²) total.", "remediation": "For every method call inside a loop: look up its complexity. contains() on ArrayList = O(n). Same on HashSet = O(1). The container choice changes the outer loop's complexity.", "detection_pattern": "Student says 'just one loop, so O(n)' but loop body calls ArrayList.contains()"}],
+    "reflection": {
+      "key_takeaways": ["5-step framework: identify → count → combine → drop → state", "Method calls inside loops: O(m) per call × O(n) outer = O(nm)", "Recurrence T(n) = 2T(n/2) + O(n) → O(n log n) — merge sort signature", "Recurrence T(n) = T(n/2) + O(1) → O(log n) — binary search signature", "Sort is often the dominant term: O(n log n) beats O(n) over n iterations of O(log n)"],
+      "self_check_questions": [{"question": "What is the complexity of: `for x in list: if x in hashSet: count++`?", "answer": "O(n). The loop runs n times. hashSet.contains() is O(1) per call. n × O(1) = O(n). If it were ArrayList.contains() instead of HashSet: O(n) per call → O(n²) total. Data structure choice changes complexity."}],
+      "next_topic_preview": "Next: Space Complexity — how much memory does your algorithm use? The other half of every interview answer."
+    }
+  }
+}

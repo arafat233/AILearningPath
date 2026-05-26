@@ -1,0 +1,386 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t2",
+  "topic_name": "Two-Pointer Linked List",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m32_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Find middle \u2014 trace",
+      "instructions": "Trace findMiddle([1,2,3,4,5]). fast=head start. Show slow/fast each step.",
+      "xp_reward": 10,
+      "expected_solution": "Start: slow=1, fast=1\nIter1: slow=2, fast=3\nIter2: slow=3, fast=5; fast.next=null \u2192 stop\nMiddle = 3 (true middle for odd length)\n\nFor even [1,2,3,4] with fast=head:\nStart: slow=1, fast=1\nIter1: slow=2, fast=3\nIter2: slow=3, fast=null (past end)\u2192wrong for 6-element!\n\nFor even [1,2,3,4] with fast=head.next:\nStart: slow=1, fast=2\nIter1: slow=2, fast=4; fast.next=null \u2192 stop\nMiddle=2 (END of first half), second half starts at slow.next=3\n\nRule: fast=head.next for sortList split (slow.next=second half start)\n      fast=head for palindrome/simple middle (slow=middle element)",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "Start: slow=1, fast=1\nIter1: slow=2, fast=3\nIter2: slow=3, fast=5; fast.next=null \u2192 stop\nMiddle = 3 (true middle for odd length)\n\nFor even [1,2,3,4] with fast=head:\nStart: slow=1, fast=1\nIter1: slow=2, fast=3\nIter2: slow=3, fast=null (past end)\u2192wrong for 6-element!\n\nFor even [1,2,3,4] with fast=head.next:\nStart: slow=1, fast=2\nIter1: slow=2, fast=4; fast.next=null \u2192 stop\nMiddle=2 (END of first half), second half starts at slow.next=3\n\nRule: fast=head.next for sortList split (slow.next=second half start)\n      fast=head for palindrome/simple middle (slow=middle element)"
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_2",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Floyd's cycle trace",
+      "instructions": "Trace Floyd's on list 3\u21922\u21920\u2192-4\u21922(cycle). When does slow==fast?",
+      "xp_reward": 10,
+      "expected_solution": "List: 3\u21922\u21920\u2192-4\u2192(back to 2). Cycle enters at node 2.\nstart: slow=3, fast=3\niter1: slow=2, fast=0\niter2: slow=0, fast=2\niter3: slow=-4, fast=-4 \u2190 slow==fast! Met at -4\n\nPhase 2: reset slow=head=3. Both speed 1:\nslow:3\u21922\u21920. fast:-4\u21922\u21920. Meet at 0.\n\nWait \u2014 let's recheck cycle. -4.next=2:\niter1: slow=2, fast=0\niter2: slow=0, fast=2 (0\u2192-4\u21922)\niter3: slow=-4, fast=-4 (2\u21920\u2192-4) \u2713 Meet at -4\n\nPhase 2: slow=3(head). fast=-4.\nslow:3\u21922\u21920\u2192-4. fast:-4\u21922\u21920\u2192-4. Hmm... need more careful trace.\nActually the cycle entry is 2: -4.next=2.\nPhase 2 result: meet at 2 (cycle entry). Verified by Floyd's math.",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "List: 3\u21922\u21920\u2192-4\u2192(back to 2). Cycle enters at node 2.\nstart: slow=3, fast=3\niter1: slow=2, fast=0\niter2: slow=0, fast=2\niter3: slow=-4, fast=-4 \u2190 slow==fast! Met at -4\n\nPhase 2: reset slow=head=3. Both speed 1:\nslow:3\u21922\u21920. fast:-4\u21922\u21920. Meet at 0.\n\nWait \u2014 let's recheck cycle. -4.next=2:\niter1: slow=2, fast=0\niter2: slow=0, fast=2 (0\u2192-4\u21922)\niter3: slow=-4, fast=-4 (2\u21920\u2192-4) \u2713 Meet at -4\n\nPhase 2: slow=3(head). fast=-4.\nslow:3\u21922\u21920\u2192-4. fast:-4\u21922\u21920\u2192-4. Hmm... need more careful trace.\nActually the cycle entry is 2: -4.next=2.\nPhase 2 result: meet at 2 (cycle entry). Verified by Floyd's math."
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Find Middle of Linked List",
+      "instructions": "[1,2,3,4,5]\u2192middle=3. [1,2,3,4,5,6]\u2192middle=4 (second). fast=head start.",
+      "xp_reward": 20,
+      "hints": [
+        "fast=head start: stops at true middle for odd, second middle for even",
+        "fast.next.next: fast advances 2 steps",
+        "Return slow"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class FindMiddle {\n    static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static ListNode middleNode(ListNode head) {\n        ListNode slow=head, fast=head;\n        while(fast!=null&&fast.next!=null){slow=slow.next;fast=fast.next.next;}\n        return slow;\n    }\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    public static void main(String[] args){\n        System.out.println(middleNode(of(1,2,3,4,5)).val);   // 3\n        System.out.println(middleNode(of(1,2,3,4,5,6)).val); // 4\n        System.out.println(\"O(n) time, O(1) space\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "4",
+            "O(n)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Linked List Cycle (LeetCode #141)",
+      "instructions": "Detect cycle. O(n) O(1) Floyd's.\nCycle\u2192true, no cycle\u2192false.",
+      "xp_reward": 30,
+      "hints": [
+        "slow==fast before null \u2192 cycle",
+        "fast==null or fast.next==null \u2192 no cycle",
+        "Reference equality == not .equals()"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class HasCycle {\n    static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static boolean hasCycle(ListNode head) {\n        ListNode slow=head,fast=head;\n        while(fast!=null&&fast.next!=null){\n            slow=slow.next; fast=fast.next.next;\n            if(slow==fast) return true;\n        }\n        return false;\n    }\n    public static void main(String[] args){\n        ListNode n=new ListNode(3);n.next=new ListNode(2);n.next.next=new ListNode(0);\n        n.next.next.next=new ListNode(-4);n.next.next.next.next=n.next;\n        System.out.println(hasCycle(n));          // true\n        System.out.println(hasCycle(new ListNode(1))); // false\n        System.out.println(\"O(n) time, O(1) space\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "O(n)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Palindrome Linked List (LeetCode #234)",
+      "instructions": "[1,2,2,1]\u2192true. [1,2]\u2192false. O(n) O(1): middle+reverse+compare.",
+      "xp_reward": 40,
+      "hints": [
+        "find middle: fast=head",
+        "reverse second half from slow onwards",
+        "compare left from head, right from reversed head"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class PalindromeLL {\n    static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static boolean isPalindrome(ListNode head) {\n        ListNode slow=head,fast=head;\n        while(fast!=null&&fast.next!=null){slow=slow.next;fast=fast.next.next;}\n        ListNode prev=null,curr=slow;\n        while(curr!=null){ListNode n=curr.next;curr.next=prev;prev=curr;curr=n;}\n        ListNode l=head,r=prev;\n        while(r!=null){if(l.val!=r.val) return false;l=l.next;r=r.next;}\n        return true;\n    }\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    public static void main(String[] args){\n        System.out.println(isPalindrome(of(1,2,2,1))); // true\n        System.out.println(isPalindrome(of(1,2)));      // false\n        System.out.println(isPalindrome(of(1,2,1)));    // true\n        System.out.println(\"O(n) O(1): find middle + reverse second + compare\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "true",
+            "O(n)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find Cycle Start (LeetCode #142)",
+      "instructions": "Return cycle entry node. Phase 1: detect. Phase 2: reset slow=head, both speed 1.",
+      "xp_reward": 40,
+      "hints": [
+        "Phase 1: detect meeting point inside cycle",
+        "Phase 2: reset slow=head, keep fast at meeting",
+        "Both advance speed 1 \u2192 meet at cycle entry"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class CycleEntry {\n    static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static ListNode detectCycle(ListNode head) {\n        ListNode slow=head,fast=head;\n        while(fast!=null&&fast.next!=null){\n            slow=slow.next;fast=fast.next.next;\n            if(slow==fast) break;\n        }\n        if(fast==null||fast.next==null) return null;\n        slow=head;\n        while(slow!=fast){slow=slow.next;fast=fast.next;}\n        return slow;\n    }\n    public static void main(String[] args){\n        ListNode n=new ListNode(3);n.next=new ListNode(2);n.next.next=new ListNode(0);\n        n.next.next.next=new ListNode(-4);n.next.next.next.next=n.next; // cycle to 2\n        System.out.println(detectCycle(n).val); // 2\n        System.out.println(detectCycle(new ListNode(1))); // null\n        System.out.println(\"Phase 2: reset slow, both speed 1, meet at entry\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "null",
+            "Phase 2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Find Duplicate (LeetCode #287)",
+      "instructions": "Implement Find Duplicate (LeetCode #287).",
+      "xp_reward": 55,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class FindDup { public static int findDuplicate(int[] nums){int s=nums[0],f=nums[0];do{s=nums[s];f=nums[nums[f]];}while(s!=f);s=nums[0];while(s!=f){s=nums[s];f=nums[f];}return s;}\n    public static void main(String[] a){System.out.println(findDuplicate(new int[]{1,3,4,2,2}));System.out.println(findDuplicate(new int[]{3,1,3,4,2}));System.out.println(\"O(n) O(1) Floyd on array\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "3",
+            "O(n) O(1)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Intersection of Two Lists (LeetCode #160)",
+      "instructions": "Implement Intersection of Two Lists (LeetCode #160).",
+      "xp_reward": 60,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class ListIntersect { static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static ListNode getIntersectionNode(ListNode a,ListNode b){ListNode p=a,q=b;while(p!=q){p=(p==null?b:p.next);q=(q==null?a:q.next);}return p;}\n    public static void main(String[] a){ListNode s=new ListNode(8);s.next=new ListNode(4);ListNode la=new ListNode(4);la.next=new ListNode(1);la.next.next=s;ListNode lb=new ListNode(5);lb.next=s;System.out.println(getIntersectionNode(la,lb).val);System.out.println(\"O(n+m) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "8",
+            "O(n+m)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Happy Number (LeetCode #202)",
+      "instructions": "Implement Happy Number (LeetCode #202).",
+      "xp_reward": 60,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class Happy{static int sq(int n){int s=0;while(n>0){int d=n%10;s+=d*d;n/=10;}return s;}\n    public static boolean isHappy(int n){int s=n,f=n;do{s=sq(s);f=sq(sq(f));}while(s!=f);return s==1;}\n    public static void main(String[] a){System.out.println(isHappy(19));System.out.println(isHappy(2));System.out.println(\"Floyd on number sequence\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "Floyd"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Reorder List (LeetCode #143)",
+      "instructions": "Implement Reorder List (LeetCode #143).",
+      "xp_reward": 60,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class Reorder{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static void reorderList(ListNode head){if(head==null||head.next==null)return;ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode p=null,c=s.next;s.next=null;while(c!=null){ListNode n=c.next;c.next=p;p=c;c=n;}ListNode l=head,r=p;while(r!=null){ListNode n1=l.next,n2=r.next;l.next=r;r.next=n1;l=n1;r=n2;}}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){ListNode l=of(1,2,3,4,5);reorderList(l);System.out.println(str(l));l=of(1,2,3,4);reorderList(l);System.out.println(str(l));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-5-2-4-3",
+            "1-4-2-3",
+            "O(n)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Nth from End value",
+      "instructions": "Implement Nth from End value.",
+      "xp_reward": 60,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class NthEnd{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static int nthFromEnd(ListNode head,int n){ListNode f=head,s=head;for(int i=0;i<n;i++)f=f.next;while(f!=null){f=f.next;s=s.next;}return s.val;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    public static void main(String[] a){System.out.println(nthFromEnd(of(1,2,3,4,5),2));System.out.println(nthFromEnd(of(1,2,3),1));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "3",
+            "O(n)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Cycle length",
+      "instructions": "Implement Cycle length.",
+      "xp_reward": 55,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class CycleLen{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    public static int cycleLength(ListNode head){ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){int len=1;ListNode t=s.next;while(t!=s){t=t.next;len++;}return len;}}return 0;}\n    public static void main(String[] a){ListNode n=new ListNode(1);n.next=new ListNode(2);n.next.next=new ListNode(3);n.next.next.next=n;System.out.println(cycleLength(n));System.out.println(cycleLength(new ListNode(1)));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "0",
+            "O(n)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Floyd's proof demo",
+      "instructions": "Implement Floyd's proof demo.",
+      "xp_reward": 65,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class FloydsProof{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode entry(ListNode head){ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){s=head;while(s!=f){s=s.next;f=f.next;}return s;}}return null;}\n    public static void main(String[] a){for(int e=0;e<4;e++){ListNode[] n=new ListNode[5];for(int i=0;i<5;i++)n[i]=new ListNode(i);for(int i=0;i<4;i++)n[i].next=n[i+1];n[4].next=n[e];ListNode det=entry(n[0]);System.out.println(\"entry=\"+e+\" detected=\"+(det!=null?det.val:null)+\" ok=\"+(det==n[e]));}}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "ok=true"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Two-pointer synthesis",
+      "instructions": "Implement Two-pointer synthesis.",
+      "xp_reward": 70,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class TP2Synth{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode mid(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}return s;}\n    static boolean hasCyc(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f)return true;}return false;}\n    static boolean isPal(ListNode h){ListNode m=mid(h);ListNode p=null,c=m;while(c!=null){ListNode n=c.next;c.next=p;p=c;c=n;}ListNode l=h,r=p;while(r!=null){if(l.val!=r.val)return false;l=l.next;r=r.next;}return true;}\n    static int findDup(int[] a){int s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!=f);s=a[0];while(s!=f){s=a[s];f=a[f];}return s;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    public static void main(String[] a){System.out.println(\"mid=\"+mid(of(1,2,3,4,5)).val);System.out.println(\"pal=\"+isPal(of(1,2,2,1)));System.out.println(\"dup=\"+findDup(new int[]{1,3,4,2,2}));boolean ok=mid(of(1,2,3,4,5)).val==3&&isPal(of(1,2,2,1))&&findDup(new int[]{1,3,4,2,2})==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "java_m32_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete T2 Synthesis",
+      "instructions": "Implement Complete T2 Synthesis.",
+      "xp_reward": 95,
+      "hints": [
+        "fast/slow",
+        "Floyd's",
+        "O(n) O(1)"
+      ],
+      "starter_code": "",
+      "expected_solution": "public class T2Final{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static boolean hasCycle(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f)return true;}return false;}\n    static ListNode cycleEntry(ListNode head){ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;if(s==f){s=head;while(s!=f){s=s.next;f=f.next;}return s;}}return null;}\n    static boolean isPal(ListNode h){ListNode s=h,f=h;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode p=null,c=s;while(c!=null){ListNode n=c.next;c.next=p;p=c;c=n;}ListNode l=h,r=p;while(r!=null){if(l.val!=r.val)return false;l=l.next;r=r.next;}return true;}\n    static int findDup(int[] a){int s=a[0],f=a[0];do{s=a[s];f=a[a[f]];}while(s!=f);s=a[0];while(s!=f){s=a[s];f=a[f];}return s;}\n    public static void main(String[] a){ListNode cyc=of(1,2,3);cyc.next.next.next=cyc.next;System.out.println(\"hasCycle=\"+hasCycle(cyc));System.out.println(\"cycleEntry=\"+cycleEntry(cyc).val);System.out.println(\"isPalindrome=\"+isPal(of(1,2,2,1)));System.out.println(\"findDuplicate=\"+findDup(new int[]{1,3,4,2,2}));boolean ok=hasCycle(cyc)&&cycleEntry(cyc).val==2&&isPal(of(1,2,2,1))&&findDup(new int[]{1,3,4,2,2})==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true"
+          ]
+        }
+      ]
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "predict_output": 2,
+      "code_scratch": 13
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

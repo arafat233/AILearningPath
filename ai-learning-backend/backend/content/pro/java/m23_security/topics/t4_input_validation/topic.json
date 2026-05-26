@@ -1,0 +1,52 @@
+{
+  "schema_version":"1.0","topic_id":"java_m23_t4","language":"java",
+  "module_id":"m23","module_name":"Security","topic_number":4,
+  "name":"Input Validation & OWASP Top 10",
+  "slug":"input-validation-owasp",
+  "metadata":{
+    "difficulty":7,"estimated_minutes":50,
+    "prerequisites":["java_m23_t1"],
+    "concepts_taught":["owasp_top_10","bean_validation","sql_injection_prevention","xss_prevention","path_traversal","mass_assignment","content_security_policy","parameterized_queries","input_sanitization","dto_validation","custom_validators","security_headers"],
+    "skills_developed":["implementing_bean_validation","preventing_sql_injection_with_jpa","xss_sanitization","security_headers_configuration","writing_custom_validators"],
+    "career_relevance":"OWASP Top 10 vulnerabilities cause 90% of security breaches. Zerodha's trading API had a mass assignment vulnerability — attackers could set their own account balance by adding extra fields to a JSON request. After this topic, you can identify and fix the most common web security vulnerabilities in a Spring Boot application.",
+    "tone_profile":{"primary":"professional_friendly","intensity":"encouraging","formality":"modern_casual"}
+  },
+  "hook":{
+    "real_world_problem":"Zerodha trading API: POST /api/orders\n\n```json\n{\n  \"symbol\": \"RELIANCE\",\n  \"quantity\": 10,\n  \"orderType\": \"BUY\",\n  \"accountBalance\": 9999999.99  ← ATTACKER ADDED THIS!\n}\n```\n\nWithout validation: Spring maps ALL JSON fields to the Order entity.\nAttacker can set their own `accountBalance` to 10 million rupees!\n\nWith `@JsonIgnoreProperties` + `@Valid` DTOs:\n```java\n@Data\npublic class OrderRequest {\n    @NotBlank @Size(min=2, max=20) private String symbol;\n    @Positive @Max(10000) private int quantity;\n    @NotNull private OrderType orderType;\n    // accountBalance field NOT HERE → ignored even if sent\n}\n// Attacker sends accountBalance: 9999999.99 → silently ignored!\n```",
+    "what_you_will_build":"Bean validation with @Valid, SQL injection prevention with JPA, XSS protection with CSP headers, and a custom validator."
+  },
+  "teaching":{
+    "concept_explanation":{
+      "bean_validation":"**Bean Validation (@Valid):**\n\n```java\npublic record PaymentRequest(\n    @NotBlank(message='merchant_id is required')\n    @Pattern(regexp='^MRC-[0-9]{3,}$', message='Invalid merchant ID format')\n    String merchantId,\n    \n    @NotNull @Positive @DecimalMax('1000000.00')\n    BigDecimal amount,\n    \n    @NotNull @Valid\n    GatewayType gateway,\n    \n    @Size(max=500)\n    @SafeHtml  // Hibernate Validator extension: strips XSS\n    String description\n) {}\n\n@RestController\nclass PaymentController {\n    @PostMapping('/api/payments')\n    public Payment create(@RequestBody @Valid PaymentRequest req) {\n        // @Valid: validates ALL constraints before method executes\n        // Validation failure: throws MethodArgumentNotValidException → 400\n    }\n}\n\n// Global exception handler:\n@RestControllerAdvice\nclass ValidationExceptionHandler {\n    @ExceptionHandler(MethodArgumentNotValidException.class)\n    @ResponseStatus(HttpStatus.BAD_REQUEST)\n    public Map<String,String> handle(MethodArgumentNotValidException ex) {\n        return ex.getBindingResult().getFieldErrors().stream()\n            .collect(Collectors.toMap(\n                FieldError::getField,\n                fe -> fe.getDefaultMessage()));\n    }\n}\n```",
+      "sql_injection":"**SQL injection prevention:**\n\n```java\n// VULNERABLE (never do this):\nString query = 'SELECT * FROM payments WHERE merchant = '' + merchantId + ''';\n// Attack: merchantId = '' OR '1'='1 → returns ALL payments!\n\n// SAFE with JPA (parameterized queries):\n@Query('SELECT p FROM Payment p WHERE p.merchantId = :merchantId')\nList<Payment> findByMerchant(@Param('merchantId') String merchantId);\n// JPA/Hibernate: always uses PreparedStatement with ? parameters\n// SQL injection: impossible with parameterized queries\n\n// If you MUST use native SQL:\n@Query(value='SELECT * FROM payments WHERE merchant_id = :id', nativeQuery=true)\nList<Payment> findNative(@Param('id') String id);\n// Still safe: Spring Data uses PreparedStatement binding\n```"
+    },
+    "visual_aid":{"type":"diagram","description":"OWASP Top 10 attack/defense grid. Left: attack type (SQL injection, XSS, mass assignment, path traversal). Middle: vulnerable code snippet (red). Right: secure code snippet (green). Bottom: security header panel showing CSP, X-Frame-Options, X-Content-Type-Options all set. Arrow from @Valid annotation → validation failure → 400 Bad Request with field errors JSON.","alt_text":"OWASP Top 10 vulnerabilities with Java/Spring Boot fixes"},
+    "worked_example":{
+      "scenario":"Secure Razorpay payment request: validation, mass assignment prevention, SQL injection protection.",
+      "problem_statement":"1. PaymentRequest DTO with @Valid constraints\n2. Custom @ValidMerchantId validator\n3. Exception handler returning structured 400 errors\n4. @SpringBootTest: invalid input → 400, valid → 200",
+      "step_by_step_solution":[
+        {"step":1,"action":"OWASP A03: Injection","details":"SQL injection: use JPA with @Param (always parameterized). Never concatenate user input into queries. Spring Data automatically uses PreparedStatement — safe by default."},
+        {"step":2,"action":"OWASP A04: Insecure Design (mass assignment)","details":"Never bind HTTP request directly to a JPA Entity. Use a DTO (Data Transfer Object) with only the fields users are allowed to set. Entity fields like `balance`, `role`, `adminFlag` never appear in the DTO."}
+      ],
+      "final_code":"// @Valid on @RequestBody: validates all constraints before controller executes\n// MethodArgumentNotValidException → @ExceptionHandler → 400 with field errors",
+      "expected_output":"// POST /api/payments {amount: -100} → 400 Bad Request\n// { 'amount': 'must be greater than 0', 'merchantId': 'merchant_id is required' }\n// POST /api/payments {amount: 999, merchantId: 'MRC-001', gateway: 'VISA'} → 200 OK",
+      "things_to_notice":[
+        "@Valid vs @Validated: @Valid triggers Bean Validation. @Validated (Spring-specific) adds group validation support. Use @Valid on controller @RequestBody; @Validated on service methods for method-level validation.",
+        "Mass assignment: if your DTO contains a field named the same as a sensitive Entity field, an attacker can set it via JSON. Solution: DTOs NEVER contain sensitive fields. If the field name exists in the DTO, it can be set by the client.",
+        "XSS (Cross-Site Scripting): if you store user input (description, comments) and display it in HTML, attackers can inject <script> tags. Prevention: (1) sanitize input with OWASP Java HTML Sanitizer, (2) set Content-Security-Policy header, (3) escape output (Thymeleaf does this by default).",
+        "Content Security Policy: `Content-Security-Policy: default-src 'self'; script-src 'self'` tells browsers to only execute scripts from your own domain. Even if an XSS payload is injected, the browser blocks it."
+      ]
+    },
+    "applications":{
+      "industry_examples":[{"company_context":"Zerodha order validation","use_case":"@Valid on OrderRequest DTO: symbol must match NSE/BSE ticker pattern, quantity max 10000 (circuit breaker), orderType in {BUY, SELL, LIMIT, SL}. Custom @ValidTicker validator: checks against cached list of valid NSE symbols. Catches: typos, delisted symbols, invalid format. Before fix: invalid orders reached the exchange API, causing costly rejections."}],
+      "interview_relevance":"'How do you prevent SQL injection in Spring Boot?' → JPA with @Param annotations — all queries use PreparedStatement with parameter binding, never string concatenation. If using native queries: Spring Data @Query with :param bindings. Never: String query = 'SELECT ... WHERE id=' + userInput. Also: input validation with @Valid/@NotNull ensures only expected data reaches the database layer.",
+      "real_world_workflow":"Security validation: (1) validate input at API boundary (@Valid), (2) use parameterized queries (JPA default), (3) escape output (Thymeleaf), (4) set security headers (Spring Security), (5) use DTOs (not entities) for mass assignment prevention."
+    },
+    "common_gaps":[{"gap_id":"entity_in_request_body","what_students_get_wrong":"Using the JPA Entity directly as @RequestBody instead of a DTO. Any field in the entity can be set by the client — including id, createdAt, balance, adminRole.","remediation":"Always use a separate DTO (record or class) for incoming requests. Entity: only modified by your business logic. DTO: only the fields the client is explicitly allowed to set. MapStruct or manual mapping: DTO → Entity.","detection_pattern":"@PostMapping uses @RequestBody PaymentEntity (not PaymentRequest). Client can set id, version, balance fields via JSON body."}],
+    "reflection":{
+      "key_takeaways":["@Valid: validates constraints before controller executes; failure → 400","DTOs prevent mass assignment: client can only set fields in the DTO","JPA always uses PreparedStatement: SQL injection prevention by default","Never concatenate user input into SQL strings","@ControllerAdvice: global exception handler for 400 field error responses","CSP header: browser-level XSS protection","OWASP A01 Broken Access Control: most common — fixed by JWT + @PreAuthorize","Custom @Constraint validator: complex business-rule validation"],
+      "self_check_questions":[{"question":"Why is it dangerous to use a JPA Entity directly as a @RequestBody parameter?","answer":"Mass assignment vulnerability. The JPA Entity contains all database fields: id, version, createdAt, balance, adminFlag, etc. When Jackson maps the incoming JSON to the Entity, it sets ANY field present in the JSON, including sensitive ones the client should never control. Example: attacker sends {symbol: RELIANCE, accountBalance: 9999999}. Jackson sets entity.accountBalance = 9999999 → EntityManager persists it → attacker updated their own balance. DTOs fix this: the DTO only has fields the client is ALLOWED to set (symbol, quantity, orderType). accountBalance is not in the DTO → Jackson ignores it in the JSON. Entity fields are only set by your trusted business logic."}],
+      "next_topic_preview":"Final Module 23 topic: Rate Limiting & API Security — protecting APIs from abuse, DDoS, and brute force attacks using Bucket4j, API key authentication, and request throttling."
+    }
+  }
+}

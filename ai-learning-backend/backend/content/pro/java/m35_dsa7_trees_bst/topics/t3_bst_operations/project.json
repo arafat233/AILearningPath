@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m35_t3_proj",
+  "linked_topic": "java_m35_t3",
+  "level": "mini",
+  "name": "Razorpay BST Order Engine",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "BST-backed order engine: validate, search, insert, kth, delete.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "isValidBST, kthSmallest, deleteNode, sortedArrayToBST",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "BSTIterator, recoverBST, greaterSumTree",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Validate BST: valid(r, Long.MIN_VALUE, Long.MAX_VALUE); left bound < r.val < right bound. Kth: global counter k, decrement in inorder, save when k==0. Delete 2-children: find inorder successor = leftmost of r.right; replace r.val with successor.val; delete successor from r.right.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

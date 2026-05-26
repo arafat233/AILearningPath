@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m6_t5",
+  "language": "java",
+  "module_id": "m6",
+  "module_name": "Collections Framework",
+  "topic_number": 5,
+  "name": "Choosing the Right Collection",
+  "slug": "choosing-collections",
+
+  "metadata": {
+    "difficulty": 4,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m6_t1", "java_m6_t2", "java_m6_t3", "java_m6_t4"],
+    "concepts_taught": [
+      "list_variants_comparison",
+      "map_variants_comparison",
+      "set_variants_comparison",
+      "collection_decision_framework",
+      "nested_collections",
+      "common_antipatterns",
+      "performance_big_o_summary",
+      "module6_synthesis"
+    ],
+    "skills_developed": [
+      "choosing_correct_collection_for_problem",
+      "identifying_antipatterns",
+      "designing_nested_collections",
+      "reading_collection_performance_table",
+      "refactoring_wrong_collection_choice"
+    ],
+    "career_relevance": "The question 'which collection should I use here?' comes up multiple times every day in production code. Getting it wrong means slow code, subtle bugs, or brittle design. Getting it right is invisible — it just works, efficiently. This topic gives you the complete decision framework that senior engineers have built up over years. After this topic, you pick the right collection instinctively — and you can explain why.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You've learned four collection types. In the real world, nobody tells you 'use a HashMap here.' You look at the problem and decide. Let's see that decision in action:\n\n**Problem 1**: Store all users who have logged in today. Fast lookup by username. No duplicates.\n→ `Set<String>` — membership, no duplicates, O(1) lookup.\n\n**Problem 2**: Store a user's message inbox. Messages appear in order. Can have duplicates (same message forwarded twice).\n→ `List<Message>` — ordered, duplicates OK.\n\n**Problem 3**: Map each product SKU to its full Product object. Look up by SKU constantly.\n→ `Map<String, Product>` — keyed lookup, O(1) retrieval.\n\n**Problem 4**: Count how many times each word appears in a document.\n→ `Map<String, Integer>` — frequency counting.\n\n**Problem 5**: Find all products in the 'Electronics' category quickly.\n→ `Map<String, List<Product>>` — grouping by key.\n\nThe pattern: **read the problem, identify the operation, pick the collection.** This topic makes that reflex automatic.",
+    "what_you_will_build": "By the end of this topic, you'll have a complete, memorable decision framework for picking collections, understand the performance tradeoffs among variants (ArrayList vs LinkedList, HashMap vs TreeMap), know how to design nested collections, and be able to spot and fix the most common collection antipatterns. This is the Module 6 synthesis — everything crystallized into one decision guide."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "the_decision_framework": "**The Three Questions:**\n\n1. **Do you need KEYS?** → Map. Otherwise continue.\n2. **Do you need UNIQUENESS?** → Set. Otherwise continue.\n3. **You need a SEQUENCE** → List.\n\n```\nDo I need to look up by a key?\n  YES → Map<K,V>\n  NO  → Do I need unique elements only?\n          YES → Set<T>\n          NO  → List<T>\n```\n\nThat's the core. Everything else is a variant choice within each family.",
+
+      "list_variants": "**Choosing within List:**\n\n| | ArrayList | LinkedList |\n|--|-----------|------------|\n| Random access `get(i)` | O(1) ✅ | O(n) ❌ |\n| Add to end | O(1) amortized | O(1) |\n| Add/remove at MIDDLE | O(n) ❌ | O(1) ✅ |\n| Memory | Less overhead | More (node objects) |\n| **Use when** | Default — most cases | Frequent insert/remove in middle |\n\n**Rule**: Use **ArrayList** in 95% of cases. Use **LinkedList** only if you have proven you're doing many insertions/removals in the middle of a large list — and benchmarks confirm it's faster.\n\n```java\n// ArrayList — your default\nList<String> items = new ArrayList<>();\n\n// LinkedList — rare, specific use case\nList<String> queue = new LinkedList<>();  // used as a deque/queue\n```\n\n**Arrays vs ArrayList**: Use a raw `int[]` or `double[]` when you have fixed-size primitive data and performance is critical (numeric computation). Use ArrayList for everything else.",
+
+      "map_variants": "**Choosing within Map:**\n\n| | HashMap | LinkedHashMap | TreeMap |\n|--|---------|---------------|----------|\n| Get/put | O(1) ✅ | O(1) ✅ | O(log n) |\n| Iteration order | Unpredictable | Insertion order | Sorted by key |\n| **Use when** | Default — fast lookup | Need insertion-order iteration | Need sorted keys |\n\n```java\n// HashMap — default, fastest\nMap<String, User> users = new HashMap<>();\n\n// LinkedHashMap — when iteration order matters\nMap<String, String> config = new LinkedHashMap<>();  // preserves order\n\n// TreeMap — when keys must be sorted\nMap<String, Integer> wordCount = new TreeMap<>();  // alphabetical keys\n```\n\n**Real-world examples:**\n- HTTP cache (most recent first): `LinkedHashMap` with access-order\n- Dictionary / word frequency sorted: `TreeMap<String, Integer>`\n- Session store (fast lookup): `HashMap<String, Session>`",
+
+      "set_variants": "**Choosing within Set:**\n\n| | HashSet | LinkedHashSet | TreeSet |\n|--|---------|---------------|----------|\n| Add/contains | O(1) ✅ | O(1) ✅ | O(log n) |\n| Iteration order | Unpredictable | Insertion order | Sorted |\n| **Use when** | Default — membership | Dedup preserving order | Sorted unique elements |\n\n```java\n// HashSet — default, fastest\nSet<String> visited = new HashSet<>();\n\n// LinkedHashSet — dedup that preserves first-seen order\nSet<String> uniqueInOrder = new LinkedHashSet<>(list);\n\n// TreeSet — sorted unique elements\nSet<Integer> sortedUniqueScores = new TreeSet<>(scoreList);\n```",
+
+      "common_antipatterns": "**The 5 Collection Antipatterns — recognize and fix:**\n\n**1. List when Set is needed (membership check)**\n```java\n// BAD: O(n) contains\nList<String> seen = new ArrayList<>();\nif (!seen.contains(item)) seen.add(item);\n\n// GOOD: O(1) contains\nSet<String> seen = new HashSet<>();\nseen.add(item);  // auto-deduplicates\n```\n\n**2. List when Map is needed (lookup by key)**\n```java\n// BAD: O(n) scan\nUser found = null;\nfor (User u : users) { if (u.getId().equals(id)) { found = u; break; } }\n\n// GOOD: O(1) get\nMap<String, User> byId = new HashMap<>();\nUser found = byId.get(id);\n```\n\n**3. Manual duplicate tracking instead of Set**\n```java\n// BAD: if-check before every add\nif (!list.contains(item)) list.add(item);\n\n// GOOD: Set handles it\nSet<String> items = new HashSet<>();\nitems.add(item);  // does nothing if already present\n```\n\n**4. HashMap key without hashCode/equals**\n```java\n// BAD: custom object key with no hashCode\nMap<Product, Integer> stock = new HashMap<>();\nstock.put(new Product(101), 5);\nstock.get(new Product(101));  // returns null! different hashCode\n\n// GOOD: override hashCode and equals in Product\n```\n\n**5. ArrayList declared as ArrayList (not List)**\n```java\n// BAD: locked into ArrayList\nArrayList<String> names = new ArrayList<>();\n\n// GOOD: programmed to interface\nList<String> names = new ArrayList<>();\n```",
+
+      "nested_collections": "**Nested collections** — combining collection types:\n\n**Map of Lists (grouping)**:\n```java\n// Products grouped by category\nMap<String, List<Product>> byCategory = new HashMap<>();\nfor (Product p : products) {\n    byCategory.computeIfAbsent(p.getCategory(), k -> new ArrayList<>()).add(p);\n}\n// Access: byCategory.get('Electronics') → List<Product>\n```\n\n**Map of Sets (unique association)**:\n```java\n// Tags per article (each article's tags are unique)\nMap<String, Set<String>> articleTags = new HashMap<>();\narticleTags.computeIfAbsent(articleId, k -> new HashSet<>()).add(tag);\n```\n\n**Set of Maps (unique records)**:\n```java\n// Less common — usually objects are better\n// Map<String, Object> as a 'row' — prefer a proper class\n```\n\n**List of Lists (2D structure)**:\n```java\nList<List<Integer>> matrix = new ArrayList<>();\nmatrix.add(Arrays.asList(1, 2, 3));\nmatrix.add(Arrays.asList(4, 5, 6));\nint cell = matrix.get(0).get(1);  // 2\n```\n\n**Navigation**: just chain the method calls. `map.get(key).get(i)` or `map.get(k1).get(k2)`. Always check for null on intermediate results.",
+
+      "performance_summary": "**Performance Quick Reference — O notation:**\n\n| Operation | ArrayList | LinkedList | HashMap | HashSet | TreeMap | TreeSet |\n|-----------|-----------|------------|---------|---------|---------|----------|\n| Add (end) | O(1) | O(1) | O(1) | O(1) | O(log n) | O(log n) |\n| Add (middle) | O(n) | O(1) | — | — | — | — |\n| Get by index | O(1) | O(n) | — | — | — | — |\n| Get by key | — | — | O(1) | — | O(log n) | — |\n| Contains | O(n) | O(n) | O(1)* | O(1)* | O(log n) | O(log n) |\n| Remove | O(n) | O(1) | O(1) | O(1) | O(log n) | O(log n) |\n\n*O(1) average — worst case O(n) if many hash collisions.\n\n**Key insight**: HashMap and HashSet are O(1) for most operations — this is why they're so powerful. TreeMap and TreeSet are O(log n) — slower but sorted. ArrayList is O(1) for index access but O(n) for search.",
+
+      "module6_synthesis": "**Module 6 — The Complete Picture:**\n\nYou now have the full collections toolkit:\n\n| Problem Pattern | Solution |\n|-----------------|----------|\n| Ordered sequence | `List<T>` |\n| Unique membership | `Set<T>` |\n| Key → value lookup | `Map<K,V>` |\n| Frequency counting | `Map<T, Integer>` |\n| Grouping | `Map<K, List<V>>` |\n| Deduplication | `new HashSet<>(list)` |\n| Lookup table | `Map<Key, Object>` |\n| Sorted unique | `TreeSet<T>` |\n| Sorted by key | `TreeMap<K,V>` |\n| Insertion-order | `LinkedHashSet` or `LinkedHashMap` |\n| Sorted list | `Collections.sort(list)` |\n| Min / Max | `Collections.min/max(list)` |\n| Safe removal in-loop | `Iterator.remove()` |\n| Read-only view | `Collections.unmodifiableList(list)` |\n\nThis table is your career reference card. You'll use it constantly."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Large decision tree diagram. Root node: 'What collection do I need?' First branch: 'Need to look up by key?' YES → Map family (HashMap/TreeMap/LinkedHashMap with comparison table). NO → 'Need uniqueness?' YES → Set family (HashSet/TreeSet/LinkedHashSet). NO → List family (ArrayList/LinkedList with comparison). Below the decision tree: Performance big-O table for all six collection types. Bottom: 5 antipatterns shown as 'red code' vs 'green code' pairs.",
+      "alt_text": "Collection decision tree, performance table, and antipattern comparison"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "You're designing data structures for a student registration portal (like a university's online registration system). Multiple distinct requirements — each needs the right collection choice. Walk through each requirement and justify the choice.",
+
+    "problem_statement": "Design data structures for:\n1. All registered course codes this semester (must be unique, fast membership check)\n2. A student's registered courses in the order they registered\n3. Lookup a student by their ID number — instant retrieval\n4. Count how many students are in each course\n5. All students in each department, sorted alphabetically\n6. Find which courses two students have in common",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "All course codes (unique, fast lookup)",
+        "details": "```java\n// Need: unique codes, fast membership check — Set!\nSet<String> activeCodes = new HashSet<>();\nactiveCodes.add(\"CS101\");\nactiveCodes.add(\"MATH202\");\n\nboolean isActive = activeCodes.contains(\"CS101\");  // O(1)\n```\n**Why not List?** `list.contains()` is O(n). With hundreds of courses, every check would scan all of them. HashSet → O(1)."
+      },
+      {
+        "step": 2,
+        "action": "Student's registered courses in registration order",
+        "details": "```java\n// Need: ordered (registration order), duplicates unlikely but possible — List!\nList<String> myCourses = new ArrayList<>();\nmyCourses.add(\"CS101\");\nmyCourses.add(\"MATH202\");\nmyCourses.add(\"ENG301\");\n\n// First registered:\nString first = myCourses.get(0);  // CS101\n```\n**Why not Set?** Sets have no guaranteed order. If the student cares about registration sequence, List is correct."
+      },
+      {
+        "step": 3,
+        "action": "Look up student by ID",
+        "details": "```java\n// Need: lookup by ID key — Map!\nMap<String, Student> studentById = new HashMap<>();\nstudentById.put(\"S2024001\", new Student(\"Aisha\", \"CS\"));\n\nStudent s = studentById.get(\"S2024001\");  // O(1)\n```\n**Why not List?** You'd have to scan all students for the matching ID — O(n). HashMap gives O(1)."
+      },
+      {
+        "step": 4,
+        "action": "Count students per course",
+        "details": "```java\n// Need: frequency counting by course — Map<String, Integer>!\nMap<String, Integer> enrollment = new HashMap<>();\n// When student registers:\nenrollment.put(courseCode, enrollment.getOrDefault(courseCode, 0) + 1);\n\nint cs101Students = enrollment.get(\"CS101\");  // instant\n```"
+      },
+      {
+        "step": 5,
+        "action": "All students per department, sorted alphabetically",
+        "details": "```java\n// Need: department → students (multiple), sorted — Map<String, TreeSet<String>>!\nMap<String, TreeSet<String>> byDept = new HashMap<>();\n// When student joins department:\nbyDept.computeIfAbsent(dept, k -> new TreeSet<>()).add(studentName);\n\n// Access CS department students in alphabetical order:\nTreeSet<String> csStudents = byDept.get(\"CS\");\n// Already sorted!\n```\n**Why TreeSet inside?** TreeSet keeps names sorted automatically. No need to sort before display."
+      },
+      {
+        "step": 6,
+        "action": "Common courses between two students — Set intersection",
+        "details": "```java\n// Each student has a Set<String> of course codes\nSet<String> aishaCourses = new HashSet<>(Arrays.asList(\"CS101\", \"MATH202\", \"ENG301\"));\nSet<String> rajCourses   = new HashSet<>(Arrays.asList(\"CS101\", \"PHY101\", \"MATH202\"));\n\n// Intersection\nSet<String> common = new HashSet<>(aishaCourses);\ncommon.retainAll(rajCourses);\n// common = {CS101, MATH202}\n```\n**Why Set?** Set intersection is clean and O(n). Doing this with Lists would be O(n²)."
+      }
+    ],
+
+    "final_code": "import java.util.*;\n\nclass Student {\n    String id, name, department;\n    Set<String> courses = new HashSet<>();\n    List<String> courseOrder = new ArrayList<>();  // registration sequence\n\n    public Student(String id, String name, String department) {\n        this.id = id; this.name = name; this.department = department;\n    }\n\n    public void registerCourse(String code) {\n        courses.add(code);\n        courseOrder.add(code);\n    }\n\n    public Set<String> commonCoursesWith(Student other) {\n        Set<String> common = new HashSet<>(this.courses);\n        common.retainAll(other.courses);\n        return common;\n    }\n}\n\npublic class RegistrationSystem {\n    private Map<String, Student> byId = new HashMap<>();\n    private Map<String, Integer> enrollment = new HashMap<>();\n    private Map<String, TreeSet<String>> byDepartment = new HashMap<>();\n    private Set<String> activeCodes = new HashSet<>();\n\n    public void activateCourse(String code) { activeCodes.add(code); }\n\n    public void register(Student s, String courseCode) {\n        if (!activeCodes.contains(courseCode)) {\n            System.out.println(\"Invalid course: \" + courseCode); return;\n        }\n        byId.put(s.id, s);\n        s.registerCourse(courseCode);\n        enrollment.put(courseCode, enrollment.getOrDefault(courseCode, 0) + 1);\n        byDepartment.computeIfAbsent(s.department, k -> new TreeSet<>()).add(s.name);\n    }\n\n    public static void main(String[] args) {\n        RegistrationSystem sys = new RegistrationSystem();\n        sys.activateCourse(\"CS101\"); sys.activateCourse(\"MATH202\"); sys.activateCourse(\"ENG301\");\n\n        Student aisha = new Student(\"S001\", \"Aisha\", \"CS\");\n        Student raj   = new Student(\"S002\", \"Raj\",   \"CS\");\n        Student priya = new Student(\"S003\", \"Priya\",  \"Math\");\n\n        sys.register(aisha, \"CS101\"); sys.register(aisha, \"MATH202\");\n        sys.register(raj,   \"CS101\"); sys.register(raj,   \"ENG301\");\n        sys.register(priya, \"MATH202\");\n\n        System.out.println(\"CS101 enrollment: \" + sys.enrollment.get(\"CS101\"));\n        System.out.println(\"CS dept (sorted): \" + sys.byDepartment.get(\"CS\"));\n        System.out.println(\"Aisha+Raj common: \" + aisha.commonCoursesWith(raj));\n        System.out.println(\"Aisha order: \" + aisha.courseOrder);\n    }\n}",
+
+    "expected_output": "CS101 enrollment: 2\nCS dept (sorted): [Aisha, Raj]\nAisha+Raj common: [CS101]\nAisha order: [CS101, MATH202]",
+
+    "things_to_notice": [
+      "The Student class holds BOTH a Set<String> (for fast O(1) intersection) AND a List<String> (for registration sequence). Same data, two structures, two different needs — perfectly valid.",
+      "byDepartment uses TreeSet as the value type. Inside-the-Map collection type matters: TreeSet keeps names sorted at all times, no sorting needed at display time.",
+      "enrollment uses the classic getOrDefault(code, 0) + 1 pattern — same as word frequency counting.",
+      "commonCoursesWith() uses Set.retainAll() on a copy — destructive operation on the copy, not the original.",
+      "activeCodes.contains(courseCode) is the gate — O(1) check. With a List it would scan all codes every registration.",
+      "Every data structure choice has a clear justification based on the operation needed."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Database ORM frameworks (Spring Data, Hibernate)",
+        "use_case": "Hibernate uses a Map<String, EntityMetadata> to cache entity class metadata. It uses a Set<String> to track dirty (modified) fields. It uses a List<Object> for ordered query results. Three different collection choices in one framework, each chosen for the operation it needs to support."
+      },
+      {
+        "company_context": "Flipkart search engine",
+        "use_case": "Search facets use Map<String, List<Product>> for grouping. The 'visited product' dedup uses Set<String>. Sorted results use a List sorted by relevance. Auto-complete uses a TreeMap<String, List<String>> for prefix-based sorted lookup. A real search system uses all three families simultaneously."
+      },
+      {
+        "company_context": "Zerodha trading platform",
+        "use_case": "Active symbols: HashSet<String>. Symbol → latest quote: HashMap<String, Quote>. Order book (price-ordered): TreeMap<Double, List<Order>> — sorted by price, each price level has a list of orders. Portfolio: Map<String, Holding>. Different problems, different collections, all in one system."
+      }
+    ],
+
+    "interview_relevance": "Collection design questions appear in system design interviews:\n\n- **'Design a cache' / 'Design a session store'** → HashMap.\n- **'Design a leaderboard'** → TreeMap (sorted) or List + sort.\n- **'How would you track which users have logged in today?'** → HashSet.\n- **'Design a frequency analysis system'** → Map<String, Integer>.\n- **'Which is faster: list.contains() or set.contains()?'** → Set O(1), List O(n).\n\nCode review: 'Can you explain your collection choices here?' — being able to justify each choice with Big-O reasoning separates strong from weak candidates.",
+
+    "real_world_workflow": "Daily collection decision-making:\n\n- New feature needs to track something → 'Is this a membership question (Set), a lookup question (Map), or a sequence question (List)?'\n- Code review: 'This List.contains() in a hot loop should be a Set.'\n- Performance analysis: 'This Map should be a TreeMap to eliminate the sort we're doing every time.'\n- API design: choosing the right return type (List vs Set vs Map) based on what the caller needs to do with it."
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "list_for_membership",
+      "what_students_get_wrong": "Using ArrayList and calling contains() in a loop where membership is all that matters.",
+      "remediation": "If you're asking 'is X in this collection?' — that's Set territory. contains() on a List is O(n); on a Set it's O(1).",
+      "detection_pattern": "if (!list.contains(x)) list.add(x) repeated pattern"
+    },
+    {
+      "gap_id": "list_for_lookup",
+      "what_students_get_wrong": "Iterating a list to find an object by ID when a HashMap would give O(1) lookup.",
+      "remediation": "If you're finding by a key attribute (ID, name, code) — that's Map territory. Build the map once; query O(1) forever.",
+      "detection_pattern": "for loop with early return searching by field value"
+    },
+    {
+      "gap_id": "not_knowing_linkedhashmap",
+      "what_students_get_wrong": "Using HashMap but needing iteration order — surprising inconsistent output in tests.",
+      "remediation": "When order of iteration matters (LRU cache, config properties display), use LinkedHashMap. Same performance, insertion-order iteration.",
+      "detection_pattern": "Flaky tests due to HashMap iteration order"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "The Three Questions: Need keys? → Map. Need uniqueness? → Set. Otherwise → List.",
+      "Default choices: ArrayList, HashMap, HashSet — use these unless you have a specific reason for a variant.",
+      "LinkedHashMap / LinkedHashSet: when insertion order matters.",
+      "TreeMap / TreeSet: when sorted order is required (O(log n) vs O(1)).",
+      "ArrayList vs LinkedList: use ArrayList; LinkedList only for proven heavy-middle-insert use cases.",
+      "Antipatterns: List for membership (use Set), List for key lookup (use Map), manual dedup (use Set).",
+      "Nested collections: Map<K, List<V>> for grouping; Map<K, Set<V>> for unique grouping; Map<K, TreeSet<V>> for sorted unique grouping.",
+      "Always declare as interface type: List, Map, Set — not ArrayList, HashMap, HashSet.",
+      "Collections.sort() modifies in-place; Collections.unmodifiableList() gives a read-only view.",
+      "This decision framework is your career reference — you'll use it every day."
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Which collection and why: track which email addresses have been sent a newsletter today?",
+        "answer": "HashSet<String>. Membership question: 'has this email been sent?' O(1) with HashSet. Adding an email is O(1). No order needed. If you used ArrayList, checking before each send would be O(n) per email — catastrophically slow for large lists."
+      },
+      {
+        "question": "Which collection and why: store user preferences as key-value pairs, and display them in the order the user set them?",
+        "answer": "LinkedHashMap<String, String>. It's a key-value store (Map), but order matters (the user's setting order). LinkedHashMap preserves insertion order. A plain HashMap would lose the order; a TreeMap would sort alphabetically (not what the user wants)."
+      },
+      {
+        "question": "You have Map<String, List<Order>> by customer. How do you get a sorted list of all unique customer names?",
+        "answer": "`Set<String> names = new TreeSet<>(orderMap.keySet())` — TreeSet gives sorted unique keys. Or: `List<String> names = new ArrayList<>(orderMap.keySet()); Collections.sort(names);` — the List+sort approach. Either works; TreeSet is more concise for this case."
+      }
+    ],
+
+    "next_topic_preview": "Module 6 is complete! Topic 6.5 is the capstone — you now have the full Collections toolkit and the framework to use it correctly. Coming up: Module 6 wrap-up with a capstone project that uses all four collection types together. Then Module 7 begins, covering Exception Handling — try/catch/finally, custom exceptions, checked vs unchecked, and defensive programming."
+  }
+}

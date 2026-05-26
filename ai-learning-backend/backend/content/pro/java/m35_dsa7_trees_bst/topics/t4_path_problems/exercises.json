@@ -1,0 +1,330 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m35_t4",
+  "topic_name": "Tree Path Problems",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m35_t4_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Path sum root to leaf",
+      "instructions": "Implement: Path sum root to leaf.",
+      "starter_code": "",
+      "expected_solution": "public class PS1 {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static boolean ps(T r,int t){if(r==null)return false;t-=r.v;if(r.l==null&&r.r==null)return t==0;return ps(r.l,t)||ps(r.r,t);}\n    public static void main(String[] a){T r=new T(5);r.l=new T(4);r.r=new T(8);r.l.l=new T(11);r.l.l.r=new T(2);System.out.println(ps(r,22));System.out.println(ps(r,27));System.out.println(\"O(n) \u2014 subtract at each node, check target==0 at leaf\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "false",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t4_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Path Sum II \u2014 all root-to-leaf paths (LeetCode #113)",
+      "instructions": "Implement: Path Sum II \u2014 all root-to-leaf paths (LeetCode #113).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class PS2 {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static List<List<Integer>> res=new ArrayList<>();\n    static void dfs(T n,int t,List<Integer> path){if(n==null)return;t-=n.v;path.add(n.v);if(n.l==null&&n.r==null&&t==0)res.add(new ArrayList<>(path));dfs(n.l,t,path);dfs(n.r,t,path);path.remove(path.size()-1);}\n    static List<List<Integer>> pathSum(T r,int t){res=new ArrayList<>();dfs(r,t,new ArrayList<>());return res;}\n    public static void main(String[] a){T r=new T(5);r.l=new T(4);r.r=new T(8);r.l.l=new T(11);r.l.l.l=new T(7);r.l.l.r=new T(2);r.r.l=new T(13);r.r.r=new T(4);r.r.r.r=new T(1);System.out.println(pathSum(r,22));System.out.println(\"Backtrack: add node, recurse, then path.remove(last).\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[5, 4, 11, 2], [5, 8, 4, 1]]",
+            "Backtrack"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m35_t4_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Max path sum (LeetCode #124)",
+      "instructions": "Implement: Max path sum (LeetCode #124).",
+      "starter_code": "",
+      "expected_solution": "public class MPS {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static int max=Integer.MIN_VALUE;\n    static int dfs(T r){if(r==null)return 0;int l=Math.max(dfs(r.l),0),ri=Math.max(dfs(r.r),0);max=Math.max(max,r.v+l+ri);return r.v+Math.max(l,ri);}\n    static int maxPath(T r){max=Integer.MIN_VALUE;dfs(r);return max;}\n    public static void main(String[] a){T r=new T(-10);r.l=new T(9);r.r=new T(20);r.r.l=new T(15);r.r.r=new T(7);System.out.println(maxPath(r));System.out.println(\"42 \u2014 max(0,child) ignores negatives. Update global=l+node+r.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "42",
+            "max(0,child)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m35_t4_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sum root to leaf numbers (LeetCode #129)",
+      "instructions": "Implement: Sum root to leaf numbers (LeetCode #129).",
+      "starter_code": "",
+      "expected_solution": "public class SumLeaf {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static int total=0;\n    static void dfs(T r,int cur){if(r==null)return;cur=cur*10+r.v;if(r.l==null&&r.r==null){total+=cur;return;}dfs(r.l,cur);dfs(r.r,cur);}\n    static int sumNumbers(T r){total=0;dfs(r,0);return total;}\n    public static void main(String[] a){T r=new T(1);r.l=new T(2);r.r=new T(3);System.out.println(sumNumbers(r));T r2=new T(4);r2.l=new T(9);r2.r=new T(0);r2.l.l=new T(5);r2.l.r=new T(1);System.out.println(sumNumbers(r2));System.out.println(\"cur=cur*10+node.val at each level; add at leaf. O(n)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "25",
+            "1026",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m35_t4_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Path sum III (LeetCode #437) \u2014 prefix sum",
+      "instructions": "Implement: Path sum III (LeetCode #437) \u2014 prefix sum.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class PS3 {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static int count=0;\n    static void dfs(T r,long cur,long t,Map<Long,Integer> pm){if(r==null)return;cur+=r.v;count+=pm.getOrDefault(cur-t,0);pm.merge(cur,1,Integer::sum);dfs(r.l,cur,t,pm);dfs(r.r,cur,t,pm);pm.merge(cur,-1,Integer::sum);}\n    static int pathSumIII(T r,int t){count=0;Map<Long,Integer> pm=new HashMap<>();pm.put(0L,1);dfs(r,0,t,pm);return count;}\n    public static void main(String[] a){T r=new T(10);r.l=new T(5);r.r=new T(-3);r.l.l=new T(3);r.l.r=new T(2);r.r.r=new T(11);r.l.l.l=new T(3);r.l.l.r=new T(-2);r.l.r.r=new T(1);System.out.println(pathSumIII(r,8));System.out.println(\"O(n) prefix sum + HashMap. pm.put(0,1) for paths from root. Backtrack: restore map after each subtree.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "3",
+            "O(n) prefix sum"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m35_t4_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Binary tree maximum path sum (negative values)",
+      "instructions": "Implement: Binary tree maximum path sum (negative values).",
+      "starter_code": "",
+      "expected_solution": "public class MPSNeg {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static int maxPathSum(T r){int[]m={Integer.MIN_VALUE};mps(r,m);return m[0];}\n    static int mps(T r,int[]m){if(r==null)return 0;int l=Math.max(mps(r.l,m),0),ri=Math.max(mps(r.r,m),0);m[0]=Math.max(m[0],r.v+l+ri);return r.v+Math.max(l,ri);}\n    public static void main(String[] a){System.out.println(maxPathSum(new T(-3)));System.out.println(\"-3 \u2014 single node case; max must be updated even for negative-only trees\");T r=new T(2);r.l=new T(-1);System.out.println(maxPathSum(r));System.out.println(\"2 \u2014 single node or single branch; max(0,child) handles one-way negativity\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "-3",
+            "2",
+            "max(0,child)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m35_t4_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Good nodes in binary tree (LeetCode #1448)",
+      "instructions": "Implement: Good nodes in binary tree (LeetCode #1448).",
+      "starter_code": "",
+      "expected_solution": "public class GoodNodes {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static int good=0;\n    static void dfs(T r,int maxSoFar){if(r==null)return;if(r.v>=maxSoFar){good++;maxSoFar=r.v;}dfs(r.l,maxSoFar);dfs(r.r,maxSoFar);}\n    static int countGoodNodes(T r){good=0;dfs(r,Integer.MIN_VALUE);return good;}\n    public static void main(String[] a){T r=new T(3);r.l=new T(1);r.r=new T(4);r.l.l=new T(3);r.r.l=new T(1);r.r.r=new T(5);System.out.println(countGoodNodes(r));System.out.println(\"4 \u2014 node is good if it's >= max value seen on path from root\");System.out.println(\"O(n) DFS with running max\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "4",
+            "node is good if",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t4_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "All paths root to leaf with sum",
+      "instructions": "Implement: All paths root to leaf with sum.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class AllPaths2 {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static List<List<Integer>> all=new ArrayList<>();\n    static void dfs(T r,int t,List<Integer> p){if(r==null)return;t-=r.v;p.add(r.v);if(r.l==null&&r.r==null&&t==0)all.add(new ArrayList<>(p));dfs(r.l,t,p);dfs(r.r,t,p);p.remove(p.size()-1);}\n    static List<List<Integer>> paths(T r,int t){all=new ArrayList<>();dfs(r,t,new ArrayList<>());return all;}\n    public static void main(String[] a){T r=new T(5);r.l=new T(4);r.r=new T(8);r.l.l=new T(11);r.l.l.l=new T(7);r.l.l.r=new T(2);r.r.l=new T(13);r.r.r=new T(4);r.r.r.r=new T(1);System.out.println(paths(r,22));System.out.println(\"Backtrack pattern: add\u2192recurse\u2192remove. O(n) time O(h) extra stack space\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "[[5, 4, 11, 2], [5, 8, 4, 1]]",
+            "Backtrack pattern"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t4_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Path sum from any node to any node (not just root-leaf)",
+      "instructions": "Implement: Path sum from any node to any node (not just root-leaf).",
+      "starter_code": "",
+      "expected_solution": "public class AnyPath {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static int maxPathSum(T r){int[]m={Integer.MIN_VALUE};d(r,m);return m[0];}\n    static int d(T r,int[]m){if(r==null)return 0;int l=Math.max(d(r.l,m),0),ri=Math.max(d(r.r,m),0);m[0]=Math.max(m[0],r.v+l+ri);return r.v+Math.max(l,ri);}\n    static boolean hasAnyPathSum(T r,long t,Map<Long,Integer> pm,long cur){if(r==null)return false;cur+=r.v;if(pm.containsKey(cur-t))return true;pm.merge(cur,1,Integer::sum);boolean res=hasAnyPathSum(r.l,t,pm,cur)||hasAnyPathSum(r.r,t,pm,cur);pm.merge(cur,-1,Integer::sum);return res;}\n    public static void main(String[] a){T r=new T(10);r.l=new T(5);r.r=new T(-3);r.l.l=new T(3);r.r.r=new T(11);java.util.HashMap<Long,Integer> pm=new java.util.HashMap<>();pm.put(0L,1);System.out.println(hasAnyPathSum(r,8,pm,0));System.out.println(maxPathSum(r));System.out.println(\"Prefix sum for any downward path. Max path for any direction.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "18",
+            "Prefix sum for any"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m35_t4_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Pseudo-palindromic paths in BT (LeetCode #1457)",
+      "instructions": "Implement: Pseudo-palindromic paths in BT (LeetCode #1457).",
+      "starter_code": "",
+      "expected_solution": "public class PseudoPalin {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static int count=0;\n    static void dfs(T r,int mask){if(r==null)return;mask^=(1<<r.v);if(r.l==null&&r.r==null){if((mask&(mask-1))==0)count++;}dfs(r.l,mask);dfs(r.r,mask);}\n    static int pseudoPalindromicPaths(T r){count=0;dfs(r,0);return count;}\n    public static void main(String[] a){T r=new T(2);r.l=new T(3);r.r=new T(1);r.l.l=new T(3);r.l.r=new T(1);r.r.r=new T(1);System.out.println(pseudoPalindromicPaths(r));System.out.println(\"2 \u2014 bitmask of digit frequencies. Palindrome: at most 1 bit set. (mask&(mask-1))==0 checks.\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "2",
+            "bitmask",
+            "(mask&(mask-1))==0"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t4_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Path problems synthesis",
+      "instructions": "Implement: Path problems synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T4Synth {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static boolean ps(T r,int t){if(r==null)return false;t-=r.v;if(r.l==null&&r.r==null)return t==0;return ps(r.l,t)||ps(r.r,t);}\n    static int mps(T r){int[]m={Integer.MIN_VALUE};mpsH(r,m);return m[0];}\n    static int mpsH(T r,int[]m){if(r==null)return 0;int l=Math.max(mpsH(r.l,m),0),ri=Math.max(mpsH(r.r,m),0);m[0]=Math.max(m[0],r.v+l+ri);return r.v+Math.max(l,ri);}\n    static int ps3(T r,int t){int[]c={0};Map<Long,Integer> pm=new HashMap<>();pm.put(0L,1);ps3H(r,0,t,pm,c);return c[0];}\n    static void ps3H(T r,long cur,int t,Map<Long,Integer> pm,int[]c){if(r==null)return;cur+=r.v;c[0]+=pm.getOrDefault(cur-t,0);pm.merge(cur,1,Integer::sum);ps3H(r.l,cur,t,pm,c);ps3H(r.r,cur,t,pm,c);pm.merge(cur,-1,Integer::sum);}\n    public static void main(String[] a){T r=new T(5);r.l=new T(4);r.r=new T(8);r.l.l=new T(11);r.l.l.r=new T(2);System.out.println(\"pathSum22=\"+ps(r,22));T r2=new T(-10);r2.l=new T(9);r2.r=new T(20);r2.r.l=new T(15);r2.r.r=new T(7);System.out.println(\"maxPath=\"+mps(r2));T r3=new T(10);r3.l=new T(5);r3.r=new T(-3);r3.r.r=new T(11);r3.l.l=new T(3);r3.l.r=new T(2);Map<Long,Integer> pm=new HashMap<>();pm.put(0L,1);System.out.println(\"ps3(8)=\"+ps3(r3,8));boolean ok=ps(r,22)&&mps(r2)==42;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "pathSum22=true",
+            "maxPath=42"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m35_t4_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Complete M35 T4 Path Synthesis",
+      "instructions": "Implement: Complete M35 T4 Path Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T4Final {\n    static class T{int v;T l,r;T(int v){this.v=v;}}\n    static boolean ps(T r,int t){if(r==null)return false;t-=r.v;if(r.l==null&&r.r==null)return t==0;return ps(r.l,t)||ps(r.r,t);}\n    static int mps(T r){int[]m={Integer.MIN_VALUE};mH(r,m);return m[0];}\n    static int mH(T r,int[]m){if(r==null)return 0;int l=Math.max(mH(r.l,m),0),ri=Math.max(mH(r.r,m),0);m[0]=Math.max(m[0],r.v+l+ri);return r.v+Math.max(l,ri);}\n    static List<List<Integer>> allPaths(T r,int t){List<List<Integer>> res=new ArrayList<>();apH(r,t,new ArrayList<>(),res);return res;}\n    static void apH(T r,int t,List<Integer> p,List<List<Integer>> res){if(r==null)return;t-=r.v;p.add(r.v);if(r.l==null&&r.r==null&&t==0)res.add(new ArrayList<>(p));apH(r.l,t,p,res);apH(r.r,t,p,res);p.remove(p.size()-1);}\n    public static void main(String[] a){T r=new T(5);r.l=new T(4);r.r=new T(8);r.l.l=new T(11);r.l.l.l=new T(7);r.l.l.r=new T(2);r.r.l=new T(13);r.r.r=new T(4);r.r.r.r=new T(1);T r2=new T(-10);r2.l=new T(9);r2.r=new T(20);r2.r.l=new T(15);r2.r.r=new T(7);System.out.println(\"ps22=\"+ps(r,22));System.out.println(\"mps=\"+mps(r2));System.out.println(\"paths22=\"+allPaths(r,22));boolean ok=ps(r,22)&&mps(r2)==42&&allPaths(r,22).size()==2;System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "ps22=true",
+            "mps=42",
+            "paths22=[[5, 4, 11, 2], [5, 8, 4, 1]]"
+          ]
+        }
+      ],
+      "hints": [
+        "Recursive/iterative",
+        "Base case first",
+        "O(n)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

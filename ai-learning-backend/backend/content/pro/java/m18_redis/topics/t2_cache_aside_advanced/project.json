@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m18_t2_proj",
+  "linked_topic": "java_m18_t2",
+  "level": "mini",
+  "name": "Zerodha Trader Hub — Advanced Redis Data Structures",
+  "estimated_minutes": 50,
+  "difficulty": 8,
+
+  "scenario": "Build the Zerodha trader hub with three Redis patterns in production: a real-time P&L leaderboard (Sorted Set), instrument metadata cache with null-object protection (cache-aside), and user session storage (Hash). Include stampede-safe market status loading.",
+
+  "description": "Redis Sorted Set leaderboard + manual cache-aside with null sentinel + Redis Hash sessions + stampede prevention. Integration tests verify rank order, null sentinel prevents DB hits, and session fields are accessible individually.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "TraderLeaderboard @Service: Redis Sorted Set 'leaderboard:pnl'. recordTrade(traderId, pnl): ZINCRBY. getTopN(n): ZREVRANGE. getMyRank(traderId): ZREVRANK → 1-indexed position. resetBoard(): DEL. getTotalParticipants(): ZCARD.",
+        "weight": 20
+      },
+      {
+        "id": "req_2",
+        "description": "InstrumentCacheService @Service: manual cache-aside 'instrument:{symbol}'. findBySymbol(): null sentinel '__NONE__' (5-min TTL) for unknown symbols. Real instruments cached for 6 hours. onNewInstrument(): evict sentinel, cache new instrument.",
+        "weight": 20
+      },
+      {
+        "id": "req_3",
+        "description": "UserSessionCache @Service: Redis Hash 'session:{userId}'. saveSession(userId, role, email, merchantId): HSET all fields + 30-min expiry. getRole(userId): HGET. extendSession(userId): EXPIRE reset. invalidate(userId): DEL.",
+        "weight": 15
+      },
+      {
+        "id": "req_4",
+        "description": "MarketStatusService @Service: stampede-safe getStatus(). Key 'market:status', TTL=30s, mutex lock TTL=5s. Double-check after acquiring lock. Returns 'OPEN'/'CLOSED'/'PRE_OPEN'.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "Integration tests (4): (1) recordTrade × 3, verify getTopN returns correct order, (2) findBySymbol('INVALID') twice → DB called once (null sentinel prevents second), (3) saveSession then getRole → correct role returned, (4) getTopN after resetBoard → empty list. All 4 pass.",
+        "weight": 30
+      },
+      {
+        "id": "req_6",
+        "description": "docker-compose.yml: Redis 7-alpine. application.properties: Redis connection. @SpringBootApplication @EnableCaching.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "DailyLeaderboardReset @Scheduled: runs at 15:30 IST (market close). Snapshots top 10 to LeaderboardHistory @Entity (PostgreSQL). Then DEL the Redis key. @DataJpaTest verifying snapshot persistence.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add Redis List activity feed: TraderActivityFeed @Service. pushActivity(userId, description): LPUSH + LTRIM to 50. getRecentActivities(userId, n): LRANGE. Integration test: 60 activities pushed, only 50 retained.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Multi-level cache: add Caffeine L1 in front of InstrumentCacheService. L1=50 entries, 60s TTL. On L1 miss: check Redis (L2). On L2 miss: DB. On update: invalidate both L1 and L2. Test verifying hit hierarchy.",
+        "weight": 25
+      }
+    ]
+  },
+
+  "data_to_use": "Leaderboard test:\n  Aisha Sharma: 3 trades → ₹5,000 + ₹2,000 - ₹500 = ₹6,500 P&L\n  Raj Patel:    2 trades → ₹3,000 + ₹1,500 = ₹4,500 P&L\n  Priya Verma:  1 trade  → ₹2,000 P&L\n  Expected top 3: [Aisha, Raj, Priya]\n\nNull sentinel test:\n  findBySymbol('XYZINVALID') → not in DB → store __NONE__\n  findBySymbol('XYZINVALID') again → return empty (no DB call)\n\nSession test:\n  saveSession('U001', 'TRADER', 'aisha@zerodha.com', null)\n  getRole('U001') → 'TRADER'",
+
+  "starter_code": "// TraderLeaderboard.java\n// InstrumentCacheService.java\n// UserSessionCache.java\n// MarketStatusService.java\n// ZerodhaHubTest.java (4 integration tests)\n// docker-compose.yml\n// application.properties",
+
+  "example_output": "# Leaderboard test:\nrecordTrade('Aisha', 5000) → ZINCRBY leaderboard:pnl 5000 Aisha\nrecordTrade('Aisha', 2000) → ZINCRBY leaderboard:pnl 2000 Aisha\nrecordTrade('Raj',   3000) → ZINCRBY leaderboard:pnl 3000 Raj\ngetTopN(3) → ['Aisha', 'Raj']\n\n# Null sentinel test:\nfindBySymbol('XYZINVALID') → DB QUERY (miss) → cache __NONE__\nfindBySymbol('XYZINVALID') → cache hit: __NONE__ → no DB query\n\n# Session test:\nsaveSession('U001', 'TRADER', ...) → HSET session:U001 role TRADER ...\ngetRole('U001') → HGET session:U001 role → 'TRADER'\n\n# Tests:\n✓ leaderboard_topNInCorrectOrder\n✓ nullSentinel_preventsSecondDbQuery\n✓ session_roleReturnedCorrectly\n✓ resetBoard_returnsEmptyTopN",
+
+  "rubric": [
+    { "category": "TraderLeaderboard", "points": 20, "criteria": ["recordTrade ZINCRBY (7 pts)", "getTopN ZREVRANGE (7 pts)", "getMyRank 1-indexed (6 pts)"] },
+    { "category": "InstrumentCache", "points": 20, "criteria": ["cache-aside logic (10 pts)", "null sentinel short TTL (10 pts)"] },
+    { "category": "UserSessionCache", "points": 15, "criteria": ["HSET all fields (7 pts)", "HGET single field (8 pts)"] },
+    { "category": "MarketStatusService", "points": 10, "criteria": ["stampede mutex (10 pts)"] },
+    { "category": "Integration tests (4)", "points": 30, "criteria": ["4 tests × 7-8 pts each"] },
+    { "category": "Config", "points": 5, "criteria": ["Docker + properties (5 pts)"] },
+    { "category": "Bonus", "points": 70, "criteria": ["Daily reset + PostgreSQL (20 pts)", "Activity feed (25 pts)", "Multi-level cache (25 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. reverseRank is 0-indexed — add 1 for human-readable position 1. null sentinel check: NONE.equals(cached) must come before instanceof check (both could match Object). Sorted Set uses String template; Hash+List can use String template; Object template for complex objects (instruments). Lock TTL must be long enough for DB query to complete (5-10 seconds). Try-finally for mutex: always release the lock, even if DB throws an exception.",
+
+  "submission_instructions": "GitHub push. All 4 integration tests pass. README shows Redis key patterns for each service. Include redis-cli output showing keys after running the tests.",
+
+  "tips_for_success": [
+    "Two RedisTemplate beans: String template for leaderboard/session/counters; Object template for complex Java objects",
+    "reverseRank + 1: ZREVRANK returns 0-indexed; display as 1-indexed",
+    "Null sentinel TTL: 5 minutes max — instrument might be added soon",
+    "try-finally for lock: redis.delete(lockKey) in finally block",
+    "Sorted Set reset: redis.delete(KEY) — DEL removes the entire key and all members"
+  ],
+
+  "concepts_reinforced": [
+    "Redis Sorted Set for real-time leaderboard (ZINCRBY, ZREVRANK, ZREVRANGE)",
+    "Manual cache-aside with RedisTemplate (get → miss → DB → set)",
+    "Null-object pattern with short TTL sentinel for missing entries",
+    "Redis Hash for partial field updates (HSET single field, HGET)",
+    "Cache stampede prevention with SETNX mutex and double-check",
+    "Multi-type Redis usage: String, Hash, Sorted Set in one service"
+  ]
+}

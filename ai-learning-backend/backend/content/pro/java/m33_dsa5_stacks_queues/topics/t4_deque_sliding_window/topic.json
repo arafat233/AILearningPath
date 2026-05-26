@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m33_t4",
+  "module_id": "m33",
+  "topic_number": 4,
+  "name": "Deque & Sliding Window Maximum",
+  "slug": "deque-sliding-window-maximum",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m33_t2",
+      "java_m33_t3",
+      "java_m30_t2"
+    ],
+    "concepts_taught": [
+      "deque_both_ends",
+      "sliding_window_maximum",
+      "monotonic_deque",
+      "k_largest_elements_stream",
+      "jump_game",
+      "string_sliding_window_deque"
+    ],
+    "skills_developed": [
+      "deque_as_monotonic_queue",
+      "sliding_window_max_o_n",
+      "combining_sliding_window_and_monotonic_structures"
+    ],
+    "career_relevance": "Sliding Window Maximum (LeetCode #239) is the definitive O(n) deque problem \u2014 asked at Amazon, Google, and Flipkart. The pattern combines sliding window (M30) with monotonic stack (T2) into a deque. Once mastered, it unlocks a family of 'maximum in range' problems.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```\nFlipkart analytics: find max order value in every rolling 3-day window\nOrders: [1,3,-1,-3,5,3,6,7], k=3\nNaive O(nk): check all k elements each window \u2192 O(n\u00d73) = TLE\nDeque O(n): maintain decreasing deque of indices\n\nWindows:  [1,3,-1] [3,-1,-3] [-1,-3,5] [-3,5,3] [5,3,6] [3,6,7]\nMaxes:    3        3         5         5        6       7\n```",
+    "what_you_will_build": "Sliding Window Maximum O(n), Jump Game, and related deque problems."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "deque_monotonic": "**Monotonic Deque for Sliding Window Maximum:**\n\n```java\nint[] maxSlidingWindow(int[] nums, int k) {\n    int n = nums.length;\n    int[] result = new int[n - k + 1];\n    Deque<Integer> deque = new ArrayDeque<>(); // stores INDICES\n    // Invariant: deque stores indices in DECREASING order of values\n    // Front = index of maximum in current window\n    for (int i = 0; i < n; i++) {\n        // 1. Remove indices out of window:\n        if (!deque.isEmpty() && deque.peekFirst() <= i - k)\n            deque.pollFirst();\n        // 2. Maintain decreasing order: remove smaller values from back\n        while (!deque.isEmpty() && nums[deque.peekLast()] <= nums[i])\n            deque.pollLast();\n        deque.offerLast(i);\n        // 3. Record result when window is full:\n        if (i >= k - 1) result[i - k + 1] = nums[deque.peekFirst()];\n    }\n    return result;\n}\n// O(n): each element added/removed from deque at most once\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Deque trace for [1,3,-1,-3,5,3,6,7] k=3. Show deque contents (indices with values) at each step. i=0: deque=[0(1)]. i=1: 3>1 \u2192 remove 0, add 1 \u2192 deque=[1(3)]. i=2: -1<3 \u2192 add 2 \u2192 deque=[1(3),2(-1)]. Window full: result[0]=nums[1]=3. i=3: -3<-1 \u2192 add 3 \u2192 deque=[1(3),2(-1),3(-3)]. result[1]=nums[1]=3. i=4: 5>all \u2192 clear deque, add 4 \u2192 deque=[4(5)]. result[2]=5. Continue...",
+      "alt_text": "Monotonic deque for sliding window maximum"
+    },
+    "worked_example": {
+      "scenario": "Jump Game II (LeetCode #45) \u2014 minimum jumps to end.",
+      "problem_statement": "nums=[2,3,1,1,4], reach end in minimum jumps. Answer = 2.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Greedy with implicit deque thinking",
+          "details": "Track current reach and max reach. When we reach the end of current jump range, increment jumps, update reach to max reach seen."
+        }
+      ],
+      "final_code": "int jump(int[] nums) {\n    int jumps=0, currEnd=0, farthest=0;\n    for(int i=0;i<nums.length-1;i++){\n        farthest=Math.max(farthest,i+nums[i]);\n        if(i==currEnd){jumps++;currEnd=farthest;}\n    }\n    return jumps;\n}",
+      "expected_output": "[2,3,1,1,4] \u2192 2",
+      "things_to_notice": [
+        "Greedy: always jump to extend farthest reach",
+        "currEnd: boundary of current jump range",
+        "When i==currEnd: must jump, extend to farthest",
+        "O(n) time, O(1) space \u2014 no deque needed here, but similar range-tracking idea"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Flipkart analytics",
+          "use_case": "Rolling max order value for dashboard. O(n) deque vs O(nk) naive."
+        }
+      ],
+      "interview_relevance": "Sliding Window Max: definitive deque problem. 'Max in each window' \u2192 always think deque first. O(n) vs O(nk) naive is the key insight.",
+      "real_world_workflow": "Deque decision: need both ends? \u2192 Deque. Sliding window max/min \u2192 monotonic deque. Queue/Stack combined \u2192 Deque."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "out_of_window_check",
+        "what_students_get_wrong": "Forgetting to remove indices that have left the window. If deque.peekFirst() <= i-k, that index is no longer in the window [i-k+1, i] and must be removed from front.",
+        "remediation": "Always step 1: check if front of deque is out of window. Condition: deque.peekFirst() < i-k+1, equivalently deque.peekFirst() <= i-k. Remove from front (pollFirst). This must happen BEFORE recording result.",
+        "detection_pattern": "Sliding window max returns stale values from previous windows"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Deque: O(1) at both ends \u2014 addFirst/addLast, removeFirst/removeLast",
+        "Sliding window max: monotonic decreasing deque of INDICES",
+        "Step 1: remove out-of-window index from front",
+        "Step 2: remove smaller values from back (they can never be max)",
+        "Step 3: record result when window full (i >= k-1)",
+        "O(n): each element added/removed at most once",
+        "Deque = double-ended queue: combines stack (one end) and queue (other end)"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why does the sliding window maximum deque remove elements from the BACK when a larger element arrives?",
+          "answer": "Because those smaller elements can never become the maximum. Suppose we have indices [..., j, i] in the deque where j < i (j came before i), and nums[j] < nums[i]. As the window slides right, whenever j is in the window, i is also in the window (since i > j and they're both in the current window). Since nums[i] > nums[j], j will never be the maximum of any future window \u2014 it's always dominated by i. So we can safely discard j. This maintains the deque in monotonically decreasing order: the front is always the maximum of the current window."
+        }
+      ],
+      "next_topic_preview": "Next: Stack & Queue Synthesis \u2014 implement LRU Cache, calculator, task scheduler."
+    }
+  }
+}

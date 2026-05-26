@@ -1,0 +1,354 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m32_t5",
+  "topic_name": "Merge and Sort LL",
+  "total_exercises": 15,
+  "exercises": [
+    {
+      "id": "java_m32_t5_ex_1",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Merge two sorted lists",
+      "instructions": "Implement: Merge two sorted lists.",
+      "starter_code": "",
+      "expected_solution": "public class M2{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode merge(ListNode l1,ListNode l2){ListNode d=new ListNode(0),c=d;while(l1!=null&&l2!=null){if(l1.val<=l2.val){c.next=l1;l1=l1.next;}else{c.next=l2;l2=l2.next;}c=c.next;}c.next=l1!=null?l1:l2;return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(merge(of(1,3,5),of(2,4,6))));System.out.println(str(merge(of(),of(1))));System.out.println(\"O(n+m) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-2-3-4-5-6",
+            "1",
+            "O(n+m)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m32_t5_ex_2",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Why merge sort not quicksort for LL",
+      "instructions": "Implement: Why merge sort not quicksort for LL.",
+      "starter_code": "",
+      "expected_solution": "public class WhyMerge{public static void main(String[] a){System.out.println(\"Array: O(1) random access \u2192 quicksort partition O(n) per level\");System.out.println(\"LL: no random access \u2192 pivot swap is O(n) traverse each time\");System.out.println(\"LL quicksort: O(n) per level, n levels \u2192 O(n\u00b2) average case\");System.out.println(\"LL merge sort: find middle O(n), merge O(n) \u2192 O(n log n) always\");System.out.println(\"Winner for LL: merge sort O(n log n) O(log n) space\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "O(n log n)",
+            "Winner for LL"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 10
+    },
+    {
+      "id": "java_m32_t5_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Sort list \u2014 split trick fast=head.next",
+      "instructions": "Implement: Sort list \u2014 split trick fast=head.next.",
+      "starter_code": "",
+      "expected_solution": "public class SplitTrick{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static String splitInfo(ListNode head){ListNode s=head,f=head.next;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode mid=s.next;s.next=null;return \"First: \"+str(head)+\", Second: \"+str(mid);}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    public static void main(String[] a){System.out.println(splitInfo(of(1,2,3,4)));System.out.println(splitInfo(of(1,2,3,4,5)));System.out.println(\"fast=head.next: ensures even-length splits correctly\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "First: 1-2",
+            "Second: 3-4",
+            "fast=head.next"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 20
+    },
+    {
+      "id": "java_m32_t5_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Sort Linked List (LeetCode #148)",
+      "instructions": "Implement: Sort Linked List (LeetCode #148).",
+      "starter_code": "",
+      "expected_solution": "public class SortLL{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode sort(ListNode head){if(head==null||head.next==null)return head;ListNode s=head,f=head.next;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode mid=s.next;s.next=null;ListNode l=sort(head),r=sort(mid);return merge(l,r);}\n    static ListNode merge(ListNode l1,ListNode l2){ListNode d=new ListNode(0),c=d;while(l1!=null&&l2!=null){if(l1.val<=l2.val){c.next=l1;l1=l1.next;}else{c.next=l2;l2=l2.next;}c=c.next;}c.next=l1!=null?l1:l2;return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(sort(of(4,2,1,3))));System.out.println(str(sort(of(-1,5,3,4,0))));System.out.println(\"O(n log n) time O(log n) space\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-2-3-4",
+            "-1-0-3-4-5",
+            "O(n log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 30
+    },
+    {
+      "id": "java_m32_t5_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Merge K Sorted Lists (LeetCode #23)",
+      "instructions": "Implement: Merge K Sorted Lists (LeetCode #23).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MK{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode mergeK(ListNode[] lists){PriorityQueue<ListNode> pq=new PriorityQueue<>((a,b)->a.val-b.val);for(ListNode l:lists)if(l!=null)pq.offer(l);ListNode d=new ListNode(0),c=d;while(!pq.isEmpty()){c.next=pq.poll();c=c.next;if(c.next!=null)pq.offer(c.next);}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(mergeK(new ListNode[]{of(1,4,5),of(1,3,4),of(2,6)})));System.out.println(\"O(N log K) \u2014 N total nodes, K lists\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-1-2-3-4-4-5-6",
+            "O(N log K)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m32_t5_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Add Two Numbers (LeetCode #2)",
+      "instructions": "Implement: Add Two Numbers (LeetCode #2).",
+      "starter_code": "",
+      "expected_solution": "public class Add2{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode addTwo(ListNode l1,ListNode l2){ListNode d=new ListNode(0),c=d;int carry=0;while(l1!=null||l2!=null||carry!=0){int sum=(l1!=null?l1.val:0)+(l2!=null?l2.val:0)+carry;carry=sum/10;c.next=new ListNode(sum%10);c=c.next;if(l1!=null)l1=l1.next;if(l2!=null)l2=l2.next;}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(addTwo(of(2,4,3),of(5,6,4))));System.out.println(str(addTwo(of(9,9,9,9,9,9,9),of(9,9,9,9))));System.out.println(\"O(max(n,m))\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "7-0-8",
+            "8-9-9-9-0-0-0-1",
+            "O(max"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 40
+    },
+    {
+      "id": "java_m32_t5_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Reorder List",
+      "instructions": "Implement: Reorder List.",
+      "starter_code": "",
+      "expected_solution": "public class RL{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static void reorder(ListNode head){if(head==null||head.next==null)return;ListNode s=head,f=head;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode p=null,c=s.next;s.next=null;while(c!=null){ListNode n=c.next;c.next=p;p=c;c=n;}ListNode l=head,r=p;while(r!=null){ListNode n1=l.next,n2=r.next;l.next=r;r.next=n1;l=n1;r=n2;}}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){ListNode l=of(1,2,3,4,5);reorder(l);System.out.println(str(l));l=of(1,2,3,4);reorder(l);System.out.println(str(l));System.out.println(\"O(n) O(1)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-5-2-4-3",
+            "1-4-2-3",
+            "O(n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 55
+    },
+    {
+      "id": "java_m32_t5_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Sort LL with duplicates",
+      "instructions": "Implement: Sort LL with duplicates.",
+      "starter_code": "",
+      "expected_solution": "public class SortDup{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode sort(ListNode head){if(head==null||head.next==null)return head;ListNode s=head,f=head.next;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode mid=s.next;s.next=null;ListNode l=sort(head),r=sort(mid);return merge(l,r);}\n    static ListNode merge(ListNode a,ListNode b){ListNode d=new ListNode(0),c=d;while(a!=null&&b!=null){if(a.val<=b.val){c.next=a;a=a.next;}else{c.next=b;b=b.next;}c=c.next;}c.next=a!=null?a:b;return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(sort(of(3,3,1,2,1,2,3))));System.out.println(str(sort(of(5,4,3,2,1))));System.out.println(\"Merge sort: stable, handles duplicates\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-1-2-2-3-3-3",
+            "1-2-3-4-5",
+            "stable"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t5_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Merge K \u2014 min-heap detailed",
+      "instructions": "Implement: Merge K \u2014 min-heap detailed.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class MKD{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode mergeK(ListNode[] lists){PriorityQueue<ListNode> pq=new PriorityQueue<>(Comparator.comparingInt(n->n.val));for(ListNode l:lists)if(l!=null)pq.add(l);ListNode d=new ListNode(0),c=d;while(!pq.isEmpty()){c.next=pq.poll();c=c.next;if(c.next!=null)pq.add(c.next);}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){ListNode[] ls={of(1,4,5),of(1,3,4),of(2,6)};System.out.println(str(mergeK(ls)));System.out.println(\"Heap size always \u2264 K. N extractions, each O(log K) \u2192 O(N log K)\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "1-1-2-3-4-4-5-6",
+            "O(N log K)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t5_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Add Two Numbers II (most significant first)",
+      "instructions": "Implement: Add Two Numbers II (most significant first).",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class Add2Rev{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode addTwo(ListNode l1,ListNode l2){Stack<Integer> s1=new Stack<>(),s2=new Stack<>();while(l1!=null){s1.push(l1.val);l1=l1.next;}while(l2!=null){s2.push(l2.val);l2=l2.next;}int carry=0;ListNode curr=null;while(!s1.isEmpty()||!s2.isEmpty()||carry!=0){int sum=(s1.isEmpty()?0:s1.pop())+(s2.isEmpty()?0:s2.pop())+carry;carry=sum/10;ListNode n=new ListNode(sum%10);n.next=curr;curr=n;}return curr;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(addTwo(of(7,2,4,3),of(5,6,4))));System.out.println(\"O(n+m) using stacks for MSB-first\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "7-8-0-7",
+            "O(n+m) using stacks"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t5_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Merge sort verification + timing",
+      "instructions": "Implement: Merge sort verification + timing.",
+      "starter_code": "",
+      "expected_solution": "public class SortVerify{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode sort(ListNode head){if(head==null||head.next==null)return head;ListNode s=head,f=head.next;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode mid=s.next;s.next=null;return merge(sort(head),sort(mid));}\n    static ListNode merge(ListNode a,ListNode b){ListNode d=new ListNode(0),c=d;while(a!=null&&b!=null){if(a.val<=b.val){c.next=a;a=a.next;}else{c.next=b;b=b.next;}c=c.next;}c.next=a!=null?a:b;return d.next;}\n    static boolean isSorted(ListNode h){while(h!=null&&h.next!=null){if(h.val>h.next.val)return false;h=h.next;}return true;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    public static void main(String[] a){ListNode sorted=sort(of(5,4,3,2,1,0));System.out.println(isSorted(sorted));sorted=sort(of(3,1,4,1,5,9,2,6));System.out.println(isSorted(sorted));System.out.println(\"Merge sort: always O(n log n), stable, correct on all inputs\");}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "true",
+            "true",
+            "O(n log n)"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 60
+    },
+    {
+      "id": "java_m32_t5_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Merge sort synthesis",
+      "instructions": "Implement: Merge sort synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T5Synth{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode mg(ListNode a,ListNode b){ListNode d=new ListNode(0),c=d;while(a!=null&&b!=null){if(a.val<=b.val){c.next=a;a=a.next;}else{c.next=b;b=b.next;}c=c.next;}c.next=a!=null?a:b;return d.next;}\n    static ListNode sort(ListNode h){if(h==null||h.next==null)return h;ListNode s=h,f=h.next;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode mid=s.next;s.next=null;return mg(sort(h),sort(mid));}\n    static ListNode mkSort(ListNode[] lists){PriorityQueue<ListNode> pq=new PriorityQueue<>((a,b)->a.val-b.val);for(ListNode l:lists)if(l!=null)pq.add(l);ListNode d=new ListNode(0),c=d;while(!pq.isEmpty()){c.next=pq.poll();c=c.next;if(c.next!=null)pq.add(c.next);}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(mg(of(1,3,5),of(2,4,6))));System.out.println(str(sort(of(4,2,1,3))));System.out.println(str(mkSort(new ListNode[]{of(1,4,5),of(1,3,4),of(2,6)})));boolean ok=str(mg(of(1,3,5),of(2,4,6))).equals(\"1-2-3-4-5-6\")&&str(sort(of(4,2,1,3))).equals(\"1-2-3-4\");System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true",
+            "1-2-3-4-5-6",
+            "1-1-2-3-4-4-5-6"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 65
+    },
+    {
+      "id": "java_m32_t5_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete T5 Synthesis",
+      "instructions": "Implement: Complete T5 Synthesis.",
+      "starter_code": "",
+      "expected_solution": "import java.util.*;\npublic class T5Final{static class ListNode{int val;ListNode next;ListNode(int v){val=v;}}\n    static ListNode mg(ListNode a,ListNode b){ListNode d=new ListNode(0),c=d;while(a!=null&&b!=null){if(a.val<=b.val){c.next=a;a=a.next;}else{c.next=b;b=b.next;}c=c.next;}c.next=a!=null?a:b;return d.next;}\n    static ListNode sort(ListNode h){if(h==null||h.next==null)return h;ListNode s=h,f=h.next;while(f!=null&&f.next!=null){s=s.next;f=f.next.next;}ListNode mid=s.next;s.next=null;return mg(sort(h),sort(mid));}\n    static ListNode mkMerge(ListNode[] ls){PriorityQueue<ListNode> pq=new PriorityQueue<>((a,b)->a.val-b.val);for(ListNode l:ls)if(l!=null)pq.add(l);ListNode d=new ListNode(0),c=d;while(!pq.isEmpty()){c.next=pq.poll();c=c.next;if(c.next!=null)pq.add(c.next);}return d.next;}\n    static ListNode of(int...vs){ListNode d=new ListNode(0),c=d;for(int v:vs){c.next=new ListNode(v);c=c.next;}return d.next;}\n    static String str(ListNode h){StringBuilder sb=new StringBuilder();while(h!=null){sb.append(h.val);if(h.next!=null)sb.append(\"-\");h=h.next;}return sb.toString();}\n    public static void main(String[] a){System.out.println(str(mg(of(1,3,5),of(2,4,6))));System.out.println(str(sort(of(4,2,1,3))));System.out.println(str(mkMerge(new ListNode[]{of(1,4),of(2,3),of(5,6)})));boolean ok=str(sort(of(4,2,1,3))).equals(\"1-2-3-4\")&&str(mkMerge(new ListNode[]{of(1,4),of(2,3),of(5,6)})).equals(\"1-2-3-4-5-6\");System.out.println(\"All pass: \"+ok);}\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout_contains": [
+            "All pass: true"
+          ]
+        }
+      ],
+      "hints": [
+        "Use dummy head",
+        "Check null before .next",
+        "Return dummy.next or prev (for reverse)"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "predict_output": 0,
+      "code_scratch": 15
+    },
+    "total_xp_possible": 740,
+    "estimated_completion_minutes": 65
+  }
+}

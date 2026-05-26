@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m7_t1_proj",
+  "linked_topic": "java_m7_t1",
+  "level": "mini",
+  "name": "Zerodha-Style Stock Order Validator",
+  "estimated_minutes": 55,
+  "difficulty": 6,
+
+  "scenario": "You're building the order entry system for a trading platform (Zerodha/Groww style). Traders type in stock symbol, quantity, and price. Everything that can go wrong — wrong data type, negative quantity, unrealistic price, unknown symbol — must be handled gracefully with specific messages. The order must never crash the system; instead, it returns a validation result. This is what production financial software looks like.",
+
+  "description": "A stock order entry system with robust exception handling at every layer: parsing (NumberFormatException), business validation (IllegalArgumentException via if-checks), symbol lookup (potential NullPointerException), and a finally block that always logs the attempt.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`StockOrder` class: symbol (String), quantity (int), price (double), orderType (String: BUY/SELL). toString: 'symbol qty@₹price (orderType)'.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "`OrderValidator.validate(String symbol, String qtyStr, String priceStr, String orderType)` returns a String result. Use try-catch for parsing, if-checks for validation.",
+        "weight": 25
+      },
+      {
+        "id": "req_3",
+        "description": "Errors to handle:\n- quantity or price not parseable → 'Error: [field] must be a valid number'\n- quantity <= 0 → 'Error: Quantity must be at least 1'\n- price <= 0 → 'Error: Price must be positive'\n- price > 100000 → 'Error: Price exceeds maximum (₹100000)'\n- symbol null/empty → 'Error: Symbol required'\n- orderType not BUY or SELL → 'Error: Order type must be BUY or SELL'",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "`OrderLog` class: List<String> of all attempts. `OrderValidator` must use finally to ALWAYS append to the log (success or failure) with timestamp-like counter.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "`OrderBook` class: `Map<String, List<StockOrder>>` of accepted orders by symbol. `placeOrder(StockOrder)` adds to book. `ordersFor(String symbol)` returns unmodifiable list.",
+        "weight": 12
+      },
+      {
+        "id": "req_6",
+        "description": "main() demonstrates: 5+ validation attempts (mix of valid and invalid), successful ones placed in OrderBook, print log, print order book for one symbol.",
+        "weight": 10
+      },
+      {
+        "id": "req_7",
+        "description": "No single bad order should crash the program — all must be handled.",
+        "weight": 10
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `Set<String>` validSymbols. If symbol not in validSymbols: 'Error: Unknown symbol [symbol]'. Populate with a few known symbols.",
+        "weight": 15
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add multi-catch: if quantity or price can't be parsed, use a single catch (NumberFormatException nfe) that identifies which field failed based on which parsing was last attempted.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add `retryOrder(String symbol, String qty, String price, String type, int maxRetries)` — if validation fails, let the user retry up to maxRetries times (simulated with a list of alternate inputs).",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Test orders:\n1. 'RELIANCE', '10', '2450.50', 'BUY' → valid\n2. 'TCS', '0', '3890', 'BUY' → quantity must be at least 1\n3. 'INFY', '5', 'notANumber', 'SELL' → price must be a valid number\n4. 'HDFC', '3', '1678', 'HOLD' → order type must be BUY or SELL\n5. 'WIPRO', '100', '412', 'SELL' → valid\n6. '', '5', '500', 'BUY' → symbol required",
+
+  "starter_code": "import java.util.*;\n\npublic class TradingSystem {\n    public static void main(String[] args) {\n        // Create validator, log, order book\n        // Attempt 6 orders\n        // Print log and order book\n    }\n    \n    // Define: StockOrder, OrderValidator, OrderLog, OrderBook\n}",
+
+  "example_output": "=== ORDER ATTEMPTS ===\n[1] RELIANCE 10@₹2450.5 (BUY) — ACCEPTED\n[2] TCS 0@₹3890.0 (BUY) — REJECTED: Quantity must be at least 1\n[3] INFY 5@₹? (SELL) — REJECTED: Price must be a valid number\n[4] HDFC 3@₹1678.0 (HOLD) — REJECTED: Order type must be BUY or SELL\n[5] WIPRO 100@₹412.0 (SELL) — ACCEPTED\n[6]  5@₹500.0 (BUY) — REJECTED: Symbol required\n\n=== ORDER LOG ===\nAttempt 1: ACCEPTED\nAttempt 2: REJECTED\n...\n\n=== OPEN ORDERS: RELIANCE ===\nRELIANCE 10@₹2450.5 (BUY)",
+
+  "rubric": [
+    { "category": "Exception Handling", "points": 35, "criteria": ["NumberFormatException caught separately for qty and price (15 pts)", "All 6 error cases covered (15 pts)", "No crashes on any input (5 pts)"] },
+    { "category": "Finally for Logging", "points": 20, "criteria": ["finally block always appends to log (15 pts)", "Log shows all attempts (5 pts)"] },
+    { "category": "OrderBook", "points": 15, "criteria": ["Map<String, List> grouping (10 pts)", "ordersFor returns unmodifiable (5 pts)"] },
+    { "category": "Compiles & Runs", "points": 15, "criteria": ["Compiles (10 pts)", "Runs (5 pts)"] },
+    { "category": "Demonstration", "points": 15, "criteria": ["All 6 orders shown (10 pts)", "Log and book printed (5 pts)"] },
+    { "category": "Bonus", "points": 55, "criteria": ["validSymbols HashSet (15 pts)", "multi-catch optimization (20 pts)", "retryOrder (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. Key patterns: parse qty and price separately with separate try-catch blocks so you can give field-specific errors. The finally block runs after BOTH successful validation and failure — use a counter or boolean to track outcome. OrderBook uses HashMap + computeIfAbsent, same as Module 6.",
+
+  "submission_instructions": "Save as TradingSystem.java. Run with all 6 test orders. Push to GitHub — this demonstrates production-grade input validation, the try-catch-finally pattern, and connecting Module 6 (OrderBook collections) with Module 7 (exception handling).",
+
+  "tips_for_success": [
+    "Parse quantity and price in SEPARATE try-catch blocks so you can say 'quantity must be a number' vs 'price must be a number' specifically.",
+    "finally block: increment a counter or add to log BEFORE knowing if it succeeded. A boolean 'success' set to true only after all validation passes works well.",
+    "OrderBook.placeOrder uses computeIfAbsent just like Module 6.2 grouping.",
+    "orderType validation: use if (!'BUY'.equals(type) && !'SELL'.equals(type)) — note equals on the string literal to avoid NPE."
+  ],
+
+  "concepts_reinforced": [
+    "NumberFormatException for parsing",
+    "Multiple catch blocks for specific errors",
+    "finally for guaranteed logging",
+    "Validation after parsing",
+    "Never crashing on bad input",
+    "Connecting Module 6 collections with Module 7 exception handling"
+  ]
+}

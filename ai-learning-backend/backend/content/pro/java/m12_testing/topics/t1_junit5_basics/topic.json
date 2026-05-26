@@ -1,0 +1,182 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m12_t1",
+  "language": "java",
+  "module_id": "m12",
+  "module_name": "Unit Testing with JUnit 5",
+  "topic_number": 1,
+  "name": "JUnit 5 Basics",
+  "slug": "junit5-basics",
+
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m5_t1", "java_m7_t5"],
+    "concepts_taught": [
+      "what_is_unit_testing",
+      "why_test",
+      "junit5_annotations",
+      "at_test",
+      "at_beforeeach_at_aftereach",
+      "at_beforeall_at_afterall",
+      "at_displayname",
+      "at_disabled",
+      "assertions_basics",
+      "assertequals",
+      "asserttrue_assertfalse",
+      "assertnull_assertnotnull",
+      "assertthrows",
+      "test_method_naming",
+      "test_class_structure",
+      "arrange_act_assert_pattern"
+    ],
+    "skills_developed": [
+      "writing_basic_unit_tests",
+      "using_junit5_annotations",
+      "applying_assertions_correctly",
+      "structuring_test_classes",
+      "testing_exceptions",
+      "using_beforeeach_for_setup"
+    ],
+    "career_relevance": "Every professional Java codebase has tests. At Flipkart, Razorpay, and Zerodha, no code is merged without tests. Interviewers ask candidates to write tests during coding rounds. Spring Boot projects are generated with JUnit 5 pre-configured. After this topic, you write tests the way professionals do — and your code becomes measurably more reliable.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "You've written a CSV parser. Does it handle quoted commas? Empty fields? Escaped double-quotes? You run the program, look at the output, think 'looks right' — and ship it.\n\nThree weeks later, a seller uploads a product named `\"Dell 27\", Monitor` and the whole import crashes. The bug was there the whole time, you just didn't test those cases.\n\n**The professional solution:**\n```java\n@Test\nvoid parsesQuotedFieldWithComma() {\n    List<String> cols = parseCSVLine('\"Dell 27, Monitor\",18999');\n    assertEquals(2, cols.size());\n    assertEquals(\"Dell 27, Monitor\", cols.get(0));\n    assertEquals(\"18999\", cols.get(1));\n}\n\n@Test\nvoid handlesEscapedQuote() {\n    List<String> cols = parseCSVLine('\"Dell 27\\\"\\\" Monitor\",18999');\n    assertEquals(\"Dell 27\\\" Monitor\", cols.get(0));\n}\n\n@Test\nvoid emptyFieldReturnsEmptyString() {\n    List<String> cols = parseCSVLine(\"Mouse,,799\");\n    assertEquals(\"\", cols.get(1));\n}\n```\n\nThese 3 tests run in milliseconds. If your code breaks, they scream immediately — before you ship, before a seller notices, before data gets corrupted.\n\nJUnit 5 is the standard Java testing framework. Built into Maven and Gradle. Integrated into every IDE. The tool every Java developer uses every day.",
+    "what_you_will_build": "By the end of this topic, you'll write JUnit 5 tests using @Test, @BeforeEach, @AfterEach, and @BeforeAll, use assertions (assertEquals, assertTrue, assertThrows), follow the Arrange-Act-Assert pattern, name tests descriptively, and test exception cases."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "what_is_unit_testing": "**Unit testing — testing one unit of code in isolation:**\n\nA unit is typically one method, one class, or one function. A unit test:\n- Calls the method with specific input\n- Checks that the output is correct\n- Is fast (milliseconds)\n- Is repeatable (same result every run)\n- Doesn't require a database, network, or file system\n\n```\nYour code:                Tests:\nCSVParser.parse()  ←─── parsesQuotedField(), handlesEmptyField(), ...\nBankAccount.debit()←─── debitReducesBalance(), debitThrowsOnInsufficient(), ...\nStockPrice.pnl()   ←─── pnlPositiveWhenPriceRise(), pnlNegativeWhenFall(), ...\n```\n\n**Why test?**\n- **Find bugs early** — before they reach production\n- **Refactor safely** — change code, tests tell you if you broke something\n- **Document behaviour** — tests show exactly how a method should work\n- **Faster feedback** — 10-second test run vs 5-minute manual testing",
+
+      "junit5_setup": "**JUnit 5 setup — Maven dependency:**\n\n```xml\n<!-- pom.xml -->\n<dependency>\n    <groupId>org.junit.jupiter</groupId>\n    <artifactId>junit-jupiter</artifactId>\n    <version>5.10.0</version>\n    <scope>test</scope>\n</dependency>\n```\n\n**Test class structure:**\n```java\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass CalculatorTest {   // no 'public' required in JUnit 5; class name: [Class]Test\n    \n    @Test\n    void addsTwoPositiveNumbers() {  // no 'public', no return type\n        // Arrange (set up)\n        Calculator calc = new Calculator();\n        // Act (call the method)\n        int result = calc.add(3, 4);\n        // Assert (verify)\n        assertEquals(7, result);\n    }\n}\n```\n\n**Convention**: test classes in `src/test/java` mirroring the source package structure. Test class named `[ClassUnderTest]Test`.",
+
+      "basic_assertions": "**JUnit 5 Assertions — the most common:**\n\n```java\nimport static org.junit.jupiter.api.Assertions.*;\n\n// assertEquals: most common — checks exact equality\nassertEquals(7,         calc.add(3, 4));\nassertEquals(\"HELLO\",   \"hello\".toUpperCase());\nassertEquals(3.0,       Math.sqrt(9.0), 0.001);  // double: allow delta\n\n// assertTrue / assertFalse:\nassertTrue(\"Hyderabad\".startsWith(\"Hyd\"));\nassertFalse(list.isEmpty());\nassertTrue(price > 0, \"Price must be positive\");  // custom failure message\n\n// assertNull / assertNotNull:\nassertNull(result);          // must be null\nassertNotNull(user);         // must not be null\nassertNotNull(user.getId(), \"User ID should be set after save\");\n\n// assertThrows — test that an exception is thrown:\nIllegalArgumentException ex = assertThrows(\n    IllegalArgumentException.class,\n    () -> account.withdraw(-100));\nassertEquals(\"Amount must be positive\", ex.getMessage());\n\n// Multiple assertions in one test:\nassertAll(\n    () -> assertEquals(\"Aisha\", user.getName()),\n    () -> assertEquals(28, user.getAge()),\n    () -> assertEquals(\"Hyderabad\", user.getCity())\n);\n```",
+
+      "lifecycle_annotations": "**JUnit 5 lifecycle annotations:**\n\n```java\nclass BankAccountTest {\n    BankAccount account;  // shared test fixture\n    \n    @BeforeEach           // runs BEFORE each @Test method\n    void setUp() {\n        account = new BankAccount(\"ACC-001\", 1000.0);\n    }\n    \n    @AfterEach            // runs AFTER each @Test method\n    void tearDown() {\n        account.close();\n    }\n    \n    @BeforeAll            // runs ONCE before all tests in the class (must be static)\n    static void initDatabase() {\n        System.out.println(\"Setting up test database...\");\n    }\n    \n    @AfterAll             // runs ONCE after all tests (must be static)\n    static void cleanupDatabase() {\n        System.out.println(\"Tearing down test database...\");\n    }\n    \n    @Test\n    void depositIncreasesBalance() {\n        account.deposit(500);            // uses account from @BeforeEach\n        assertEquals(1500, account.getBalance());\n    }\n    \n    @Test\n    void withdrawReducesBalance() {\n        account.withdraw(200);           // fresh account from @BeforeEach\n        assertEquals(800, account.getBalance());\n    }\n}\n```\n\n**Execution order per test**: @BeforeAll → [@BeforeEach → @Test → @AfterEach] × N → @AfterAll",
+
+      "display_name_disabled": "**@DisplayName and @Disabled:**\n\n```java\n@Test\n@DisplayName(\"Deposit of ₹500 increases balance from ₹1000 to ₹1500\")\nvoid depositIncreasesBalance() {\n    account.deposit(500);\n    assertEquals(1500, account.getBalance());\n}\n// In test report: shows the DisplayName instead of the method name\n\n@Test\n@Disabled(\"Skipped: payment gateway not available in test environment\")\nvoid processesRealPayment() {\n    // Test skipped; not failed\n}\n```",
+
+      "arrange_act_assert": "**Arrange-Act-Assert (AAA) — the test pattern:**\n\n```java\n@Test\nvoid withdrawThrowsOnInsufficientFunds() {\n    // ARRANGE — set up the scenario\n    BankAccount account = new BankAccount(\"ACC-001\", 100.0);\n    \n    // ACT + ASSERT — perform action and verify exception:\n    IllegalStateException ex = assertThrows(\n        IllegalStateException.class,\n        () -> account.withdraw(500));  // withdraw more than balance\n    \n    // Assert the exception message too:\n    assertEquals(\"Insufficient funds: ₹100.0 available, ₹500.0 requested\",\n        ex.getMessage());\n}\n\n// Good test names tell a story:\n// [method]_[scenario]_[expected result]\nvoid withdraw_insufficientFunds_throwsIllegalStateException()\nvoid parse_quotedFieldWithComma_returnsCorrectFields()\nvoid getUser_validId_returnsUser()\nvoid getUser_invalidId_returnsEmpty()\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Test lifecycle timeline: @BeforeAll fires once at top. Then for each test: @BeforeEach → @Test method runs → @AfterEach fires. Repeat for each test. @AfterAll once at bottom. Color coding: setup=blue, test=green, teardown=orange. Second panel: Arrange-Act-Assert in a test method with color-coded sections. Third panel: test report showing green checkmarks for passing tests and red X for failing ones with the assertion message. Bottom: Maven directory structure showing src/main/java vs src/test/java mirroring.",
+      "alt_text": "JUnit 5 lifecycle, Arrange-Act-Assert pattern, test report output, and project structure"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Write a complete test class for a `BankAccount` class. The tests cover deposit, withdraw, balance check, overdraft protection, and account closure — demonstrating all lifecycle annotations and assertion types.",
+
+    "problem_statement": "Test `BankAccount` with these behaviours:\n1. New account starts with given balance\n2. deposit() increases balance\n3. withdraw() decreases balance\n4. withdraw() throws on insufficient funds (with exact message)\n5. getBalance() returns current balance\n6. Closed account throws on any operation",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "The class under test",
+        "details": "```java\npublic class BankAccount {\n    private final String id;\n    private double balance;\n    private boolean closed = false;\n    \n    public BankAccount(String id, double initialBalance) {\n        this.id = id;\n        this.balance = initialBalance;\n    }\n    \n    public void deposit(double amount) {\n        checkOpen();\n        if (amount <= 0) throw new IllegalArgumentException(\"Amount must be positive\");\n        balance += amount;\n    }\n    \n    public void withdraw(double amount) {\n        checkOpen();\n        if (amount <= 0) throw new IllegalArgumentException(\"Amount must be positive\");\n        if (amount > balance) throw new IllegalStateException(\n            \"Insufficient funds: ₹\" + balance + \" available, ₹\" + amount + \" requested\");\n        balance -= amount;\n    }\n    \n    public double getBalance() { checkOpen(); return balance; }\n    public void close() { closed = true; }\n    private void checkOpen() {\n        if (closed) throw new IllegalStateException(\"Account is closed\");\n    }\n}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Test class with lifecycle and assertions",
+        "details": "```java\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass BankAccountTest {\n    BankAccount account;\n    \n    @BeforeEach\n    void setUp() {\n        account = new BankAccount(\"ACC-001\", 1000.0);\n    }\n    \n    @Test\n    @DisplayName(\"New account has correct initial balance\")\n    void newAccount_hasInitialBalance() {\n        assertEquals(1000.0, account.getBalance());\n    }\n    \n    @Test\n    void deposit_validAmount_increasesBalance() {\n        account.deposit(500);\n        assertEquals(1500.0, account.getBalance());\n    }\n    \n    @Test\n    void withdraw_validAmount_decreasesBalance() {\n        account.withdraw(300);\n        assertEquals(700.0, account.getBalance());\n    }\n    \n    @Test\n    void withdraw_insufficientFunds_throwsIllegalStateException() {\n        IllegalStateException ex = assertThrows(\n            IllegalStateException.class,\n            () -> account.withdraw(2000));\n        assertTrue(ex.getMessage().contains(\"Insufficient funds\"));\n    }\n    \n    @Test\n    void deposit_negativeAmount_throwsIllegalArgumentException() {\n        assertThrows(IllegalArgumentException.class,\n            () -> account.deposit(-100));\n    }\n    \n    @Test\n    void closedAccount_anyOperation_throwsIllegalStateException() {\n        account.close();\n        assertThrows(IllegalStateException.class, () -> account.deposit(100));\n        assertThrows(IllegalStateException.class, () -> account.withdraw(100));\n        assertThrows(IllegalStateException.class, () -> account.getBalance());\n    }\n}\n```"
+      }
+    ],
+
+    "final_code": "// BankAccount.java (class under test)\npublic class BankAccount {\n    private final String id;\n    private double balance;\n    private boolean closed = false;\n    \n    public BankAccount(String id, double balance) { this.id = id; this.balance = balance; }\n    public void deposit(double amount) { checkOpen(); check(amount > 0, \"Amount must be positive\"); balance += amount; }\n    public void withdraw(double amount) {\n        checkOpen(); check(amount > 0, \"Amount must be positive\");\n        check(amount <= balance, \"Insufficient funds: ₹\" + balance + \" available, ₹\" + amount + \" requested\");\n        balance -= amount;\n    }\n    public double getBalance() { checkOpen(); return balance; }\n    public void close() { closed = true; }\n    private void checkOpen() { if (closed) throw new IllegalStateException(\"Account is closed\"); }\n    private void check(boolean condition, String msg) { if (!condition) throw new IllegalArgumentException(msg); }\n}\n\n// BankAccountTest.java\nimport org.junit.jupiter.api.*;\nimport static org.junit.jupiter.api.Assertions.*;\n\nclass BankAccountTest {\n    BankAccount account;\n    \n    @BeforeEach void setUp() { account = new BankAccount(\"ACC-001\", 1000.0); }\n    \n    @Test void newAccount_hasInitialBalance() { assertEquals(1000.0, account.getBalance()); }\n    \n    @Test void deposit_validAmount_increasesBalance() {\n        account.deposit(500); assertEquals(1500.0, account.getBalance()); }\n    \n    @Test void withdraw_validAmount_decreasesBalance() {\n        account.withdraw(300); assertEquals(700.0, account.getBalance()); }\n    \n    @Test void withdraw_insufficientFunds_throwsIllegalStateException() {\n        IllegalStateException ex = assertThrows(IllegalStateException.class,\n            () -> account.withdraw(2000));\n        assertTrue(ex.getMessage().contains(\"Insufficient funds\"));\n    }\n    \n    @Test void deposit_negativeAmount_throwsIllegalArgumentException() {\n        assertThrows(IllegalArgumentException.class, () -> account.deposit(-100));\n    }\n    \n    @Test @DisplayName(\"Closed account throws on all operations\")\n    void closedAccount_anyOperation_throws() {\n        account.close();\n        assertAll(\n            () -> assertThrows(IllegalStateException.class, () -> account.deposit(100)),\n            () -> assertThrows(IllegalStateException.class, () -> account.withdraw(100)),\n            () -> assertThrows(IllegalStateException.class, () -> account.getBalance())\n        );\n    }\n    \n    @Test @Disabled(\"Not yet implemented\")\n    void transfer_betweenAccounts_movesBalance() { }\n}",
+
+    "expected_output": "Test Results:\n✓ newAccount_hasInitialBalance\n✓ deposit_validAmount_increasesBalance\n✓ withdraw_validAmount_decreasesBalance\n✓ withdraw_insufficientFunds_throwsIllegalStateException\n✓ deposit_negativeAmount_throwsIllegalArgumentException\n✓ Closed account throws on all operations\n⊘ transfer_betweenAccounts_movesBalance (DISABLED)\n\n6 tests passed, 0 failed, 1 skipped",
+
+    "things_to_notice": [
+      "@BeforeEach creates a fresh BankAccount before EACH test. This is critical — tests must be independent. If withdraw_validAmount ran before deposit_validAmount, and they shared the same account instance, the balance would be different. Fresh instance = isolated test.",
+      "assertThrows: the lambda `() -> account.withdraw(2000)` is passed as the executable. assertThrows catches the exception and returns it so you can inspect the message. If no exception is thrown, the test fails.",
+      "assertAll: runs all assertions even if one fails. Without assertAll, a single failed assertion stops the rest. assertAll lets you check all three account operations and see all three failures at once.",
+      "@Disabled marks a test to skip (not fail). Use this for: tests for features not yet built, tests that need external services, temporarily broken tests with a known issue. Always include a reason string.",
+      "Test method names follow the pattern: [method]_[scenario]_[expectedResult]. This makes failing test messages immediately understandable: 'withdraw_insufficientFunds_throwsIllegalStateException FAILED' tells you exactly what went wrong."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment validation",
+        "use_case": "Every payment validation rule is tested: `validateAmount_negative_throwsException`, `validateAmount_zero_throwsException`, `validateAmount_positive_passes`, `validateCurrency_invalid_throwsException`. These tests run on every commit. A developer can change the validation logic knowing that if any rule breaks, a test will fail immediately — not when a ₹0 payment slips through to production."
+      },
+      {
+        "company_context": "Spring Boot development workflow",
+        "use_case": "Spring Boot generates test classes automatically. `mvn test` runs all JUnit 5 tests. CI/CD pipeline (Jenkins, GitHub Actions) blocks merges if any test fails. At Zerodha and Flipkart, a PR with failing tests cannot be merged. Tests are not optional — they're part of the definition of 'done'."
+      },
+      {
+        "company_context": "TDD (Test-Driven Development) at Thoughtworks",
+        "use_case": "TDD: write the test first (it fails — no code yet), then write just enough code to make it pass, then refactor. Red → Green → Refactor. Each test describes one behaviour. The test IS the specification. Thoughtworks pioneered TDD; it's now standard at most major tech companies. Module 12.5 covers TDD in detail."
+      }
+    ],
+
+    "interview_relevance": "Testing questions appear in most Java interviews:\n\n- **'Write a test for this method'** — common in coding rounds; know assertEquals, assertThrows\n- **'What is @BeforeEach used for?'** — set up a fresh test fixture before each test\n- **'How do you test that a method throws an exception?'** → `assertThrows(ExceptionType.class, () -> methodCall())`\n- **'What is the difference between @BeforeEach and @BeforeAll?'** → BeforeEach: once per test. BeforeAll: once per class (static).\n- **'What is the Arrange-Act-Assert pattern?'** → Three phases: set up (Arrange), call the method (Act), verify (Assert).",
+
+    "real_world_workflow": "Daily testing workflow:\n\n- Write method → write tests in [Method]Test class\n- Run: `mvn test` or `./gradlew test` or IDE green play button\n- Test naming: `methodName_scenario_expectedOutcome`\n- @BeforeEach for fresh test fixtures\n- assertEquals for values, assertThrows for errors, assertNotNull for presence\n- Keep each test short, testing one thing"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "shared_mutable_state_between_tests",
+      "what_students_get_wrong": "Reusing the same object instance across tests — earlier tests corrupt state for later ones.",
+      "remediation": "ALWAYS create fresh test objects in @BeforeEach. Each test must be completely independent. A test should pass whether it runs first, last, or alone. Never share mutable state between tests.",
+      "detection_pattern": "Tests pass in one order but fail in another; tests pass individually but fail together"
+    },
+    {
+      "gap_id": "assertEquals_argument_order",
+      "what_students_get_wrong": "Calling `assertEquals(actual, expected)` — reversed order. Failure message shows wrong info.",
+      "remediation": "JUnit 5 order: `assertEquals(EXPECTED, ACTUAL)`. Expected first, actual second. The failure message reads: 'expected: [what you said] but was: [what the code returned]'. Reversed: confusing messages.",
+      "detection_pattern": "Failure messages say expected: 42 but was: 42 (confusingly backwards)"
+    },
+    {
+      "gap_id": "testing_too_much_in_one_test",
+      "what_students_get_wrong": "One giant test that tests deposit, withdraw, and transfer all at once — hard to know what failed.",
+      "remediation": "One test = one behaviour. If a test is called `testBankAccount`, it tests too much. Split into `deposit_validAmount_increasesBalance`, `withdraw_validAmount_decreasesBalance`. When it fails, you know exactly which behaviour broke.",
+      "detection_pattern": "Long test method with many actions and many assertions"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Unit test: tests one method/class in isolation; fast, repeatable, no external dependencies",
+      "@Test: marks a method as a test case; no public modifier needed in JUnit 5",
+      "assertEquals(expected, actual): most-used assertion; EXPECTED first, ACTUAL second",
+      "assertThrows(ExType.class, () -> call()): test that a method throws an exception",
+      "assertAll(() -> ..., () -> ...): run multiple assertions; all fail messages reported",
+      "@BeforeEach: run before EACH test — create fresh objects here",
+      "@AfterEach: run after EACH test — cleanup",
+      "@BeforeAll: run ONCE before all tests — must be static",
+      "@DisplayName: human-readable test description in reports",
+      "@Disabled(reason): skip a test — never silently ignore",
+      "Arrange-Act-Assert: set up scenario, call method, verify result",
+      "Test naming: methodName_scenario_expectedResult — tells you what broke"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "Two tests share a `List<String> items = new ArrayList<>()` field (not recreated in @BeforeEach). Test A adds 3 items. Test B checks `items.isEmpty()`. What's the problem?",
+        "answer": "Test order determines the result. If Test A runs before Test B, the list has 3 items and Test B fails. If Test B runs first, the list is empty and Test B passes. Tests must be independent. Fix: create `items = new ArrayList<>()` in @BeforeEach. Each test gets a fresh empty list."
+      },
+      {
+        "question": "What does this test verify — and what's wrong with it?\n```java\n@Test\nvoid testAccount() {\n    BankAccount acc = new BankAccount(1000);\n    acc.deposit(500);\n    assertEquals(1500, acc.getBalance());\n    acc.withdraw(200);\n    assertEquals(1300, acc.getBalance());\n    acc.close();\n    assertThrows(IllegalStateException.class, () -> acc.deposit(100));\n}\n```",
+        "answer": "The test verifies three behaviours: deposit increases balance, withdraw decreases balance, and closed account throws. The problem: it's three tests in one. If deposit fails, withdraw and close never even run — you don't know if those work. And 'testAccount FAILED' tells you nothing useful. Split into three separate tests: `deposit_validAmount_increasesBalance`, `withdraw_validAmount_decreasesBalance`, `closedAccount_deposit_throws`. Each becomes a clear single responsibility."
+      },
+      {
+        "question": "When would you use @BeforeAll instead of @BeforeEach?",
+        "answer": "@BeforeAll runs once for the entire test class — use it for expensive setup that all tests share and doesn't change: starting a database connection, loading a large file, initializing a mock server. @BeforeEach runs before EVERY test — use it for creating fresh test objects. If setup is cheap (creating a BankAccount) → @BeforeEach. If setup is expensive and the state it creates is immutable → @BeforeAll."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Parameterized Tests and Edge Cases** — writing one test that runs with many different inputs. `@ParameterizedTest` + `@ValueSource` or `@CsvSource` means you test 10 scenarios with the same test body. After Topic 12.2, your tests cover edge cases systematically — boundary values, null inputs, empty collections — without writing a separate test method for each."
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m33_t3",
+  "module_id": "m33",
+  "topic_number": 3,
+  "name": "Queue Fundamentals \u2014 FIFO, BFS, Implement with Stacks",
+  "slug": "queue-fundamentals-fifo-bfs-implement",
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 45,
+    "prerequisites": [
+      "java_m33_t1"
+    ],
+    "concepts_taught": [
+      "queue_fifo",
+      "java_linkedlist_as_queue",
+      "java_arraydeque_queue",
+      "bfs_traversal",
+      "level_order_traversal",
+      "implement_queue_with_stacks",
+      "implement_stack_with_queues",
+      "circular_queue"
+    ],
+    "skills_developed": [
+      "bfs_with_queue",
+      "queue_vs_stack_decision",
+      "implement_queue_from_stacks",
+      "circular_queue_design"
+    ],
+    "career_relevance": "Queue is the data structure of BFS \u2014 used in shortest path, level-order tree traversal, and task scheduling. 'Implement Queue with Stacks' (LeetCode #232) is a classic interview question. Zerodha's job scheduler processes tasks in FIFO order.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  "hook": {
+    "real_world_problem": "```java\n// Zerodha job queue: process tasks in order received\n// Task A arrives at 9:00 \u2192 processed first\n// Task B arrives at 9:01 \u2192 processed second\n// FIFO: First In, First Out\n\n// Java: ArrayDeque as queue\nDeque<String> queue = new ArrayDeque<>();\nqueue.offer(\"Task A\");  // enqueue \u2014 O(1)\nqueue.offer(\"Task B\");\nqueue.offer(\"Task C\");\nqueue.poll();  // \"Task A\" \u2014 O(1) \u2014 FIFO!\nqueue.peek();  // \"Task B\" \u2014 doesn't remove\n```",
+    "what_you_will_build": "Queue operations, BFS level-order traversal, implement queue with two stacks."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "queue_java": "**Java Queue: offer/poll (preferred) vs add/remove:**\n\n```java\n// As queue (FIFO): use offer at tail, poll from head\nDeque<Integer> q = new ArrayDeque<>();\nq.offer(1);   // enqueue tail \u2014 addLast \u2014 O(1)\nq.offer(2);\nq.offer(3);\nq.poll();     // dequeue head \u2014 removeFirst \u2014 O(1) \u2192 1\nq.peek();     // peek head \u2014 peekFirst \u2014 O(1) \u2192 2\n\n// LinkedList also implements Queue \u2014 but ArrayDeque is faster\n// offer vs add: offer returns false on capacity limit; add throws exception\n// poll vs remove: poll returns null if empty; remove throws NoSuchElementException\n// ALWAYS use offer/poll in interviews \u2014 safe and idiomatic\n\n// BFS template (binary tree level order):\nQueue<TreeNode> q2 = new ArrayDeque<>();\nq2.offer(root);\nwhile(!q2.isEmpty()){\n    int size=q2.size(); // nodes at current level\n    for(int i=0;i<size;i++){\n        TreeNode node=q2.poll();\n        // process node\n        if(node.left!=null) q2.offer(node.left);\n        if(node.right!=null) q2.offer(node.right);\n    }\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Queue as horizontal pipe: offer() adds to right (tail), poll() removes from left (head). Arrow 'FIFO'. Beside: BFS level-order on tree. Level 0: root. Level 1: left, right. Level 2: all grandchildren. Queue state at each level shown with size snapshot.",
+      "alt_text": "Queue FIFO and BFS level-order traversal"
+    },
+    "worked_example": {
+      "scenario": "Implement Queue with Two Stacks (LeetCode #232).",
+      "problem_statement": "Implement FIFO queue using only two stacks. Amortized O(1) per operation.",
+      "step_by_step_solution": [
+        {
+          "step": 1,
+          "action": "Lazy transfer strategy",
+          "details": "inbox stack receives all pushes. On pop: if outbox empty, pour ALL from inbox to outbox (reverses order). Pop from outbox. Amortized O(1): each element transferred at most once."
+        }
+      ],
+      "final_code": "class MyQueue {\n    Deque<Integer> inbox=new ArrayDeque<>(), outbox=new ArrayDeque<>();\n    void push(int x){ inbox.push(x); }\n    int pop(){\n        if(outbox.isEmpty())\n            while(!inbox.isEmpty()) outbox.push(inbox.pop());\n        return outbox.pop();\n    }\n    int peek(){\n        if(outbox.isEmpty())\n            while(!inbox.isEmpty()) outbox.push(inbox.pop());\n        return outbox.peek();\n    }\n    boolean empty(){ return inbox.isEmpty()&&outbox.isEmpty(); }\n}",
+      "expected_output": "push(1),push(2),peek()=1,pop()=1,empty()=false",
+      "things_to_notice": [
+        "Lazy transfer: pour inbox\u2192outbox only when outbox is empty",
+        "Each element moves inbox\u2192outbox at most once \u2192 amortized O(1)",
+        "Amortized O(1) even though individual pop can be O(n)",
+        "outbox gives FIFO order (inbox reversed = original push order)"
+      ]
+    },
+    "applications": {
+      "industry_examples": [
+        {
+          "company_context": "Zerodha order processing",
+          "use_case": "Job queue processes market data orders FIFO. Queue ensures fair ordering."
+        }
+      ],
+      "interview_relevance": "Queue+Stack problems: implement each with the other. BFS template: memorize the while(!q.isEmpty()) + for(size) pattern for level-order.",
+      "real_world_workflow": "Queue vs Stack: FIFO \u2192 Queue (BFS, scheduling). LIFO \u2192 Stack (DFS, undo, expression eval)."
+    },
+    "common_gaps": [
+      {
+        "gap_id": "bfs_level_tracking",
+        "what_students_get_wrong": "Doing BFS but not tracking levels correctly. Snapshot queue size BEFORE the inner loop: `int size=q.size()`. Elements added during the loop are next-level nodes \u2014 don't process them this level.",
+        "remediation": "Pattern: `while(!q.isEmpty()){ int size=q.size(); for(int i=0;i<size;i++){...} }` The size snapshot freezes the number of current-level nodes. Any new offers go to next level.",
+        "detection_pattern": "Level-order traversal mixes levels or loses level information"
+      }
+    ],
+    "reflection": {
+      "key_takeaways": [
+        "Queue FIFO: offer(tail), poll(head), peek(head)",
+        "Use ArrayDeque for both queue and stack \u2014 fastest Java implementation",
+        "offer/poll: null-safe. add/remove: throw exceptions.",
+        "BFS: queue + size snapshot for level-order",
+        "Implement queue with 2 stacks: lazy transfer inbox\u2192outbox, amortized O(1)",
+        "Implement stack with 1 queue: rotate queue after each push \u2014 O(n) push, O(1) pop"
+      ],
+      "self_check_questions": [
+        {
+          "question": "Why is the 'implement queue with two stacks' approach amortized O(1) per operation even though pop() can be O(n)?",
+          "answer": "Amortized analysis: each element is moved from inbox to outbox at most once. Suppose we push n elements (n pushes = O(n) total) and then pop all n. The first pop triggers a pour of all n elements from inbox to outbox (O(n) for that one operation). Subsequent n-1 pops are O(1) each (pop directly from outbox). Total cost: n (pushes) + n (pour) + (n-1) (pops) = 3n-1 = O(n) for n+n operations = O(1) amortized per operation. Key: each element traverses the inbox\u2192outbox path exactly once over its lifetime."
+        }
+      ],
+      "next_topic_preview": "Next: Deque & Sliding Window Maximum \u2014 the O(n) solution to 'max in every window of size k' using a monotonic deque."
+    }
+  }
+}

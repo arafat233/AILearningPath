@@ -1,0 +1,214 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m5_t3",
+  "language": "java",
+  "module_id": "m5",
+  "module_name": "Inheritance & Polymorphism",
+  "topic_number": 3,
+  "name": "Abstract Classes",
+  "slug": "abstract-classes",
+  
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 60,
+    "prerequisites": ["java_m5_t1", "java_m5_t2"],
+    "concepts_taught": [
+      "abstract_class_definition",
+      "abstract_method_declaration",
+      "concrete_vs_abstract",
+      "why_abstract_prevents_instantiation",
+      "abstract_class_with_common_fields",
+      "abstract_class_with_concrete_methods",
+      "template_method_pattern",
+      "when_abstract_vs_interface",
+      "abstract_in_inheritance_chain",
+      "forcing_subclass_contract"
+    ],
+    "skills_developed": [
+      "writing_abstract_classes",
+      "declaring_abstract_methods",
+      "implementing_required_methods_in_subclass",
+      "using_template_method_pattern",
+      "deciding_abstract_vs_concrete",
+      "designing_inheritance_contracts"
+    ],
+    "career_relevance": "Abstract classes formalize the contract that Topic 5.1's inheritance implied. Every major Java framework uses abstract classes: Spring's AbstractController, Android's Activity, JDBC's AbstractDataSource, Java's AbstractList. When you implement a framework callback by extending a base class and overriding certain methods, you're using abstract classes. The Template Method pattern — where a parent class defines the algorithm skeleton and subclasses fill in the steps — is one of the most important design patterns in enterprise Java. After this topic, you'll recognize this pattern everywhere and use it confidently.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "In Topic 5.2 we built a `Shape` class with `area()` returning 0.0 — a placeholder. But think about this: what is the area of a generic 'Shape'? It's meaningless. A Shape without a specific geometry has no area.\n\nWorse: nothing stops someone from writing:\n```java\nShape s = new Shape(\"red\");  // generic shape — no meaningful area\ndouble area = s.area();      // returns 0.0 — silently wrong\n```\n\nNo error. No warning. Just a quietly incorrect result. And if you put this in a DrawingCanvas, you get a shape that claims to have zero area — corrupting your total area calculations.\n\n**What we WANT**: a Shape that:\n1. Cannot be instantiated directly (no `new Shape()` — meaningless)\n2. FORCES subclasses (Circle, Rectangle, Triangle) to provide a real `area()` implementation\n3. Still provides shared fields (color) and concrete methods that ALL shapes use\n\nThis is exactly what `abstract class` does. `abstract` is a promise to the compiler: 'This class is incomplete. It MUST be extended, and concrete subclasses MUST implement the abstract methods.' Java enforces this at compile time.",
+    "what_you_will_build": "By the end of this topic, you'll understand abstract classes and abstract methods — what they do, why they're useful, and when to use them. You'll refactor the Shape hierarchy from Topic 5.2 to be properly abstract. You'll implement the Template Method design pattern. And you'll understand the key design question: abstract class or interface (we'll answer it fully in Topic 5.4)."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "**Abstract class**: a class that cannot be instantiated directly. Declared with the `abstract` keyword.\n\n**Abstract method**: a method with no body, declared with `abstract`. Subclasses MUST implement it.\n\n```java\npublic abstract class Shape {\n    protected String color;\n    \n    public Shape(String color) {\n        this.color = color;\n    }\n    \n    // Abstract method — no body, no { }\n    // Subclasses MUST implement this\n    public abstract double area();\n    \n    // Concrete method — has a body, shared by all subclasses\n    public void printInfo() {\n        System.out.println(color + \" shape, area=\" + area());\n    }\n}\n```\n\nThree key observations:\n1. `abstract class Shape` — cannot do `new Shape()`. Compilation error.\n2. `public abstract double area()` — method ends with `;`, no body at all.\n3. `printInfo()` is a CONCRETE (non-abstract) method with a full body — shared by all subclasses.",
+      
+      "cannot_instantiate": "The compiler enforces that abstract classes cannot be instantiated:\n\n```java\nShape s = new Shape(\"red\");  // COMPILE ERROR: Shape is abstract\n```\n\nBut you CAN have abstract type references (from upcasting):\n\n```java\nShape s = new Circle(\"red\", 5);  // OK — Circle is a concrete subclass\n```\n\nThe REFERENCE type is Shape (abstract), but the OBJECT is a concrete Circle. This is upcasting + polymorphism, same as before — just now the parent is abstract.\n\n**Why can't you instantiate abstract classes?** They're INCOMPLETE. An abstract method has no body. If you called `shape.area()` on a generic Shape instance, there'd be no code to execute. The compiler prevents this impossible situation.",
+      
+      "must_implement": "Any concrete class extending an abstract class MUST implement all abstract methods:\n\n```java\nclass Circle extends Shape {\n    private double radius;\n    \n    public Circle(String color, double radius) {\n        super(color);\n        this.radius = radius;\n    }\n    \n    @Override\n    public double area() {          // MUST implement — concrete class\n        return Math.PI * radius * radius;\n    }\n}\n\nclass Rectangle extends Shape {\n    private double width, height;\n    \n    public Rectangle(String color, double width, double height) {\n        super(color);\n        this.width = width;\n        this.height = height;\n    }\n    \n    @Override\n    public double area() {          // MUST implement\n        return width * height;\n    }\n}\n```\n\nIf Circle DOESN'T implement `area()`, the compiler errors: 'Circle is not abstract and does not override abstract method area() in Shape.'\n\n**The contract is enforced**: you literally cannot create a concrete subclass without implementing the required methods. This is the power — it's impossible to accidentally forget.",
+      
+      "partial_abstract": "An abstract class can have BOTH abstract and concrete methods. Concrete methods in the abstract class are shared by all subclasses — no duplication.\n\n```java\npublic abstract class Employee {\n    // Concrete shared fields\n    protected final int id;\n    protected String name;\n    private static int nextId = 1;\n    \n    // Concrete constructor — shared\n    public Employee(String name) {\n        this.id = nextId++;\n        this.name = name;\n    }\n    \n    // Concrete getters — shared\n    public int getId() { return id; }\n    public String getName() { return name; }\n    \n    // ABSTRACT method — each subclass must define their own salary\n    public abstract double calculateSalary();\n    \n    // Concrete method using the abstract one — TEMPLATE METHOD pattern\n    public void printPayslip() {\n        System.out.println(\"Payslip for \" + name + \": ₹\" + calculateSalary());\n    }\n}\n\nclass Developer extends Employee {\n    private double baseSalary;\n    private double stockBonus;\n    \n    public Developer(String name, double base, double bonus) {\n        super(name);\n        this.baseSalary = base;\n        this.stockBonus = bonus;\n    }\n    \n    @Override\n    public double calculateSalary() {  // MUST implement\n        return baseSalary + stockBonus;\n    }\n}\n\n// Usage:\nEmployee emp = new Developer(\"Aisha\", 80000, 15000);\nemp.printPayslip();  // 'Payslip for Aisha: ₹95000.0'\n```\n\nThe concrete `printPayslip()` calls the abstract `calculateSalary()`. At runtime, the real implementation (Developer's) runs. The abstract class provides the skeleton; subclasses fill the substance.",
+      
+      "template_method_pattern": "The **Template Method** pattern is one of the most important design patterns, and it's built entirely on abstract classes:\n\n> **The parent class defines the algorithm skeleton. Abstract methods are the steps. Subclasses fill in the steps.**\n\n```java\npublic abstract class DataProcessor {\n    \n    // Template method — defines the algorithm\n    // Marked final so subclasses can't change the algorithm itself\n    public final void process() {\n        readData();      // step 1\n        validateData();  // step 2\n        transformData(); // step 3  \n        writeData();     // step 4\n        logResult();     // step 5\n    }\n    \n    // Steps that ALL processors implement the same way\n    private void logResult() {\n        System.out.println(\"Processing completed by \" + getClass().getSimpleName());\n    }\n    \n    // Abstract steps — each processor implements differently\n    protected abstract void readData();\n    protected abstract void validateData();\n    protected abstract void transformData();\n    protected abstract void writeData();\n}\n\nclass CSVProcessor extends DataProcessor {\n    @Override\n    protected void readData()      { System.out.println(\"Reading CSV...\"); }\n    @Override\n    protected void validateData()  { System.out.println(\"Validating CSV format...\"); }\n    @Override\n    protected void transformData() { System.out.println(\"Transforming CSV to records...\"); }\n    @Override\n    protected void writeData()     { System.out.println(\"Writing records to DB...\"); }\n}\n\nclass JSONProcessor extends DataProcessor {\n    @Override\n    protected void readData()      { System.out.println(\"Fetching JSON from API...\"); }\n    @Override\n    protected void validateData()  { System.out.println(\"Validating JSON schema...\"); }\n    @Override\n    protected void transformData() { System.out.println(\"Mapping JSON fields...\"); }\n    @Override\n    protected void writeData()     { System.out.println(\"Inserting into MongoDB...\"); }\n}\n\n// Usage — same call, different behavior:\nnew CSVProcessor().process();\nnew JSONProcessor().process();\n```\n\nThe `process()` method is the same for all processors. What differs is HOW each step is done. New processor type? Extend DataProcessor, implement the four steps. The algorithm never changes.\n\nReal Java uses: Android's Activity lifecycle (onCreate, onStart, onResume), HTTP servlets, JUnit's TestCase, Spring MVC's AbstractController.",
+      
+      "abstract_in_chain": "An abstract class CAN extend another abstract class without implementing its abstract methods:\n\n```java\npublic abstract class Vehicle {\n    public abstract void fuelUp();\n    public abstract void accelerate();\n}\n\npublic abstract class MotorVehicle extends Vehicle {\n    protected int horsePower;\n    \n    public MotorVehicle(int hp) { this.horsePower = hp; }\n    \n    @Override\n    public void fuelUp() { System.out.println(\"Fueling up motor vehicle...\"); }\n    // Note: accelerate() still abstract — MotorVehicle doesn't implement it\n}\n\npublic class Car extends MotorVehicle {\n    public Car(int hp) { super(hp); }\n    \n    @Override\n    public void accelerate() {\n        System.out.println(\"Car accelerates with \" + horsePower + \"hp\");\n    }\n    // fuelUp() inherited from MotorVehicle (concrete there)\n}\n```\n\nThe abstract method `accelerate()` propagates down until a CONCRETE class provides the implementation. The chain can be as deep as needed.",
+      
+      "when_abstract_vs_concrete": "**When to make a class abstract**:\n\n1. The class represents an INCOMPLETE concept — 'Shape' without geometry, 'Vehicle' without specifics\n2. At least one method MUST be implemented differently by each subclass\n3. You want to PREVENT direct instantiation of the base class\n4. You use the Template Method pattern\n\n**Signs your base class should be abstract**:\n- Its concrete version of a method does nothing or returns a meaningless default\n- You never create instances of the base class directly — only subclasses\n- The method would fail or produce nonsense without subclass implementation\n\n```java\n// These should be abstract:\nclass Shape { double area() { return 0.0; } }     // 0 is meaningless default → abstract\nclass Employee { double salary() { return 0.0; } } // same → abstract\nclass Game { void startGame() { } }               // empty default → abstract\n\n// These are fine as concrete:\nclass Dog extends Animal { }  // Dog is a complete, specific thing\nclass EmailService { }         // Email service is complete\n```",
+      
+      "abstract_vs_interface_preview": "The million-dollar question: **abstract class or interface?**\n\nWe'll cover interfaces fully in Topic 5.4. For now, the key difference:\n\n**Abstract class**:\n- CAN have fields (state)\n- CAN have constructors\n- CAN have concrete methods (fully implemented)\n- Represents a TYPE HIERARCHY — 'is-a' relationship\n- One per class (single inheritance)\n\n**Interface (preview)**:\n- NO fields (only constants)\n- NO constructors\n- Methods are by default abstract (no body)\n- Represents a CAPABILITY — 'can-do' relationship\n- A class can IMPLEMENT many interfaces\n\nGuideline: use **abstract class** when you have SHARED STATE and PARTIAL IMPLEMENTATION (some concrete methods, some abstract). Use **interface** when you have a CAPABILITY CONTRACT with no shared implementation.\n\nShape with color field + printInfo() → abstract class (has state + concrete method)\n`Serializable`, `Runnable`, `Comparable` → interfaces (just a contract, no state)"
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show three boxes arranged vertically: 'abstract Shape' at top (with italicized 'area()' showing it's abstract, and 'printInfo()' in normal text showing it's concrete). Below: 'Circle' and 'Rectangle' both with concrete 'area()' implementations. Annotation: 'Cannot: new Shape()'. 'Can: new Circle()'. Arrow from Shape.printInfo() calling area() → pointing down to show it calls the subclass version. Right side: Template Method pattern diagram — abstract class with process() calling readData(), validateData(), transformData() (all abstract, italicized). Two concrete classes below each implementing the steps differently. Title: 'Template Method: parent defines when, child defines how.'",
+      "alt_text": "Visual showing abstract class preventing instantiation, requiring concrete subclasses, and the template method pattern"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Refactor the Shape hierarchy from Topic 5.2 to be properly abstract — no more meaningless `area()` returning 0.0. Then use the Template Method pattern to create a `ReportGenerator` that generates reports in different formats (plain text, HTML, CSV) while sharing the overall report structure.",
+    
+    "problem_statement": "Part 1: Make Shape abstract\n- Shape becomes `abstract class` with `abstract double area()` and `abstract String describe()`\n- Circle, Rectangle, Triangle are concrete subclasses (all MUST implement area + describe)\n- Show that `new Shape(...)` is now a compilation error\n\nPart 2: Template Method for ReportGenerator\n- Abstract `ReportGenerator` with `abstract String header()`, `abstract String formatRow(String key, String value)`, `abstract String footer()`\n- Concrete `generate(Map<String, String> data)` method that calls these in order\n- PlainTextGenerator and HtmlGenerator as concrete subclasses",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Make Shape abstract",
+        "details": "```java\npublic abstract class Shape {\n    protected String color;\n    \n    public Shape(String color) {\n        this.color = color;\n    }\n    \n    // Abstract — subclasses must compute their own area\n    public abstract double area();\n    \n    // Abstract — subclasses must describe themselves\n    public abstract String describe();\n    \n    // Concrete — shared by ALL shapes\n    public String getColor() { return color; }\n    \n    public void printInfo() {\n        System.out.printf(\"%s (area=%.2f)%n\", describe(), area());\n    }\n    \n    @Override\n    public String toString() {\n        return describe() + \" [area=\" + String.format(\"%.2f\", area()) + \"]\";\n    }\n}\n```\n\nNow `area()` and `describe()` have no body. The concrete `printInfo()` calls BOTH abstract methods — they resolve to the subclass implementations at runtime. `new Shape('red')` is now a compile error."
+      },
+      {
+        "step": 2,
+        "action": "Implement concrete subclasses",
+        "details": "```java\nclass Circle extends Shape {\n    private double radius;\n    \n    public Circle(String color, double radius) {\n        super(color);\n        this.radius = radius;\n    }\n    \n    @Override\n    public double area() { return Math.PI * radius * radius; }\n    \n    @Override\n    public String describe() {\n        return color + \" Circle(r=\" + radius + \")\";\n    }\n}\n\nclass Rectangle extends Shape {\n    private double width, height;\n    \n    public Rectangle(String color, double width, double height) {\n        super(color);\n        this.width = width;\n        this.height = height;\n    }\n    \n    @Override\n    public double area() { return width * height; }\n    \n    @Override\n    public String describe() {\n        return color + \" Rectangle(\" + width + \"x\" + height + \")\";\n    }\n}\n\nclass Triangle extends Shape {\n    private double base, height;\n    \n    public Triangle(String color, double base, double height) {\n        super(color);\n        this.base = base;\n        this.height = height;\n    }\n    \n    @Override\n    public double area() { return 0.5 * base * height; }\n    \n    @Override\n    public String describe() {\n        return color + \" Triangle(b=\" + base + \", h=\" + height + \")\";\n    }\n}\n```"
+      },
+      {
+        "step": 3,
+        "action": "Template Method: abstract ReportGenerator",
+        "details": "```java\npublic abstract class ReportGenerator {\n    \n    // Template method — fixed algorithm, sealed with 'final'\n    public final String generate(String[][] data) {\n        StringBuilder sb = new StringBuilder();\n        sb.append(header());\n        sb.append(\"\\n\");\n        for (String[] row : data) {\n            sb.append(formatRow(row[0], row[1]));\n            sb.append(\"\\n\");\n        }\n        sb.append(footer());\n        return sb.toString();\n    }\n    \n    // Abstract steps — each format implements differently\n    protected abstract String header();\n    protected abstract String formatRow(String key, String value);\n    protected abstract String footer();\n}\n```\n\nThe `generate()` method is `final` — no subclass can change the algorithm. The three abstract methods are what varies."
+      },
+      {
+        "step": 4,
+        "action": "Concrete implementations",
+        "details": "```java\nclass PlainTextReport extends ReportGenerator {\n    private String title;\n    \n    public PlainTextReport(String title) { this.title = title; }\n    \n    @Override\n    protected String header() { return \"=== \" + title + \" ===\"; }\n    \n    @Override\n    protected String formatRow(String key, String value) {\n        return String.format(\"%-20s: %s\", key, value);\n    }\n    \n    @Override\n    protected String footer() { return \"=== End of Report ===\"; }\n}\n\nclass HtmlReport extends ReportGenerator {\n    private String title;\n    \n    public HtmlReport(String title) { this.title = title; }\n    \n    @Override\n    protected String header() { \n        return \"<html><body><h1>\" + title + \"</h1><table>\"; \n    }\n    \n    @Override\n    protected String formatRow(String key, String value) {\n        return \"<tr><td>\" + key + \"</td><td>\" + value + \"</td></tr>\";\n    }\n    \n    @Override\n    protected String footer() { return \"</table></body></html>\"; }\n}\n```\n\nSame method (`generate()`), completely different output. **Zero changes to the algorithm** — only the steps differ."
+      },
+      {
+        "step": 5,
+        "action": "Demonstrate in main",
+        "details": "```java\npublic static void main(String[] args) {\n    // Part 1: Abstract shapes\n    Shape[] shapes = {\n        new Circle(\"Red\", 5),\n        new Rectangle(\"Blue\", 4, 6),\n        new Triangle(\"Green\", 3, 8)\n    };\n    \n    System.out.println(\"--- Shapes ---\");\n    for (Shape s : shapes) {\n        s.printInfo();\n    }\n    // new Shape('Red') would be a compile error now\n    \n    // Part 2: Report generator\n    String[][] reportData = {\n        {\"Product\", \"Java Book\"},\n        {\"Price\", \"₹599\"},\n        {\"Stock\", \"45\"}\n    };\n    \n    System.out.println(\"\\n--- Plain Text Report ---\");\n    ReportGenerator textGen = new PlainTextReport(\"Product Report\");\n    System.out.println(textGen.generate(reportData));\n    \n    System.out.println(\"--- HTML Report ---\");\n    ReportGenerator htmlGen = new HtmlReport(\"Product Report\");\n    System.out.println(htmlGen.generate(reportData));\n}\n```"
+      }
+    ],
+    
+    "final_code": "public abstract class Shape {\n    protected String color;\n    \n    public Shape(String color) { this.color = color; }\n    \n    public abstract double area();\n    public abstract String describe();\n    \n    public String getColor() { return color; }\n    \n    public void printInfo() {\n        System.out.printf(\"%s (area=%.2f)%n\", describe(), area());\n    }\n}\n\nclass Circle extends Shape {\n    private double radius;\n    public Circle(String color, double radius) { super(color); this.radius = radius; }\n    @Override public double area() { return Math.PI * radius * radius; }\n    @Override public String describe() { return color + \" Circle(r=\" + radius + \")\"; }\n}\n\nclass Rectangle extends Shape {\n    private double width, height;\n    public Rectangle(String color, double w, double h) { super(color); width=w; height=h; }\n    @Override public double area() { return width * height; }\n    @Override public String describe() { return color + \" Rectangle(\" + width + \"x\" + height + \")\"; }\n}\n\nclass Triangle extends Shape {\n    private double base, height;\n    public Triangle(String color, double base, double height) { super(color); this.base=base; this.height=height; }\n    @Override public double area() { return 0.5 * base * height; }\n    @Override public String describe() { return color + \" Triangle(b=\" + base + \", h=\" + height + \")\"; }\n}\n\nabstract class ReportGenerator {\n    public final String generate(String[][] data) {\n        StringBuilder sb = new StringBuilder();\n        sb.append(header()).append(\"\\n\");\n        for (String[] row : data) sb.append(formatRow(row[0], row[1])).append(\"\\n\");\n        sb.append(footer());\n        return sb.toString();\n    }\n    protected abstract String header();\n    protected abstract String formatRow(String key, String value);\n    protected abstract String footer();\n}\n\nclass PlainTextReport extends ReportGenerator {\n    private String title;\n    PlainTextReport(String t) { title = t; }\n    @Override protected String header() { return \"=== \" + title + \" ===\"; }\n    @Override protected String formatRow(String k, String v) { return String.format(\"%-20s: %s\", k, v); }\n    @Override protected String footer() { return \"=== End ===\"; }\n}\n\nclass HtmlReport extends ReportGenerator {\n    private String title;\n    HtmlReport(String t) { title = t; }\n    @Override protected String header() { return \"<h1>\" + title + \"</h1><table>\"; }\n    @Override protected String formatRow(String k, String v) { return \"<tr><td>\" + k + \"</td><td>\" + v + \"</td></tr>\"; }\n    @Override protected String footer() { return \"</table>\"; }\n}\n\npublic class AbstractDemo {\n    public static void main(String[] args) {\n        Shape[] shapes = { new Circle(\"Red\", 5), new Rectangle(\"Blue\", 4, 6), new Triangle(\"Green\", 3, 8) };\n        System.out.println(\"--- Shapes ---\");\n        for (Shape s : shapes) s.printInfo();\n        \n        String[][] data = {{\"Product\", \"Java Book\"}, {\"Price\", \"₹599\"}, {\"Stock\", \"45\"}};\n        System.out.println(\"\\n--- Plain ---\");\n        System.out.println(new PlainTextReport(\"Report\").generate(data));\n        System.out.println(\"--- HTML ---\");\n        System.out.println(new HtmlReport(\"Report\").generate(data));\n    }\n}",
+    
+    "expected_output": "--- Shapes ---\nRed Circle(r=5.0) (area=78.54)\nBlue Rectangle(4.0x6.0) (area=24.00)\nGreen Triangle(b=3.0, h=8.0) (area=12.00)\n\n--- Plain ---\n=== Report ===\nProduct             : Java Book\nPrice               : ₹599\nStock               : 45\n=== End ===\n--- HTML ---\n<h1>Report</h1><table>\n<tr><td>Product</td><td>Java Book</td></tr>\n<tr><td>Price</td><td>₹599</td></tr>\n<tr><td>Stock</td><td>45</td></tr>\n</table>",
+    
+    "things_to_notice": [
+      "Shape now has TWO abstract methods (`area` and `describe`). Every concrete subclass MUST implement both. Try removing one from Triangle — the compiler errors immediately.",
+      "The `printInfo()` concrete method in Shape calls BOTH abstract methods. At runtime, Circle's `describe()` and `area()` run when called on a Circle. Abstract class + polymorphism working together.",
+      "Triangle is a NEW class — we added it without changing Shape or any other subclass. The DrawingCanvas from Topic 5.2 would work with Triangle automatically. Open for extension, closed for modification.",
+      "ReportGenerator's `generate()` is `final` — can't override the algorithm. The three abstract methods are `protected` — subclass concern, not public API. Clean separation of what's fixed vs what varies.",
+      "PlainTextReport and HtmlReport both call `generate()` on a `ReportGenerator` reference — polymorphism at work. Same call, completely different output. This is the Template Method pattern.",
+      "Compare to BEFORE abstract: Shape.area() returned 0.0. There was no way to know if a subclass forgot to override it. Now it's IMPOSSIBLE to forget — the compiler refuses to compile the subclass until you do."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring MVC / Spring Web (every Spring web app)",
+        "use_case": "Spring's AbstractController, AbstractMessageConverterMethodArgumentResolver, AbstractView — all abstract classes providing Template Method skeletons. When you extend AbstractController, Spring calls your overridden methods in the right order. You implement the steps; Spring defines when they're called."
+      },
+      {
+        "company_context": "Android (every Android app)",
+        "use_case": "Activity is effectively abstract — it defines onCreate(), onResume(), onPause() etc. as methods you're EXPECTED to override. The Android framework calls these at the right lifecycle points (Template Method). Without overriding onCreate(), your app doesn't display anything — you must fill in the step."
+      },
+      {
+        "company_context": "JUnit testing framework (every Java test suite)",
+        "use_case": "JUnit's TestCase (JUnit 3 style) used abstract classes. Your test class extends TestCase, overrides setUp() and tearDown() (template steps), and adds test methods. The framework calls them in the right order. JUnit 4+ moved to interfaces + annotations, but the pattern remains."
+      },
+      {
+        "company_context": "Java Collections (ArrayList, LinkedList implementations)",
+        "use_case": "AbstractList provides skeleton implementations — add(), remove() have partial logic. Concrete subclasses (ArrayList) provide the storage-specific implementation. You can extend AbstractList to create a custom list — implement the abstract methods and get most behavior for free."
+      }
+    ],
+    
+    "interview_relevance": "Abstract classes are standard interview material:\n\n- **'What is an abstract class? When would you use one?'** — Can't instantiate, forces subclass implementation, has shared state/concrete methods.\n- **'What is an abstract method?'** — Declared without body, MUST be implemented by non-abstract subclasses.\n- **'What's the difference between abstract class and interface?'** — Abstract: state + partial impl, single inheritance. Interface: contract only, no state (preview next topic). KEY question.\n- **'Explain the Template Method pattern.'** — Parent defines algorithm, abstract methods are the steps, subclasses fill them in. Common in frameworks.\n- **'Can an abstract class have a constructor?'** — Yes! For initializing shared fields. Called via super() from subclasses.\n- **'Can an abstract class have all concrete methods?'** — Yes, but then there's little reason to be abstract. Usually has at least one abstract method.",
+    
+    "real_world_workflow": "Daily abstract class work:\n\n- Extending framework classes: 'What methods do I need to override?' (they're abstract)\n- Writing framework-style code: defining a processing skeleton with abstract steps\n- Recognizing that a base class returning null/0 should be abstract\n- Refactoring: when a parent method implementation is meaningless → make it abstract\n- Code review: 'This class can be instantiated but makes no sense alone — should be abstract'\n- Testing: abstract classes require concrete subclasses for testing (sometimes use anonymous inner class or mock)"
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "trying_to_instantiate_abstract",
+      "what_students_get_wrong": "Writing `new AbstractShape()` expecting it to work. Compilation error.",
+      "remediation": "Abstract classes exist to be extended. Create a concrete subclass and instantiate that. Use the abstract type as a reference type (for polymorphism).",
+      "detection_pattern": "Compilation error: 'ClassName is abstract; cannot be instantiated'"
+    },
+    {
+      "gap_id": "forgetting_to_implement_abstract_method",
+      "what_students_get_wrong": "Extending abstract class without implementing all abstract methods. Subclass becomes abstract (or compilation error if not declared abstract).",
+      "remediation": "Non-abstract subclass must implement ALL inherited abstract methods. Count how many there are and implement each with @Override.",
+      "detection_pattern": "Compilation error: 'class X is not abstract and does not override abstract method Y'"
+    },
+    {
+      "gap_id": "abstract_method_with_body",
+      "what_students_get_wrong": "Writing `public abstract void method() { }` — abstract method cannot have a body.",
+      "remediation": "Abstract methods have NO body at all. Just the signature ending with semicolon: `public abstract void method();`",
+      "detection_pattern": "Compilation error: 'abstract methods cannot have a body'"
+    },
+    {
+      "gap_id": "making_concrete_method_abstract",
+      "what_students_get_wrong": "Declaring a method as abstract when it SHOULD have a default implementation (that subclasses can optionally override).",
+      "remediation": "Abstract = MUST override (no default exists). Concrete with @Override = CAN override but isn't required. Choose based on whether a default makes sense.",
+      "detection_pattern": "Subclasses forced to implement boilerplate that doesn't vary"
+    },
+    {
+      "gap_id": "confusing_abstract_class_with_interface",
+      "what_students_get_wrong": "Not knowing when to choose abstract class vs interface. Common at interview.",
+      "remediation": "Abstract class: shared STATE (fields), shared IMPLEMENTATION (concrete methods), single 'is-a' hierarchy. Interface: pure CONTRACT, no state, multiple 'can-do' relationships.",
+      "detection_pattern": "Interview answer confusion; wrong choice in code design"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Abstract class: declared with `abstract`, cannot be instantiated with `new`",
+      "Abstract method: declared with `abstract`, NO body, MUST be implemented by concrete subclasses",
+      "Concrete subclass must implement ALL inherited abstract methods — compiler enforces this",
+      "Abstract class CAN have fields, constructors, and concrete methods (shared by subclasses)",
+      "Concrete method in abstract class can call abstract methods — they resolve at runtime (polymorphism)",
+      "Template Method pattern: parent defines algorithm, abstract methods are the variable steps",
+      "Abstract class in the middle of a chain: doesn't need to implement parent's abstract methods",
+      "Use `final` on the template method to prevent subclasses from changing the algorithm",
+      "Abstract class vs interface: abstract class has state + partial impl; interface is a pure contract",
+      "Every Java framework uses abstract classes + Template Method (Spring, Android, JUnit)"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "Why does this fail to compile?\n```java\npublic abstract class Shape {\n    public abstract double area();\n}\n\nclass Canvas {\n    public static void main(String[] args) {\n        Shape s = new Shape();  // Line A\n        System.out.println(s.area());\n    }\n}\n```",
+        "answer": "Line A: `new Shape()` fails because Shape is abstract — it cannot be instantiated. The compiler won't allow it because `area()` has no implementation — calling it would have no code to execute. Fix: create a concrete subclass (e.g., Circle) that implements area(), then do `Shape s = new Circle(...)`. You can use Shape as a reference type, just not instantiate it directly."
+      },
+      {
+        "question": "What happens if a subclass of an abstract class doesn't implement an abstract method?",
+        "answer": "The subclass must ALSO be declared `abstract`. If it's not abstract, the compiler errors: 'class X is not abstract and does not override abstract method Y() in Z'. It's a compile-time contract: every non-abstract class in the hierarchy must implement all abstract methods."
+      },
+      {
+        "question": "Explain the Template Method pattern. Give a real example.",
+        "answer": "The parent class defines an algorithm in a method (usually final). Some steps of that algorithm are abstract — declared but not implemented. Subclasses implement those steps. The algorithm order/structure never changes; what varies is how each step is done. Real example: DataProcessor.process() calls readData(), validateData(), transformData() — all abstract. CSVProcessor and JSONProcessor implement these steps differently. You call process() on either; the right steps run."
+      },
+      {
+        "question": "Can an abstract class have concrete methods? Can it have a constructor?",
+        "answer": "Yes to both. Abstract classes frequently have concrete methods providing SHARED behavior (like printInfo() in Shape — all shapes use it). They also have constructors — even though you can't directly `new` an abstract class, subclasses call super() to trigger the abstract class's constructor, which initializes shared fields. This is the whole point: abstract classes provide partial, shared implementation."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Interfaces — Java's most powerful abstraction tool. Unlike abstract classes, a class can IMPLEMENT multiple interfaces (Java only allows extends one class). Interfaces define PURE CONTRACTS — capabilities without any implementation (in their original form). `Runnable`, `Comparable`, `Serializable`, `Iterable` — these are all interfaces that make Java's type system incredibly flexible. After interfaces, you'll understand how Spring, JDBC, and the Collections API are actually designed."
+  }
+}

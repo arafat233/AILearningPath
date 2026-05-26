@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m43_t1_proj",
+  "linked_topic": "java_m43_t1",
+  "level": "mini",
+  "name": "System Design Basics \u2014 Framework and Estimation",
+  "estimated_minutes": 45,
+  "difficulty": 6,
+  "scenario": "Build System Design Basics \u2014 Framework and Estimation.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Complete all exercises.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "Record 4 timed sessions.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "Written reflection.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Peer review session.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "SD: always start with requirements, estimation, and API before diving into data model. Draw boxes and arrows. Mention cache, LB, DB, queue for every design.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Timed",
+      "points": 35
+    },
+    {
+      "category": "Reflection",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

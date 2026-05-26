@@ -1,0 +1,31 @@
+{
+  "schema_version":"1.0","project_id":"java_m23_t5_proj","linked_topic":"java_m23_t5",
+  "level":"mini","name":"Razorpay API Gateway — Rate Limiting & Key Auth",
+  "estimated_minutes":45,"difficulty":6,
+  "scenario":"Razorpay's payment API is being abused by a compromised merchant key sending 5000 req/min, crashing the service for legitimate merchants. Implement per-merchant rate limiting with Bucket4j, API key authentication, and idempotency keys.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"ApiKeyAuthFilter: validates X-API-Key header against a store (Map<String,String> key→merchantId). 401 if missing, 403 if invalid. Sets 'merchantId' request attribute on success.","weight":15},
+    {"id":"req_2","description":"RateLimiterService: Bucket4j LoadingCache<String,Bucket>, 100 req/min per merchant (classic bandwidth, greedy refill). isAllowed(merchantId) → boolean.","weight":20},
+    {"id":"req_3","description":"RateLimitFilter: OncePerRequestFilter — reads merchantId from request attribute, checks rate limiter. Allowed: set X-RateLimit-Remaining header + chain.doFilter. Denied: 429 with Retry-After:60 and JSON body.","weight":20},
+    {"id":"req_4","description":"IdempotencyService: Cache<String,String> (24h TTL). checkIdempotency(key) → Optional<String>. markProcessed(key, paymentId).","weight":10},
+    {"id":"req_5","description":"Micrometer counter: rate.limit.exceeded with merchant tag. Incremented on every blocked request.","weight":5},
+    {"id":"req_6","description":"@SpringBootTest (4 tests): valid key+allowed→200, invalid key→403, rate exceeded (drain bucket)→429, idempotency dedup→same paymentId returned. All 4 pass.","weight":25},
+    {"id":"req_7","description":"README: explains per-merchant vs global rate limiting, why Redis-backed is needed for distributed.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"Tiered rate limits: STANDARD=100, PREMIUM=500, ENTERPRISE=2000 req/min. merchantId→plan resolved from API key store. Filter selects correct bucket per plan.","weight":20},
+    {"id":"bonus_2","description":"PromQL alert rules YAML file: RateLimitAbuseDetected (>50 exceeded in 5min), ApiKeyAbuse (>100 invalid attempts in 1min). Both with annotations and runbook_url.","weight":15},
+    {"id":"bonus_3","description":"MetricRateLimiter: Gauge for current token level per merchant. @SpringBootTest: gauge reads correct value after consuming tokens.","weight":20}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. Bucket4j LoadingCache: Caffeine.newBuilder().expireAfterAccess(1,HOURS).build(key -> newBucket()) — creates bucket lazily per merchantId. tryConsume(1): returns true if token available (allow request) or false (deny, return 429). X-Forwarded-For: use this header for real IP behind load balancer (split on comma, take first). OncePerRequestFilter: guaranteed single execution per request — no duplicate rate limit checks. Per-merchant not global: critical design choice — each merchant has isolated bucket (one attacker's 429 doesn't affect others).",
+  "rubric":[
+    {"category":"ApiKeyAuthFilter (401/403)","points":15},
+    {"category":"RateLimiterService (Bucket4j)","points":20},
+    {"category":"RateLimitFilter (429+headers)","points":20},
+    {"category":"IdempotencyService","points":10},
+    {"category":"Micrometer counter","points":5},
+    {"category":"4 tests (all pass)","points":25},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

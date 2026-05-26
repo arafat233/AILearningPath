@@ -1,0 +1,29 @@
+{
+  "schema_version":"1.0","project_id":"java_m23_t2_proj","linked_topic":"java_m23_t2",
+  "level":"mini","name":"Razorpay Partner API — OAuth2 Client Credentials",
+  "estimated_minutes":45,"difficulty":7,
+  "scenario":"Razorpay needs HDFC Bank to call its payment API programmatically (no user). Configure OAuth2 Client Credentials resource server and a WebClient that auto-manages tokens for outbound HDFC API calls.",
+  "requirements":{"core":[
+    {"id":"req_1","description":"SecurityFilterChain: STATELESS, JWT resource server, scope-based: GET /api/payments → SCOPE_payments:read, POST /api/payments → SCOPE_payments:write.","weight":20},
+    {"id":"req_2","description":"application.yml: OAuth2 client registration 'hdfc-api' with client_credentials grant, scopes, token-uri from env vars.","weight":15},
+    {"id":"req_3","description":"HdfcWebClientConfig: WebClient bean using OAuth2AuthorizedClientManager with ServerOAuth2AuthorizedClientExchangeFilterFunction.","weight":20},
+    {"id":"req_4","description":"TokenInspectorService: hasScope(Jwt, String) and getClientId(Jwt) methods.","weight":10},
+    {"id":"req_5","description":"@WebMvcTest (3 tests): read scope → 200, write scope → 200, read scope on POST → 403. All 3 pass.","weight":30},
+    {"id":"req_6","description":"README: Auth Code vs Client Credentials choice guide.","weight":5}
+  ],"bonus":[
+    {"id":"bonus_1","description":"Multi-client config: NSE + BSE WebClients with @Qualifier. OrderExecutionService selects by exchange name.","weight":20},
+    {"id":"bonus_2","description":"TokenPropagationFilter: forwards incoming JWT to downstream risk-service. Test: SecurityContext JWT extracted correctly.","weight":20},
+    {"id":"bonus_3","description":"Token scope validation in @SpringBootTest: create Jwt.withTokenValue test object, verify hasScope() returns correct results.","weight":15}
+  ]},
+  "ai_policy":"limited_hints",
+  "ai_policy_explanation":"5 hints. SCOPE_ prefix: Spring Security automatically prefixes OAuth2 scopes with SCOPE_ when mapping to GrantedAuthority — use hasAuthority('SCOPE_payments:read') not hasRole. OAuth2AuthorizedClientManager: handles token lifecycle automatically — caches, checks expiry, requests new Client Credentials tokens without manual intervention. ServerOAuth2AuthorizedClientExchangeFilterFunction: reactive-compatible OAuth2 filter for WebClient (use this, not the Servlet version). setDefaultClientRegistrationId: ties all requests from a WebClient to one OAuth2 registration. JWT.withTokenValue() builder: for creating test Jwt objects without a real token issuer.",
+  "rubric":[
+    {"category":"SecurityFilterChain (scopes)","points":20},
+    {"category":"application.yml OAuth2 client","points":15},
+    {"category":"HdfcWebClientConfig","points":20},
+    {"category":"TokenInspectorService","points":10},
+    {"category":"@WebMvcTest (3 tests)","points":30},
+    {"category":"README","points":5},
+    {"category":"Bonus","points":55}
+  ]
+}

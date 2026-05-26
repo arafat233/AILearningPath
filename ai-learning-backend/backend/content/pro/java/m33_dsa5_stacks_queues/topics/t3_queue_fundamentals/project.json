@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m33_t3_proj",
+  "linked_topic": "java_m33_t3",
+  "level": "mini",
+  "name": "Zerodha Job Scheduler",
+  "estimated_minutes": 40,
+  "difficulty": 5,
+  "scenario": "Build Zerodha Job Scheduler using QueueWith2Stacks, BFS level order, Islands, Rotting Oranges, Multi-source BFS.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Implement core algorithms: QueueWith2Stacks, BFS level order, Islands, Rotting Oranges, Multi-source BFS. All O(n) unless stated.",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 @SpringBootTest tests all pass.",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README: key insight for the hardest algorithm.",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 additional bonus algorithms with tests.",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Key hints for t3_queue_fundamentals: queue2stacks+levelOrder+islands+rotting. See topic README for patterns.",
+  "rubric": [
+    {
+      "category": "Core algorithms",
+      "points": 50
+    },
+    {
+      "category": "4 tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

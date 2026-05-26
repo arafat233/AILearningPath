@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m20_t2_proj",
+  "linked_topic": "java_m20_t2",
+  "level": "mini",
+  "name": "Razorpay Payment Tracing — Zipkin Integration",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Razorpay's p99 latency spikes to 3 seconds but there's no way to know which step is slow. Add distributed tracing with custom spans for card validation, Visa charging, and DB persistence so the team can instantly see the bottleneck in Zipkin.",
+  "requirements": {
+    "core": [
+      { "id": "req_1", "description": "pom.xml: micrometer-tracing-bridge-brave + zipkin-reporter-brave. docker-compose.yml: Zipkin service. application.yml: sampling=1.0, zipkin base-url.", "weight": 15 },
+      { "id": "req_2", "description": "PaymentTracingService: 3 custom spans — 'card.validate' (tags: cardType), 'visa.charge' (tags: gateway, amount), 'payment.persist' (tags: paymentId). Each with span.end() in finally.", "weight": 30 },
+      { "id": "req_3", "description": "logback-spring.xml (or application.yml): include %X{traceId},%X{spanId} in log pattern.", "weight": 10 },
+      { "id": "req_4", "description": "@SpringBootTest (3 tests): payment completes without exception, Tracer bean is available, custom span timing is measurable. All 3 pass.", "weight": 35 },
+      { "id": "req_5", "description": "README: ASCII Zipkin waterfall showing the 3 spans and their relative durations.", "weight": 10 }
+    ],
+    "bonus": [
+      { "id": "bonus_1", "description": "BaggageContextService: set/get 'user.id' baggage. application.yml: remote-fields + correlation.fields. Test: baggage value readable in child span.", "weight": 20 },
+      { "id": "bonus_2", "description": "AsyncTracingService: @Async notification sending with explicit trace propagation. Test: async method completes and Tracer is available.", "weight": 25 },
+      { "id": "bonus_3", "description": "Error span demonstration: method that fails sets span.error(exception). Test: failed method returns expected error indicator without throwing.", "weight": 20 }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. span.end() in finally block: mandatory — span never exported to Zipkin without this call. withSpan(span.start()): auto-closeable scope — span becomes the 'current' span inside try block. span.error(exception): marks span as failed in Zipkin (shown in red), adds exception event. Tracer is Spring-auto-configured when micrometer-tracing-bridge-brave is on classpath — just inject. sampling.probability=1.0 means EVERY request is traced (suitable for dev/test only).",
+  "rubric": [
+    { "category": "pom.xml + docker-compose + yml", "points": 15 },
+    { "category": "PaymentTracingService (3 spans)", "points": 30 },
+    { "category": "logback pattern with traceId", "points": 10 },
+    { "category": "@SpringBootTest (3 tests)", "points": 35 },
+    { "category": "README with waterfall", "points": 10 },
+    { "category": "Bonus", "points": 65 }
+  ]
+}

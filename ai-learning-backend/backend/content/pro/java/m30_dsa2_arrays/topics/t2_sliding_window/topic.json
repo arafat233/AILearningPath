@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m30_t2",
+  "language": "java",
+  "module_id": "m30",
+  "topic_number": 2,
+  "name": "Sliding Window — Contiguous Subarray Problems",
+  "slug": "sliding-window-contiguous-subarray",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m30_t1", "java_m29_t1"],
+    "concepts_taught": [
+      "sliding_window_concept", "fixed_size_window", "variable_size_window",
+      "window_expansion_contraction", "max_subarray_sum", "longest_substring_no_repeat",
+      "anagram_detection", "min_size_subarray_sum", "frequency_map_window"
+    ],
+    "skills_developed": [
+      "recognizing_sliding_window_pattern", "implementing_fixed_size_window",
+      "implementing_variable_size_window", "using_hashmap_in_window"
+    ],
+    "career_relevance": "Sliding window is asked in every second FAANG India interview. 'Find longest substring without repeating characters' is Zerodha's most common warm-up DSA question. It has an O(n²) brute force that fails for n=10⁶ and an O(n) sliding window that passes instantly.",
+    "tone_profile": {"primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual"}
+  },
+  "hook": {
+    "real_world_problem": "```\nZerodha usage analytics:\n'Find the time window of exactly 7 days with\n maximum total trade volume'\n\nBrute force: try every 7-day window O(n²)\nSliding window: maintain a running sum, slide forward O(n)\n\nDay  1  2  3  4  5  6  7  8  9 10\nVol [3, 1, 2, 5, 8, 2, 1, 4, 3, 6]\n     ←→ window size 7, slide right each step\n     Sum: 3+1+2+5+8+2+1=22 → 1+2+5+8+2+1+4=23 → max!\n```",
+    "what_you_will_build": "Sliding window solutions to 6 problems: max subarray, longest unique substring, anagram detection, min subarray sum."
+  },
+  "teaching": {
+    "concept_explanation": {
+      "pattern": "**Sliding Window — when to use:**\n\n```\nUse sliding window when:\n1. Looking at CONTIGUOUS subarray/substring\n2. Window has a SIZE constraint or INVARIANT to maintain\n3. You can efficiently ADD (expand right) and REMOVE (shrink left)\n\nFixed size window (size = k):\n  1. Build first window [0..k-1]\n  2. Slide: add nums[hi], remove nums[hi-k]\n  3. Track max/min/sum as you slide\n  O(n) time, O(1) space\n\nVariable size window (until condition met):\n  lo = 0;\n  for (hi = 0; hi < n; hi++) {\n    // EXPAND: add s.charAt(hi) to window\n    while (windowInvalid()) {\n      // CONTRACT: remove s.charAt(lo)\n      lo++;\n    }\n    // window is now valid — update answer\n    answer = Math.max(answer, hi - lo + 1);\n  }\n  O(n) time — lo never moves backward, total moves ≤ n\n```"
+    },
+    "visual_aid": {"type": "diagram", "description": "Two diagrams. Left: Fixed window k=3 on array [2,3,1,4,5]. Window slides: [2,3,1]=6, [3,1,4]=8, [1,4,5]=10 (max). Each step: add right element, remove left element. Right: Variable window for 'longest substring without repeat' on 'abcabcbb'. Window expands right. When duplicate found: shrink from left until no duplicate. Shows window [a,b,c]=3, then [b,c,a]=3, then [c,a,b]=3.", "alt_text": "Fixed and variable sliding window patterns"},
+    "worked_example": {
+      "scenario": "Longest Substring Without Repeating Characters (LeetCode #3) — Zerodha session tracking.",
+      "problem_statement": "Given string s, find length of longest substring without repeating characters.",
+      "step_by_step_solution": [
+        {"step": 1, "action": "Variable window with HashSet", "details": "Expand right: add s.charAt(hi) to window. If duplicate: shrink from left (remove s.charAt(lo), lo++) until no duplicate. Window at each step = valid substring without repeats. Track max length."}
+      ],
+      "final_code": "int lo=0, maxLen=0;\nSet<Character> window=new HashSet<>();\nfor(int hi=0; hi<s.length(); hi++) {\n    while(window.contains(s.charAt(hi))) {\n        window.remove(s.charAt(lo++)); // shrink left\n    }\n    window.add(s.charAt(hi));\n    maxLen=Math.max(maxLen, hi-lo+1);\n}\nreturn maxLen; // O(n) time, O(min(n,charset)) space",
+      "expected_output": "'abcabcbb' → 3 ('abc')\n'bbbbb'    → 1 ('b')\n'pwwkew'   → 3 ('wke')",
+      "things_to_notice": [
+        "lo never moves backward — total lo moves ≤ n. Total hi moves = n. → O(n) overall.",
+        "HashSet vs array[128]: for ASCII strings, int[128] window array is faster than HashSet.",
+        "Variable window answer: hi - lo + 1 (current window size) after expanding."
+      ]
+    },
+    "applications": {
+      "industry_examples": [{"company_context": "Zerodha session analytics", "use_case": "Find the longest continuous trading session where no stock was traded twice. Sliding window on trade sequence: window tracks currently active stocks, shrink when duplicate found."}],
+      "interview_relevance": "Pattern recognition: 'contiguous subarray/substring + optimize some property' → sliding window. Fixed-size window: 'k consecutive elements' → fixed window. Variable: 'at most k distinct' → variable window with HashMap count.",
+      "real_world_workflow": "Sliding window approach: (1) identify window type (fixed vs variable), (2) decide what to track in window (sum/set/map), (3) expand right always, (4) shrink left when window invalid, (5) update answer after each valid window state."
+    },
+    "common_gaps": [{"gap_id": "forgetting_lo_bounds", "what_students_get_wrong": "In variable window with HashMap (like 'at most k distinct'), lo can jump past the HashMap entry — need `lo = Math.max(lo, map.get(c) + 1)` not just `lo++`.", "remediation": "When using HashMap to store last seen index: new lo = max(current lo, lastSeen[char] + 1). This prevents lo from moving backward (which would invalidate the 'no seen window' invariant).", "detection_pattern": "Longest substring without repeat with HashMap: incorrect lo update causes wrong answer on 'abba'"}],
+    "reflection": {
+      "key_takeaways": [
+        "Sliding window: O(n) for contiguous subarray problems",
+        "Fixed window: add right element, subtract leftmost element",
+        "Variable window: expand right always; shrink left when invalid",
+        "lo never moves backward → total moves = O(n)",
+        "Window validity: defined by the problem constraint (no duplicates, sum ≤ k, etc.)",
+        "Track answer: hi - lo + 1 for current window size",
+        "HashSet vs int[128]: prefer fixed array for ASCII for O(1) operations"
+      ],
+      "self_check_questions": [{"question": "Why is the sliding window O(n) even though there's a while loop inside the for loop?", "answer": "The lo pointer never moves backward. In the entire execution, lo starts at 0 and can only increase to at most n-1. So the total number of lo++ operations across ALL iterations of the while loop is at most n. Combined with the n iterations of the outer for loop: total operations = O(n) + O(n) = O(n). This amortized argument applies to any sliding window where lo is monotonically non-decreasing."}],
+      "next_topic_preview": "Next: Prefix Sums — precompute cumulative sums to answer range queries in O(1)."
+    }
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m16_t3_proj",
+  "linked_topic": "java_m16_t3",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — Full Kafka Producer + Consumer Pipeline",
+  "estimated_minutes": 55,
+  "difficulty": 8,
+
+  "scenario": "Complete the Zerodha Kafka event pipeline: order-service publishes trades, notification-service and portfolio-service consume them. This is the async backbone of the trading platform.",
+
+  "description": "Three services: order-service (producer), notification-service (consumer 1), portfolio-service (consumer 2). Both consumers on 'trade-executed'. Different groups. Retry + DLT on notification. Concurrency=3 on portfolio. End-to-end @EmbeddedKafka integration test.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "`TradeNotificationConsumer` @Service: @KafkaListener(topics='trade-executed', groupId='notification-group') + @RetryableTopic(attempts=3, backoff=500ms×2) + @DltHandler that logs to DLT database.",
+        "weight": 22
+      },
+      {
+        "id": "req_2",
+        "description": "`PortfolioUpdateConsumer` @Service: @KafkaListener(topics='trade-executed', groupId='portfolio-group', concurrency='3'). Updates holdings: BUY adds, SELL subtracts qty for symbol.",
+        "weight": 18
+      },
+      {
+        "id": "req_3",
+        "description": "Consumer application.properties (notification-service): JsonDeserializer, trusted.packages=com.codequest.events, auto-offset-reset=earliest, group-id=notification-group.",
+        "weight": 10
+      },
+      {
+        "id": "req_4",
+        "description": "TradeEventPublisher (from T16.2) still works: publishes TradeExecutedEvent with symbol as key to 'trade-executed'.",
+        "weight": 10
+      },
+      {
+        "id": "req_5",
+        "description": "@EmbeddedKafka @SpringBootTest integration tests (4): (1) notification consumer receives trade + SMS sent, (2) portfolio consumer receives trade + holding updated, (3) both consumers receive same message (separate groups), (4) DLT receives message when processing always fails. All 4 pass.",
+        "weight": 40
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add batch consumer for analytics: @KafkaListener(topics='trade-executed', groupId='analytics-batch', batch='true'). Inserts List<TradeExecutedEvent> into analytics DB in one batch call. @EmbeddedKafka test: publish 5 trades, verify batch of 5 received.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add manual acknowledgment: configure ack-mode=manual on portfolio consumer. Portfolio.updateHolding() is idempotent. Only acknowledge if holding update succeeds. Test: simulate failure, verify message redelivered.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add a ConsumerRecord version of the audit consumer (groupId='audit-group') that logs topic, partition, offset, key for every trade. @EmbeddedKafka test verifies correct partition/key in ConsumerRecord.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Test trades:\n1. BUY 10 TCS @ ₹3890 by U01\n2. SELL 5 RELIANCE @ ₹2450 by U02\n3. BUY 20 INFY @ ₹1560 by U01\n\nExpected notification SMS:\n- 'Trade: 10 TCS @ ₹3890'\n- 'Trade: 5 RELIANCE @ ₹2450'\n\nExpected portfolio updates:\n- U01 TCS: +10 shares\n- U02 RELIANCE: -5 shares\n\n@EmbeddedKafka topics: trade-executed, trade-executed-retry-0, trade-executed-retry-1, trade-executed-dlt",
+
+  "starter_code": "// notification-service (new Spring Boot app or module):\n// TradeNotificationConsumer.java\n// application.properties (consumer config)\n\n// portfolio-service (new Spring Boot app or module):\n// PortfolioUpdateConsumer.java\n// PortfolioHolding.java (@Entity: userId, symbol, qty)\n\n// Shared:\n// TradeExecutedEvent.java (from T16.2)\n\n// Integration tests:\n// TradePipelineIntegrationTest.java (@EmbeddedKafka, 4 tests)",
+
+  "example_output": "# order-service publishes:\n[TradeEventPublisher] Trade event published: TRD-TCS-001 partition=0 offset=42\n\n# notification-service receives:\n[notification-group] TradeNotificationConsumer received: TCS x10 @ ₹3890 for U01\n[SmsService] SMS sent to U01: Trade: 10 TCS @ ₹3890\n\n# portfolio-service receives (same message, different group):\n[portfolio-group] PortfolioUpdateConsumer received: TCS x10 BUY for U01\n[PortfolioService] Updated U01 TCS: +10 → total 10 shares\n\n# Tests:\n✓ notification_smsSent\n✓ portfolio_holdingUpdated\n✓ bothGroupsReceiveSameMessage\n✓ dltCalledAfterRetryExhaustion",
+
+  "rubric": [
+    { "category": "TradeNotificationConsumer", "points": 22, "criteria": ["@KafkaListener correct (8 pts)", "@RetryableTopic (8 pts)", "@DltHandler (6 pts)"] },
+    { "category": "PortfolioUpdateConsumer", "points": 18, "criteria": ["@KafkaListener + groupId (8 pts)", "concurrency=3 (5 pts)", "BUY/SELL logic (5 pts)"] },
+    { "category": "application.properties", "points": 10, "criteria": ["All required consumer config (10 pts)"] },
+    { "category": "TradeEventPublisher (T16.2)", "points": 10, "criteria": ["Still works as before (10 pts)"] },
+    { "category": "@EmbeddedKafka tests", "points": 40, "criteria": ["4 tests × 10 pts each"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Batch analytics (20 pts)", "Manual ack (25 pts)", "Audit consumer (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. trusted.packages MUST be configured for JsonDeserializer — the #1 forgotten consumer property. @EmbeddedKafka topics list must include ALL topics created by @RetryableTopic (topic-retry-0, topic-retry-1, topic-dlt). Different groupId = independent consumption of same messages. CountDownLatch preferred over Thread.sleep for test synchronization.",
+
+  "submission_instructions": "GitHub push. All 4 @EmbeddedKafka tests pass. README explains: same topic, two consumer groups, why they both receive every message.",
+
+  "tips_for_success": [
+    "trusted.packages: mandatory for JsonDeserializer; use * in tests for simplicity",
+    "@EmbeddedKafka topics: include retry and DLT topics when using @RetryableTopic",
+    "CountDownLatch in consumer: latch.countDown() when processed; test: latch.await(5,SECONDS)",
+    "Different groupId: both consumers INDEPENDENTLY receive every 'trade-executed' message",
+    "@DltHandler receives the event directly (not wrapped in an exception)"
+  ],
+
+  "concepts_reinforced": [
+    "@KafkaListener with groupId for independent consumer groups",
+    "@RetryableTopic + @DltHandler for resilient consumer error handling",
+    "concurrency='N' for parallel partition processing",
+    "JsonDeserializer with trusted.packages",
+    "auto-offset-reset=earliest for test correctness",
+    "CountDownLatch for async consumer test synchronization"
+  ]
+}

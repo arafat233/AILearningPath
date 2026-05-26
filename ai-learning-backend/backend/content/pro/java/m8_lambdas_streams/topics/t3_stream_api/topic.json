@@ -1,0 +1,206 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m8_t3",
+  "language": "java",
+  "module_id": "m8",
+  "module_name": "Lambda Expressions & Streams",
+  "topic_number": 3,
+  "name": "Stream API Fundamentals",
+  "slug": "stream-api-fundamentals",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 65,
+    "prerequisites": ["java_m8_t1", "java_m8_t2", "java_m6_t1"],
+    "concepts_taught": [
+      "what_is_a_stream",
+      "stream_creation",
+      "intermediate_operations",
+      "terminal_operations",
+      "lazy_evaluation",
+      "filter_operation",
+      "map_operation",
+      "sorted_operation",
+      "distinct_limit_skip",
+      "collect_to_list",
+      "count_findfirst_findany",
+      "anymatch_allmatch_nonematch",
+      "reduce_operation",
+      "streams_are_not_collections"
+    ],
+    "skills_developed": [
+      "building_stream_pipelines",
+      "filtering_transforming_data",
+      "collecting_stream_results",
+      "using_terminal_operations",
+      "reading_stream_code_fluently",
+      "replacing_imperative_loops_with_streams"
+    ],
+    "career_relevance": "The Stream API transforms how Java developers process data. Before streams: 10-line filter-transform-sort loops. After streams: 1-3 line declarative pipelines. Every modern Java codebase uses streams. Spring Data projections, Kotlin equivalent API, Android Room queries — all built on the same declarative model. Once you can write and read stream pipelines fluently, your code becomes more expressive, more maintainable, and often faster (streams can be parallelized trivially). This topic is arguably the highest-ROI topic in the entire course.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Get the names of all in-stock Electronics products with price under ₹2000, sorted by rating descending, as a comma-separated string.\n\n**Before streams (Module 6 style — 15 lines):**\n```java\nList<String> result = new ArrayList<>();\nfor (Product p : catalog) {\n    if (p.isInStock() &&\n        p.getCategory().equals(\"Electronics\") &&\n        p.getPrice() < 2000) {\n        result.add(p.getName());\n    }\n}\nresult.sort((a, b) -> {\n    double ra = findByName(a).getRating();\n    double rb = findByName(b).getRating();\n    return Double.compare(rb, ra);\n});\nString joined = String.join(\", \", result);\n```\n\n**After streams (1 line + continuation):**\n```java\nString joined = catalog.stream()\n    .filter(p -> p.isInStock() && p.getCategory().equals(\"Electronics\") && p.getPrice() < 2000)\n    .sorted((a, b) -> Double.compare(b.getRating(), a.getRating()))\n    .map(Product::getName)\n    .collect(Collectors.joining(\", \"));\n```\n\nSame result. Clearer intent. Fewer moving parts. No temporary list. This is the Stream API — a declarative, composable way to process sequences of data.\n\nYou already know all the functional interfaces it uses (Predicate, Function, Consumer, Supplier). Today you learn the API that puts them to work at scale.",
+    "what_you_will_build": "By the end of this topic, you'll write stream pipelines fluently: creating streams from collections, filtering with Predicate, transforming with map, sorting, deduplicating, limiting, collecting to lists, counting, finding elements, and matching conditions. The data processing code you've been writing in 10-15 lines will shrink to 1-3 lines."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "what_is_a_stream": "A **Stream** is a sequence of elements supporting sequential (and potentially parallel) aggregate operations. Key properties:\n\n1. **Not a data structure** — a stream doesn't store data. It processes data from a source (collection, array, etc.)\n2. **Lazy** — operations are not executed until a terminal operation is called\n3. **Consumed once** — a stream can only be traversed once. After terminal operation, it's closed.\n4. **Declarative** — you say WHAT to do, not HOW to do it\n\n```java\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\", \"Priya\");\n\n// Create a stream from the list\nStream<String> stream = names.stream();\n\n// More commonly — chain directly:\nnames.stream()\n     .filter(s -> s.length() > 3)\n     .map(String::toUpperCase)\n     .forEach(System.out::println);\n```\n\n**Two kinds of operations:**\n- **Intermediate**: return a new Stream, are lazy (filter, map, sorted, distinct, limit, skip)\n- **Terminal**: produce a result or side effect, trigger execution (collect, count, forEach, findFirst, reduce)",
+
+      "stream_creation": "**Creating Streams:**\n\n```java\nimport java.util.stream.*;\n\n// From collection\nList<String> names = Arrays.asList(\"Aisha\", \"Raj\");\nStream<String> s1 = names.stream();\n\n// From array\nString[] arr = {\"A\", \"B\", \"C\"};\nStream<String> s2 = Arrays.stream(arr);\n\n// From values directly\nStream<Integer> s3 = Stream.of(1, 2, 3, 4, 5);\n\n// Empty stream\nStream<String> empty = Stream.empty();\n\n// Infinite streams (with limit)\nStream<Integer> natural = Stream.iterate(1, n -> n + 1);  // 1, 2, 3, ...\nStream<Double> randoms  = Stream.generate(Math::random);   // endless randoms\n// Always limit infinite streams!\nnatural.limit(10).forEach(System.out::println); // prints 1-10\n\n// Primitive streams (more efficient for numbers)\nIntStream nums    = IntStream.range(1, 6);    // 1,2,3,4,5\nIntStream range   = IntStream.rangeClosed(1, 5); // 1,2,3,4,5 inclusive\nDoubleStream dbl  = DoubleStream.of(1.1, 2.2, 3.3);\n```",
+
+      "filter": "**`filter(Predicate<T>)`** — keep elements where the predicate is true:\n\n```java\nList<Integer> nums = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8);\n\nnums.stream()\n    .filter(n -> n % 2 == 0)       // keep evens: 2,4,6,8\n    .filter(n -> n > 4)            // keep > 4: 6,8\n    .forEach(System.out::println); // prints 6, 8\n\n// With objects:\nList<Product> electronics = catalog.stream()\n    .filter(p -> p.getCategory().equals(\"Electronics\"))\n    .filter(p -> p.isInStock())\n    .collect(Collectors.toList());\n```\n\nChained filters are AND conditions. Each filter call returns a new stream with fewer elements.",
+
+      "map": "**`map(Function<T, R>)`** — transform each element:\n\n```java\nList<String> names = Arrays.asList(\"aisha\", \"raj\", \"priya\");\n\n// Transform String → String\nList<String> upper = names.stream()\n    .map(String::toUpperCase)          // method reference\n    .collect(Collectors.toList());     // [AISHA, RAJ, PRIYA]\n\n// Transform String → Integer\nList<Integer> lengths = names.stream()\n    .map(String::length)\n    .collect(Collectors.toList());     // [5, 3, 5]\n\n// Transform Object → field\nList<String> productNames = catalog.stream()\n    .map(Product::getName)             // Product → String\n    .collect(Collectors.toList());\n\n// Transform Object → computed value\nList<Double> finalPrices = catalog.stream()\n    .map(p -> p.getPrice() * (1 - p.getDiscount() / 100))\n    .collect(Collectors.toList());\n```\n\n**`mapToInt`, `mapToDouble`, `mapToLong`** — convert to primitive streams for numeric ops:\n```java\ndouble avgPrice = catalog.stream()\n    .mapToDouble(Product::getPrice)\n    .average()\n    .orElse(0.0);\n```",
+
+      "sorted_distinct_limit_skip": "**Sorting and slicing:**\n\n```java\nList<Integer> nums = Arrays.asList(5, 3, 8, 1, 3, 9, 2);\n\n// sorted() — natural order\nnums.stream().sorted().forEach(System.out::print);  // 1 2 3 3 5 8 9\n\n// sorted(Comparator) — custom order\ncatalog.stream()\n    .sorted((a, b) -> Double.compare(b.getPrice(), a.getPrice()))  // desc price\n    .collect(Collectors.toList());\n\n// distinct() — remove duplicates (uses equals)\nnums.stream().distinct().forEach(System.out::print);  // 5 3 8 1 9 2\n\n// limit(n) — take first n elements\nnums.stream().sorted().limit(3).forEach(System.out::print);  // 1 2 3\n\n// skip(n) — skip first n, take the rest\nnums.stream().sorted().skip(3).forEach(System.out::print);   // 3 5 8 9\n\n// Combined — pagination:\nList<Product> page2 = catalog.stream()\n    .sorted(Comparator.comparing(Product::getName))\n    .skip(10)   // skip page 1 (10 items)\n    .limit(10)  // take page 2 (10 items)\n    .collect(Collectors.toList());\n```",
+
+      "terminal_collect": "**`collect(Collectors.toList())`** — the most common terminal operation:\n\n```java\nimport java.util.stream.Collectors;\n\n// Collect to List\nList<String> filtered = names.stream()\n    .filter(s -> s.length() > 3)\n    .collect(Collectors.toList());\n\n// Collect to Set (deduplicates)\nSet<String> unique = names.stream()\n    .collect(Collectors.toSet());\n\n// Join strings\nString joined = names.stream()\n    .collect(Collectors.joining(\", \"));  // 'Aisha, Raj, Priya'\n\nString formatted = names.stream()\n    .collect(Collectors.joining(\", \", \"[\", \"]\"));  // '[Aisha, Raj, Priya]'\n\n// Count with filter\nlong count = names.stream()\n    .filter(s -> s.length() > 3)\n    .count();\n```",
+
+      "terminal_find_match": "**Finding and matching — short-circuit terminal operations:**\n\n```java\n// count — total elements after pipeline\nlong n = names.stream().filter(s -> s.startsWith(\"A\")).count();  // 1\n\n// findFirst — first element (or empty Optional)\nOptional<String> first = names.stream()\n    .filter(s -> s.length() > 4)\n    .findFirst();  // Optional[Aisha]\nfirst.ifPresent(System.out::println);  // prints Aisha\nString orDefault = first.orElse(\"none\");\n\n// anyMatch — does ANY element satisfy condition?\nboolean hasLong = names.stream().anyMatch(s -> s.length() > 5);  // false\n\n// allMatch — do ALL elements satisfy condition?\nboolean allNonEmpty = names.stream().allMatch(s -> !s.isEmpty());  // true\n\n// noneMatch — do NO elements satisfy condition?\nboolean noneShort = names.stream().noneMatch(s -> s.length() < 3);  // true\n\n// min / max\nOptional<Integer> max = nums.stream().max(Integer::compare);  // Optional[9]\nOptional<String> shortest = names.stream().min(Comparator.comparingInt(String::length));\n```\n\n`Optional<T>` is returned for operations that might not find anything. Always handle with `orElse()`, `ifPresent()`, or `isPresent()` — never call `get()` without checking!",
+
+      "reduce": "**`reduce`** — combine all elements into one value:\n\n```java\nList<Integer> nums = Arrays.asList(1, 2, 3, 4, 5);\n\n// Sum with reduce\nOptional<Integer> sum = nums.stream()\n    .reduce((a, b) -> a + b);   // Optional[15]\n\n// Sum with identity (starting value)\nint sum2 = nums.stream()\n    .reduce(0, (a, b) -> a + b); // 15 — not Optional (has default)\n\n// Product\nint product = nums.stream()\n    .reduce(1, (a, b) -> a * b); // 120\n\n// For numbers — prefer sum()/average() via mapToInt:\nint total = nums.stream().mapToInt(Integer::intValue).sum();\n```\n\n**Note**: for simple aggregations (sum, count, average, min, max) on primitive streams, prefer `IntStream.sum()`, `IntStream.average()` etc. — more readable and slightly more efficient.",
+
+      "lazy_evaluation": "**Lazy evaluation** — intermediate operations only run when terminal operation is called:\n\n```java\n// Nothing executes until the terminal operation (forEach)\nStream<String> pipeline = names.stream()\n    .filter(s -> {\n        System.out.println(\"filtering: \" + s);  // won't print yet\n        return s.length() > 3;\n    })\n    .map(s -> {\n        System.out.println(\"mapping: \" + s);    // won't print yet\n        return s.toUpperCase();\n    });\n    \n// NOW it executes (terminal operation triggers the pipeline):\npipeline.forEach(System.out::println);\n```\n\n**Why lazy is good**: filter reduces the set BEFORE map runs. If filter leaves 3 elements from 1000, map only runs 3 times. Efficient.\n\n**Short-circuit optimization**: `findFirst()` stops the pipeline as soon as the first matching element is found — doesn't process remaining elements.\n\n**One-time use**: once a stream's terminal operation runs, the stream is closed. Calling another terminal operation throws `IllegalStateException: stream has already been operated upon or closed`."
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a stream pipeline as a horizontal conveyor belt: source (List) → filter (removes some items) → map (transforms items) → sorted (reorders) → collect (bucket at end). Each stage labeled with the functional interface type it uses. Below: lazy evaluation diagram — all operations queued but not executing until terminal operation arrow pulls items through. Intermediate vs Terminal operation table. Short-circuit visualization: findFirst() stops the belt early. Optional diagram showing: some operations return Optional<T>, use orElse/ifPresent/isPresent.",
+      "alt_text": "Stream pipeline conveyor belt diagram with lazy evaluation and Optional handling"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Process Zerodha's stock watchlist using stream pipelines. Multiple requirements — find high-performers, compute averages, get symbols of expensive stocks — each solved with a clean stream pipeline instead of loops.",
+
+    "problem_statement": "Given a list of `Stock` objects (symbol, price, dailyChange, sector), solve 5 real queries using stream pipelines:\n1. Symbols of all gainers (dailyChange > 0), sorted by change descending\n2. Average price of IT sector stocks\n3. Any stock with more than 5% change?\n4. All unique sectors\n5. Top 3 most expensive stocks (names only)",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Setup — Stock class and data",
+        "details": "```java\nclass Stock {\n    private String symbol, sector;\n    private double price, dailyChange;  // dailyChange in %\n    \n    Stock(String symbol, String sector, double price, double dailyChange) {\n        this.symbol = symbol; this.sector = sector;\n        this.price = price; this.dailyChange = dailyChange;\n    }\n    \n    public String getSymbol() { return symbol; }\n    public String getSector() { return sector; }\n    public double getPrice()  { return price; }\n    public double getDailyChange() { return dailyChange; }\n}\n\nList<Stock> watchlist = Arrays.asList(\n    new Stock(\"RELIANCE\", \"Energy\",  2450, +1.2),\n    new Stock(\"TCS\",      \"IT\",      3890, +4.1),\n    new Stock(\"INFY\",     \"IT\",      1560, -3.8),\n    new Stock(\"HDFC\",     \"Finance\", 1678, +0.5),\n    new Stock(\"WIPRO\",    \"IT\",       412, +5.2),\n    new Stock(\"ZOMATO\",   \"Consumer\", 184, -1.3)\n);\n```"
+      },
+      {
+        "step": 2,
+        "action": "Query 1: Gainers sorted by change descending",
+        "details": "```java\nList<String> gainers = watchlist.stream()\n    .filter(s -> s.getDailyChange() > 0)\n    .sorted((a, b) -> Double.compare(b.getDailyChange(), a.getDailyChange()))\n    .map(Stock::getSymbol)\n    .collect(Collectors.toList());\nSystem.out.println(\"Gainers: \" + gainers);  // [WIPRO, TCS, RELIANCE, HDFC]\n```"
+      },
+      {
+        "step": 3,
+        "action": "Query 2: Average price of IT stocks",
+        "details": "```java\nOptionalDouble avgItPrice = watchlist.stream()\n    .filter(s -> s.getSector().equals(\"IT\"))\n    .mapToDouble(Stock::getPrice)\n    .average();\nSystem.out.printf(\"IT avg price: ₹%.2f%n\", avgItPrice.orElse(0));  \n// (3890 + 1560 + 412) / 3 = ₹1954.00\n```"
+      },
+      {
+        "step": 4,
+        "action": "Query 3: Any stock with > 5% change?",
+        "details": "```java\nboolean bigMover = watchlist.stream()\n    .anyMatch(s -> Math.abs(s.getDailyChange()) > 5);\nSystem.out.println(\"Any > 5% change: \" + bigMover);  // true (WIPRO = 5.2%)\n```"
+      },
+      {
+        "step": 5,
+        "action": "Queries 4 & 5: Unique sectors, top 3 expensive",
+        "details": "```java\n// Unique sectors\nSet<String> sectors = watchlist.stream()\n    .map(Stock::getSector)\n    .collect(Collectors.toSet());\nList<String> sortedSectors = new ArrayList<>(sectors);\nCollections.sort(sortedSectors);\nSystem.out.println(\"Sectors: \" + sortedSectors);\n\n// Top 3 most expensive (names only)\nList<String> top3 = watchlist.stream()\n    .sorted((a, b) -> Double.compare(b.getPrice(), a.getPrice()))\n    .limit(3)\n    .map(Stock::getSymbol)\n    .collect(Collectors.toList());\nSystem.out.println(\"Top 3: \" + top3);\n```"
+      }
+    ],
+
+    "final_code": "import java.util.*;\nimport java.util.stream.*;\n\nclass Stock {\n    private String symbol, sector;\n    private double price, dailyChange;\n    Stock(String sym, String sec, double p, double dc) {\n        symbol=sym; sector=sec; price=p; dailyChange=dc;\n    }\n    public String getSymbol()     { return symbol; }\n    public String getSector()     { return sector; }\n    public double getPrice()      { return price; }\n    public double getDailyChange(){ return dailyChange; }\n}\n\npublic class WatchlistAnalysis {\n    public static void main(String[] args) {\n        List<Stock> watchlist = Arrays.asList(\n            new Stock(\"RELIANCE\", \"Energy\",  2450, +1.2),\n            new Stock(\"TCS\",      \"IT\",      3890, +4.1),\n            new Stock(\"INFY\",     \"IT\",      1560, -3.8),\n            new Stock(\"HDFC\",     \"Finance\", 1678, +0.5),\n            new Stock(\"WIPRO\",    \"IT\",       412, +5.2),\n            new Stock(\"ZOMATO\",   \"Consumer\", 184, -1.3)\n        );\n        \n        // Query 1: Gainers\n        List<String> gainers = watchlist.stream()\n            .filter(s -> s.getDailyChange() > 0)\n            .sorted((a, b) -> Double.compare(b.getDailyChange(), a.getDailyChange()))\n            .map(Stock::getSymbol)\n            .collect(Collectors.toList());\n        System.out.println(\"Gainers: \" + gainers);\n        \n        // Query 2: IT avg price\n        OptionalDouble avg = watchlist.stream()\n            .filter(s -> s.getSector().equals(\"IT\"))\n            .mapToDouble(Stock::getPrice)\n            .average();\n        System.out.printf(\"IT avg price: ₹%.2f%n\", avg.orElse(0));\n        \n        // Query 3: Big mover?\n        boolean bigMover = watchlist.stream()\n            .anyMatch(s -> Math.abs(s.getDailyChange()) > 5);\n        System.out.println(\"Any > 5% change: \" + bigMover);\n        \n        // Query 4: Unique sectors\n        List<String> sectors = watchlist.stream()\n            .map(Stock::getSector)\n            .distinct()\n            .sorted()\n            .collect(Collectors.toList());\n        System.out.println(\"Sectors: \" + sectors);\n        \n        // Query 5: Top 3 most expensive\n        List<String> top3 = watchlist.stream()\n            .sorted((a, b) -> Double.compare(b.getPrice(), a.getPrice()))\n            .limit(3)\n            .map(Stock::getSymbol)\n            .collect(Collectors.toList());\n        System.out.println(\"Top 3 expensive: \" + top3);\n    }\n}",
+
+    "expected_output": "Gainers: [WIPRO, TCS, RELIANCE, HDFC]\nIT avg price: ₹1954.00\nAny > 5% change: true\nSectors: [Consumer, Energy, Finance, IT]\nTop 3 expensive: [TCS, RELIANCE, HDFC]",
+
+    "things_to_notice": [
+      "Query 1: filter → sorted → map → collect. Each operation is one line, clear purpose. Compare to the equivalent 8-line loop approach.",
+      "Query 2: filter → mapToDouble → average(). mapToDouble converts Stream<Stock> to DoubleStream, which has .average() built in. Returns OptionalDouble — handle with .orElse(0).",
+      "Query 3: anyMatch stops at the FIRST match. WIPRO has 5.2% > 5, so processing stops after WIPRO (short-circuit). The remaining stocks are never checked.",
+      "Query 4: .distinct() removes duplicates. Used on the mapped sectors (String), not on stocks. Then .sorted() alphabetically.",
+      "Query 5: sorted descending by price → limit(3) → map to symbol. Chain flows naturally top to bottom.",
+      "Lazy evaluation in action: in Query 2, filter runs first. Only 3 IT stocks pass. mapToDouble only runs on those 3. The 3 non-IT stocks never reach mapToDouble."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Data JPA projections",
+        "use_case": "When `findAll()` returns `List<Entity>`, streams transform the raw data: `entities.stream().filter(e -> e.isActive()).map(entityMapper::toDto).collect(Collectors.toList())`. This is in every Spring REST controller that needs to transform database entities to API responses."
+      },
+      {
+        "company_context": "Flipkart search and filtering",
+        "use_case": "Search results arrive as a list of Product objects. Stream pipelines apply user-selected filters (price range, category, rating), sort by relevance/price/rating, and paginate with skip/limit. The entire user-visible filtering is one stream pipeline — clean, testable, and easily composable with new filter types."
+      },
+      {
+        "company_context": "Zerodha portfolio analysis",
+        "use_case": "Portfolio analytics: `holdings.stream().filter(h -> h.isProfit()).mapToDouble(h -> h.getGainPercent()).average()` — average gain across profitable holdings. `holdings.stream().max(Comparator.comparingDouble(Holding::getValue)).ifPresent(h -> highlight(h))` — highlight largest holding. These are real-time calculations that run every time the portfolio view loads."
+      }
+    ],
+
+    "interview_relevance": "Stream questions are now standard at all levels:\n\n- **'Convert a list of employees to a list of names'** → `list.stream().map(Employee::getName).collect(Collectors.toList())`\n- **'Find employees with salary > 80000'** → `.filter(e -> e.getSalary() > 80000)`\n- **'Count distinct departments'** → `.map(Employee::getDept).distinct().count()`\n- **'Is there any employee in IT?'** → `.anyMatch(e -> e.getDept().equals('IT'))`\n- **'Get average salary'** → `.mapToDouble(Employee::getSalary).average().orElse(0)`\n- **'Get top 5 by salary'** → `.sorted((a,b) -> Double.compare(b.getSalary(), a.getSalary())).limit(5)`",
+
+    "real_world_workflow": "Daily stream usage:\n\n- Convert lists to DTOs: `entities.stream().map(mapper::toDto).collect(Collectors.toList())`\n- Filter active records: `records.stream().filter(r -> r.isActive())`\n- Find specific item: `items.stream().filter(i -> i.getId() == id).findFirst()`\n- Check existence: `users.stream().anyMatch(u -> u.getEmail().equals(email))`\n- Compute aggregates: `orders.stream().mapToDouble(Order::getTotal).sum()`\n- Get unique values: `products.stream().map(Product::getCategory).distinct().collect(Collectors.toList())`"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "stream_reuse",
+      "what_students_get_wrong": "Trying to use a stream twice — second terminal operation throws IllegalStateException.",
+      "remediation": "Streams are single-use. If you need to process the same data twice, call `.stream()` again on the source collection. Don't save a stream in a variable and call terminal operations twice.",
+      "detection_pattern": "IllegalStateException: stream has already been operated upon or closed"
+    },
+    {
+      "gap_id": "no_terminal_operation",
+      "what_students_get_wrong": "Writing filter/map chain without any terminal operation — nothing executes, no output.",
+      "remediation": "Intermediate operations are LAZY. Without a terminal operation (collect, forEach, count, etc.), nothing runs. Every stream pipeline MUST end with a terminal operation.",
+      "detection_pattern": "No output at all, code appears to do nothing"
+    },
+    {
+      "gap_id": "optional_get_without_check",
+      "what_students_get_wrong": "Calling `.get()` on Optional without checking `isPresent()` — NoSuchElementException if empty.",
+      "remediation": "Use `orElse(default)`, `orElseGet(Supplier)`, or `ifPresent(Consumer)`. Only use `get()` if you've already confirmed with `isPresent()` — and even then, `orElseThrow()` is clearer.",
+      "detection_pattern": "NoSuchElementException when stream has no matching elements"
+    },
+    {
+      "gap_id": "modifying_source_in_stream",
+      "what_students_get_wrong": "Modifying the source collection inside a stream lambda — ConcurrentModificationException or undefined behavior.",
+      "remediation": "Never modify the collection a stream is sourced from inside the stream's lambda. If you need the results in the original list, collect to a new list, then replace: `list = list.stream()...collect(toList())`",
+      "detection_pattern": "ConcurrentModificationException during stream execution"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Stream: sequence of elements for aggregate operations. Not a collection — processes data from a source.",
+      "Intermediate ops (lazy, return Stream): filter, map, sorted, distinct, limit, skip",
+      "Terminal ops (trigger execution): collect, count, forEach, findFirst, anyMatch, allMatch, noneMatch, reduce, min, max",
+      "Stream is single-use — terminal operation closes it",
+      "filter(Predicate) — keep matching. map(Function) — transform. sorted(Comparator) — order.",
+      "collect(Collectors.toList()) — gather to list. collect(Collectors.toSet()) — to set. collect(Collectors.joining(',')) — join strings.",
+      "count() — number of elements. findFirst() — Optional<T> of first match.",
+      "anyMatch/allMatch/noneMatch — boolean checks, short-circuit for efficiency",
+      "mapToDouble/mapToInt → DoubleStream/IntStream → sum(), average(), min(), max()",
+      "Optional<T>: use orElse(), ifPresent(), orElseThrow() — never naked .get()"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "What's the output?\n```java\nArrays.asList(1,2,3,4,5).stream()\n    .filter(n -> n % 2 == 0)\n    .map(n -> n * 10)\n    .forEach(System.out::println);\n```",
+        "answer": "20\n40\n\nFilter keeps evens: 2, 4. Map multiplies by 10: 20, 40. forEach prints each. The odd numbers (1, 3, 5) are filtered out and never reach map."
+      },
+      {
+        "question": "What's wrong?\n```java\nStream<String> s = names.stream().filter(x -> x.length() > 3);\nlong count = s.count();\nList<String> list = s.collect(Collectors.toList()); // ERROR!\n```",
+        "answer": "Streams are single-use. After `s.count()` (a terminal operation), the stream `s` is closed. Calling `s.collect(...)` throws `IllegalStateException`. Fix: call `.stream()` again: `names.stream().filter(x -> x.length() > 3).collect(Collectors.toList())`"
+      },
+      {
+        "question": "Write a one-line stream to get the average salary of IT department employees, defaulting to 0 if none exist.",
+        "answer": "`employees.stream().filter(e -> e.getDept().equals('IT')).mapToDouble(Employee::getSalary).average().orElse(0.0)`\n\nFilter to IT employees → mapToDouble creates a DoubleStream → average() returns OptionalDouble → orElse(0.0) handles empty case."
+      }
+    ],
+
+    "next_topic_preview": "Next: **Stream Collectors** — the full power of `collect()`. `Collectors.groupingBy()` replaces the Map-of-Lists pattern from Module 6. `Collectors.counting()`, `Collectors.summarizingDouble()`, `Collectors.joining()`. One line to group 1000 products by category. One line to compute statistics on a list. The most expressive data aggregation tool in Java."
+  }
+}

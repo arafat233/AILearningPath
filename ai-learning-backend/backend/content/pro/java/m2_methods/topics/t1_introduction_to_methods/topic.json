@@ -1,0 +1,227 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t1",
+  "language": "java",
+  "module_id": "m2",
+  "module_name": "Methods & Code Organization",
+  "topic_number": 1,
+  "name": "Introduction to Methods",
+  "slug": "introduction-to-methods",
+  
+  "metadata": {
+    "difficulty": 3,
+    "estimated_minutes": 50,
+    "prerequisites": ["java_m1_t1", "java_m1_t2", "java_m1_t3", "java_m1_t4", "java_m1_t5"],
+    "concepts_taught": [
+      "method_definition",
+      "method_call",
+      "void_methods",
+      "method_anatomy",
+      "static_methods",
+      "method_naming",
+      "calling_other_methods",
+      "method_organization",
+      "dry_principle"
+    ],
+    "skills_developed": [
+      "extracting_reusable_logic",
+      "naming_methods_well",
+      "calling_methods_correctly",
+      "organizing_code_into_methods",
+      "reading_code_with_methods"
+    ],
+    "career_relevance": "Methods are where 'writing code' becomes 'engineering software.' Until now, everything has lived in main(). In a real codebase, main() is often just 10 lines — calling methods that call other methods. Methods enable: code reuse, abstraction (hiding complexity), testing, parallel development by teams, maintainability. Every professional Java developer reads and writes thousands of methods every week. This topic is the turning point from beginner to apprentice engineer.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+  
+  "hook": {
+    "real_world_problem": "Open any real Java project on GitHub — Spring Framework, Apache Kafka, Elasticsearch, any production codebase. Look at a single file. You'll see something like 20-40 small methods, each doing one specific thing, with a short main() or entry point that orchestrates them. Compare to what you've written so far in Module 1: everything jammed into main(), often 50+ lines (the tax calculators in M1 Topic 4 and Topic 5 are good examples — they work, but every line lives in main). That's the difference between code and engineering. Real engineers don't write longer programs — they write programs made of smaller, well-named pieces. This topic is where that transformation begins for you.",
+    "what_you_will_build": "By the end of this topic, you'll know how to define methods (named, reusable blocks of code), call them, and organize a program with multiple methods working together. You'll build an EMI (loan instalment) calculator the wrong way first — everything jammed into main() — then refactor it into multiple methods. Same output, dramatically better code. This is the single most important skill in this whole course."
+  },
+  
+  "teaching": {
+    "concept_explanation": {
+      "intro": "A **method** is a named, reusable block of code that performs a specific task. You've already been using methods — `System.out.println()` is a method. `Math.pow(2, 8)` is a method. Now you'll write your own.\n\nA simple example:\n\n```java\npublic class Greeter {\n    // This is a method definition\n    public static void sayHello() {\n        System.out.println(\"Hello!\");\n    }\n    \n    public static void main(String[] args) {\n        // This is a method call\n        sayHello();\n        sayHello();\n        sayHello();\n    }\n}\n```\n\nOutput:\n```\nHello!\nHello!\nHello!\n```\n\n**What changed**: We wrote the print statement ONCE, then ran it three times by calling the method. If we wanted to update the greeting, we'd change it in ONE place — `sayHello()`'s body. This is the **DRY principle**: Don't Repeat Yourself.",
+      
+      "why_methods": "**Why methods matter** — five reasons:\n\n1. **Reuse**: Write logic once, use it many times. Updating means changing one place.\n\n2. **Abstraction**: Hide complexity behind a name. You don't think about how `Math.sqrt()` calculates square roots — you just call it. Same applies to your own code.\n\n3. **Readability**: A method named `calculateMonthlyTax()` is self-documenting. 30 lines of math without a name is a mystery.\n\n4. **Testing**: Small methods are easy to test. Large monolithic main() methods are not. (Testing covered in later module.)\n\n5. **Team work**: Methods are units of work. One developer writes `calculateTax()`, another writes `applyDiscount()`, they integrate later. Without methods, team coding falls apart.",
+      
+      "method_anatomy": "A method definition has 5 parts:\n\n```java\npublic static void sayHello() {\n    System.out.println(\"Hello!\");\n}\n```\n\nBreakdown:\n\n1. **`public`** — access modifier. We'll cover modifiers in OOP module. For now: public means 'callable from anywhere.'\n\n2. **`static`** — means the method belongs to the CLASS, not an instance. We'll fully understand this in OOP module. For now: all your methods will be static (so they can be called from main, which is also static).\n\n3. **`void`** — return type. `void` means 'returns nothing.' Other return types: `int`, `double`, `String`, etc. (covered next topic).\n\n4. **`sayHello`** — method name. By convention: camelCase, starts with a verb. `calculateTax`, `printReport`, `isValid`, `findUser`.\n\n5. **`()`** — parameter list. Empty here. Parameters let you pass data INTO the method (covered next topic).\n\n6. **`{ ... }`** — method body. The code that runs when method is called.\n\nThe whole thing — definition through closing brace — is the **method definition**. Calling it (`sayHello();`) is the **method invocation** or **method call**.",
+      
+      "method_call_vs_definition": "Critical distinction:\n\n**Definition** = writing the method. Tells Java 'this method exists and does X.'\n\n**Call** = using the method. Tells Java 'run this method now.'\n\n```java\npublic class Example {\n    // DEFINITION — method exists but isn't running yet\n    public static void greet() {\n        System.out.println(\"Hi!\");\n    }\n    \n    // DEFINITION — main is also a method!\n    public static void main(String[] args) {\n        System.out.println(\"Start\");\n        \n        greet();  // CALL — executes greet()\n        \n        System.out.println(\"End\");\n    }\n}\n```\n\nOutput:\n```\nStart\nHi!\nEnd\n```\n\nWhen Java sees `greet();`, it 'jumps to' the greet method, runs it, then 'jumps back' to where it was called.\n\n**Order of methods in the file does NOT matter.** You can define a method below `main` and call it from main — Java reads the whole file first. Conventionally, helper methods go below main.",
+      
+      "void_vs_returning_methods": "Two kinds of methods:\n\n**1. `void` methods** — do something, don't give anything back:\n\n```java\npublic static void printGreeting() {\n    System.out.println(\"Welcome!\");\n}\n```\n\nUse for actions: printing, sending email, saving to database, etc.\n\n**2. Methods that return a value** — compute something and give it back:\n\n```java\npublic static int square(int n) {\n    return n * n;\n}\n```\n\nWe'll cover these in detail next topic. For now, focus on void methods — actions with no return value.",
+      
+      "calling_methods_from_methods": "Methods can call other methods. This is how programs are organized.\n\n```java\npublic class App {\n    public static void main(String[] args) {\n        showHeader();\n        showContent();\n        showFooter();\n    }\n    \n    public static void showHeader() {\n        System.out.println(\"=== HEADER ===\");\n    }\n    \n    public static void showContent() {\n        System.out.println(\"Welcome to our app\");\n        showDivider();  // calling another method\n        System.out.println(\"Get started below\");\n    }\n    \n    public static void showFooter() {\n        showDivider();\n        System.out.println(\"=== FOOTER ===\");\n    }\n    \n    public static void showDivider() {\n        System.out.println(\"-----------\");\n    }\n}\n```\n\nOutput:\n```\n=== HEADER ===\nWelcome to our app\n-----------\nGet started below\n-----------\n=== FOOTER ===\n```\n\nNotice how `main()` reads like a SUMMARY of what the program does: header, content, footer. The details are abstracted into methods. This is how engineering code looks.\n\nAlso notice: `showDivider()` is called from TWO places (`showContent` and `showFooter`). Write once, use twice. DRY.",
+      
+      "method_naming_conventions": "Good method names are critical. They're the 'documentation' people read first.\n\n**Conventions**:\n- camelCase (start lowercase): `calculateTotal`, NOT `CalculateTotal` or `calculate_total`\n- Start with a verb (action words): `print`, `calculate`, `find`, `validate`, `is`, `has`, `get`, `set`\n- Be descriptive: `calculateMonthlyEmi` better than `calc` or `doIt`\n- Boolean methods often start with `is`, `has`, `can`: `isValid()`, `hasPermission()`, `canEdit()`\n\n**Good names**:\n- `printReport()`\n- `calculateInterest()`\n- `validateEmail()`\n- `isLeapYear()`\n- `findCustomerById()`\n\n**Bad names**:\n- `doStuff()` — too vague\n- `method1()` — meaningless\n- `print()` — what does it print?\n- `process()` — process what?\n- `helperFunction()` — helper for what?\n\nIf you can't name a method easily, it's probably doing too many things. Refactor.",
+      
+      "single_responsibility": "**The Single Responsibility Principle**: a method should do ONE thing.\n\nBad — does too much:\n\n```java\npublic static void handleUserLogin() {\n    // Validates input\n    // Checks database\n    // Generates session token\n    // Logs the activity\n    // Sends welcome email\n    // Updates last login time\n    // ...80 lines later...\n}\n```\n\nGood — split into single-purpose methods:\n\n```java\npublic static void handleUserLogin() {\n    if (!validateLoginInput()) return;\n    User user = lookupUser();\n    if (!authenticatePassword(user)) return;\n    String token = generateSessionToken(user);\n    logLoginActivity(user);\n    sendWelcomeEmail(user);\n    updateLastLoginTime(user);\n}\n```\n\nNow `handleUserLogin` reads as a high-level description. Each step has a clear name. Each method can be tested independently.\n\n**Rule of thumb**: if a method is more than ~20 lines, ask 'can this be split?' Often the answer is yes.\n\n(Note: we'll cover return values, parameters, and proper validation patterns in next topics. Above is conceptual.)"
+    },
+    
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Show a flow diagram with main() on the left containing 3 boxes representing method calls. Arrows lead RIGHT to the actual method definitions (boxes labeled showHeader, showContent, showFooter). showContent has an arrow back to a helper method showDivider, which is ALSO called from showFooter (two arrows pointing to it). Annotation: 'Methods are reusable — called from multiple places.' Below: a comparison diagram showing 'BEFORE: 80-line main() — all logic crammed in' vs 'AFTER: 8-line main() calling 5 well-named methods — same program, way clearer.'",
+      "alt_text": "Diagram showing method calls and reuse patterns, with before/after comparison of code organization"
+    }
+  },
+  
+  "worked_example": {
+    "scenario": "Imagine an EMI (Equated Monthly Instalment) calculator written the way you'd write it after Module 1: one giant main() method with the EMI formula, a loop for the monthly payment schedule, and all the println calls jammed together. ~60 lines of code with no organisation. Today we'll write that version FIRST, then refactor it into methods. SAME functionality. Same output. But organized properly — like real production code. This refactoring shows you EXACTLY what methods do for code quality.",
+
+    "problem_statement": "Build an EMI calculator and refactor it into multiple methods:\n- `printHeader()` — displays the report header\n- `printLoanDetails()` — shows principal, rate, months, EMI\n- `printPaymentSchedule()` — runs the loop and prints monthly rows\n- `printSummary()` — shows totals at the end\n- `main()` — orchestrates by calling the others in order\n\nThe output should be identical to a single-main() version. The CODE should be transformed.\n\nNote: For now, we're using static variables at the class level since we haven't covered parameters yet. Topic 2.2 will fix this by passing data through parameters instead.\n\nMath note: the EMI formula uses `Math.pow(base, exponent)` — Java's built-in function for raising a number to a power. `Math.pow(2, 3)` returns 8.0. You don't need to import anything; `Math` is always available.",
+    
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "Identify the logical chunks",
+        "details": "Look at the original code. What are the distinct phases?\n\n1. Print the header section\n2. Calculate and display loan details (EMI computation)\n3. Loop through months printing each row\n4. Print final summary\n\nEach phase becomes a method. Naming them as descriptive verbs:\n- `printHeader()`\n- `printLoanDetails()`\n- `printPaymentSchedule()`\n- `printSummary()`\n\nThese names already TELL the reader what the program does."
+      },
+      {
+        "step": 2,
+        "action": "Set up class-level variables",
+        "details": "Since we haven't learned parameters yet, we need data accessible to all methods. Use `static` variables declared at the class level:\n\n```java\npublic class EMICalculator {\n    static double principal = 500000.0;\n    static double annualRate = 9.5;\n    static int months = 12;\n    static double monthlyRate = annualRate / 12 / 100;\n    static double emi;  // calculated later\n    static double totalInterest = 0;\n    static double totalPrincipal = 0;\n    \n    // methods go here\n}\n```\n\nClass-level `static` variables are accessible from any method in the class. **This is not great practice** (it's called 'global state' and we'll learn why it's risky) — but it works for now. Next topic, parameters give us a better way."
+      },
+      {
+        "step": 3,
+        "action": "Write main() as a high-level summary",
+        "details": "Before writing the methods themselves, write `main()` first. It should describe what the program does:\n\n```java\npublic static void main(String[] args) {\n    printHeader();\n    printLoanDetails();\n    printPaymentSchedule();\n    printSummary();\n}\n```\n\n**Four lines.** Read it: 'Print the header, then loan details, then payment schedule, then summary.' Self-documenting.\n\nNow we'll write each helper method."
+      },
+      {
+        "step": 4,
+        "action": "Implement each method",
+        "details": "Each method does ONE thing.\n\n```java\npublic static void printHeader() {\n    System.out.println(\"=========================================\");\n    System.out.println(\"      LOAN AMORTIZATION SCHEDULE\");\n    System.out.println(\"=========================================\");\n}\n\npublic static void printLoanDetails() {\n    // EMI formula\n    double powerTerm = Math.pow(1 + monthlyRate, months);\n    emi = principal * monthlyRate * powerTerm / (powerTerm - 1);\n    \n    System.out.println(\"Principal:        ₹\" + principal);\n    System.out.println(\"Annual Rate:      \" + annualRate + \"%\");\n    System.out.println(\"Loan Term:        \" + months + \" months\");\n    System.out.println(\"Monthly EMI:      ₹\" + emi);\n    System.out.println(\"-----------------------------------------\");\n}\n\npublic static void printPaymentSchedule() {\n    System.out.println(\"Month | Principal | Interest  | Balance\");\n    System.out.println(\"-----------------------------------------\");\n    \n    double balance = principal;\n    for (int month = 1; month <= months; month++) {\n        double interest = balance * monthlyRate;\n        double principalThisMonth = emi - interest;\n        balance -= principalThisMonth;\n        \n        totalInterest += interest;\n        totalPrincipal += principalThisMonth;\n        \n        System.out.println(\"  \" + month + \"   | \" + principalThisMonth + \" | \" + interest + \" | \" + balance);\n    }\n}\n\npublic static void printSummary() {\n    System.out.println(\"-----------------------------------------\");\n    System.out.println(\"Total Principal: ₹\" + totalPrincipal);\n    System.out.println(\"Total Interest:  ₹\" + totalInterest);\n    System.out.println(\"Total Paid:      ₹\" + (totalPrincipal + totalInterest));\n    System.out.println(\"=========================================\");\n}\n```\n\nEach method is short, focused, and named clearly. To understand the program, read main(). To dive into any phase, look at that method."
+      },
+      {
+        "step": 5,
+        "action": "Notice what changed",
+        "details": "Compare to a hypothetical 60-line single-main() version:\n\n**Single-main**: All logic in main(). Reader must trace through everything to understand structure.\n\n**Refactored**: main() is a table of contents. Reader sees the structure immediately. Detail is one click away.\n\n**Other wins**:\n- If you want to change the header, you know exactly where (printHeader)\n- If summary calculation breaks, you know exactly where (printSummary)\n- Could now reuse `printHeader` in a different loan calculator\n- Could test each method independently (covered later)\n\n**This is engineering.** Same code, smaller. Same output, clearer."
+      }
+    ],
+    
+    "final_code": "public class EMICalculator {\n    // Class-level state (we'll use parameters in next topic to avoid this)\n    static double principal = 500000.0;\n    static double annualRate = 9.5;\n    static int months = 12;\n    static double monthlyRate = annualRate / 12 / 100;\n    static double emi;\n    static double totalInterest = 0;\n    static double totalPrincipal = 0;\n    \n    public static void main(String[] args) {\n        printHeader();\n        printLoanDetails();\n        printPaymentSchedule();\n        printSummary();\n    }\n    \n    public static void printHeader() {\n        System.out.println(\"=========================================\");\n        System.out.println(\"      LOAN AMORTIZATION SCHEDULE\");\n        System.out.println(\"=========================================\");\n    }\n    \n    public static void printLoanDetails() {\n        double powerTerm = Math.pow(1 + monthlyRate, months);\n        emi = principal * monthlyRate * powerTerm / (powerTerm - 1);\n        \n        System.out.println(\"Principal:        ₹\" + principal);\n        System.out.println(\"Annual Rate:      \" + annualRate + \"%\");\n        System.out.println(\"Loan Term:        \" + months + \" months\");\n        System.out.println(\"Monthly EMI:      ₹\" + emi);\n        System.out.println(\"-----------------------------------------\");\n    }\n    \n    public static void printPaymentSchedule() {\n        System.out.println(\"Month | Principal | Interest  | Balance\");\n        System.out.println(\"-----------------------------------------\");\n        \n        double balance = principal;\n        for (int month = 1; month <= months; month++) {\n            double interest = balance * monthlyRate;\n            double principalThisMonth = emi - interest;\n            balance -= principalThisMonth;\n            \n            totalInterest += interest;\n            totalPrincipal += principalThisMonth;\n            \n            System.out.println(\"  \" + month + \"   | \" + principalThisMonth + \" | \" + interest + \" | \" + balance);\n        }\n    }\n    \n    public static void printSummary() {\n        System.out.println(\"-----------------------------------------\");\n        System.out.println(\"Total Principal: ₹\" + totalPrincipal);\n        System.out.println(\"Total Interest:  ₹\" + totalInterest);\n        System.out.println(\"Total Paid:      ₹\" + (totalPrincipal + totalInterest));\n        System.out.println(\"=========================================\");\n    }\n}",
+    
+    "expected_output": "=========================================\n      LOAN AMORTIZATION SCHEDULE\n=========================================\nPrincipal:        ₹500000.0\nAnnual Rate:      9.5%\nLoan Term:        12 months\nMonthly EMI:      ₹43810.16...\n-----------------------------------------\nMonth | Principal | Interest  | Balance\n-----------------------------------------\n  1   | 39852.66... | 3957.50... | 460147.34...\n  ... (12 rows total)\n-----------------------------------------\nTotal Principal: ₹500000.04...\nTotal Interest:  ₹26012.27...\nTotal Paid:      ₹525821.93...\n=========================================",
+
+    "things_to_notice": [
+      "The OUTPUT would be identical if you had written the same EMI logic with everything jammed into a single main() — we didn't change what the program does, only how it's organized.",
+      "`main()` is now 4 lines. A monolithic version would be 60. Even though total code is similar, structure is dramatically clearer.",
+      "Static class-level variables are a smell — they're 'global state.' Real code avoids them. Topic 2.2 (parameters) will fix this.",
+      "Method names tell the story: header, details, schedule, summary. New developers reading this file get the flow immediately.",
+      "Adding a new feature (e.g., 'highlight months where balance crosses 50%') has a clear home — modify printPaymentSchedule. In the old version, you'd need to find the right line in 60 lines.",
+      "This is the pattern of ALL professional Java code. Just at much larger scale."
+    ]
+  },
+  
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Spring Framework (Open Source)",
+        "use_case": "Spring's core class `AbstractApplicationContext` has 50+ methods, each doing one specific thing: `refresh()`, `prepareBeanFactory()`, `invokeBeanFactoryPostProcessors()`, etc. Methods named precisely for what they do. This is why Spring is maintainable despite being huge."
+      },
+      {
+        "company_context": "Banking apps (HDFC, SBI YONO, Razorpay)",
+        "use_case": "Transaction processing breaks into: `validateRequest()`, `checkBalance()`, `applyFees()`, `executeTransfer()`, `logTransaction()`, `sendNotification()`. Each method does ONE thing. If 'send notification' breaks, you know exactly where to look. Modularity makes 24/7 systems debuggable."
+      },
+      {
+        "company_context": "E-commerce checkout (Flipkart, Amazon)",
+        "use_case": "Order placement: `calculateSubtotal()`, `applyDiscounts()`, `calculateTaxes()`, `calculateShipping()`, `verifyInventory()`, `processPayment()`, `createOrder()`, `sendConfirmation()`. Same pattern. Method names ARE the business logic, written in code."
+      },
+      {
+        "company_context": "Any code review",
+        "use_case": "When senior engineers review your code, the #1 feedback for juniors is: 'extract this into a method.' If you write 50 lines of code that could be 5 method calls, your code review will demand the change. Learning to think in methods is a daily-life skill in tech jobs."
+      }
+    ],
+    
+    "interview_relevance": "Methods come up in interviews differently than syntax topics:\n\n- **Coding interviews**: You'll be expected to break problems into methods naturally. 'Implement an in-memory cache.' Good answers create methods like `put()`, `get()`, `evict()`. Bad answers cram everything in one giant method.\n\n- **Code review interviews**: Some companies (especially senior roles) show you code and ask 'what would you improve?' The answer almost always includes 'extract this into smaller methods.'\n\n- **Behavioral**: 'Tell me about clean code you've written.' Methods + naming is what you describe.\n\n- **System design** (later, senior level): Designing systems is essentially designing methods — what's the API surface? What does each component do?\n\nMethod design isn't a Java-specific skill — it transfers to every language you'll ever use.",
+    
+    "real_world_workflow": "Daily life of a developer involves dozens of methods:\n- Receive bug report: 'Total is wrong when discount is applied.'\n- Open code, find `calculateTotal()`. Don't look at anything else.\n- Trace through: it calls `applyDiscount()`. Look at that.\n- See the bug. Fix it. \n- This took 10 minutes because of well-organized methods.\n\nThe alternative (one giant function): 30 minutes of reading, increased risk of breaking unrelated logic, harder to test the fix. The cost of bad method design is measured in years of slowed productivity."
+  },
+  
+  "common_gaps": [
+    {
+      "gap_id": "missing_return_type",
+      "what_students_get_wrong": "Forgetting to include return type (`void` or other) in method definition.",
+      "remediation": "Reinforce method anatomy: every method needs `public static <return_type> name() { }`. The return type is REQUIRED, never optional. Use `void` if returning nothing.",
+      "detection_pattern": "Compilation error about missing return type"
+    },
+    {
+      "gap_id": "calling_method_inside_definition",
+      "what_students_get_wrong": "Trying to call a method INSIDE another method's definition syntax (e.g., putting `sayHello();` in the parameter list of `printGreeting()`).",
+      "remediation": "Clarify: definition declares the method exists. Calls happen INSIDE method bodies (between { and }).",
+      "detection_pattern": "Syntax errors in method definitions"
+    },
+    {
+      "gap_id": "forgetting_static",
+      "what_students_get_wrong": "Defining methods without `static` keyword, then can't call from main (because main is static).",
+      "remediation": "For now, all methods should be static. When OOP introduces instance methods, this changes. Until then: always include `static`.",
+      "detection_pattern": "Compilation error 'cannot make static reference to non-static method'"
+    },
+    {
+      "gap_id": "method_too_long",
+      "what_students_get_wrong": "Writing 50+ line methods that do many things. Misses the point of using methods.",
+      "remediation": "Rule: if method exceeds 20 lines, consider splitting. If you wrote 'AND' in the description, split on AND.",
+      "detection_pattern": "Code reviews flagging long methods"
+    },
+    {
+      "gap_id": "poor_method_names",
+      "what_students_get_wrong": "Names like `doStuff()`, `method1()`, `handleIt()`, `process()`. Names that don't say what the method does.",
+      "remediation": "Naming test: can someone understand what the method does from the name alone? If not, rename. Use verbs. Be specific.",
+      "detection_pattern": "Vague names in exercises"
+    },
+    {
+      "gap_id": "method_call_no_parens",
+      "what_students_get_wrong": "Calling a method without parentheses: `sayHello` instead of `sayHello()`. This isn't an error but doesn't call the method — it references it (which has special meaning we haven't covered).",
+      "remediation": "Method calls ALWAYS need parentheses. Even if empty: `sayHello()`. Without parens, no execution.",
+      "detection_pattern": "Method exists but doesn't run as expected"
+    },
+    {
+      "gap_id": "main_method_too_complex",
+      "what_students_get_wrong": "Even after learning methods, putting too much logic in main(). main() should be a high-level orchestrator, not a 100-line method.",
+      "remediation": "Treat main() as an outline: high-level steps. Each step is a method call. If main() has logic beyond calling methods, it should be extracted.",
+      "detection_pattern": "Programs where main() has logic beyond method calls"
+    }
+  ],
+  
+  "reflection": {
+    "key_takeaways": [
+      "Methods are named, reusable blocks of code — the fundamental unit of code organization",
+      "Method definition has: access modifier, static keyword (for now), return type, name, parens, body",
+      "`void` methods do something without returning a value (parameters/return values next topic)",
+      "Calling a method: just write its name followed by () — execution jumps to that method",
+      "Methods enable: code reuse, abstraction, readability, testing, team work",
+      "DRY principle: Don't Repeat Yourself. If you write the same code twice, extract a method.",
+      "Single Responsibility: each method should do ONE thing. Long methods are a code smell.",
+      "Method names: camelCase, start with verb, be descriptive. Names ARE documentation.",
+      "main() should be a high-level outline calling other methods, not a 100-line monster"
+    ],
+    
+    "self_check_questions": [
+      {
+        "question": "What's wrong with this method definition?\n```java\npublic void greet() {\n    System.out.println(\"Hi\");\n}\n```",
+        "answer": "Missing `static`. Without it, this method can't be called from main (which is static). All methods in this module should include `static`. (Why? OOP module — instance vs class methods. For now, just include it.)"
+      },
+      {
+        "question": "Why is `doStuff()` a bad method name?",
+        "answer": "It tells you nothing about what the method does. Method names should be specific and self-documenting. `parseUserInput()`, `calculateOrderTotal()`, `validateEmail()` — these names tell you exactly what happens. The next developer (or future you) shouldn't have to read the method body to understand its purpose."
+      },
+      {
+        "question": "If a method appears 5 times in your code with slight variations, what should you do?",
+        "answer": "Extract a method. Each repetition is duplication — a maintenance burden. If you need to change the logic, you'd have to change it in 5 places (and probably forget one). Extract once, call 5 times, change in one place. This is the DRY principle in action."
+      },
+      {
+        "question": "What's the difference between defining a method and calling a method?",
+        "answer": "Defining = writing the method's code, declaring its existence. The method exists but doesn't run. Calling = actually invoking the method (running its code). Java reads definitions when starting up, runs methods when they're called. You can define a method anywhere in the class; calls happen wherever execution flow reaches them."
+      },
+      {
+        "question": "If you have a method that does 5 things and is 80 lines long, what's the issue?",
+        "answer": "It violates Single Responsibility — a method should do ONE thing. 80 lines doing 5 things means: hard to read, hard to test, hard to reuse parts, hard to debug. Refactor: extract each 'thing' into its own method. The original method becomes a coordinator calling the 5 smaller methods."
+      }
+    ],
+    
+    "next_topic_preview": "Next up: Parameters & Return Values. So far, our methods are limited — they can't accept inputs and don't give anything back. That's why the EMI calculator used class-level variables (a workaround). Parameters let you PASS data into methods. Return values let methods GIVE BACK results. Together, they make methods truly powerful and flexible. After next topic, you'll be writing methods like real Java developers."
+  }
+}

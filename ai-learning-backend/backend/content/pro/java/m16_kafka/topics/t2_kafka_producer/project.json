@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m16_t2_proj",
+  "linked_topic": "java_m16_t2",
+  "level": "mini",
+  "name": "Zerodha Trading Platform — Kafka Producer Integration",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Add a Kafka producer to the Zerodha order-service. When a trade is executed, publish a TradeExecutedEvent to the 'trade-executed' topic. The notification-service and portfolio-service will consume it in the next topic. This builds the first half of the event-driven pipeline.",
+
+  "description": "Configure Spring Kafka producer. Define TradeExecutedEvent. Write TradeEventPublisher with callback. Wire into TradeService. Test with @EmbeddedKafka. Verify symbol is the key and event JSON contains trade details.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Spring Kafka dependency + application.properties: bootstrap-servers=localhost:9092, StringSerializer for key, JsonSerializer for value (spring-kafka's), acks=all, retries=3.",
+        "weight": 15
+      },
+      {
+        "id": "req_2",
+        "description": "`TradeExecutedEvent` record: tradeId, userId, symbol, qty, price, totalValue (qty × price), type (BUY/SELL), executedAt (Instant).",
+        "weight": 15
+      },
+      {
+        "id": "req_3",
+        "description": "`TradeEventPublisher` @Service: KafkaTemplate<String, TradeExecutedEvent> injected. publishTrade(event) sends to 'trade-executed' with event.symbol() as key. .whenComplete() callback: success=log offset, failure=log error.",
+        "weight": 25
+      },
+      {
+        "id": "req_4",
+        "description": "`TradeService.executeTrade(userId, symbol, qty, price, type)`: saves trade to DB (TradeRepository), THEN publishes TradeExecutedEvent. Returns the saved trade.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "@EmbeddedKafka @SpringBootTest tests (3): (1) trade published to 'trade-executed', (2) key equals symbol, (3) value JSON contains tradeId and userId. All 3 pass.",
+        "weight": 30
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "Add `KafkaProducerConfig` @Configuration with ProducerFactory @Bean: acks=all, retries=3, enable.idempotence=true. Verify it still works with existing tests.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add a dead-letter fallback: if Kafka publish fails (callback exception), save to a `FailedEvent` @Entity (topic, key, eventJson, failedAt). @Test: mock KafkaTemplate to always fail, verify FailedEvent saved to DB.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add batch publishing: `publishDailyReport(List<TradeExecutedEvent>)` that publishes all events, uses CompletableFuture.allOf() to wait, and returns BatchResult(total, published, failed). @EmbeddedKafka test with 5 events.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Test trades:\n1. BUY 10 TCS @ ₹3890 → totalValue=₹38900\n2. SELL 5 RELIANCE @ ₹2450 → totalValue=₹12250\n3. BUY 20 INFY @ ₹1560 → totalValue=₹31200\n\nTopic: 'trade-executed' with 3 partitions\nKey: symbol → TCS always partition 0 (consistent)\n\n@EmbeddedKafka assertions:\n- records not empty after publish\n- record.key() == 'TCS'\n- record.value() contains tradeId\n- record.value() contains userId",
+
+  "starter_code": "// Add Kafka producer to existing order-service from M15:\n\n// pom.xml: add spring-kafka dependency\n\n// application.properties additions:\n// spring.kafka.bootstrap-servers=localhost:9092\n// spring.kafka.producer.key-serializer=...\n// spring.kafka.producer.value-serializer=...\n\n// New files:\n// TradeExecutedEvent.java (record)\n// TradeEventPublisher.java (@Service)\n\n// Modify:\n// TradeService.java (call publisher after DB save)\n\n// Test:\n// TradePublisherTest.java (@EmbeddedKafka, 3 tests)",
+
+  "example_output": "# TradeService.executeTrade('U01', 'TCS', 10, 3890.0, 'BUY'):\n[TradeService] Trade saved: TRD-TCS-001\n[TradeEventPublisher] Sending to 'trade-executed' key=TCS...\n[TradeEventPublisher] Trade event published: TRD-TCS-001 partition=0 offset=42\n\n# 'trade-executed' topic message:\nKey:   TCS\nValue: {\"tradeId\":\"TRD-TCS-001\",\"userId\":\"U01\",\"symbol\":\"TCS\",\n        \"qty\":10,\"price\":3890.0,\"totalValue\":38900.0,\n        \"type\":\"BUY\",\"executedAt\":\"2024-03-15T09:15:32Z\"}\n\n# Tests:\n✓ trade_publishedToKafka\n✓ symbol_isKey\n✓ value_containsTradeIdAndUserId",
+
+  "rubric": [
+    { "category": "Dependencies + config", "points": 15, "criteria": ["pom.xml (5 pts)", "application.properties (10 pts)"] },
+    { "category": "TradeExecutedEvent", "points": 15, "criteria": ["All 8 fields (10 pts)", "totalValue computed (5 pts)"] },
+    { "category": "TradeEventPublisher", "points": 25, "criteria": ["kafkaTemplate.send (10 pts)", "symbol as key (8 pts)", ".whenComplete callback (7 pts)"] },
+    { "category": "TradeService integration", "points": 15, "criteria": ["DB save first (8 pts)", "then publish (7 pts)"] },
+    { "category": "@EmbeddedKafka tests", "points": 30, "criteria": ["3 tests (10 pts each)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["ProducerFactory @Bean (20 pts)", "Dead-letter (25 pts)", "Batch publish (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. spring.kafka.producer.value-serializer must be org.springframework.kafka.support.serializer.JsonSerializer (not org.apache.kafka.common.serialization.JsonSerializer). @EmbeddedKafka: spring.kafka.bootstrap-servers=${spring.embedded.kafka.brokers} must override in test. Thread.sleep(200-500ms) after publish to allow async send to complete before consuming. Save to DB BEFORE publishing to Kafka.",
+
+  "submission_instructions": "GitHub push. Kafka runs locally via Docker Compose (from Topic 16.1). All 3 @EmbeddedKafka tests pass. Bonus: dead-letter test uses @MockBean KafkaTemplate to simulate failure.",
+
+  "tips_for_success": [
+    "spring.kafka.producer.value-serializer: use spring-kafka's JsonSerializer, NOT Kafka's built-in",
+    "@EmbeddedKafka: add topics={'trade-executed'} to pre-create the topic",
+    "Thread.sleep after publish: async send needs ~100-500ms before consuming in tests",
+    "DB save BEFORE Kafka publish: DB is source of truth; Kafka is downstream",
+    "result.getRecordMetadata().offset(): confirms Kafka accepted the message"
+  ],
+
+  "concepts_reinforced": [
+    "Spring Kafka KafkaTemplate injection and usage",
+    "JsonSerializer for object serialization",
+    "Message key for partition routing",
+    "CompletableFuture.whenComplete() for async callback",
+    "DB-first pattern for consistency",
+    "@EmbeddedKafka for producer integration testing"
+  ]
+}

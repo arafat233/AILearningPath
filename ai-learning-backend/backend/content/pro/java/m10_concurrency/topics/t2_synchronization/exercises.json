@@ -1,0 +1,338 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m10_t2",
+  "topic_name": "Synchronization",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m10_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Race condition — expected vs actual",
+      "scenario": "counter++ is not atomic — threads interleave and lose updates.",
+      "instructions": "This code runs 5 threads each incrementing 100 times. Expected = 500. What is the likely ACTUAL result?\n\n```java\nclass Counter { int c = 0; void inc() { c++; } }\n\nCounter ctr = new Counter();\nThread[] threads = new Thread[5];\nfor (int i=0; i<5; i++) threads[i] = new Thread(() -> { for(int j=0;j<100;j++) ctr.inc(); });\nfor (Thread t: threads) t.start();\nfor (Thread t: threads) t.join();\nSystem.out.println(ctr.c);\n```",
+      "expected_solution": "Less than 500 — typically between 300-499. The exact value varies each run due to the race condition on c++.",
+      "test_cases": [
+        { "type": "conceptual", "expected": "less than 500" }
+      ],
+      "hints": [
+        "c++ is READ-ADD-WRITE — three steps",
+        "Two threads can both READ the same value, both ADD 1, and both WRITE the same incremented value",
+        "Result: one increment is lost"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add synchronized to fix race condition",
+      "scenario": "synchronized on method prevents interleaving.",
+      "instructions": "Fill in the blank to make increment() thread-safe.",
+      "starter_code": "class SafeCounter {\n    private int count = 0;\n    public ______ void increment() { count++; }\n    public ______ int getCount()   { return count; }\n}",
+      "expected_solution": "class SafeCounter {\n    private int count = 0;\n    public synchronized void increment() { count++; }\n    public synchronized int getCount()   { return count; }\n}",
+      "blanks": [
+        { "position": 1, "answer": "synchronized", "hint": "Keyword that acquires the object lock" },
+        { "position": 2, "answer": "synchronized", "hint": "Also needed for reads of shared state" }
+      ],
+      "test_cases": [
+        { "type": "compile_check", "must_compile": true }
+      ],
+      "hints": [
+        "Both read and write operations need synchronization",
+        "synchronized before return type: public synchronized int getCount()"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m10_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Demonstrate and fix the race condition",
+      "scenario": "Show incorrect result without sync, correct result with sync.",
+      "instructions": "Run the counter increment with 5 threads × 200 each:\n1. Unsafe version — print 'Unsafe: N' (likely < 1000)\n2. Safe version (synchronized) — print 'Safe: 1000'\n\nExpected output:\nUnsafe: [some number < 1000]\nSafe: 1000",
+      "starter_code": "// Show race condition then fix it\n",
+      "expected_solution": "class UnsafeCounter { int c = 0; void inc() { c++; } }\nclass SafeCounter  { int c = 0; synchronized void inc() { c++; } }\npublic class App {\n    static void runTest(Runnable inc, int[] result) throws InterruptedException {\n        Thread[] threads = new Thread[5];\n        for (int i=0; i<5; i++) threads[i] = new Thread(() -> { for (int j=0;j<200;j++) inc.run(); });\n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n    }\n    public static void main(String[] args) throws InterruptedException {\n        UnsafeCounter unsafe = new UnsafeCounter();\n        runTest(unsafe::inc, null);\n        System.out.println(\"Unsafe: \" + unsafe.c);\n        SafeCounter safe = new SafeCounter();\n        runTest(safe::inc, null);\n        System.out.println(\"Safe: \" + safe.c);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Unsafe:", "Safe: 1000"] }
+      ],
+      "hints": [
+        "Run both versions and compare",
+        "Unsafe result is non-deterministic but usually < 1000",
+        "Safe result is always exactly 1000"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m10_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Thread-safe bank account",
+      "scenario": "Synchronized methods protect all account operations.",
+      "instructions": "Create `BankAccount` with synchronized deposit(double) and withdraw(double). Test with 10 threads: 5 deposit ₹200, 5 withdraw ₹100. Start balance ₹1000.\n\nExpected output:\nFinal balance: ₹1500.00",
+      "starter_code": "// Thread-safe BankAccount\n",
+      "expected_solution": "class BankAccount {\n    private double balance;\n    BankAccount(double init) { balance = init; }\n    public synchronized void deposit(double a)  { balance += a; }\n    public synchronized void withdraw(double a) { balance -= a; }\n    public synchronized double getBalance()     { return balance; }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        BankAccount acct = new BankAccount(1000.0);\n        Thread[] threads = new Thread[10];\n        for (int i=0; i<5; i++) { threads[i]   = new Thread(() -> acct.deposit(200.0)); }\n        for (int i=0; i<5; i++) { threads[i+5] = new Thread(() -> acct.withdraw(100.0)); }\n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        System.out.printf(\"Final balance: ₹%.2f%n\", acct.getBalance());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Final balance: ₹1500.00" }
+      ],
+      "hints": [
+        "synchronized on deposit(), withdraw(), getBalance()",
+        "5×200 deposits + 5×(-100) withdrawals: 1000 + 1000 - 500 = 1500"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m10_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "volatile flag for thread stop",
+      "scenario": "volatile boolean signals thread to stop.",
+      "instructions": "Create a thread that prints 'Working...' every 200ms until a volatile flag is set. Main sets the flag after 600ms. Thread should print 2-3 times then stop.\n\nExpected output:\nWorking...\nWorking...\nWorking...\nStopped",
+      "starter_code": "// volatile boolean stop flag\n",
+      "expected_solution": "public class App {\n    static volatile boolean stop = false;\n    \n    public static void main(String[] args) throws InterruptedException {\n        Thread worker = new Thread(() -> {\n            while (!stop) {\n                System.out.println(\"Working...\");\n                try { Thread.sleep(200); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }\n            }\n            System.out.println(\"Stopped\");\n        });\n        worker.start();\n        Thread.sleep(650);\n        stop = true;\n        worker.join();\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Working...", "Stopped"] }
+      ],
+      "hints": [
+        "static volatile boolean stop = false",
+        "Worker checks while (!stop)",
+        "Main sets stop = true after 650ms"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m10_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "synchronized block — minimize critical section",
+      "scenario": "Synchronized block on specific object — not whole method.",
+      "instructions": "BankAccount with synchronized BLOCK (not whole method). balance field protected by a private lock object. Simulate 200ms pre-processing before the critical section.\n\nExpected output (after concurrent test):\nFinal: ₹1000.00",
+      "starter_code": "// synchronized block — dedicated lock object\n",
+      "expected_solution": "class BankAccount {\n    private final Object lock = new Object();\n    private double balance;\n    BankAccount(double init) { balance = init; }\n    \n    void deposit(double amount) {\n        // pre-processing — can run concurrently\n        synchronized (lock) {\n            balance += amount;  // critical section only\n        }\n    }\n    void withdraw(double amount) {\n        synchronized (lock) { balance -= amount; }\n    }\n    double getBalance() {\n        synchronized (lock) { return balance; }\n    }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        BankAccount acct = new BankAccount(1000.0);\n        Thread[] ts = new Thread[10];\n        for (int i=0; i<5; i++) { ts[i]   = new Thread(() -> acct.deposit(100.0)); }\n        for (int i=0; i<5; i++) { ts[i+5] = new Thread(() -> acct.withdraw(100.0)); }\n        for (Thread t : ts) t.start();\n        for (Thread t : ts) t.join();\n        System.out.printf(\"Final: ₹%.2f%n\", acct.getBalance());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Final: ₹1000.00" }
+      ],
+      "hints": [
+        "private final Object lock = new Object() — dedicated lock",
+        "synchronized (lock) { ... } — only the critical section",
+        "Five deposits + five withdrawals of equal amount → same final balance"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m10_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Thread-safe counter class",
+      "scenario": "Complete synchronized counter with multiple operations.",
+      "instructions": "Build `ThreadSafeCounter` with: synchronized increment(), decrement(), reset(), getCount(). Verify with 20 threads: 10 increment 50 times, 10 decrement 30 times. Start at 0.\n\nExpected output:\nFinal count: 200",
+      "starter_code": "// ThreadSafeCounter — all methods synchronized\n",
+      "expected_solution": "class ThreadSafeCounter {\n    private int count = 0;\n    public synchronized void increment() { count++; }\n    public synchronized void decrement() { count--; }\n    public synchronized void reset()     { count = 0; }\n    public synchronized int getCount()   { return count; }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        ThreadSafeCounter ctr = new ThreadSafeCounter();\n        Thread[] ts = new Thread[20];\n        for (int i=0; i<10; i++)  ts[i]    = new Thread(() -> { for(int j=0;j<50;j++) ctr.increment(); });\n        for (int i=0; i<10; i++)  ts[i+10] = new Thread(() -> { for(int j=0;j<30;j++) ctr.decrement(); });\n        for (Thread t : ts) t.start();\n        for (Thread t : ts) t.join();\n        System.out.println(\"Final count: \" + ctr.getCount());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Final count: 200" }
+      ],
+      "hints": [
+        "10×50 increments = 500; 10×30 decrements = 300; net = 200",
+        "All four methods must be synchronized"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m10_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "volatile vs synchronized — know the difference",
+      "scenario": "volatile fixes visibility; synchronized fixes both.",
+      "instructions": "Demonstrate that volatile fixes the stop-flag visibility problem but synchronized is needed for a counter. Print:\n- volatile flag: WORKS (thread sees stop)\n- volatile counter: MAY BE WRONG (race condition)\n- synchronized counter: ALWAYS CORRECT\n\nExpected output:\nVolatile flag worked: true\nSynchronized counter: 1000",
+      "starter_code": "// volatile for flag, synchronized for counter\n",
+      "expected_solution": "public class App {\n    static volatile boolean stop = false;\n    static volatile int volCount = 0;\n    static int syncCount = 0;\n    static final Object lock = new Object();\n    \n    public static void main(String[] args) throws InterruptedException {\n        // 1. Volatile flag — works correctly\n        Thread worker = new Thread(() -> {\n            while (!stop) { /* spin */ }\n            System.out.println(\"Volatile flag worked: true\");\n        });\n        worker.start();\n        Thread.sleep(50);\n        stop = true;\n        worker.join();\n        \n        // 2. Synchronized counter — always correct\n        Thread[] ts = new Thread[10];\n        for (int i=0; i<10; i++) {\n            ts[i] = new Thread(() -> {\n                for (int j=0; j<100; j++) {\n                    synchronized (lock) { syncCount++; }\n                }\n            });\n        }\n        for (Thread t : ts) t.start();\n        for (Thread t : ts) t.join();\n        System.out.println(\"Synchronized counter: \" + syncCount);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Volatile flag worked: true\nSynchronized counter: 1000" }
+      ],
+      "hints": [
+        "Volatile flag: thread sees the updated value immediately",
+        "volatile int counter: still races on counter++ — not shown in expected output",
+        "synchronized block: always exactly 1000"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m10_t2_ex_9",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Trace synchronized method — which threads block?",
+      "scenario": "synchronized prevents concurrent execution of protected methods.",
+      "instructions": "What is guaranteed about the output order?\n\n```java\nclass Printer {\n    synchronized void print(String msg) {\n        System.out.print(msg + \" \");\n    }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        Printer p = new Printer();\n        Thread t1 = new Thread(() -> { p.print(\"A\"); p.print(\"B\"); });\n        Thread t2 = new Thread(() -> { p.print(\"X\"); p.print(\"Y\"); });\n        t1.start(); t2.start();\n        t1.join(); t2.join();\n        System.out.println();\n    }\n}\n```",
+      "expected_solution": "A and B always appear together (no X/Y between them). X and Y always appear together. Possible outputs: A B X Y or X Y A B or A B X Y — but NEVER A X B Y or X A Y B because synchronized prevents interleaving within the method.",
+      "test_cases": [
+        { "type": "conceptual", "expected": "A B stay adjacent; X Y stay adjacent; order between pairs varies" }
+      ],
+      "hints": [
+        "Each print() call is atomic — no other thread can enter while one is inside",
+        "A then B from t1, X then Y from t2 — but pair order may vary",
+        "Can't get A X B Y — once A starts, B follows immediately (no interleaving)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m10_t2_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Deadlock demonstration",
+      "scenario": "Circular lock acquisition causes deadlock.",
+      "instructions": "Demonstrate a potential deadlock: Thread A acquires lock1 then wants lock2. Thread B acquires lock2 then wants lock1. Use join(1000) with timeout to detect if deadlock occurred.\n\nExpected output (may detect deadlock):\nStarting deadlock demo...\n[either completes or detects deadlock within 1s]",
+      "starter_code": "// Deadlock demo — consistent lock ordering is the fix\n",
+      "expected_solution": "public class App {\n    static final Object lock1 = new Object();\n    static final Object lock2 = new Object();\n    \n    public static void main(String[] args) throws InterruptedException {\n        System.out.println(\"Starting deadlock demo...\");\n        Thread t1 = new Thread(() -> {\n            synchronized (lock1) {\n                try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }\n                synchronized (lock2) { System.out.println(\"T1 got both locks\"); }\n            }\n        }, \"T1\");\n        Thread t2 = new Thread(() -> {\n            synchronized (lock2) {  // opposite order!\n                try { Thread.sleep(50); } catch (InterruptedException e) { Thread.currentThread().interrupt(); return; }\n                synchronized (lock1) { System.out.println(\"T2 got both locks\"); }\n            }\n        }, \"T2\");\n        t1.start(); t2.start();\n        t1.join(1000);\n        t2.join(1000);\n        if (t1.isAlive() || t2.isAlive()) {\n            System.out.println(\"Deadlock detected! Threads still blocked after 1s\");\n            t1.interrupt(); t2.interrupt();\n        } else {\n            System.out.println(\"Completed without deadlock (lucky scheduling)\");\n        }\n        System.out.println(\"Fix: always acquire lock1 BEFORE lock2 in both threads\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["deadlock", "lock1", "lock2"] }
+      ],
+      "hints": [
+        "Deadlock: T1 holds lock1, waits for lock2. T2 holds lock2, waits for lock1.",
+        "join(1000) detects deadlock: isAlive() == true after timeout",
+        "Fix: both threads acquire lock1 then lock2 (same order)"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m10_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Thread-safe inventory manager",
+      "scenario": "Synchronized checkout prevents overselling.",
+      "instructions": "Build `InventoryManager` with synchronized `purchase(String item, int qty)` returning boolean. Multiple threads try to buy the last 10 units of 'USB Hub'. Only exactly 10 purchases of qty=1 should succeed.\n\nExpected output:\nSuccessful purchases: 10\nFailed purchases: [rest]\nFinal stock: 0",
+      "starter_code": "import java.util.*;\nimport java.util.concurrent.atomic.*;\n// Thread-safe inventory — synchronized prevents overselling\n",
+      "expected_solution": "import java.util.*;\nimport java.util.concurrent.atomic.*;\nclass InventoryManager {\n    private Map<String, Integer> stock = new HashMap<>();\n    InventoryManager() { stock.put(\"USB Hub\", 10); }\n    \n    synchronized boolean purchase(String item, int qty) {\n        int current = stock.getOrDefault(item, 0);\n        if (current < qty) return false;\n        stock.put(item, current - qty);\n        return true;\n    }\n    synchronized int getStock(String item) { return stock.getOrDefault(item, 0); }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        InventoryManager inv = new InventoryManager();\n        AtomicInteger success = new AtomicInteger();\n        AtomicInteger fail = new AtomicInteger();\n        \n        Thread[] threads = new Thread[20];\n        for (int i=0; i<20; i++) {\n            threads[i] = new Thread(() -> {\n                if (inv.purchase(\"USB Hub\", 1)) success.incrementAndGet();\n                else fail.incrementAndGet();\n            });\n        }\n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        System.out.println(\"Successful purchases: \" + success.get());\n        System.out.println(\"Failed purchases: \" + fail.get());\n        System.out.println(\"Final stock: \" + inv.getStock(\"USB Hub\"));\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Successful purchases: 10\nFailed purchases: 10\nFinal stock: 0" }
+      ],
+      "hints": [
+        "synchronized purchase() — check-then-decrement is atomic",
+        "Use AtomicInteger for counting results (thread-safe counter)",
+        "20 threads, 10 units: exactly 10 succeed, 10 fail"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m10_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Synchronized singleton",
+      "scenario": "Thread-safe lazy initialization using synchronized.",
+      "instructions": "Implement a thread-safe Singleton with lazy initialization. Use double-checked locking pattern with volatile + synchronized.\n\nExpected output:\nSingleton instance 1 == Singleton instance 2: true\nOnly one instance created: true",
+      "starter_code": "// Thread-safe Singleton with double-checked locking\n",
+      "expected_solution": "class Singleton {\n    private static volatile Singleton instance;\n    private final int id;\n    private static int counter = 0;\n    \n    private Singleton() { id = ++counter; }\n    \n    public static Singleton getInstance() {\n        if (instance == null) {               // first check — no lock (fast path)\n            synchronized (Singleton.class) {  // lock only if needed\n                if (instance == null) {        // second check — with lock\n                    instance = new Singleton();\n                }\n            }\n        }\n        return instance;\n    }\n    public int getId() { return id; }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        Thread[] threads = new Thread[5];\n        Singleton[] results = new Singleton[5];\n        for (int i=0; i<5; i++) {\n            final int n = i;\n            threads[i] = new Thread(() -> results[n] = Singleton.getInstance());\n        }\n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        boolean allSame = true;\n        for (Singleton s : results) if (s != results[0]) allSame = false;\n        System.out.println(\"Singleton instance 1 == Singleton instance 2: \" + (results[0] == results[1]));\n        System.out.println(\"Only one instance created: \" + allSame);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Singleton instance 1 == Singleton instance 2: true\nOnly one instance created: true" }
+      ],
+      "hints": [
+        "volatile: ensures constructor completion is visible before reference is published",
+        "Double-check: first null check avoids lock on every call; second null check inside lock prevents race",
+        "synchronized(Singleton.class) — class-level lock for static context"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m10_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Bounded blocking queue — producer-consumer",
+      "scenario": "Synchronized data structure for producer-consumer pattern.",
+      "instructions": "Build a simple `BoundedQueue<T>` (capacity 5) with:\n- synchronized put(T) — blocks if full (use wait/notifyAll)\n- synchronized take() — blocks if empty\n\nTest with 2 producers (each putting 5 items) and 2 consumers (each taking 5 items).\n\nExpected output (order varies):\n[10 put messages]\n[10 take messages]\nDone",
+      "starter_code": "import java.util.*;\n// BoundedQueue with wait/notifyAll — producer-consumer\n",
+      "expected_solution": "import java.util.*;\nclass BoundedQueue<T> {\n    private final Queue<T> queue = new LinkedList<>();\n    private final int capacity;\n    BoundedQueue(int cap) { capacity = cap; }\n    \n    synchronized void put(T item) throws InterruptedException {\n        while (queue.size() >= capacity) wait();  // wait if full\n        queue.offer(item);\n        notifyAll();  // wake waiting takers\n    }\n    \n    synchronized T take() throws InterruptedException {\n        while (queue.isEmpty()) wait();  // wait if empty\n        T item = queue.poll();\n        notifyAll();  // wake waiting producers\n        return item;\n    }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        BoundedQueue<Integer> q = new BoundedQueue<>(5);\n        Thread p1 = new Thread(() -> {\n            for (int i=1; i<=5; i++) {\n                try { q.put(i); System.out.println(\"Put: \" + i); }\n                catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            }\n        });\n        Thread p2 = new Thread(() -> {\n            for (int i=6; i<=10; i++) {\n                try { q.put(i); System.out.println(\"Put: \" + i); }\n                catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            }\n        });\n        Thread c1 = new Thread(() -> {\n            for (int i=0; i<5; i++) {\n                try { System.out.println(\"Took: \" + q.take()); }\n                catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            }\n        });\n        Thread c2 = new Thread(() -> {\n            for (int i=0; i<5; i++) {\n                try { System.out.println(\"Took: \" + q.take()); }\n                catch (InterruptedException e) { Thread.currentThread().interrupt(); }\n            }\n        });\n        p1.start(); p2.start(); c1.start(); c2.start();\n        p1.join(); p2.join(); c1.join(); c2.join();\n        System.out.println(\"Done\");\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout_contains": ["Done"] }
+      ],
+      "hints": [
+        "while (condition) wait() — must use while, not if (spurious wakeups)",
+        "notifyAll() after put/take wakes all waiting threads",
+        "synchronized on both put() and take() — same object lock"
+      ],
+      "xp_reward": 80
+    },
+
+    {
+      "id": "java_m10_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Concurrent order processing — race condition audit",
+      "scenario": "Identify and fix all race conditions in an order processor.",
+      "instructions": "Fix the UNSAFE order processor below. It has race conditions in orderCount and totalRevenue. 10 threads each process 5 orders of ₹1000. Expected: count=50, revenue=₹50000.\n\n```java\n// UNSAFE — has race conditions:\nclass OrderProcessor {\n    int orderCount = 0;\n    double totalRevenue = 0.0;\n    void processOrder(double amount) {\n        orderCount++;\n        totalRevenue += amount;\n    }\n}\n```\n\nExpected output:\nOrder count: 50\nTotal revenue: ₹50000.00",
+      "starter_code": "// Fix the race conditions in OrderProcessor\n",
+      "expected_solution": "class OrderProcessor {\n    private int orderCount = 0;\n    private double totalRevenue = 0.0;\n    \n    synchronized void processOrder(double amount) {\n        orderCount++;          // protected\n        totalRevenue += amount; // protected\n    }\n    synchronized int getOrderCount()       { return orderCount; }\n    synchronized double getTotalRevenue()   { return totalRevenue; }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        OrderProcessor proc = new OrderProcessor();\n        Thread[] threads = new Thread[10];\n        for (int i=0; i<10; i++) {\n            threads[i] = new Thread(() -> {\n                for (int j=0; j<5; j++) proc.processOrder(1000.0);\n            });\n        }\n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        System.out.println(\"Order count: \" + proc.getOrderCount());\n        System.out.printf(\"Total revenue: ₹%.2f%n\", proc.getTotalRevenue());\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "Order count: 50\nTotal revenue: ₹50000.00" }
+      ],
+      "hints": [
+        "Both orderCount++ and totalRevenue += must be synchronized together",
+        "One synchronized method protects both updates atomically",
+        "Getter methods also need synchronization for visibility"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m10_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Thread-safe LRU cache — synchronized with eviction",
+      "scenario": "Synchronized cache with LRU eviction under concurrent access.",
+      "instructions": "Build `ThreadSafeCache<K, V>` (max 3 entries, LRU eviction) with synchronized get(K) and put(K, V). Use LinkedHashMap for LRU. Test with concurrent puts and gets — verify no corruption.\n\nExpected output:\nAfter concurrent ops, cache size <= 3: true\nCache operations completed without exception: true",
+      "starter_code": "import java.util.*;\n// ThreadSafeCache with LRU eviction\n",
+      "expected_solution": "import java.util.*;\nclass ThreadSafeCache<K, V> {\n    private final int maxSize;\n    private final Map<K, V> cache;\n    \n    ThreadSafeCache(int maxSize) {\n        this.maxSize = maxSize;\n        this.cache = new LinkedHashMap<>(16, 0.75f, true) {\n            protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {\n                return size() > maxSize;\n            }\n        };\n    }\n    \n    synchronized V get(K key) { return cache.get(key); }\n    \n    synchronized void put(K key, V value) { cache.put(key, value); }\n    \n    synchronized int size() { return cache.size(); }\n}\npublic class App {\n    public static void main(String[] args) throws InterruptedException {\n        ThreadSafeCache<Integer, String> cache = new ThreadSafeCache<>(3);\n        Thread[] threads = new Thread[10];\n        boolean[] noException = {true};\n        \n        for (int i=0; i<5; i++) {\n            final int n = i;\n            threads[i] = new Thread(() -> {\n                try {\n                    cache.put(n, \"value-\" + n);\n                    cache.get(n % 3);\n                } catch (Exception e) { noException[0] = false; }\n            });\n        }\n        for (int i=5; i<10; i++) {\n            final int n = i;\n            threads[i] = new Thread(() -> {\n                try {\n                    cache.put(n % 4, \"v\" + n);\n                    cache.get(n % 3);\n                } catch (Exception e) { noException[0] = false; }\n            });\n        }\n        for (Thread t : threads) t.start();\n        for (Thread t : threads) t.join();\n        System.out.println(\"After concurrent ops, cache size <= 3: \" + (cache.size() <= 3));\n        System.out.println(\"Cache operations completed without exception: \" + noException[0]);\n    }\n}",
+      "test_cases": [
+        { "type": "execution", "expected_stdout": "After concurrent ops, cache size <= 3: true\nCache operations completed without exception: true" }
+      ],
+      "hints": [
+        "LinkedHashMap(16, 0.75f, true) — accessOrder=true for LRU",
+        "Override removeEldestEntry for auto-eviction",
+        "All public methods synchronized — LinkedHashMap is NOT thread-safe"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 760,
+    "estimated_completion_minutes": 70
+  }
+}

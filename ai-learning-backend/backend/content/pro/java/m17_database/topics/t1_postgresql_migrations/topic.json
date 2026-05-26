@@ -1,0 +1,184 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m17_t1",
+  "language": "java",
+  "module_id": "m17",
+  "module_name": "Advanced Database Engineering",
+  "topic_number": 1,
+  "name": "PostgreSQL & Flyway Migrations",
+  "slug": "postgresql-flyway-migrations",
+
+  "metadata": {
+    "difficulty": 5,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m13_t3"],
+    "concepts_taught": [
+      "h2_vs_postgresql",
+      "postgresql_docker_setup",
+      "spring_boot_postgresql_configuration",
+      "flyway_migrations",
+      "sql_migration_files",
+      "flyway_versioning_scheme",
+      "baseline_migration",
+      "repeatable_migrations",
+      "flyway_history_table",
+      "schema_version_management",
+      "datasource_configuration",
+      "rollback_strategies",
+      "environment_specific_migrations"
+    ],
+    "skills_developed": [
+      "configuring_postgresql_with_spring_boot",
+      "writing_flyway_migration_scripts",
+      "managing_database_schema_versioning",
+      "running_migrations_on_deploy",
+      "testing_with_h2_and_production_with_postgresql"
+    ],
+    "career_relevance": "Every production Java backend uses a real database with schema migrations. H2 is only for development. Flipkart, Razorpay, Swiggy, Zerodha — all run PostgreSQL in production. Flyway is the migration tool of choice for Spring Boot. Without migration management, schema changes require manual coordination across teams and environments. After this topic, you manage database schemas the professional way.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Your Spring Boot app uses H2 in development with `spring.jpa.hibernate.ddl-auto=create-drop`. It works perfectly on your laptop. You deploy to production and:\n\n```\nProblem 1: H2 is in-memory — all data disappears on restart!\nProblem 2: ddl-auto=create-drop DROPS the entire schema on each deploy!\nProblem 3: You add a new column in Java — how does production DB get it?\nProblem 4: Two developers change the schema — whose version wins?\nProblem 5: You need to rollback — there's no record of what changed!\n```\n\n**The professional solution:**\n```\n1. PostgreSQL in production (H2 only for dev/test)\n2. Flyway migrations: every schema change is a SQL file in version control\n3. On deploy: Flyway automatically runs new migrations in order\n4. Schema history: Flyway tracks every applied migration\n```\n\n```properties\n# application.properties (dev):\nspring.datasource.url=jdbc:h2:mem:testdb\n\n# application-prod.properties (production):\nspring.datasource.url=jdbc:postgresql://db.company.com:5432/orders\nspring.datasource.username=${DB_USER}\nspring.datasource.password=${DB_PASSWORD}\nspring.flyway.enabled=true\n# ddl-auto=validate (Flyway manages schema, Hibernate just validates)\nspring.jpa.hibernate.ddl-auto=validate\n```\n\n```sql\n-- src/main/resources/db/migration/V1__create_orders_table.sql:\nCREATE TABLE orders (\n    id          VARCHAR(36) PRIMARY KEY,\n    user_id     VARCHAR(36) NOT NULL,\n    status      VARCHAR(20) NOT NULL DEFAULT 'PENDING',\n    total       DECIMAL(12,2) NOT NULL,\n    created_at  TIMESTAMP NOT NULL DEFAULT NOW()\n);\n\n-- Deploy 2 weeks later:\n-- src/main/resources/db/migration/V2__add_discount_to_orders.sql:\nALTER TABLE orders ADD COLUMN discount DECIMAL(12,2) DEFAULT 0.0;\n```\n\nFlyway runs V1 on first deploy. V2 on second deploy. Never re-runs V1. This is schema governance.",
+    "what_you_will_build": "By the end of this topic, you'll configure PostgreSQL with Spring Boot, write Flyway migration scripts that version your schema, run migrations automatically on deploy, and use H2 for tests while PostgreSQL runs in production."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "postgresql_setup": "**PostgreSQL with Docker (local development):**\n\n```yaml\n# docker-compose.yml:\nservices:\n  postgres:\n    image: postgres:16-alpine\n    container_name: orders-db\n    environment:\n      POSTGRES_DB: orders\n      POSTGRES_USER: ordersuser\n      POSTGRES_PASSWORD: orderspass\n    ports:\n      - \"5432:5432\"\n    volumes:\n      - postgres-data:/var/lib/postgresql/data  # persist across restarts!\n\nvolumes:\n  postgres-data:\n```\n\n```bash\ndocker compose up -d    # start in background\ndocker compose down     # stop (data preserved in volume)\ndocker compose down -v  # stop + delete all data\n```\n\n**Spring Boot PostgreSQL dependencies:**\n```xml\n<dependency>\n    <groupId>org.postgresql</groupId>\n    <artifactId>postgresql</artifactId>\n    <scope>runtime</scope>\n</dependency>\n<dependency>\n    <groupId>org.flywaydb</groupId>\n    <artifactId>flyway-core</artifactId>\n</dependency>\n<dependency>\n    <!-- For PostgreSQL flyway support in Spring Boot 3+ -->\n    <groupId>org.flywaydb</groupId>\n    <artifactId>flyway-database-postgresql</artifactId>\n</dependency>\n```\n\n```properties\n# application.properties:\nspring.datasource.url=jdbc:postgresql://localhost:5432/orders\nspring.datasource.username=ordersuser\nspring.datasource.password=orderspass\nspring.datasource.driver-class-name=org.postgresql.Driver\n\n# Let Flyway manage schema; Hibernate only validates:\nspring.jpa.hibernate.ddl-auto=validate\nspring.flyway.enabled=true\n```",
+
+      "flyway_migrations": "**Flyway migration files — naming and structure:**\n\n```\nsrc/main/resources/\n  db/\n    migration/\n      V1__create_orders_table.sql     ← V + version + __ + description\n      V2__add_discount_to_orders.sql\n      V3__create_products_table.sql\n      V4__add_index_on_user_id.sql\n      R__refresh_stats_view.sql       ← Repeatable (R prefix, re-runs when checksum changes)\n```\n\n**Naming rules:**\n- `V` prefix: versioned migration (runs once, in version order)\n- Version: `1`, `1.1`, `1.2.3`, or timestamp `20240315143000`\n- `__` (double underscore): separator\n- Description: any words (spaces become underscores in display)\n- `.sql` extension\n\n**V1: Create the orders table:**\n```sql\n-- V1__create_orders_table.sql\nCREATE TABLE orders (\n    id          VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    user_id     VARCHAR(36)   NOT NULL,\n    status      VARCHAR(20)   NOT NULL DEFAULT 'PENDING',\n    total       DECIMAL(12,2) NOT NULL,\n    created_at  TIMESTAMP     NOT NULL DEFAULT NOW(),\n    updated_at  TIMESTAMP     NOT NULL DEFAULT NOW()\n);\n\nCREATE INDEX idx_orders_user_id ON orders(user_id);\n```\n\n**V2: Add a column (alter, never recreate):**\n```sql\n-- V2__add_discount_column.sql\nALTER TABLE orders\n    ADD COLUMN discount       DECIMAL(12,2) NOT NULL DEFAULT 0.0,\n    ADD COLUMN discount_code  VARCHAR(50);\n\nCOMMENT ON COLUMN orders.discount_code IS 'Promo code applied, null if none';\n```\n\n**V3: Create related table:**\n```sql\n-- V3__create_order_items_table.sql\nCREATE TABLE order_items (\n    id         VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    order_id   VARCHAR(36)   NOT NULL REFERENCES orders(id) ON DELETE CASCADE,\n    product_id VARCHAR(36)   NOT NULL,\n    name       VARCHAR(200)  NOT NULL,\n    qty        INTEGER       NOT NULL CHECK (qty > 0),\n    price      DECIMAL(12,2) NOT NULL CHECK (price >= 0)\n);\n\nCREATE INDEX idx_items_order_id ON order_items(order_id);\n```",
+
+      "flyway_history": "**How Flyway tracks migrations:**\n\n```sql\n-- Flyway creates this table automatically on first run:\nSELECT * FROM flyway_schema_history;\n\n-- installed_rank | version | description              | checksum   | success\n-- 1             | 1       | create orders table       | -523045678 | true\n-- 2             | 2       | add discount column       | 934587234  | true\n-- 3             | 3       | create order items table  | 123456789  | true\n```\n\n**What happens on deploy:**\n```\nApp startup → Flyway checks flyway_schema_history\n→ Compares to migration files in db/migration/\n→ Finds V4 not yet applied\n→ Runs V4 in a transaction\n→ Inserts V4 into flyway_schema_history\n→ App starts normally\n\nIf V4 fails:\n→ Transaction rolled back (schema unchanged)\n→ App startup FAILS\n→ No partial schema state ← critical safety\n```\n\n**NEVER modify a versioned migration after it's been applied!**\nFlyway stores a checksum. If you edit V1 after deploying, V1's checksum changes → Flyway throws `FlywayException: Checksum mismatch` → app won't start.",
+
+      "dev_vs_prod": "**Development vs Production configuration:**\n\n```properties\n# application.properties (dev — shared base):\nspring.jpa.hibernate.ddl-auto=validate\nspring.flyway.enabled=true\nlogging.level.org.flywaydb=DEBUG\n\n# application-local.properties (developer machine — H2, no Flyway):\nspring.datasource.url=jdbc:h2:mem:testdb\nspring.flyway.enabled=false             # Flyway off, Hibernate creates H2\nspring.jpa.hibernate.ddl-auto=create-drop\n\n# application-prod.properties (server — PostgreSQL with Flyway):\nspring.datasource.url=jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}\nspring.datasource.username=${DB_USER}\nspring.datasource.password=${DB_PASSWORD}\nspring.flyway.enabled=true\nspring.jpa.hibernate.ddl-auto=validate  # Flyway owns schema, Hibernate validates\n```\n\n**Activate profile:**\n```bash\n# Production:\njava -jar myapp.jar --spring.profiles.active=prod\n\n# Local dev:\njava -jar myapp.jar --spring.profiles.active=local\n```\n\n**Test configuration (src/test/resources/application.properties):**\n```properties\n# Tests always use H2, never PostgreSQL:\nspring.datasource.url=jdbc:h2:mem:testdb\nspring.flyway.enabled=false\nspring.jpa.hibernate.ddl-auto=create-drop\n```"
+    },
+
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Two panels: (1) Flyway migration timeline: horizontal arrow labeled 'deployments'. V1 box (deploy 1: creates orders table), V2 box (deploy 2: adds discount column), V3 box (deploy 3: creates order_items), V4 box (deploy 4: adds index). flyway_schema_history table shown with version/description/checksum/success columns. Arrow from 'App Startup' → Flyway reads table → finds V4 unapplied → runs V4.sql → updates table. (2) Environments diagram: Developer laptop (H2, no Flyway, ddl-auto=create-drop), Test environment (H2, no Flyway, @DataJpaTest), Staging (PostgreSQL + Flyway), Production (PostgreSQL + Flyway). Migration SQL files checked into git and deployed to all PostgreSQL environments.",
+      "alt_text": "Flyway migration timeline across deployments, and environment comparison showing H2 for dev/test vs PostgreSQL for staging/prod"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add Flyway to the Zerodha trading platform's order-service. Currently uses H2 in development. Migrate to PostgreSQL with 3 migration scripts: create orders, create trades, add index.",
+
+    "problem_statement": "1. docker-compose.yml for local PostgreSQL\n2. pom.xml: postgresql + flyway dependencies\n3. application-local.properties: H2 dev config\n4. application-prod.properties: PostgreSQL prod config\n5. V1: create_orders_table.sql\n6. V2: create_trades_table.sql\n7. V3: add_indexes.sql\n8. Verify: flyway_schema_history populated on startup",
+
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "docker-compose.yml",
+        "details": "```yaml\nservices:\n  postgres:\n    image: postgres:16-alpine\n    container_name: zerodha-db\n    environment:\n      POSTGRES_DB: zerodha\n      POSTGRES_USER: zerodha\n      POSTGRES_PASSWORD: zerodhapass\n    ports:\n      - \"5432:5432\"\n    volumes:\n      - zerodha-postgres-data:/var/lib/postgresql/data\nvolumes:\n  zerodha-postgres-data:\n```"
+      },
+      {
+        "step": 2,
+        "action": "V1__create_orders_table.sql",
+        "details": "```sql\n-- src/main/resources/db/migration/V1__create_orders_table.sql\nCREATE TABLE orders (\n    id         VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    user_id    VARCHAR(36)   NOT NULL,\n    symbol     VARCHAR(20)   NOT NULL,\n    order_type VARCHAR(10)   NOT NULL CHECK (order_type IN ('BUY','SELL')),\n    qty        INTEGER       NOT NULL CHECK (qty > 0),\n    price      DECIMAL(12,2) NOT NULL CHECK (price > 0),\n    status     VARCHAR(20)   NOT NULL DEFAULT 'PENDING',\n    created_at TIMESTAMP     NOT NULL DEFAULT NOW()\n);\n```"
+      },
+      {
+        "step": 3,
+        "action": "V2__create_trades_table.sql",
+        "details": "```sql\n-- src/main/resources/db/migration/V2__create_trades_table.sql\nCREATE TABLE trades (\n    id           VARCHAR(36)   PRIMARY KEY DEFAULT gen_random_uuid(),\n    order_id     VARCHAR(36)   NOT NULL REFERENCES orders(id),\n    user_id      VARCHAR(36)   NOT NULL,\n    symbol       VARCHAR(20)   NOT NULL,\n    qty          INTEGER       NOT NULL,\n    price        DECIMAL(12,2) NOT NULL,\n    total_value  DECIMAL(14,2) GENERATED ALWAYS AS (qty * price) STORED,\n    executed_at  TIMESTAMP     NOT NULL DEFAULT NOW()\n);\n```"
+      },
+      {
+        "step": 4,
+        "action": "V3__add_indexes.sql",
+        "details": "```sql\n-- src/main/resources/db/migration/V3__add_indexes.sql\nCREATE INDEX idx_orders_user_id   ON orders(user_id);\nCREATE INDEX idx_orders_symbol    ON orders(symbol);\nCREATE INDEX idx_orders_status    ON orders(status);\nCREATE INDEX idx_trades_user_id   ON trades(user_id);\nCREATE INDEX idx_trades_symbol    ON trades(symbol);\nCREATE INDEX idx_trades_order_id  ON trades(order_id);\n```"
+      }
+    ],
+
+    "final_code": "// docker-compose.yml: PostgreSQL 16 with named volume\n// V1: orders table with CHECK constraints\n// V2: trades with FK to orders, computed column\n// V3: indexes on frequently-queried columns\n// application-local.properties: H2, flyway=false\n// application-prod.properties: PostgreSQL, flyway=true, ddl-auto=validate",
+
+    "expected_output": "# docker compose up -d && mvn spring-boot:run -Dspring.profiles.active=prod\n\n[INFO] Flyway 10.x by Redgate\n[INFO] Database: jdbc:postgresql://localhost:5432/zerodha (PostgreSQL 16.0)\n[INFO] Found versioned SQL migration V1 (create orders table)\n[INFO] Found versioned SQL migration V2 (create trades table)\n[INFO] Found versioned SQL migration V3 (add indexes)\n[INFO] Current version of schema \"public\": << Empty Schema >>\n[INFO] Migrating schema \"public\" to version \"1 - create orders table\"\n[INFO] Migrating schema \"public\" to version \"2 - create trades table\"\n[INFO] Migrating schema \"public\" to version \"3 - add indexes\"\n[INFO] Successfully applied 3 migrations to schema \"public\" (execution time 00:00.312s)\n\n# Second deploy (V4 added):\n[INFO] Current version of schema \"public\": 3\n[INFO] Migrating schema \"public\" to version \"4 - ...\"\n[INFO] Successfully applied 1 migration",
+
+    "things_to_notice": [
+      "flyway_schema_history is created automatically by Flyway on first run. You never need to create it manually. It's how Flyway knows which migrations have been applied — never modify this table directly.",
+      "V1 runs only once. On the second deploy, Flyway sees V1 in flyway_schema_history (success=true), skips it, and only runs new migrations (V4, V5...). This is idempotent deployment — safe to run on every deploy.",
+      "spring.jpa.hibernate.ddl-auto=validate: with Flyway managing the schema, Hibernate just validates that the database schema matches the @Entity definitions. If they don't match (e.g., a column in @Entity doesn't exist in DB), the app fails to start. This is a safety net that catches schema mismatches before serving traffic.",
+      "NEVER edit a versioned migration after deployment. Flyway stores the checksum of each migration. If V1__create_orders_table.sql changes after being applied, Flyway throws `FlywayException: Migration checksum mismatch`. Instead: create V4 to ALTER the table.",
+      "Environment separation: the test src/test/resources/application.properties uses H2 with flyway=false. This means @DataJpaTest uses H2 (fast, in-memory). Production uses PostgreSQL with Flyway. Never run Flyway migrations in tests — they'd try to connect to PostgreSQL which isn't available in the test context."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay production database",
+        "use_case": "Razorpay's payment service has hundreds of Flyway migration files, versioned from V1 (initial schema, years ago) to V200+ (latest features). Every schema change — new table, new column, new index, constraint change — is a SQL file in their git repository. CI/CD runs Flyway on staging before every deploy. If migrations fail, the deployment is blocked. No manual database changes are ever made directly in production."
+      },
+      {
+        "company_context": "Swiggy multi-service migrations",
+        "use_case": "Swiggy has 50+ microservices, each with its own PostgreSQL database and Flyway migration history. The order-service, restaurant-service, and delivery-service each manage their own schema independently. When order-service needs to add a column, they create a new migration file, test on local, merge to main, CI runs it against staging, then it auto-runs on production deploy. Zero coordination needed with other teams."
+      },
+      {
+        "company_context": "Zerodha schema evolution",
+        "use_case": "Zerodha's trading platform has evolved from a single database schema to dozens of tables managing users, portfolios, orders, trades, instruments, margins, and settlements. Each addition was a numbered Flyway migration. V1 from 2010 (basic users/orders), V47 (add GST fields after 2017 reform), V89 (SEBI reporting columns). The flyway_schema_history table is the complete audit trail of the database's evolution."
+      }
+    ],
+
+    "interview_relevance": "Database migration interview questions:\n\n- **'What is Flyway and why use it?'** → Database migration tool. SQL files in version control, numbered sequentially. Flyway applies new ones on deploy, tracks which ran in flyway_schema_history. Prevents manual DB changes, enables reproducible schema history.\n- **'Why not use ddl-auto=update in production?'** → Hibernate's ddl-auto=update adds columns but never drops them (data loss risk), doesn't create indexes, can't add constraints safely, and can't be rolled back. Flyway gives full control. Never use ddl-auto=update or create-drop in production.\n- **'How do you handle a migration that needs to be rolled back?'** → Flyway Community Edition doesn't support automatic rollback. Write a new 'undo' migration (V5 that reverts V4). Or: make V4 backward-compatible (only add columns with defaults, never remove). Rolling back a deployment is the application layer; schema rollback is rare.\n- **'What is spring.jpa.hibernate.ddl-auto=validate?'** → Hibernate validates @Entity fields match DB columns. Doesn't create/modify schema. Fails fast if schema is wrong. Combined with Flyway (which manages schema), this is the production-safe combination.",
+
+    "real_world_workflow": "Daily migration workflow:\n\n- New feature needs a column: create V{next}__add_{col}_to_{table}.sql in db/migration/\n- Test locally: restart app → Flyway applies new migration automatically\n- Commit SQL file and Java code together (same PR)\n- CI runs migration against staging database\n- Deploy to production: Flyway runs migration before traffic switches over\n- Rollback plan: write V{next+1}__revert_{description}.sql if needed"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "editing_applied_migration",
+      "what_students_get_wrong": "Editing a migration file that's already been applied — fixing a typo, adding a comment, changing a constraint — breaking the checksum.",
+      "remediation": "Never modify a versioned migration file after deployment. Flyway checksums the file content. Any change → FlywayException on startup. Fix: revert the file, create a NEW migration (V{n+1}) with the correction instead.",
+      "detection_pattern": "FlywayException: Migration checksum mismatch for migration version N"
+    },
+    {
+      "gap_id": "wrong_ddl_auto_in_prod",
+      "what_students_get_wrong": "Leaving spring.jpa.hibernate.ddl-auto=create-drop or update in production — dropping the schema on every restart, or allowing Hibernate to make uncontrolled changes.",
+      "remediation": "Production always: spring.jpa.hibernate.ddl-auto=validate (when using Flyway) or none. Never create, create-drop, or update in production. create-drop destroys all data on every restart. update can silently miss indexes and constraints.",
+      "detection_pattern": "Tables disappear on restart (create-drop) or missing indexes not created (update)"
+    },
+    {
+      "gap_id": "flyway_in_tests",
+      "what_students_get_wrong": "Leaving flyway.enabled=true in test configuration — @DataJpaTest tries to connect to PostgreSQL, fails because no real DB is available.",
+      "remediation": "In src/test/resources/application.properties: spring.flyway.enabled=false + spring.datasource.url=jdbc:h2:mem:testdb + spring.jpa.hibernate.ddl-auto=create-drop. @DataJpaTest should never need a real database.",
+      "detection_pattern": "Test fails with 'Connection refused localhost:5432' or FlywayException during @DataJpaTest"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "H2: only for development/testing; PostgreSQL: production",
+      "Flyway: manages database schema through SQL migration files",
+      "Migration file naming: V{version}__{description}.sql",
+      "Flyway runs migrations in version order, each only once",
+      "flyway_schema_history: table tracking applied migrations + checksums",
+      "NEVER edit an applied migration — create a new one to fix",
+      "spring.jpa.hibernate.ddl-auto=validate with Flyway in production",
+      "spring.jpa.hibernate.ddl-auto=create-drop with H2 in development",
+      "spring.flyway.enabled=false in test application.properties",
+      "Environment profiles: application-local.properties, application-prod.properties",
+      "Docker Compose: easiest way to run PostgreSQL locally",
+      "Volumes: preserve PostgreSQL data across container restarts"
+    ],
+
+    "self_check_questions": [
+      {
+        "question": "You have V1, V2, V3 in flyway_schema_history. You add V4 to your project and restart. But V4 fails with a SQL syntax error. What is the state of the database after the failed startup?",
+        "answer": "The database is unchanged — V4 ran inside a transaction that was rolled back when the SQL error occurred. Flyway writes migrations within transactions. The flyway_schema_history table still shows only V1, V2, V3. The app fails to start (Spring Boot exits). Fix the SQL error in V4, restart, Flyway retries V4. This is safe: no partial schema state ever exists."
+      },
+      {
+        "question": "You're testing with @DataJpaTest and your test properties have spring.flyway.enabled=true. Your test fails with 'Connection refused to localhost:5432'. Why and how do you fix it?",
+        "answer": "Flyway tries to connect to PostgreSQL (configured in application.properties) and fails because no PostgreSQL is running in the test environment. Fix: create src/test/resources/application.properties (or application-test.properties) with: spring.flyway.enabled=false, spring.datasource.url=jdbc:h2:mem:testdb, spring.jpa.hibernate.ddl-auto=create-drop. @DataJpaTest should always use H2 — it's faster and works without a real database. Alternatively, add @TestPropertySource(properties = {'spring.flyway.enabled=false'}) to the test class."
+      },
+      {
+        "question": "Why should you use spring.jpa.hibernate.ddl-auto=validate with Flyway rather than ddl-auto=none?",
+        "answer": "With validate: Hibernate compares the @Entity definitions to the actual database schema on startup. If your @Entity has a field 'discountCode' but the column doesn't exist in the database (maybe you forgot a migration), the app FAILS TO START with a clear error: 'Missing column: orders.discount_code'. This catches schema mismatches before serving traffic. With ddl-auto=none: no validation — the app starts, but the first query that needs the missing column fails at runtime with an obscure SQL error, potentially in production under load. validate is the safety net that catches developer mistakes early."
+      }
+    ],
+
+    "next_topic_preview": "Next: **The N+1 Query Problem** — one of the most common performance killers in JPA applications. Your REST endpoint returns 100 orders. Each order has an associated user. JPA makes 1 query for orders + 100 queries for users = 101 queries for one request. Swiggy's API slows to a crawl. Topic 17.2 covers N+1 detection, eager vs lazy loading, JOIN FETCH, @EntityGraph, and how to fix N+1 without breaking the rest of the application."
+  }
+}

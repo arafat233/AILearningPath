@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m27_t4_proj",
+  "linked_topic": "java_m27_t4",
+  "level": "mini",
+  "name": "Zerodha Live Trading Dashboard — GraphQL Subscriptions",
+  "estimated_minutes": 45,
+  "difficulty": 7,
+  "scenario": "Zerodha's Kite app refreshes prices by polling every 500ms — that's 10,000 HTTP requests/second for 5000 users. Build GraphQL subscriptions to push price updates and trade confirmations over WebSocket, reducing server load by 80%.",
+  "requirements": {
+    "core": [
+      {"id": "req_1", "description": "PriceUpdate record (symbol, price, change, timestamp) and Trade record (id, symbol, qty, price, type, accountId) with isFinal() if type is TRADE_COMPLETE.", "weight": 10},
+      {"id": "req_2", "description": "TradeEventBus @Service: Sinks.many().multicast().onBackpressureBuffer(). publish(Trade) and asFlux() methods.", "weight": 10},
+      {"id": "req_3", "description": "@SubscriptionMapping priceUpdate(@Argument String symbol): Flux.interval(1s) emitting PriceUpdate with symbol, simulated price drift. No takeUntil (continuous feed).", "weight": 15},
+      {"id": "req_4", "description": "@SubscriptionMapping tradeUpdates(@Argument String accountId): filter TradeEventBus by accountId. doOnSubscribe/doOnCancel for registry.", "weight": 15},
+      {"id": "req_5", "description": "SubscriberRegistry @Service: AtomicInteger per subscription key. register(key)/unregister(key)/count(key) methods.", "weight": 10},
+      {"id": "req_6", "description": "@SpringBootTest (4 tests): priceUpdate emits symbol correctly, tradeUpdates filtered by accountId, other account's trades ignored, registry count tracked. All pass.", "weight": 35},
+      {"id": "req_7", "description": "application.yml (commented): spring.graphql.websocket.path=/graphql-ws and keep-alive=30s.", "weight": 5}
+    ],
+    "bonus": [
+      {"id": "bonus_1", "description": "Auth validation: @Argument String userId validated before returning Flux. Invalid userId → Flux.error(SecurityException). Valid → normal stream. Test: invalid userId errors, valid works.", "weight": 20},
+      {"id": "bonus_2", "description": "PaymentStatus subscription: filter by paymentId + .takeUntil(status::isFinal). Test: PLACED+CAPTURED=2 events, EXTRA after CAPTURED not received, stream completes.", "weight": 20},
+      {"id": "bonus_3", "description": "Backpressure demo: priceStream with .onBackpressureDrop(), paymentStream with .onBackpressureBuffer(100). Document: when to use each. Test: both compile and run.", "weight": 15}
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "5 hints. @SubscriptionMapping returns Flux<T>: Spring for GraphQL automatically maps each Flux emission to a WebSocket message. Sinks.many().multicast(): allows multiple subscribers (multiple users watching same bus) — each gets all events. .filter(t -> t.accountId().equals(accountId)): every subscriber has their own filter (server-side routing). .takeUntil(predicate): inclusive — the matching element IS emitted, then Flux completes. StepVerifier.create(flux).then(() -> publish()).expectNext(): .then() runs AFTER subscription setup but BEFORE expecting events — critical for Sinks-based tests.",
+  "rubric": [
+    {"category": "Records (PriceUpdate, Trade)", "points": 10},
+    {"category": "TradeEventBus (Sinks.Many)", "points": 10},
+    {"category": "@SubscriptionMapping priceUpdate", "points": 15},
+    {"category": "@SubscriptionMapping tradeUpdates (filtered)", "points": 15},
+    {"category": "SubscriberRegistry", "points": 10},
+    {"category": "4 tests (all pass)", "points": 35},
+    {"category": "application.yml (commented)", "points": 5},
+    {"category": "Bonus", "points": 55}
+  ]
+}

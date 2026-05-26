@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m18_t1_proj",
+  "linked_topic": "java_m18_t1",
+  "level": "mini",
+  "name": "Swiggy Restaurant Discovery — Redis Caching Layer",
+  "estimated_minutes": 50,
+  "difficulty": 7,
+
+  "scenario": "Swiggy's restaurant listing API hits PostgreSQL on every request. During dinner hour (7-9pm), the same city's restaurant list is requested thousands of times per minute. Add a Redis caching layer that reduces DB calls by 99% while keeping data fresh with appropriate TTLs and explicit eviction on changes.",
+
+  "description": "Spring Cache + Redis: RedisCacheManager with per-cache TTLs (restaurants=5min, cuisines=1hr, popular=2min), @Cacheable service methods, @CacheEvict on writes, CacheWarmupService @PostConstruct, and @SpringBootTest integration tests.",
+
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "docker-compose.yml: Redis 7-alpine, maxmemory 256mb, allkeys-lru. application.properties: Redis connection, spring.cache.type=redis.",
+        "weight": 8
+      },
+      {
+        "id": "req_2",
+        "description": "SwiggyCache @Configuration @EnableCaching: RedisCacheManager with 3 caches: 'restaurants'=5min, 'cuisines'=1hr, 'popular'=2min. GenericJackson2JsonRedisSerializer for all. disableCachingNullValues.",
+        "weight": 17
+      },
+      {
+        "id": "req_3",
+        "description": "RestaurantService: getByCity(city) @Cacheable('restaurants', key='#city', unless result empty), getByCuisine(cuisine) @Cacheable('cuisines'), getPopular(city) @Cacheable('popular'). All methods log '[DB] querying...' so cache hits are visible.",
+        "weight": 20
+      },
+      {
+        "id": "req_4",
+        "description": "RestaurantService write methods: addRestaurant(): @CachePut('restaurants', key='#result.city'), updateRestaurant(): @Caching evict restaurants+popular for affected city, deactivate(): same eviction.",
+        "weight": 15
+      },
+      {
+        "id": "req_5",
+        "description": "CacheWarmupService @PostConstruct: pre-loads top 5 cities ('Mumbai','Delhi','Bangalore','Hyderabad','Chennai') into 'restaurants' cache at startup. Logs count of restaurants per city.",
+        "weight": 10
+      },
+      {
+        "id": "req_6",
+        "description": "@SpringBootTest integration tests (3): (1) getByCity called twice for same city — DB log appears only once, (2) after updateRestaurant(), next getByCity is a cache miss (DB log appears), (3) getPopular returns from cache on second call. Use @SpyBean on repository.",
+        "weight": 25
+      },
+      {
+        "id": "req_7",
+        "description": "src/test/resources/application.properties: spring.cache.type=none (use no-op cache in unit tests) or use embedded Redis for integration tests.",
+        "weight": 5
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "CacheMonitorService @Scheduled(fixedRate=60000): logs hit rate for each cache using MeterRegistry. Alert if 'restaurants' hit rate < 80%. Requires spring.cache.redis.enable-statistics=true.",
+        "weight": 20
+      },
+      {
+        "id": "bonus_2",
+        "description": "Add 'search' cache with 2-minute TTL. RestaurantService.search(city, cuisine, maxDeliveryTime): @Cacheable with composite key (city+cuisine+maxDeliveryTime). @DataRedisTest or embedded Redis to verify search cache.",
+        "weight": 25
+      },
+      {
+        "id": "bonus_3",
+        "description": "Add Redis health indicator: @Component HealthIndicator that PINGs Redis and reports UP/DOWN. Expose via /actuator/health. @SpringBootTest verifying indicator shows UP when Redis is available.",
+        "weight": 20
+      }
+    ]
+  },
+
+  "data_to_use": "Seed data for tests:\n  Mumbai: 3 restaurants (Biryani House, Pizza Palace, Dosa Corner)\n  Delhi: 2 restaurants (Curry House, Burger King)\n  Empty city 'Shimla': 0 restaurants (test unless condition)\n\nExpected cache behavior:\n  getByCity('Mumbai') call 1: [DB] log appears, Redis key created\n  getByCity('Mumbai') call 2: no [DB] log, served from Redis\n  updateRestaurant(): [DB] log for next getByCity('Mumbai')\n  getByCity('Shimla'): no Redis entry (empty result, unless condition)",
+
+  "starter_code": "# docker-compose.yml\n# application.properties + application-test.properties\n// SwiggyCache.java (@Configuration)\n// Restaurant.java (@Entity)\n// RestaurantRepository.java\n// RestaurantService.java\n// CacheWarmupService.java\n// RestaurantCacheTest.java (@SpringBootTest, 3 tests)",
+
+  "example_output": "# App startup:\n[CacheWarmup] Pre-loading restaurants for 5 cities...\n[DB] querying Mumbai restaurants\n[DB] querying Delhi restaurants\n[DB] querying Bangalore restaurants\n[DB] querying Hyderabad restaurants\n[DB] querying Chennai restaurants\n[CacheWarmup] Done.\n\n# Runtime:\nGET /api/restaurants?city=Mumbai   → 0.3ms (cache hit, no [DB] log)\nGET /api/restaurants?city=Shimla   → 14ms  (cache miss, empty, not cached)\nPUT /api/restaurants/R001          → cache evicted for Mumbai\nGET /api/restaurants?city=Mumbai   → 14ms  (cache miss, fresh DB)\nGET /api/restaurants?city=Mumbai   → 0.3ms (cache hit again)\n\n# Tests:\n✓ getByCity_sameCityTwice_dbCalledOnce\n✓ afterUpdate_nextGetByCityIsCacheMiss\n✓ getPopular_secondCallHitsCache",
+
+  "rubric": [
+    { "category": "Docker + properties", "points": 8, "criteria": ["Redis docker-compose (5 pts)", "application.properties (3 pts)"] },
+    { "category": "CacheConfig", "points": 17, "criteria": ["3 caches correct TTLs (10 pts)", "JSON serializer + no-null (7 pts)"] },
+    { "category": "Service @Cacheable", "points": 20, "criteria": ["3 read methods cached (12 pts)", "unless on getByCity (8 pts)"] },
+    { "category": "Service eviction", "points": 15, "criteria": ["@Caching evict both caches (15 pts)"] },
+    { "category": "CacheWarmup", "points": 10, "criteria": ["@PostConstruct 5 cities (10 pts)"] },
+    { "category": "@SpringBootTest (3 tests)", "points": 25, "criteria": ["3 tests × 8 pts each"] },
+    { "category": "Test config", "points": 5, "criteria": ["Test cache setup (5 pts)"] },
+    { "category": "Bonus", "points": 65, "criteria": ["Monitor (20 pts)", "Search cache (25 pts)", "Health indicator (20 pts)"] }
+  ],
+
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Limited to 5 hints. @EnableCaching required on @SpringBootApplication or @Configuration — without it, annotations are silently ignored. unless condition in SpEL: unless='#result == null || #result.isEmpty()' — evaluated AFTER method execution. @SpyBean: wraps real Spring bean with Mockito spy for call count verification. CacheWarmup @PostConstruct: since it calls restauarantService.getByCity() (external call to another bean), the Spring proxy IS involved — caching works. Test config: use spring.cache.type=simple for unit tests, spring.cache.type=redis for @SpringBootTest with embedded Redis.",
+
+  "submission_instructions": "GitHub push. All 3 @SpringBootTest tests pass. README includes a 'before/after' table showing cache hit reduction in DB queries. KEYS command output from redis-cli showing populated cache.",
+
+  "tips_for_success": [
+    "Log DB calls with System.out.println('[DB] querying...'): makes cache hits visible in tests",
+    "unless='#result == null || #result.isEmpty()': prevents caching empty lists for non-existent cities",
+    "testEm.clear() not needed here (no JPA): just clear cache between tests with cacheManager.getCache(name).clear()",
+    "@SpyBean RestaurantRepository: verify(repo, times(1)).findByCity('Mumbai') asserts DB called once",
+    "Pre-warm calls through service bean (not this.getByCity) — ensure AOP proxy is active"
+  ],
+
+  "concepts_reinforced": [
+    "Spring Cache abstraction with Redis backend",
+    "RedisCacheManager with per-cache TTL configuration",
+    "@Cacheable for read-through caching with condition/unless",
+    "@CacheEvict for cache invalidation on writes",
+    "@Caching for multiple cache operations on one method",
+    "Cache pre-warming via @PostConstruct",
+    "@SpyBean for verifying cache hit/miss in integration tests"
+  ]
+}

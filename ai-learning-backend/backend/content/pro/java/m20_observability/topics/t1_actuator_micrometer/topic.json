@@ -1,0 +1,158 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m20_t1",
+  "language": "java",
+  "module_id": "m20",
+  "module_name": "Observability",
+  "topic_number": 1,
+  "name": "Spring Boot Actuator & Micrometer",
+  "slug": "actuator-micrometer",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m19_t1"],
+    "concepts_taught": [
+      "observability_three_pillars",
+      "spring_boot_actuator_overview",
+      "actuator_endpoints",
+      "health_endpoint",
+      "info_endpoint",
+      "metrics_endpoint",
+      "micrometer_overview",
+      "meter_registry",
+      "counter",
+      "timer",
+      "gauge",
+      "distribution_summary",
+      "custom_metrics",
+      "tags_dimensions",
+      "micrometer_prometheus_registry",
+      "prometheus_scraping",
+      "actuator_security"
+    ],
+    "skills_developed": [
+      "adding_custom_counters_to_business_events",
+      "timing_method_execution_with_timer",
+      "tracking_gauge_values",
+      "adding_meaningful_tags_to_metrics",
+      "exposing_prometheus_metrics"
+    ],
+    "career_relevance": "You can't improve what you can't measure. Every Razorpay payment failure, every Zerodha order latency spike, every Swiggy delivery delay — they all start as metrics. Micrometer is the Java standard for application metrics. After this topic, your service exposes payment counts, p99 latency, error rates, and queue depths — everything an on-call engineer needs to diagnose incidents at 3am.",
+    "tone_profile": {
+      "primary": "professional_friendly",
+      "intensity": "encouraging",
+      "formality": "modern_casual"
+    }
+  },
+
+  "hook": {
+    "real_world_problem": "Razorpay's payment service goes slow at 7pm daily. Without metrics:\n\n```\nOn-call engineer receives alert: 'P99 latency > 2 seconds'\nLooks at logs: thousands of lines, no clear pattern\nChecks dashboards: empty — no metrics configured\nTime to diagnosis: 45 minutes, user complaints mounting\n```\n\nWith Micrometer metrics:\n```\nOn-call engineer receives alert at 7:00:05pm\nOpens Grafana dashboard:\n  payments.processed{status=success}:  15/s (normal: 200/s) ← 93% drop!\n  payments.duration{p99}:             2.8s (normal: 0.2s) ← 14× slower!\n  db.pool.active{pool=HikariPool-1}:  50/50 (ALL IN USE) ← DB pool exhausted!\n  circuit.breaker.state{name=visa}:   OPEN ← Visa gateway down\n\nDiagnosis: Visa gateway down → all calls fail slowly → DB pool filling with retry threads\nFix: extend circuit breaker timeout for Visa → pool freed → latency returns to normal\nTime to diagnosis: 90 seconds\n```\n\n**That's the difference Micrometer makes.**",
+    "what_you_will_build": "By the end of this topic, you'll add custom Counters, Timers, and Gauges to your payment service, expose them to Prometheus via Actuator, and understand how tags create queryable dimensions."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "three_pillars": "**The three pillars of observability:**\n\n```\nMETRICS (Micrometer → Prometheus → Grafana):\n  What happened in aggregate? Numbers over time.\n  'payments processed = 15,000 in the last minute'\n  'p99 latency = 200ms'\n  'error rate = 0.02%'\n\nTRACES (Micrometer Tracing → Zipkin/Jaeger):\n  How did one specific request flow through the system?\n  'Payment PAY-001: API Gateway (5ms) → Payment Service (180ms) → Visa (150ms) → DB (20ms)'\n\nLOGS (Logback → Loki):\n  What exactly happened during an event?\n  'ERROR 2024-06-15 19:05:23 [PAY-001] Visa gateway timeout after 10000ms'\n\nModule 20 covers all three. This topic: Metrics (Micrometer + Prometheus).\n```",
+      "actuator_setup": "**Spring Boot Actuator setup:**\n\n```xml\n<!-- pom.xml: -->\n<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-actuator</artifactId>\n</dependency>\n<dependency>\n    <groupId>io.micrometer</groupId>\n    <artifactId>micrometer-registry-prometheus</artifactId>\n    <scope>runtime</scope>\n</dependency>\n```\n\n```yaml\n# application.yml:\nmanagement:\n  endpoints:\n    web:\n      exposure:\n        include: health, info, metrics, prometheus, env, beans\n  endpoint:\n    health:\n      show-details: always    # show component health details\n    prometheus:\n      enabled: true           # expose /actuator/prometheus for scraping\n  metrics:\n    tags:\n      application: razorpay-payment-service  # added to ALL metrics\n      environment: production\n```\n\n```bash\n# Key actuator endpoints:\nGET /actuator/health       → service health (UP/DOWN + components)\nGET /actuator/metrics      → list all available metric names\nGET /actuator/metrics/jvm.memory.used  → specific metric details\nGET /actuator/prometheus   → ALL metrics in Prometheus text format\nGET /actuator/env          → environment properties\nGET /actuator/beans        → registered Spring beans\nGET /actuator/info         → app version, git info, custom info\n```",
+      "micrometer_core": "**Micrometer: Counter, Timer, Gauge:**\n\n```java\nimport io.micrometer.core.instrument.*;\nimport org.springframework.stereotype.Service;\n\n@Service\npublic class PaymentMetricsService {\n    private final Counter successCounter;\n    private final Counter failureCounter;\n    private final Timer   paymentTimer;\n    \n    PaymentMetricsService(MeterRegistry registry) {\n        // COUNTER: monotonically increasing count\n        successCounter = Counter.builder(\"payments.processed\")\n            .tag(\"status\", \"success\")\n            .tag(\"gateway\", \"visa\")\n            .description(\"Total successful payments processed\")\n            .register(registry);\n        \n        failureCounter = Counter.builder(\"payments.processed\")\n            .tag(\"status\", \"failure\")\n            .tag(\"gateway\", \"visa\")\n            .register(registry);\n        \n        // TIMER: duration distribution (count + sum + histogram)\n        paymentTimer = Timer.builder(\"payments.duration\")\n            .tag(\"gateway\", \"visa\")\n            .description(\"Payment processing duration\")\n            .publishPercentiles(0.5, 0.95, 0.99)  // p50, p95, p99\n            .register(registry);\n    }\n    \n    public PaymentResult processPayment(PaymentRequest req) {\n        return paymentTimer.record(() -> {       // RECORDS duration\n            try {\n                PaymentResult result = visaClient.charge(req);\n                successCounter.increment();\n                return result;\n            } catch (Exception e) {\n                failureCounter.increment();\n                throw e;\n            }\n        });\n    }\n}\n```",
+      "gauge_and_tags": "**Gauge: track current value. Tags: query dimensions.**\n\n```java\n@Service\npublic class QueueMetricsService {\n    private final Queue<PaymentRequest> retryQueue;\n    \n    QueueMetricsService(MeterRegistry registry,\n                         Queue<PaymentRequest> queue) {\n        this.retryQueue = queue;\n        \n        // GAUGE: tracks current value of something\n        Gauge.builder(\"payments.retry.queue.size\", retryQueue, Queue::size)\n            .description(\"Number of payments waiting for retry\")\n            .register(registry);\n        // Unlike Counter: can go UP and DOWN\n        // Useful for: queue depth, connection pool usage, active requests\n    }\n}\n\n// TAGS: multi-dimensional metrics — query by any tag combination:\n// payments.processed{status='success', gateway='visa'}  → visa success count\n// payments.processed{status='failure', gateway='visa'}  → visa failure count\n// payments.processed{status='success', gateway='mastercard'} → MC success count\n//\n// In Prometheus:\n// sum(payments_processed_total) by (status, gateway)\n//   = {status='success', gateway='visa'}      → 14,523\n//   = {status='failure', gateway='visa'}      → 47\n//   = {status='success', gateway='mastercard'}→ 8,901\n//\n// PromQL: rate(payments_processed_total{status='failure'}[5m])\n//   = failure rate per second, rolling 5-minute window\n\n// @Timed annotation — shortcut for Timer:\n@Timed(value = \"payments.duration\", description = \"Payment processing time\")\npublic PaymentResult process(PaymentRequest req) {\n    return visaClient.charge(req);  // automatically timed!\n}\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Observability stack: Spring Boot app emits metrics via Micrometer → /actuator/prometheus endpoint. Prometheus scrapes every 15 seconds. Grafana queries Prometheus and renders dashboard: 4 panels showing payment rate (line chart), p99 latency (line chart), error rate (stat), DB pool utilization (gauge). Alert rule: p99 > 500ms → PagerDuty → on-call engineer. Labels: 'Three pillars: Metrics (this topic), Traces (T20.2), Logs (T20.3)'.",
+      "alt_text": "Micrometer → Prometheus → Grafana observability stack showing payment metrics dashboard"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Add payment metrics to Razorpay's payment service: track successful and failed payments by gateway type, measure processing duration, and expose queue depth.",
+    "problem_statement": "1. Add actuator + micrometer-registry-prometheus to pom.xml\n2. PaymentMetricsService: Counter for success/failure by gateway, Timer for duration\n3. application.yml: expose prometheus endpoint + add global tags\n4. Test: verify metrics increment and timer records duration",
+    "step_by_step_solution": [
+      {
+        "step": 1,
+        "action": "application.yml actuator config",
+        "details": "```yaml\nmanagement:\n  endpoints.web.exposure.include: health,metrics,prometheus\n  endpoint.health.show-details: always\n  metrics:\n    tags:\n      application: razorpay-payments\n      environment: ${SPRING_PROFILES_ACTIVE:dev}\n```"
+      },
+      {
+        "step": 2,
+        "action": "Payment service with metrics",
+        "details": "```java\n@Service\npublic class RazorpayPaymentService {\n    private final MeterRegistry registry;\n    private final Timer timer;\n    \n    RazorpayPaymentService(MeterRegistry registry) {\n        this.registry = registry;\n        this.timer = Timer.builder(\"payment.duration\")\n            .publishPercentiles(0.5, 0.95, 0.99)\n            .register(registry);\n    }\n    \n    public PaymentResult process(String gateway, PaymentRequest req) {\n        return timer.record(() -> {\n            try {\n                PaymentResult r = chargeVia(gateway, req);\n                registry.counter(\"payment.total\",\n                    \"status\", \"success\", \"gateway\", gateway).increment();\n                return r;\n            } catch (Exception e) {\n                registry.counter(\"payment.total\",\n                    \"status\", \"failure\", \"gateway\", gateway).increment();\n                throw e;\n            }\n        });\n    }\n}\n```"
+      }
+    ],
+    "final_code": "// Counter.builder() + Timer.builder(): fluent API with tags and description\n// timer.record(Supplier): measures duration of the lambda\n// registry.counter(name, tags...): inline counter (shorthand for builder)\n// publishPercentiles: pre-compute p50/p95/p99 for fast Prometheus queries",
+    "expected_output": "# GET /actuator/prometheus:\n# payment_total_total{application=\"razorpay-payments\",gateway=\"visa\",status=\"success\"} 14523.0\n# payment_total_total{application=\"razorpay-payments\",gateway=\"visa\",status=\"failure\"} 47.0\n# payment_duration_seconds_count{...} 14570\n# payment_duration_seconds_sum{...} 2914.0\n# payment_duration_seconds{quantile=\"0.99\",...} 0.287",
+    "things_to_notice": [
+      "Global tags in application.yml (`metrics.tags.application`) are automatically added to ALL metrics — no need to add them to each counter/timer. This means every metric carries the service name and environment for easy filtering in Grafana.",
+      "Timer records count AND duration together. When you call timer.record(), Micrometer increments the count by 1 and adds the elapsed time to the sum. This means you get requests/second AND latency from a single Timer — no separate counter needed.",
+      "`publishPercentiles(0.5, 0.95, 0.99)` pre-computes percentiles in the application. This is more efficient for Grafana (no heavy PromQL aggregation) but uses slightly more memory. Alternative: `publishPercentileHistogram(true)` for server-side aggregation in Prometheus.",
+      "Counter metric names follow Micrometer naming convention (dots): `payment.total` → Prometheus converts dots to underscores: `payment_total_total` (Prometheus appends `_total` for counters). This is expected behavior — don't be confused by the double `_total`.",
+      "Security: never expose `/actuator/env` or `/actuator/beans` publicly — they expose environment variables (API keys!) and application internals. Use Spring Security to restrict actuator endpoints: `management.endpoint.env.access=read-only` and restrict by IP/auth."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      {
+        "company_context": "Razorpay payment metrics",
+        "use_case": "Razorpay tracks payments.processed{status, gateway, merchant_category}, payments.duration{gateway} with p50/p95/p99, and payments.retry.queue.size as a gauge. Grafana alert: error rate > 0.1% for any gateway → PagerDuty. Dashboard shows: payments/second by gateway, p99 latency trend, error rate by merchant category."
+      },
+      {
+        "company_context": "Zerodha trading metrics",
+        "use_case": "Zerodha tracks orders.submitted{type=BUY/SELL,symbol}, orders.rejected{reason=insufficient_funds/invalid_symbol}, and nse.connection.latency. A spike in orders.rejected{reason=insufficient_funds} during market open indicates users are placing orders without checking balance — triggers UI improvement."
+      },
+      {
+        "company_context": "Swiggy delivery metrics",
+        "use_case": "Swiggy tracks delivery.estimate.accuracy (actual vs estimated time), restaurant.acceptance.rate{restaurant_id}, and order.cancellations{reason}. A drop in restaurant.acceptance.rate for a specific restaurant triggers outreach. Rising delivery.estimate.accuracy errors in a city triggers routing algorithm review."
+      }
+    ],
+    "interview_relevance": "Observability interview questions:\n\n- **'How do you monitor a Spring Boot service in production?'** → Spring Boot Actuator + Micrometer + Prometheus + Grafana. Custom business metrics (Counter/Timer/Gauge) for key flows. Circuit breaker state, DB pool utilization, JVM heap — all auto-exposed via Actuator.\n- **'What is the difference between Counter, Timer, and Gauge?'** → Counter: monotonically increases (total events). Timer: duration distribution (latency histogram). Gauge: current value that can go up or down (queue size, connections).\n- **'What are tags in Micrometer?'** → Key-value pairs attached to metrics that create query dimensions. `status=success/failure`, `gateway=visa/mastercard`. Allow filtering and grouping in Prometheus/Grafana without separate metric names.",
+    "real_world_workflow": "Metrics implementation workflow:\n\n- Identify key business events: payment processed, order placed, user signed up\n- Add Counter for each with meaningful tags (status, gateway, category)\n- Add Timer to critical paths: payment processing, DB queries, API calls\n- Add Gauge for resource states: queue depth, pool usage, cache hit rate\n- Configure global tags: application, environment, region\n- Create Grafana dashboard: 4 key metrics visible at a glance\n- Set alerts: error rate, p99 latency, queue depth — with runbooks"
+  },
+
+  "common_gaps": [
+    {
+      "gap_id": "creating_metric_in_hot_path",
+      "what_students_get_wrong": "Calling `Counter.builder().register()` inside a request handler method — creates thousands of duplicate meter registrations per request, causing memory leaks.",
+      "remediation": "Create meters ONCE in the constructor or `@PostConstruct`. Store as instance variables. In the hot path (request handler, method body): only call `.increment()`, `.record()`, `.set()`. The builder + register pattern is one-time initialization. The increment/record is the per-request call.",
+      "detection_pattern": "Memory usage grows linearly with requests; MeterRegistry has millions of registered meters; heap dump shows thousands of Counter objects"
+    },
+    {
+      "gap_id": "too_many_tag_cardinalities",
+      "what_students_get_wrong": "Using high-cardinality values as tags — like user IDs, payment IDs, or customer names as tag values. Creates millions of unique time series in Prometheus.",
+      "remediation": "Tags must have LOW cardinality (few distinct values). Good tags: `status=success/failure` (2 values), `gateway=visa/mastercard` (5 values), `region=india/us` (10 values). Bad tags: `userId=USR-12345` (millions of values), `paymentId=PAY-...` (millions). High-cardinality data goes in LOGS or TRACES, not metric tags.",
+      "detection_pattern": "Prometheus memory spikes; query timeouts; cardinality warnings in Prometheus logs"
+    }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "Three pillars: Metrics (Micrometer), Traces (T20.2), Logs (T20.3)",
+      "Actuator: /health, /metrics, /prometheus — operational visibility endpoints",
+      "MeterRegistry: injected via constructor, used to create and look up meters",
+      "Counter: monotonically increasing; use for counting events",
+      "Timer: duration distribution; records count + sum + percentiles",
+      "Gauge: current value; can go up and down (queue size, connections)",
+      "Tags: key-value dimensions for filtering; LOW cardinality required",
+      "Global tags in application.yml: added to ALL metrics automatically",
+      "timer.record(Supplier): measures lambda duration; returns the lambda result",
+      "publishPercentiles(0.5, 0.95, 0.99): pre-compute p50/p95/p99 in app",
+      "micrometer-registry-prometheus: translates Micrometer → Prometheus text format",
+      "GET /actuator/prometheus: Prometheus scrapes this endpoint every 15s",
+      "Create meters in constructor/PostConstruct, NOT in request handlers",
+      "High cardinality tags (userId, paymentId): use LOGS, not metric tags",
+      "@Timed annotation: shortcut for Timer on any Spring bean method"
+    ],
+    "self_check_questions": [
+      {
+        "question": "Why is `Counter.builder('payments').register(registry)` in the constructor better than inside processPayment()?",
+        "answer": "In the constructor (or @PostConstruct), register() is called ONCE during application startup. The Counter object is stored as an instance variable. On each request, increment() is called on the existing Counter — a lightweight operation. If register() were called inside processPayment(), it would attempt to register a new Counter on every request. Micrometer returns the existing one if already registered, but the lookup and builder overhead accumulates. More critically, if the meter wasn't reused, each call would create a new object — memory leak. Rule: build meters once, use them many times."
+      },
+      {
+        "question": "You want to track payment latency broken down by gateway (visa/mastercard) and status (success/failure). Should you create 4 separate Timers or 1 Timer with 2 tags?",
+        "answer": "One Timer with two tags: Timer.builder('payment.duration').tag('gateway', gateway).tag('status', status). In Prometheus, this creates a time series per unique tag combination: payment_duration_seconds{gateway='visa', status='success'}, payment_duration_seconds{gateway='visa', status='failure'}, etc. Benefits: single metric name, easy to query across all combinations. `histogram_quantile(0.99, sum(rate(payment_duration_seconds_bucket[5m])) by (gateway, status, le))` gives p99 for each combination. With 4 separate Timers, you'd need 4 separate Grafana panels and 4 separate alert rules."
+      }
+    ],
+    "next_topic_preview": "Next: **Distributed Tracing** — metrics tell you WHAT is slow; traces tell you WHERE in the request flow. Micrometer Tracing (using OpenTelemetry or Brave) traces a payment request from API Gateway → Payment Service → Visa Client → DB. Every hop gets a span with its own duration and error status. When p99 spikes, traces show exactly which service is the bottleneck."
+  }
+}

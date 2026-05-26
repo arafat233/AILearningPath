@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m43_t2",
+  "module_id": "m43",
+  "topic_number": 2,
+  "name": "Scalability Patterns \u2014 Caching, Queues, CDN",
+  "slug": "scalability-patterns-caching",
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 50,
+    "prerequisites": [
+      "java_m42_t5"
+    ],
+    "concepts_taught": [
+      "scalability-patterns-caching"
+    ],
+    "career_relevance": "Core interview preparation.",
+    "tone_profile": {
+      "primary": "professional_friendly"
+    }
+  },
+  "hook": {
+    "real_world_problem": "See README",
+    "what_you_will_build": "Scalability Patterns \u2014 Caching, Queues, CDN"
+  },
+  "teaching": {
+    "concept_explanation": {
+      "core": "See exercises"
+    },
+    "reflection": {
+      "key_takeaways": [
+        "Cache-aside: app checks cache first; on miss: DB \u2192 cache. Simple and flexible",
+        "Write-through: write to cache AND DB synchronously. Consistent but slower writes",
+        "Message queues: decouple services, absorb traffic spikes, enable async processing",
+        "CDN: static assets from edge servers; reduces origin load; global latency",
+        "Database replication: master for writes, replicas for reads; lag is trade-off",
+        "Sharding: split data by key; consistent hashing avoids resharding pain"
+      ],
+      "next_topic_preview": "Next: Database Design."
+    }
+  }
+}

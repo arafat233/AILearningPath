@@ -1,0 +1,438 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m2_t3",
+  "topic_name": "Method Overloading",
+  "total_exercises": 15,
+  
+  "exercises": [
+    {
+      "id": "java_m2_t3_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "Which overload runs?",
+      "scenario": "Trace through an overloaded method call.",
+      "instructions": "What does this print?\n\n```java\npublic class Demo {\n    public static void main(String[] args) {\n        show(10);\n        show(\"Hi\");\n    }\n    \n    public static void show(int n) {\n        System.out.println(\"int: \" + n);\n    }\n    \n    public static void show(String s) {\n        System.out.println(\"String: \" + s);\n    }\n}\n```",
+      "expected_solution": "int: 10\nString: Hi",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "int: 10\nString: Hi"
+        }
+      ],
+      "hints": [
+        "show(10) — 10 is int, calls show(int)",
+        "show(\"Hi\") — \"Hi\" is String, calls show(String)",
+        "Java picks based on argument types"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m2_t3_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Add overload for double",
+      "scenario": "An add(int, int) exists. Add a double version.",
+      "instructions": "Complete the second add method so it accepts and returns double.",
+      "starter_code": "public class Adder {\n    public static void main(String[] args) {\n        System.out.println(add(5, 3));\n        System.out.println(add(2.5, 1.5));\n    }\n    \n    public static int add(int a, int b) {\n        return a + b;\n    }\n    \n    public static ______ add(______ a, ______ b) {\n        return a + b;\n    }\n}",
+      "expected_solution": "public class Adder {\n    public static void main(String[] args) {\n        System.out.println(add(5, 3));\n        System.out.println(add(2.5, 1.5));\n    }\n    \n    public static int add(int a, int b) {\n        return a + b;\n    }\n    \n    public static double add(double a, double b) {\n        return a + b;\n    }\n}",
+      "blanks": [
+        { "position": 1, "answer": "double", "hint": "Return type for decimal addition" },
+        { "position": 2, "answer": "double", "hint": "First parameter type" },
+        { "position": 3, "answer": "double", "hint": "Second parameter type" }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "8\n4.0"
+        }
+      ],
+      "hints": [
+        "Return type: double",
+        "Both parameters: double",
+        "Body stays the same: return a + b",
+        "Java picks the right add() based on argument types"
+      ],
+      "xp_reward": 10
+    },
+    
+    {
+      "id": "java_m2_t3_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Three-parameter overload",
+      "scenario": "Add a third overload that takes three numbers.",
+      "instructions": "Write a class `Sum` with TWO overloaded `total` methods:\n1. `total(int a, int b)` returns a + b\n2. `total(int a, int b, int c)` returns a + b + c\n\nmain calls both:\n```\ntotal(5, 3): 8\ntotal(5, 3, 2): 10\n```",
+      "starter_code": "// Write your Sum class below\n",
+      "expected_solution": "public class Sum {\n    public static void main(String[] args) {\n        System.out.println(\"total(5, 3): \" + total(5, 3));\n        System.out.println(\"total(5, 3, 2): \" + total(5, 3, 2));\n    }\n    \n    public static int total(int a, int b) {\n        return a + b;\n    }\n    \n    public static int total(int a, int b, int c) {\n        return a + b + c;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "total(5, 3): 8\ntotal(5, 3, 2): 10"
+        }
+      ],
+      "hints": [
+        "Two methods with the same name (total)",
+        "First takes 2 ints, second takes 3 ints",
+        "Java picks based on number of arguments",
+        "Different parameter COUNT makes them overloads"
+      ],
+      "xp_reward": 20
+    },
+    
+    {
+      "id": "java_m2_t3_ex_4",
+      "level": "easy",
+      "type": "debug",
+      "difficulty": 2,
+      "title": "Fix the illegal overload",
+      "scenario": "This code won't compile. Find why.",
+      "instructions": "This code attempts overloading but won't compile. Fix it by changing the SECOND method's signature so it's a valid overload.\n\nThe second method should take a double and return a double.\n\nExpected output:\n8\n4.0",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(calculate(5, 3));\n        System.out.println(calculate(2.5, 1.5));\n    }\n    \n    public static int calculate(int a, int b) {\n        return a + b;\n    }\n    \n    // This is wrong — only return type differs\n    public static double calculate(int a, int b) {\n        return a + b;\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(calculate(5, 3));\n        System.out.println(calculate(2.5, 1.5));\n    }\n    \n    public static int calculate(int a, int b) {\n        return a + b;\n    }\n    \n    public static double calculate(double a, double b) {\n        return a + b;\n    }\n}",
+      "bugs": [
+        {
+          "line": "12-14",
+          "issue": "Two methods can't have identical parameter signatures. Return type alone doesn't differentiate.",
+          "fix": "Change parameter types to double, double"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "8\n4.0",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Error: 'method calculate(int, int) is already defined'",
+        "Return type alone can't differentiate overloads",
+        "Change parameters to (double, double)",
+        "Now the two methods have different signatures"
+      ],
+      "xp_reward": 30,
+      "common_misconceptions_tested": ["differ_by_return_type_only"]
+    },
+    
+    {
+      "id": "java_m2_t3_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Overload for String concatenation",
+      "scenario": "Build an add that works for ints AND Strings.",
+      "instructions": "Write a class `Combiner` with TWO `combine` overloads:\n1. `combine(int a, int b)` returns sum as int\n2. `combine(String a, String b)` returns concatenation as String\n\nmain demonstrates both:\n```\ncombine ints: 8\ncombine strings: Hello World\n```",
+      "starter_code": "// Write your Combiner class below\n",
+      "expected_solution": "public class Combiner {\n    public static void main(String[] args) {\n        System.out.println(\"combine ints: \" + combine(5, 3));\n        System.out.println(\"combine strings: \" + combine(\"Hello \", \"World\"));\n    }\n    \n    public static int combine(int a, int b) {\n        return a + b;\n    }\n    \n    public static String combine(String a, String b) {\n        return a + b;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "combine ints: 8\ncombine strings: Hello World"
+        }
+      ],
+      "hints": [
+        "Both methods named `combine`",
+        "Different parameter types: (int, int) vs (String, String)",
+        "For Strings, `+` is concatenation; for ints, `+` is addition",
+        "Body is the same expression: a + b (Java picks the right operation)"
+      ],
+      "xp_reward": 25
+    },
+    
+    {
+      "id": "java_m2_t3_ex_6",
+      "level": "easy",
+      "type": "predict_output",
+      "difficulty": 3,
+      "title": "Type promotion in overload",
+      "scenario": "When the exact type isn't available, Java promotes.",
+      "instructions": "What does this print?\n\n```java\npublic class Promote {\n    public static void main(String[] args) {\n        show(5);\n        show(5L);\n        show(5.0);\n    }\n    \n    public static void show(int n) {\n        System.out.println(\"int\");\n    }\n    \n    public static void show(double n) {\n        System.out.println(\"double\");\n    }\n}\n```",
+      "expected_solution": "int\ndouble\ndouble",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "int\ndouble\ndouble"
+        }
+      ],
+      "hints": [
+        "show(5): 5 is int → exact match for show(int)",
+        "show(5L): 5L is long. No show(long) exists. Java promotes long → double. Calls show(double).",
+        "show(5.0): 5.0 is double → exact match for show(double)",
+        "Promotion path: byte → short → int → long → float → double"
+      ],
+      "xp_reward": 30,
+      "concept_tested": "type_promotion_in_overloading"
+    },
+    
+    {
+      "id": "java_m2_t3_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Calculate area with multiple shapes",
+      "scenario": "Build an area calculator that handles different shape parameter counts.",
+      "instructions": "Write a class `Area` with three overloaded `area` methods:\n1. `area(double radius)` — circle area (pi * r^2)\n2. `area(double width, double height)` — rectangle area\n3. `area(double base, double height, boolean isTriangle)` — triangle area (0.5 * base * height), third param ignored, exists to differentiate from rectangle\n\nmain demonstrates all three:\n```\nCircle: 78.53981633974483\nRectangle: 50.0\nTriangle: 25.0\n```",
+      "starter_code": "// Write your Area class below\n",
+      "expected_solution": "public class Area {\n    public static void main(String[] args) {\n        System.out.println(\"Circle: \" + area(5.0));\n        System.out.println(\"Rectangle: \" + area(5.0, 10.0));\n        System.out.println(\"Triangle: \" + area(5.0, 10.0, true));\n    }\n    \n    public static double area(double radius) {\n        return Math.PI * radius * radius;\n    }\n    \n    public static double area(double width, double height) {\n        return width * height;\n    }\n    \n    public static double area(double base, double height, boolean isTriangle) {\n        return 0.5 * base * height;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Circle: 78.53981633974483\nRectangle: 50.0\nTriangle: 25.0"
+        }
+      ],
+      "hints": [
+        "Three methods, all named area, all return double",
+        "Circle: 1 parameter (radius)",
+        "Rectangle: 2 parameters (width, height)",
+        "Triangle: 3 parameters (base, height, isTriangle) — the boolean is just to differentiate from rectangle",
+        "Better in real code: separate names like circleArea, rectArea, triangleArea — but this teaches overloading"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m2_t3_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "Print method overloads",
+      "scenario": "Replicate System.out.println's overloading pattern.",
+      "instructions": "Write a class `Printer` with FOUR `display` overloads:\n1. `display()` — prints '[empty]'\n2. `display(int n)` — prints 'int: <n>'\n3. `display(double n)` — prints 'double: <n>'\n4. `display(String s)` — prints 'string: <s>'\n\nmain demonstrates all four:\n```\n[empty]\nint: 42\ndouble: 3.14\nstring: hello\n```",
+      "starter_code": "// Write your Printer class below\n",
+      "expected_solution": "public class Printer {\n    public static void main(String[] args) {\n        display();\n        display(42);\n        display(3.14);\n        display(\"hello\");\n    }\n    \n    public static void display() {\n        System.out.println(\"[empty]\");\n    }\n    \n    public static void display(int n) {\n        System.out.println(\"int: \" + n);\n    }\n    \n    public static void display(double n) {\n        System.out.println(\"double: \" + n);\n    }\n    \n    public static void display(String s) {\n        System.out.println(\"string: \" + s);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[empty]\nint: 42\ndouble: 3.14\nstring: hello"
+        }
+      ],
+      "hints": [
+        "Four overloads of display",
+        "Zero-parameter version: just print [empty]",
+        "Different parameter types make them legal overloads",
+        "Java picks based on argument type at the call site"
+      ],
+      "xp_reward": 40
+    },
+    
+    {
+      "id": "java_m2_t3_ex_9",
+      "level": "medium",
+      "type": "debug",
+      "difficulty": 4,
+      "title": "Fix the parameter-name-only overload",
+      "scenario": "Trying to overload by parameter NAME doesn't work.",
+      "instructions": "Fix this code. The intent: two overloads — one with int parameters, one with double. Currently both have int. Fix the second one.\n\nExpected output:\nint sum: 7\ndouble sum: 7.5",
+      "starter_code": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(\"int sum: \" + sum(3, 4));\n        System.out.println(\"double sum: \" + sum(2.5, 5.0));\n    }\n    \n    public static int sum(int a, int b) {\n        return a + b;\n    }\n    \n    // Author thinks renaming x, y makes it different — it doesn't\n    public static double sum(int x, int y) {\n        return x + y;\n    }\n}",
+      "expected_solution": "public class Broken {\n    public static void main(String[] args) {\n        System.out.println(\"int sum: \" + sum(3, 4));\n        System.out.println(\"double sum: \" + sum(2.5, 5.0));\n    }\n    \n    public static int sum(int a, int b) {\n        return a + b;\n    }\n    \n    public static double sum(double x, double y) {\n        return x + y;\n    }\n}",
+      "bugs": [
+        {
+          "line": "11-13",
+          "issue": "Parameter names (x, y vs a, b) don't differentiate methods. Only TYPES matter.",
+          "fix": "Change parameter types to double, double"
+        }
+      ],
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "int sum: 7\ndouble sum: 7.5",
+          "must_compile": true
+        }
+      ],
+      "hints": [
+        "Error message: 'method sum(int, int) is already defined'",
+        "Java doesn't care about parameter NAMES",
+        "It only looks at TYPES and COUNT",
+        "Change parameter types to double, double to make a valid overload"
+      ],
+      "xp_reward": 45,
+      "common_misconceptions_tested": ["differ_by_parameter_name_only"]
+    },
+    
+    {
+      "id": "java_m2_t3_ex_10",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Build a greeting library",
+      "scenario": "Real apps have flexible greeting functions — handle different amounts of info.",
+      "instructions": "Write a class `Greeter` with three `greet` overloads:\n1. `greet()` — prints 'Hello, friend!'\n2. `greet(String name)` — prints 'Hello, <name>!'\n3. `greet(String name, String title)` — prints 'Hello, <title> <name>!'\n\nmain calls all three:\n```\nHello, friend!\nHello, Aisha!\nHello, Dr. Sharma!\n```",
+      "starter_code": "// Write your Greeter class below\n",
+      "expected_solution": "public class Greeter {\n    public static void main(String[] args) {\n        greet();\n        greet(\"Aisha\");\n        greet(\"Sharma\", \"Dr.\");\n    }\n    \n    public static void greet() {\n        System.out.println(\"Hello, friend!\");\n    }\n    \n    public static void greet(String name) {\n        System.out.println(\"Hello, \" + name + \"!\");\n    }\n    \n    public static void greet(String name, String title) {\n        System.out.println(\"Hello, \" + title + \" \" + name + \"!\");\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Hello, friend!\nHello, Aisha!\nHello, Dr. Sharma!"
+        }
+      ],
+      "hints": [
+        "Three overloads of greet",
+        "Different parameter counts: 0, 1, 2",
+        "Note: greet(\"Sharma\", \"Dr.\") passes name FIRST, title SECOND",
+        "Output format: 'Hello, <title> <name>!'"
+      ],
+      "xp_reward": 45
+    },
+    
+    {
+      "id": "java_m2_t3_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Varargs introduction",
+      "scenario": "Use Java's varargs feature to accept any number of arguments.",
+      "instructions": "Write a class `Sum` with ONE method using VARARGS:\n- `sumAll(int... numbers)` — returns sum of all numbers passed\n\nmain calls it with different numbers of arguments:\n```\nsumAll(): 0\nsumAll(5): 5\nsumAll(1, 2, 3): 6\nsumAll(10, 20, 30, 40, 50): 150\n```",
+      "starter_code": "// Write your Sum class below\n// Use varargs: int... numbers\n",
+      "expected_solution": "public class Sum {\n    public static void main(String[] args) {\n        System.out.println(\"sumAll(): \" + sumAll());\n        System.out.println(\"sumAll(5): \" + sumAll(5));\n        System.out.println(\"sumAll(1, 2, 3): \" + sumAll(1, 2, 3));\n        System.out.println(\"sumAll(10, 20, 30, 40, 50): \" + sumAll(10, 20, 30, 40, 50));\n    }\n    \n    public static int sumAll(int... numbers) {\n        int total = 0;\n        for (int n : numbers) {\n            total += n;\n        }\n        return total;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "sumAll(): 0\nsumAll(5): 5\nsumAll(1, 2, 3): 6\nsumAll(10, 20, 30, 40, 50): 150"
+        }
+      ],
+      "hints": [
+        "Varargs syntax: int... numbers (three dots)",
+        "Inside the method, `numbers` behaves like an array",
+        "Use enhanced for loop: for (int n : numbers)",
+        "Accumulator: total starts at 0, add each n",
+        "Can call with 0, 1, or many arguments — Java handles it"
+      ],
+      "xp_reward": 55,
+      "concept_tested": "varargs_basic"
+    },
+    
+    {
+      "id": "java_m2_t3_ex_12",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Overload + promotion trace",
+      "scenario": "Predict tricky overload resolution with type promotion.",
+      "instructions": "What does this print?\n\n```java\npublic class Trace {\n    public static void main(String[] args) {\n        process(10);\n        process(10L);\n        process(10.0f);\n        process(10.0);\n    }\n    \n    public static void process(int n) {\n        System.out.println(\"int version\");\n    }\n    \n    public static void process(double n) {\n        System.out.println(\"double version\");\n    }\n}\n```",
+      "expected_solution": "int version\ndouble version\ndouble version\ndouble version",
+      "test_cases": [
+        {
+          "type": "text_match",
+          "expected": "int version\ndouble version\ndouble version\ndouble version"
+        }
+      ],
+      "hints": [
+        "process(10): 10 is int → exact match for process(int)",
+        "process(10L): 10L is long. No process(long). Java promotes to double. Calls process(double).",
+        "process(10.0f): 10.0f is float. No process(float). Java promotes to double. Calls process(double).",
+        "process(10.0): 10.0 is double → exact match for process(double)",
+        "Result: int, double, double, double"
+      ],
+      "xp_reward": 50,
+      "concept_tested": "complex_promotion"
+    },
+    
+    {
+      "id": "java_m2_t3_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Build overloaded logger",
+      "scenario": "Build a Logger class like real logging libraries.",
+      "instructions": "Write a class `Logger` with FOUR overloaded `log` methods:\n\n1. `log(String message)` — prints '[INFO] <message>'\n2. `log(String level, String message)` — prints '[<level>] <message>'\n3. `log(String message, int errorCode)` — prints '[ERROR <code>] <message>'\n4. `log(String level, String message, int errorCode)` — prints '[<level> <code>] <message>'\n\nmain demonstrates all four:\n```\n[INFO] Server started\n[WARN] Low memory\n[ERROR 404] Page not found\n[FATAL 500] Database crash\n```",
+      "starter_code": "// Write your Logger class below\n",
+      "expected_solution": "public class Logger {\n    public static void main(String[] args) {\n        log(\"Server started\");\n        log(\"WARN\", \"Low memory\");\n        log(\"Page not found\", 404);\n        log(\"FATAL\", \"Database crash\", 500);\n    }\n    \n    public static void log(String message) {\n        System.out.println(\"[INFO] \" + message);\n    }\n    \n    public static void log(String level, String message) {\n        System.out.println(\"[\" + level + \"] \" + message);\n    }\n    \n    public static void log(String message, int errorCode) {\n        System.out.println(\"[ERROR \" + errorCode + \"] \" + message);\n    }\n    \n    public static void log(String level, String message, int errorCode) {\n        System.out.println(\"[\" + level + \" \" + errorCode + \"] \" + message);\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "[INFO] Server started\n[WARN] Low memory\n[ERROR 404] Page not found\n[FATAL 500] Database crash"
+        }
+      ],
+      "hints": [
+        "Four overloads of log",
+        "Different parameter combinations: (String), (String, String), (String, int), (String, String, int)",
+        "Notice: overloads 2 and 3 both have 2 params but different TYPES — that makes them distinct",
+        "This is exactly how real loggers (Log4j, SLF4J) work"
+      ],
+      "xp_reward": 65
+    },
+    
+    {
+      "id": "java_m2_t3_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Format method overloads",
+      "scenario": "Build a formatting utility with multiple overloads for currency display.",
+      "instructions": "Write a class `Currency` with THREE `format` overloads:\n\n1. `format(double amount)` — returns String like '₹<amount>'\n2. `format(double amount, String symbol)` — returns String like '<symbol><amount>'\n3. `format(double amount, String symbol, boolean showDecimal)` — if showDecimal=false, returns just integer part; if true, full amount\n\nmain demonstrates all three:\n```\n₹1500.0\n$1500.0\n€1500\n```",
+      "starter_code": "// Write your Currency class below\n",
+      "expected_solution": "public class Currency {\n    public static void main(String[] args) {\n        System.out.println(format(1500.0));\n        System.out.println(format(1500.0, \"$\"));\n        System.out.println(format(1500.0, \"€\", false));\n    }\n    \n    public static String format(double amount) {\n        return \"₹\" + amount;\n    }\n    \n    public static String format(double amount, String symbol) {\n        return symbol + amount;\n    }\n    \n    public static String format(double amount, String symbol, boolean showDecimal) {\n        if (showDecimal) {\n            return symbol + amount;\n        }\n        return symbol + (int) amount;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "₹1500.0\n$1500.0\n€1500"
+        }
+      ],
+      "hints": [
+        "All three methods return String",
+        "First overload: default currency is ₹",
+        "Second overload: caller chooses symbol",
+        "Third overload: also chooses whether to show decimals",
+        "For no decimals: cast to (int) to drop the fractional part",
+        "1500.0 cast to int → 1500"
+      ],
+      "xp_reward": 70
+    },
+    
+    {
+      "id": "java_m2_t3_ex_15",
+      "level": "hard",
+      "type": "algorithm",
+      "difficulty": 6,
+      "title": "Build complete shape area calculator with overloads",
+      "scenario": "Build a comprehensive shape area calculator using both overloading and varargs.",
+      "instructions": "Write a class `ShapeCalculator` with these methods:\n\n1. `area(double side)` — square area (side * side)\n2. `area(double width, double height)` — rectangle area\n3. `area(double base, double height, boolean isTriangle)` — triangle area (0.5 * base * height)\n4. `totalArea(double... areas)` — varargs method that sums all given areas\n\nIn main():\n- Calculate area of: square (side 5), rectangle (4x6), triangle (base 3, height 8)\n- Use totalArea() to sum all three\n\nExpected output:\nSquare area: 25.0\nRectangle area: 24.0\nTriangle area: 12.0\nTotal area: 61.0",
+      "starter_code": "// Write your ShapeCalculator class below\n",
+      "expected_solution": "public class ShapeCalculator {\n    public static void main(String[] args) {\n        double square = area(5.0);\n        double rect = area(4.0, 6.0);\n        double tri = area(3.0, 8.0, true);\n        \n        System.out.println(\"Square area: \" + square);\n        System.out.println(\"Rectangle area: \" + rect);\n        System.out.println(\"Triangle area: \" + tri);\n        \n        double total = totalArea(square, rect, tri);\n        System.out.println(\"Total area: \" + total);\n    }\n    \n    public static double area(double side) {\n        return side * side;\n    }\n    \n    public static double area(double width, double height) {\n        return width * height;\n    }\n    \n    public static double area(double base, double height, boolean isTriangle) {\n        return 0.5 * base * height;\n    }\n    \n    public static double totalArea(double... areas) {\n        double total = 0;\n        for (double a : areas) {\n            total += a;\n        }\n        return total;\n    }\n}",
+      "test_cases": [
+        {
+          "type": "execution",
+          "expected_stdout": "Square area: 25.0\nRectangle area: 24.0\nTriangle area: 12.0\nTotal area: 61.0"
+        }
+      ],
+      "hints": [
+        "Three overloads of area: 1, 2, and 3 parameters",
+        "Square: side * side",
+        "Rectangle: width * height",
+        "Triangle: 0.5 * base * height (boolean parameter just differentiates from rectangle)",
+        "totalArea uses varargs: double... areas",
+        "Inside totalArea: enhanced for loop, accumulator pattern"
+      ],
+      "xp_reward": 95
+    }
+  ],
+  
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 8,
+      "debug": 2,
+      "predict_output": 3,
+      "algorithm": 1
+    },
+    "total_xp_possible": 635,
+    "estimated_completion_minutes": 45
+  },
+  
+  "gap_detection_map": {
+    "differ_by_return_type_only": ["ex_4"],
+    "differ_by_parameter_name_only": ["ex_9"],
+    "type_promotion_in_overloading": ["ex_6", "ex_12"],
+    "complex_promotion": ["ex_12"],
+    "varargs_basic": ["ex_11", "ex_15"]
+  }
+}

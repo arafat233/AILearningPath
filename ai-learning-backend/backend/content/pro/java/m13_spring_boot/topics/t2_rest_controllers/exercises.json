@@ -1,0 +1,340 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m13_t2",
+  "topic_name": "REST Controllers",
+  "total_exercises": 15,
+
+  "exercises": [
+    {
+      "id": "java_m13_t2_ex_1",
+      "level": "warmup",
+      "type": "predict_output",
+      "difficulty": 1,
+      "title": "What does @RestController do?",
+      "scenario": "@RestController = @Controller + @ResponseBody",
+      "instructions": "What HTTP status code and body does each method return?\n\n```java\n@RestController\npublic class HelloController {\n    @GetMapping(\"/hello\")\n    public String hello() { return \"Hello, World!\"; }\n    \n    @PostMapping(\"/echo\")\n    public String echo(@RequestBody String body) { return body.toUpperCase(); }\n    \n    @GetMapping(\"/nothing\")\n    public ResponseEntity<Void> nothing() {\n        return ResponseEntity.noContent().build();\n    }\n}\n```\n\nGET /hello → ?\nPOST /echo with body 'hyderabad' → ?\nGET /nothing → ?",
+      "expected_solution": "GET /hello → 200 OK, body: Hello, World!\nPOST /echo → 200 OK, body: HYDERABAD\nGET /nothing → 204 No Content, no body",
+      "test_cases": [
+        { "type": "text_match", "expected": "GET /hello → 200 OK, body: Hello, World!\nPOST /echo → 200 OK, body: HYDERABAD\nGET /nothing → 204 No Content, no body" }
+      ],
+      "hints": [
+        "Methods returning a value: 200 OK implicit",
+        "ResponseEntity.noContent().build() → 204",
+        "@RequestBody String: reads the raw body string"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t2_ex_2",
+      "level": "warmup",
+      "type": "fill_blank",
+      "difficulty": 1,
+      "title": "Map HTTP methods to annotations",
+      "scenario": "Each HTTP method has its own mapping annotation.",
+      "instructions": "Fill in the correct mapping annotation for each method.",
+      "starter_code": "@RestController\n@RequestMapping(\"/api/items\")\nclass ItemController {\n    @_________  public List<Item> getAll() { return List.of(); }\n    @_________(\"/{id}\") public Item getOne(@PathVariable String id) { return null; }\n    @_________  public ResponseEntity<Item> create(@RequestBody Item i) { return ResponseEntity.status(201).body(i); }\n    @_________  (\"/{id}\") public ResponseEntity<Item> update(@PathVariable String id, @RequestBody Item i) { return ResponseEntity.ok(i); }\n    @_________(\"/{id}\") public ResponseEntity<Void> delete(@PathVariable String id) { return ResponseEntity.noContent().build(); }\n}",
+      "expected_solution": "@RestController\n@RequestMapping(\"/api/items\")\nclass ItemController {\n    @GetMapping     public List<Item> getAll() { return List.of(); }\n    @GetMapping(\"/{id}\") public Item getOne(@PathVariable String id) { return null; }\n    @PostMapping    public ResponseEntity<Item> create(@RequestBody Item i) { return ResponseEntity.status(201).body(i); }\n    @PutMapping(\"/{id}\") public ResponseEntity<Item> update(@PathVariable String id, @RequestBody Item i) { return ResponseEntity.ok(i); }\n    @DeleteMapping(\"/{id}\") public ResponseEntity<Void> delete(@PathVariable String id) { return ResponseEntity.noContent().build(); }\n}",
+      "blanks": [
+        { "position": 1, "answer": "GetMapping",    "hint": "Read all items" },
+        { "position": 2, "answer": "GetMapping",    "hint": "Read one item by ID" },
+        { "position": 3, "answer": "PostMapping",   "hint": "Create new item" },
+        { "position": 4, "answer": "PutMapping",    "hint": "Update existing item" },
+        { "position": 5, "answer": "DeleteMapping", "hint": "Remove item" }
+      ],
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "GET = read, POST = create, PUT = update, DELETE = remove",
+        "CRUD maps to GET/POST/PUT/DELETE"
+      ],
+      "xp_reward": 10
+    },
+
+    {
+      "id": "java_m13_t2_ex_3",
+      "level": "warmup",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "GET endpoint with @PathVariable",
+      "scenario": "Extract a URL segment into a method parameter.",
+      "instructions": "Write a @RestController with two endpoints:\n1. GET /api/users/{id} → returns 'User: {id}'\n2. GET /api/orders/{orderId}/items/{itemId} → returns '{orderId} item {itemId}'\n\nBoth return String.",
+      "starter_code": "// @RestController with two path variable endpoints\n",
+      "expected_solution": "import org.springframework.web.bind.annotation.*;\n\n@RestController\n@RequestMapping(\"/api\")\npublic class UserController {\n    @GetMapping(\"/users/{id}\")\n    public String getUser(@PathVariable String id) {\n        return \"User: \" + id;\n    }\n    \n    @GetMapping(\"/orders/{orderId}/items/{itemId}\")\n    public String getOrderItem(@PathVariable String orderId,\n                                @PathVariable int itemId) {\n        return orderId + \" item \" + itemId;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@PathVariable extracts {name} from the URL template",
+        "Multiple @PathVariables: name them the same as the URL placeholder"
+      ],
+      "xp_reward": 20
+    },
+
+    {
+      "id": "java_m13_t2_ex_4",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 2,
+      "title": "Optional to ResponseEntity — the standard 404 pattern",
+      "scenario": "Service returns Optional; controller converts to ResponseEntity.",
+      "instructions": "Write a `ProductController.getById()` method that:\n- Calls `service.findById(id)` returning Optional<Product>\n- Returns 200 + product if found\n- Returns 404 if not found\n\nUse the idiomatic Optional → ResponseEntity pattern.",
+      "starter_code": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord Product(String id, String name) {}\ninterface ProductService { Optional<Product> findById(String id); }\n\n// Write ProductController.getById:\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord Product(String id, String name) {}\ninterface ProductService { Optional<Product> findById(String id); }\n\n@RestController\n@RequestMapping(\"/api/products\")\npublic class ProductController {\n    private final ProductService service;\n    ProductController(ProductService service) { this.service = service; }\n    \n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Product> getById(@PathVariable String id) {\n        return service.findById(id)\n            .map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Optional.map(ResponseEntity::ok) wraps found value in 200 response",
+        ".orElse(ResponseEntity.notFound().build()) returns 404 if empty"
+      ],
+      "xp_reward": 30
+    },
+
+    {
+      "id": "java_m13_t2_ex_5",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "POST returning 201 Created",
+      "scenario": "POST creates a resource — always return 201, not 200.",
+      "instructions": "Write a `@PostMapping` endpoint that:\n- Accepts @RequestBody OrderRequest\n- Calls service.create(req) returning Order with generated id\n- Returns 201 Created with the created Order in body\n\nInclude the required ResponseEntity construction.",
+      "starter_code": "import org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord OrderRequest(String product, int qty) {}\nrecord Order(String id, String product, int qty) {}\ninterface OrderService { Order create(OrderRequest req); }\n\n@RestController\n@RequestMapping(\"/api/orders\")\npublic class OrderController {\n    private final OrderService service;\n    OrderController(OrderService s) { service = s; }\n    \n    // Write the @PostMapping method:\n}",
+      "expected_solution": "import org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord OrderRequest(String product, int qty) {}\nrecord Order(String id, String product, int qty) {}\ninterface OrderService { Order create(OrderRequest req); }\n\n@RestController\n@RequestMapping(\"/api/orders\")\npublic class OrderController {\n    private final OrderService service;\n    OrderController(OrderService s) { service = s; }\n    \n    @PostMapping\n    public ResponseEntity<Order> create(@RequestBody OrderRequest req) {\n        Order created = service.create(req);\n        return ResponseEntity.status(HttpStatus.CREATED).body(created);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ResponseEntity.status(HttpStatus.CREATED).body(saved) — 201 + body",
+        "@RequestBody deserializes the JSON body to OrderRequest"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m13_t2_ex_6",
+      "level": "easy",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "@RequestParam with defaults and optional",
+      "scenario": "Query parameters can be required, optional, or have defaults.",
+      "instructions": "Write a GET endpoint for `/api/products` that accepts:\n- `category` (required String)\n- `limit` (optional int, default 20)\n- `sort` (optional String, no default)\n\nReturn a formatted String showing all three values.",
+      "starter_code": "// GET /api/products?category=Electronics&limit=5&sort=price\n// GET /api/products?category=Electronics  (uses defaults)\n",
+      "expected_solution": "import org.springframework.web.bind.annotation.*;\n\n@RestController\n@RequestMapping(\"/api/products\")\npublic class ProductController {\n    @GetMapping\n    public String getProducts(\n            @RequestParam String category,\n            @RequestParam(defaultValue = \"20\") int limit,\n            @RequestParam(required = false) String sort) {\n        return \"category=%s limit=%d sort=%s\".formatted(category, limit, sort);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "required = false: param is optional, null if absent",
+        "defaultValue = '20': used if param absent (must be String, parsed to int)"
+      ],
+      "xp_reward": 35
+    },
+
+    {
+      "id": "java_m13_t2_ex_7",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 3,
+      "title": "DELETE returning 204 or 404",
+      "scenario": "DELETE: 204 if deleted, 404 if not found.",
+      "instructions": "Write a DELETE endpoint for `/api/products/{id}` that:\n- Calls service.delete(id) returning boolean (true=deleted, false=not found)\n- Returns 204 No Content if deleted\n- Returns 404 Not Found if not found\n\nUse ternary or conditional for the ResponseEntity.",
+      "starter_code": "import org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\ninterface ProductService { boolean delete(String id); }\n\n@RestController\n@RequestMapping(\"/api/products\")\npublic class ProductController {\n    private final ProductService service;\n    ProductController(ProductService s) { service = s; }\n    \n    // Write the DELETE method:\n}",
+      "expected_solution": "import org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\ninterface ProductService { boolean delete(String id); }\n\n@RestController\n@RequestMapping(\"/api/products\")\npublic class ProductController {\n    private final ProductService service;\n    ProductController(ProductService s) { service = s; }\n    \n    @DeleteMapping(\"/{id}\")\n    public ResponseEntity<Void> delete(@PathVariable String id) {\n        return service.delete(id)\n            ? ResponseEntity.noContent().build()  // 204\n            : ResponseEntity.notFound().build();  // 404\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "ResponseEntity<Void>: no body — void type parameter",
+        "ResponseEntity.noContent().build() → 204",
+        "Ternary: deleted ? 204 : 404"
+      ],
+      "xp_reward": 45
+    },
+
+    {
+      "id": "java_m13_t2_ex_8",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Complete CRUD controller",
+      "scenario": "All five operations in one controller.",
+      "instructions": "Write a complete `StockController` with all 5 CRUD operations:\n- GET /api/stocks → all\n- GET /api/stocks/{symbol} → one or 404\n- POST /api/stocks → 201\n- PUT /api/stocks/{symbol} → 200 or 404\n- DELETE /api/stocks/{symbol} → 204 or 404\n\nUse a StockRequest record for POST/PUT bodies.",
+      "starter_code": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\n\nrecord Stock(String symbol, String name, double price) {}\nrecord StockRequest(String name, double price) {}\n// interface StockService with: findAll, findBySymbol, save, update, delete\n\n// Write complete StockController\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord Stock(String symbol, String name, double price) {}\nrecord StockRequest(String name, double price) {}\ninterface StockService {\n    List<Stock> findAll();\n    Optional<Stock> findBySymbol(String sym);\n    Stock save(String sym, StockRequest req);\n    Optional<Stock> update(String sym, StockRequest req);\n    boolean delete(String sym);\n}\n@RestController\n@RequestMapping(\"/api/stocks\")\npublic class StockController {\n    private final StockService service;\n    StockController(StockService s) { service = s; }\n    \n    @GetMapping\n    public List<Stock> getAll() { return service.findAll(); }\n    \n    @GetMapping(\"/{symbol}\")\n    public ResponseEntity<Stock> getOne(@PathVariable String symbol) {\n        return service.findBySymbol(symbol)\n            .map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    \n    @PostMapping(\"/{symbol}\")\n    public ResponseEntity<Stock> create(@PathVariable String symbol,\n                                         @RequestBody StockRequest req) {\n        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(symbol, req));\n    }\n    \n    @PutMapping(\"/{symbol}\")\n    public ResponseEntity<Stock> update(@PathVariable String symbol,\n                                         @RequestBody StockRequest req) {\n        return service.update(symbol, req)\n            .map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    \n    @DeleteMapping(\"/{symbol}\")\n    public ResponseEntity<Void> delete(@PathVariable String symbol) {\n        return service.delete(symbol)\n            ? ResponseEntity.noContent().build()\n            : ResponseEntity.notFound().build();\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Five methods, five annotations, five status code patterns",
+        "POST uses path variable for symbol + body for name+price",
+        "GET+PUT use Optional pattern; DELETE uses boolean"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m13_t2_ex_9",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 4,
+      "title": "Separate request and response records",
+      "scenario": "DTO pattern: client sends request record, receives response record.",
+      "instructions": "Write a `UserController.register()` POST endpoint that:\n- Accepts `UserRegistrationRequest(String email, String password)`\n- Returns `UserRegistrationResponse(String userId, String email, String createdAt)` with 201\n- userId is generated (UUID or counter), createdAt is 'now'\n\nDemonstrate the DTO pattern clearly.",
+      "starter_code": "import java.time.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\n// Write request record, response record, and controller\n",
+      "expected_solution": "import java.time.*;\nimport java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\n\nrecord UserRegistrationRequest(String email, String password) {}\nrecord UserRegistrationResponse(String userId, String email, String createdAt) {}\n\n@RestController\n@RequestMapping(\"/api/users\")\npublic class UserController {\n    private int seq = 1;\n    \n    @PostMapping\n    public ResponseEntity<UserRegistrationResponse> register(\n            @RequestBody UserRegistrationRequest req) {\n        String userId = \"U\" + String.format(\"%04d\", seq++);\n        UserRegistrationResponse response = new UserRegistrationResponse(\n            userId, req.email(), LocalDateTime.now().toString());\n        return ResponseEntity.status(HttpStatus.CREATED).body(response);\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "Request: email + password (client provides)",
+        "Response: userId + email + createdAt (server-set fields included)",
+        "Client never sets userId or createdAt — server generates them"
+      ],
+      "xp_reward": 55
+    },
+
+    {
+      "id": "java_m13_t2_ex_10",
+      "level": "medium",
+      "type": "predict_output",
+      "difficulty": 4,
+      "title": "Status codes for REST operations",
+      "scenario": "Each REST operation has a canonical status code.",
+      "instructions": "What HTTP status code should each operation return on SUCCESS?\n\n```\nGET /api/products         → found 5 products\nGET /api/products/P001   → product found\nGET /api/products/P999   → product not found\nPOST /api/products        → product created\nPUT /api/products/P001   → product updated\nDELETE /api/products/P001 → product deleted\nPOST /api/products/P001/duplicate → P001 already exists\n```",
+      "expected_solution": "GET all → 200\nGET found → 200\nGET not found → 404\nPOST create → 201\nPUT update → 200\nDELETE → 204\nPOST duplicate → 409",
+      "test_cases": [
+        { "type": "text_match", "expected": "GET all → 200\nGET found → 200\nGET not found → 404\nPOST create → 201\nPUT update → 200\nDELETE → 204\nPOST duplicate → 409" }
+      ],
+      "hints": [
+        "201 = Created (only for POST that creates)",
+        "204 = No Content (DELETE success — nothing to return)",
+        "409 = Conflict (duplicate resource)"
+      ],
+      "xp_reward": 40
+    },
+
+    {
+      "id": "java_m13_t2_ex_11",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Search endpoint with multiple query params",
+      "scenario": "Product search API with category, price range, and pagination.",
+      "instructions": "Write `ProductController.search()` handling:\n`GET /api/products/search?category=Electronics&minPrice=500&maxPrice=5000&page=0&size=10`\n\nAll params optional with defaults. Return List<String> of matching descriptions.",
+      "starter_code": "import java.util.*;\nimport org.springframework.web.bind.annotation.*;\n// Product search endpoint with 5 optional query params\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.web.bind.annotation.*;\n\n@RestController\n@RequestMapping(\"/api/products\")\npublic class ProductController {\n    @GetMapping(\"/search\")\n    public List<String> search(\n            @RequestParam(required = false) String category,\n            @RequestParam(defaultValue = \"0\")     double minPrice,\n            @RequestParam(defaultValue = \"999999\") double maxPrice,\n            @RequestParam(defaultValue = \"0\")     int    page,\n            @RequestParam(defaultValue = \"20\")    int    size) {\n        \n        // In real code: call service with these params\n        // Demonstrate all params received:\n        List<String> result = new ArrayList<>();\n        result.add(\"category=\" + category);\n        result.add(\"price=\" + minPrice + \"-\" + maxPrice);\n        result.add(\"page=\" + page + \" size=\" + size);\n        return result;\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "required = false for fully optional params",
+        "defaultValue must be a String even for numeric params",
+        "All params can be absent — method must work with all defaults"
+      ],
+      "xp_reward": 60
+    },
+
+    {
+      "id": "java_m13_t2_ex_12",
+      "level": "medium",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "@WebMvcTest — test the controller layer",
+      "scenario": "Test HTTP behavior without starting a full server.",
+      "instructions": "Write a @WebMvcTest for `OrderController.getById()` that:\n1. Tests 200 OK when order found (mock service)\n2. Tests 404 when order not found\n3. Verifies JSON response body contains orderId\n\nUse MockMvc with @MockBean for OrderService.",
+      "starter_code": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord Order(String id, String product, int qty) {}\ninterface OrderService { Optional<Order> findById(String id); }\n\n@RestController @RequestMapping(\"/api/orders\")\nclass OrderController {\n    private final OrderService service;\n    OrderController(OrderService s) { service = s; }\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Order> getById(@PathVariable String id) {\n        return service.findById(id).map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n}\n\n// Write the @WebMvcTest:\n",
+      "expected_solution": "// (production code as above)\nimport org.junit.jupiter.api.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport static org.mockito.Mockito.*;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n@WebMvcTest(OrderController.class)\nclass OrderControllerTest {\n    @Autowired MockMvc mvc;\n    @MockBean OrderService orderService;\n    \n    @Test\n    void getById_found_returns200() throws Exception {\n        when(orderService.findById(\"ORD-001\"))\n            .thenReturn(Optional.of(new Order(\"ORD-001\", \"Mouse\", 2)));\n        mvc.perform(get(\"/api/orders/ORD-001\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.id\").value(\"ORD-001\"))\n            .andExpect(jsonPath(\"$.product\").value(\"Mouse\"));\n    }\n    \n    @Test\n    void getById_notFound_returns404() throws Exception {\n        when(orderService.findById(\"ORD-999\")).thenReturn(Optional.empty());\n        mvc.perform(get(\"/api/orders/ORD-999\"))\n            .andExpect(status().isNotFound());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "@WebMvcTest: loads only the web layer, not full context",
+        "@MockBean: Mockito mock registered in Spring context",
+        "jsonPath('$.id'): asserts on JSON field",
+        "status().isOk() = 200; status().isNotFound() = 404"
+      ],
+      "xp_reward": 65
+    },
+
+    {
+      "id": "java_m13_t2_ex_13",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Full CRUD controller with @WebMvcTest",
+      "scenario": "Build and test a full CRUD controller.",
+      "instructions": "Build a `BookController` with full CRUD for books (title, author, isbn), AND write @WebMvcTest for:\n1. GET all → 200 + JSON array\n2. POST create → 201 + book with id\n3. GET not found → 404\n4. DELETE existing → 204\n\nIncludes request/response records, MockMvc tests.",
+      "starter_code": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\n// BookController + BookRequest + Book + BookService interface\n// Then @WebMvcTest tests\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord Book(String id, String title, String author, String isbn) {}\nrecord BookRequest(String title, String author, String isbn) {}\ninterface BookService {\n    List<Book> findAll();\n    Optional<Book> findById(String id);\n    Book save(BookRequest req);\n    boolean delete(String id);\n}\n\n@RestController\n@RequestMapping(\"/api/books\")\nclass BookController {\n    private final BookService service;\n    BookController(BookService s) { service = s; }\n    @GetMapping\n    public List<Book> getAll() { return service.findAll(); }\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Book> getById(@PathVariable String id) {\n        return service.findById(id).map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    @PostMapping\n    public ResponseEntity<Book> create(@RequestBody BookRequest req) {\n        return ResponseEntity.status(HttpStatus.CREATED).body(service.save(req));\n    }\n    @DeleteMapping(\"/{id}\")\n    public ResponseEntity<Void> delete(@PathVariable String id) {\n        return service.delete(id) ? ResponseEntity.noContent().build()\n                                  : ResponseEntity.notFound().build();\n    }\n}\n\n// Tests:\nimport org.junit.jupiter.api.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.http.MediaType;\nimport org.springframework.test.web.servlet.MockMvc;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n@WebMvcTest(BookController.class)\nclass BookControllerTest {\n    @Autowired MockMvc mvc;\n    @MockBean BookService service;\n    \n    @Test void getAll_returns200() throws Exception {\n        when(service.findAll()).thenReturn(List.of(new Book(\"B1\",\"Clean Code\",\"Martin\",\"978-0\")));\n        mvc.perform(get(\"/api/books\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$[0].title\").value(\"Clean Code\"));\n    }\n    @Test void create_returns201() throws Exception {\n        when(service.save(any())).thenReturn(new Book(\"B1\",\"Clean Code\",\"Martin\",\"978-0\"));\n        mvc.perform(post(\"/api/books\")\n                .contentType(MediaType.APPLICATION_JSON)\n                .content(\"{\\\"title\\\":\\\"Clean Code\\\",\\\"author\\\":\\\"Martin\\\",\\\"isbn\\\":\\\"978-0\\\"}\"))\n            .andExpect(status().isCreated())\n            .andExpect(jsonPath(\"$.id\").value(\"B1\"));\n    }\n    @Test void getById_notFound_404() throws Exception {\n        when(service.findById(\"B999\")).thenReturn(Optional.empty());\n        mvc.perform(get(\"/api/books/B999\")).andExpect(status().isNotFound());\n    }\n    @Test void delete_existing_204() throws Exception {\n        when(service.delete(\"B1\")).thenReturn(true);\n        mvc.perform(delete(\"/api/books/B1\")).andExpect(status().isNoContent());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "MediaType.APPLICATION_JSON for POST content type",
+        "jsonPath('$[0].title') for first array element",
+        "@MockBean registers mock in Spring context for @WebMvcTest"
+      ],
+      "xp_reward": 70
+    },
+
+    {
+      "id": "java_m13_t2_ex_14",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 5,
+      "title": "Flipkart-style product search API",
+      "scenario": "Real-world search endpoint with filtering and pagination.",
+      "instructions": "Write `ProductSearchController.search()` with:\n- GET /api/v1/products/search\n- Params: q (query, required), category (optional), minPrice/maxPrice (optional, defaults 0/999999), sort (optional, 'price' or 'name'), page (default 0), size (default 24)\n- Returns SearchResponse(List<ProductSummary> items, int total, int page, int size)\n\nAlso write @WebMvcTest for: search with q='mouse' → 200 with items, search without q → 400.",
+      "starter_code": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\n// Write search endpoint + test\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord ProductSummary(String id, String name, double price) {}\nrecord SearchResponse(List<ProductSummary> items, int total, int page, int size) {}\ninterface ProductSearchService {\n    SearchResponse search(String q, String category, double minP, double maxP,\n                          String sort, int page, int size);\n}\n\n@RestController\n@RequestMapping(\"/api/v1/products\")\npublic class ProductSearchController {\n    private final ProductSearchService service;\n    ProductSearchController(ProductSearchService s) { service = s; }\n    \n    @GetMapping(\"/search\")\n    public ResponseEntity<SearchResponse> search(\n            @RequestParam String q,\n            @RequestParam(required = false) String category,\n            @RequestParam(defaultValue = \"0\")      double minPrice,\n            @RequestParam(defaultValue = \"999999\") double maxPrice,\n            @RequestParam(required = false) String sort,\n            @RequestParam(defaultValue = \"0\")  int page,\n            @RequestParam(defaultValue = \"24\") int size) {\n        if (q.isBlank())\n            return ResponseEntity.badRequest().build();\n        SearchResponse result = service.search(q, category, minPrice, maxPrice, sort, page, size);\n        return ResponseEntity.ok(result);\n    }\n}\n\n// Tests:\nimport org.junit.jupiter.api.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.test.web.servlet.MockMvc;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n@WebMvcTest(ProductSearchController.class)\nclass ProductSearchControllerTest {\n    @Autowired MockMvc mvc;\n    @MockBean ProductSearchService service;\n    \n    @Test void search_withQuery_returns200() throws Exception {\n        SearchResponse resp = new SearchResponse(\n            List.of(new ProductSummary(\"P001\",\"Wireless Mouse\",799)), 1, 0, 24);\n        when(service.search(eq(\"mouse\"), any(), anyDouble(), anyDouble(), any(), anyInt(), anyInt()))\n            .thenReturn(resp);\n        mvc.perform(get(\"/api/v1/products/search?q=mouse\"))\n            .andExpect(status().isOk())\n            .andExpect(jsonPath(\"$.total\").value(1))\n            .andExpect(jsonPath(\"$.items[0].name\").value(\"Wireless Mouse\"));\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "q is required (no defaultValue, no required=false)",
+        "SearchResponse wraps items + pagination metadata",
+        "400 Bad Request for blank q: ResponseEntity.badRequest().build()"
+      ],
+      "xp_reward": 75
+    },
+
+    {
+      "id": "java_m13_t2_ex_15",
+      "level": "hard",
+      "type": "code_scratch",
+      "difficulty": 6,
+      "title": "Complete REST API with full test suite",
+      "scenario": "Production-quality controller + comprehensive MockMvc tests.",
+      "instructions": "Build a Razorpay-style `PaymentController` with:\n- POST /api/payments → create payment (201)\n- GET /api/payments/{id} → get by id (200 or 404)\n- GET /api/payments?userId={id}&status={s} → filter (200)\n- PUT /api/payments/{id}/capture → capture payment (200 or 404)\n\nWrite 6 @WebMvcTest tests:\n1. Create → 201 + id in body\n2. Get found → 200 + correct status field\n3. Get not found → 404\n4. Filter by userId → 200 + correct count\n5. Capture payment → 200\n6. Capture non-existent → 404",
+      "starter_code": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\n// Complete payment controller + 6 WebMvcTest tests\n",
+      "expected_solution": "import java.util.*;\nimport org.springframework.http.*;\nimport org.springframework.web.bind.annotation.*;\nrecord PaymentRequest(String userId, double amount, String currency) {}\nrecord Payment(String id, String userId, double amount, String currency, String status) {}\ninterface PaymentService {\n    Payment create(PaymentRequest req);\n    Optional<Payment> findById(String id);\n    List<Payment> filter(String userId, String status);\n    Optional<Payment> capture(String id);\n}\n\n@RestController\n@RequestMapping(\"/api/payments\")\nclass PaymentController {\n    private final PaymentService service;\n    PaymentController(PaymentService s) { service = s; }\n    \n    @PostMapping\n    public ResponseEntity<Payment> create(@RequestBody PaymentRequest req) {\n        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));\n    }\n    @GetMapping(\"/{id}\")\n    public ResponseEntity<Payment> getById(@PathVariable String id) {\n        return service.findById(id).map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n    @GetMapping\n    public List<Payment> filter(\n            @RequestParam(required = false) String userId,\n            @RequestParam(required = false) String status) {\n        return service.filter(userId, status);\n    }\n    @PutMapping(\"/{id}/capture\")\n    public ResponseEntity<Payment> capture(@PathVariable String id) {\n        return service.capture(id).map(ResponseEntity::ok)\n            .orElse(ResponseEntity.notFound().build());\n    }\n}\n\n// Tests:\nimport org.junit.jupiter.api.*;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\nimport org.springframework.boot.test.mock.mockito.MockBean;\nimport org.springframework.http.MediaType;\nimport org.springframework.test.web.servlet.MockMvc;\nimport static org.mockito.Mockito.*;\nimport static org.mockito.ArgumentMatchers.*;\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\n\n@WebMvcTest(PaymentController.class)\nclass PaymentControllerTest {\n    @Autowired MockMvc mvc;\n    @MockBean PaymentService service;\n    Payment p = new Payment(\"PAY-001\",\"U01\",1500,\"INR\",\"CREATED\");\n    \n    @Test void create_returns201() throws Exception {\n        when(service.create(any())).thenReturn(p);\n        mvc.perform(post(\"/api/payments\").contentType(MediaType.APPLICATION_JSON)\n                .content(\"{\\\"userId\\\":\\\"U01\\\",\\\"amount\\\":1500,\\\"currency\\\":\\\"INR\\\"}\"))\n            .andExpect(status().isCreated()).andExpect(jsonPath(\"$.id\").value(\"PAY-001\"));\n    }\n    @Test void getById_found() throws Exception {\n        when(service.findById(\"PAY-001\")).thenReturn(Optional.of(p));\n        mvc.perform(get(\"/api/payments/PAY-001\"))\n            .andExpect(status().isOk()).andExpect(jsonPath(\"$.status\").value(\"CREATED\"));\n    }\n    @Test void getById_notFound() throws Exception {\n        when(service.findById(\"PAY-999\")).thenReturn(Optional.empty());\n        mvc.perform(get(\"/api/payments/PAY-999\")).andExpect(status().isNotFound());\n    }\n    @Test void filter_byUserId_returnsMatching() throws Exception {\n        when(service.filter(eq(\"U01\"), any())).thenReturn(List.of(p));\n        mvc.perform(get(\"/api/payments?userId=U01\"))\n            .andExpect(status().isOk()).andExpect(jsonPath(\"$.length()\").value(1));\n    }\n    @Test void capture_existing_200() throws Exception {\n        when(service.capture(\"PAY-001\")).thenReturn(Optional.of(new Payment(\"PAY-001\",\"U01\",1500,\"INR\",\"CAPTURED\")));\n        mvc.perform(put(\"/api/payments/PAY-001/capture\"))\n            .andExpect(status().isOk()).andExpect(jsonPath(\"$.status\").value(\"CAPTURED\"));\n    }\n    @Test void capture_nonExistent_404() throws Exception {\n        when(service.capture(\"PAY-999\")).thenReturn(Optional.empty());\n        mvc.perform(put(\"/api/payments/PAY-999/capture\")).andExpect(status().isNotFound());\n    }\n}",
+      "test_cases": [
+        { "type": "compilation", "expected": "Compiles" }
+      ],
+      "hints": [
+        "PUT /payments/{id}/capture: path is /{id}/capture",
+        "jsonPath('$.length()') counts array elements",
+        "@MockBean in @WebMvcTest: Spring test replaces the real service with a mock"
+      ],
+      "xp_reward": 95
+    }
+  ],
+
+  "exercise_summary": {
+    "by_level": {
+      "warmup": 3,
+      "easy": 3,
+      "medium": 6,
+      "hard": 3
+    },
+    "by_type": {
+      "fill_blank": 1,
+      "code_scratch": 13,
+      "predict_output": 1
+    },
+    "total_xp_possible": 705,
+    "estimated_completion_minutes": 70
+  }
+}

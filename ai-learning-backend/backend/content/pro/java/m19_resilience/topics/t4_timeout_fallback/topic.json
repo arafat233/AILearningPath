@@ -1,0 +1,103 @@
+{
+  "schema_version": "1.0",
+  "topic_id": "java_m19_t4",
+  "language": "java",
+  "module_id": "m19",
+  "module_name": "Microservice Resilience",
+  "topic_number": 4,
+  "name": "Timeout & Fallback Strategies",
+  "slug": "timeout-fallback-strategies",
+
+  "metadata": {
+    "difficulty": 6,
+    "estimated_minutes": 55,
+    "prerequisites": ["java_m19_t3"],
+    "concepts_taught": [
+      "timeout_importance",
+      "resilience4j_timelimiter",
+      "cancel_running_future",
+      "timeout_duration",
+      "time_limiter_annotation",
+      "timeout_exception",
+      "fallback_strategies_overview",
+      "static_default_fallback",
+      "cache_based_fallback",
+      "degraded_mode_fallback",
+      "fail_fast_fallback",
+      "queue_for_retry_fallback",
+      "combining_timeout_with_circuit_breaker",
+      "connection_timeout_vs_read_timeout"
+    ],
+    "skills_developed": [
+      "adding_timeout_to_every_external_call",
+      "writing_appropriate_fallbacks_per_criticality",
+      "choosing_correct_fallback_strategy",
+      "configuring_timelimiter",
+      "testing_timeout_behavior"
+    ],
+    "career_relevance": "Every external call must have a timeout. Without timeouts: one slow service holds your threads forever. @TimeLimiter + CompletableFuture gives you control over maximum wait time. The fallback strategy determines user experience: static default, cached data, degraded mode, or queue-for-retry.",
+    "tone_profile": { "primary": "professional_friendly", "intensity": "encouraging", "formality": "modern_casual" }
+  },
+
+  "hook": {
+    "real_world_problem": "Flipkart calls a recommendation engine for 'You may also like' products. Occasionally, the recommendation engine hangs for 30 seconds:\n\n```\nWithout timeout:\n  Thread waits 30 seconds per recommendation call\n  500 concurrent users × 30s = 15,000 thread-seconds blocked\n  Thread pool exhausts → product pages fail to load entirely\n\nWith 2-second timeout:\n  Thread waits max 2 seconds → TimeoutException → fallback\n  Fallback: return bestsellers from last 24h (cached)\n  Product page loads in 2.1 seconds instead of 30+ seconds\n  User: sees 'Bestsellers' instead of personalized recommendations — acceptable!\n```\n\n```java\n@TimeLimiter(name = \"recommendations\", fallbackMethod = \"bestsellers\")\n@CircuitBreaker(name = \"recommendations\")\npublic CompletableFuture<List<Product>> getRecommendations(String userId) {\n    return CompletableFuture.supplyAsync(() -> recEngine.forUser(userId));\n}\n\nprivate CompletableFuture<List<Product>> bestsellers(String userId, Exception e) {\n    return CompletableFuture.completedFuture(cachedBestsellers.get());\n}\n```",
+    "what_you_will_build": "Add @TimeLimiter to bound external call duration, choose the right fallback strategy for each criticality level, and combine with @CircuitBreaker."
+  },
+
+  "teaching": {
+    "concept_explanation": {
+      "timelimiter": "**@TimeLimiter — bound external call duration:**\n\n```yaml\nresilience4j:\n  timelimiter:\n    instances:\n      recommendations:\n        timeoutDuration: 2s    # max 2 seconds\n        cancelRunningFuture: true  # cancel the CompletableFuture on timeout\n```\n\n```java\n// @TimeLimiter REQUIRES CompletableFuture return type:\n@TimeLimiter(name = \"recommendations\", fallbackMethod = \"bestsellersFallback\")\n@CircuitBreaker(name = \"recommendations\")\npublic CompletableFuture<List<Product>> getRecommendations(String userId) {\n    return CompletableFuture.supplyAsync(() -> recEngine.forUser(userId));\n    // If this takes > 2s: TimeoutException → bestsellersFallback() called\n    // cancelRunningFuture=true: the future is cancelled (thread interrupted)\n}\n\nprivate CompletableFuture<List<Product>> bestsellersFallback(\n        String userId, Exception e) {\n    // Called on TimeoutException or CircuitBreaker open:\n    return CompletableFuture.completedFuture(\n        productCache.getBestsellers());\n}\n```",
+      "fallback_strategies": "**Fallback strategies by use case:**\n\n```java\n// 1. STATIC DEFAULT — simplest, always works:\nprivate int deliveryEstimateFallback(String id, Exception e) {\n    return 45;  // 45-minute default — never fails\n}\n\n// 2. CACHED DATA — last known good value:\nprivate List<Restaurant> restaurantFallback(String city, Exception e) {\n    List<Restaurant> cached = redisCache.get(\"restaurants:\" + city);\n    return cached != null ? cached : List.of();\n}\n\n// 3. DEGRADED MODE — partial functionality:\nprivate SeatMap seatMapFallback(String eventId, Exception e) {\n    return SeatMap.zonePricing(eventId);  // simple zones, not interactive\n}\n\n// 4. FAIL FAST — critical path, surface the error:\nprivate PaymentResult paymentFallback(ChargeRequest req, Exception e) {\n    // Payment is critical — don't silently degrade\n    throw new PaymentServiceException(\"Payment service unavailable\", e);\n}\n\n// 5. QUEUE FOR RETRY — eventual consistency:\nprivate void notificationFallback(String userId, String msg, Exception e) {\n    retryQueue.offer(new RetryItem(userId, msg));\n    // Will be retried when service recovers\n}\n```",
+      "connection_vs_read": "**Connection timeout vs read timeout:**\n\n```java\n// RestTemplate configuration (connection vs read timeout):\n// Connection timeout: how long to wait to ESTABLISH the TCP connection\n// Read timeout: how long to wait for the SERVER to respond after connection\n\n@Bean\npublic RestTemplate restTemplate() {\n    var factory = new SimpleClientHttpRequestFactory();\n    factory.setConnectTimeout(2000);  // 2s: fail if can't connect\n    factory.setReadTimeout(5000);     // 5s: fail if server doesn't respond\n    return new RestTemplate(factory);\n}\n\n// @TimeLimiter: wraps at the application level\n// HTTP timeout: set at the HTTP client level\n// Use BOTH: HTTP timeout prevents thread blocking;\n//           @TimeLimiter + CB tracks failures for circuit opening\n```"
+    },
+    "visual_aid": {
+      "type": "diagram",
+      "description": "Timeline: external call starts at T=0. Without timeout: thread blocked until T=30s (server timeout). With @TimeLimiter(2s): at T=2s, TimeoutException thrown, fallback called at T=2.001s. Thread freed. Response time: 2.1s vs 30s. Fallback options shown as 4 tiers: static default (fastest), cached (fast), degraded (medium), fail fast (surfaces error).",
+      "alt_text": "Timeout comparison: 30s blocked thread vs 2s timeout + immediate fallback"
+    }
+  },
+
+  "worked_example": {
+    "scenario": "Flipkart recommendation engine with 2-second timeout. Fallback returns cached bestsellers.",
+    "problem_statement": "1. @TimeLimiter(2s) + @CircuitBreaker on getRecommendations()\n2. Fallback: return cached bestsellers list\n3. Test: mock that takes 3 seconds → verify timeout fires, fallback returns bestsellers",
+    "step_by_step_solution": [
+      { "step": 1, "action": "TimeLimiter config", "details": "```yaml\nresilience4j:\n  timelimiter.instances.recommendations:\n    timeoutDuration: 2s\n    cancelRunningFuture: true\n```" },
+      { "step": 2, "action": "Service with fallback", "details": "```java\n@TimeLimiter(name=\"recommendations\", fallbackMethod=\"cachedFallback\")\n@CircuitBreaker(name=\"recommendations\")\npublic CompletableFuture<List<String>> getRecommendations(String userId) {\n    return CompletableFuture.supplyAsync(() -> engine.forUser(userId));\n}\nprivate CompletableFuture<List<String>> cachedFallback(String uid, Exception e) {\n    return CompletableFuture.completedFuture(bestsellers.get());\n}\n```" }
+    ],
+    "final_code": "// @TimeLimiter: requires CompletableFuture; cancels future on timeout\n// cancelRunningFuture=true: interrupts the async thread\n// Fallback: immediate cached response instead of 30s wait",
+    "expected_output": "# Without timeout: 30 second wait → thread blocked\n# With @TimeLimiter(2s): after 2 seconds → cachedFallback() → bestsellers returned",
+    "things_to_notice": [
+      "@TimeLimiter REQUIRES CompletableFuture return type — unlike @CircuitBreaker and @Retry.",
+      "cancelRunningFuture=true: sends interruption to the running async thread. Without this, the thread keeps running even after timeout (wasting resources).",
+      "Fallback also returns CompletableFuture: matching return type rule applies.",
+      "Correct stacking: @TimeLimiter (outer) → @CircuitBreaker (inner). CB records 1 timeout failure."
+    ]
+  },
+
+  "applications": {
+    "industry_examples": [
+      { "company_context": "Flipkart recommendation engine", "use_case": "2-second timeout on recommendation calls. Fallback: cached bestsellers. Product page loads in 2.1s instead of 30s+ when engine is slow." },
+      { "company_context": "Razorpay bank verification", "use_case": "Bank account verification API: 3-second timeout. Fallback: mark as 'pending verification', allow payment, verify asynchronously. Payments not blocked by slow bank APIs." }
+    ],
+    "interview_relevance": "'Why must every external call have a timeout?' → Without a timeout, a slow external service holds your thread indefinitely. Thread pool exhausts → your entire service degrades. Timeout + fallback: fails fast, frees the thread immediately.",
+    "real_world_workflow": "Set timeouts at multiple levels: HTTP client (connection + read), @TimeLimiter (application). Use @CircuitBreaker with timeout failures to detect patterns."
+  },
+
+  "common_gaps": [
+    { "gap_id": "timelimiter_without_completable_future", "what_students_get_wrong": "@TimeLimiter on a method that doesn't return CompletableFuture — it silently doesn't work.", "remediation": "@TimeLimiter is designed for async operations — it needs CompletableFuture to cancel the future on timeout. Without it: the annotation is ignored.", "detection_pattern": "Method runs longer than timeoutDuration with no TimeoutException thrown" }
+  ],
+
+  "reflection": {
+    "key_takeaways": [
+      "@TimeLimiter: bounds max duration of external call",
+      "Requires CompletableFuture return type",
+      "cancelRunningFuture=true: interrupts async thread on timeout",
+      "5 fallback strategies: static, cached, degraded, fail-fast, queue",
+      "Connection timeout (TCP) vs read timeout (server response) vs @TimeLimiter (application level)"
+    ],
+    "self_check_questions": [
+      { "question": "What three timeout levels should a production HTTP call have?", "answer": "1. Connection timeout (HTTP client): max time to establish TCP connection (2-3s). 2. Read timeout (HTTP client): max time to receive server response after connection (5-10s). 3. @TimeLimiter (application): application-level max duration, feeds into circuit breaker failure tracking. Each layer catches different failure modes." }
+    ],
+    "next_topic_preview": "Final Module 19 topic: Spring Cloud Gateway with resilience — applying all four patterns at the gateway level to protect all downstream services."
+  }
+}

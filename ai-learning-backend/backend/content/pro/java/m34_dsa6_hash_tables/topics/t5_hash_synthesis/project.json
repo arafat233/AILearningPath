@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "project_id": "java_m34_t5_proj",
+  "linked_topic": "java_m34_t5",
+  "level": "mini",
+  "name": "Hash Table Synthesis \u2014 LRU, Random Set, SnapshotArray",
+  "estimated_minutes": 40,
+  "difficulty": 7,
+  "scenario": "Build Hash Table Synthesis \u2014 LRU, Random Set, SnapshotArray.",
+  "requirements": {
+    "core": [
+      {
+        "id": "req_1",
+        "description": "Implement core algorithms",
+        "weight": 50
+      },
+      {
+        "id": "req_2",
+        "description": "4 tests",
+        "weight": 35
+      },
+      {
+        "id": "req_3",
+        "description": "README",
+        "weight": 15
+      }
+    ],
+    "bonus": [
+      {
+        "id": "bonus_1",
+        "description": "3 bonus algorithms",
+        "weight": 55
+      }
+    ]
+  },
+  "ai_policy": "limited_hints",
+  "ai_policy_explanation": "Key patterns for Hash Table Synthesis \u2014 LRU, Random Set, SnapshotArray.",
+  "rubric": [
+    {
+      "category": "Core",
+      "points": 50
+    },
+    {
+      "category": "Tests",
+      "points": 35
+    },
+    {
+      "category": "README",
+      "points": 15
+    },
+    {
+      "category": "Bonus",
+      "points": 55
+    }
+  ]
+}

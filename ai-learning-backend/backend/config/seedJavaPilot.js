@@ -336,6 +336,20 @@ function mapProject(raw, moduleId, topicId) {
   };
 }
 
+// ── Interactive visualizer wiring (v3 Phase 1.A) ────────────────────────────
+// topicId → ProTopic.visualizer payload. Kept here (an integration concern)
+// instead of in topic.json files so content authoring stays focused on
+// teaching text. Frontend lazy-loads VisualizerShell, so adding a topic to
+// this map costs ~0 KB on the bundles for topics not in the map.
+//
+// kind values must match the dispatch in components/dsa/VisualizerShell.jsx:
+//   "sorting-sandbox" | "binary-search" | "linked-list" | "stack" |
+//   "tree" | "array-pointers"
+const TOPIC_VISUALIZERS = {
+  // Phase 1.A proof topic — Bubble Sort intro.
+  "java_m38_t1": { kind: "sorting-sandbox", config: {} },
+};
+
 function mapTopic(raw, moduleId) {
   return {
     trackKey:              TRACK_KEY,
@@ -354,6 +368,7 @@ function mapTopic(raw, moduleId) {
     estimatedMinutes:      raw.metadata?.estimated_minutes || 30,
     difficulty:            typeof raw.metadata?.difficulty === "number" ? Math.min(1, raw.metadata.difficulty / 6) : 0.2,
     xpReward:              50,
+    visualizer:            TOPIC_VISUALIZERS[raw.topic_id] || null,
   };
 }
 

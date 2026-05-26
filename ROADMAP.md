@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26
+**Last updated:** 2026-05-26 (A9-A12 backend + frontend wired, awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -53,10 +53,10 @@ Source projects: `~/Downloads/dsalearn/` + `~/Downloads/dsa-visualizer 2/`. See 
 - [x] **A6.** Port step-generators: 8 of them — done 2026-05-26. All 5 sorts (bubble/insertion/selection/merge/quick) under unified `AlgorithmDef` shape in `algorithms/registry.js`. Plus binarySearch, linearSearch (BinarySearchFrame/LinearSearchFrame shape for L/R/mid pointers), linkedList (3 ops: intro/insert/delete). Smoke-tested all 8 — each produces correct step counts on [5,2,8,1,9,3]. Also ported `ArrayVisualizer.jsx` (originally marked "skip" but search algos need pointer labels which ArrayBars doesn't support).
 - [x] **A7.** Port `studentRunner.ts` AS-IS — done 2026-05-26. Smoke-tested 4 cases (bubble template sorts correctly; empty mySort; missing mySort errors cleanly; infinite-loop guard at 50k steps fires).
 - [x] **A8.** Build reusable `VisualizerShell.jsx` — done 2026-05-26. Dispatcher on `kind` (only `sorting-sandbox` implemented for the proof; other kinds show a "coming soon" placeholder). Also ported Controls.jsx, ExplanationPanel.jsx, StatsPanel.jsx, DSACodeEditor.jsx (Monaco wrapper — dropped Next.js dynamic() since Vite doesn't need SSR guards).
-- [ ] **A9.** Add `visualizer` field to `ProTopic` schema: `{ kind: "binary-search" | "sorting-sandbox" | "linked-list" | "stack" | "tree", config?: {...} }`. Backward-compatible (optional).
-- [ ] **A10.** Update `ProTopicView.jsx` to render the matching visualizer component under the teaching block when `topic.visualizer` is set.
-- [ ] **A11.** Wire M38-T1 (Sorting) as the proof topic — sets `visualizer: { kind: "sorting-sandbox" }` with all 5 sort algorithms + student mode enabled.
-- [ ] **A12.** **Acceptance:** visit `/pro/java/java_m38/java_m38_t1`, see the sort visualizer, click play, see bars animate. Toggle student mode, paste a custom sort, see it run.
+- [x] **A9.** Add `visualizer` field to `ProTopic` schema — done 2026-05-26. `Schema.Types.Mixed`, default `null`, comment explains the integration-vs-content split. `proService.getTopic()` uses `.lean()` with no `.select()` filter so the new field propagates without service changes.
+- [x] **A10.** Update `ProTopicView.jsx` to render the matching visualizer component under the teaching block when `topic.visualizer` is set — done 2026-05-26. Lazy-loaded `VisualizerShell` (keeps framer-motion + Monaco out of bundles for non-DSA topics). Section appears between Visual Aid and Common Gaps with its own nav entry ("Visualize").
+- [x] **A11.** Wire M38-T1 (Sorting) as the proof topic — done 2026-05-26. Added `TOPIC_VISUALIZERS` map to `seedJavaPilot.js` (integration concern; not in topic.json). Re-ran seed, verified `java_m38_t1.visualizer = {kind:"sorting-sandbox", config:{}}` persisted.
+- [~] **A12.** **Acceptance:** visit `/pro/java/java_m38/java_m38_t1`, see the sort visualizer, click play, see bars animate. Toggle student mode, paste a custom sort, see it run. — backend + DB confirmed; awaiting browser confirmation from user at http://localhost:5173/pro/java/java_m38/java_m38_t1.
 
 **Wire-up topics (after A12 passes):**
 - [ ] **A13.** M30-T1 (two pointers) → `array-pointers` visualizer

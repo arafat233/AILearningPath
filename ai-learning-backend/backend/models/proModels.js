@@ -75,6 +75,14 @@ const proTopicSchema = new Schema({
   estimatedMinutes:     { type: Number, default: 0 },
   difficulty:           { type: Number, default: 0.3 },                         // 0..1
   xpReward:             { type: Number, default: 0 },
+  // Optional interactive widget rendered under the teaching block.
+  // Shape: { kind: "sorting-sandbox" | "binary-search" | "linked-list" |
+  //         "stack" | "tree" | "array-pointers", config?: {...} }
+  // null/missing → no visualizer (default for most topics).
+  // Wired by seedJavaPilot.js via a topicId→visualizer map; topic.json
+  // files in content/ deliberately don't carry this — it's an
+  // integration concern, not a content authoring concern.
+  visualizer:           { type: Schema.Types.Mixed, default: null },
 }, { timestamps: true });
 proTopicSchema.index({ trackKey: 1, moduleId: 1, topicNumber: 1 });
 

@@ -23,6 +23,11 @@ import { proGetTopic, proListExercises } from "../../services/api";
 // initial route bundle. The fallback below is a plain <pre> while loading.
 const JavaCode = lazy(() => import("../../components/pro/JavaCode.jsx"));
 
+// Lazy-loaded — VisualizerShell pulls in framer-motion + Monaco + step
+// generators (~few hundred KB combined). Only the topics that actually
+// set `topic.visualizer.kind` ever touch this bundle.
+const VisualizerShell = lazy(() => import("../../components/dsa/VisualizerShell.jsx"));
+
 // ─── Generic recursive renderer (no more JSON dumps) ──────────────────────────
 function prettyKey(k) {
   return k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -326,6 +331,8 @@ export default function ProTopicView() {
       items.push({ id: `sec-${key}`, label: prettyKey(key) });
     }
     if (topic.teaching?.visual_aid) items.push({ id: "sec-visual", label: "Visual" });
+    // Interactive widget (sorting sandbox, binary search animator, etc.)
+    if (topic.visualizer?.kind) items.push({ id: "sec-visualizer", label: "Visualize" });
     if (topic.commonGaps && (Array.isArray(topic.commonGaps) ? topic.commonGaps.length : Object.keys(topic.commonGaps).length)) {
       items.push({ id: "sec-gaps", label: "Common gaps" });
     }
@@ -414,6 +421,20 @@ export default function ProTopicView() {
         <section className="space-y-3">
           <SectionHeading id="sec-teaching-extras" eyebrow="Teaching" title="More" />
           <div className="card p-5"><GenericBlock value={teachingExtras} /></div>
+        </section>
+      )}
+
+      {/* Interactive visualizer — only rendered for topics that set
+          topic.visualizer.kind. Lazy-loaded so the framer-motion + Monaco
+          payload stays out of the initial route bundle for non-DSA topics. */}
+      {topic.visualizer?.kind && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-visualizer" eyebrow="Interactive" title="Try it yourself" />
+          <Suspense fallback={
+            <div className="card p-6 text-center text-[13px] text-apple-gray">Loading visualizer…</div>
+          }>
+            <VisualizerShell kind={topic.visualizer.kind} config={topic.visualizer.config || {}} />
+          </Suspense>
         </section>
       )}
 

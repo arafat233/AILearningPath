@@ -1402,6 +1402,10 @@ explicit allowlist of internal emails during ramp.
 ```
 Backend
   models/proModels.js                         7 schemas
+                                              ProTopic.visualizer (Mixed, default null) —
+                                              optional interactive widget config, wired
+                                              by seedJavaPilot's TOPIC_VISUALIZERS map
+                                              (integration concern, not in topic.json)
   middleware/featureFlag.js                   email-allowlist gate
   middleware/trackFilter.js                   User.tracks-based enrolment check
   services/codeExecutionService.js            Judge0 wrapper + rate limit
@@ -1434,10 +1438,24 @@ Frontend
   src/pages/professional/ProCourseLanding.jsx /pro/:trackSlug
   src/pages/professional/ProModuleView.jsx    /pro/:trackSlug/:moduleId
   src/pages/professional/ProTopicView.jsx     /pro/:trackSlug/:moduleId/:topicId
+                                                + lazy-renders <VisualizerShell/> when
+                                                  topic.visualizer.kind is set
   src/pages/professional/ProExerciseRunner.jsx /pro/exercise/:exerciseId
   src/components/TrackTabs.jsx                Dashboard track switcher (?track=)
   src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
   src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
+  src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
+    VisualizerShell.jsx                       Dispatcher on `kind`: sorting-sandbox |
+                                                binary-search | linked-list | stack |
+                                                tree | array-pointers
+    algorithms/ + runners/studentRunner.js    5 sort algos + binarySearch/linearSearch/
+                                                linkedList step generators + JS code
+                                                tracer (50k-step infinite-loop guard)
+    ArrayBars / ArrayVisualizer /             Render primitives shared by visualizer
+      LinkedListVisualizer / StackVisualizer /  modes (framer-motion animated)
+      TreeVisualizer
+    Controls / ExplanationPanel /             Playback toolbar + status panels +
+      StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 
 Analytics events (AnalyticsEvent, 90-day TTL)
   pro.enrolled · pro.topic_viewed · pro.exercise_started ·

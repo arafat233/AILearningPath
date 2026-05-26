@@ -40,7 +40,18 @@ export async function getTrack(trackSlug, userId) {
     .select("moduleId moduleNumber name slug description estimatedHours prerequisites")
     .sort({ moduleNumber: 1 })
     .lean();
-  return { ...track, modules };
+  // Per-module topic count — one aggregation, used by ProCourseLanding to
+  // show "5 topics" per module card without N round-trips.
+  const topicCounts = await ProTopic.aggregate([
+    { $match: { trackKey: track.key } },
+    { $group: { _id: "$moduleId", count: { $sum: 1 } } },
+  ]);
+  const countByModuleId = new Map(topicCounts.map((t) => [t._id, t.count]));
+  const modulesWithCounts = modules.map((m) => ({
+    ...m,
+    topicsCount: countByModuleId.get(m.moduleId) || 0,
+  }));
+  return { ...track, modules: modulesWithCounts };
 }
 
 // ── Modules ─────────────────────────────────────────────────────────────────

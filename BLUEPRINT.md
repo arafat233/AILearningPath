@@ -1397,6 +1397,20 @@ User multi-track enrolment lives on `User.tracks: [{ key, role, enrolledAt }]`.
 `requireEmailAllowlist("PRO_TRACKS_ENABLED_FOR_EMAILS")` gates the pilot to an
 explicit allowlist of internal emails during ramp.
 
+**Active-track sidebar (added 2026-05-26).** `User.activeTrack: String` stores
+the user's currently-active track; the sidebar nav is resolved per track by
+`services/navService.js` (`NAV_CONFIG = { school: [...], pro_java: [...] }`).
+Switching is one click via `<TrackSwitcher />` in the sidebar header, which
+calls `PATCH /api/user/active-track` (auth + Joi-validated, enrolment-gated).
+`GET /api/user/nav` returns `{ activeTrack, tracks, items }` for the current
+user. `proService.enroll` writes `activeTrack = trackKey` on a user's *first*
+enrolment so first-time pro signups land in the pro shell automatically.
+Migration `migrations/2026-05-26_users_add_active_track.mjs` backfills
+existing rows (`activeTrack = tracks[0]?.key ?? "school"`). Boards-countdown
+badge in the sidebar is now hidden in pro mode. Follow-up: Voice Tutor
+system-prompt switching per `activeTrack`; aggregated Certificates wall
+across tracks.
+
 ### Pro-track architecture cheatsheet
 
 ```
@@ -1445,7 +1459,7 @@ Frontend
   src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
   src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
   src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
-    VisualizerShell.jsx                       Dispatcher on `kind`. 21 kinds:
+    VisualizerShell.jsx                       Dispatcher on `kind`. 30 kinds:
                                                 sorting-sandbox · binary-search ·
                                                 linked-list · stack · tree ·
                                                 array-pointers · heap · hash-table ·
@@ -1454,7 +1468,11 @@ Frontend
                                                 palindrome · dp-grid ·
                                                 linked-list-cycle · monotonic-stack ·
                                                 tree-traversal · trie · k-largest ·
-                                                graph-topo · graph-dijkstra
+                                                graph-topo · graph-dijkstra ·
+                                                prefix-sums · queue ·
+                                                sliding-window-max · lca ·
+                                                counting-sort · rotated-search ·
+                                                union-find · k-way-merge · lru
     modes/                                    Per-kind orchestrators (T1 + T2-T5)
       SortingSandbox (inline in shell)          M38-T1 sorts + student mode
       BinarySearchSandbox.jsx                   M39-T1 binary search
@@ -1477,25 +1495,38 @@ Frontend
       KLargestSandbox.jsx                       M36-T2 streaming K-largest
       GraphTopoSandbox.jsx                      M37-T3 Kahn's topological sort
       GraphDijkstraSandbox.jsx                  M37-T4 Dijkstra SSSP
+      PrefixSumsSandbox.jsx                     M30-T3 build + O(1) range query
+      QueueSandbox.jsx                          M33-T3 FIFO enq/deq/peek
+      SlidingWindowMaxSandbox.jsx               M33-T4 monotonic deque
+      LCASandbox.jsx                            M35-T2 recursive LCA
+      CountingSortSandbox.jsx                   M38-T2 count / cumulative / place
+      RotatedSearchSandbox.jsx                  M39-T3 BS w/ sorted-half decision
+      UnionFindSandbox.jsx                      M37-T5 DSU + path compression
+      KWayMergeSandbox.jsx                      M36-T4 k sorted lists + min-heap
+      LRUSandbox.jsx                            M34-T5 HashMap + DLL paired
     algorithms/                               Step generators: 5 sorts, binary/
                                                 linear search, linked-list ops,
                                                 heap, hashTable, kmp, graph (BFS/
                                                 DFS), slidingWindow, dutchFlag,
                                                 palindrome, lcs, floydCycle,
                                                 monotonicStack, treeTraversals,
-                                                trie, kLargest, graphTopo, dijkstra
+                                                trie, kLargest, graphTopo, dijkstra,
+                                                prefixSums, slidingWindowMax, lca,
+                                                countingSort, rotatedSearch,
+                                                unionFind, kWayMerge, lru
     runners/studentRunner.js                  JS code tracer (50k-step loop guard)
     Render primitives (framer-motion)         ArrayBars · ArrayVisualizer ·
                                                 LinkedListVisualizer ·
                                                 StackVisualizer · TreeVisualizer ·
                                                 HashTableVisualizer ·
                                                 StringMatchVisualizer ·
-                                                GraphVisualizer (now supports
-                                                  directed + edge weights +
-                                                  node labels) ·
+                                                GraphVisualizer (directed +
+                                                  edge weights + node labels) ·
                                                 DPGridVisualizer ·
                                                 CycleListVisualizer ·
-                                                TrieVisualizer
+                                                TrieVisualizer ·
+                                                UnionFindVisualizer (parent forest) ·
+                                                LRUVisualizer (HashMap + DLL paired)
     Controls / ExplanationPanel /             Playback toolbar + status panels +
       StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 

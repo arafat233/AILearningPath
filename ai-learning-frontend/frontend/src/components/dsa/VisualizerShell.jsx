@@ -42,6 +42,15 @@ import TrieSandbox           from "./modes/TrieSandbox.jsx";
 import KLargestSandbox       from "./modes/KLargestSandbox.jsx";
 import GraphTopoSandbox      from "./modes/GraphTopoSandbox.jsx";
 import GraphDijkstraSandbox  from "./modes/GraphDijkstraSandbox.jsx";
+import PrefixSumsSandbox       from "./modes/PrefixSumsSandbox.jsx";
+import QueueSandbox            from "./modes/QueueSandbox.jsx";
+import SlidingWindowMaxSandbox from "./modes/SlidingWindowMaxSandbox.jsx";
+import LCASandbox              from "./modes/LCASandbox.jsx";
+import CountingSortSandbox     from "./modes/CountingSortSandbox.jsx";
+import RotatedSearchSandbox    from "./modes/RotatedSearchSandbox.jsx";
+import UnionFindSandbox        from "./modes/UnionFindSandbox.jsx";
+import KWayMergeSandbox        from "./modes/KWayMergeSandbox.jsx";
+import LRUSandbox              from "./modes/LRUSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
@@ -69,6 +78,15 @@ export default function VisualizerShell({ kind, config = {} }) {
     case "k-largest":        return <KLargestSandbox       />;
     case "graph-topo":       return <GraphTopoSandbox      />;
     case "graph-dijkstra":   return <GraphDijkstraSandbox  />;
+    case "prefix-sums":      return <PrefixSumsSandbox     />;
+    case "queue":            return <QueueSandbox          />;
+    case "sliding-window-max": return <SlidingWindowMaxSandbox />;
+    case "lca":              return <LCASandbox            />;
+    case "counting-sort":    return <CountingSortSandbox   />;
+    case "rotated-search":   return <RotatedSearchSandbox  />;
+    case "union-find":       return <UnionFindSandbox      />;
+    case "k-way-merge":      return <KWayMergeSandbox      />;
+    case "lru":              return <LRUSandbox            />;
     default:
       return (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">

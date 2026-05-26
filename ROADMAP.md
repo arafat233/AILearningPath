@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A33 wired — 21 visualizer kinds live on 24 topics; awaiting browser acceptance)
+**Last updated:** 2026-05-26 (A9-A42 wired — 30 visualizer kinds live on 33 topics; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -91,7 +91,21 @@ After A21: 10 visualizer kinds live across 11 topics (M30/M31-T2/M32-T1+T3/M33/M
 - [x] **A32.** M37-T3 Topological Sort → `graph-topo` — done 2026-05-26. Kahn's algorithm on a course-prerequisite DAG. Extended `GraphVisualizer` to support `directed` (arrowheads), `nodeLabels` (in-degree).
 - [x] **A33.** M37-T4 Dijkstra → `graph-dijkstra` — done 2026-05-26. Weighted directed graph; `GraphVisualizer` now renders edge weights and node distance labels. PQ + visited shown below.
 
-**After A33:** 21 visualizer kinds live across 24 topics. DSA progression M30-M39 now has at least one visualizer per topic-with-an-algorithm (10 modules × ~2-3 visualizer-friendly topics each). Coverage gap remaining: M30-T3 prefix sums, M30-T5 synthesis, M31-T1 string fundamentals, M31-T4 anagrams (already covered conceptually by hash-table), M32-T5 LL merge, M33-T3 queue, M33-T4 deque max, M33-T5 synthesis, M34-T2 through M34-T5 (HashMap patterns covered conceptually by hash-table; LRU would be a separate combined widget), M35-T2 binary tree problems, M35-T4 tree path problems, M36-T3 through M36-T5, M37-T2 BFS/DFS applications, M37-T5 graph synthesis, M38-T2 through M38-T5, M39-T2 through M39-T5. Most of these are pattern-application or synthesis topics where a dedicated widget would duplicate the T1 widget; deliberately deferred.
+**After A33:** 21 visualizer kinds live across 24 topics.
+
+**Final algorithmic coverage sweep (A34–A42):**
+
+- [x] **A34.** M30-T3 Prefix Sums → `prefix-sums` — done 2026-05-26. Two-phase animation: build prefix array (n frames), then any range query is `prefix[R+1] − prefix[L]` in O(1). Reuses ArrayVisualizer.
+- [x] **A35.** M33-T3 Queue Fundamentals → `queue` — done 2026-05-26. Interactive FIFO enqueue/dequeue/peek with FRONT and BACK labels (the entire teaching moment vs Stack). Inline horizontal renderer.
+- [x] **A36.** M33-T4 Sliding Window Max → `sliding-window-max` — done 2026-05-26. Monotonic deque (distinct from monotonic stack in M33-T2): both pollFirst (out-of-window) and pollLast (smaller-than-current) animated separately.
+- [x] **A37.** M35-T2 LCA → `lca` — done 2026-05-26. Recursive LCA with enter/match/recurse-L/recurse-R/return frames showing the recursion descent and bottom-up split detection. Distinct demo tree from TreeTraversal.
+- [x] **A38.** M38-T2 Counting Sort → `counting-sort` — done 2026-05-26. Three phases (count, cumulative, place) each emit separate frames — the "no comparisons" insight is the lesson.
+- [x] **A39.** M39-T3 Rotated Array Search → `rotated-search` — done 2026-05-26. Modified binary search that decides which half is sorted each iteration; visualizer shows the "sorted half" highlight.
+- [x] **A40.** M37-T5 Union-Find → `union-find` — done 2026-05-26. New `UnionFindVisualizer.jsx` renders the parent forest; path compression and union-by-rank both animated. User can edit ops as text.
+- [x] **A41.** M36-T4 K-Way Merge → `k-way-merge` — done 2026-05-26. Per-list cursor markers + min-heap of `{value, listIdx, posInList}` + output. Each pop emits its source list visually.
+- [x] **A42.** M34-T5 LRU Cache → `lru` — done 2026-05-26. New `LRUVisualizer.jsx` — paired HashMap key column + horizontal DLL with head (MRU) and tail (LRU) labels; eviction badge appears when capacity exceeded.
+
+**After A42: 30 visualizer kinds live across 33 topics.** Every algorithmic topic in DSA M30-M39 with a distinct teaching moment is now covered. Remaining 17 are intentionally text-only: pure synthesis (M30-T5/M33-T5/M36-T5/M38-T5/M39-T5), conceptual fundamentals (M31-T1), pattern-application duplicates (M31-T4 anagrams ≈ M34 hash, M32-T5 LL merge ≈ M32-T1, M34-T2..T4 HashMap patterns ≈ M34-T1, M35-T4 tree path ≈ M35-T2, M36-T3 PQ design ≈ M36-T1, M38-T3/T4 custom sort ≈ M38-T1, M39-T2/T4 BS variants ≈ M39-T1), and grid-shape detours (M37-T2 Islands).
 
 ---
 

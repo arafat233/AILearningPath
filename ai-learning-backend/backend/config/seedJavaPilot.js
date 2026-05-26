@@ -381,6 +381,16 @@ const TOPIC_VISUALIZERS = {
   "java_m36_t2": { kind: "k-largest",         config: {} },   // A29
   "java_m37_t3": { kind: "graph-topo",        config: {} },   // A30
   "java_m37_t4": { kind: "graph-dijkstra",    config: {} },   // A31
+  // A34-A42 — fill remaining T2-T5 algorithmic topics.
+  "java_m30_t3": { kind: "prefix-sums",        config: {} },  // A34
+  "java_m33_t3": { kind: "queue",              config: {} },  // A35
+  "java_m33_t4": { kind: "sliding-window-max", config: {} },  // A36
+  "java_m35_t2": { kind: "lca",                config: {} },  // A37
+  "java_m38_t2": { kind: "counting-sort",      config: {} },  // A38
+  "java_m39_t3": { kind: "rotated-search",     config: {} },  // A39
+  "java_m37_t5": { kind: "union-find",         config: {} },  // A40
+  "java_m36_t4": { kind: "k-way-merge",        config: {} },  // A41
+  "java_m34_t5": { kind: "lru",                config: {} },  // A42
 };
 
 function mapTopic(raw, moduleId) {

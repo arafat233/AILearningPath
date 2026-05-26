@@ -1459,7 +1459,7 @@ Frontend
   src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
   src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
   src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
-    VisualizerShell.jsx                       Dispatcher on `kind`. 30 kinds:
+    VisualizerShell.jsx                       Dispatcher on `kind`. 38 kinds:
                                                 sorting-sandbox · binary-search ·
                                                 linked-list · stack · tree ·
                                                 array-pointers · heap · hash-table ·
@@ -1472,7 +1472,10 @@ Frontend
                                                 prefix-sums · queue ·
                                                 sliding-window-max · lca ·
                                                 counting-sort · rotated-search ·
-                                                union-find · k-way-merge · lru
+                                                union-find · k-way-merge · lru ·
+                                                anagram · merge-ll · custom-hash ·
+                                                tree-path · pq-lazy · islands ·
+                                                search-on-answer · matrix-search
     modes/                                    Per-kind orchestrators (T1 + T2-T5)
       SortingSandbox (inline in shell)          M38-T1 sorts + student mode
       BinarySearchSandbox.jsx                   M39-T1 binary search
@@ -1504,6 +1507,14 @@ Frontend
       UnionFindSandbox.jsx                      M37-T5 DSU + path compression
       KWayMergeSandbox.jsx                      M36-T4 k sorted lists + min-heap
       LRUSandbox.jsx                            M34-T5 HashMap + DLL paired
+      AnagramSandbox.jsx                        M31-T4 freq inc/dec check
+      MergeLLSandbox.jsx                        M32-T5 two-pointer LL merge
+      CustomHashSandbox.jsx                     M34-T4 naive vs composite hash
+      TreePathSandbox.jsx                       M35-T4 root-to-leaf DFS
+      PQLazySandbox.jsx                         M36-T3 lazy-deletion heap
+      IslandsSandbox.jsx                        M37-T2 grid BFS component count
+      SearchOnAnswerSandbox.jsx                 M39-T2 BS on answer space (Koko)
+      MatrixSearchSandbox.jsx                   M39-T4 staircase walk
     algorithms/                               Step generators: 5 sorts, binary/
                                                 linear search, linked-list ops,
                                                 heap, hashTable, kmp, graph (BFS/
@@ -1513,7 +1524,10 @@ Frontend
                                                 trie, kLargest, graphTopo, dijkstra,
                                                 prefixSums, slidingWindowMax, lca,
                                                 countingSort, rotatedSearch,
-                                                unionFind, kWayMerge, lru
+                                                unionFind, kWayMerge, lru, anagram,
+                                                mergeLL, customHash, treePath,
+                                                pqLazy, islands, searchOnAnswer,
+                                                matrixSearch
     runners/studentRunner.js                  JS code tracer (50k-step loop guard)
     Render primitives (framer-motion)         ArrayBars · ArrayVisualizer ·
                                                 LinkedListVisualizer ·
@@ -1526,7 +1540,9 @@ Frontend
                                                 CycleListVisualizer ·
                                                 TrieVisualizer ·
                                                 UnionFindVisualizer (parent forest) ·
-                                                LRUVisualizer (HashMap + DLL paired)
+                                                LRUVisualizer (HashMap + DLL paired) ·
+                                                GridVisualizer (2D cells w/ states —
+                                                  used by Islands + Matrix Search)
     Controls / ExplanationPanel /             Playback toolbar + status panels +
       StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 

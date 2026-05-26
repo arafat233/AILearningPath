@@ -391,6 +391,15 @@ const TOPIC_VISUALIZERS = {
   "java_m37_t5": { kind: "union-find",         config: {} },  // A40
   "java_m36_t4": { kind: "k-way-merge",        config: {} },  // A41
   "java_m34_t5": { kind: "lru",                config: {} },  // A42
+  // A43-A50 — final round (user requested explicitly).
+  "java_m31_t4": { kind: "anagram",            config: {} },  // A43
+  "java_m32_t5": { kind: "merge-ll",           config: {} },  // A44
+  "java_m34_t4": { kind: "custom-hash",        config: {} },  // A45
+  "java_m35_t4": { kind: "tree-path",          config: {} },  // A46
+  "java_m36_t3": { kind: "pq-lazy",            config: {} },  // A47
+  "java_m37_t2": { kind: "islands",            config: {} },  // A48
+  "java_m39_t2": { kind: "search-on-answer",   config: {} },  // A49
+  "java_m39_t4": { kind: "matrix-search",      config: {} },  // A50
 };
 
 function mapTopic(raw, moduleId) {

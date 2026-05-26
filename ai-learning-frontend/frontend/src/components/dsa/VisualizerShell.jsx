@@ -51,6 +51,14 @@ import RotatedSearchSandbox    from "./modes/RotatedSearchSandbox.jsx";
 import UnionFindSandbox        from "./modes/UnionFindSandbox.jsx";
 import KWayMergeSandbox        from "./modes/KWayMergeSandbox.jsx";
 import LRUSandbox              from "./modes/LRUSandbox.jsx";
+import AnagramSandbox          from "./modes/AnagramSandbox.jsx";
+import MergeLLSandbox          from "./modes/MergeLLSandbox.jsx";
+import CustomHashSandbox       from "./modes/CustomHashSandbox.jsx";
+import TreePathSandbox         from "./modes/TreePathSandbox.jsx";
+import PQLazySandbox           from "./modes/PQLazySandbox.jsx";
+import IslandsSandbox          from "./modes/IslandsSandbox.jsx";
+import SearchOnAnswerSandbox   from "./modes/SearchOnAnswerSandbox.jsx";
+import MatrixSearchSandbox     from "./modes/MatrixSearchSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
@@ -87,6 +95,14 @@ export default function VisualizerShell({ kind, config = {} }) {
     case "union-find":       return <UnionFindSandbox      />;
     case "k-way-merge":      return <KWayMergeSandbox      />;
     case "lru":              return <LRUSandbox            />;
+    case "anagram":          return <AnagramSandbox        />;
+    case "merge-ll":         return <MergeLLSandbox        />;
+    case "custom-hash":      return <CustomHashSandbox     />;
+    case "tree-path":        return <TreePathSandbox       />;
+    case "pq-lazy":          return <PQLazySandbox         />;
+    case "islands":          return <IslandsSandbox        />;
+    case "search-on-answer": return <SearchOnAnswerSandbox />;
+    case "matrix-search":    return <MatrixSearchSandbox   />;
     default:
       return (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">

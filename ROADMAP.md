@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A42 wired — 30 visualizer kinds live on 33 topics; awaiting browser acceptance)
+**Last updated:** 2026-05-26 (A9-A50 wired — 38 visualizer kinds live on 41 topics; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -105,7 +105,20 @@ After A21: 10 visualizer kinds live across 11 topics (M30/M31-T2/M32-T1+T3/M33/M
 - [x] **A41.** M36-T4 K-Way Merge → `k-way-merge` — done 2026-05-26. Per-list cursor markers + min-heap of `{value, listIdx, posInList}` + output. Each pop emits its source list visually.
 - [x] **A42.** M34-T5 LRU Cache → `lru` — done 2026-05-26. New `LRUVisualizer.jsx` — paired HashMap key column + horizontal DLL with head (MRU) and tail (LRU) labels; eviction badge appears when capacity exceeded.
 
-**After A42: 30 visualizer kinds live across 33 topics.** Every algorithmic topic in DSA M30-M39 with a distinct teaching moment is now covered. Remaining 17 are intentionally text-only: pure synthesis (M30-T5/M33-T5/M36-T5/M38-T5/M39-T5), conceptual fundamentals (M31-T1), pattern-application duplicates (M31-T4 anagrams ≈ M34 hash, M32-T5 LL merge ≈ M32-T1, M34-T2..T4 HashMap patterns ≈ M34-T1, M35-T4 tree path ≈ M35-T2, M36-T3 PQ design ≈ M36-T1, M38-T3/T4 custom sort ≈ M38-T1, M39-T2/T4 BS variants ≈ M39-T1), and grid-shape detours (M37-T2 Islands).
+**After A42: 30 visualizer kinds live across 33 topics.**
+
+**A43–A50 — explicit user request to cover the previously-deferred-as-"duplicates" topics:**
+
+- [x] **A43.** M31-T4 Anagram & Frequency → `anagram` — done 2026-05-26. Char-by-char freq increment from s1, decrement from s2; any cell going negative = mismatch. Bar chart with state per character.
+- [x] **A44.** M32-T5 Merge Sorted LL → `merge-ll` — done 2026-05-26. Two pointers walking sorted lists A and B; pick smaller head each step, flush remainder when one exhausts. Distinct from LinkedListSandbox in that the comparison pointer pair is the lesson.
+- [x] **A45.** M34-T4 Custom Hash Keys → `custom-hash` — done 2026-05-26. Side-by-side mode toggle: naive `row % cap` (collides badly) vs composite `(31·row + col) % cap` (spreads). Reuses HashTableVisualizer.
+- [x] **A46.** M35-T4 Tree Path Problems → `tree-path` — done 2026-05-26. Root-to-leaf DFS with current-path stack visible; valid paths accumulate as green. Distinct from M35-T2 LCA (which animates bottom-up split detection vs this one's top-down sum accumulation).
+- [x] **A47.** M36-T3 PQ Design → `pq-lazy` — done 2026-05-26. Min-heap with lazy deletion: tombstoned values rendered in red but physically present; pop() lazily discards them when they bubble to the root. User-editable op list.
+- [x] **A48.** M37-T2 BFS/DFS Applications (Islands) → `islands` — done 2026-05-26. New `GridVisualizer.jsx` (shared with M39-T4). BFS sweep across a 5×5 grid; each connected component lights up in turn.
+- [x] **A49.** M39-T2 Search on Answer → `search-on-answer` — done 2026-05-26. Koko-eating-bananas: BS on the ANSWER SPACE (eating speeds 1..max) rather than on the input array. Predicate shown explicitly per frame.
+- [x] **A50.** M39-T4 2D Binary Search → `matrix-search` — done 2026-05-26. Staircase walk from top-right on a row+col-sorted matrix. Reuses GridVisualizer.
+
+**After A50: 38 visualizer kinds live across 41 topics.**
 
 ---
 

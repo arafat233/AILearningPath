@@ -26,236 +26,238 @@ const JAVA_ROOT  = path.resolve(__dirname, "..", "content", "pro", "java");
 // ── Module metadata (drives ProModule docs) ─────────────────────────────────
 // Folder-name → { moduleId, moduleNumber, slug, description, estimatedHours,
 // prerequisites }.
-// The display `name` comes from each topic.json's `module_name` to avoid
-// duplication, but everything else needs to live here.
+// The display `name` lives here as `displayName` — authoritative for the
+// module card heading. Previously this came from topic.json's `module_name`
+// but 13 modules (M34-M46) shipped without it, leaving "Java Module 34"-
+// style placeholders in the UI. MODULE_META is now the single source.
 const MODULE_META = {
   m1_fundamentals: {
-    moduleId: "java_m1", moduleNumber: 1, slug: "fundamentals",
+    moduleId: "java_m1", moduleNumber: 1, displayName: "Java Fundamentals", slug: "fundamentals",
     description: "Setting up Java, your first program, variables, operators, conditionals, loops, and reading user input. The building blocks every Java developer uses every day.",
     estimatedHours: 10, prerequisites: [],
   },
   m2_methods: {
-    moduleId: "java_m2", moduleNumber: 2, slug: "methods",
+    moduleId: "java_m2", moduleNumber: 2, displayName: "Methods & Code Organization", slug: "methods",
     description: "Breaking programs into named, reusable pieces. Parameters, return values, overloading, scope, and recursion — where 'writing code' becomes 'engineering software'.",
     estimatedHours: 10, prerequisites: ["java_m1"],
   },
   m3_arrays_strings: {
-    moduleId: "java_m3", moduleNumber: 3, slug: "arrays-strings",
+    moduleId: "java_m3", moduleNumber: 3, displayName: "Arrays & Strings", slug: "arrays-strings",
     description: "Arrays for handling multiple values, the Arrays utility class, multidimensional arrays, and the full Java String API including StringBuilder for performance.",
     estimatedHours: 12, prerequisites: ["java_m2"],
   },
   m4_oop_fundamentals: {
-    moduleId: "java_m4", moduleNumber: 4, slug: "oop-fundamentals",
+    moduleId: "java_m4", moduleNumber: 4, displayName: "Object-Oriented Programming Fundamentals", slug: "oop-fundamentals",
     description: "Classes, objects, constructors, encapsulation, instance vs static, and composition. The leap from procedural to object-oriented thinking.",
     estimatedHours: 14, prerequisites: ["java_m3"],
   },
   m5_inheritance_polymorphism: {
-    moduleId: "java_m5", moduleNumber: 5, slug: "inheritance-polymorphism",
+    moduleId: "java_m5", moduleNumber: 5, displayName: "Inheritance & Polymorphism", slug: "inheritance-polymorphism",
     description: "Inheritance, polymorphism, abstract classes, interfaces, and the Comparator pattern. The mechanisms behind every Java framework.",
     estimatedHours: 12, prerequisites: ["java_m4"],
   },
   m6_collections: {
-    moduleId: "java_m6", moduleNumber: 6, slug: "collections",
+    moduleId: "java_m6", moduleNumber: 6, displayName: "Collections Framework", slug: "collections",
     description: "ArrayList, HashMap, HashSet, Iterator, and choosing the right collection. The data structures behind every Java backend.",
     estimatedHours: 12, prerequisites: ["java_m5"],
   },
   m7_exception_handling: {
-    moduleId: "java_m7", moduleNumber: 7, slug: "exception-handling",
+    moduleId: "java_m7", moduleNumber: 7, displayName: "Exception Handling", slug: "exception-handling",
     description: "try / catch / finally, exception types, custom exceptions, defensive programming, and try-with-resources. Stop crashing on bad input — respond to it professionally.",
     estimatedHours: 10, prerequisites: ["java_m6"],
   },
   m8_lambdas_streams: {
-    moduleId: "java_m8", moduleNumber: 8, slug: "lambdas-streams",
+    moduleId: "java_m8", moduleNumber: 8, displayName: "Lambda Expressions & Streams", slug: "lambdas-streams",
     description: "Lambda expressions, functional interfaces (Predicate/Function/Consumer/Supplier), Stream API, Collectors, and Optional. Modern Java's functional programming model — the vocabulary of every Spring Boot codebase.",
     estimatedHours: 12, prerequisites: ["java_m7"],
   },
   m9_generics: {
-    moduleId: "java_m9", moduleNumber: 9, slug: "generics",
+    moduleId: "java_m9", moduleNumber: 9, displayName: "Generics", slug: "generics",
     description: "Generic classes, generic methods, bounded type parameters, wildcards (PECS), and generic interfaces (Repository, Mapper, Strategy patterns). Stop being a generics consumer — become a producer.",
     estimatedHours: 10, prerequisites: ["java_m8"],
   },
   m10_concurrency: {
-    moduleId: "java_m10", moduleNumber: 10, slug: "concurrency",
+    moduleId: "java_m10", moduleNumber: 10, displayName: "Concurrency and Threads", slug: "concurrency",
     description: "Thread basics, synchronization, ExecutorService, concurrent collections, and CompletableFuture. The skills behind every scalable backend and every responsive UI.",
     estimatedHours: 14, prerequisites: ["java_m9"],
   },
   m11_io_files: {
-    moduleId: "java_m11", moduleNumber: 11, slug: "io-files",
+    moduleId: "java_m11", moduleNumber: 11, displayName: "I/O, Files, and Networking", slug: "io-files",
     description: "NIO file API (Path + Files), buffered I/O, CSV/JSON parsing, Java HttpClient, and async I/O combining CompletableFuture + HttpClient. The bridge from in-memory Java to the real world.",
     estimatedHours: 12, prerequisites: ["java_m10"],
   },
   m12_testing: {
-    moduleId: "java_m12", moduleNumber: 12, slug: "testing",
+    moduleId: "java_m12", moduleNumber: 12, displayName: "Unit Testing with JUnit 5", slug: "testing",
     description: "JUnit 5 basics, parameterized tests, Mockito, testing I/O & HTTP, and Test-Driven Development. The skill that separates senior from junior engineers.",
     estimatedHours: 12, prerequisites: ["java_m11"],
   },
   m13_spring_boot: {
-    moduleId: "java_m13", moduleNumber: 13, slug: "spring-boot",
+    moduleId: "java_m13", moduleNumber: 13, displayName: "Spring Boot Fundamentals", slug: "spring-boot",
     description: "Spring Boot intro, REST controllers, Spring Data JPA, validation & exception handling, and Spring Boot testing. The #1 Java framework in industry — 85% of Java job postings.",
     estimatedHours: 14, prerequisites: ["java_m12"],
   },
   m14_spring_advanced: {
-    moduleId: "java_m14", moduleNumber: 14, slug: "spring-advanced",
+    moduleId: "java_m14", moduleNumber: 14, displayName: "Advanced Spring Boot", slug: "spring-advanced",
     description: "Spring Security + JWT, async/scheduled tasks, Spring Cache, configuration properties, and Actuator. The production-grade Spring Boot toolkit.",
     estimatedHours: 14, prerequisites: ["java_m13"],
   },
   m15_microservices: {
-    moduleId: "java_m15", moduleNumber: 15, slug: "microservices",
+    moduleId: "java_m15", moduleNumber: 15, displayName: "Microservices Architecture", slug: "microservices",
     description: "Microservices intro, Feign client, Eureka service discovery, Resilience4j circuit breaker, and distributed tracing. How Flipkart, Swiggy, Razorpay run hundreds of services.",
     estimatedHours: 14, prerequisites: ["java_m14"],
   },
   m16_kafka: {
-    moduleId: "java_m16", moduleNumber: 16, slug: "kafka",
+    moduleId: "java_m16", moduleNumber: 16, displayName: "Apache Kafka & Event-Driven Architecture", slug: "kafka",
     description: "Apache Kafka intro, producers, consumers, Kafka Streams, and schema registry. The event-streaming backbone of every modern Indian tech company.",
     estimatedHours: 12, prerequisites: ["java_m15"],
   },
   m17_database: {
-    moduleId: "java_m17", moduleNumber: 17, slug: "database",
+    moduleId: "java_m17", moduleNumber: 17, displayName: "Advanced Database Engineering", slug: "database",
     description: "PostgreSQL + Flyway migrations, N+1 query problem, connection pooling, JPA relationships, and transactions/locking. Database engineering for production.",
     estimatedHours: 12, prerequisites: ["java_m13"],
   },
   m18_redis: {
-    moduleId: "java_m18", moduleNumber: 18, slug: "redis",
+    moduleId: "java_m18", moduleNumber: 18, displayName: "Redis Caching & Rate Limiting", slug: "redis",
     description: "Redis fundamentals + Spring Cache, cache-aside, rate limiting, distributed locks, pub/sub. The universal caching layer for production Java.",
     estimatedHours: 10, prerequisites: ["java_m17"],
   },
   m19_resilience: {
-    moduleId: "java_m19", moduleNumber: 19, slug: "resilience",
+    moduleId: "java_m19", moduleNumber: 19, displayName: "Microservice Resilience", slug: "resilience",
     description: "Microservice resilience deep-dive: Resilience4j circuit breaker, retry + rate limiter, bulkhead, timeout + fallback, gateway resilience. Stop cascade failures.",
     estimatedHours: 10, prerequisites: ["java_m18"],
   },
   m20_observability: {
-    moduleId: "java_m20", moduleNumber: 20, slug: "observability",
+    moduleId: "java_m20", moduleNumber: 20, displayName: "Observability", slug: "observability",
     description: "Actuator + Micrometer, distributed tracing, structured logging, Prometheus + Grafana, and alerting + SLOs. The three pillars of observability for production.",
     estimatedHours: 10, prerequisites: ["java_m19"],
   },
   m21_deployment: {
-    moduleId: "java_m21", moduleNumber: 21, slug: "deployment",
+    moduleId: "java_m21", moduleNumber: 21, displayName: "Production Deployment", slug: "deployment",
     description: "Docker, Kubernetes, K8s config (ConfigMaps/Secrets), CI/CD with GitHub Actions, and blue-green deployments. From localhost to production.",
     estimatedHours: 12, prerequisites: ["java_m20"],
   },
   m22_performance: {
-    moduleId: "java_m22", moduleNumber: 22, slug: "performance",
+    moduleId: "java_m22", moduleNumber: 22, displayName: "Performance & Optimization", slug: "performance",
     description: "JVM tuning, DB query optimization, HikariCP connection pool tuning, caching strategies, and load testing. Production-grade performance engineering.",
     estimatedHours: 10, prerequisites: ["java_m21"],
   },
   m23_security: {
-    moduleId: "java_m23", moduleNumber: 23, slug: "security",
+    moduleId: "java_m23", moduleNumber: 23, displayName: "Security", slug: "security",
     description: "JWT authentication, OAuth2, secrets management (Vault), input validation, and rate limiting. Production security beyond basic auth.",
     estimatedHours: 10, prerequisites: ["java_m22"],
   },
   m24_system_design: {
-    moduleId: "java_m24", moduleNumber: 24, slug: "system-design",
+    moduleId: "java_m24", moduleNumber: 24, displayName: "System Design Patterns", slug: "system-design",
     description: "CQRS, event sourcing, saga pattern, strangler fig, bulkhead/sidecar. Senior-level distributed system patterns.",
     estimatedHours: 12, prerequisites: ["java_m23"],
   },
   m25_advanced_testing: {
-    moduleId: "java_m25", moduleNumber: 25, slug: "advanced-testing",
+    moduleId: "java_m25", moduleNumber: 25, displayName: "Advanced Testing Strategies", slug: "advanced-testing",
     description: "Testcontainers, contract testing (Pact), mutation testing (PIT), performance testing, chaos engineering. Beyond unit tests.",
     estimatedHours: 10, prerequisites: ["java_m24"],
   },
   m26_ai_integration: {
-    moduleId: "java_m26", moduleNumber: 26, slug: "ai-integration",
+    moduleId: "java_m26", moduleNumber: 26, displayName: "AI-Powered Java Applications", slug: "ai-integration",
     description: "Spring AI basics, RAG with vector stores, AI-powered features, LangChain4j, testing AI apps. LLM integration for Java backends.",
     estimatedHours: 10, prerequisites: ["java_m25"],
   },
   m27_graphql: {
-    moduleId: "java_m27", moduleNumber: 27, slug: "graphql",
+    moduleId: "java_m27", moduleNumber: 27, displayName: "GraphQL with Spring Boot", slug: "graphql",
     description: "GraphQL basics, Spring for GraphQL, DataLoader for N+1, subscriptions, testing GraphQL. Modern alternative to REST.",
     estimatedHours: 10, prerequisites: ["java_m26"],
   },
   m28_grpc: {
-    moduleId: "java_m28", moduleNumber: 28, slug: "grpc",
+    moduleId: "java_m28", moduleNumber: 28, displayName: "gRPC with Spring Boot", slug: "grpc",
     description: "gRPC basics, Spring gRPC, streaming (unary/server/client/bidi), gRPC security, testing with InProcessServer. High-performance binary RPC.",
     estimatedHours: 10, prerequisites: ["java_m27"],
   },
   m29_dsa1_complexity: {
-    moduleId: "java_m29", moduleNumber: 29, slug: "dsa-complexity",
+    moduleId: "java_m29", moduleNumber: 29, displayName: "DSA1: Big-O & Complexity Analysis", slug: "dsa-complexity",
     description: "Big O notation, analyzing code, space complexity, best/worst/amortized cases. The DSA foundation.",
     estimatedHours: 6, prerequisites: ["java_m6"],
   },
   m30_dsa2_arrays: {
-    moduleId: "java_m30", moduleNumber: 30, slug: "dsa-arrays",
+    moduleId: "java_m30", moduleNumber: 30, displayName: "DSA2: Array Patterns", slug: "dsa-arrays",
     description: "Two pointers, sliding window, prefix sums, Dutch national flag, array synthesis. Core array patterns for interviews.",
     estimatedHours: 8, prerequisites: ["java_m29"],
   },
   m31_dsa3_strings: {
-    moduleId: "java_m31", moduleNumber: 31, slug: "dsa-strings",
+    moduleId: "java_m31", moduleNumber: 31, displayName: "DSA3: String Algorithms", slug: "dsa-strings",
     description: "String fundamentals, pattern matching, palindromes, anagrams/frequency, string DP. Interview string problems.",
     estimatedHours: 8, prerequisites: ["java_m30"],
   },
   m32_dsa4_linked_lists: {
-    moduleId: "java_m32", moduleNumber: 32, slug: "dsa-linked-lists",
+    moduleId: "java_m32", moduleNumber: 32, displayName: "DSA4: Linked Lists", slug: "dsa-linked-lists",
     description: "Linked list basics, two-pointer technique, reversal, cycle detection (Floyd's), merge sort on LL. Classic interview territory.",
     estimatedHours: 8, prerequisites: ["java_m31"],
   },
   m33_dsa5_stacks_queues: {
-    moduleId: "java_m33", moduleNumber: 33, slug: "dsa-stacks-queues",
+    moduleId: "java_m33", moduleNumber: 33, displayName: "DSA5: Stacks & Queues", slug: "dsa-stacks-queues",
     description: "Stack fundamentals, monotonic stack, queue fundamentals, deque + sliding window, synthesis problems.",
     estimatedHours: 8, prerequisites: ["java_m32"],
   },
   m34_dsa6_hash_tables: {
-    moduleId: "java_m34", moduleNumber: 34, slug: "dsa-hash-tables",
+    moduleId: "java_m34", moduleNumber: 34, displayName: "DSA6: Hash Tables", slug: "dsa-hash-tables",
     description: "Hash fundamentals, HashMap patterns, HashSet applications, custom hash keys, synthesis problems.",
     estimatedHours: 8, prerequisites: ["java_m33"],
   },
   m35_dsa7_trees_bst: {
-    moduleId: "java_m35", moduleNumber: 35, slug: "dsa-trees-bst",
+    moduleId: "java_m35", moduleNumber: 35, displayName: "DSA7: Trees & BST", slug: "dsa-trees-bst",
     description: "Tree traversals (DFS/BFS), classic tree problems, BST operations, path problems, Trie. The tree toolkit.",
     estimatedHours: 10, prerequisites: ["java_m34"],
   },
   m36_dsa8_heaps: {
-    moduleId: "java_m36", moduleNumber: 36, slug: "dsa-heaps",
+    moduleId: "java_m36", moduleNumber: 36, displayName: "DSA8: Heaps & Priority Queues", slug: "dsa-heaps",
     description: "Heap fundamentals, top-K patterns, custom priority queue design, K-way merge problems, synthesis. Heap mastery.",
     estimatedHours: 8, prerequisites: ["java_m35"],
   },
   m37_dsa9_graphs: {
-    moduleId: "java_m37", moduleNumber: 37, slug: "dsa-graphs",
+    moduleId: "java_m37", moduleNumber: 37, displayName: "DSA9: Graphs", slug: "dsa-graphs",
     description: "Graph representation, BFS/DFS, topological sort, shortest path (Dijkstra/BFS), synthesis problems.",
     estimatedHours: 10, prerequisites: ["java_m36"],
   },
   m38_dsa10_sorting: {
-    moduleId: "java_m38", moduleNumber: 38, slug: "dsa-sorting",
+    moduleId: "java_m38", moduleNumber: 38, displayName: "DSA10: Sorting Algorithms", slug: "dsa-sorting",
     description: "Comparison sorts (quick/merge/heap), non-comparison sorts (counting/radix), applications, custom Comparator sort, synthesis.",
     estimatedHours: 8, prerequisites: ["java_m37"],
   },
   m39_dsa11_binary_search: {
-    moduleId: "java_m39", moduleNumber: 39, slug: "dsa-binary-search",
+    moduleId: "java_m39", moduleNumber: 39, displayName: "DSA11: Binary Search", slug: "dsa-binary-search",
     description: "Binary search basics, search on answer space, rotated arrays, 2D binary search, synthesis problems.",
     estimatedHours: 8, prerequisites: ["java_m38"],
   },
   m40_dsa12_backtracking: {
-    moduleId: "java_m40", moduleNumber: 40, slug: "dsa-backtracking",
+    moduleId: "java_m40", moduleNumber: 40, displayName: "DSA12: Backtracking", slug: "dsa-backtracking",
     description: "Backtracking template, permutations/combinations, Sudoku + N-Queens, word search, synthesis problems.",
     estimatedHours: 8, prerequisites: ["java_m39"],
   },
   m41_dsa13_dynamic_programming: {
-    moduleId: "java_m41", moduleNumber: 41, slug: "dsa-dynamic-programming",
+    moduleId: "java_m41", moduleNumber: 41, displayName: "DSA13: Dynamic Programming", slug: "dsa-dynamic-programming",
     description: "DP fundamentals, 1D DP, 2D DP, tree + interval DP, synthesis problems. The interview-final boss.",
     estimatedHours: 12, prerequisites: ["java_m40"],
   },
   m42_interview_prep_1: {
-    moduleId: "java_m42", moduleNumber: 42, slug: "interview-prep-1",
+    moduleId: "java_m42", moduleNumber: 42, displayName: "Interview Prep 1: Coding Foundations", slug: "interview-prep-1",
     description: "Interview mindset, problem-solving framework, communicating time complexity, common patterns review, coding interview synthesis.",
     estimatedHours: 6, prerequisites: ["java_m41"],
   },
   m43_interview_prep_2: {
-    moduleId: "java_m43", moduleNumber: 43, slug: "interview-prep-2",
+    moduleId: "java_m43", moduleNumber: 43, displayName: "Interview Prep 2: System Design", slug: "interview-prep-2",
     description: "System design basics, scalability patterns, database design, API design, system design synthesis.",
     estimatedHours: 6, prerequisites: ["java_m42"],
   },
   m44_interview_prep_3: {
-    moduleId: "java_m44", moduleNumber: 44, slug: "interview-prep-3",
+    moduleId: "java_m44", moduleNumber: 44, displayName: "Interview Prep 3: Behavioral", slug: "interview-prep-3",
     description: "Behavioral interviews: STAR method, leadership/collaboration stories, technical decisions, career narrative, synthesis.",
     estimatedHours: 5, prerequisites: ["java_m43"],
   },
   m45_interview_prep_4: {
-    moduleId: "java_m45", moduleNumber: 45, slug: "interview-prep-4",
+    moduleId: "java_m45", moduleNumber: 45, displayName: "Interview Prep 4: Mock Coding Rounds", slug: "interview-prep-4",
     description: "Mock coding rounds: easy / medium / hard / timed practice / synthesis. Real interview pacing.",
     estimatedHours: 8, prerequisites: ["java_m44"],
   },
   m46_interview_prep_5: {
-    moduleId: "java_m46", moduleNumber: 46, slug: "interview-prep-5",
+    moduleId: "java_m46", moduleNumber: 46, displayName: "Interview Prep 5: Company-Specific", slug: "interview-prep-5",
     description: "Company-specific prep: Zerodha, Flipkart, Razorpay, HDFC/CTS, plus final readiness checklist. Interview day ready.",
     estimatedHours: 6, prerequisites: ["java_m45"],
   },
@@ -408,7 +410,12 @@ async function run() {
     topicEntries.sort((a, b) => (a.topic.topic_number || 0) - (b.topic.topic_number || 0));
 
     // ProModule upsert (use the first topic's module_name)
-    const moduleName = topicEntries[0]?.topic.module_name || `Java Module ${meta.moduleNumber}`;
+    // MODULE_META.displayName is the authoritative name (single source of truth).
+    // Fall back to the first topic's module_name only if displayName is missing,
+    // and finally to a generic placeholder.
+    const moduleName = meta.displayName
+      || topicEntries[0]?.topic.module_name
+      || `Java Module ${meta.moduleNumber}`;
     await ProModule.findOneAndUpdate(
       { moduleId },
       {

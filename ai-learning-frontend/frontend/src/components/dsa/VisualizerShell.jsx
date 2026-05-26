@@ -59,6 +59,9 @@ import PQLazySandbox           from "./modes/PQLazySandbox.jsx";
 import IslandsSandbox          from "./modes/IslandsSandbox.jsx";
 import SearchOnAnswerSandbox   from "./modes/SearchOnAnswerSandbox.jsx";
 import MatrixSearchSandbox     from "./modes/MatrixSearchSandbox.jsx";
+import HashGroupingSandbox     from "./modes/HashGroupingSandbox.jsx";
+import HashDedupSandbox        from "./modes/HashDedupSandbox.jsx";
+import IntervalMergeSandbox    from "./modes/IntervalMergeSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
@@ -103,6 +106,9 @@ export default function VisualizerShell({ kind, config = {} }) {
     case "islands":          return <IslandsSandbox        />;
     case "search-on-answer": return <SearchOnAnswerSandbox />;
     case "matrix-search":    return <MatrixSearchSandbox   />;
+    case "hash-grouping":    return <HashGroupingSandbox   />;
+    case "hash-dedup":       return <HashDedupSandbox      />;
+    case "interval-merge":   return <IntervalMergeSandbox  />;
     default:
       return (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">

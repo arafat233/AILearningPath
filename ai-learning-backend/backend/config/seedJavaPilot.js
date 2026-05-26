@@ -400,6 +400,10 @@ const TOPIC_VISUALIZERS = {
   "java_m37_t2": { kind: "islands",            config: {} },  // A48
   "java_m39_t2": { kind: "search-on-answer",   config: {} },  // A49
   "java_m39_t4": { kind: "matrix-search",      config: {} },  // A50
+  // A51-A53 — final 3 (user-requested).
+  "java_m34_t2": { kind: "hash-grouping",      config: {} },  // A51
+  "java_m34_t3": { kind: "hash-dedup",         config: {} },  // A52
+  "java_m38_t3": { kind: "interval-merge",     config: {} },  // A53
 };
 
 function mapTopic(raw, moduleId) {

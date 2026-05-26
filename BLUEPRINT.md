@@ -1459,7 +1459,7 @@ Frontend
   src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
   src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
   src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
-    VisualizerShell.jsx                       Dispatcher on `kind`. 38 kinds:
+    VisualizerShell.jsx                       Dispatcher on `kind`. 41 kinds:
                                                 sorting-sandbox · binary-search ·
                                                 linked-list · stack · tree ·
                                                 array-pointers · heap · hash-table ·
@@ -1475,7 +1475,9 @@ Frontend
                                                 union-find · k-way-merge · lru ·
                                                 anagram · merge-ll · custom-hash ·
                                                 tree-path · pq-lazy · islands ·
-                                                search-on-answer · matrix-search
+                                                search-on-answer · matrix-search ·
+                                                hash-grouping · hash-dedup ·
+                                                interval-merge
     modes/                                    Per-kind orchestrators (T1 + T2-T5)
       SortingSandbox (inline in shell)          M38-T1 sorts + student mode
       BinarySearchSandbox.jsx                   M39-T1 binary search
@@ -1515,6 +1517,9 @@ Frontend
       IslandsSandbox.jsx                        M37-T2 grid BFS component count
       SearchOnAnswerSandbox.jsx                 M39-T2 BS on answer space (Koko)
       MatrixSearchSandbox.jsx                   M39-T4 staircase walk
+      HashGroupingSandbox.jsx                   M34-T2 group anagrams
+      HashDedupSandbox.jsx                      M34-T3 dedup w/ HashSet
+      IntervalMergeSandbox.jsx                  M38-T3 merge overlapping intervals
     algorithms/                               Step generators: 5 sorts, binary/
                                                 linear search, linked-list ops,
                                                 heap, hashTable, kmp, graph (BFS/
@@ -1527,7 +1532,8 @@ Frontend
                                                 unionFind, kWayMerge, lru, anagram,
                                                 mergeLL, customHash, treePath,
                                                 pqLazy, islands, searchOnAnswer,
-                                                matrixSearch
+                                                matrixSearch, hashGrouping,
+                                                hashDedup, intervalMerge
     runners/studentRunner.js                  JS code tracer (50k-step loop guard)
     Render primitives (framer-motion)         ArrayBars · ArrayVisualizer ·
                                                 LinkedListVisualizer ·
@@ -1542,7 +1548,9 @@ Frontend
                                                 UnionFindVisualizer (parent forest) ·
                                                 LRUVisualizer (HashMap + DLL paired) ·
                                                 GridVisualizer (2D cells w/ states —
-                                                  used by Islands + Matrix Search)
+                                                  used by Islands + Matrix Search) ·
+                                                IntervalVisualizer (timeline bars
+                                                  with input + result rows)
     Controls / ExplanationPanel /             Playback toolbar + status panels +
       StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 

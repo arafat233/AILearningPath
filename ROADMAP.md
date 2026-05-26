@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A50 wired — 38 visualizer kinds live on 41 topics; awaiting browser acceptance)
+**Last updated:** 2026-05-26 (A9-A53 wired — 41 visualizer kinds live on 44 topics; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -119,6 +119,14 @@ After A21: 10 visualizer kinds live across 11 topics (M30/M31-T2/M32-T1+T3/M33/M
 - [x] **A50.** M39-T4 2D Binary Search → `matrix-search` — done 2026-05-26. Staircase walk from top-right on a row+col-sorted matrix. Reuses GridVisualizer.
 
 **After A50: 38 visualizer kinds live across 41 topics.**
+
+**A51–A53 — final 3 (user-requested) "pattern application" visualizers:**
+
+- [x] **A51.** M34-T2 HashMap Patterns → `hash-grouping` — done 2026-05-26. Group Anagrams demo. Distinct from M34-T1 because the KEY is a derived value (sorted chars), not the literal input — that derivation step is the lesson.
+- [x] **A52.** M34-T3 HashSet Applications → `hash-dedup` — done 2026-05-26. Dedup-with-order-preserved. Distinct from M34-T1 because it's about membership testing (no value), and the set-growing-monotonically property is the visual.
+- [x] **A53.** M38-T3 Sorting Applications → `interval-merge` — done 2026-05-26. Merge overlapping intervals — new `IntervalVisualizer.jsx` renders intervals as bars on a time axis. Two-phase: sort by start, then linear scan extending or pushing.
+
+**After A53: 41 visualizer kinds live across 44 topics.** Coverage is now 44/50 = 88% of M30-M39. The remaining 6 are all genuinely text-only: synthesis topics (M30-T5, M33-T5, M36-T5, M38-T5, M39-T5) and string fundamentals (M31-T1).
 
 ---
 

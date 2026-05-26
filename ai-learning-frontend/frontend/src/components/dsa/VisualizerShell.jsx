@@ -62,6 +62,8 @@ import MatrixSearchSandbox     from "./modes/MatrixSearchSandbox.jsx";
 import HashGroupingSandbox     from "./modes/HashGroupingSandbox.jsx";
 import HashDedupSandbox        from "./modes/HashDedupSandbox.jsx";
 import IntervalMergeSandbox    from "./modes/IntervalMergeSandbox.jsx";
+import MemoryModelSandbox      from "./modes/MemoryModelSandbox.jsx";
+import RecursionSandbox        from "./modes/RecursionSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
@@ -109,6 +111,8 @@ export default function VisualizerShell({ kind, config = {} }) {
     case "hash-grouping":    return <HashGroupingSandbox   />;
     case "hash-dedup":       return <HashDedupSandbox      />;
     case "interval-merge":   return <IntervalMergeSandbox  />;
+    case "memory-model":     return <MemoryModelSandbox    />;
+    case "recursion":        return <RecursionSandbox      />;
     default:
       return (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">

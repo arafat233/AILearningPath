@@ -404,6 +404,9 @@ const TOPIC_VISUALIZERS = {
   "java_m34_t2": { kind: "hash-grouping",      config: {} },  // A51
   "java_m34_t3": { kind: "hash-dedup",         config: {} },  // A52
   "java_m38_t3": { kind: "interval-merge",     config: {} },  // A53
+  // D1.1-D1.4 — log2base2 parity: execution-state visualizations.
+  "java_m4_t1":  { kind: "memory-model",       config: {} },  // D1.1 — Classes & Objects
+  "java_m2_t5":  { kind: "recursion",          config: {} },  // D1.2 — Recursion Basics
 };
 
 function mapTopic(raw, moduleId) {

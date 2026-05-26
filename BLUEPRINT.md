@@ -1403,13 +1403,36 @@ the user's currently-active track; the sidebar nav is resolved per track by
 Switching is one click via `<TrackSwitcher />` in the sidebar header, which
 calls `PATCH /api/user/active-track` (auth + Joi-validated, enrolment-gated).
 `GET /api/user/nav` returns `{ activeTrack, tracks, items }` for the current
-user. `proService.enroll` writes `activeTrack = trackKey` on a user's *first*
-enrolment so first-time pro signups land in the pro shell automatically.
-Migration `migrations/2026-05-26_users_add_active_track.mjs` backfills
-existing rows (`activeTrack = tracks[0]?.key ?? "school"`). Boards-countdown
-badge in the sidebar is now hidden in pro mode. Follow-up: Voice Tutor
-system-prompt switching per `activeTrack`; aggregated Certificates wall
-across tracks.
+user. Items flagged `crossMode: true` (only `/pro` today) are stripped from
+the school nav unless the user is also enrolled in a `pro_*` track — pure
+school students don't see the upsell. `proService.enroll` writes
+`activeTrack = trackKey` on a user's *first* enrolment so first-time pro
+signups land in the pro shell automatically. Migration
+`migrations/2026-05-26_users_add_active_track.mjs` backfills existing rows
+(`activeTrack = tracks[0]?.key ?? "school"`). Boards-countdown badge in the
+sidebar is hidden in pro mode. Layout refetches nav whenever the effective
+actor changes (`user._id` *or* `activeChild._id`) so parent-as-child views
+render the child's nav, not the parent's. Follow-up: Voice Tutor system-
+prompt switching per `activeTrack`; aggregated Certificates wall across
+tracks.
+
+**Track discovery / add (added 2026-05-26).** `/tracks` page lists the
+user's enrolled tracks plus available pro tracks (via `proListTracks`);
+each card shows Active/Switch/Enrol depending on state. Linked from the
+TrackSwitcher dropdown footer ("+ Add another track" — renders even for
+single-track users) and from the top-right user dropdown ("My tracks").
+When `proListTracks` 403s for non-allowlisted users, the page shows a
+private-pilot waitlist card instead of hiding Pro entirely.
+
+**PRO_TRACK_PLAN decision #8 reversed (2026-05-26).** Pro-track learner is
+no longer required to be the parent. `/api/v1/pro` was removed from
+`CHILD_SWAP_SKIP_PREFIXES` in `middleware/auth.js` so when a parent is
+viewing-as-child, all pro actions (enrol, progress, submissions) are
+scoped to the child. The pilot email allowlist still checks the parent's
+email via `featureFlag.js`'s `req.parentUserId` fallback, so the gate
+isn't widened — only the *owner* of each enrolment changes. Rationale:
+school students with parent-managed accounts must be able to have their
+own Java journey without sharing the parent's account state.
 
 ### Pro-track architecture cheatsheet
 
@@ -1459,7 +1482,7 @@ Frontend
   src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
   src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
   src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
-    VisualizerShell.jsx                       Dispatcher on `kind`. 41 kinds:
+    VisualizerShell.jsx                       Dispatcher on `kind`. 43 kinds:
                                                 sorting-sandbox · binary-search ·
                                                 linked-list · stack · tree ·
                                                 array-pointers · heap · hash-table ·
@@ -1477,7 +1500,8 @@ Frontend
                                                 tree-path · pq-lazy · islands ·
                                                 search-on-answer · matrix-search ·
                                                 hash-grouping · hash-dedup ·
-                                                interval-merge
+                                                interval-merge · memory-model ·
+                                                recursion
     modes/                                    Per-kind orchestrators (T1 + T2-T5)
       SortingSandbox (inline in shell)          M38-T1 sorts + student mode
       BinarySearchSandbox.jsx                   M39-T1 binary search
@@ -1520,6 +1544,8 @@ Frontend
       HashGroupingSandbox.jsx                   M34-T2 group anagrams
       HashDedupSandbox.jsx                      M34-T3 dedup w/ HashSet
       IntervalMergeSandbox.jsx                  M38-T3 merge overlapping intervals
+      MemoryModelSandbox.jsx                    M4-T1 JVM stack/heap/refs (D1.1)
+      RecursionSandbox.jsx                      M2-T5 call-stack frames (D1.2)
     algorithms/                               Step generators: 5 sorts, binary/
                                                 linear search, linked-list ops,
                                                 heap, hashTable, kmp, graph (BFS/
@@ -1550,7 +1576,15 @@ Frontend
                                                 GridVisualizer (2D cells w/ states —
                                                   used by Islands + Matrix Search) ·
                                                 IntervalVisualizer (timeline bars
-                                                  with input + result rows)
+                                                  with input + result rows) ·
+                                                JVMMemoryVisualizer (stack/heap +
+                                                  reference arrows — D1.1) ·
+                                                CallStackVisualizer (recursion
+                                                  frame cards — D1.2) ·
+                                                HighlightedCode (line-by-line code
+                                                  with active-line highlight — D1.3) ·
+                                                VariablePanel (name→value table
+                                                  with per-row state — D1.4)
     Controls / ExplanationPanel /             Playback toolbar + status panels +
       StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 

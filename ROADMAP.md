@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A53 wired — 41 visualizer kinds live on 44 topics; awaiting browser acceptance)
+**Last updated:** 2026-05-26 (A9-A53 + D1.1/D1.2/D1.3/D1.4 wired — 43 visualizer kinds live on 46 topics; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -138,10 +138,12 @@ Added after a competitive audit against [log2base2.com](https://log2base2.com/).
 
 **D1. Execution-state visualizations (the biggest content gap)**
 
-- [ ] **D1.1.** [PRIOR] **JVM memory model visualizer** — stack vs heap, reference vs primitive, what `String s = new String("x")` actually does. New `JVMMemoryVisualizer.jsx`. Wires to a new "memory & references" lesson in M4 (OOP Fundamentals). log2base2's signature move for C ([L2B2]) — Stellar should do the Java version.
-- [ ] **D1.2.** [PRIOR] **Recursion call-stack frame animator** — general primitive showing recursion as a growing/shrinking stack of frames with locals. Wires to M2 recursion topic, Tower of Hanoi, Fibonacci, factorial, plus a re-vamp of M35-T2 LCA. log2base2 explicitly markets "binary recursion calls step-by-step" ([L2B2]).
-- [ ] **D1.3.** [PRIOR] **Universal code-line stepper** — propagate the `currentLine` Monaco-highlighter we have in SortingSandbox to the other 40 visualizers. Every step generator already carries a notion of "the line that just ran" — wire it into the displayed code block. Closes the "what every line of code does" pitch ([L2B2]).
-- [ ] **D1.4.** [INFERRED] **Variable state panel beside code** — for short teaching examples (M1-M5), show variable name → current value → memory address (for references) as code executes line-by-line. Pairs with D1.3.
+- [x] **D1.1.** [PRIOR] **JVM memory model visualizer** — done 2026-05-26. New `JVMMemoryVisualizer.jsx` renders stack frames (left) and heap objects (right) with reference arrows. New `algorithms/memoryModel.js` provides 3 hand-authored traces: primitives-vs-references, object-mutation-through-method, nulling-a-reference. Wired to M4-T1 Classes & Objects. New kind: `memory-model`.
+- [x] **D1.2.** [PRIOR] **Recursion call-stack frame animator** — done 2026-05-26. New `CallStackVisualizer.jsx` renders frames as cards stacked top-down with active/waiting/returning status and local-variable badges per frame. New `algorithms/recursion.js` simulates factorial, fibonacci (binary recursion), and sumToN. Wired to M2-T5 Recursion Basics. New kind: `recursion`.
+- [~] **D1.3.** [PRIOR] **Universal code-line stepper** — partial 2026-05-26. New `HighlightedCode.jsx` primitive (line-by-line render with active-line highlight + auto-scroll). Used in the 2 new sandboxes (MemoryModel, Recursion) and propagated to BinarySearchSandbox + LinkedListSandbox (which already had `codeLine` in their step generators). Remaining: add `codeLine` to step generators that don't have it (sliding-window, dutch-flag, palindrome, ~30 others) and swap their `<pre>` for HighlightedCode. Logged as D1.3b below.
+- [x] **D1.4.** [INFERRED] **Variable state panel beside code** — done 2026-05-26. New `VariablePanel.jsx` primitive (table of name → value with state per row, AnimatePresence for in/out). Used in MemoryModel/Recursion via the visualizers themselves (JVMMemoryVisualizer renders stack-frame variables; CallStackVisualizer renders per-frame locals). Standalone VariablePanel ready for reuse in future sandboxes.
+
+- [ ] **D1.3b.** *Follow-up:* propagate HighlightedCode to the remaining ~30 sandboxes. For each, add `codeLine` to its step generator emit, then swap `<pre>` → `<HighlightedCode>`. Independent task per sandbox; can be incremental.
 
 **D2. Missing DSA primitives (specific data structures they cover that Stellar doesn't)**
 

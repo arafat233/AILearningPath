@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import LinkedListVisualizer from "../LinkedListVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
+import HighlightedCode from "../HighlightedCode.jsx";
 import {
   LL_INTRO_CODE, LL_INSERT_CODE, LL_DELETE_CODE,
   generateLLIntroSteps, generateLLInsertSteps, generateLLDeleteSteps,
@@ -131,7 +132,7 @@ export default function LinkedListSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <LinkedListVisualizer nodes={frame.nodes} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{op.code}</code></pre>
+        <HighlightedCode code={op.code} activeLine={frame.step.codeLine} height="340px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

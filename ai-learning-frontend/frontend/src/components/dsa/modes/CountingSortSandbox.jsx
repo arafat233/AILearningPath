@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { COUNTING_SORT_CODE, generateCountingSortSteps } from "../algorithms/countingSort.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { COUNTING_SORT_CODE, LINE_BY_PHASE, generateCountingSortSteps } from "../algorithms/countingSort.js";
 
 const DEFAULT_ARR = [4, 2, 2, 8, 3, 3, 1, 5, 4, 2];
 
@@ -85,7 +86,7 @@ export default function CountingSortSandbox() {
           <div className="text-[10px] uppercase tracking-widest text-[#555] mb-1.5">phase</div>
           <div className="font-mono text-[14px] text-amber-300">{frame.phase}</div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[280px]"><code>{COUNTING_SORT_CODE}</code></pre>
+        <HighlightedCode code={COUNTING_SORT_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="280px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

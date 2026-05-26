@@ -18,6 +18,8 @@ int[] countingSort(int[] arr, int max) {
   return out;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, count: 4, cumsum: 5, place: 8, done: 10 };
+
 export function generateCountingSortSteps(arr) {
   const max = Math.max(...arr, 0);
   const count = new Array(max + 1).fill(0);

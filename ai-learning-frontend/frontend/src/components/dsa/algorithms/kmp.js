@@ -47,6 +47,9 @@ int[] buildFailure(String p) {
   return fail;
 }`;
 
+// kmp.js frames use an `action` field instead of `phase`.
+export const LINE_BY_ACTION = { init: 5, compare: 10, fallback: 8, match: 12 };
+
 export function buildFailureTable(pattern) {
   const fail = new Array(pattern.length).fill(0);
   let k = 0;

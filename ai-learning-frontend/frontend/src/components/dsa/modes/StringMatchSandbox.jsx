@@ -8,7 +8,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import StringMatchVisualizer from "../StringMatchVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { KMP_CODE, generateKMPSteps } from "../algorithms/kmp.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { KMP_CODE, LINE_BY_ACTION, generateKMPSteps } from "../algorithms/kmp.js";
 
 const DEFAULT_TEXT    = "ababcababcabcabc";
 const DEFAULT_PATTERN = "abcabc";
@@ -101,7 +102,7 @@ export default function StringMatchSandbox() {
           matches={frame.matches}
           action={frame.action}
         />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{KMP_CODE}</code></pre>
+        <HighlightedCode code={KMP_CODE} activeLine={LINE_BY_ACTION[frame.action]} height="420px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

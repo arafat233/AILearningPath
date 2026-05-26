@@ -130,6 +130,52 @@ After A21: 10 visualizer kinds live across 11 topics (M30/M31-T2/M32-T1+T3/M33/M
 
 ---
 
+### D. log2base2 Parity Checklist (2026-05-26)
+
+Added after a competitive audit against [log2base2.com](https://log2base2.com/). They're an established player (400k+ learners, 13 courses, ₹2999 lifetime) and the "World's First Visual Learning Platform" by their own marketing. Stellar already exceeds them on DSA visualizer interactivity (user-editable inputs vs their click-through), structured topic format, code grading (Judge0), and modern-Java depth. What follows is genuine content + pedagogy holes — not brand/marketing/distribution gaps which are a different problem.
+
+**Source of each item:** [L2B2] = confirmed they have it via search/Medium · [PRIOR] = from earlier code-gap analysis in this session · [INFERRED] = strong guess based on their marketing claims, not directly verified.
+
+**D1. Execution-state visualizations (the biggest content gap)**
+
+- [ ] **D1.1.** [PRIOR] **JVM memory model visualizer** — stack vs heap, reference vs primitive, what `String s = new String("x")` actually does. New `JVMMemoryVisualizer.jsx`. Wires to a new "memory & references" lesson in M4 (OOP Fundamentals). log2base2's signature move for C ([L2B2]) — Stellar should do the Java version.
+- [ ] **D1.2.** [PRIOR] **Recursion call-stack frame animator** — general primitive showing recursion as a growing/shrinking stack of frames with locals. Wires to M2 recursion topic, Tower of Hanoi, Fibonacci, factorial, plus a re-vamp of M35-T2 LCA. log2base2 explicitly markets "binary recursion calls step-by-step" ([L2B2]).
+- [ ] **D1.3.** [PRIOR] **Universal code-line stepper** — propagate the `currentLine` Monaco-highlighter we have in SortingSandbox to the other 40 visualizers. Every step generator already carries a notion of "the line that just ran" — wire it into the displayed code block. Closes the "what every line of code does" pitch ([L2B2]).
+- [ ] **D1.4.** [INFERRED] **Variable state panel beside code** — for short teaching examples (M1-M5), show variable name → current value → memory address (for references) as code executes line-by-line. Pairs with D1.3.
+
+**D2. Missing DSA primitives (specific data structures they cover that Stellar doesn't)**
+
+- [ ] **D2.1.** [L2B2] **Doubly Linked List visualizer** — separate from singly LL. Show prev + next pointers, insert/delete with both pointers updated. M32 doesn't have a dedicated topic for it; could add as M32-T6 OR fold into M32-T1 as a second mode.
+- [ ] **D2.2.** [L2B2] **Circular Linked List visualizer** — tail.next = head, traversal-with-termination-check. M32 doesn't have it. CycleListVisualizer can be adapted.
+- [ ] **D2.3.** [L2B2] **Array insert-at-index animation** — explicitly show the shift-right operation when inserting into the middle of a fixed-size array. M30-T1 doesn't show this; ArrayVisualizer can be reused with a new step generator.
+
+**D3. Topics they have as standalone courses, Stellar covers only partially**
+
+- [ ] **D3.1.** [L2B2] **Bitwise Operations course** — they have a full course; Stellar has bitwise content scattered (none dedicated). Worth a new M28-ish topic block: AND/OR/XOR/shifts, common tricks (check power-of-2, count set bits, swap without temp, single number). With a `BitwiseVisualizer` showing 8-bit register operations.
+- [ ] **D3.2.** [L2B2] **Recursion-for-Interviews course** — they have it as a full course. Stellar covers recursion in M2 but only at fundamentals level. Add a dedicated "Recursion patterns" module: classic patterns (subset/permutation/combination, divide-and-conquer, backtracking templates). Pairs with D1.2 (call-stack visualizer).
+- [ ] **D3.3.** [L2B2] **Time Complexity Analysis course** — they have it standalone. Stellar mentions Big-O in passing per algorithm but no derivation walkthrough. Add a "Complexity Derivation Tool" — show learner a piece of code, ask them to walk through, derive O() step by step. This is actually Phase 2.D from the v3 plan; tag it as a parity item too.
+- [ ] **D3.4.** [L2B2] **Coding Interview Patterns** as a course — they bundle the patterns (two-pointer, sliding window, BFS/DFS, fast-slow pointers, merge intervals, etc.) into one product. Stellar has these scattered across M30-M39 but no "pattern atlas" view. Add a `/pro/java/patterns` page that indexes patterns → demo topics → exercises. This is also Phase 1.C; mark as parity-relevant.
+
+**D4. Pedagogy / presentation gaps**
+
+- [ ] **D4.1.** [L2B2] **Real-world metaphor visuals** — they animate Bubble Sort with bubbles + fish, not abstract bars. Stellar's visualizers are functional but cold. Could add a "Story mode" toggle to SortingSandbox that swaps bars for stylized characters/objects. Probably not worth the effort; brand/aesthetic call.
+- [ ] **D4.2.** [INFERRED] **Single-page-tutorial lesson format** — log2base2 lessons are long-form articles with inline animations. Stellar's ProTopicView is already this shape but the visualizer takes the heaviest visual weight. Consider an "ELI5" toggle that strips back to text + key animation only, for learners overwhelmed by the dashboard density.
+- [ ] **D4.3.** [PRIOR] **Mobile-responsive visualizer layouts** — Stellar's lg:grid-cols breakpoints work, but SVG primitives don't scale to phones. Audit + fix all 14 primitives. (Half a day of CSS-only work.)
+- [ ] **D4.4.** [INFERRED] **MotherTong-equivalent / native-language support** — log2base2's regional-language play. Out of scope for now; flag as a possible future moat.
+
+**D5. Product / distribution (not content, but they have it and we don't)**
+
+- [ ] **D5.1.** [L2B2] **Substantial free tier** — log2base2 opens many topics ungated. Stellar gates everything behind allowlist. Open ~10 lighthouse topics (M30-T1, M35-T1, M36-T1, M37-T1, M38-T1, M39-T1, M1-T1, M4-T1, M5-T1, M6-T1) for unauthenticated browsing.
+- [ ] **D5.2.** [INFERRED] **YouTube channel + SEO presence** — log2base2 has 400k learners largely via YouTube + organic search. Not engineering work, but real strategic gap. Defer.
+- [ ] **D5.3.** [INFERRED] **Community / discussion per topic** — most edtech sites have Q&A threads. Stellar has none. New `TopicDiscussion` model + thread component on `ProTopicView`. Probably 3 days.
+- [ ] **D5.4.** [INFERRED] **Lifetime / one-time pricing option** — log2base2 charges ₹2999 once. Stellar's pricing model isn't decided yet. Product decision.
+
+---
+
+**Priority recommendation:** D1.1, D1.2, D1.3 first — they're 3-4 days combined and they close the *teaching* gap, which is the only gap that's actually about the product's quality (vs brand/distribution). Everything else can wait until after Phase 1.B (AI Tutor) ships.
+
+---
+
 ### B. AI Socratic Tutor (3–5 days)
 
 The single highest-ROI feature. Justifies a paid tier on its own.

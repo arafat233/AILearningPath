@@ -346,8 +346,19 @@ function mapProject(raw, moduleId, topicId) {
 //   "sorting-sandbox" | "binary-search" | "linked-list" | "stack" |
 //   "tree" | "array-pointers"
 const TOPIC_VISUALIZERS = {
-  // Phase 1.A proof topic — Bubble Sort intro.
-  "java_m38_t1": { kind: "sorting-sandbox", config: {} },
+  // A11 — proof topic (sorting).
+  "java_m38_t1": { kind: "sorting-sandbox",  config: {} },
+  // A13 — Two Pointers — O(n) Pair Problems.
+  "java_m30_t1": { kind: "array-pointers",   config: {} },
+  // A14 — Linked List Basics + Reversal share the same replay widget for now.
+  "java_m32_t1": { kind: "linked-list",      config: {} },
+  "java_m32_t3": { kind: "linked-list",      config: {} },
+  // A15 — Stack Fundamentals (LIFO, push/pop/peek).
+  "java_m33_t1": { kind: "stack",            config: {} },
+  // A16 — Tree Traversals (BST insert + animated search).
+  "java_m35_t1": { kind: "tree",             config: {} },
+  // A17 — Binary Search Basics.
+  "java_m39_t1": { kind: "binary-search",    config: {} },
 };
 
 function mapTopic(raw, moduleId) {

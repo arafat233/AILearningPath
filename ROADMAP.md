@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A12 backend + frontend wired, awaiting browser acceptance)
+**Last updated:** 2026-05-26 (A9-A17 wired — 6 visualizer kinds live on 7 topics; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -58,12 +58,14 @@ Source projects: `~/Downloads/dsalearn/` + `~/Downloads/dsa-visualizer 2/`. See 
 - [x] **A11.** Wire M38-T1 (Sorting) as the proof topic — done 2026-05-26. Added `TOPIC_VISUALIZERS` map to `seedJavaPilot.js` (integration concern; not in topic.json). Re-ran seed, verified `java_m38_t1.visualizer = {kind:"sorting-sandbox", config:{}}` persisted.
 - [~] **A12.** **Acceptance:** visit `/pro/java/java_m38/java_m38_t1`, see the sort visualizer, click play, see bars animate. Toggle student mode, paste a custom sort, see it run. — backend + DB confirmed; awaiting browser confirmation from user at http://localhost:5173/pro/java/java_m38/java_m38_t1.
 
-**Wire-up topics (after A12 passes):**
-- [ ] **A13.** M30-T1 (two pointers) → `array-pointers` visualizer
-- [ ] **A14.** M32-T1, T3 (linked lists, reversal) → `linked-list`
-- [ ] **A15.** M33-T1 (stacks) → `stack`
-- [ ] **A16.** M35-T1 (tree traversal) → `tree`
-- [ ] **A17.** M39-T1 (binary search) → `binary-search`
+**Wire-up topics:**
+- [x] **A13.** M30-T1 (two pointers) → `array-pointers` visualizer — done 2026-05-26. New `modes/ArrayPointersSandbox.jsx` with inline 2-sum step generator (different shape from binary search — no mid pointer, different decision rule). Uses ArrayVisualizer with L/R pointers.
+- [x] **A14.** M32-T1, T3 (linked lists, reversal) → `linked-list` — done 2026-05-26. New `modes/LinkedListSandbox.jsx` with op selector (intro/insert/delete) replaying the existing linkedList.js frame generators. T3 reuses the same widget; dedicated reversal mode can be added later by extending the op selector.
+- [x] **A15.** M33-T1 (stacks) → `stack` — done 2026-05-26. New `modes/StackSandbox.jsx` — fully interactive (push/pop/peek/reset) since direct manipulation reads better than a pre-recorded replay for LIFO.
+- [x] **A16.** M35-T1 (tree traversal) → `tree` — done 2026-05-26. New `modes/TreeSandbox.jsx` — interactive BST insert + animated search (left/right comparison highlighted node-by-node, terminates at found or not-found).
+- [x] **A17.** M39-T1 (binary search) → `binary-search` — done 2026-05-26. New `modes/BinarySearchSandbox.jsx` replaying `generateBinarySearchSteps()` frames with play/pause/step/back controls.
+
+After A17: VisualizerShell dispatches all 6 kinds (sorting-sandbox + 5 new). Seeder map covers M30/M32/M33/M35/M38/M39. Browser acceptance pending — open each topic URL listed above.
 
 ---
 

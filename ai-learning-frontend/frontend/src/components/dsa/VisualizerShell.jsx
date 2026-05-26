@@ -3,15 +3,14 @@
  * visualizer.
  *
  * Reads `kind` from the topic config and dispatches to the right mode:
- *   - "sorting-sandbox"  → Sorting visualizer with all 5 sort algorithms
- *                          + student mode (write your own sort)
- *   - "binary-search"    → (planned, will be added during M39 wire-up)
- *   - "linked-list"      → (planned)
- *   - "stack"            → (planned)
- *   - "tree"             → (planned)
+ *   - "sorting-sandbox"  → Sorting visualizer + student mode (M38-T1)
+ *   - "binary-search"    → L/R/mid pointer replay (M39-T1)
+ *   - "linked-list"      → intro/insert/delete replay (M32-T1, T3)
+ *   - "stack"            → interactive push/pop/peek (M33-T1)
+ *   - "tree"             → BST insert + animated search (M35-T1)
+ *   - "array-pointers"   → two-pointer 2-sum demo (M30-T1)
  *
- * For now only `sorting-sandbox` is implemented — that's the proof topic.
- * Other modes return a friendly "coming soon" placeholder so missing
+ * Unknown kinds return a friendly "coming soon" placeholder so missing
  * wire-up doesn't crash the topic page.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -23,20 +22,31 @@ import DSACodeEditor from "./DSACodeEditor.jsx";
 import { sortAlgorithms } from "./algorithms/registry.js";
 import { generateRandomArray } from "./utils/generateArray.js";
 import { runStudentCode, STUDENT_TEMPLATE } from "./runners/studentRunner.js";
+import BinarySearchSandbox from "./modes/BinarySearchSandbox.jsx";
+import LinkedListSandbox  from "./modes/LinkedListSandbox.jsx";
+import StackSandbox       from "./modes/StackSandbox.jsx";
+import TreeSandbox        from "./modes/TreeSandbox.jsx";
+import ArrayPointersSandbox from "./modes/ArrayPointersSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
  */
 export default function VisualizerShell({ kind, config = {} }) {
-  if (kind === "sorting-sandbox") {
-    return <SortingSandbox config={config} />;
+  switch (kind) {
+    case "sorting-sandbox": return <SortingSandbox    config={config} />;
+    case "binary-search":   return <BinarySearchSandbox />;
+    case "linked-list":     return <LinkedListSandbox  />;
+    case "stack":           return <StackSandbox       />;
+    case "tree":            return <TreeSandbox        />;
+    case "array-pointers":  return <ArrayPointersSandbox />;
+    default:
+      return (
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">
+          <p className="font-semibold mb-1">Visualizer "{kind}" not yet wired up.</p>
+          <p className="text-xs">This topic has a placeholder for an interactive widget that's coming in a later phase.</p>
+        </div>
+      );
   }
-  return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">
-      <p className="font-semibold mb-1">Visualizer "{kind}" not yet wired up.</p>
-      <p className="text-xs">This topic has a placeholder for an interactive widget that's coming in a later phase.</p>
-    </div>
-  );
 }
 
 // ── Sorting sandbox mode ─────────────────────────────────────────────────────

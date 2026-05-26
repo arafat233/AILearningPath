@@ -1448,6 +1448,12 @@ Frontend
     VisualizerShell.jsx                       Dispatcher on `kind`: sorting-sandbox |
                                                 binary-search | linked-list | stack |
                                                 tree | array-pointers
+    modes/                                    Per-kind orchestrators (A13–A17)
+      BinarySearchSandbox.jsx                   M39-T1 — L/R/mid pointer replay
+      LinkedListSandbox.jsx                     M32-T1, T3 — intro/insert/delete replay
+      StackSandbox.jsx                          M33-T1 — push/pop/peek (interactive)
+      TreeSandbox.jsx                           M35-T1 — BST insert + animated search
+      ArrayPointersSandbox.jsx                  M30-T1 — two-pointer 2-sum demo
     algorithms/ + runners/studentRunner.js    5 sort algos + binarySearch/linearSearch/
                                                 linkedList step generators + JS code
                                                 tracer (50k-step infinite-loop guard)

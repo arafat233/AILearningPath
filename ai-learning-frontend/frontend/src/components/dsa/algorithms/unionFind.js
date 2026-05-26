@@ -39,6 +39,8 @@ class DSU {
   }
 }`;
 
+export const LINE_BY_PHASE = { init: 8, "find-walk": 12, compress: 12, "union-roots": 17, "union-link": 19, "union-same": 18, done: 22 };
+
 export const DEMO_OPS = [
   { type: "union", a: 0, b: 1 },
   { type: "union", a: 2, b: 3 },

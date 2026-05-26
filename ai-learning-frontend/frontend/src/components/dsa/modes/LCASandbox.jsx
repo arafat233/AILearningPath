@@ -4,7 +4,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import TreeVisualizer from "../TreeVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { LCA_CODE, generateLCASteps, buildLCADemoTree } from "../algorithms/lca.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { LCA_CODE, LINE_BY_PHASE, generateLCASteps, buildLCADemoTree } from "../algorithms/lca.js";
 
 export default function LCASandbox() {
   const tree = buildLCADemoTree();
@@ -68,7 +69,7 @@ export default function LCASandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <TreeVisualizer root={frame.tree} width={560} height={340} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[360px]"><code>{LCA_CODE}</code></pre>
+        <HighlightedCode code={LCA_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="360px" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

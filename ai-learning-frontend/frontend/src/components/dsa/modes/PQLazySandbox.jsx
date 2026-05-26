@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { PQ_LAZY_CODE, DEMO_INITIAL, DEMO_OPS, generatePQLazySteps } from "../algorithms/pqLazy.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { PQ_LAZY_CODE, LINE_BY_PHASE, DEMO_INITIAL, DEMO_OPS, generatePQLazySteps } from "../algorithms/pqLazy.js";
 
 function parseOps(text) {
   const ops = [];
@@ -102,7 +103,7 @@ export default function PQLazySandbox() {
         </div>
       </div>
 
-      <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto max-h-[260px]"><code>{PQ_LAZY_CODE}</code></pre>
+      <HighlightedCode code={PQ_LAZY_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="260px" />
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />
       <div className="text-[11px] text-zinc-500 font-mono">frame {idx + 1} / {frames.length}</div>

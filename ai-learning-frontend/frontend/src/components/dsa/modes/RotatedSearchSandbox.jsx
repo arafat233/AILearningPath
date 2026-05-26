@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { ROTATED_SEARCH_CODE, generateRotatedSearchSteps } from "../algorithms/rotatedSearch.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { ROTATED_SEARCH_CODE, LINE_BY_PHASE, generateRotatedSearchSteps } from "../algorithms/rotatedSearch.js";
 
 const DEFAULT_ARR = [12, 15, 18, 22, 3, 5, 7, 9];   // sorted then rotated
 const DEFAULT_TARGET = 5;
@@ -93,7 +94,7 @@ export default function RotatedSearchSandbox() {
             </div>
           )}
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[360px]"><code>{ROTATED_SEARCH_CODE}</code></pre>
+        <HighlightedCode code={ROTATED_SEARCH_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="360px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

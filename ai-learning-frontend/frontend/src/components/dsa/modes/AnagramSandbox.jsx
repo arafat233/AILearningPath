@@ -3,6 +3,7 @@
  */
 import { useCallback, useRef, useState } from "react";
 import ExplanationPanel from "../ExplanationPanel.jsx";
+import HighlightedCode from "../HighlightedCode.jsx";
 import { ANAGRAM_CODE, generateAnagramSteps } from "../algorithms/anagram.js";
 
 const cellBase = "w-9 h-10 flex items-center justify-center text-[14px] font-mono font-bold border-2 rounded";
@@ -114,7 +115,7 @@ export default function AnagramSandbox() {
             {frame.isAnagram === true ? "✓ anagrams" : frame.isAnagram === false ? "✗ not anagrams" : "in progress…"}
           </div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[380px]"><code>{ANAGRAM_CODE}</code></pre>
+        <HighlightedCode code={ANAGRAM_CODE} activeLine={frame.step.codeLine} height="380px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

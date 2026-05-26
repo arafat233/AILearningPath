@@ -5,7 +5,8 @@ import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import TreeVisualizer from "../TreeVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { K_LARGEST_CODE, generateKLargestSteps } from "../algorithms/kLargest.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { K_LARGEST_CODE, LINE_BY_PHASE, generateKLargestSteps } from "../algorithms/kLargest.js";
 
 const DEFAULT_STREAM = [3, 1, 5, 12, 2, 8, 9, 4, 7, 15, 6];
 const DEFAULT_K = 4;
@@ -105,7 +106,7 @@ export default function KLargestSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <TreeVisualizer root={tree} width={520} height={280} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[300px]"><code>{K_LARGEST_CODE}</code></pre>
+        <HighlightedCode code={K_LARGEST_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="300px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

@@ -27,6 +27,8 @@ ListNode merge(ListNode a, ListNode b) {
   return dummy.next;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, compare: 6, "pick-A": 6, "pick-B": 7, "flush-A": 10, "flush-B": 10, done: 11 };
+
 export function generateMergeLLSteps(listA, listB) {
   const frames = [];
   let i = 0, j = 0;

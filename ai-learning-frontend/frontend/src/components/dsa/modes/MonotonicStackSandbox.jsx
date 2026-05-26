@@ -6,7 +6,8 @@ import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import StackVisualizer from "../StackVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { NGE_CODE, generateNGESteps } from "../algorithms/monotonicStack.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { NGE_CODE, LINE_BY_PHASE, generateNGESteps } from "../algorithms/monotonicStack.js";
 
 const DEFAULT_ARR = [2, 1, 5, 6, 2, 3, 1, 4];
 
@@ -93,7 +94,7 @@ export default function MonotonicStackSandbox() {
             <div className="font-mono text-[13px] text-emerald-300">[{frame.result.map((v) => v == null ? "-1" : v).join(", ")}]</div>
           </div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{NGE_CODE}</code></pre>
+        <HighlightedCode code={NGE_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="340px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

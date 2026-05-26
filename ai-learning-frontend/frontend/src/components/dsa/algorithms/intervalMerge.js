@@ -36,6 +36,8 @@ int[][] merge(int[][] intervals) {
   return out.toArray(new int[0][]);
 }`;
 
+export const LINE_BY_PHASE = { init: 2, sort: 4, sorted: 6, examine: 9, merge: 10, new: 12, done: 15 };
+
 export function generateIntervalMergeSteps(intervals) {
   const frames = [];
 

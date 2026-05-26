@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import IntervalVisualizer from "../IntervalVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { INTERVAL_MERGE_CODE, DEMO_INTERVALS, generateIntervalMergeSteps } from "../algorithms/intervalMerge.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { INTERVAL_MERGE_CODE, LINE_BY_PHASE, DEMO_INTERVALS, generateIntervalMergeSteps } from "../algorithms/intervalMerge.js";
 
 function parseIntervals(text) {
   // Accept lines like "1, 3" or "1 3" — one interval per line.
@@ -81,7 +82,7 @@ export default function IntervalMergeSandbox() {
         </div>
       </div>
 
-      <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto max-h-[280px]"><code>{INTERVAL_MERGE_CODE}</code></pre>
+      <HighlightedCode code={INTERVAL_MERGE_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="280px" />
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />
       <div className="text-[11px] text-zinc-500 font-mono">frame {idx + 1} / {frames.length} · result has {frame.result.length} interval{frame.result.length === 1 ? "" : "s"}</div>

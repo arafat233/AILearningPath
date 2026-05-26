@@ -7,7 +7,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import HashTableVisualizer from "../HashTableVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { CUSTOM_HASH_CODE, DEMO_POINTS, generateCustomHashSteps } from "../algorithms/customHash.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { CUSTOM_HASH_CODE, LINE_BY_PHASE, DEMO_POINTS, generateCustomHashSteps } from "../algorithms/customHash.js";
 
 const MODES = [
   { id: "composite", label: "Composite hash (31·row + col)" },
@@ -81,7 +82,7 @@ export default function CustomHashSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <HashTableVisualizer capacity={capacity} buckets={buckets} hashWork={frame.hashWork} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{CUSTOM_HASH_CODE}</code></pre>
+        <HighlightedCode code={CUSTOM_HASH_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="420px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

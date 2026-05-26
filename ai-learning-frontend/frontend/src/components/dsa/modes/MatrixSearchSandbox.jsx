@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import GridVisualizer from "../GridVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { MATRIX_SEARCH_CODE, DEMO_MATRIX, generateMatrixSearchSteps } from "../algorithms/matrixSearch.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { MATRIX_SEARCH_CODE, LINE_BY_PHASE, DEMO_MATRIX, generateMatrixSearchSteps } from "../algorithms/matrixSearch.js";
 
 function parseMatrix(text) {
   return text.split("\n").map((line) =>
@@ -90,7 +91,7 @@ export default function MatrixSearchSandbox() {
         </div>
         <div className="space-y-3">
           <textarea value={matrixInput} onChange={(e) => setMatrixInput(e.target.value)} className="w-full h-40 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[12px] text-white font-mono" />
-          <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[260px]"><code>{MATRIX_SEARCH_CODE}</code></pre>
+          <HighlightedCode code={MATRIX_SEARCH_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="260px" />
         </div>
       </div>
 

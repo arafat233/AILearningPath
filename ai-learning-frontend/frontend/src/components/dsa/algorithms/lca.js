@@ -33,6 +33,8 @@ Node lca(Node root, int p, int q) {
   return L != null ? L : R;                  // both in one subtree (or neither)
 }`;
 
+export const LINE_BY_PHASE = { enter: 2, match: 4, "recurse-L": 5, "recurse-R": 6, "lca-found": 7, return: 8, done: 9 };
+
 function markTree(tree, byValue) {
   if (!tree) return null;
   return {

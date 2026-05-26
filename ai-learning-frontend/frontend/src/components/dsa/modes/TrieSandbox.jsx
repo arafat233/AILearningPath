@@ -7,8 +7,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import TrieVisualizer from "../TrieVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
+import HighlightedCode from "../HighlightedCode.jsx";
 import {
-  TRIE_CODE,
+  TRIE_CODE, LINE_BY_PHASE,
   generateTrieInsertSteps, generateTrieSearchSteps,
   buildDemoTrie, insertWord, makeTrie,
 } from "../algorithms/trie.js";
@@ -109,7 +110,7 @@ export default function TrieSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <TrieVisualizer root={frame.root} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[380px]"><code>{TRIE_CODE}</code></pre>
+        <HighlightedCode code={TRIE_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="380px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

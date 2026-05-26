@@ -4,7 +4,8 @@
  */
 import { useCallback, useRef, useState } from "react";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { PALINDROME_CODE, generatePalindromeSteps } from "../algorithms/palindrome.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { PALINDROME_CODE, LINE_BY_PHASE, generatePalindromeSteps } from "../algorithms/palindrome.js";
 
 const DEFAULT_TEXT = "babad";
 
@@ -97,7 +98,7 @@ export default function PalindromeSandbox() {
             <span className="text-zinc-500">best = <span className="text-[#00c896]">"{frame.text.slice(frame.bestL, frame.bestR + 1)}"</span> ({frame.bestR - frame.bestL + 1})</span>
           </div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{PALINDROME_CODE}</code></pre>
+        <HighlightedCode code={PALINDROME_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="340px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

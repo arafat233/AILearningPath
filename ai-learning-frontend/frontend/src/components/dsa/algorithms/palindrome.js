@@ -35,6 +35,8 @@ void expand(String s, int L, int R) {
   // s[L+1..R-1] is a palindrome
 }`;
 
+export const LINE_BY_PHASE = { center: 11, expand: 12, mismatch: 13, edge: 13, done: 7 };
+
 export function generatePalindromeSteps(text) {
   const frames = [];
   let bestL = 0, bestR = 0;

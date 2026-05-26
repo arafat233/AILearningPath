@@ -49,6 +49,8 @@ class LRUCache<K, V> {
   }
 }`;
 
+export const LINE_BY_PHASE = { init: 5, "get-hit": 10, "get-miss": 9, "put-update": 16, "put-insert": 19, evict: 22, done: 27 };
+
 export const DEMO_OPS = [
   { type: "put", key: 1, value: "A" },
   { type: "put", key: 2, value: "B" },

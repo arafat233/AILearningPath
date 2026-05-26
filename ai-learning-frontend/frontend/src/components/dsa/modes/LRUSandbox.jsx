@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import LRUVisualizer from "../LRUVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { LRU_CODE, DEMO_OPS, generateLRUSteps } from "../algorithms/lru.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { LRU_CODE, LINE_BY_PHASE, DEMO_OPS, generateLRUSteps } from "../algorithms/lru.js";
 
 function parseOps(text) {
   const ops = [];
@@ -96,7 +97,7 @@ export default function LRUSandbox() {
         </div>
       </div>
 
-      <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto max-h-[300px]"><code>{LRU_CODE}</code></pre>
+      <HighlightedCode code={LRU_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="300px" />
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />
       <div className="text-[11px] text-zinc-500 font-mono">frame {idx + 1} / {frames.length}</div>

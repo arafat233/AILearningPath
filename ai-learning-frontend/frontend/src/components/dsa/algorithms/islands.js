@@ -45,6 +45,8 @@ int numIslands(char[][] grid) {
   return count;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, scan: 9, water: 9, visited: 9, "bfs-start": 10, "bfs-step": 15, done: 26 };
+
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
 export function generateIslandsSteps(grid) {

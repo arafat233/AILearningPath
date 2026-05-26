@@ -37,7 +37,7 @@ export function generateAnagramSteps(s1, s2) {
       s1, s2, freq: {}, phase: "done",
       activeChar: null, activeS1Idx: -1, activeS2Idx: -1,
       isAnagram: false,
-      step: { description: `Length mismatch (${s1.length} vs ${s2.length}).`, detail: "Can't be anagrams." },
+      step: { description: `Length mismatch (${s1.length} vs ${s2.length}).`, detail: "Can't be anagrams.", codeLine: 3 },
     });
     return frames;
   }
@@ -49,7 +49,7 @@ export function generateAnagramSteps(s1, s2) {
   frames.push({
     s1, s2, freq: { ...freq }, phase: "init",
     activeChar: null, activeS1Idx: -1, activeS2Idx: -1, isAnagram: null,
-    step: { description: `Check if "${s1}" and "${s2}" are anagrams.`, detail: "Count chars in s1, subtract chars in s2. End at all-zero ⇒ yes." },
+    step: { description: `Check if "${s1}" and "${s2}" are anagrams.`, detail: "Count chars in s1, subtract chars in s2. End at all-zero ⇒ yes.", codeLine: 4 },
   });
 
   // Phase 1: count s1
@@ -59,7 +59,7 @@ export function generateAnagramSteps(s1, s2) {
     frames.push({
       s1, s2, freq: { ...freq }, phase: "inc",
       activeChar: c, activeS1Idx: i, activeS2Idx: -1, isAnagram: null,
-      step: { description: `s1[${i}] = '${c}' → freq['${c}']++ = ${freq[c]}.`, detail: "" },
+      step: { description: `s1[${i}] = '${c}' → freq['${c}']++ = ${freq[c]}.`, detail: "", codeLine: 5 },
     });
   }
 
@@ -72,21 +72,21 @@ export function generateAnagramSteps(s1, s2) {
       frames.push({
         s1, s2, freq: { ...freq }, phase: "mismatch",
         activeChar: c, activeS1Idx: -1, activeS2Idx: i, isAnagram: false,
-        step: { description: `s2[${i}] = '${c}' → freq['${c}']−− = ${freq[c]}.`, detail: `Below zero — '${c}' appears more in s2 than in s1. Not anagrams.` },
+        step: { description: `s2[${i}] = '${c}' → freq['${c}']−− = ${freq[c]}.`, detail: `Below zero — '${c}' appears more in s2 than in s1. Not anagrams.`, codeLine: 7 },
       });
       return frames;
     }
     frames.push({
       s1, s2, freq: { ...freq }, phase: "dec",
       activeChar: c, activeS1Idx: -1, activeS2Idx: i, isAnagram: null,
-      step: { description: `s2[${i}] = '${c}' → freq['${c}']−− = ${freq[c]}.`, detail: "" },
+      step: { description: `s2[${i}] = '${c}' → freq['${c}']−− = ${freq[c]}.`, detail: "", codeLine: 7 },
     });
   }
 
   frames.push({
     s1, s2, freq: { ...freq }, phase: "done",
     activeChar: null, activeS1Idx: -1, activeS2Idx: -1, isAnagram: true,
-    step: { description: "All frequencies are zero.", detail: `"${s1}" and "${s2}" are anagrams.` },
+    step: { description: "All frequencies are zero.", detail: `"${s1}" and "${s2}" are anagrams.`, codeLine: 9 },
   });
   return frames;
 }

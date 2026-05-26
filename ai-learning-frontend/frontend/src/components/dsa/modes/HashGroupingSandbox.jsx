@@ -3,7 +3,8 @@
  */
 import { useCallback, useRef, useState } from "react";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { HASH_GROUPING_CODE, DEMO_WORDS, generateGroupAnagramsSteps } from "../algorithms/hashGrouping.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { HASH_GROUPING_CODE, LINE_BY_PHASE, DEMO_WORDS, generateGroupAnagramsSteps } from "../algorithms/hashGrouping.js";
 
 const wordCell = "px-2 py-1 rounded text-[12px] font-mono font-bold border";
 
@@ -105,7 +106,7 @@ export default function HashGroupingSandbox() {
             </div>
           </div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{HASH_GROUPING_CODE}</code></pre>
+        <HighlightedCode code={HASH_GROUPING_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="420px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

@@ -3,7 +3,8 @@
  */
 import { useCallback, useRef, useState } from "react";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { K_WAY_MERGE_CODE, DEMO_LISTS, generateKWayMergeSteps } from "../algorithms/kWayMerge.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { K_WAY_MERGE_CODE, LINE_BY_PHASE, DEMO_LISTS, generateKWayMergeSteps } from "../algorithms/kWayMerge.js";
 
 const cellBase = "min-w-[36px] px-2 h-8 flex items-center justify-center text-[12px] font-mono font-bold border rounded";
 
@@ -107,7 +108,7 @@ export default function KWayMergeSandbox() {
         </div>
         <div className="space-y-3">
           <textarea value={listsInput} onChange={(e) => setListsInput(e.target.value)} className="w-full h-32 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-[12px] text-white font-mono" />
-          <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[280px]"><code>{K_WAY_MERGE_CODE}</code></pre>
+          <HighlightedCode code={K_WAY_MERGE_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="280px" />
         </div>
       </div>
 

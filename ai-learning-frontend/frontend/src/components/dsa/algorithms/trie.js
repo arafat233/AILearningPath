@@ -33,6 +33,8 @@ boolean search(TrieNode root, String word) {
   return n.isWord;
 }`;
 
+export const LINE_BY_PHASE = { init: 7, examine: 10, descend: 10, create: 10, "not-found": 19, found: 21, done: 12 };
+
 let _id = 0;
 const uid = () => `t${_id++}`;
 

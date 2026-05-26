@@ -31,6 +31,8 @@ List<Integer> dedup(int[] arr) {
   return out;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, check: 6, kept: 7, duplicate: 6, done: 10 };
+
 export function generateDedupSteps(input) {
   const seen = new Set();
   const setValues = [];

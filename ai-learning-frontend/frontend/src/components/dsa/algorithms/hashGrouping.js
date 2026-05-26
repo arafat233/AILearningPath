@@ -32,6 +32,8 @@ List<List<String>> groupAnagrams(String[] words) {
   return new ArrayList<>(groups.values());
 }`;
 
+export const LINE_BY_PHASE = { init: 3, "compute-key": 7, "append-existing": 8, "create-bucket": 8, done: 10 };
+
 function sortedKey(s) {
   return s.toLowerCase().split("").sort().join("");
 }

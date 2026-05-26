@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { PREFIX_SUMS_CODE, generatePrefixSumsSteps } from "../algorithms/prefixSums.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { PREFIX_SUMS_CODE, LINE_BY_PHASE, generatePrefixSumsSteps } from "../algorithms/prefixSums.js";
 
 const DEFAULT_ARR = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3];
 const DEFAULT_L = 2;
@@ -95,7 +96,7 @@ export default function PrefixSumsSandbox() {
             </div>
           )}
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{PREFIX_SUMS_CODE}</code></pre>
+        <HighlightedCode code={PREFIX_SUMS_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="420px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

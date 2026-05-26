@@ -35,6 +35,8 @@ int search(int[] arr, int target) {
   return -1;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, compare: 6, decide: 7, found: 6, "not-found": 16 };
+
 export function generateRotatedSearchSteps(arr, target) {
   const frames = [];
   let L = 0, R = arr.length - 1;

@@ -26,6 +26,8 @@ boolean hasCycle(ListNode head) {
   return false;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, advance: 6, meet: 7, "no-cycle": 9 };
+
 /**
  * @param {{value:number}[]} values  Node values for the linked list
  * @param {number|null} cycleEntryIdx  Index where the LAST node's .next loops back

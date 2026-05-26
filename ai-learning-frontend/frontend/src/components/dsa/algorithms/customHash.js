@@ -31,6 +31,8 @@ int hash(Point p, int cap) {
   return ((h % cap) + cap) % cap;
 }`;
 
+export const LINE_BY_PHASE = { init: 4, insert: 9, done: 10 };
+
 function hashOf(row, col, capacity, mode) {
   if (mode === "naive") {
     return ((row % capacity) + capacity) % capacity;

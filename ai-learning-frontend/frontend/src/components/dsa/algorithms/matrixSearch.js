@@ -29,6 +29,8 @@ boolean search(int[][] m, int target) {
   return false;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, compare: 5, found: 5, "go-left": 6, "go-down": 7, "not-found": 9 };
+
 export function generateMatrixSearchSteps(matrix, target) {
   const rows = matrix.length;
   const cols = matrix[0]?.length || 0;

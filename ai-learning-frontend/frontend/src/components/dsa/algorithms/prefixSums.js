@@ -29,6 +29,8 @@ int rangeSum(int[] prefix, int L, int R) {
   return prefix[R + 1] - prefix[L];   // O(1) after O(n) preprocessing
 }`;
 
+export const LINE_BY_PHASE = { init: 3, build: 5, built: 7, query: 11, result: 11 };
+
 export function generatePrefixSumsSteps(arr, queryL, queryR) {
   const prefix = new Array(arr.length + 1).fill(0);
   const frames = [];

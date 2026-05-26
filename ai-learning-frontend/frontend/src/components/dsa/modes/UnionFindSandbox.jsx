@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import UnionFindVisualizer from "../UnionFindVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { UNION_FIND_CODE, DEMO_OPS, generateUnionFindSteps } from "../algorithms/unionFind.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { UNION_FIND_CODE, LINE_BY_PHASE, DEMO_OPS, generateUnionFindSteps } from "../algorithms/unionFind.js";
 
 const DEFAULT_N = 8;
 
@@ -94,7 +95,7 @@ export default function UnionFindSandbox() {
         </div>
       </div>
 
-      <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto max-h-[280px]"><code>{UNION_FIND_CODE}</code></pre>
+      <HighlightedCode code={UNION_FIND_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="280px" />
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />
       <div className="text-[11px] text-zinc-500 font-mono">frame {idx + 1} / {frames.length}</div>

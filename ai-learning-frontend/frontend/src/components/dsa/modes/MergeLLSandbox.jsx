@@ -3,7 +3,8 @@
  */
 import { useCallback, useRef, useState } from "react";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { MERGE_LL_CODE, generateMergeLLSteps } from "../algorithms/mergeLL.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { MERGE_LL_CODE, LINE_BY_PHASE, generateMergeLLSteps } from "../algorithms/mergeLL.js";
 
 const cellBase = "w-12 h-10 flex items-center justify-center text-[13px] font-mono font-bold border-2 rounded";
 function cellClass(state) {
@@ -118,7 +119,7 @@ export default function MergeLLSandbox() {
             </div>
           </div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[320px]"><code>{MERGE_LL_CODE}</code></pre>
+        <HighlightedCode code={MERGE_LL_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="320px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

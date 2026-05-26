@@ -34,6 +34,8 @@ List<Integer> mergeK(List<List<Integer>> lists) {
   return out;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, pop: 12, push: 15, exhausted: 16, done: 17 };
+
 // Tiny manual min-heap so frames see a real partial-ordered structure.
 function heapPush(h, e) {
   h.push(e);

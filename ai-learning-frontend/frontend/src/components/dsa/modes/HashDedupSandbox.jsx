@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { HASH_DEDUP_CODE, DEMO_DEDUP, generateDedupSteps } from "../algorithms/hashDedup.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { HASH_DEDUP_CODE, LINE_BY_PHASE, DEMO_DEDUP, generateDedupSteps } from "../algorithms/hashDedup.js";
 
 export default function HashDedupSandbox() {
   const [arrInput, setArrInput] = useState(DEMO_DEDUP.join(", "));
@@ -90,7 +91,7 @@ export default function HashDedupSandbox() {
           </div>
           {outputCells.length > 0 && <ArrayVisualizer cells={outputCells} title="output (deduped)" />}
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[280px]"><code>{HASH_DEDUP_CODE}</code></pre>
+        <HighlightedCode code={HASH_DEDUP_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="280px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

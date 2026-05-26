@@ -38,6 +38,8 @@ void dfs(Node n, int remain, Deque<Integer> path, List<List<Integer>> out) {
   path.pop();                              // backtrack
 }`;
 
+export const LINE_BY_PHASE = { init: 4, enter: 10, "leaf-match": 13, "leaf-miss": 12, return: 16, done: 5 };
+
 function markTree(tree, byValue) {
   if (!tree) return null;
   return {

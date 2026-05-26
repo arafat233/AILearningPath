@@ -30,6 +30,8 @@ int[] maxSlidingWindow(int[] arr, int k) {
   return result;
 }`;
 
+export const LINE_BY_PHASE = { init: 4, pollFirst: 6, pollLast: 7, add: 8, window: 9, done: 11 };
+
 export function generateSlidingWindowMaxSteps(arr, k) {
   if (k <= 0 || k > arr.length) {
     return [{

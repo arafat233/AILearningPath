@@ -4,7 +4,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import CycleListVisualizer from "../CycleListVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { FLOYD_CYCLE_CODE, generateFloydSteps } from "../algorithms/floydCycle.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { FLOYD_CYCLE_CODE, LINE_BY_PHASE, generateFloydSteps } from "../algorithms/floydCycle.js";
 
 const DEFAULT_VALUES = [3, 7, 2, 9, 5, 8, 4];
 const DEFAULT_CYCLE  = 2;   // tail loops to index 2 (value 2)
@@ -99,7 +100,7 @@ export default function FloydCycleSandbox() {
           slow={frame.slow}
           fast={frame.fast}
         />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{FLOYD_CYCLE_CODE}</code></pre>
+        <HighlightedCode code={FLOYD_CYCLE_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="340px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

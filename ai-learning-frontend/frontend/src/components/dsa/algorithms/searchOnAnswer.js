@@ -36,6 +36,8 @@ boolean canFinish(int[] piles, int speed, int H) {
   return h <= H;
 }`;
 
+export const LINE_BY_PHASE = { init: 3, compute: 14, decide: 7, found: 10 };
+
 function hoursToEat(piles, speed) {
   let h = 0;
   for (const p of piles) h += Math.ceil(p / speed);

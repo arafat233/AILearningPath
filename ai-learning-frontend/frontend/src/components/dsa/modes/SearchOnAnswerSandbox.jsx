@@ -5,7 +5,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { SEARCH_ON_ANSWER_CODE, DEMO_PILES, DEMO_H, generateSearchOnAnswerSteps } from "../algorithms/searchOnAnswer.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { SEARCH_ON_ANSWER_CODE, LINE_BY_PHASE, DEMO_PILES, DEMO_H, generateSearchOnAnswerSteps } from "../algorithms/searchOnAnswer.js";
 
 export default function SearchOnAnswerSandbox() {
   const [pilesInput, setPilesInput] = useState(DEMO_PILES.join(", "));
@@ -105,7 +106,7 @@ export default function SearchOnAnswerSandbox() {
             </div>
           </div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[280px]"><code>{SEARCH_ON_ANSWER_CODE}</code></pre>
+        <HighlightedCode code={SEARCH_ON_ANSWER_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="280px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

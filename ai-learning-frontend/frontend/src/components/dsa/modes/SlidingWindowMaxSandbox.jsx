@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { SLIDING_WINDOW_MAX_CODE, generateSlidingWindowMaxSteps } from "../algorithms/slidingWindowMax.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { SLIDING_WINDOW_MAX_CODE, LINE_BY_PHASE, generateSlidingWindowMaxSteps } from "../algorithms/slidingWindowMax.js";
 
 const DEFAULT_ARR = [1, 3, -1, -3, 5, 3, 6, 7, 4, 2];
 const DEFAULT_K = 3;
@@ -90,7 +91,7 @@ export default function SlidingWindowMaxSandbox() {
           <div className="text-[10px] uppercase tracking-widest text-[#555] mb-1.5">result (window maxima)</div>
           <div className="font-mono text-[14px] text-emerald-300">{frame.result.length === 0 ? <span className="text-[#555] italic">none yet</span> : `[${frame.result.join(", ")}]`}</div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[280px]"><code>{SLIDING_WINDOW_MAX_CODE}</code></pre>
+        <HighlightedCode code={SLIDING_WINDOW_MAX_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="280px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

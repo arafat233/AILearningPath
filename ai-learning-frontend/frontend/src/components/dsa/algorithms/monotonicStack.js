@@ -32,6 +32,8 @@ int[] nextGreater(int[] arr) {
   return result;
 }`;
 
+export const LINE_BY_PHASE = { init: 6, examine: 7, pop: 9, push: 11, done: 13 };
+
 export function generateNGESteps(arr) {
   const n = arr.length;
   const result = new Array(n).fill(null);

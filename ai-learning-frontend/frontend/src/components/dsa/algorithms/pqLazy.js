@@ -37,6 +37,8 @@ class LazyPQ {
   }
 }`;
 
+export const LINE_BY_PHASE = { init: 3, push: 6, "mark-delete": 9, "peek-stale": 13, discard: 14, pop: 16, done: 17 };
+
 function siftUp(h, i) {
   while (i > 0) {
     const p = (i - 1) >> 1;

@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import TreeVisualizer from "../TreeVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { TREE_PATH_CODE, generateTreePathSteps, buildPathDemoTree } from "../algorithms/treePath.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { TREE_PATH_CODE, LINE_BY_PHASE, generateTreePathSteps, buildPathDemoTree } from "../algorithms/treePath.js";
 
 export default function TreePathSandbox() {
   const [targetInput, setTargetInput] = useState("22");
@@ -64,7 +65,7 @@ export default function TreePathSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <TreeVisualizer root={frame.tree} width={580} height={340} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[360px]"><code>{TREE_PATH_CODE}</code></pre>
+        <HighlightedCode code={TREE_PATH_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="360px" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

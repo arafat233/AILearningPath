@@ -30,6 +30,8 @@ for (int x : stream) {
 }
 // minHeap now contains the K largest seen`;
 
+export const LINE_BY_PHASE = { init: 2, fill: 5, compare: 6, replace: 8, skip: 9, done: 11 };
+
 // Min-heap helpers (operate on a mutable array).
 function siftUp(h, i) {
   while (i > 0) {

@@ -89,9 +89,10 @@ async function assertWithinRateLimit(userId) {
  * Judge0 always writes Java source to `/box/Main.java`, but Java's rule says
  * `public class Foo` MUST live in `Foo.java`. Exercises (e.g. "Refactor
  * verbose code" with `public class ServerStartup`) name their class freely.
- * Rewrite the public class identifier to `Main` everywhere in the source
- * before sandboxing so the compile succeeds. Non-Java sources fall through
- * untouched.
+ * Rewrite the public class identifier to `Main` everywhere in the CODE
+ * before sandboxing so the compile succeeds — but NOT inside string or char
+ * literals (e.g. `System.out.println("Square: " + n*n)` must keep the word
+ * "Square" in the output).
  *
  * Important: code_analysis `must_contain` checks run against the ORIGINAL
  * source (the student's actual text), so test cases that look for
@@ -102,8 +103,22 @@ function normalizeJavaForJudge0(source) {
   if (!m) return source;
   const original = m[1];
   if (original === "Main") return source;
-  // Word-boundary replace so partial matches (e.g. `ServerStartupError`) are safe.
-  return source.replace(new RegExp(`\\b${original}\\b`, "g"), "Main");
+
+  // Skip string literals ("..."), char literals ('...'), and // + /* */
+  // comments so the class-name replacement only hits actual identifiers.
+  // The alternation order matters: we try to match a literal/comment first
+  // and emit it unchanged; only the bare-identifier branch is rewritten.
+  const re = new RegExp(
+    [
+      `"(?:\\\\.|[^"\\\\])*"`,         // double-quoted string with escape handling
+      `'(?:\\\\.|[^'\\\\])'`,            // single-quoted char
+      `//[^\\n]*`,                       // single-line comment
+      `/\\*[\\s\\S]*?\\*/`,            // block comment
+      `\\b${original}\\b`,             // the identifier we want to rename
+    ].join("|"),
+    "g"
+  );
+  return source.replace(re, (match) => (match === original ? "Main" : match));
 }
 
 export async function runCode({ userId, source, language, stdin = "" }) {

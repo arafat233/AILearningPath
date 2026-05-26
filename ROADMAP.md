@@ -46,10 +46,10 @@ Goal: ship the visualizer + tutor + pattern-recognition trinity that defines Ste
 Source projects: `~/Downloads/dsalearn/` + `~/Downloads/dsa-visualizer 2/`. See architecture note in [PROJECT decisions / 2026-05-26 visualizer architecture].
 
 - [x] **A1.** Create `ai-learning-frontend/frontend/src/components/dsa/` directory — done 2026-05-26. Also added `framer-motion ^12.40.0` to frontend deps (was missing; both source projects depend on it).
-- [ ] **A2.** Port `ArrayBars` component from `dsa-visualizer 2/src/components/ArrayBars.tsx` — drop `'use client'`, keep Framer Motion. Acceptance: imports cleanly into the Vite frontend.
-- [ ] **A3.** Port `LinkedListVisualizer.tsx` from `dsalearn/components/visualizers/`
-- [ ] **A4.** Port `StackVisualizer.tsx` from `dsalearn/components/visualizers/`
-- [ ] **A5.** Port `TreeVisualizer.tsx` from `dsalearn/components/visualizers/`
+- [x] **A2.** Port `ArrayBars` component from `dsa-visualizer 2/src/components/ArrayBars.tsx` — done 2026-05-26. Also ported `types/animation.ts` → `types.js` (JSDoc, unified with dsalearn's StepType: 15 step kinds) and `utils/generateArray.ts` → `utils/generateArray.js`.
+- [x] **A3.** Port `LinkedListVisualizer.tsx` from `dsalearn/components/visualizers/` — done 2026-05-26. JSX with framer-motion `AnimatePresence` for node insertion/deletion.
+- [x] **A4.** Port `StackVisualizer.tsx` from `dsalearn/components/visualizers/` — done 2026-05-26. Push slides in from top, pop exits to the right.
+- [x] **A5.** Port `TreeVisualizer.tsx` from `dsalearn/components/visualizers/` — done 2026-05-26. SVG-based, recursive position layout with x-coord normalisation so deep trees stay in viewport.
 - [ ] **A6.** Port step-generators: `binarySearch.ts`, `linearSearch.ts`, `linkedList.ts` from `dsalearn/lib/algorithms/`. Plus all 5 sorts (`bubble`, `insertion`, `selection`, `merge`, `quick`) from `dsa-visualizer 2/src/algorithms/`. These are pure functions — copy verbatim.
 - [ ] **A7.** Port `studentRunner.ts` from `dsa-visualizer 2/src/utils/` AS-IS (the JS code tracer that runs student-written sort code with `compare()`/`swap()` instrumentation).
 - [ ] **A8.** Build reusable `VisualizerShell.jsx` — playback controls (play / pause / step / stop), speed slider, step indicator. One shell, all visualizers plug in.

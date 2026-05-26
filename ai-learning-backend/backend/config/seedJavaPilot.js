@@ -359,6 +359,14 @@ const TOPIC_VISUALIZERS = {
   "java_m35_t1": { kind: "tree",             config: {} },
   // A17 — Binary Search Basics.
   "java_m39_t1": { kind: "binary-search",    config: {} },
+  // A18 — Heap Fundamentals (min-heap insert + extract, array+tree paired).
+  "java_m36_t1": { kind: "heap",             config: {} },
+  // A19 — Hash Fundamentals (separate-chaining put/get, collisions visible).
+  "java_m34_t1": { kind: "hash-table",        config: {} },
+  // A20 — Pattern Matching — KMP (text + pattern + failure table view).
+  "java_m31_t2": { kind: "string-matching",   config: {} },
+  // A21 — Graph Representation (BFS + DFS on a 7-node graph with cycle).
+  "java_m37_t1": { kind: "graph",             config: {} },
 };
 
 function mapTopic(raw, moduleId) {

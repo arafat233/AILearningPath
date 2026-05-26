@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A17 wired — 6 visualizer kinds live on 7 topics; awaiting browser acceptance)
+**Last updated:** 2026-05-26 (A9-A21 wired — 10 visualizer kinds live on 11 topics; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -66,6 +66,15 @@ Source projects: `~/Downloads/dsalearn/` + `~/Downloads/dsa-visualizer 2/`. See 
 - [x] **A17.** M39-T1 (binary search) → `binary-search` — done 2026-05-26. New `modes/BinarySearchSandbox.jsx` replaying `generateBinarySearchSteps()` frames with play/pause/step/back controls.
 
 After A17: VisualizerShell dispatches all 6 kinds (sorting-sandbox + 5 new). Seeder map covers M30/M32/M33/M35/M38/M39. Browser acceptance pending — open each topic URL listed above.
+
+**Net-new visualizer builds (no source-project port — built from scratch):**
+
+- [x] **A18.** M36-T1 Heap Fundamentals → `heap` — done 2026-05-26. New `algorithms/heap.js` (sift-up insert + sift-down extract step generators) + `modes/HeapSandbox.jsx`. Renders array AND tree views from the same data via `arrayToTree()` — the "this array IS the tree" insight is the lesson, so both views update in lockstep on every frame. Commit-to-heap button lets the learner chain ops.
+- [x] **A19.** M34-T1 Hash Fundamentals → `hash-table` — done 2026-05-26. New `algorithms/hashTable.js` (Java-style String.hashCode + put/get with separate chaining) + `HashTableVisualizer.jsx` (vertical bucket rows with chained entries — collisions render as horizontal chains so they're visually obvious) + `modes/HashTableSandbox.jsx`. Default capacity 8 forces real collisions after a handful of inserts.
+- [x] **A20.** M31-T2 Pattern Matching → `string-matching` — done 2026-05-26. New `algorithms/kmp.js` (failure table builder + KMP search step generator) + `StringMatchVisualizer.jsx` (text + aligned pattern + failure table view; pattern row uses CSS padding-left to slide under text without re-layout) + `modes/StringMatchSandbox.jsx`. Default `"abcabc"` in `"ababcababcabcabc"` produces a real fallback and 2 overlapping matches.
+- [x] **A21.** M37-T1 Graph Representation → `graph` — done 2026-05-26. New `algorithms/graph.js` (BFS via queue, DFS via explicit stack; both on adjacency-list converted from edge list) + `GraphVisualizer.jsx` (SVG with precomputed positions — force-directed layout deliberately deferred to a future iteration) + `modes/GraphSandbox.jsx`. Fixed 7-node graph with a cycle (A-B-E-D-A) and a bridge (E-G-F) so BFS vs DFS produce visibly different traversal orders.
+
+After A21: 10 visualizer kinds live across 11 topics (M30/M31-T2/M32-T1+T3/M33/M34/M35/M36/M37/M38/M39). Remaining DSA gaps that *could* get visualizers later (none planned for now): M29 (DSA1 intro), M40 (DSA12), M41 (DSA13).
 
 ---
 

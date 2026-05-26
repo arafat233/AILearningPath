@@ -1447,19 +1447,28 @@ Frontend
   src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
     VisualizerShell.jsx                       Dispatcher on `kind`: sorting-sandbox |
                                                 binary-search | linked-list | stack |
-                                                tree | array-pointers
-    modes/                                    Per-kind orchestrators (A13–A17)
+                                                tree | array-pointers | heap |
+                                                hash-table | string-matching | graph
+    modes/                                    Per-kind orchestrators
+      SortingSandbox (inline in shell)          M38-T1 — 5 sort algos + student mode
       BinarySearchSandbox.jsx                   M39-T1 — L/R/mid pointer replay
       LinkedListSandbox.jsx                     M32-T1, T3 — intro/insert/delete replay
       StackSandbox.jsx                          M33-T1 — push/pop/peek (interactive)
       TreeSandbox.jsx                           M35-T1 — BST insert + animated search
       ArrayPointersSandbox.jsx                  M30-T1 — two-pointer 2-sum demo
-    algorithms/ + runners/studentRunner.js    5 sort algos + binarySearch/linearSearch/
-                                                linkedList step generators + JS code
-                                                tracer (50k-step infinite-loop guard)
-    ArrayBars / ArrayVisualizer /             Render primitives shared by visualizer
-      LinkedListVisualizer / StackVisualizer /  modes (framer-motion animated)
-      TreeVisualizer
+      HeapSandbox.jsx                           M36-T1 — array+tree paired heap ops
+      HashTableSandbox.jsx                      M34-T1 — separate-chaining put/get
+      StringMatchSandbox.jsx                    M31-T2 — KMP w/ failure table
+      GraphSandbox.jsx                          M37-T1 — BFS/DFS on 7-node graph
+    algorithms/                               Step generators: bubble/insertion/
+                                                selection/merge/quick sort, binary/
+                                                linear search, linked-list ops, heap,
+                                                hashTable, kmp, graph
+    runners/studentRunner.js                  JS code tracer (50k-step loop guard)
+    ArrayBars / ArrayVisualizer /             Render primitives — framer-motion
+      LinkedListVisualizer / StackVisualizer /
+      TreeVisualizer / HashTableVisualizer /
+      StringMatchVisualizer / GraphVisualizer
     Controls / ExplanationPanel /             Playback toolbar + status panels +
       StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 

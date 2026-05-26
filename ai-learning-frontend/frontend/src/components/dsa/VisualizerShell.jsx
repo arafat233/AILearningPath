@@ -27,6 +27,10 @@ import LinkedListSandbox  from "./modes/LinkedListSandbox.jsx";
 import StackSandbox       from "./modes/StackSandbox.jsx";
 import TreeSandbox        from "./modes/TreeSandbox.jsx";
 import ArrayPointersSandbox from "./modes/ArrayPointersSandbox.jsx";
+import HeapSandbox        from "./modes/HeapSandbox.jsx";
+import HashTableSandbox   from "./modes/HashTableSandbox.jsx";
+import StringMatchSandbox from "./modes/StringMatchSandbox.jsx";
+import GraphSandbox       from "./modes/GraphSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
@@ -39,6 +43,10 @@ export default function VisualizerShell({ kind, config = {} }) {
     case "stack":           return <StackSandbox       />;
     case "tree":            return <TreeSandbox        />;
     case "array-pointers":  return <ArrayPointersSandbox />;
+    case "heap":            return <HeapSandbox        />;
+    case "hash-table":      return <HashTableSandbox   />;
+    case "string-matching": return <StringMatchSandbox />;
+    case "graph":           return <GraphSandbox       />;
     default:
       return (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">

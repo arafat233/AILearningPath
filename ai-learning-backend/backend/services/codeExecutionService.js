@@ -186,40 +186,145 @@ export async function runCode({ userId, source, language, stdin = "" }) {
  */
 // Test types that genuinely need the sandbox (compile + run + stdout).
 // `text_match` and bare `code_analysis` operate purely on student text.
+// `compilation` / `compile_check` are compile-only checks (no need to look
+// at stdout, but Judge0 still has to compile, so we sandbox them).
 function needsSandbox(testCases) {
   return (testCases || []).some((tc) => {
     if (!tc || !tc.type) return false;
-    if (["execution", "stdout_equals", "stdout_contains", "must_compile"].includes(tc.type)) return true;
+    if ([
+      "execution", "stdout_equals", "stdout_contains", "must_compile",
+      "compilation", "compile_check", "compilation_and_run",
+    ].includes(tc.type)) return true;
     if (tc.type === "code_analysis" && tc.must_compile) return true;
     return false;
   });
 }
 
+// Truthy "any test case wants to feed input to the program" — when true we
+// must re-run Judge0 per test case (different stdin = different stdout).
+// 95%+ of test cases have no stdin, so the single-run path stays the default.
+function anyTestCaseHasStdin(testCases) {
+  return (testCases || []).some((tc) => tc && typeof tc.stdin === "string" && tc.stdin.length > 0);
+}
+
+// Whitespace-tolerant stdout compare. The exact-match approach was failing
+// students for trailing newlines and double-spaces that don't change meaning.
+// Default behaviour:
+//   - CRLF → LF
+//   - trim trailing whitespace on each line
+//   - collapse trailing blank lines
+// Opt-in via test case flags:
+//   - case_insensitive: true     — lowercase both sides before comparing
+//   - normalize_whitespace: true — collapse all runs of whitespace to one space
+function normalizeStdout(s, { caseInsensitive, normalizeWhitespace } = {}) {
+  if (typeof s !== "string") return "";
+  let out = s.replace(/\r\n/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n");
+  // Drop trailing blank lines (Judge0 sometimes adds one).
+  out = out.replace(/\n+$/, "");
+  if (normalizeWhitespace) out = out.replace(/\s+/g, " ").trim();
+  if (caseInsensitive) out = out.toLowerCase();
+  return out;
+}
+
+// Does the actual stdout contain ALL of the required substrings? Each needle
+// is matched against the normalised stdout (whitespace + case as configured).
+// Returns the missing substrings (empty array = pass).
+function checkStdoutContains(actualStdout, needles, opts) {
+  const actualNorm = normalizeStdout(actualStdout, opts);
+  const list = Array.isArray(needles) ? needles : [];
+  return list.filter((needle) => {
+    if (typeof needle !== "string") return false;
+    const needleNorm = normalizeStdout(needle, opts);
+    return !actualNorm.includes(needleNorm);
+  });
+}
+
 export async function runTestCases({ userId, source, language, testCases }) {
+  const cases = testCases || [];
+
   // Skip the Judge0 call entirely for predict_output / text-only exercises.
   // Charging the user the rate-limit slot + 1-2s of latency to "compile"
   // their predicted output text was both wasteful AND showed a confusing
   // "Compilation Error" badge in the sandbox panel.
-  const result = needsSandbox(testCases)
-    ? await runCode({ userId, source, language })
-    : { stdout: "", stderr: "", status: "Not run", timeMs: 0, memoryKb: 0, exitCode: null };
+  const sandbox = needsSandbox(cases);
+  const perCaseRun = sandbox && anyTestCaseHasStdin(cases);
+
+  // Default single-run path: one Judge0 call shared across all test cases.
+  // Per-case path (when stdin varies): one Judge0 call per test case, since
+  // different inputs produce different stdouts.
+  let sharedResult = null;
+  const perCaseResults = new Map();
+  if (sandbox && !perCaseRun) {
+    sharedResult = await runCode({ userId, source, language });
+  } else if (perCaseRun) {
+    for (let i = 0; i < cases.length; i++) {
+      const tc = cases[i];
+      const stdin = (tc && typeof tc.stdin === "string") ? tc.stdin : "";
+      // eslint-disable-next-line no-await-in-loop
+      const r = await runCode({ userId, source, language, stdin });
+      perCaseResults.set(i, r);
+    }
+  }
+
+  const noRun = { stdout: "", stderr: "", status: "Not run", timeMs: 0, memoryKb: 0, exitCode: null };
 
   // Judge0 reports compilation errors via status.id=6; falling back to
   // string-matching stderr keeps this working if status normalization changes.
-  const compilePassed = result.status !== "Compilation Error"
-    && !/compilation error|compile error/i.test(result.stderr || "");
-  const stderrTrim = (result.stderr || "").slice(0, 200);
+  function compileOf(result) {
+    return result.status !== "Compilation Error"
+      && !/compilation error|compile error/i.test(result.stderr || "");
+  }
 
-  const cases = (testCases || []).map((tc, idx) => {
+  const out = cases.map((tc, idx) => {
     const id = tc.id || `case_${idx + 1}`;
+    const result = perCaseRun ? (perCaseResults.get(idx) || noRun) : (sharedResult || noRun);
+    const compilePassed = compileOf(result);
+    const stderrTrim = (result.stderr || "").slice(0, 200);
+    const normOpts = {
+      caseInsensitive:     tc.case_insensitive === true,
+      normalizeWhitespace: tc.normalize_whitespace === true,
+    };
+
     try {
       switch (tc.type) {
-        case "execution": {
-          // expected_stdout (required), must_compile (optional).
-          const expected   = String(tc.expected_stdout ?? "").trim();
-          const actual     = (result.stdout || "").trim();
-          const stdoutOk   = actual === expected;
+        case "execution":
+        case "compilation_and_run": {
+          // Three flavours, all under the same case:
+          //   1. expected_stdout       — exact (whitespace-tolerant) match
+          //   2. expected_stdout_contains — array, all substrings must appear
+          //   3. expected_output_pattern  — regex (rare; 1 case across content)
+          // must_compile + stdin are optional regardless of which is set.
+          const expected   = tc.expected_stdout != null ? String(tc.expected_stdout) : null;
+          const contains   = Array.isArray(tc.expected_stdout_contains) ? tc.expected_stdout_contains : null;
+          const pattern    = typeof tc.expected_output_pattern === "string" ? tc.expected_output_pattern : null;
+          const actualNorm = normalizeStdout(result.stdout || "", normOpts);
           const compileOk  = tc.must_compile ? compilePassed : true;
+
+          // Decide which assertion drives the pass/fail message:
+          let stdoutOk = true;
+          let mismatchMsg = "";
+          if (expected != null) {
+            const expectedNorm = normalizeStdout(expected, normOpts);
+            stdoutOk = actualNorm === expectedNorm;
+            if (!stdoutOk) {
+              mismatchMsg = `Expected: "${expected.slice(0, 60).replace(/\n/g, "\\n")}"  ·  Got: "${(result.stdout || "").slice(0, 60).replace(/\n/g, "\\n")}"`;
+            }
+          } else if (contains) {
+            const missing = checkStdoutContains(result.stdout || "", contains, normOpts);
+            stdoutOk = missing.length === 0;
+            if (!stdoutOk) {
+              mismatchMsg = `Output missing: ${missing.slice(0, 3).map((s) => `"${s.slice(0, 30)}"`).join(", ")}`;
+            }
+          } else if (pattern) {
+            try {
+              stdoutOk = new RegExp(pattern, normOpts.caseInsensitive ? "i" : "").test(result.stdout || "");
+              if (!stdoutOk) mismatchMsg = `Output does not match pattern: /${pattern.slice(0, 60)}/`;
+            } catch (rx) {
+              stdoutOk = false;
+              mismatchMsg = `Bad regex in test case: ${rx.message}`;
+            }
+          }
+          // No assertion supplied → just check compile (treat like must_compile)
           return {
             caseId: id,
             passed: stdoutOk && compileOk,
@@ -227,7 +332,7 @@ export async function runTestCases({ userId, source, language, testCases }) {
               ? `Did not compile: ${stderrTrim}`
               : stdoutOk
                 ? "Output matches expected"
-                : `Expected: "${expected.slice(0, 60).replace(/\n/g, "\\n")}"  ·  Got: "${actual.slice(0, 60).replace(/\n/g, "\\n")}"`,
+                : mismatchMsg,
           };
         }
         case "code_analysis": {
@@ -250,23 +355,31 @@ export async function runTestCases({ userId, source, language, testCases }) {
         }
         case "text_match": {
           // predict_output exercises: student types the expected stdout as
-          // plain text. We compare `source` (student input) to `tc.expected`.
-          // CRLF is always normalized to LF (Windows users would otherwise
-          // fail every line-break exercise). `normalize_whitespace: true`
-          // additionally collapses runs of whitespace before comparing.
-          const expected = String(tc.expected ?? "");
-          const actual   = source;
-          const normalize = (s) => {
-            const lf = s.replace(/\r\n/g, "\n");
-            return tc.normalize_whitespace ? lf.replace(/\s+/g, " ").trim() : lf;
-          };
-          const passed = normalize(actual) === normalize(expected);
+          // plain text. We compare `source` (student input) to `tc.expected`
+          // (or check `tc.expected_contains` as substrings).
+          // CRLF is always normalized to LF.
+          const expected         = tc.expected != null ? String(tc.expected) : null;
+          const expectedContains = Array.isArray(tc.expected_contains) ? tc.expected_contains : null;
+          const actualNorm       = normalizeStdout(source, normOpts);
+
+          let passed = true;
+          let mismatchMsg = "";
+          if (expected != null) {
+            passed = actualNorm === normalizeStdout(expected, normOpts);
+            if (!passed) {
+              mismatchMsg = `Expected: "${expected.slice(0, 80).replace(/\n/g, "\\n")}"  ·  Got: "${source.slice(0, 80).replace(/\n/g, "\\n")}"`;
+            }
+          } else if (expectedContains) {
+            const missing = checkStdoutContains(source, expectedContains, normOpts);
+            passed = missing.length === 0;
+            if (!passed) {
+              mismatchMsg = `Your response is missing: ${missing.slice(0, 3).map((s) => `"${s.slice(0, 40)}"`).join(", ")}`;
+            }
+          }
           return {
             caseId: id,
             passed,
-            message: passed
-              ? "Output matches expected"
-              : `Expected: "${expected.slice(0, 80).replace(/\n/g, "\\n")}"  ·  Got: "${actual.slice(0, 80).replace(/\n/g, "\\n")}"`,
+            message: passed ? "Output matches expected" : mismatchMsg,
           };
         }
         case "must_contain":
@@ -276,17 +389,21 @@ export async function runTestCases({ userId, source, language, testCases }) {
             message: tc.value ? `must contain: "${tc.value}"` : "(no value supplied)",
           };
         case "must_compile":
+        case "compilation":
+        case "compile_check":
           return { caseId: id, passed: compilePassed, message: compilePassed ? "compiled OK" : stderrTrim };
         case "stdout_equals":
           return {
             caseId: id,
-            passed: (result.stdout || "").trim() === String(tc.value ?? "").trim(),
+            passed: normalizeStdout(result.stdout || "", normOpts)
+                  === normalizeStdout(String(tc.value ?? ""), normOpts),
             message: `stdout = "${(result.stdout || "").slice(0, 80).replace(/\n/g, "\\n")}"`,
           };
         case "stdout_contains":
           return {
             caseId: id,
-            passed: (result.stdout || "").includes(String(tc.value ?? "")),
+            passed: normalizeStdout(result.stdout || "", normOpts)
+                     .includes(normalizeStdout(String(tc.value ?? ""), normOpts)),
             message: `stdout contains "${tc.value}"`,
           };
         default:
@@ -297,9 +414,15 @@ export async function runTestCases({ userId, source, language, testCases }) {
     }
   });
 
-  const allPassed = cases.length > 0 && cases.every((c) => c.passed);
-  return { sandboxResult: result, testResults: cases, passed: allPassed };
+  const allPassed = out.length > 0 && out.every((c) => c.passed);
+  // For backward compat, return a sandbox result. When we ran per-case, return
+  // the first case's result (used by the UI to show the last sandbox stdout).
+  const sandboxResult = perCaseRun ? (perCaseResults.get(0) || noRun) : (sharedResult || noRun);
+  return { sandboxResult, testResults: out, passed: allPassed };
 }
 
 // Test helpers — exposed for unit tests, not used by controllers
-export const __test__ = { LANGUAGE_IDS, normalizeResult, truncate };
+export const __test__ = {
+  LANGUAGE_IDS, normalizeResult, truncate,
+  normalizeStdout, checkStdoutContains, needsSandbox, anyTestCaseHasStdin,
+};

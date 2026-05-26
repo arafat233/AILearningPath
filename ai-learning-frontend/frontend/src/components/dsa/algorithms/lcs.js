@@ -36,6 +36,8 @@ int lcs(String a, String b) {
   return dp[a.length()][b.length()];
 }`;
 
+export const LINE_BY_PHASE = { init: 3, compare: 6, "set-match": 7, "set-no-match": 9, done: 13 };
+
 export function generateLCSSteps(s1, s2) {
   const m = s1.length, n = s2.length;
   const grid = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(-1));
@@ -51,6 +53,7 @@ export function generateLCSSteps(s1, s2) {
     match: null,
     path: null,
     result: null,
+    phase: "init",
     step: {
       description: `LCS("${s1}", "${s2}") — DP grid is (${m + 1})×(${n + 1}).`,
       detail: "Row 0 and column 0 are zero by definition (LCS with empty string = 0).",
@@ -69,6 +72,7 @@ export function generateLCSSteps(s1, s2) {
         match,
         path: null,
         result: null,
+        phase: "compare",
         step: {
           description: `dp[${i}][${j}]: compare s1[${i - 1}]="${s1[i - 1]}" with s2[${j - 1}]="${s2[j - 1]}".`,
           detail: match
@@ -86,6 +90,7 @@ export function generateLCSSteps(s1, s2) {
         match,
         path: null,
         result: null,
+        phase: match ? "set-match" : "set-no-match",
         step: {
           description: `Set dp[${i}][${j}] = ${grid[i][j]}.`,
           detail: "",
@@ -118,6 +123,7 @@ export function generateLCSSteps(s1, s2) {
     match: null,
     path,
     result: lcs,
+    phase: "done",
     step: {
       description: `Done — LCS length = ${grid[m][n]}.`,
       detail: lcs ? `One LCS: "${lcs}" (traceback from dp[${m}][${n}]).` : "No common subsequence.",

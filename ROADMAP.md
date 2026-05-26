@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-26 (A9-A53 + D1.1/D1.2/D1.3/D1.4 wired — 43 visualizer kinds live on 46 topics; awaiting browser acceptance)
+**Last updated:** 2026-05-27 (A9-A53 + D1.1-D1.4 + D1.3c complete — 43 visualizer kinds live on 46 topics, 36/36 algorithm sandboxes line-highlighted; awaiting browser acceptance)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -143,10 +143,11 @@ Added after a competitive audit against [log2base2.com](https://log2base2.com/).
 - [~] **D1.3.** [PRIOR] **Universal code-line stepper** — partial 2026-05-26. New `HighlightedCode.jsx` primitive (line-by-line render with active-line highlight + auto-scroll). Used in the 2 new sandboxes (MemoryModel, Recursion) and propagated to BinarySearchSandbox + LinkedListSandbox (which already had `codeLine` in their step generators). Remaining: add `codeLine` to step generators that don't have it (sliding-window, dutch-flag, palindrome, ~30 others) and swap their `<pre>` for HighlightedCode. Logged as D1.3b below.
 - [x] **D1.4.** [INFERRED] **Variable state panel beside code** — done 2026-05-26. New `VariablePanel.jsx` primitive (table of name → value with state per row, AnimatePresence for in/out). Used in MemoryModel/Recursion via the visualizers themselves (JVMMemoryVisualizer renders stack-frame variables; CallStackVisualizer renders per-frame locals). Standalone VariablePanel ready for reuse in future sandboxes.
 
-- [~] **D1.3b.** *Follow-up:* propagate HighlightedCode to the remaining ~30 sandboxes — **25 of ~34 done 2026-05-26**. Pattern: each algorithm exports `LINE_BY_PHASE` (or `LINE_BY_ACTION` for kmp) next to its CODE const; sandbox imports it and uses `activeLine={LINE_BY_PHASE[frame.phase]}` on `<HighlightedCode>`. Algorithms updated: anagram (per-step pilot), hashDedup, prefixSums, palindrome, rotatedSearch, monotonicStack, intervalMerge, floydCycle, mergeLL, searchOnAnswer, slidingWindowMax, customHash, hashGrouping, lca, treePath, unionFind, kLargest, islands, kWayMerge, lru, matrixSearch, pqLazy, trie, countingSort, kmp.
+- [x] **D1.3b.** *Follow-up:* propagate HighlightedCode to the remaining ~30 sandboxes — done 2026-05-26. Pattern: each algorithm exports `LINE_BY_PHASE` (or `LINE_BY_ACTION` for kmp) next to its CODE const; sandbox imports it and uses `activeLine={LINE_BY_PHASE[frame.phase]}` on `<HighlightedCode>`. Algorithms updated: anagram (per-step pilot), hashDedup, prefixSums, palindrome, rotatedSearch, monotonicStack, intervalMerge, floydCycle, mergeLL, searchOnAnswer, slidingWindowMax, customHash, hashGrouping, lca, treePath, unionFind, kLargest, islands, kWayMerge, lru, matrixSearch, pqLazy, trie, countingSort, kmp.
 
-**Remaining 9 (queued as D1.3c — these have no `phase` field; each needs a tailored approach):**
-- [ ] **D1.3c.** dijkstra, dutchFlag, graph (BFS+DFS, 2 codes), graphTopo, hashTable, heap, lcs, slidingWindow, treeTraversals (5 codes — most complex). For each: either add `phase` to each frame's literal, OR add `codeLine` per step. Won't change behavior — just enables line-by-line highlighting on those modes. Plus 3 interactive-only sandboxes (Stack, BST Tree, Queue) stay on plain `<pre>` — "current line" doesn't apply to direct-manipulation UI.
+- [x] **D1.3c.** *Remaining 9 (no `phase` field originally):* done 2026-05-27. Added `phase` to each frame emit (or refactored helpers to accept phase) in: dijkstra, dutchFlag, graphTopo, slidingWindow, lcs, hashTable (put+get separate maps), heap (insert+extract separate maps), graph (BFS+DFS separate maps), treeTraversals (visit-line per order — derives activeLine from `frame.currentValue != null`). All 9 sandboxes now use HighlightedCode with proper line tracking.
+
+**After D1.3b + D1.3c:** **All 36 algorithm-driven sandboxes now have live line highlighting.** Only the 3 interactive sandboxes (Stack, BST Tree, Queue) stay on plain `<pre>` — "current line" doesn't apply to direct-manipulation UI.
 
 **D2. Missing DSA primitives (specific data structures they cover that Stellar doesn't)**
 

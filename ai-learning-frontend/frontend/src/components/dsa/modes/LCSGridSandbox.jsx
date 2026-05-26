@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import DPGridVisualizer from "../DPGridVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { LCS_CODE, generateLCSSteps } from "../algorithms/lcs.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { LCS_CODE, LINE_BY_PHASE, generateLCSSteps } from "../algorithms/lcs.js";
 
 const DEFAULT_S1 = "abcbdab";
 const DEFAULT_S2 = "bdcaba";
@@ -79,7 +80,7 @@ export default function LCSGridSandbox() {
           path={frame.path}
           match={frame.match}
         />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{LCS_CODE}</code></pre>
+        <HighlightedCode code={LCS_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="420px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

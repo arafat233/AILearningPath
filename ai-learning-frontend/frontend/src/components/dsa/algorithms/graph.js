@@ -79,6 +79,9 @@ export function edgeKey(a, b) {
   return a < b ? `${a}-${b}` : `${b}-${a}`;
 }
 
+export const LINE_BY_PHASE_BFS = { "bfs-init": 7, "bfs-dequeue": 10, "bfs-skip": 12, "bfs-discover": 13, "bfs-done": 17 };
+export const LINE_BY_PHASE_DFS = { "dfs-init": 6, "dfs-pop-skip": 9, "dfs-pop-visit": 10, "dfs-push": 15, "dfs-done": 18 };
+
 export function adjacencyMap(graph) {
   const adj = {};
   for (const n of graph.nodes) adj[n.id] = [];
@@ -119,6 +122,7 @@ export function generateBFSSteps(graph, start) {
     container: [...queue],
     containerLabel: "queue",
     order: [...order],
+    phase: "bfs-init",
     step: { description: `BFS from ${start}.`, detail: `Enqueue ${start}, mark visited.` },
   });
 
@@ -132,6 +136,7 @@ export function generateBFSSteps(graph, start) {
       container: [...queue],
       containerLabel: "queue",
       order: [...order],
+      phase: "bfs-dequeue",
       step: { description: `Dequeue ${u}. Process neighbors: [${adj[u].join(", ")}].`, detail: `Visit order so far: ${order.join(" → ")}` },
     });
 
@@ -146,6 +151,7 @@ export function generateBFSSteps(graph, start) {
           container: [...queue],
           containerLabel: "queue",
           order: [...order],
+          phase: "bfs-skip",
           step: { description: `Edge ${u}–${v}: ${v} already visited — skip.`, detail: "" },
         });
         // restore prior so unrelated future steps don't keep red
@@ -161,6 +167,7 @@ export function generateBFSSteps(graph, start) {
           container: [...queue],
           containerLabel: "queue",
           order: [...order],
+          phase: "bfs-discover",
           step: { description: `Discover ${v} — mark visited, enqueue.`, detail: `Queue: [${queue.join(", ")}]` },
         });
       }
@@ -175,6 +182,7 @@ export function generateBFSSteps(graph, start) {
     container: [],
     containerLabel: "queue",
     order: [...order],
+    phase: "bfs-done",
     step: { description: "BFS complete.", detail: `Visit order: ${order.join(" → ")}` },
   });
 
@@ -202,6 +210,7 @@ export function generateDFSSteps(graph, start) {
     container: [...stack],
     containerLabel: "stack",
     order: [...order],
+    phase: "dfs-init",
     step: { description: `DFS from ${start}.`, detail: `Push ${start} onto the stack.` },
   });
 
@@ -215,6 +224,7 @@ export function generateDFSSteps(graph, start) {
         container: [...stack],
         containerLabel: "stack",
         order: [...order],
+        phase: "dfs-pop-skip",
         step: { description: `Pop ${u} — already visited, skip.`, detail: "" },
       });
       continue;
@@ -232,6 +242,7 @@ export function generateDFSSteps(graph, start) {
       container: [...stack],
       containerLabel: "stack",
       order: [...order],
+      phase: "dfs-pop-visit",
       step: { description: `Pop ${u}, mark visiting. Order: ${order.join(" → ")}.`, detail: `Push unvisited neighbours in reverse adjacency order.` },
     });
 
@@ -249,6 +260,7 @@ export function generateDFSSteps(graph, start) {
         container: [...stack],
         containerLabel: "stack",
         order: [...order],
+        phase: "dfs-push",
         step: { description: `Push ${v} (neighbour of ${u}).`, detail: `Stack: [${stack.join(", ")}]` },
       });
     }
@@ -262,6 +274,7 @@ export function generateDFSSteps(graph, start) {
     container: [],
     containerLabel: "stack",
     order: [...order],
+    phase: "dfs-done",
     step: { description: "DFS complete.", detail: `Visit order: ${order.join(" → ")}` },
   });
 

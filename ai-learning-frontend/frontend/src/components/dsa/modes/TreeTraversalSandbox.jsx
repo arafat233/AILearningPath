@@ -5,7 +5,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import TreeVisualizer from "../TreeVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { ORDER_CODE, generateTraversalSteps, buildDemoTree } from "../algorithms/treeTraversals.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { ORDER_CODE, VISIT_LINE, generateTraversalSteps, buildDemoTree } from "../algorithms/treeTraversals.js";
 
 const ORDERS = [
   { id: "inorder",     label: "Inorder (L → root → R)" },
@@ -75,7 +76,7 @@ export default function TreeTraversalSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <TreeVisualizer root={frame.tree} width={520} height={300} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{ORDER_CODE[orderId]}</code></pre>
+        <HighlightedCode code={ORDER_CODE[orderId]} activeLine={frame.currentValue != null ? VISIT_LINE[orderId] : null} height="340px" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

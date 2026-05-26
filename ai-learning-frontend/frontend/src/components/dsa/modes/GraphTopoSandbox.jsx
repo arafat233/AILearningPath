@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import GraphVisualizer from "../GraphVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { TOPO_CODE, TOPO_GRAPH, generateTopoSteps } from "../algorithms/graphTopo.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { TOPO_CODE, LINE_BY_PHASE, TOPO_GRAPH, generateTopoSteps } from "../algorithms/graphTopo.js";
 
 export default function GraphTopoSandbox() {
   const [speed, setSpeed] = useState(700);
@@ -53,7 +54,7 @@ export default function GraphTopoSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <GraphVisualizer graph={TOPO_GRAPH} nodeStates={frame.nodeStates} edgeStates={frame.edgeStates} nodeLabels={frame.nodeLabels} directed width={780} height={300} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{TOPO_CODE}</code></pre>
+        <HighlightedCode code={TOPO_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="340px" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

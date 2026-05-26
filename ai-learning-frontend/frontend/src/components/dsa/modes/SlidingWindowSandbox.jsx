@@ -5,7 +5,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { SLIDING_WINDOW_CODE, generateSlidingWindowSteps } from "../algorithms/slidingWindow.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { SLIDING_WINDOW_CODE, LINE_BY_PHASE, generateSlidingWindowSteps } from "../algorithms/slidingWindow.js";
 
 const DEFAULT_ARR = [2, 1, 5, 1, 3, 2, 7, 4, 6, 1];
 const DEFAULT_K   = 3;
@@ -86,7 +87,7 @@ export default function SlidingWindowSandbox() {
             </div>
           </div>
         </div>
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{SLIDING_WINDOW_CODE}</code></pre>
+        <HighlightedCode code={SLIDING_WINDOW_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="340px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

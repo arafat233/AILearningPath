@@ -8,8 +8,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import GraphVisualizer from "../GraphVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
+import HighlightedCode from "../HighlightedCode.jsx";
 import {
-  DEFAULT_GRAPH, BFS_CODE, DFS_CODE,
+  DEFAULT_GRAPH, BFS_CODE, DFS_CODE, LINE_BY_PHASE_BFS, LINE_BY_PHASE_DFS,
   generateBFSSteps, generateDFSSteps,
 } from "../algorithms/graph.js";
 
@@ -105,7 +106,7 @@ export default function GraphSandbox() {
           nodeStates={frame.nodeStates}
           edgeStates={frame.edgeStates}
         />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{algo.code}</code></pre>
+        <HighlightedCode code={algo.code} activeLine={(algoId === "bfs" ? LINE_BY_PHASE_BFS : LINE_BY_PHASE_DFS)[frame.phase]} height="420px" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

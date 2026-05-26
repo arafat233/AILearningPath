@@ -182,6 +182,17 @@ export const ORDER_CODE = {
   zigzag:      ZIGZAG_CODE,
 };
 
+// Line in each ORDER_CODE where "visit" (out.add) happens — sandbox
+// highlights this when a frame has a currentValue (= a node is being
+// visited). Crude but matches the pedagogical moment.
+export const VISIT_LINE = {
+  inorder:     5,
+  preorder:    4,
+  postorder:   6,
+  "level-order": 9,
+  zigzag:      11,
+};
+
 export function generateTraversalSteps(tree, order) {
   if (order === "inorder")     return dfsTraversal(tree, "in");
   if (order === "preorder")    return dfsTraversal(tree, "pre");

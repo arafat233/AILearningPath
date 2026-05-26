@@ -9,8 +9,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import HashTableVisualizer from "../HashTableVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
+import HighlightedCode from "../HighlightedCode.jsx";
 import {
-  HASH_PUT_CODE, HASH_GET_CODE,
+  HASH_PUT_CODE, HASH_GET_CODE, LINE_BY_PHASE_PUT, LINE_BY_PHASE_GET,
   generateHashPutSteps, generateHashGetSteps, buildInitialTable,
 } from "../algorithms/hashTable.js";
 
@@ -148,7 +149,7 @@ export default function HashTableSandbox() {
           activeBucket={frame.activeBucket}
           hashWork={frame.hashWork}
         />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{op.code}</code></pre>
+        <HighlightedCode code={op.code} activeLine={(opId === "put" ? LINE_BY_PHASE_PUT : LINE_BY_PHASE_GET)[frame.phase]} height="420px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

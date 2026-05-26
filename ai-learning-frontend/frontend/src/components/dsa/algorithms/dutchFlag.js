@@ -26,6 +26,8 @@ void sortColors(int[] arr) {
   }
 }`;
 
+export const LINE_BY_PHASE = { init: 3, examine: 5, "swap-zero": 6, "swap-two": 8, "keep-one": 10, done: 12 };
+
 // Encode the 3 colour states using ArrayBars-compatible flags.
 //  red region   -> sorted (left fixed)
 //  white region -> default
@@ -46,21 +48,22 @@ export function generateDutchFlagSteps(arr) {
   const frames = [];
   let low = 0, mid = 0, high = n - 1;
 
-  const snap = (note) => frames.push({
+  const snap = (phase, note) => frames.push({
     array:     [...a],
     states:    regionStates(low, mid, high, n),
     pointers:  { low, mid, high },
+    phase,
     step:      note,
   });
 
-  snap({
+  snap("init", {
     description: "Three pointers: low (red boundary), mid (scan), high (blue boundary).",
     detail: "Scan while mid ≤ high. At each step decide based on arr[mid].",
   });
 
   while (mid <= high) {
     const v = a[mid];
-    snap({
+    snap("examine", {
       description: `arr[mid=${mid}] = ${v}.`,
       detail: v === 0
         ? "Zero → swap with arr[low], advance both."
@@ -71,20 +74,20 @@ export function generateDutchFlagSteps(arr) {
     if (v === 0) {
       [a[low], a[mid]] = [a[mid], a[low]];
       low++; mid++;
-      snap({
+      snap("swap-zero", {
         description: `Swapped to arr[low]. low → ${low}, mid → ${mid}.`,
         detail: `Red region grows. arr = [${a.join(", ")}].`,
       });
     } else if (v === 2) {
       [a[mid], a[high]] = [a[high], a[mid]];
       high--;
-      snap({
+      snap("swap-two", {
         description: `Swapped with arr[high]. high → ${high}.`,
         detail: `Blue region grows. arr = [${a.join(", ")}]. (mid stays — re-examine the new value.)`,
       });
     } else {
       mid++;
-      snap({
+      snap("keep-one", {
         description: `One in place. mid → ${mid}.`,
         detail: `arr = [${a.join(", ")}].`,
       });
@@ -95,6 +98,7 @@ export function generateDutchFlagSteps(arr) {
     array: [...a],
     states: a.map(() => "sorted"),
     pointers: { low, mid, high },
+    phase: "done",
     step: {
       description: "Done — array partitioned in one O(n) pass.",
       detail: `Result: [${a.join(", ")}].`,

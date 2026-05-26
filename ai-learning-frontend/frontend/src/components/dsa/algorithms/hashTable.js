@@ -96,6 +96,7 @@ export function generateHashPutSteps(table, key, value) {
     activeBucket: idx,
     activeEntryIdx: null,
     hashWork,
+    phase: "put-start",
     step: {
       description: `put("${key}", ${JSON.stringify(value)})`,
       detail: `Hash to bucket ${idx}. Walk chain to check for existing key.`,
@@ -111,6 +112,7 @@ export function generateHashPutSteps(table, key, value) {
         activeBucket: idx,
         activeEntryIdx: i,
         hashWork,
+        phase: "put-compare",
         step: {
           description: `Compare with bucket[${idx}][${i}].key = "${chain[i].key}".`,
           detail: chain[i].key === key
@@ -125,6 +127,7 @@ export function generateHashPutSteps(table, key, value) {
           activeBucket: idx,
           activeEntryIdx: i,
           hashWork,
+          phase: "put-update",
           step: {
             description: `Updated bucket[${idx}][${i}].value = ${JSON.stringify(value)}.`,
             detail: "Size unchanged — this was an update, not an insert.",
@@ -143,6 +146,7 @@ export function generateHashPutSteps(table, key, value) {
     activeBucket: idx,
     activeEntryIdx: 0,
     hashWork,
+    phase: "put-prepend",
     step: {
       description: `Insert new node at head of bucket[${idx}].`,
       detail: chain && chain.length > 0
@@ -155,6 +159,7 @@ export function generateHashPutSteps(table, key, value) {
     activeBucket: idx,
     activeEntryIdx: null,
     hashWork,
+    phase: "put-done",
     step: {
       description: `Done — bucket[${idx}] now has ${buckets[idx].length} entr${buckets[idx].length === 1 ? "y" : "ies"}.`,
       detail: `Size +1.`,
@@ -177,6 +182,7 @@ export function generateHashGetSteps(table, key) {
     activeBucket: idx,
     activeEntryIdx: null,
     hashWork,
+    phase: "get-start",
     step: {
       description: `get("${key}")`,
       detail: `Hash to bucket ${idx}. Walk chain.`,
@@ -190,6 +196,7 @@ export function generateHashGetSteps(table, key) {
       activeBucket: idx,
       activeEntryIdx: null,
       hashWork,
+      phase: "get-miss",
       step: { description: `Bucket ${idx} is empty.`, detail: "Returns null." },
     });
     return frames;
@@ -201,6 +208,7 @@ export function generateHashGetSteps(table, key) {
       activeBucket: idx,
       activeEntryIdx: i,
       hashWork,
+      phase: "get-compare",
       step: {
         description: `Compare with bucket[${idx}][${i}].key = "${chain[i].key}".`,
         detail: chain[i].key === key
@@ -214,6 +222,7 @@ export function generateHashGetSteps(table, key) {
         activeBucket: idx,
         activeEntryIdx: i,
         hashWork,
+        phase: "get-hit",
         step: {
           description: `Returns ${JSON.stringify(chain[i].value)}.`,
           detail: `Walked ${i + 1} link${i === 0 ? "" : "s"} in the chain.`,
@@ -228,6 +237,7 @@ export function generateHashGetSteps(table, key) {
     activeBucket: idx,
     activeEntryIdx: null,
     hashWork,
+    phase: "get-miss",
     step: {
       description: `Walked entire chain (${chain.length} links) — no match.`,
       detail: "Returns null.",
@@ -235,6 +245,11 @@ export function generateHashGetSteps(table, key) {
   });
   return frames;
 }
+
+// Phase-to-line mapping for both code blocks. Sandbox selects the
+// right one based on opId.
+export const LINE_BY_PHASE_PUT = { "put-start": 3, "put-compare": 6, "put-update": 8, "put-prepend": 13, "put-done": 14 };
+export const LINE_BY_PHASE_GET = { "get-start": 3, "get-compare": 6, "get-hit": 6, "get-miss": 9 };
 
 // Seed a small table to start the demo with.
 export function buildInitialTable(capacity = 8) {

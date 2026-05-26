@@ -18,6 +18,8 @@ int maxSubarraySum(int[] arr, int k) {
   return max;
 }`;
 
+export const LINE_BY_PHASE = { init: 5, slide: 7, update: 8, done: 10 };
+
 export function generateSlidingWindowSteps(arr, k) {
   if (k > arr.length || k <= 0) {
     return [{
@@ -39,6 +41,7 @@ export function generateSlidingWindowSteps(arr, k) {
     pointers: { L: 0, R: k - 1 },
     windowSum: sum,
     maxSum,
+    phase: "init",
     step: {
       description: `Initial window [0..${k - 1}], sum = ${sum}.`,
       detail: "Now slide rightward, one index at a time.",
@@ -60,6 +63,7 @@ export function generateSlidingWindowSteps(arr, k) {
       pointers: { L: leavingI, R },
       windowSum: sum,
       maxSum,
+      phase: "slide",
       step: {
         description: `Leaving arr[${leavingI}] = ${leaving}, entering arr[${R}] = ${entering}.`,
         detail: `sum = ${sum} - ${leaving} + ${entering} = ${sum - leaving + entering}`,
@@ -74,6 +78,7 @@ export function generateSlidingWindowSteps(arr, k) {
       pointers: { L, R },
       windowSum: sum,
       maxSum,
+      phase: "update",
       step: {
         description: `Window [${L}..${R}], sum = ${sum}.`,
         detail: sum === maxSum ? `New max-so-far!` : `Max so far still ${maxSum}.`,
@@ -86,6 +91,7 @@ export function generateSlidingWindowSteps(arr, k) {
     pointers: {},
     windowSum: maxSum,
     maxSum,
+    phase: "done",
     step: {
       description: `Done — max window sum = ${maxSum}.`,
       detail: `Scanned ${arr.length - k + 1} windows in O(n) total. Brute force would have been O(n·k).`,

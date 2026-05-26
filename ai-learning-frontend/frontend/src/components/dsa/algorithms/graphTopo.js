@@ -31,6 +31,8 @@ List<String> topoSort(Map<String, List<String>> adj) {
   return order.size() == adj.size() ? order : List.of();  // cycle if mismatch
 }`;
 
+export const LINE_BY_PHASE = { init: 7, dequeue: 10, edge: 13, done: 16 };
+
 // A small course-prerequisite-style DAG.
 export const TOPO_GRAPH = {
   nodes: [
@@ -93,6 +95,7 @@ export function generateTopoSteps(graph) {
     nodeLabels: { ...inDeg },        // displayed below node name
     queue: [...queue],
     order: [],
+    phase: "init",
     step: {
       description: "Compute in-degree of every node.",
       detail: `0-in-degree nodes (no prerequisites): [${queue.join(", ")}]. Enqueue all.`,
@@ -110,6 +113,7 @@ export function generateTopoSteps(graph) {
       nodeLabels: { ...inDeg },
       queue: [...queue],
       order: [...order],
+      phase: "dequeue",
       step: {
         description: `Dequeue ${u}, add to topological order.`,
         detail: `For each outgoing edge ${u}→v, decrement inDeg[v].`,
@@ -125,6 +129,7 @@ export function generateTopoSteps(graph) {
         nodeLabels: { ...inDeg },
         queue: [...queue],
         order: [...order],
+        phase: "edge",
         step: {
           description: `Edge ${u} → ${v}: inDeg[${v}] now ${inDeg[v]}.`,
           detail: inDeg[v] === 0 ? `inDeg[${v}] hit 0 — enqueue ${v}.` : "Still has prerequisites.",
@@ -146,6 +151,7 @@ export function generateTopoSteps(graph) {
     nodeLabels: { ...inDeg },
     queue: [],
     order: [...order],
+    phase: "done",
     step: {
       description: cycle ? "Cycle detected!" : "Topological sort complete.",
       detail: cycle

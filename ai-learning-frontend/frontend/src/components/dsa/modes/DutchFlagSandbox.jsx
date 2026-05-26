@@ -4,7 +4,8 @@
 import { useCallback, useRef, useState } from "react";
 import ArrayVisualizer from "../ArrayVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { DUTCH_FLAG_CODE, generateDutchFlagSteps } from "../algorithms/dutchFlag.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { DUTCH_FLAG_CODE, LINE_BY_PHASE, generateDutchFlagSteps } from "../algorithms/dutchFlag.js";
 
 const DEFAULT_ARR = [2, 0, 2, 1, 1, 0, 1, 2, 0, 0, 2, 1];
 
@@ -71,7 +72,7 @@ export default function DutchFlagSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <ArrayVisualizer cells={cells} pointers={frame.pointers} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[12px] text-[#d4d4d4] overflow-auto h-[340px]"><code>{DUTCH_FLAG_CODE}</code></pre>
+        <HighlightedCode code={DUTCH_FLAG_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="340px" />
       </div>
 
       <ExplanationPanel text={`${frame.step.description}${frame.step.detail ? " — " + frame.step.detail : ""}`} />

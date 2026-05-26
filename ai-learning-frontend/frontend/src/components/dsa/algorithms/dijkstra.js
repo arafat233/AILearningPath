@@ -32,6 +32,8 @@ Map<String, Integer> dijkstra(
   return dist;
 }`;
 
+export const LINE_BY_PHASE = { init: 6, pop: 11, relax: 16, reject: 15, done: 21 };
+
 export const DIJKSTRA_GRAPH = {
   nodes: [
     { id: "A", x:  80, y:  60 },
@@ -102,6 +104,7 @@ export function generateDijkstraSteps(graph, src) {
     nodeLabels: distLabels(dist),
     pqSnapshot: [`${src}(0)`],
     visited: [],
+    phase: "init",
     step: {
       description: `Dijkstra from ${src}. All distances start at ∞ except dist[${src}] = 0.`,
       detail: "Repeat: pop the unvisited node with smallest tentative distance, relax its outgoing edges.",
@@ -125,6 +128,7 @@ export function generateDijkstraSteps(graph, src) {
       nodeLabels: distLabels(dist),
       pqSnapshot: pqFrom(dist, visited),
       visited: [...visited],
+      phase: "pop",
       step: {
         description: `Pop ${u} (dist = ${dist[u]}) — smallest unvisited.`,
         detail: `Relax outgoing edges from ${u}.`,
@@ -145,6 +149,7 @@ export function generateDijkstraSteps(graph, src) {
           nodeLabels: distLabels(dist),
           pqSnapshot: pqFrom(dist, visited),
           visited: [...visited],
+          phase: "relax",
           step: {
             description: `Edge ${u}→${to} (weight ${weight}): new tentative = ${nd}.`,
             detail: oldDist === Infinity
@@ -161,6 +166,7 @@ export function generateDijkstraSteps(graph, src) {
           nodeLabels: distLabels(dist),
           pqSnapshot: pqFrom(dist, visited),
           visited: [...visited],
+          phase: "reject",
           step: {
             description: `Edge ${u}→${to} (weight ${weight}): tentative = ${nd}.`,
             detail: `${nd} ≥ ${dist[to]} → no improvement.`,
@@ -180,6 +186,7 @@ export function generateDijkstraSteps(graph, src) {
     nodeLabels: distLabels(dist),
     pqSnapshot: [],
     visited: [...visited],
+    phase: "done",
     step: {
       description: "Done.",
       detail: `Final distances: ${Object.entries(dist).map(([k, v]) => `${k}=${v === Infinity ? "∞" : v}`).join(", ")}.`,

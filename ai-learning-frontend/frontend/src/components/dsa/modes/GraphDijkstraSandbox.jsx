@@ -4,7 +4,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import GraphVisualizer from "../GraphVisualizer.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
-import { DIJKSTRA_CODE, DIJKSTRA_GRAPH, generateDijkstraSteps } from "../algorithms/dijkstra.js";
+import HighlightedCode from "../HighlightedCode.jsx";
+import { DIJKSTRA_CODE, LINE_BY_PHASE, DIJKSTRA_GRAPH, generateDijkstraSteps } from "../algorithms/dijkstra.js";
 
 export default function GraphDijkstraSandbox() {
   const [src, setSrc]       = useState("A");
@@ -67,7 +68,7 @@ export default function GraphDijkstraSandbox() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_440px] gap-4">
         <GraphVisualizer graph={DIJKSTRA_GRAPH} nodeStates={frame.nodeStates} edgeStates={frame.edgeStates} nodeLabels={frame.nodeLabels} directed width={780} height={380} />
-        <pre className="rounded-xl border border-zinc-800 bg-[#1e1e1e] p-4 text-[11px] text-[#d4d4d4] overflow-auto h-[420px]"><code>{DIJKSTRA_CODE}</code></pre>
+        <HighlightedCode code={DIJKSTRA_CODE} activeLine={LINE_BY_PHASE[frame.phase]} height="420px" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">

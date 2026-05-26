@@ -45,7 +45,7 @@ Goal: ship the visualizer + tutor + pattern-recognition trinity that defines Ste
 
 Source projects: `~/Downloads/dsalearn/` + `~/Downloads/dsa-visualizer 2/`. See architecture note in [PROJECT decisions / 2026-05-26 visualizer architecture].
 
-- [ ] **A1.** Create `ai-learning-frontend/frontend/src/components/dsa/` directory
+- [x] **A1.** Create `ai-learning-frontend/frontend/src/components/dsa/` directory — done 2026-05-26. Also added `framer-motion ^12.40.0` to frontend deps (was missing; both source projects depend on it).
 - [ ] **A2.** Port `ArrayBars` component from `dsa-visualizer 2/src/components/ArrayBars.tsx` — drop `'use client'`, keep Framer Motion. Acceptance: imports cleanly into the Vite frontend.
 - [ ] **A3.** Port `LinkedListVisualizer.tsx` from `dsalearn/components/visualizers/`
 - [ ] **A4.** Port `StackVisualizer.tsx` from `dsalearn/components/visualizers/`

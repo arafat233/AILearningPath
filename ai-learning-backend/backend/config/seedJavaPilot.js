@@ -351,8 +351,9 @@ const TOPIC_VISUALIZERS = {
   // A13 — Two Pointers — O(n) Pair Problems.
   "java_m30_t1": { kind: "array-pointers",    config: {} },
   // A14 — Linked List Basics + Reversal share the same replay widget for now.
-  "java_m32_t1": { kind: "linked-list",       config: {} },
   "java_m32_t3": { kind: "linked-list",       config: {} },
+  // D2.1 — Doubly LL visualizer. Wired to java_m32_t1 as the progression after singly LL.
+  "java_m32_t1": { kind: "doubly-ll",          config: {} },
   // A15 — Stack Fundamentals (LIFO, push/pop/peek).
   "java_m33_t1": { kind: "stack",             config: {} },
   // A16 (re-wired) — M35-T1 is actually "Tree Traversals" per content;
@@ -374,15 +375,19 @@ const TOPIC_VISUALIZERS = {
   "java_m30_t4": { kind: "dutch-flag",        config: {} },   // A23
   "java_m31_t3": { kind: "palindrome",        config: {} },   // A24
   "java_m31_t5": { kind: "dp-grid",           config: {} },   // A25 (LCS)
-  "java_m32_t2": { kind: "linked-list-cycle", config: {} },   // A26 (two-pointer on LL ≈ Floyd's)
-  "java_m32_t4": { kind: "linked-list-cycle", config: {} },   // A26 (Floyd's exact)
+  // A26 (two-pointer on LL ≈ Floyd's) — wired to M32-T4 which is Floyd's exact
+  "java_m32_t4": { kind: "linked-list-cycle", config: {} },
+  // D2.2 — Circular LL visualizer. Wired to M32-T2 (cycle detection) — termination check.
+  "java_m32_t2": { kind: "circular-ll",         config: {} },
   "java_m33_t2": { kind: "monotonic-stack",   config: {} },   // A27
   "java_m35_t5": { kind: "trie",              config: {} },   // A28
   "java_m36_t2": { kind: "k-largest",         config: {} },   // A29
   "java_m37_t3": { kind: "graph-topo",        config: {} },   // A30
   "java_m37_t4": { kind: "graph-dijkstra",    config: {} },   // A31
   // A34-A42 — fill remaining T2-T5 algorithmic topics.
-  "java_m30_t3": { kind: "prefix-sums",        config: {} },  // A34
+  // A34 — Prefix Sums (moved to a different topic; A34 now on a dedicated topic)
+  // D2.3 — Array insert-at-index animation. Wired to M30-T3 (array index operations).
+  "java_m30_t3": { kind: "array-insert",        config: {} },
   "java_m33_t3": { kind: "queue",              config: {} },  // A35
   "java_m33_t4": { kind: "sliding-window-max", config: {} },  // A36
   "java_m35_t2": { kind: "lca",                config: {} },  // A37

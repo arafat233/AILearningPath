@@ -64,6 +64,9 @@ import HashDedupSandbox        from "./modes/HashDedupSandbox.jsx";
 import IntervalMergeSandbox    from "./modes/IntervalMergeSandbox.jsx";
 import MemoryModelSandbox      from "./modes/MemoryModelSandbox.jsx";
 import RecursionSandbox        from "./modes/RecursionSandbox.jsx";
+import CircularLLSandbox       from "./modes/CircularLLSandbox.jsx";
+import DoublyLLSandbox         from "./modes/DoublyLLSandbox.jsx";
+import ArrayInsertSandbox      from "./modes/ArrayInsertSandbox.jsx";
 
 /**
  * @param {{ kind: string, config?: object }} props
@@ -113,6 +116,9 @@ export default function VisualizerShell({ kind, config = {} }) {
     case "interval-merge":   return <IntervalMergeSandbox  />;
     case "memory-model":     return <MemoryModelSandbox    />;
     case "recursion":        return <RecursionSandbox      />;
+    case "circular-ll":      return <CircularLLSandbox     />;
+    case "doubly-ll":       return <DoublyLLSandbox       />;
+    case "array-insert":    return <ArrayInsertSandbox     />;
     default:
       return (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6 text-center text-zinc-400 text-sm">

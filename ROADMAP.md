@@ -149,11 +149,13 @@ Added after a competitive audit against [log2base2.com](https://log2base2.com/).
 
 **After D1.3b + D1.3c:** **All 36 algorithm-driven sandboxes now have live line highlighting.** Only the 3 interactive sandboxes (Stack, BST Tree, Queue) stay on plain `<pre>` — "current line" doesn't apply to direct-manipulation UI.
 
+**After D2.1 + D2.2 + D2.3:** The 3 remaining log2base2 parity items are complete. Total visualizer kinds: 44 across 47 topics. The remaining 3 log2base2 gaps (D3.1–D3.4) are content courses — not visualizer engineering. Phase 1.A closes here.
+
 **D2. Missing DSA primitives (specific data structures they cover that Stellar doesn't)**
 
-- [ ] **D2.1.** [L2B2] **Doubly Linked List visualizer** — separate from singly LL. Show prev + next pointers, insert/delete with both pointers updated. M32 doesn't have a dedicated topic for it; could add as M32-T6 OR fold into M32-T1 as a second mode.
-- [ ] **D2.2.** [L2B2] **Circular Linked List visualizer** — tail.next = head, traversal-with-termination-check. M32 doesn't have it. CycleListVisualizer can be adapted.
-- [ ] **D2.3.** [L2B2] **Array insert-at-index animation** — explicitly show the shift-right operation when inserting into the middle of a fixed-size array. M30-T1 doesn't show this; ArrayVisualizer can be reused with a new step generator.
+- [x] **D2.1.** [L2B2] **Doubly Linked List visualizer** — done 2026-05-27. `DoublyLinkedListVisualizer.jsx` (horizontal nodes + bidirectional arrows per node: [prev|data|next]) + `DoublyLLSandbox.jsx` (3 ops: build/insert-head/delete) + `algorithms/doublyLinkedList.js` step generators + wired to `java_m32_t1` (M32-T1). New kind: `doubly-ll`.
+- [x] **D2.2.** [L2B2] **Circular Linked List visualizer** — done 2026-05-27. `CircularLinkedListVisualizer.jsx` (horizontal nodes + curved arc back from tail to head, SVG arrows) + `CircularLLSandbox.jsx` (2 ops: traverse with termination check / insert at head) + `algorithms/circularLinkedList.js` step generators + wired to `java_m32_t2` (M32-T2). Distinct from FloydCycle — that one shows fast/slow pointers; this one shows the tail→head circular link itself. New kind: `circular-ll`.
+- [x] **D2.3.** [L2B2] **Array insert-at-index animation** — done 2026-05-27. `ArrayInsertSandbox.jsx` (interactive: pick index + value, replay 4-phase steps: init/shift/place/done) + `algorithms/arrayInsert.js` step generator + `ArrayVisualizer` with named pointer at insertion index + `HighlightedCode` with phase-derived line highlight + wired to `java_m30_t3` (M30-T3). New kind: `array-insert`.
 
 **D3. Topics they have as standalone courses, Stellar covers only partially**
 

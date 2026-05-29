@@ -54,12 +54,13 @@ docker ps --format 'table {{.Names}}\t{{.Status}}'
 
 echo "=== [5/6] Verify API health (max 30s) ==="
 for i in 1 2 3 4 5 6; do
-  if curl -fs -o /dev/null -m 5 "http://localhost:5001/api/v1/ncert/chapters?subject=Mathematics"; then
-    echo "    → API healthy on try $i"
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 5 "http://localhost:5001/api/topics?grade=10")
+  if [ "$STATUS" = "200" ]; then
+    echo "    → API healthy on try $i (HTTP 200)"
     break
   fi
   if [ "$i" = "6" ]; then
-    echo "    ❌ API failed health check after 30s"
+    echo "    ❌ API health check failed after 30s (last status: $STATUS)"
     docker logs --tail 30 "$API_CONTAINER" 2>&1 | tail -20
     exit 1
   fi

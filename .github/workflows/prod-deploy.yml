@@ -127,6 +127,15 @@ jobs:
             ./dist/ \
             ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/stellar-dist/
 
+      - name: Authenticate server to ghcr.io
+        env:
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GHCR_USER: ${{ github.actor }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
+            ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} \
+            "echo '${GHCR_TOKEN}' | docker login ghcr.io -u '${GHCR_USER}' --password-stdin"
+
       - name: Run server-side deploy script
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \

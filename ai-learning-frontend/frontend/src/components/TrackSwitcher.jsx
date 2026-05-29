@@ -43,7 +43,7 @@ export default function TrackSwitcher() {
     setOpen(false);
     if (key === activeTrack) return;
     await setActiveTrack(key);
-    navigate("/");
+    navigate(key === "school" ? "/" : `/?track=${key}`);
   };
 
   return (

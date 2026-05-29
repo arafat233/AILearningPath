@@ -8,30 +8,33 @@ import { getNav, setActiveTrackApi } from "../services/api";
  * On mount, Layout calls `refreshNav()` once. After that, the TrackSwitcher
  * mutates the active track and the sidebar re-renders from this store.
  *
- * `items` is persisted to localStorage so the sidebar paints instantly on
- * reload before /user/nav finishes — same trick as themeStore.
+ * `activeTrack` + `tracks` are persisted to localStorage so the correct
+ * track loads instantly on page reload — even before the async /user/nav
+ * call completes. Zustand's persist rehydrates asynchronously, so callers
+ * MUST use `hydrated` (not null-check) to know when persisted data is ready.
  */
 export const useTrackStore = create(
   persist(
     (set, get) => ({
-      activeTrack: null,                // "school" | "pro_java" | ...
-      tracks:      [],                  // [{ key, role }, ...]
-      items:       [],                  // sidebar nav list for activeTrack
-      loaded:      false,
+      activeTrack: null,   // persisted — rehydrated from localStorage
+      tracks:      [],     // persisted — rehydrated from localStorage
+      items:       [],     // NOT persisted — always fetched fresh
+      loaded:      false, // NOT persisted — always re-fetched on load
+      hydrated:    false, // goes true after Zustand rehydrates from localStorage
 
       refreshNav: async () => {
         try {
           const { data } = await getNav();
           const nav = data?.data || data;
-          set({
-            activeTrack: nav.activeTrack,
+          set((state) => ({
+            // Only trust the backend's activeTrack when we haven't rehydrated
+            // from localStorage yet. Once hydrated, the persisted value wins.
+            activeTrack: state.hydrated ? (state.activeTrack ?? nav.activeTrack) : nav.activeTrack,
             tracks:      nav.tracks || [],
             items:       nav.items  || [],
             loaded:      true,
-          });
+          }));
         } catch {
-          // Fall back to cached values silently; an offline reload should
-          // still render the sidebar from persist.
           set({ loaded: true });
         }
       },
@@ -49,6 +52,16 @@ export const useTrackStore = create(
 
       reset: () => set({ activeTrack: null, tracks: [], items: [], loaded: false }),
     }),
-    { name: "track-storage" }
+    {
+      name: "track-storage",
+      onRehydrateStorage: () => (state) => {
+        // Called after Zustand reads from localStorage and merges into state.
+        // At this point persisted values are safe to read.
+        if (state) state.hydrated = true;
+      },
+      // Persist the track identity so the correct track loads instantly.
+      // items + loaded are NOT persisted — always fetched fresh.
+      partialize: (s) => ({ activeTrack: s.activeTrack, tracks: s.tracks }),
+    }
   )
 );

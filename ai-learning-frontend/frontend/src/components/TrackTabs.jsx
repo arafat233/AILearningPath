@@ -17,6 +17,7 @@
  */
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { useTrackStore } from "../store/trackStore";
 
 const TRACK_LABEL = {
   school:    { label: "School",       hint: "K-12 board curriculum" },
@@ -36,6 +37,7 @@ export default function TrackTabs() {
   const { user, activeChild } = useAuthStore();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const activeTrack = useTrackStore((s) => s.activeTrack);
 
   // Tabs are a parent-only concept. Hide while viewing-as-child.
   if (activeChild) return null;
@@ -48,12 +50,17 @@ export default function TrackTabs() {
 
   if (tracks.length < 2) return null; // only one track → no tabs
 
-  const active = searchParams.get("track") || "school";
+  // Prefer the store's activeTrack (persisted), fall back to URL param for
+  // bookmarked /shared URLs, then fall back to "school".
+  const active = activeTrack || searchParams.get("track") || "school";
 
   const onPick = (key) => {
+    // Sync the URL param for bookmarkability, then let Dashboard read from the store.
     const next = new URLSearchParams(searchParams);
     next.set("track", key);
     setSearchParams(next, { replace: true });
+    // Also call setActiveTrack so the store is updated for non-Dashboard pages.
+    useTrackStore.getState().setActiveTrack(key);
   };
 
   return (

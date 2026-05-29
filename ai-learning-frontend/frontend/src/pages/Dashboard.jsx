@@ -9,6 +9,7 @@ import {
   askTutor,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import { useTrackStore } from "../store/trackStore";
 import { DashboardSkeleton } from "../components/Skeleton";
 import AICreditsIndicator from "../components/AICreditsIndicator";
 import TrackTabs from "../components/TrackTabs";
@@ -147,6 +148,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const child    = activeChild || user;
+  const activeTrack = useTrackStore((s) => s.activeTrack);
 
   const [report,     setReport]     = useState(null);
   const [advice,     setAdvice]     = useState(null);
@@ -320,15 +322,15 @@ export default function Dashboard() {
     if (path) navigate(path, state ? { state } : undefined);
   };
 
-  // PRO_TRACK_PLAN.md Phase 9: when ?track=pro_<lang> is present in the
-  // URL, render the compact pro snapshot instead of the K-12 dashboard.
+  // PRO_TRACK_PLAN.md Phase 9: when activeTrack is pro_<lang>, render
+  // the compact pro snapshot instead of the K-12 dashboard.
   // The TrackTabs at the top is the same UI on both branches.
-  const trackParam = searchParams.get("track") || "school";
-  if (trackParam.startsWith("pro_")) {
+  const effectiveTrack = activeTrack || searchParams.get("track") || "school";
+  if (effectiveTrack.startsWith("pro_")) {
     return (
       <div className="space-y-5">
         <TrackTabs />
-        <ProDashboardSnapshot trackKey={trackParam} />
+        <ProDashboardSnapshot trackKey={effectiveTrack} />
       </div>
     );
   }

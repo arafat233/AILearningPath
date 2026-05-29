@@ -102,6 +102,10 @@ export const deleteMe       = ()     => api.delete("/user/me");
 export const getDailyBrief   = ()     => api.get("/user/daily-brief");
 export const getStreakStatus = ()     => api.get("/user/streak-status");
 
+// Sidebar nav per active track (school / pro_java / ...).
+export const getNav           = ()     => api.get("/user/nav");
+export const setActiveTrackApi = (key) => api.patch("/user/active-track", { key });
+
 export const getTopics       = (params) => api.get("/topics", { params });
 export const getTopicsMeta   = ()       => api.get("/topics/meta");
 export const searchTopics    = (q, grade) => api.get("/topics", { params: { q, grade } });
@@ -429,3 +433,15 @@ export const proGetExercise        = (exerciseId)                    => api.get(
 export const proSubmitExercise     = (exerciseId, code)              => api.post(`/v1/pro/exercises/${exerciseId}/submit`, { code });
 export const proGetProgress        = (trackKey)                      => api.get(`/v1/pro/progress/${trackKey}`);
 export const proEnroll             = (trackKey)                      => api.post("/v1/pro/enroll", { trackKey });
+// Polymorphic bookmarks — exercise / topic / project. List groups by kind.
+export const proToggleExerciseBookmark = (exerciseId)                => api.post(`/v1/pro/exercises/${exerciseId}/bookmark`);
+export const proToggleTopicBookmark    = (topicId)                   => api.post(`/v1/pro/topics/${topicId}/bookmark`);
+export const proListBookmarks          = (trackKey = "pro_java")     => api.get(`/v1/pro/bookmarks`, { params: { trackKey } });
+// Back-compat alias (older import name)
+export const proToggleBookmark         = proToggleExerciseBookmark;
+
+// ── Pro Analytics ────────────────────────────────────────────────────────
+export const proAnalyticsDashboard = (trackKey) =>
+  api.get("/v1/pro-analytics/dashboard", { params: trackKey ? { trackKey } : {} });
+export const proGetCertificate = (trackKey) =>
+  api.get("/v1/pro-analytics/certificate", { params: { trackKey } });

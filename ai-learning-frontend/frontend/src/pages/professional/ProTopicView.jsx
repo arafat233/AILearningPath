@@ -17,7 +17,7 @@
  */
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { proGetTopic, proListExercises } from "../../services/api";
+import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks } from "../../services/api";
 
 // Lazy-loaded so the SyntaxHighlighter + Prism payload doesn't bloat the
 // initial route bundle. The fallback below is a plain <pre> while loading.
@@ -298,6 +298,8 @@ export default function ProTopicView() {
   const [topic, setTopic] = useState(null);
   const [exercises, setExercises] = useState([]);
   const [error, setError] = useState("");
+  const [bookmarked, setBookmarked]     = useState(false);
+  const [bookmarkBusy, setBookmarkBusy] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -309,7 +311,23 @@ export default function ProTopicView() {
         setExercises(ex.data?.data || []);
       })
       .catch((err) => setError(err?.response?.data?.error || "Could not load topic."));
+    proListBookmarks().then((r) => {
+      const list = r.data?.data || [];
+      setBookmarked(list.some((b) => b.kind === "topic" && b.refId === topicId));
+    }).catch(() => {});
   }, [topicId]);
+
+  const handleBookmarkToggle = async () => {
+    setBookmarkBusy(true);
+    try {
+      const r = await proToggleTopicBookmark(topicId);
+      setBookmarked(!!r.data?.data?.bookmarked);
+    } catch (err) {
+      console.warn("Topic bookmark toggle failed:", err?.response?.data?.error || err.message);
+    } finally {
+      setBookmarkBusy(false);
+    }
+  };
 
   // Auto-discover every code+annotations teaching sub-block (syntax_breakdown,
   // print_vs_println, future ones). They render identically and each gets its
@@ -374,7 +392,22 @@ export default function ProTopicView() {
       {/* Topic header */}
       <div>
         <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#8e8e93]">Topic {topic.topicNumber}</p>
-        <h1 className="text-[28px] font-bold tracking-tight text-[var(--label)] mt-1">{topic.name}</h1>
+        <div className="flex items-start justify-between gap-3 mt-1">
+          <h1 className="text-[28px] font-bold tracking-tight text-[var(--label)]">{topic.name}</h1>
+          <button
+            onClick={handleBookmarkToggle}
+            disabled={bookmarkBusy}
+            aria-label={bookmarked ? "Remove bookmark" : "Bookmark this topic"}
+            title={bookmarked ? "Bookmarked" : "Bookmark for later"}
+            className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-apple-gray6 transition-colors disabled:opacity-50"
+          >
+            <svg viewBox="0 0 16 16" fill={bookmarked ? "currentColor" : "none"}
+                 stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                 className={`w-5 h-5 ${bookmarked ? "text-apple-blue" : "text-apple-gray"}`}>
+              <path d="M4.5 1.5h7a1 1 0 011 1v12l-4.5-2.8-4.5 2.8v-12a1 1 0 011-1z"/>
+            </svg>
+          </button>
+        </div>
         {topic.metadata?.career_relevance && (
           <p className="text-[14px] text-apple-gray italic mt-2">{topic.metadata.career_relevance}</p>
         )}

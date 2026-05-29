@@ -47,8 +47,11 @@ export default function StartOnboarding() {
 
   const effective = activeChild || user;
 
-  // Already set up — send straight to the app
-  if (effective?.examBoard && effective?.grade) {
+  // Already set up — send straight to the app. Schema defaults set examBoard
+  // and grade on every new user, so we ALSO require an explicit `school`
+  // track entry; without it the user hasn't actually completed onboarding.
+  const hasSchoolTrack = (effective?.tracks || []).some((t) => t.key === "school");
+  if (effective?.examBoard && effective?.grade && hasSchoolTrack) {
     navigate("/", { replace: true });
     return null;
   }
@@ -120,11 +123,21 @@ function SetupForm({ effective, user, activeChild, setAuth, setActiveChild, navi
     try {
       if (isChildContext) {
         const { data } = await updateChild(activeChild._id, { examBoard: board, grade });
-        const updated = data?.data?.child || { ...activeChild, examBoard: board, grade };
+        // Server response includes tracks[] (it seeds school on first onboarding).
+        // If the response is missing tracks (legacy shape), top up locally so the
+        // OnboardingGate doesn't bounce the user back to /welcome.
+        const serverChild = data?.data?.child;
+        const updated = serverChild
+          ? { ...activeChild, ...serverChild, tracks: serverChild.tracks || [{ key: "school" }] }
+          : { ...activeChild, examBoard: board, grade, tracks: [{ key: "school" }] };
         setActiveChild(updated);
       } else {
         const { data } = await updateMe({ examBoard: board, grade });
-        setAuth(null, data?.data || { ...user, examBoard: board, grade });
+        const serverUser = data?.user || data?.data;
+        const updated = serverUser
+          ? { ...user, ...serverUser, tracks: serverUser.tracks || [{ key: "school" }] }
+          : { ...user, examBoard: board, grade, tracks: [{ key: "school" }] };
+        setAuth(null, updated);
       }
       navigate("/", { replace: true });
     } catch (err) {

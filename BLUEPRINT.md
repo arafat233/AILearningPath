@@ -70,6 +70,7 @@ Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
 │          /api/v1/profile (heatmap, level, mood, public)     │
 │          /api/v1/lessons-v2 (dashboard, search, diagnostic) │
 │          /api/v1/analytics-v2 (radar, persona, insights)    │
+│          /api/v1/pro-analytics (dashboard, certificate)    │
 │          /api/v1/dashboard-v2 (commit, snooze, peer, NBA)   │
 │          /api/v1/competition-v2 (rooms, ELO, quests, match) │
 │          /api/v1/live-room (theme, friends)                 │
@@ -1423,6 +1424,26 @@ TrackSwitcher dropdown footer ("+ Add another track" — renders even for
 single-track users) and from the top-right user dropdown ("My tracks").
 When `proListTracks` 403s for non-allowlisted users, the page shows a
 private-pilot waitlist card instead of hiding Pro entirely.
+
+**Pro-track per-page shell + polymorphic bookmarks (2026-05-27).** `/`
+(Dashboard), `/practice`, and `/bookmarks` are now route-level switches
+that render pro-specific components when `activeTrack` is `pro_*`:
+`pages/DashboardSwitch.jsx`, `pages/PracticeSwitch.jsx`,
+`pages/BookmarksSwitch.jsx`. Each picks between the existing school page
+and a `components/pro/Pro<Name>.jsx` variant — keeps the school surface
+untouched and avoids rules-of-hooks issues from conditional rendering
+inside the 1245-line Dashboard. New `ProBookmark` model on `proModels.js`
+is polymorphic over `kind: "exercise" | "topic" | "project"` with
+`refId: String`; unique index on `(userId, kind, refId)`. Service
+functions `toggleBookmark(userId, kind, refId)` and `listBookmarks` do
+per-kind joins so list rows arrive with the right metadata. Routes:
+`POST /api/v1/pro/exercises/:exerciseId/bookmark`, `POST
+/api/v1/pro/topics/:topicId/bookmark` (project route deferred until the
+project UI exists; service + model already accept `kind: "project"`).
+Bookmark icon on `ProExerciseRunner.jsx` and `ProTopicView.jsx`. List
+view at `/bookmarks` groups Saved exercises / Saved topics / Saved
+projects with kind-appropriate metadata and links. Tests: 10 integration
+tests in `proBookmark.integration.test.js`.
 
 **PRO_TRACK_PLAN decision #8 reversed (2026-05-26).** Pro-track learner is
 no longer required to be the parent. `/api/v1/pro` was removed from

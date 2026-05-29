@@ -10,6 +10,7 @@ import { AppError } from "../utils/AppError.js";
 import { getDailyBrief } from "../services/dailyBriefService.js";
 import { getStreakStatus } from "../services/streakService.js";
 import { getCachedBoard } from "../services/adaptiveService.js";
+import { getNavForUser, isValidTrackKey } from "../services/navService.js";
 
 const updateMeLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -131,7 +132,19 @@ r.put("/me", auth, updateMeLimiter, validate(updateMeSchema), async (req, res, n
     if (examBoard)               updates.examBoard  = examBoard;
     if (schoolName !== undefined) updates.schoolName = schoolName.trim();
     if (location   !== undefined) updates.location   = location.trim();
-    const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).select("-password");
+    // Onboarding completion: if examBoard is being set and the user has no
+    // tracks yet, seed the school track + activeTrack so the sidebar nav
+    // resolves correctly and future pro enrolments don't accidentally flip
+    // them out of school mode (see proService.enroll's shouldFlipActive).
+    const ops = { $set: updates };
+    if (examBoard) {
+      const existing = await User.findById(req.user.id).select("tracks activeTrack").lean();
+      if (!existing?.tracks?.length) {
+        ops.$push = { tracks: { key: "school", role: "learner", enrolledAt: new Date() } };
+        if (!existing?.activeTrack) ops.$set.activeTrack = "school";
+      }
+    }
+    const user = await User.findByIdAndUpdate(req.user.id, ops, { new: true }).select("-password");
 
     if (Array.isArray(weakTopics)) {
       await UserProfile.findOneAndUpdate(
@@ -167,6 +180,35 @@ r.delete("/me", auth, async (req, res, next) => {
   } catch (err) {
     next(err);
   }
+});
+
+// ── Sidebar nav (per active track) ───────────────────────────────────────────
+// GET  /api/user/nav            → { activeTrack, tracks: [...], items: [...] }
+// PATCH /api/user/active-track  → switch the user's active track
+r.get("/nav", auth, async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).select("tracks activeTrack").lean();
+    if (!user) return next(new AppError("User not found", 404));
+    res.json({ data: getNavForUser(user) });
+  } catch (err) { next(err); }
+});
+
+const activeTrackSchema = Joi.object({
+  key: Joi.string().trim().min(1).max(40).required(),
+});
+
+r.patch("/active-track", auth, validate(activeTrackSchema), async (req, res, next) => {
+  try {
+    const { key } = req.body;
+    if (!isValidTrackKey(key)) return next(new AppError("Unknown track key", 400));
+    const user = await User.findById(req.user.id).select("tracks activeTrack");
+    if (!user) return next(new AppError("User not found", 404));
+    const enrolled = (user.tracks || []).some((t) => t.key === key);
+    if (!enrolled) return next(new AppError("Not enrolled in this track", 403));
+    user.activeTrack = key;
+    await user.save();
+    res.json({ data: getNavForUser(user.toObject()) });
+  } catch (err) { next(err); }
 });
 
 r.get("/streak-status", auth, async (req, res, next) => {
@@ -210,6 +252,11 @@ r.post("/children", auth, validate(childSchema), async (req, res, next) => {
       examBoard,
       schoolName: schoolName?.trim() || null,
       location:   location?.trim()   || null,
+      // Children are school students by default — seed the school track so
+      // the sidebar nav resolves correctly on first login and so adding a
+      // pro track later doesn't strip them of school context.
+      tracks:      [{ key: "school", role: "learner", enrolledAt: new Date() }],
+      activeTrack: "school",
     });
 
     await User.findByIdAndUpdate(req.user.id, {
@@ -259,7 +306,15 @@ r.put("/children/:childId", auth, validate(updateChildSchema), async (req, res, 
     const owns = parent?.linkedStudents?.map(String).includes(String(childId));
     if (!owns) return next(new AppError("Not authorized to update this student", 403));
 
-    const updated = await User.findByIdAndUpdate(childId, { $set: req.body }, { new: true })
+    const ops = { $set: req.body };
+    if (req.body.examBoard) {
+      const existing = await User.findById(childId).select("tracks activeTrack").lean();
+      if (!existing?.tracks?.length) {
+        ops.$push = { tracks: { key: "school", role: "learner", enrolledAt: new Date() } };
+        if (!existing?.activeTrack) ops.$set.activeTrack = "school";
+      }
+    }
+    const updated = await User.findByIdAndUpdate(childId, ops, { new: true })
       .select("_id name grade examBoard schoolName location subject examDate")
       .lean();
     if (!updated) return next(new AppError("Student not found", 404));

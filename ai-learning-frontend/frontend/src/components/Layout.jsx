@@ -2,10 +2,12 @@ import { Outlet, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuthStore } from "../store/authStore";
 import { useThemeStore } from "../store/themeStore";
+import { useTrackStore } from "../store/trackStore";
 import { logoutApi } from "../services/api";
 import SearchOverlay from "./SearchOverlay";
 import OfflineBanner from "./OfflineBanner";
 import StellarLogo from "./StellarLogo";
+import TrackSwitcher from "./TrackSwitcher";
 
 function Icon({ id }) {
   const paths = {
@@ -99,6 +101,16 @@ export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { dark, toggle: toggleDark } = useThemeStore();
+  const { items: trackNav, refreshNav, activeTrack } = useTrackStore();
+  const activeChildId = useAuthStore((s) => s.activeChild?._id);
+
+  // Fetch nav whenever the effective actor changes — either the logged-in
+  // user OR the child the parent is "viewing as". The api interceptor adds
+  // x-child-id automatically, so the backend resolves to the child's
+  // activeTrack on the second case.
+  useEffect(() => {
+    if (user?._id) refreshNav();
+  }, [user?._id, activeChildId, refreshNav]);
   const [searchOpen,  setSearchOpen]  = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [bellOpen,    setBellOpen]    = useState(false);
@@ -144,6 +156,7 @@ export default function Layout() {
   const handleSignOut = async () => {
     await logoutApi().catch(() => {});
     logout();
+    useTrackStore.getState().reset();
     navigate("/login");
   };
 
@@ -171,10 +184,17 @@ export default function Layout() {
             <StellarLogo size={28} />
             <div className="flex flex-col justify-center min-w-0">
               <span className="text-[14px] font-bold text-[var(--label)] tracking-tight leading-tight">Stellar</span>
-              <span className="text-[11px] text-apple-gray leading-tight">{profile?.examBoard || "CBSE"} · Class {profile?.grade || "10"}</span>
+              <span className="text-[11px] text-apple-gray leading-tight">
+                {activeTrack === "pro_java"
+                  ? "Java · Professional"
+                  : `${profile?.examBoard || "CBSE"} · Class ${profile?.grade || "10"}`}
+              </span>
             </div>
           </div>
         </div>
+
+        {/* Track switcher — only renders if user has 2+ enrolled tracks */}
+        {!isParent && <TrackSwitcher />}
 
         <div className="divider mx-4 mb-3" />
 
@@ -211,7 +231,7 @@ export default function Layout() {
           ) : (
             <>
               <p className="section-label px-2 mb-2">Menu</p>
-              {NAV.map((n) => (
+              {(trackNav && trackNav.length ? trackNav : NAV).map((n) => (
                 <NavLink
                   key={n.to}
                   to={n.to}
@@ -226,8 +246,8 @@ export default function Layout() {
           )}
         </nav>
 
-        {/* Boards countdown badge — always visible */}
-        {(() => {
+        {/* Boards countdown badge — school track only */}
+        {activeTrack !== "pro_java" && (() => {
           const profile = activeChild || user;
           let targetDate = profile?.examDate ? new Date(profile.examDate) : null;
           if (!targetDate) {
@@ -409,6 +429,11 @@ export default function Layout() {
                   </div>
                   {/* Menu items */}
                   <div className="py-1">
+                    <button onClick={() => { setUserOpen(false); navigate("/tracks"); }}
+                      className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[var(--label)] hover:bg-apple-gray6 transition-colors">
+                      <Icon id="upgrade" />
+                      My tracks
+                    </button>
                     <button onClick={() => { setUserOpen(false); navigate("/pricing"); }}
                       className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[var(--label)] hover:bg-apple-gray6 transition-colors">
                       <Icon id="upgrade" />

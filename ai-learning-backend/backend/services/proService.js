@@ -10,7 +10,7 @@
 
 import {
   ProTrack, ProModule, ProTopic, ProExercise, ProProject,
-  ProSubmission, ProProgress,
+  ProSubmission, ProProgress, ProBookmark,
 } from "../models/proModels.js";
 import { User } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
@@ -231,18 +231,23 @@ export async function enroll(userId, trackKey) {
     return { trackKey, alreadyEnrolled: true };
   }
 
-  await User.updateOne(
-    { _id: userId },
-    {
-      $push: {
-        tracks: {
-          key:        trackKey,
-          role:       "learner",
-          enrolledAt: new Date(),
-        },
+  // Only flip activeTrack when the user has no active choice yet (null/empty).
+  // A school user with activeTrack="school" + empty tracks[] (legacy data)
+  // must NOT be yanked into pro mode just because their tracks array is
+  // empty — preserve any explicit choice the user or migration already set.
+  const userBefore = await User.findById(userId).select("activeTrack tracks").lean();
+  const shouldFlipActive = !userBefore?.activeTrack;
+  const update = {
+    $push: {
+      tracks: {
+        key:        trackKey,
+        role:       "learner",
+        enrolledAt: new Date(),
       },
-    }
-  );
+    },
+  };
+  if (shouldFlipActive) update.$set = { activeTrack: trackKey };
+  await User.updateOne({ _id: userId }, update);
   // Initialise progress doc (no-op if it already exists).
   await ProProgress.findOneAndUpdate(
     { userId, trackKey },
@@ -253,4 +258,110 @@ export async function enroll(userId, trackKey) {
   logger.info("[pro] enrolment", { userId, trackKey });
   trackEvent(userId, "pro.enrolled", { trackKey });
   return { trackKey, alreadyEnrolled: false };
+}
+
+// ── Bookmarks ───────────────────────────────────────────────────────────────
+
+// Per-kind resolver: returns the track this item belongs to, or null if
+// the item doesn't exist. Keeps toggleBookmark dispatch-free at call sites.
+async function trackKeyForRef(kind, refId) {
+  if (kind === "exercise") {
+    const ex = await ProExercise.findOne({ exerciseId: refId }).select("trackKey").lean();
+    return ex?.trackKey ?? null;
+  }
+  if (kind === "topic") {
+    const t = await ProTopic.findOne({ topicId: refId }).select("trackKey").lean();
+    return t?.trackKey ?? null;
+  }
+  if (kind === "project") {
+    const p = await ProProject.findOne({ projectId: refId }).select("trackKey").lean();
+    return p?.trackKey ?? null;
+  }
+  return null;
+}
+
+// Toggle: returns { bookmarked } after the change.
+export async function toggleBookmark(userId, kind, refId) {
+  if (!["exercise", "topic", "project"].includes(kind)) {
+    throw new AppError("Unknown bookmark kind.", 400);
+  }
+  const trackKey = await trackKeyForRef(kind, refId);
+  if (!trackKey) throw new AppError(`${kind} not found.`, 404);
+  if (!(await isEnrolled(userId, trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  const existing = await ProBookmark.findOne({ userId, kind, refId }).select("_id").lean();
+  if (existing) {
+    await ProBookmark.deleteOne({ userId, kind, refId });
+    trackEvent(userId, "pro.bookmark_removed", { kind, refId, trackKey });
+    return { bookmarked: false };
+  }
+  await ProBookmark.create({ userId, trackKey, kind, refId });
+  trackEvent(userId, "pro.bookmark_added", { kind, refId, trackKey });
+  return { bookmarked: true };
+}
+
+// Returns the user's bookmarks for a track, joined with the appropriate
+// metadata per kind so the list view can render titles + paths without
+// N+1 calls. Sorted newest first.
+export async function listBookmarks(userId, trackKey) {
+  const rows = await ProBookmark.find({ userId, trackKey }).sort({ savedAt: -1 }).lean();
+  if (rows.length === 0) return [];
+
+  const idsByKind = { exercise: [], topic: [], project: [] };
+  for (const r of rows) if (idsByKind[r.kind]) idsByKind[r.kind].push(r.refId);
+
+  const [exs, tops, projs] = await Promise.all([
+    idsByKind.exercise.length
+      ? ProExercise.find({ exerciseId: { $in: idsByKind.exercise } })
+          .select("exerciseId topicId moduleId title level xpReward").lean()
+      : [],
+    idsByKind.topic.length
+      ? ProTopic.find({ topicId: { $in: idsByKind.topic } })
+          .select("topicId moduleId name trackKey").lean()
+      : [],
+    idsByKind.project.length
+      ? ProProject.find({ projectId: { $in: idsByKind.project } })
+          .select("projectId topicId moduleId name").lean()
+      : [],
+  ]);
+  const exById   = new Map(exs.map((e) => [e.exerciseId, e]));
+  const topById  = new Map(tops.map((t) => [t.topicId, t]));
+  const projById = new Map(projs.map((p) => [p.projectId, p]));
+
+  return rows.map((r) => {
+    if (r.kind === "exercise") {
+      const ex = exById.get(r.refId) || null;
+      return {
+        kind: "exercise", refId: r.refId, savedAt: r.savedAt, note: r.note,
+        title: ex?.title || r.refId,
+        moduleId: ex?.moduleId || null,
+        topicId:  ex?.topicId  || null,
+        level:    ex?.level    || null,
+        xpReward: ex?.xpReward || 0,
+      };
+    }
+    if (r.kind === "topic") {
+      const t = topById.get(r.refId) || null;
+      return {
+        kind: "topic", refId: r.refId, savedAt: r.savedAt, note: r.note,
+        title: t?.name || r.refId,
+        moduleId: t?.moduleId || null,
+        topicId:  r.refId,
+      };
+    }
+    // project
+    const p = projById.get(r.refId) || null;
+    return {
+      kind: "project", refId: r.refId, savedAt: r.savedAt, note: r.note,
+      title: p?.name || r.refId,
+      moduleId: p?.moduleId || null,
+      topicId:  p?.topicId  || null,
+    };
+  });
+}
+
+export async function isBookmarked(userId, kind, refId) {
+  const found = await ProBookmark.exists({ userId, kind, refId });
+  return !!found;
 }

@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   name:      { type: String, required: true },
   email:     { type: String, required: true, unique: true },
   password:  { type: String, required: true },
-  googleId:  { type: String, default: null, sparse: true },
+  googleId:  { type: String, default: null },
   welcomeEmailSentAt: { type: Date, default: null },
   examDate:  Date,
   subject:   { type: String, default: "Math" },
@@ -34,6 +34,11 @@ const userSchema = new mongoose.Schema({
     enrolledAt: { type: Date,   default: Date.now },
     _id: false,
   }],
+  // Currently-active track — drives the sidebar nav and dashboard scoping.
+  // Null means "derive from tracks[0].key at read time"; written explicitly
+  // by the sidebar TrackSwitcher and by the pro-enroll flow on first enrol.
+  // Migrations/2026-05-26_users_add_active_track.mjs backfills existing rows.
+  activeTrack: { type: String, default: null },
   inviteCode:     { type: String, unique: true, sparse: true },
   // Password reset
   passwordResetToken:   { type: String, default: null },

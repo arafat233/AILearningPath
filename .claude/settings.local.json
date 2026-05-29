@@ -124,7 +124,14 @@
       "mcp__tradingview__chart_get_state",
       "mcp__tradingview__data_get_study_values",
       "mcp__tradingview__capture_screenshot",
-      "WebFetch(domain:in.tradingview.com)"
+      "WebFetch(domain:in.tradingview.com)",
+      "Bash(npx eslint *)",
+      "Bash(node -e ' *)",
+      "Bash(node *)",
+      "Bash(claude-monitor realtime *)",
+      "Bash(claude_monitor realtime *)",
+      "Bash(claude-monitor --view realtime)",
+      "Bash(git checkout *)"
     ]
   },
   "enableAllProjectMcpServers": true,

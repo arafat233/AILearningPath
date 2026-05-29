@@ -89,3 +89,36 @@ export const enroll = async (req, res, next) => {
     res.json({ data });
   } catch (err) { next(err); }
 };
+
+export const toggleExerciseBookmark = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.toggleBookmark(userId(req), "exercise", req.params.exerciseId);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const toggleTopicBookmark = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.toggleBookmark(userId(req), "topic", req.params.topicId);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const toggleProjectBookmark = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.toggleBookmark(userId(req), "project", req.params.projectId);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const listBookmarks = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const trackKey = req.query.trackKey || "pro_java";
+    const data = await svc.listBookmarks(userId(req), trackKey);
+    res.json({ data });
+  } catch (err) { next(err); }
+};

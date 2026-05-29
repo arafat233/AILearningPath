@@ -33,9 +33,10 @@ const Login            = lazy(() => import("./pages/Login"));
 const Register         = lazy(() => import("./pages/Register"));
 const Onboarding       = lazy(() => import("./pages/Onboarding"));
 const StartOnboarding  = lazy(() => import("./pages/StartOnboarding"));
-const Dashboard        = lazy(() => import("./pages/Dashboard"));
+const Dashboard        = lazy(() => import("./pages/DashboardSwitch"));
 // Pro-track pages — only loaded on /pro/* (PRO_TRACK_PLAN.md §10 Phase 6)
 const Welcome          = lazy(() => import("./pages/Welcome"));
+const Tracks           = lazy(() => import("./pages/Tracks"));
 const ProOnboarding    = lazy(() => import("./pages/onboarding/Pro"));
 const ProTrackPicker   = lazy(() => import("./pages/professional/ProTrackPicker"));
 const ProCourseLanding = lazy(() => import("./pages/professional/ProCourseLanding"));
@@ -44,8 +45,8 @@ const ProTopicView     = lazy(() => import("./pages/professional/ProTopicView"))
 const ProExerciseRunner= lazy(() => import("./pages/professional/ProExerciseRunner"));
 const Lessons          = lazy(() => import("./pages/Lessons"));
 const LessonView       = lazy(() => import("./pages/LessonView"));
-const Practice         = lazy(() => import("./pages/Practice"));
-const Bookmarks        = lazy(() => import("./pages/Bookmarks"));
+const Practice         = lazy(() => import("./pages/PracticeSwitch"));
+const Bookmarks        = lazy(() => import("./pages/BookmarksSwitch"));
 const SharedCollection = lazy(() => import("./pages/SharedCollection"));
 const PublicProfile    = lazy(() => import("./pages/PublicProfile"));
 const Analytics        = lazy(() => import("./pages/Analytics"));
@@ -125,11 +126,40 @@ const BoardGated = ({ children }) => {
   return children;
 };
 
-// Shows Landing for guests at "/"; deep-links to app routes redirect to "/" for guests
+/**
+ * OnboardingGate — users without any enrolled track must complete /welcome
+ * (and the track-specific flow that follows). Schema defaults pre-fill
+ * examBoard/grade on every new user, so we can't trust those alone — `tracks`
+ * is the source of truth for "did this user actually onboard?".
+ *
+ * Doesn't apply to the parent identity when viewing-as-child (the child
+ * carries their own tracks); checks `activeChild || user`.
+ */
+const OnboardingGate = ({ children }) => {
+  const { user, activeChild } = useAuthStore((s) => ({
+    user:        s.user,
+    activeChild: s.activeChild,
+  }));
+  const effective = activeChild || user;
+  if (effective && (!effective.tracks || effective.tracks.length === 0)) {
+    return <Navigate to="/welcome" replace />;
+  }
+  return children;
+};
+
+// Shows Landing for guests at "/"; deep-links to app routes redirect to "/" for guests.
+// For logged-in users who haven't picked a track yet (tracks[] empty), bounce
+// them to /welcome — the picker is required, not optional.
 const RootElement = () => {
-  const user = useAuthStore((s) => s.user);
+  const { user, activeChild } = useAuthStore((s) => ({ user: s.user, activeChild: s.activeChild }));
   const location = useLocation();
   if (!user && location.pathname !== "/") return <Navigate to="/" replace />;
+  if (user) {
+    const effective = activeChild || user;
+    if (!effective?.tracks || effective.tracks.length === 0) {
+      return <Navigate to="/welcome" replace />;
+    }
+  }
   return user ? <Layout /> : <Landing />;
 };
 
@@ -232,6 +262,7 @@ export default function App() {
 
             {/* ── Always accessible after login (account / misc) ── */}
             <Route path="bookmarks"               element={<Bookmarks />} />
+            <Route path="tracks"                  element={<Tracks />} />
             <Route path="portal"                  element={<Portal />} />
             <Route path="parent"                  element={<ParentDashboard />} />
             <Route path="profile"                 element={<Profile />} />

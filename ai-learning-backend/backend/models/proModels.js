@@ -175,6 +175,23 @@ const proProgressSchema = new Schema({
 }, { timestamps: true });
 proProgressSchema.index({ userId: 1, trackKey: 1 }, { unique: true });
 
+// ── ProBookmark ─────────────────────────────────────────────────────────────
+// Per-user saved items. Polymorphic over kind so a learner can bookmark
+// any first-class pro entity — currently exercise/topic/project; future
+// kinds add to the enum without a migration.
+// Deliberately simpler than the school BookmarkCollection — no spaced
+// repetition, no folders. Pro learners bookmark to come back later.
+const proBookmarkSchema = new Schema({
+  userId:   { type: String, required: true, index: true },
+  trackKey: { type: String, required: true, index: true },          // "pro_java"
+  kind:     { type: String, enum: ["exercise", "topic", "project"], required: true },
+  refId:    { type: String, required: true },                       // exerciseId | topicId | projectId
+  note:     { type: String, default: "", maxlength: 500 },
+  savedAt:  { type: Date,   default: Date.now },
+}, { timestamps: true });
+proBookmarkSchema.index({ userId: 1, kind: 1, refId: 1 }, { unique: true });
+proBookmarkSchema.index({ userId: 1, trackKey: 1, savedAt: -1 });
+
 // ── Exports ─────────────────────────────────────────────────────────────────
 export const ProTrack      = mongoose.model("ProTrack",      proTrackSchema);
 export const ProModule     = mongoose.model("ProModule",     proModuleSchema);
@@ -183,3 +200,4 @@ export const ProExercise   = mongoose.model("ProExercise",   proExerciseSchema);
 export const ProProject    = mongoose.model("ProProject",    proProjectSchema);
 export const ProSubmission = mongoose.model("ProSubmission", proSubmissionSchema);
 export const ProProgress   = mongoose.model("ProProgress",   proProgressSchema);
+export const ProBookmark   = mongoose.model("ProBookmark",   proBookmarkSchema);

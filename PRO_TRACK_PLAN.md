@@ -67,7 +67,7 @@ All decisions approved by Najeeb on 2026-05-25. Recommended option taken in ever
 | 5 | Pilot users — gated rollout or open to all?           | Internal only — feature flag `PRO_TRACKS_ENABLED_FOR_EMAILS` (Najeeb + Salma) | 2026-05-25 |
 | 6 | Onboarding: where does pro-track picker appear?       | NEW `/welcome` audience picker step AFTER `/register` and BEFORE track-specific onboarding | 2026-05-25 |
 | 7 | Strip grade + examDate from Register.jsx              | YES — move to school-specific onboarding only            | 2026-05-25 |
-| 8 | Parent-vs-self model for pro tracks                   | Pro/competitive learner is ALWAYS `user`, never a `linkedStudent`. School track keeps parent→child model. | 2026-05-25 |
+| 8 | Parent-vs-self model for pro tracks                   | ~~Pro/competitive learner is ALWAYS `user`, never a `linkedStudent`.~~ **REVERSED 2026-05-26** — children can now have their own pro enrolments (`/api/v1/pro` removed from `CHILD_SWAP_SKIP_PREFIXES`). Pilot allowlist still gates on parent email via `featureFlag.js`'s `req.parentUserId` fallback. Reason: school students with parent-managed accounts must be able to add Java without sharing parent account state. | 2026-05-26 |
 | 9 | Dashboard merge — single page vs split routes         | Single `Dashboard.jsx` with `<TrackTabs />` switcher (URL: `/?track=<key>`) | 2026-05-25 |
 
 **Implementation may now begin (Day 1, §5).**
@@ -407,7 +407,7 @@ These don't block the pilot, but we'll need to decide before bulk import:
 
 - **Locking decisions BEFORE coding paid off**. The 9-row decision matrix at §3 made every implementation choice obvious. Estimated build at ~18h; actual ~7h thanks to no re-architecture mid-build.
 - **The view-as-child fix in the morning was a prerequisite we hadn't planned for.** Trying to write the pro track on top of a broken parent/child scope layer would have created compounding bugs. Worth the half-day detour.
-- **`actAsChild` swap pattern reused** — pro routes are added to the skip-list (parent's own data). Zero per-controller change to support a future "view as another parent" / "act as company employee" mode.
+- **`actAsChild` swap pattern reused** — pro routes ~~are added to the skip-list~~ **were initially added to the skip-list; 2026-05-26 reversal removed them so per-child pro enrolments work**. The skip-list still protects parent-identity routes (portal, admin, parent dashboards, payments). Zero per-controller change to support a future "view as another parent" / "act as company employee" mode.
 - **Test mocks went stale faster than expected** during prior refactors. Adding `validate:track-isolation` + `smoke` to CI catches the next round of drift in < 30 s.
 - **Local-only Judge0 is the right call for the pilot.** Production hosting (Oracle vs. tiny VPS vs. managed) is a real decision; deferring it to Phase 14 freed today to focus on the actual application code.
 - **Monaco lazy-loading mattered**. ~2 MB chunk only ships when a user actually opens an exercise — Dashboard/Lessons users never pay the cost.

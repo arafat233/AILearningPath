@@ -16,7 +16,7 @@
  */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { proGetExercise, proSubmitExercise } from "../../services/api";
+import { proGetExercise, proSubmitExercise, proToggleExerciseBookmark, proListBookmarks } from "../../services/api";
 import CodeEditor from "../../components/pro/CodeEditor";
 import FillBlankEditor from "../../components/pro/FillBlankEditor";
 
@@ -29,6 +29,8 @@ export default function ProExerciseRunner() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
   const [showHint, setShowHint] = useState(0); // 0 = none, 1..N = which hint
+  const [bookmarked, setBookmarked] = useState(false);
+  const [bookmarkBusy, setBookmarkBusy] = useState(false);
 
   useEffect(() => {
     proGetExercise(exerciseId)
@@ -38,7 +40,26 @@ export default function ProExerciseRunner() {
         setCode(e?.starterCode || "");
       })
       .catch((err) => setError(err?.response?.data?.error || "Could not load exercise."));
+    // Lightweight check — list bookmarks once and see if this ID is in it.
+    // Cheap on first call, cheaper after refresh since the page reloads.
+    proListBookmarks().then((r) => {
+      const list = r.data?.data || [];
+      setBookmarked(list.some((b) => b.kind === "exercise" && b.refId === exerciseId));
+    }).catch(() => {});
   }, [exerciseId]);
+
+  const handleBookmarkToggle = async () => {
+    setBookmarkBusy(true);
+    try {
+      const r = await proToggleExerciseBookmark(exerciseId);
+      setBookmarked(!!r.data?.data?.bookmarked);
+    } catch (err) {
+      // Surface failure quietly; non-blocking action.
+      console.warn("Bookmark toggle failed:", err?.response?.data?.error || err.message);
+    } finally {
+      setBookmarkBusy(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!code || !code.trim()) {
@@ -88,7 +109,22 @@ export default function ProExerciseRunner() {
           <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[var(--fill)] text-apple-gray">
             {ex.level} · {ex.type}
           </span>
-          <h1 className="text-[24px] font-bold tracking-tight text-[var(--label)] mt-2">{ex.title}</h1>
+          <div className="flex items-start justify-between gap-3 mt-2">
+            <h1 className="text-[24px] font-bold tracking-tight text-[var(--label)]">{ex.title}</h1>
+            <button
+              onClick={handleBookmarkToggle}
+              disabled={bookmarkBusy}
+              aria-label={bookmarked ? "Remove bookmark" : "Bookmark this exercise"}
+              title={bookmarked ? "Bookmarked" : "Bookmark for later"}
+              className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-apple-gray6 transition-colors disabled:opacity-50"
+            >
+              <svg viewBox="0 0 16 16" fill={bookmarked ? "currentColor" : "none"}
+                   stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                   className={`w-5 h-5 ${bookmarked ? "text-apple-blue" : "text-apple-gray"}`}>
+                <path d="M4.5 1.5h7a1 1 0 011 1v12l-4.5-2.8-4.5 2.8v-12a1 1 0 011-1z"/>
+              </svg>
+            </button>
+          </div>
         </div>
 
         {ex.scenario && (

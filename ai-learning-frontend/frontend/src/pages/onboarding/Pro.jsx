@@ -12,7 +12,7 @@
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { proEnroll } from "../../services/api";
+import { proEnroll, getMe } from "../../services/api";
 import { useAuthStore } from "../../store/authStore";
 
 const LANGUAGES = [
@@ -58,6 +58,13 @@ export default function ProOnboarding() {
         sessionStorage.setItem("stellar_pro_onboarding", JSON.stringify({ language, experience, goal, currentRole }));
       } catch {}
       await proEnroll(`pro_${language}`);
+      // Refresh authStore so user.tracks reflects the new enrolment — otherwise
+      // OnboardingGate sees empty tracks and bounces back to /welcome.
+      try {
+        const { data } = await getMe();
+        const fresh = data?.data?.user;
+        if (fresh) useAuthStore.getState().setAuth(null, fresh);
+      } catch {}
       navigate(`/pro/${language}`);
     } catch (err) {
       setError(err?.response?.data?.error || "Could not enroll. Try again.");

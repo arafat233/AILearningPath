@@ -23,7 +23,10 @@ const CHILD_SWAP_SKIP_PREFIXES = [
   "/api/payment",
   "/api/user/children",  // managing the children list itself must stay parent-scoped
   "/api/user/me",        // parent's own identity / Settings edits must not be swapped
-  "/api/v1/pro",         // pro-track learner is ALWAYS the user, never linkedStudent (PRO_TRACK_PLAN.md decision #8)
+  // NOTE 2026-05-26 — PRO_TRACK_PLAN decision #8 (pro = parent only) reversed.
+  // Removed "/api/v1/pro" from the skip list so children can have their own
+  // pro_* enrolments, progress, and submissions. The pilot allowlist still
+  // gates on the parent's email (featureFlag.js uses req.parentUserId fallback).
 ];
 
 // In-process cache of (parentId, childId) → owns?  Avoids a DB lookup on every

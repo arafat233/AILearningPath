@@ -68,4 +68,12 @@ r.post(
 r.get("/progress/:trackKey",                  validateParams(trackKeyParamsSchema),  ctrl.getProgress);
 r.post("/enroll",                             validate(enrollBodySchema),            ctrl.enroll);
 
+// ── Bookmarks (polymorphic over exercise / topic / project) ────────────────
+r.post("/exercises/:exerciseId/bookmark", validateParams(exerciseParamsSchema), ctrl.toggleExerciseBookmark);
+r.post("/topics/:topicId/bookmark",       validateParams(topicParamsSchema),    ctrl.toggleTopicBookmark);
+// Project route ships with the project UI in a follow-up — the service
+// + model already accept "project" kind, just needs a Joi params schema
+// and a frontend bookmark button on the (not-yet-built) project view.
+r.get("/bookmarks",                                                            ctrl.listBookmarks);
+
 export default r;

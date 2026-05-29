@@ -14,7 +14,7 @@ Stellar is no longer a K-12-only platform. It is a **three-track learning system
 | Track key      | Audience                                | Content shape                              | Status      |
 |----------------|-----------------------------------------|--------------------------------------------|-------------|
 | `school`       | Class 1–12 (CBSE, ICSE, AP SSC, ...)   | NCERT topics, MCQ practice, AI tutor       | LIVE        |
-| `professional` | Career switchers, working devs          | Modules → topics → exercises → projects    | PILOT (Java)|
+| `professional` | Career switchers, working devs          | Modules → topics → exercises → projects    | LIVE (Java — 46 modules, 232 topics, 3311 exercises, 168,365 XP)|
 | `competitive`  | IIT, NEET, UPSC, USMLE, GRE, TOEFL, ... | PYQ-heavy, timed mock papers, exam-mode UI | PLANNED     |
 
 A user can be enrolled in multiple tracks. Stellar must enforce **track isolation** the same way it enforces **board isolation** today (`utils/boardFilter.js` pattern → `utils/trackFilter.js`).
@@ -25,12 +25,12 @@ A user can be enrolled in multiple tracks. Stellar must enforce **track isolatio
 
 ### 2.1 User model changes (one-time, blocking)
 
-- [ ] Add `tracks: [{ key: String, role: String, enrolledAt: Date }]` to User schema
+- [x] Add `tracks: [{ key: String, role: String, enrolledAt: Date }]` to User schema
   - `key` examples: `"pro_java"`, `"pro_python"`, `"pro_aws"`, `"pro_devops"`, `"pro_system_design"`, `"comp_iit_jee"`, `"comp_neet"`, `"comp_upsc"`, `"comp_usmle"`, `"comp_gre"`, `"comp_toefl"`
   - `role` examples: `"learner"`, `"mentor"`, `"reviewer"`
-- [ ] Keep existing `examBoard` field — it scopes the `school` track only
-- [ ] Migration script: existing users get `tracks: [{ key: "school", role: "learner" }]`
-- [ ] Onboarding flow: ask "What are you here for?" → school grade picker OR professional track picker OR competitive exam picker
+- [x] Keep existing `examBoard` field — it scopes the `school` track only
+- [x] Migration script: existing users get `tracks: [{ key: "school", role: "learner" }]`
+- [x] Onboarding flow: ask "What are you here for?" → school grade picker OR professional track picker OR competitive exam picker
 
 ### 2.2 New / extended Mongoose models
 
@@ -50,15 +50,15 @@ A user can be enrolled in multiple tracks. Stellar must enforce **track isolatio
 
 ### 2.3 Track isolation middleware
 
-- [ ] Create `utils/trackFilter.js` mirroring `utils/boardFilter.js`
-- [ ] Every pro/competitive endpoint MUST filter by `user.tracks[].key`
-- [ ] Never trust client-supplied `track` query params
+- [x] Create `utils/trackFilter.js` mirroring `utils/boardFilter.js`
+- [x] Every pro/competitive endpoint MUST filter by `user.tracks[].key`
+- [x] Never trust client-supplied `track` query params
 - [ ] New script: `npm run validate:track-isolation` (mirror of `validate:board-isolation`)
 
 ### 2.4 API versioning
 
-- [ ] All new routes use `/api/v1/pro/...` and `/api/v1/competitive/...` prefixes
-- [ ] Existing K-12 routes keep `/api/...` (no breaking changes)
+- [x] All new routes use `/api/v1/pro/...` and `/api/v1/competitive/...` prefixes
+- [x] Existing K-12 routes keep `/api/...` (no breaking changes)
 
 ---
 
@@ -113,7 +113,7 @@ Without code execution, the entire professional track is just MCQs in a differen
 
 | Language    | Judge0 ID | Priority | Status   |
 |-------------|-----------|----------|----------|
-| Java 17     | 91        | P0       | Pending  |
+| Java 17     | 91        | P0       | LIVE (Hetzner CX23, acceptance 19/19 PASS 2026-05-26) |
 | Python 3.11 | 71        | P1       | Pending  |
 | JavaScript  | 93        | P1       | Pending  |
 | C++17       | 76        | P2       | Pending  |
@@ -141,21 +141,21 @@ Without code execution, the entire professional track is just MCQs in a differen
 
 ### 5.2 Pages to add (per track, reusable shell)
 
-- [ ] `pages/professional/ProTrackPicker.jsx`
-- [ ] `pages/professional/ProCourseLanding.jsx` (modules grid)
-- [ ] `pages/professional/ProModuleView.jsx` (topics list)
-- [ ] `pages/professional/ProTopicView.jsx` (rendered `topic.json`)
-- [ ] `pages/professional/ProExerciseRunner.jsx` (Monaco + sandbox)
+- [x] `pages/professional/ProTrackPicker.jsx`
+- [x] `pages/professional/ProCourseLanding.jsx` (modules grid)
+- [x] `pages/professional/ProModuleView.jsx` (topics list)
+- [x] `pages/professional/ProTopicView.jsx` (rendered `topic.json`)
+- [x] `pages/professional/ProExerciseRunner.jsx` (Monaco + sandbox)
 - [ ] `pages/professional/ProProjectView.jsx`
-- [ ] `pages/professional/ProDashboard.jsx` (XP, streak, progress per track)
+- [x] `pages/professional/ProDashboard.jsx` (XP, streak, progress per track) — as `ProDashboardSnapshot` in Dashboard + `DashboardSwitch.jsx`
 
 ### 5.3 Components
 
-- [ ] `components/pro/CodeEditor.jsx` (Monaco wrapper)
-- [ ] `components/pro/TestRunner.jsx` (runs tests, shows pass/fail)
-- [ ] `components/pro/SyntaxBreakdown.jsx` (renders annotated code from `topic.json`)
-- [ ] `components/pro/HintBox.jsx` (progressive hints)
-- [ ] `components/pro/visualizers/` (DSA visualizers — see §7)
+- [x] `components/pro/CodeEditor.jsx` (Monaco wrapper)
+- [x] `components/pro/TestRunner.jsx` (runs tests, shows pass/fail)
+- [x] `components/pro/SyntaxBreakdown.jsx` (renders annotated code from `topic.json`)
+- [x] `components/pro/HintBox.jsx` (progressive hints)
+- [x] `components/dsa/` (DSA visualizers — 45 sandbox kinds, see §7 + ROADMAP.md Phase 1.A)
 
 ### 5.4 Design constraints (from existing memory)
 
@@ -173,34 +173,34 @@ Source content lives at `C:\Users\LENOVO\Downloads\codequest_java_curriculum_M1_
 
 ### 6.1 Pilot (2-day end-to-end proof)
 
-- [ ] Pick one topic — `m1_fundamentals/t1_hello_world`
-- [ ] Seed it into `ProTrack` + `ProModule` + `ProTopic` + `ProExercise`
-- [ ] Stand up Judge0 in Docker
-- [ ] Wire `/api/v1/pro/java` GET endpoint returning the topic
-- [ ] Build `ProTopicView.jsx` and `ProExerciseRunner.jsx`
-- [ ] User can: open topic → read teaching → solve exercise → see green check
-- [ ] **Gate: if this fails, do not proceed to full import.**
+- [x] Pick one topic — `m1_fundamentals/t1_hello_world`
+- [x] Seed it into `ProTrack` + `ProModule` + `ProTopic` + `ProExercise`
+- [x] Stand up Judge0 in Docker (Hetzner CX23 VM, acceptance 19/19 PASS 2026-05-26)
+- [x] Wire `/api/v1/pro/java` GET endpoint returning the topic
+- [x] Build `ProTopicView.jsx` and `ProExerciseRunner.jsx`
+- [x] User can: open topic → read teaching → solve exercise → see green check
+- [x] **Gate passed — proceeded to full import (ALL 46 modules LIVE 2026-05-26)**
 
 ### 6.2 Full Java import (after pilot passes)
 
-- [ ] Ph0: write `auditProJavaChecklist.mjs` with EXPECTED 46 modules / 209 topics
-- [ ] Ph1: `seedJavaModules.js` — walks `m*/` folders → ProModule
-- [ ] Ph2: `seedJavaTopics.js` — walks `m*/topics/t*/topic.json` → ProTopic
-- [ ] Ph3: `seedJavaExercises.js` — walks `m*/topics/t*/exercises.json` → ProExercise; walks `project.json` → ProProject
-- [ ] Ph4: identify topics that need visualizers (M29–M41 DSA)
+- [x] Ph0: write `auditProJavaChecklist.mjs` with EXPECTED 46 modules / 232 topics
+- [x] Ph1: `seedJavaModules.js` — walks `m*/` folders → ProModule (46 modules)
+- [x] Ph2: `seedJavaTopics.js` — walks `m*/topics/t*/topic.json` → ProTopic (232 topics)
+- [x] Ph3: `seedJavaExercises.js` — walks `m*/topics/t*/exercises.json` → ProExercise (3311); walks `project.json` → ProProject (232)
+- [x] Ph4: visualizers built — 45 sandbox kinds wired to M30–M41 DSA + M2/M4 JVM/recursion via `VisualizerShell.jsx` in `components/dsa/`
 - [ ] Ph5: build DAG from `metadata.prerequisites` in each `topic.json`
 - [ ] Ph6: RAG index — chunk teaching content + exercises for AI tutor
-- [ ] Ph7: `npm run seed:pro-java-all`
-- [ ] Ph8: `npm run audit:pro --track=pro_java` exits 0
-- [ ] Ph9: `/pro/java` route fully navigable
+- [x] Ph7: `npm run seed:pro-java-all` (idempotent, walks all 46 module folders)
+- [x] Ph8: `npm run audit:pro --track=pro_java` exits 0 (232/232 topics, exercises have non-empty testCases[])
+- [x] Ph9: `/pro/java` route fully navigable (all pages + DashboardSwitch/PracticeSwitch/BookmarksSwitch wired)
 
 ### 6.3 Track-level features
 
-- [ ] XP system (each exercise has `xp_reward`)
-- [ ] Streak system (daily activity)
-- [ ] Certificate on track completion
-- [ ] Progress visible on main dashboard
-- [ ] AI tutor scoped to Java track context
+- [x] XP system (each exercise has `xp_reward` — 168,365 XP across 46 modules)
+- [ ] Streak system (daily activity) — deferred
+- [x] Certificate on track completion — track-branched: pro gets purple XP/exercises cert (2026-05-30)
+- [x] Progress visible on main dashboard — ProDashboardSnapshot + DashboardSwitch
+- [ ] AI tutor scoped to Java track context — deferred (Phase B in ROADMAP.md)
 
 ---
 
@@ -220,17 +220,18 @@ The `Downloads/dsa` folder contains a **vision document** (not built code). It l
 
 Build one React component per algorithm family. SVG + state. Each takes `{ input, speed }` props.
 
-- [ ] `<SortingVisualizer algo="bubble|merge|quick|heap" />`
-- [ ] `<SearchVisualizer algo="linear|binary|ternary" />`
-- [ ] `<LinkedListVisualizer ops={...} />`
-- [ ] `<TreeVisualizer type="bst|avl|red-black|trie" />`
-- [ ] `<HeapVisualizer type="min|max" />`
-- [ ] `<GraphVisualizer algo="bfs|dfs|dijkstra|astar|kruskal|prim" />`
-- [ ] `<StackQueueVisualizer />`
-- [ ] `<HashTableVisualizer />`
-- [ ] `<RecursionTreeVisualizer />`
-- [ ] `<DPGridVisualizer />`
-- [ ] Each topic that has `visual_aid` in `topic.json` references one of these by name
+- [x] `<SortingVisualizer algo="bubble|merge|quick|heap" />` — `SortingSandbox.jsx` (sorting-sandbox kind)
+- [x] `<SearchVisualizer algo="linear|binary" />` — `BinarySearchSandbox.jsx`, `RotatedSearchSandbox.jsx`, `SearchOnAnswerSandbox.jsx`
+- [x] `<LinkedListVisualizer ops={...} />` — `LinkedListSandbox`, `DoublyLLSandbox`, `CircularLLSandbox`, `FloydCycleSandbox`, `MergeLLSandbox`
+- [x] `<TreeVisualizer type="bst|trie" />` — `TreeSandbox`, `TreeTraversalSandbox`, `TrieSandbox`, `LCASandbox`, `TreePathSandbox`
+- [x] `<HeapVisualizer type="min|max" />` — `HeapSandbox`, `KLargestSandbox`, `PQLazySandbox`, `KWayMergeSandbox`
+- [x] `<GraphVisualizer algo="bfs|dfs|dijkstra|topo|union-find" />` — `GraphSandbox`, `GraphDijkstraSandbox`, `GraphTopoSandbox`, `UnionFindSandbox`, `IslandsSandbox`
+- [x] `<StackQueueVisualizer />` — `StackSandbox`, `QueueSandbox`, `MonotonicStackSandbox`, `SlidingWindowMaxSandbox`
+- [x] `<HashTableVisualizer />` — `HashTableSandbox`, `HashGroupingSandbox`, `HashDedupSandbox`, `CustomHashSandbox`, `LRUSandbox`
+- [x] `<RecursionTreeVisualizer />` — `RecursionSandbox` (CallStackVisualizer — D1.2); `MemoryModelSandbox` (JVMMemoryVisualizer — D1.1)
+- [x] `<DPGridVisualizer />` — `LCSGridSandbox`
+- [x] Each topic that has a visualizer in `topic.json.visualizer` references the kind string; wired via `seedJavaPilot.js` TOPIC_VISUALIZERS map; dispatched by `VisualizerShell.jsx`
+- [x] **45 sandbox kinds LIVE** across 47 DSA + JVM topics. All sandboxes lazy-loaded in VisualizerShell. All 36 algorithm-driven sandboxes have live HighlightedCode line stepping (D1.3b + D1.3c). Additional primitives: ArrayInsertSandbox (array-insert), sliding-window family, dp/string/array pattern sandboxes.
 
 ### 7.3 Phase C — Advanced (deferred)
 
@@ -441,3 +442,4 @@ All blocker decisions approved by Najeeb 2026-05-25. See `PRO_TRACK_PLAN.md` §3
 | 2026-05-25 | Initial draft. Java pilot, DSA visualizer sub-track, future track queue, open decisions documented. |
 | 2026-05-25 | All 9 pre-flight decisions LOCKED (#11.1–#11.10, except #11.4 pricing which is deferred). Implementation cleared to begin Day 1 of pilot. |
 | 2026-05-25 | **Java pilot — code complete.** Phases 1–10 shipped in 8 commits (43219723 → 7b896a52). 1 ProTrack (pro_java), 1 module, 1 topic (java_m1_t1 Hello World & Setup), 15 exercises, 1 project. Backend: 9 endpoints under /api/v1/pro/* with auth + email-allowlist + per-user Redis rate limit. Sandbox: local Judge0 via docker compose, isolated to 127.0.0.1. Frontend: 5 pages, Monaco editor lazy-chunked, TrackTabs in Dashboard, Welcome + ProOnboarding signup flow. Tests: 32 new (430/430 total). Phase 11 acceptance + tag pending Docker install. |
+| 2026-05-30 | **Pro-track UX polish + performance (commits a69abd08 + 9d44bc65).** Backend: proAnalyticsService .toObject() crash fixed; authController register with grade/examBoard null; userRoutes Redis cache /user/me (30s) + /user/nav (60s); proService Redis cache topic + exercises (5 min TTL). Frontend: Analytics/Certificate/Layout/Profile/Planner all pro-track aware; VisualizerShell all 45 sandboxes lazy-loaded with SortingSandbox extracted; ProTopicView prefetches VisualizerShell; vite.config warmup + optimizeDeps. TrackSwitcher + TrackTabs + DashboardSwitch + PracticeSwitch + BookmarksSwitch shipped; trackStore with hydration flag + refreshNav guard. |

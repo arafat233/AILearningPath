@@ -5,6 +5,31 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2026-05-30] — Pro-track UX polish, performance, and track switching
+
+### Added
+- `DashboardSwitch.jsx`, `PracticeSwitch.jsx`, `BookmarksSwitch.jsx`: route-level switches that render the pro or school variant of each page based on `activeTrack` in `trackStore`
+- `TrackSwitcher.jsx` + `TrackTabs.jsx`: sidebar and dashboard UI for switching between enrolled tracks
+- `trackStore.js`: hydration flag, `refreshNav` guard, `setActiveTrack` action that calls `PATCH /api/user/active-track`
+- `SortingSandbox.jsx` extracted from `VisualizerShell.jsx` into its own lazy-loaded file
+- All 45 DSA sandbox components are now individually lazy-loaded in `VisualizerShell.jsx` — Monaco only downloads for sorting topics
+
+### Changed
+- `Certificate.jsx`: track-branched — pro users get purple XP/exercises certificate; school users get gold grade/accuracy certificate
+- `Analytics.jsx`: pro-track aware — branches to pro analytics endpoint when `activeTrack` is `pro_*`
+- `Layout.jsx`: sidebar subtitle shows "Set up your profile" when grade/board unset; shows "Java · Professional" for pro track users
+- `Profile.jsx`: pro users see "Java · Professional" label; school-specific fields hidden in settings for pro users; "Complete your profile →" prompt for new users
+- `Planner.jsx`: create-plan modal is track-aware — pro users get Java focus areas and coding sprint templates
+- `App.jsx`: `BoardGated` guard skips grade/examBoard check for pro-track users
+- `ProTopicView.jsx`: prefetches `VisualizerShell` in parallel with the topic API call on mount
+- `vite.config.js`: added `server.warmup` to pre-compile hot paths; `optimizeDeps.include` pre-bundles `framer-motion`, Monaco, and `recharts` at dev-server startup
+
+### Fixed
+- `proAnalyticsService.js`: removed `.toObject()` call on `lean()` result — was crashing pro analytics for all users
+- `authController.js`: `register()` now passes `grade` and `examBoard` as `null` to skip Mongoose schema defaults — pro users no longer get a default school grade on sign-up
+- `userRoutes.js`: `GET /user/me` and `GET /user/nav` now Redis-cached (30s and 60s TTL respectively) with parallel query execution; cache invalidated on writes — reduces cold-path DB round-trips
+- `proService.js`: `getTopic` and `listExercises` now Redis-cached (5 min TTL) — warm reads drop from ~200ms to ~5ms
+
 ## [Unreleased]
 
 ### Added

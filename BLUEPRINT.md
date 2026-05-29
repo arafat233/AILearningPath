@@ -5,7 +5,7 @@
 >
 > **Post-v2.1 feature roadmap:** see `ROADMAP.md` for Phase 1 (visualizer + AI Socratic tutor + pattern recognition), Phase 2 (complexity derivation, job market layer, spaced repetition, interview simulator), and Phase 3 (rolling deep visualizations + missing content). Update that doc after each completed task.
 >
-> Last updated: 2026-05-25 — Professional & competitive track blueprint added (PROFESSIONAL_TRACKS_BLUEPRINT.md + PRO_TRACK_PLAN.md). Previous: ICSE Math 9 + Math 10 Ph1 NcertChapter docs added (seedIcseMath9NcertChapters.js: 28 chapters icse_math9_ch1–ch28, board=ICSE, grade=9; seedIcseMath10NcertChapters.js: 25 chapters icse_math10_ch1–ch25, board=ICSE, grade=10; npm scripts seed:icse-math9-chapters + seed:icse-math10-chapters; both prepended to seed:xxx-all). Previous: AP SSC Math 9 + Math 10 Ph1 NcertChapter docs added (seedApSscMath9NcertChapters.js: 12 chapters ap_ssc_math9_ch1–ch12; seedApSscMath10NcertChapters.js: 14 chapters ap_ssc_math10_ch1–ch14; board=AP_SSC; npm scripts seed:ap-ssc-math9-chapters + seed:ap-ssc-math10-chapters; both prepended to seed:xxx-all). AP SSC Math 9 Ph4 SVG diagrams: 35 DIAGRAM_MAP entries (27 reused from CBSE Math 9 / ICSE 9 / ICSE 10 + 8 new SVG component functions for Ch4 linear equations, Ch5 Euclid's geometry, Ch6 lines & angles). CBSE Math 9 Ph4 SVG diagrams: 32 DIAGRAM_MAP entries (8 reused ICSE 9 + 24 new SVG fns, Ch1–Ch8 fully covered). DiagramLibrary total entries: ~502 across all boards. AP SSC Math 9 + 10: ALL PHASES COMPLETE. CBSE Math 9: ALL PHASES COMPLETE. ICSE Math 9 + 10: ALL PHASES COMPLETE.
+> Last updated: 2026-05-30 — Pro-track UX polish + performance: proAnalyticsService .toObject() fix, authController grade/examBoard null on register, userRoutes Redis cache /user/me (30s) + /user/nav (60s), proService Redis cache topic + exercises (5 min TTL), Analytics/Certificate/Layout/Profile/Planner pro-track awareness, VisualizerShell all 45 sandboxes lazy-loaded with SortingSandbox extracted, ProTopicView prefetch, vite.config warmup. Also: TrackSwitcher/TrackTabs/DashboardSwitch/PracticeSwitch/BookmarksSwitch + trackStore shipped (commit 9d44bc65). Previous: Professional & competitive track blueprint added (PROFESSIONAL_TRACKS_BLUEPRINT.md + PRO_TRACK_PLAN.md). Previous: ICSE Math 9 + Math 10 Ph1 NcertChapter docs added (seedIcseMath9NcertChapters.js: 28 chapters icse_math9_ch1–ch28, board=ICSE, grade=9; seedIcseMath10NcertChapters.js: 25 chapters icse_math10_ch1–ch25, board=ICSE, grade=10; npm scripts seed:icse-math9-chapters + seed:icse-math10-chapters; both prepended to seed:xxx-all). Previous: AP SSC Math 9 + Math 10 Ph1 NcertChapter docs added (seedApSscMath9NcertChapters.js: 12 chapters ap_ssc_math9_ch1–ch12; seedApSscMath10NcertChapters.js: 14 chapters ap_ssc_math10_ch1–ch14; board=AP_SSC; npm scripts seed:ap-ssc-math9-chapters + seed:ap-ssc-math10-chapters; both prepended to seed:xxx-all). AP SSC Math 9 Ph4 SVG diagrams: 35 DIAGRAM_MAP entries (27 reused from CBSE Math 9 / ICSE 9 / ICSE 10 + 8 new SVG component functions for Ch4 linear equations, Ch5 Euclid's geometry, Ch6 lines & angles). CBSE Math 9 Ph4 SVG diagrams: 32 DIAGRAM_MAP entries (8 reused ICSE 9 + 24 new SVG fns, Ch1–Ch8 fully covered). DiagramLibrary total entries: ~502 across all boards. AP SSC Math 9 + 10: ALL PHASES COMPLETE. CBSE Math 9: ALL PHASES COMPLETE. ICSE Math 9 + 10: ALL PHASES COMPLETE.
 
 ---
 
@@ -1471,9 +1471,16 @@ Backend
   services/proService.js                      listTracks/getTrack/getModule/getTopic/
                                               listExercises/getExercise/submitExercise/
                                               getProgress/enroll
+                                              Redis cache: getTopic + listExercises
+                                              (5 min TTL) — warm reads ~5ms vs ~200ms
+  services/proAnalyticsService.js             Fixed: .toObject() removed from lean()
+                                              result (was crashing pro analytics)
   controllers/proController.js                thin HTTP delegators
   validators/proValidator.js                  Joi schemas (strict snake_case IDs)
   routes/proRoutes.js                         /api/v1/pro/* — mounted in server.js
+  routes/userRoutes.js                        Redis cache: GET /user/me (30s TTL) +
+                                              GET /user/nav (60s TTL) with parallel
+                                              queries; cache invalidated on writes
   config/seedJavaPilot.js                     idempotent seed — walks content/pro/java/m*/topics/t*/
   content/pro/java/m{1..46}_*/topics/t*/      source-of-truth JSONs (ALL 46 MODULES LIVE 2026-05-26)
     └── topic.json + exercises.json + project.json per topic
@@ -1485,6 +1492,9 @@ Backend
     └── m11 io_files: NIO file API, buffered I/O, CSV/JSON, HttpClient, async HTTP+CompletableFuture
     └── m12 testing: JUnit 5 basics, parameterized tests, Mockito, testing I/O+HTTP, TDD (Red/Green/Refactor)
     └── m13 spring_boot: Spring Boot intro, REST controllers, Spring Data JPA, validation/exceptions, Spring Boot testing
+  controllers/authController.js               register() now passes grade/examBoard
+                                              as null to skip schema defaults — pro
+                                              users don't need a grade on sign-up
   infra/judge0/                                Docker Compose + judge0.conf.example
                                                 + README runbook
 
@@ -1498,12 +1508,42 @@ Frontend
   src/pages/professional/ProTopicView.jsx     /pro/:trackSlug/:moduleId/:topicId
                                                 + lazy-renders <VisualizerShell/> when
                                                   topic.visualizer.kind is set
+                                                + prefetches VisualizerShell in parallel
+                                                  with topic API call on mount
   src/pages/professional/ProExerciseRunner.jsx /pro/exercise/:exerciseId
+  src/pages/Analytics.jsx                     Pro-track aware: branches to pro analytics
+                                                when activeTrack is pro_*
+  src/pages/Certificate.jsx                   Track-branched: pro → purple XP/exercises
+                                                certificate; school → gold grade/accuracy
+  src/pages/Profile.jsx                       Pro users see "Java · Professional" not
+                                                "Class 10 · CBSE"; school fields hidden
+                                                for pro; "Complete your profile →" prompt
+  src/pages/Planner.jsx                       Track-aware create-plan modal: pro users
+                                                get Java focus areas + coding sprint
+                                                templates
+  src/pages/DashboardSwitch.jsx               Route-level switch: renders ProDashboard
+                                                or school Dashboard based on activeTrack
+  src/pages/PracticeSwitch.jsx                Route-level switch: pro vs school Practice
+  src/pages/BookmarksSwitch.jsx               Route-level switch: pro vs school Bookmarks
+  src/components/TrackSwitcher.jsx            Sidebar track switcher (calls PATCH
+                                                /api/user/active-track)
   src/components/TrackTabs.jsx                Dashboard track switcher (?track=)
+  src/components/Layout.jsx                   Sidebar subtitle: "Set up your profile"
+                                                when grade/board unset; "Java ·
+                                                Professional" for pro track
   src/components/pro/ProDashboardSnapshot.jsx Pro view on Dashboard
   src/components/pro/CodeEditor.jsx           Monaco wrapper (lazy chunk)
+  src/store/trackStore.js                     hydration flag, refreshNav guard,
+                                                setActiveTrack via API
+  src/App.jsx                                 BoardGated skips grade/examBoard check
+                                                for pro-track users
+  vite.config.js                              server.warmup pre-compiles hot paths;
+                                                optimizeDeps.include pre-bundles
+                                                framer-motion, Monaco, recharts
   src/components/dsa/                         Interactive DSA visualizer toolkit (v3 Phase 1.A)
-    VisualizerShell.jsx                       Dispatcher on `kind`. 43 kinds:
+    VisualizerShell.jsx                       Dispatcher on `kind`. 45 kinds (all
+                                                sandboxes lazy-loaded — Monaco only
+                                                downloads for sorting topics):
                                                 sorting-sandbox · binary-search ·
                                                 linked-list · stack · tree ·
                                                 array-pointers · heap · hash-table ·
@@ -1522,9 +1562,12 @@ Frontend
                                                 search-on-answer · matrix-search ·
                                                 hash-grouping · hash-dedup ·
                                                 interval-merge · memory-model ·
-                                                recursion
+                                                recursion · doubly-ll ·
+                                                circular-ll · array-insert
     modes/                                    Per-kind orchestrators (T1 + T2-T5)
-      SortingSandbox (inline in shell)          M38-T1 sorts + student mode
+      SortingSandbox.jsx                        M38-T1 sorts + student mode
+                                                (extracted from VisualizerShell —
+                                                now its own lazy-loaded file)
       BinarySearchSandbox.jsx                   M39-T1 binary search
       LinkedListSandbox.jsx                     M32-T1, T3 linked list ops
       StackSandbox.jsx                          M33-T1 LIFO push/pop/peek
@@ -1567,6 +1610,9 @@ Frontend
       IntervalMergeSandbox.jsx                  M38-T3 merge overlapping intervals
       MemoryModelSandbox.jsx                    M4-T1 JVM stack/heap/refs (D1.1)
       RecursionSandbox.jsx                      M2-T5 call-stack frames (D1.2)
+      DoublyLLSandbox.jsx                       M32-T1 doubly linked list (D2.1)
+      CircularLLSandbox.jsx                     M32-T2 circular linked list (D2.2)
+      ArrayInsertSandbox.jsx                    M30-T3 array insert-at-index (D2.3)
     algorithms/                               Step generators: 5 sorts, binary/
                                                 linear search, linked-list ops,
                                                 heap, hashTable, kmp, graph (BFS/
@@ -1605,7 +1651,11 @@ Frontend
                                                 HighlightedCode (line-by-line code
                                                   with active-line highlight — D1.3) ·
                                                 VariablePanel (name→value table
-                                                  with per-row state — D1.4)
+                                                  with per-row state — D1.4) ·
+                                                DoublyLinkedListVisualizer (horizontal
+                                                  nodes + bidirectional arrows — D2.1) ·
+                                                CircularLinkedListVisualizer (SVG arc
+                                                  from tail back to head — D2.2)
     Controls / ExplanationPanel /             Playback toolbar + status panels +
       StatsPanel / DSACodeEditor                Monaco "Try It Yourself" mode
 

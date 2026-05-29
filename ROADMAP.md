@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-27 (A9-A53 + D1.1-D1.4 + D1.3c complete — 43 visualizer kinds live on 46 topics, 36/36 algorithm sandboxes line-highlighted; awaiting browser acceptance)
+**Last updated:** 2026-05-30 (D2.1-D2.3 complete — 45 visualizer kinds live across 47 topics; all 45 sandboxes lazy-loaded in VisualizerShell with SortingSandbox extracted; pro-track UX polish: proAnalyticsService fix, Redis caching on /user/me + /user/nav + pro topic/exercises, Certificate/Layout/Profile/Planner pro-awareness, vite.config warmup)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 

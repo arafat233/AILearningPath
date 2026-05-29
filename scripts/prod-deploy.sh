@@ -37,12 +37,8 @@ else
 fi
 
 echo "=== [3/6] Pull pre-built backend image from ghcr.io ==="
-# Image was built on GitHub Actions CI (with layer cache) — pull takes ~30s
-# GHCR_TOKEN + GHCR_USER are passed in via the SSH env from the workflow
-if [ -n "${GHCR_TOKEN:-}" ] && [ -n "${GHCR_USER:-}" ]; then
-  echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
-  echo "    → Logged into ghcr.io"
-fi
+# Image is public — no auth needed. Built on GitHub Actions CI with layer
+# cache so npm ci is cached. Pull takes ~30s vs 16min local build.
 docker pull ghcr.io/arafat233/ailearningpath-api:latest
 echo "    → Image pulled"
 

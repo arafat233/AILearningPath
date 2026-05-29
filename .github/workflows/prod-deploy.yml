@@ -128,13 +128,10 @@ jobs:
             ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }}:/tmp/stellar-dist/
 
       - name: Run server-side deploy script
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GHCR_USER: ${{ github.actor }}
         run: |
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no \
             ${{ secrets.PROD_USER }}@${{ secrets.PROD_HOST }} \
-            "GHCR_TOKEN='$GHCR_TOKEN' GHCR_USER='$GHCR_USER' bash -s" < scripts/prod-deploy.sh
+            'bash -s' < scripts/prod-deploy.sh
 
       - name: Smoke test
         if: ${{ github.event_name != 'workflow_dispatch' || !inputs.skip_smoke_test }}

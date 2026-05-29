@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AnalyticsSkeleton } from "../components/Skeleton";
 import {
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
@@ -43,14 +43,16 @@ export default function Analytics() {
   const printRef = useRef(null);
 
   const activeTrack = useTrackStore((s) => s.activeTrack);
-  const isProTrack  = !!activeTrack?.startsWith("pro_");
+  const [searchParams] = useSearchParams();
+  const effectiveTrack = activeTrack || searchParams.get("track") || "school";
+  const isProTrack  = effectiveTrack.startsWith("pro_");
   const [proData, setProData] = useState(null);
 
   useEffect(() => {
     setLoading(true);
     setErr("");
     if (isProTrack) {
-      proAnalyticsDashboard(activeTrack).then((r) => setProData(r.data?.data)).catch(() => setErr("Could not load pro analytics.")).finally(() => setLoading(false));
+      proAnalyticsDashboard(effectiveTrack).then((r) => setProData(r.data?.data)).catch(() => setErr("Could not load pro analytics.")).finally(() => setLoading(false));
     } else {
       Promise.all([
         analyticsV2Dashboard(subject === "all" ? undefined : subject).then((r) => setV2(r.data?.data)).catch(() => {}),
@@ -60,7 +62,7 @@ export default function Analytics() {
         getWeeklyLeaderboard().then((r) => setWeekly(r.data)).catch(() => {}),
       ]).catch(() => setErr("Could not load analytics.")).finally(() => setLoading(false));
     }
-  }, [subject, activeTrack]);
+  }, [subject, effectiveTrack]);
 
   const handlePrint = () => window.print();
   const handleShare = async () => {
@@ -254,7 +256,11 @@ export default function Analytics() {
               <p className="text-[12px] text-apple-gray">{stats.completedExercises} exercises · {stats.totalXp} XP earned</p>
             </div>
             <span className="ml-auto text-apple-blue text-[13px] font-semibold group-hover:opacity-70 transition-opacity">View →</span>
-          }
+          </Link>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div ref={printRef} className="space-y-5">

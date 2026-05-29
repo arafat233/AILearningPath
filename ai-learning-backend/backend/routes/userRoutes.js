@@ -11,6 +11,7 @@ import { getDailyBrief } from "../services/dailyBriefService.js";
 import { getStreakStatus } from "../services/streakService.js";
 import { getCachedBoard } from "../services/adaptiveService.js";
 import { getNavForUser, isValidTrackKey } from "../services/navService.js";
+import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
 
 const updateMeLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
@@ -104,9 +105,17 @@ r.get("/bookmarks", auth, async (req, res, next) => {
 
 r.get("/me", auth, async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select("-password");
-    const profile = await UserProfile.findOne({ userId: req.user.id });
-    res.json({ data: { user, profile } });
+    const cacheKey = `me:${req.user.id}`;
+    const cached = await sessionGet(cacheKey);
+    if (cached) return res.json({ data: cached });
+
+    const [user, profile] = await Promise.all([
+      User.findById(req.user.id).select("-password"),
+      UserProfile.findOne({ userId: req.user.id }),
+    ]);
+    const data = { user, profile };
+    await sessionSet(cacheKey, data, 30);
+    res.json({ data });
   } catch (err) {
     next(err);
   }
@@ -154,6 +163,11 @@ r.put("/me", auth, updateMeLimiter, validate(updateMeSchema), async (req, res, n
       );
     }
 
+    await Promise.all([
+      sessionDel(`me:${req.user.id}`),
+      sessionDel(`nav:${req.user.id}`),
+    ]);
+
     res.json({ user });
   } catch (err) {
     next(err);
@@ -187,9 +201,15 @@ r.delete("/me", auth, async (req, res, next) => {
 // PATCH /api/user/active-track  → switch the user's active track
 r.get("/nav", auth, async (req, res, next) => {
   try {
+    const cacheKey = `nav:${req.user.id}`;
+    const cached = await sessionGet(cacheKey);
+    if (cached) return res.json({ data: cached });
+
     const user = await User.findById(req.user.id).select("tracks activeTrack").lean();
     if (!user) return next(new AppError("User not found", 404));
-    res.json({ data: getNavForUser(user) });
+    const data = getNavForUser(user);
+    await sessionSet(cacheKey, data, 60);
+    res.json({ data });
   } catch (err) { next(err); }
 });
 
@@ -207,6 +227,7 @@ r.patch("/active-track", auth, validate(activeTrackSchema), async (req, res, nex
     if (!enrolled) return next(new AppError("Not enrolled in this track", 403));
     user.activeTrack = key;
     await user.save();
+    await sessionDel(`nav:${req.user.id}`);
     res.json({ data: getNavForUser(user.toObject()) });
   } catch (err) { next(err); }
 });

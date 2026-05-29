@@ -154,7 +154,7 @@ export async function getProRadar(userId, trackKey) {
     .select("exerciseId difficulty").lean();
   const exMap = Object.fromEntries(exercises.map((e) => [e.exerciseId, e]));
 
-  const enriched = subs.map((s) => ({ ...s.toObject(), ex: exMap[s.exerciseId] || {} }));
+  const enriched = subs.map((s) => ({ ...s, ex: exMap[s.exerciseId] || {} }));
   const me = radarFromSubmissions(enriched);
   const peer = await peerRadar(trackKey);
 

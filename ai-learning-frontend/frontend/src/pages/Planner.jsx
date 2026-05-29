@@ -8,6 +8,7 @@ import {
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useActiveProfile } from "../hooks/useActiveProfile";
+import { useTrackStore } from "../store/trackStore";
 
 /* ─── constants ─────────────────────────────────────────── */
 const SUBJECT_COLORS = {
@@ -109,9 +110,15 @@ function MiniWeekBars({ dailyPlan }) {
   );
 }
 
-function PlanCreateModal({ onCreate, onClose, defaultSubjects, defaultGrade, defaultExamDate }) {
-  const [name, setName] = useState("Board prep");
-  const [subjects, setSubjects] = useState(defaultSubjects?.length ? defaultSubjects : ["Math","Science","English","Social Science","Hindi"]);
+const SCHOOL_SUBJECTS = ["Math", "Science", "English", "Social Science", "Hindi"];
+const PRO_AREAS = ["Core Java", "OOP", "Collections", "Algorithms", "Data Structures", "Design Patterns"];
+
+function PlanCreateModal({ onCreate, onClose, defaultSubjects, defaultGrade, defaultExamDate, isProTrack }) {
+  const availableAreas = isProTrack ? PRO_AREAS : SCHOOL_SUBJECTS;
+  const [name, setName] = useState(isProTrack ? "Java Pro plan" : "Board prep");
+  const [subjects, setSubjects] = useState(
+    defaultSubjects?.length ? defaultSubjects : isProTrack ? PRO_AREAS : SCHOOL_SUBJECTS
+  );
   const [grade, setGrade] = useState(defaultGrade || "10");
   const [examDate, setExamDate] = useState(defaultExamDate ? new Date(defaultExamDate).toISOString().slice(0,10) : "");
   const [goal, setGoal] = useState("distinction");
@@ -126,19 +133,45 @@ function PlanCreateModal({ onCreate, onClose, defaultSubjects, defaultGrade, def
     } finally { setSubmitting(false); }
   };
 
+  const proTemplates = [
+    { id: "sprint", label: "4-week sprint", days: 28,  hpd: 2 },
+    { id: "track",  label: "3-month track", days: 90,  hpd: 1.5 },
+    { id: "master", label: "6-month mastery", days: 180, hpd: 1 },
+  ];
+  const schoolTemplates = [
+    { id: "exam",  label: "Exam-prep · 6mo", days: 180, hpd: 3 },
+    { id: "found", label: "Foundation · 1y",  days: 365, hpd: 2 },
+    { id: "vac",   label: "Vacation · 2mo",   days: 60,  hpd: 4 },
+  ];
+  const templates = isProTrack ? proTemplates : schoolTemplates;
+
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
         <h3 className="text-[18px] font-bold text-[#1c1c1e] mb-4">Create study plan</h3>
         <label className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">Plan name</label>
         <input value={name} onChange={(e) => setName(e.target.value)} className="w-full mt-1 mb-3 px-3 py-2 rounded-lg border border-[#E5E5EA] text-[14px]" />
-        <label className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">Exam date</label>
+        <label className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">{isProTrack ? "Target date" : "Exam date"}</label>
         <input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} className="w-full mt-1 mb-3 px-3 py-2 rounded-lg border border-[#E5E5EA] text-[14px]" />
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div>
             <label className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">Goal</label>
             <select value={goal} onChange={(e) => setGoal(e.target.value)} className="w-full mt-1 px-2 py-2 rounded-lg border border-[#E5E5EA] text-[12px]">
-              <option value="pass">Pass</option><option value="distinction">75%+</option><option value="top">90%+</option><option value="scholarship">Scholarship</option>
+              {isProTrack ? (
+                <>
+                  <option value="pass">Complete track</option>
+                  <option value="distinction">75%+ pass rate</option>
+                  <option value="top">90%+ pass rate</option>
+                  <option value="scholarship">Full mastery</option>
+                </>
+              ) : (
+                <>
+                  <option value="pass">Pass</option>
+                  <option value="distinction">75%+</option>
+                  <option value="top">90%+</option>
+                  <option value="scholarship">Scholarship</option>
+                </>
+              )}
             </select>
           </div>
           <div>
@@ -148,23 +181,18 @@ function PlanCreateModal({ onCreate, onClose, defaultSubjects, defaultGrade, def
             </select>
           </div>
         </div>
-        <label className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">Subjects</label>
+        <label className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">{isProTrack ? "Focus areas" : "Subjects"}</label>
         <div className="grid grid-cols-2 gap-1.5 mt-1 mb-4">
-          {["Math","Science","English","Social Science","Hindi"].map((s) => (
+          {availableAreas.map((s) => (
             <label key={s} className="flex items-center gap-2 text-[12px] text-[#3A3A3C]">
               <input type="checkbox" checked={subjects.includes(s)} onChange={(e) => setSubjects((x) => e.target.checked ? [...x, s] : x.filter((y) => y !== s))} className="accent-[#7c3aed]" />
               {s}
             </label>
           ))}
         </div>
-        {/* Templates */}
         <p className="text-[10px] font-bold tracking-wider uppercase text-[#8E8E93]">Quick templates</p>
         <div className="flex gap-1.5 mt-1 mb-4">
-          {[
-            { id: "exam", label: "Exam-prep · 6mo", days: 180, hpd: 3 },
-            { id: "found",label: "Foundation · 1y", days: 365, hpd: 2 },
-            { id: "vac",  label: "Vacation · 2mo", days: 60,  hpd: 4 },
-          ].map((t) => (
+          {templates.map((t) => (
             <button key={t.id} onClick={() => {
               const d = new Date(); d.setDate(d.getDate() + t.days);
               setExamDate(d.toISOString().slice(0, 10)); setHoursPerDay(t.hpd);
@@ -189,6 +217,8 @@ export default function Planner() {
   const { user } = useAuthStore();
   const profile = useActiveProfile();
   const navigate = useNavigate();
+  const activeTrack = useTrackStore((s) => s.activeTrack);
+  const isProTrack = activeTrack?.startsWith("pro_") ?? false;
 
   const [plan, setPlan]         = useState(null);
   const [revision, setRevision] = useState([]);
@@ -382,7 +412,7 @@ export default function Planner() {
         <button onClick={() => setShowCreate(true)} className="px-5 py-2.5 rounded-full bg-[#1c1c1e] text-white text-[14px] font-bold">Create plan →</button>
       </div>
       {showCreate && <PlanCreateModal onCreate={handleCreate} onClose={() => setShowCreate(false)}
-        defaultSubjects={profile?.subjects || user?.subjects} defaultGrade={profile?.grade || user?.grade} defaultExamDate={profile?.examDate || user?.examDate} />}
+        defaultSubjects={profile?.subjects || user?.subjects} defaultGrade={profile?.grade || user?.grade} defaultExamDate={profile?.examDate || user?.examDate} isProTrack={isProTrack} />}
     </div>
   );
 
@@ -645,7 +675,7 @@ export default function Planner() {
       </div>
 
       {showCreate && <PlanCreateModal onCreate={handleCreate} onClose={() => setShowCreate(false)}
-        defaultSubjects={profile?.subjects || user?.subjects} defaultGrade={profile?.grade || user?.grade} defaultExamDate={profile?.examDate || user?.examDate} />}
+        defaultSubjects={profile?.subjects || user?.subjects} defaultGrade={profile?.grade || user?.grade} defaultExamDate={profile?.examDate || user?.examDate} isProTrack={isProTrack} />}
 
       {/* Toast (drag-confirm, rebalance status, digest status) */}
       {toast && (

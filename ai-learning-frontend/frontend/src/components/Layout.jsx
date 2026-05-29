@@ -101,7 +101,7 @@ export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { dark, toggle: toggleDark } = useThemeStore();
-  const { items: trackNav, refreshNav, activeTrack } = useTrackStore();
+  const { items: trackNav, refreshNav, activeTrack, loaded } = useTrackStore();
   const activeChildId = useAuthStore((s) => s.activeChild?._id);
 
   // Fetch nav whenever the effective actor changes — either the logged-in
@@ -185,9 +185,11 @@ export default function Layout() {
             <div className="flex flex-col justify-center min-w-0">
               <span className="text-[14px] font-bold text-[var(--label)] tracking-tight leading-tight">Stellar</span>
               <span className="text-[11px] text-apple-gray leading-tight">
-                {activeTrack === "pro_java"
+                {activeTrack?.startsWith("pro_")
                   ? "Java · Professional"
-                  : `${profile?.examBoard || "CBSE"} · Class ${profile?.grade || "10"}`}
+                  : (profile?.examBoard && profile?.grade)
+                    ? `${profile.examBoard} · Class ${profile.grade}`
+                    : "Set up your profile"}
               </span>
             </div>
           </div>
@@ -231,17 +233,22 @@ export default function Layout() {
           ) : (
             <>
               <p className="section-label px-2 mb-2">Menu</p>
-              {(trackNav && trackNav.length ? trackNav : NAV).map((n) => (
-                <NavLink
-                  key={n.to}
-                  to={n.to}
-                  end={n.end}
-                  className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}
-                >
-                  <Icon id={n.icon} />
-                  {n.label}
-                </NavLink>
-              ))}
+              {/* Show NAV briefly while waiting for refreshNav to resolve.
+                  Once loaded, use the server's nav (pro_java sidebar). */}
+              {!loaded
+                ? NAV.map((n) => (
+                    <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                      <Icon id={n.icon} />
+                      {n.label}
+                    </NavLink>
+                  ))
+                : (trackNav && trackNav.length ? trackNav : NAV).map((n) => (
+                    <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                      <Icon id={n.icon} />
+                      {n.label}
+                    </NavLink>
+                  ))
+              }
             </>
           )}
         </nav>

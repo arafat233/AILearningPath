@@ -302,6 +302,10 @@ export default function ProTopicView() {
   const [bookmarkBusy, setBookmarkBusy] = useState(false);
 
   useEffect(() => {
+    // Kick off the visualizer bundle download immediately — in parallel with
+    // the topic API call — so it's ready by the time topic.visualizer.kind arrives.
+    import("../../components/dsa/VisualizerShell.jsx").catch(() => {});
+
     Promise.all([
       proGetTopic(topicId),
       proListExercises(topicId).catch(() => ({ data: { data: [] } })),

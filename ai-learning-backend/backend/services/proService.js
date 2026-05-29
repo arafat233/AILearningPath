@@ -13,6 +13,7 @@ import {
   ProSubmission, ProProgress, ProBookmark,
 } from "../models/proModels.js";
 import { User } from "../models/index.js";
+import { sessionGet, sessionSet } from "../utils/redisClient.js";
 import { AppError } from "../utils/AppError.js";
 import { runTestCases } from "./codeExecutionService.js";
 import { isEnrolled, invalidateEnrolment } from "../middleware/trackFilter.js";
@@ -74,7 +75,12 @@ export async function getModule(trackSlug, moduleId, userId) {
 // ── Topics ──────────────────────────────────────────────────────────────────
 
 export async function getTopic(topicId, userId) {
-  const topic = await ProTopic.findOne({ topicId }).lean();
+  const cacheKey = `pro:topic:${topicId}`;
+  let topic = await sessionGet(cacheKey);
+  if (!topic) {
+    topic = await ProTopic.findOne({ topicId }).lean();
+    if (topic) await sessionSet(cacheKey, topic, 300); // 5 min — topic content is static
+  }
   if (!topic) throw new AppError("Topic not found.", 404);
   if (!(await isEnrolled(userId, topic.trackKey))) {
     throw new AppError("Not enrolled in this track.", 403);
@@ -84,18 +90,28 @@ export async function getTopic(topicId, userId) {
 }
 
 export async function listExercisesForTopic(topicId, userId) {
-  const topic = await ProTopic.findOne({ topicId }).select("trackKey").lean();
+  // Re-use the cached topic for the enrollment check (avoids a second DB hit)
+  const topicCacheKey = `pro:topic:${topicId}`;
+  let topic = await sessionGet(topicCacheKey);
+  if (!topic) {
+    topic = await ProTopic.findOne({ topicId }).lean();
+    if (topic) await sessionSet(topicCacheKey, topic, 300);
+  }
   if (!topic) throw new AppError("Topic not found.", 404);
   if (!(await isEnrolled(userId, topic.trackKey))) {
     throw new AppError("Not enrolled in this track.", 403);
   }
-  return ProExercise.find({ topicId })
+
+  const exCacheKey = `pro:exercises:${topicId}`;
+  const cached = await sessionGet(exCacheKey);
+  if (cached) return cached;
+
+  const exercises = await ProExercise.find({ topicId })
     .select("exerciseId level type title scenario instructions starterCode hints xpReward difficulty")
-    // position is the explicit display-order column (set by the seed from
-    // exercises.json array index). exerciseId fallback keeps old data
-    // (no position set) sorted lexicographically as before.
     .sort({ position: 1, exerciseId: 1 })
     .lean();
+  await sessionSet(exCacheKey, exercises, 300);
+  return exercises;
 }
 
 // ── Exercises ───────────────────────────────────────────────────────────────

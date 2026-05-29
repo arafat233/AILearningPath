@@ -1,6 +1,7 @@
 import React, { useEffect, useState, Suspense, lazy } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
+import { useTrackStore } from "./store/trackStore";
 import { getMe } from "./services/api";
 
 class ErrorBoundary extends React.Component {
@@ -119,7 +120,10 @@ const BoardGated = ({ children }) => {
     user:        s.user,
     activeChild: s.activeChild,
   }));
+  const activeTrack = useTrackStore((s) => s.activeTrack);
   const effective = activeChild || user;
+  // Pro-track users don't have examBoard/grade — they enrolled via the pro flow
+  if (activeTrack?.startsWith("pro_")) return children;
   if (!effective?.examBoard || !effective?.grade) {
     return <Navigate to="/start" replace />;
   }

@@ -157,7 +157,7 @@ export const register = async (req, res, next) => {
       if (referrer) referredBy = referrer._id.toString();
     }
 
-    const user = await User.create({ name, email, password: hashed, examDate, grade, examBoard, trialExpiry, referredBy });
+    const user = await User.create({ name, email, password: hashed, examDate, grade: grade || null, examBoard: examBoard || null, trialExpiry, referredBy });
     await issueTokens(user, res);
     setCsrfCookie(res);
     queueWelcomeEmail(user);

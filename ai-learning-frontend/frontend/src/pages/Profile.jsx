@@ -10,6 +10,7 @@ import {
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useActiveProfile } from "../hooks/useActiveProfile";
+import { useTrackStore } from "../store/trackStore";
 
 /* ─── Constants ─────────────────────────────────────────────────────────── */
 const GRADES   = ["8","9","10","11","12"];
@@ -185,6 +186,8 @@ export default function Profile() {
   const { user, setAuth } = useAuthStore();
   const activeProfile = useActiveProfile();
   const navigate = useNavigate();
+  const activeTrack = useTrackStore((s) => s.activeTrack);
+  const isProTrack = activeTrack?.startsWith("pro_") ?? false;
 
   const [profile, setProfile] = useState(null);
   const [badges, setBadges] = useState([]);
@@ -386,7 +389,18 @@ export default function Profile() {
                 onUpload={(url) => saveSetting({ avatarDataUrl: url })} />
               <div className="min-w-0 pr-28">
                 <h1 className="text-[32px] font-bold leading-none text-[#1c1c1e] tracking-tight truncate mb-1 capitalize">{me?.name || user?.name || "—"}</h1>
-                <p className="text-[13px] font-medium text-[#1c1c1e]/70">Class {me?.grade || activeProfile?.grade || user?.grade} · {activeProfile?.examBoard || user?.examBoard || "CBSE"} · {me?.subject || activeProfile?.subject || user?.subject}</p>
+                <p className="text-[13px] font-medium text-[#1c1c1e]/70">
+                  {isProTrack
+                    ? `${(activeTrack || "").replace("pro_", "").replace(/^\w/, (c) => c.toUpperCase())} · Professional`
+                    : (me?.grade || me?.examBoard)
+                      ? [me?.grade ? `Class ${me.grade}` : null, me?.examBoard || null, me?.subject || activeProfile?.subject || null].filter(Boolean).join(" · ")
+                      : null}
+                </p>
+                {!isProTrack && !me?.grade && !me?.examBoard && (
+                  <button onClick={() => setView("settings")} className="text-[12px] text-[#7c3aed] font-semibold hover:opacity-70">
+                    Complete your profile →
+                  </button>
+                )}
                 <p className="text-[12px] text-[#1c1c1e]/55 mt-0.5">{joinedAgo ? `Joined ${joinedAgo}` : "New member"} · {totalAttempts} sessions · {profile?.thinkingProfile || "—"}</p>
                 {/* #23 Manifesto */}
                 {me?.manifesto ? (
@@ -569,10 +583,17 @@ export default function Profile() {
                 <dl className="space-y-0">
                   {[
                     { label: "Full Name", value: me?.name || user?.name, save: (v) => saveField("name", v) },
-                    { label: "Grade", value: me?.grade, save: (v) => saveField("grade", v), options: GRADES },
-                    { label: "Primary Subject", value: me?.subject, save: (v) => saveField("subject", v), options: SUBJECTS },
+                    ...(!isProTrack ? [
+                      { label: "Grade", value: me?.grade, save: (v) => saveField("grade", v), options: GRADES },
+                      { label: "Primary Subject", value: me?.subject, save: (v) => saveField("subject", v), options: SUBJECTS },
+                      { label: "Exam Board", value: me?.examBoard, save: (v) => saveField("examBoard", v), options: [
+                          { value: "CBSE", label: "CBSE" }, { value: "ICSE", label: "ICSE" },
+                          { value: "AP SSC", label: "AP SSC" }, { value: "State Board", label: "State Board" },
+                        ]
+                      },
+                    ] : []),
                     { label: "Study Goal", value: me?.goal, save: (v) => saveField("goal", v), options: GOALS },
-                    { label: "Exam Date", value: me?.examDate?.split("T")[0] || "", save: (v) => saveField("examDate", v), type: "date" },
+                    { label: isProTrack ? "Target Date" : "Exam Date", value: me?.examDate?.split("T")[0] || "", save: (v) => saveField("examDate", v), type: "date" },
                   ].map(({ label, value, save, options, type }) => (
                     <div key={label} className="flex items-center justify-between py-3 border-b border-[#f0f0f5] last:border-0">
                       <dt className="text-[12px] text-[#8e8e93]">{label}</dt>

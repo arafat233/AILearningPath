@@ -39,6 +39,7 @@ services:
 
   # ── Backend API ───────────────────────────────────────────────────
   api:
+    image: ghcr.io/arafat233/ailearningpath-api:latest
     build:
       context: ./ai-learning-backend
       dockerfile: Dockerfile

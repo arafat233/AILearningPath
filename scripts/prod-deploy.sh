@@ -28,17 +28,23 @@ git fetch origin main
 git reset --hard origin/main
 echo "    → HEAD: $(git log --oneline -1)"
 
-echo "=== [2/6] Tag current docker image as :previous for rollback ==="
+echo "=== [2/6] Tag current image as :previous for rollback ==="
 if docker image inspect "$IMAGE_NAME:latest" >/dev/null 2>&1; then
   docker tag "$IMAGE_NAME:latest" "$IMAGE_NAME:previous"
-  echo "    → Tagged previous image"
+  echo "    → Tagged previous image for rollback"
 else
   echo "    → No existing image to tag (first deploy?)"
 fi
 
-echo "=== [3/6] Build backend ==="
-cd "$REPO/ai-learning-backend"
-docker-compose build api
+echo "=== [3/6] Pull pre-built backend image from ghcr.io ==="
+# Image was built on GitHub Actions CI (with layer cache) — pull takes ~30s
+# GHCR_TOKEN + GHCR_USER are passed in via the SSH env from the workflow
+if [ -n "${GHCR_TOKEN:-}" ] && [ -n "${GHCR_USER:-}" ]; then
+  echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+  echo "    → Logged into ghcr.io"
+fi
+docker pull ghcr.io/arafat233/ailearningpath-api:latest
+echo "    → Image pulled"
 
 echo "=== [4/6] Restart API container ==="
 docker-compose up -d api

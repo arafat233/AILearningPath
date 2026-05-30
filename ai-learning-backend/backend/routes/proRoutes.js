@@ -17,7 +17,6 @@ import rateLimit from "express-rate-limit";
 
 import { auth } from "../middleware/auth.js";
 import { validate, validateParams } from "../middleware/validate.js";
-import { requireEmailAllowlist } from "../middleware/featureFlag.js";
 
 import * as ctrl from "../controllers/proController.js";
 import {
@@ -28,10 +27,8 @@ import {
 
 const r = Router();
 
-// Every route requires (a) a valid JWT and (b) the caller's email to be in
-// PRO_TRACKS_ENABLED_FOR_EMAILS during the pilot.
+// Every route requires a valid JWT. Feature flag removed — Pro Java is now open to all.
 r.use(auth);
-r.use(requireEmailAllowlist("PRO_TRACKS_ENABLED_FOR_EMAILS"));
 
 // Submission-specific extra rate limit. Belt-and-braces with the per-user
 // Redis limit in codeExecutionService — that one is per user; this one is

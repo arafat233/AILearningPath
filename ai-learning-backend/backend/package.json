@@ -69,6 +69,7 @@
     "audit:math:cbse9": "node config/auditMathChecklist.mjs --board=CBSE --grade=9",
     "audit:math:cbse10": "node config/auditMathChecklist.mjs --board=CBSE --grade=10",
     "audit:math:icse10": "node config/auditMathChecklist.mjs --board=ICSE --grade=10",
+    "audit:pro-java": "node config/auditProJava.mjs",
     "migrate:cbse-math10-rekey": "node config/migrateCbseMath10TopicIds.mjs",
     "finalize:cbse-math10-rekey": "node config/finalizeCbseMath10Rekey.mjs",
     "seed:cbse-math9-cleanup":     "node config/seedCbseMath9Cleanup.js",

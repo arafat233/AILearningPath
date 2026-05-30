@@ -26,14 +26,12 @@ export const useTrackStore = create(
         try {
           const { data } = await getNav();
           const nav = data?.data || data;
-          set((state) => ({
-            // Only trust the backend's activeTrack when we haven't rehydrated
-            // from localStorage yet. Once hydrated, the persisted value wins.
-            activeTrack: state.hydrated ? (state.activeTrack ?? nav.activeTrack) : nav.activeTrack,
+          set({
+            activeTrack: nav.activeTrack,
             tracks:      nav.tracks || [],
             items:       nav.items  || [],
             loaded:      true,
-          }));
+          });
         } catch {
           set({ loaded: true });
         }

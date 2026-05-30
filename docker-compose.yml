@@ -43,6 +43,7 @@ services:
     build:
       context: ./ai-learning-backend
       dockerfile: Dockerfile
+    env_file: .env
     restart: unless-stopped
     ports:
       - "5001:5001"

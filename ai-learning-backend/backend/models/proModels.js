@@ -171,6 +171,7 @@ const proProgressSchema = new Schema({
   completedExercises:[{ type: String }],
   totalXp:           { type: Number, default: 0 },
   currentStreak:     { type: Number, default: 0 },
+  longestStreak:     { type: Number, default: 0 },
   lastActivityAt:    { type: Date, default: null },
 }, { timestamps: true });
 proProgressSchema.index({ userId: 1, trackKey: 1 }, { unique: true });

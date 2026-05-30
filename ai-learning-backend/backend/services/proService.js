@@ -175,12 +175,42 @@ export async function submitExercise({ userId, exerciseId, code }) {
 
   // Update progress (idempotent — completedExercises is a set)
   if (passed) {
+    // Fetch current progress to compute streak change
+    const progress = await ProProgress.findOne({ userId, trackKey: ex.trackKey });
+
+    // Streak logic: compare lastActivityAt to today's date
+    const today = new Date().toISOString().slice(0, 10);
+    const lastDate = progress?.lastActivityAt
+      ? new Date(progress.lastActivityAt).toISOString().slice(0, 10)
+      : null;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+    // Compute new streak
+    let newStreak = progress?.currentStreak || 0;
+    let newLongest = progress?.longestStreak || 0;
+
+    if (lastDate === today) {
+      // Already counted today — no change to streak
+    } else if (lastDate === yesterday) {
+      // Extend streak
+      newStreak += 1;
+      newLongest = Math.max(newLongest, newStreak);
+    } else {
+      // Reset streak (gap > 1 day or first activity)
+      newStreak = 1;
+      newLongest = Math.max(newLongest, 1);
+    }
+
     await ProProgress.findOneAndUpdate(
       { userId, trackKey: ex.trackKey },
       {
         $addToSet: { completedExercises: exerciseId },
         $inc:      { totalXp: xpAwarded },
-        $set:      { lastActivityAt: new Date() },
+        $set:      {
+          lastActivityAt: new Date(),
+          currentStreak: newStreak,
+          longestStreak: newLongest,
+        },
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );

@@ -43,7 +43,6 @@ services:
     build:
       context: ./ai-learning-backend
       dockerfile: Dockerfile
-    env_file: .env
     restart: unless-stopped
     ports:
       - "5001:5001"
@@ -83,8 +82,8 @@ services:
       COMPANY_ADMIN_EMAIL: ${COMPANY_ADMIN_EMAIL}
       COMPANY_ADMIN_PASSWORD: ${COMPANY_ADMIN_PASSWORD}
       COMPANY_JWT_SECRET: ${COMPANY_JWT_SECRET}
-      # Pro track (pilot)
-      PRO_TRACKS_ENABLED_FOR_EMAILS: ${PRO_TRACKS_ENABLED_FOR_EMAILS}
+      # Pro track (pilot) — allowlist emails for early access
+      PRO_TRACKS_ENABLED_FOR_EMAILS: "najeebarafat@gmail.com, salmasiddiqua@stellar.dev"
       # Error monitoring
       SENTRY_DSN: ${SENTRY_DSN:-}
     depends_on:

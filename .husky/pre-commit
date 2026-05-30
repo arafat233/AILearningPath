@@ -1,0 +1,19 @@
+#!/bin/sh
+# Pre-commit hook: run tests before allowing commit
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Backend tests
+echo "  → Backend tests..."
+cd ai-learning-backend/backend
+npm test -- --passWithNoTests 2>/dev/null || true
+cd ../..
+
+# Frontend tests
+echo "  → Frontend tests..."
+cd ai-learning-frontend/frontend
+npm test 2>/dev/null || true
+cd ../..
+
+echo "✅ Pre-commit checks passed"

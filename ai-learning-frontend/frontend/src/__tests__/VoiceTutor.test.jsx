@@ -18,7 +18,7 @@ vi.mock("../store/authStore", () => ({
   ),
 }));
 
-import { voiceAnswer, askTutor, getVoiceHistory, clearVoiceHistory } from "../services/api";
+import { voiceAnswer, askTutor, getVoiceHistory, clearVoiceHistory, getAIUsage } from "../services/api";
 import VoiceTutor from "../pages/VoiceTutor";
 
 // ── Browser API mocks ───────────────────────────────────────────────��──────────
@@ -75,8 +75,12 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-  getVoiceHistory.mockResolvedValue({ data: { history: [] } });
   vi.clearAllMocks();
+  getVoiceHistory.mockResolvedValue({ data: { history: [] } });
+  voiceAnswer.mockResolvedValue({ data: { answer: "" } });
+  askTutor.mockResolvedValue({ data: { reply: "" } });
+  clearVoiceHistory.mockResolvedValue({});
+  getAIUsage.mockResolvedValue({ data: { usage: 0 } });
   mockRecognitionInstance = null;
 });
 

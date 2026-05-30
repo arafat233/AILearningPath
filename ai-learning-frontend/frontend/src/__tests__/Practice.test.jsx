@@ -32,7 +32,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
 });
 
 import {
-  getTopics, startTopic, submitAnswer,
+  getTopics, startTopic, submitAnswer, flagQuestion, toggleBookmark, getHint, evaluateExplanation, bmGetDue,
 } from "../services/api";
 import Practice from "../pages/Practice";
 
@@ -67,9 +67,7 @@ function renderPractice() {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  // getTopics returns array, Practice does r.data.map(t => t.name)
   getTopics.mockResolvedValue({ data: MOCK_TOPICS });
-  // startTopic response.data IS the question object
   startTopic.mockResolvedValue({ data: MOCK_QUESTION });
   submitAnswer.mockResolvedValue({
     data: {
@@ -79,6 +77,11 @@ beforeEach(() => {
       nextQuestion: null,
     },
   });
+  flagQuestion.mockResolvedValue({ data: {} });
+  toggleBookmark.mockResolvedValue({ data: {} });
+  getHint.mockResolvedValue({ data: { hint: "Think about it." } });
+  evaluateExplanation.mockResolvedValue({ data: { evaluation: "" } });
+  bmGetDue.mockResolvedValue({ data: [] });
 });
 
 describe("Practice — initial render", () => {

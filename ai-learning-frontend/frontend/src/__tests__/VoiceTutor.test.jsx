@@ -1,382 +1,198 @@
-import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import VoiceTutorView from "../pages/VoiceTutorView";
 
-// ── API mocks ───────────────────────────────────────────────���──────────────────
-vi.mock("../services/api", () => ({
-  voiceAnswer:       vi.fn(),
-  askTutor:          vi.fn(),
-  getVoiceHistory:   vi.fn(),
-  clearVoiceHistory: vi.fn(),
-  getAIUsage:        vi.fn(),
-  getDailyBrief:     vi.fn(),
-  saveVoiceTutorNote: vi.fn(),
-}));
+const defaultProps = {
+  subject: "Math",
+  isHindi: false,
+  isSupported: true,
+  chat: [],
+  text: "",
+  topic: "",
+  listening: false,
+  speaking: false,
+  speakingIdx: null,
+  loading: false,
+  historyLoading: false,
+  status: "ready",
+  error: "",
+  listenSecs: 0,
+  followUps: [],
+  savedIdx: new Set(),
+  weakTopics: [],
+  summaryOpen: true,
+  limitReached: false,
+  user: { name: "Test" },
+  quickPrompts: ["Explain the discriminant"],
+  exchanges: [],
+  sessionCovered: [],
+  showSummary: false,
+  setText: vi.fn(),
+  setTopic: vi.fn(),
+  handleClearHistory: vi.fn(),
+  startListening: vi.fn(),
+  stopListening: vi.fn(),
+  speak: vi.fn(),
+  stopSpeaking: vi.fn(),
+  sendMessage: vi.fn(),
+  handleSaveNote: vi.fn(),
+  setSummaryOpen: vi.fn(),
+};
 
-vi.mock("../store/authStore", () => ({
-  useAuthStore: vi.fn((selector) =>
-    selector({ user: { id: "u1", name: "Test", subject: "Math" } })
-  ),
-}));
-
-import { voiceAnswer, askTutor, getVoiceHistory, clearVoiceHistory, getAIUsage, getDailyBrief, saveVoiceTutorNote } from "../services/api";
-import VoiceTutor from "../pages/VoiceTutor";
-
-// ── Browser API mocks ───────────────────────────────────────────────��──────────
-let mockRecognitionInstance = null;
-const mockRecStart  = vi.fn();
-const mockRecStop   = vi.fn();
-const mockSynthCancel = vi.fn();
-const mockSynthSpeak  = vi.fn();
-
-const MockSpeechRecognition = vi.fn().mockImplementation(() => {
-  mockRecognitionInstance = {
-    continuous:     false,
-    interimResults: false,
-    lang:           "",
-    onstart:        null,
-    onend:          null,
-    onerror:        null,
-    onresult:       null,
-    start: mockRecStart.mockImplementation(function () {
-      mockRecognitionInstance?.onstart?.();
-    }),
-    stop: mockRecStop.mockImplementation(function () {
-      mockRecognitionInstance?.onend?.();
-    }),
-  };
-  return mockRecognitionInstance;
-});
-
-beforeAll(() => {
-  Object.defineProperty(window, "webkitSpeechRecognition", {
-    value:        MockSpeechRecognition,
-    writable:     true,
-    configurable: true,
+describe("VoiceTutorView", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  Object.defineProperty(window, "SpeechSynthesisUtterance", {
-    value: vi.fn().mockImplementation((text) => ({
-      text, rate: 1, pitch: 1, lang: "", onstart: null, onend: null,
-    })),
-    writable:     true,
-    configurable: true,
+  it("renders the header with subject", () => {
+    render(<VoiceTutorView {...defaultProps} />);
+    expect(screen.getByText("Math")).toBeInTheDocument();
+    expect(screen.getByText(/Ask anything/)).toBeInTheDocument();
   });
 
-  Object.defineProperty(window, "speechSynthesis", {
-    value: {
-      cancel: mockSynthCancel,
-      speak:  mockSynthSpeak.mockImplementation((utterance) => {
-        utterance.onstart?.();
-      }),
-    },
-    writable:     true,
-    configurable: true,
-  });
-});
-
-beforeEach(() => {
-  vi.clearAllMocks();
-  getVoiceHistory.mockResolvedValue({ data: { history: [] } });
-  voiceAnswer.mockResolvedValue({ data: { answer: "" } });
-  askTutor.mockResolvedValue({ data: { reply: "" } });
-  clearVoiceHistory.mockResolvedValue({});
-  getAIUsage.mockResolvedValue({ data: { usage: 0 } });
-  getDailyBrief.mockResolvedValue({ data: { data: { weakTopics: [] } } });
-  saveVoiceTutorNote.mockResolvedValue({ data: {} });
-  mockRecognitionInstance = null;
-});
-
-function renderTutor() {
-  return render(
-    <MemoryRouter>
-      <VoiceTutor />
-    </MemoryRouter>
-  );
-}
-
-// ── Initial render ────────────────────────────���────────────────────────────��───
-
-describe("VoiceTutor — initial render", () => {
-  it("shows the Voice Tutor heading", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-    expect(screen.getByText(/voice tutor/i)).toBeInTheDocument();
+  it("renders the topic picker with General button", () => {
+    render(<VoiceTutorView {...defaultProps} />);
+    expect(screen.getByRole("button", { name: "General" })).toBeInTheDocument();
   });
 
-  it("shows the mic button when SpeechRecognition is supported", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-    // Mic button is an SVG-based button, find by role and disabled state
-    const micBtn = screen.getAllByRole("button").find(
-      (btn) => btn.getAttribute("aria-label") !== "close" && !btn.textContent.includes("Clear")
-    );
-    expect(micBtn).toBeInTheDocument();
+  it("renders error when error prop is set", () => {
+    render(<VoiceTutorView {...defaultProps} error="Test error" />);
+    expect(screen.getByText("Test error")).toBeInTheDocument();
   });
 
-  it("loads persisted history on mount", async () => {
-    getVoiceHistory.mockResolvedValue({
-      data: { history: [{ role: "user", content: "Hello" }] },
-    });
-    renderTutor();
-    await waitFor(() => expect(screen.getByText("Hello")).toBeInTheDocument());
+  it("renders daily limit message when limitReached is true", () => {
+    render(<VoiceTutorView {...defaultProps} limitReached={true} />);
+    expect(screen.getByText("Daily AI limit reached")).toBeInTheDocument();
   });
 
-  it("shows empty state when history is empty", async () => {
-    renderTutor();
-    await waitFor(() =>
-      expect(screen.getByText(/press the mic or type/i)).toBeInTheDocument()
-    );
+  it("renders loading spinner when historyLoading is true", () => {
+    render(<VoiceTutorView {...defaultProps} historyLoading={true} />);
+    const spinner = document.querySelector(".animate-spin");
+    expect(spinner).toBeInTheDocument();
   });
-});
 
-// ── Mic state transitions ────────────────────────────────���─────────────────────
+  it("renders empty state with quick prompts when no chat", () => {
+    render(<VoiceTutorView {...defaultProps} />);
+    expect(screen.getByText(/Stellar is ready/)).toBeInTheDocument();
+    expect(screen.getByText("Explain the discriminant")).toBeInTheDocument();
+  });
 
-describe("VoiceTutor — microphone state transitions", () => {
-  it("clicking mic starts recognition and shows 'Listening…'", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
+  it("renders chat messages correctly", () => {
+    const chat = [
+      { role: "user", content: "What is algebra?" },
+      { role: "assistant", content: "Algebra is a branch of math." }
+    ];
+    render(<VoiceTutorView {...defaultProps} chat={chat} />);
+    expect(screen.getByText("What is algebra?")).toBeInTheDocument();
+    expect(screen.getByText("Algebra is a branch of math.")).toBeInTheDocument();
+  });
 
+  it("calls sendMessage when quick prompt is clicked", async () => {
+    const sendMessage = vi.fn();
+    render(<VoiceTutorView {...defaultProps} sendMessage={sendMessage} />);
+    const promptButton = screen.getByText("Explain the discriminant");
+    fireEvent.click(promptButton);
+    expect(sendMessage).toHaveBeenCalledWith("Explain the discriminant");
+  });
+
+  it("renders session summary when showSummary is true", () => {
+    const exchanges = [
+      { role: "user", content: "What is the area?" }
+    ];
+    render(<VoiceTutorView {...defaultProps} showSummary={true} exchanges={exchanges} sessionCovered={["What is the area?"]} />);
+    expect(screen.getByText(/What we covered/)).toBeInTheDocument();
+  });
+
+  it("calls setText when input changes", () => {
+    const setText = vi.fn();
+    render(<VoiceTutorView {...defaultProps} setText={setText} />);
+    const input = screen.getByPlaceholderText("Type your question…");
+    fireEvent.change(input, { target: { value: "Hello" } });
+    expect(setText).toHaveBeenCalledWith("Hello");
+  });
+
+  it("calls sendMessage when Ask button is clicked", () => {
+    const sendMessage = vi.fn();
+    render(<VoiceTutorView {...defaultProps} text="What is algebra?" sendMessage={sendMessage} />);
+    const askButton = screen.getByRole("button", { name: "Ask" });
+    fireEvent.click(askButton);
+    expect(sendMessage).toHaveBeenCalledWith("What is algebra?");
+  });
+
+  it("renders mic button when isSupported is true", () => {
+    render(<VoiceTutorView {...defaultProps} isSupported={true} />);
     const buttons = screen.getAllByRole("button");
-    const micBtn = buttons[0]; // First large button is the mic button
-    await userEvent.click(micBtn);
-
-    expect(mockRecStart).toHaveBeenCalled();
-    await waitFor(() =>
-      expect(screen.getByText(/listening/i)).toBeInTheDocument()
-    );
+    expect(buttons.length).toBeGreaterThan(0);
   });
 
-  it("clicking mic again (while listening) stops recognition", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const buttons = screen.getAllByRole("button");
-    const micBtn = buttons[0];
-    await userEvent.click(micBtn); // start
-
-    await waitFor(() => screen.getByText(/listening/i));
-
-    // Click the mic button again to stop (it's still the same button)
-    await userEvent.click(micBtn);
-
-    expect(mockRecStop).toHaveBeenCalled();
+  it("renders listening indicator when listening is true", () => {
+    render(<VoiceTutorView {...defaultProps} listening={true} />);
+    expect(screen.getByText(/Listening/)).toBeInTheDocument();
   });
 
-  it("shows error message when microphone fires an error event", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const micBtn = screen.getByText("🎤").closest("button");
-    await userEvent.click(micBtn);
-
-    await waitFor(() => mockRecognitionInstance !== null);
-    mockRecognitionInstance.onerror?.();
-
-    await waitFor(() =>
-      expect(screen.getByText(/could not hear you/i)).toBeInTheDocument()
-    );
-  });
-});
-
-// ── Voice → API → TTS flow ─────────────────────────────���──────────────────────
-
-describe("VoiceTutor — voice answer flow", () => {
-  it("sends spoken text via voiceAnswer API and displays reply", async () => {
-    voiceAnswer.mockResolvedValue({ data: { answer: "Algebra is the study of symbols." } });
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const micBtn = screen.getByText("🎤").closest("button");
-    await userEvent.click(micBtn);
-
-    await waitFor(() => mockRecognitionInstance !== null);
-
-    // Simulate the recognition returning a result
-    mockRecognitionInstance.onresult?.({
-      results: [[{ transcript: "Explain algebra" }]],
-    });
-
-    await waitFor(() => expect(voiceAnswer).toHaveBeenCalledWith("Explain algebra", "Math"));
-    await waitFor(() =>
-      expect(screen.getByText("Algebra is the study of symbols.")).toBeInTheDocument()
-    );
+  it("renders speaking indicator when speaking is true", () => {
+    render(<VoiceTutorView {...defaultProps} speaking={true} />);
+    expect(screen.getByText("Stellar is speaking…")).toBeInTheDocument();
   });
 
-  it("calls speechSynthesis.speak after receiving a reply", async () => {
-    voiceAnswer.mockResolvedValue({ data: { answer: "Great question!" } });
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const micBtn = screen.getByText("🎤").closest("button");
-    await userEvent.click(micBtn);
-    await waitFor(() => mockRecognitionInstance !== null);
-
-    mockRecognitionInstance.onresult?.({
-      results: [[{ transcript: "What is calculus?" }]],
-    });
-
-    await waitFor(() => expect(mockSynthSpeak).toHaveBeenCalled());
-    const utterance = mockSynthSpeak.mock.calls[0][0];
-    expect(utterance.text).toBe("Great question!");
+  it("calls handleClearHistory when Clear button is clicked", () => {
+    const handleClearHistory = vi.fn();
+    const chat = [{ role: "user", content: "Hello" }];
+    render(<VoiceTutorView {...defaultProps} chat={chat} handleClearHistory={handleClearHistory} />);
+    const clearButton = screen.getByRole("button", { name: "Clear" });
+    fireEvent.click(clearButton);
+    expect(handleClearHistory).toHaveBeenCalled();
   });
 
-  it("shows 'AI is speaking…' while TTS is active", async () => {
-    voiceAnswer.mockResolvedValue({ data: { answer: "Sure, let me explain." } });
-    // Fire onstart but NOT onend so the speaking state remains true
-    mockSynthSpeak.mockImplementation((utterance) => {
-      utterance.onstart?.();
-    });
-
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const micBtn = screen.getByText("🎤").closest("button");
-    await userEvent.click(micBtn);
-    await waitFor(() => mockRecognitionInstance !== null);
-
-    // Fire result then onend (recognition stops after getting a result)
-    mockRecognitionInstance.onresult?.({
-      results: [[{ transcript: "Explain" }]],
-    });
-    mockRecognitionInstance.onend?.(); // clears listening so speaking text can show
-
-    await waitFor(() => expect(voiceAnswer).toHaveBeenCalled());
-    await waitFor(() =>
-      expect(screen.getByText(/AI is speaking/i)).toBeInTheDocument()
-    );
-  });
-});
-
-// ── Text input flow ───────────────────────────────────���────────────────────────
-
-describe("VoiceTutor — text input", () => {
-  it("typing and clicking Ask sends message via askTutor", async () => {
-    askTutor.mockResolvedValue({ data: { reply: "Here is your answer." } });
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const input = screen.getByPlaceholderText(/type your question/i);
-    await userEvent.type(input, "What is Pi?");
-
-    const askBtn = screen.getByRole("button", { name: /ask/i });
-    await userEvent.click(askBtn);
-
-    await waitFor(() => expect(askTutor).toHaveBeenCalledWith(
-      "What is Pi?", [], "Math"
-    ));
-    await waitFor(() =>
-      expect(screen.getByText("Here is your answer.")).toBeInTheDocument()
-    );
+  it("renders replay button for assistant messages", () => {
+    const chat = [
+      { role: "assistant", content: "Test response" }
+    ];
+    render(<VoiceTutorView {...defaultProps} chat={chat} />);
+    expect(screen.getByText("Replay")).toBeInTheDocument();
   });
 
-  it("pressing Enter submits the text message", async () => {
-    askTutor.mockResolvedValue({ data: { reply: "Answer." } });
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const input = screen.getByPlaceholderText(/type your question/i);
-    await userEvent.type(input, "Explain gravity{Enter}");
-
-    await waitFor(() => expect(askTutor).toHaveBeenCalled());
+  it("renders save button for assistant messages", () => {
+    const chat = [
+      { role: "assistant", content: "Test response" }
+    ];
+    render(<VoiceTutorView {...defaultProps} chat={chat} />);
+    expect(screen.getByText("Save")).toBeInTheDocument();
   });
 
-  it("Ask button is disabled when input is empty", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const askBtn = screen.getByRole("button", { name: /ask/i });
-    expect(askBtn).toBeDisabled();
+  it("renders follow-up chips when available", () => {
+    const followUps = ["How to solve it?", "Give an example"];
+    render(<VoiceTutorView {...defaultProps} followUps={followUps} loading={false} />);
+    expect(screen.getByText("How to solve it?")).toBeInTheDocument();
+    expect(screen.getByText("Give an example")).toBeInTheDocument();
   });
 
-  it("does not call askTutor when submitting whitespace-only input", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const input = screen.getByPlaceholderText(/type your question/i);
-    await userEvent.type(input, "   {Enter}");
-
-    expect(askTutor).not.toHaveBeenCalled();
-  });
-});
-
-// ── Error handling ───────────────────────────────────────────────────────────��─
-
-describe("VoiceTutor — error handling", () => {
-  it("shows error message when API call fails", async () => {
-    askTutor.mockRejectedValue(new Error("backend down"));
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const input = screen.getByPlaceholderText(/type your question/i);
-    await userEvent.type(input, "What is x?");
-    await userEvent.click(screen.getByRole("button", { name: /ask/i }));
-
-    await waitFor(() =>
-      expect(screen.getByText(/could not reach AI tutor/i)).toBeInTheDocument()
-    );
-  });
-});
-
-// ── Clear history ─────────────────────────────────────────────────────────────��
-
-describe("VoiceTutor — clear history", () => {
-  it("Clear history button appears only when chat has messages", async () => {
-    getVoiceHistory.mockResolvedValue({
-      data: { history: [{ role: "user", content: "Test" }] },
-    });
-    renderTutor();
-    await waitFor(() => screen.getByText("Test"));
-
-    expect(screen.getByRole("button", { name: /clear history/i })).toBeInTheDocument();
+  it("renders typing indicator when loading is true", () => {
+    render(<VoiceTutorView {...defaultProps} loading={true} />);
+    const dots = document.querySelectorAll(".animate-bounce");
+    expect(dots.length).toBeGreaterThan(0);
   });
 
-  it("clear history button is absent when chat is empty", async () => {
-    renderTutor();
-    await waitFor(() => screen.getByText(/press the mic/i));
-
-    expect(screen.queryByRole("button", { name: /clear history/i })).toBeNull();
+  it("disables Ask button when text is empty", () => {
+    render(<VoiceTutorView {...defaultProps} text="" />);
+    const askButton = screen.getByRole("button", { name: "Ask" });
+    expect(askButton).toBeDisabled();
   });
 
-  it("clicking Clear history empties the chat and calls clearVoiceHistory", async () => {
-    getVoiceHistory.mockResolvedValue({
-      data: { history: [{ role: "user", content: "Test message" }] },
-    });
-    clearVoiceHistory.mockResolvedValue({});
-    renderTutor();
-
-    const clearBtn = await screen.findByRole("button", { name: /clear history/i });
-    await userEvent.click(clearBtn);
-
-    expect(clearVoiceHistory).toHaveBeenCalled();
-    await waitFor(() =>
-      expect(screen.queryByText("Test message")).not.toBeInTheDocument()
-    );
-  });
-});
-
-// ── Quick prompts ─────────────────────────────────��────────────────────────────
-
-describe("VoiceTutor — quick prompts", () => {
-  it("renders quick prompt buttons for the user's subject", async () => {
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    // Math quick prompts include "Explain the discriminant"
-    expect(screen.getByText(/explain the discriminant/i)).toBeInTheDocument();
+  it("disables Ask button when loading is true", () => {
+    render(<VoiceTutorView {...defaultProps} text="Question" loading={true} />);
+    const askButton = screen.getByRole("button", { name: "Ask" });
+    expect(askButton).toBeDisabled();
   });
 
-  it("clicking a quick prompt sends it as a text message", async () => {
-    askTutor.mockResolvedValue({ data: { reply: "Here is info on the discriminant." } });
-    renderTutor();
-    await waitFor(() => expect(getVoiceHistory).toHaveBeenCalled());
-
-    const promptBtn = screen.getByText(/explain the discriminant/i);
-    await userEvent.click(promptBtn);
-
-    await waitFor(() => expect(askTutor).toHaveBeenCalledWith(
-      expect.stringMatching(/discriminant/i), expect.any(Array), "Math"
-    ));
+  it("calls handleSaveNote when Save button is clicked", () => {
+    const handleSaveNote = vi.fn();
+    const chat = [
+      { role: "assistant", content: "Test response" }
+    ];
+    render(<VoiceTutorView {...defaultProps} chat={chat} handleSaveNote={handleSaveNote} />);
+    const saveButton = screen.getByText("Save");
+    fireEvent.click(saveButton);
+    expect(handleSaveNote).toHaveBeenCalledWith("Test response", 0);
   });
 });

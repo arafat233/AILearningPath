@@ -250,7 +250,8 @@ export default function Planner() {
     try {
       const [planRes, revRes] = await Promise.all([
         getPlan().catch(() => null),
-        getRevisionDue().catch(() => ({ data: [] })),
+        // Skip revision for Pro track users (Pro uses exercises, not spaced repetition)
+        isProTrack ? Promise.resolve({ data: [] }) : getRevisionDue().catch(() => ({ data: [] })),
       ]);
       setPlan(planRes?.data?.data || planRes?.data || null);
       setRevision(revRes.data || []);
@@ -601,8 +602,8 @@ export default function Planner() {
         <MonthView dailyPlan={dailyPlan} pinned={pinned} onTogglePin={handlePinTopic} onToggleDay={handleToggleDay} />
       )}
 
-      {/* ── Due for revision ── */}
-      <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+      {/* ── Due for revision ── K-12 only (skip for Pro track users) */}
+      {!isProTrack && <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
         <div className="flex items-center justify-between mb-4">
           <div>
             <p className="text-[14px] font-bold text-[#1c1c1e]">Due for revision <span className="text-[#8E8E93] font-normal">· spaced repetition</span></p>
@@ -632,7 +633,7 @@ export default function Planner() {
             })}
           </div>
         )}
-      </div>
+      </div>}
 
       {/* ── Bottom row: Plan management + share ── */}
       <div className="grid md:grid-cols-3 gap-3">

@@ -193,12 +193,27 @@ const proBookmarkSchema = new Schema({
 proBookmarkSchema.index({ userId: 1, kind: 1, refId: 1 }, { unique: true });
 proBookmarkSchema.index({ userId: 1, trackKey: 1, savedAt: -1 });
 
+// ── ProCertificate ──────────────────────────────────────────────────────────
+// Issued when a learner completes all exercises in a module. One cert per user per module.
+const proCertificateSchema = new Schema({
+  certId:             { type: String, required: true, unique: true, index: true }, // nanoid
+  userId:             { type: String, required: true, index: true },
+  trackKey:           { type: String, required: true, index: true },               // "pro_java"
+  moduleId:           { type: String, required: true, index: true },               // "java_m1"
+  moduleName:         { type: String, required: true },                            // "Fundamentals"
+  issuedAt:           { type: Date, default: Date.now },
+  totalXp:            { type: Number, default: 0 },
+  completedExercises: { type: Number, default: 0 },
+}, { timestamps: false });
+proCertificateSchema.index({ userId: 1, trackKey: 1, moduleId: 1 }, { unique: true });
+
 // ── Exports ─────────────────────────────────────────────────────────────────
-export const ProTrack      = mongoose.model("ProTrack",      proTrackSchema);
-export const ProModule     = mongoose.model("ProModule",     proModuleSchema);
-export const ProTopic      = mongoose.model("ProTopic",      proTopicSchema);
-export const ProExercise   = mongoose.model("ProExercise",   proExerciseSchema);
-export const ProProject    = mongoose.model("ProProject",    proProjectSchema);
-export const ProSubmission = mongoose.model("ProSubmission", proSubmissionSchema);
-export const ProProgress   = mongoose.model("ProProgress",   proProgressSchema);
-export const ProBookmark   = mongoose.model("ProBookmark",   proBookmarkSchema);
+export const ProTrack       = mongoose.model("ProTrack",       proTrackSchema);
+export const ProModule      = mongoose.model("ProModule",      proModuleSchema);
+export const ProTopic       = mongoose.model("ProTopic",       proTopicSchema);
+export const ProExercise    = mongoose.model("ProExercise",    proExerciseSchema);
+export const ProProject     = mongoose.model("ProProject",     proProjectSchema);
+export const ProSubmission  = mongoose.model("ProSubmission",  proSubmissionSchema);
+export const ProProgress    = mongoose.model("ProProgress",    proProgressSchema);
+export const ProBookmark    = mongoose.model("ProBookmark",    proBookmarkSchema);
+export const ProCertificate = mongoose.model("ProCertificate", proCertificateSchema);

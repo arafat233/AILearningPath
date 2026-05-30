@@ -24,13 +24,35 @@ r.get("/dashboard", auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-// Pro certificate
+// Pro certificate (computed, deprecated — use /certificates instead)
 r.get("/certificate", auth, async (req, res, next) => {
   try {
     const { trackKey } = req.query;
     if (!trackKey) return res.status(400).json({ error: "trackKey required" });
     const data = await svc.getProCertificate(req.user.id, trackKey);
     res.json({ data });
+  } catch (e) { next(e); }
+});
+
+// List user's module certificates
+r.get("/certificates", auth, async (req, res, next) => {
+  try {
+    const { trackKey } = req.query;
+    if (!trackKey) return res.status(400).json({ error: "trackKey required" });
+    const certs = await svc.listUserCertificates(req.user.id, trackKey);
+    res.json({ data: certs });
+  } catch (e) { next(e); }
+});
+
+// Issue module certificate (on demand)
+r.post("/certificates/issue", auth, async (req, res, next) => {
+  try {
+    const { trackKey, moduleId } = req.body;
+    if (!trackKey || !moduleId) {
+      return res.status(400).json({ error: "trackKey and moduleId required" });
+    }
+    const cert = await svc.issueModuleCertificate(req.user.id, trackKey, moduleId);
+    res.json({ data: cert });
   } catch (e) { next(e); }
 });
 

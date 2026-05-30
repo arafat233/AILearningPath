@@ -10,7 +10,7 @@
 
 import {
   ProTrack, ProModule, ProTopic, ProExercise, ProProject,
-  ProSubmission, ProProgress, ProBookmark,
+  ProSubmission, ProProgress, ProBookmark, ProCertificate,
 } from "../models/proModels.js";
 import { User } from "../models/index.js";
 import { sessionGet, sessionSet } from "../utils/redisClient.js";
@@ -232,6 +232,30 @@ export async function submitExercise({ userId, exerciseId, code }) {
   });
   if (passed) {
     trackEvent(userId, "pro.exercise_passed", { exerciseId, trackKey: ex.trackKey, attempts, xpAwarded });
+
+    // Check if all exercises in this module's topics are now complete — issue certificate
+    try {
+      const [topics, progress] = await Promise.all([
+        ProTopic.find({ moduleId: ex.moduleId }).select("topicId").lean(),
+        ProProgress.findOne({ userId, trackKey: ex.trackKey }).select("completedExercises").lean(),
+      ]);
+
+      const topicIds = topics.map((t) => t.topicId);
+      const allExercisesInModule = await ProExercise.find({ topicId: { $in: topicIds } }).select("exerciseId").lean();
+      const completedSet = new Set([...progress?.completedExercises || [], exerciseId]); // include the one we just passed
+
+      const allModuleExercisesComplete = allExercisesInModule.every((ex) => completedSet.has(ex.exerciseId));
+
+      if (allModuleExercisesComplete) {
+        // Issue certificate for this module
+        await issueModuleCertificate(userId, ex.trackKey, ex.moduleId).catch((err) => {
+          logger.warn("[pro] certificate issuance skipped", { userId, moduleId: ex.moduleId, reason: err.message });
+        });
+      }
+    } catch (err) {
+      logger.warn("[pro] certificate auto-issue error", { userId, moduleId: ex.moduleId, err: err.message });
+      // Non-fatal — continue even if cert issuance fails
+    }
   } else {
     // Best-guess failure reason for analytics: first failing testcase, else
     // sandboxStatus (Compilation Error / Time Limit Exceeded / etc.)
@@ -259,6 +283,72 @@ export async function getProgress(userId, trackKey) {
     currentStreak: 0,
     lastActivityAt: null,
   };
+}
+
+// ── Certificates ────────────────────────────────────────────────────────────
+
+export async function issueModuleCertificate(userId, trackKey, moduleId) {
+  if (!(await isEnrolled(userId, trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+
+  // Load module + all topics + all exercises
+  const [module, topics] = await Promise.all([
+    ProModule.findOne({ moduleId }).lean(),
+    ProTopic.find({ moduleId }).lean(),
+  ]);
+
+  if (!module) throw new AppError("Module not found.", 404);
+  if (topics.length === 0) throw new AppError("Module has no topics.", 400);
+
+  // Get all exercises for this module's topics
+  const topicIds = topics.map((t) => t.topicId);
+  const exercises = await ProExercise.find({ topicId: { $in: topicIds } }).lean();
+
+  if (exercises.length === 0) throw new AppError("Module has no exercises.", 400);
+
+  // Get user's progress
+  const progress = await ProProgress.findOne({ userId, trackKey }).lean();
+  if (!progress) throw new AppError("No progress found.", 404);
+
+  const completedSet = new Set(progress.completedExercises || []);
+  const allCompleted = exercises.every((ex) => completedSet.has(ex.exerciseId));
+
+  if (!allCompleted) {
+    throw new AppError("Not all exercises in this module are complete.", 400);
+  }
+
+  // Issue certificate (upsert — idempotent)
+  const { nanoid } = await import("nanoid");
+  const certId = nanoid();
+  const cert = await ProCertificate.findOneAndUpdate(
+    { userId, trackKey, moduleId },
+    {
+      $set: {
+        certId,
+        userId,
+        trackKey,
+        moduleId,
+        moduleName: module.name,
+        issuedAt: new Date(),
+        totalXp: progress.totalXp,
+        completedExercises: completedSet.size,
+      },
+    },
+    { upsert: true, new: true }
+  );
+
+  logger.info("[pro] certificate issued", { userId, moduleId, certId });
+  trackEvent(userId, "pro.certificate_issued", { trackKey, moduleId, certId });
+
+  return cert;
+}
+
+export async function listUserCertificates(userId, trackKey) {
+  if (!(await isEnrolled(userId, trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  return ProCertificate.find({ userId, trackKey }).sort({ issuedAt: -1 }).lean();
 }
 
 // ── Enrolment ───────────────────────────────────────────────────────────────

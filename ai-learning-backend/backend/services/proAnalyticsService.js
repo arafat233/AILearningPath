@@ -8,7 +8,7 @@
  */
 
 import {
-  ProSubmission, ProProgress, ProBookmark,
+  ProSubmission, ProProgress, ProBookmark, ProCertificate,
   ProTrack, ProModule, ProTopic, ProExercise,
 } from "../models/proModels.js";
 import { User } from "../models/index.js";
@@ -443,4 +443,19 @@ export async function getProCertificate(userId, trackKey) {
     currentStreak: prog?.currentStreak ?? 0,
     issuedAt:     new Date().toISOString(),
   };
+}
+
+// ── Certificates ────────────────────────────────────────────────────────────
+
+export async function listUserCertificates(userId, trackKey) {
+  // Service layer already enforces enrolment via proService.issueModuleCertificate
+  // We just query and return certs for this user + track
+  return ProCertificate.find({ userId, trackKey }).sort({ issuedAt: -1 }).lean();
+}
+
+export async function issueModuleCertificate(userId, trackKey, moduleId) {
+  // Re-exported from proService for convenience
+  // The actual logic lives in proService.js
+  const { issueModuleCertificate: issue } = await import("./proService.js");
+  return issue(userId, trackKey, moduleId);
 }

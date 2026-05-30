@@ -113,7 +113,16 @@ r.get("/me", auth, async (req, res, next) => {
       User.findById(req.user.id).select("-password"),
       UserProfile.findOne({ userId: req.user.id }),
     ]);
-    const data = { user, profile };
+
+    // K-12 only: exclude weakAreas/strongAreas for Pro track users
+    let profileData = profile?.toObject?.() || profile;
+    const isProTrack = user?.tracks?.some(t => t.key?.startsWith("pro_"));
+    if (isProTrack && profileData) {
+      profileData.weakAreas = [];
+      profileData.strongAreas = [];
+    }
+
+    const data = { user, profile: profileData };
     await sessionSet(cacheKey, data, 30);
     res.json({ data });
   } catch (err) {

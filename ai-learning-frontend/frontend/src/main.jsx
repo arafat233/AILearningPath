@@ -26,6 +26,23 @@ if (import.meta.env.VITE_SENTRY_DSN) {
 }
 
 if ("serviceWorker" in navigator) {
+  // On every load, try to clean up corrupted caches
+  // This prevents the "Failed to execute 'put' on 'Cache'" error
+  (async () => {
+    try {
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        try {
+          await caches.delete(name);
+        } catch (err) {
+          console.debug(`Cache cleanup: skipped ${name}`, err.message);
+        }
+      }
+    } catch (err) {
+      console.debug("Cache cleanup skipped:", err.message);
+    }
+  })();
+
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("/sw.js").catch(() => {});
   });

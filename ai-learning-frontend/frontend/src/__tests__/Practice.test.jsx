@@ -12,6 +12,7 @@ vi.mock("../services/api", () => ({
   toggleBookmark:      vi.fn(),
   getHint:             vi.fn(),
   evaluateExplanation: vi.fn(),
+  bmGetDue:            vi.fn(),
 }));
 
 vi.mock("../store/authStore", () => ({

@@ -9,6 +9,7 @@ vi.mock("../services/api", () => ({
   askTutor:          vi.fn(),
   getVoiceHistory:   vi.fn(),
   clearVoiceHistory: vi.fn(),
+  getAIUsage:        vi.fn(),
 }));
 
 vi.mock("../store/authStore", () => ({

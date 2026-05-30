@@ -13,6 +13,12 @@ vi.mock("../services/api", () => ({
   getHint:             vi.fn(),
   evaluateExplanation: vi.fn(),
   bmGetDue:            vi.fn(),
+  getBookmarks:        vi.fn(),
+  rateAIResponse:      vi.fn(),
+  askTutor:            vi.fn(),
+  getReport:           vi.fn(),
+  startRetryPractice:  vi.fn(),
+  startCollectionPractice: vi.fn(),
 }));
 
 vi.mock("../store/authStore", () => ({
@@ -33,6 +39,7 @@ vi.mock("react-router-dom", async (importOriginal) => {
 
 import {
   getTopics, startTopic, submitAnswer, flagQuestion, toggleBookmark, getHint, evaluateExplanation, bmGetDue,
+  getBookmarks, rateAIResponse, askTutor, getReport, startRetryPractice, startCollectionPractice,
 } from "../services/api";
 import Practice from "../pages/Practice";
 
@@ -82,6 +89,12 @@ beforeEach(() => {
   getHint.mockResolvedValue({ data: { hint: "Think about it." } });
   evaluateExplanation.mockResolvedValue({ data: { evaluation: "" } });
   bmGetDue.mockResolvedValue({ data: [] });
+  getBookmarks.mockResolvedValue({ data: [] });
+  rateAIResponse.mockResolvedValue({ data: {} });
+  askTutor.mockResolvedValue({ data: { reply: "" } });
+  getReport.mockResolvedValue({ data: {} });
+  startRetryPractice.mockResolvedValue({ data: MOCK_QUESTION });
+  startCollectionPractice.mockResolvedValue({ data: MOCK_QUESTION });
 });
 
 describe("Practice — initial render", () => {

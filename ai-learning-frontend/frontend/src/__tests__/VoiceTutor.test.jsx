@@ -10,6 +10,8 @@ vi.mock("../services/api", () => ({
   getVoiceHistory:   vi.fn(),
   clearVoiceHistory: vi.fn(),
   getAIUsage:        vi.fn(),
+  getDailyBrief:     vi.fn(),
+  saveVoiceTutorNote: vi.fn(),
 }));
 
 vi.mock("../store/authStore", () => ({
@@ -18,7 +20,7 @@ vi.mock("../store/authStore", () => ({
   ),
 }));
 
-import { voiceAnswer, askTutor, getVoiceHistory, clearVoiceHistory, getAIUsage } from "../services/api";
+import { voiceAnswer, askTutor, getVoiceHistory, clearVoiceHistory, getAIUsage, getDailyBrief, saveVoiceTutorNote } from "../services/api";
 import VoiceTutor from "../pages/VoiceTutor";
 
 // ── Browser API mocks ───────────────────────────────────────────────��──────────
@@ -81,6 +83,8 @@ beforeEach(() => {
   askTutor.mockResolvedValue({ data: { reply: "" } });
   clearVoiceHistory.mockResolvedValue({});
   getAIUsage.mockResolvedValue({ data: { usage: 0 } });
+  getDailyBrief.mockResolvedValue({ data: { data: { weakTopics: [] } } });
+  saveVoiceTutorNote.mockResolvedValue({ data: {} });
   mockRecognitionInstance = null;
 });
 

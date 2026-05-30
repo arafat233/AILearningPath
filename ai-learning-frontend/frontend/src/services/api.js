@@ -445,3 +445,7 @@ export const proAnalyticsDashboard = (trackKey) =>
   api.get("/v1/pro-analytics/dashboard", { params: trackKey ? { trackKey } : {} });
 export const proGetCertificate = (trackKey) =>
   api.get("/v1/pro-analytics/certificate", { params: { trackKey } });
+export const proGetCertificates = (trackKey) =>
+  api.get("/v1/pro-analytics/certificates", { params: { trackKey } });
+export const proIssueCertificate = (trackKey, moduleId) =>
+  api.post("/v1/pro-analytics/certificates/issue", { trackKey, moduleId });

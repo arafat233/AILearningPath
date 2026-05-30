@@ -83,6 +83,16 @@ export default function ProModuleView() {
                 style={{ width: `${pct}%`, backgroundColor: "#7c3aed" }}
               />
             </div>
+            {/* Certificate badge when module complete */}
+            {pct === 100 && (
+              <div className="mt-3 flex items-center gap-2 p-3 rounded-lg bg-gradient-to-r from-[#7c3aed]/8 to-[#ec4899]/8 border border-[#7c3aed]/20">
+                <span className="text-lg">🎓</span>
+                <div>
+                  <p className="text-[12px] font-semibold text-[#7c3aed]">Module Complete!</p>
+                  <p className="text-[11px] text-apple-gray">Your certificate is ready</p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

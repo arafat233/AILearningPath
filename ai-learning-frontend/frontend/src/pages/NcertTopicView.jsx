@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef, useMemo, Component } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Diagram } from "../components/DiagramLibrary";
+import { DiagramLazy } from "../components/DiagramLibraryLazy";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
          getStudiedTopics, toggleNcertStudied, getNcertNote, saveNcertNote,
          getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt,
@@ -3322,7 +3322,7 @@ export default function NcertTopicView() {
       )}
 
       {/* ── DIAGRAM (Science only) ────────────────────────────── */}
-      {isSci && <Diagram topicId={topicId} />}
+      {isSci && <DiagramLazy topicId={topicId} />}
 
       {/* ── PROCESS EXPLANATION (Science / English) ───────────── */}
       {isSciLike && tc.process_explanation && (

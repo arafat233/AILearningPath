@@ -20,6 +20,9 @@ import { useNavigate } from "react-router-dom";
 import { proGetProgress, proGetTrack } from "../../services/api";
 import { useAuthStore } from "../../store/authStore";
 import ProLeaderboard from "./ProLeaderboard";
+import ProStreakStrip from "./ProStreakStrip";
+import ProTierBadge from "./ProTierBadge";
+import ProWhereYouStand from "./ProWhereYouStand";
 
 function lastTopicFromLocalStorage(trackKey) {
   try {
@@ -90,15 +93,24 @@ export default function ProDashboard({ trackKey = "pro_java" }) {
 
       {/* ── Hero / KPI strip ── */}
       <div className="rounded-3xl p-6 text-white" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)" }}>
-        <p className="text-[11px] font-bold tracking-[0.18em] uppercase opacity-80">Your pro track</p>
-        <h2 className="text-[26px] font-bold tracking-tight mt-1">{track?.name || "Java — Loading…"}</h2>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-[11px] font-bold tracking-[0.18em] uppercase opacity-80">Your pro track</p>
+            <h2 className="text-[26px] font-bold tracking-tight mt-1">{track?.name || "Java — Loading…"}</h2>
+          </div>
+          <div className="hidden sm:block">
+            <ProTierBadge xp={xp} />
+          </div>
+        </div>
         <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2 mt-4 text-[12px] font-medium">
           <div>
             <span className="text-[24px] font-bold leading-none block">{xp}</span>
             <span className="opacity-80">XP earned</span>
           </div>
           <div>
-            <span className="text-[24px] font-bold leading-none block">{streak}</span>
+            <span className="text-[24px] font-bold leading-none block">
+              {streak > 0 ? "🔥" : ""} {streak}
+            </span>
             <span className="opacity-80">day streak</span>
           </div>
           <div>
@@ -111,6 +123,14 @@ export default function ProDashboard({ trackKey = "pro_java" }) {
           </div>
         </div>
       </div>
+
+      {/* ── Streak calendar ── */}
+      {streak > 0 && (
+        <div className="card p-4">
+          <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-3">Activity this week</p>
+          <ProStreakStrip currentStreak={streak} lastActivityAt={progress?.lastActivityAt} />
+        </div>
+      )}
 
       {/* ── Continue + Browse ── */}
       <div className="grid sm:grid-cols-2 gap-3">
@@ -177,10 +197,13 @@ export default function ProDashboard({ trackKey = "pro_java" }) {
         </p>
       </div>
 
-      {/* ── Leaderboard ── */}
-      <div className="card p-5">
-        <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-3">Leaderboard</p>
-        <ProLeaderboard trackKey={trackKey} limit={5} compact />
+      {/* ── Leaderboard + Where you stand ── */}
+      <div className="grid sm:grid-cols-2 gap-3">
+        <div className="card p-5">
+          <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-3">Leaderboard</p>
+          <ProLeaderboard trackKey={trackKey} limit={5} compact />
+        </div>
+        <ProWhereYouStand trackKey={trackKey} xp={xp} />
       </div>
 
       {/* ── Practice CTAs ── */}

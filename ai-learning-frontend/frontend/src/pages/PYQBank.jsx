@@ -6,7 +6,7 @@ import {
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useActiveProfile } from "../hooks/useActiveProfile";
-import MathText from "../components/MathText";
+import MathText from "../components/MathTextLazy";
 
 const SUBJECTS = [
   { id: "Mathematics",      label: "Math" },

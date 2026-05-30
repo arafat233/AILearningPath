@@ -11,7 +11,7 @@ import {
 import { useAuthStore } from "../store/authStore";
 import { useActiveProfile } from "../hooks/useActiveProfile";
 import AICreditsIndicator from "../components/AICreditsIndicator";
-import MathText from "../components/MathText";
+import MathText from "../components/MathTextLazy";
 import { enqueueAttempt, flushQueue, getQueuedCount } from "../utils/offlineQueue";
 
 // Respect reduced motion preference

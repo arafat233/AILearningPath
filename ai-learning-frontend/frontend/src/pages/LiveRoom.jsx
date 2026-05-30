@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { useAuthStore } from "../store/authStore";
 import { getRoomQuestions, liveRoomTheme, liveRoomFriends } from "../services/api";
-import MathText from "../components/MathText";
+import MathText from "../components/MathTextLazy";
 
 // Respect prefers-reduced-motion
 const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;

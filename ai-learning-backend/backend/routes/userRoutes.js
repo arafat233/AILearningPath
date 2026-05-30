@@ -106,17 +106,21 @@ r.get("/bookmarks", auth, async (req, res, next) => {
 r.get("/me", auth, async (req, res, next) => {
   try {
     const cacheKey = `me:${req.user.id}`;
-    const cached = await sessionGet(cacheKey);
-    if (cached) return res.json({ data: cached });
 
-    const [user, profile] = await Promise.all([
-      User.findById(req.user.id).select("-password"),
-      UserProfile.findOne({ userId: req.user.id }),
-    ]);
+    // Fetch user to check Pro track status (needed before cache check)
+    const user = await User.findById(req.user.id).select("-password");
+    const isProTrack = user?.tracks?.some(t => t.key?.startsWith("pro_"));
+
+    // Only use cache for K-12 users (Pro users need filtered response)
+    if (!isProTrack) {
+      const cached = await sessionGet(cacheKey);
+      if (cached) return res.json({ data: cached });
+    }
+
+    const profile = await UserProfile.findOne({ userId: req.user.id });
 
     // K-12 only: exclude weakAreas/strongAreas for Pro track users
     let profileData = profile?.toObject?.() || profile;
-    const isProTrack = user?.tracks?.some(t => t.key?.startsWith("pro_"));
     if (isProTrack && profileData) {
       profileData.weakAreas = [];
       profileData.strongAreas = [];

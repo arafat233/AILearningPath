@@ -234,6 +234,8 @@ export default function Profile() {
   };
 
   useEffect(() => {
+    // Skip K-12-specific data (subjects) for Pro track users
+    const isProView = isProTrack;
     Promise.all([
       getMe(),
       getBadges().catch(() => ({ data: [] })),
@@ -241,7 +243,7 @@ export default function Profile() {
       getPrediction().catch(() => null),
       getMyGuardians().catch(() => ({ data: [] })),
       profileGetHeatmap().catch(() => ({ data: { data: [] } })),
-      profileGetSubjects().catch(() => ({ data: { data: [] } })),
+      isProView ? Promise.resolve({ data: { data: [] } }) : profileGetSubjects().catch(() => ({ data: { data: [] } })),
       profileGetLevel().catch(() => ({ data: { data: null } })),
       profileGetGoalProgress().catch(() => ({ data: { data: null } })),
       profileGetActivity().catch(() => ({ data: { data: [] } })),
@@ -272,7 +274,7 @@ export default function Profile() {
       setCompare(cm.data?.data);
       setMood(mo.data?.data || []);
     }).catch(() => setError("Could not load profile.")).finally(() => setLoading(false));
-  }, []);
+  }, [isProTrack]);
 
   /* Inline-edit field savers */
   const saveField = async (field, val) => {
@@ -473,8 +475,8 @@ export default function Profile() {
                 <ActivityHeatmap cells={heatmap} />
               </div>
 
-              {/* #3 Subject breakdown */}
-              {subjects.length > 0 && (
+              {/* #3 Subject breakdown — K-12 only (skip for Pro track users) */}
+              {subjects.length > 0 && !isProTrack && (
                 <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#f0f0f5]">
                   <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8e8e93] mb-3">By subject</p>
                   <div className="space-y-3">

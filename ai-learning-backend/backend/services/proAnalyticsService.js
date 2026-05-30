@@ -459,3 +459,28 @@ export async function issueModuleCertificate(userId, trackKey, moduleId) {
   const { issueModuleCertificate: issue } = await import("./proService.js");
   return issue(userId, trackKey, moduleId);
 }
+
+// ── Leaderboard ─────────────────────────────────────────────────────────────
+
+export async function getProLeaderboard(trackKey, limit = 20) {
+  const rows = await ProProgress.find({ trackKey })
+    .sort({ totalXp: -1 })
+    .limit(limit)
+    .lean();
+
+  const userIds = rows.map((r) => r.userId);
+  const users = await User.find({ _id: { $in: userIds } })
+    .select("name avatar")
+    .lean();
+  const userMap = Object.fromEntries(users.map((u) => [String(u._id), u]));
+
+  return rows.map((r, i) => ({
+    rank: i + 1,
+    userId: r.userId,
+    name: userMap[r.userId]?.name ?? "Anonymous",
+    avatar: userMap[r.userId]?.avatar ?? null,
+    totalXp: r.totalXp,
+    completedExercises: (r.completedExercises || []).length,
+    currentStreak: r.currentStreak || 0,
+  }));
+}

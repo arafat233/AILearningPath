@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { proGetProgress, proGetTrack } from "../../services/api";
 import { useAuthStore } from "../../store/authStore";
+import ProLeaderboard from "./ProLeaderboard";
 
 function lastTopicFromLocalStorage(trackKey) {
   try {
@@ -174,6 +175,12 @@ export default function ProDashboard({ trackKey = "pro_java" }) {
             ? "Your submissions will appear here once you run your first exercise."
             : `You've completed ${done} exercise${done === 1 ? "" : "s"}. A timeline view is coming soon.`}
         </p>
+      </div>
+
+      {/* ── Leaderboard ── */}
+      <div className="card p-5">
+        <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-3">Leaderboard</p>
+        <ProLeaderboard trackKey={trackKey} limit={5} compact />
       </div>
 
       {/* ── Practice CTAs ── */}

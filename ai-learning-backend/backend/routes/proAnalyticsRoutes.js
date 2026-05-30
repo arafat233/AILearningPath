@@ -56,4 +56,14 @@ r.post("/certificates/issue", auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// Pro leaderboard
+r.get("/leaderboard", auth, async (req, res, next) => {
+  try {
+    const { trackKey, limit } = req.query;
+    if (!trackKey) return res.status(400).json({ error: "trackKey required" });
+    const leaderboard = await svc.getProLeaderboard(trackKey, Math.min(parseInt(limit) || 20, 100));
+    res.json({ data: leaderboard });
+  } catch (e) { next(e); }
+});
+
 export default r;

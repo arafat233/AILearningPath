@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-06-02 (Phase 1.B Tutor + 1.C Pattern Recognition + Phase 2 D–H + D3.1/D3.2/D3.4/D5.1 parity + ProProjectView; 467 backend tests pass; ROADMAP audit + stale item cleanup)
+**Last updated:** 2026-06-02 (Phase 1.B Tutor + 1.C Pattern Recognition + Phase 2 D–H + D3.1/D3.2/D3.4/D5.1 parity + ProProjectView + I1 recursion-tree visualizer (I2–I5 confirmed already-covered); 467 backend tests pass; ROADMAP audit + stale item cleanup)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -322,19 +322,20 @@ No deadline. Ship one per week as bandwidth allows.
 
 Each = ~1 day of work. Ranked by impact.
 
-- [ ] **I1.** Recursion tree visualizer — used by M40 Backtracking, M41 DP. Shows the call tree with memoization hits highlighted.
-- [ ] **I2.** Graph BFS/DFS animation — used by M37. Animated traversal with frontier + visited highlighting.
-- [ ] **I3.** Heap sift-up/sift-down — used by M36. Bubble visualization of heap rebalancing.
-- [ ] **I4.** Hash collision walk — used by M34. Shows separate-chaining or open-addressing in motion.
-- [ ] **I5.** Trie character path — used by M35-T5. Highlights the path through the trie for a search/insert.
+- [x] **I1.** Recursion tree visualizer — `recursion-tree` kind: `recursionTree.js` (3 demos: naive fib, memoised fib with memo-hit leaves, subsets backtracking), `RecursionTreeVisualizer.jsx` (N-ary SVG, 5 states incl. memo-hit/pruned, stable layout), `RecursionTreeSandbox.jsx`. Wired to M40-T1 (opens on subsets) + M41-T1 (opens on fib_memo) via `seedRecursionTreeVisualizer.js`. Verified in browser: fib(6) memo tree renders, grows on Play, memo hits collapse the tree. Distinct from `recursion` (call-stack). 2026-06-02.
+- [x] **I2.** Graph BFS/DFS animation — **already covered** by `graph` visualizer (GraphSandbox) on M37-T1; BFS/DFS frontier + visited highlighting live since 2026-05-26 (A21).
+- [x] **I3.** Heap sift-up/sift-down — **already covered** by `heap` visualizer (HeapSandbox) on M36-T1; array+tree lockstep sift animation since 2026-05-26 (A18).
+- [x] **I4.** Hash collision walk — **already covered** by `hash-table` visualizer (HashTableSandbox) on M34-T1; separate-chaining collisions render as horizontal chains since 2026-05-26 (A19).
+- [x] **I5.** Trie character path — **already covered** by `trie` visualizer (TrieSandbox) on M35-T5; prefix-path highlight since 2026-05-26 (A30).
 
 ### J. Missing Content Lessons (beta-driven)
 
 Don't bulk-add. Let beta feedback drive what's most missing.
 
-- [ ] **J1.** New module M49 "Modern Java Features" (records, var, text blocks, sealed classes, pattern matching) — content authoring. Note: M47 = Bitwise (D3.1), M48 = Recursion Patterns (D3.2) — J-series starts at M49.
-- [ ] **J2.** New module M50 "Engineering Hygiene" (Maven/Gradle deep dive, Git collab, IntelliJ tooling)
-- [ ] **J3.** New module M51 "Technical Communication" (PR descriptions, code review, design docs)
+- [x] **J1.** M49 "Modern Java Features" — 5 topics (records, var, text blocks, sealed classes, pattern matching), 12 exercises. **Note:** the Judge0 sandbox runs OpenJDK 13, which can't compile Java 14–21 syntax, so exercises are `predict_output` (read modern code → predict output, text_match graded) + `pattern_match` — no compiler dependency. `npm run seed:modern-java`. 2026-06-02.
+- [x] **J2.** M50 "Engineering Hygiene" — 5 topics (Maven/Gradle lifecycle, Git collab/rebase, IntelliJ, dependency management, project conventions), 12 exercises. Non-code → `pattern_match` + `text_match`, no sandbox. `npm run seed:engineering-hygiene`. 2026-06-02.
+- [x] **J3.** M51 "Technical Communication" — 5 topics (PR descriptions, code review, design docs, commit messages, asking good questions), 13 exercises. Non-code → `pattern_match` + `text_match`. `npm run seed:tech-communication`. 2026-06-02.
+- Verified: `npm run acceptance:pro-content` (14/14) — module reachability, pattern_match correct/wrong grading, no answer-key leak, text_match grading. 2026-06-02.
 
 Mark these `[ ]` only when a beta user has explicitly asked for them. Otherwise they stay listed as candidates.
 

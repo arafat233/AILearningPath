@@ -56,6 +56,7 @@ const SANDBOXES = {
   "array-insert":        lazy(() => import("./modes/ArrayInsertSandbox.jsx")),
   "complexity-plot":     lazy(() => import("./ComplexityPlot.jsx")),
   "bitwise":             lazy(() => import("./modes/BitwiseSandbox.jsx")),
+  "recursion-tree":      lazy(() => import("./modes/RecursionTreeSandbox.jsx")),
 };
 
 function VisualizerFallback() {

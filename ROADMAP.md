@@ -219,9 +219,9 @@ Trains the "I smell sliding-window" instinct that wins FAANG screens.
 
 ### Phase 1 wrap-up
 
-- [ ] **P1-wrap.** Commit + push the Phase 1 work in logical chunks (visualizer in one commit, tutor in another, pattern in a third)
-- [ ] **P1-tag.** Tag `pilot-pro-java-v3.0-phase1` at HEAD
-- [ ] **P1-docs.** Update `BLUEPRINT.md` track table with the three new capabilities
+- [x] **P1-wrap.** Phase 1 work committed + pushed to main (parallel session shipped visualizer/tutor/pattern as feature commits; this session added I1 recursion-tree + D5.3 in 2 chunks `cd1934eb`, `5d6650df`). Pushed `db7d59e1..5d6650df` 2026-06-02 → prod-deploy triggered. 2026-06-02.
+- [x] **P1-tag.** Tagged `pilot-pro-java-v3.0-phase1` (annotated) at HEAD + pushed. 2026-06-02.
+- [x] **P1-docs.** `BLUEPRINT.md` capabilities list + `CONTENT_STATUS.md` pro-track table updated (51 modules, all v3 capabilities). 2026-06-02.
 - [x] **P1-test.** `acceptanceTestV3.mjs` — 15/15 PASS: GET pm exercise (200 not 422), options exposed, testCases not leaked, topic list carries blanks, wrong→failed+explanation, correct→passed+XP. 2026-06-01.
 
 ---
@@ -308,9 +308,9 @@ The premium-tier feature. Reuses Phase 1.B tutor infrastructure.
 
 ### Phase 2 wrap-up
 
-- [ ] **P2-wrap.** Commits + push
-- [ ] **P2-tag.** Tag `pilot-pro-java-v3.0-phase2`
-- [ ] **P2-docs.** Update `BLUEPRINT.md` + `CONTENT_STATUS.md`
+- [x] **P2-wrap.** Phase 2 work (complexity/spaced-rep/reveal/interview + parity D3/D5 + J1–J3) committed + pushed to main across this + the parallel session. 2026-06-02.
+- [x] **P2-tag.** Tagged `pilot-pro-java-v3.0-phase2` (annotated) at HEAD + pushed. 2026-06-02.
+- [x] **P2-docs.** `BLUEPRINT.md` + `CONTENT_STATUS.md` updated (Interview Simulator, recursion-tree, discussions, M47–M51). 2026-06-02.
 
 ---
 

@@ -46,7 +46,10 @@ const ProTopicView     = lazy(() => import("./pages/professional/ProTopicView"))
 const ProExerciseRunner= lazy(() => import("./pages/professional/ProExerciseRunner"));
 const ProReview        = lazy(() => import("./pages/professional/ProReview"));
 const ProPatternAtlas  = lazy(() => import("./pages/professional/ProPatternAtlas"));
-const ProTopicPublic   = lazy(() => import("./pages/professional/ProTopicPublic"));
+const ProTopicPublic      = lazy(() => import("./pages/professional/ProTopicPublic"));
+const InterviewLanding    = lazy(() => import("./pages/professional/InterviewLanding"));
+const InterviewSimulator  = lazy(() => import("./pages/professional/InterviewSimulator"));
+const InterviewHistory    = lazy(() => import("./pages/professional/InterviewHistory"));
 const Lessons          = lazy(() => import("./pages/Lessons"));
 const LessonView       = lazy(() => import("./pages/LessonView"));
 const Practice         = lazy(() => import("./pages/PracticeSwitch"));
@@ -291,6 +294,9 @@ export default function App() {
                  cleanly if the user isn't allowed in. ── */}
             <Route path="pro"                                          element={<ProTrackPicker />} />
             <Route path="pro/review"                                   element={<ProReview />} />
+            <Route path="pro/interview"                                element={<InterviewLanding />} />
+            <Route path="pro/interview/history"                        element={<InterviewHistory />} />
+            <Route path="pro/interview/:sessionId"                     element={<InterviewSimulator />} />
             <Route path="pro/:trackSlug/patterns"                      element={<ProPatternAtlas />} />
             <Route path="pro/:trackSlug"                               element={<ProCourseLanding />} />
             <Route path="pro/:trackSlug/:moduleId"                     element={<ProModuleView />} />

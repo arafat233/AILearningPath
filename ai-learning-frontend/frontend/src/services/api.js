@@ -440,6 +440,17 @@ export const proListBookmarks          = (trackKey = "pro_java")     => api.get(
 // Back-compat alias (older import name)
 export const proToggleBookmark         = proToggleExerciseBookmark;
 
+// ── Pro Interview Simulator ──────────────────────────────────────────────────
+const iv = "/v1/pro/interview";
+export const interviewListProblems    = (params = {})              => api.get(`${iv}/problems`, { params });
+export const interviewCreateSession   = (problemId)                => api.post(`${iv}/sessions`, { problemId });
+export const interviewGetSession      = (sessionId)                => api.get(`${iv}/sessions/${sessionId}`);
+export const interviewSendMessage     = (sessionId, content, silenceProbe = false) =>
+  api.post(`${iv}/sessions/${sessionId}/message`, { content, silenceProbe });
+export const interviewEndSession      = (sessionId, code, scratchpad) =>
+  api.post(`${iv}/sessions/${sessionId}/end`, { code, scratchpad });
+export const interviewListHistory     = ()                         => api.get(`${iv}/history`);
+
 // ── Pro Pattern Atlas ────────────────────────────────────────────────────────
 // ── Pro public (free-tier) — no auth required ────────────────────────────────
 export const proGetTopicPublic     = (topicId) => api.get(`/public/pro/topics/${topicId}`);

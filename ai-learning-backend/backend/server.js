@@ -69,6 +69,7 @@ import parentV2Routes    from "./routes/parentV2Routes.js";
 import schoolGroupV2Routes from "./routes/schoolGroupV2Routes.js";
 import proRoutes         from "./routes/proRoutes.js";
 import proAnalyticsRoutes from "./routes/proAnalyticsRoutes.js";
+import interviewRoutes   from "./routes/interviewRoutes.js";
 import { setupSwagger } from "./utils/swagger.js";
 
 initSentry();   // no-op when SENTRY_DSN is not set
@@ -242,6 +243,7 @@ app.use("/api/v1/competition-v2", competitionV2Routes);
 app.use("/api/v1/live-room",      liveRoomV2Routes);
 app.use("/api/v1/parent",         parentV2Routes);
 app.use("/api/v1/school-group",   schoolGroupV2Routes);
+app.use("/api/v1/pro/interview",  interviewRoutes);  // must precede /api/v1/pro (auth guard order)
 app.use("/api/v1/pro",            proRoutes);
 app.use("/api/v1/pro-analytics",  proAnalyticsRoutes);
 

@@ -230,6 +230,28 @@ const proCertificateSchema = new Schema({
 }, { timestamps: false });
 proCertificateSchema.index({ userId: 1, trackKey: 1, moduleId: 1 }, { unique: true });
 
+// ── ProInterviewSession ─────────────────────────────────────────────────────
+// 30-day TTL. Stores the full transcript + rubric for the mock interview.
+const proInterviewSessionSchema = new Schema({
+  userId:          { type: String, required: true, index: true },
+  problemId:       { type: String, required: true },
+  status:          { type: String, enum: ["active", "ended"], default: "active" },
+  startedAt:       { type: Date, default: Date.now },
+  endedAt:         { type: Date, default: null },
+  durationMinutes: { type: Number, default: null },
+  code:            { type: String, default: "" },
+  scratchpad:      { type: String, default: "" },
+  transcript: [{
+    role:    { type: String, enum: ["user", "interviewer"], required: true },
+    content: { type: String, required: true },
+    ts:      { type: Date, default: Date.now },
+    _id: false,
+  }],
+  rubric: { type: Schema.Types.Mixed, default: null },
+  createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 30 },
+});
+proInterviewSessionSchema.index({ userId: 1, createdAt: -1 });
+
 // ── ProTutorSession ─────────────────────────────────────────────────────────
 // Stores per-exercise Socratic tutor chat history.
 // 30-day TTL — same privacy policy as ProSubmission.
@@ -257,4 +279,5 @@ export const ProSubmission   = mongoose.model("ProSubmission",   proSubmissionSc
 export const ProProgress     = mongoose.model("ProProgress",     proProgressSchema);
 export const ProBookmark     = mongoose.model("ProBookmark",     proBookmarkSchema);
 export const ProCertificate  = mongoose.model("ProCertificate",  proCertificateSchema);
-export const ProTutorSession = mongoose.model("ProTutorSession", proTutorSessionSchema);
+export const ProTutorSession      = mongoose.model("ProTutorSession",      proTutorSessionSchema);
+export const ProInterviewSession  = mongoose.model("ProInterviewSession",  proInterviewSessionSchema);

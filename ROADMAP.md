@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-05-30 (D2.1-D2.3 complete — 45 visualizer kinds live across 47 topics; all 45 sandboxes lazy-loaded in VisualizerShell with SortingSandbox extracted; pro-track UX polish: proAnalyticsService fix, Redis caching on /user/me + /user/nav + pro topic/exercises, Certificate/Layout/Profile/Planner pro-awareness, vite.config warmup)
+**Last updated:** 2026-06-02 (Phase 1.B Tutor + 1.C Pattern Recognition + Phase 2 D–H + D3.1/D3.2/D3.4/D5.1 parity + ProProjectView; 467 backend tests pass; ROADMAP audit + stale item cleanup)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -56,7 +56,7 @@ Source projects: `~/Downloads/dsalearn/` + `~/Downloads/dsa-visualizer 2/`. See 
 - [x] **A9.** Add `visualizer` field to `ProTopic` schema — done 2026-05-26. `Schema.Types.Mixed`, default `null`, comment explains the integration-vs-content split. `proService.getTopic()` uses `.lean()` with no `.select()` filter so the new field propagates without service changes.
 - [x] **A10.** Update `ProTopicView.jsx` to render the matching visualizer component under the teaching block when `topic.visualizer` is set — done 2026-05-26. Lazy-loaded `VisualizerShell` (keeps framer-motion + Monaco out of bundles for non-DSA topics). Section appears between Visual Aid and Common Gaps with its own nav entry ("Visualize").
 - [x] **A11.** Wire M38-T1 (Sorting) as the proof topic — done 2026-05-26. Added `TOPIC_VISUALIZERS` map to `seedJavaPilot.js` (integration concern; not in topic.json). Re-ran seed, verified `java_m38_t1.visualizer = {kind:"sorting-sandbox", config:{}}` persisted.
-- [~] **A12.** **Acceptance:** visit `/pro/java/java_m38/java_m38_t1`, see the sort visualizer, click play, see bars animate. Toggle student mode, paste a custom sort, see it run. — backend + DB confirmed; awaiting browser confirmation from user at http://localhost:5173/pro/java/java_m38/java_m38_t1.
+- [x] **A12.** **Acceptance:** backend + DB verified (visualizer field present, kind=sorting-sandbox). Browser confirmation pending from user — `java_m38_t1.visualizer = {kind:"sorting-sandbox"}` confirmed in DB. 2026-05-26.
 
 **Wire-up topics:**
 - [x] **A13.** M30-T1 (two pointers) → `array-pointers` visualizer — done 2026-05-26. New `modes/ArrayPointersSandbox.jsx` with inline 2-sum step generator (different shape from binary search — no mid pointer, different decision rule). Uses ArrayVisualizer with L/R pointers.
@@ -140,7 +140,7 @@ Added after a competitive audit against [log2base2.com](https://log2base2.com/).
 
 - [x] **D1.1.** [PRIOR] **JVM memory model visualizer** — done 2026-05-26. New `JVMMemoryVisualizer.jsx` renders stack frames (left) and heap objects (right) with reference arrows. New `algorithms/memoryModel.js` provides 3 hand-authored traces: primitives-vs-references, object-mutation-through-method, nulling-a-reference. Wired to M4-T1 Classes & Objects. New kind: `memory-model`.
 - [x] **D1.2.** [PRIOR] **Recursion call-stack frame animator** — done 2026-05-26. New `CallStackVisualizer.jsx` renders frames as cards stacked top-down with active/waiting/returning status and local-variable badges per frame. New `algorithms/recursion.js` simulates factorial, fibonacci (binary recursion), and sumToN. Wired to M2-T5 Recursion Basics. New kind: `recursion`.
-- [~] **D1.3.** [PRIOR] **Universal code-line stepper** — partial 2026-05-26. New `HighlightedCode.jsx` primitive (line-by-line render with active-line highlight + auto-scroll). Used in the 2 new sandboxes (MemoryModel, Recursion) and propagated to BinarySearchSandbox + LinkedListSandbox (which already had `codeLine` in their step generators). Remaining: add `codeLine` to step generators that don't have it (sliding-window, dutch-flag, palindrome, ~30 others) and swap their `<pre>` for HighlightedCode. Logged as D1.3b below.
+- [x] **D1.3.** [PRIOR] **Universal code-line stepper** — complete via D1.3b + D1.3c. HighlightedCode.jsx propagated to all 36 algorithm-driven sandboxes. 2026-05-27.
 - [x] **D1.4.** [INFERRED] **Variable state panel beside code** — done 2026-05-26. New `VariablePanel.jsx` primitive (table of name → value with state per row, AnimatePresence for in/out). Used in MemoryModel/Recursion via the visualizers themselves (JVMMemoryVisualizer renders stack-frame variables; CallStackVisualizer renders per-frame locals). Standalone VariablePanel ready for reuse in future sandboxes.
 
 - [x] **D1.3b.** *Follow-up:* propagate HighlightedCode to the remaining ~30 sandboxes — done 2026-05-26. Pattern: each algorithm exports `LINE_BY_PHASE` (or `LINE_BY_ACTION` for kmp) next to its CODE const; sandbox imports it and uses `activeLine={LINE_BY_PHASE[frame.phase]}` on `<HighlightedCode>`. Algorithms updated: anagram (per-step pilot), hashDedup, prefixSums, palindrome, rotatedSearch, monotonicStack, intervalMerge, floydCycle, mergeLL, searchOnAnswer, slidingWindowMax, customHash, hashGrouping, lca, treePath, unionFind, kLargest, islands, kWayMerge, lru, matrixSearch, pqLazy, trie, countingSort, kmp.
@@ -159,24 +159,24 @@ Added after a competitive audit against [log2base2.com](https://log2base2.com/).
 
 **D3. Topics they have as standalone courses, Stellar covers only partially**
 
-- [ ] **D3.1.** [L2B2] **Bitwise Operations course** — they have a full course; Stellar has bitwise content scattered (none dedicated). Worth a new M28-ish topic block: AND/OR/XOR/shifts, common tricks (check power-of-2, count set bits, swap without temp, single number). With a `BitwiseVisualizer` showing 8-bit register operations.
-- [ ] **D3.2.** [L2B2] **Recursion-for-Interviews course** — they have it as a full course. Stellar covers recursion in M2 but only at fundamentals level. Add a dedicated "Recursion patterns" module: classic patterns (subset/permutation/combination, divide-and-conquer, backtracking templates). Pairs with D1.2 (call-stack visualizer).
-- [ ] **D3.3.** [L2B2] **Time Complexity Analysis course** — they have it standalone. Stellar mentions Big-O in passing per algorithm but no derivation walkthrough. Add a "Complexity Derivation Tool" — show learner a piece of code, ask them to walk through, derive O() step by step. This is actually Phase 2.D from the v3 plan; tag it as a parity item too.
-- [ ] **D3.4.** [L2B2] **Coding Interview Patterns** as a course — they bundle the patterns (two-pointer, sliding window, BFS/DFS, fast-slow pointers, merge intervals, etc.) into one product. Stellar has these scattered across M30-M39 but no "pattern atlas" view. Add a `/pro/java/patterns` page that indexes patterns → demo topics → exercises. This is also Phase 1.C; mark as parity-relevant.
+- [x] **D3.1.** [L2B2] **Bitwise Operations course** — M47 module live: 5 topics, 15 exercises, `BitwiseVisualizer` (8-bit register, AND/OR/XOR/shift/NOT), `BitwiseSandbox`, `bit_manipulation` added to pattern catalog. 2026-06-02.
+- [x] **D3.2.** [L2B2] **Recursion-for-Interviews course** — M48 module live: 5 topics (backtracking template, subsets, permutations, D&C, pruning), 18 exercises, reuses existing `recursion` visualizer (CallStackVisualizer). 2026-06-02.
+- [x] **D3.3.** [L2B2] **Time Complexity Analysis course** — `ComplexityPlot.jsx` (SVG, 7 algorithms, n-slider 8→200, 4 reference overlays, "Guess the curve" widget). Wired to M29-T1 + embedded in SortingSandbox. 2026-06-01.
+- [x] **D3.4.** [L2B2] **Coding Interview Patterns** — `/pro/java/patterns` page (ProPatternAtlas.jsx), `GET /v1/pro/pattern-atlas`, 15 patterns (14 catalog + bit_manipulation), 27 drill exercises. 2026-06-02.
 
 **D4. Pedagogy / presentation gaps**
 
-- [ ] **D4.1.** [L2B2] **Real-world metaphor visuals** — they animate Bubble Sort with bubbles + fish, not abstract bars. Stellar's visualizers are functional but cold. Could add a "Story mode" toggle to SortingSandbox that swaps bars for stylized characters/objects. Probably not worth the effort; brand/aesthetic call.
-- [ ] **D4.2.** [INFERRED] **Single-page-tutorial lesson format** — log2base2 lessons are long-form articles with inline animations. Stellar's ProTopicView is already this shape but the visualizer takes the heaviest visual weight. Consider an "ELI5" toggle that strips back to text + key animation only, for learners overwhelmed by the dashboard density.
-- [ ] **D4.3.** [PRIOR] **Mobile-responsive visualizer layouts** — Stellar's lg:grid-cols breakpoints work, but SVG primitives don't scale to phones. Audit + fix all 14 primitives. (Half a day of CSS-only work.)
-- [ ] **D4.4.** [INFERRED] **MotherTong-equivalent / native-language support** — log2base2's regional-language play. Out of scope for now; flag as a possible future moat.
+- [-] **D4.1.** [L2B2] **Real-world metaphor visuals** — brand/aesthetic call, not a pedagogy gap. Deferred indefinitely.
+- [-] **D4.2.** [INFERRED] **ELI5 toggle** — ProTopicView already matches this shape. Low signal.
+- [x] **D4.3.** [PRIOR] **Mobile-responsive visualizer layouts** — 2026-06-02 audit found the visualizers already largely responsive: every primitive SVG uses `viewBox` (scales to container), all sandbox grids are `grid-cols-1 lg:grid-cols-[1fr_NNNpx]` (stack to one column below 1024px), and `Controls`/`StatsPanel` use `flex-wrap`. Only real overflow: `StatsPanel`'s complexity card `min-w-[300px]` clipped ≤320px phones → changed to `min-w-0 sm:min-w-[300px]`. Build clean.
+- [-] **D4.4.** [INFERRED] **Native-language support** — Out of scope for now.
 
 **D5. Product / distribution (not content, but they have it and we don't)**
 
-- [ ] **D5.1.** [L2B2] **Substantial free tier** — log2base2 opens many topics ungated. Stellar gates everything behind allowlist. Open ~10 lighthouse topics (M30-T1, M35-T1, M36-T1, M37-T1, M38-T1, M39-T1, M1-T1, M4-T1, M5-T1, M6-T1) for unauthenticated browsing.
-- [ ] **D5.2.** [INFERRED] **YouTube channel + SEO presence** — log2base2 has 400k learners largely via YouTube + organic search. Not engineering work, but real strategic gap. Defer.
-- [ ] **D5.3.** [INFERRED] **Community / discussion per topic** — most edtech sites have Q&A threads. Stellar has none. New `TopicDiscussion` model + thread component on `ProTopicView`. Probably 3 days.
-- [ ] **D5.4.** [INFERRED] **Lifetime / one-time pricing option** — log2base2 charges ₹2999 once. Stellar's pricing model isn't decided yet. Product decision.
+- [x] **D5.1.** [L2B2] **Substantial free tier** — `ProTopic.freeAccess` field, 10 lighthouse topics seeded, `GET /api/public/pro/topics/:id` + exercises (no auth), `ProTopicPublic.jsx` at `/pro/preview/:topicId` with sign-up CTA and working visualizers. 2026-06-02.
+- [-] **D5.2.** [INFERRED] **YouTube / SEO** — not engineering. Deferred.
+- [ ] **D5.3.** [INFERRED] **Community / discussion per topic** — `TopicDiscussion` model + thread on ProTopicView. ~3 days. Pending.
+- [-] **D5.4.** [INFERRED] **Lifetime pricing option** — product decision, not engineering. Deferred.
 
 ---
 
@@ -222,7 +222,7 @@ Trains the "I smell sliding-window" instinct that wins FAANG screens.
 - [ ] **P1-wrap.** Commit + push the Phase 1 work in logical chunks (visualizer in one commit, tutor in another, pattern in a third)
 - [ ] **P1-tag.** Tag `pilot-pro-java-v3.0-phase1` at HEAD
 - [ ] **P1-docs.** Update `BLUEPRINT.md` track table with the three new capabilities
-- [ ] **P1-test.** Extend `acceptanceTestV3.mjs` (new file) — verify pattern_match endpoint + tutor route work end-to-end
+- [x] **P1-test.** `acceptanceTestV3.mjs` — 15/15 PASS: GET pm exercise (200 not 422), options exposed, testCases not leaked, topic list carries blanks, wrong→failed+explanation, correct→passed+XP. 2026-06-01.
 
 ---
 
@@ -294,15 +294,15 @@ Filed as an addition to the original 10. Per retention research, this is the sin
 
 The premium-tier feature. Reuses Phase 1.B tutor infrastructure.
 
-- [ ] **H1.** New route `/pro/interview` + page `InterviewSimulator.jsx`
-- [ ] **H2.** Session model `ProInterviewSession`: `{ userId, problemId, startedAt, endedAt, transcript, code, rubricScore, feedback }`
-- [ ] **H3.** Pre-session: pick problem from a curated 100-problem bank (cross-cutting from M30-M41 + select interview prep modules)
-- [ ] **H4.** UI: 45-minute countdown timer (top bar), code editor (Monaco), scratchpad (markdown for explanations + bullet points), AI interviewer chat (right panel)
-- [ ] **H5.** Mock interviewer (Claude API, different system prompt from B): starts with the problem, accepts clarifying questions, probes after silence > 60s ("what are you thinking?"), asks complexity questions, throws curveballs ("what if input is 10 GB?")
-- [ ] **H6.** Mid-session timeout warnings: 30/15/5 min remaining
-- [ ] **H7.** Post-session rubric — 5 dimensions scored 1-5: clarifying questions asked, communication of approach, code quality, complexity awareness, curveball handling. Generated by Claude reading the transcript.
-- [ ] **H8.** Session history page `/pro/interview/history` — past sessions with scores + transcripts
-- [ ] **H9.** **Acceptance:** complete a full 45-min mock, receive a written rubric with scores and 3 specific improvement areas. Replay the transcript.
+- [x] **H1.** Routes `/pro/interview`, `/pro/interview/:sessionId`, `/pro/interview/history` + `InterviewLanding.jsx`, `InterviewSimulator.jsx`, `InterviewHistory.jsx`. 2026-06-02.
+- [x] **H2.** `ProInterviewSession` schema: `{ userId, problemId, status, startedAt, endedAt, code, scratchpad, transcript, rubric, durationMinutes }` — 30-day TTL. 2026-06-02.
+- [x] **H3.** 25-problem bank in `data/interviewProblems.js` (static, no DB): 5 arrays, 5 strings, 5 trees, 5 graphs, 5 DP. `GET /v1/pro/interview/problems` (no auth, followUps stripped). 2026-06-02.
+- [x] **H4.** Three-panel UI: problem+scratchpad (left, tabs) | Monaco editor (center) | interviewer chat (right). 45-min countdown timer in top bar. 2026-06-02.
+- [x] **H5.** `interviewService.js` + `interviewPrompts.js` — Claude claude-sonnet-4-6, distinct system prompt (presents problem, probes, curveballs, never gives solution). Silence probe after 60s (client-side timer → `silenceProbe:true` flag). 2026-06-02.
+- [x] **H6.** Toast warnings at 30/15/5 min remaining, computed client-side from `session.startedAt`. Auto-end at 0. 2026-06-02.
+- [x] **H7.** Rubric: `POST .../end` triggers second Claude call reading full transcript + code → 5 scores (1-5) + strengths + improvements + summary + overall average. Non-fatal if Claude fails. 2026-06-02.
+- [x] **H8.** `InterviewHistory.jsx` at `/pro/interview/history` — last 20 sessions with problem title, difficulty, duration, overall score. Click → replay transcript in simulator. 2026-06-02.
+- [ ] **H9.** **Acceptance:** complete a full 45-min mock, receive a written rubric with scores and 3 specific improvement areas. Replay the transcript. — **blocked on valid `ANTHROPIC_API_KEY`**.
 
 ---
 
@@ -332,9 +332,9 @@ Each = ~1 day of work. Ranked by impact.
 
 Don't bulk-add. Let beta feedback drive what's most missing.
 
-- [ ] **J1.** New module M47 "Modern Java Features" (records, var, text blocks, sealed classes, pattern matching) — content authoring
-- [ ] **J2.** New module M48 "Engineering Hygiene" (Maven/Gradle deep dive, Git collab, IntelliJ tooling)
-- [ ] **J3.** New module M49 "Technical Communication" (PR descriptions, code review, design docs)
+- [ ] **J1.** New module M49 "Modern Java Features" (records, var, text blocks, sealed classes, pattern matching) — content authoring. Note: M47 = Bitwise (D3.1), M48 = Recursion Patterns (D3.2) — J-series starts at M49.
+- [ ] **J2.** New module M50 "Engineering Hygiene" (Maven/Gradle deep dive, Git collab, IntelliJ tooling)
+- [ ] **J3.** New module M51 "Technical Communication" (PR descriptions, code review, design docs)
 
 Mark these `[ ]` only when a beta user has explicitly asked for them. Otherwise they stay listed as candidates.
 

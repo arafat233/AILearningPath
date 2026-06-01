@@ -17,7 +17,9 @@ export default function StatsPanel({ comparisons = 0, swaps = 0, timeComplexity,
       </div>
 
       {timeComplexity && (
-        <div className="flex-1 min-w-[300px] px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg">
+        // min-w-0 on phones so the card shrinks to fit instead of forcing
+        // horizontal scroll; restore the comfortable 300px floor at sm+ (640px).
+        <div className="flex-1 min-w-0 sm:min-w-[300px] px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-lg">
           <div className="flex flex-wrap gap-4 text-sm mb-2">
             <span className="text-zinc-500">Time:</span>
             <span className="text-green-400 font-mono">Best {timeComplexity.best}</span>

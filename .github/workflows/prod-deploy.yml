@@ -49,7 +49,9 @@ jobs:
 
       - name: Run frontend tests
         working-directory: ai-learning-frontend/frontend
-        run: npm test
+        # e2e/*.spec.js are Playwright specs (need a live stack) — run them in a
+        # dedicated stage, not here. test:ci excludes them so vitest runs units only.
+        run: npm run test:ci
 
       - name: Build (postbuild bumps SW cache key)
         working-directory: ai-learning-frontend/frontend
@@ -79,7 +81,10 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: ai-learning-backend/backend
-        run: npm ci
+        # --legacy-peer-deps: rate-limit-redis@5 declares peer express-rate-limit
+        # >=8.5 but the app pins ^7.1.5 (works at runtime; v5 RedisStore is
+        # compatible). Matches the resolution npm install already uses locally.
+        run: npm ci --legacy-peer-deps
 
       - name: Run backend tests
         working-directory: ai-learning-backend/backend

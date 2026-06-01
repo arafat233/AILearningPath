@@ -8,6 +8,7 @@
     "postbuild": "node scripts/bump-sw-cache.mjs",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:ci": "vitest run --exclude \"**/e2e/**\"",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",

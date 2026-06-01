@@ -300,6 +300,7 @@
     "acceptance:pro-java": "node scripts/acceptanceTest.mjs",
     "acceptance:pro-java-v3": "node scripts/acceptanceTestV3.mjs",
     "acceptance:pro-review": "node scripts/acceptanceReviewSpacedRep.mjs",
+    "acceptance:pro-interview": "node scripts/acceptanceInterview.mjs",
     "seed:ap-ssc-math10-chapters":   "node config/seedApSscMath10NcertChapters.js",
     "seed:ap-ssc-math10":            "node config/seedApSscMath10.js",
     "seed:ap-ssc-math10-dag":        "node config/seedApSscMath10TopicDAG.js",

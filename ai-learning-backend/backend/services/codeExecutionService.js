@@ -26,8 +26,17 @@ const RATE_PER_HOUR     = Number(process.env.SANDBOX_MAX_RUNS_PER_HOUR || 30);
 const RATE_PER_DAY      = Number(process.env.SANDBOX_MAX_RUNS_PER_DAY  || 100);
 
 // Judge0 language IDs. Update as new languages onboard.
+//
+// Java's ID is env-configurable (JUDGE0_JAVA_LANGUAGE_ID) so a JDK upgrade on
+// the sandbox is a one-env-var flip — no code deploy. Stock Judge0 1.13 ships
+// only OpenJDK 13.0.1 (id 62), which CANNOT compile Java 14–21 features
+// (records, text blocks, switch expressions, sealed, pattern matching). Once a
+// newer JDK is registered as a new language ID on the sandbox, set
+// JUDGE0_JAVA_LANGUAGE_ID to it. See infra/judge0/JDK_UPGRADE.md.
+const JAVA_LANGUAGE_ID = Number(process.env.JUDGE0_JAVA_LANGUAGE_ID) || 62;
+
 const LANGUAGE_IDS = {
-  java:        62,  // OpenJDK 13.0.1
+  java:        JAVA_LANGUAGE_ID,  // default 62 = OpenJDK 13.0.1
   python:      71,  // 3.8.1
   javascript:  93,  // Node 18.15.0
   cpp:         54,  // GCC 9.2.0

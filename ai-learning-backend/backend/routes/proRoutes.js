@@ -25,6 +25,7 @@ import {
   moduleParamsSchema, topicParamsSchema, exerciseParamsSchema,
   projectParamsSchema, submitProjectBodySchema,
   tutorAskBodySchema, tutorRateBodySchema, sessionIdParamsSchema,
+  discussionBodySchema, threadIdParamsSchema,
 } from "../validators/proValidator.js";
 
 const r = Router();
@@ -113,6 +114,15 @@ r.post("/projects/:projectId/submit",
   ctrl.submitProject
 );
 r.post("/projects/:projectId/bookmark", validateParams(projectParamsSchema), ctrl.toggleProjectBookmark);
+
+// ── Community discussions (D5.3) ─────────────────────────────────────────────
+r.get ("/topics/:topicId/discussions",      validateParams(topicParamsSchema),  ctrl.listDiscussions);
+r.post("/topics/:topicId/discussions",
+  validateParams(topicParamsSchema), validate(discussionBodySchema), ctrl.createDiscussion);
+r.post("/discussions/:threadId/replies",
+  validateParams(threadIdParamsSchema), validate(discussionBodySchema), ctrl.replyDiscussion);
+r.post("/discussions/:threadId/upvote",     validateParams(threadIdParamsSchema), ctrl.upvoteDiscussion);
+r.delete("/discussions/:threadId",          validateParams(threadIdParamsSchema), ctrl.deleteDiscussion);
 
 // ── Pattern Atlas ────────────────────────────────────────────────────────────
 r.get("/pattern-atlas", ctrl.getPatternAtlas);

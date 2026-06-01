@@ -11,6 +11,7 @@
 
 import * as svc from "../services/proService.js";
 import * as tutorSvc from "../services/tutorService.js";
+import * as discussionSvc from "../services/discussionService.js";
 import { AppError } from "../utils/AppError.js";
 
 const userId = (req) => req.user?.id;
@@ -170,6 +171,48 @@ export const recordReveal = async (req, res, next) => {
   try {
     if (!userId(req)) return next(new AppError("Authentication required.", 401));
     const data = await svc.recordReveal(userId(req), req.params.topicId);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+// ── Discussions (D5.3) ───────────────────────────────────────────────────────
+
+export const listDiscussions = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await discussionSvc.listThreads(userId(req), req.params.topicId);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const createDiscussion = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await discussionSvc.createThread(userId(req), req.params.topicId, req.body.body);
+    res.status(201).json({ data });
+  } catch (err) { next(err); }
+};
+
+export const replyDiscussion = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await discussionSvc.addReply(userId(req), req.params.threadId, req.body.body);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const upvoteDiscussion = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await discussionSvc.toggleUpvote(userId(req), req.params.threadId);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const deleteDiscussion = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await discussionSvc.deleteThread(userId(req), req.params.threadId);
     res.json({ data });
   } catch (err) { next(err); }
 };

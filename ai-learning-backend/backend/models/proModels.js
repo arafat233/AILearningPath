@@ -269,6 +269,29 @@ const proTutorSessionSchema = new Schema({
 });
 proTutorSessionSchema.index({ userId: 1, exerciseId: 1 });
 
+// ── ProTopicDiscussion ───────────────────────────────────────────────────────
+// Community Q&A thread per topic (D5.3). One document = one top-level thread
+// with embedded replies. No TTL — discussions are durable knowledge.
+const proTopicDiscussionSchema = new Schema({
+  topicId:    { type: String, required: true, index: true },
+  trackKey:   { type: String, required: true, index: true },
+  userId:     { type: String, required: true, index: true },
+  authorName: { type: String, default: "Learner" },
+  body:       { type: String, required: true, maxlength: 5000 },
+  upvoters:   [{ type: String }],                  // userIds who upvoted (dedup)
+  replies: [{
+    userId:     { type: String, required: true },
+    authorName: { type: String, default: "Learner" },
+    body:       { type: String, required: true, maxlength: 5000 },
+    createdAt:  { type: Date, default: Date.now },
+    // subdocuments get _id automatically (used for future reply edit/delete)
+  }],
+  pinned:     { type: Boolean, default: false },
+  createdAt:  { type: Date, default: Date.now },
+  updatedAt:  { type: Date, default: Date.now },
+});
+proTopicDiscussionSchema.index({ topicId: 1, pinned: -1, createdAt: -1 });
+
 // ── Exports ─────────────────────────────────────────────────────────────────
 export const ProTrack        = mongoose.model("ProTrack",        proTrackSchema);
 export const ProModule       = mongoose.model("ProModule",       proModuleSchema);
@@ -281,3 +304,4 @@ export const ProBookmark     = mongoose.model("ProBookmark",     proBookmarkSche
 export const ProCertificate  = mongoose.model("ProCertificate",  proCertificateSchema);
 export const ProTutorSession      = mongoose.model("ProTutorSession",      proTutorSessionSchema);
 export const ProInterviewSession  = mongoose.model("ProInterviewSession",  proInterviewSessionSchema);
+export const ProTopicDiscussion   = mongoose.model("ProTopicDiscussion",   proTopicDiscussionSchema);

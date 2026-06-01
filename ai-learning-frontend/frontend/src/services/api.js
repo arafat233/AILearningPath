@@ -455,10 +455,18 @@ export const interviewEndSession      = (sessionId, code, scratchpad) =>
   api.post(`${iv}/sessions/${sessionId}/end`, { code, scratchpad });
 export const interviewListHistory     = ()                         => api.get(`${iv}/history`);
 
-// ── Pro Pattern Atlas ────────────────────────────────────────────────────────
 // ── Pro public (free-tier) — no auth required ────────────────────────────────
 export const proGetTopicPublic     = (topicId) => api.get(`/public/pro/topics/${topicId}`);
 export const proListExercisesPublic = (topicId) => api.get(`/public/pro/topics/${topicId}/exercises`);
+
+// ── Pro Community Discussions (D5.3) ─────────────────────────────────────────
+export const proListDiscussions  = (topicId)        => api.get(`/v1/pro/topics/${topicId}/discussions`);
+export const proCreateDiscussion = (topicId, body)  => api.post(`/v1/pro/topics/${topicId}/discussions`, { body });
+export const proReplyDiscussion  = (threadId, body) => api.post(`/v1/pro/discussions/${threadId}/replies`, { body });
+export const proUpvoteDiscussion = (threadId)       => api.post(`/v1/pro/discussions/${threadId}/upvote`);
+export const proDeleteDiscussion = (threadId)       => api.delete(`/v1/pro/discussions/${threadId}`);
+
+// ── Pro Pattern Atlas ────────────────────────────────────────────────────────
 
 export const proGetPatternAtlas = (trackKey = "pro_java") =>
   api.get("/v1/pro/pattern-atlas", { params: { trackKey } });

@@ -3,7 +3,7 @@
 > Living document. Update after every completed task. Phase exits are gated
 > by acceptance criteria, not by ticking boxes.
 
-**Last updated:** 2026-06-02 (Phase 1.B Tutor + 1.C Pattern Recognition + Phase 2 D–H + D3.1/D3.2/D3.4/D5.1 parity + ProProjectView + I1 recursion-tree visualizer (I2–I5 confirmed already-covered); 467 backend tests pass; ROADMAP audit + stale item cleanup)
+**Last updated:** 2026-06-02 (Phase 1.B Tutor + 1.C Pattern Recognition + Phase 2 D–H + D3.1/D3.2/D3.4/D5.1 parity + ProProjectView + I1 recursion-tree + D5.3 community discussions + J1–J3 content modules (M49–M51); 467 backend tests pass; ROADMAP audit + stale item cleanup)
 **Current release:** `pilot-pro-java-v2.1` (content + acceptance verified)
 **Author of this plan:** session 2026-05-26, Najeeb + Claude
 
@@ -175,7 +175,7 @@ Added after a competitive audit against [log2base2.com](https://log2base2.com/).
 
 - [x] **D5.1.** [L2B2] **Substantial free tier** — `ProTopic.freeAccess` field, 10 lighthouse topics seeded, `GET /api/public/pro/topics/:id` + exercises (no auth), `ProTopicPublic.jsx` at `/pro/preview/:topicId` with sign-up CTA and working visualizers. 2026-06-02.
 - [-] **D5.2.** [INFERRED] **YouTube / SEO** — not engineering. Deferred.
-- [ ] **D5.3.** [INFERRED] **Community / discussion per topic** — `TopicDiscussion` model + thread on ProTopicView. ~3 days. Pending.
+- [x] **D5.3.** [INFERRED] **Community / discussion per topic** — `ProTopicDiscussion` model (threads + embedded replies + upvoters, durable/no-TTL), `discussionService.js` (list/create/reply/upvote/delete, enrollment-gated, author-only delete, denormalised author name), 5 routes under `/v1/pro`, `TopicDiscussion.jsx` mounted on ProTopicView with "Discussion" nav entry. Verified full lifecycle + 403 ownership guard + auth gate. 2026-06-02.
 - [-] **D5.4.** [INFERRED] **Lifetime pricing option** — product decision, not engineering. Deferred.
 
 ---

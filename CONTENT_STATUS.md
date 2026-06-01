@@ -218,6 +218,8 @@ When you add a new board/grade/subject:
 
 Lives outside the school content pipeline — Pro models + content are in `models/proModels.js` and `content/pro/<lang>/...`. Pipeline phases above (Ph0–Ph9) don't all map; pro content uses its own audit (every exercise must have non-empty `testCases[]`).
 
-| Track    | Modules | Topics | Exercises | Project | Status (2026-05-26) | Notes |
-|----------|---------|--------|-----------|---------|---------------------|-------|
-| pro_java | **46 (ALL M1–M46)** | **232** | **3311** | **232** | 🎉 **COMPLETE** | **All 46 modules LIVE. Total: 168,365 XP.** Ph5 DAG ✅ (232 nodes, 419 edges, 0 cycles — `npm run audit:pro-java-dag`). Ph6 RAG ✅ (911 chunks: 232 overview + 679 concept — `npm run rag:build-pro-java`). ALL PHASES COMPLETE 2026-06-01. |
+| Track    | Modules | Topics | Exercises | Project | Status | Notes |
+|----------|---------|--------|-----------|---------|--------|-------|
+| pro_java | **51 (M1–M51)** | **247** | **~3,380** | **232** | 🎉 **COMPLETE** | Core 46 (M1–M46) LIVE since 2026-06-01 (168,365 XP; Ph5 DAG ✅ 232 nodes/419 edges; Ph6 RAG ✅ 911 chunks). **v3 parity modules added 2026-06-02:** M47 Bitwise (D3.1, 5 topics/15 ex), M48 Recursion Patterns (D3.2, 5/18), M49 Modern Java (J1, 5/12), M50 Engineering Hygiene (J2, 5/12), M51 Technical Communication (J3, 5/13). M49–M51 use `predict_output`/`pattern_match` (no Judge0 dependency — OpenJDK 13 sandbox can't compile Java 14+). |
+
+**Pro Java v3 capabilities (beyond content):** AI Socratic Tutor (1.B), Pattern Recognition (1.C), Complexity Derivation (2.D), Spaced Repetition (2.F), Problem-First Reveal (2.G), Interview Simulator (H), Recursion-Tree visualizer (I1, M40/M41), Pattern Atlas page (D3.4), free-tier preview (D5.1, 10 lighthouse topics), Community Discussions (D5.3). See BLUEPRINT.md + ROADMAP.md.

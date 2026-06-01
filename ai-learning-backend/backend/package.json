@@ -310,6 +310,7 @@
     "seed:engineering-hygiene": "node config/seedEngineeringHygieneModule.js",
     "seed:tech-communication": "node config/seedTechCommunicationModule.js",
     "acceptance:pro-content": "node scripts/acceptanceContentModules.mjs",
+    "acceptance:pro-discussion": "node scripts/acceptanceDiscussion.mjs",
     "seed:ap-ssc-math10-chapters":   "node config/seedApSscMath10NcertChapters.js",
     "seed:ap-ssc-math10":            "node config/seedApSscMath10.js",
     "seed:ap-ssc-math10-dag":        "node config/seedApSscMath10TopicDAG.js",

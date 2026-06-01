@@ -17,8 +17,9 @@
  */
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks, proRecordReveal } from "../../services/api";
+import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks, proRecordReveal, proGetProject } from "../../services/api";
 import PatternDrill from "../../components/pro/PatternDrill";
+import TopicDiscussion from "../../components/pro/TopicDiscussion";
 
 // Lazy-loaded so the SyntaxHighlighter + Prism payload doesn't bloat the
 // initial route bundle. The fallback below is a plain <pre> while loading.
@@ -295,6 +296,7 @@ function SectionHeading({ id, eyebrow, title }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function ProTopicView() {
   const { trackSlug, moduleId, topicId } = useParams();
+  const [project,  setProject]  = useState(null);
   const navigate = useNavigate();
   const [topic, setTopic] = useState(null);
   const [exercises, setExercises] = useState([]);
@@ -322,10 +324,12 @@ export default function ProTopicView() {
     Promise.all([
       proGetTopic(topicId),
       proListExercises(topicId).catch(() => ({ data: { data: [] } })),
+      proGetProject(`${topicId}_proj`).catch(() => null),
     ])
-      .then(([t, ex]) => {
+      .then(([t, ex, proj]) => {
         setTopic(t.data?.data);
         setExercises(ex.data?.data || []);
+        if (proj?.data?.data) setProject(proj.data.data);
       })
       .catch((err) => setError(err?.response?.data?.error || "Could not load topic."));
     proListBookmarks().then((r) => {
@@ -374,6 +378,7 @@ export default function ProTopicView() {
     if (topic.industryApplications && Object.keys(topic.industryApplications).length) items.push({ id: "sec-industry", label: "Industry" });
     if (topic.interviewRelevance && Object.keys(topic.interviewRelevance).length)     items.push({ id: "sec-interview", label: "Interview" });
     items.push({ id: "sec-exercises", label: `Exercises (${exercises.length})` });
+    items.push({ id: "sec-discussion", label: "Discussion" });
     return items;
   }, [topic, exercises.length, syntaxBlocks]);
 
@@ -588,6 +593,36 @@ export default function ProTopicView() {
           ))}
         </div>
       </section>
+
+      {/* Project — shown when topic has one */}
+      {project && (
+        <section className="space-y-3">
+          <SectionHeading eyebrow="Mini-project" title={project.name} />
+          <button
+            onClick={() => navigate(`/pro/${trackSlug}/${moduleId}/${topicId}/project/${project.projectId}`)}
+            className="card w-full p-5 text-left hover:shadow-apple-md hover:border-apple-purple transition-all group flex items-start gap-4"
+          >
+            <span className="text-[28px] shrink-0">🏗</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[14px] font-bold text-[var(--label)] group-hover:text-apple-purple transition-colors">
+                {project.name}
+              </p>
+              {project.description && (
+                <p className="text-[12px] text-apple-gray mt-1 line-clamp-2">{project.description}</p>
+              )}
+              <p className="text-[11px] text-apple-gray3 mt-1.5">
+                {project.requirements?.length ?? 0} requirements · ~{project.estimatedMinutes ?? 30} min
+              </p>
+            </div>
+            <span className="text-apple-gray3 text-[18px] group-hover:text-apple-purple transition-colors shrink-0">›</span>
+          </button>
+        </section>
+      )}
+
+      {/* Community discussion (D5.3) */}
+      <div id="sec-discussion" className="scroll-mt-20">
+        <TopicDiscussion topicId={topicId} />
+      </div>
     </div>
   );
 }

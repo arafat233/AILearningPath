@@ -16,6 +16,7 @@ const moduleIdPattern  = /^[a-z][a-z0-9_]*_m\d+$/;
 const topicIdPattern   = /^[a-z][a-z0-9_]*_m\d+_t\d+$/;
 // Accepts _ex_N (code exercises) and _pm_N (pattern_match exercises)
 const exerciseIdPattern = /^[a-z][a-z0-9_]*_m\d+_t\d+_(ex|pm)_\d+$/;
+const objectIdPattern   = /^[a-f0-9]{24}$/;
 
 // ── Body schemas ────────────────────────────────────────────────────────────
 
@@ -71,6 +72,16 @@ export const submitProjectBodySchema = Joi.object({
   checkedReqs: Joi.array().items(Joi.string().max(60)).max(20).default([]),
 });
 
+// ── Discussions (D5.3) ───────────────────────────────────────────────────────
+
+export const discussionBodySchema = Joi.object({
+  body: Joi.string().trim().min(1).max(5000).required(),
+});
+
+export const threadIdParamsSchema = Joi.object({
+  threadId: Joi.string().pattern(objectIdPattern).required(),
+});
+
 // ── Tutor ───────────────────────────────────────────────────────────────────
 
 export const tutorAskBodySchema = Joi.object({
@@ -83,8 +94,6 @@ export const tutorRateBodySchema = Joi.object({
   messageIndex: Joi.number().integer().min(0).required(),
   rating:       Joi.number().valid(1, -1).required(),
 });
-
-const objectIdPattern = /^[a-f0-9]{24}$/;
 
 export const sessionIdParamsSchema = Joi.object({
   sessionId: Joi.string().pattern(objectIdPattern).required(),

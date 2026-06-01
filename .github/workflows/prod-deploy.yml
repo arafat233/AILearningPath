@@ -137,10 +137,22 @@ jobs:
 
       - name: Setup SSH
         run: |
+          # Validate secrets are present (names only — never echo the values)
+          [ -n "${{ secrets.PROD_SSH_KEY }}" ] || { echo "::error::PROD_SSH_KEY secret is empty/unset"; exit 1; }
+          [ -n "${{ secrets.PROD_HOST }}" ]    || { echo "::error::PROD_HOST secret is empty/unset"; exit 1; }
+          [ -n "${{ secrets.PROD_USER }}" ]    || { echo "::error::PROD_USER secret is empty/unset"; exit 1; }
           mkdir -p ~/.ssh
-          echo "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.PROD_SSH_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H ${{ secrets.PROD_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          # Fail early with a clear message if the key text is malformed (the
+          # #1 cause: line breaks lost when pasting the PEM into the secret).
+          if ! ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1; then
+            echo "::error::PROD_SSH_KEY is not a valid OpenSSH private key — re-paste it preserving line breaks (the whole -----BEGIN...END----- block)"; exit 1
+          fi
+          # known_hosts is best-effort; the rsync/ssh steps use StrictHostKeyChecking=no.
+          # Non-fatal so an unreachable host surfaces as a real error at rsync, not here.
+          ssh-keyscan -H "${{ secrets.PROD_HOST }}" >> ~/.ssh/known_hosts 2>&1 \
+            || echo "::warning::ssh-keyscan could not reach ${{ secrets.PROD_HOST }}:22 — check Oracle security list allows inbound SSH from GitHub runner IPs"
 
       - name: Upload frontend dist to server
         run: |

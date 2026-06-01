@@ -114,6 +114,63 @@ export async function listExercisesForTopic(topicId, userId) {
   return exercises;
 }
 
+// ── Projects ─────────────────────────────────────────────────────────────────
+
+export async function getProject(projectId, userId) {
+  const project = await ProProject.findOne({ projectId }).lean();
+  if (!project) throw new AppError("Project not found.", 404);
+  if (!(await isEnrolled(userId, project.trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  trackEvent(userId, "pro.project_viewed", { projectId, trackKey: project.trackKey });
+  return project;
+}
+
+// Projects are self-assessed: no Judge0. XP = sum of checked requirement weights.
+export async function submitProject({ userId, projectId, code, checkedReqs = [] }) {
+  if (!code || code.length === 0) throw new AppError("Code is required.", 400);
+  if (code.length > 50_000) throw new AppError("Submission too large (>50KB).", 413);
+
+  const project = await ProProject.findOne({ projectId }).lean();
+  if (!project) throw new AppError("Project not found.", 404);
+  if (!(await isEnrolled(userId, project.trackKey))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+
+  const checkedSet = new Set(checkedReqs);
+  const xpAwarded  = (project.requirements || [])
+    .filter(r => checkedSet.has(r.id))
+    .reduce((sum, r) => sum + (r.weight || 0), 0);
+
+  // Store as a ProSubmission (projectId path, no exerciseId)
+  await ProSubmission.create({
+    userId,
+    trackKey:   project.trackKey,
+    projectId,
+    code,
+    language:   "java",
+    sandboxResult: { stdout: "", stderr: "", exitCode: 0, timeMs: 0, memoryKb: 0, status: "self_assessed" },
+    testResults:   checkedReqs.map(id => ({ caseId: id, passed: true, message: "" })),
+    passed: checkedReqs.length > 0,
+    xpAwarded,
+  });
+
+  // Award XP to ProProgress
+  if (xpAwarded > 0) {
+    await ProProgress.updateOne(
+      { userId, trackKey: project.trackKey },
+      { $inc: { totalXp: xpAwarded }, $set: { lastActivityAt: new Date() } },
+      { upsert: true }
+    );
+  }
+
+  trackEvent(userId, "pro.project_submitted", {
+    projectId, trackKey: project.trackKey, xpAwarded, checkedCount: checkedReqs.length,
+  });
+
+  return { xpAwarded, checkedCount: checkedReqs.length, totalReqs: project.requirements?.length ?? 0 };
+}
+
 // ── Exercises ───────────────────────────────────────────────────────────────
 
 export async function getExercise(exerciseId, userId) {

@@ -23,6 +23,7 @@ import {
   enrollBodySchema, submitBodySchema, reviewBodySchema,
   trackSlugParamsSchema, trackKeyParamsSchema,
   moduleParamsSchema, topicParamsSchema, exerciseParamsSchema,
+  projectParamsSchema, submitProjectBodySchema,
   tutorAskBodySchema, tutorRateBodySchema, sessionIdParamsSchema,
 } from "../validators/proValidator.js";
 
@@ -103,6 +104,15 @@ r.post("/tutor/session/:sessionId/rate",
   validate(tutorRateBodySchema),
   ctrl.tutorRateMessage
 );
+
+// ── Projects ─────────────────────────────────────────────────────────────────
+r.get("/projects/:projectId",         validateParams(projectParamsSchema),  ctrl.getProject);
+r.post("/projects/:projectId/submit",
+  validateParams(projectParamsSchema),
+  validate(submitProjectBodySchema),
+  ctrl.submitProject
+);
+r.post("/projects/:projectId/bookmark", validateParams(projectParamsSchema), ctrl.toggleProjectBookmark);
 
 // ── Pattern Atlas ────────────────────────────────────────────────────────────
 r.get("/pattern-atlas", ctrl.getPatternAtlas);

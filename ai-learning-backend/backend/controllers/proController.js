@@ -91,6 +91,29 @@ export const enroll = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+// ── Projects ─────────────────────────────────────────────────────────────────
+
+export const getProject = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.getProject(req.params.projectId, userId(req));
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const submitProject = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.submitProject({
+      userId:      userId(req),
+      projectId:   req.params.projectId,
+      code:        req.body.code,
+      checkedReqs: req.body.checkedReqs || [],
+    });
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
 export const toggleExerciseBookmark = async (req, res, next) => {
   try {
     if (!userId(req)) return next(new AppError("Authentication required.", 401));

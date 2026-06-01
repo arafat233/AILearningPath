@@ -435,6 +435,10 @@ export const proGetProgress        = (trackKey)                      => api.get(
 export const proEnroll             = (trackKey)                      => api.post("/v1/pro/enroll", { trackKey });
 // Polymorphic bookmarks — exercise / topic / project. List groups by kind.
 export const proToggleExerciseBookmark = (exerciseId)                => api.post(`/v1/pro/exercises/${exerciseId}/bookmark`);
+// Projects
+export const proGetProject             = (projectId)                  => api.get(`/v1/pro/projects/${projectId}`);
+export const proSubmitProject          = (projectId, code, checkedReqs) => api.post(`/v1/pro/projects/${projectId}/submit`, { code, checkedReqs });
+export const proToggleProjectBookmark  = (projectId)                  => api.post(`/v1/pro/projects/${projectId}/bookmark`);
 export const proToggleTopicBookmark    = (topicId)                   => api.post(`/v1/pro/topics/${topicId}/bookmark`);
 export const proListBookmarks          = (trackKey = "pro_java")     => api.get(`/v1/pro/bookmarks`, { params: { trackKey } });
 // Back-compat alias (older import name)

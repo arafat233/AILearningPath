@@ -58,6 +58,19 @@ export const exerciseParamsSchema = Joi.object({
   exerciseId: Joi.string().pattern(exerciseIdPattern).required(),
 });
 
+// ── Projects ─────────────────────────────────────────────────────────────────
+
+const projectIdPattern = /^[a-z][a-z0-9_]*_m\d+_t\d+_proj(_\d+)?$/;
+
+export const projectParamsSchema = Joi.object({
+  projectId: Joi.string().pattern(projectIdPattern).required(),
+});
+
+export const submitProjectBodySchema = Joi.object({
+  code:        Joi.string().min(1).max(50_000).required(),
+  checkedReqs: Joi.array().items(Joi.string().max(60)).max(20).default([]),
+});
+
 // ── Tutor ───────────────────────────────────────────────────────────────────
 
 export const tutorAskBodySchema = Joi.object({

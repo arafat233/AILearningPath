@@ -305,6 +305,7 @@
     "seed:recursion-patterns": "node config/seedRecursionPatternsModule.js",
     "seed:lighthouse-topics": "node config/seedLighthouseTopics.js",
     "acceptance:pro-parallel": "node scripts/acceptanceParallelFeatures.mjs",
+    "acceptance:pro-projects": "node scripts/acceptanceProjects.mjs",
     "seed:ap-ssc-math10-chapters":   "node config/seedApSscMath10NcertChapters.js",
     "seed:ap-ssc-math10":            "node config/seedApSscMath10.js",
     "seed:ap-ssc-math10-dag":        "node config/seedApSscMath10TopicDAG.js",

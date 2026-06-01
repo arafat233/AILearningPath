@@ -440,6 +440,31 @@ export const proListBookmarks          = (trackKey = "pro_java")     => api.get(
 // Back-compat alias (older import name)
 export const proToggleBookmark         = proToggleExerciseBookmark;
 
+// ── Pro Pattern Atlas ────────────────────────────────────────────────────────
+// ── Pro public (free-tier) — no auth required ────────────────────────────────
+export const proGetTopicPublic     = (topicId) => api.get(`/public/pro/topics/${topicId}`);
+export const proListExercisesPublic = (topicId) => api.get(`/public/pro/topics/${topicId}/exercises`);
+
+export const proGetPatternAtlas = (trackKey = "pro_java") =>
+  api.get("/v1/pro/pattern-atlas", { params: { trackKey } });
+
+// ── Pro Problem-First Reveal (ROADMAP G) ───────────────────────────────────
+export const proRecordReveal  = (topicId) => api.post(`/v1/pro/topics/${topicId}/reveal`);
+
+// ── Pro Spaced Repetition (review queue) ───────────────────────────────────
+export const proGetDueReviews = (trackKey = "pro_java") =>
+  api.get("/v1/pro/review/due", { params: { trackKey } });
+export const proRecordReview  = (topicId, trackKey, rating) =>
+  api.post(`/v1/pro/review/${topicId}`, { trackKey, rating });
+
+// ── Pro Tutor ────────────────────────────────────────────────────────────────
+export const proTutorAsk        = (exerciseId, studentCode, question) =>
+  api.post("/v1/pro/tutor/ask", { exerciseId, studentCode, question });
+export const proTutorGetSession = (exerciseId) =>
+  api.get(`/v1/pro/tutor/session/${exerciseId}`);
+export const proTutorRate       = (sessionId, messageIndex, rating) =>
+  api.post(`/v1/pro/tutor/session/${sessionId}/rate`, { messageIndex, rating });
+
 // ── Pro Analytics ────────────────────────────────────────────────────────
 export const proAnalyticsDashboard = (trackKey) =>
   api.get("/v1/pro-analytics/dashboard", { params: trackKey ? { trackKey } : {} });

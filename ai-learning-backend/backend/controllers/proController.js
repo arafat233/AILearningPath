@@ -10,6 +10,7 @@
  */
 
 import * as svc from "../services/proService.js";
+import * as tutorSvc from "../services/tutorService.js";
 import { AppError } from "../utils/AppError.js";
 
 const userId = (req) => req.user?.id;
@@ -119,6 +120,77 @@ export const listBookmarks = async (req, res, next) => {
     if (!userId(req)) return next(new AppError("Authentication required.", 401));
     const trackKey = req.query.trackKey || "pro_java";
     const data = await svc.listBookmarks(userId(req), trackKey);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+// ── Spaced repetition (ROADMAP F) ─────────────────────────────────────────────
+
+export const getDueReviews = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const trackKey = req.query.trackKey || "pro_java";
+    const data = await svc.getDueReviews(userId(req), trackKey);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const recordReview = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.recordReview(userId(req), req.body.trackKey, req.params.topicId, req.body.rating);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const recordReveal = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.recordReveal(userId(req), req.params.topicId);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+// ── Pattern Atlas (D3.4) ─────────────────────────────────────────────────────
+
+export const getPatternAtlas = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const trackKey = req.query.trackKey || "pro_java";
+    const data = await svc.getPatternAtlas(trackKey);
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+// ── Tutor ────────────────────────────────────────────────────────────────────
+
+export const tutorAsk = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const { exerciseId, studentCode, question } = req.body;
+    const data = await tutorSvc.ask({ userId: userId(req), exerciseId, studentCode, question });
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const tutorGetSession = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await tutorSvc.getSession({ userId: userId(req), exerciseId: req.params.exerciseId });
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const tutorRateMessage = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const { messageIndex, rating } = req.body;
+    const data = await tutorSvc.rateMessage({
+      userId:       userId(req),
+      sessionId:    req.params.sessionId,
+      messageIndex,
+      rating,
+    });
     res.json({ data });
   } catch (err) { next(err); }
 };

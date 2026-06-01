@@ -20,9 +20,10 @@ import { validate, validateParams } from "../middleware/validate.js";
 
 import * as ctrl from "../controllers/proController.js";
 import {
-  enrollBodySchema, submitBodySchema,
+  enrollBodySchema, submitBodySchema, reviewBodySchema,
   trackSlugParamsSchema, trackKeyParamsSchema,
   moduleParamsSchema, topicParamsSchema, exerciseParamsSchema,
+  tutorAskBodySchema, tutorRateBodySchema, sessionIdParamsSchema,
 } from "../validators/proValidator.js";
 
 const r = Router();
@@ -50,6 +51,9 @@ r.get("/tracks/:trackSlug/modules/:moduleId", validateParams(moduleParamsSchema)
 // ── Topic-level ─────────────────────────────────────────────────────────────
 r.get("/topics/:topicId",                     validateParams(topicParamsSchema),     ctrl.getTopic);
 r.get("/topics/:topicId/exercises",           validateParams(topicParamsSchema),     ctrl.listExercisesForTopic);
+// Problem-first reveal telemetry (ROADMAP G) — fired when a learner reveals
+// a gated topic's approach.
+r.post("/topics/:topicId/reveal",             validateParams(topicParamsSchema),     ctrl.recordReveal);
 
 // ── Exercises ───────────────────────────────────────────────────────────────
 r.get("/exercises/:exerciseId",               validateParams(exerciseParamsSchema),  ctrl.getExercise);
@@ -64,6 +68,44 @@ r.post(
 // ── Progress + enrolment ────────────────────────────────────────────────────
 r.get("/progress/:trackKey",                  validateParams(trackKeyParamsSchema),  ctrl.getProgress);
 r.post("/enroll",                             validate(enrollBodySchema),            ctrl.enroll);
+
+// ── Spaced repetition review queue (ROADMAP F) ───────────────────────────────
+r.get("/review/due",                          ctrl.getDueReviews);
+r.post("/review/:topicId",
+  validateParams(topicParamsSchema),
+  validate(reviewBodySchema),
+  ctrl.recordReview
+);
+
+// ── AI Socratic Tutor ───────────────────────────────────────────────────────
+// 10 q/hr per user enforced in tutorService via Redis; belt-and-braces IP
+// limiter here in case Redis is unavailable.
+const tutorLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 20,                               // generous IP bucket; Redis does the tight user-level check
+  keyGenerator: (req) => req.user?.id || req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many tutor requests. Try again in an hour." },
+});
+
+r.post("/tutor/ask",
+  tutorLimiter,
+  validate(tutorAskBodySchema),
+  ctrl.tutorAsk
+);
+r.get("/tutor/session/:exerciseId",
+  validateParams(exerciseParamsSchema),
+  ctrl.tutorGetSession
+);
+r.post("/tutor/session/:sessionId/rate",
+  validateParams(sessionIdParamsSchema),
+  validate(tutorRateBodySchema),
+  ctrl.tutorRateMessage
+);
+
+// ── Pattern Atlas ────────────────────────────────────────────────────────────
+r.get("/pattern-atlas", ctrl.getPatternAtlas);
 
 // ── Bookmarks (polymorphic over exercise / topic / project) ────────────────
 r.post("/exercises/:exerciseId/bookmark", validateParams(exerciseParamsSchema), ctrl.toggleExerciseBookmark);

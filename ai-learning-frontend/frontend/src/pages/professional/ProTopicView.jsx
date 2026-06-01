@@ -17,7 +17,8 @@
  */
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks } from "../../services/api";
+import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks, proRecordReveal } from "../../services/api";
+import PatternDrill from "../../components/pro/PatternDrill";
 
 // Lazy-loaded so the SyntaxHighlighter + Prism payload doesn't bloat the
 // initial route bundle. The fallback below is a plain <pre> while loading.
@@ -300,6 +301,18 @@ export default function ProTopicView() {
   const [error, setError] = useState("");
   const [bookmarked, setBookmarked]     = useState(false);
   const [bookmarkBusy, setBookmarkBusy] = useState(false);
+  const [drillOpen, setDrillOpen] = useState(false);
+  // Problem-first reveal (ROADMAP G): persist per-topic so a returning learner
+  // isn't re-gated after they've already revealed the approach.
+  const [revealed, setRevealed] = useState(() => {
+    try { return localStorage.getItem(`stellar_pro_revealed_${topicId}`) === "1"; } catch { return false; }
+  });
+
+  const handleReveal = () => {
+    setRevealed(true);
+    try { localStorage.setItem(`stellar_pro_revealed_${topicId}`, "1"); } catch {}
+    proRecordReveal(topicId).catch(() => {}); // fire-and-forget telemetry
+  };
 
   useEffect(() => {
     // Kick off the visualizer bundle download immediately — in parallel with
@@ -387,6 +400,13 @@ export default function ProTopicView() {
     ? topic.commonGaps
     : (topic.commonGaps && typeof topic.commonGaps === "object" ? Object.values(topic.commonGaps) : []);
 
+  // Problem-first reveal (ROADMAP G): when gated, mask the name, hide teaching
+  // sections behind a Reveal button, and trim the nav to Hook + Exercises.
+  const gated           = topic.revealStrategy === "first_attempt" && !revealed;
+  const teachingVisible = !gated;
+  const displayTitle    = gated ? (topic.problemTitle || topic.name) : topic.name;
+  const visibleNav      = gated ? navItems.filter((i) => i.id === "sec-hook" || i.id === "sec-exercises") : navItems;
+
   return (
     <div className="space-y-6">
       <button onClick={() => navigate(`/pro/${trackSlug}/${moduleId}`)} className="text-[12px] text-apple-gray hover:text-apple-blue transition-colors">
@@ -397,7 +417,7 @@ export default function ProTopicView() {
       <div>
         <p className="text-[11px] font-bold tracking-[0.18em] uppercase text-[#8e8e93]">Topic {topic.topicNumber}</p>
         <div className="flex items-start justify-between gap-3 mt-1">
-          <h1 className="text-[28px] font-bold tracking-tight text-[var(--label)]">{topic.name}</h1>
+          <h1 className="text-[28px] font-bold tracking-tight text-[var(--label)]">{displayTitle}</h1>
           <button
             onClick={handleBookmarkToggle}
             disabled={bookmarkBusy}
@@ -424,7 +444,7 @@ export default function ProTopicView() {
         )}
       </div>
 
-      <SectionNav items={navItems} />
+      <SectionNav items={visibleNav} />
 
       {/* Hook */}
       {topic.hook && Object.keys(topic.hook).length > 0 && (
@@ -434,7 +454,23 @@ export default function ProTopicView() {
         </section>
       )}
 
-      {/* Teaching — split into three known sub-sections */}
+      {/* Problem-first reveal gate (ROADMAP G) — shown instead of teaching
+          until the learner clicks Reveal. */}
+      {gated && (
+        <section className="card p-6 border-l-4 border-apple-purple text-center space-y-3">
+          <p className="text-[14px] font-bold text-[var(--label)]">Try it first 🧠</p>
+          <p className="text-[13px] text-apple-gray max-w-md mx-auto leading-relaxed">
+            Read the problem above and attempt the exercises below before seeing the approach.
+            Wrestling with it first — even unsuccessfully — is what makes the solution stick.
+          </p>
+          <button onClick={handleReveal} className="btn-primary text-[13px]">
+            🔍 Reveal the approach
+          </button>
+        </section>
+      )}
+
+      {/* Teaching — hidden until revealed when revealStrategy = "first_attempt" */}
+      {teachingVisible && (<>
       {t.concept_explanation && (
         <section className="space-y-3">
           <SectionHeading id="sec-concept" eyebrow="Teaching" title="Concept" />
@@ -500,10 +536,34 @@ export default function ProTopicView() {
           </div>
         </section>
       )}
+      </>)}
 
       {/* Exercises */}
       <section className="space-y-3">
-        <SectionHeading id="sec-exercises" eyebrow="Practice" title={`Exercises (${exercises.length})`} />
+        {(() => {
+          const drillExercises = exercises.filter((e) => e.type === "pattern_match");
+          return drillExercises.length > 0 ? (
+            <>
+              {drillOpen && (
+                <PatternDrill
+                  exercises={drillExercises}
+                  onClose={() => setDrillOpen(false)}
+                />
+              )}
+            </>
+          ) : null;
+        })()}
+        <div className="flex items-center justify-between">
+          <SectionHeading id="sec-exercises" eyebrow="Practice" title={`Exercises (${exercises.length})`} />
+          {exercises.some((e) => e.type === "pattern_match") && (
+            <button
+              onClick={() => setDrillOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-apple-purple/10 hover:bg-apple-purple/20 transition-colors text-apple-purple text-[12px] font-semibold"
+            >
+              ⚡ Pattern Drills ({exercises.filter((e) => e.type === "pattern_match").length})
+            </button>
+          )}
+        </div>
         <div className="flex flex-col gap-2.5">
           {exercises.map((ex) => (
             <button

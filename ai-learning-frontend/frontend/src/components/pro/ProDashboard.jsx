@@ -17,7 +17,7 @@
  */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { proGetProgress, proGetTrack } from "../../services/api";
+import { proGetProgress, proGetTrack, proGetDueReviews } from "../../services/api";
 import { useAuthStore } from "../../store/authStore";
 import ProLeaderboard from "./ProLeaderboard";
 import ProStreakStrip from "./ProStreakStrip";
@@ -38,6 +38,7 @@ export default function ProDashboard({ trackKey = "pro_java" }) {
   const [progress, setProgress] = useState(null);
   const [track, setTrack]       = useState(null);
   const [error, setError]       = useState("");
+  const [dueCount, setDueCount] = useState(0);
 
   const slug = trackKey.startsWith("pro_") ? trackKey.slice(4) : trackKey;
   const lastTopic = lastTopicFromLocalStorage(trackKey);
@@ -51,6 +52,10 @@ export default function ProDashboard({ trackKey = "pro_java" }) {
       setProgress(p.data?.data);
       setTrack(t.data?.data);
     }).catch((err) => setError(err?.response?.data?.error || "Could not load pro dashboard."));
+    // Review queue count — non-blocking; absence just hides the nudge.
+    proGetDueReviews(trackKey)
+      .then((r) => setDueCount((r.data?.data || []).length))
+      .catch(() => {});
   }, [trackKey, slug]);
 
   if (error) {
@@ -90,6 +95,23 @@ export default function ProDashboard({ trackKey = "pro_java" }) {
             : `You're ${pct}% through ${track?.name || "the track"}. Keep the streak alive.`}
         </p>
       </div>
+
+      {/* ── Review-due nudge (spaced repetition) ── */}
+      {dueCount > 0 && (
+        <button
+          onClick={() => navigate("/pro/review")}
+          className="w-full card p-4 flex items-center gap-3 text-left border-l-4 border-apple-purple hover:shadow-apple-md transition-all"
+        >
+          <span className="text-[22px]">🔁</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[14px] font-bold text-[var(--label)]">
+              {dueCount} topic{dueCount === 1 ? "" : "s"} due for review today
+            </p>
+            <p className="text-[12px] text-apple-gray">A 2-minute review keeps what you've learned from fading.</p>
+          </div>
+          <span className="text-[13px] font-semibold text-apple-purple shrink-0">Review →</span>
+        </button>
+      )}
 
       {/* ── Hero / KPI strip ── */}
       <div className="rounded-3xl p-6 text-white" style={{ background: "linear-gradient(135deg,#7c3aed,#ec4899)" }}>

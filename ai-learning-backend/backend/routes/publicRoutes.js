@@ -45,4 +45,21 @@ r.get("/stats", async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── Free-tier Pro topic preview (D5.1) — no auth required ───────────────────
+import * as proSvc from "../services/proService.js";
+
+r.get("/pro/topics/:topicId", async (req, res, next) => {
+  try {
+    const data = await proSvc.getPublicTopic(req.params.topicId);
+    res.json({ data });
+  } catch (err) { next(err); }
+});
+
+r.get("/pro/topics/:topicId/exercises", async (req, res, next) => {
+  try {
+    const data = await proSvc.listPublicExercises(req.params.topicId);
+    res.json({ data });
+  } catch (err) { next(err); }
+});
+
 export default r;

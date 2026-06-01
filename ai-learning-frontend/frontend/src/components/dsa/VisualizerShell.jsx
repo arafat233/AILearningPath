@@ -54,6 +54,8 @@ const SANDBOXES = {
   "circular-ll":         lazy(() => import("./modes/CircularLLSandbox.jsx")),
   "doubly-ll":           lazy(() => import("./modes/DoublyLLSandbox.jsx")),
   "array-insert":        lazy(() => import("./modes/ArrayInsertSandbox.jsx")),
+  "complexity-plot":     lazy(() => import("./ComplexityPlot.jsx")),
+  "bitwise":             lazy(() => import("./modes/BitwiseSandbox.jsx")),
 };
 
 function VisualizerFallback() {

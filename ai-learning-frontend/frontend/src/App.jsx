@@ -44,6 +44,9 @@ const ProCourseLanding = lazy(() => import("./pages/professional/ProCourseLandin
 const ProModuleView    = lazy(() => import("./pages/professional/ProModuleView"));
 const ProTopicView     = lazy(() => import("./pages/professional/ProTopicView"));
 const ProExerciseRunner= lazy(() => import("./pages/professional/ProExerciseRunner"));
+const ProReview        = lazy(() => import("./pages/professional/ProReview"));
+const ProPatternAtlas  = lazy(() => import("./pages/professional/ProPatternAtlas"));
+const ProTopicPublic   = lazy(() => import("./pages/professional/ProTopicPublic"));
 const Lessons          = lazy(() => import("./pages/Lessons"));
 const LessonView       = lazy(() => import("./pages/LessonView"));
 const Practice         = lazy(() => import("./pages/PracticeSwitch"));
@@ -157,7 +160,10 @@ const OnboardingGate = ({ children }) => {
 const RootElement = () => {
   const { user, activeChild } = useAuthStore((s) => ({ user: s.user, activeChild: s.activeChild }));
   const location = useLocation();
-  if (!user && location.pathname !== "/") return <Navigate to="/" replace />;
+  // Allow unauthenticated guests through to the free-tier topic preview
+  if (!user && location.pathname !== "/" && !location.pathname.startsWith("/pro/preview")) {
+    return <Navigate to="/" replace />;
+  }
   if (user) {
     const effective = activeChild || user;
     if (!effective?.tracks || effective.tracks.length === 0) {
@@ -222,6 +228,8 @@ export default function App() {
           <Route path="/shared-plan/:token"         element={<SharedPlan />} />
           <Route path="/c/:token"                   element={<SharedCollection />} />
           <Route path="/u/:slug"                    element={<PublicProfile />} />
+          {/* D5.1 — free-tier topic preview, no auth required */}
+          <Route path="/pro/preview/:topicId"       element={<ProTopicPublic />} />
           <Route path="/onboarding"           element={<Protected><Onboarding /></Protected>} />
           <Route path="/welcome"              element={<Protected><Welcome /></Protected>} />
           <Route path="/onboarding/pro"       element={<Protected><ProOnboarding /></Protected>} />
@@ -282,6 +290,8 @@ export default function App() {
                  needed because every page makes API calls that 403
                  cleanly if the user isn't allowed in. ── */}
             <Route path="pro"                                          element={<ProTrackPicker />} />
+            <Route path="pro/review"                                   element={<ProReview />} />
+            <Route path="pro/:trackSlug/patterns"                      element={<ProPatternAtlas />} />
             <Route path="pro/:trackSlug"                               element={<ProCourseLanding />} />
             <Route path="pro/:trackSlug/:moduleId"                     element={<ProModuleView />} />
             <Route path="pro/:trackSlug/:moduleId/:topicId"            element={<ProTopicView />} />

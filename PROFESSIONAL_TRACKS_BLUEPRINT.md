@@ -188,8 +188,8 @@ Source content lives at `C:\Users\LENOVO\Downloads\codequest_java_curriculum_M1_
 - [x] Ph2: `seedJavaTopics.js` — walks `m*/topics/t*/topic.json` → ProTopic (232 topics)
 - [x] Ph3: `seedJavaExercises.js` — walks `m*/topics/t*/exercises.json` → ProExercise (3311); walks `project.json` → ProProject (232)
 - [x] Ph4: visualizers built — 45 sandbox kinds wired to M30–M41 DSA + M2/M4 JVM/recursion via `VisualizerShell.jsx` in `components/dsa/`
-- [ ] Ph5: build DAG from `metadata.prerequisites` in each `topic.json`
-- [ ] Ph6: RAG index — chunk teaching content + exercises for AI tutor
+- [x] Ph5: build DAG from `metadata.prerequisites` in each `topic.json` — `config/seedJavaTopicDAG.mjs` (232 nodes, 419 edges, 0 cycles, 0 dangling refs; 2026-06-01)
+- [x] Ph6: RAG index — chunk teaching content + exercises for AI tutor — `scripts/buildRagFromProTrack.js` (232 topics → 911 chunks: 232 overview + 679 concept; subject="Java", grade="pro"; 2026-06-01)
 - [x] Ph7: `npm run seed:pro-java-all` (idempotent, walks all 46 module folders)
 - [x] Ph8: `npm run audit:pro --track=pro_java` exits 0 (232/232 topics, exercises have non-empty testCases[])
 - [x] Ph9: `/pro/java` route fully navigable (all pages + DashboardSwitch/PracticeSwitch/BookmarksSwitch wired)
@@ -197,10 +197,15 @@ Source content lives at `C:\Users\LENOVO\Downloads\codequest_java_curriculum_M1_
 ### 6.3 Track-level features
 
 - [x] XP system (each exercise has `xp_reward` — 168,365 XP across 46 modules)
-- [ ] Streak system (daily activity) — deferred
+- [x] Streak system (daily activity) — `ProProgress.currentStreak/longestStreak`, advanced in `submitExercise` (2026-05-30); spaced-repetition review queue added (Phase 2.F, 2026-06-02)
 - [x] Certificate on track completion — track-branched: pro gets purple XP/exercises cert (2026-05-30)
-- [x] Progress visible on main dashboard — ProDashboardSnapshot + DashboardSwitch
-- [ ] AI tutor scoped to Java track context — deferred (Phase B in ROADMAP.md)
+- [x] Progress visible on main dashboard — ProDashboardSnapshot + DashboardSwitch + review-due nudge (2026-06-02)
+- [x] AI tutor scoped to Java track context — **DONE** (Phase 1.B): `tutorService.js` + `tutorPrompts.js` + `TutorPanel.jsx`; `POST /v1/pro/tutor/ask` (Socratic, never gives the answer)
+- [x] Pattern Recognition (Phase 1.C) — `pattern_match` type + `PatternDrill`; 20 exercises; `acceptance:pro-java-v3` 16/16
+- [x] Complexity Derivation (Phase 2.D) — `complexity-plot` visualizer on M29-T1 + SortingSandbox
+- [x] Spaced Repetition (Phase 2.F) — SM-2 lite, `/pro/review`; `acceptance:pro-review` 16/16
+- [x] Problem-First Reveal (Phase 2.G) — `revealStrategy`/`problemTitle`, 11 topics gated
+- [~] Bitwise (D3.1) / Recursion Patterns (D3.2) / Pattern Atlas (D3.4) / Free tier (D5.1) — parallel session, files present + compiling, **pending round-trip verification** per `PRO_EXERCISE_TYPE_CHECKLIST.md`
 
 ---
 

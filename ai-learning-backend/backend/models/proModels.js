@@ -83,6 +83,16 @@ const proTopicSchema = new Schema({
   // files in content/ deliberately don't carry this — it's an
   // integration concern, not a content authoring concern.
   visualizer:           { type: Schema.Types.Mixed, default: null },
+  // Problem-first reveal (ROADMAP G). "always" = show everything immediately
+  // (default, current behaviour). "first_attempt" = gate the teaching content
+  // behind a Reveal button so the learner tries the problem before seeing the
+  // algorithm name. `problemTitle` is the neutral heading shown while gated
+  // (e.g. "Searching in sorted data" instead of "Binary Search basics").
+  // Wired by seedJavaPilot via a topicId map — an integration concern, like visualizer.
+  revealStrategy:       { type: String, enum: ["always", "first_attempt"], default: "always" },
+  problemTitle:         { type: String, default: "" },
+  // D5.1 free tier — true for the ~10 lighthouse topics accessible without auth
+  freeAccess:           { type: Boolean, default: false },
 }, { timestamps: true });
 proTopicSchema.index({ trackKey: 1, moduleId: 1, topicNumber: 1 });
 
@@ -173,6 +183,19 @@ const proProgressSchema = new Schema({
   currentStreak:     { type: Number, default: 0 },
   longestStreak:     { type: Number, default: 0 },
   lastActivityAt:    { type: Date, default: null },
+  // Spaced repetition (ROADMAP F1). Non-destructive: a parallel array seeded
+  // when a topic becomes fully complete (all its exercises passed). We keep
+  // completedExercises as the source of truth for "done" and never mutate it.
+  // SM-2 lite ladder: intervalDays advances 1→3→7→14→30→90 on "got it",
+  // resets to 1 on "rusty". A topic is due when lastReviewedAt + intervalDays ≤ now.
+  topicReviews: [{
+    topicId:        { type: String, required: true },
+    completedAt:    { type: Date, default: Date.now },
+    lastReviewedAt: { type: Date, default: Date.now },
+    intervalDays:   { type: Number, default: 1 },
+    reps:           { type: Number, default: 0 },
+    _id: false,
+  }],
 }, { timestamps: true });
 proProgressSchema.index({ userId: 1, trackKey: 1 }, { unique: true });
 
@@ -207,13 +230,31 @@ const proCertificateSchema = new Schema({
 }, { timestamps: false });
 proCertificateSchema.index({ userId: 1, trackKey: 1, moduleId: 1 }, { unique: true });
 
+// ── ProTutorSession ─────────────────────────────────────────────────────────
+// Stores per-exercise Socratic tutor chat history.
+// 30-day TTL — same privacy policy as ProSubmission.
+const proTutorSessionSchema = new Schema({
+  userId:     { type: String, required: true, index: true },
+  exerciseId: { type: String, required: true, index: true },
+  messages: [{
+    role:    { type: String, enum: ["user", "assistant"], required: true },
+    content: { type: String, required: true },
+    ts:      { type: Date, default: Date.now },
+    rating:  { type: Number, default: null }, // 1 = thumbs up, -1 = thumbs down
+    _id: false,
+  }],
+  createdAt: { type: Date, default: Date.now, expires: 60 * 60 * 24 * 30 }, // 30-day TTL
+});
+proTutorSessionSchema.index({ userId: 1, exerciseId: 1 });
+
 // ── Exports ─────────────────────────────────────────────────────────────────
-export const ProTrack       = mongoose.model("ProTrack",       proTrackSchema);
-export const ProModule      = mongoose.model("ProModule",      proModuleSchema);
-export const ProTopic       = mongoose.model("ProTopic",       proTopicSchema);
-export const ProExercise    = mongoose.model("ProExercise",    proExerciseSchema);
-export const ProProject     = mongoose.model("ProProject",     proProjectSchema);
-export const ProSubmission  = mongoose.model("ProSubmission",  proSubmissionSchema);
-export const ProProgress    = mongoose.model("ProProgress",    proProgressSchema);
-export const ProBookmark    = mongoose.model("ProBookmark",    proBookmarkSchema);
-export const ProCertificate = mongoose.model("ProCertificate", proCertificateSchema);
+export const ProTrack        = mongoose.model("ProTrack",        proTrackSchema);
+export const ProModule       = mongoose.model("ProModule",       proModuleSchema);
+export const ProTopic        = mongoose.model("ProTopic",        proTopicSchema);
+export const ProExercise     = mongoose.model("ProExercise",     proExerciseSchema);
+export const ProProject      = mongoose.model("ProProject",      proProjectSchema);
+export const ProSubmission   = mongoose.model("ProSubmission",   proSubmissionSchema);
+export const ProProgress     = mongoose.model("ProProgress",     proProgressSchema);
+export const ProBookmark     = mongoose.model("ProBookmark",     proBookmarkSchema);
+export const ProCertificate  = mongoose.model("ProCertificate",  proCertificateSchema);
+export const ProTutorSession = mongoose.model("ProTutorSession", proTutorSessionSchema);

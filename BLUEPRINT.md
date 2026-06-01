@@ -5,7 +5,7 @@
 >
 > **Post-v2.1 feature roadmap:** see `ROADMAP.md` for Phase 1 (visualizer + AI Socratic tutor + pattern recognition), Phase 2 (complexity derivation, job market layer, spaced repetition, interview simulator), and Phase 3 (rolling deep visualizations + missing content). Update that doc after each completed task.
 >
-> Last updated: 2026-05-30 — **Pro Java Pilot SHIPPED TO PRODUCTION.** Feature gate via `PRO_TRACKS_ENABLED_FOR_EMAILS` env var (email allowlist: najeebarafat@gmail.com, salmasiddiqua@stellar.dev). Seeded full curriculum: 46 modules, 112 topics, 3311 exercises, 232 projects, 168,365 XP. Backend routes: GET /api/v1/pro/tracks, /api/v1/pro/{track}, /api/v1/pro/{track}/{module}, /api/v1/pro/topics/{topicId}, /api/v1/pro/topics/{topicId}/exercises, /api/v1/pro/progress/{trackKey}. Frontend: /onboarding/pro (ProOnboarding), /pro/tracks (ProTracks), /pro/{track} (ProTrackView), /pro/{track}/{module} (ProModuleView), /pro/topics/{topicId} (ProTopicView). Monitoring deployed to production (monitor-pro-track.sh). Test fixes: 29 failing → 20 remaining (mocking issues resolved, test logic issues remain). Previous: Pro-track UX polish + performance (commit 9d44bc65). Previous: ICSE Math 9 + 10, AP SSC Math 9 + 10, CBSE Math 8 + 9: ALL PHASES COMPLETE.
+> Last updated: 2026-06-02 — **Pro Java Phase 1/2 capabilities shipped (verified).** Pattern Recognition (1.C), AI Socratic Tutor (1.B), Complexity Derivation (2.D), Spaced Repetition (2.F), Problem-First Reveal (2.G) — each round-trip-verified (acceptance suites: `acceptance:pro-java-v3`, `acceptance:pro-review`). New repeatable gate: `PRO_EXERCISE_TYPE_CHECKLIST.md` (born from the `_pm_` 422 incident — build+seed green ≠ route works; always live-round-trip new id/enum/route shapes). In-flight (parallel, unverified): Bitwise (D3.1), Recursion Patterns (D3.2), Pattern Atlas (D3.4), free tier (D5.1). Previous: 2026-06-01 — Content Status Audit; CBSE Math 1–7 at 8/15; CBSE 8–10/ICSE 9–10/AP SSC 9–10 ALL PHASES COMPLETE; Pro Java 46 modules ALL 9 PHASES.
 
 ---
 
@@ -29,6 +29,43 @@ endpoint filters by the student's `examBoard`, powered by `utils/boardFilter.js`
 | IB       | `ib_*`            | Planned |
 
 Stack: React (Vite) + Express + MongoDB + Claude Haiku 4.5 + Socket.IO
+
+### 1.1 Content Pipeline Status (2026-06-01)
+
+**AUDIT SUMMARY** — Run `npm run audit:math --board=CBSE --grade=N` to verify any grade.
+
+| Board  | Grade | Topics | Qs    | Ph0–Ph4 | Ph5   | Ph6   | Ph7 | Ph8      | Ph9 | Status |
+|--------|-------|--------|-------|---------|-------|-------|-----|----------|-----|--------|
+| CBSE   | 10    | 54     | 503   | ✅      | ✅    | ✅    | ✅  | ✅ 54/54 | ✅  | 🎉 COMPLETE |
+| CBSE   | 9     | 30     | ~900  | ✅      | ✅    | ✅    | ✅  | ✅ 30/30 | ✅  | 🎉 COMPLETE |
+| CBSE   | 8     | 56     | 627   | ✅      | ✅    | ✅    | ✅  | ✅ 56/56 | ✅  | 🎉 COMPLETE |
+| CBSE   | 7     | 60     | ~810  | ✅      | ⚠️    | ✅    | ✅  | ❌ 0/60  | ✅  | ⚠️ v2 format (8/15 checks) |
+| CBSE   | 6     | 40     | ~660  | ✅      | ⚠️    | ✅    | ✅  | ❌ 0/40  | ✅  | ⚠️ v2 format (8/15 checks) |
+| CBSE   | 5     | 56     | ~600  | ✅      | ⚠️    | ✅    | ✅  | ❌ 0/56  | ✅  | ⚠️ v2 format (8/15 checks) |
+| CBSE   | 4     | 56     | ~540  | ✅      | ⚠️    | ✅    | ✅  | ❌ 0/56  | ✅  | ⚠️ v2 format (8/15 checks) |
+| CBSE   | 3     | 56     | ~480  | ✅      | ⚠️    | ✅    | ✅  | ❌ 0/56  | ✅  | ⚠️ v2 format (8/15 checks) |
+| CBSE   | 2     | 60     | ~420  | ✅      | ⚠️    | ✅    | ✅  | ❌ 0/60  | ✅  | ⚠️ v2 format (8/15 checks) |
+| CBSE   | 1     | 52     | ~360  | ✅      | ⚠️    | ✅    | ✅  | ❌ 0/52  | ✅  | ⚠️ v2 format (8/15 checks) |
+| ICSE   | 10    | 100    | 1600  | ✅      | ✅    | ✅    | ✅  | ✅ 100/100 | ✅ | 🎉 COMPLETE |
+| ICSE   | 9     | 112    | 1792  | ✅      | ✅    | ✅    | ✅  | ✅ 112/112 | ✅ | 🎉 COMPLETE |
+| AP SSC | 10    | 54     | 1140  | ✅      | ✅    | ✅    | ✅  | ✅ 54/54 | ✅  | 🎉 COMPLETE |
+| AP SSC | 9     | 35     | 560   | ✅      | ✅    | ✅    | ✅  | ✅ 35/35 | ✅  | 🎉 COMPLETE |
+| CBSE   | Sci 10 | 55    | 257   | ✅      | ✅    | ✅    | ✅  | ✅ 55/55 | ✅  | 🎉 COMPLETE |
+| CBSE   | Eng 10 | 35    | 256   | ✅      | ✅    | ✅    | ✅  | ✅ 35/35 | ✅  | 🎉 COMPLETE |
+| CBSE   | Hi 10  | 32    | 129   | ✅      | ✅    | ✅    | ✅  | ✅ 32/32 | ✅  | 🎉 COMPLETE |
+| CBSE   | SST 10 | 61    | 359   | ✅      | ✅    | ✅    | ✅  | ✅ 61/61 | ✅  | 🎉 COMPLETE |
+
+**Key notes:**
+- **v2 format gap** (CBSE Math 1–7): Missing 7/15 content fields (key_formulas, prerequisite_knowledge, visual_description, svg_diagrams, when_to_use_this_method, edge_cases, video_script_hooks). Benchmark density = CBSE Math 10 (54/54 audit pass). Current: 8/15 checks pass. **Decision pending** — v3 enrichment or accept v2 as baseline for K-8.
+- **Ph5 DAG status**: Classes 1–7 use chapter-level DAG nodes (math1_ch1, math1_ch2, etc.), not topic-level prerequisites. Adequate for recommendations but not full prerequisite chains.
+- **Pro Java Pilot**: 46 modules, 232 topics, 3311 exercises, 168,365 XP — ALL 9 PHASES COMPLETE 2026-06-01. Ph5 DAG ✅ (232 nodes, 419 edges, 0 cycles). Ph6 RAG ✅ (911 chunks). Scripts: `npm run audit:pro-java-dag`, `npm run rag:build-pro-java`.
+- **Pro Java — Phase 1/2 capabilities (verified, 2026-06-02):**
+  - **Pattern Recognition** (Phase 1.C): `pattern_match` exercise type (no sandbox — pick the algorithm pattern), 20 seeded across M30/33/37/41, `PatternMatchRunner` + `PatternDrill` quick-fire. `npm run seed:pattern-match`, `npm run acceptance:pro-java-v3` (16/16).
+  - **Complexity Derivation** (Phase 2.D): `complexity-plot` visualizer — measured ops-vs-n with reference-curve overlays + "guess the curve". Wired to M29-T1; embedded in SortingSandbox. `components/dsa/ComplexityPlot.jsx`.
+  - **Spaced Repetition** (Phase 2.F): SM-2 lite (`1→3→7→14→30→90d`) via `ProProgress.topicReviews[]`; `GET /v1/pro/review/due` + `POST /v1/pro/review/:topicId`; `/pro/review` page + dashboard nudge. `npm run acceptance:pro-review` (16/16).
+  - **Problem-First Reveal** (Phase 2.G): `ProTopic.revealStrategy`/`problemTitle`; 11 topics gate teaching behind a Reveal button; `POST /v1/pro/topics/:id/reveal` telemetry.
+  - **AI Socratic Tutor** (Phase 1.B): `tutorService`/`tutorPrompts` + `TutorPanel`; `POST /v1/pro/tutor/ask`, session + rate routes.
+- **Pro Java — in-flight (parallel session, NOT yet round-trip-verified):** Bitwise module (D3.1), Recursion Patterns module (D3.2), Pattern Atlas page `/pro/java/patterns` (D3.4), free-tier lighthouse topics + public topic view (D5.1). Files present and compiling; pending the `PRO_EXERCISE_TYPE_CHECKLIST.md` round-trip gate.
 
 ---
 
@@ -1390,7 +1427,7 @@ canonical reference for the Java pilot.
 | Track key      | Audience          | Status (2026-05-25) | Where it lives                       |
 |----------------|-------------------|---------------------|--------------------------------------|
 | `school`       | K-12 (CBSE/ICSE/AP_SSC/...) | LIVE     | NcertChapter / NcertTopicContent / Question + Lessons, Practice, Analytics … |
-| `pro_java`     | Adult professional | 🎉 **ALL 46 MODULES LIVE** (46 mod / 232 topics / 3311 exercises / 232 projects, 168,365 XP) | ProTrack/ProModule/ProTopic/ProExercise/ProProject/ProSubmission/ProProgress + `/api/v1/pro/*` + `/pro/*` frontend |
+| `pro_java`     | Adult professional | 🎉 **ALL 9 PHASES COMPLETE** (46 mod / 232 topics / 3311 ex / 232 proj / 168,365 XP / 419-edge DAG / 911 RAG chunks) | ProTrack/ProModule/ProTopic/ProExercise/ProProject/ProSubmission/ProProgress + `/api/v1/pro/*` + `/pro/*` frontend |
 | `pro_<lang>`   | Future languages   | not yet built       | Same shape as pro_java               |
 | `competitive`  | JEE/NEET/UPSC/…    | not yet built       | TBD                                  |
 
@@ -1459,11 +1496,13 @@ own Java journey without sharing the parent's account state.
 
 ```
 Backend
-  models/proModels.js                         7 schemas
+  models/proModels.js                         8 schemas (added ProTutorSession 2026-06-01)
                                               ProTopic.visualizer (Mixed, default null) —
                                               optional interactive widget config, wired
                                               by seedJavaPilot's TOPIC_VISUALIZERS map
                                               (integration concern, not in topic.json)
+                                              ProTutorSession — per-exercise Socratic
+                                              tutor chat; 30-day TTL; messages[].rating
   middleware/featureFlag.js                   email-allowlist gate
   middleware/trackFilter.js                   User.tracks-based enrolment check
   services/codeExecutionService.js            Judge0 wrapper + rate limit
@@ -1473,11 +1512,20 @@ Backend
                                               getProgress/enroll
                                               Redis cache: getTopic + listExercises
                                               (5 min TTL) — warm reads ~5ms vs ~200ms
+  services/tutorService.js                    AI Socratic Tutor — ask/getSession/
+                                              rateMessage; claude-sonnet-4-6; 10 q/hr
+                                              per user via Redis; code length guard 8kB
+  services/tutorPrompts.js                    Socratic system prompt + hint escalation
   services/proAnalyticsService.js             Fixed: .toObject() removed from lean()
                                               result (was crashing pro analytics)
-  controllers/proController.js                thin HTTP delegators
-  validators/proValidator.js                  Joi schemas (strict snake_case IDs)
+  controllers/proController.js                thin HTTP delegators (+ tutorAsk,
+                                              tutorGetSession, tutorRateMessage)
+  validators/proValidator.js                  Joi schemas (strict snake_case IDs +
+                                              tutorAskBodySchema, tutorRateBodySchema)
   routes/proRoutes.js                         /api/v1/pro/* — mounted in server.js
+                                              POST /tutor/ask (rate-limited)
+                                              GET  /tutor/session/:exerciseId
+                                              POST /tutor/session/:sessionId/rate
   routes/userRoutes.js                        Redis cache: GET /user/me (30s TTL) +
                                               GET /user/nav (60s TTL) with parallel
                                               queries; cache invalidated on writes

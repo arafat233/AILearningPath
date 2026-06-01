@@ -412,9 +412,32 @@ const TOPIC_VISUALIZERS = {
   // D1.1-D1.4 — log2base2 parity: execution-state visualizations.
   "java_m4_t1":  { kind: "memory-model",       config: {} },  // D1.1 — Classes & Objects
   "java_m2_t5":  { kind: "recursion",          config: {} },  // D1.2 — Recursion Basics
+  // Phase 2.D — Complexity Derivation System. M29-T1 Big-O notation gets the
+  // standalone ops-vs-n plot; sorting topics get it embedded in SortingSandbox.
+  "java_m29_t1": { kind: "complexity-plot",    config: { defaultAlgo: "bubble" } },
+};
+
+// ── Problem-first reveal (ROADMAP G) ──────────────────────────────────────────
+// Topics whose title gives away the algorithm. We mask the heading with a
+// problem-framed title and gate the teaching behind a Reveal button so the
+// learner attempts the problem first. Integration concern (like visualizers) —
+// not in topic.json. revealStrategy is implied "first_attempt" for any key here.
+const REVEAL_TOPICS = {
+  "java_m30_t1": { problemTitle: "Find a pair that sums to a target — without nested loops" },
+  "java_m30_t2": { problemTitle: "Best score over any fixed-size window of a stream" },
+  "java_m31_t2": { problemTitle: "Locate a pattern inside a huge string, fast" },
+  "java_m33_t2": { problemTitle: "For each element, find the next larger one to its right" },
+  "java_m34_t1": { problemTitle: "Look up any item by key in near-constant time" },
+  "java_m35_t1": { problemTitle: "Visit every node of a tree in a meaningful order" },
+  "java_m36_t1": { problemTitle: "Always pull out the smallest item — efficiently" },
+  "java_m37_t1": { problemTitle: "Find the fewest hops between two points in a network" },
+  "java_m38_t1": { problemTitle: "Put a large list in order as fast as possible" },
+  "java_m39_t1": { problemTitle: "Search 5 million sorted items in microseconds" },
+  "java_m41_t1": { problemTitle: "Solve a problem riddled with overlapping subproblems" },
 };
 
 function mapTopic(raw, moduleId) {
+  const reveal = REVEAL_TOPICS[raw.topic_id];
   return {
     trackKey:              TRACK_KEY,
     moduleId,
@@ -433,6 +456,8 @@ function mapTopic(raw, moduleId) {
     difficulty:            typeof raw.metadata?.difficulty === "number" ? Math.min(1, raw.metadata.difficulty / 6) : 0.2,
     xpReward:              50,
     visualizer:            TOPIC_VISUALIZERS[raw.topic_id] || null,
+    revealStrategy:        reveal ? "first_attempt" : "always",
+    problemTitle:          reveal?.problemTitle || "",
   };
 }
 

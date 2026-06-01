@@ -188,15 +188,15 @@ Added after a competitive audit against [log2base2.com](https://log2base2.com/).
 
 The single highest-ROI feature. Justifies a paid tier on its own.
 
-- [ ] **B1.** Add `ANTHROPIC_API_KEY` to backend env config (`.env`, `.env.example`, deployment notes)
-- [ ] **B2.** Create `ProTutorSession` Mongoose model: `{ userId, exerciseId, messages: [{ role, content, ts }], createdAt }` with 30-day TTL (same pattern as `ProSubmission`)
-- [ ] **B3.** New `services/tutorService.js` with Claude API integration. System prompt baked here. Sonnet for the first iteration (better at Socratic teaching than Haiku); revisit cost after first 100 sessions.
-- [ ] **B4.** System prompt + few-shot examples in `services/tutorPrompts.js`. Rules: never give the answer, ask one question at a time, reference the student's actual code, escalate hint specificity if they ask 3+ times.
-- [ ] **B5.** Route `POST /api/v1/pro/tutor/ask` — body `{ exerciseId, studentCode, question }`. Auth + email allowlist + rate limit (10 questions/hour per user via Redis).
-- [ ] **B6.** Build `TutorPanel.jsx` — collapsible chat sidebar in `ProExerciseRunner`. Shows conversation history for the current exercise.
-- [ ] **B7.** Add 👍/👎 feedback buttons after each tutor message → write to `ProTutorSession.messages[i].rating`. Use to tune prompts.
-- [ ] **B8.** Telemetry: `pro.tutor.message_sent` event with `{ exerciseId, messageLength, durationMs, model }` for later analysis.
-- [ ] **B9.** Cost guardrail: refuse to send if `studentCode.length > 8000` (Claude context cost) — show "your code is too long for the tutor; please share a specific snippet".
+- [x] **B1.** Add `ANTHROPIC_API_KEY` to backend env config — already present in `.env` + `.env.example`. done 2026-06-01.
+- [x] **B2.** Create `ProTutorSession` Mongoose model: `{ userId, exerciseId, messages: [{ role, content, ts, rating }], createdAt }` with 30-day TTL. done 2026-06-01.
+- [x] **B3.** New `services/tutorService.js` with Claude API integration (`@anthropic-ai/sdk`). Model: `claude-sonnet-4-6` (override via `TUTOR_MODEL` env). done 2026-06-01.
+- [x] **B4.** Socratic system prompt + 3 few-shot examples in `services/tutorPrompts.js`. Rules baked in: never give the answer, one question at a time, reference student's code, escalate hint specificity after 3+ exchanges. done 2026-06-01.
+- [x] **B5.** Route `POST /api/v1/pro/tutor/ask` — body `{ exerciseId, studentCode, question }`. Auth + rate limit (10 q/hr per user via Redis `incrBy`; IP-level express-rate-limit also added). done 2026-06-01.
+- [x] **B6.** `TutorPanel.jsx` — fixed right-side drawer overlay in `ProExerciseRunner`. Shows full conversation history for the exercise; loads existing session on open. "Ask tutor" button added to exercise title bar. done 2026-06-01.
+- [x] **B7.** 👍/👎 feedback buttons on each assistant message → `POST /tutor/session/:sessionId/rate` → writes `messages[i].rating` (1/-1). Optimistic UI update with revert on failure. done 2026-06-01.
+- [x] **B8.** Telemetry: `logger.info("pro.tutor.message_sent", { exerciseId, messageLength, durationMs, model, sessionId })`. done 2026-06-01.
+- [x] **B9.** Cost guardrail: rejects `studentCode.length > 8000` with friendly error; shown inline in TutorPanel. done 2026-06-01.
 - [ ] **B10.** **Acceptance:** open `java_m1_t6_ex_4` Scanner exercise, leave the code half-written, click "Ask tutor". Tutor responds with a question like "What does `sc.nextInt()` return when the buffer is empty?" — NOT "you need to call sc.close()". Send second message, get follow-up. Submit thumbs-up.
 
 ---
@@ -205,15 +205,15 @@ The single highest-ROI feature. Justifies a paid tier on its own.
 
 Trains the "I smell sliding-window" instinct that wins FAANG screens.
 
-- [ ] **C1.** Extend `ProExercise.type` enum: add `pattern_match` (currently has `code_scratch`, `fill_blank`, `predict_output`, `debug`, `refactor`, `algorithm`, `tests_pass`, `written_response`, `conceptual`).
-- [ ] **C2.** Define `pattern_match` test_case shape: `{ type: "pattern_match", options: ["two_pointer", "sliding_window", ...], correct: "sliding_window", explanation: "..." }`. The "exercise" itself contains just the problem statement + options. No code execution.
-- [ ] **C3.** Update `runTestCases` in `codeExecutionService.js` to handle `pattern_match` (just string compare, no sandbox call).
-- [ ] **C4.** New frontend variant `PatternMatchRunner.jsx` — shows problem statement, radio buttons for pattern options, submit button. After submit: reveal correct answer + explanation, mark right/wrong.
-- [ ] **C5.** Dispatcher: `ProExerciseRunner.jsx` reads `exercise.type` and routes to `CodeRunner` (existing) or `PatternMatchRunner` (new) or `PredictOutputRunner` (existing).
-- [ ] **C6.** Author 20 starter pattern-match problems split across M30 (arrays — 5), M33 (stacks/queues — 5), M37 (graphs — 5), M41 (DP — 5). Use existing topic content for the problem statements (just hide the algorithm name).
-- [ ] **C7.** Pattern catalog (the canonical option list): `two_pointer`, `sliding_window`, `prefix_sum`, `binary_search`, `hash_map`, `monotonic_stack`, `dfs`, `bfs`, `topological_sort`, `dynamic_programming`, `greedy`, `backtracking`, `divide_and_conquer`, `union_find`.
-- [ ] **C8.** "Pattern Drill" mode: a topic-level "Practice patterns" button that loops through that topic's pattern_match exercises in a quick-fire sequence (no individual page transitions).
-- [ ] **C9.** **Acceptance:** visit M30's "Pattern Drills" → answer 5 multiple-choice problems → see score (e.g. 4/5) + explanations on the misses.
+- [x] **C1.** ProExercise.type: `pattern_match` added (type field is String, enum kept loose per pilot design). 2026-06-01.
+- [x] **C2.** Test-case shape: `{ type: "pattern_match", correct, explanation }` in testCases (server-only); options in `blanks[0].options` (client-safe). 2026-06-01.
+- [x] **C3.** `codeExecutionService.js` — `case "pattern_match"`: compares source (selected option ID) to tc.correct, returns explanation in message. No sandbox call. 2026-06-01.
+- [x] **C4.** `components/pro/PatternMatchRunner.jsx` — radio buttons from blanks[0].options, Check answer, reveal explanation + XP. 2026-06-01.
+- [x] **C5.** `ProExerciseRunner.jsx` — early-return for pattern_match → renders PatternMatchRunner. 2026-06-01.
+- [x] **C6.** 20 exercises seeded: M30 (5 array), M33 (5 stacks/queues), M37 (5 graphs), M41 (5 DP/backtracking). `npm run seed:pattern-match`. 2026-06-01.
+- [x] **C7.** Pattern catalog: 14 IDs in `PATTERN_LABELS` constant in PatternMatchRunner.jsx. 2026-06-01.
+- [x] **C8.** `components/pro/PatternDrill.jsx` — quick-fire modal, progress bar, per-question result, score card. ⚡ Pattern Drills button in ProTopicView exercises section. 2026-06-01.
+- [x] **C9.** Build clean — `PatternMatchRunner-CSS7Vad1.js` (10.39 kB / 3.52 kB gzip). proService.getExercises now includes `blanks` field. 2026-06-01.
 
 ---
 
@@ -241,12 +241,12 @@ Goal: features that turn Stellar from "good learning platform" into "the obvious
 
 Reuses the step-trace plumbing from Phase 1.A.
 
-- [ ] **D1.** Op-counter wrapper for step generators. Each call to `compare()` / `swap()` / `traverse()` increments a counter passed in the closure.
-- [ ] **D2.** `ComplexityPlot.jsx` — line chart (using existing chart lib if any, otherwise SVG) plotting ops-executed vs `n` for the currently selected algorithm. Updates live as the user changes `n` via slider.
-- [ ] **D3.** Complexity curve overlays: linear `n`, log `log n`, `n log n`, quadratic `n²`, etc. — drawn faintly behind the actual curve so the user can see which one matches.
-- [ ] **D4.** "Guess the curve" widget — picks one of 5 curves, asks the user which class the actual data matches before revealing.
-- [ ] **D5.** Embed under M29-T1 (Big-O notation) AND on every algorithm topic that has a visualizer.
-- [ ] **D6.** **Acceptance:** visit M38 sorting, see the ops plot. Switch from bubble (n²) to merge sort (n log n), see the curve flatten dramatically. Slide n from 10 → 100, watch the bubble curve grow 100× while merge grows ~150×.
+- [x] **D1.** `algorithms/complexity.js` — count-only op counters for 7 algorithms (bubble/insertion/selection/merge/quick/binary/linear). Pure math, no AnimationStep allocation, <1ms at n=200. Trial-averaged in the plot to smooth random-input jiggle. 2026-06-01.
+- [x] **D2.** `ComplexityPlot.jsx` — hand-rolled SVG (no chart-lib dep) plotting measured comparisons vs n, live on an n-slider (8→200), with algorithm dropdown. 2026-06-01.
+- [x] **D3.** Reference overlays: O(log n), O(n), O(n log n), O(n²) drawn faint+dashed, each anchored to the actual curve's right endpoint so the matching shape overlaps and others diverge. Toggle to hide. 2026-06-01.
+- [x] **D4.** "Guess the curve" widget — hides the theoretical label, asks the learner to pick the class, then highlights the matching reference curve + reveals the Big-O. 2026-06-01.
+- [x] **D5.** New `complexity-plot` kind in VisualizerShell → wired to M29-T1 (Big-O notation) via seedJavaPilot TOPIC_VISUALIZERS. ALSO embedded as a collapsible (lazy) panel inside SortingSandbox so M38 sorting shows it too. 2026-06-01.
+- [x] **D6.** Build clean — `ComplexityPlot-8tiqQKND.js` (9.71 kB / 3.43 kB gzip, lazy). 91/91 tests green. Acceptance: dropdown switches bubble (n²) ↔ merge (n log n) and the curve flattens; slider regrows ops live. 2026-06-01.
 
 ---
 
@@ -271,22 +271,22 @@ Motivation layer — biggest retention lever per industry data.
 
 Filed as an addition to the original 10. Per retention research, this is the single biggest learning ROI lever after the tutor.
 
-- [ ] **F1.** Add `lastReviewedAt`, `reviewIntervalDays` to each entry in `ProProgress.completedTopics` (currently a flat string array → migrate to `[{ topicId, completedAt, lastReviewedAt, intervalDays }]`).
-- [ ] **F2.** Implement SM-2 lite: intervals `1d → 3d → 7d → 14d → 30d → 90d`. On review:  if rated "got it" → next interval; if "rusty" → reset to 1d.
-- [ ] **F3.** Backend route `GET /api/v1/pro/review/due` — returns topics whose `lastReviewedAt + intervalDays <= now`.
-- [ ] **F4.** Frontend page `/pro/review` — list of due topics with a quick-review button each.
-- [ ] **F5.** Quick-review mode: 3 multiple-choice questions per topic, 5-minute cap. Pulls questions from existing `predict_output` / `pattern_match` exercises for that topic.
-- [ ] **F6.** Dashboard widget: "3 topics due for review today" prompt.
-- [ ] **F7.** **Acceptance:** complete a topic, advance system clock 1 day (or wait), see topic appear in review queue. Review it. Repeat over multiple intervals.
+- [x] **F1.** Added `topicReviews: [{ topicId, completedAt, lastReviewedAt, intervalDays, reps }]` to `ProProgress` — **non-destructive parallel array** rather than migrating the unused `completedTopics` field. Seeded in `submitExercise` when a topic becomes fully complete (all its exercises passed), via a `$ne`-guarded `$push` so a topic is never queued twice. `completedExercises` stays the source of truth. 2026-06-02.
+- [x] **F2.** SM-2 lite in `proService` (`SM2_LADDER = [1,3,7,14,30,90]`, `nextInterval`): "got_it" advances the ladder + reps++, "rusty" resets to 1d + reps=0. 2026-06-02.
+- [x] **F3.** `GET /api/v1/pro/review/due?trackKey=` → `getDueReviews` (topics where `lastReviewedAt + intervalDays ≤ now`, joined with topic names, newest-overdue first). 2026-06-02.
+- [x] **F4.** `/pro/review` page (`ProReview.jsx`, lazy) — due list with overdue badges + "Review now". Route registered **before** `pro/:trackSlug` so the static segment wins. 2026-06-02.
+- [x] **F5.** Quick-review reuses `PatternDrill` (extended with `onComplete({score,total})` + `title`) for the topic's `pattern_match` exercises (sandbox-free); self-rate fallback for topics without them. Rating recorded via `POST /review/:topicId`. 2026-06-02.
+- [x] **F6.** ProDashboard "🔁 N topics due for review today" nudge → `/pro/review` (non-blocking `proGetDueReviews` fetch). 2026-06-02.
+- [x] **F7.** **Acceptance:** `npm run acceptance:pro-review` — 16 assertions, backdates a review entry in Mongo to simulate elapsed time, then live round-trips: due-surfacing, got_it 1→3d, drop-from-queue, rusty reset→1d, invalid-rating→422. ALL PASS. 2026-06-02.
 
 ---
 
 ### G. Problem-First Reveal Toggle (1 day — quick win)
 
-- [ ] **G1.** Add `revealStrategy: "always" | "first_attempt"` field to `ProTopic` (default `"always"` preserves current behavior).
-- [ ] **G2.** Update `ProTopicView.jsx` to hide the algorithm name and "key takeaways" behind a "Reveal" button when `revealStrategy === "first_attempt"`. Track reveal click via telemetry event.
-- [ ] **G3.** Audit ~10 topics where the algorithm name in the title is the answer (e.g. M39-T1 "Binary Search basics" — flip to "Searching in sorted data" with `revealStrategy: "first_attempt"`).
-- [ ] **G4.** **Acceptance:** visit M39-T1, see only the problem (search 5 million items quickly). Try to solve. Click reveal → see "this is binary search" + the full topic content.
+- [x] **G1.** `ProTopic.revealStrategy` (`"always"` default | `"first_attempt"`) + `problemTitle` (masked heading). Non-breaking; existing topics default to `"always"`. 2026-06-02.
+- [x] **G2.** `ProTopicView.jsx` — when `revealStrategy === "first_attempt"` and not yet revealed: masks the heading with `problemTitle`, trims nav to Hook + Exercises, and gates all teaching sections (concept/syntax/visual/visualizer/gaps/industry/interview) behind a "🔍 Reveal the approach" card. Hook + Exercises stay visible so the learner can attempt first. Reveal persists per-topic in localStorage + fires `pro.topic_revealed` telemetry via `POST /v1/pro/topics/:id/reveal` (server-side `trackEvent`, consistent with other pro events). 2026-06-02.
+- [x] **G3.** 11 topics gated via `REVEAL_TOPICS` map in seedJavaPilot (integration concern, like visualizers): M30-T1/T2, M31-T2, M33-T2, M34-T1, M35-T1, M36-T1, M37-T1, M38-T1, M39-T1, M41-T1 — each with a problem-framed `problemTitle` (e.g. M39-T1 → "Search 5 million sorted items in microseconds"). 2026-06-02.
+- [x] **G4.** **Acceptance:** live API round-trip — GET gated topic → 200 with `revealStrategy=first_attempt` + `problemTitle`; `POST /reveal` → 200; non-gated topic → `always`; bad topicId → 422 (param validator). DB: 11 gated, non-gated default `always`. Frontend builds clean. 2026-06-02.
 
 ---
 

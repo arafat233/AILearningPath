@@ -14,7 +14,8 @@ const trackKeyPattern  = /^pro_[a-z][a-z0-9_]*$/;
 const trackSlugPattern = /^[a-z][a-z0-9_]*$/;
 const moduleIdPattern  = /^[a-z][a-z0-9_]*_m\d+$/;
 const topicIdPattern   = /^[a-z][a-z0-9_]*_m\d+_t\d+$/;
-const exerciseIdPattern = /^[a-z][a-z0-9_]*_m\d+_t\d+_ex_\d+$/;
+// Accepts _ex_N (code exercises) and _pm_N (pattern_match exercises)
+const exerciseIdPattern = /^[a-z][a-z0-9_]*_m\d+_t\d+_(ex|pm)_\d+$/;
 
 // ── Body schemas ────────────────────────────────────────────────────────────
 
@@ -26,6 +27,12 @@ export const submitBodySchema = Joi.object({
   // Single bounded string; sandboxed downstream. Length cap mirrors the
   // 50 KB guard in proService.submitExercise (the service still re-checks).
   code: Joi.string().min(1).max(50_000).required(),
+});
+
+// Spaced repetition review outcome (ROADMAP F). trackKey + a binary rating.
+export const reviewBodySchema = Joi.object({
+  trackKey: Joi.string().pattern(trackKeyPattern).required(),
+  rating:   Joi.string().valid("got_it", "rusty").required(),
 });
 
 // ── Param schemas ───────────────────────────────────────────────────────────
@@ -49,4 +56,23 @@ export const topicParamsSchema = Joi.object({
 
 export const exerciseParamsSchema = Joi.object({
   exerciseId: Joi.string().pattern(exerciseIdPattern).required(),
+});
+
+// ── Tutor ───────────────────────────────────────────────────────────────────
+
+export const tutorAskBodySchema = Joi.object({
+  exerciseId:  Joi.string().pattern(exerciseIdPattern).required(),
+  studentCode: Joi.string().max(10_000).allow("").default(""),
+  question:    Joi.string().min(1).max(2_000).required(),
+});
+
+export const tutorRateBodySchema = Joi.object({
+  messageIndex: Joi.number().integer().min(0).required(),
+  rating:       Joi.number().valid(1, -1).required(),
+});
+
+const objectIdPattern = /^[a-f0-9]{24}$/;
+
+export const sessionIdParamsSchema = Joi.object({
+  sessionId: Joi.string().pattern(objectIdPattern).required(),
 });

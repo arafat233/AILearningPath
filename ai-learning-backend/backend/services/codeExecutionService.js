@@ -421,6 +421,22 @@ export async function runTestCases({ userId, source, language, testCases }) {
                      .includes(normalizeStdout(String(tc.value ?? ""), normOpts)),
             message: `stdout contains "${tc.value}"`,
           };
+        case "pattern_match": {
+          // source = the learner's selected pattern ID (e.g. "sliding_window")
+          // tc.correct = the correct pattern ID
+          // tc.explanation = why this pattern fits (shown after submit)
+          const selected = String(source || "").trim();
+          const correct  = String(tc.correct || "").trim();
+          const passed   = selected === correct;
+          const label    = correct.replace(/_/g, " ");
+          return {
+            caseId: id,
+            passed,
+            message: passed
+              ? `Correct! ${tc.explanation || ""}`.trim()
+              : `The right pattern is "${label}". ${tc.explanation || ""}`.trim(),
+          };
+        }
         default:
           return { caseId: id, passed: false, message: `Unknown test type: ${tc.type}` };
       }

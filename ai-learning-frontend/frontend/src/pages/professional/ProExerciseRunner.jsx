@@ -19,6 +19,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { proGetExercise, proSubmitExercise, proToggleExerciseBookmark, proListBookmarks } from "../../services/api";
 import CodeEditor from "../../components/pro/CodeEditor";
 import FillBlankEditor from "../../components/pro/FillBlankEditor";
+import TutorPanel from "../../components/pro/TutorPanel";
+import PatternMatchRunner from "../../components/pro/PatternMatchRunner";
 
 export default function ProExerciseRunner() {
   const { exerciseId } = useParams();
@@ -31,6 +33,7 @@ export default function ProExerciseRunner() {
   const [showHint, setShowHint] = useState(0); // 0 = none, 1..N = which hint
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarkBusy, setBookmarkBusy] = useState(false);
+  const [tutorOpen, setTutorOpen] = useState(false);
 
   useEffect(() => {
     proGetExercise(exerciseId)
@@ -84,6 +87,18 @@ export default function ProExerciseRunner() {
     }
   };
 
+  // pattern_match exercises have their own full-page runner — no code editor needed
+  if (ex?.type === "pattern_match") {
+    return (
+      <PatternMatchRunner
+        exercise={ex}
+        navigate={navigate}
+        tutorOpen={tutorOpen}
+        setTutorOpen={setTutorOpen}
+      />
+    );
+  }
+
   if (error && !ex) {
     return (
       <div className="card p-8 text-center max-w-md mx-auto">
@@ -98,6 +113,13 @@ export default function ProExerciseRunner() {
   const totalCount  = result?.testResults?.length || 0;
 
   return (
+    <>
+    <TutorPanel
+      exerciseId={exerciseId}
+      studentCode={code}
+      open={tutorOpen}
+      onClose={() => setTutorOpen(false)}
+    />
     <div className="grid lg:grid-cols-2 gap-5 max-w-7xl">
       {/* ── Left: instructions ── */}
       <div className="space-y-4">
@@ -111,19 +133,29 @@ export default function ProExerciseRunner() {
           </span>
           <div className="flex items-start justify-between gap-3 mt-2">
             <h1 className="text-[24px] font-bold tracking-tight text-[var(--label)]">{ex.title}</h1>
-            <button
-              onClick={handleBookmarkToggle}
-              disabled={bookmarkBusy}
-              aria-label={bookmarked ? "Remove bookmark" : "Bookmark this exercise"}
-              title={bookmarked ? "Bookmarked" : "Bookmark for later"}
-              className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center hover:bg-apple-gray6 transition-colors disabled:opacity-50"
-            >
-              <svg viewBox="0 0 16 16" fill={bookmarked ? "currentColor" : "none"}
-                   stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                   className={`w-5 h-5 ${bookmarked ? "text-apple-blue" : "text-apple-gray"}`}>
-                <path d="M4.5 1.5h7a1 1 0 011 1v12l-4.5-2.8-4.5 2.8v-12a1 1 0 011-1z"/>
-              </svg>
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setTutorOpen(true)}
+                title="Ask the AI tutor"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-apple-blue/10 hover:bg-apple-blue/20 transition-colors text-apple-blue text-[12px] font-semibold"
+              >
+                <span>💬</span>
+                <span>Ask tutor</span>
+              </button>
+              <button
+                onClick={handleBookmarkToggle}
+                disabled={bookmarkBusy}
+                aria-label={bookmarked ? "Remove bookmark" : "Bookmark this exercise"}
+                title={bookmarked ? "Bookmarked" : "Bookmark for later"}
+                className="w-9 h-9 rounded-full flex items-center justify-center hover:bg-apple-gray6 transition-colors disabled:opacity-50"
+              >
+                <svg viewBox="0 0 16 16" fill={bookmarked ? "currentColor" : "none"}
+                     stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                     className={`w-5 h-5 ${bookmarked ? "text-apple-blue" : "text-apple-gray"}`}>
+                  <path d="M4.5 1.5h7a1 1 0 011 1v12l-4.5-2.8-4.5 2.8v-12a1 1 0 011-1z"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -276,5 +308,6 @@ export default function ProExerciseRunner() {
         )}
       </div>
     </div>
+    </>
   );
 }

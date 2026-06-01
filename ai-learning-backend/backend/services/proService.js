@@ -107,7 +107,7 @@ export async function listExercisesForTopic(topicId, userId) {
   if (cached) return cached;
 
   const exercises = await ProExercise.find({ topicId })
-    .select("exerciseId level type title scenario instructions starterCode hints xpReward difficulty")
+    .select("exerciseId level type title scenario instructions starterCode blanks hints xpReward difficulty")
     .sort({ position: 1, exerciseId: 1 })
     .lean();
   await sessionSet(exCacheKey, exercises, 300);
@@ -214,6 +214,25 @@ export async function submitExercise({ userId, exerciseId, code }) {
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
+
+    // Spaced repetition (F1): if this pass completes the whole topic, seed a
+    // review entry. The $ne guard makes the $push idempotent + race-safe so a
+    // topic is never queued twice.
+    try {
+      const topicExercises = await ProExercise.find({ topicId: ex.topicId }).select("exerciseId").lean();
+      const prog = await ProProgress.findOne({ userId, trackKey: ex.trackKey }).select("completedExercises").lean();
+      const doneSet = new Set(prog?.completedExercises || []);
+      const topicComplete = topicExercises.length > 0 && topicExercises.every((e) => doneSet.has(e.exerciseId));
+      if (topicComplete) {
+        const now = new Date();
+        await ProProgress.updateOne(
+          { userId, trackKey: ex.trackKey, "topicReviews.topicId": { $ne: ex.topicId } },
+          { $push: { topicReviews: { topicId: ex.topicId, completedAt: now, lastReviewedAt: now, intervalDays: 1, reps: 0 } } }
+        );
+      }
+    } catch (err) {
+      logger.warn("[pro] topic review seed skipped", { userId, topicId: ex.topicId, err: err.message });
+    }
   }
 
   logger.info("[pro] exercise submission", {
@@ -283,6 +302,85 @@ export async function getProgress(userId, trackKey) {
     currentStreak: 0,
     lastActivityAt: null,
   };
+}
+
+// ── Spaced repetition (ROADMAP F) ─────────────────────────────────────────────
+const SM2_LADDER = [1, 3, 7, 14, 30, 90]; // days
+const DAY_MS = 86_400_000;
+
+// Advance to the next rung; cap at 90d. Tolerant of off-ladder values.
+function nextInterval(current) {
+  const idx = SM2_LADDER.indexOf(current);
+  if (idx === -1) return SM2_LADDER.find((d) => d > current) || 90;
+  return SM2_LADDER[Math.min(idx + 1, SM2_LADDER.length - 1)];
+}
+
+// Topics whose lastReviewedAt + intervalDays has elapsed, newest-overdue first.
+export async function getDueReviews(userId, trackKey) {
+  if (!(await isEnrolled(userId, trackKey))) throw new AppError("Not enrolled in this track.", 403);
+  const prog = await ProProgress.findOne({ userId, trackKey }).select("topicReviews").lean();
+  const reviews = prog?.topicReviews || [];
+  const now = Date.now();
+  const due = reviews.filter((r) => new Date(r.lastReviewedAt).getTime() + (r.intervalDays || 1) * DAY_MS <= now);
+  if (!due.length) return [];
+
+  const topics = await ProTopic.find({ topicId: { $in: due.map((r) => r.topicId) } })
+    .select("topicId moduleId name topicNumber").lean();
+  const byId = new Map(topics.map((t) => [t.topicId, t]));
+
+  return due
+    .map((r) => {
+      const t = byId.get(r.topicId);
+      if (!t) return null; // topic deleted / renamed — skip
+      const dueAt = new Date(r.lastReviewedAt).getTime() + (r.intervalDays || 1) * DAY_MS;
+      return {
+        topicId: r.topicId, name: t.name, moduleId: t.moduleId,
+        intervalDays: r.intervalDays || 1, reps: r.reps || 0,
+        overdueDays: Math.max(0, Math.floor((now - dueAt) / DAY_MS)),
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.overdueDays - a.overdueDays);
+}
+
+// SM-2 lite: "got_it" advances the ladder, "rusty" resets to 1 day.
+export async function recordReview(userId, trackKey, topicId, rating) {
+  if (!(await isEnrolled(userId, trackKey))) throw new AppError("Not enrolled in this track.", 403);
+  if (!["got_it", "rusty"].includes(rating)) throw new AppError("rating must be got_it or rusty.", 400);
+
+  const prog = await ProProgress.findOne({ userId, trackKey });
+  if (!prog) throw new AppError("No progress found.", 404);
+  const entry = (prog.topicReviews || []).find((r) => r.topicId === topicId);
+  if (!entry) throw new AppError("Topic is not in your review queue.", 404);
+
+  const now = new Date();
+  if (rating === "got_it") {
+    entry.intervalDays = nextInterval(entry.intervalDays || 1);
+    entry.reps = (entry.reps || 0) + 1;
+  } else {
+    entry.intervalDays = 1;
+    entry.reps = 0;
+  }
+  entry.lastReviewedAt = now;
+  prog.markModified("topicReviews");
+  await prog.save();
+
+  trackEvent(userId, "pro.review_recorded", { trackKey, topicId, rating, intervalDays: entry.intervalDays });
+  return {
+    topicId,
+    intervalDays: entry.intervalDays,
+    reps: entry.reps,
+    nextDue: new Date(now.getTime() + entry.intervalDays * DAY_MS),
+  };
+}
+
+// ── Problem-first reveal (ROADMAP G) ─────────────────────────────────────────
+// Fire-and-forget telemetry when a learner reveals a gated topic's approach.
+export async function recordReveal(userId, topicId) {
+  const topic = await ProTopic.findOne({ topicId }).select("trackKey moduleId").lean();
+  if (!topic) throw new AppError("Topic not found.", 404);
+  trackEvent(userId, "pro.topic_revealed", { topicId, trackKey: topic.trackKey, moduleId: topic.moduleId });
+  return { ok: true };
 }
 
 // ── Certificates ────────────────────────────────────────────────────────────
@@ -500,4 +598,55 @@ export async function listBookmarks(userId, trackKey) {
 export async function isBookmarked(userId, kind, refId) {
   const found = await ProBookmark.exists({ userId, kind, refId });
   return !!found;
+}
+
+// ── Free-tier public access (D5.1) ──────────────────────────────────────────
+// No auth required — only serves topics with freeAccess:true.
+
+export async function getPublicTopic(topicId) {
+  const topic = await ProTopic.findOne({ topicId, freeAccess: true }).lean();
+  if (!topic) throw new AppError("Topic not available for public access.", 403);
+  return topic;
+}
+
+export async function listPublicExercises(topicId) {
+  const topic = await ProTopic.findOne({ topicId, freeAccess: true }).select("topicId").lean();
+  if (!topic) throw new AppError("Topic not available for public access.", 403);
+  return ProExercise.find({ topicId })
+    .select("exerciseId level type title scenario instructions starterCode blanks hints xpReward difficulty")
+    .sort({ position: 1, exerciseId: 1 })
+    .lean();
+}
+
+// ── Pattern Atlas (D3.4) ─────────────────────────────────────────────────────
+// Returns all pattern_match exercises grouped by their correct pattern ID,
+// enriched with topic names. Used by the /pro/java/patterns page.
+export async function getPatternAtlas(trackKey) {
+  const exercises = await ProExercise.find({ trackKey, type: "pattern_match" })
+    .select("exerciseId topicId moduleId title testCases level")
+    .lean();
+
+  // Group by correct pattern (testCases[0].correct)
+  const byPattern = {};
+  for (const ex of exercises) {
+    const correct = ex.testCases?.[0]?.correct;
+    if (!correct) continue;
+    if (!byPattern[correct]) byPattern[correct] = [];
+    byPattern[correct].push({
+      exerciseId: ex.exerciseId,
+      topicId:    ex.topicId,
+      moduleId:   ex.moduleId,
+      title:      ex.title,
+      level:      ex.level,
+    });
+  }
+
+  // Enrich with topic names
+  const topicIds = [...new Set(exercises.map(e => e.topicId))];
+  const topics = await ProTopic.find({ topicId: { $in: topicIds } })
+    .select("topicId name moduleId")
+    .lean();
+  const topicMap = Object.fromEntries(topics.map(t => [t.topicId, { name: t.name, moduleId: t.moduleId }]));
+
+  return { byPattern, topicMap, totalExercises: exercises.length };
 }

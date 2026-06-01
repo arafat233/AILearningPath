@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import ArrayBars from "../ArrayBars.jsx";
 import Controls from "../Controls.jsx";
 import ExplanationPanel from "../ExplanationPanel.jsx";
@@ -7,6 +7,11 @@ import DSACodeEditor from "../DSACodeEditor.jsx";
 import { sortAlgorithms } from "../algorithms/registry.js";
 import { generateRandomArray } from "../utils/generateArray.js";
 import { runStudentCode, STUDENT_TEMPLATE } from "../runners/studentRunner.js";
+
+// Lazy — the complexity plot + its op-counters only download when the
+// learner expands the panel, keeping the sorting sandbox lean by default.
+const ComplexityPlot = lazy(() => import("../ComplexityPlot.jsx"));
+const SORT_ALGO_KEYS = ["bubble", "insertion", "selection", "merge", "quick"];
 
 export default function SortingSandbox({ config = {} }) {
   const initialAlgoId = config?.defaultAlgo || "bubble";
@@ -37,6 +42,7 @@ export default function SortingSandbox({ config = {} }) {
   const [studentMode, setStudentMode]     = useState(false);
   const [studentCode, setStudentCode]     = useState(STUDENT_TEMPLATE);
   const [studentError, setStudentError]   = useState("");
+  const [showComplexity, setShowComplexity] = useState(false);
 
   useEffect(() => {
     setSortedIndices([]);
@@ -210,6 +216,27 @@ export default function SortingSandbox({ config = {} }) {
       <StatsPanel comparisons={stats.comparisons} swaps={stats.swaps}
         timeComplexity={algo.timeComplexity} spaceComplexity={algo.spaceComplexity}
         description={algo.description} />
+
+      {/* Complexity Derivation panel — collapsed by default; the op-counters
+          + SVG plot only download when expanded. */}
+      <div className="rounded-xl border border-zinc-800 overflow-hidden">
+        <button
+          onClick={() => setShowComplexity((s) => !s)}
+          className="w-full flex items-center justify-between px-4 py-2.5 bg-zinc-900/60 hover:bg-zinc-900 transition-colors text-left"
+        >
+          <span className="text-[13px] font-semibold text-white">
+            📈 Complexity plot — see why this is {algo.timeComplexity?.worst || ""}
+          </span>
+          <span className="text-zinc-400 text-[13px]">{showComplexity ? "Hide ▲" : "Show ▼"}</span>
+        </button>
+        {showComplexity && (
+          <Suspense fallback={
+            <div className="p-6 text-center text-[13px] text-zinc-400">Loading complexity plot…</div>
+          }>
+            <ComplexityPlot config={{ defaultAlgo: selectedAlgoId, algos: SORT_ALGO_KEYS }} />
+          </Suspense>
+        )}
+      </div>
     </div>
   );
 }

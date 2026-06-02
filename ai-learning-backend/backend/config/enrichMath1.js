@@ -748,6 +748,312 @@ const ENRICH = {
       concept_reveal: "We compare capacity as 'holds more' or 'holds less', and pouring one into the other settles it for sure.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 8 — Numbers to 50
+  // ───────────────────────────────────────────────────────────────────────────
+  math1_ch8_numbers_21_to_30: {
+    key_formulas: [
+      { formula: "21 to 30 = two tens and some ones", explanation: "24 = 2 tens + 4 ones." },
+      { formula: "30 = three tens", explanation: "Three full bundles of ten." },
+    ],
+    prerequisite_knowledge: ["numbers to 20", "tens and ones", "counting on"],
+    visual_description: "Two ten-bundles plus 4 ones making 24, and three ten-bundles making 30.",
+    svg_diagrams: [svg("math1_ch8_21_30", "24 = 2 tens and 4 ones",
+      `<rect x="40" y="55" width="45" height="55" fill="#bfdbfe" stroke="#2563eb"/><rect x="95" y="55" width="45" height="55" fill="#bfdbfe" stroke="#2563eb"/>
+       ${[0,1,2,3].map(i=>`<rect x="${160+i*22}" y="55" width="16" height="55" fill="#fed7aa" stroke="#d97706"/>`).join("")}
+       <text x="270" y="90" font-size="18">= 24</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Reading and counting 21 to 30", "Seeing them as tens and ones"],
+      use_other_when: ["Numbers above 30 → carry on to 31–50"],
+    },
+    edge_cases: [
+      { case: "30", value: "three tens, zero ones", reasoning: "A new full ten.", where_it_appears: "Reaching thirty." },
+      { case: "After 29", value: "comes 30", reasoning: "Ten ones roll into a new ten.", where_it_appears: "Crossing to 30." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Past twenty we keep bundling tens! 24 is two ten-bundles and four loose ones. Numbers are just tens and ones.",
+      concept_reveal: "Numbers 21 to 30 are two tens plus some ones, finishing the third ten at 30.",
+    },
+  },
+
+  math1_ch8_numbers_31_to_40: {
+    key_formulas: [
+      { formula: "31 to 40 = three tens and some ones", explanation: "36 = 3 tens + 6 ones." },
+      { formula: "40 = four tens", explanation: "Four full bundles of ten." },
+    ],
+    prerequisite_knowledge: ["numbers 21 to 30", "tens and ones", "counting on"],
+    visual_description: "Three ten-bundles plus 6 ones making 36.",
+    svg_diagrams: [svg("math1_ch8_31_40", "36 = 3 tens and 6 ones",
+      `${[0,1,2].map(i=>`<rect x="${40+i*45}" y="55" width="40" height="55" fill="#bfdbfe" stroke="#2563eb"/>`).join("")}
+       ${[0,1,2,3,4,5].map(i=>`<rect x="${190+i*20}" y="55" width="14" height="55" fill="#fed7aa" stroke="#d97706"/>`).join("")}
+       <text x="320" y="90" font-size="18">= 36</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Reading and counting 31 to 40", "Seeing them as tens and ones"],
+      use_other_when: ["Numbers above 40 → carry on to 41–50"],
+    },
+    edge_cases: [
+      { case: "40", value: "four tens, zero ones", reasoning: "Another full ten.", where_it_appears: "Reaching forty." },
+      { case: "After 39", value: "comes 40", reasoning: "Ten ones make a new ten.", where_it_appears: "Crossing to 40." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Thirty-six? That's three big bundles of ten and six little ones left over. Every number tells you its tens and ones!",
+      concept_reveal: "Numbers 31 to 40 are three tens plus some ones, completing the fourth ten at 40.",
+    },
+  },
+
+  math1_ch8_numbers_41_to_50: {
+    key_formulas: [
+      { formula: "41 to 50 = four tens and some ones", explanation: "47 = 4 tens + 7 ones." },
+      { formula: "50 = five tens", explanation: "Five full bundles of ten." },
+    ],
+    prerequisite_knowledge: ["numbers 31 to 40", "tens and ones", "counting on"],
+    visual_description: "Four ten-bundles plus 7 ones making 47, and five bundles making 50.",
+    svg_diagrams: [svg("math1_ch8_41_50", "47 = 4 tens and 7 ones",
+      `${[0,1,2,3].map(i=>`<rect x="${40+i*42}" y="55" width="38" height="55" fill="#bfdbfe" stroke="#2563eb"/>`).join("")}
+       ${[0,1,2,3,4,5,6].map(i=>`<rect x="${220+i*18}" y="55" width="13" height="55" fill="#fed7aa" stroke="#d97706"/>`).join("")}
+       <text x="360" y="90" font-size="16">= 47</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Reading and counting 41 to 50", "Seeing them as tens and ones"],
+      use_other_when: ["Numbers above 50 → those come later (51–99)"],
+    },
+    edge_cases: [
+      { case: "50", value: "five tens, zero ones", reasoning: "Five full bundles.", where_it_appears: "Reaching fifty." },
+      { case: "After 49", value: "comes 50", reasoning: "Ten ones become a new ten.", where_it_appears: "Crossing to 50." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Forty-seven! Count the bundles: four tens, then seven loose ones. We're halfway to a hundred already.",
+      concept_reveal: "Numbers 41 to 50 are four tens plus some ones, reaching five whole tens at 50.",
+    },
+  },
+
+  math1_ch8_ordering_to_50: {
+    key_formulas: [
+      { formula: "Order numbers to 50 by their size", explanation: "Compare tens first, then ones." },
+      { formula: "More tens = bigger number", explanation: "32 is bigger than 28 (3 tens beats 2 tens)." },
+    ],
+    prerequisite_knowledge: ["numbers to 50", "tens and ones", "ordering to 20"],
+    visual_description: "Cards 32, 17, 45, 28 arranged smallest to biggest: 17, 28, 32, 45.",
+    svg_diagrams: [svg("math1_ch8_order_50", "Ordering numbers to 50",
+      `<text x="30" y="55">mixed:  32  17  45  28</text>
+       <text x="30" y="110" fill="#16a34a">in order:  17  28  32  45</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Putting numbers up to 50 in order", "Finding the bigger/smaller of two"],
+      use_other_when: ["You only need to count, not arrange"],
+    },
+    edge_cases: [
+      { case: "32 vs 28", value: "32 is bigger (3 tens > 2 tens)", reasoning: "Compare tens first.", where_it_appears: "Tens decide." },
+      { case: "34 vs 37 (same tens)", value: "37 is bigger (7 ones > 4 ones)", reasoning: "Equal tens, so ones decide.", where_it_appears: "Ones break the tie." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Which is bigger, 28 or 32? Count the tens first — 3 tens beats 2 tens, so 32 wins, even though 8 looks big!",
+      concept_reveal: "To order numbers to 50, compare the tens first; if they're equal, the ones decide.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 9 — Data Handling
+  // ───────────────────────────────────────────────────────────────────────────
+  math1_ch9_collecting_data: {
+    key_formulas: [
+      { formula: "Data is information we gather, like favourite fruits", explanation: "Ask, then write down the answers." },
+      { formula: "Collect by asking and recording", explanation: "One mark per answer." },
+    ],
+    prerequisite_knowledge: ["counting", "asking and listening", "the idea of a group"],
+    visual_description: "Children being asked their favourite fruit, with answers recorded next to apple, banana, mango.",
+    svg_diagrams: [svg("math1_ch9_collecting", "Gathering answers",
+      `<text x="30" y="45" font-weight="bold">Favourite fruit?</text>
+       <text x="30" y="80">Apple:  ● ● ●</text>
+       <text x="30" y="110">Banana: ● ●</text>
+       <text x="30" y="140">Mango:  ● ● ● ●</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Gathering information by asking", "Starting to make a chart or graph"],
+      use_other_when: ["The information is already given → go straight to counting it"],
+    },
+    edge_cases: [
+      { case: "Someone picks two fruits", value: "decide the rule first (one choice each)", reasoning: "Clear rules keep data tidy.", where_it_appears: "Survey rules." },
+      { case: "A fruit nobody picks", value: "count of 0", reasoning: "Zero is a real answer.", where_it_appears: "Empty groups." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Want to know the class's favourite fruit? Ask everyone and jot it down — that gathering is collecting data!",
+      concept_reveal: "Collecting data means asking a question and recording each answer so we can count them later.",
+    },
+  },
+
+  math1_ch9_sorting_and_grouping: {
+    key_formulas: [
+      { formula: "Group data by putting same answers together", explanation: "All the 'apple' answers in one group." },
+      { formula: "Count each group to see how many", explanation: "Grouping makes counting easy." },
+    ],
+    prerequisite_knowledge: ["collecting data", "sorting objects", "counting"],
+    visual_description: "Scattered fruit answers being grouped into apple, banana and mango piles.",
+    svg_diagrams: [svg("math1_ch9_sorting", "Group the same answers",
+      `<text x="30" y="40">mixed: 🍎🍌🍎🥭🍎🍌</text>
+       <text x="30" y="85" fill="#dc2626">apples: 🍎🍎🍎 (3)</text>
+       <text x="30" y="120" fill="#16a34a">bananas: 🍌🍌 (2)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Organising collected answers into groups", "Counting how many in each group"],
+      use_other_when: ["You haven't gathered any data yet → collect it first"],
+    },
+    edge_cases: [
+      { case: "An answer in the wrong group", value: "miscount", reasoning: "Each answer goes in exactly one matching group.", where_it_appears: "Careful grouping." },
+      { case: "Two groups with the same count", value: "they tie", reasoning: "Equal groups are allowed.", where_it_appears: "Ties." },
+    ],
+    video_script_hooks: {
+      opening_hook: "All those fruit answers are in a jumble! Pop the apples together, the bananas together — now they're easy to count.",
+      concept_reveal: "Sorting and grouping puts matching answers together so each group is simple to count.",
+    },
+  },
+
+  math1_ch9_tally_marks: {
+    key_formulas: [
+      { formula: "One tally mark | for each thing counted", explanation: "Make a stroke per item." },
+      { formula: "Group in fives: |||| with a line across = 5", explanation: "Easier to count in fives." },
+    ],
+    prerequisite_knowledge: ["collecting data", "counting", "grouping"],
+    visual_description: "Tally marks for fruits: apple |||, banana ||, mango |||| , with the five crossed.",
+    svg_diagrams: [svg("math1_ch9_tally", "Tally marks count by fives",
+      `<text x="30" y="50">Apple   |||        3</text>
+       <text x="30" y="85">Banana  ||         2</text>
+       <text x="30" y="120">Mango   |||| |     6</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Keeping count as you collect", "Counting quickly in fives"],
+      use_other_when: ["The total is already known → no need to tally"],
+    },
+    edge_cases: [
+      { case: "A group of 5", value: "shown as |||| with a slash", reasoning: "The fifth mark crosses the first four.", where_it_appears: "Tally convention." },
+      { case: "7 items", value: "one group of 5 and 2 more (|||| ||)", reasoning: "Count fives then leftovers.", where_it_appears: "Bigger counts." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Counting a big group? Make a little line for each one — and every fifth one gets a line across, so you can count in fives!",
+      concept_reveal: "Tally marks record one stroke per item and bundle them in fives for fast, easy counting.",
+    },
+  },
+
+  math1_ch9_pictographs: {
+    key_formulas: [
+      { formula: "A pictograph shows data with one picture per item", explanation: "Three apple pictures = 3 apples." },
+      { formula: "The tallest row is the most popular", explanation: "Compare rows at a glance." },
+    ],
+    prerequisite_knowledge: ["collecting data", "counting", "tally marks"],
+    visual_description: "Rows of fruit pictures: apple ●●●, banana ●●, mango ●●●● — mango row longest.",
+    svg_diagrams: [svg("math1_ch9_pictographs", "Reading a pictograph",
+      `<text x="20" y="45">Apple   ● ● ●        3</text>
+       <text x="20" y="80">Banana  ● ●          2</text>
+       <text x="20" y="115">Mango   ● ● ● ●      4</text>
+       <text x="20" y="150" fill="#dc2626">most: mango</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Showing counts with pictures", "Seeing which group is most/least at a glance"],
+      use_other_when: ["Very large numbers → pictures get long (later: bar graphs)"],
+    },
+    edge_cases: [
+      { case: "Counting the pictures", value: "one picture = one item here", reasoning: "At Class 1, each picture stands for one.", where_it_appears: "Simple key." },
+      { case: "Two rows the same length", value: "equal counts", reasoning: "They tie for most.", where_it_appears: "Ties." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Which fruit won? Just look at the picture rows — the longest row of mangoes shouts 'I'm the favourite!'",
+      concept_reveal: "A pictograph turns counts into rows of pictures, so the most and least popular jump out instantly.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 10 — Patterns
+  // ───────────────────────────────────────────────────────────────────────────
+  math1_ch10_repeating_patterns: {
+    key_formulas: [
+      { formula: "A repeating pattern repeats the same unit over and over", explanation: "red, blue, red, blue …" },
+      { formula: "Find the repeating UNIT to know what's next", explanation: "Here the unit is red-blue." },
+    ],
+    prerequisite_knowledge: ["colours and shapes", "left-to-right order", "the idea of 'same again'"],
+    visual_description: "A bead string red-blue-red-blue-red, with the repeating red-blue unit boxed.",
+    svg_diagrams: [svg("math1_ch10_repeating", "Repeating pattern",
+      `${[0,1,2,3,4].map(i=>`<circle cx="${60+i*80}" cy="80" r="22" fill="${i%2?'#2563eb':'#dc2626'}"/>`).join("")}
+       <rect x="35" y="50" width="105" height="60" fill="none" stroke="#16a34a" stroke-dasharray="4 3"/><text x="40" y="135" fill="#16a34a">unit</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Continuing a pattern that repeats", "Spotting the repeating unit"],
+      use_other_when: ["The pattern grows each time → it's a growing pattern"],
+    },
+    edge_cases: [
+      { case: "A 3-part unit (red-blue-green)", value: "the unit can be longer than two", reasoning: "Find the whole repeating chunk.", where_it_appears: "Longer units." },
+      { case: "Pattern by size (big-small-big)", value: "size repeats, not colour", reasoning: "Patterns can repeat any feature.", where_it_appears: "Size patterns." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Red, blue, red, blue … your brain already shouts 'RED next!' That's because you found the little unit that repeats.",
+      concept_reveal: "A repeating pattern says the same unit again and again; find that unit and you can always say what's next.",
+    },
+  },
+
+  math1_ch10_growing_patterns: {
+    key_formulas: [
+      { formula: "A growing pattern gets bigger each step", explanation: "1 dot, 2 dots, 3 dots, 4 dots …" },
+      { formula: "Each step adds a little more", explanation: "Here, one more dot each time." },
+    ],
+    prerequisite_knowledge: ["repeating patterns", "counting", "one more than"],
+    visual_description: "Dot groups growing 1, 2, 3, 4 — each step one taller than the last.",
+    svg_diagrams: [svg("math1_ch10_growing", "Growing pattern 1, 2, 3, 4",
+      `${[1,2,3,4].map((n,g)=>Array.from({length:n},(_,r)=>`<circle cx="${60+g*90}" cy="${130-r*22}" r="9" fill="#16a34a"/>`).join("")).join("")}
+       <text x="50" y="170">1, 2, 3, 4 …</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Patterns that increase step by step", "Predicting a bigger next step"],
+      use_other_when: ["The pattern just repeats the same unit → repeating pattern"],
+    },
+    edge_cases: [
+      { case: "Adding 2 each time (2, 4, 6)", value: "still a growing pattern", reasoning: "It grows by a fixed amount.", where_it_appears: "Step size." },
+      { case: "A shrinking row (4, 3, 2)", value: "the rule can also go down", reasoning: "Growing patterns can decrease too.", where_it_appears: "Reverse." },
+    ],
+    video_script_hooks: {
+      opening_hook: "One dot, two dots, three dots … each step gets a little taller. This pattern doesn't just repeat — it GROWS!",
+      concept_reveal: "A growing pattern adds a bit more at each step, so it gets steadily bigger.",
+    },
+  },
+
+  math1_ch10_number_patterns: {
+    key_formulas: [
+      { formula: "Number patterns follow a counting rule", explanation: "2, 4, 6, 8 (count by 2s)." },
+      { formula: "Find the jump between numbers", explanation: "5, 10, 15 → +5 each time." },
+    ],
+    prerequisite_knowledge: ["counting", "skip counting by 2s/5s/10s", "one more/less"],
+    visual_description: "The sequence 2, 4, 6, 8 with +2 hops drawn between the numbers.",
+    svg_diagrams: [svg("math1_ch10_number_pattern", "Count by 2s",
+      `<text x="40" y="80" font-size="20">2   4   6   8   10</text>
+       <path d="M50 90 Q70 120 95 90" fill="none" stroke="#dc2626"/><text x="55" y="135" fill="#dc2626">+2</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Continuing a number sequence", "Skip counting by 2s, 5s or 10s"],
+      use_other_when: ["The pattern is shapes or colours → that's a shape pattern"],
+    },
+    edge_cases: [
+      { case: "Counting down (10, 8, 6)", value: "rule is −2", reasoning: "Number patterns can decrease.", where_it_appears: "Backward counting." },
+      { case: "Even vs odd jumps", value: "2,4,6 are evens; 1,3,5 are odds", reasoning: "Different start, same +2 rule.", where_it_appears: "Even/odd patterns." },
+    ],
+    video_script_hooks: {
+      opening_hook: "2, 4, 6, 8 … what comes next? Find the jump — it's hopping up by 2 each time, so 10 is next!",
+      concept_reveal: "Number patterns follow a counting rule like 'add 2'; the jump between numbers reveals it.",
+    },
+  },
+
+  math1_ch10_shape_patterns: {
+    key_formulas: [
+      { formula: "Shape patterns repeat or grow with shapes", explanation: "circle, square, circle, square …" },
+      { formula: "Spot the rule to draw what comes next", explanation: "Repeating or growing, just like other patterns." },
+    ],
+    prerequisite_knowledge: ["identifying shapes", "repeating patterns", "growing patterns"],
+    visual_description: "A row circle-square-circle-square-circle with the next shape (square) predicted.",
+    svg_diagrams: [svg("math1_ch10_shape_pattern", "Repeating shape pattern",
+      `${[0,1,2,3,4].map(i=>i%2===0?`<circle cx="${60+i*85}" cy="80" r="20" fill="#dbeafe" stroke="#2563eb"/>`:`<rect x="${40+i*85}" y="60" width="40" height="40" fill="#fde68a" stroke="#d97706"/>`).join("")}
+       <text x="40" y="135">next: square</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Continuing a pattern made of shapes", "Spotting whether shapes repeat or grow"],
+      use_other_when: ["The pattern is numbers → use a counting rule"],
+    },
+    edge_cases: [
+      { case: "Pattern by shape AND colour", value: "follow both rules together", reasoning: "Some patterns change two things.", where_it_appears: "Trickier patterns." },
+      { case: "A growing shape pattern (1, 2, 3 sides)", value: "shapes can grow, not just repeat", reasoning: "Triangle, square, pentagon …", where_it_appears: "Growing shapes." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Circle, square, circle, square … your turn — what shape comes next? Patterns work with shapes just like with colours.",
+      concept_reveal: "Shape patterns repeat or grow using shapes; find the rule and you can draw whatever comes next.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

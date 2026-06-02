@@ -459,6 +459,216 @@ const ENRICH = {
       concept_reveal: "Interpreting data means asking it questions: read off the bars, then add or subtract to reach a conclusion.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Prime Time
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch5_prime_numbers: {
+    key_formulas: [
+      { formula: "A prime number has exactly TWO factors: 1 and itself", explanation: "2, 3, 5, 7, 11, 13, … " },
+      { formula: "2 is the only even prime", explanation: "Every other even number is divisible by 2, so it has more factors." },
+    ],
+    prerequisite_knowledge: ["factors and multiples", "divisibility rules", "division"],
+    visual_description: "A small number grid with primes 2, 3, 5, 7, 11, 13 circled, and a note that each has only two factors.",
+    svg_diagrams: [svg("math6_ch5_prime_numbers", "Primes have exactly two factors",
+      `<text x="20" y="35" font-weight="bold">Primes up to 20:</text>
+       ${[2,3,5,7,11,13,17,19].map((n,i)=>`<circle cx="${50+i*55}" cy="70" r="20" fill="#dbeafe" stroke="#2563eb"/><text x="${42+i*55}" y="76">${n}</text>`).join("")}
+       <text x="20" y="125">7 → factors are only 1 and 7</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding if a number is prime", "Breaking a number into prime building blocks"],
+      use_other_when: ["A number with more than two factors → it's composite, not prime"],
+    },
+    edge_cases: [
+      { case: "1", value: "is NOT prime", reasoning: "It has only one factor (itself), not two.", where_it_appears: "The classic exception." },
+      { case: "2", value: "prime, and the only even one", reasoning: "Its only factors are 1 and 2.", where_it_appears: "Even-prime trick question." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Why isn't 1 a prime number? It feels like it should be — but primes need EXACTLY two factors, and 1 only has one.",
+      concept_reveal: "A prime has only two factors — 1 and itself — making primes the indivisible atoms that build every other number.",
+    },
+  },
+
+  math6_ch5_composite_numbers: {
+    key_formulas: [
+      { formula: "A composite number has MORE than two factors", explanation: "4, 6, 8, 9, 10, 12, … can be split further." },
+      { formula: "Every whole number > 1 is either prime or composite", explanation: "1 is neither." },
+    ],
+    prerequisite_knowledge: ["factors", "prime numbers", "divisibility"],
+    visual_description: "The number 12 shown with all its factors 1, 2, 3, 4, 6, 12 (six factors → composite), contrasted with prime 7's two factors.",
+    svg_diagrams: [svg("math6_ch5_composite_numbers", "Composite = more than two factors",
+      `<text x="20" y="40">12 → 1, 2, 3, 4, 6, 12   (6 factors → composite)</text>
+       <text x="20" y="80" fill="#2563eb">7 → 1, 7   (2 factors → prime)</text>
+       <text x="20" y="125" fill="#dc2626">1 → just 1   (neither)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Classifying a number as prime or composite", "Knowing a number can be factorised further"],
+      use_other_when: ["The number is 1 — it's neither prime nor composite"],
+    },
+    edge_cases: [
+      { case: "4", value: "smallest composite", reasoning: "Factors 1, 2, 4 — three of them.", where_it_appears: "First composite." },
+      { case: "1", value: "neither prime nor composite", reasoning: "Only one factor, so it fits neither definition.", where_it_appears: "Boundary case." },
+    ],
+    video_script_hooks: {
+      opening_hook: "12 can be split as 2×6, 3×4, 2×2×3 … it's bursting with factors. That's what makes it composite, not prime.",
+      concept_reveal: "Composite numbers have more than two factors — they can always be broken into smaller pieces, unlike primes.",
+    },
+  },
+
+  math6_ch5_prime_factorization: {
+    key_formulas: [
+      { formula: "Every composite number = a product of primes", explanation: "12 = 2 × 2 × 3 = 2² × 3." },
+      { formula: "The prime factorisation is unique (order aside)", explanation: "There's only one prime 'recipe' for each number." },
+    ],
+    prerequisite_knowledge: ["prime numbers", "composite numbers", "division and factors"],
+    visual_description: "A factor tree for 12: 12 branches to 2 and 6, then 6 branches to 2 and 3, leaving primes 2, 2, 3 at the leaves.",
+    svg_diagrams: [svg("math6_ch5_prime_factorization", "Factor tree of 12",
+      `<text x="120" y="35" font-weight="bold">12</text>
+       <line x1="125" y1="42" x2="80" y2="75" stroke="#475569"/><line x1="135" y1="42" x2="180" y2="75" stroke="#475569"/>
+       <text x="70" y="90" fill="#2563eb">2</text><text x="175" y="90">6</text>
+       <line x1="180" y1="98" x2="150" y2="130" stroke="#475569"/><line x1="185" y1="98" x2="215" y2="130" stroke="#475569"/>
+       <text x="145" y="145" fill="#2563eb">2</text><text x="212" y="145" fill="#2563eb">3</text>
+       <text x="280" y="100" fill="#dc2626">12 = 2 × 2 × 3</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Breaking a number into its prime building blocks", "Finding HCF/LCM via shared primes"],
+      use_other_when: ["The number is already prime — its factorisation is just itself"],
+    },
+    edge_cases: [
+      { case: "A prime like 13", value: "factorisation is just 13", reasoning: "It can't be broken down further.", where_it_appears: "Prime inputs." },
+      { case: "Order of the primes", value: "doesn't matter", reasoning: "2×2×3 = 3×2×2 — same factorisation.", where_it_appears: "Uniqueness." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Every number has a secret recipe made only of primes — and astonishingly, each number has exactly ONE recipe. 12 is always 2×2×3.",
+      concept_reveal: "A factor tree keeps splitting until only primes remain; that prime product is the number's unique fingerprint.",
+    },
+  },
+
+  math6_ch5_co_prime: {
+    key_formulas: [
+      { formula: "Two numbers are co-prime if their only common factor is 1", explanation: "e.g. 8 and 15 share no factor except 1." },
+      { formula: "Co-prime numbers need NOT be prime themselves", explanation: "8 and 15 are both composite, yet co-prime." },
+    ],
+    prerequisite_knowledge: ["factors", "common factors / HCF", "prime numbers"],
+    visual_description: "Factor lists for 8 (1,2,4,8) and 15 (1,3,5,15) side by side, with only the shared factor 1 highlighted.",
+    svg_diagrams: [svg("math6_ch5_co_prime", "8 and 15 are co-prime",
+      `<text x="30" y="50">8:  1  2  4  8</text>
+       <text x="30" y="90">15: 1  3  5  15</text>
+       <text x="30" y="135" fill="#dc2626">only common factor = 1 → co-prime</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Checking if two numbers share any factor beyond 1", "Simplifying fractions to lowest terms (co-prime numerator & denominator)"],
+      use_other_when: ["You need the actual HCF value, not just 'is it 1?'"],
+    },
+    edge_cases: [
+      { case: "8 and 15", value: "co-prime though both composite", reasoning: "Being co-prime is about SHARED factors, not being prime.", where_it_appears: "Common misconception." },
+      { case: "Any two different primes, e.g. 5 and 7", value: "always co-prime", reasoning: "Distinct primes share no factor but 1.", where_it_appears: "Prime pairs." },
+    ],
+    video_script_hooks: {
+      opening_hook: "8 and 15 — neither is prime, yet they're 'co-prime'. How? They simply share nothing but the number 1.",
+      concept_reveal: "Co-prime numbers have 1 as their only common factor; they don't have to be prime themselves, just strangers to each other's factors.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Perimeter and Area
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch6_perimeter_basics: {
+    key_formulas: [
+      { formula: "Perimeter of any polygon = sum of all its side lengths", explanation: "The total distance once around the boundary." },
+      { formula: "Rectangle: P = 2 × (length + breadth) · Square: P = 4 × side", explanation: "Shortcuts for the common shapes." },
+    ],
+    prerequisite_knowledge: ["measuring lengths", "addition and multiplication", "naming shapes and their sides"],
+    visual_description: "A 12 cm × 8 cm rectangle with all four sides labelled and the boundary traced, giving P = 2×(12+8) = 40 cm.",
+    svg_diagrams: [svg("math6_ch6_perimeter_basics", "Perimeter of a rectangle",
+      `<rect x="80" y="50" width="200" height="100" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+       <text x="160" y="45">12 cm</text><text x="160" y="170">12 cm</text><text x="40" y="105">8 cm</text><text x="285" y="105">8 cm</text>
+       <text x="340" y="105" font-weight="bold">P = 2(12+8) = 40 cm</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding the distance around a shape (fencing, border, framing)", "Any boundary-length problem"],
+      use_other_when: ["You need the space INSIDE → that's area, not perimeter"],
+    },
+    edge_cases: [
+      { case: "Perimeter unit", value: "a length unit (cm, m)", reasoning: "It's a distance, so never squared.", where_it_appears: "Unit choice." },
+      { case: "Irregular polygon", value: "no shortcut — add every side", reasoning: "Only regular shapes have a formula.", where_it_appears: "Odd shapes." },
+    ],
+    video_script_hooks: {
+      opening_hook: "How much fencing to go round a garden? Walk the boundary and add up every side — that total is the perimeter.",
+      concept_reveal: "Perimeter is just the distance once around; for rectangles and squares, handy shortcuts save you adding each side.",
+    },
+  },
+
+  math6_ch6_area_rectangles: {
+    key_formulas: [
+      { formula: "Area of a rectangle = length × breadth", explanation: "Counts the unit squares that fit inside." },
+      { formula: "Area of a square = side × side = side²", explanation: "A rectangle with all sides equal." },
+    ],
+    prerequisite_knowledge: ["multiplication", "the idea of a unit square", "perimeter (for contrast)"],
+    visual_description: "A 5×3 rectangle tiled into 15 unit squares, showing area = 5 × 3 = 15 square units.",
+    svg_diagrams: [svg("math6_ch6_area_rectangles", "Area = length × breadth",
+      `${[0,1,2].map(r=>[0,1,2,3,4].map(c=>`<rect x="${70+c*40}" y="${50+r*40}" width="40" height="40" fill="#dbeafe" stroke="#2563eb"/>`).join("")).join("")}
+       <text x="120" y="180">5 × 3 = 15 sq units</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding the space covered by a rectangle/square (floor, wall, field)", "Counting unit squares inside a shape"],
+      use_other_when: ["You need the boundary length → use perimeter"],
+    },
+    edge_cases: [
+      { case: "Area unit", value: "a SQUARE unit (cm², m²)", reasoning: "It counts squares, so it's always squared.", where_it_appears: "Distinguishing from perimeter." },
+      { case: "Same perimeter, different area", value: "possible!", reasoning: "A 1×5 and a 2×4 rectangle (P=12) have areas 5 and 8.", where_it_appears: "Perimeter ≠ area." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Two gardens with the SAME fence length can hold very different amounts of grass. Perimeter and area are not the same thing.",
+      concept_reveal: "Area counts the unit squares inside; for a rectangle that's simply length × breadth — measured in square units.",
+    },
+  },
+
+  math6_ch6_area_triangles: {
+    key_formulas: [
+      { formula: "Area of a triangle = ½ × base × height", explanation: "A triangle is half of a rectangle around it." },
+      { formula: "Height is the perpendicular distance from the base to the opposite vertex", explanation: "Not the slanted side." },
+    ],
+    prerequisite_knowledge: ["area of a rectangle", "perpendicular (height)", "multiplication and halving"],
+    visual_description: "A triangle drawn inside a rectangle of the same base and height, shaded to show the triangle is exactly half the rectangle.",
+    svg_diagrams: [svg("math6_ch6_area_triangles", "Triangle = ½ of its rectangle",
+      `<rect x="80" y="50" width="160" height="100" fill="none" stroke="#94a3b8" stroke-dasharray="4 4"/>
+       <polygon points="80,150 240,150 140,50" fill="#dbeafe" stroke="#2563eb"/>
+       <line x1="140" y1="50" x2="140" y2="150" stroke="#dc2626" stroke-dasharray="3 3"/>
+       <text x="150" y="105" fill="#dc2626">height</text><text x="140" y="170">base</text>
+       <text x="300" y="105" font-weight="bold">½ × base × height</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding the area of any triangle given base and height", "Splitting a shape into triangles"],
+      use_other_when: ["You're given the slant side instead of the perpendicular height → find the height first"],
+    },
+    edge_cases: [
+      { case: "Using the slanted side as 'height'", value: "wrong", reasoning: "Height must be perpendicular to the base.", where_it_appears: "Most common triangle-area error." },
+      { case: "Right-angled triangle", value: "the two legs are base and height", reasoning: "They're already perpendicular.", where_it_appears: "Easy case." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Draw any triangle, then box it in a rectangle. The triangle fills exactly half. That's where the ½ in the formula comes from.",
+      concept_reveal: "A triangle is half the rectangle on the same base and height, so its area is ½ × base × height — with height measured straight, not slanted.",
+    },
+  },
+
+  math6_ch6_real_problems: {
+    key_formulas: [
+      { formula: "Perimeter for boundary length, area for surface covered", explanation: "Choose by what the problem asks." },
+      { formula: "Cost = rate × quantity (× perimeter for fencing, × area for tiling)", explanation: "e.g. fencing cost = rate per metre × perimeter." },
+    ],
+    prerequisite_knowledge: ["perimeter formulas", "area formulas", "multiplication and money"],
+    visual_description: "A rectangular plot with two callouts: 'fencing → perimeter × rate' around the edge, and 'turfing → area × rate' across the inside.",
+    svg_diagrams: [svg("math6_ch6_real_problems", "Perimeter vs area in real life",
+      `<rect x="90" y="50" width="180" height="100" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+       <text x="100" y="40" fill="#dc2626">fence → perimeter × rate</text>
+       <text x="120" y="105">grass → area × rate</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding whether a word problem needs perimeter or area", "Costing fencing, tiling, painting, turfing"],
+      use_other_when: ["The problem is pure measurement with no real-world quantity to compute"],
+    },
+    edge_cases: [
+      { case: "'Cost to fence a field'", value: "use perimeter", reasoning: "Fencing follows the boundary.", where_it_appears: "Fencing problems." },
+      { case: "'Cost to tile a floor'", value: "use area", reasoning: "Tiles cover the surface inside.", where_it_appears: "Tiling problems." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Fencing a field or laying its grass? One needs perimeter, the other needs area — pick wrong and your bill is completely off.",
+      concept_reveal: "Real problems hinge on one choice: boundary (perimeter) or surface (area). Get that right and it's just multiply-by-the-rate.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

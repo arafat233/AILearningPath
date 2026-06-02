@@ -392,7 +392,9 @@
     "enrich:math1": "node config/enrichMath1.js",
     "seed:m30-5-2d-array": "node config/seedM30_5_2dArrayModule.js",
     "seed:m33-gaps": "node config/seedM33StackQueueGaps.js",
-    "seed:dsa-gaps-b": "node config/seedDsaGapsB.js"
+    "seed:dsa-gaps-b": "node config/seedDsaGapsB.js",
+    "smoke:dsa": "node config/smokeTestDsa.mjs",
+    "fix:m36-testcases": "node config/fixM36TestcaseExpectations.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

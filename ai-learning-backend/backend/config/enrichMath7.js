@@ -1451,6 +1451,217 @@ const ENRICH = {
       concept_reveal: "Each equal-width bar's height shows its frequency; double bars let you compare two groups category by category.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 14 — Constructions and Tilings
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch14_construction_basics: {
+    key_formulas: [
+      { formula: "Perpendicular bisector: equal arcs from both ends of a segment, joined", explanation: "The line through where the arcs cross is perpendicular and passes through the midpoint." },
+      { formula: "Use only ruler + compass for a true construction", explanation: "No measuring with a protractor — arcs do the work." },
+    ],
+    prerequisite_knowledge: ["using a compass and ruler", "line segments and midpoints", "perpendicular (90°) lines"],
+    visual_description: "Segment XY with two equal arcs drawn from X and from Y crossing above and below; the line joining the crossings is the perpendicular bisector cutting XY at its midpoint.",
+    svg_diagrams: [svg("math7_ch14_perp_bisector", "Perpendicular bisector of XY",
+      `<line x1="80" y1="100" x2="280" y2="100" stroke="#475569" stroke-width="2"/>
+       <text x="70" y="118">X</text><text x="282" y="118">Y</text>
+       <path d="M150 40 A90 90 0 0 1 150 160" fill="none" stroke="#94a3b8"/>
+       <path d="M210 40 A90 90 0 0 0 210 160" fill="none" stroke="#94a3b8"/>
+       <line x1="180" y1="40" x2="180" y2="160" stroke="#dc2626" stroke-width="2"/>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Constructing a midpoint or a 90° line without measuring", "Building accurate geometric figures"],
+      use_other_when: ["A rough sketch is enough → freehand; constructions are for precision"],
+    },
+    edge_cases: [
+      { case: "Arcs drawn with different radii", value: "construction fails", reasoning: "Both arcs must use the SAME compass width to meet symmetrically.", where_it_appears: "Most common construction error." },
+      { case: "Compass radius less than half of XY", value: "arcs don't meet", reasoning: "Radius must exceed half the segment for the arcs to cross.", where_it_appears: "Choosing the radius." },
+    ],
+    video_script_hooks: {
+      opening_hook: "No protractor, no ruler markings — just a compass. Yet you can cut any line exactly in half AND at a perfect right angle. Here's the trick.",
+      concept_reveal: "Equal arcs from both ends meet at points equidistant from each end; joining them gives the perpendicular bisector for free.",
+    },
+  },
+
+  math7_ch14_construction_triangles: {
+    key_formulas: [
+      { formula: "Construct a triangle when SSS, SAS or ASA is given", explanation: "The same info that guarantees congruence is exactly what's needed to build it." },
+      { formula: "SSS: draw one side, then arc the other two lengths to meet", explanation: "The intersection of the arcs is the third vertex." },
+    ],
+    prerequisite_knowledge: ["compass-and-ruler basics", "SSS/SAS/ASA congruence conditions", "measuring lengths and angles"],
+    visual_description: "An SSS construction: base BC drawn, an arc of one side-length from B and another from C, meeting at A to complete triangle ABC.",
+    svg_diagrams: [svg("math7_ch14_construct_tri", "Constructing a triangle (SSS)",
+      `<line x1="80" y1="150" x2="240" y2="150" stroke="#475569" stroke-width="2"/>
+       <text x="70" y="168">B</text><text x="242" y="168">C</text>
+       <path d="M80 150 A110 110 0 0 1 160 70" fill="none" stroke="#94a3b8"/>
+       <path d="M240 150 A100 100 0 0 0 160 70" fill="none" stroke="#94a3b8"/>
+       <circle cx="160" cy="70" r="3" fill="#dc2626"/><text x="150" y="62">A</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Building an exact triangle from given measurements", "Checking that given data actually determines a triangle"],
+      use_other_when: ["Given SSA or AAA → can't construct a unique triangle"],
+    },
+    edge_cases: [
+      { case: "Three lengths breaking the triangle inequality", value: "arcs never meet", reasoning: "No triangle exists, so the construction can't close.", where_it_appears: "Impossible SSS data." },
+      { case: "ASA given", value: "draw the side, then both angles at its ends", reasoning: "The two angle-rays meet at the apex.", where_it_appears: "ASA construction." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Give me three lengths and I'll build the exact triangle — base first, then two arcs swing out and cross at the top corner.",
+      concept_reveal: "Whatever fixes a triangle's congruence (SSS, SAS, ASA) is exactly the recipe for constructing it with compass and ruler.",
+    },
+  },
+
+  math7_ch14_tilings: {
+    key_formulas: [
+      { formula: "A tiling covers a surface with no gaps and no overlaps", explanation: "Shapes fit together edge to edge to fill the plane." },
+      { formula: "At each meeting point, the angles add to 360°", explanation: "That's why squares (4×90°) and equilateral triangles (6×60°) tile." },
+    ],
+    prerequisite_knowledge: ["angles around a point = 360°", "angles of polygons", "congruent shapes"],
+    visual_description: "A grid of identical squares tiling a region with a meeting point highlighted where four 90° corners sum to 360°.",
+    svg_diagrams: [svg("math7_ch14_tilings", "Squares tile: 4 × 90° = 360°",
+      `${[0,1,2].map(r=>[0,1,2,3].map(c=>`<rect x="${60+c*50}" y="${40+r*50}" width="50" height="50" fill="${(r+c)%2?'#dbeafe':'#fff'}" stroke="#475569"/>`).join("")).join("")}
+       <circle cx="160" cy="140" r="5" fill="#dc2626"/><text x="280" y="120" fill="#dc2626">4 × 90° = 360°</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding whether a shape can tile the plane", "Designing floor/wall patterns"],
+      use_other_when: ["The shapes aren't required to fill completely → that's just a pattern, not a tiling"],
+    },
+    edge_cases: [
+      { case: "Regular pentagons", value: "do NOT tile", reasoning: "Interior angle 108° doesn't divide 360° evenly.", where_it_appears: "Which regular polygons tile." },
+      { case: "Regular hexagons", value: "DO tile", reasoning: "3 × 120° = 360° meet perfectly (honeycomb).", where_it_appears: "Bees' honeycomb." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Why are bathroom tiles square or hexagonal, never pentagonal? Because the corners have to add up to exactly 360° — and pentagons can't.",
+      concept_reveal: "A shape tiles only if copies of its angles meet around each point to make a full 360° turn — no gaps, no overlaps.",
+    },
+  },
+
+  math7_ch14_tessellation: {
+    key_formulas: [
+      { formula: "A tessellation is a repeating tiling with one or more shapes", explanation: "Translations, rotations or reflections of a tile cover the plane." },
+      { formula: "Regular tessellations use ONE regular polygon", explanation: "Only triangles, squares and hexagons work." },
+    ],
+    prerequisite_knowledge: ["tilings (angles meeting at 360°)", "translation, rotation, reflection", "congruence"],
+    visual_description: "A hexagonal honeycomb tessellation alongside a triangular tessellation, showing how a single shape repeats by sliding to fill the plane.",
+    svg_diagrams: [svg("math7_ch14_tessellation", "Hexagonal tessellation (honeycomb)",
+      `${[0,1].map(r=>[0,1,2].map(c=>{const x=70+c*70+(r%2?35:0),y=60+r*52;return `<polygon points="${x},${y} ${x+30},${y} ${x+45},${y+26} ${x+30},${y+52} ${x},${y+52} ${x-15},${y+26}" fill="#fde68a" stroke="#d97706"/>`}).join("")).join("")}`)],
+    when_to_use_this_method: {
+      use_this_when: ["Recognising or creating repeating patterns (art, nature)", "Explaining honeycombs, brick walls, mosaic floors"],
+      use_other_when: ["A pattern that doesn't repeat to fill the plane is not a tessellation"],
+    },
+    edge_cases: [
+      { case: "Only three regular polygons tessellate alone", value: "triangle, square, hexagon", reasoning: "Their angles divide 360° exactly.", where_it_appears: "Regular tessellations." },
+      { case: "Combining shapes (e.g. squares + triangles)", value: "semi-regular tessellation", reasoning: "Mixing tiles can still meet at 360°.", where_it_appears: "Semi-regular patterns." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Bees build honeycombs from hexagons, not circles. A tessellation is nature's way of covering space with zero waste.",
+      concept_reveal: "Slide, turn or flip one shape so copies repeat endlessly with no gaps — that's a tessellation, and only three regular shapes can do it alone.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 15 — Finding the Unknown (linear equations)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch15_equations_intro: {
+    key_formulas: [
+      { formula: "An equation says two expressions are EQUAL: LHS = RHS", explanation: "e.g. x + 3 = 7 — the two sides weigh the same." },
+      { formula: "A letter stands for an unknown value to be found", explanation: "Solving means discovering what number the letter must be." },
+    ],
+    prerequisite_knowledge: ["letter-numbers / variables", "the equals sign as balance", "the four operations"],
+    visual_description: "A balance scale with x + 3 on the left pan and 7 on the right pan, level — picturing the equation x + 3 = 7.",
+    svg_diagrams: [svg("math7_ch15_equations_intro", "An equation is a balance",
+      `<line x1="60" y1="60" x2="500" y2="60" stroke="#475569" stroke-width="3"/>
+       <line x1="280" y1="60" x2="280" y2="150" stroke="#475569" stroke-width="3"/>
+       <rect x="110" y="60" width="100" height="40" fill="#dbeafe" stroke="#2563eb"/><text x="125" y="86">x + 3</text>
+       <rect x="360" y="60" width="100" height="40" fill="#dcfce7" stroke="#16a34a"/><text x="400" y="86">7</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Turning a 'find the unknown' situation into a statement", "Writing relationships symbolically"],
+      use_other_when: ["The two sides aren't necessarily equal → that's an expression or inequality, not an equation"],
+    },
+    edge_cases: [
+      { case: "x + 3 (no equals sign)", value: "an expression, NOT an equation", reasoning: "Without '=' there's nothing to balance or solve.", where_it_appears: "Expression vs equation." },
+      { case: "7 = 7", value: "true but trivial", reasoning: "An identity with no unknown to find.", where_it_appears: "Degenerate case." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Picture a weighing scale that's perfectly level. Whatever's on the left equals whatever's on the right — that's all an equation really is.",
+      concept_reveal: "An equation states two sides are equal; the letter is the mystery weight you're hunting for.",
+    },
+  },
+
+  math7_ch15_balance_method: {
+    key_formulas: [
+      { formula: "Do the SAME thing to both sides and the balance holds", explanation: "Add, subtract, multiply or divide both sides equally." },
+      { formula: "Remove equal amounts from both pans to isolate the unknown", explanation: "x + 3 = 7 → subtract 3 from both → x = 4." },
+    ],
+    prerequisite_knowledge: ["equations as a balance", "inverse operations (+/−, ×/÷)", "integer arithmetic"],
+    visual_description: "Two balance pictures: first x + 3 = 7, then 3 removed from each pan leaving x = 4, the scale still level.",
+    svg_diagrams: [svg("math7_ch15_balance", "Remove 3 from both sides",
+      `<text x="30" y="50" font-weight="bold">x + 3 = 7</text>
+       <text x="30" y="90" fill="#dc2626">− 3 from both sides</text>
+       <text x="30" y="130" fill="#16a34a">x = 4</text>
+       <line x1="250" y1="40" x2="430" y2="40" stroke="#475569" stroke-width="2"/><line x1="340" y1="40" x2="340" y2="100" stroke="#475569" stroke-width="2"/>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Solving any simple equation step by step", "Justifying WHY a solving step is allowed"],
+      use_other_when: ["You can spot the answer instantly by inspection for very easy equations"],
+    },
+    edge_cases: [
+      { case: "Subtracting from only ONE side", value: "breaks the balance", reasoning: "Whatever you do must be done to both sides equally.", where_it_appears: "The classic mistake." },
+      { case: "Dividing both sides by the coefficient", value: "isolates x, e.g. 2x=10 → x=5", reasoning: "Dividing both sides by 2 keeps balance.", where_it_appears: "Equations with a coefficient." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Take 3 kg off the left pan of a balanced scale and it tips — unless you take 3 kg off the right too. That rule is how you solve every equation.",
+      concept_reveal: "Keep the scale balanced by doing the same operation to both sides, peeling away everything until the unknown stands alone.",
+    },
+  },
+
+  math7_ch15_solving_simple: {
+    key_formulas: [
+      { formula: "Undo operations in reverse order using inverses", explanation: "2x + 3 = 11 → subtract 3 (→ 2x = 8) → divide by 2 (→ x = 4)." },
+      { formula: "Check by substituting the answer back", explanation: "2(4)+3 = 11 ✓ confirms x = 4." },
+    ],
+    prerequisite_knowledge: ["the balance method", "inverse operations", "order of operations"],
+    visual_description: "A two-step solution of 2x + 3 = 11 shown as a flow: subtract 3, then divide by 2, arriving at x = 4, with a substitution check.",
+    svg_diagrams: [svg("math7_ch15_solving", "Solve 2x + 3 = 11",
+      `<text x="30" y="50">2x + 3 = 11</text>
+       <text x="30" y="85" fill="#dc2626">−3:  2x = 8</text>
+       <text x="30" y="120" fill="#2563eb">÷2:  x = 4</text>
+       <text x="30" y="155" fill="#16a34a">check: 2(4)+3 = 11 ✓</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Solving one- and two-step linear equations", "Whenever you must find a specific unknown value"],
+      use_other_when: ["The equation has the unknown on both sides → first gather it to one side"],
+    },
+    edge_cases: [
+      { case: "Undoing in the wrong order, dividing before subtracting", value: "wrong answer", reasoning: "Reverse the order of operations: undo +/− before ×/÷ here.", where_it_appears: "Two-step slip." },
+      { case: "Answer is a fraction/negative, e.g. 2x = 7", value: "x = 3.5", reasoning: "Solutions needn't be whole numbers.", where_it_appears: "Non-integer solutions." },
+    ],
+    video_script_hooks: {
+      opening_hook: "To unwrap a parcel you undo the LAST wrapping first. Solving 2x + 3 = 11 is the same: undo the +3, then the ×2.",
+      concept_reveal: "Peel operations off in reverse with their inverses until x is alone, then substitute back to be certain.",
+    },
+  },
+
+  math7_ch15_word_problems: {
+    key_formulas: [
+      { formula: "Let the unknown be a letter, then translate the words into an equation", explanation: "'5 more than twice a number is 11' → 2x + 3... actually 2x + 5 = 11." },
+      { formula: "Solve, then check the answer against the original wording", explanation: "Make sure the solution makes sense in context." },
+    ],
+    prerequisite_knowledge: ["solving simple equations", "translating words to symbols", "reading comprehension"],
+    visual_description: "A word problem mapped to an equation: 'I think of a number, double it, add 5, get 17' → 2x + 5 = 17 → x = 6.",
+    svg_diagrams: [svg("math7_ch15_word", "Words → equation → answer",
+      `<text x="20" y="45">"double a number, add 5, get 17"</text>
+       <text x="20" y="85" fill="#2563eb">2x + 5 = 17</text>
+       <text x="20" y="125" fill="#dc2626">2x = 12</text>
+       <text x="20" y="160" fill="#16a34a">x = 6</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Turning a real/age/money puzzle into an equation", "Any 'find the number' or 'how many' problem"],
+      use_other_when: ["The quantity is given directly — no unknown to set up an equation for"],
+    },
+    edge_cases: [
+      { case: "Answer that's impossible in context, e.g. −2 people", value: "reject / recheck setup", reasoning: "A valid equation can give an answer the story can't allow.", where_it_appears: "Sense-checking." },
+      { case: "Mis-translating 'less than'", value: "wrong equation", reasoning: "'5 less than x' is x − 5, not 5 − x.", where_it_appears: "Translation traps." },
+    ],
+    video_script_hooks: {
+      opening_hook: "'I doubled a number, added 5, and got 17. What was it?' The hard part isn't the maths — it's turning that sentence into 2x + 5 = 17.",
+      concept_reveal: "Name the unknown, translate each phrase into symbols, solve the equation, then check the answer actually fits the story.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

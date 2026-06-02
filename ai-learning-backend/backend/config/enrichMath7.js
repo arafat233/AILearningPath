@@ -601,6 +601,219 @@ const ENRICH = {
       concept_reveal: "A transversal makes corresponding and alternate angles equal, and co-interior angles add to 180° — but only when the lines are parallel.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 6 — Number Play (parity, patterns, divisibility, magic squares)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch6_divisibility: {
+    key_formulas: [
+      { formula: "÷2: last digit even · ÷5: last digit 0 or 5 · ÷10: last digit 0", explanation: "Quick checks from the final digit alone." },
+      { formula: "÷3 (and ÷9): the digit sum is divisible by 3 (or 9)", explanation: "Add all digits, then test the sum." },
+      { formula: "÷4: the last two digits form a multiple of 4", explanation: "e.g. 1,316 → 16 ÷ 4 ✓." },
+    ],
+    prerequisite_knowledge: ["multiples and factors", "adding digits", "the four operations"],
+    visual_description: "The number 4,536 run through a divisibility checklist: last digit 6 → ÷2 ✓; digit sum 4+5+3+6=18 → ÷3 and ÷9 ✓; last two digits 36 → ÷4 ✓.",
+    svg_diagrams: [svg("math7_ch6_divisibility", "Divisibility checks on 4,536",
+      `<text x="20" y="24" font-weight="bold">Is 4,536 divisible by …?</text>
+       <text x="30" y="56">÷2  last digit 6 (even)            ✓</text>
+       <text x="30" y="82">÷3  digit sum 18                   ✓</text>
+       <text x="30" y="108">÷9  digit sum 18                   ✓</text>
+       <text x="30" y="134">÷4  last two digits 36             ✓</text>
+       <text x="30" y="160">÷5  last digit 6                   ✗</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Testing divisibility without doing the full division", "Finding factors or simplifying fractions"],
+      use_other_when: ["You actually need the quotient or remainder → do the division"],
+    },
+    edge_cases: [
+      { case: "Divisible by 3 but not 9: 24 (digit sum 6)", value: "÷3 ✓, ÷9 ✗", reasoning: "6 is a multiple of 3 but not of 9.", where_it_appears: "Distinguishing the two digit-sum tests." },
+      { case: "0 divided by any non-zero number", value: "always divisible", reasoning: "0 = n × 0 for every n.", where_it_appears: "Edge of the divisibility idea." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Is 4,536 divisible by 9? You don't need to divide — just add the digits: 4+5+3+6 = 18. Done.",
+      concept_reveal: "Divisibility tests read clues from the digits: last digit for 2/5/10, digit sum for 3/9, last two digits for 4.",
+    },
+  },
+
+  math7_ch6_magic_squares: {
+    key_formulas: [
+      { formula: "Magic square: every row, column and diagonal share the same sum (the magic constant)", explanation: "For a 3×3 filled with 1–9, that constant is 15." },
+      { formula: "Magic constant for n×n using 1..n² = n(n²+1)/2", explanation: "3×3 → 3×10/2 = 15." },
+    ],
+    prerequisite_knowledge: ["addition", "number patterns", "the numbers 1–9 (for a 3×3)"],
+    visual_description: "A 3×3 magic square 2 7 6 / 9 5 1 / 4 3 8, with each row, column and diagonal annotated as summing to 15.",
+    svg_diagrams: [svg("math7_ch6_magic_square", "3×3 magic square (sum 15)",
+      `<text x="20" y="22" font-weight="bold">Every line sums to 15</text>
+       ${[[2,7,6],[9,5,1],[4,3,8]].map((row,r)=>row.map((n,c)=>`<rect x="${60+c*50}" y="${35+r*50}" width="50" height="50" fill="#f1f5f9" stroke="#475569"/><text x="${82+c*50}" y="${66+r*50}" font-size="18">${n}</text>`).join("")).join("")}
+       <text x="230" y="66" fill="#dc2626">= 15</text><text x="230" y="116" fill="#dc2626">= 15</text><text x="230" y="166" fill="#dc2626">= 15</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Logic and number puzzles", "Practising addition and pattern reasoning"],
+      use_other_when: ["Ordinary arithmetic — a magic square is a puzzle structure, not a calculation tool"],
+    },
+    edge_cases: [
+      { case: "Centre cell of a 3×3 (1–9) magic square", value: "always 5", reasoning: "The middle value, sitting on 4 of the magic lines, must be 5.", where_it_appears: "Solving 3×3 squares." },
+      { case: "Rotating or reflecting a magic square", value: "still magic", reasoning: "Turning or flipping keeps every row/column/diagonal sum unchanged.", where_it_appears: "Counting 'distinct' magic squares." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Arrange 1 to 9 in a grid so every row, column AND diagonal adds to the same number. There's a reason that number is always 15.",
+      concept_reveal: "A magic square balances every line to one magic constant — for 3×3 with 1–9 it's 15, and the centre is always 5.",
+    },
+  },
+
+  math7_ch6_number_patterns: {
+    key_formulas: [
+      { formula: "Sum of the first n odd numbers = n²", explanation: "1 + 3 + 5 + … + (2n−1) = n² (the dots form a square)." },
+      { formula: "even+even = even · odd+odd = even · even+odd = odd", explanation: "Parity rules for sums." },
+    ],
+    prerequisite_knowledge: ["even and odd numbers", "addition", "spotting a rule in a sequence"],
+    visual_description: "Growing dot-squares: 1 dot (1×1), then 1+3=4 (2×2), then 1+3+5=9 (3×3) — each added odd number forms an L-shaped border that completes the next square.",
+    svg_diagrams: [svg("math7_ch6_odd_squares", "Sum of odd numbers makes squares",
+      `<text x="20" y="22" font-weight="bold">1 + 3 + 5 + … = n²</text>
+       ${[[0,0],[1,0],[0,1],[2,0],[2,1],[2,2],[0,2],[1,2]].map(([c,r],i)=>`<circle cx="${50+c*26}" cy="${50+r*26}" r="9" fill="${i===0?'#0369a1':i<3?'#15803d':'#a16207'}"/>`).join("")}
+       <text x="170" y="56">1 = 1²</text><text x="170" y="82">1+3 = 4 = 2²</text><text x="170" y="108">1+3+5 = 9 = 3²</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Predicting the next term of a sequence", "Explaining WHY a pattern holds (parity, square numbers)"],
+      use_other_when: ["A list of numbers with no underlying rule"],
+    },
+    edge_cases: [
+      { case: "Sum of 5 odd numbers", value: "is odd — can't equal 30", reasoning: "An odd count of odd numbers gives an odd total.", where_it_appears: "Kishor's 5-box puzzle." },
+      { case: "Sum of two odd numbers", value: "always even", reasoning: "(2a+1)+(2b+1) = 2(a+b+1).", where_it_appears: "Parity reasoning." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Add up the odd numbers: 1, then 1+3, then 1+3+5 … you get 1, 4, 9 — the perfect squares. Coincidence? No.",
+      concept_reveal: "Patterns aren't magic: each odd number adds an L-shaped layer that completes the next square, so the running total is always n².",
+    },
+  },
+
+  math7_ch6_number_puzzles: {
+    key_formulas: [
+      { formula: "Use parity and divisibility to rule out impossibilities first", explanation: "An odd count of odd numbers can never sum to an even total." },
+      { formula: "Work backwards from the constraints", explanation: "Each clue narrows the remaining possibilities." },
+    ],
+    prerequisite_knowledge: ["even/odd parity", "divisibility tests", "number patterns"],
+    visual_description: "Kishor's puzzle: 5 empty boxes to be filled with odd-number cards that should total 30, with a crossed-out note: 5 odds → an odd sum, so reaching the even total 30 is impossible.",
+    svg_diagrams: [svg("math7_ch6_puzzle", "Parity proves the puzzle impossible",
+      `<text x="20" y="24" font-weight="bold">Fill 5 boxes with odd cards → total 30?</text>
+       ${[0,1,2,3,4].map(i=>`<rect x="${40+i*70}" y="45" width="56" height="40" fill="#fff" stroke="#475569"/><text x="${62+i*70}" y="71" fill="#94a3b8">odd</text>`).join("")}
+       <text x="40" y="120" fill="#dc2626">5 odds → odd sum ≠ 30 (even). Impossible.</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding whether a target is even possible before searching", "Logic puzzles with number constraints"],
+      use_other_when: ["Direct computation, when there's no constraint to exploit"],
+    },
+    edge_cases: [
+      { case: "Target parity mismatch", value: "no solution exists", reasoning: "If the parity can't match, stop — searching is pointless.", where_it_appears: "Impossible puzzles." },
+      { case: "Several valid fills", value: "more than one answer", reasoning: "Constraints may not pin down a unique solution.", where_it_appears: "Open-ended puzzles." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Five boxes, odd-number cards, must total 30. Before trying ANY combination — it's impossible. Parity tells you instantly.",
+      concept_reveal: "Smart puzzlers check parity and divisibility first to rule out the impossible, then search only what's left.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 7 — A Tale of Three Intersecting Lines (triangles)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch7_triangle_basics: {
+    key_formulas: [
+      { formula: "A triangle has 3 sides, 3 vertices and 3 angles", explanation: "The simplest closed figure made of straight lines." },
+      { formula: "Triangle inequality: each side < the sum of the other two", explanation: "e.g. 3,4,5 works (3+4>5); 10,15,30 does not (10+15<30)." },
+    ],
+    prerequisite_knowledge: ["points, line segments and angles", "measuring lengths", "intersecting lines"],
+    visual_description: "Triangle ABC with vertices A, B, C labelled, its three sides marked, beside a number line showing why sides 10, 15, 30 cannot close into a triangle (10+15 < 30).",
+    svg_diagrams: [svg("math7_ch7_triangle_basics", "A triangle and the triangle inequality",
+      `<polygon points="60,160 200,160 140,50" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+       <text x="50" y="178">A</text><text x="200" y="178">B</text><text x="138" y="44">C</text>
+       <text x="300" y="80" font-weight="bold">3, 4, 5  ✓ (3+4 &gt; 5)</text>
+       <text x="300" y="120" fill="#dc2626">10, 15, 30  ✗ (10+15 &lt; 30)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Checking whether three given lengths can form a triangle", "Naming the parts of a triangle"],
+      use_other_when: ["The figure has more than 3 sides → it's a quadrilateral/polygon, not a triangle"],
+    },
+    edge_cases: [
+      { case: "Sides 10, 15, 30", value: "no triangle", reasoning: "10+15 = 25 < 30, so the two short sides can't reach.", where_it_appears: "Triangle inequality check." },
+      { case: "Sides 5, 5, 10", value: "degenerate (flat)", reasoning: "5+5 = 10 exactly — the triangle collapses to a straight line.", where_it_appears: "Boundary of the inequality." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Can you build a triangle with sides 10, 15 and 30? Try it — the two short sticks never meet. There's a rule for that.",
+      concept_reveal: "Three lengths form a triangle only if each side is shorter than the sum of the other two — the triangle inequality.",
+    },
+  },
+
+  math7_ch7_triangle_types: {
+    key_formulas: [
+      { formula: "By sides: equilateral (3 equal) · isosceles (2 equal) · scalene (none equal)", explanation: "Classify by how many sides match." },
+      { formula: "By angles: acute (<90°) · right (=90°) · obtuse (>90°)", explanation: "Classify by the largest angle." },
+    ],
+    prerequisite_knowledge: ["measuring sides and angles", "what equal lengths mean", "angle sizes (acute/right/obtuse)"],
+    visual_description: "Three triangles side by side — equilateral (all sides tick-marked equal), isosceles (two ticks), scalene (no equal marks) — each labelled.",
+    svg_diagrams: [svg("math7_ch7_triangle_types", "Triangles classified by sides",
+      `<polygon points="40,150 110,150 75,55" fill="#ecfdf5" stroke="#059669"/><text x="55" y="172">equilateral</text>
+       <polygon points="210,150 290,150 250,55" fill="#eff6ff" stroke="#2563eb"/><text x="225" y="172">isosceles</text>
+       <polygon points="380,150 470,150 400,60" fill="#fef2f2" stroke="#dc2626"/><text x="395" y="172">scalene</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Naming a triangle from its sides or angles", "Deciding which properties (e.g. equal base angles) apply"],
+      use_other_when: ["You only need the angle sum — that's the same for every triangle"],
+    },
+    edge_cases: [
+      { case: "Equilateral triangle", value: "also isosceles", reasoning: "Having 3 equal sides means it certainly has 2 equal sides too.", where_it_appears: "Overlapping categories." },
+      { case: "Right isosceles triangle", value: "angles 90°, 45°, 45°", reasoning: "A triangle can be classified by sides AND angles at once.", where_it_appears: "Set squares." },
+    ],
+    video_script_hooks: {
+      opening_hook: "All three sides equal? Just two? None? That one question splits every triangle in the world into three families.",
+      concept_reveal: "By sides: equilateral, isosceles, scalene. By angles: acute, right, obtuse. A triangle gets one name from each list.",
+    },
+  },
+
+  math7_ch7_angle_sum: {
+    key_formulas: [
+      { formula: "The three angles of any triangle add to 180°", explanation: "∠A + ∠B + ∠C = 180°, always." },
+      { formula: "Exterior angle = sum of the two opposite interior angles", explanation: "Because the exterior angle and its neighbour make 180° too." },
+    ],
+    prerequisite_knowledge: ["angles on a straight line = 180°", "parallel lines and a transversal", "triangle basics"],
+    visual_description: "Triangle ABC with a line through C parallel to AB; the three angles at C (made by the parallel) recombine onto the straight line to show they total 180°.",
+    svg_diagrams: [svg("math7_ch7_angle_sum", "Angles of a triangle sum to 180°",
+      `<polygon points="60,160 240,160 150,60" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+       <line x1="90" y1="60" x2="210" y2="60" stroke="#059669" stroke-dasharray="5 4"/>
+       <text x="70" y="155">a</text><text x="225" y="155">b</text><text x="143" y="80">c</text>
+       <text x="300" y="105" font-weight="bold">a + b + c = 180°</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding a missing angle when two are known", "Checking whether three angles can form a triangle (sum must be 180°)"],
+      use_other_when: ["You need side lengths — angles alone don't fix size, only shape"],
+    },
+    edge_cases: [
+      { case: "Two angles 60° and 70°", value: "third = 50°", reasoning: "180 − 60 − 70 = 50.", where_it_appears: "Find-the-missing-angle problems." },
+      { case: "Two angles already summing to 180° or more", value: "no triangle", reasoning: "Two angles must total less than 180° to leave room for the third.", where_it_appears: "Existence check." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Tear off the three corners of ANY paper triangle and lay them together — they always form a straight line. Every single time.",
+      concept_reveal: "Slide each corner onto a line parallel to the opposite side and they fill a straight angle — that's why the angles total 180°.",
+    },
+  },
+
+  math7_ch7_triangle_properties: {
+    key_formulas: [
+      { formula: "Isosceles triangle: the angles opposite the two equal sides are equal", explanation: "Equal sides ⇒ equal base angles." },
+      { formula: "Equilateral triangle: every angle = 60°", explanation: "Three equal sides ⇒ three equal angles, and 180°/3 = 60°." },
+    ],
+    prerequisite_knowledge: ["triangle types", "angle sum = 180°", "the triangle inequality"],
+    visual_description: "An isosceles triangle with its two equal sides tick-marked and the two equal base angles arc-marked, beside an equilateral triangle with all three 60° angles shown.",
+    svg_diagrams: [svg("math7_ch7_triangle_properties", "Equal sides give equal angles",
+      `<polygon points="60,160 180,160 120,55" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+       <text x="62" y="155">=</text><text x="170" y="155">=</text>
+       <text x="300" y="80" font-weight="bold">Isosceles: base angles equal</text>
+       <text x="300" y="120">Equilateral: all angles = 60°</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding angles in an isosceles/equilateral triangle from its equal sides", "Justifying why two angles must be equal"],
+      use_other_when: ["A scalene triangle — no two sides or angles match, so these shortcuts don't apply"],
+    },
+    edge_cases: [
+      { case: "Isosceles with apex angle 40°", value: "base angles 70° each", reasoning: "(180 − 40)/2 = 70.", where_it_appears: "Angle-chasing problems." },
+      { case: "Equilateral angle", value: "exactly 60°", reasoning: "180/3 = 60 — never anything else.", where_it_appears: "Standard fact." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Fold an isosceles triangle along its line of symmetry — the two base angles land exactly on top of each other. They're equal, and here's why.",
+      concept_reveal: "Equal sides force equal opposite angles; push that to three equal sides and every angle becomes 60°.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

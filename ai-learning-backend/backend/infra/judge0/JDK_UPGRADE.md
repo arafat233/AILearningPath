@@ -109,7 +109,7 @@ multi-version support beyond Java.
 - [x] `GET /languages` shows the new JDK id (90 = "Java (OpenJDK 21)").
 - [x] `JUDGE0_JAVA_LANGUAGE_ID=90` set in backend `.env`; backend restarted.
 - [x] Probe: record + sealed-class + pattern-matching programs compile + run (Accepted) via Judge0 API and via the app's `codeExecutionService`.
-- [ ] (Optional, future) convert M49–M51 `predict_output` exercises back to `execution`/`code_scratch` and re-run `npm run acceptance:pro-content`. (Not done — predict_output still ships; flip when authoring runnable modern-Java content.)
+- [x] M49 `predict_output` exercises converted to runnable `code_scratch` (2026-06-02): all 7 (records ×2, var, text-block, sealed switch, instanceof, switch-expr) write+run real modern Java on lang 90 — verified, reference solutions grade green. M50/M51 stay non-code (Maven/Git/PRs — nothing to run).
 - [x] Existing classic-Java verified backward-compatible on JDK 21 (Scanner program → correct output). M1–M48 coding exercises unaffected.
 
 ## Safety notes

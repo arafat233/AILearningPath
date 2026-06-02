@@ -1183,6 +1183,315 @@ const ENRICH = {
       concept_reveal: "Capacity word problems add or compare liquid amounts; match the units first, then add or subtract.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 12 — Division
+  // ───────────────────────────────────────────────────────────────────────────
+  math3_ch12_sharing_equally: {
+    key_formulas: [
+      { formula: "Division shares a total into EQUAL groups", explanation: "12 sweets ÷ 3 children = 4 each." },
+      { formula: "total ÷ number of groups = amount in each group", explanation: "It's the opposite of multiplication." },
+    ],
+    prerequisite_knowledge: ["equal groups", "multiplication", "counting"],
+    visual_description: "12 sweets dealt out one-by-one into 3 baskets, ending with 4 in each.",
+    svg_diagrams: [svg("math3_ch12_sharing", "12 ÷ 3 = 4 each",
+      `${[0,1,2].map(g=>`<rect x="${40+g*160}" y="60" width="120" height="60" fill="#fef9c3" stroke="#d97706"/>${[0,1,2,3].map(d=>`<circle cx="${60+g*160+d*25}" cy="90" r="9" fill="#ca8a04"/>`).join("")}`).join("")}
+       <text x="40" y="150">12 shared into 3 → 4 each</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Sharing a total equally among groups", "Splitting into equal parts"],
+      use_other_when: ["Combining equal groups → that's multiplication"],
+    },
+    edge_cases: [
+      { case: "Sharing 13 among 3", value: "4 each with 1 left over", reasoning: "Not every total shares exactly.", where_it_appears: "Leads into remainders." },
+      { case: "Sharing among 1 group", value: "that group gets everything", reasoning: "n ÷ 1 = n.", where_it_appears: "Dividing by 1." },
+    ],
+    video_script_hooks: {
+      opening_hook: "12 sweets, 3 friends, no fights! Deal them out one at a time and everyone ends with 4. That fair sharing is division.",
+      concept_reveal: "Division splits a total into equal groups — it undoes multiplication, telling you how many land in each share.",
+    },
+  },
+
+  math3_ch12_division_facts: {
+    key_formulas: [
+      { formula: "Division facts come from times tables: 20 ÷ 5 = 4 because 5 × 4 = 20", explanation: "Each multiplication fact gives a division fact." },
+      { formula: "÷2 halves · ÷10 makes the number ten times smaller", explanation: "e.g. 40 ÷ 10 = 4." },
+    ],
+    prerequisite_knowledge: ["times tables (2, 5, 10)", "sharing equally", "multiplication"],
+    visual_description: "A fact-family triangle linking 5, 4 and 20: 5×4 = 20, so 20÷5 = 4 and 20÷4 = 5.",
+    svg_diagrams: [svg("math3_ch12_division_facts", "Multiplication and division fact family",
+      `<text x="40" y="55" font-weight="bold">5 × 4 = 20</text>
+       <text x="40" y="95" fill="#2563eb">20 ÷ 5 = 4</text>
+       <text x="40" y="135" fill="#16a34a">20 ÷ 4 = 5</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Recalling simple division answers", "Dividing by 2, 5 or 10 quickly"],
+      use_other_when: ["The number doesn't divide exactly → expect a remainder"],
+    },
+    edge_cases: [
+      { case: "Any number ÷ 1", value: "= itself", reasoning: "One group holds the whole.", where_it_appears: "Dividing by 1." },
+      { case: "A number ÷ itself", value: "= 1", reasoning: "One group of the whole amount.", where_it_appears: "n ÷ n." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Know that 5 × 4 = 20? Then you secretly already know 20 ÷ 5 AND 20 ÷ 4. Times tables hand you division for free.",
+      concept_reveal: "Every multiplication fact hides two division facts; knowing your tables makes simple division instant.",
+    },
+  },
+
+  math3_ch12_remainders: {
+    key_formulas: [
+      { formula: "A remainder is what's LEFT OVER after sharing equally", explanation: "13 ÷ 4 = 3 remainder 1." },
+      { formula: "The remainder is always SMALLER than the divisor", explanation: "If it weren't, you could share one more round." },
+    ],
+    prerequisite_knowledge: ["sharing equally", "division facts", "subtraction"],
+    visual_description: "13 dots shared into 4 groups of 3, with 1 dot left to the side as the remainder.",
+    svg_diagrams: [svg("math3_ch12_remainders", "13 ÷ 4 = 3 remainder 1",
+      `${[0,1,2,3].map(g=>`<rect x="${30+g*90}" y="55" width="70" height="55" fill="#dbeafe" stroke="#2563eb"/>${[0,1,2].map(d=>`<circle cx="${50+g*90+d*20}" cy="82" r="8" fill="#2563eb"/>`).join("")}`).join("")}
+       <circle cx="420" cy="82" r="8" fill="#dc2626"/><text x="395" y="125" fill="#dc2626">1 left</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Sharing that doesn't come out even", "Real situations with leftovers"],
+      use_other_when: ["The total divides exactly → remainder is 0"],
+    },
+    edge_cases: [
+      { case: "Remainder equal to the divisor", value: "impossible — share one more", reasoning: "Remainder must be smaller than the divisor.", where_it_appears: "Checking your answer." },
+      { case: "13 ÷ 4", value: "3 remainder 1, NOT 3.25 (at this level)", reasoning: "Class 3 keeps leftovers as whole remainders.", where_it_appears: "Whole-number division." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Share 13 toffees among 4 friends — everyone gets 3, and 1 toffee is left staring at you. That leftover is the remainder.",
+      concept_reveal: "When a total won't split evenly, the leftover is the remainder — and it's always smaller than the number of groups.",
+    },
+  },
+
+  math3_ch12_division_word: {
+    key_formulas: [
+      { formula: "Words like 'share equally', 'each gets', 'split into', 'how many groups' → DIVIDE", explanation: "Splitting a total signals division." },
+      { formula: "total ÷ groups = each, OR total ÷ each = number of groups", explanation: "Two kinds of sharing question." },
+    ],
+    prerequisite_knowledge: ["division facts", "remainders", "reading word problems"],
+    visual_description: "'24 pencils shared equally among 6 children — how many each?' mapped to 24 ÷ 6 = 4.",
+    svg_diagrams: [svg("math3_ch12_division_word", "Words → division",
+      `<text x="20" y="45">"24 pencils, 6 children, EACH?"</text>
+       <text x="20" y="90" fill="#2563eb">'shared equally' → divide</text>
+       <text x="20" y="130" fill="#16a34a">24 ÷ 6 = 4 each</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["A story about sharing a total equally or making equal groups", "Finding 'how many each' or 'how many groups'"],
+      use_other_when: ["Combining equal groups → multiply; combining unequal amounts → add"],
+    },
+    edge_cases: [
+      { case: "'How many full boxes of 6 from 20?'", value: "3 boxes, 2 left over", reasoning: "Division with a remainder.", where_it_appears: "Grouping problems." },
+      { case: "'Each gets' vs 'how many groups'", value: "different unknowns, same division", reasoning: "Identify what's being found.", where_it_appears: "Two division types." },
+    ],
+    video_script_hooks: {
+      opening_hook: "24 pencils, 6 kids, shared fairly. 'Shared equally' is the giveaway — this is a division story, and the answer is 4 each.",
+      concept_reveal: "Division word problems share a total into equal parts; spot 'share/each/split' and divide the total by the groups.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 13 — Data Handling (pictographs, bar graphs, charts)
+  // ───────────────────────────────────────────────────────────────────────────
+  math3_ch13_data_collection: {
+    key_formulas: [
+      { formula: "Data = information we collect (favourites, counts, measures)", explanation: "Organise it before reading it." },
+      { formula: "Use a tally table: |||| = 4, |||| with a slash = 5", explanation: "Group tallies in fives to count fast." },
+    ],
+    prerequisite_knowledge: ["counting", "sorting into groups", "making a table"],
+    visual_description: "A class's pet choices recorded as tally marks per pet, then totalled.",
+    svg_diagrams: [svg("math3_ch13_data_collection", "Tally table of pets",
+      `<text x="30" y="40" font-weight="bold">Pet</text>
+       <text x="30" y="75">Dog   |||| |     6</text>
+       <text x="30" y="105">Cat   ||||       4</text>
+       <text x="30" y="135">Fish  |||        3</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Gathering and organising information", "Counting how often each choice occurs"],
+      use_other_when: ["The data is already summarised → go straight to a graph"],
+    },
+    edge_cases: [
+      { case: "A group of 5 tallies", value: "shown as |||| with a slash", reasoning: "Grouping in fives speeds up counting.", where_it_appears: "Tally convention." },
+      { case: "A choice nobody picked", value: "count of 0", reasoning: "Empty categories still exist.", where_it_appears: "Zero counts." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Ask the whole class their favourite pet and you get a noisy jumble. Tally marks turn that noise into neat numbers.",
+      concept_reveal: "Data handling starts by collecting answers and organising them with tally marks into a clear count.",
+    },
+  },
+
+  math3_ch13_pictographs: {
+    key_formulas: [
+      { formula: "A pictograph shows data with a repeated picture", explanation: "e.g. 🐟 = 1 fish, or 1 picture = 2 items." },
+      { formula: "Count = pictures × the key value", explanation: "Read the key to know what one picture is worth." },
+    ],
+    prerequisite_knowledge: ["data collection", "counting / multiplication", "reading a key"],
+    visual_description: "Rows of pet pictures, one row per pet, with a key stating one picture = 1 pet.",
+    svg_diagrams: [svg("math3_ch13_pictographs", "Pictograph of pets",
+      `<text x="20" y="40">Dog   ● ● ● ● ● ●   6</text>
+       <text x="20" y="75">Cat   ● ● ● ●         4</text>
+       <text x="20" y="110">Fish  ● ● ●            3</text>
+       <text x="20" y="150" fill="#dc2626">Key: ● = 1 pet</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Showing counts in a fun, visual way", "Comparing categories at a glance"],
+      use_other_when: ["Large counts → a bar graph with a scale is tidier"],
+    },
+    edge_cases: [
+      { case: "Key of 1 picture = 2", value: "5 items need 2½ pictures", reasoning: "Half a picture shows an odd count.", where_it_appears: "Scaled pictographs." },
+      { case: "Missing key", value: "graph can't be read", reasoning: "You won't know what one picture means.", where_it_appears: "Common omission." },
+    ],
+    video_script_hooks: {
+      opening_hook: "One little fish picture can stand for one fish — or, with a key, for two! Pictographs make counting a picture story.",
+      concept_reveal: "A pictograph shows data as repeated pictures; multiply the pictures by the key's value to get the count.",
+    },
+  },
+
+  math3_ch13_bar_graphs: {
+    key_formulas: [
+      { formula: "Bar height shows the count for each category", explanation: "Taller bar = more; bars are equal width with gaps." },
+      { formula: "Read the value off the numbered axis", explanation: "Each step on the axis is a fixed amount." },
+    ],
+    prerequisite_knowledge: ["data collection", "reading a number scale", "categories"],
+    visual_description: "A bar graph of pets with a numbered axis: dog bar tallest, then cat, then fish.",
+    svg_diagrams: [svg("math3_ch13_bar_graphs", "Bar graph of pets",
+      `<line x1="50" y1="40" x2="50" y2="160" stroke="#475569"/><line x1="50" y1="160" x2="320" y2="160" stroke="#475569"/>
+       ${[[70,90,"Dog"],[150,60,"Cat"],[230,45,"Fish"]].map(([x,h,l])=>`<rect x="${x}" y="${160-h}" width="45" height="${h}" fill="#2563eb"/><text x="${x}" y="178">${l}</text>`).join("")}`)],
+    when_to_use_this_method: {
+      use_this_when: ["Comparing counts across categories precisely", "Showing larger numbers clearly"],
+      use_other_when: ["A playful picture is enough → use a pictograph"],
+    },
+    edge_cases: [
+      { case: "Axis not starting at 0", value: "misleading", reasoning: "A chopped axis exaggerates differences.", where_it_appears: "Misleading graphs." },
+      { case: "Unequal bar widths", value: "incorrect", reasoning: "Only height should carry meaning.", where_it_appears: "Drawing rules." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Which pet won the class vote? You don't count — you just glance at which bar shoots up the highest.",
+      concept_reveal: "Bar graphs map each category to a bar whose height, read off a number scale, shows its count.",
+    },
+  },
+
+  math3_ch13_reading_charts: {
+    key_formulas: [
+      { formula: "Reading a chart = pulling out values AND comparing them", explanation: "Most, least, total, 'how many more'." },
+      { formula: "Total = add all the category counts", explanation: "e.g. 6 + 4 + 3 = 13 pets in all." },
+    ],
+    prerequisite_knowledge: ["pictographs", "bar graphs", "addition and subtraction"],
+    visual_description: "A bar graph annotated with callouts: tallest = 'most', a subtraction bracket = 'how many more', and a total.",
+    svg_diagrams: [svg("math3_ch13_reading_charts", "Asking questions of a chart",
+      `<line x1="50" y1="40" x2="50" y2="150" stroke="#475569"/><line x1="50" y1="150" x2="300" y2="150" stroke="#475569"/>
+       ${[[70,90],[150,60],[230,45]].map(([x,h])=>`<rect x="${x}" y="${150-h}" width="45" height="${h}" fill="#2563eb"/>`).join("")}
+       <text x="60" y="35" fill="#dc2626">↑ most</text>
+       <text x="20" y="180">Most? Least? How many more? Total?</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Answering questions FROM a chart or graph", "Drawing conclusions like most/least/total"],
+      use_other_when: ["You still need to gather the data → collect it first"],
+    },
+    edge_cases: [
+      { case: "'How many more dogs than fish?'", value: "subtract: 6 − 3 = 3", reasoning: "Comparison needs a difference.", where_it_appears: "Compare questions." },
+      { case: "'How many pets in all?'", value: "add every bar", reasoning: "Total means sum of all categories.", where_it_appears: "Total questions." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A chart isn't the end — it's a question machine. Most popular? How many more? Total? Every answer is sitting in those bars.",
+      concept_reveal: "Reading charts means questioning them: pull out values, then add or subtract to compare and total.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 14 — Money (rupees and paise)
+  // ───────────────────────────────────────────────────────────────────────────
+  math3_ch14_rupees_paise: {
+    key_formulas: [
+      { formula: "1 rupee (₹) = 100 paise", explanation: "The rupee is the bigger unit." },
+      { formula: "Write money as ₹ and paise, e.g. ₹5.50 = 5 rupees 50 paise", explanation: "The dot separates rupees from paise." },
+    ],
+    prerequisite_knowledge: ["counting to 100", "place value", "coins and notes"],
+    visual_description: "Coins and notes labelled, with 100 paise shown equalling ₹1.",
+    svg_diagrams: [svg("math3_ch14_rupees_paise", "₹1 = 100 paise",
+      `<circle cx="90" cy="90" r="40" fill="#fde68a" stroke="#d97706"/><text x="72" y="96">₹1</text>
+       <text x="160" y="96" font-size="20">=</text>
+       <text x="200" y="96">100 paise</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Reading and writing amounts of money", "Knowing how rupees and paise relate"],
+      use_other_when: ["Counting objects, not money → no ₹ units needed"],
+    },
+    edge_cases: [
+      { case: "150 paise", value: "= ₹1 and 50 paise", reasoning: "100 paise make ₹1.", where_it_appears: "Mixed money." },
+      { case: "₹5.05", value: "5 rupees 5 paise (not 50)", reasoning: "The 0 holds the tens-of-paise place.", where_it_appears: "Zeros in money." },
+    ],
+    video_script_hooks: {
+      opening_hook: "100 paise jingling in your hand equals one single rupee coin. Money has place value too — just with ₹ and paise.",
+      concept_reveal: "Money uses rupees and paise, with 100 paise making one rupee, written with a dot between them.",
+    },
+  },
+
+  math3_ch14_money_conversion: {
+    key_formulas: [
+      { formula: "Rupees → paise: multiply by 100", explanation: "₹3 = 300 paise." },
+      { formula: "Paise → rupees: divide by 100", explanation: "250 paise = ₹2 and 50 paise." },
+    ],
+    prerequisite_knowledge: ["rupees and paise", "multiply/divide by 100", "place value"],
+    visual_description: "₹3 converting to 300 paise (×100) and 250 paise converting to ₹2.50 (÷100).",
+    svg_diagrams: [svg("math3_ch14_money_conversion", "Converting rupees and paise",
+      `<text x="30" y="60" fill="#2563eb">₹3 × 100 = 300 paise</text>
+       <text x="30" y="110" fill="#16a34a">250 paise ÷ 100 = ₹2.50</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Changing between rupees and paise", "Making units match before adding money"],
+      use_other_when: ["Amounts are already in the same unit"],
+    },
+    edge_cases: [
+      { case: "75 paise", value: "= ₹0.75 (less than ₹1)", reasoning: "Under 100 paise stays under a rupee.", where_it_appears: "Small amounts." },
+      { case: "₹2.05 to paise", value: "205 paise", reasoning: "2×100 + 5.", where_it_appears: "Converting with a zero." },
+    ],
+    video_script_hooks: {
+      opening_hook: "₹3 or 300 paise — same money, different clothes. Multiply by 100 to go one way, divide by 100 to come back.",
+      concept_reveal: "Convert money by the rule of 100: rupees to paise multiply, paise to rupees divide.",
+    },
+  },
+
+  math3_ch14_money_addition: {
+    key_formulas: [
+      { formula: "Add/subtract money like numbers, keeping the dot lined up", explanation: "₹12.50 + ₹3.25 = ₹15.75." },
+      { formula: "Rupees with rupees, paise with paise", explanation: "Same as place-value column work." },
+    ],
+    prerequisite_knowledge: ["rupees and paise", "column addition/subtraction", "carrying/borrowing"],
+    visual_description: "A column sum ₹12.50 + ₹3.25 with the dots aligned, giving ₹15.75.",
+    svg_diagrams: [svg("math3_ch14_money_addition", "Adding money: ₹12.50 + ₹3.25",
+      `<text x="110" y="55" font-family="monospace" font-size="18">  12.50</text>
+       <text x="110" y="82" font-family="monospace" font-size="18">+  3.25</text>
+       <line x1="120" y1="90" x2="240" y2="90" stroke="#475569"/>
+       <text x="110" y="115" font-family="monospace" font-size="18" fill="#16a34a">  15.75</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Adding up prices or finding change", "Any money calculation"],
+      use_other_when: ["Amounts in different units → convert to match first"],
+    },
+    edge_cases: [
+      { case: "Paise adding past 100 (₹2.60 + ₹2.50)", value: "carry ₹1 (= ₹5.10)", reasoning: "100 paise become 1 rupee.", where_it_appears: "Carrying in money." },
+      { case: "Dots not lined up", value: "wrong total", reasoning: "Rupees must sit under rupees.", where_it_appears: "Alignment error." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Two chocolates: ₹12.50 and ₹3.25. Stack them with the dots lined up and adding money is just like adding any numbers.",
+      concept_reveal: "Add and subtract money by lining up the dot — rupees under rupees, paise under paise — carrying when paise pass 100.",
+    },
+  },
+
+  math3_ch14_money_problems: {
+    key_formulas: [
+      { formula: "Total cost → add; change → subtract (money paid − cost)", explanation: "Buy and pay situations." },
+      { formula: "Change = amount given − total cost", explanation: "₹50 − ₹35 = ₹15 change." },
+    ],
+    prerequisite_knowledge: ["adding/subtracting money", "rupees and paise", "reading word problems"],
+    visual_description: "'Pen ₹35, paid with ₹50 — change?' mapped to ₹50 − ₹35 = ₹15.",
+    svg_diagrams: [svg("math3_ch14_money_problems", "Money word problem (change)",
+      `<text x="20" y="45">"Pen ₹35, paid ₹50, change?"</text>
+       <text x="20" y="90" fill="#2563eb">change = paid − cost</text>
+       <text x="20" y="130" fill="#16a34a">₹50 − ₹35 = ₹15</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Shopping problems — totals, change, can-I-afford-it", "Combining or comparing amounts of money"],
+      use_other_when: ["Just reading an amount → no calculation needed"],
+    },
+    edge_cases: [
+      { case: "Buying several items", value: "add all prices for the total", reasoning: "Total cost combines every item.", where_it_appears: "Multi-item bills." },
+      { case: "Not enough money", value: "the difference is the shortfall", reasoning: "Cost − money = how much more is needed.", where_it_appears: "Can't-afford problems." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A pen costs ₹35 and you hand over ₹50. How much change? Money problems are just add for totals, subtract for change.",
+      concept_reveal: "Money word problems add prices for totals and subtract to find change — everyday maths you'll use for life.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

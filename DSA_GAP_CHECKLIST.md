@@ -137,9 +137,14 @@ Topic content is mismatched to topic titles.
 
 (Healthy modules for comparison: M29–M35 each have ~1 dup at most; M30.5 = 37/37.)
 
-**NOT auto-fixed** — deletion alone would leave t2–t5 nearly empty; the real fix is
-re-authoring topic-specific exercises per topic (~20 topics across 4–5 modules), a
-large content task. Awaiting direction on scope/order before touching live content.
+✅ **RESOLVED 2026-06-03** — all 5 modules re-authored with topic-specific exercises
+(overwrote duplicated ex_1..ex_N slots in place → preserved exerciseIds, kept each
+pm_1 + Section-B additions, deleted leftover dup slots). Scripts:
+`reauthorM37Graphs.js`, `reauthorM38Sorting.js`, `reauthorM39BinarySearch.js`,
+`reauthorM40Backtracking.js`, `reauthorM41DP.js` (all idempotent).
+Post-fix distinct-title ratios: M37 36/36, M38 31/31, M39 23/23, M40 17/17,
+M41 23/23 — **0 duplication**. All `code_scratch` outputs hand-verified.
+(M36 Heaps 56/34 still has partial duplication — separate, not in this batch.)
 
 ## Score
 | DS | covered | missing |

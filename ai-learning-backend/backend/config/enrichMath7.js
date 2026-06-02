@@ -150,6 +150,230 @@ const ENRICH = {
       concept_reveal: "To round, peek at the very next digit: 5 or more rounds up, 4 or less stays. That's the whole trick.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 2 — Arithmetic Expressions
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch2_expressions_intro: {
+    key_formulas: [
+      { formula: "expression → value  (e.g. 13 + 2 = 15)", explanation: "Every arithmetic expression evaluates to a single number, its value." },
+      { formula: "Compare expressions by value with <, =, >", explanation: "10 + 2 > 7 + 1 because 12 > 8." },
+    ],
+    prerequisite_knowledge: ["the four operations (+ − × ÷)", "comparing whole numbers with <, =, >", "reading number sentences"],
+    visual_description: "Two expression cards — '10 + 2' and '7 + 1' — each showing its value (12 and 8) below it, with a '>' sign between the cards because the left value is greater.",
+    svg_diagrams: [svg("math7_ch2_expressions_compare", "Comparing expressions by their values",
+      `<text x="20" y="28" font-weight="bold">Compare expressions by value</text>
+       <rect x="40" y="55" width="150" height="70" fill="#dcfce7" stroke="#15803d"/><text x="80" y="90" font-size="18">10 + 2</text><text x="95" y="115" fill="#15803d">= 12</text>
+       <text x="225" y="98" font-size="28" fill="#dc2626">&gt;</text>
+       <rect x="280" y="55" width="150" height="70" fill="#fee2e2" stroke="#b91c1c"/><text x="320" y="90" font-size="18">7 + 1</text><text x="335" y="115" fill="#b91c1c">= 8</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Translating a word phrase ('sum of', 'product of') into symbols", "Comparing two quantities written as expressions"],
+      use_other_when: ["A bare number with no operation — there's nothing to evaluate"],
+    },
+    edge_cases: [
+      { case: "Different expressions, same value: 10+2, 15−3, 3×4, 24÷2", value: "all equal 12", reasoning: "Many expressions can share a single value.", where_it_appears: "Writing equivalent expressions." },
+      { case: "Compare without full computation: 1023+125 vs 1022+128", value: "the second is greater", reasoning: "1022+128 = (1023−1)+(125+3) = (1023+125)+2.", where_it_appears: "Reasoning about expressions, not just numbers." },
+    ],
+    video_script_hooks: {
+      opening_hook: "'5 times 25' and '125' are the same thing in different clothes — one is an expression, the other is its value.",
+      concept_reveal: "An arithmetic expression is a phrase like 13 + 2; its value is the single number it equals. Compare expressions by comparing their values.",
+    },
+  },
+
+  math7_ch2_brackets: {
+    key_formulas: [
+      { formula: "Evaluate inside ( ) first", explanation: "30 + (5 × 4) = 30 + 20 = 50 — the bracket is computed before the rest." },
+      { formula: "a − (b + c) groups the whole subtraction", explanation: "100 − (15 + 56) = 100 − 71 = 29." },
+    ],
+    prerequisite_knowledge: ["arithmetic expressions and their values", "the four operations", "left-to-right reading of expressions"],
+    visual_description: "The expression 30 + (5 × 4) with the bracketed part highlighted and an arrow showing it is evaluated first to 20, then added to 30 to give 50.",
+    svg_diagrams: [svg("math7_ch2_brackets_first", "Brackets are evaluated first",
+      `<text x="20" y="28" font-weight="bold">30 + (5 × 4)</text>
+       <rect x="78" y="45" width="80" height="32" fill="#fef9c3" stroke="#a16207"/><text x="92" y="67">5 × 4</text>
+       <text x="180" y="67" fill="#a16207">→ 20</text>
+       <text x="20" y="110" font-size="16">30 + 20 = 50</text>
+       <text x="20" y="150" fill="#64748b" font-size="12">Without brackets, terms decide: 30 + 5 × 4 = 50 too — but (30+5)×4 = 140.</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["You must do an addition/subtraction BEFORE a multiplication", "Grouping a phrase like 'total of two costs, then doubled'"],
+      use_other_when: ["No brackets present → use the order-of-operations (terms) rule instead"],
+    },
+    edge_cases: [
+      { case: "Nested brackets: 2 × (3 + (4 − 1))", value: "work innermost first → 2 × (3 + 3) = 12", reasoning: "Resolve the inner ( ) before the outer.", where_it_appears: "Multi-level grouping." },
+      { case: "Brackets change the answer: 30 + 5 × 4 vs (30 + 5) × 4", value: "50 vs 140", reasoning: "Brackets override the default order of operations.", where_it_appears: "Why brackets matter at all." },
+    ],
+    video_script_hooks: {
+      opening_hook: "30 + 5 × 4: is it 50 or 140? One tiny pair of brackets decides.",
+      concept_reveal: "Brackets are a 'do me first' instruction — whatever is inside gets evaluated before anything outside.",
+    },
+  },
+
+  math7_ch2_evaluating: {
+    key_formulas: [
+      { formula: "Terms = parts separated by +", explanation: "In 83 − 14 the terms are 83 and −14 (subtraction is adding a negative)." },
+      { formula: "Evaluate each term's × and ÷, then add the terms", explanation: "30 + 5 × 4 → terms 30 and (5×4=20) → 30 + 20 = 50." },
+    ],
+    prerequisite_knowledge: ["arithmetic expressions and values", "multiplication and division facts", "the idea of a negative number"],
+    visual_description: "The expression 30 + 5 × 4 with the single term '5 × 4' boxed, an arrow reducing it to 20, and the next line showing 30 + 20 = 50.",
+    svg_diagrams: [svg("math7_ch2_terms", "Split into terms, evaluate, then add",
+      `<text x="20" y="28" font-weight="bold">30 + 5 × 4  →  terms: 30 and (5 × 4)</text>
+       <rect x="20" y="50" width="70" height="34" fill="#dcfce7" stroke="#15803d"/><text x="44" y="73">30</text>
+       <text x="98" y="73" font-size="18">+</text>
+       <rect x="118" y="50" width="90" height="34" fill="#fef9c3" stroke="#a16207"/><text x="140" y="73">5 × 4</text><text x="220" y="73" fill="#a16207">→ 20</text>
+       <text x="20" y="120" font-size="16">30 + 20 = 50</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Evaluating an expression with mixed + and ×/÷ and no brackets", "Deciding which operation happens first"],
+      use_other_when: ["Brackets are present → evaluate inside them first"],
+    },
+    edge_cases: [
+      { case: "Subtraction as a term: 83 − 14", value: "terms 83 and −14", reasoning: "Reading − as +(−) lets you swap and group terms safely.", where_it_appears: "Reordering subtraction expressions." },
+      { case: "Swapping terms: 30 + 20 = 20 + 30", value: "same value", reasoning: "Terms can be added in any order (commutativity).", where_it_appears: "Grouping for easier mental math." },
+    ],
+    video_script_hooks: {
+      opening_hook: "30 + 5 × 4 has no brackets — so how do you know what to do first? Break it into 'terms'.",
+      concept_reveal: "Split at the + signs into terms, finish each term's × and ÷, then add the terms together.",
+    },
+  },
+
+  math7_ch2_order_operations: {
+    key_formulas: [
+      { formula: "Order: Brackets → ×/÷ → +/−", explanation: "Brackets first, then multiplication/division, then addition/subtraction." },
+      { formula: "Same level → left to right", explanation: "12 ÷ 3 × 2 = 4 × 2 = 8 (not 12 ÷ 6)." },
+    ],
+    prerequisite_knowledge: ["brackets in expressions", "terms in an expression", "the four operations"],
+    visual_description: "A top-to-bottom ladder labelled Brackets, then ×/÷, then +/−, with 100 − (15 + 56) + 2 × 3 worked down the ladder: brackets → 71, then 2×3 → 6, then 100 − 71 + 6 = 35.",
+    svg_diagrams: [svg("math7_ch2_order_ladder", "Order of operations ladder",
+      `<text x="20" y="26" font-weight="bold">Order of operations</text>
+       <rect x="20" y="40" width="200" height="30" fill="#e0f2fe" stroke="#0369a1"/><text x="34" y="60">1. Brackets ( )</text>
+       <rect x="20" y="78" width="200" height="30" fill="#fef9c3" stroke="#a16207"/><text x="34" y="98">2. × and ÷ (left→right)</text>
+       <rect x="20" y="116" width="200" height="30" fill="#dcfce7" stroke="#15803d"/><text x="34" y="136">3. + and − (left→right)</text>
+       <text x="250" y="60" font-size="12">100 − (15+56) + 2×3</text>
+       <text x="250" y="98" font-size="12">= 100 − 71 + 6</text>
+       <text x="250" y="136" font-size="12">= 35</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Any expression mixing several operations", "Deciding the sequence of steps in a multi-operation calculation"],
+      use_other_when: ["A single operation — order doesn't arise"],
+    },
+    edge_cases: [
+      { case: "÷ and × together: 12 ÷ 3 × 2", value: "8, not 2", reasoning: "Same level → go left to right; don't always do × before ÷.", where_it_appears: "Classic BODMAS trap." },
+      { case: "Only + and −: 10 − 3 + 2", value: "9, not 5", reasoning: "Same level → left to right; subtraction isn't done 'before' addition.", where_it_appears: "Left-to-right within a level." },
+    ],
+    video_script_hooks: {
+      opening_hook: "12 ÷ 3 × 2 — is it 8 or 2? Most people slip by doing × before ÷.",
+      concept_reveal: "Brackets, then ×/÷, then +/− — and on the same level, always work left to right.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 3 — A Peek Beyond the Point (decimals)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch3_place_value_decimal: {
+    key_formulas: [
+      { formula: "Places after the point: tenths (1/10), hundredths (1/100), thousandths (1/1000)", explanation: "Each place is one-tenth of the place to its left." },
+      { formula: "3.45 = 3 + 4×(1/10) + 5×(1/100)", explanation: "Expanded form of a decimal." },
+    ],
+    prerequisite_knowledge: ["whole-number place value", "fractions with denominators 10, 100, 1000", "reading decimal notation"],
+    visual_description: "A place-value chart with a decimal point separating Ones • Tenths • Hundredths • Thousandths, showing 3.45 with 3 in ones, 4 in tenths, 5 in hundredths.",
+    svg_diagrams: [svg("math7_ch3_decimal_places", "Decimal place-value chart for 3.45",
+      `<text x="20" y="26" font-weight="bold">3.45 in the place-value chart</text>
+       ${["Ones","Tenths","Hundredths"].map((p,i)=>`<rect x="${20+i*150}" y="45" width="140" height="34" fill="#f1f5f9" stroke="#475569"/><text x="${90+i*150}" y="67" text-anchor="middle">${p}</text>`).join("")}
+       <text x="90" y="115" text-anchor="middle" font-size="22" font-weight="bold">3</text>
+       <text x="170" y="115" font-size="22" font-weight="bold">.</text>
+       <text x="240" y="115" text-anchor="middle" font-size="22" font-weight="bold">4</text>
+       <text x="390" y="115" text-anchor="middle" font-size="22" font-weight="bold">5</text>
+       <text x="20" y="155" font-size="12">= 3 + 4×(1/10) + 5×(1/100)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Reading/writing a decimal in expanded form", "Naming the value of a digit after the point"],
+      use_other_when: ["Whole numbers only — there are no fractional places"],
+    },
+    edge_cases: [
+      { case: "Trailing zeros: 3.4 vs 3.40", value: "equal", reasoning: "Zeros after the last decimal digit don't change the value.", where_it_appears: "Writing/comparing decimals." },
+      { case: "Leading zero in tenths: 0.05", value: "5 hundredths, not 5 tenths", reasoning: "The 0 in the tenths place is a placeholder.", where_it_appears: "Small decimals." },
+    ],
+    video_script_hooks: {
+      opening_hook: "2.7 cm means 2 whole centimetres and 7 tenths of the next one. The dot is where whole numbers end and parts begin.",
+      concept_reveal: "After the point: tenths, then hundredths, then thousandths — each ten times smaller than the last.",
+    },
+  },
+
+  math7_ch3_decimal_fractions: {
+    key_formulas: [
+      { formula: "0.1 = 1/10,  0.01 = 1/100", explanation: "A decimal is just a fraction with denominator 10, 100, 1000…" },
+      { formula: "0.25 = 25/100 = 1/4", explanation: "Write the decimal over its place value, then simplify." },
+    ],
+    prerequisite_knowledge: ["decimal place value", "equivalent fractions and simplifying", "fractions with denominators 10 and 100"],
+    visual_description: "A 10×10 hundred-square with 25 of the 100 cells shaded, labelled 0.25 = 25/100 = 1/4.",
+    svg_diagrams: [svg("math7_ch3_hundred_square", "0.25 as 25/100 on a hundred-square",
+      `<text x="20" y="22" font-weight="bold">0.25 = 25/100 = 1/4</text>
+       ${Array.from({length:10}).map((_,r)=>Array.from({length:10}).map((_,c)=>{const i=r*10+c;const fill=i<25?"#60a5fa":"#fff";return `<rect x="${30+c*15}" y="${30+r*15}" width="15" height="15" fill="${fill}" stroke="#94a3b8"/>`;}).join("")).join("")}
+       <text x="200" y="110" font-size="13">25 of 100 squares shaded</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Converting between a decimal and a fraction", "Recognising 0.5 = 1/2, 0.2 = 1/5, 0.75 = 3/4"],
+      use_other_when: ["Denominators that don't divide a power of 10 (e.g. 1/3) — those give non-terminating decimals"],
+    },
+    edge_cases: [
+      { case: "1/3 as a decimal", value: "0.333… (non-terminating)", reasoning: "3 doesn't divide any power of 10, so it never terminates.", where_it_appears: "Not every fraction is a 'neat' decimal." },
+      { case: "0.50 → fraction", value: "50/100 = 1/2", reasoning: "Always reduce to lowest terms.", where_it_appears: "Decimal → fraction conversion." },
+    ],
+    video_script_hooks: {
+      opening_hook: "0.25 and 1/4 and 'a quarter' are three names for the same amount. Decimals are secretly fractions.",
+      concept_reveal: "Put the decimal's digits over its place value (0.25 = 25/100), then simplify the fraction.",
+    },
+  },
+
+  math7_ch3_comparing_decimals: {
+    key_formulas: [
+      { formula: "Align the decimal points, then compare place by place (left → right)", explanation: "Whole part first, then tenths, then hundredths…" },
+      { formula: "Pad with zeros to equal length: 0.5 = 0.50", explanation: "Makes the place-by-place comparison straightforward." },
+    ],
+    prerequisite_knowledge: ["decimal place value", "comparing whole numbers", "equivalent decimals (trailing zeros)"],
+    visual_description: "0.5 and 0.45 written with decimal points aligned (0.50 vs 0.45); an arrow scans the tenths place: 5 > 4, so 0.5 is greater.",
+    svg_diagrams: [svg("math7_ch3_compare_decimals", "Compare 0.5 and 0.45 by aligning points",
+      `<text x="20" y="26" font-weight="bold">Compare 0.5 and 0.45</text>
+       <text x="60" y="70" font-family="monospace" font-size="20">0.50</text>
+       <text x="60" y="100" font-family="monospace" font-size="20">0.45</text>
+       <circle cx="92" cy="63" r="13" fill="none" stroke="#dc2626" stroke-width="2"/>
+       <text x="180" y="88" fill="#dc2626">tenths: 5 &gt; 4 → 0.5 is larger</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Ordering decimals (prices, measurements)", "Deciding which of two decimals is larger"],
+      use_other_when: ["Quantities in different units — convert to the same unit first"],
+    },
+    edge_cases: [
+      { case: "0.5 vs 0.45", value: "0.5 is greater", reasoning: "More digits ≠ larger; compare the tenths first (5 > 4).", where_it_appears: "The classic decimal-comparison trap." },
+      { case: "Trailing zeros: 0.5 vs 0.50", value: "equal", reasoning: "Padding zeros don't change the value.", where_it_appears: "Equivalent decimals." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Which is bigger: 0.5 or 0.45? It LOOKS like 0.45 has more digits — but 0.5 wins.",
+      concept_reveal: "Line up the decimal points, pad with zeros, then compare digit by digit from the left.",
+    },
+  },
+
+  math7_ch3_decimals_review: {
+    key_formulas: [
+      { formula: "Decimal = whole part + fractional part, split by the point", explanation: "6.3 = 6 units and 3 tenths." },
+      { formula: "Add/subtract by aligning decimal points", explanation: "Line up the points, then operate place by place, carrying/borrowing as usual." },
+    ],
+    prerequisite_knowledge: ["decimal place value", "decimals ↔ fractions", "comparing decimals"],
+    visual_description: "Two lengths 2.7 cm and 3.6 cm stacked with decimal points aligned and summed to 6.3 cm (13 tenths regroup to 1 unit + 3 tenths).",
+    svg_diagrams: [svg("math7_ch3_decimal_add", "Aligned decimal addition: 2.7 + 3.6 = 6.3",
+      `<text x="20" y="26" font-weight="bold">Align the points, then add</text>
+       <text x="80" y="64" font-family="monospace" font-size="20">  2.7</text>
+       <text x="80" y="92" font-family="monospace" font-size="20">+ 3.6</text>
+       <line x1="80" y1="102" x2="180" y2="102" stroke="#475569"/>
+       <text x="80" y="128" font-family="monospace" font-size="20">  6.3</text>
+       <text x="220" y="100" font-size="12" fill="#64748b">7+6 = 13 tenths = 1 unit + 3 tenths</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Everyday decimal quantities: money, lengths, masses", "Combining or comparing measured values"],
+      use_other_when: ["Exact fractions like 1/3 that don't terminate — keep them as fractions"],
+    },
+    edge_cases: [
+      { case: "Regrouping tenths: 2.7 + 3.6", value: "6.3 (13 tenths = 1 unit + 3 tenths)", reasoning: "Carry from the tenths into the units, like whole-number addition.", where_it_appears: "Decimal addition." },
+      { case: "Borrowing across the point: 12.4 − 4.7", value: "7.7", reasoning: "Split a whole unit into 10 tenths to subtract.", where_it_appears: "Decimal subtraction." },
+    ],
+    video_script_hooks: {
+      opening_hook: "₹2.70 + ₹3.60 = ₹6.30 — and the only rule that matters is: line up the dots.",
+      concept_reveal: "A decimal is whole units plus tenths/hundredths; add or subtract them by aligning the decimal points first.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

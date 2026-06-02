@@ -297,6 +297,7 @@
     "validate:track-isolation:verbose": "node config/validateTrackIsolation.mjs --verbose",
     "smoke": "node scripts/smoke.mjs",
     "seed:pro-java-pilot": "node config/seedJavaPilot.js",
+    "seed:reveal-topics": "node config/seedRevealTopics.js",
     "acceptance:pro-java": "node scripts/acceptanceTest.mjs",
     "acceptance:pro-java-v3": "node scripts/acceptanceTestV3.mjs",
     "acceptance:pro-review": "node scripts/acceptanceReviewSpacedRep.mjs",

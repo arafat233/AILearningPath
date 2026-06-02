@@ -36,6 +36,11 @@
 
 ## 🅰️ SESSION A — Module M33 (Stacks & Queues) — 13 items
 
+> ✅ **COMPLETE 2026-06-02** — `config/seedM33StackQueueGaps.js` (`npm run seed:m33-gaps`),
+> idempotent. All 13 seeded: 8 queue → T3, 4 stack → T1, 1 (132 Pattern) → T2.
+> Verified: 13/13 present, valid IDs/types/levels, no position collisions, +2 teaching notes.
+> Module java_m33 now 78 exercises.
+
 > One new seed file: `config/seedM33StackQueueGaps.js`. Queue exercises append to
 > M33 T3 (Queue) / T4 (Deque); Stack exercises append to M33 T1 (Stack) / T2 (Monotonic).
 

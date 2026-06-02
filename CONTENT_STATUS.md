@@ -56,21 +56,21 @@
 
 | Grade | Topics | Questions | Ph0 | Ph1 | Ph2 | Ph3 | Ph4 | Ph5 | Ph6 | Ph7 | Ph8 | Ph9 | Audit | Notes |
 |-------|--------|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|-------|
-| 10 | ~30 | ~200 | ✅ | ✅ | ✅ | ✅ | — | — | — | ✅ | ✅ | ✅ | ✅ | First Flight + Footprints; no diagrams for literature; 35/35 topics, 256 Qs |
+| 10 | ~30 | ~200 | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | ✅ | ✅ | ✅ | ✅ | First Flight + Footprints + Grammar; 35/35 topics, 256 Qs. **v3 enrichment COMPLETE (2026-06-02):** `enrichEnglish10.js` (`npm run enrich:english10`) added the 5 missing teaching_content fields (visual_description, svg_diagrams, when_to_use_this_method=exam application, edge_cases=common misreadings/traps, video_script_hooks) to all 35 `eng_*` docs; each now carries an inline theme/character/plot SVG (Ph4). Gap-verified 0/35 missing. |
 | 9  | —   | —    | ❌ | ❌ | ❌ | ❌ | — | — | — | ❌ | ❌ | ❌ | ❌ | Not started |
 
 ### Hindi
 
 | Grade | Topics | Questions | Ph0 | Ph1 | Ph2 | Ph3 | Ph4 | Ph5 | Ph6 | Ph7 | Ph8 | Ph9 | Audit | Notes |
 |-------|--------|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|-------|
-| 10 | ~25 | ~200 | ✅ | ✅ | ✅ | ✅ | — | — | — | ✅ | ✅ | ✅ | ✅ | Kshitij + Kritika; 32/32 topics, 129 Qs |
+| 10 | ~25 | ~200 | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | ✅ | ✅ | ✅ | ✅ | Kshitij + Sparsh + Kritika + Sanchayan; 32/32 topics, 129 Qs. **v3 enrichment COMPLETE (2026-06-02):** `enrichHindi10.js` (`npm run enrich:hindi10`) added all 7 missing fields (key_formulas=मुख्य काव्य/गद्य बिंदु, prerequisite_knowledge=पूर्व ज्ञान — both were empty — plus visual_description, svg_diagrams, when_to_use_this_method=परीक्षा-प्रयोग, edge_cases=भ्रांतियाँ/जाल, video_script_hooks) to all 32 `hin_*` docs in Devanagari; each now carries an inline भाव/पात्र/कथानक SVG (Ph4). Gap-verified 0/32 missing. |
 | 9  | —   | —    | ❌ | ❌ | ❌ | ❌ | — | — | — | ❌ | ❌ | ❌ | ❌ | Not started |
 
 ### Social Science
 
 | Grade | Topics | Questions | Ph0 | Ph1 | Ph2 | Ph3 | Ph4 | Ph5 | Ph6 | Ph7 | Ph8 | Ph9 | Audit | Notes |
 |-------|--------|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|-------|
-| 10 | ~40 | ~200 | ✅ | ✅ | ✅ | ✅ | — | — | — | ✅ | ✅ | ✅ | ✅ | History + Geography + Civics + Economics; 61/61 topics, 359 Qs ⚠️ Manufacturing Industries + Lifelines of National Economy have 0 questions |
+| 10 | ~40 | ~200 | ✅ | ✅ | ✅ | ✅ | ✅ | — | — | ✅ | ✅ | ✅ | ✅ | History + Geography + Civics + Economics; 75 `sst_ch*` topics, 359 Qs. **v3 enrichment COMPLETE (2026-06-02):** `enrichSocialScience10.js` (`npm run enrich:sst10`) added the 5 missing teaching_content fields (visual_description, svg_diagrams=timeline/concept-web/map, when_to_use_this_method=exam application, edge_cases=common confusions/traps, video_script_hooks) to all 75 docs, plus prerequisite_knowledge to the 5 that lacked it; each now carries an inline SVG (Ph4). Gap-verified 0/75 missing. ⚠️ Manufacturing Industries + Lifelines of National Economy still have 0 questions |
 | 9  | —   | —    | ❌ | ❌ | ❌ | ❌ | — | — | — | ❌ | ❌ | ❌ | ❌ | Not started |
 
 ---

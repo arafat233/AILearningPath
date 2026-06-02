@@ -1031,6 +1031,215 @@ const ENRICH = {
       concept_reveal: "Congruence isn't just textbook geometry — it's how tiles, coins and machine parts are made to match exactly.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 10 — Operations with Integers
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch10_integers_intro: {
+    key_formulas: [
+      { formula: "Integers = …, −3, −2, −1, 0, 1, 2, 3, …", explanation: "Whole numbers together with their negatives." },
+      { formula: "On a number line, right = positive, left = negative", explanation: "The further left, the smaller the value: −5 < −2 < 0 < 3." },
+    ],
+    prerequisite_knowledge: ["whole numbers", "the number line", "the idea of opposite directions"],
+    visual_description: "A number line from −5 to 5 with 0 in the middle, arrows pointing right (positive) and left (negative), and dots on −3 and +3 as opposites.",
+    svg_diagrams: [svg("math7_ch10_integers_intro", "The integer number line",
+      `<line x1="40" y1="100" x2="520" y2="100" stroke="#475569" stroke-width="2"/>
+       ${Array.from({length:11},(_,i)=>{const x=60+i*44,v=i-5;return `<line x1="${x}" y1="95" x2="${x}" y2="105" stroke="#475569"/><text x="${x-6}" y="125">${v}</text>`}).join("")}
+       <circle cx="148" cy="100" r="5" fill="#dc2626"/><circle cx="412" cy="100" r="5" fill="#2563eb"/>
+       <text x="120" y="75" fill="#dc2626">−3</text><text x="395" y="75" fill="#2563eb">+3</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Representing quantities with direction (temperature, debt, gain/loss)", "Comparing or ordering negative numbers"],
+      use_other_when: ["Only counting amounts that can't go below zero → plain whole numbers suffice"],
+    },
+    edge_cases: [
+      { case: "Which is greater, −5 or −2?", value: "−2", reasoning: "It sits further right on the number line.", where_it_appears: "Ordering negatives." },
+      { case: "0", value: "neither positive nor negative", reasoning: "It's the boundary between the two.", where_it_appears: "Sign classification." },
+    ],
+    video_script_hooks: {
+      opening_hook: "−5°C or −2°C — which is colder? Your instinct says 5 is bigger, but on the number line −5 is further left, so it's the colder one.",
+      concept_reveal: "Integers extend numbers left of zero; position on the line, not the digit, tells you which is greater.",
+    },
+  },
+
+  math7_ch10_addition_subtraction: {
+    key_formulas: [
+      { formula: "Adding a negative moves left; adding a positive moves right", explanation: "5 + (−7) = −2: start at 5, move 7 left." },
+      { formula: "Subtracting = adding the opposite: a − b = a + (−b)", explanation: "7 − 18 = 7 + (−18) = −11." },
+    ],
+    prerequisite_knowledge: ["integers and the number line", "the token (+/−) model", "addition and subtraction of whole numbers"],
+    visual_description: "A number line showing 5 + (−7): an arrow starting at 5 hopping 7 units left to land on −2; below it, red/black tokens cancelling in pairs.",
+    svg_diagrams: [svg("math7_ch10_add_sub", "5 + (−7) = −2 on the number line",
+      `<line x1="40" y1="100" x2="520" y2="100" stroke="#475569" stroke-width="2"/>
+       ${Array.from({length:11},(_,i)=>{const x=60+i*44,v=i-5;return `<line x1="${x}" y1="96" x2="${x}" y2="104" stroke="#94a3b8"/><text x="${x-6}" y="122">${v}</text>`}).join("")}
+       <path d="M280 80 Q190 40 148 80" fill="none" stroke="#dc2626" stroke-width="2" marker-end="url(#a)"/>
+       <text x="200" y="40" fill="#dc2626">−7</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Adding/subtracting numbers with mixed signs", "Real situations of gain then loss (or vice versa)"],
+      use_other_when: ["Both numbers positive and no subtraction crosses zero → ordinary arithmetic"],
+    },
+    edge_cases: [
+      { case: "7 − 18", value: "−11", reasoning: "Subtracting a bigger number crosses below zero.", where_it_appears: "Token model: remove more than you have." },
+      { case: "−4 − (−6)", value: "+2", reasoning: "Subtracting a negative adds: −4 + 6 = 2.", where_it_appears: "Double-negative trap." },
+    ],
+    video_script_hooks: {
+      opening_hook: "You owe ₹18 but have only ₹7. After paying what you can, where are you? Not zero — you're at −11. That's integer subtraction.",
+      concept_reveal: "Subtracting is just adding the opposite; on the number line, plus jumps right, minus jumps left.",
+    },
+  },
+
+  math7_ch10_multiplication: {
+    key_formulas: [
+      { formula: "(+)(+) = + · (−)(−) = + · (+)(−) = − · (−)(+) = −", explanation: "Same signs give positive; different signs give negative." },
+      { formula: "(−a) × b = −(a×b)", explanation: "Multiply the digits, then fix the sign by the rule." },
+    ],
+    prerequisite_knowledge: ["integer addition (repeated)", "sign of a number", "multiplication tables"],
+    visual_description: "A sign-grid: rows + and − against columns + and −, the four cells coloured to show + + = +, − − = +, + − = −, − + = −.",
+    svg_diagrams: [svg("math7_ch10_mult", "Sign rules for multiplication",
+      `<rect x="120" y="50" width="80" height="50" fill="#dcfce7" stroke="#475569"/><text x="150" y="82">+ · + = +</text>
+       <rect x="200" y="50" width="80" height="50" fill="#fee2e2" stroke="#475569"/><text x="225" y="82">+ · − = −</text>
+       <rect x="120" y="100" width="80" height="50" fill="#fee2e2" stroke="#475569"/><text x="150" y="132">− · + = −</text>
+       <rect x="200" y="100" width="80" height="50" fill="#dcfce7" stroke="#475569"/><text x="225" y="132">− · − = +</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Multiplying integers with any signs", "Repeated addition of a negative (e.g. losing ₹5 each day)"],
+      use_other_when: ["Adding signed numbers → use the number-line/token rules, not the sign-multiply rule"],
+    },
+    edge_cases: [
+      { case: "(−1) × (−1)", value: "+1", reasoning: "Two negatives multiply to a positive.", where_it_appears: "Foundation of the sign rule." },
+      { case: "Any integer × 0", value: "0", reasoning: "Zero times anything is zero, regardless of sign.", where_it_appears: "Zero product." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Why does negative times negative equal positive? Losing a debt of ₹5, five times over, actually makes you ₹25 richer.",
+      concept_reveal: "Same signs → positive, different signs → negative. Multiply the numbers, then stamp the sign.",
+    },
+  },
+
+  math7_ch10_division: {
+    key_formulas: [
+      { formula: "Division signs match multiplication: (−)÷(−) = + · (+)÷(−) = −", explanation: "Same signs give +, different signs give −." },
+      { formula: "a ÷ b = a × (1/b) — division undoes multiplication", explanation: "If (−3)×4 = −12 then −12 ÷ 4 = −3." },
+    ],
+    prerequisite_knowledge: ["integer multiplication and its sign rules", "division of whole numbers", "fact families (×/÷)"],
+    visual_description: "A fact-family triangle linking −12, 4 and −3: (−3)×4 = −12, so −12 ÷ 4 = −3 and −12 ÷ (−3) = 4.",
+    svg_diagrams: [svg("math7_ch10_division", "Integer division mirrors multiplication",
+      `<text x="40" y="60" font-weight="bold">(−3) × 4 = −12</text>
+       <text x="40" y="100" fill="#2563eb">−12 ÷ 4 = −3</text>
+       <text x="40" y="140" fill="#2563eb">−12 ÷ (−3) = 4</text>
+       <text x="300" y="100" fill="#dc2626">same signs → +, different → −</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Dividing integers with any signs", "Sharing a negative quantity (e.g. a total loss split equally)"],
+      use_other_when: ["Dividing by zero → undefined; not allowed"],
+    },
+    edge_cases: [
+      { case: "Any integer ÷ 0", value: "undefined", reasoning: "No number times 0 gives a non-zero result.", where_it_appears: "Division-by-zero error." },
+      { case: "0 ÷ (−5)", value: "0", reasoning: "Zero shared any way is still zero.", where_it_appears: "Zero numerator." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A team loses 12 points across 4 rounds. Per round? −12 ÷ 4 = −3. Division handles negatives with the exact same sign rule as multiplying.",
+      concept_reveal: "Division is multiplication run backwards, so it borrows the same sign rule: like signs positive, unlike signs negative.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 11 — Finding Common Ground (HCF & LCM)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch11_hcf: {
+    key_formulas: [
+      { formula: "HCF = highest common factor (also GCD)", explanation: "The greatest number that divides all the given numbers exactly." },
+      { formula: "By prime factorisation: HCF = product of the COMMON primes (lowest powers)", explanation: "12 = 2²·3, 16 = 2⁴ → HCF = 2² = 4." },
+    ],
+    prerequisite_knowledge: ["factors and multiples", "prime factorisation", "divisibility"],
+    visual_description: "Factor lists for 12 (1,2,3,4,6,12) and 16 (1,2,4,8,16) with the common factors 1, 2, 4 circled and the highest, 4, boxed as the HCF.",
+    svg_diagrams: [svg("math7_ch11_hcf", "HCF of 12 and 16 is 4",
+      `<text x="30" y="55">12: 1  2  3  4  6  12</text>
+       <text x="30" y="95">16: 1  2  4  8  16</text>
+       <text x="30" y="140" fill="#dc2626" font-weight="bold">Common: 1, 2, 4 → HCF = 4</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Splitting things into the largest equal groups", "Simplifying fractions to lowest terms"],
+      use_other_when: ["You need the smallest shared multiple → that's the LCM, not the HCF"],
+    },
+    edge_cases: [
+      { case: "HCF of two co-prime numbers, e.g. 8 and 15", value: "1", reasoning: "They share no common factor except 1.", where_it_appears: "Co-prime numbers." },
+      { case: "HCF when one number divides the other, e.g. 6 and 18", value: "6", reasoning: "The smaller number is itself the HCF.", where_it_appears: "Divisor pairs." },
+    ],
+    video_script_hooks: {
+      opening_hook: "You've got 12 red and 16 blue pens. The biggest set of identical gift bags you can fill? Exactly 4 — that's the HCF.",
+      concept_reveal: "The HCF is the largest number dividing all of them; prime factorisation finds it fast by keeping only the shared primes.",
+    },
+  },
+
+  math7_ch11_lcm: {
+    key_formulas: [
+      { formula: "LCM = lowest common multiple", explanation: "The smallest number that all the given numbers divide into." },
+      { formula: "By prime factorisation: LCM = product of ALL primes (highest powers)", explanation: "12 = 2²·3, 16 = 2⁴ → LCM = 2⁴·3 = 48." },
+    ],
+    prerequisite_knowledge: ["multiples", "prime factorisation", "the HCF idea (for contrast)"],
+    visual_description: "Two ticking number tracks — multiples of 4 and multiples of 6 — with the first place they coincide, 12, highlighted as the LCM.",
+    svg_diagrams: [svg("math7_ch11_lcm", "LCM of 4 and 6 is 12",
+      `<text x="30" y="55">×4: 4  8  12  16  20  24</text>
+       <text x="30" y="95">×6: 6  12  18  24</text>
+       <text x="30" y="140" fill="#2563eb" font-weight="bold">First shared multiple = 12 = LCM</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding when two repeating events line up again", "A common denominator for adding fractions"],
+      use_other_when: ["You need the largest shared divisor → use the HCF"],
+    },
+    edge_cases: [
+      { case: "LCM of co-prime numbers, e.g. 4 and 9", value: "36 (their product)", reasoning: "No shared factors, so LCM = 4×9.", where_it_appears: "Co-prime shortcut." },
+      { case: "LCM when one divides the other, e.g. 5 and 20", value: "20", reasoning: "The larger number is already a multiple of the smaller.", where_it_appears: "Multiple pairs." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Two lighthouses flash every 4 and 6 seconds. When do they flash together? In 12 seconds — the LCM.",
+      concept_reveal: "The LCM is the first number both divide into; prime factorisation builds it by taking the highest power of every prime that appears.",
+    },
+  },
+
+  math7_ch11_hcf_lcm_relation: {
+    key_formulas: [
+      { formula: "HCF(a,b) × LCM(a,b) = a × b", explanation: "For two numbers, the product of HCF and LCM equals the product of the numbers." },
+      { formula: "So LCM = (a × b) ÷ HCF", explanation: "Find the HCF, then get the LCM with one division — no listing needed." },
+    ],
+    prerequisite_knowledge: ["HCF", "LCM", "multiplication and division"],
+    visual_description: "For 12 and 16: HCF = 4, LCM = 48, shown satisfying 4 × 48 = 192 = 12 × 16.",
+    svg_diagrams: [svg("math7_ch11_relation", "HCF × LCM = product",
+      `<text x="30" y="60" font-weight="bold">12 and 16</text>
+       <text x="30" y="100">HCF = 4,  LCM = 48</text>
+       <text x="30" y="140" fill="#16a34a">4 × 48 = 192 = 12 × 16  ✓</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["You know the HCF and want the LCM quickly (or vice versa)", "Checking your HCF/LCM answers are consistent"],
+      use_other_when: ["More than two numbers — this exact product rule holds only for a PAIR"],
+    },
+    edge_cases: [
+      { case: "The rule for three or more numbers", value: "does NOT hold as a simple product", reasoning: "HCF×LCM = product is a two-number identity only.", where_it_appears: "Common over-generalisation." },
+      { case: "Co-prime pair", value: "LCM = product, HCF = 1", reasoning: "1 × (a×b) = a×b, consistent with the rule.", where_it_appears: "Sanity check." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Found the HCF the hard way? The LCM is now basically free: just multiply the two numbers and divide by that HCF.",
+      concept_reveal: "For any two numbers, HCF × LCM = their product — a neat lever that gets you one from the other instantly.",
+    },
+  },
+
+  math7_ch11_word_problems: {
+    key_formulas: [
+      { formula: "'Largest equal groups / biggest size' → HCF", explanation: "Splitting things as large and equal as possible." },
+      { formula: "'When do events coincide / smallest common amount' → LCM", explanation: "Repeating cycles meeting up again." },
+    ],
+    prerequisite_knowledge: ["HCF", "LCM", "reading word problems for keywords"],
+    visual_description: "Two contrasting scenarios: tiling a floor with the largest square tile (HCF) vs two bells ringing together again (LCM), side by side with their keyword cues.",
+    svg_diagrams: [svg("math7_ch11_word", "HCF vs LCM — which to use",
+      `<text x="20" y="55" font-weight="bold">Largest equal share?</text><text x="20" y="85" fill="#dc2626">→ HCF</text>
+       <text x="20" y="130" font-weight="bold">When do cycles meet again?</text><text x="20" y="160" fill="#2563eb">→ LCM</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding HCF vs LCM from the wording of a problem", "Tiling, packing, and 'ring/flash together' questions"],
+      use_other_when: ["The problem is plain arithmetic with no grouping or repetition"],
+    },
+    edge_cases: [
+      { case: "'Largest tile to pave a 12 m × 16 m floor'", value: "HCF = 4 m", reasoning: "Biggest equal size → HCF.", where_it_appears: "Tiling problems." },
+      { case: "'Bells ring every 12 and 16 min — next together?'", value: "LCM = 48 min", reasoning: "Cycles coinciding → LCM.", where_it_appears: "Timing problems." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Two bells, ringing every 12 and 16 minutes. The trick to these problems isn't the maths — it's knowing whether the answer is HCF or LCM.",
+      concept_reveal: "'Biggest equal groups' means HCF; 'when do they line up again' means LCM. The keywords tell you which tool to grab.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

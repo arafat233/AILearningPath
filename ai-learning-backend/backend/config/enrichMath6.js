@@ -884,6 +884,216 @@ const ENRICH = {
       concept_reveal: "A triangle is fixed by its three sides: draw one, arc the other two from its ends, and where they cross is the missing vertex.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 9 — Symmetry
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch9_line_symmetry: {
+    key_formulas: [
+      { formula: "A line of symmetry folds a figure into two matching mirror halves", explanation: "Fold along it and the halves coincide exactly." },
+      { formula: "A figure can have 0, 1, or many lines of symmetry", explanation: "A square has 4; a scalene triangle has 0; a circle has infinitely many." },
+    ],
+    prerequisite_knowledge: ["shapes and their sides", "the idea of a mirror image", "folding"],
+    visual_description: "A square with its 4 lines of symmetry (2 diagonals, vertical, horizontal) dashed, and the letter A with its single vertical line of symmetry.",
+    svg_diagrams: [svg("math6_ch9_line_symmetry", "Lines of symmetry of a square",
+      `<rect x="90" y="40" width="120" height="120" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+       <line x1="150" y1="40" x2="150" y2="160" stroke="#dc2626" stroke-dasharray="4 3"/>
+       <line x1="90" y1="100" x2="210" y2="100" stroke="#dc2626" stroke-dasharray="4 3"/>
+       <line x1="90" y1="40" x2="210" y2="160" stroke="#dc2626" stroke-dasharray="4 3"/>
+       <line x1="210" y1="40" x2="90" y2="160" stroke="#dc2626" stroke-dasharray="4 3"/>
+       <text x="270" y="105">square → 4 lines</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding the mirror lines of a shape or letter", "Completing a figure given half of it"],
+      use_other_when: ["The figure looks the same only after turning → that's rotational, not line, symmetry"],
+    },
+    edge_cases: [
+      { case: "A diagonal of a rectangle", value: "is NOT a line of symmetry", reasoning: "Folding along it doesn't match the halves.", where_it_appears: "Common wrong guess." },
+      { case: "A circle", value: "infinitely many lines of symmetry", reasoning: "Every diameter is a mirror line.", where_it_appears: "Extreme case." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Fold a square in half — it matches. Fold it diagonally — still matches. It has FOUR mirror lines. A rectangle? Only two. Why the difference?",
+      concept_reveal: "A line of symmetry is a fold that makes two halves coincide; counting them tells you how 'balanced' a shape is.",
+    },
+  },
+
+  math6_ch9_rotational_symmetry: {
+    key_formulas: [
+      { formula: "Rotational symmetry: a figure looks the same after turning less than a full turn", explanation: "The order = how many times it matches in one full 360° turn." },
+      { formula: "Angle of rotation = 360° ÷ order", explanation: "A square has order 4 → matches every 90°." },
+    ],
+    prerequisite_knowledge: ["rotation / turning", "angles and degrees", "line symmetry (for contrast)"],
+    visual_description: "A square shown at 0°, 90°, 180°, 270° turns, identical each time — order 4, matching every 90°.",
+    svg_diagrams: [svg("math6_ch9_rotational_symmetry", "Square: order 4 (every 90°)",
+      `${[0,1,2,3].map(i=>`<g transform="translate(${50+i*120},100)"><rect x="-30" y="-30" width="60" height="60" fill="#dbeafe" stroke="#2563eb"/><circle cx="-20" cy="-20" r="4" fill="#dc2626"/></g><text x="${30+i*120}" y="160">${i*90}°</text>`).join("")}`)],
+    when_to_use_this_method: {
+      use_this_when: ["Checking if a shape looks the same when turned", "Finding the order of symmetry (fans, wheels, flowers)"],
+      use_other_when: ["Checking mirror images → that's line symmetry"],
+    },
+    edge_cases: [
+      { case: "A shape that only matches after a FULL 360° turn", value: "order 1 (no rotational symmetry)", reasoning: "Every figure matches after a full turn — that doesn't count.", where_it_appears: "Defining 'has rotational symmetry'." },
+      { case: "Equilateral triangle", value: "order 3, every 120°", reasoning: "360 ÷ 3 = 120.", where_it_appears: "Common example." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Turn a square a quarter turn — it looks untouched. A ceiling fan, a flower, a wheel: they hide this same 'looks-the-same-when-spun' magic.",
+      concept_reveal: "Rotational symmetry counts how many times a shape matches itself in one full turn — its order — and 360÷order gives the turning angle.",
+    },
+  },
+
+  math6_ch9_point_symmetry: {
+    key_formulas: [
+      { formula: "Point symmetry: every part has a matching part directly opposite through a centre point", explanation: "Same as rotational symmetry of order 2 (a half-turn, 180°)." },
+      { formula: "Turn it 180° and it looks identical", explanation: "e.g. the letters S, N, Z, H." },
+    ],
+    prerequisite_knowledge: ["rotational symmetry", "180° (half turn)", "centre of a figure"],
+    visual_description: "The letter S with a centre dot; an arrow shows that rotating 180° about the dot lands it back on itself.",
+    svg_diagrams: [svg("math6_ch9_point_symmetry", "Point symmetry = half-turn match",
+      `<text x="100" y="120" font-size="70" font-weight="bold" fill="#2563eb">S</text>
+       <circle cx="120" cy="95" r="4" fill="#dc2626"/>
+       <text x="220" y="90">turn 180° about the centre</text>
+       <text x="220" y="120">→ looks identical</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Checking if a figure matches after a half-turn", "Identifying point-symmetric letters and designs"],
+      use_other_when: ["The match needs a mirror, not a turn → line symmetry"],
+    },
+    edge_cases: [
+      { case: "Letter A", value: "has line symmetry but NOT point symmetry", reasoning: "A mirrors left-right but a half-turn flips it upside down.", where_it_appears: "Line vs point symmetry." },
+      { case: "Letter S", value: "point symmetry but NO line symmetry", reasoning: "Half-turn matches; no fold does.", where_it_appears: "Contrast case." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Turn the letter S upside down — it's still an S. That half-turn magic is point symmetry, and not every symmetric shape has it.",
+      concept_reveal: "Point symmetry means a 180° turn about the centre leaves the figure unchanged — it's rotational symmetry of order 2.",
+    },
+  },
+
+  math6_ch9_symmetric_shapes: {
+    key_formulas: [
+      { formula: "Symmetry appears everywhere in nature and art", explanation: "Butterflies, flowers, leaves, rangoli, logos, buildings." },
+      { formula: "Many objects have BOTH line and rotational symmetry", explanation: "A snowflake has 6 lines and order-6 rotation." },
+    ],
+    prerequisite_knowledge: ["line symmetry", "rotational symmetry", "point symmetry"],
+    visual_description: "A butterfly (one vertical line of symmetry) beside a six-petalled flower (6 lines + order-6 rotational symmetry).",
+    svg_diagrams: [svg("math6_ch9_symmetric_shapes", "Symmetry in nature",
+      `<line x1="110" y1="40" x2="110" y2="160" stroke="#dc2626" stroke-dasharray="4 3"/>
+       <ellipse cx="80" cy="100" rx="30" ry="45" fill="#fde68a" stroke="#d97706"/><ellipse cx="140" cy="100" rx="30" ry="45" fill="#fde68a" stroke="#d97706"/>
+       <text x="60" y="180">butterfly: 1 line</text>
+       ${[0,60,120,180,240,300].map(a=>`<ellipse cx="330" cy="100" rx="12" ry="35" fill="#fbcfe8" stroke="#db2777" transform="rotate(${a} 330 100)"/>`).join("")}
+       <text x="300" y="180">flower: 6 lines</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Recognising symmetry in real objects, designs and logos", "Creating balanced patterns (rangoli, tiling)"],
+      use_other_when: ["An irregular shape with no matching parts — it simply isn't symmetric"],
+    },
+    edge_cases: [
+      { case: "A snowflake", value: "6 lines of symmetry AND order-6 rotation", reasoning: "It has both kinds at once.", where_it_appears: "Rich natural symmetry." },
+      { case: "A human face", value: "approximately, not perfectly, symmetric", reasoning: "Real objects are rarely exact.", where_it_appears: "Real-world caveat." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Butterflies, snowflakes, rangoli, the Taj Mahal — symmetry is everywhere humans find something beautiful. That's not a coincidence.",
+      concept_reveal: "Nature and art lean on symmetry — line, rotational, or both — because balanced shapes feel ordered and pleasing.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 10 — The Other Side of Zero (integers)
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch10_negative_numbers: {
+    key_formulas: [
+      { formula: "Negative numbers are less than zero, written with a '−' sign", explanation: "−1, −2, −3 … the other side of zero." },
+      { formula: "Positive (+) and negative (−) numbers are opposites; 0 is neither", explanation: "+3 and −3 are the same distance from 0." },
+    ],
+    prerequisite_knowledge: ["whole numbers", "the number line", "the idea of opposite directions"],
+    visual_description: "A building with floors numbered +3, +2, +1, ground = 0, then −1, −2 below ground, showing negatives as 'below zero'.",
+    svg_diagrams: [svg("math6_ch10_negative_numbers", "Floors above and below ground (0)",
+      `${[3,2,1,0,-1,-2].map((f,i)=>`<rect x="120" y="${30+i*25}" width="120" height="24" fill="${f===0?'#fde68a':f>0?'#dbeafe':'#fecaca'}" stroke="#475569"/><text x="165" y="${47+i*25}">${f>0?'+'+f:f}</text>`).join("")}
+       <text x="260" y="92">0 = ground</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Representing values below zero (temperature, depth, debt)", "Describing opposite directions with sign"],
+      use_other_when: ["Quantities that can't go below zero → whole numbers are enough"],
+    },
+    edge_cases: [
+      { case: "Which is greater, −2 or −5?", value: "−2", reasoning: "−2 is closer to zero / further right on the line.", where_it_appears: "Ordering negatives." },
+      { case: "0", value: "neither positive nor negative", reasoning: "It's the dividing point.", where_it_appears: "Sign of zero." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A lift goes up to +3 and down to −2. Zero is the ground floor. Negative numbers are just everything BELOW where you started.",
+      concept_reveal: "Negative numbers extend counting to the left of zero — opposites of the positives, with zero sitting neutrally between them.",
+    },
+  },
+
+  math6_ch10_number_line: {
+    key_formulas: [
+      { formula: "The number line runs … −3, −2, −1, 0, 1, 2, 3 … left to right", explanation: "Negatives left of 0, positives right." },
+      { formula: "Further right = greater; further left = smaller", explanation: "−5 < −2 < 0 < 3." },
+    ],
+    prerequisite_knowledge: ["negative numbers", "ordering whole numbers", "reading a scale"],
+    visual_description: "A horizontal number line from −5 to 5 with 0 centred, equal steps, arrows both ways, and −3 and +3 marked as equal distances from 0.",
+    svg_diagrams: [svg("math6_ch10_number_line", "The integer number line",
+      `<line x1="40" y1="100" x2="520" y2="100" stroke="#475569" stroke-width="2"/>
+       <polygon points="40,100 50,95 50,105" fill="#475569"/><polygon points="520,100 510,95 510,105" fill="#475569"/>
+       ${Array.from({length:11},(_,i)=>{const x=60+i*44,v=i-5;return `<line x1="${x}" y1="95" x2="${x}" y2="105" stroke="#475569"/><text x="${x-6}" y="125">${v}</text>`}).join("")}
+       <circle cx="148" cy="100" r="5" fill="#dc2626"/><circle cx="412" cy="100" r="5" fill="#2563eb"/>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Comparing or ordering positive and negative numbers", "Picturing addition/subtraction as jumps"],
+      use_other_when: ["Pure calculation where a picture isn't needed"],
+    },
+    edge_cases: [
+      { case: "Distance of −4 from 0", value: "4 steps", reasoning: "Distance ignores the sign.", where_it_appears: "Absolute distance." },
+      { case: "Ordering −1, −7, 3", value: "−7 < −1 < 3", reasoning: "Leftmost is smallest.", where_it_appears: "Sorting integers." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Is −5 bigger or smaller than −2? On the number line the answer is obvious: −5 sits further left, so it's smaller. Trust the line.",
+      concept_reveal: "The number line places every integer in order — left is smaller, right is bigger — turning comparisons into a glance.",
+    },
+  },
+
+  math6_ch10_negative_operations: {
+    key_formulas: [
+      { formula: "Adding a positive moves RIGHT; adding a negative moves LEFT", explanation: "−2 + 5 = 3; 3 + (−5) = −2." },
+      { formula: "A number and its opposite add to 0", explanation: "5 + (−5) = 0." },
+    ],
+    prerequisite_knowledge: ["the number line", "negative numbers", "addition and subtraction"],
+    visual_description: "A number line showing −2 + 5: start at −2, jump 5 steps right, land on 3.",
+    svg_diagrams: [svg("math6_ch10_negative_operations", "−2 + 5 = 3 on the number line",
+      `<line x1="40" y1="110" x2="520" y2="110" stroke="#475569" stroke-width="2"/>
+       ${Array.from({length:11},(_,i)=>{const x=60+i*44,v=i-5;return `<line x1="${x}" y1="106" x2="${x}" y2="114" stroke="#94a3b8"/><text x="${x-6}" y="132">${v}</text>`}).join("")}
+       <path d="M192 90 Q300 50 412 90" fill="none" stroke="#16a34a" stroke-width="2"/><text x="280" y="55" fill="#16a34a">+5</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Adding or subtracting where negatives are involved", "Tracking rises and falls (temperature, score)"],
+      use_other_when: ["All numbers positive with no crossing of zero → ordinary arithmetic"],
+    },
+    edge_cases: [
+      { case: "3 + (−5)", value: "−2", reasoning: "Jump 5 left from 3 crosses below zero.", where_it_appears: "Mixed-sign sums." },
+      { case: "5 + (−5)", value: "0", reasoning: "Opposites cancel.", where_it_appears: "Additive inverse." },
+    ],
+    video_script_hooks: {
+      opening_hook: "It's −2°C and the temperature rises 5 degrees. Now it's +3°C. You just added a positive to a negative — and the number line did the work.",
+      concept_reveal: "On the number line, plus jumps right and minus jumps left; a number plus its opposite always lands you back on zero.",
+    },
+  },
+
+  math6_ch10_real_world_negatives: {
+    key_formulas: [
+      { formula: "Negatives model real 'below/loss/owe' situations", explanation: "−5°C, 2 floors below ground = −2, a debt of ₹100 = −100." },
+      { formula: "Positive and negative track opposite directions of the same quantity", explanation: "Profit/loss, rise/fall, above/below." },
+    ],
+    prerequisite_knowledge: ["negative numbers", "the number line", "operations with negatives"],
+    visual_description: "Three real contexts side by side: a thermometer at −5°C, a lift at floor −2, and a bank balance of −₹100.",
+    svg_diagrams: [svg("math6_ch10_real_world_negatives", "Negatives in real life",
+      `<rect x="50" y="40" width="20" height="120" fill="#fff" stroke="#475569"/><rect x="50" y="120" width="20" height="40" fill="#2563eb"/><text x="80" y="100">−5°C</text>
+       <text x="220" y="80">Lift: floor −2</text>
+       <text x="220" y="130" fill="#dc2626">Balance: −₹100 (owed)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Translating real 'below zero / loss / owe' situations into numbers", "Comparing gains against losses"],
+      use_other_when: ["The situation has no opposite direction — plain positive numbers suffice"],
+    },
+    edge_cases: [
+      { case: "Temperature falls from 2°C by 5°C", value: "−3°C", reasoning: "2 − 5 = −3 — it goes below zero.", where_it_appears: "Weather problems." },
+      { case: "A debt of ₹100 then earning ₹100", value: "balance 0", reasoning: "−100 + 100 = 0.", where_it_appears: "Money problems." },
+    ],
+    video_script_hooks: {
+      opening_hook: "−5°C, two floors underground, ₹100 in debt — three very different things, all captured by one idea: numbers below zero.",
+      concept_reveal: "Negatives put real opposite-direction situations — cold, depth, debt — onto the same number line so we can calculate with them.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

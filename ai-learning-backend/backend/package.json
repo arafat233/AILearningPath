@@ -76,6 +76,7 @@
     "enrich:math7": "node config/enrichMath7.js",
     "enrich:math5": "node config/enrichMath5.js",
     "enrich:math4": "node config/enrichMath4.js",
+    "enrich:math2": "node config/enrichMath2.js",
     "migrate:cbse-math10-rekey": "node config/migrateCbseMath10TopicIds.mjs",
     "finalize:cbse-math10-rekey": "node config/finalizeCbseMath10Rekey.mjs",
     "seed:cbse-math9-cleanup": "node config/seedCbseMath9Cleanup.js",

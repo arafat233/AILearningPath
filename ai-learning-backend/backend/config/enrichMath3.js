@@ -769,6 +769,420 @@ const ENRICH = {
       concept_reveal: "Duration is end time minus start time; count whole hours first, then the leftover minutes.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 8 — Weight (grams, kilograms, balance)
+  // ───────────────────────────────────────────────────────────────────────────
+  math3_ch8_heavier_lighter: {
+    key_formulas: [
+      { formula: "Heavier sinks down on a balance; lighter rises up", explanation: "The lower pan holds the heavier object." },
+      { formula: "Size does NOT decide weight", explanation: "A big balloon is lighter than a small stone." },
+    ],
+    prerequisite_knowledge: ["comparing objects", "the idea of weight/heaviness", "up and down"],
+    visual_description: "A balance with a stone pulling its pan down and a feather's pan up, labelled heavier and lighter.",
+    svg_diagrams: [svg("math3_ch8_heavier_lighter", "Heavier pan goes down",
+      `<line x1="60" y1="60" x2="320" y2="100" stroke="#475569" stroke-width="3"/>
+       <line x1="190" y1="55" x2="190" y2="150" stroke="#475569" stroke-width="3"/>
+       <circle cx="320" cy="110" r="14" fill="#94a3b8"/><text x="345" y="115">stone (heavier)</text>
+       <text x="20" y="55">feather</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Comparing which of two objects is heavier", "Reading a simple balance"],
+      use_other_when: ["You need the exact weight → use weighing scales with units"],
+    },
+    edge_cases: [
+      { case: "A big sponge vs a small metal ball", value: "the small ball can be heavier", reasoning: "Weight isn't about size.", where_it_appears: "Size ≠ weight." },
+      { case: "Balance level", value: "both sides weigh the same", reasoning: "Equal weights balance.", where_it_appears: "Equal weights." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A giant beach ball or a tiny stone — which is heavier? Trust the balance, not your eyes: big doesn't mean heavy.",
+      concept_reveal: "On a balance the heavier object sinks and the lighter rises — and surprisingly, size has nothing to do with it.",
+    },
+  },
+
+  math3_ch8_grams_kilograms: {
+    key_formulas: [
+      { formula: "1 kilogram (kg) = 1000 grams (g)", explanation: "The kilogram is the bigger unit." },
+      { formula: "Use grams for light things, kilograms for heavy things", explanation: "A biscuit in g; a school bag in kg." },
+    ],
+    prerequisite_knowledge: ["the idea of weight", "counting to 1000", "multiply/divide by 1000"],
+    visual_description: "A feather labelled grams beside a watermelon labelled kilograms, with 1 kg = 1000 g written between.",
+    svg_diagrams: [svg("math3_ch8_grams_kg", "1 kg = 1000 g",
+      `<text x="40" y="60">biscuit → grams (g)</text>
+       <text x="40" y="100">watermelon → kilograms (kg)</text>
+       <text x="40" y="150" fill="#dc2626">1 kg = 1000 g</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Choosing g or kg for an object", "Converting between grams and kilograms"],
+      use_other_when: ["Very heavy loads (trucks) → bigger units used later"],
+    },
+    edge_cases: [
+      { case: "1500 g", value: "= 1 kg 500 g", reasoning: "1000 g make 1 kg, with 500 g left.", where_it_appears: "Mixed units." },
+      { case: "Weighing a feather in kg", value: "awkwardly tiny", reasoning: "Grams suit light objects.", where_it_appears: "Choosing units." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Would you buy 1000 grams of rice or 1 kilogram? Trick question — they're exactly the same! One's just a tidier way to say it.",
+      concept_reveal: "Weight uses grams for light things and kilograms for heavy ones, with 1000 grams making one kilogram.",
+    },
+  },
+
+  math3_ch8_balance_scale: {
+    key_formulas: [
+      { formula: "An object's weight = the total of the standard weights that balance it", explanation: "Add the weights placed on the other pan." },
+      { formula: "When the pans level out, the two sides are equal", explanation: "That's how we read the weight." },
+    ],
+    prerequisite_knowledge: ["heavier and lighter", "grams and kilograms", "addition"],
+    visual_description: "A balance with an apple on one pan and 100 g + 50 g weights on the other, levelled, reading 150 g.",
+    svg_diagrams: [svg("math3_ch8_balance_scale", "Apple balances 150 g",
+      `<line x1="80" y1="80" x2="320" y2="80" stroke="#475569" stroke-width="3"/>
+       <line x1="200" y1="75" x2="200" y2="150" stroke="#475569" stroke-width="3"/>
+       <circle cx="100" cy="100" r="16" fill="#fca5a5" stroke="#dc2626"/><text x="80" y="135">apple</text>
+       <rect x="290" y="92" width="55" height="20" fill="#cbd5e1" stroke="#475569"/><text x="350" y="107">100g+50g</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding an object's weight using standard weights", "Understanding how scales work"],
+      use_other_when: ["A digital scale shows the number directly"],
+    },
+    edge_cases: [
+      { case: "Pans don't level", value: "add or remove weights until they do", reasoning: "Balance means equal weight.", where_it_appears: "Adjusting weights." },
+      { case: "Weights 200 g + 200 g + 100 g", value: "object is 500 g", reasoning: "Add all the standard weights used.", where_it_appears: "Combining weights." },
+    ],
+    video_script_hooks: {
+      opening_hook: "How heavy is an apple? Pop it on a balance and keep adding little weights to the other side until it levels — their total is your answer.",
+      concept_reveal: "A balance reads weight by matching: when both pans level, the standard weights added up equal the object's weight.",
+    },
+  },
+
+  math3_ch8_weight_word: {
+    key_formulas: [
+      { formula: "Add weights to combine, subtract to find 'how much more/left'", explanation: "Same operations as other word problems, with kg/g." },
+      { formula: "Keep units the same before calculating", explanation: "Convert kg↔g if a problem mixes them." },
+    ],
+    prerequisite_knowledge: ["grams and kilograms", "addition and subtraction", "reading word problems"],
+    visual_description: "'A bag holds 2 kg rice and 1 kg dal — total weight?' mapped to 2 kg + 1 kg = 3 kg.",
+    svg_diagrams: [svg("math3_ch8_weight_word", "Weight word problem",
+      `<text x="20" y="45">"2 kg rice + 1 kg dal = ?"</text>
+       <text x="20" y="90" fill="#2563eb">'total' → add</text>
+       <text x="20" y="130" fill="#16a34a">2 kg + 1 kg = 3 kg</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Story problems about combining or comparing weights", "Shopping/cooking weight questions"],
+      use_other_when: ["No real quantity — just reading a scale → that's measuring"],
+    },
+    edge_cases: [
+      { case: "Mixing 1 kg and 500 g", value: "convert to grams first (1000 g + 500 g)", reasoning: "Units must match to add.", where_it_appears: "Mixed-unit problems." },
+      { case: "'How much heavier?'", value: "subtract the weights", reasoning: "Comparison → difference.", where_it_appears: "Compare problems." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Two kilos of rice, one of dal — how much to carry home? Weight word problems are just add-and-subtract wearing a kg label.",
+      concept_reveal: "Weight word problems add or compare amounts; match the units first, then add or subtract as the story asks.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 9 — Multiplication
+  // ───────────────────────────────────────────────────────────────────────────
+  math3_ch9_repeated_addition: {
+    key_formulas: [
+      { formula: "Multiplication is repeated addition of EQUAL groups", explanation: "4 × 3 = 3 + 3 + 3 + 3 = 12." },
+      { formula: "'groups × size of group' = total", explanation: "4 bags of 3 apples = 12 apples." },
+    ],
+    prerequisite_knowledge: ["addition", "equal groups", "skip counting"],
+    visual_description: "Four groups of 3 dots each, joined by '+' signs, with 4 × 3 = 12 written below.",
+    svg_diagrams: [svg("math3_ch9_repeated_addition", "4 × 3 = 3+3+3+3 = 12",
+      `${[0,1,2,3].map(g=>[0,1,2].map(d=>`<circle cx="${50+g*110+d*22}" cy="80" r="8" fill="#2563eb"/>`).join("")+`<text x="${85+g*110}" y="85">${g<3?'+':''}</text>`).join("")}
+       <text x="50" y="140">4 groups of 3 = 12</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Understanding what multiplication means", "Adding the same number many times"],
+      use_other_when: ["The groups are unequal → you must add them separately"],
+    },
+    edge_cases: [
+      { case: "4 × 3 vs 3 × 4", value: "both = 12", reasoning: "Order doesn't change the total (commutative).", where_it_appears: "Why order is flexible." },
+      { case: "Anything × 1", value: "= itself", reasoning: "One group of n is just n.", where_it_appears: "Multiplying by 1." },
+    ],
+    video_script_hooks: {
+      opening_hook: "3 + 3 + 3 + 3 … writing that out is tiring. Multiplication is the shortcut: just '4 threes', or 4 × 3.",
+      concept_reveal: "Multiplication is repeated addition of equal groups — 'how many groups' times 'how big each group is'.",
+    },
+  },
+
+  math3_ch9_arrays: {
+    key_formulas: [
+      { formula: "An array arranges objects in equal rows and columns", explanation: "3 rows of 4 = 3 × 4 = 12." },
+      { formula: "rows × columns = total", explanation: "The array shows the multiplication as a rectangle." },
+    ],
+    prerequisite_knowledge: ["repeated addition", "rows and columns", "counting"],
+    visual_description: "A 3-by-4 grid of dots, with the rows and columns labelled, totalling 12.",
+    svg_diagrams: [svg("math3_ch9_arrays", "3 × 4 array = 12",
+      `${[0,1,2].map(r=>[0,1,2,3].map(c=>`<circle cx="${80+c*45}" cy="${50+r*40}" r="10" fill="#16a34a"/>`).join("")).join("")}
+       <text x="80" y="180">3 rows × 4 = 12</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Picturing a multiplication as a rectangle of objects", "Seeing why a × b = b × a"],
+      use_other_when: ["Groups aren't arranged in a neat grid → use repeated addition"],
+    },
+    edge_cases: [
+      { case: "Turning a 3×4 array sideways", value: "becomes 4×3, still 12", reasoning: "Rotating swaps rows and columns but keeps the total.", where_it_appears: "Commutativity, visually." },
+      { case: "A single row of 5", value: "1 × 5 = 5", reasoning: "One row is just the number itself.", where_it_appears: "Single-row arrays." },
+    ],
+    video_script_hooks: {
+      opening_hook: "An egg tray, a chocolate bar, a window grid — they're all multiplication hiding in plain sight: rows times columns.",
+      concept_reveal: "An array lays objects in equal rows and columns, so rows × columns instantly gives the total — and turning it shows why order doesn't matter.",
+    },
+  },
+
+  math3_ch9_times_tables: {
+    key_formulas: [
+      { formula: "A times table lists the multiples of a number", explanation: "Table of 4: 4, 8, 12, 16, 20, …" },
+      { formula: "Each step adds the number again", explanation: "Table of 4 goes up by 4 each time." },
+    ],
+    prerequisite_knowledge: ["repeated addition", "skip counting", "multiplication meaning"],
+    visual_description: "The 4 times table written 4×1 to 4×10 with answers 4, 8, 12, … 40, each step up by 4.",
+    svg_diagrams: [svg("math3_ch9_times_tables", "The 4 times table",
+      `<text x="40" y="40">4×1=4   4×2=8   4×3=12</text>
+       <text x="40" y="75">4×4=16  4×5=20  4×6=24</text>
+       <text x="40" y="110">4×7=28  4×8=32  4×9=36</text>
+       <text x="40" y="145" fill="#dc2626">4×10=40   (+4 each step)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Recalling multiplication facts quickly", "Skip counting and finding multiples"],
+      use_other_when: ["Very large numbers → use written multiplication instead of recall"],
+    },
+    edge_cases: [
+      { case: "Forgetting a fact like 4×7", value: "add 4 to 4×6 (24 + 4 = 28)", reasoning: "Each step is +4 from the previous.", where_it_appears: "Recovering a fact." },
+      { case: "n × 10", value: "just add a 0 (4×10 = 40)", reasoning: "Tens-place shift.", where_it_appears: "The 10 times table." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Why memorise times tables? Because '4 sevens' should pop out instantly — like knowing your own name — and free your brain for harder stuff.",
+      concept_reveal: "A times table is the ladder of a number's multiples; each rung adds the number once more, so 4×7 is just 4×6 plus 4.",
+    },
+  },
+
+  math3_ch9_multiplication_word: {
+    key_formulas: [
+      { formula: "Words like 'each', 'every', 'per', 'times', 'rows of' → MULTIPLY", explanation: "Equal groups signal multiplication." },
+      { formula: "groups × amount each = total", explanation: "6 boxes × 5 pens each = 30 pens." },
+    ],
+    prerequisite_knowledge: ["multiplication facts / times tables", "reading word problems", "equal groups"],
+    visual_description: "'6 boxes with 5 pens EACH — total pens?' mapped to 6 × 5 = 30.",
+    svg_diagrams: [svg("math3_ch9_mult_word", "Words → multiplication",
+      `<text x="20" y="45">"6 boxes, 5 pens EACH = ?"</text>
+       <text x="20" y="90" fill="#2563eb">'each' → multiply</text>
+       <text x="20" y="130" fill="#16a34a">6 × 5 = 30 pens</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["A story about equal groups, rows, or 'each'/'per'", "Finding a total of identical sets"],
+      use_other_when: ["Groups are different sizes → add them; sharing equally → divide"],
+    },
+    edge_cases: [
+      { case: "'Each' in a sharing question", value: "may be division, not multiplication", reasoning: "Understand the action, don't just hunt keywords.", where_it_appears: "Keyword caution." },
+      { case: "5 rows of 6 vs 6 rows of 5", value: "both = 30", reasoning: "Order doesn't change the total.", where_it_appears: "Flexible setup." },
+    ],
+    video_script_hooks: {
+      opening_hook: "6 boxes, 5 pens in EACH. You could add 5 six times … or just multiply. The word 'each' is begging you to use multiplication.",
+      concept_reveal: "Multiplication word problems describe equal groups; spot 'each/per/rows of' and multiply groups by the amount in each.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 10 — Patterns
+  // ───────────────────────────────────────────────────────────────────────────
+  math3_ch10_number_patterns: {
+    key_formulas: [
+      { formula: "A number pattern follows a rule, often 'add' or 'subtract' the same amount", explanation: "2, 4, 6, 8 … adds 2 each time." },
+      { formula: "Find the gap between terms to spot the rule", explanation: "5, 10, 15 → +5." },
+    ],
+    prerequisite_knowledge: ["counting", "addition and subtraction", "skip counting"],
+    visual_description: "The sequence 3, 6, 9, 12 with +3 arrows between each pair of terms.",
+    svg_diagrams: [svg("math3_ch10_number_patterns", "Add-3 number pattern",
+      `<text x="40" y="80" font-size="20">3   6   9   12   15</text>
+       <path d="M50 90 Q70 120 95 90" fill="none" stroke="#dc2626"/><text x="55" y="135" fill="#dc2626">+3</text>
+       <path d="M105 90 Q125 120 150 90" fill="none" stroke="#dc2626"/><text x="110" y="135" fill="#dc2626">+3</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Continuing a number sequence", "Finding the rule behind a list of numbers"],
+      use_other_when: ["The 'pattern' is shapes or colours → that's a shape pattern"],
+    },
+    edge_cases: [
+      { case: "Decreasing pattern 20, 16, 12", value: "rule is −4", reasoning: "Patterns can subtract, not just add.", where_it_appears: "Backward patterns." },
+      { case: "Pattern that doubles (2, 4, 8, 16)", value: "rule is ×2, not +", reasoning: "Not every pattern adds a fixed amount.", where_it_appears: "Multiplying patterns." },
+    ],
+    video_script_hooks: {
+      opening_hook: "3, 6, 9, 12 … what's next? Find the jump between numbers and the pattern hands you the answer: 15.",
+      concept_reveal: "Number patterns follow a rule — usually adding or subtracting the same amount — and the gap between terms reveals it.",
+    },
+  },
+
+  math3_ch10_shape_patterns: {
+    key_formulas: [
+      { formula: "A shape pattern repeats shapes, colours or sizes in a fixed order", explanation: "△ ○ △ ○ … repeats △ ○." },
+      { formula: "Find the repeating UNIT to predict what comes next", explanation: "The unit here is △ ○." },
+    ],
+    prerequisite_knowledge: ["recognising shapes and colours", "left-to-right order", "the idea of repeating"],
+    visual_description: "A row triangle-circle-triangle-circle-triangle, with the repeating unit (triangle, circle) boxed.",
+    svg_diagrams: [svg("math3_ch10_shape_patterns", "Repeating shape pattern",
+      `${[0,1,2,3,4].map(i=>i%2===0?`<polygon points="${50+i*90},90 ${85+i*90},90 ${67+i*90},50" fill="#bbf7d0" stroke="#16a34a"/>`:`<circle cx="${67+i*90}" cy="75" r="20" fill="#dbeafe" stroke="#2563eb"/>`).join("")}
+       <rect x="40" y="40" width="115" height="70" fill="none" stroke="#dc2626" stroke-dasharray="4 3"/><text x="40" y="135" fill="#dc2626">repeating unit</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Continuing a pattern of shapes, colours or objects", "Spotting the repeating unit"],
+      use_other_when: ["The pattern is numbers → use a number rule"],
+    },
+    edge_cases: [
+      { case: "A 3-shape unit (△○□△○□)", value: "the unit is △○□", reasoning: "Units can be longer than two.", where_it_appears: "Longer repeats." },
+      { case: "Pattern by size (big, small, big, small)", value: "size is the repeating feature", reasoning: "Patterns can repeat properties, not just shapes.", where_it_appears: "Size/colour patterns." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Triangle, circle, triangle, circle … your brain already knows what's next. Find the little unit that repeats and you've cracked it.",
+      concept_reveal: "Shape patterns repeat a unit of shapes, colours or sizes; identify that unit and the rest of the pattern unfolds.",
+    },
+  },
+
+  math3_ch10_growing_patterns: {
+    key_formulas: [
+      { formula: "In a growing pattern each step gets BIGGER by a rule", explanation: "1, 3, 5, 7 (add 2) or 1, 3, 6, 10 (add one more each time)." },
+      { formula: "Look at how much it grows each step", explanation: "The growth may be steady or itself increasing." },
+    ],
+    prerequisite_knowledge: ["number patterns", "addition", "comparing amounts"],
+    visual_description: "Dot staircases growing 1, 3, 6, 10 — each adds a longer row than the last.",
+    svg_diagrams: [svg("math3_ch10_growing_patterns", "Growing dot pattern 1, 3, 6, 10",
+      `<circle cx="50" cy="120" r="6" fill="#2563eb"/>
+       ${[[0,0],[1,0],[0,1]].map(([c,r])=>`<circle cx="${110+c*16}" cy="${108+r*16}" r="6" fill="#16a34a"/>`).join("")}
+       ${[[0,0],[1,0],[2,0],[0,1],[1,1],[0,2]].map(([c,r])=>`<circle cx="${190+c*16}" cy="${96+r*16}" r="6" fill="#d97706"/>`).join("")}
+       <text x="40" y="170">1, 3, 6, 10 …</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Patterns that increase each step", "Predicting a larger later term"],
+      use_other_when: ["The pattern just repeats without growing → it's a repeating pattern"],
+    },
+    edge_cases: [
+      { case: "Growth increasing each step (1, 3, 6, 10)", value: "adds 2, then 3, then 4 …", reasoning: "The amount added itself grows.", where_it_appears: "Triangular-number growth." },
+      { case: "Shrinking pattern", value: "a 'growing' rule can also decrease", reasoning: "The rule defines change, which may reduce.", where_it_appears: "Reverse growth." },
+    ],
+    video_script_hooks: {
+      opening_hook: "1, 3, 6, 10 — these dots build bigger and bigger triangles. Patterns don't just repeat; some of them GROW.",
+      concept_reveal: "Growing patterns increase each step by a rule — sometimes by a fixed amount, sometimes by an amount that itself grows.",
+    },
+  },
+
+  math3_ch10_pattern_rules: {
+    key_formulas: [
+      { formula: "The rule tells you how to get the NEXT term", explanation: "e.g. 'add 5' or 'repeat △○'." },
+      { formula: "Check the rule fits EVERY term given", explanation: "One match isn't enough." },
+    ],
+    prerequisite_knowledge: ["number patterns", "shape patterns", "growing patterns"],
+    visual_description: "The sequence 4, 7, 10, 13 with the rule '+3' written, and an arrow predicting the next term 16.",
+    svg_diagrams: [svg("math3_ch10_pattern_rules", "State the rule, predict the next",
+      `<text x="40" y="70" font-size="20">4, 7, 10, 13, ?</text>
+       <text x="40" y="115" fill="#dc2626">rule: add 3</text>
+       <text x="40" y="150" fill="#16a34a">next = 16</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Describing a pattern in words", "Predicting the next term confidently"],
+      use_other_when: ["You only need to copy a pattern, not explain it"],
+    },
+    edge_cases: [
+      { case: "Two rules that fit the first terms", value: "test against ALL given terms", reasoning: "Only the rule fitting every term is correct.", where_it_appears: "Avoiding wrong rules." },
+      { case: "A rule like 'add 1, then 2, then 3'", value: "the rule itself changes each step", reasoning: "Some patterns have a changing rule.", where_it_appears: "Growing patterns." },
+    ],
+    video_script_hooks: {
+      opening_hook: "4, 7, 10, 13 … to nail the next number you don't guess — you find the RULE. Here it's 'add 3', so 16 comes next.",
+      concept_reveal: "Finding the pattern rule means stating exactly how each term comes from the last, then checking it fits every term.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 11 — Capacity (millilitres and litres)
+  // ───────────────────────────────────────────────────────────────────────────
+  math3_ch11_ml_litres: {
+    key_formulas: [
+      { formula: "1 litre (L) = 1000 millilitres (mL)", explanation: "The litre is the bigger unit." },
+      { formula: "Use mL for small amounts, L for large amounts", explanation: "A spoon of medicine in mL; a bucket in L." },
+    ],
+    prerequisite_knowledge: ["the idea of capacity (how much it holds)", "counting to 1000", "multiply/divide by 1000"],
+    visual_description: "A medicine spoon labelled mL beside a water bottle labelled 1 L, with 1 L = 1000 mL written between.",
+    svg_diagrams: [svg("math3_ch11_ml_litres", "1 L = 1000 mL",
+      `<text x="40" y="60">spoon → millilitres (mL)</text>
+       <text x="40" y="100">bottle → litres (L)</text>
+       <text x="40" y="150" fill="#dc2626">1 L = 1000 mL</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Choosing mL or L for a liquid", "Converting between millilitres and litres"],
+      use_other_when: ["Measuring length or weight → those use different units"],
+    },
+    edge_cases: [
+      { case: "1500 mL", value: "= 1 L 500 mL", reasoning: "1000 mL make 1 L, with 500 mL over.", where_it_appears: "Mixed units." },
+      { case: "Measuring a spoonful in litres", value: "awkwardly tiny", reasoning: "mL suits small amounts.", where_it_appears: "Choosing units." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A bottle says 1000 mL, another says 1 L — which holds more water? Neither! They're exactly equal.",
+      concept_reveal: "Capacity is measured in millilitres for small amounts and litres for large, with 1000 mL making one litre.",
+    },
+  },
+
+  math3_ch11_measuring_capacity: {
+    key_formulas: [
+      { formula: "Pour liquid into a marked measuring jar and read the level", explanation: "The mark at the surface gives the amount." },
+      { formula: "Read at eye level for accuracy", explanation: "Looking from above or below misreads the level." },
+    ],
+    prerequisite_knowledge: ["mL and L", "reading a scale", "the idea of liquid level"],
+    visual_description: "A measuring jug marked in 100 mL steps with water at the 300 mL line.",
+    svg_diagrams: [svg("math3_ch11_measuring_capacity", "Reading a measuring jug: 300 mL",
+      `<path d="M120 40 L200 40 L195 160 L125 160 Z" fill="none" stroke="#475569" stroke-width="2"/>
+       <rect x="126" y="110" width="68" height="49" fill="#bae6fd"/>
+       ${[0,1,2,3,4].map(i=>`<line x1="195" y1="${160-i*30}" x2="205" y2="${160-i*30}" stroke="#475569"/><text x="210" y="${164-i*30}" font-size="10">${i*100}</text>`).join("")}
+       <text x="250" y="120" fill="#2563eb">reads 300 mL</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding exactly how much liquid is in a container", "Following a recipe amount"],
+      use_other_when: ["A rough idea is enough → estimate by comparing to a known bottle"],
+    },
+    edge_cases: [
+      { case: "Reading from above the jug", value: "misreads the level", reasoning: "Always read at eye level.", where_it_appears: "Reading errors." },
+      { case: "Level between two marks", value: "read to the nearest mark", reasoning: "Round to the closest line.", where_it_appears: "In-between levels." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Pour juice into a measuring jug, then crouch down to read it at eye level — peek from the top and you'll get the wrong number every time.",
+      concept_reveal: "To measure capacity, pour into a marked jug and read the liquid's level at eye level against the scale.",
+    },
+  },
+
+  math3_ch11_comparing_capacity: {
+    key_formulas: [
+      { formula: "Use the SAME unit, then compare the numbers", explanation: "Convert L to mL (or back) if they differ." },
+      { formula: "More capacity = bigger number (same unit)", explanation: "Use >, < or =." },
+    ],
+    prerequisite_knowledge: ["measuring capacity", "mL↔L conversion", "comparing numbers"],
+    visual_description: "A 1 L bottle (1000 mL) beside a 750 mL bottle, showing 1 L holds more.",
+    svg_diagrams: [svg("math3_ch11_comparing_capacity", "1 L vs 750 mL",
+      `<rect x="70" y="50" width="50" height="110" fill="#bae6fd" stroke="#2563eb"/><text x="65" y="180">1 L</text>
+       <rect x="220" y="80" width="50" height="80" fill="#bae6fd" stroke="#2563eb"/><text x="210" y="180">750 mL</text>
+       <text x="320" y="120" fill="#dc2626">1000 &gt; 750</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding which container holds more", "Ordering capacities"],
+      use_other_when: ["Amounts already in the same unit and clearly different"],
+    },
+    edge_cases: [
+      { case: "Comparing 1 L and 800 mL", value: "1 L (1000 mL) is more", reasoning: "Convert to one unit first.", where_it_appears: "Mixed-unit compare." },
+      { case: "Comparing without converting", value: "wrong (1 < 800?)", reasoning: "Units must match.", where_it_appears: "The classic trap." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Is 800 mL more than 1 L? The numbers say 800 beats 1 — but switch to the same unit and the truth flips.",
+      concept_reveal: "To compare capacities, first put both in the same unit; then the bigger number simply holds more.",
+    },
+  },
+
+  math3_ch11_capacity_word: {
+    key_formulas: [
+      { formula: "Add to combine liquids, subtract for 'how much more/left'", explanation: "Same operations, measured in mL or L." },
+      { formula: "Match units before calculating", explanation: "Convert L↔mL if a problem mixes them." },
+    ],
+    prerequisite_knowledge: ["mL and L", "addition and subtraction", "reading word problems"],
+    visual_description: "'A jug has 2 L, 500 mL is poured out — how much left?' mapped to 2000 mL − 500 mL = 1500 mL.",
+    svg_diagrams: [svg("math3_ch11_capacity_word", "Capacity word problem",
+      `<text x="20" y="45">"2 L jug, pour out 500 mL, left?"</text>
+       <text x="20" y="90" fill="#2563eb">2 L = 2000 mL; 'left' → subtract</text>
+       <text x="20" y="130" fill="#16a34a">2000 − 500 = 1500 mL</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Story problems about pouring, filling or sharing liquids", "Recipe and drink quantity questions"],
+      use_other_when: ["Just reading a level → that's measuring, not a word problem"],
+    },
+    edge_cases: [
+      { case: "Mixing 2 L and 500 mL", value: "convert to mL first (2000 + 500)", reasoning: "Units must match.", where_it_appears: "Mixed-unit problems." },
+      { case: "'How much more to fill?'", value: "subtract from the full capacity", reasoning: "Difference to the top.", where_it_appears: "Filling problems." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A 2-litre jug, half a litre poured out — how much remains? Capacity word problems are add-and-subtract, just measured in mL and L.",
+      concept_reveal: "Capacity word problems add or compare liquid amounts; match the units first, then add or subtract.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

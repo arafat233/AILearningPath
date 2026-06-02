@@ -1,5 +1,27 @@
 # Judge0 JDK Upgrade — getting Java 17/21 into the sandbox
 
+> ✅ **DONE 2026-06-02 (Option A).** OpenJDK 21 is live on the Hetzner Judge0 box
+> as **language id 90** (alongside id 62 = OpenJDK 13). Verified end-to-end:
+> `record` / `sealed` / pattern-matching + classic Scanner programs all compile
+> and run (status Accepted), and a record program executed through the prod app's
+> `codeExecutionService` → `stdout "42"`. Prod app flipped: `JUDGE0_JAVA_LANGUAGE_ID=90`
+> in the Oracle `.env` (+ compose ref, default 62).
+>
+> **Two gotchas learned during the cutover (read before re-doing this):**
+> 1. **Install path matters for `isolate`.** JDK must live under `/usr/local`
+>    (we used `/usr/local/jdk21`), NOT `/opt` — isolate only exposes `/usr/local`
+>    inside the sandbox, so `/opt/jdk21/bin/javac` gave "No such file or directory".
+> 2. **Judge0's entrypoint re-seeds the `languages` table on every server boot**,
+>    dropping custom rows. The JDK-21 row must be re-applied after ANY Judge0
+>    server restart. Idempotent script saved at
+>    `/root/stellar-judge0/add-jdk21-language.sql` — re-run:
+>    `docker exec -i stellar-judge0-db psql -U judge0 -d judge0 < add-jdk21-language.sql`
+>    (A future improvement is to bake this into the image's seed data so it survives restarts.)
+>
+> Image: `stellar-judge0:jdk21` (built from `Dockerfile.jdk21`), both `server` +
+> `workers` point at it in `docker-compose.judge0.yml` (backup: `.bak-prejdk21`).
+> Rollback = restore the backup compose, `docker compose up -d`, set `JUDGE0_JAVA_LANGUAGE_ID=62`.
+
 ## The problem (confirmed 2026-06-02)
 
 The running Judge0 (`178.105.219.13:2358`, Judge0 **1.13.0**) exposes exactly one
@@ -84,13 +106,11 @@ multi-version support beyond Java.
 
 ## Post-upgrade verification checklist
 
-- [ ] `GET /languages` shows the new JDK id.
-- [ ] `JUDGE0_JAVA_LANGUAGE_ID=<id>` set in backend `.env`; backend restarted.
-- [ ] Probe: submit a record/text-block/switch-expression program → compiles + runs.
-- [ ] (Optional) convert M49 `predict_output` exercises back to `execution` and
-      re-run `npm run acceptance:pro-content`.
-- [ ] Existing classic-Java modules (M47 Bitwise, etc.) still pass — they used
-      no 14+ syntax, so the new JDK is backward-compatible.
+- [x] `GET /languages` shows the new JDK id (90 = "Java (OpenJDK 21)").
+- [x] `JUDGE0_JAVA_LANGUAGE_ID=90` set in backend `.env`; backend restarted.
+- [x] Probe: record + sealed-class + pattern-matching programs compile + run (Accepted) via Judge0 API and via the app's `codeExecutionService`.
+- [ ] (Optional, future) convert M49–M51 `predict_output` exercises back to `execution`/`code_scratch` and re-run `npm run acceptance:pro-content`. (Not done — predict_output still ships; flip when authoring runnable modern-Java content.)
+- [x] Existing classic-Java verified backward-compatible on JDK 21 (Scanner program → correct output). M1–M48 coding exercises unaffected.
 
 ## Safety notes
 

@@ -814,6 +814,223 @@ const ENRICH = {
       concept_reveal: "Equal sides force equal opposite angles; push that to three equal sides and every angle becomes 60°.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 8 — Working with Fractions
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch8_fraction_operations: {
+    key_formulas: [
+      { formula: "a/b × c/d = (a×c)/(b×d)", explanation: "Multiply numerators, multiply denominators, then simplify." },
+      { formula: "a/b ÷ c/d = a/b × d/c", explanation: "Dividing by a fraction = multiplying by its reciprocal (flip the second)." },
+    ],
+    prerequisite_knowledge: ["what a fraction means", "equivalent fractions and simplifying", "multiplication tables"],
+    visual_description: "A unit square shaded 1/2 one way and 1/4 the other; the overlap is 1/8, picturing 1/2 × 1/4 = 1/8.",
+    svg_diagrams: [svg("math7_ch8_fraction_mult", "1/2 × 1/4 = 1/8 by area",
+      `<rect x="60" y="40" width="160" height="120" fill="#fff" stroke="#475569"/>
+       <rect x="60" y="40" width="160" height="60" fill="#bfdbfe"/>
+       <rect x="60" y="40" width="40" height="120" fill="#86efac" opacity="0.7"/>
+       <rect x="60" y="40" width="40" height="60" fill="#16a34a"/>
+       <text x="300" y="90" font-weight="bold">½ × ¼ = ⅛</text>
+       <text x="300" y="125">the green-on-blue overlap</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Multiplying or dividing fractions", "Finding 'a fraction of a fraction'"],
+      use_other_when: ["Adding/subtracting fractions → use a common denominator instead, not these rules"],
+    },
+    edge_cases: [
+      { case: "Dividing by a fraction less than 1, e.g. 6 ÷ 1/2", value: "= 12 (bigger!)", reasoning: "Multiplying by the reciprocal 2/1 grows the number.", where_it_appears: "Surprising division results." },
+      { case: "Multiplying by a proper fraction", value: "result is smaller", reasoning: "Taking a part of something shrinks it.", where_it_appears: "'of' problems." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Divide 6 by one-half and you get 12 — bigger than you started with. Division doesn't always make things smaller.",
+      concept_reveal: "Multiply fractions straight across; to divide, flip the second fraction and multiply. That flip is the whole trick.",
+    },
+  },
+
+  math7_ch8_mixed_numbers: {
+    key_formulas: [
+      { formula: "Mixed → improper: a b/c = (a×c + b)/c", explanation: "e.g. 1½ = (1×2+1)/2 = 3/2." },
+      { formula: "Improper → mixed: divide; quotient is the whole, remainder over the divisor", explanation: "7/2 = 3 remainder 1 = 3½." },
+    ],
+    prerequisite_knowledge: ["proper vs improper fractions", "division with remainders", "fraction basics"],
+    visual_description: "Three half-circles shaded to show 1½ as one whole circle plus a half, and the same quantity written as the improper fraction 3/2.",
+    svg_diagrams: [svg("math7_ch8_mixed", "1½ = 3/2",
+      `<circle cx="90" cy="100" r="40" fill="#bfdbfe" stroke="#2563eb"/>
+       <path d="M180 100 A40 40 0 0 1 180 60 L180 100 Z" fill="#bfdbfe" stroke="#2563eb"/>
+       <circle cx="180" cy="100" r="40" fill="none" stroke="#2563eb"/>
+       <text x="300" y="95" font-weight="bold">1½ = 3 halves = 3/2</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Before multiplying/dividing — convert mixed numbers to improper first", "Writing an answer in everyday form (mixed)"],
+      use_other_when: ["Adding/subtracting whole-and-fraction parts separately is sometimes easier"],
+    },
+    edge_cases: [
+      { case: "2¾ for multiplication", value: "convert to 11/4 first", reasoning: "You can't multiply the whole and fraction parts separately.", where_it_appears: "Multiplying mixed numbers." },
+      { case: "Improper fraction that divides exactly, 8/4", value: "= 2 (a whole number)", reasoning: "No remainder, so no fraction part.", where_it_appears: "Converting back." },
+    ],
+    video_script_hooks: {
+      opening_hook: "1½ pizzas — is that one number or two? To do maths with it, you rewrite it as 3/2: three half-slices.",
+      concept_reveal: "Whole × denominator + numerator turns a mixed number into an improper fraction; division turns it back.",
+    },
+  },
+
+  math7_ch8_fraction_word: {
+    key_formulas: [
+      { formula: "'Fraction OF a quantity' means multiply", explanation: "2/3 of 90 = 2/3 × 90 = 60." },
+      { formula: "Read the question to pick the operation", explanation: "'of' → ×, 'shared into' → ÷, 'altogether' → +." },
+    ],
+    prerequisite_knowledge: ["multiplying and dividing fractions", "mixed numbers", "reading word problems"],
+    visual_description: "A bar of length 90 split into 3 equal parts of 30; two parts (60) are shaded to show 2/3 of 90 = 60.",
+    svg_diagrams: [svg("math7_ch8_fraction_word", "2/3 of 90 = 60",
+      `<rect x="40" y="70" width="120" height="40" fill="#86efac" stroke="#16a34a"/>
+       <rect x="160" y="70" width="60" height="40" fill="#fff" stroke="#16a34a"/>
+       <line x1="100" y1="70" x2="100" y2="110" stroke="#16a34a"/>
+       <text x="60" y="135">30</text><text x="120" y="135">30</text><text x="180" y="135">30</text>
+       <text x="300" y="95" font-weight="bold">2 parts shaded = 60</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Translating a real-life fraction problem into a calculation", "Finding 'how much of' something"],
+      use_other_when: ["The numbers are abstract — just apply the operation directly without a story"],
+    },
+    edge_cases: [
+      { case: "'1½ hours at ⅔ of normal speed'", value: "convert mixed to improper first", reasoning: "3/2 × 2/3 keeps the arithmetic clean.", where_it_appears: "Distance/speed word problems." },
+      { case: "Answer comes out improper, e.g. 7/2 km", value: "rewrite as 3½ km", reasoning: "Everyday answers read better as mixed numbers.", where_it_appears: "Final-answer presentation." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Two-thirds of the class of 90 came on the trip. How many is that? The word 'of' is secretly telling you to multiply.",
+      concept_reveal: "Word problems are translation: 'of' becomes ×, 'shared into' becomes ÷. Spot the keyword, pick the operation.",
+    },
+  },
+
+  math7_ch8_fraction_decimal: {
+    key_formulas: [
+      { formula: "Fraction → decimal: divide numerator by denominator", explanation: "3/4 = 3 ÷ 4 = 0.75." },
+      { formula: "Decimal → fraction: place value over 10/100/1000, then simplify", explanation: "0.6 = 6/10 = 3/5." },
+    ],
+    prerequisite_knowledge: ["place value of decimals", "equivalent fractions", "division"],
+    visual_description: "A 10×10 grid (one whole) with 75 cells shaded, labelled both as 3/4 and as 0.75 to link the two forms.",
+    svg_diagrams: [svg("math7_ch8_fraction_decimal", "3/4 = 0.75",
+      `<rect x="60" y="40" width="120" height="120" fill="#bfdbfe" stroke="#475569"/>
+       <rect x="150" y="130" width="30" height="30" fill="#fff" stroke="#475569"/>
+       <text x="300" y="90" font-weight="bold">75 of 100 shaded</text>
+       <text x="300" y="125">3/4 = 0.75</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Comparing a fraction with a decimal", "Switching to whichever form is easier to compute with"],
+      use_other_when: ["The fraction is already simplest for the task (e.g. exact thirds) — 1/3 = 0.333… never terminates"],
+    },
+    edge_cases: [
+      { case: "1/3 as a decimal", value: "0.333… (recurring)", reasoning: "The division never ends — some fractions don't give terminating decimals.", where_it_appears: "Recurring decimals." },
+      { case: "0.5 vs 1/2", value: "equal", reasoning: "Same value, two notations.", where_it_appears: "Comparing forms." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Is 3/4 bigger or smaller than 0.7? Turn the fraction into 0.75 and the answer is obvious — same number, friendlier clothes.",
+      concept_reveal: "A fraction is just a division waiting to happen; do the division and you get its decimal twin.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 9 — Geometric Twins (congruence)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch9_congruence_intro: {
+    key_formulas: [
+      { formula: "Two figures are congruent if they have the same shape AND size", explanation: "They can be superimposed exactly, one on the other." },
+      { formula: "Rotating or flipping is allowed before superimposing", explanation: "Congruence cares about shape and size, not orientation." },
+    ],
+    prerequisite_knowledge: ["measuring lengths and angles", "shapes and their sides", "rotation and reflection (flip)"],
+    visual_description: "Two identical L-shapes, one rotated, with a tracing-paper overlay showing the second laid exactly over the first.",
+    svg_diagrams: [svg("math7_ch9_congruence_intro", "Congruent = exact overlap",
+      `<polygon points="40,150 40,60 70,60 70,120 120,120 120,150" fill="#bfdbfe" stroke="#2563eb"/>
+       <polygon points="250,60 340,60 340,90 280,90 280,150 250,150" fill="#fde68a" stroke="#d97706"/>
+       <text x="40" y="175">figure A</text><text x="250" y="175">A rotated — still congruent</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding if two figures are exact copies", "Justifying that matching parts are equal"],
+      use_other_when: ["Figures are the same shape but different size → that's 'similar', not congruent"],
+    },
+    edge_cases: [
+      { case: "Same shape, different size (e.g. two squares 3 cm and 5 cm)", value: "NOT congruent", reasoning: "Congruence needs equal size too — they're only similar.", where_it_appears: "Common mix-up." },
+      { case: "Mirror image", value: "still congruent", reasoning: "Flipping is allowed before superimposing.", where_it_appears: "Left/right hand shapes." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Trace a shape onto tracing paper. If it drops exactly onto another — even after you spin or flip the paper — they're congruent.",
+      concept_reveal: "Congruent figures are perfect twins: same shape, same size, allowed to be rotated or flipped.",
+    },
+  },
+
+  math7_ch9_congruent_triangles: {
+    key_formulas: [
+      { formula: "△ABC ≅ △DEF means all 3 sides and all 3 angles match in order", explanation: "Write vertices in corresponding order: A↔D, B↔E, C↔F." },
+      { formula: "Corresponding parts of congruent triangles are equal", explanation: "Once congruent, matching sides and angles are automatically equal." },
+    ],
+    prerequisite_knowledge: ["congruence idea", "naming triangle vertices", "matching corresponding parts"],
+    visual_description: "Triangles ABC and DEF drawn equal, with matching sides tick-marked (single/double/triple) and the statement △ABC ≅ △DEF written with arrows linking A→D, B→E, C→F.",
+    svg_diagrams: [svg("math7_ch9_congruent_triangles", "△ABC ≅ △DEF (order matters)",
+      `<polygon points="40,150 150,150 90,60" fill="#eff6ff" stroke="#2563eb"/>
+       <polygon points="300,150 410,150 350,60" fill="#ecfdf5" stroke="#059669"/>
+       <text x="30" y="168">A</text><text x="150" y="168">B</text><text x="83" y="55">C</text>
+       <text x="290" y="168">D</text><text x="410" y="168">E</text><text x="343" y="55">F</text>
+       <text x="170" y="105" font-weight="bold">≅</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Writing a congruence statement", "Using one congruence to deduce other equal sides/angles"],
+      use_other_when: ["You only need to know IF they're congruent → apply a criterion (SSS/SAS) first"],
+    },
+    edge_cases: [
+      { case: "Writing △ABC ≅ △EDF instead of △DEF", value: "wrong — order broken", reasoning: "The vertex order encodes WHICH parts correspond; getting it wrong mismatches sides.", where_it_appears: "Marks lost for ordering." },
+      { case: "Congruent but differently oriented", value: "still ≅", reasoning: "Correspondence follows the parts, not the position on the page.", where_it_appears: "Flipped diagrams." },
+    ],
+    video_script_hooks: {
+      opening_hook: "△ABC ≅ △DEF isn't just 'they're equal' — the LETTER ORDER tells you exactly which corner matches which.",
+      concept_reveal: "Name congruent triangles so corresponding vertices line up; then every matching side and angle is automatically equal.",
+    },
+  },
+
+  math7_ch9_sss_sas: {
+    key_formulas: [
+      { formula: "SSS: three sides of one triangle equal three sides of another ⇒ congruent", explanation: "Three sides fix a triangle's shape completely." },
+      { formula: "SAS: two sides and the INCLUDED angle equal ⇒ congruent", explanation: "The angle must be between the two sides." },
+    ],
+    prerequisite_knowledge: ["congruent triangles", "constructing triangles from given parts", "included vs non-included angle"],
+    visual_description: "Left: two triangles with all three sides tick-marked equal (SSS). Right: two triangles with two sides and the angle BETWEEN them marked equal (SAS), the included angle highlighted.",
+    svg_diagrams: [svg("math7_ch9_sss_sas", "SSS and SAS conditions",
+      `<polygon points="40,150 140,150 90,65" fill="#eff6ff" stroke="#2563eb"/><text x="60" y="175">SSS</text>
+       <polygon points="280,150 380,150 330,65" fill="#ecfdf5" stroke="#059669"/>
+       <path d="M300 150 A20 20 0 0 1 290 132" fill="none" stroke="#dc2626" stroke-width="2"/>
+       <text x="300" y="175">SAS (included ∠)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Proving two triangles congruent from given measurements", "Deciding the minimum info needed to copy a triangle"],
+      use_other_when: ["Two sides and a NON-included angle are given → that does NOT guarantee congruence"],
+    },
+    edge_cases: [
+      { case: "Two sides + a non-included angle (SSA)", value: "NOT a valid condition", reasoning: "Two different triangles can fit — it doesn't pin the shape.", where_it_appears: "The classic trap." },
+      { case: "All three angles equal (AAA)", value: "NOT congruent", reasoning: "Same shape, but size can differ — only similar.", where_it_appears: "Why angles alone fail." },
+    ],
+    video_script_hooks: {
+      opening_hook: "How little do you need to know to be SURE two triangles are identical? Just three sides — or two sides and the angle wedged between them.",
+      concept_reveal: "SSS and SAS are shortcuts: match the right three parts and congruence is guaranteed — but the angle in SAS must sit between the two sides.",
+    },
+  },
+
+  math7_ch9_real_congruence: {
+    key_formulas: [
+      { formula: "Mass-produced identical parts are congruent by design", explanation: "Tiles, coins, keys, machine parts — made to be exact copies." },
+      { formula: "Congruence test = same shape and size (superimpose)", explanation: "The same rule applies whether on paper or in the real world." },
+    ],
+    prerequisite_knowledge: ["congruence intro", "SSS/SAS criteria", "measuring real objects"],
+    visual_description: "Real examples: two identical floor tiles, two stamps from the same sheet, and a key with its duplicate — each pair labelled 'congruent'.",
+    svg_diagrams: [svg("math7_ch9_real_congruence", "Congruence in everyday objects",
+      `<rect x="40" y="60" width="70" height="70" fill="#fde68a" stroke="#d97706"/><rect x="130" y="60" width="70" height="70" fill="#fde68a" stroke="#d97706"/>
+       <text x="60" y="150">identical tiles</text>
+       <rect x="300" y="60" width="50" height="70" fill="#bfdbfe" stroke="#2563eb"/><rect x="370" y="60" width="50" height="70" fill="#bfdbfe" stroke="#2563eb"/>
+       <text x="320" y="150">stamps</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Spotting congruence in real designs (tiling, manufacturing)", "Checking a duplicate is a true copy"],
+      use_other_when: ["Objects merely look alike but differ in size → similar, not congruent"],
+    },
+    edge_cases: [
+      { case: "A photo and an enlarged photo", value: "similar, not congruent", reasoning: "Same shape, different size.", where_it_appears: "Scaling vs copying." },
+      { case: "Two keys cut from the same blank", value: "congruent", reasoning: "Made to identical shape and size so they work in the same lock.", where_it_appears: "Everyday duplicates." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Why does a spare key open your door? Because it's congruent to the original — same shape, same size, down to the grooves.",
+      concept_reveal: "Congruence isn't just textbook geometry — it's how tiles, coins and machine parts are made to match exactly.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

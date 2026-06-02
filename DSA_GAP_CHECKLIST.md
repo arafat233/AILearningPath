@@ -67,6 +67,11 @@
 
 ## 🅱️ SESSION B — Modules M34, M35, M37, M38 — 9 items
 
+> ✅ **COMPLETE 2026-06-03** — `config/seedDsaGapsB.js` (`npm run seed:dsa-gaps-b`),
+> idempotent. 9 items / 14 docs: M34 (2), M35 (4 incl. traces), M37 (2 incl. Dijkstra
+> contrast), M38 (6 incl. traces). Verified by Session A: 14/14 present, valid
+> IDs/types/levels, parent topics exist, no collisions.
+
 > Four small additive seeds (or one `config/seedDsaGapsB.js` that touches only
 > these four modules). Never touch M33.
 
@@ -109,6 +114,32 @@
 - 2D Array (M30.5, built this session): matrix multiply/transpose/spiral/diagonal,
   grid BFS/DFS, grid DP (unique paths, maximal square, edit distance, LCS),
   2D binary search
+
+## ⚠️ Follow-up finding — duplicate exercises in M37–M41 (PRE-EXISTING, separate from gap work)
+
+Flagged by Session B, confirmed by Session A (2026-06-03). The ORIGINAL seeds for
+five DSA modules wrote the same ~12-base exercise set into EVERY topic (t1–t5)
+instead of topic-specific content. Confirmed **byte-identical** (instructions AND
+expectedSolution match across topics; only the exerciseId differs).
+
+Consequence: e.g. M38 T4 "Custom Sort — Comparators" actually shows merge/quick/
+counting-sort exercises; M37 T2 "BFS/DFS Applications" shows the generic graph set.
+Topic content is mismatched to topic titles.
+
+| Module | docs | distinct titles | duplication |
+|--------|:----:|:--------------:|:-----------:|
+| M37 Graphs | 67 | 19 | ~5× |
+| M38 Sorting | 66 | 18 | ~5× |
+| M39 Binary Search | 60 | 12 | ~5× |
+| M40 Backtracking | 60 | 12 | ~5× |
+| M41 Dynamic Programming | 65 | 17 | ~5× |
+| M36 Heaps | 56 | 34 | ~partial (3×) |
+
+(Healthy modules for comparison: M29–M35 each have ~1 dup at most; M30.5 = 37/37.)
+
+**NOT auto-fixed** — deletion alone would leave t2–t5 nearly empty; the real fix is
+re-authoring topic-specific exercises per topic (~20 topics across 4–5 modules), a
+large content task. Awaiting direction on scope/order before touching live content.
 
 ## Score
 | DS | covered | missing |

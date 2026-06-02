@@ -391,7 +391,8 @@
     "enrich:math3": "node config/enrichMath3.js",
     "enrich:math1": "node config/enrichMath1.js",
     "seed:m30-5-2d-array": "node config/seedM30_5_2dArrayModule.js",
-    "seed:m33-gaps": "node config/seedM33StackQueueGaps.js"
+    "seed:m33-gaps": "node config/seedM33StackQueueGaps.js",
+    "seed:dsa-gaps-b": "node config/seedDsaGapsB.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

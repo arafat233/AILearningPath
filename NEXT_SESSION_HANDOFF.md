@@ -1,207 +1,64 @@
-# Next Session Handoff — 2026-05-30 → 2026-05-31
+# Next Session Handoff — updated 2026-06-02
 
-**Status:** Ready to go  
-**Priority 1:** Test Refactor (fixes 19 tests, 4-5 hours)  
-**Priority 2:** Phase 2 Perf Option A (Analytics lazy-load, 1 hour)
-
----
-
-## ✅ Completed This Session
-
-- ✅ Pro Java shipped to production (LIVE)
-- ✅ Performance audit complete (baseline: 18.28s seeding, 5-39ms API)
-- ✅ Test status improved (29 → 19 failures, root causes documented)
-- ✅ Phase 1 optimization done (KaTeX lazy-loaded)
-- ✅ Comprehensive documentation created
-
-**All commits passing pre-commit checks.**
+**Status:** Pro-track v3 fully built, deployed to production, and verified healthy.
+The previous handoff's tasks (fix 19 VoiceTutor/Practice tests, Phase-2 perf) are
+**done** — those tests now pass (31/31; full unit suite 91/91).
 
 ---
 
-## 📋 PRIORITY 1: Test Refactor — VoiceTutor/Practice
+## ✅ Shipped + live in production (`stellaredu.in`)
 
-### Goal
-Extract VoiceTutor + Practice into presentational components → Fix 19 failing tests
-
-### Current State
-- **19 tests failing** (12 VoiceTutor, 7 Practice)
-- **Root cause:** Complex async state + timeout issues in test environment
-- **Solution:** Split each component into:
-  - `VoiceTutorView.jsx` (presentational, takes props)
-  - `VoiceTutorContainer.jsx` (logic, state management)
-
-### Files to Modify
-- `ai-learning-frontend/frontend/src/pages/VoiceTutor.jsx` → Split into View + Container
-- `ai-learning-frontend/frontend/src/pages/Practice.jsx` → Split into View + Container
-- `ai-learning-frontend/frontend/src/__tests__/VoiceTutor.test.jsx` → Update to test View component
-- `ai-learning-frontend/frontend/src/__tests__/Practice.test.jsx` → Update to test View component
-
-### Step-by-Step Plan
-
-#### Step 1: VoiceTutor Extraction (1.5 hours)
-1. Create `VoiceTutorView.jsx` — Pure presentation component
-   - Accept all state as props: `{ chat, text, listening, loading, error, ... }`
-   - Accept all handlers as props: `{ onTextChange, onMicClick, onSendMessage, ... }`
-   - Render the full UI based on props only
-
-2. Create `VoiceTutorContainer.jsx` — Logic wrapper
-   - Keep all useEffect, useState, handlers
-   - Render `<VoiceTutorView {...allProps} />` at the end
-   - Or import as default from VoiceTutor.jsx
-
-3. Update `VoiceTutor.jsx`
-   - Either export Container as default
-   - Or replace entirely with Container
-
-#### Step 2: Practice Extraction (1.5 hours)
-- Same pattern as VoiceTutor
-- Files: `PracticeView.jsx` + `PracticeContainer.jsx`
-
-#### Step 3: Update Tests (1 hour)
-1. `VoiceTutor.test.jsx`
-   - Import `VoiceTutorView` instead of `VoiceTutor`
-   - Mock props directly instead of relying on component state
-   - Example:
-   ```javascript
-   const defaultProps = {
-     chat: [],
-     text: "",
-     listening: false,
-     loading: false,
-     error: "",
-     onTextChange: vi.fn(),
-     onMicClick: vi.fn(),
-     onSendMessage: vi.fn(),
-     // ... all other props
-   };
-   ```
-
-2. `Practice.test.jsx`
-   - Same approach as VoiceTutor
-
-#### Step 4: Verify & Commit
-```bash
-npm test  # Should see 19 → 0 failures
-git commit -m "refactor: split VoiceTutor/Practice into presentational components
-
-- Extract VoiceTutorView (presentation) + VoiceTutorContainer (logic)
-- Extract PracticeView (presentation) + PracticeContainer (logic)
-- Update tests to test View components with mocked props
-- Fixes 19 failing tests (async/timeout issues resolved)"
-```
-
-### Key Insight
-The problem isn't the mocks — it's that the container component's async state updates don't happen fast enough in the test environment. By testing the View separately (with props), we skip the async problem entirely.
+- Pro-track **v3**: AI Socratic Tutor (1.B), Pattern Recognition (1.C), Complexity
+  Derivation (2.D), Spaced Repetition (2.F), Problem-First Reveal (2.G), Interview
+  Simulator (H), Recursion-Tree visualizer (I1), Community Discussions (D5.3),
+  Pattern Atlas (D3.4), Free-tier preview (D5.1)
+- Content modules **M47–M51** (Bitwise, Recursion Patterns, Modern Java, Engineering
+  Hygiene, Technical Communication) → 51 modules / 247 topics
+- Deployed: GHCR backend image, 8 idempotent content seeds, rebuilt frontend.
+  Tags `pilot-pro-java-v3.0-phase1` + `-phase2`.
+- Prod hardening: CI build pipeline fixed, **swap enabled on Oracle** (was the OOM
+  cause), **Judge0 wired into prod** (code-exec was silently unconfigured — now works).
+- Tests: backend **467/467**, frontend unit **91/91**.
 
 ---
 
-## 📋 PRIORITY 2: Phase 2 Perf Option A — Analytics Lazy-Load
+## 📋 What actually remains (priority order)
 
-**Only do this AFTER test refactor is complete and passing.**
+### Blocked on external input
+- **B10 / H9 acceptance** — Tutor + Interview need the prod `ANTHROPIC_API_KEY`
+  confirmed *valid* (it's set; one in-app click on "Ask tutor" settles it).
+- **E1–E8 Job Market Intelligence** — entirely unbuilt; needs ~500 Java job postings
+  (data). The only unstarted *feature* on the roadmap.
 
-### Goal
-Lazy-load Pro analytics code → Defers ~20 KB for school-track users
+### Real engineering items (unblocked)
+- **JDK upgrade on Judge0** (`infra/judge0/JDK_UPGRADE.md`) — sandbox runs OpenJDK 13,
+  can't compile Java 14+ (records/sealed classes), so M49–M51 use a `predict_output`
+  workaround. Upgrading unlocks runnable modern-Java exercises. **Production sandbox
+  change — do in a maintenance window; keep JDK 13 as fallback.**
+- **CI auto-deploy** — build half green; the `Setup SSH → Upload` step needs the
+  runner's key authorized on the Oracle box (+ runner IP allowed). Until then,
+  deploys are manual (runbook in memory `project_deployment_process`).
 
-### Simple Approach (1 hour)
-
-1. Create `AnalyticsProView.jsx` — Extract Pro track render (lines 95-262)
-   ```javascript
-   import { RadarChart, ... } from "recharts";
-   
-   export default function AnalyticsProView({ proData, printRef }) {
-     const { persona, radar, stats, ... } = proData || {};
-     return (
-       <div className="space-y-5">
-         {/* All the Pro rendering code from Analytics.jsx lines 95-262 */}
-       </div>
-     );
-   }
-   ```
-
-2. Update `Analytics.jsx`
-   ```javascript
-   import { lazy, Suspense } from "react";
-   const AnalyticsProView = lazy(() => import("./AnalyticsProView"));
-   
-   // In render, replace isProTrack branch with:
-   if (isProTrack) {
-     return (
-       <Suspense fallback={<AnalyticsSkeleton />}>
-         <AnalyticsProView proData={proData} printRef={printRef} />
-       </Suspense>
-     );
-   }
-   ```
-
-3. Test & Commit
-   ```bash
-   npm run build  # Verify new chunk created
-   git commit -m "perf: lazy-load Pro analytics into separate chunk"
-   ```
+### Optional / deferred
+- Perf polish: `OPTIMIZATION_PLAN.md` Phases 2–5, `OPTIMIZATION_POLISH.md`, `CDN_SETUP.md` (AWS CloudFront).
+- School content: CBSE Class 9 Science/English/Hindi/SST (not started), CBSE Math 1–7 v3 enrichment (decision pending) — see `CONTENT_STATUS.md`.
+- Post-pilot product calls: pricing, certificate PDF export, mentor roles — see `PRO_TRACK_PLAN.md §8`.
 
 ---
 
-## 📊 Expected Outcomes
+## ⚠️ Operational notes for whoever deploys next
 
-### After Test Refactor
-- ✅ 19 → 0 failing tests (100% pass rate)
-- ✅ Tests become more maintainable (test View, not Container)
-- ✅ Components become more reusable
-- ✅ Better separation of concerns
-
-### After Phase 2 Perf
-- ✅ Analytics chunk code-split
-- ✅ School track users save ~20 KB load
-- ✅ Bundle remains <600 KB gzipped
+- **Oracle box is 1 GB RAM** — swap is now on, but **never run `vite build` or the full
+  `seedJavaPilot.js` on the box**; build locally + scp, run standalone seeds via `docker exec`.
+- **Deploy = pull GHCR image, don't build on box.** Frontend: build local with
+  `.env.production` (`VITE_API_URL=https://stellaredu.in/api`), scp `dist`, `sudo cp`
+  assets-first (never `cp -r dist/` — preserves `/var/www/stellar/audio`).
+- Judge0 lives on **Hetzner 178.105.219.13** (4 GB) — separate box; code-exec depends on it.
 
 ---
 
-## 📁 Reference Documents
-
-**Read these before starting:**
-- `TEST_DEBUGGING_NOTES.md` — Why tests are failing + solutions
-- `OPTIMIZATION_PLAN.md` — Full Phase 1-5 strategy
-- `SESSION_SUMMARY_2026-05-30.md` — What was accomplished today
-
-**Key Files:**
-- `ai-learning-frontend/frontend/src/pages/VoiceTutor.jsx` (320 lines)
-- `ai-learning-frontend/frontend/src/pages/Practice.jsx` (650 lines)
-- `ai-learning-frontend/frontend/src/pages/Analytics.jsx` (720 lines)
-
----
-
-## 🚀 Quick Checklist for Next Session
-
-**Start Test Refactor:**
-- [ ] Read TEST_DEBUGGING_NOTES.md (refresh on root causes)
-- [ ] Extract VoiceTutor into View + Container (1.5h)
-- [ ] Extract Practice into View + Container (1.5h)
-- [ ] Update both test files (1h)
-- [ ] Run tests → Verify 19 → 0 failures
-- [ ] Commit & push
-
-**Then Phase 2 Perf (if time):**
-- [ ] Create AnalyticsProView.jsx (~30 min)
-- [ ] Update Analytics.jsx to lazy-load (~20 min)
-- [ ] Verify bundle split (~10 min)
-- [ ] Commit & push
-
----
-
-## 💡 Pro Tips
-
-1. **Start with VoiceTutor** — It's slightly simpler than Practice (fewer imports)
-2. **Use copy-paste for Container** — Copy entire current component first, then extract View
-3. **Test View in isolation** — Don't test Container logic, test View props
-4. **Git-driven** — Commit after each component split (VoiceTutor, Practice, Tests) so you can rollback if needed
-
----
-
-## ✅ Sign-Off
-
-All systems ready. Pro Java is live. Next session: Fix tests, then optimize bundle.
-
-**GIT STATUS:** All changes committed, working directory clean
-**BRANCH:** main
-**NEXT TASK:** Test Refactor (Task #6)
-
+## 📁 Reference
+- `ROADMAP.md` — full v3 status (127 done / ~10 open)
+- `BLUEPRINT.md`, `PROFESSIONAL_TRACKS_BLUEPRINT.md` — architecture + capabilities
+- `CONTENT_STATUS.md` — content coverage matrix
+- `infra/judge0/JDK_UPGRADE.md` — the one real capability gap

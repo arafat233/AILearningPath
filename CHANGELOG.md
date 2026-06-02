@@ -5,6 +5,31 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2026-06-02] — Pro-track v3: pedagogy features, parity modules, prod hardening
+
+### Added
+- **AI Socratic Tutor** (Phase 1.B): `tutorService.js` + `tutorPrompts.js` + `TutorPanel.jsx`; `POST /v1/pro/tutor/ask` (+ session/rate routes), Redis-rate-limited, never gives the answer
+- **Pattern Recognition** (Phase 1.C): `pattern_match` exercise type, `PatternMatchRunner.jsx` + `PatternDrill.jsx`, 20 seeded exercises
+- **Complexity Derivation** (Phase 2.D): `ComplexityPlot.jsx` ops-vs-n plot with reference curves + "guess the curve"
+- **Spaced Repetition** (Phase 2.F): SM-2 lite on `ProProgress.topicReviews[]`, `/pro/review` page + dashboard nudge
+- **Problem-First Reveal** (Phase 2.G): `ProTopic.revealStrategy`/`problemTitle`, 11 topics gated; standalone `seedRevealTopics.js`
+- **Interview Simulator** (Phase H): `ProInterviewSession` + `interviewService.js`, 25-problem bank, 3 pages (Landing/Simulator/History), 45-min timer + AI interviewer + rubric
+- **Recursion-Tree visualizer** (I1): `recursion-tree` kind on M40/M41 (memo-hit + pruned states)
+- **Community Discussions** (D5.3): `ProTopicDiscussion` model + `discussionService.js` + `TopicDiscussion.jsx`, threads/replies/upvotes
+- **Free-tier preview** (D5.1): `ProTopic.freeAccess`, 10 lighthouse topics, `/pro/preview/:topicId` public view
+- **Pattern Atlas** (D3.4): `/pro/:trackSlug/patterns` indexing 15 patterns → exercises
+- **Content modules**: M47 Bitwise (D3.1) + `BitwiseVisualizer`, M48 Recursion Patterns (D3.2), M49 Modern Java (J1), M50 Engineering Hygiene (J2), M51 Technical Communication (J3) — now 51 modules / 247 topics
+- `ProProjectView.jsx`: self-assessed mini-project runner
+- Unit tests: `tutorService.test.js`, `interviewService.test.js` (backend now 467 tests)
+
+### Fixed (production hardening, 2026-06-02)
+- **CI prod-deploy build** never green (15/15 red): backend `npm ci` ERESOLVE (rate-limit-redis@5 vs express-rate-limit@7) → `--legacy-peer-deps`; frontend `npm test` ran Playwright e2e specs → new `test:ci` excludes them
+- **Oracle swap** — a 2 GB swapfile created May 3 was never `swapon`'d or in fstab (root cause of the OOM reboot); now enabled + persisted, swappiness=10
+- **Judge0 unconfigured in prod** — `JUDGE0_URL`/`JUDGE0_AUTH_TOKEN` were never in the compose env, so all "Run & submit" coding exercises failed; now wired (verified: authed Judge0 call returns 47 languages)
+
+### Deployed
+- Pro-track v3 live on `stellaredu.in` (Oracle Cloud) — backend image pulled from GHCR, 8 content seeds applied, frontend rebuilt + shipped, all smoke tests green. Tagged `pilot-pro-java-v3.0-phase1` + `-phase2`.
+
 ## [2026-05-30] — Pro-track UX polish, performance, and track switching
 
 ### Added

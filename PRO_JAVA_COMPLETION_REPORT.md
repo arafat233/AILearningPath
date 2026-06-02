@@ -293,7 +293,7 @@ Plus 19 pilot acceptance commits from 2026-05-26.
 | Modules audited | 46/46 ✅ |
 | Topics audited | 232/232 ✅ |
 | Exercises audited | 3311/3311 ✅ |
-| Backend tests | 443/443 ✅ |
+| Backend tests | 467/467 ✅ (was 443; +24 from tutorService + interviewService unit tests, 2026-06-02) |
 | Phases completed | 13 + 5 extensions ✅ |
 | Commits | 2 (2026-05-30) |
 | Features added (2026-05-30) | 4 (leaderboard, certs, gamification, audit) |

@@ -1,7 +1,13 @@
 # Test Debugging Notes — VoiceTutor & Practice Components
 
+> ✅ **RESOLVED (2026-06-02).** All previously-failing tests now pass —
+> `VoiceTutor.test.jsx` + `Practice.test.jsx` = **31/31 green**, and the full
+> frontend unit suite is **91/91** (the only remaining red is the 3 Playwright
+> e2e specs, which need a live backend and run via `npm run test:e2e`, not the
+> unit run). The notes below are kept as a historical record of the debugging.
+
 **Date:** 2026-05-30  
-**Status:** 29 failing → 19 failing (10 fixed, 66% of failures resolved)
+**Status (original):** 29 failing → 19 failing (10 fixed, 66% of failures resolved)
 
 ---
 

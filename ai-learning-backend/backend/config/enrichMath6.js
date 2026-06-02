@@ -669,6 +669,221 @@ const ENRICH = {
       concept_reveal: "Real problems hinge on one choice: boundary (perimeter) or surface (area). Get that right and it's just multiply-by-the-rate.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 7 — Fractions
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch7_fractions_review: {
+    key_formulas: [
+      { formula: "A fraction = numerator / denominator", explanation: "Denominator = equal parts in the whole; numerator = how many you take." },
+      { formula: "Unit fraction = 1/n (one of n equal parts)", explanation: "1/2, 1/3, 1/4 … the building blocks." },
+    ],
+    prerequisite_knowledge: ["equal sharing / division", "the idea of a whole", "counting parts"],
+    visual_description: "A circle cut into 4 equal parts with 3 shaded, labelled 3/4, and a number line from 0 to 1 marked in quarters.",
+    svg_diagrams: [svg("math6_ch7_fractions_review", "3/4 of a whole",
+      `<circle cx="110" cy="100" r="55" fill="#fff" stroke="#475569"/>
+       <path d="M110 100 L110 45 A55 55 0 0 1 165 100 Z" fill="#86efac"/>
+       <path d="M110 100 L165 100 A55 55 0 0 1 110 155 Z" fill="#86efac"/>
+       <path d="M110 100 L110 155 A55 55 0 0 1 55 100 Z" fill="#86efac"/>
+       <text x="230" y="105" font-weight="bold">3 of 4 parts = 3/4</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Naming a part of a whole or a group", "Reading a fraction's numerator and denominator"],
+      use_other_when: ["Comparing whole quantities — no parts involved"],
+    },
+    edge_cases: [
+      { case: "Which is bigger, 1/2 or 1/9?", value: "1/2", reasoning: "Fewer equal parts → each part is BIGGER. Bigger denominator ≠ bigger fraction.", where_it_appears: "The classic unit-fraction trap." },
+      { case: "A fraction equal to 1", value: "numerator = denominator (e.g. 4/4)", reasoning: "All parts taken = the whole.", where_it_appears: "Fraction equal to a whole." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Which is more pizza: 1/2 or 1/9? Many say 1/9 because 9 is bigger — but more slices means smaller slices. 1/2 wins.",
+      concept_reveal: "A fraction splits a whole into equal parts; the denominator sets the part SIZE, so smaller denominators mean bigger pieces.",
+    },
+  },
+
+  math6_ch7_equivalent_fractions: {
+    key_formulas: [
+      { formula: "Multiply or divide top AND bottom by the same number → equivalent fraction", explanation: "1/2 = 2/4 = 3/6 = 50/100." },
+      { formula: "Simplest form: divide by the HCF until top and bottom are co-prime", explanation: "6/8 ÷ 2 = 3/4." },
+    ],
+    prerequisite_knowledge: ["fractions basics", "factors / HCF", "multiplication and division"],
+    visual_description: "Three identical bars: one split in halves (1 shaded), one in quarters (2 shaded), one in eighths (4 shaded) — equal shaded amounts showing 1/2 = 2/4 = 4/8.",
+    svg_diagrams: [svg("math6_ch7_equivalent_fractions", "1/2 = 2/4 = 4/8",
+      `<rect x="40" y="40" width="200" height="30" fill="#fff" stroke="#475569"/><rect x="40" y="40" width="100" height="30" fill="#86efac"/><text x="250" y="62">1/2</text>
+       <rect x="40" y="85" width="200" height="30" fill="#fff" stroke="#475569"/><rect x="40" y="85" width="100" height="30" fill="#86efac"/><line x1="90" y1="85" x2="90" y2="115" stroke="#475569"/><line x1="140" y1="85" x2="140" y2="115" stroke="#475569"/><line x1="190" y1="85" x2="190" y2="115" stroke="#475569"/><text x="250" y="107">2/4</text>
+       <rect x="40" y="130" width="200" height="30" fill="#fff" stroke="#475569"/><rect x="40" y="130" width="100" height="30" fill="#86efac"/><text x="250" y="152">4/8</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Comparing or adding fractions (make denominators match)", "Reducing a fraction to simplest form"],
+      use_other_when: ["The fraction is already simplest and denominators already match"],
+    },
+    edge_cases: [
+      { case: "Multiplying only the top", value: "changes the value — wrong", reasoning: "You must scale BOTH numerator and denominator.", where_it_appears: "Common error." },
+      { case: "6/8", value: "simplifies to 3/4", reasoning: "Divide both by HCF 2.", where_it_appears: "Lowest terms." },
+    ],
+    video_script_hooks: {
+      opening_hook: "1/2, 2/4, 50/100 — they look different but they're the exact same amount of pizza. That's the secret of equivalent fractions.",
+      concept_reveal: "Scale top and bottom by the same number and the value never changes; that's how we match or simplify fractions.",
+    },
+  },
+
+  math6_ch7_fraction_operations: {
+    key_formulas: [
+      { formula: "Same denominator: add/subtract the numerators, keep the denominator", explanation: "2/7 + 3/7 = 5/7." },
+      { formula: "Different denominators: rewrite with a common denominator first", explanation: "1/2 + 1/3 = 3/6 + 2/6 = 5/6." },
+    ],
+    prerequisite_knowledge: ["equivalent fractions", "LCM / common denominators", "addition and subtraction"],
+    visual_description: "Two bars in sixths: 3/6 shaded plus 2/6 shaded combine to 5/6, after converting 1/2 and 1/3 to sixths.",
+    svg_diagrams: [svg("math6_ch7_fraction_operations", "1/2 + 1/3 = 5/6",
+      `<text x="30" y="45">1/2 + 1/3</text>
+       <text x="30" y="85" fill="#2563eb">= 3/6 + 2/6</text>
+       <text x="30" y="125" fill="#16a34a">= 5/6</text>
+       ${[0,1,2,3,4,5].map(i=>`<rect x="${280+i*40}" y="70" width="40" height="30" fill="${i<5?'#86efac':'#fff'}" stroke="#475569"/>`).join("")}`)],
+    when_to_use_this_method: {
+      use_this_when: ["Adding or subtracting fractions", "Combining parts of a whole"],
+      use_other_when: ["Multiplying fractions — you do NOT need a common denominator for that"],
+    },
+    edge_cases: [
+      { case: "Adding denominators too: 1/2 + 1/3 = 2/5", value: "WRONG", reasoning: "Never add denominators; find a common one instead.", where_it_appears: "The #1 fraction mistake." },
+      { case: "Result like 6/6", value: "= 1 (a whole)", reasoning: "Numerator equals denominator.", where_it_appears: "Simplifying the answer." },
+    ],
+    video_script_hooks: {
+      opening_hook: "1/2 + 1/3 is NOT 2/5. If it were, half a pizza plus a third would be less than the half you started with. Common denominators fix this.",
+      concept_reveal: "To add fractions the pieces must be the same size — give them a common denominator, then just add the numerators.",
+    },
+  },
+
+  math6_ch7_mixed_numbers: {
+    key_formulas: [
+      { formula: "Mixed number = whole + fraction (e.g. 1½)", explanation: "Improper 3/2 = 1 whole + ½." },
+      { formula: "Improper → mixed: divide; mixed → improper: (whole×denominator)+numerator", explanation: "7/3 = 2⅓ ; 2⅓ = (2×3+1)/3 = 7/3." },
+    ],
+    prerequisite_knowledge: ["fractions basics", "division with remainders", "equivalent fractions"],
+    visual_description: "Two and a third circles shaded (two full, one third), labelled both as 2⅓ and as the improper fraction 7/3.",
+    svg_diagrams: [svg("math6_ch7_mixed_numbers", "2⅓ = 7/3",
+      `<circle cx="70" cy="90" r="35" fill="#bfdbfe" stroke="#2563eb"/><circle cx="160" cy="90" r="35" fill="#bfdbfe" stroke="#2563eb"/>
+       <circle cx="250" cy="90" r="35" fill="#fff" stroke="#2563eb"/><path d="M250 90 L250 55 A35 35 0 0 1 280 108 Z" fill="#bfdbfe"/>
+       <text x="320" y="95" font-weight="bold">2⅓ = 7/3</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Writing an answer in everyday form (mixed)", "Converting to improper before multiplying/dividing"],
+      use_other_when: ["Adding whole and fraction parts separately is sometimes simpler"],
+    },
+    edge_cases: [
+      { case: "Improper 8/4", value: "= 2 (a whole number, no fraction part)", reasoning: "Divides exactly.", where_it_appears: "Whole-number results." },
+      { case: "2⅓ for multiplication", value: "convert to 7/3 first", reasoning: "Can't multiply the whole and fraction parts separately.", where_it_appears: "Before multiplying." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Two and a third pizzas — is that 2⅓ or 7/3? Both! One is friendly to read, the other is ready for calculation.",
+      concept_reveal: "Mixed numbers show whole-plus-part; improper fractions pack it all into one fraction. Switch between them with one quick rule.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 8 — Playing with Constructions
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch8_basic_constructions: {
+    key_formulas: [
+      { formula: "A compass draws a circle: every point is the same distance (radius) from the centre", explanation: "Fix the point, swing the pencil." },
+      { formula: "Use a ruler for straight lengths, a compass to copy a length as an arc", explanation: "The two basic tools." },
+    ],
+    prerequisite_knowledge: ["measuring with a ruler", "points and line segments", "the idea of distance"],
+    visual_description: "A compass opened to 4 cm against a ruler, drawing a circle of radius 4 cm around centre P.",
+    svg_diagrams: [svg("math6_ch8_basic_constructions", "Drawing a circle of radius 4 cm",
+      `<circle cx="180" cy="100" r="60" fill="none" stroke="#2563eb" stroke-width="2"/>
+       <circle cx="180" cy="100" r="3" fill="#475569"/><text x="172" y="120">P</text>
+       <line x1="180" y1="100" x2="240" y2="100" stroke="#dc2626"/><text x="195" y="93" fill="#dc2626">4 cm</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Drawing accurate circles and copying lengths", "Any precise geometric drawing"],
+      use_other_when: ["A rough sketch is fine → freehand needs no tools"],
+    },
+    edge_cases: [
+      { case: "Compass slips while drawing", value: "circle comes out wrong", reasoning: "The point must stay fixed; only the pencil moves.", where_it_appears: "Construction technique." },
+      { case: "Every point on a circle", value: "is exactly one radius from the centre", reasoning: "That's the definition of a circle.", where_it_appears: "Why a compass works." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A pencil, a pin and a piece of string can draw a perfect circle. A compass is just a neat version of that same idea.",
+      concept_reveal: "With ruler and compass you can draw exact lengths and circles — every compass circle is just 'all points one radius from the centre'.",
+    },
+  },
+
+  math6_ch8_perpendicular_bisector: {
+    key_formulas: [
+      { formula: "Equal arcs from both ends of a segment, joined where they cross", explanation: "The join is perpendicular and cuts the segment in half." },
+      { formula: "Every point on it is equidistant from the two endpoints", explanation: "That's why the arcs (equal radii) work." },
+    ],
+    prerequisite_knowledge: ["basic constructions", "line segments and midpoints", "right angles"],
+    visual_description: "Segment AB with equal arcs from A and B crossing above and below; the line through the crossings cuts AB at 90° at its midpoint.",
+    svg_diagrams: [svg("math6_ch8_perp_bisector", "Perpendicular bisector of AB",
+      `<line x1="80" y1="100" x2="280" y2="100" stroke="#475569" stroke-width="2"/>
+       <text x="70" y="118">A</text><text x="282" y="118">B</text>
+       <path d="M150 40 A90 90 0 0 1 150 160" fill="none" stroke="#94a3b8"/>
+       <path d="M210 40 A90 90 0 0 0 210 160" fill="none" stroke="#94a3b8"/>
+       <line x1="180" y1="40" x2="180" y2="160" stroke="#dc2626" stroke-width="2"/>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding a midpoint or a 90° line without measuring", "Locating points equidistant from two given points"],
+      use_other_when: ["A rough midpoint is fine → just eyeball it"],
+    },
+    edge_cases: [
+      { case: "Arcs with different radii", value: "construction fails", reasoning: "Both arcs must use the same compass width.", where_it_appears: "Most common error." },
+      { case: "Compass radius < half of AB", value: "arcs don't meet", reasoning: "Radius must exceed half the segment.", where_it_appears: "Choosing the opening." },
+    ],
+    video_script_hooks: {
+      opening_hook: "No ruler markings, no protractor — just a compass cuts a line exactly in half AND at a perfect right angle. Magic? No, equal arcs.",
+      concept_reveal: "Equal arcs from both ends meet at points the same distance from each end; join them and you've bisected the segment perpendicularly.",
+    },
+  },
+
+  math6_ch8_angle_bisector: {
+    key_formulas: [
+      { formula: "Arc across both arms, then equal arcs from those crossings, joined to the vertex", explanation: "The join splits the angle into two equal halves." },
+      { formula: "Bisector of an angle of size A makes two angles of A/2", explanation: "e.g. bisecting 80° gives 40° and 40°." },
+    ],
+    prerequisite_knowledge: ["basic constructions", "angles and vertices", "equal arcs"],
+    visual_description: "An angle at vertex O with an arc cutting both arms; equal arcs from those two points cross at a point, and the line O-to-crossing splits the angle in half.",
+    svg_diagrams: [svg("math6_ch8_angle_bisector", "Bisecting an angle",
+      `<line x1="80" y1="150" x2="80" y2="50" stroke="#2563eb" stroke-width="2"/><line x1="80" y1="150" x2="260" y2="150" stroke="#2563eb" stroke-width="2"/>
+       <text x="70" y="170">O</text>
+       <path d="M80 110 A40 40 0 0 1 120 150" fill="none" stroke="#94a3b8"/>
+       <line x1="80" y1="150" x2="180" y2="78" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 3"/>
+       <text x="190" y="80" fill="#dc2626">bisector</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Splitting an angle into two equal parts without a protractor", "Constructing angles like 45° (bisect 90°) or 30° (bisect 60°)"],
+      use_other_when: ["You just need to measure an existing angle → use a protractor"],
+    },
+    edge_cases: [
+      { case: "Bisecting a 90° angle", value: "gives two 45° angles", reasoning: "90 ÷ 2 = 45.", where_it_appears: "Constructing 45°." },
+      { case: "Unequal arcs from the arm points", value: "bisector is off", reasoning: "The two arcs must share the same radius.", where_it_appears: "Construction care." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Need a perfect 45° angle but only have a compass? Build a 90° and slice it exactly down the middle. That's an angle bisector.",
+      concept_reveal: "An angle bisector splits an angle into two equal halves — built with arcs, no protractor needed.",
+    },
+  },
+
+  math6_ch8_triangles_construction: {
+    key_formulas: [
+      { formula: "Construct a triangle from three sides (SSS): draw the base, arc the other two lengths to meet", explanation: "The arcs cross at the third vertex." },
+      { formula: "The three lengths must satisfy the triangle inequality", explanation: "Each side < sum of the other two, or the arcs never meet." },
+    ],
+    prerequisite_knowledge: ["basic constructions", "drawing circles/arcs", "line segments"],
+    visual_description: "Base BC drawn, an arc of one length swung from B and another from C, meeting at A to complete triangle ABC.",
+    svg_diagrams: [svg("math6_ch8_triangles_construction", "Constructing a triangle (SSS)",
+      `<line x1="80" y1="150" x2="240" y2="150" stroke="#475569" stroke-width="2"/>
+       <text x="70" y="168">B</text><text x="242" y="168">C</text>
+       <path d="M80 150 A110 110 0 0 1 160 70" fill="none" stroke="#94a3b8"/>
+       <path d="M240 150 A100 100 0 0 0 160 70" fill="none" stroke="#94a3b8"/>
+       <circle cx="160" cy="70" r="3" fill="#dc2626"/><text x="152" y="62">A</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Building an exact triangle from given side lengths", "Checking whether three lengths CAN form a triangle"],
+      use_other_when: ["Given angles instead of all sides → use a protractor-based construction"],
+    },
+    edge_cases: [
+      { case: "Sides 2 cm, 3 cm, 8 cm", value: "arcs never meet — no triangle", reasoning: "2+3 < 8 breaks the triangle inequality.", where_it_appears: "Impossible triangles." },
+      { case: "Equilateral triangle", value: "all three arcs use the same radius", reasoning: "Equal sides.", where_it_appears: "Special construction." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Give me three stick-lengths and I'll build the exact triangle — draw the base, swing two arcs, and they cross at the top corner.",
+      concept_reveal: "A triangle is fixed by its three sides: draw one, arc the other two from its ends, and where they cross is the missing vertex.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -374,6 +374,233 @@ const ENRICH = {
       concept_reveal: "A decimal is whole units plus tenths/hundredths; add or subtract them by aligning the decimal points first.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 4 — Letter-Numbers (algebraic expressions)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch4_variables_intro: {
+    key_formulas: [
+      { formula: "A letter-number (variable) stands for an unknown or changing quantity", explanation: "e.g. let a = Aftab's age; a can take different values." },
+      { formula: "Algebraic expression = numbers + letter-numbers + operations, e.g. a + 3", explanation: "It produces a value once the letter is given a value." },
+    ],
+    prerequisite_knowledge: ["arithmetic expressions", "the idea of an unknown quantity", "the four operations"],
+    visual_description: "Aftab's age 'a' in a box with a '+3' arrow leading to Shabnam's age box 's = a + 3'; below, a = 23 is substituted to give s = 26.",
+    svg_diagrams: [svg("math7_ch4_letter_number", "A letter-number stands for a quantity",
+      `<text x="20" y="26" font-weight="bold">s = a + 3  (Shabnam is 3 years older)</text>
+       <rect x="30" y="50" width="90" height="40" fill="#e0f2fe" stroke="#0369a1"/><text x="60" y="75">a (Aftab)</text>
+       <text x="130" y="75" font-size="16">+3 →</text>
+       <rect x="180" y="50" width="120" height="40" fill="#dcfce7" stroke="#15803d"/><text x="200" y="75">s = a + 3</text>
+       <text x="30" y="125" font-size="13">a = 23  →  s = 23 + 3 = 26</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["A quantity is unknown or can change", "Describing a relationship that holds for any value"],
+      use_other_when: ["A fixed, known number — just use the number itself"],
+    },
+    edge_cases: [
+      { case: "4 × q vs 4q", value: "the same thing", reasoning: "In algebra the × is dropped between a number and a letter.", where_it_appears: "Writing expressions compactly." },
+      { case: "a + 3 is a rule, not one number", value: "value changes with a", reasoning: "An expression with a letter has many possible values.", where_it_appears: "Understanding what a variable means." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Shabnam is always 3 years older than Aftab. You can capture that one fact, for EVERY year, in two symbols: a + 3.",
+      concept_reveal: "A letter-number is a stand-in for a quantity; an expression like a + 3 turns a relationship into algebra.",
+    },
+  },
+
+  math7_ch4_writing_expressions: {
+    key_formulas: [
+      { formula: "Translate a relationship into letters + operations", explanation: "'3 more than a' → a + 3;  '4 times q' → 4q." },
+      { formula: "Perimeter of a square = 4 × side = 4q", explanation: "A formula is an expression that works for every value of the side." },
+    ],
+    prerequisite_knowledge: ["letter-numbers / variables", "the four operations", "reading word relationships"],
+    visual_description: "A three-column table — word phrase → relationship → expression — with rows like 'cost of c chairs at ₹j each' → c × j, and 'perimeter of a square, side q' → 4q.",
+    svg_diagrams: [svg("math7_ch4_phrase_to_expr", "Words → relationship → expression",
+      `<text x="20" y="24" font-weight="bold">Turning words into expressions</text>
+       ${["Phrase","Expression"].map((h,i)=>`<rect x="${20+i*260}" y="40" width="260" height="30" fill="#f1f5f9" stroke="#475569"/><text x="${30+i*260}" y="60" font-weight="bold">${h}</text>`).join("")}
+       <text x="30" y="92">3 more than a</text><text x="290" y="92">a + 3</text>
+       <text x="30" y="120">4 times the side q</text><text x="290" y="120">4q</text>
+       <text x="30" y="148">cost of c chairs at ₹j</text><text x="290" y="148">c × j</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Turning a word problem into algebra", "Writing a general formula (perimeter, cost)"],
+      use_other_when: ["A one-off calculation with only known numbers — no letters needed"],
+    },
+    edge_cases: [
+      { case: "'a less than b'", value: "b − a (not a − b)", reasoning: "Word order isn't symbol order for − and ÷.", where_it_appears: "Translating subtraction phrases." },
+      { case: "'twice the sum of a and b'", value: "2(a + b), not 2a + b", reasoning: "Brackets capture 'add first, then double'.", where_it_appears: "Phrases that need brackets." },
+    ],
+    video_script_hooks: {
+      opening_hook: "'The total cost of c chairs at ₹j each.' How do you write that once, for any number of chairs? c × j.",
+      concept_reveal: "Spot the relationship in the words, then write it with letters and operations — that's an algebraic expression.",
+    },
+  },
+
+  math7_ch4_substituting: {
+    key_formulas: [
+      { formula: "Substitute = replace each letter with its given value, then evaluate", explanation: "a + 3 with a = 23 → 23 + 3 = 26." },
+      { formula: "4q with q = 7 → 4 × 7 = 28", explanation: "Replace the letter, then do the arithmetic (respecting order of operations)." },
+    ],
+    prerequisite_knowledge: ["algebraic expressions", "order of operations", "the four operations"],
+    visual_description: "The expression 4q with q = 7: the q is replaced by 7, giving 4 × 7 = 28; alongside, a + 3 with a = 23 → 26.",
+    svg_diagrams: [svg("math7_ch4_substitute", "Substitute a value, then evaluate",
+      `<text x="20" y="26" font-weight="bold">Substitute the value, then compute</text>
+       <text x="40" y="70" font-size="18">4q ,  q = 7</text>
+       <text x="40" y="100" font-size="18">→ 4 × 7 = 28</text>
+       <text x="280" y="70" font-size="18">a + 3 , a = 23</text>
+       <text x="280" y="100" font-size="18">→ 23 + 3 = 26</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding the value of an expression/formula for given numbers", "Checking a relationship for specific values"],
+      use_other_when: ["No values are given — leave the expression in letters"],
+    },
+    edge_cases: [
+      { case: "4q with q = 7 means 4 × 7", value: "28, not 47", reasoning: "4q is multiplication, not digits written side by side.", where_it_appears: "Common substitution slip." },
+      { case: "Order of operations after substituting: a + 5a, a = 2", value: "2 + 10 = 12", reasoning: "Do the multiplication (5a) before the addition.", where_it_appears: "Multi-operation expressions." },
+    ],
+    video_script_hooks: {
+      opening_hook: "The formula 4q gives a square's perimeter. Side 7 cm? Just swap q for 7: 4 × 7 = 28 cm.",
+      concept_reveal: "To use a formula, substitute — replace every letter with its number, then evaluate.",
+    },
+  },
+
+  math7_ch4_simple_equations: {
+    key_formulas: [
+      { formula: "Equation: two expressions set equal, with an unknown, e.g. x + 3 = 10", explanation: "Solving means finding the value of the letter that makes it true." },
+      { formula: "Undo operations to solve: x + 3 = 10 → x = 10 − 3 = 7", explanation: "Apply the inverse operation to both sides." },
+    ],
+    prerequisite_knowledge: ["letter-numbers", "substituting values", "inverse operations (+/−, ×/÷)"],
+    visual_description: "A balance scale: left pan holds x + 3, right pan holds 10; removing 3 from both pans keeps it balanced and leaves x = 7.",
+    svg_diagrams: [svg("math7_ch4_equation_balance", "Solve x + 3 = 10 by balancing",
+      `<text x="20" y="24" font-weight="bold">x + 3 = 10  →  x = 7</text>
+       <line x1="60" y1="60" x2="500" y2="60" stroke="#475569" stroke-width="3"/>
+       <line x1="280" y1="60" x2="280" y2="150" stroke="#475569" stroke-width="3"/>
+       <rect x="110" y="70" width="120" height="40" fill="#e0f2fe" stroke="#0369a1"/><text x="150" y="95">x + 3</text>
+       <rect x="330" y="70" width="120" height="40" fill="#dcfce7" stroke="#15803d"/><text x="380" y="95">10</text>
+       <text x="60" y="140" font-size="12">Remove 3 from both pans → x = 7</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["A condition pins the unknown to a single value", "Word problems: 'find the number such that…'"],
+      use_other_when: ["Just describing a relationship (an expression) with no '=' condition"],
+    },
+    edge_cases: [
+      { case: "Check by substituting back: x = 7 in x + 3 = 10", value: "7 + 3 = 10 ✓", reasoning: "Substitution verifies your solution is correct.", where_it_appears: "Checking equation answers." },
+      { case: "Do the same to both sides", value: "keeps the equation balanced", reasoning: "An equation stays true only if both sides change equally.", where_it_appears: "The balance method of solving." },
+    ],
+    video_script_hooks: {
+      opening_hook: "x + 3 = 10. What's x? Your brain already said 7 — equations just write that reasoning down.",
+      concept_reveal: "An equation is a balance. To find the unknown, undo what's done to it — and do the same to both sides.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 5 — Parallel and Intersecting Lines
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch5_intersecting_lines: {
+    key_formulas: [
+      { formula: "Two distinct lines meet at exactly one point", explanation: "They can never intersect at more than one point." },
+      { formula: "Intersecting lines form 4 angles that total 360°", explanation: "The angles all around the crossing point add up to a full turn." },
+    ],
+    prerequisite_knowledge: ["points, lines and rays", "measuring angles with a protractor", "straight angle = 180°"],
+    visual_description: "Two lines l and m crossing at a point, with the four angles a, b, c, d marked around the intersection.",
+    svg_diagrams: [svg("math7_ch5_intersect", "Two lines crossing form four angles",
+      `<text x="20" y="22" font-weight="bold">Lines l and m intersect → 4 angles</text>
+       <line x1="60" y1="150" x2="300" y2="50" stroke="#0369a1" stroke-width="2"/>
+       <line x1="60" y1="50" x2="300" y2="150" stroke="#15803d" stroke-width="2"/>
+       <text x="180" y="75" font-size="14">a</text><text x="210" y="105" font-size="14">b</text>
+       <text x="180" y="135" font-size="14">c</text><text x="150" y="105" font-size="14">d</text>
+       <text x="310" y="55" fill="#0369a1">l</text><text x="310" y="150" fill="#15803d">m</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Analysing the angles where two lines cross", "Setting up linear-pair / vertically-opposite reasoning"],
+      use_other_when: ["Parallel lines, which never meet — there's no intersection"],
+    },
+    edge_cases: [
+      { case: "Perpendicular lines", value: "all four angles = 90°", reasoning: "A special crossing where the lines meet at right angles.", where_it_appears: "Perpendiculars." },
+      { case: "Can two lines meet at 2 points?", value: "No — exactly one", reasoning: "Two points determine a unique line, so distinct lines share at most one point.", where_it_appears: "Why lines intersect just once." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Cross two straight lines and — always — exactly four angles appear. They're not random: they come in matched pairs.",
+      concept_reveal: "Two distinct lines meet at one point and form four angles that add to 360°.",
+    },
+  },
+
+  math7_ch5_angles_intersection: {
+    key_formulas: [
+      { formula: "Linear pair: adjacent angles on a straight line sum to 180°", explanation: "a + b = 180°." },
+      { formula: "Vertically opposite angles are equal", explanation: "b = d and a = c." },
+    ],
+    prerequisite_knowledge: ["intersecting lines", "straight angle = 180°", "adding and subtracting angles"],
+    visual_description: "Two intersecting lines with angles a, b, c, d; the linear pair a + b = 180° is bracketed, and arrows mark the equal vertically opposite angles b = d.",
+    svg_diagrams: [svg("math7_ch5_angle_pairs", "Linear pairs (180°) and vertically opposite (equal)",
+      `<text x="20" y="22" font-weight="bold">a+b = 180°  ·  b = d (opposite)</text>
+       <line x1="60" y1="140" x2="300" y2="60" stroke="#475569" stroke-width="2"/>
+       <line x1="60" y1="60" x2="300" y2="140" stroke="#475569" stroke-width="2"/>
+       <text x="175" y="78" font-size="14">a</text><text x="205" y="104" font-size="14">b</text>
+       <text x="175" y="128" font-size="14">c</text><text x="148" y="104" font-size="14">d</text>
+       <text x="320" y="80" font-size="12" fill="#dc2626">a + b = 180°</text>
+       <text x="320" y="110" font-size="12" fill="#0369a1">b = d</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding an unknown angle at a crossing when one angle is known", "Proving angle relationships"],
+      use_other_when: ["Angles not formed by two straight lines crossing"],
+    },
+    edge_cases: [
+      { case: "Given one angle = 60°", value: "the others are 120°, 60°, 120°", reasoning: "Linear pair gives 120°; the vertically opposite angle repeats 60°.", where_it_appears: "Find-the-angle problems." },
+      { case: "All four angles equal", value: "each is 90° (perpendicular)", reasoning: "Equal linear-pair angles must each be 90°.", where_it_appears: "Special perpendicular case." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Tell me ONE of the four angles at a crossing, and I'll tell you the other three — without measuring.",
+      concept_reveal: "Adjacent angles form a linear pair (sum 180°); opposite angles are vertically opposite (equal).",
+    },
+  },
+
+  math7_ch5_parallel_lines: {
+    key_formulas: [
+      { formula: "Parallel lines never meet and stay the same distance apart (l ∥ m)", explanation: "The perpendicular gap between them is constant everywhere." },
+      { formula: "Parallel lines have no point of intersection", explanation: "Unlike intersecting lines, they form no crossing angles by themselves." },
+    ],
+    prerequisite_knowledge: ["lines and points", "intersecting lines", "perpendicular distance between lines"],
+    visual_description: "Two horizontal lines l and m with equal perpendicular gaps marked at several points and the ∥ symbol, showing they never meet.",
+    svg_diagrams: [svg("math7_ch5_parallel", "Parallel lines stay equidistant",
+      `<text x="20" y="24" font-weight="bold">l ∥ m  (constant gap)</text>
+       <line x1="40" y1="70" x2="520" y2="70" stroke="#0369a1" stroke-width="2"/><text x="525" y="74" fill="#0369a1">l</text>
+       <line x1="40" y1="130" x2="520" y2="130" stroke="#15803d" stroke-width="2"/><text x="525" y="134" fill="#15803d">m</text>
+       ${[120,280,440].map(x=>`<line x1="${x}" y1="70" x2="${x}" y2="130" stroke="#dc2626" stroke-dasharray="3 3"/>`).join("")}
+       <text x="150" y="105" font-size="11" fill="#dc2626">same gap</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Describing rails, ruled lines, opposite sides of a rectangle", "Setting up transversal angle relationships"],
+      use_other_when: ["Lines that meet — those are intersecting, not parallel"],
+    },
+    edge_cases: [
+      { case: "Lines that look parallel but slowly converge", value: "not parallel", reasoning: "Parallel requires a constant gap forever, not just nearby.", where_it_appears: "Careful definitions." },
+      { case: "Is a line parallel to itself?", value: "No — parallel lines are distinct", reasoning: "By convention parallel means two different lines.", where_it_appears: "Definition nuance." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Railway tracks run side by side for kilometres and never touch. That 'never touch, same distance' is what parallel means.",
+      concept_reveal: "Parallel lines keep a constant perpendicular distance and never intersect.",
+    },
+  },
+
+  math7_ch5_transversal: {
+    key_formulas: [
+      { formula: "A transversal is a line that crosses two or more lines", explanation: "With two lines it creates 8 angles." },
+      { formula: "Across parallels: corresponding equal, alternate equal, co-interior sum 180°", explanation: "The three key transversal angle relationships." },
+    ],
+    prerequisite_knowledge: ["parallel lines", "angles at an intersection", "linear pair & vertically opposite angles"],
+    visual_description: "Two parallel lines cut by a slanted transversal, with corresponding angles (same position) marked equal, alternate interior angles marked equal, and co-interior angles marked as summing to 180°.",
+    svg_diagrams: [svg("math7_ch5_transversal", "Transversal across two parallel lines",
+      `<text x="20" y="20" font-weight="bold">Transversal cuts l ∥ m → angle pairs</text>
+       <line x1="40" y1="70" x2="500" y2="70" stroke="#0369a1" stroke-width="2"/><text x="505" y="74" fill="#0369a1">l</text>
+       <line x1="40" y1="140" x2="500" y2="140" stroke="#15803d" stroke-width="2"/><text x="505" y="144" fill="#15803d">m</text>
+       <line x1="150" y1="40" x2="330" y2="170" stroke="#dc2626" stroke-width="2"/>
+       <text x="205" y="62" font-size="12">1</text><text x="260" y="132" font-size="12">5</text>
+       <text x="120" y="100" font-size="11" fill="#dc2626">corresponding ∠1 = ∠5</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding angles when a line crosses parallels", "Proving two lines are parallel from equal corresponding angles"],
+      use_other_when: ["The two crossed lines aren't parallel — the equal/supplementary relations don't hold"],
+    },
+    edge_cases: [
+      { case: "Lines crossed are NOT parallel", value: "corresponding angles are NOT equal", reasoning: "The equalities depend on the two lines being parallel.", where_it_appears: "Why parallelism is the key condition." },
+      { case: "Co-interior (allied) angles", value: "sum to 180° (supplementary), not equal", reasoning: "Unlike corresponding/alternate angles, which are equal.", where_it_appears: "Distinguishing angle-pair types." },
+    ],
+    video_script_hooks: {
+      opening_hook: "One slanted line cuts across two parallel rails and instantly creates eight angles — but really just two different sizes.",
+      concept_reveal: "A transversal makes corresponding and alternate angles equal, and co-interior angles add to 180° — but only when the lines are parallel.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

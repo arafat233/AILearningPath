@@ -1240,6 +1240,217 @@ const ENRICH = {
       concept_reveal: "'Biggest equal groups' means HCF; 'when do they line up again' means LCM. The keywords tell you which tool to grab.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 12 — Another Peek Beyond the Point (decimal operations)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch12_decimal_addition: {
+    key_formulas: [
+      { formula: "Line up the decimal points, then add column by column", explanation: "Same place values must sit under each other." },
+      { formula: "Fill gaps with zeros to equalise places", explanation: "2.5 + 1.75 → write 2.50 + 1.75 = 4.25." },
+    ],
+    prerequisite_knowledge: ["decimal place value (tenths, hundredths)", "column addition with carrying", "equivalent decimals"],
+    visual_description: "A column sum with the decimal points vertically aligned: 2.50 above 1.75, points lined up, giving 4.25.",
+    svg_diagrams: [svg("math7_ch12_dec_add", "Line up the points: 2.50 + 1.75",
+      `<text x="120" y="55" font-family="monospace" font-size="20">  2.50</text>
+       <text x="120" y="85" font-family="monospace" font-size="20">+ 1.75</text>
+       <line x1="135" y1="95" x2="240" y2="95" stroke="#475569"/>
+       <text x="120" y="120" font-family="monospace" font-size="20" fill="#16a34a">  4.25</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Adding amounts of money or measurements", "Any sum involving decimals"],
+      use_other_when: ["Multiplying decimals → you do NOT line up points; that's a different rule"],
+    },
+    edge_cases: [
+      { case: "2.5 + 1.75 written without aligning", value: "common error", reasoning: "Misaligning adds tenths to hundredths; always line up the points.", where_it_appears: "Careless column setup." },
+      { case: "Adding a whole number, 3 + 0.4", value: "3.4", reasoning: "Treat 3 as 3.0 and line up.", where_it_appears: "Mixed whole/decimal sums." },
+    ],
+    video_script_hooks: {
+      opening_hook: "₹2.50 plus ₹1.75 — get it wrong and you'll be off by rupees. The secret is just one thing: line up the decimal points.",
+      concept_reveal: "Decimal addition is ordinary column addition once the points (and place values) are stacked exactly above one another.",
+    },
+  },
+
+  math7_ch12_decimal_subtraction: {
+    key_formulas: [
+      { formula: "Line up the decimal points, then subtract column by column", explanation: "Borrow across places just like whole numbers." },
+      { formula: "Pad with zeros so both have the same number of places", explanation: "5.2 − 1.45 → 5.20 − 1.45 = 3.75." },
+    ],
+    prerequisite_knowledge: ["decimal place value", "column subtraction with borrowing", "equivalent decimals"],
+    visual_description: "A column subtraction 5.20 − 1.45 with points aligned and a borrow shown over the tenths, giving 3.75.",
+    svg_diagrams: [svg("math7_ch12_dec_sub", "Line up the points: 5.20 − 1.45",
+      `<text x="120" y="55" font-family="monospace" font-size="20">  5.20</text>
+       <text x="120" y="85" font-family="monospace" font-size="20">- 1.45</text>
+       <line x1="135" y1="95" x2="240" y2="95" stroke="#475569"/>
+       <text x="120" y="120" font-family="monospace" font-size="20" fill="#16a34a">  3.75</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding change or differences in measurements", "Any decimal difference"],
+      use_other_when: ["Dividing decimals → shift points instead of aligning them"],
+    },
+    edge_cases: [
+      { case: "5.2 − 1.45 without padding", value: "needs 5.20", reasoning: "Add the trailing zero so both have hundredths before borrowing.", where_it_appears: "Unequal decimal places." },
+      { case: "Result like 3.70", value: "= 3.7", reasoning: "Trailing zeros after the point don't change the value.", where_it_appears: "Tidying answers." },
+    ],
+    video_script_hooks: {
+      opening_hook: "You pay ₹5.20 for something worth ₹1.45. Your change? Stack the points, borrow as usual — ₹3.75.",
+      concept_reveal: "Subtracting decimals is the same borrow-and-take you already know, once the decimal points are aligned and places padded.",
+    },
+  },
+
+  math7_ch12_decimal_multiplication: {
+    key_formulas: [
+      { formula: "Multiply ignoring points, then place the point", explanation: "Total decimal places in the answer = sum of decimal places in the factors." },
+      { formula: "0.3 × 0.4: 3×4 = 12, two decimal places → 0.12", explanation: "1 place + 1 place = 2 places." },
+    ],
+    prerequisite_knowledge: ["whole-number multiplication", "decimal place value", "counting decimal places"],
+    visual_description: "A 10×10 grid with a 3-wide by 4-tall block shaded (12 of 100 cells) to show 0.3 × 0.4 = 0.12.",
+    svg_diagrams: [svg("math7_ch12_dec_mult", "0.3 × 0.4 = 0.12",
+      `<rect x="60" y="40" width="160" height="120" fill="#fff" stroke="#475569"/>
+       <rect x="60" y="40" width="48" height="48" fill="#86efac" stroke="#16a34a"/>
+       <text x="300" y="80" font-weight="bold">3×4 = 12</text>
+       <text x="300" y="115">1+1 = 2 places → 0.12</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Multiplying decimals (areas, costs per unit)", "Scaling a decimal by another decimal"],
+      use_other_when: ["Adding/subtracting → line up points instead of counting them"],
+    },
+    edge_cases: [
+      { case: "0.3 × 0.4", value: "0.12 (smaller, not 1.2)", reasoning: "Two decimal places, and multiplying by less than 1 shrinks the value.", where_it_appears: "Most common decimal-mult error." },
+      { case: "Multiplying by 10", value: "shifts the point one place right", reasoning: "2.5 × 10 = 25.", where_it_appears: "Powers-of-ten shortcut." },
+    ],
+    video_script_hooks: {
+      opening_hook: "0.3 times 0.4 — is it 1.2 or 0.12? Multiplying two small decimals makes them SMALLER. Count the places and you'll never slip.",
+      concept_reveal: "Multiply as whole numbers, then count the total decimal places in both factors and put the point that many digits in.",
+    },
+  },
+
+  math7_ch12_decimal_division: {
+    key_formulas: [
+      { formula: "Dividing by a decimal: shift BOTH points to make the divisor whole", explanation: "4.5 ÷ 0.5 → 45 ÷ 5 = 9." },
+      { formula: "Dividing by 10/100 shifts the point left", explanation: "2.5 ÷ 10 = 0.25." },
+    ],
+    prerequisite_knowledge: ["whole-number division", "decimal place value", "equivalent fractions / scaling"],
+    visual_description: "4.5 ÷ 0.5 rewritten by sliding both points one place right to 45 ÷ 5, with an arrow showing the equal shift, giving 9.",
+    svg_diagrams: [svg("math7_ch12_dec_div", "4.5 ÷ 0.5 = 45 ÷ 5 = 9",
+      `<text x="40" y="70" font-weight="bold">4.5 ÷ 0.5</text>
+       <text x="40" y="110" fill="#2563eb">shift both → 45 ÷ 5</text>
+       <text x="40" y="150" fill="#16a34a">= 9</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Dividing by a decimal (rate, unit price)", "Splitting a decimal quantity"],
+      use_other_when: ["Multiplying → count places; don't shift the divisor"],
+    },
+    edge_cases: [
+      { case: "4.5 ÷ 0.5", value: "9 (bigger than 4.5)", reasoning: "Dividing by less than 1 increases the result.", where_it_appears: "Counter-intuitive division." },
+      { case: "Dividing by 100", value: "point moves two places left", reasoning: "35 ÷ 100 = 0.35.", where_it_appears: "Powers-of-ten shortcut." },
+    ],
+    video_script_hooks: {
+      opening_hook: "4.5 divided by 0.5 is NINE — bigger than what you started with. Slide both points until the divisor is whole and it all makes sense.",
+      concept_reveal: "Make the divisor a whole number by shifting both points equally; then it's plain division you already know.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 13 — Connecting the Dots (data handling)
+  // ───────────────────────────────────────────────────────────────────────────
+  math7_ch13_collecting_data: {
+    key_formulas: [
+      { formula: "A statistical question is answered by COLLECTING data", explanation: "'How tall are Grade 7 students?' needs data, not a single fact." },
+      { formula: "Organise raw data into a frequency table", explanation: "Tally how often each value occurs before analysing." },
+    ],
+    prerequisite_knowledge: ["counting and tallying", "reading tables", "the idea of a survey/sample"],
+    visual_description: "A tally-mark frequency table turning a messy list of favourite-fruit responses into counts per fruit.",
+    svg_diagrams: [svg("math7_ch13_collect", "Raw responses → frequency table",
+      `<text x="30" y="50" font-weight="bold">Favourite fruit</text>
+       <text x="30" y="85">Apple   |||| ||   (6)</text>
+       <text x="30" y="115">Mango   |||| |||| (8)</text>
+       <text x="30" y="145">Banana  ||||      (4)</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Telling a statistical question from a factual one", "Organising survey results before drawing conclusions"],
+      use_other_when: ["The answer is a single known fact — no data collection needed"],
+    },
+    edge_cases: [
+      { case: "'How tall am I?'", value: "NOT statistical", reasoning: "One measurement answers it — no variability to study.", where_it_appears: "Distinguishing question types." },
+      { case: "Biased sample", value: "misleading data", reasoning: "Asking only friends won't represent the whole class.", where_it_appears: "Survey design." },
+    ],
+    video_script_hooks: {
+      opening_hook: "'How tall are Grade 7 students?' You can't answer that with one number — you have to collect data. That makes it a statistical question.",
+      concept_reveal: "Statistics starts by asking the right question, then collecting and tallying data into a frequency table before any analysis.",
+    },
+  },
+
+  math7_ch13_mean_median: {
+    key_formulas: [
+      { formula: "Mean = (sum of all values) ÷ (number of values)", explanation: "110 runs over 5 matches → 110 ÷ 5 = 22." },
+      { formula: "Median = the middle value when data is arranged in order", explanation: "For an even count, average the two middle values." },
+    ],
+    prerequisite_knowledge: ["addition and division", "ordering numbers", "what 'typical value' means"],
+    visual_description: "A row of ordered scores with the middle one ringed (median) beside the same scores levelled to equal heights (mean) like balancing blocks.",
+    svg_diagrams: [svg("math7_ch13_mean_median", "Mean balances; median is the middle",
+      `<text x="30" y="50" font-weight="bold">Sorted: 12  18  21  24  35</text>
+       <circle cx="180" cy="70" r="14" fill="none" stroke="#dc2626" stroke-width="2"/>
+       <text x="30" y="110" fill="#dc2626">median = 21 (middle)</text>
+       <text x="30" y="145" fill="#2563eb">mean = 110 ÷ 5 = 22</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding a typical/average value", "Median when a few extreme values would distort the mean"],
+      use_other_when: ["You want the MOST FREQUENT value → that's the mode, not mean/median"],
+    },
+    edge_cases: [
+      { case: "Data with an outlier, e.g. 2, 3, 4, 100", value: "median (3.5) more typical than mean (27.25)", reasoning: "One huge value drags the mean up; the median resists it.", where_it_appears: "Skewed data." },
+      { case: "Even number of values", value: "median = average of the two middle ones", reasoning: "No single middle, so average them.", where_it_appears: "Even-count data." },
+    ],
+    video_script_hooks: {
+      opening_hook: "One billionaire walks into a room of ten people — the AVERAGE wealth is now millions, but the MEDIAN barely moves. That gap matters.",
+      concept_reveal: "The mean shares the total out equally; the median is the middle of the sorted list — and they can tell very different stories.",
+    },
+  },
+
+  math7_ch13_mode: {
+    key_formulas: [
+      { formula: "Mode = the value that occurs most often", explanation: "In 2, 3, 3, 5, 7 the mode is 3." },
+      { formula: "Data can have one mode, several, or none", explanation: "If every value appears once, there is no mode." },
+    ],
+    prerequisite_knowledge: ["frequency tables", "counting occurrences", "mean and median (for contrast)"],
+    visual_description: "A small bar chart of shoe sizes where the tallest bar (size 6, appearing most) is highlighted as the mode.",
+    svg_diagrams: [svg("math7_ch13_mode", "Mode = tallest bar (most frequent)",
+      `<rect x="60" y="110" width="40" height="50" fill="#cbd5e1"/><rect x="120" y="60" width="40" height="100" fill="#16a34a"/><rect x="180" y="120" width="40" height="40" fill="#cbd5e1"/>
+       <text x="55" y="178">5</text><text x="130" y="178">6</text><text x="195" y="178">7</text>
+       <text x="300" y="100" fill="#16a34a" font-weight="bold">Mode = 6</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding the most common / most popular value", "Categorical data (sizes, colours) where mean has no meaning"],
+      use_other_when: ["You need a central average → use mean or median instead"],
+    },
+    edge_cases: [
+      { case: "All values appear once", value: "no mode", reasoning: "Nothing repeats, so no value is 'most frequent'.", where_it_appears: "No-mode data." },
+      { case: "Two values tie for most frequent", value: "two modes (bimodal)", reasoning: "More than one value can share the top frequency.", where_it_appears: "Bimodal data." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A shoe shop doesn't care about the 'average' foot — it stocks the size most people buy. That most-common value is the mode.",
+      concept_reveal: "The mode is simply the value that shows up most; for choices like sizes or colours it's often the only average that makes sense.",
+    },
+  },
+
+  math7_ch13_bar_graphs: {
+    key_formulas: [
+      { formula: "Bar height = the frequency of that category", explanation: "Taller bar = larger value; bars have equal width and equal gaps." },
+      { formula: "A double bar graph compares two data sets side by side", explanation: "Two bars per category, e.g. boys vs girls." },
+    ],
+    prerequisite_knowledge: ["frequency tables", "reading a scale/axis", "categories of data"],
+    visual_description: "A bar graph with a labelled value axis and category axis, equal-width bars, and a paired double-bar version comparing two groups.",
+    svg_diagrams: [svg("math7_ch13_bar", "Reading a bar graph",
+      `<line x1="50" y1="40" x2="50" y2="160" stroke="#475569"/><line x1="50" y1="160" x2="300" y2="160" stroke="#475569"/>
+       <rect x="70" y="100" width="40" height="60" fill="#2563eb"/><rect x="140" y="60" width="40" height="100" fill="#2563eb"/><rect x="210" y="120" width="40" height="40" fill="#2563eb"/>
+       <text x="75" y="178">A</text><text x="145" y="178">B</text><text x="215" y="178">C</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Comparing amounts across categories at a glance", "Presenting survey results visually"],
+      use_other_when: ["Showing change over continuous time → a line graph fits better"],
+    },
+    edge_cases: [
+      { case: "Axis not starting at 0", value: "misleading bars", reasoning: "A chopped axis exaggerates small differences.", where_it_appears: "Misleading graphs." },
+      { case: "Unequal bar widths", value: "incorrect bar graph", reasoning: "Bars must be equal width so only height carries meaning.", where_it_appears: "Graph-drawing rules." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A good bar graph lets you compare ten numbers in one glance — but start the axis above zero and you can make a tiny gap look huge.",
+      concept_reveal: "Each equal-width bar's height shows its frequency; double bars let you compare two groups category by category.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

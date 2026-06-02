@@ -75,6 +75,7 @@
     "seed:pattern-match": "node config/seedPatternMatchExercises.js",
     "enrich:math7": "node config/enrichMath7.js",
     "enrich:math5": "node config/enrichMath5.js",
+    "enrich:math4": "node config/enrichMath4.js",
     "migrate:cbse-math10-rekey": "node config/migrateCbseMath10TopicIds.mjs",
     "finalize:cbse-math10-rekey": "node config/finalizeCbseMath10Rekey.mjs",
     "seed:cbse-math9-cleanup": "node config/seedCbseMath9Cleanup.js",
@@ -383,7 +384,8 @@
     "rag:build-ap-ssc-math9": "node scripts/buildRagFromTopicContent.js --prefix=ap_ssc_math9_",
     "audit:math:ap-ssc-9": "node config/auditMathChecklist.mjs --board=AP_SSC --grade=9",
     "enrich:math6": "node config/enrichMath6.js",
-    "enrich:math3": "node config/enrichMath3.js"
+    "enrich:math3": "node config/enrichMath3.js",
+    "enrich:math1": "node config/enrichMath1.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

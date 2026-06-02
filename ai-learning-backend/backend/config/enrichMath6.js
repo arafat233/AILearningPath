@@ -247,6 +247,218 @@ const ENRICH = {
       concept_reveal: "Parallel lines keep an unchanging gap and never meet; perpendicular lines cross at a clean 90° right angle.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 3 — Number Play
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch3_number_properties: {
+    key_formulas: [
+      { formula: "Even numbers end in 0, 2, 4, 6, 8 · odd numbers end in 1, 3, 5, 7, 9", explanation: "The last digit decides parity." },
+      { formula: "even + even = even · odd + odd = even · even + odd = odd", explanation: "Parity rules for sums." },
+      { formula: "A 'supercell' is a cell whose number is larger than all its neighbours", explanation: "From the Number Play grids." },
+    ],
+    prerequisite_knowledge: ["place value", "comparing numbers", "the number line"],
+    visual_description: "A row of grid cells with numbers; the cells larger than both neighbours are shaded as 'supercells', alongside even/odd numbers marked on a number line.",
+    svg_diagrams: [svg("math6_ch3_number_properties", "Supercells and parity",
+      `<text x="20" y="35" font-weight="bold">Supercells (bigger than neighbours):</text>
+       ${[35,82,41,90,57].map((n,i)=>`<rect x="${30+i*70}" y="50" width="60" height="40" fill="${(n===82||n===90)?'#fde68a':'#fff'}" stroke="#475569"/><text x="${48+i*70}" y="76">${n}</text>`).join("")}
+       <text x="20" y="135">even: 0 2 4 6 8     odd: 1 3 5 7 9</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Sorting numbers by parity (even/odd)", "Comparing numbers in a grid or sequence"],
+      use_other_when: ["You need the exact value of an operation, not just its parity"],
+    },
+    edge_cases: [
+      { case: "0", value: "is even", reasoning: "It ends in 0 and fits the even pattern.", where_it_appears: "Parity of zero." },
+      { case: "Smallest number in a grid", value: "can never be a supercell", reasoning: "It isn't larger than its neighbours.", where_it_appears: "Supercell puzzles." },
+    ],
+    video_script_hooks: {
+      opening_hook: "In a row of numbers, which ones are 'kings' — bigger than both neighbours? Hunting these supercells turns number properties into a game.",
+      concept_reveal: "Numbers carry properties — even or odd, bigger or smaller — and spotting them quickly is the heart of number play.",
+    },
+  },
+
+  math6_ch3_divisibility_rules: {
+    key_formulas: [
+      { formula: "÷2: last digit even · ÷5: last digit 0 or 5 · ÷10: last digit 0", explanation: "Read the last digit." },
+      { formula: "÷3 (and ÷9): the digit sum is divisible by 3 (or 9)", explanation: "Add all the digits." },
+    ],
+    prerequisite_knowledge: ["multiples", "adding digits", "even and odd numbers"],
+    visual_description: "The number 4,530 run through quick checks: last digit 0 → ÷2, ÷5, ÷10 ✓; digit sum 12 → ÷3 ✓.",
+    svg_diagrams: [svg("math6_ch3_divisibility", "Divisibility checks on 4,530",
+      `<text x="20" y="35" font-weight="bold">Is 4,530 divisible by …?</text>
+       <text x="30" y="70">÷2  last digit 0       ✓</text>
+       <text x="30" y="98">÷5  last digit 0       ✓</text>
+       <text x="30" y="126">÷10 last digit 0       ✓</text>
+       <text x="30" y="154">÷3  digit sum 12       ✓</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Checking divisibility without doing the full division", "Finding factors quickly"],
+      use_other_when: ["You need the actual quotient → do the division"],
+    },
+    edge_cases: [
+      { case: "Divisible by 3 but not 9: 12 (digit sum 3)", value: "÷3 ✓, ÷9 ✗", reasoning: "3 is a multiple of 3 but not 9.", where_it_appears: "Telling the two rules apart." },
+      { case: "Divisible by both 2 and 3", value: "also divisible by 6", reasoning: "6 = 2 × 3.", where_it_appears: "Combining rules." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Is 4,530 divisible by 3? Don't divide — add the digits: 4+5+3+0 = 12. Yes! The digits are whispering the answer.",
+      concept_reveal: "Divisibility rules read clues from the digits — last digit for 2, 5, 10; the digit sum for 3 and 9.",
+    },
+  },
+
+  math6_ch3_factors_multiples: {
+    key_formulas: [
+      { formula: "A factor of a number divides it exactly (no remainder)", explanation: "Factors of 12: 1, 2, 3, 4, 6, 12." },
+      { formula: "A multiple is what you get by multiplying: multiples of 4 are 4, 8, 12, 16, …", explanation: "Every number is a factor of its multiples." },
+    ],
+    prerequisite_knowledge: ["multiplication tables", "division", "divisibility rules"],
+    visual_description: "12 dots arranged as 1×12, 2×6 and 3×4 rectangles, showing each factor pair, beside a ladder of the multiples of 4.",
+    svg_diagrams: [svg("math6_ch3_factors_multiples", "Factor pairs of 12",
+      `<text x="20" y="35" font-weight="bold">12 = 1×12 = 2×6 = 3×4</text>
+       <text x="30" y="75">Factors of 12: 1, 2, 3, 4, 6, 12</text>
+       <text x="30" y="115" fill="#2563eb">Multiples of 4: 4, 8, 12, 16, 20 …</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Listing what divides a number (factors)", "Listing what a number divides into (multiples)"],
+      use_other_when: ["Don't confuse the two: factors are FINITE, multiples are ENDLESS"],
+    },
+    edge_cases: [
+      { case: "1 and the number itself", value: "always factors", reasoning: "1 divides everything; every number divides itself.", where_it_appears: "Smallest and largest factor." },
+      { case: "Factors vs multiples of 12", value: "12 is both a factor and a multiple of itself", reasoning: "12 ÷ 12 = 1 and 12 × 1 = 12.", where_it_appears: "Overlap point." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Factors fit INTO a number; multiples are built FROM it. Mix them up and 'factors of 12' suddenly becomes an endless list — it isn't.",
+      concept_reveal: "A factor divides a number exactly; a multiple is the number times something. Factors stop; multiples go on forever.",
+    },
+  },
+
+  math6_ch3_number_games: {
+    key_formulas: [
+      { formula: "A palindrome reads the same forwards and backwards (e.g. 121, 1331)", explanation: "Reverse the digits and you get the same number." },
+      { formula: "Reverse-and-add often reaches a palindrome (e.g. 59 → 59+95 = 154 → 154+451 = 605 → …)", explanation: "A classic number game." },
+    ],
+    prerequisite_knowledge: ["place value", "addition", "number properties"],
+    visual_description: "The number 121 with a mirror line showing it reads the same both ways, beside a reverse-and-add chain reaching a palindrome.",
+    svg_diagrams: [svg("math6_ch3_number_games", "Palindromes and reverse-and-add",
+      `<text x="60" y="50" font-size="22">1 2 1</text><line x1="110" y1="30" x2="110" y2="70" stroke="#dc2626" stroke-dasharray="3 3"/><text x="160" y="50" fill="#dc2626">same both ways</text>
+       <text x="40" y="110">59 + 95 = 154</text>
+       <text x="40" y="140">154 + 451 = 605  →  605 + 506 = 1111 ✓</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Exploring digit puzzles and palindromes", "Practising place value and addition through play"],
+      use_other_when: ["A straightforward calculation — games are for exploring patterns, not routine sums"],
+    },
+    edge_cases: [
+      { case: "A single-digit number", value: "is already a palindrome", reasoning: "One digit reversed is itself.", where_it_appears: "Trivial palindromes." },
+      { case: "Numbers ending in 0 reversed", value: "lose the leading zero", reasoning: "120 reversed is 021 = 21, changing the value.", where_it_appears: "Reverse-and-add care." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Pick any number, reverse it, add the two. Repeat. Astonishingly often you crash into a palindrome like 1111. Try to find one that doesn't!",
+      concept_reveal: "Number games like palindromes and reverse-and-add turn place value into a playground — and hide real mathematical mysteries.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 4 — Data Handling and Presentation
+  // ───────────────────────────────────────────────────────────────────────────
+  math6_ch4_collecting_data: {
+    key_formulas: [
+      { formula: "Data = any collection of facts, numbers, measures or observations", explanation: "Favourite colours, heights, scores — all data." },
+      { formula: "Organise data with a tally table: |||| = 4, |||| crossed = 5", explanation: "Group tallies in fives to count fast." },
+    ],
+    prerequisite_knowledge: ["counting", "making a table", "sorting into categories"],
+    visual_description: "A messy list of favourite-fruit responses turned into a neat tally table with counts per fruit.",
+    svg_diagrams: [svg("math6_ch4_collecting_data", "Raw data → tally table",
+      `<text x="30" y="40" font-weight="bold">Favourite fruit</text>
+       <text x="30" y="75">Apple   |||| ||      7</text>
+       <text x="30" y="105">Mango   |||| ||||    9</text>
+       <text x="30" y="135">Banana  ||||         4</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Gathering and organising raw information", "Counting how often each category occurs"],
+      use_other_when: ["The data is already summarised — you can go straight to a graph"],
+    },
+    edge_cases: [
+      { case: "A single tally group of 5", value: "shown as |||| with a slash across", reasoning: "Grouping in fives makes totals quick to read.", where_it_appears: "Tally convention." },
+      { case: "An answer that fits no category", value: "needs an 'Other' row", reasoning: "Every response must land somewhere.", where_it_appears: "Survey design." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Ask 30 friends their favourite fruit and you get chaos. Tally marks turn that chaos into a clean count in seconds.",
+      concept_reveal: "Data starts messy; a tally table organises it into neat counts you can actually read and compare.",
+    },
+  },
+
+  math6_ch4_pictographs: {
+    key_formulas: [
+      { formula: "A pictograph shows data using a repeated symbol", explanation: "e.g. 🍎 = 2 apples." },
+      { formula: "Count = number of symbols × the symbol's value (the key)", explanation: "Half a symbol = half the value." },
+    ],
+    prerequisite_knowledge: ["collecting data", "multiplication", "reading a key/legend"],
+    visual_description: "Rows of fruit symbols, one row per fruit, with a key stating each symbol equals 2 units; a half-symbol shows an odd count.",
+    svg_diagrams: [svg("math6_ch4_pictographs", "Pictograph (key: ◉ = 2)",
+      `<text x="20" y="35">Apple   ◉ ◉ ◉ ◉      = 8</text>
+       <text x="20" y="70">Mango   ◉ ◉ ◉ ◉ ◑   = 9</text>
+       <text x="20" y="105">Banana  ◉ ◉            = 4</text>
+       <text x="20" y="150" fill="#dc2626">Key: ◉ = 2,  ◑ = 1</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Presenting data in a friendly, visual way", "Comparing categories at a glance"],
+      use_other_when: ["Values are large or precise → a bar graph with a number scale is clearer"],
+    },
+    edge_cases: [
+      { case: "An odd count when the key is 2", value: "use a half-symbol", reasoning: "9 apples = 4 full + 1 half symbol.", where_it_appears: "Fractional symbols." },
+      { case: "Forgetting the key", value: "graph is unreadable", reasoning: "Without the key you can't tell what one symbol is worth.", where_it_appears: "Common omission." },
+    ],
+    video_script_hooks: {
+      opening_hook: "One little apple picture stands for two real apples. Pictographs make data feel like a story — as long as you read the key.",
+      concept_reveal: "A pictograph swaps numbers for symbols; multiply the symbols by the key's value to get the real count.",
+    },
+  },
+
+  math6_ch4_bar_graphs: {
+    key_formulas: [
+      { formula: "Bar height = the value of that category", explanation: "Bars have equal width and equal gaps." },
+      { formula: "Read the value off the numbered axis (the scale)", explanation: "Each step on the axis is a fixed amount." },
+    ],
+    prerequisite_knowledge: ["collecting data", "reading a number scale", "categories"],
+    visual_description: "A bar graph with a numbered vertical axis, equal-width bars of different heights for each fruit, and gaps between bars.",
+    svg_diagrams: [svg("math6_ch4_bar_graphs", "Bar graph with a scale",
+      `<line x1="50" y1="40" x2="50" y2="160" stroke="#475569"/><line x1="50" y1="160" x2="320" y2="160" stroke="#475569"/>
+       ${[[70,70,"#2563eb"],[140,40,"#2563eb"],[210,100,"#2563eb"]].map(([x,h,c])=>`<rect x="${x}" y="${160-h}" width="40" height="${h}" fill="${c}"/>`).join("")}
+       <text x="78" y="178">Apple</text><text x="148" y="178">Mango</text><text x="215" y="178">Banana</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Comparing amounts across categories precisely", "Showing larger numbers clearly"],
+      use_other_when: ["A playful, symbol-based picture is enough → use a pictograph"],
+    },
+    edge_cases: [
+      { case: "Axis not starting at 0", value: "misleading bars", reasoning: "A chopped axis exaggerates differences.", where_it_appears: "Misleading graphs." },
+      { case: "Unequal bar widths", value: "incorrect bar graph", reasoning: "Only height should carry meaning, so widths must match.", where_it_appears: "Drawing rules." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Which fruit won the class vote? With a bar graph you don't count — you just see which bar shoots up highest.",
+      concept_reveal: "Bar graphs map each category to a bar whose height you read off a number scale — equal widths, clear comparisons.",
+    },
+  },
+
+  math6_ch4_data_interpretation: {
+    key_formulas: [
+      { formula: "Interpreting data = reading off values AND drawing conclusions", explanation: "Most/least, total, difference, 'how many more'." },
+      { formula: "Total = add all the category values", explanation: "e.g. total fruit = 7 + 9 + 4 = 20." },
+    ],
+    prerequisite_knowledge: ["reading bar graphs and pictographs", "addition and subtraction", "comparing numbers"],
+    visual_description: "A bar graph annotated with callouts: tallest bar = 'most popular', a subtraction bracket = 'how many more', and a running total.",
+    svg_diagrams: [svg("math6_ch4_data_interpretation", "Asking questions of a graph",
+      `<line x1="50" y1="40" x2="50" y2="150" stroke="#475569"/><line x1="50" y1="150" x2="300" y2="150" stroke="#475569"/>
+       ${[[70,70],[140,100],[210,40]].map(([x,h])=>`<rect x="${x}" y="${150-h}" width="40" height="${h}" fill="#2563eb"/>`).join("")}
+       <text x="150" y="35" fill="#dc2626">↑ most popular</text>
+       <text x="30" y="180">Most? Least? How many more? Total?</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Answering questions FROM a graph or table", "Drawing conclusions like most/least/total"],
+      use_other_when: ["You still need to gather the data — interpretation comes after collection"],
+    },
+    edge_cases: [
+      { case: "'How many more mangoes than bananas?'", value: "subtract: 9 − 4 = 5", reasoning: "Comparison questions need a difference, not a single value.", where_it_appears: "Comparison questions." },
+      { case: "Reading a value between gridlines", value: "estimate carefully", reasoning: "A bar landing mid-step needs judgement against the scale.", where_it_appears: "Imprecise reads." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A graph isn't the answer — it's the start of questions. Most popular? How many more? Total votes? The graph holds all of them.",
+      concept_reveal: "Interpreting data means asking it questions: read off the bars, then add or subtract to reach a conclusion.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

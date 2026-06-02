@@ -120,6 +120,37 @@ List<Integer> spiralOrder(int[][] matrix) {
 }
 // 4 boundaries shrink inward after each side is consumed.
 \`\`\``,
+        matrix_multiplication: `**Matrix Multiplication — A(m×n) × B(n×p) = C(m×p):**
+
+\`\`\`
+Rule: C[i][j] = sum of A[i][k] * B[k][j] for k=0..n-1
+      (row i of A) · (column j of B) — dot product
+
+Dimensions: A is m×n, B is n×p → C is m×p
+  Inner dimensions MUST match: A cols == B rows.
+
+Template:
+  int[][] multiply(int[][] A, int[][] B) {
+      int m=A.length, n=A[0].length, p=B[0].length;
+      int[][] C = new int[m][p];
+      for (int i=0; i<m; i++)
+          for (int j=0; j<p; j++)
+              for (int k=0; k<n; k++)
+                  C[i][j] += A[i][k] * B[k][j];
+      return C;
+  }
+  // O(m × n × p) time, O(m × p) space (result only)
+
+Sparse optimisation (LeetCode #311):
+  If A has many zeros, skip the k loop when A[i][k]==0:
+  for (int i=0; i<m; i++)
+      for (int k=0; k<n; k++) {
+          if (A[i][k]==0) continue;    // ← skip entire inner loop
+          for (int j=0; j<p; j++)
+              C[i][j] += A[i][k] * B[k][j];
+      }
+  // Same worst-case, much faster on sparse input.
+\`\`\``,
       },
       visual_aid: {
         type: "diagram",
@@ -676,6 +707,30 @@ const EXERCISES = [
     ["Test by applying clockwise 4 times — you should get the original matrix back","Counter-clockwise = 3× clockwise (different approach, same result)"],
     [{ type:"execution", input:"[[1,2,3],[4,5,6],[7,8,9]],'CW'", expected:"[[7,4,1],[8,5,2],[9,6,3]]" }],
     `void rotateCW(int[][] m) { /* clockwise */ }\nvoid rotateCCW(int[][] m) { /* counter-clockwise */ }`),
+
+  ex("java_m30_5_t1_ex_10","java_m30_5_t1",10,"warmup","predict_output",
+    "Trace matrix multiplication by hand",
+    "Compute A × B by hand:\n```\nA = [[1,2],[3,4]]\nB = [[5,6],[7,8]]\n```\nShow C[0][0], C[0][1], C[1][0], C[1][1] with the dot-product calculation.",
+    "C[0][0] = A[0]·B[:,0] = 1×5 + 2×7 = 5+14  = 19\nC[0][1] = A[0]·B[:,1] = 1×6 + 2×8 = 6+16  = 22\nC[1][0] = A[1]·B[:,0] = 3×5 + 4×7 = 15+28 = 43\nC[1][1] = A[1]·B[:,1] = 3×6 + 4×8 = 18+32 = 50\n\nResult: [[19,22],[43,50]]\n\nKey: C[i][j] = row i of A dotted with column j of B.",
+    ["C[i][j] = sum(A[i][k] * B[k][j]) for k=0..n-1","Row i of A times column j of B","Inner dimension n=2, so k runs 0 and 1"],
+    [{ type:"text_match", expected:"[[19,22],[43,50]]" }]),
+
+  ex("java_m30_5_t1_ex_11","java_m30_5_t1",11,"medium","code_scratch",
+    "Matrix Multiplication (LeetCode #311 variant)",
+    "Implement matrix multiplication for two 2D integer arrays A (m×n) and B (n×p).\nReturn the resulting matrix C (m×p).",
+    "Standard O(m×n×p) triple loop:\n  for i in rows of A\n    for j in cols of B\n      for k in 0..n-1\n        C[i][j] += A[i][k] * B[k][j]",
+    ["C has dimensions A.length × B[0].length","Inner dimension: A[0].length == B.length","Three nested loops: i (rows A), j (cols B), k (shared dimension)"],
+    [{ type:"execution", input:"[[1,2],[3,4]],[[5,6],[7,8]]", expected:"[[19,22],[43,50]]" },
+     { type:"execution", input:"[[1,0],[0,1]],[[5,6],[7,8]]", expected:"[[5,6],[7,8]]" }],
+    `int[][] multiply(int[][] A, int[][] B) {\n    // your code here\n}`),
+
+  ex("java_m30_5_t1_ex_12","java_m30_5_t1",12,"hard","code_scratch",
+    "Sparse Matrix Multiplication (LeetCode #311)",
+    "Multiply sparse matrices A and B efficiently — skip zero entries in A to avoid unnecessary work.\nInput: two 2D arrays where many values are 0.",
+    "Optimised: iterate k in middle loop; if A[i][k]==0, skip entire inner j loop.\nThis short-circuits all multiplications by zero — O(m×nnz×p) where nnz=non-zeros in A.",
+    ["Middle loop: k over shared dimension","if (A[i][k]==0) continue — skips the j loop entirely","Same result as standard multiplication but faster on sparse input"],
+    [{ type:"execution", input:"[[1,0,0],[-1,0,3]],[[7,0,0],[0,0,0],[0,0,1]]", expected:"[[7,0,0],[-7,0,3]]" }],
+    `int[][] multiply(int[][] A, int[][] B) {\n    // optimised for sparse matrices\n}`),
 
   // ── T2: Grid BFS/DFS ─────────────────────────────────────────────────────
   ex("java_m30_5_t2_ex_1","java_m30_5_t2",1,"warmup","predict_output",

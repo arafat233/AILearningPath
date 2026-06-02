@@ -1054,6 +1054,312 @@ const ENRICH = {
       concept_reveal: "Shape patterns repeat or grow using shapes; find the rule and you can draw whatever comes next.",
     },
   },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 11 — Place Value and Numbers to 99
+  // ───────────────────────────────────────────────────────────────────────────
+  math1_ch11_tens_and_ones: {
+    key_formulas: [
+      { formula: "A two-digit number = some tens and some ones", explanation: "34 = 3 tens + 4 ones." },
+      { formula: "The left digit is tens, the right digit is ones", explanation: "In 34, the 3 means thirty." },
+    ],
+    prerequisite_knowledge: ["numbers to 50", "the number ten", "counting in tens"],
+    visual_description: "34 shown as 3 ten-rods and 4 unit-cubes, with the digits labelled tens and ones.",
+    svg_diagrams: [svg("math1_ch11_tens_ones", "34 = 3 tens and 4 ones",
+      `${[0,1,2].map(i=>`<rect x="${40+i*30}" y="50" width="20" height="60" fill="#bfdbfe" stroke="#2563eb"/>`).join("")}
+       ${[0,1,2,3].map(i=>`<rect x="${150+i*22}" y="90" width="16" height="18" fill="#fed7aa" stroke="#d97706"/>`).join("")}
+       <text x="270" y="90" font-size="18">= 34</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Breaking a two-digit number into tens and ones", "Understanding what each digit means"],
+      use_other_when: ["Single-digit numbers → they're just ones"],
+    },
+    edge_cases: [
+      { case: "The 3 in 34", value: "means 30, not 3", reasoning: "It's in the tens place.", where_it_appears: "Why place matters." },
+      { case: "A 0 in the ones (40)", value: "4 tens, 0 ones", reasoning: "Zero holds the ones place.", where_it_appears: "Round tens." },
+    ],
+    video_script_hooks: {
+      opening_hook: "In the number 34, the 3 isn't just three — it's THIRTY! Where a digit sits tells you what it's really worth.",
+      concept_reveal: "Two-digit numbers split into tens and ones; the left digit counts tens, the right digit counts ones.",
+    },
+  },
+
+  math1_ch11_numbers_51_to_75: {
+    key_formulas: [
+      { formula: "51 to 75 = five-to-seven tens and some ones", explanation: "63 = 6 tens + 3 ones." },
+      { formula: "Keep bundling tens past fifty", explanation: "60 = 6 tens, 70 = 7 tens." },
+    ],
+    prerequisite_knowledge: ["tens and ones", "numbers to 50", "counting in tens"],
+    visual_description: "63 shown as 6 ten-rods and 3 ones.",
+    svg_diagrams: [svg("math1_ch11_51_75", "63 = 6 tens and 3 ones",
+      `${[0,1,2,3,4,5].map(i=>`<rect x="${40+i*32}" y="50" width="22" height="60" fill="#bfdbfe" stroke="#2563eb"/>`).join("")}
+       ${[0,1,2].map(i=>`<rect x="${250+i*20}" y="90" width="15" height="18" fill="#fed7aa" stroke="#d97706"/>`).join("")}
+       <text x="330" y="90" font-size="16">= 63</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Reading and counting 51 to 75", "Seeing them as tens and ones"],
+      use_other_when: ["Numbers above 75 → carry on to 76–99"],
+    },
+    edge_cases: [
+      { case: "70", value: "7 tens, 0 ones", reasoning: "A round ten.", where_it_appears: "Round numbers." },
+      { case: "After 69", value: "comes 70", reasoning: "Ten ones make a new ten.", where_it_appears: "Crossing a ten." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Sixty-three is just six bundles of ten and three loose ones. Big numbers aren't scary — they're tidy little bundles!",
+      concept_reveal: "Numbers 51 to 75 keep bundling tens, with the ones counting the leftovers.",
+    },
+  },
+
+  math1_ch11_numbers_76_to_99: {
+    key_formulas: [
+      { formula: "76 to 99 = seven-to-nine tens and some ones", explanation: "88 = 8 tens + 8 ones." },
+      { formula: "99 is the biggest two-digit number", explanation: "After 99 comes 100." },
+    ],
+    prerequisite_knowledge: ["numbers 51 to 75", "tens and ones", "counting on"],
+    visual_description: "88 shown as 8 ten-rods and 8 ones, with a note that 99 is the last two-digit number.",
+    svg_diagrams: [svg("math1_ch11_76_99", "88 = 8 tens and 8 ones",
+      `${[0,1,2,3,4,5,6,7].map(i=>`<rect x="${30+i*26}" y="50" width="18" height="55" fill="#bfdbfe" stroke="#2563eb"/>`).join("")}
+       <text x="250" y="85" font-size="16">8 tens + 8 ones = 88</text>
+       <text x="250" y="120" fill="#dc2626">99 → then 100</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Reading and counting 76 to 99", "Reaching the top of two-digit numbers"],
+      use_other_when: ["100 and beyond → three-digit numbers (later class)"],
+    },
+    edge_cases: [
+      { case: "After 99", value: "comes 100 (three digits)", reasoning: "Both digit-places are full.", where_it_appears: "Rolling to 100." },
+      { case: "90", value: "9 tens, 0 ones", reasoning: "A round ten.", where_it_appears: "Round numbers." },
+    ],
+    video_script_hooks: {
+      opening_hook: "What's the biggest two-digit number? Ninety-nine! Add one more and it flips into a brand-new three-digit number: 100.",
+      concept_reveal: "Numbers 76 to 99 finish the two-digit numbers, ending at 99 — one more and you reach 100.",
+    },
+  },
+
+  math1_ch11_comparing_two_digit: {
+    key_formulas: [
+      { formula: "Compare the TENS first; more tens = bigger", explanation: "52 > 39 because 5 tens beat 3 tens." },
+      { formula: "If tens are equal, compare the ones", explanation: "47 > 43 because 7 ones beat 3 ones." },
+    ],
+    prerequisite_knowledge: ["tens and ones", "numbers to 99", "comparing single digits"],
+    visual_description: "52 vs 39: 5 tens vs 3 tens, so 52 is bigger — shown with ten-rods.",
+    svg_diagrams: [svg("math1_ch11_compare_2digit", "52 &gt; 39 (compare tens first)",
+      `<text x="60" y="60" font-size="26">52</text><text x="150" y="60" font-size="26" fill="#dc2626">&gt;</text><text x="220" y="60" font-size="26">39</text>
+       <text x="40" y="110">5 tens beat 3 tens</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding which two-digit number is bigger", "Putting numbers to 99 in order"],
+      use_other_when: ["Comparing single digits → just compare the ones"],
+    },
+    edge_cases: [
+      { case: "52 vs 39", value: "52 bigger (5 tens > 3 tens)", reasoning: "Tens decide, even though 9 > 2.", where_it_appears: "Tens first!" },
+      { case: "47 vs 43 (same tens)", value: "47 bigger (ones decide)", reasoning: "Equal tens, so compare ones.", where_it_appears: "Tie-break with ones." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Is 39 bigger than 52 because 9 beats 2? No way! Count the TENS first — 5 tens crushes 3 tens. 52 wins.",
+      concept_reveal: "To compare two-digit numbers, check the tens first; only if they're equal do the ones decide.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 12 — Money
+  // ───────────────────────────────────────────────────────────────────────────
+  math1_ch12_coins_and_notes: {
+    key_formulas: [
+      { formula: "We use coins and notes for money", explanation: "Coins: ₹1, ₹2, ₹5, ₹10. Notes: ₹10, ₹20, ₹50 …" },
+      { formula: "Each coin/note has a value written on it", explanation: "A ₹5 coin is worth 5 rupees." },
+    ],
+    prerequisite_knowledge: ["numbers to 50", "recognising digits", "everyday shopping"],
+    visual_description: "A row of coins (₹1, ₹2, ₹5, ₹10) and a ₹10 note, each labelled with its value.",
+    svg_diagrams: [svg("math1_ch12_coins", "Coins and a note",
+      `${[1,2,5,10].map((v,i)=>`<circle cx="${60+i*70}" cy="70" r="25" fill="#fde68a" stroke="#d97706"/><text x="${48+i*70}" y="76" font-size="12">₹${v}</text>`).join("")}
+       <rect x="40" y="120" width="120" height="50" fill="#bbf7d0" stroke="#16a34a"/><text x="80" y="150">₹10 note</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Recognising Indian coins and notes", "Knowing what each is worth"],
+      use_other_when: ["Counting objects, not money → no rupees needed"],
+    },
+    edge_cases: [
+      { case: "A ₹10 coin and a ₹10 note", value: "same value, different form", reasoning: "Both are worth 10 rupees.", where_it_appears: "Coin vs note." },
+      { case: "A bigger coin", value: "isn't always worth more", reasoning: "Value is written on it, not shown by size.", where_it_appears: "Size ≠ value." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Jingle jingle! Some money is round coins, some is paper notes — and each one has its value printed right on it.",
+      concept_reveal: "Money comes as coins and notes, and the number on each tells you exactly how many rupees it's worth.",
+    },
+  },
+
+  math1_ch12_value_of_coins: {
+    key_formulas: [
+      { formula: "Add coin values to find the total money", explanation: "₹5 + ₹2 + ₹1 = ₹8." },
+      { formula: "Count the bigger coins first", explanation: "Easier to add from largest to smallest." },
+    ],
+    prerequisite_knowledge: ["coins and notes", "addition", "numbers to 50"],
+    visual_description: "A ₹5 coin, a ₹2 coin and a ₹1 coin adding to ₹8.",
+    svg_diagrams: [svg("math1_ch12_value", "₹5 + ₹2 + ₹1 = ₹8",
+      `<circle cx="70" cy="80" r="28" fill="#fde68a" stroke="#d97706"/><text x="58" y="86">₹5</text>
+       <circle cx="150" cy="80" r="24" fill="#fde68a" stroke="#d97706"/><text x="138" y="86">₹2</text>
+       <circle cx="220" cy="80" r="20" fill="#fde68a" stroke="#d97706"/><text x="210" y="86">₹1</text>
+       <text x="280" y="86" font-size="18" fill="#16a34a">= ₹8</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Finding the total of some coins", "Counting how much money you have"],
+      use_other_when: ["You only need to name a coin, not total them"],
+    },
+    edge_cases: [
+      { case: "Two ₹5 coins", value: "₹10 total", reasoning: "Same coin counted twice adds up.", where_it_appears: "Repeated coins." },
+      { case: "Counting smallest first", value: "still works, just slower", reasoning: "Order doesn't change the total.", where_it_appears: "Counting strategy." },
+    ],
+    video_script_hooks: {
+      opening_hook: "You've got a ₹5, a ₹2 and a ₹1 coin — how much is that? Add them up: ₹8! Counting money is just adding.",
+      concept_reveal: "To find how much money you have, add up the values of all the coins and notes.",
+    },
+  },
+
+  math1_ch12_making_amounts: {
+    key_formulas: [
+      { formula: "Make an amount by choosing coins that add to it", explanation: "₹7 = ₹5 + ₹2, or ₹2 + ₹2 + ₹2 + ₹1." },
+      { formula: "There can be more than one way", explanation: "Different coin sets can make the same amount." },
+    ],
+    prerequisite_knowledge: ["value of coins", "addition", "number bonds"],
+    visual_description: "Two coin sets both making ₹7: (₹5 + ₹2) and (₹2 + ₹2 + ₹2 + ₹1).",
+    svg_diagrams: [svg("math1_ch12_making", "Two ways to make ₹7",
+      `<text x="30" y="60">₹5 + ₹2 = ₹7</text>
+       <text x="30" y="110">₹2 + ₹2 + ₹2 + ₹1 = ₹7</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Choosing coins to pay an exact amount", "Finding different ways to make a sum"],
+      use_other_when: ["You just need the total of given coins → that's adding values"],
+    },
+    edge_cases: [
+      { case: "Making ₹7 two ways", value: "both correct", reasoning: "Many coin combinations can equal the same amount.", where_it_appears: "More than one answer." },
+      { case: "Using fewest coins", value: "use the biggest coins first", reasoning: "₹5 + ₹2 beats four coins for ₹7.", where_it_appears: "Fewest-coins idea." },
+    ],
+    video_script_hooks: {
+      opening_hook: "How can you make exactly ₹7? A ₹5 and a ₹2 … or lots of ₹2s and a ₹1! There's often more than one way.",
+      concept_reveal: "Making an amount means picking coins that add up to it — and usually there's more than one correct set.",
+    },
+  },
+
+  math1_ch12_simple_money_problems: {
+    key_formulas: [
+      { formula: "Add prices for the total cost; subtract to find change", explanation: "Buy ₹3 + ₹4 = ₹7; pay ₹10 → change ₹3." },
+      { formula: "Can you afford it? Compare money you have with the price", explanation: "₹10 ≥ ₹7, so yes." },
+    ],
+    prerequisite_knowledge: ["value of coins", "addition and subtraction", "comparing numbers"],
+    visual_description: "A toy costing ₹7, paid with a ₹10 note, giving ₹3 change.",
+    svg_diagrams: [svg("math1_ch12_money_problems", "Buy ₹7, pay ₹10, change ₹3",
+      `<text x="20" y="50">Toy costs ₹7</text>
+       <text x="20" y="90" fill="#2563eb">Pay ₹10</text>
+       <text x="20" y="130" fill="#16a34a">Change = ₹10 − ₹7 = ₹3</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Simple buying stories — total, change, can-I-afford-it", "Adding or comparing small amounts of money"],
+      use_other_when: ["Just naming coins → no calculation needed"],
+    },
+    edge_cases: [
+      { case: "Paying the exact amount", value: "no change (₹0)", reasoning: "Money paid equals the price.", where_it_appears: "Exact payment." },
+      { case: "Not enough money", value: "can't buy it yet", reasoning: "Money is less than the price.", where_it_appears: "Can't-afford case." },
+    ],
+    video_script_hooks: {
+      opening_hook: "A toy costs ₹7 and you hand over a ₹10 note. How much comes back? ₹3 change! Shopping is add-and-subtract with rupees.",
+      concept_reveal: "Money problems add prices for the total and subtract to find change — the maths of every shop trip.",
+    },
+  },
+
+  // ───────────────────────────────────────────────────────────────────────────
+  // CHAPTER 13 — Counting Large Groups and Estimation
+  // ───────────────────────────────────────────────────────────────────────────
+  math1_ch13_counting_large_groups: {
+    key_formulas: [
+      { formula: "Count big groups by making bundles of ten", explanation: "3 tens and 5 ones = 35." },
+      { formula: "Bundling stops you losing count", explanation: "Count the tens, then the leftover ones." },
+    ],
+    prerequisite_knowledge: ["counting to 99", "tens and ones", "skip counting by tens"],
+    visual_description: "35 sticks grouped into 3 bundles of ten plus 5 loose sticks.",
+    svg_diagrams: [svg("math1_ch13_large_groups", "Count by bundling tens: 35",
+      `${[0,1,2].map(i=>`<rect x="${40+i*70}" y="55" width="50" height="55" fill="#bfdbfe" stroke="#2563eb"/><text x="50+${i*70}" y="135" font-size="11">ten</text>`).join("")}
+       ${[0,1,2,3,4].map(i=>`<line x1="${270+i*15}" y1="55" x2="${270+i*15}" y2="110" stroke="#d97706" stroke-width="3"/>`).join("")}
+       <text x="360" y="90" font-size="16">= 35</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Counting a large pile without losing track", "Counting in tens then ones"],
+      use_other_when: ["Small groups (under 10) → just count one by one"],
+    },
+    edge_cases: [
+      { case: "A leftover that's not a full ten", value: "count it as ones", reasoning: "35 = 3 tens and 5 ones.", where_it_appears: "Leftover ones." },
+      { case: "Losing count by ones", value: "bundle into tens instead", reasoning: "Bundles are easier to track.", where_it_appears: "Why we bundle." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Counting 35 marbles one by one? You'll lose track! Bundle them into tens — three bundles and five left over. Easy!",
+      concept_reveal: "Counting big groups gets easy when you bundle into tens, then count the tens and the leftover ones.",
+    },
+  },
+
+  math1_ch13_counting_in_groups: {
+    key_formulas: [
+      { formula: "Skip count in 2s, 5s or 10s to count faster", explanation: "2, 4, 6, 8 … or 5, 10, 15 … or 10, 20, 30 …" },
+      { formula: "Group equal-size sets, then skip count", explanation: "4 pairs of socks → 2, 4, 6, 8." },
+    ],
+    prerequisite_knowledge: ["counting to 99", "equal groups", "number patterns"],
+    visual_description: "Pairs of socks counted 2, 4, 6, 8 and groups of 5 fingers counted 5, 10, 15.",
+    svg_diagrams: [svg("math1_ch13_groups", "Skip counting in 2s and 5s",
+      `<text x="30" y="60">socks in 2s:  2  4  6  8</text>
+       <text x="30" y="110">hands in 5s:  5  10  15  20</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Counting equal groups quickly", "Counting things that come in 2s, 5s or 10s"],
+      use_other_when: ["Groups aren't equal sized → count them separately"],
+    },
+    edge_cases: [
+      { case: "Counting pairs", value: "skip count in 2s", reasoning: "Each pair adds 2.", where_it_appears: "Socks, shoes." },
+      { case: "Counting fingers on hands", value: "skip count in 5s", reasoning: "Each hand adds 5.", where_it_appears: "Hands." },
+    ],
+    video_script_hooks: {
+      opening_hook: "Counting socks one by one is slow — but they come in PAIRS! 2, 4, 6, 8 … skip counting is counting at super-speed.",
+      concept_reveal: "When things come in equal groups of 2, 5 or 10, skip counting lets you count them in a flash.",
+    },
+  },
+
+  math1_ch13_estimation: {
+    key_formulas: [
+      { formula: "Estimating = a sensible guess of how many, without counting", explanation: "'About 20' rather than an exact count." },
+      { formula: "Use a known group to help guess", explanation: "If 10 fill a cup, two cups is about 20." },
+    ],
+    prerequisite_knowledge: ["counting to 99", "the words 'about' and 'around'", "comparing amounts"],
+    visual_description: "A jar of beads with the guess 'about 30', then counted to check.",
+    svg_diagrams: [svg("math1_ch13_estimation", "Guess about how many",
+      `<rect x="60" y="50" width="90" height="110" rx="10" fill="#dbeafe" stroke="#2563eb"/>
+       ${Array.from({length:18},(_,i)=>`<circle cx="${72+ (i%4)*20}" cy="${75+Math.floor(i/4)*20}" r="6" fill="#dc2626"/>`).join("")}
+       <text x="180" y="110">guess: about 20</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["A quick 'about how many' is enough", "Guessing before counting to check"],
+      use_other_when: ["You need the exact number → count carefully"],
+    },
+    edge_cases: [
+      { case: "A wild guess far from the count", value: "use a known group to guess better", reasoning: "Compare to something you know.", where_it_appears: "Smarter estimates." },
+      { case: "Estimating very few (3 or 4)", value: "just count — it's quick", reasoning: "Estimation helps most with big groups.", where_it_appears: "When to estimate." },
+    ],
+    video_script_hooks: {
+      opening_hook: "How many beads in this jar? Don't count yet — GUESS! 'About 20?' Then count to see how close you were.",
+      concept_reveal: "Estimating is a smart guess of how many, using groups you already know — handy when counting one-by-one is too slow.",
+    },
+  },
+
+  math1_ch13_comparing_quantities: {
+    key_formulas: [
+      { formula: "Compare amounts with more / fewer / equal", explanation: "8 apples is more than 5 apples." },
+      { formula: "Match one-to-one to compare", explanation: "Pair them up; leftovers show which group has more." },
+    ],
+    prerequisite_knowledge: ["counting", "more and less", "comparing numbers"],
+    visual_description: "8 apples paired one-to-one with 5 oranges; 3 apples have no partner, so apples are more.",
+    svg_diagrams: [svg("math1_ch13_comparing", "More, fewer, equal",
+      `${[0,1,2,3,4,5,6,7].map(i=>`<circle cx="${50+i*45}" cy="60" r="14" fill="#fca5a5" stroke="#dc2626"/>`).join("")}
+       ${[0,1,2,3,4].map(i=>`<circle cx="${50+i*45}" cy="120" r="14" fill="#fdba74" stroke="#d97706"/>`).join("")}
+       <text x="50" y="170" fill="#dc2626">8 apples &gt; 5 oranges</text>`)],
+    when_to_use_this_method: {
+      use_this_when: ["Deciding which group has more or fewer", "Comparing two amounts"],
+      use_other_when: ["You only need the count of one group, not a comparison"],
+    },
+    edge_cases: [
+      { case: "Two groups that pair up exactly", value: "equal amounts", reasoning: "No leftovers on either side.", where_it_appears: "Equal groups." },
+      { case: "Comparing by size of objects", value: "compare the COUNT, not the size", reasoning: "5 big apples is still fewer than 8 small ones.", where_it_appears: "Count vs size." },
+    ],
+    video_script_hooks: {
+      opening_hook: "8 apples and 5 oranges — which is more? Pair them up! The three apples with no orange partner show apples win.",
+      concept_reveal: "We compare quantities with more, fewer or equal — matching one-to-one shows which group has extra.",
+    },
+  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

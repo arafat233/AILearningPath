@@ -162,7 +162,43 @@ function GridStage({ animation, step }) {
   );
 }
 
-const STAGES = { "array-pointers": ArrayPointersStage, stack: StackStage, grid: GridStage };
+// ── kind: linked-list ─────────────────────────────────────────────────────────
+function LLRow({ list, links = [], pointers = {}, mark = {} }) {
+  const byIndex = {};
+  Object.entries(pointers).forEach(([name, idx], k) => { if (idx !== null && idx >= 0) (byIndex[idx] ||= []).push({ name, color: colorFor(name, k) }); });
+  return (
+    <div className="flex items-start justify-center flex-wrap gap-0 py-1">
+      {list.map((val, idx) => (
+        <div key={idx} className="flex items-center">
+          <div className="flex flex-col items-center" style={{ minWidth: 38 }}>
+            <div className="w-10 h-9 flex items-center justify-center rounded-lg text-[13px] font-semibold border transition-all duration-300 text-[var(--label)]"
+              style={{ borderColor: "var(--separator,#d2d2d7)", ...markStyle(mark[idx]) }}>{val}</div>
+            <div className="h-4 flex gap-0.5 mt-0.5 items-center">
+              {(byIndex[idx] || []).map(({ name, color }) => (
+                <span key={name} className="text-[9px] font-bold px-1 rounded leading-tight" style={{ color, border: `1px solid ${color}` }}>{name}</span>
+              ))}
+            </div>
+          </div>
+          {idx < list.length - 1
+            ? <span className="text-apple-gray text-[16px] px-0.5 self-start mt-2" style={{ color: links[idx] === "←" ? "#ff375f" : undefined }}>{links[idx] === "←" ? "←" : links[idx] === "↺" ? "↺" : "→"}</span>
+            : <span className="text-apple-gray3 text-[10px] px-1 self-start mt-3">{links[idx] === "↺" ? "↺ cycle" : "→ ∅"}</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+function LinkedListStage({ animation, step }) {
+  return (
+    <div className="space-y-2 py-1">
+      <LLRow list={step.list || animation.list || []} links={step.links} pointers={step.pointers} mark={step.mark} />
+      {(step.list2 || animation.list2) && (
+        <LLRow list={step.list2 || animation.list2} links={step.links2} pointers={step.pointers2} mark={step.mark2} />
+      )}
+    </div>
+  );
+}
+
+const STAGES = { "array-pointers": ArrayPointersStage, stack: StackStage, grid: GridStage, "linked-list": LinkedListStage };
 
 export default function StepPlayer({ animation }) {
   const [i, setI] = useState(0);

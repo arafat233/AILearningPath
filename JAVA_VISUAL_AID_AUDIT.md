@@ -42,19 +42,19 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 - [ ] ✅ **java_m2_t4** — Variable Scope & Lifetime
   - req: `TIMELINE` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show a nested boxes diagram: outermost box is 'Class scope (static variables)' containing inner box 'Method scope (parameters + locals)' which contains 'Block scope (loop/if variables)'. Each level labeled with what's visible at that level. Arrows show variables 'falling out of scope' when their block closes. Side note: 'Inner scopes can see outer; outer cannot see inner.' Below: a 'lifetime timeline' showing when each variable type is created and destroyed during program execution.
-- [ ] ❌ **java_m2_t5** — Recursion Basics
+- [x] ✅(fixed) **java_m2_t5** — Recursion Basics
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show a call stack diagram for factorial(4). Visualize 5 stacked frames: factorial(4), factorial(3), factorial(2), factorial(1), factorial(0). Each labeled with its parameter value. Show factorial(0) at top (currently executing). Annotate: 'When factorial(0) returns 1, this frame is removed. factorial(1) gets the result and completes its multiplication...' Continue showing frames being popped as values bubble up. Final result: 24. Right side shows the SAME calculation done iteratively with a single loop — no stack growth.
 
 ## M3
 
-- [ ] ❌ **java_m3_t1** — Introduction to Arrays
+- [x] ✅(fixed) **java_m3_t1** — Introduction to Arrays
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show an array represented as a row of 5 boxes labeled `scores[0]` through `scores[4]` containing values 85, 90, 78, 92, 88. Below each box: the index (0, 1, 2, 3, 4). Annotation: 'Zero-indexed: first element is index 0, last is length - 1.' Side panel: shows what happens if you try `scores[5]` — red X with 'ArrayIndexOutOfBoundsException at runtime.' Another panel shows the two iteration styles side-by-side: classic for loop with `i` and `scores[i]` vs for-each loop with `score : scores`.
-- [ ] ❌ **java_m3_t2** — Array Operations & Algorithms
+- [x] ✅(fixed) **java_m3_t2** — Array Operations & Algorithms
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show two parallel diagrams. LEFT: Linear search trying to find 17 in [5, 12, 3, 8, 17, 22] — checks each element in order with arrows: 5 (no), 12 (no), 3 (no), 8 (no), 17 (yes!). RIGHT: Binary search in sorted array [3, 5, 8, 12, 17, 22] — middle element 12 (low), check right half [17, 22], middle is 17 (match!). Annotation: 'Linear: O(n), checks each. Binary: O(log n), eliminates half each step. BUT binary requires sorted input.' Below: two-pointer reversal animation showing left/right pointers moving toward center, swapping at each step.
-- [ ] ❌ **java_m3_t3** — Multi-Dimensional Arrays
+- [x] ✅(fixed) **java_m3_t3** — Multi-Dimensional Arrays
   - req: `TABLE/GRID` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show a 3×4 grid with cells labeled grid[0][0] through grid[2][3], with example values inside (1-12). Row labels on the left (Row 0, Row 1, Row 2). Column labels on top (Col 0, Col 1, Col 2, Col 3). Annotation: 'grid[row][col] — row first, then column.' Below: two parallel iteration diagrams. LEFT: 'Row-major iteration: 1, 2, 3, 4, 5, 6, 7...' arrow path goes left-to-right, top-to-bottom. RIGHT: 'Column-major iteration: 1, 5, 9, 2, 6, 10...' arrow path goes top-to-bottom, left-to-right.
 - [ ] 🔶 **java_m3_t4** — Introduction to Strings
@@ -78,10 +78,10 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 - [ ] 🔎 **java_m4_t4** — Object Methods (toString, equals, hashCode)
   - req: `TREE` · now: `svg-diagram`
   - brief: Show the Java class hierarchy: Object at the top, with arrows down to Product, String, Integer, MyClass, etc. — every class. Annotation: 'Every class inherits toString(), equals(), hashCode() from Object.' Side-by-side: LEFT shows 'Default Object methods' with println printing 'Product@1b6d3586', equals returning false even for identical objects. RIGHT shows 'Overridden methods' with println printing 'Product[id=101, name=Mouse]', equals returning true for content-equal objects. Bottom panel: the equals/hashCode contract — two equal objects must have equal hashCodes (arrows showing this requirement). Diagram of HashSet with two 'equal' but different-hashCode objects ending up in different buckets — illustrating the bug when contract is violated.
-- [ ] ❌ **java_m4_t5** — Static Members & Class-Level Data
+- [x] ✅(fixed) **java_m4_t5** — Static Members & Class-Level Data
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show a memory layout with class-level data on the LEFT and instance data on the RIGHT. Class-level (Product class): 'count = 3 (shared, static)'. Three Product objects: p1[id=101, name=Mouse], p2[id=102, name=Keyboard], p3[id=103, name=Monitor] — each with their own instance fields. Arrows from all three objects pointing to the same 'count' field — one counter, three objects sharing it. Below: constants panel showing 'static final int MAX_PRICE = 99999' — one value, never changes. Side panel shows: 'Static method called on class name: Product.getCount()' vs 'Instance method called on object: p1.getPrice()'.
-- [ ] ❌ **java_m4_t6** — Composition & Complete OOP Design
+- [x] ✅(fixed) **java_m4_t6** — Composition & Complete OOP Design
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show a UML-style class diagram. Three classes: Customer, Order, LineItem, Product. Arrows: Order 'has-a' Customer (one customer per order). Order 'has-many' LineItems (array). LineItem 'has-a' Product. Labels on relationships: '1' for single, '1..*' for array. Each class box shows key fields and methods. Below: Timeline showing Module 4 concept stack — 4.1 Class, 4.2 Constructor, 4.3 Encapsulation, 4.4 Object Methods, 4.5 Static, 4.6 Composition — all stacking to show how each builds on previous.
 
@@ -93,10 +93,10 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 - [ ] 🔶 **java_m5_t2** — Polymorphism
   - req: `TIMELINE` · now: `auto-PANELS`
   - brief: Show two parallel timelines. LEFT (Compile time): compiler sees 'Animal a' → allows makeSound(), rejects fetch(). RIGHT (Runtime): JVM sees actual Dog object → runs Dog.makeSound(). Connected by an arrow labeled 'Runtime dispatch bridges the gap.' Below: a method `processPayment(PaymentMethod pm)` box in the center. Arrows coming IN from: CreditCard, UPI, NetBanking — all labeled 'at runtime, Java calls the right pay()'. Arrow from processPayment box labeled 'one method, unlimited implementations.' Bottom: Liskov panel — 'Dog works here ✓' vs 'Square breaks Rectangle ✗' — visual contrast.
-- [ ] ❌ **java_m5_t3** — Abstract Classes
+- [x] ✅(fixed) **java_m5_t3** — Abstract Classes
   - req: `TREE` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show three boxes arranged vertically: 'abstract Shape' at top (with italicized 'area()' showing it's abstract, and 'printInfo()' in normal text showing it's concrete). Below: 'Circle' and 'Rectangle' both with concrete 'area()' implementations. Annotation: 'Cannot: new Shape()'. 'Can: new Circle()'. Arrow from Shape.printInfo() calling area() → pointing down to show it calls the subclass version. Right side: Template Method pattern diagram — abstract class with process() calling readData(), validateData(), transformData() (all abstract, italicized). Two concrete classes below each implementing the steps differently. Title: 'Template Method: parent defines when, child defines how.'
-- [ ] ❌ **java_m5_t4** — Interfaces
+- [x] ✅(fixed) **java_m5_t4** — Interfaces
   - req: `STATE` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show the abstract class vs interface comparison table visually. Left column: abstract class with state (fields shown), constructors, concrete+abstract methods, 'extends one'. Right column: interface with no fields (crossed out), no constructors (crossed out), abstract methods by default, 'implements many'. Middle: arrow labeled 'When to use'. Below: a class diagram showing Employee (abstract class hierarchy) on the left, and interfaces (Comparable, Serializable, Loggable) on the right — arrows showing Employee EXTENDS AbstractEmployee and IMPLEMENTS all three interfaces. Annotation: 'Mix class hierarchy with multiple interface capabilities.' Bottom: Comparable.compareTo() contract diagram — negative (this first), zero (equal), positive (this second).
 - [ ] 🔎 **java_m5_t5** — Comparator & Polymorphism in Practice

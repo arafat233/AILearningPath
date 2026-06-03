@@ -390,11 +390,140 @@ function m7_t4() {
   return svg(760, 208, g);
 }
 
+// circle node (thread/worker)
+const circ = (cx, cy, r, t, ci) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${TINT[ci]}" stroke="${STRK[ci]}"/>` + txt(cx, cy + 3, t, { a: "middle", s: 8.5, w: 600 });
+
+// ── m9_t4 — wildcards / PECS ──
+function m9_t4() {
+  let g = title(14, "Wildcards — PECS (Producer Extends, Consumer Super)");
+  g += txt(30, 38, "Invariant: List<Integer>, List<Number>, List<Object> are UNRELATED", { s: 10, w: 600 });
+  ["List<Integer>", "List<Number>", "List<Object>"].forEach((t, i) => g += box(30 + i * 175, 46, 165, 28, 5) + txt(30 + i * 175 + 82, 64, t, { a: "middle", mono: true, s: 10 }));
+  g += txt(560, 64, "✗ no subtyping", { s: 9, fill: RED });
+  // extends
+  g += box(30, 92, 350, 96, 0) + txt(45, 110, "? extends Number  → PRODUCER", { s: 10, w: 700, fill: "#0a84ff" });
+  g += txt(45, 128, "accepts List<Integer|Double|Long|Number>", { mono: true, s: 9, o: 0.8 });
+  g += arr(45, 150, 200, 150, "g", "READ as Number (data OUT)");
+  g += txt(45, 178, "✗ cannot add() — compiler blocks writes", { s: 9, fill: RED });
+  // super
+  g += box(390, 92, 340, 96, 1) + txt(405, 110, "? super Integer  → CONSUMER", { s: 10, w: 700, fill: GRN });
+  g += txt(405, 128, "accepts List<Integer|Number|Object>", { mono: true, s: 9, o: 0.8 });
+  g += arr(560, 150, 405, 150, "g", "add Integer (data IN)");
+  g += txt(405, 178, "reading gives back only Object", { s: 9, o: 0.7 });
+  g += txt(30, 210, "PECS: data flows OUT → extends · data flows IN → super", { s: 10, w: 700 });
+  return svg(760, 226, g);
+}
+
+// ── m9_t5 — generic interface patterns + Spring Data chain ──
+function m9_t5() {
+  let g = title(14, "Generic interfaces — reusable patterns");
+  const pats = [["Repository<T,ID>", "save/find/delete", "+ default exists()"], ["Mapper<S,T>", "mapTo / mapFrom", "+ mapAllTo()"], ["Strategy<T>", "apply() + name()", "swap algorithms"], ["Builder<T>", "build()", "fluent construction"]];
+  pats.forEach(([h, a, b], i) => {
+    const x = 24 + i * 184;
+    g += box(x, 40, 174, 70, i % 4) + txt(x + 87, 60, h, { a: "middle", mono: true, s: 10, w: 700 });
+    g += txt(x + 12, 80, a, { mono: true, s: 9, o: 0.85 }) + txt(x + 12, 96, b, { s: 8.5, o: 0.65 });
+  });
+  g += txt(30, 142, "Spring Data hierarchy you now understand:", { s: 10, w: 600 });
+  const ch = (x, t) => box(x, 152, 180, 28, 3) + txt(x + 90, 170, t, { a: "middle", mono: true, s: 9.5 });
+  g += ch(40, "CrudRepository<T,ID>") + arr(220, 166, 252, 166);
+  g += ch(252, "JpaRepository<T,ID>") + arr(432, 166, 464, 166);
+  g += ch(464, "UserRepository") + txt(560, 196, "extends → inherits all CRUD", { s: 9, o: 0.7 });
+  return svg(760, 206, g);
+}
+
+// ── m10_t3 — ExecutorService thread pool factory ──
+function m10_t3() {
+  let g = title(14, "ExecutorService — thread pool");
+  g += txt(40, 38, "task queue", { s: 9.5, o: 0.7, a: "middle" });
+  ["task A", "task B", "task C"].forEach((t, i) => g += box(20, 46 + i * 34, 110, 26, 2) + txt(75, 63 + i * 34, t, { a: "middle", mono: true, s: 9.5 }));
+  g += arr(132, 86, 180, 86);
+  g += txt(250, 38, "worker pool (N threads)", { s: 9.5, o: 0.7, a: "middle" });
+  [0, 1, 2].forEach((i) => g += circ(220 + i * 70, 86, 28, "T" + (i + 1), 0));
+  g += arr(360, 86, 410, 86) + txt(385, 78, "→", { a: "middle", s: 9, o: 0 });
+  g += txt(520, 38, "Future<T> results", { s: 9.5, o: 0.7, a: "middle" });
+  [0, 1, 2].forEach((i) => g += `<circle cx="${500 + i * 80}" cy="86" r="26" fill="${TINT[1]}" stroke="${STRK[1]}"/>` + txt(500 + i * 80, 89, "Fut" + (i + 1), { a: "middle", s: 8.5, w: 600 }));
+  g += txt(440, 134, "Future.get() blocks the caller until its bubble fills with a result", { s: 9, o: 0.75 });
+  g += txt(40, 132, "threads pull → run → return → pull again", { s: 9, o: 0.7 });
+  g += txt(20, 168, "shutdown(): stop intake, finish the queue     shutdownNow(): cancel queued + interrupt running", { s: 9.5, o: 0.8 });
+  return svg(760, 188, g);
+}
+
+// ── m11_t1 — NIO Path decomposition + Files toolbox ──
+function m11_t1() {
+  let g = title(14, "NIO — Path & Files");
+  g += box(250, 36, 260, 30, 0) + txt(380, 56, 'Path.of("data/orders.csv")', { a: "middle", mono: true, s: 10.5, w: 600 });
+  const lab = (x, y, m, r) => { g += arr(380, 66, x, y); g += txt(x, y + 14, m, { a: "middle", mono: true, s: 9, w: 600 }) + txt(x, y + 28, r, { a: "middle", s: 8.5, o: 0.7 }); };
+  lab(150, 84, "getParent()", '→ "data"');
+  lab(380, 92, "getFileName()", '→ "orders.csv"');
+  lab(620, 84, 'resolve("backup")', '→ "data/backup"');
+  g += txt(30, 142, "Files toolbox:", { s: 10, w: 600 });
+  ["readAllLines", "writeString", "copy", "move", "walk", "exists"].forEach((t, i) => g += box(140 + i * 100, 130, 94, 24, 5, 5) + txt(187 + i * 100, 147, t, { a: "middle", mono: true, s: 8.5 }));
+  g += txt(30, 178, "StandardOpenOption: CREATE · APPEND · TRUNCATE   |   new Path replaces old File API", { s: 9.5, o: 0.75 });
+  return svg(760, 196, g);
+}
+
+// ── m11_t2 — decorator stream stack ──
+function m11_t2() {
+  let g = title(14, "Buffered I/O — the decorator stack");
+  // nested boxes (read side)
+  g += box(120, 50, 380, 90, 0) + txt(132, 44, "BufferedReader — 8 KB buffer, readLine()", { s: 9, w: 600, fill: "#0a84ff" });
+  g += box(150, 70, 320, 56, 3) + txt(162, 66, "InputStreamReader — bytes → chars (encoding)", { s: 9, w: 600, fill: "#a44bd6" });
+  g += box(180, 90, 260, 30, 5) + txt(310, 110, "FileInputStream — raw bytes", { a: "middle", s: 9.5, mono: true });
+  g += arr(30, 105, 118, 105, "", "") + txt(30, 96, "raw bytes", { s: 8.5, o: 0.7 });
+  g += arr(502, 105, 600, 105, "g") + txt(606, 108, "String line", { s: 9.5, w: 600, fill: GRN });
+  g += txt(120, 162, "Output mirrors it: String → PrintWriter → BufferedWriter → OutputStreamWriter → FileOutputStream", { s: 9, o: 0.75 });
+  g += txt(120, 182, "3 sources to wrap: file · socket.getInputStream() · System.in", { s: 9, o: 0.75 });
+  return svg(760, 200, g);
+}
+
+// ── m11_t3 — CSV state machine + Jackson + pipeline ──
+function m11_t3() {
+  let g = title(14, "CSV parsing & Jackson");
+  // state machine
+  g += txt(30, 38, "CSV parse — 2 modes", { s: 10, w: 600 });
+  g += box(30, 46, 120, 32, 0) + txt(90, 66, "NORMAL", { a: "middle", s: 10, w: 700 });
+  g += box(230, 46, 120, 32, 2) + txt(290, 66, "QUOTED", { a: "middle", s: 10, w: 700 });
+  g += arr(150, 56, 230, 56, "", 'on "') + arr(230, 70, 150, 70, "", 'on "');
+  g += txt(30, 96, '"Dell, 27",18999  →  2 fields (comma inside quotes is literal)', { mono: true, s: 9, o: 0.8 });
+  // jackson
+  g += txt(420, 38, "Jackson ObjectMapper", { s: 10, w: 600 });
+  g += box(420, 46, 100, 30, 1) + txt(470, 66, "JSON", { a: "middle", mono: true, s: 10 });
+  g += arr(520, 55, 580, 55, "", "readValue") + arr(580, 68, 520, 68, "", "writeValue");
+  g += box(580, 46, 120, 30, 0) + txt(640, 66, "POJO", { a: "middle", mono: true, s: 10 });
+  // pipeline
+  g += txt(30, 128, "Transform pipeline:", { s: 10, w: 600 });
+  ["CSV file", "BufferedReader", "parseCSVLine", "ObjectNode", "ArrayNode", "JSON file"].forEach((s, i) => {
+    const x = 30 + i * 122;
+    g += box(x, 138, 112, 26, i === 0 ? 5 : i === 5 ? 1 : 0) + txt(x + 56, 155, s, { a: "middle", mono: true, s: 8.5 });
+    if (i < 5) g += arr(x + 112, 151, x + 122, 151);
+  });
+  return svg(760, 180, g);
+}
+
+// ── m11_t4 — HttpClient request/response lifecycle ──
+function m11_t4() {
+  let g = title(14, "HttpClient — request / response lifecycle");
+  g += box(20, 40, 110, 30, 0) + txt(75, 60, "client code", { a: "middle", s: 9.5 });
+  g += arr(130, 55, 175, 55, "", "send()");
+  g += box(175, 40, 120, 30, 3) + txt(235, 60, "HttpClient", { a: "middle", s: 9.5, w: 600 });
+  g += arr(295, 55, 360, 55, "", "network");
+  g += box(360, 40, 100, 30, 5) + txt(410, 60, "server", { a: "middle", s: 9.5 });
+  // request / response boxes
+  g += box(20, 86, 340, 58, 0) + txt(32, 102, "Request:  GET/POST · URI · headers · body", { s: 9, w: 600 });
+  g += txt(32, 120, ".uri() → .GET()/.POST() → .header() → .timeout() → .build()", { mono: true, s: 8.5, o: 0.8 });
+  g += box(380, 86, 350, 58, 1) + txt(392, 102, "Response:  statusCode · headers · body (JSON)", { s: 9, w: 600 });
+  g += txt(392, 120, "response.body() → mapper.readValue() → Java object", { mono: true, s: 8.5, o: 0.8 });
+  // status ranges
+  ["2xx success", "4xx client error", "5xx server error"].forEach((t, i) => g += box(20 + i * 175, 156, 165, 26, [1, 2, 4][i]) + txt(20 + i * 175 + 82, 173, t, { a: "middle", s: 9.5, w: 600 }));
+  return svg(760, 196, g);
+}
+
 const SPECS = {
   java_m2_t5: m2_t5, java_m3_t1: m3_t1, java_m3_t2: m3_t2, java_m3_t3: m3_t3,
   java_m4_t5: m4_t5, java_m4_t6: m4_t6, java_m5_t3: m5_t3, java_m5_t4: m5_t4,
   java_m6_t1: m6_t1, java_m6_t2: m6_t2, java_m6_t3: m6_t3, java_m6_t4: m6_t4,
   java_m7_t1: m7_t1, java_m7_t3: m7_t3, java_m7_t4: m7_t4,
+  java_m9_t4: m9_t4, java_m9_t5: m9_t5, java_m10_t3: m10_t3,
+  java_m11_t1: m11_t1, java_m11_t2: m11_t2, java_m11_t3: m11_t3, java_m11_t4: m11_t4,
 };
 
 async function run() {

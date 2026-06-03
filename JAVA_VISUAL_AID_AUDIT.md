@@ -105,16 +105,16 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 
 ## M6
 
-- [ ] ❌ **java_m6_t1** — ArrayList
+- [x] ✅(fixed) **java_m6_t1** — ArrayList
   - req: `TREE` · now: `auto-PANELS`
   - brief: Show side-by-side: LEFT — manual array approach with array of 5 slots, count=3 pointer, null slots shown, arrows showing pain points (null slots, manual count, fixed size). RIGHT — ArrayList: dynamic, no null slots, size() method, clean. CENTER: ArrayList internal model showing 'backing array' that doubles when full (resizing diagram). Below: autoboxing diagram showing 'scores.add(95)' → Java auto-wraps to Integer(95). Bottom: class hierarchy diagram: Iterable → Collection → List → ArrayList (and also LinkedList, Vector). Shows 'List<String> names' as interface reference type pointing to ArrayList implementation.
-- [ ] ❌ **java_m6_t2** — HashMap
+- [x] ✅(fixed) **java_m6_t2** — HashMap
   - req: `MEMORY` · now: `auto-PANELS`
   - brief: Show three diagrams: (1) HashMap internal structure — array of 'buckets', each bucket is a linked list. Key's hashCode() maps to a bucket index. Arrows showing put('Mouse', product) → hash → bucket. (2) Side-by-side performance: ArrayList.contains() — O(n) linear scan animation. HashMap.get() — O(1) hash jump. For n=1000: 500 avg comparisons vs 1. (3) Three common patterns: Frequency counting (word→count table being built word by word), Grouping (products flowing into category buckets), Lookup table (barcode → product one-step). All three with code snippets alongside.
-- [ ] ❌ **java_m6_t3** — HashSet
+- [x] ✅(fixed) **java_m6_t3** — HashSet
   - req: `VENN` · now: `svg-PANELS(text-in-boxes)`
   - brief: Show the Collections Triangle completed: List (ordered sequence, allows duplicates), Map (key→value pairs), Set (unique elements, O(1) lookup) — three boxes with arrows labeled 'ordered', 'keyed', 'unique'. Center annotation: 'Together they cover 90% of data structure needs.' Right side: HashSet internal structure (backed by HashMap, values are dummy). Performance table: List.contains O(n) shown as long bar; Set.contains O(1) shown as tiny bar. Bottom: three set operation diagrams with Venn circles: Union (all), Intersection (overlap), Difference (A minus B).
-- [ ] ❌ **java_m6_t4** — Iterating Collections & the Collections Utility Class
+- [x] ✅(fixed) **java_m6_t4** — Iterating Collections & the Collections Utility Class
   - req: `STATE` · now: `auto-PANELS`
   - brief: Show three diagrams: (1) Iterator state machine — hasNext? → next() → [can remove()] → repeat. Safe removal shown with arrow: next() returns element, then remove() removes THAT element. Contrast with for-each: no safe removal. (2) Collections utility class as a toolbox — grid of utility methods organized by category: Sort (sort, reverse, shuffle), Extremes (min, max), Counts (frequency, disjoint), Protection (unmodifiable*), Creation (nCopies, fill). (3) Stream pipeline preview: source (list) → filter → map → collect, with each step labeled. Caption: 'Streams = functional loops. Full coverage in Module 9.'
 - [ ] 🔎 **java_m6_t5** — Choosing the Right Collection
@@ -126,16 +126,16 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 
 ## M7
 
-- [ ] ❌ **java_m7_t1** — try / catch / finally
+- [x] ✅(fixed) **java_m7_t1** — try / catch / finally
   - req: `TREE` · now: `auto-PANELS`
   - brief: Show three flow diagrams: (1) try-catch happy path — try block runs fully, catch is skipped, execution continues. (2) try-catch exception path — exception thrown mid-try, arrow jumps to catch, remaining try lines grayed out, execution continues after catch. (3) finally — three scenarios side-by-side: no exception (try→finally→continue), caught exception (try-partial→catch→finally→continue), uncaught exception (try-partial→finally→program crash). Below: Java exception hierarchy teaser — Throwable → Error | Exception, with common examples under each. Stack trace reading guide: arrow pointing upward through method calls labeled 'read bottom-up to find YOUR code'.
 - [ ] 🔎 **java_m7_t2** — Exception Types — Checked vs Unchecked
   - req: `FLOWCHART` · now: `svg-diagram`
   - brief: Large tree diagram of the Throwable hierarchy. Root: Throwable. Two main branches: Error (red — don't catch) and Exception (green — two sub-branches). Exception left branch: RuntimeException with all unchecked subclasses listed (NullPointerException, ArrayIndexOutOfBoundsException, etc.) — labeled UNCHECKED. Exception right branch: IOException, SQLException, etc. — labeled CHECKED. Decision flowchart below: 'Does it extend RuntimeException?' YES → Unchecked (compiler optional). NO + extends Exception → Checked (compiler mandatory). Right column: 'throws vs catch decision' flowchart — 'Can I recover?' YES → catch. 'Does caller have more context?' YES → throws.
-- [ ] ❌ **java_m7_t3** — Custom Exceptions
+- [x] ✅(fixed) **java_m7_t3** — Custom Exceptions
   - req: `FLOWCHART` · now: `auto-PANELS`
   - brief: Show three things: (1) Custom exception class anatomy — class declaration extending RuntimeException or Exception, field declarations (final), two constructors (message, message+cause), getters. Each part labeled. (2) Exception hierarchy design example: PaymentException at top (checked), CardDeclinedException and PaymentTimeoutException below (also checked), with catch block showing catch-specific first, catch-base last. (3) 'Create custom vs use built-in' decision flowchart: 'Do callers need to catch it by name?' YES → custom. 'Does it carry domain data?' YES → custom. 'Is it a programmer error?' YES → built-in IllegalArgumentException. 'Just need a message?' YES → built-in RuntimeException.
-- [ ] ❌ **java_m7_t4** — Defensive Programming
+- [x] ✅(fixed) **java_m7_t4** — Defensive Programming
   - req: `MEMORY` · now: `auto-PANELS`
   - brief: Three diagrams: (1) 'Fail fast vs fail slow' — two call stacks side by side. Left (fail slow): arrow going through 10 methods before NPE. Right (fail fast): NPE at entry point with clear message. (2) 'Defensive copy' diagram: caller has list → passes reference to constructor → mutable object (WRONG: both point to same list). vs caller has list → passes to constructor → new ArrayList<>(items) creates new box → both lists independent (CORRECT). (3) 'Guard clause' refactoring: nested if/else pyramid (left) → flat guard clauses at top, main logic flat below (right). The validation boundary diagram: external world enters through a gate labeled 'VALIDATE HERE' into internal logic.
 - [ ] 🔶 **java_m7_t5** — Try-With-Resources

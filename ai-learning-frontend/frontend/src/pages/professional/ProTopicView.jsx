@@ -20,6 +20,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks, proRecordReveal, proGetProject, proGetProgress } from "../../services/api";
 import PatternDrill from "../../components/pro/PatternDrill";
 import TopicDiscussion from "../../components/pro/TopicDiscussion";
+import VisualAid from "../../components/pro/VisualAid";
 
 // Lazy-loaded so the SyntaxHighlighter + Prism payload doesn't bloat the
 // initial route bundle. The fallback below is a plain <pre> while loading.
@@ -141,27 +142,8 @@ function SyntaxBreakdown({ block }) {
   );
 }
 
-function VisualAid({ block }) {
-  if (!block) return null;
-  return (
-    <div className="card p-5 border-l-4 border-apple-purple bg-apple-purple/5">
-      <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-xl bg-apple-purple/10 flex items-center justify-center shrink-0">
-          <span className="text-apple-purple text-[18px]">▦</span>
-        </div>
-        <div className="flex-1">
-          <p className="text-[11px] font-bold tracking-wider uppercase text-apple-purple mb-1">
-            {block.type || "Visual aid"}
-          </p>
-          <p className="text-[14px] text-[var(--label)] leading-relaxed">{block.description}</p>
-          {block.alt_text && (
-            <p className="text-[12px] text-apple-gray mt-2 italic">Alt: {block.alt_text}</p>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+// VisualAid moved to components/pro/VisualAid.jsx (smart renderer: authored SVG →
+// auto-parsed arrow-flow diagram → styled fallback). Imported at the top.
 
 function ConceptExplanation({ block }) {
   if (!block || typeof block !== "object") return <GenericBlock value={block} />;

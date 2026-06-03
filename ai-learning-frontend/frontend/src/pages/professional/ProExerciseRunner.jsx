@@ -201,6 +201,23 @@ export default function ProExerciseRunner() {
               )}
           </div>
         )}
+
+        {Array.isArray(ex.edge_cases) && ex.edge_cases.length > 0 && (
+          <div className="card p-4">
+            <p className="text-[10px] font-bold tracking-wider uppercase text-apple-gray mb-2.5">Edge cases</p>
+            <ul className="space-y-2.5">
+              {ex.edge_cases.map((ec, i) => (
+                <li key={i} className="flex gap-2.5">
+                  <span className="shrink-0 mt-0.5 w-5 h-5 rounded-full bg-apple-blue/10 text-apple-blue text-[11px] font-bold flex items-center justify-center">{i + 1}</span>
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-[var(--label)] leading-snug">{ec.case}</p>
+                    <p className="text-[12px] text-apple-gray leading-relaxed mt-0.5">{ec.handling}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
       )}
 

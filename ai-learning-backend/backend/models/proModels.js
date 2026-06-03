@@ -133,6 +133,10 @@ const proExerciseSchema = new Schema({
   // player. Shape: { kind, array?, target?, steps:[{ pointers, window, note, ... }] }.
   // Rendered by the frontend <StepPlayer>. Authored by config/seedAnimation*.js.
   animation:       { type: Schema.Types.Mixed, default: null },
+  // Per-problem edge-case catalog (DSA Animator parity). Optional; [] = none.
+  // Shape: [{ case: "what condition", handling: "how the approach handles it" }].
+  // Rendered as a card in <ProExerciseRunner>. Authored by config/seedEdgeCases*.js.
+  edge_cases:      [{ type: Schema.Types.Mixed }],
 }, { timestamps: true });
 
 // ── ProProject ──────────────────────────────────────────────────────────────

@@ -87,8 +87,8 @@
 |---|---|--:|--:|---|
 | two-pointers | array-pointers ✅ | 25 | 11 | 🔄 |
 | sliding-window | array-pointers ✅ | 14 | 10 | 🔄 (4 left: window+set, prefix, circular, synthesis) |
-| arrays | array-pointers ✅ | 18 | — | ⬜ |
-| prefix-sum | array-pointers ✅ | 13 | — | ⬜ |
+| arrays | array-pointers ✅ | 18 | 6 | 🔄 |
+| prefix-sum | array-pointers ✅ | 13 | 2 | 🔄 |
 | stack | stack ✅ | 18 | — | ⬜ |
 | monotonic-stack | stack ✅ | 13 | — | ⬜ |
 | stack-queue | stack/queue | 11 | — | ⬜ |
@@ -114,21 +114,22 @@
 | recursion | backtrack-tree | 9 | — | ⬜ |
 | topological-sort | grid/graph | 5 | — | ⬜ |
 | shortest-path | grid/graph | 5 | — | ⬜ |
-| intervals | array-pointers | 5 | — | ⬜ |
+| intervals | array-pointers | 5 | 1 | 🔄 |
 | union-find | **NEW unionfind** | 4 | — | ⬜ |
-| greedy | array-pointers | 4 | — | ⬜ |
+| greedy | array-pointers | 4 | 2 | 🔄 |
 | (untagged) | triage | 117 | — | ⬜ |
 | complexity-analysis | n/a (out of scope) | 48 | — | ⏭️ |
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 33 / ~700.** (committed + deployed + prod-verified)
+**Animated so far: 43 / ~700.** (committed + deployed + prod-verified)
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 
 **Progress log:**
 - [x] 2026-06-04 — sliding-window batch 1 (6) via existing renderer.
 - [x] 2026-06-04 — two-pointers/DNF batch 2 (6) via existing renderer; committed 7c7f07d0, deployed, prod-verified (Move Zeroes player live).
-- [ ] next — finish two-pointers (~14), then arrays/prefix-sum/intervals/greedy (~19), then arrays/prefix-sum/intervals/greedy (array-pointers renderer).
+- [x] 2026-06-04 — batch 3 (10): arrays (Kadane, Boyer-Moore, Rotate, Jump Game, Best-Buy-Sell), prefix-sum (Pivot, Running Sum), greedy (Cookies, Lemonade), intervals (Merge).
+- [ ] next — remaining arrays/prefix-sum/intervals, then stack & grid families (existing renderers).
 - [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
 - [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.

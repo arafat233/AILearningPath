@@ -11,7 +11,7 @@
 
 | Status | Boards / grades |
 |---|---|
-| ✅ Audit 100% (`15/15` checks per topic) | **CBSE 1-10, ICSE 9-10, AP_SSC 9-10** (all 14 combos) |
+| ✅ Audit 100% (`15/15` checks per topic) | **CBSE 1-10, ICSE 9-10, AP_SSC 8-10** (all 15 combos) |
 
 The mess was ONE problem: CBSE 10 Math had v0 legacy topicIds for 304 questions, plus 5 truly missing sub-topics that needed authoring. All resolved today. Cross-board audit confirmed no other content was affected — newer boards were born under the modern convention.
 
@@ -58,6 +58,7 @@ CBSE      9        8        32       512        0    cbse_math9_*  (v2 canonical
 CBSE     10       14        54       375      112    cbse_math10_* (v2 — fixed today)
 ICSE      9       28       112      1792        0    icse_math9_*
 ICSE     10       25       100      1600        0    icse_math10_*
+AP_SSC    8       16        56       280        0    ap_ssc_math8_*  (original, 2026-06-03)
 AP_SSC    9       12        35       560        0    ap_ssc_math9_*
 AP_SSC   10       14        54      1140        0    ap_ssc_math10_*
 ```

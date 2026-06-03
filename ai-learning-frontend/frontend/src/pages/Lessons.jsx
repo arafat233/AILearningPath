@@ -170,8 +170,26 @@ const MATH_CHAPTER_TITLES_ICSE = {
   },
 };
 
-// AP SSC Class 9 & 10 chapter titles (NCERT rationalized 2024-25 curriculum, Telugu-medium)
+// AP SSC Class 8, 9 & 10 chapter titles (NCERT rationalized 2024-25 curriculum, Telugu-medium)
 const MATH_CHAPTER_TITLES_AP_SSC = {
+  "8": {
+    1:  "Rational Numbers",
+    2:  "Linear Equations in One Variable",
+    3:  "Understanding Quadrilaterals",
+    4:  "Practical Geometry",
+    5:  "Data Handling",
+    6:  "Squares and Square Roots",
+    7:  "Cubes and Cube Roots",
+    8:  "Comparing Quantities",
+    9:  "Algebraic Expressions and Identities",
+    10: "Visualising Solid Shapes",
+    11: "Mensuration",
+    12: "Exponents and Powers",
+    13: "Direct and Inverse Proportions",
+    14: "Factorisation",
+    15: "Introduction to Graphs",
+    16: "Playing with Numbers",
+  },
   "9": {
     1:  "Number Systems",
     2:  "Polynomials",
@@ -1196,6 +1214,7 @@ export default function Lessons() {
   //   grade "10" CBSE     → cbse_math10_*      (standardized board-prefixed IDs)
   //   grade "10" ICSE     → icse_math10_*      (standardized board-prefixed IDs)
   //   grade "10" AP_SSC   → ap_ssc_math10_*    (cloned from CBSE 10; same NCERT curriculum)
+  //   grade "8"  AP_SSC   → ap_ssc_math8_*     (original AP SSC Class 8; 56 topics, 56/56 audit)
   //   grade "1-8"         → math{grade}_*      (legacy v2; awaits standardization plow)
   const mathChapterGroups = useMemo(() => {
     const board = (profile?.examBoard || user?.examBoard || "CBSE").toUpperCase();
@@ -1205,6 +1224,8 @@ export default function Lessons() {
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("ap_ssc_math9_"))
       : grade === "9"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("cbse_math9_"))
+      : grade === "8" && board === "AP_SSC"
+      ? mathTopics.filter((t) => (t.topicId || "").startsWith("ap_ssc_math8_"))
       : grade === "8"
       ? mathTopics.filter((t) => (t.topicId || "").startsWith("math8_"))
       : grade === "7"

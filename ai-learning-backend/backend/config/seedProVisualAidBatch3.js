@@ -517,6 +517,444 @@ function m11_t4() {
   return svg(760, 196, g);
 }
 
+// ── m12_t1 — JUnit lifecycle timeline + AAA + report ──
+function m12_t1() {
+  let g = title(14, "JUnit 5 — test lifecycle");
+  g += box(30, 40, 130, 28, 0) + txt(95, 58, "@BeforeAll (once)", { a: "middle", s: 9 });
+  g += arr(160, 54, 190, 54);
+  // per-test group
+  g += `<rect x="192" y="34" width="380" height="40" rx="8" fill="none" stroke="${STRK[5]}" stroke-dasharray="4 3"/>`;
+  g += txt(382, 30, "for each @Test", { a: "middle", s: 8.5, o: 0.6 });
+  ["@BeforeEach", "@Test", "@AfterEach"].forEach((t, i) => { const x = 200 + i * 122; g += box(x, 40, 112, 28, [0, 1, 2][i]) + txt(x + 56, 58, t, { a: "middle", s: 9 }); if (i < 2) g += arr(x + 112, 54, x + 122, 54); });
+  g += arr(572, 54, 602, 54) + box(602, 40, 130, 28, 2) + txt(667, 58, "@AfterAll (once)", { a: "middle", s: 9 });
+  // AAA
+  g += txt(30, 100, "Arrange-Act-Assert:", { s: 10, w: 600 });
+  ["Arrange (setup)", "Act (call method)", "Assert (verify)"].forEach((t, i) => g += box(180 + i * 185, 88, 175, 24, [0, 1, 2][i]) + txt(180 + i * 185 + 87, 105, t, { a: "middle", s: 9 }));
+  // report
+  g += txt(30, 140, "report:  ✓ pass   ✓ pass   ✗ fail (assertion message)", { s: 9.5 });
+  g += txt(30, 162, "layout: src/main/java  mirrored by  src/test/java", { s: 9, o: 0.7 });
+  return svg(760, 178, g);
+}
+
+// ── m12_t4 — testing I/O: @TempDir, mock HttpClient, string surrogates ──
+function m12_t4() {
+  let g = title(14, "Testing I/O & HTTP without the real thing");
+  g += txt(30, 38, "@TempDir lifecycle", { s: 10, w: 600 });
+  ["create temp dir", "@BeforeEach", "@Test writes/reads", "@AfterEach", "auto-delete (even on fail)"].forEach((t, i) => { const x = 30 + i * 142; g += box(x, 46, 132, 26, i === 4 ? 1 : 0) + txt(x + 66, 63, t, { a: "middle", s: 8 }); if (i < 4) g += arr(x + 132, 59, x + 142, 59); });
+  g += txt(30, 96, "Mock HttpClient", { s: 10, w: 600 });
+  g += box(30, 104, 150, 26, 3) + txt(105, 121, "when(client.send())", { a: "middle", mono: true, s: 8.5 });
+  g += arr(180, 117, 220, 117, "", "returns") + box(220, 104, 200, 26, 1) + txt(320, 121, "mock 200 + JSON body", { a: "middle", s: 8.5 });
+  g += arr(420, 117, 460, 117) + box(460, 104, 150, 26, 0) + txt(535, 121, "ApiClient parses", { a: "middle", s: 8.5 });
+  g += txt(30, 152, "String surrogates: String→StringReader→BufferedReader (in) · PrintWriter→StringWriter→String (out) — no filesystem", { s: 9, o: 0.75 });
+  return svg(760, 172, g);
+}
+
+// ── m12_t5 — TDD red/green/refactor cycle ──
+function m12_t5() {
+  let g = title(14, "TDD — Red · Green · Refactor");
+  const C = (cx, cy, t, sub, ci) => `<circle cx="${cx}" cy="${cy}" r="42" fill="${TINT[ci]}" stroke="${STRK[ci]}" stroke-width="1.5"/>` + txt(cx, cy - 2, t, { a: "middle", s: 12, w: 700 }) + txt(cx, cy + 14, sub, { a: "middle", s: 8, o: 0.7 });
+  g += C(170, 80, "RED", "test fails", 4);
+  g += C(330, 170, "GREEN", "min code", 1);
+  g += C(170, 170, "REFACTOR", "improve", 0);
+  g += arr(205, 100, 300, 150, "", "write min code");
+  g += arr(288, 178, 215, 178, "", "improve");
+  g += arr(160, 132, 168, 122, "", "next test");
+  g += txt(250, 128, "repeat 2–5 min", { a: "middle", s: 8.5, o: 0.6 });
+  g += txt(430, 70, "RED:  @Test discount_qty10()  // no impl yet", { mono: true, s: 9, fill: RED });
+  g += txt(430, 92, "GREEN:  double disc(int n){ return 0.10; }  // fake", { mono: true, s: 9, fill: GRN });
+  g += txt(430, 114, "REFACTOR:  if(n>=50)0.20; if(n>=10)0.10; else 0", { mono: true, s: 9 });
+  g += txt(430, 150, "Triangulation:", { s: 9.5, w: 600 });
+  g += txt(430, 168, "1 test → fake passes", { s: 9, o: 0.75 });
+  g += txt(430, 184, "2 tests → real logic forced", { s: 9, o: 0.75 });
+  return svg(760, 220, g);
+}
+
+// ── m13_t1 — Spring Boot startup pipeline + DI ──
+function m13_t1() {
+  let g = title(14, "Spring Boot — startup & dependency injection");
+  ["main()", "run()", "context", "@ComponentScan", "@Autowired", "auto-config", "Tomcat :8080"].forEach((s, i) => { const x = 24 + i * 105; g += box(x, 40, 98, 26, i === 6 ? 1 : 0) + txt(x + 49, 57, s, { a: "middle", mono: true, s: 8.5 }); if (i < 6) g += arr(x + 98, 53, x + 105, 53); });
+  g += txt(30, 86, "Started in 2.3s", { s: 9, fill: GRN, w: 600 });
+  // DI
+  g += box(290, 110, 180, 34, 1) + txt(380, 131, "@Service OrderService", { a: "middle", s: 9.5, w: 600 });
+  g += box(40, 110, 200, 30, 0) + txt(140, 130, "@Repository OrderRepo", { a: "middle", s: 9 });
+  g += box(40, 152, 200, 30, 0) + txt(140, 172, "@Service EmailSvc", { a: "middle", s: 9 });
+  g += arr(240, 125, 288, 125, "g", "injected") + arr(240, 167, 288, 140, "g");
+  g += txt(490, 131, "Spring creates all three and wires them together", { s: 9, o: 0.75 });
+  return svg(760, 198, g);
+}
+
+// ── m13_t4 — validation/exception request flow + status table ──
+function m13_t4() {
+  let g = title(14, "Validation & exception handling");
+  g += box(20, 44, 120, 28, 0) + txt(80, 62, "request", { a: "middle", s: 9 });
+  g += arr(140, 58, 175, 58) + box(175, 44, 130, 28, 0) + txt(240, 62, "@Valid body", { a: "middle", s: 9 });
+  g += D(360, 58, 110, 40, "valid?");
+  g += arr(415, 58, 470, 58, "g", "pass") + box(470, 44, 130, 28, 1) + txt(535, 62, "controller → 200", { a: "middle", s: 9 });
+  g += arr(360, 78, 360, 104, "r", "fail");
+  g += box(180, 106, 420, 28, 4) + txt(390, 124, "MethodArgumentNotValidException → @ControllerAdvice → 400 + field errors", { a: "middle", s: 8.5 });
+  // status table
+  g += txt(30, 162, "exception → status:", { s: 10, w: 600 });
+  [["…NotValid", "400"], ["NotFound", "404"], ["Duplicate", "409"], ["BusinessRule", "422"], ["Exception", "500"]].forEach(([e, s], i) => { const x = 170 + i * 118; g += box(x, 150, 110, 26, 5) + txt(x + 8, 167, `${e} → ${s}`, { mono: true, s: 8.5 }); });
+  return svg(760, 188, g);
+}
+
+// ── m14_t3 — cache hit/miss + annotation table ──
+function m14_t3() {
+  let g = title(14, "Spring Cache — @Cacheable");
+  g += txt(30, 38, "Request 1 (cold)", { s: 9.5, w: 600 });
+  ["@Cacheable", "MISS", "DB query", "store", "return"].forEach((t, i) => { const x = 30 + i * 110; g += box(x, 46, 100, 26, i === 1 ? 4 : 0) + txt(x + 50, 63, t, { a: "middle", s: 8.5 }); if (i < 4) g += arr(x + 100, 59, x + 110, 59); });
+  g += txt(30, 92, "Request 2 (same key)", { s: 9.5, w: 600 });
+  ["@Cacheable", "HIT", "return cached (no DB)"].forEach((t, i) => { const x = 30 + i * 150; g += box(x, 100, 140, 26, i === 1 ? 1 : 0) + txt(x + 70, 117, t, { a: "middle", s: 8.5 }); if (i < 2) g += arr(x + 140, 113, x + 150, 113); });
+  g += txt(500, 117, "DB queries: 1 per N requests", { s: 9, fill: GRN });
+  // annotations
+  g += txt(30, 152, "annotations:", { s: 10, w: 600 });
+  [["@Cacheable", "read · skip on hit"], ["@CachePut", "always run + update"], ["@CacheEvict", "remove · re-fetch next"]].forEach(([h, d], i) => { const x = 130 + i * 205; g += box(x, 140, 195, 30, [1, 2, 4][i]) + txt(x + 8, 154, h, { mono: true, s: 9, w: 700 }) + txt(x + 8, 166, d, { s: 8, o: 0.7 }); });
+  return svg(760, 184, g);
+}
+
+// ── m14_t5 — actuator endpoints + health aggregation + meters ──
+function m14_t5() {
+  let g = title(14, "Actuator & production observability");
+  g += box(30, 44, 110, 30, 3) + txt(85, 63, "Application", { a: "middle", s: 9.5, w: 600 });
+  ["/health UP", "/info", "/metrics", "/loggers", "/prometheus"].forEach((t, i) => { const x = 180 + i * 112; g += box(x, 44, 104, 30, i === 0 ? 1 : 0) + txt(x + 52, 63, t, { a: "middle", mono: true, s: 8.5 }); g += arr(140, 59, x - 2, 59); });
+  g += txt(180, 92, "k8s probes → /health/liveness, /readiness", { s: 8.5, o: 0.7 });
+  // health aggregation
+  g += txt(30, 124, "Health:", { s: 10, w: 600 });
+  ["DB", "DiskSpace", "Ping", "Payment(custom)"].forEach((t, i) => g += box(90 + i * 130, 112, 122, 26, 5) + txt(90 + i * 130 + 61, 129, t, { a: "middle", s: 8.5 }));
+  g += txt(620, 129, "any DOWN → DOWN", { s: 8.5, fill: RED });
+  // meters
+  g += txt(30, 168, "Micrometer:", { s: 10, w: 600 });
+  [["Counter", "orders.placed 15234 (↑)"], ["Gauge", "orders.active 42 (now)"], ["Timer", "p50 45ms p95 120ms"]].forEach(([h, d], i) => { const x = 120 + i * 210; g += box(x, 156, 200, 26, [1, 0, 2][i]) + txt(x + 8, 173, `${h}: ${d}`, { mono: true, s: 8 }); });
+  return svg(760, 196, g);
+}
+
+// ── m29_t2 — merge sort recursion tree ──
+function m29_t2() {
+  let g = title(14, "Merge sort recursion tree → O(n log n)");
+  const nd = (x, y, t, ci) => box(x - 38, y, 76, 24, ci) + txt(x, y + 16, t, { a: "middle", mono: true, s: 9 });
+  g += nd(360, 34, "T(n)", 0);
+  g += arr(345, 58, 270, 76) + arr(375, 58, 450, 76);
+  g += nd(260, 78, "T(n/2)", 0) + nd(450, 78, "T(n/2)", 0);
+  [180, 320, 390, 530].forEach((x, i) => { g += arr([260, 260, 450, 450][i] + (i % 2 ? 15 : -15), 102, x, 120); g += nd(x, 122, "T(n/4)", 0); });
+  g += txt(380, 162, "… down to T(1) leaves …", { a: "middle", s: 9, o: 0.6 });
+  g += txt(620, 50, "each level = n work", { s: 9, o: 0.8 });
+  g += txt(620, 90, "log n levels deep", { s: 9, o: 0.8 });
+  g += txt(620, 130, "n × log n", { s: 10, w: 700, fill: GRN });
+  return svg(760, 180, g);
+}
+
+// ── m29_t3 — space complexity: stacks + table ──
+function m29_t3() {
+  let g = title(14, "Space complexity — recursion depth = stack space");
+  g += txt(30, 38, "binarySearch(16): 4 frames = O(log n)", { s: 9.5, w: 600 });
+  for (let i = 0; i < 4; i++) g += box(30, 46 + i * 24, 180, 20, 0) + txt(40, 60 + i * 24, `frame ${i + 1}: lo, hi, mid`, { mono: true, s: 8 });
+  g += txt(300, 38, "fib(n): depth n = O(n)", { s: 9.5, w: 600, fill: RED });
+  for (let i = 0; i < 6; i++) g += box(300 + i * 14, 46 + i * 14, 120, 18, 4) + txt(308 + i * 14, 59 + i * 14, `fib(${6 - i})`, { mono: true, s: 7.5 });
+  // table
+  g += txt(30, 158, "Algorithm                    Time            Space", { mono: true, s: 9, w: 700 });
+  [["Iterative binary search", "O(log n)", "O(1)"], ["Recursive binary search", "O(log n)", "O(log n)"], ["Merge sort", "O(n log n)", "O(n)"], ["Heapsort (in-place)", "O(n log n)", "O(1)"]].forEach((r, i) => g += txt(30, 176 + i * 16, r[0].padEnd(28) + r[1].padEnd(15) + r[2], { mono: true, s: 8.5, o: 0.85 }));
+  return svg(760, 256, g);
+}
+
+// ── m29_t4 — best/worst/avg table + amortized bars ──
+function m29_t4() {
+  let g = title(14, "Best / Worst / Average & amortized");
+  g += txt(30, 38, "Algorithm        Best      Worst     Avg", { mono: true, s: 9, w: 700 });
+  [["Quicksort", "n log n", "n²", "n log n"], ["Binary search", "1", "log n", "log n"], ["Linear search", "1", "n", "n"], ["HashMap get", "1", "n", "1"]].forEach((r, i) => {
+    const y = 56 + i * 18;
+    g += txt(30, y, r[0].padEnd(16), { mono: true, s: 8.5 });
+    [r[1], r[2], r[3]].forEach((v, j) => g += txt(170 + j * 78, y, v, { mono: true, s: 8.5, fill: v === "n²" || v === "n" ? RED : (v === "1" ? GRN : undefined) }));
+  });
+  // amortized bars
+  g += txt(420, 38, "ArrayList add() — amortized O(1)", { s: 9.5, w: 600 });
+  const resize = { 2: 2, 4: 4, 8: 8, 16: 16 };
+  for (let i = 1; i <= 16; i++) { const h = (resize[i] || 1) * 4; const x = 420 + (i - 1) * 18; g += box(x, 150 - h, 12, h, resize[i] ? 4 : 1, 2); }
+  g += txt(420, 168, "resizes at 2,4,8,16 · total = 2n · per op = O(1)", { s: 8.5, o: 0.75 });
+  return svg(760, 184, g);
+}
+
+// ── m30_t1 — two pointers inward ──
+function m30_t1() {
+  let g = title(14, "Two pointers — inward, O(n)");
+  const a = [1, 3, 5, 7, 9, 11];
+  a.forEach((v, i) => g += vcell(40 + i * 86, 50, 78, 38, String(v), i === 0 || i === 5 ? 1 : 5, { s: 12 }));
+  g += txt(40 + 39, 104, "lo", { a: "middle", s: 11, w: 700, fill: GRN }) + txt(40 + 5 * 86 + 39, 104, "hi", { a: "middle", s: 11, w: 700, fill: GRN });
+  g += arr(40 + 39, 112, 40 + 86 + 39, 112, "g") + arr(40 + 5 * 86 + 39, 112, 40 + 4 * 86 + 39, 112, "g");
+  g += txt(30, 140, "target 12: lo(1)+hi(11)=12 → FOUND.   target 14: 12<14 → lo++; 3+11=14 → FOUND.", { s: 9, o: 0.85 });
+  g += txt(30, 160, "lo and hi together cross the array once → at most n steps → O(n).", { s: 9, o: 0.7 });
+  return svg(760, 176, g);
+}
+
+// helper: draw an r×c grid at (ox,oy) with valFn(r,c)->{v,ci}
+const grid = (ox, oy, rows, cols, cw, ch, valFn) => {
+  let s = "";
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const o = valFn(r, c) || {}; s += vcell(ox + c * cw, oy + r * ch, cw - 4, ch - 4, o.v != null ? String(o.v) : "", o.ci ?? 5, { s: 10 }); }
+  return s;
+};
+
+// ── m30_5_t1 — spiral matrix ──
+function m30_5_t1() {
+  let g = title(14, "Matrix spiral traversal");
+  const ox = 60, oy = 44, cw = 50;
+  g += grid(ox, oy, 3, 3, cw, cw, (r, c) => ({ v: r * 3 + c + 1, ci: r === 0 ? 0 : 5 }));
+  // spiral arrows around outer ring
+  g += arr(ox + 8, oy + 22, ox + 2 * cw + 8, oy + 22, "g", "→ top");
+  g += arr(ox + 2 * cw + 22, oy + 30, ox + 2 * cw + 22, oy + 2 * cw + 8, "g");
+  g += arr(ox + 2 * cw + 8, oy + 2 * cw + 22, ox + 8, oy + 2 * cw + 22, "g");
+  g += arr(ox - 6, oy + 2 * cw + 8, ox - 6, oy + cw, "g");
+  g += txt(ox + 3 * cw + 30, oy + 30, "→ ↓ ← ↑ then shrink:", { s: 9.5, w: 600 });
+  g += txt(ox + 3 * cw + 30, oy + 50, "top++ · right-- · bottom-- · left++", { mono: true, s: 9, o: 0.8 });
+  g += txt(ox + 3 * cw + 30, oy + 70, "repeat for inner ring", { s: 9, o: 0.7 });
+  return svg(760, 200, g);
+}
+
+// ── m30_5_t2 — grid BFS / DFS islands ──
+function m30_5_t2() {
+  let g = title(14, "Grid BFS / DFS — islands & flood fill");
+  const land = { "0,0": 1, "0,1": 1, "1,1": 1, "3,3": 1, "3,4": 1 };
+  const ox = 40, oy = 44, cw = 36;
+  g += grid(ox, oy, 4, 5, cw, cw, (r, c) => land[`${r},${c}`] ? { v: 1, ci: 1 } : { v: 0, ci: 5 });
+  g += txt(ox + 5 * cw + 20, oy + 14, "BFS: ripple out level by level (queue)", { s: 9, o: 0.85 });
+  g += txt(ox + 5 * cw + 20, oy + 40, "DFS: dive deep then backtrack (stack/recursion)", { s: 9, o: 0.85 });
+  g += txt(ox + 5 * cw + 20, oy + 66, "visited[][] stops revisiting · count connected 1s = islands", { s: 9, o: 0.7 });
+  g += txt(ox, oy + 4 * cw + 18, "two islands of 1s above", { s: 9, fill: GRN });
+  return svg(760, 220, g);
+}
+
+// ── m30_5_t3 — grid DP ──
+function m30_5_t3() {
+  let g = title(14, "Grid DP — each cell pulls from above + left");
+  const ox = 60, oy = 44, cw = 54;
+  const dp = [[1, 1, 1], [1, 2, 3], [1, 3, 6]];
+  g += grid(ox, oy, 3, 3, cw, cw, (r, c) => ({ v: dp[r][c], ci: r === 0 || c === 0 ? 5 : 0 }));
+  // arrows into center cell (1,1) and (2,2)
+  g += arr(ox + cw + 24, oy + cw - 4, ox + cw + 24, oy + cw + 8, "g") + arr(ox + cw - 4, oy + cw + 24, ox + cw + 8, oy + cw + 24, "g");
+  g += txt(ox + 3 * cw + 24, oy + 24, "dp[r][c] = dp[r-1][c] + dp[r][c-1]", { mono: true, s: 9 });
+  g += txt(ox + 3 * cw + 24, oy + 48, "(unique paths). Edit distance:", { s: 9, o: 0.8 });
+  g += txt(ox + 3 * cw + 24, oy + 66, "min(match ↖, insert ←, delete ↑) + 1", { mono: true, s: 8.5, o: 0.75 });
+  return svg(760, 200, g);
+}
+
+// ── m30_5_t4 — 2D binary search ──
+function m30_5_t4() {
+  let g = title(14, "2D binary search in a sorted matrix");
+  g += txt(30, 38, "Pattern 1 — flatten r×c → length r·c, binary search with /c, %c", { s: 9.5, w: 600 });
+  for (let i = 0; i < 12; i++) g += vcell(30 + i * 44, 46, 40, 24, String((i + 1) * 3), i === 5 ? 1 : 5, { s: 9 });
+  g += txt(30, 100, "Pattern 2 — start TOP-RIGHT, eliminate a row or column each step:", { s: 9.5, w: 600 });
+  const ox = 60, oy = 110, cw = 40;
+  g += grid(ox, oy, 4, 4, cw, cw, (r, c) => ({ v: r * 10 + c * 3, ci: (r === 0 && c === 3) ? 2 : 5 }));
+  g += txt(ox + 4 * cw + 20, oy + 24, "target < cell → ← (drop column)", { s: 9, o: 0.8 });
+  g += txt(ox + 4 * cw + 20, oy + 48, "target > cell → ↓ (drop row)", { s: 9, o: 0.8 });
+  g += txt(ox + 4 * cw + 20, oy + 72, "O(m + n)", { s: 10, w: 700, fill: GRN });
+  return svg(760, 280, g);
+}
+
+// sparkline: pts are 0..1 fractions of height
+const spark = (x, y, w, h, pts, c) => `<polyline points="${pts.map((p, i) => `${(x + i * (w / (pts.length - 1))).toFixed(1)},${(y + h - p * h).toFixed(1)}`).join(" ")}" fill="none" stroke="${c}" stroke-width="2"/>`;
+
+// ── m20_t4 — Grafana incident dashboard (4 panels) ──
+function m20_t4() {
+  let g = title(14, "Grafana dashboard — incident at 7pm");
+  const panel = (x, y, w, h, t) => box(x, y, w, h, 5) + txt(x + 8, y + 15, t, { s: 9, w: 600 });
+  g += panel(20, 30, 350, 90, "payment rate");
+  g += spark(34, 50, 250, 50, [.8, .82, .79, .81, .8, .3, .1], "#1f9f4a") + txt(300, 80, "drops 7pm", { s: 8, fill: RED });
+  g += panel(390, 30, 350, 90, "p99 latency");
+  g += spark(404, 50, 250, 50, [.2, .18, .22, .2, .9, .95, .8], "#ff9f0a") + txt(670, 60, "2.8s spike", { s: 8, fill: "#ff9f0a" });
+  g += panel(20, 130, 350, 90, "error rate (gauge)");
+  g += `<rect x="34" y="170" width="320" height="16" rx="8" fill="${TINT[4]}"/><rect x="34" y="170" width="240" height="16" rx="8" fill="${RED}"/>` + txt(34, 205, "0.2% → 15%", { s: 9, fill: RED });
+  g += panel(390, 130, 350, 90, "circuit breakers");
+  g += txt(404, 175, "payment-cb", { mono: true, s: 10 }) + box(540, 162, 80, 22, 4) + txt(580, 178, "OPEN", { a: "middle", s: 9, w: 700, fill: RED });
+  return svg(760, 232, g);
+}
+
+// ── m22_t1 — JVM heap regions + GC pauses ──
+function m22_t1() {
+  let g = title(14, "JVM heap & garbage collection");
+  g += box(30, 44, 300, 56, 1) + txt(180, 38, "Young gen", { a: "middle", s: 8.5, o: 0.6 }) + txt(110, 76, "Eden (new objects)", { a: "middle", s: 9.5 });
+  g += box(250, 50, 70, 44, 2) + txt(285, 76, "S0 S1", { a: "middle", s: 9 });
+  g += box(360, 44, 200, 56, 0) + txt(460, 76, "Old Gen (promoted)", { a: "middle", s: 9.5 });
+  g += arr(110, 100, 110, 116, "", "Minor GC") + arr(330, 72, 358, 72, "", "promote") + txt(460, 116, "Major GC = STOP-THE-WORLD", { a: "middle", s: 8.5, fill: RED });
+  // timeline
+  g += txt(30, 150, "untuned:", { s: 9.5, w: 600 });
+  [0, 1, 2].forEach(i => g += box(110 + i * 90, 134, 14, 28, 4));
+  g += txt(30, 188, "G1GC tuned:", { s: 9.5, w: 600, fill: GRN });
+  for (let i = 0; i < 12; i++) g += box(110 + i * 26, 178, 8, 12, 1);
+  g += txt(420, 150, "tall STW pauses every ~30s", { s: 8.5, fill: RED });
+  g += txt(420, 188, "many tiny incremental collections", { s: 8.5, fill: GRN });
+  return svg(760, 204, g);
+}
+
+// ── m22_t2 — Seq Scan vs Index Scan ──
+function m22_t2() {
+  let g = title(14, "Seq Scan vs Index Scan");
+  g += txt(30, 40, "Seq Scan — reads all 50M rows", { s: 10, w: 600, fill: RED });
+  for (let i = 0; i < 10; i++) g += box(30 + i * 32, 48, 28, 22, i === 4 ? 1 : 4) + (i !== 4 ? `<line x1="${32 + i * 32}" y1="50" x2="${56 + i * 32}" y2="68" stroke="${RED}"/>` : "");
+  g += txt(360, 64, "4.2s", { s: 11, w: 700, fill: RED });
+  g += txt(30, 104, "Index Scan — B-tree jumps to matches", { s: 10, w: 600, fill: GRN });
+  g += box(110, 112, 90, 26, 0) + txt(155, 129, "root", { a: "middle", s: 9 });
+  g += arr(140, 138, 100, 158) + arr(170, 138, 210, 158);
+  g += box(40, 158, 110, 24, 5) + txt(95, 174, "node", { a: "middle", s: 8.5 }) + box(170, 158, 110, 24, 1) + txt(225, 174, "23 rows ✓", { a: "middle", s: 8.5, fill: GRN });
+  g += txt(360, 130, "0.3ms  (≈16000× faster)", { s: 11, w: 700, fill: GRN });
+  return svg(760, 196, g);
+}
+
+// ── m22_t4 — L1 Caffeine + L2 Redis + hit rates ──
+function m22_t4() {
+  let g = title(14, "L1 + L2 cache hierarchy");
+  g += box(20, 44, 80, 28, 3) + txt(60, 62, "Request", { a: "middle", s: 9 }) + arr(100, 58, 130, 58);
+  [["L1 Caffeine", "30s · 1000 · 0.1ms"], ["L2 Redis", "5min · shared · 1ms"], ["DB", "5ms · source"]].forEach(([h, d], i) => { const x = 130 + i * 205; g += box(x, 44, 190, 32, [1, 0, 5][i]) + txt(x + 95, 58, h, { a: "middle", s: 9, w: 600 }) + txt(x + 95, 70, d, { a: "middle", s: 7.5, o: 0.7 }); if (i < 2) g += arr(x + 190, 60, x + 205, 60, "", "miss"); });
+  g += txt(30, 100, "hit returns immediately; miss populates the level(s) above. mutex on miss → no stampede.", { s: 9, o: 0.75 });
+  g += txt(30, 130, "hit rate by level:", { s: 10, w: 600 });
+  [["L1 40%", .4, 1], ["L2 55%", .55, 0], ["DB 5%", .05, 4]].forEach(([l, f, ci], i) => { const y = 124 + i * 0; const x = 150 + i * 200; g += bar(x, 124, 120 * f + 16, 16, ci, l); });
+  return svg(760, 156, g);
+}
+
+// ── m24_t2 — event sourcing log + replay + snapshot ──
+function m24_t2() {
+  let g = title(14, "Event sourcing — PAY-001 (append-only log)");
+  const ev = ["PaymentInitiated(5000)", "ProcessingStarted(B123)", "BankTimeout", "PaymentFailed(timeout)"];
+  ev.forEach((e, i) => { const x = 20 + i * 185; g += box(x, 44, 172, 30, 0) + txt(x + 86, 63, e, { a: "middle", mono: true, s: 8 }); if (i < 3) g += arr(x + 172, 59, x + 185, 59); });
+  g += txt(20, 100, "replay events → current state:", { s: 9.5 });
+  g += box(250, 88, 120, 24, 4) + txt(310, 105, "FAILED", { a: "middle", s: 9.5, w: 700, fill: RED });
+  g += txt(400, 105, "temporal query: state at t=2 → PROCESSING", { s: 9, o: 0.75 });
+  g += txt(20, 138, "snapshot optimization: after N events, store state so replay starts from the snapshot (not event 0)", { s: 9, o: 0.7 });
+  return svg(760, 154, g);
+}
+
+// ── m25_t1 — Testcontainers vs H2 ──
+function m25_t1() {
+  let g = title(14, "Testcontainers — real dependencies in tests");
+  g += txt(30, 38, "H2 in-memory (fake)", { s: 10, w: 600, fill: RED });
+  ["Java test", "H2 DB", "✗ H2 ≠ PostgreSQL → prod bug"].forEach((t, i) => { const x = 30 + i * 165; g += box(x, 46, 155, 28, i === 2 ? 4 : 0) + txt(x + 77, 64, t, { a: "middle", s: 8.5, fill: i === 2 ? RED : undefined }); if (i < 2) g += arr(x + 155, 60, x + 165, 60); });
+  g += txt(30, 96, "Testcontainers (real)", { s: 10, w: 600, fill: GRN });
+  ["Java test", "Docker daemon", "PostgreSQL container", "real JDBC ✓"].forEach((t, i) => { const x = 30 + i * 178; g += box(x, 104, 168, 28, i === 3 ? 1 : 0) + txt(x + 84, 122, t, { a: "middle", s: 8.5 }); if (i < 3) g += arr(x + 168, 118, x + 178, 118); });
+  g += txt(30, 152, "same version as prod · @BeforeAll start / @AfterAll stop · static @Container = reuse across tests", { s: 9, o: 0.75 });
+  return svg(760, 168, g);
+}
+
+// ── m25_t2 — Pact contract testing ──
+function m25_t2() {
+  let g = title(14, "Contract testing with Pact");
+  g += box(20, 50, 180, 50, 0) + txt(110, 70, "Consumer (Flipkart)", { a: "middle", s: 9.5, w: 600 }) + txt(110, 88, "@PactConsumerTest", { a: "middle", mono: true, s: 8 });
+  g += box(560, 50, 180, 50, 1) + txt(650, 70, "Provider (Razorpay)", { a: "middle", s: 9.5, w: 600 }) + txt(650, 88, "@PactProviderTest", { a: "middle", mono: true, s: 8 });
+  g += box(310, 48, 140, 54, 3) + txt(380, 68, "Pact Broker", { a: "middle", s: 9.5, w: 600 }) + txt(380, 86, "can-i-deploy?", { a: "middle", s: 8, o: 0.7 });
+  g += arr(200, 66, 308, 66, "", "pact.json") + arr(560, 66, 452, 66, "", "verify");
+  g += txt(30, 134, "Consumer CI → generate pact → Broker.   Provider CI → download + verify real API → Broker.", { s: 9, o: 0.8 });
+  g += txt(30, 154, "breaking change → Provider CI fails BEFORE deploy (can-i-deploy = red).", { s: 9, fill: RED });
+  return svg(760, 170, g);
+}
+
+// ── m25_t5 — chaos engineering cycle ──
+function m25_t5() {
+  let g = title(14, "Chaos engineering — experiment cycle");
+  g += `<circle cx="200" cy="118" r="34" fill="${TINT[3]}" stroke="${STRK[3]}"/>` + txt(200, 114, "Spring", { a: "middle", s: 9, w: 600 }) + txt(200, 127, "app", { a: "middle", s: 9, w: 600 });
+  const nodes = [[200, 44, "1 Steady state", 1], [310, 86, "2 Hypothesize", 0], [290, 168, "3 Inject ⚡", 4], [110, 168, "4 Observe", 2], [90, 86, "5 Improve", 1]];
+  nodes.forEach(([x, y, t, ci]) => g += box(x - 55, y - 13, 110, 26, ci) + txt(x, y + 4, t, { a: "middle", s: 8.5, w: 600 }));
+  for (let i = 0; i < 5; i++) { const a = nodes[i], b = nodes[(i + 1) % 5]; g += arr((a[0] + b[0]) / 2 - (b[0] - a[0]) * 0.2, (a[1] + b[1]) / 2 - (b[1] - a[1]) * 0.2, (a[0] + b[0]) / 2 + (b[0] - a[0]) * 0.2, (a[1] + b[1]) / 2 + (b[1] - a[1]) * 0.2); }
+  g += txt(420, 70, "Chaos Monkey for Spring Boot:", { s: 9.5, w: 600 });
+  g += box(420, 82, 300, 30, 5) + txt(430, 101, "@Service bean", { mono: true, s: 9 });
+  g += arr(540, 97, 600, 97, "r", "inject latency / exceptions");
+  g += txt(420, 140, "agent randomly adds latency or throws into method calls to test resilience.", { s: 9, o: 0.7 });
+  return svg(760, 200, g);
+}
+
+// ── m15_t2 — Feign proxy generation + call lifecycle ──
+function m15_t2() {
+  let g = title(14, "Feign — generated proxy + call lifecycle");
+  ["@FeignClient interface", "Feign reads annotations", "generates proxy", "real HTTP call"].forEach((t, i) => { const x = 24 + i * 185; g += box(x, 42, 174, 30, i === 3 ? 1 : 0) + txt(x + 87, 61, t, { a: "middle", s: 9 }); if (i < 3) g += arr(x + 174, 57, x + 185, 57); });
+  g += txt(30, 92, "OrderService injects the interface and calls methods as if they were local.", { s: 9, o: 0.75 });
+  // lifecycle
+  ["getQuote('TCS')", "build URL", "HTTP GET", "JSON", "→ StockQuote"].forEach((t, i) => { const x = 24 + i * 148; g += box(x, 112, 138, 26, [3, 0, 0, 0, 1][i]) + txt(x + 69, 129, t, { a: "middle", mono: true, s: 8.5 }); if (i < 4) g += arr(x + 138, 125, x + 148, 125); });
+  g += txt(30, 164, "error path: 404 response → ErrorDecoder → SymbolNotFoundException", { s: 9, fill: RED });
+  return svg(760, 180, g);
+}
+
+// ── m16_t1 — Kafka partitions/consumer groups + REST vs Kafka ──
+function m16_t1() {
+  let g = title(14, "Kafka — partitions, consumer groups");
+  g += box(20, 44, 90, 28, 2) + txt(65, 62, "Producer", { a: "middle", s: 9 }) + arr(110, 58, 145, 58);
+  g += box(145, 36, 230, 80, 5) + txt(260, 32, "topic order-events (7-day retention)", { a: "middle", s: 8, o: 0.6 });
+  ["P0", "P1", "P2"].forEach((p, i) => { g += box(155, 44 + i * 24, 210, 20, 0) + txt(165, 58 + i * 24, p + "  [0][1][2][3] offsets", { mono: true, s: 8 }); });
+  g += arr(375, 70, 410, 70);
+  g += box(410, 40, 150, 32, 1) + txt(485, 60, "notif-svc: 3 consumers", { a: "middle", s: 8.5 });
+  g += box(410, 80, 150, 32, 3) + txt(485, 100, "analytics: 1 consumer", { a: "middle", s: 8.5 });
+  // rest vs kafka
+  g += txt(30, 146, "REST chain: 150+200+180 = 530ms · SMS down → order FAILS", { s: 9, fill: RED });
+  g += txt(30, 166, "Kafka: 1 publish (5ms), 3 services read in parallel = 25ms · SMS down → buffered", { s: 9, fill: GRN });
+  return svg(760, 184, g);
+}
+
+// ── m17_t2 — N+1 vs JOIN FETCH timeline + fix decision ──
+function m17_t2() {
+  let g = title(14, "The N+1 query problem");
+  g += txt(30, 38, "N+1:", { s: 10, w: 600, fill: RED });
+  g += box(70, 30, 60, 16, 0) + txt(100, 42, "orders", { a: "middle", s: 8 });
+  for (let i = 0; i < 12; i++) g += box(140 + i * 22, 30, 18, 16, 4);
+  g += txt(420, 42, "1 + N = 101 queries · 300ms", { s: 9, fill: RED });
+  g += txt(30, 70, "JOIN FETCH:", { s: 10, w: 600, fill: GRN });
+  g += box(120, 62, 300, 16, 1) + txt(270, 74, "SELECT o.*, u.* … JOIN", { a: "middle", mono: true, s: 8.5 });
+  g += txt(430, 74, "1 query · 25ms", { s: 9, fill: GRN });
+  g += txt(30, 110, "fix by relationship:", { s: 10, w: 600 });
+  [["@ManyToOne", "JOIN FETCH / @EntityGraph"], ["@OneToMany small", "JOIN FETCH DISTINCT"], ["@OneToMany large", "@BatchSize"], ["many assoc.", "DTO projection"]].forEach(([a, b], i) => { const x = 30 + (i % 2) * 370, y = 122 + Math.floor(i / 2) * 30; g += box(x, y, 360, 26, 5) + txt(x + 10, y + 17, `${a} → ${b}`, { mono: true, s: 8.5 }); });
+  return svg(760, 196, g);
+}
+
+// ── m17_t3 — HikariCP pool + composite index leftmost prefix ──
+function m17_t3() {
+  let g = title(14, "Connection pool + index optimization");
+  g += txt(30, 38, "HikariCP — 10 slots", { s: 10, w: 600 });
+  for (let i = 0; i < 10; i++) g += box(30 + i * 40, 46, 34, 24, i < 10 ? 4 : 1);
+  g += txt(30, 88, "all 10 active → request 11 waits in queue → connection-timeout → exception if none freed", { s: 9, o: 0.75 });
+  g += txt(30, 122, "Composite index (user_id, status, created_at) — leftmost-prefix rule:", { s: 10, w: 600 });
+  [["WHERE user_id=?", 1, "✓"], ["user_id=? AND status=?", 1, "✓"], ["WHERE status=? (no prefix)", 4, "✗"]].forEach(([q, ci, mk], i) => { const x = 30 + i * 245; g += box(x, 134, 235, 28, ci) + txt(x + 10, 152, `${mk}  ${q}`, { mono: true, s: 8.5 }); });
+  g += txt(30, 184, "Seq Scan (no index) → Index Scan (with index): up to 16000× faster", { s: 9, fill: GRN });
+  return svg(760, 200, g);
+}
+
+// ── m17_t4 — @ManyToMany join table + cascade matrix ──
+function m17_t4() {
+  let g = title(14, "JPA relationships — join table & cascades");
+  g += box(30, 44, 130, 34, 0) + txt(95, 65, "Product", { a: "middle", s: 10, w: 600 });
+  g += box(300, 44, 180, 34, 5) + txt(390, 60, "product_categories", { a: "middle", mono: true, s: 9 }) + txt(390, 74, "product_id · category_id", { a: "middle", s: 7.5, o: 0.7 });
+  g += box(620, 44, 130, 34, 1) + txt(685, 65, "Category", { a: "middle", s: 10, w: 600 });
+  g += arr(160, 61, 298, 61, "", "@JoinTable") + arr(480, 61, 618, 61, "", "mappedBy");
+  // cascade matrix
+  g += txt(30, 110, "Cascade safety:", { s: 10, w: 600 });
+  const cols = ["PERSIST", "MERGE", "REMOVE", "ALL"];
+  cols.forEach((c, i) => g += txt(250 + i * 110, 110, c, { a: "middle", s: 8.5, o: 0.7 }));
+  [["@OneToMany", [1, 1, 1, 1]], ["@ManyToMany", [1, 1, 4, 4]], ["@ManyToOne", [1, 1, 4, 4]]].forEach(([r, cells], ri) => {
+    const y = 120 + ri * 28;
+    g += txt(40, y + 17, r, { mono: true, s: 8.5 });
+    cells.forEach((ci, i) => g += box(200 + i * 110, y, 100, 24, ci) + txt(250 + i * 110, y + 16, ci === 4 ? "✗" : "✓", { a: "middle", s: 10, w: 700, fill: ci === 4 ? RED : GRN }));
+  });
+  g += txt(30, 208, "@ManyToMany + REMOVE deletes the SHARED entity.   @Embeddable = columns in same table (no extra query).", { s: 8.5, o: 0.7 });
+  return svg(760, 222, g);
+}
+
+// ── m18_t2 — multi-level cache + stampede + redis structures ──
+function m18_t2() {
+  let g = title(14, "Cache-aside, multi-level & stampede");
+  g += box(20, 44, 90, 28, 3) + txt(65, 62, "Request", { a: "middle", s: 9 }) + arr(110, 58, 140, 58);
+  [["L1 Caffeine", "1ms · 100"], ["L2 Redis", "0.3ms · 1M"], ["L3 Postgres", "15ms · ∞"]].forEach(([h, d], i) => { const x = 140 + i * 200; g += box(x, 44, 185, 30, [1, 0, 5][i]) + txt(x + 92, 58, h, { a: "middle", s: 9, w: 600 }) + txt(x + 92, 70, d, { a: "middle", s: 7.5, o: 0.7 }); if (i < 2) g += arr(x + 185, 59, x + 200, 59, "", "miss"); });
+  g += txt(30, 100, "hit → return; miss → fetch from next level, populate the ones above", { s: 9, o: 0.75 });
+  g += txt(30, 130, "Stampede: TTL=0 → 50k simultaneous misses → DB (20 conns) saturates → mutex SETNX: 1 rebuilds, rest wait 50ms", { s: 9, fill: RED });
+  g += txt(30, 160, "Redis types: String=value · Hash=fields · List=feed · SortedSet=leaderboard · Set=unique ids", { s: 9, o: 0.8 });
+  return svg(760, 176, g);
+}
+
+// ── m18_t4 — Redis distributed lock + idempotency key ──
+function m18_t4() {
+  let g = title(14, "Redis distributed lock + idempotency");
+  g += txt(30, 38, "5 instances fire @Scheduled at once → SETNX:", { s: 10, w: 600 });
+  for (let i = 0; i < 5; i++) { const x = 30 + i * 145; const win = i === 0; g += box(x, 46, 135, 32, win ? 1 : 5) + txt(x + 67, 62, "instance " + (i + 1), { a: "middle", s: 9 }) + txt(x + 67, 74, win ? "SETNX→true ✓ runs" : "SETNX→false skip", { a: "middle", s: 7.5, fill: win ? GRN : undefined, o: win ? 1 : 0.6 }); }
+  g += txt(30, 98, "winner runs settlement → DELETE lock:settlement:today → next day all 5 compete again", { s: 9, o: 0.75 });
+  // idempotency
+  g += txt(30, 130, "Idempotency key (X-Idempotency-Key: abc123):", { s: 10, w: 600 });
+  ["check idem:result", "miss → process", "store result (24h)"].forEach((t, i) => { const x = 30 + i * 150; g += box(x, 138, 140, 26, [0, 2, 1][i]) + txt(x + 70, 155, t, { a: "middle", s: 8.5 }); if (i < 2) g += arr(x + 140, 151, x + 150, 151); });
+  g += txt(500, 155, "retry → HIT → cached result (no double charge)", { s: 9, fill: GRN });
+  return svg(760, 180, g);
+}
+
 const SPECS = {
   java_m2_t5: m2_t5, java_m3_t1: m3_t1, java_m3_t2: m3_t2, java_m3_t3: m3_t3,
   java_m4_t5: m4_t5, java_m4_t6: m4_t6, java_m5_t3: m5_t3, java_m5_t4: m5_t4,
@@ -524,6 +962,14 @@ const SPECS = {
   java_m7_t1: m7_t1, java_m7_t3: m7_t3, java_m7_t4: m7_t4,
   java_m9_t4: m9_t4, java_m9_t5: m9_t5, java_m10_t3: m10_t3,
   java_m11_t1: m11_t1, java_m11_t2: m11_t2, java_m11_t3: m11_t3, java_m11_t4: m11_t4,
+  java_m12_t1: m12_t1, java_m12_t4: m12_t4, java_m12_t5: m12_t5,
+  java_m13_t1: m13_t1, java_m13_t4: m13_t4, java_m14_t3: m14_t3, java_m14_t5: m14_t5,
+  java_m15_t2: m15_t2, java_m16_t1: m16_t1, java_m17_t2: m17_t2, java_m17_t3: m17_t3,
+  java_m17_t4: m17_t4, java_m18_t2: m18_t2, java_m18_t4: m18_t4,
+  java_m20_t4: m20_t4, java_m22_t1: m22_t1, java_m22_t2: m22_t2, java_m22_t4: m22_t4,
+  java_m24_t2: m24_t2, java_m25_t1: m25_t1, java_m25_t2: m25_t2, java_m25_t5: m25_t5,
+  java_m29_t2: m29_t2, java_m29_t3: m29_t3, java_m29_t4: m29_t4, java_m30_t1: m30_t1,
+  java_m30_5_t1: m30_5_t1, java_m30_5_t2: m30_5_t2, java_m30_5_t3: m30_5_t3, java_m30_5_t4: m30_5_t4,
 };
 
 async function run() {

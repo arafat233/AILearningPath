@@ -12,10 +12,13 @@ import Joi from "joi";
 // "pro_". Slug is the same but without the "pro_" prefix.
 const trackKeyPattern  = /^pro_[a-z][a-z0-9_]*$/;
 const trackSlugPattern = /^[a-z][a-z0-9_]*$/;
-const moduleIdPattern  = /^[a-z][a-z0-9_]*_m\d+$/;
-const topicIdPattern   = /^[a-z][a-z0-9_]*_m\d+_t\d+$/;
+// The optional (_\d+)? after _m\d+ allows decimal/minor modules such as
+// "java_m30_5" (the 2D-Array module that slots between m30 and m31). Without it
+// the whole m30_5 module 422s on these param routes.
+const moduleIdPattern  = /^[a-z][a-z0-9_]*_m\d+(_\d+)?$/;
+const topicIdPattern   = /^[a-z][a-z0-9_]*_m\d+(_\d+)?_t\d+$/;
 // Accepts _ex_N (code exercises) and _pm_N (pattern_match exercises)
-const exerciseIdPattern = /^[a-z][a-z0-9_]*_m\d+_t\d+_(ex|pm)_\d+$/;
+const exerciseIdPattern = /^[a-z][a-z0-9_]*_m\d+(_\d+)?_t\d+_(ex|pm)_\d+$/;
 const objectIdPattern   = /^[a-f0-9]{24}$/;
 
 // ── Body schemas ────────────────────────────────────────────────────────────
@@ -59,9 +62,20 @@ export const exerciseParamsSchema = Joi.object({
   exerciseId: Joi.string().pattern(exerciseIdPattern).required(),
 });
 
+// Track-2 practice filter (Must-Do path / by-pattern). Both optional.
+export const practiceQuerySchema = Joi.object({
+  priority: Joi.string().valid("P1", "P2", "P3"),
+  pattern:  Joi.string().pattern(/^[a-z][a-z0-9-]{1,40}$/),
+});
+
+// Track-2 "which pattern fits?" quiz — number of questions (optional).
+export const patternQuizQuerySchema = Joi.object({
+  n: Joi.number().integer().min(1).max(20),
+});
+
 // ── Projects ─────────────────────────────────────────────────────────────────
 
-const projectIdPattern = /^[a-z][a-z0-9_]*_m\d+_t\d+_proj(_\d+)?$/;
+const projectIdPattern = /^[a-z][a-z0-9_]*_m\d+(_\d+)?_t\d+_proj(_\d+)?$/;
 
 export const projectParamsSchema = Joi.object({
   projectId: Joi.string().pattern(projectIdPattern).required(),

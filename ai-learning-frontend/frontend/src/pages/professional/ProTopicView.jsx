@@ -17,7 +17,7 @@
  */
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks, proRecordReveal, proGetProject } from "../../services/api";
+import { proGetTopic, proListExercises, proToggleTopicBookmark, proListBookmarks, proRecordReveal, proGetProject, proGetProgress } from "../../services/api";
 import PatternDrill from "../../components/pro/PatternDrill";
 import TopicDiscussion from "../../components/pro/TopicDiscussion";
 
@@ -300,6 +300,7 @@ export default function ProTopicView() {
   const navigate = useNavigate();
   const [topic, setTopic] = useState(null);
   const [exercises, setExercises] = useState([]);
+  const [doneSet, setDoneSet] = useState(() => new Set()); // completed exerciseIds (Solved badge)
   const [error, setError] = useState("");
   const [bookmarked, setBookmarked]     = useState(false);
   const [bookmarkBusy, setBookmarkBusy] = useState(false);
@@ -330,6 +331,10 @@ export default function ProTopicView() {
         setTopic(t.data?.data);
         setExercises(ex.data?.data || []);
         if (proj?.data?.data) setProject(proj.data.data);
+        const tk = t.data?.data?.trackKey;
+        if (tk) proGetProgress(tk)
+          .then((p) => setDoneSet(new Set(p.data?.data?.completedExercises || [])))
+          .catch(() => {});
       })
       .catch((err) => setError(err?.response?.data?.error || "Could not load topic."));
     proListBookmarks().then((r) => {
@@ -559,7 +564,10 @@ export default function ProTopicView() {
           ) : null;
         })()}
         <div className="flex items-center justify-between">
-          <SectionHeading id="sec-exercises" eyebrow="Practice" title={`Exercises (${exercises.length})`} />
+          <SectionHeading id="sec-exercises" eyebrow="Practice" title={(() => {
+            const solved = exercises.filter((e) => doneSet.has(e.exerciseId)).length;
+            return solved > 0 ? `Exercises (${solved}/${exercises.length} solved)` : `Exercises (${exercises.length})`;
+          })()} />
           {exercises.some((e) => e.type === "pattern_match") && (
             <button
               onClick={() => setDrillOpen(true)}
@@ -576,6 +584,9 @@ export default function ProTopicView() {
               onClick={() => navigate(`/pro/exercise/${ex.exerciseId}`)}
               className="card p-4 text-left hover:shadow-apple-md hover:border-apple-blue transition-all group flex items-center gap-4"
             >
+              {doneSet.has(ex.exerciseId) && (
+                <span className="text-apple-green text-[15px] shrink-0" title="Solved">✓</span>
+              )}
               <span className="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[var(--fill)] text-apple-gray shrink-0">
                 {ex.level}
               </span>
@@ -583,6 +594,24 @@ export default function ProTopicView() {
                 <p className="text-[14px] font-semibold text-[var(--label)] truncate group-hover:text-apple-blue transition-colors">
                   {ex.title || ex.exerciseId}
                 </p>
+                {(ex.priority || ex.pattern || ex.leetcodeId) && (
+                  <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                    {ex.priority && (
+                      <span className={`text-[9px] font-bold tracking-wider uppercase px-1.5 py-0.5 rounded ${
+                        ex.priority === "P1" ? "bg-apple-blue/10 text-apple-blue"
+                          : ex.priority === "P2" ? "bg-[var(--fill)] text-apple-gray"
+                            : "bg-[var(--fill)] text-apple-gray3"}`}>
+                        {ex.priority === "P1" ? "Must-do" : ex.priority}
+                      </span>
+                    )}
+                    {ex.pattern && (
+                      <span className="text-[10px] text-apple-gray font-medium px-1.5 py-0.5 rounded bg-[var(--fill)]">{ex.pattern}</span>
+                    )}
+                    {ex.leetcodeId && (
+                      <span className="text-[10px] text-apple-gray3 font-mono">LC #{ex.leetcodeId}</span>
+                    )}
+                  </div>
+                )}
                 {ex.scenario && (
                   <p className="text-[12px] text-apple-gray mt-0.5 line-clamp-1">{ex.scenario}</p>
                 )}

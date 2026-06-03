@@ -20,6 +20,8 @@ import { proGetExercise, proSubmitExercise, proToggleExerciseBookmark, proListBo
 import CodeEditor from "../../components/pro/CodeEditor";
 import FillBlankEditor from "../../components/pro/FillBlankEditor";
 import TutorPanel from "../../components/pro/TutorPanel";
+import StepPlayer from "../../components/pro/StepPlayer";
+import TemplatePanel from "../../components/pro/TemplatePanel";
 import PatternMatchRunner from "../../components/pro/PatternMatchRunner";
 
 export default function ProExerciseRunner() {
@@ -34,6 +36,7 @@ export default function ProExerciseRunner() {
   const [bookmarked, setBookmarked] = useState(false);
   const [bookmarkBusy, setBookmarkBusy] = useState(false);
   const [tutorOpen, setTutorOpen] = useState(false);
+  const [focus, setFocus] = useState(false); // distraction-free: hide the problem column, widen the editor
 
   useEffect(() => {
     proGetExercise(exerciseId)
@@ -120,8 +123,9 @@ export default function ProExerciseRunner() {
       open={tutorOpen}
       onClose={() => setTutorOpen(false)}
     />
-    <div className="grid lg:grid-cols-2 gap-5 max-w-7xl">
-      {/* ── Left: instructions ── */}
+    <div className={focus ? "max-w-4xl mx-auto" : "grid lg:grid-cols-2 gap-5 max-w-7xl"}>
+      {/* ── Left: instructions (hidden in focus mode) ── */}
+      {!focus && (
       <div className="space-y-4">
         <button onClick={() => navigate(-1)} className="text-[12px] text-apple-gray hover:text-apple-blue transition-colors">
           ← Back
@@ -172,6 +176,8 @@ export default function ProExerciseRunner() {
           </div>
         )}
 
+        {ex.animation && <StepPlayer animation={ex.animation} />}
+
         {Array.isArray(ex.hints) && ex.hints.length > 0 && (
           <div className="card p-4">
             <div className="flex items-center justify-between mb-2">
@@ -196,9 +202,19 @@ export default function ProExerciseRunner() {
           </div>
         )}
       </div>
+      )}
 
       {/* ── Right: editor + result ── */}
       <div className="space-y-4">
+        <div className="flex justify-end">
+          <button
+            onClick={() => setFocus((f) => !f)}
+            className="text-[12px] text-apple-gray hover:text-apple-blue transition-colors"
+            title={focus ? "Show the problem statement" : "Hide everything but the editor"}
+          >
+            {focus ? "↙ Exit focus" : "⛶ Focus mode"}
+          </button>
+        </div>
         <div className="card overflow-hidden">
           <div className="px-4 py-2 border-b border-apple-gray5 flex items-center justify-between">
             <span className="text-[11px] font-semibold text-apple-gray">
@@ -236,6 +252,10 @@ export default function ProExerciseRunner() {
             <CodeEditor value={code} onChange={setCode} language="java" height="420px" />
           )}
         </div>
+
+        {ex.type !== "predict_output" && ex.pattern && (
+          <TemplatePanel pattern={ex.pattern} onInsert={ex.type === "fill_blank" ? null : setCode} />
+        )}
 
         {error && (
           <div className="card p-3 border-l-4 border-apple-red">

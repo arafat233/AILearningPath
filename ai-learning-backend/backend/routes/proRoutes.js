@@ -16,7 +16,7 @@ import { Router } from "express";
 import rateLimit from "express-rate-limit";
 
 import { auth } from "../middleware/auth.js";
-import { validate, validateParams } from "../middleware/validate.js";
+import { validate, validateParams, validateQuery } from "../middleware/validate.js";
 
 import * as ctrl from "../controllers/proController.js";
 import {
@@ -25,7 +25,7 @@ import {
   moduleParamsSchema, topicParamsSchema, exerciseParamsSchema,
   projectParamsSchema, submitProjectBodySchema,
   tutorAskBodySchema, tutorRateBodySchema, sessionIdParamsSchema,
-  discussionBodySchema, threadIdParamsSchema,
+  discussionBodySchema, threadIdParamsSchema, practiceQuerySchema, patternQuizQuerySchema,
 } from "../validators/proValidator.js";
 
 const r = Router();
@@ -48,6 +48,8 @@ const submitLimiter = rateLimit({
 // ── Track-level ─────────────────────────────────────────────────────────────
 r.get("/tracks",                              ctrl.listTracks);
 r.get("/tracks/:trackSlug",                   validateParams(trackSlugParamsSchema), ctrl.getTrack);
+r.get("/tracks/:trackSlug/practice",          validateParams(trackSlugParamsSchema), validateQuery(practiceQuerySchema), ctrl.practiceList);
+r.get("/tracks/:trackSlug/pattern-quiz",      validateParams(trackSlugParamsSchema), validateQuery(patternQuizQuerySchema), ctrl.patternQuiz);
 r.get("/tracks/:trackSlug/modules/:moduleId", validateParams(moduleParamsSchema),    ctrl.getModule);
 
 // ── Topic-level ─────────────────────────────────────────────────────────────

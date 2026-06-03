@@ -46,6 +46,7 @@ const ProTopicView     = lazy(() => import("./pages/professional/ProTopicView"))
 const ProExerciseRunner= lazy(() => import("./pages/professional/ProExerciseRunner"));
 const ProReview        = lazy(() => import("./pages/professional/ProReview"));
 const ProPatternAtlas  = lazy(() => import("./pages/professional/ProPatternAtlas"));
+const ProPatternQuiz   = lazy(() => import("./pages/professional/ProPatternQuiz"));
 const ProTopicPublic      = lazy(() => import("./pages/professional/ProTopicPublic"));
 const InterviewLanding    = lazy(() => import("./pages/professional/InterviewLanding"));
 const ProProjectView      = lazy(() => import("./pages/professional/ProProjectView"));
@@ -299,6 +300,7 @@ export default function App() {
             <Route path="pro/interview/history"                        element={<InterviewHistory />} />
             <Route path="pro/interview/:sessionId"                     element={<InterviewSimulator />} />
             <Route path="pro/:trackSlug/patterns"                      element={<ProPatternAtlas />} />
+            <Route path="pro/:trackSlug/pattern-quiz"                  element={<ProPatternQuiz />} />
             <Route path="pro/:trackSlug"                               element={<ProCourseLanding />} />
             <Route path="pro/:trackSlug/:moduleId"                     element={<ProModuleView />} />
             <Route path="pro/:trackSlug/:moduleId/:topicId"            element={<ProTopicView />} />

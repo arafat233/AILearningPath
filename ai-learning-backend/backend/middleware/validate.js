@@ -16,3 +16,12 @@ export const validateParams = (schema) => (req, _res, next) => {
   if (error) return next(new AppError(error.details[0].message, 422));
   next();
 };
+
+// Validate req.query against a Joi schema (filters / pagination). Validated in
+// place without reassigning req.query (read-only in newer Express); unknown
+// query keys are allowed (cache-busters etc).
+export const validateQuery = (schema) => (req, _res, next) => {
+  const { error } = schema.validate(req.query, { abortEarly: true, allowUnknown: true });
+  if (error) return next(new AppError(error.details[0].message, 422));
+  next();
+};

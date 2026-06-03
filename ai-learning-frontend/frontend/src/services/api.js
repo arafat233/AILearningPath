@@ -427,6 +427,10 @@ export const getHomeworkSet       = (data)                     => api.post("/v1/
 export const proListTracks         = ()                              => api.get("/v1/pro/tracks");
 export const proGetTrack           = (trackSlug)                     => api.get(`/v1/pro/tracks/${trackSlug}`);
 export const proGetModule          = (trackSlug, moduleId)           => api.get(`/v1/pro/tracks/${trackSlug}/modules/${moduleId}`);
+// Track-2 practice filter — Must-Do (priority=P1) path + pattern drills.
+export const proGetPractice        = (trackSlug, params = {})        => api.get(`/v1/pro/tracks/${trackSlug}/practice`, { params });
+// Track-2 "which pattern fits?" quiz — n multiple-choice questions.
+export const proGetPatternQuiz     = (trackSlug, n = 10)            => api.get(`/v1/pro/tracks/${trackSlug}/pattern-quiz`, { params: { n } });
 export const proGetTopic           = (topicId)                       => api.get(`/v1/pro/topics/${topicId}`);
 export const proListExercises      = (topicId)                       => api.get(`/v1/pro/topics/${topicId}/exercises`);
 export const proGetExercise        = (exerciseId)                    => api.get(`/v1/pro/exercises/${exerciseId}`);

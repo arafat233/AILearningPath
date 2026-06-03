@@ -7,7 +7,7 @@
  * D3.4: natural home for the pattern_match work.
  */
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { proGetPatternAtlas } from "../../services/api";
 import PatternDrill from "../../components/pro/PatternDrill";
 
@@ -122,6 +122,7 @@ const PATTERN_CATALOG = [
 
 export default function ProPatternAtlas() {
   const navigate = useNavigate();
+  const { trackSlug } = useParams();
   const [atlas,   setAtlas]   = useState(null);
   const [loading, setLoading] = useState(true);
   const [drillPattern, setDrillPattern] = useState(null); // { exercises, label }
@@ -164,12 +165,20 @@ export default function ProPatternAtlas() {
             </p>
           )}
         </div>
-        <button
-          onClick={() => navigate(-1)}
-          className="text-[12px] text-apple-gray hover:text-apple-blue transition-colors shrink-0"
-        >
-          ← Back
-        </button>
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() => navigate(`/pro/${trackSlug}/pattern-quiz`)}
+            className="px-3 py-1.5 rounded-full bg-apple-blue/10 hover:bg-apple-blue/20 text-apple-blue text-[12px] font-semibold transition-colors"
+          >
+            🎯 Take the quiz
+          </button>
+          <button
+            onClick={() => navigate(-1)}
+            className="text-[12px] text-apple-gray hover:text-apple-blue transition-colors"
+          >
+            ← Back
+          </button>
+        </div>
       </div>
 
       {/* Pattern grid */}

@@ -55,6 +55,71 @@ export async function getTrack(trackSlug, userId) {
   return { ...track, modules: modulesWithCounts };
 }
 
+// Track-2 practice list — flat, filterable view across the whole track for the
+// "Must-Do" path (priority=P1) and pattern drills. Lightweight projection; the
+// solution/test internals are never included (same anti-cheat stance as the
+// single-exercise endpoint).
+export async function getPracticeList(trackSlug, { priority, pattern } = {}, userId) {
+  const track = await ProTrack.findOne({ slug: trackSlug, status: "live" }).lean();
+  if (!track) throw new AppError("Track not found.", 404);
+  if (!(await isEnrolled(userId, track.key))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  const q = { trackKey: track.key };
+  if (priority) q.priority = priority;
+  if (pattern) q.pattern = pattern;
+  const exercises = await ProExercise.find(q)
+    .select("exerciseId topicId moduleId title level type priority pattern leetcodeId difficulty xpReward position")
+    .sort({ moduleId: 1, position: 1 })
+    .limit(1200)
+    .lean();
+  // Facet counts (for the filter chips) — over the whole track, not the filtered set.
+  const facetAgg = await ProExercise.aggregate([
+    { $match: { trackKey: track.key, priority: { $ne: null } } },
+    { $group: { _id: "$priority", count: { $sum: 1 } } },
+  ]);
+  const priorityFacets = Object.fromEntries(facetAgg.map((f) => [f._id, f.count]));
+  return { count: exercises.length, priorityFacets, exercises };
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Track-2 "which pattern fits?" quiz. Samples n recognizable problems (real
+// LeetCode-tagged code exercises) and builds multiple-choice questions: the
+// correct `pattern` plus 3 distractor patterns. The answer is included so the
+// UI can grade instantly — pattern tags are not secret (low-stakes learning quiz).
+export async function getPatternQuiz(trackSlug, n, userId) {
+  const track = await ProTrack.findOne({ slug: trackSlug, status: "live" }).lean();
+  if (!track) throw new AppError("Track not found.", 404);
+  if (!(await isEnrolled(userId, track.key))) {
+    throw new AppError("Not enrolled in this track.", 403);
+  }
+  const pool = await ProExercise.find({
+    trackKey: track.key, type: "code_scratch",
+    pattern: { $ne: null }, leetcodeId: { $ne: null },
+  }).select("exerciseId leetcodeId title pattern").lean();
+
+  const allPatterns = [...new Set(pool.map((e) => e.pattern))];
+  const questions = shuffle(pool).slice(0, n).map((e) => {
+    const distractors = shuffle(allPatterns.filter((p) => p !== e.pattern)).slice(0, 3);
+    return {
+      exerciseId: e.exerciseId,
+      leetcodeId: e.leetcodeId,
+      title: e.title,
+      choices: shuffle([e.pattern, ...distractors]),
+      answer: e.pattern,
+    };
+  });
+  return { count: questions.length, patternCount: allPatterns.length, questions };
+}
+
 // ── Modules ─────────────────────────────────────────────────────────────────
 
 export async function getModule(trackSlug, moduleId, userId) {
@@ -107,7 +172,7 @@ export async function listExercisesForTopic(topicId, userId) {
   if (cached) return cached;
 
   const exercises = await ProExercise.find({ topicId })
-    .select("exerciseId level type title scenario instructions starterCode blanks hints xpReward difficulty")
+    .select("exerciseId level type title scenario instructions starterCode blanks hints xpReward difficulty priority pattern leetcodeId")
     .sort({ position: 1, exerciseId: 1 })
     .lean();
   await sessionSet(exCacheKey, exercises, 300);
@@ -670,7 +735,7 @@ export async function listPublicExercises(topicId) {
   const topic = await ProTopic.findOne({ topicId, freeAccess: true }).select("topicId").lean();
   if (!topic) throw new AppError("Topic not available for public access.", 403);
   return ProExercise.find({ topicId })
-    .select("exerciseId level type title scenario instructions starterCode blanks hints xpReward difficulty")
+    .select("exerciseId level type title scenario instructions starterCode blanks hints xpReward difficulty priority pattern leetcodeId")
     .sort({ position: 1, exerciseId: 1 })
     .lean();
 }

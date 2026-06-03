@@ -32,6 +32,27 @@ export const getTrack = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
+export const practiceList = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const data = await svc.getPracticeList(
+      req.params.trackSlug,
+      { priority: req.query.priority, pattern: req.query.pattern },
+      userId(req),
+    );
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
+export const patternQuiz = async (req, res, next) => {
+  try {
+    if (!userId(req)) return next(new AppError("Authentication required.", 401));
+    const n = Math.min(20, Math.max(1, parseInt(req.query.n, 10) || 10));
+    const data = await svc.getPatternQuiz(req.params.trackSlug, n, userId(req));
+    res.json({ data });
+  } catch (err) { next(err); }
+};
+
 export const getModule = async (req, res, next) => {
   try {
     if (!userId(req)) return next(new AppError("Authentication required.", 401));

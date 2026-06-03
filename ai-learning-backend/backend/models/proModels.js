@@ -121,6 +121,18 @@ const proExerciseSchema = new Schema({
   hints:           [{ type: String }],
   xpReward:        { type: Number, default: 0 },
   difficulty:      { type: Number, default: 0.3 },
+  // Track-2 interview-prep metadata (DSA_ANIMATOR_GAP_CHECKLIST.md). Populated by
+  // config/seedProExerciseMetadata.js; null on non-DSA modules.
+  //   priority   — P1 must-do / P2 important / P3 good-to-know (interview frequency)
+  //   pattern    — cross-cutting DSA pattern tag (two-pointers, sliding-window, ...)
+  //   leetcodeId — canonical LeetCode number for recognizability/search
+  priority:        { type: String, enum: ["P1", "P2", "P3", null], default: null, index: true },
+  pattern:         { type: String, default: null, index: true },
+  leetcodeId:      { type: Number, default: null },
+  // Track-2 step-by-step animation (DSA Animator parity). Optional; null = no
+  // player. Shape: { kind, array?, target?, steps:[{ pointers, window, note, ... }] }.
+  // Rendered by the frontend <StepPlayer>. Authored by config/seedAnimation*.js.
+  animation:       { type: Schema.Types.Mixed, default: null },
 }, { timestamps: true });
 
 // ── ProProject ──────────────────────────────────────────────────────────────

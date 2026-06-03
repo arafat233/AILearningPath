@@ -12,6 +12,8 @@
 
 4. **Ask when stuck** — if the same approach has failed twice, stop retrying. Summarise what you've tried and ask the user for direction.
 
+5. **Audit-first — never claim "done" from memory; prove it from ground truth.** For any build of more than a few items (content seeds, animations, visual aids, migrations, coverage work), ship a **runnable audit script** alongside it (e.g. `config/audit<Thing>.mjs`) that recomputes `done/total` and an integrity check **directly from the database/files** — and enumerates EVERY unit, including untagged/unlabelled ones, so a zero-coverage bucket can't hide. Run it after every batch and before reporting status; the audit's output — not a hand-written tally — is the source of truth. Existing audits live in `ai-learning-backend/backend/config/audit*.mjs` (see `AUDITS.md`). This rule exists because hand-estimated checklists have repeatedly drifted (e.g. "has-svg = done"; missed zero-coverage patterns).
+
 <!-- ============================================================ -->
 <!-- ARCHITECTURE STANDARDS — enforced in every session         -->
 <!-- ============================================================ -->

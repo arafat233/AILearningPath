@@ -31,6 +31,50 @@ function parseFlow(desc) {
   return stages;
 }
 
+// Split a multi-part description ("(1)…(2)…(3)…" or "Left … Right …") into 2–3
+// panels: { h: heading, body }. Returns null if it isn't multi-part.
+function toPart(text, i, forceH) {
+  const t = text.replace(/\s+/g, " ").trim();
+  if (forceH) return { h: forceH, body: t.replace(new RegExp(`^${forceH}\\b[\\s:().\\u2014-]*`, "i"), "").trim() };
+  const m = t.match(/^([^:—.]{3,42})[:—]\s*(.+)/);
+  return m ? { h: m[1].trim(), body: m[2].trim() } : { h: `Part ${i + 1}`, body: t };
+}
+function parseParts(desc) {
+  if (!desc) return null;
+  if (/\(\s*1\s*\)/.test(desc) && /\(\s*2\s*\)/.test(desc)) {
+    const raw = desc.split(/\(\s*\d+\s*\)/).map((s) => s.trim()).slice(1).filter(Boolean);
+    if (raw.length >= 2) return raw.slice(0, 3).map((t, i) => toPart(t, i));
+  }
+  const m = desc.match(/\bLeft\b([\s\S]*?)\bRight\b([\s\S]*)/i);
+  if (m) {
+    const left = m[1].replace(/^[\s:().—-]+/, "").trim();
+    const right = m[2].replace(/^[\s:().—-]+/, "").trim();
+    if (left && right) return [toPart("Left " + left, 0, "Left"), toPart("Right " + right, 1, "Right")];
+  }
+  return null;
+}
+
+const PANEL = [
+  { bg: "rgba(10,132,255,0.10)", bd: "rgba(10,132,255,0.4)", fg: "#0a84ff" },
+  { bg: "rgba(48,209,88,0.12)", bd: "rgba(48,209,88,0.45)", fg: "#1f9f4a" },
+  { bg: "rgba(191,90,242,0.12)", bd: "rgba(191,90,242,0.45)", fg: "#a44bd6" },
+];
+function AutoPanels({ parts }) {
+  return (
+    <div className="grid gap-3" style={{ gridTemplateColumns: `repeat(${Math.min(parts.length, 3)}, minmax(0,1fr))` }}>
+      {parts.map((p, i) => {
+        const c = PANEL[i % 3];
+        return (
+          <div key={i} className="rounded-xl p-3" style={{ background: c.bg, border: `1px solid ${c.bd}` }}>
+            <p className="text-[12px] font-bold mb-1" style={{ color: c.fg }}>{p.h}</p>
+            <p className="text-[12px] text-[var(--label)] leading-snug" style={{ display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{p.body}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function iconFor(label) {
   const s = label.toLowerCase();
   if (/javac|compil/.test(s)) return "⚙️";
@@ -76,6 +120,7 @@ function FlowDiagram({ stages }) {
 export default function VisualAid({ block }) {
   if (!block) return null;
   const stages = block.svg ? null : parseFlow(block.description);
+  const parts = block.svg || stages ? null : parseParts(block.description);
 
   return (
     <div className="card p-5 border-l-4 border-apple-purple bg-apple-purple/5">
@@ -87,6 +132,8 @@ export default function VisualAid({ block }) {
         <div className="flex justify-center overflow-x-auto" dangerouslySetInnerHTML={{ __html: block.svg }} />
       ) : stages ? (
         <FlowDiagram stages={stages} />
+      ) : parts ? (
+        <AutoPanels parts={parts} />
       ) : (
         <div className="flex items-start gap-3">
           <div className="w-9 h-9 rounded-xl bg-apple-purple/10 flex items-center justify-center shrink-0">

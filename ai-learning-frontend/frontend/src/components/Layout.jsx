@@ -216,7 +216,7 @@ export default function Layout() {
         <div className="divider mx-4 mb-3" />
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 flex flex-col gap-0.5 overflow-y-auto">
+        <nav className="flex-1 px-3 flex flex-col gap-0.5 overflow-y-auto no-scrollbar">
           {isParent ? (
             <>
               <p className="section-label px-2 mb-2">Parent Portal</p>

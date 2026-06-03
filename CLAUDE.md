@@ -12,7 +12,15 @@
 
 4. **Ask when stuck** — if the same approach has failed twice, stop retrying. Summarise what you've tried and ask the user for direction.
 
-5. **Audit-first — never claim "done" from memory; prove it from ground truth.** For any build of more than a few items (content seeds, animations, visual aids, migrations, coverage work), ship a **runnable audit script** alongside it (e.g. `config/audit<Thing>.mjs`) that recomputes `done/total` and an integrity check **directly from the database/files** — and enumerates EVERY unit, including untagged/unlabelled ones, so a zero-coverage bucket can't hide. Run it after every batch and before reporting status; the audit's output — not a hand-written tally — is the source of truth. Existing audits live in `ai-learning-backend/backend/config/audit*.mjs` (see `AUDITS.md`). This rule exists because hand-estimated checklists have repeatedly drifted (e.g. "has-svg = done"; missed zero-coverage patterns).
+5. **Audit-first — COMPULSORY, project-wide. Never claim "done" from memory; prove it from ground truth.** EVERYTHING built from now on — in any layer — ships with a **runnable, repeatable audit** that an independent run can use to cross-verify the work. No task is "done", and nothing is committed/deployed, until its audit passes (local AND prod where applicable). The audit's output — not a hand-written tally or a screenshot from memory — is the source of truth. Register every audit in `AUDITS.md`. This rule exists because hand-estimated status has repeatedly drifted ("has-svg = done"; zero-coverage patterns hidden; 117 untagged items invisible) and a one-line check always caught it.
+
+   **The audit must enumerate EVERY unit (including untagged/unlabelled) and report `done/total` + an integrity check** — never a sample. Pick the verification method by build type:
+   - **Content / seeds / migrations / backfills** → `config/audit<Thing>.mjs` querying the DB: counts per unit, 0 malformed/missing, idempotency (re-run = no change).
+   - **Backend route / service** → a live HTTP round-trip (the proven enrolled-user token flow) asserting status + shape, plus the Jest test the architecture rules already require.
+   - **Frontend page / component** → a scripted render (Playwright) that loads the real surface and asserts the change is visible; for data-driven UI, a DB-derived check that every record renders (e.g. `auditVisualAids.mjs`).
+   - **Schema / model change** → a script that scans existing docs for conformance (required fields present, enums valid) across the whole collection.
+
+   Existing audits: `ai-learning-backend/backend/config/audit*.mjs` — see **`AUDITS.md`** (the project-wide audit registry). When starting any new build, write/extend its audit FIRST, then gate "done" on a clean run.
 
 <!-- ============================================================ -->
 <!-- ARCHITECTURE STANDARDS — enforced in every session         -->

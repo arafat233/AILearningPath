@@ -1,15 +1,27 @@
-# Audit Scripts — ground-truth verification
+# AUDITS — project-wide cross-verification registry
 
-> Rule (CLAUDE.md §5): any build of more than a few items ships a runnable audit
-> that recomputes done/total + integrity **from the DB/files**, enumerating every
-> unit (incl. untagged). Run after every batch and before claiming "done". The
-> audit output — not a hand-written tally — is the source of truth.
+> **Compulsory (CLAUDE.md §5):** everything built, in any layer, ships a runnable
+> audit that recomputes `done/total` + an integrity check from ground truth
+> (DB / live HTTP / real render), enumerating EVERY unit incl. untagged. No task
+> is "done", and nothing is committed/deployed, until its audit passes — local
+> **and** prod where applicable. The audit's output, not a hand tally, is truth.
 
-| Audit | Verifies | Run |
+## How to run
+- Local: `node config/<audit>.mjs` (from `ai-learning-backend/backend`)
+- Prod:  `docker exec ailearningpath-api-1 node config/<audit>.mjs`
+
+## Registered audits
+
+| Area | Audit | Verifies |
 |---|---|---|
-| `ai-learning-backend/backend/config/auditAnimations.mjs` | DSA animation coverage: done/total per pattern (incl. untagged) + 0 broken kinds/steps | `node config/auditAnimations.mjs` |
-| `ai-learning-backend/backend/config/auditVisualAids.mjs` | pro_java visual aids: real-diagram vs text-panel; flags panels whose brief describes a diagram; topics with no visual_aid | `node config/auditVisualAids.mjs` |
+| DSA animations | `config/auditAnimations.mjs` | done/total per pattern (incl. untagged) + 0 broken kinds/steps |
+| Pro visual aids | `config/auditVisualAids.mjs` | real-diagram vs text-panel; flags panels whose brief describes a diagram; topics with no visual_aid |
 
-Prod: `docker exec ailearningpath-api-1 node config/<audit>.mjs`
+## Adding a new build → add its audit here
+Pick the method by type (see CLAUDE.md §5):
+- **content / seeds / migrations** → DB-count audit (per-unit counts, 0 malformed, idempotent re-run)
+- **backend route / service** → live HTTP round-trip (enrolled-user token) asserting status + shape, + Jest test
+- **frontend page / component** → Playwright render asserting the change is visible; for data-driven UI, a DB-derived per-record render check
+- **schema / model change** → collection-wide conformance scan (required fields, valid enums)
 
-When starting a new multi-item build, add its audit here.
+Write the audit FIRST, register it above, gate "done" on a clean run.

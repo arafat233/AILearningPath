@@ -92,6 +92,21 @@ const NAV = [
   { to: "/profile",     label: "Profile",      icon: "profile"               },
 ];
 
+// Mirror of navService.js pro_java nav. Rendered immediately (before the async
+// refreshNav resolves) when the context is pro — on a /pro/* route or a
+// persisted pro_ activeTrack — so the school menu never flashes first.
+const PRO_NAV = [
+  { to: "/",            label: "Dashboard",    icon: "dashboard",   end: true },
+  { to: "/pro",         label: "Pro Tracks",   icon: "upgrade"               },
+  { to: "/practice",    label: "Practice",     icon: "practice"              },
+  { to: "/bookmarks",   label: "Bookmarks",    icon: "bookmarks"             },
+  { to: "/analytics",   label: "Analytics",    icon: "analytics"             },
+  { to: "/certificate", label: "Certificate",  icon: "certificate"           },
+  { to: "/planner",     label: "Plan",         icon: "planner"               },
+  { to: "/voice-tutor", label: "Voice Tutor",  icon: "voiceTutor"            },
+  { to: "/profile",     label: "Profile",      icon: "profile"               },
+];
+
 const PARENT_NAV = [
   { to: "/parent",  label: "My Children",   icon: "parent",   end: true },
   { to: "/portal",  label: "Link Student",  icon: "profile"             },
@@ -185,7 +200,7 @@ export default function Layout() {
             <div className="flex flex-col justify-center min-w-0">
               <span className="text-[14px] font-bold text-[var(--label)] tracking-tight leading-tight">Stellar</span>
               <span className="text-[11px] text-apple-gray leading-tight">
-                {activeTrack?.startsWith("pro_")
+                {(activeTrack?.startsWith("pro_") || location.pathname.startsWith("/pro"))
                   ? "Java · Professional"
                   : (profile?.examBoard && profile?.grade)
                     ? `${profile.examBoard} · Class ${profile.grade}`
@@ -235,20 +250,21 @@ export default function Layout() {
               <p className="section-label px-2 mb-2">Menu</p>
               {/* Show NAV briefly while waiting for refreshNav to resolve.
                   Once loaded, use the server's nav (pro_java sidebar). */}
-              {!loaded
-                ? NAV.map((n) => (
-                    <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-                      <Icon id={n.icon} />
-                      {n.label}
-                    </NavLink>
-                  ))
-                : (trackNav && trackNav.length ? trackNav : NAV).map((n) => (
-                    <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
-                      <Icon id={n.icon} />
-                      {n.label}
-                    </NavLink>
-                  ))
-              }
+              {(() => {
+                // Pick the nav by CONTEXT so the school menu never flashes on a
+                // pro page: a /pro/* URL (known synchronously) or a persisted
+                // pro_ activeTrack means pro, even before refreshNav resolves.
+                const proContext = location.pathname.startsWith("/pro") || activeTrack?.startsWith("pro_");
+                const items = !loaded
+                  ? (proContext ? PRO_NAV : NAV)
+                  : (trackNav && trackNav.length ? trackNav : (proContext ? PRO_NAV : NAV));
+                return items.map((n) => (
+                  <NavLink key={n.to} to={n.to} end={n.end} className={({ isActive }) => `nav-link ${isActive ? "active" : ""}`}>
+                    <Icon id={n.icon} />
+                    {n.label}
+                  </NavLink>
+                ));
+              })()}
             </>
           )}
         </nav>

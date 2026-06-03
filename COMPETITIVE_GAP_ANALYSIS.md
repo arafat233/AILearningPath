@@ -89,8 +89,8 @@
 | sliding-window | array-pointers ✅ | 14 | 10 | 🔄 (4 left: window+set, prefix, circular, synthesis) |
 | arrays | array-pointers ✅ | 18 | 6 | 🔄 |
 | prefix-sum | array-pointers ✅ | 13 | 2 | 🔄 |
-| stack | stack ✅ | 18 | — | ⬜ |
-| monotonic-stack | stack ✅ | 13 | — | ⬜ |
+| stack | stack ✅ | 18 | 9 | 🔄 |
+| monotonic-stack | stack ✅ | 13 | 5 | 🔄 |
 | stack-queue | stack/queue | 11 | — | ⬜ |
 | matrix | grid ✅ | 30 | — | ⬜ |
 | graph-traversal | grid ✅ | 14 | — | ⬜ |
@@ -122,7 +122,7 @@
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 43 / ~700.** (committed + deployed + prod-verified)
+**Animated so far: 51 / ~700.** (committed + deployed + prod-verified)
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 
@@ -130,6 +130,7 @@
 - [x] 2026-06-04 — sliding-window batch 1 (6) via existing renderer.
 - [x] 2026-06-04 — two-pointers/DNF batch 2 (6) via existing renderer; committed 7c7f07d0, deployed, prod-verified (Move Zeroes player live).
 - [x] 2026-06-04 — batch 3 (10): arrays (Kadane, Boyer-Moore, Rotate, Jump Game, Best-Buy-Sell), prefix-sum (Pivot, Running Sum), greedy (Cookies, Lemonade), intervals (Merge).
-- [ ] next — remaining arrays/prefix-sum/intervals, then stack & grid families (existing renderers).
+- [x] 2026-06-04 — batch 4 (8) stack family: Daily Temps, Stock Span, Prev Smaller, Remove Adjacent Dupes, Asteroid Collision, Remove K Digits, Validate Stack Seq, Reverse-via-Stack.
+- [ ] next — grid family (matrix/graph → grid renderer), then start NEW renderers.
 - [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
 - [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.

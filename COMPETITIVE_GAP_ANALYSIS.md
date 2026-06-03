@@ -63,7 +63,7 @@
 
 | Pri | Gap | vs | Effort | Status |
 |--|---|---|---|---|
-| 1 | **Animation coverage → ALL DSA problems** | DSA Animator | High (scale) | 🔄 IN PROGRESS |
+| 1 | **Animation coverage → ALL DSA problems** | DSA Animator | High (scale) | ✅ DONE — 598/598 (100%) |
 | 2 | Deep System Design track (cases, 20+ patterns) | AlgoMaster | High | ⬜ not started |
 | 3 | Highlights + notes + searchable notebook | AlgoMaster | Low–Med | ⬜ not started |
 | 4 | Low-Level Design (UML, OOD) track | AlgoMaster | High | ⬜ not started |
@@ -122,7 +122,10 @@
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 331 / 598 animatable (55%).** 14 patterns FULL.
+**✅ COMPLETE: 598 / 598 animatable (100%) — ALL 30 patterns FULL, 0 broken (local + prod, 2026-06-04).**
+Every animatable Pro-Java DSA problem now has a step-by-step animation. Out of scope (by design): 48 complexity-analysis (Big-O reasoning) + 117 M42/M45 mock/interview (timed practice). Verify any time: `node config/auditAnimations.mjs` (local) or via the api container on prod.
+
+**(historical) Animated through batch 18: 331 / 598 (55%).** 14 patterns FULL at that point.
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 
@@ -140,9 +143,13 @@
 - [x] 2026-06-04 — batch 10 (10) sort/bsearch/bits/palindrome via REUSED array-pointers. Merge/Quick Sort, Binary Search, First/Last, Search/Find-Min Rotated, Count Set Bits, Single Number XOR, Valid Palindrome, Longest Palindromic Substring. (past 100 ✅)
 - [x] 2026-06-04 — batch 11 (8) backtrack/trie/union-find via REUSED tree renderer. Power Set, Permutations, Combination Sum, Subsets-recursion, Trie insert/search, Union-Find, Provinces.
 - [x] 2026-06-04 — batch 12 (10): anagram, reverse, Roman, group-anagrams, KMP (LPS+search), queue FIFO, two-stack queue, Kahns topo-sort, Dijkstra. All renderers now exercised.
-- [ ] ALL renderer types now in use. Remaining = SWEEP the long tail within each pattern (hashing 78, linked-list 57 left, matrix, etc.) batch by batch to full coverage.
-- [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
-- [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.
+- [x] 2026-06-04 — batches 13–18 (~210): ZERO-coverage patterns (tree-traversal/stack-queue/bsearch-on-answer) + long-tail sweep across hashing, linked-list, matrix, queue, tree-dfs, graph, recursion, prefix-sum, palindrome, bit, sliding-window, union-find, strings. Reached 331/598 (55%) by batch 18.
+- [x] 2026-06-04 — batch 19 (+42): hashing/linked-list/queue → 373/598 (62%). Commit 9c367703.
+- [x] 2026-06-04 — batch 20 (+42): COMPLETES dynamic-programming 30/30, two-pointers 25/25, backtracking 16/16 → 415/598 (69%). Commit 2a2d71b4.
+- [x] 2026-06-04 — batch 21 (+45): COMPLETES arrays 18/18, tree-dfs 25/25, tree-traversal 15/15, bst 12/12, trie 11/11, binary-search-on-answer 7/7 → 460/598 (77%). Commit 6a1f2d5f.
+- [x] 2026-06-04 — batch 22 (+45): COMPLETES heap 33/33, stack 18/18, pattern-matching 12/12, stack-queue 11/11 → 505/598 (84%). Commit ae07f0e4.
+- [x] 2026-06-04 — batch 23 (+45): COMPLETES linked-list 65/65, queue 30/30, sorting 23/23 → 550/598 (92%). Commit 1650f077.
+- [x] 2026-06-04 — batch 24 (+48): COMPLETES hashing 78/78, matrix 30/30 → **598/598 (100%)**. Commit cde8517c. **GAP #1 CLOSED.**
 
 ---
 

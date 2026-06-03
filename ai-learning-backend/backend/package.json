@@ -396,7 +396,8 @@
     "smoke:dsa": "node config/smokeTestDsa.mjs",
     "fix:m36-testcases": "node config/fixM36TestcaseExpectations.js",
     "seed:ap-ssc-math8-chapters": "node config/seedApSscMath8NcertChapters.js",
-    "seed:ap-ssc-math8-content-ch01": "node config/seedApSscMath8Ch01.js"
+    "seed:ap-ssc-math8-content-ch01": "node config/seedApSscMath8Ch01.js",
+    "seed:ap-ssc-math8-content-ch02": "node config/seedApSscMath8Ch02.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

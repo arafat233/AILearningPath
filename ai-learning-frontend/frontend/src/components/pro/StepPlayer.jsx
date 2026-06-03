@@ -198,7 +198,43 @@ function LinkedListStage({ animation, step }) {
   );
 }
 
-const STAGES = { "array-pointers": ArrayPointersStage, stack: StackStage, grid: GridStage, "linked-list": LinkedListStage };
+// ── kind: tree ────────────────────────────────────────────────────────────────
+const TREE_CLS = {
+  current: ["rgba(10,132,255,0.18)", "#0a84ff"],
+  visited: ["rgba(48,209,88,0.18)", "#30d158"],
+  path: ["rgba(255,159,10,0.22)", "#ff9f0a"],
+  match: ["rgba(191,90,242,0.2)", "#bf5af2"],
+  dropped: ["rgba(255,55,95,0.15)", "#ff375f"],
+};
+function TreeStage({ animation, step }) {
+  const nodes = step.nodes || animation.nodes || [];
+  const edges = step.edges || animation.edges || [];
+  const W = animation.W || 380, H = animation.H || 200;
+  const cls = step.cls || {};
+  const pos = {}; nodes.forEach((n) => { pos[n.id] = n; });
+  return (
+    <div className="flex flex-col items-center py-1">
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: W }} fill="currentColor">
+        {edges.map(([a, b], i) => { const p = pos[a], q = pos[b]; return p && q ? <line key={i} x1={p.x} y1={p.y} x2={q.x} y2={q.y} stroke="var(--separator,#d2d2d7)" /> : null; })}
+        {nodes.map((n) => { const c = TREE_CLS[cls[n.id]]; return (
+          <g key={n.id}>
+            <circle cx={n.x} cy={n.y} r="15" fill={c ? c[0] : "transparent"} stroke={c ? c[1] : "var(--separator,#d2d2d7)"} strokeWidth={c ? 2 : 1} style={{ transition: "all .3s" }} />
+            <text x={n.x} y={n.y + 4} textAnchor="middle" fontSize="12" fontWeight="600" className="text-[var(--label)]">{n.v}</text>
+          </g>); })}
+      </svg>
+      {Array.isArray(step.output) && (
+        <div className="flex gap-1.5 flex-wrap justify-center items-center mt-1">
+          <span className="text-[9px] uppercase tracking-wider text-apple-gray3 mr-1">{animation.outLabel || "visit"}</span>
+          {step.output.map((v, i) => (
+            <div key={i} className="w-7 h-7 flex items-center justify-center rounded-md text-[12px] font-semibold border text-[var(--label)]" style={{ background: "rgba(48,209,88,0.12)", borderColor: "rgba(48,209,88,0.4)" }}>{v}</div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const STAGES = { "array-pointers": ArrayPointersStage, stack: StackStage, grid: GridStage, "linked-list": LinkedListStage, tree: TreeStage };
 
 export default function StepPlayer({ animation }) {
   const [i, setI] = useState(0);

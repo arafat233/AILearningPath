@@ -99,9 +99,9 @@
 | heap | **NEW heap-tree** | 33 | — | ⬜ |
 | dynamic-programming | **NEW dp-table** | 30 | — | ⬜ |
 | queue | **NEW queue** | 30 | — | ⬜ |
-| tree-dfs | **NEW tree** | 15 | — | ⬜ |
+| tree-dfs | tree ✅ NEW | 15 | 3 | 🔄 |
 | tree-traversal | **NEW tree** | 15 | — | ⬜ |
-| bst | **NEW tree** | 12 | — | ⬜ |
+| bst | tree ✅ | 12 | 5 | 🔄 |
 | sorting | **NEW sort** | 23 | — | ⬜ |
 | backtracking | **NEW backtrack-tree** | 16 | — | ⬜ |
 | bit-manipulation | **NEW bits** | 15 | — | ⬜ |
@@ -122,7 +122,7 @@
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 67 / ~700.** (committed + deployed + prod-verified)
+**Animated so far: 75 / ~700.** (committed + deployed + prod-verified)
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 
@@ -133,6 +133,7 @@
 - [x] 2026-06-04 — batch 4 (8) stack family: Daily Temps, Stock Span, Prev Smaller, Remove Adjacent Dupes, Asteroid Collision, Remove K Digits, Validate Stack Seq, Reverse-via-Stack.
 - [x] 2026-06-04 — batch 5 (8) grid family: Number of Islands, Max Area, Flood Fill, Spiral Order, Shortest Path BFS, Walls & Gates, Word Search, Rotate Matrix.
 - [x] 2026-06-04 — batch 6 (8) linked-list: built NEW linked-list renderer (nodes+arrows+pointers, ← reversal, ↺ cycle, 2nd list). Find Middle, Cycle (Floyd), Palindrome, Merge Two Sorted, Delete Nth-from-End, Remove Dupes, Swap Pairs, Odd-Even. Verified on dev.
-- [ ] next — tree renderer (tree-dfs/traversal/bst), then heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.
+- [x] 2026-06-04 — batch 7 (8) tree/BST: built NEW tree renderer (SVG nodes+edges, cls, output row, per-step nodes). BST Search/Insert/Validate/Kth/LCA, Invert, Path Sum, LCA-binary. Verified on dev.
+- [ ] next — heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find (+ remaining within done renderers).
 - [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
 - [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.

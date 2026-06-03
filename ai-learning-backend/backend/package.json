@@ -400,7 +400,9 @@
     "seed:ap-ssc-math8-content-ch02": "node config/seedApSscMath8Ch02.js",
     "seed:ap-ssc-math8-content-ch03": "node config/seedApSscMath8Ch03.js",
     "seed:ap-ssc-math8-content-ch04": "node config/seedApSscMath8Ch04.js",
-    "seed:ap-ssc-math8-content-ch05": "node config/seedApSscMath8Ch05.js"
+    "seed:ap-ssc-math8-content-ch05": "node config/seedApSscMath8Ch05.js",
+    "seed:ap-ssc-math8-content-ch06": "node config/seedApSscMath8Ch06.js",
+    "seed:ap-ssc-math8-content-ch07": "node config/seedApSscMath8Ch07.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

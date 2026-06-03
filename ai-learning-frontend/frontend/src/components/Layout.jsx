@@ -301,7 +301,7 @@ export default function Layout() {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto transition-colors" style={{ background: "var(--gray6)" }}>
+      <main className="relative flex-1 overflow-y-auto transition-colors" style={{ background: "var(--gray6)" }}>
 
         {/* Top bar */}
         <div

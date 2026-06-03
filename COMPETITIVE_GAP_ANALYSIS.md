@@ -143,3 +143,35 @@
 - [ ] ALL renderer types now in use. Remaining = SWEEP the long tail within each pattern (hashing 78, linked-list 57 left, matrix, etc.) batch by batch to full coverage.
 - [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
 - [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.
+
+---
+
+## 6. CROSS-VERIFICATION (prod DB audit, 2026-06-04)
+
+Ground truth pulled from `proexercises` on prod (not estimates):
+- DSA code problems: **763** · animatable (excl. 48 complexity-analysis): **715** · **animated & live: 119** · remaining: **596** · **~17% done**.
+- Integrity: every animation uses a registered renderer (array-pointers 49, tree 26, grid 21, stack 15, linked-list 8); **0 missing-steps, 0 unrenderable kind**. All 5 renderers verified rendering (dev + prod screenshots during batches 1–7).
+
+**Authoritative done / total per pattern (replaces the §5 estimates):**
+
+| pattern | done/total | | pattern | done/total |
+|---|--:|---|---|--:|
+| two-pointers | 11/25 | | bst | 5/12 |
+| sliding-window | 10/14 | | pattern-matching | 2/12 |
+| arrays | 5/18 | | palindrome | 2/12 |
+| prefix-sum | 2/13 | | stack-queue | **0/11** |
+| stack | 9/18 | | trie | 2/11 |
+| monotonic-stack | 5/13 | | recursion | 1/9 |
+| matrix | 9/30 | | binary-search-on-answer | **0/7** |
+| graph-traversal | 4/14 | | topological-sort | 1/5 |
+| hashing | 2/78 | | shortest-path | 1/5 |
+| linked-list | 8/65 | | intervals | 1/5 |
+| heap | 8/33 | | union-find | 2/4 |
+| dynamic-programming | 8/30 | | greedy | 2/4 |
+| queue | 2/30 | | **untagged** | **0/117** |
+| tree-dfs | 3/25 | | sorting | 2/23 |
+| tree-traversal | **0/15** | | bit-manipulation | 2/15 |
+| backtracking | 3/16 | | strings | 2/13 |
+| binary-search | 5/13 | | complexity-analysis | ⏭️ 48 (out of scope) |
+
+**Zero-coverage to prioritize next:** tree-traversal (15), stack-queue (11), binary-search-on-answer (7), and triage the **117 untagged** problems.

@@ -85,7 +85,7 @@
 
 | Pattern | Renderer | Total | Animated | Status |
 |---|---|--:|--:|---|
-| two-pointers | array-pointers ✅ | 25 | 6 | 🔄 |
+| two-pointers | array-pointers ✅ | 25 | 11 | 🔄 |
 | sliding-window | array-pointers ✅ | 14 | 10 | 🔄 (4 left: window+set, prefix, circular, synthesis) |
 | arrays | array-pointers ✅ | 18 | — | ⬜ |
 | prefix-sum | array-pointers ✅ | 13 | — | ⬜ |
@@ -122,12 +122,13 @@
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 27 / ~700.**
+**Animated so far: 33 / ~700.** (committed + deployed + prod-verified)
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 
 **Progress log:**
 - [x] 2026-06-04 — sliding-window batch 1 (6) via existing renderer.
-- [ ] next — two-pointers remaining (~19), then arrays/prefix-sum/intervals/greedy (array-pointers renderer).
+- [x] 2026-06-04 — two-pointers/DNF batch 2 (6) via existing renderer; committed 7c7f07d0, deployed, prod-verified (Move Zeroes player live).
+- [ ] next — finish two-pointers (~14), then arrays/prefix-sum/intervals/greedy (~19), then arrays/prefix-sum/intervals/greedy (array-pointers renderer).
 - [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
 - [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.

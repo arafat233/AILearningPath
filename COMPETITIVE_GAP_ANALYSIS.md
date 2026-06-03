@@ -92,8 +92,8 @@
 | stack | stack ✅ | 18 | 9 | 🔄 |
 | monotonic-stack | stack ✅ | 13 | 5 | 🔄 |
 | stack-queue | stack/queue | 11 | — | ⬜ |
-| matrix | grid ✅ | 30 | — | ⬜ |
-| graph-traversal | grid ✅ | 14 | — | ⬜ |
+| matrix | grid ✅ | 30 | 5 | 🔄 |
+| graph-traversal | grid ✅ | 14 | 3 | 🔄 |
 | hashing | **NEW table** | 78 | — | ⬜ |
 | linked-list | **NEW linked-list** | 65 | — | ⬜ |
 | heap | **NEW heap-tree** | 33 | — | ⬜ |
@@ -122,7 +122,7 @@
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 51 / ~700.** (committed + deployed + prod-verified)
+**Animated so far: 59 / ~700.** (committed + deployed + prod-verified)
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 
@@ -131,6 +131,7 @@
 - [x] 2026-06-04 — two-pointers/DNF batch 2 (6) via existing renderer; committed 7c7f07d0, deployed, prod-verified (Move Zeroes player live).
 - [x] 2026-06-04 — batch 3 (10): arrays (Kadane, Boyer-Moore, Rotate, Jump Game, Best-Buy-Sell), prefix-sum (Pivot, Running Sum), greedy (Cookies, Lemonade), intervals (Merge).
 - [x] 2026-06-04 — batch 4 (8) stack family: Daily Temps, Stock Span, Prev Smaller, Remove Adjacent Dupes, Asteroid Collision, Remove K Digits, Validate Stack Seq, Reverse-via-Stack.
-- [ ] next — grid family (matrix/graph → grid renderer), then start NEW renderers.
+- [x] 2026-06-04 — batch 5 (8) grid family: Number of Islands, Max Area, Flood Fill, Spiral Order, Shortest Path BFS, Walls & Gates, Word Search, Rotate Matrix.
+- [ ] EXISTING-RENDERER coverage now well underway; next batches finish matrix/graph then start NEW renderers (linked-list first).
 - [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
 - [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.

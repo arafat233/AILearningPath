@@ -22,6 +22,9 @@
   --input-bg: #F2F2F7;
   --input-border: #D1D1D6;
   --fill: #F2F2F7;
+  /* Scrollbar thumb — translucent so it contrasts on any bg (sidebar, cards). */
+  --scroll-thumb: rgba(60,60,67,0.45);
+  --scroll-thumb-hover: rgba(60,60,67,0.65);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -37,6 +40,8 @@ html.dark {
   --sidebar-bg: rgba(28,28,30,0.92);
   --input-bg: #3A3A3C;
   --input-border: #48484A;
+  --scroll-thumb: rgba(235,235,245,0.45);
+  --scroll-thumb-hover: rgba(235,235,245,0.68);
   /* --fill = inset/tile bg INSIDE a card — must be visibly distinct from --card-bg.
      Apple HIG: lighter shade = raised in dark mode. */
   --fill: #3A3A3C;
@@ -263,11 +268,13 @@ html.dark .light-on-gradient button.bg-\[\#1c1c1e\],
 html.dark .light-on-gradient .bg-\[\#1c1c1e\] { background-color: #1c1c1e !important; color: #ffffff !important; }
 html.dark .light-on-gradient .bg-\[\#1c1c1e\] * { color: #ffffff !important; }
 
-/* Smooth scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+/* Smooth scrollbar — theme-aware translucent thumb (visible in both modes).
+   Firefox: scrollbar-color inherits from html. WebKit: explicit thumb/track. */
+html { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--gray5); border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gray); }
+::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 9999px; background-clip: padding-box; border: 1px solid transparent; }
+::-webkit-scrollbar-thumb:hover { background: var(--scroll-thumb-hover); }
 
 /* ── Landing page design tokens ─────────────────────────────────── */
 .display { letter-spacing: -0.035em; font-weight: 700; text-wrap: balance; }

@@ -121,7 +121,7 @@
 |-------|--------|-----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:-----:|-------|
 | 10 | 54 | 1140 | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Cloned from CBSE Math 10; 14 NcertChapter docs (ap_ssc_math10_ch1–ch14, board=AP_SSC); 54 topics; 1140 Qs; 884 RAG chunks; ALL PHASES COMPLETE 2026-05-24 |
 | 9  | 35 | 560  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | Traditional NCERT Class 9; 12 NcertChapter docs (ap_ssc_math9_ch1–ch12, board=AP_SSC); 35 topics; 560 Qs; 229 RAG chunks; 35/35 audit PASS; ALL PHASES COMPLETE 2026-05-24 |
-| 8  | 56 | — | ✅ | ✅ | 🔄 | ❌ | ❌ | ❌ | ❌ | ❌ | 🔄 | ❌ | 🔄 | **IN PROGRESS (2026-06-03):** NCERT Class 8 (AP SSC SEM-1 Ch1–8 + SEM-2 Ch9–16). topicId prefix `ap_ssc_math8_*`, board AP_SSC, grade 8. **Ph1 ✅** 16 NcertChapter skeletons (`seedApSscMath8NcertChapters.js`). **Ph2 🔄** teaching content — **Ph2 content COMPLETE (56 topics). Ph6 RAG ✅ (265 chunks).** Ph3 Questions IN PROGRESS — Ch1–4 done (75 MCQ, 15/56 topics at full 15/15). Ch5–16 questions pending. Then Ph3 Qs A/B/C, Ph5 DAG, Ph6 RAG, Ph4 diagrams. |
+| 8  | 56 | — | ✅ | ✅ | 🔄 | ❌ | ❌ | ❌ | ❌ | ❌ | 🔄 | ❌ | 🔄 | **IN PROGRESS (2026-06-03):** NCERT Class 8 (AP SSC SEM-1 Ch1–8 + SEM-2 Ch9–16). topicId prefix `ap_ssc_math8_*`, board AP_SSC, grade 8. **Ph1 ✅** 16 NcertChapter skeletons (`seedApSscMath8NcertChapters.js`). **Ph2 🔄** teaching content — **Ph2 content COMPLETE (56 topics). Ph6 RAG ✅ (265 chunks).** Ph3 Questions IN PROGRESS — **SEM-1 Ch1–8 done (145 MCQ, 29/56 topics at full 15/15).** SEM-2 Ch9–16 questions pending. Then Ph5 DAG, Ph4 diagrams. |
 
 **AP SSC Math 9 — phase details (2026-05-24):**
 - Ph0 (Scope): 12 chapters (NCERT Class 9 rationalized 2024-25); topicId prefix `ap_ssc_math9_*`; board `AP_SSC`; English-only ✅

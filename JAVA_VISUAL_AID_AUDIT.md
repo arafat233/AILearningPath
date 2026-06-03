@@ -525,19 +525,19 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 - [ ] 🔎 **java_m29_t1** — Big-O Notation — The Language of Efficiency
   - req: `CURVE` · now: `svg-diagram`
   - brief: Big-O growth rate graph. X-axis: input size n (0 to 100). Y-axis: operations (0 to 10,000). Six curves: O(1) flat at bottom, O(log n) barely rising, O(n) diagonal, O(n log n) slightly above diagonal, O(n²) steep parabola, O(2ⁿ) rockets off the chart. Each curve labeled with color and typical example: O(1)=HashMap.get(), O(log n)=Binary Search, O(n)=Linear Search, O(n log n)=Merge Sort, O(n²)=Bubble Sort, O(2ⁿ)=All Subsets. Key annotation: 'At n=100, O(n²)=10,000 ops vs O(n log n)=664 ops'
-- [ ] ❌ **java_m29_t2** — Analyzing Code Complexity — Step by Step
+- [x] ✅(fixed) **java_m29_t2** — Analyzing Code Complexity — Step by Step
   - req: `TREE` · now: `svg-PANELS(text-in-boxes)`
   - brief: Recursion tree for merge sort. Root: T(n) splits into two T(n/2), each splits into two T(n/4), down to T(1) leaves. Each level: work = n (merge step). Number of levels = log n. Total work = n × log n = O(n log n). Labeled: 'Level 0: n work, Level 1: n/2 + n/2 = n work, Level log n: 1+1+...=n work. Total = n × log n levels'.
-- [ ] ❌ **java_m29_t3** — Space Complexity — Memory Matters
+- [x] ✅(fixed) **java_m29_t3** — Space Complexity — Memory Matters
   - req: `MEMORY` · now: `auto-PANELS`
   - brief: Two diagrams side by side. Left: Recursion call stack for binarySearch(n=16) — 4 stack frames (log₂16=4), each frame holds lo, hi, mid, target. Labeled 'O(log n) space'. Right: Fibonacci recursion — deep left branch fib(n)→fib(n-1)→...→fib(0), depth n frames. Labeled 'O(n) space'. Bottom: comparison table: Algorithm | Time | Space. Iterative binary search: O(log n) | O(1). Recursive binary search: O(log n) | O(log n). Merge sort: O(n log n) | O(n). In-place sort (heapsort): O(n log n) | O(1).
-- [ ] ❌ **java_m29_t4** — Best/Worst/Average Case & Amortized Analysis
+- [x] ✅(fixed) **java_m29_t4** — Best/Worst/Average Case & Amortized Analysis
   - req: `CURVE` · now: `svg-PANELS(text-in-boxes)`
   - brief: Two diagrams. Left: Three-case comparison table for Quicksort, Binary Search, Linear Search, HashMap. Columns: Algorithm | Best | Worst | Average. Rows filled in with correct values, color-coded (green=good, yellow=ok, red=bad). Right: ArrayList amortized analysis timeline. X-axis: number of add() operations (1 to 16). Y-axis: cost of each operation. Most bars height 1 (O(1) add). At positions 2, 4, 8, 16: tall bars showing resize cost (2, 4, 8, 16). Arrow showing: 'total cost = 2n, amortized per op = 2n/n = O(1)'.
 
 ## M30
 
-- [ ] ❌ **java_m30_t1** — Two Pointers — O(n) Pair Problems
+- [x] ✅(fixed) **java_m30_t1** — Two Pointers — O(n) Pair Problems
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Two-pointer inward diagram. Array: [1, 3, 5, 7, 9, 11], target=12. Step-by-step: Step 1: lo=0(1), hi=5(11), sum=12 → FOUND! Return true. Alternate scenario target=14: Step 1: lo=0(1)+hi=5(11)=12 < 14 → lo++. Step 2: lo=1(3)+hi=5(11)=14 = target → FOUND. Arrows show lo moving right, hi moving left. Bottom: 'At most n steps: lo+hi pointers together traverse the array once total → O(n)'.
 - [ ] ✅ **java_m30_t2** — Sliding Window — Contiguous Subarray Problems
@@ -555,16 +555,16 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 
 ## M30.5
 
-- [ ] ❌ **java_m30_5_t1** — Matrix Traversal — Row/Column/Diagonal/Spiral
+- [x] ✅(fixed) **java_m30_5_t1** — Matrix Traversal — Row/Column/Diagonal/Spiral
   - req: `TABLE/GRID` · now: `auto-PANELS`
   - brief: 3×3 matrix spiral: → top row, ↓ right col, ← bottom row, ↑ left col. Boundaries shrink: top++, right--, bottom--, left++. Next inner ring repeats.
-- [ ] ❌ **java_m30_5_t2** — Grid BFS / DFS — Islands and Flood Fill
+- [x] ✅(fixed) **java_m30_5_t2** — Grid BFS / DFS — Islands and Flood Fill
   - req: `TABLE/GRID` · now: `svg-PANELS(text-in-boxes)`
   - brief: Grid with '1's forming two islands. BFS wave ripples from source. DFS dives deep marking cells. visited[][] prevents revisiting.
-- [ ] ❌ **java_m30_5_t3** — Grid DP — Paths, Costs, and Edit Distance
+- [x] ✅(fixed) **java_m30_5_t3** — Grid DP — Paths, Costs, and Edit Distance
   - req: `TABLE/GRID` · now: `svg-PANELS(text-in-boxes)`
   - brief: 3×3 grid with dp values filled row by row. Arrows show each cell pulling from cell-above and cell-left. Edit distance table shown with 'match/insert/delete' arrows.
-- [ ] ❌ **java_m30_5_t4** — 2D Binary Search — Search in Sorted Matrix
+- [x] ✅(fixed) **java_m30_5_t4** — 2D Binary Search — Search in Sorted Matrix
   - req: `TABLE/GRID` · now: `svg-PANELS(text-in-boxes)`
   - brief: Pattern 1: 4×4 matrix flattened to 16-element array with binary search. Pattern 2: starting top-right, arrows show left/down decisions eliminating rows/columns.
 - [ ] 🔎 **java_m30_5_t5** — 2D Array Synthesis — Multi-Pattern Problems
@@ -573,10 +573,10 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 
 ## M31
 
-- [ ] ❌ **java_m31_t1** — String Fundamentals — Immutability, Operations, Complexity
+- [x] ✅(fixed) **java_m31_t1** — String Fundamentals — Immutability, Operations, Complexity
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: String pool diagram: String literals point to same pool object ('hello' shared). String s = new String('hello') creates separate heap object (avoid this). Comparison: s1 == s2 checks reference; s1.equals(s2) checks content. StringBuilder internal: char[] buffer that doubles when full (same as ArrayList amortized O(1) append).
-- [ ] ❌ **java_m31_t2** — Pattern Matching — KMP Algorithm
+- [x] ✅(fixed) **java_m31_t2** — Pattern Matching — KMP Algorithm
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: KMP diagram. Top: LPS array construction for 'AABAAB': table showing index, char, prefix-suffix matches, lps value. Bottom: KMP search on text='AABAABAAB', pattern='AABAAB'. Show how mismatch at j=5 jumps to j=lps[4]=2 instead of restarting at i+1. Mark: 'i stays, j jumps back via LPS — never re-examine text chars'. Final: match found at position 3.
 - [ ] 🔶 **java_m31_t3** — Palindromes — Detection and Expansion
@@ -591,19 +591,19 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 
 ## M32
 
-- [ ] ❌ **java_m32_t1** — Linked List Basics — Node, Traversal, Dummy Head
+- [x] ✅(fixed) **java_m32_t1** — Linked List Basics — Node, Traversal, Dummy Head
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Singly linked list 1→2→3→null. Node structure: [val|next]. Dummy node pattern: [dummy|→] → [1|→] → [2|→] → [3|null]. Delete node 2: prev.next = curr.next. Insert after 1: newNode.next=curr.next; curr.next=newNode.
 - [ ] 🔶 **java_m32_t2** — Two-Pointer Techniques on Linked Lists
   - req: `FLOW/PIPELINE` · now: `auto-PANELS`
   - brief: Two diagrams. Left: Find middle of 1→2→3→4→5. Slow/fast both start at 1. Iteration 1: slow=2,fast=3. Iteration 2: slow=3,fast=5. fast.next=null → stop. Middle=slow=3. Right: Cycle detection on 1→2→3→4→5→3(cycle). Iteration 1: slow=2,fast=3. Iter 2: slow=3,fast=5. Iter 3: slow=4,fast=4. slow==fast: CYCLE!
-- [ ] ❌ **java_m32_t3** — Linked List Reversal — Full, Partial, K-Groups
+- [x] ✅(fixed) **java_m32_t3** — Linked List Reversal — Full, Partial, K-Groups
   - req: `STATE` · now: `svg-PANELS(text-in-boxes)`
   - brief: Step-by-step reversal of 1→2→3→null. State at each step: prev/curr/next arrows. Step 0: prev=null,curr=1,next=?. Step 1: save next=2, reverse 1.next=null, prev=1,curr=2. Step 2: save next=3, reverse 2.next=1, prev=2,curr=3. Step 3: save next=null, reverse 3.next=2, prev=3,curr=null. Return prev=3. Result: 3→2→1→null.
-- [ ] ❌ **java_m32_t4** — Cycle Detection — Floyd's Algorithm
+- [x] ✅(fixed) **java_m32_t4** — Cycle Detection — Floyd's Algorithm
   - req: `MEMORY` · now: `svg-PANELS(text-in-boxes)`
   - brief: Linked list with cycle: 1→2→3→4→5→3(cycle). Phase 1: fast/slow both start at 1. After 3 iterations: slow=4, fast=4 (meeting point inside cycle). Phase 2: reset slow to 1. Advance both at speed 1. slow goes 1→2→3, fast goes 4→5→3. Meet at 3 = cycle entry. Phase 3: count from 3 until return to 3: 3→4→5→3 = length 3.
-- [ ] ❌ **java_m32_t5** — Merge and Sort Linked Lists
+- [x] ✅(fixed) **java_m32_t5** — Merge and Sort Linked Lists
   - req: `MEMORY` · now: `auto-FLOW`
   - brief: Merge K sorted lists with min-heap. 3 lists: [1,4,7], [2,5,8], [3,6,9]. Heap starts with heads: {1,2,3}. Extract 1(min), push 4 → heap {2,3,4}. Extract 2, push 5 → {3,4,5}. Continues producing 1,2,3,4,5,6,7,8,9. Total: N=9 extractions, each O(log K=log3). Total O(N log K).
 
@@ -615,7 +615,7 @@ Legend — flag: ❌ MISMATCH (needs real diagram) · 🔎 REVIEW(svg) · 🔶 R
 - [ ] ✅ **java_m33_t2** — Monotonic Stack — Next Greater, Histogram, Trapping Rain
   - req: `FLOW/PIPELINE` · now: `auto-FLOW`
   - brief: Monotonic stack trace for nextGreater([2,1,2,4,3]). Process each index: push 2(idx0). Push 1(idx1)—1<2 ok. See 2(idx2): 2>1(top) → pop idx1, result[1]=2. 2==2(top) → stop. Push idx2. See 4(idx3): 4>2(idx2)→pop,result[2]=4. 4>2(idx0)→pop,result[0]=4. Stack empty→push idx3. See 3(idx4): 3<4(top)→push. End. Stack has [idx3,idx4]: result stays -1.
-- [ ] ❌ **java_m33_t3** — Queue Fundamentals — FIFO, BFS, Implement with Stacks
+- [x] ✅(fixed) **java_m33_t3** — Queue Fundamentals — FIFO, BFS, Implement with Stacks
   - req: `TREE` · now: `svg-PANELS(text-in-boxes)`
   - brief: Queue as horizontal pipe: offer() adds to right (tail), poll() removes from left (head). Arrow 'FIFO'. Beside: BFS level-order on tree. Level 0: root. Level 1: left, right. Level 2: all grandchildren. Queue state at each level shown with size snapshot.
 - [ ] 🔶 **java_m33_t4** — Deque & Sliding Window Maximum

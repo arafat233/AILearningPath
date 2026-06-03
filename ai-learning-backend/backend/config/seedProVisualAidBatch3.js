@@ -628,6 +628,101 @@ function m14_t5() {
   return svg(760, 196, g);
 }
 
+// linked-list node [val|next]
+const llnode = (x, y, val, ci = 0) => box(x, y, 60, 28, ci) + `<line x1="${x + 40}" y1="${y}" x2="${x + 40}" y2="${y + 28}" stroke="${STRK[ci]}"/>` + txt(x + 20, y + 19, String(val), { a: "middle", mono: true, s: 11, w: 700 }) + txt(x + 50, y + 19, "•", { a: "middle", s: 13 });
+
+// ── m31_t1 — String pool & immutability ──
+function m31_t1() {
+  let g = title(14, "String pool & immutability");
+  g += box(250, 40, 130, 30, 1) + txt(315, 60, 'pool: "hello"', { a: "middle", mono: true, s: 10, w: 600 });
+  g += box(40, 40, 90, 24, 0) + txt(85, 57, "s1", { a: "middle", s: 9 }) + arr(130, 52, 248, 52, "g");
+  g += box(40, 72, 90, 24, 0) + txt(85, 89, "s2", { a: "middle", s: 9 }) + arr(130, 84, 248, 60, "g");
+  g += txt(150, 50, "literals share →", { s: 8, o: 0.6 });
+  g += box(450, 40, 230, 30, 4) + txt(565, 60, 'new String("hello") → separate heap obj', { a: "middle", mono: true, s: 8.5 });
+  g += txt(40, 124, "s1 == s2  ✓ same reference   ·   new String → ==  ✗, use .equals() for content", { s: 9.5 });
+  g += txt(40, 150, "StringBuilder: internal char[] buffer doubles when full → amortized O(1) append", { s: 9.5, o: 0.8 });
+  return svg(760, 168, g);
+}
+
+// ── m31_t2 — KMP LPS array + search jump ──
+function m31_t2() {
+  let g = title(14, "KMP — LPS array + skip on mismatch");
+  g += txt(30, 38, "LPS for pattern AABAAB:", { s: 9.5, w: 600 });
+  const pat = ["A", "A", "B", "A", "A", "B"], lps = [0, 1, 0, 1, 2, 3];
+  pat.forEach((c, i) => { g += vcell(40 + i * 56, 46, 50, 26, c, 0, { s: 11 }); g += txt(40 + i * 56 + 25, 90, "lps=" + lps[i], { a: "middle", s: 8.5, o: 0.7 }); });
+  g += txt(30, 124, "Search text AABAABAAB: mismatch at j=5 → j = lps[4] = 2 (i stays, never re-scan text)", { s: 9.5 });
+  g += txt(30, 148, "→ match found at position 3.  Time O(n + m).", { s: 9.5, fill: GRN });
+  return svg(760, 164, g);
+}
+
+// ── m32_t1 — linked list basics + dummy head ──
+function m32_t1() {
+  let g = title(14, "Linked list — node, dummy head, insert/delete");
+  g += llnode(30, 44, "dmy", 3) + arr(91, 58, 120, 58);
+  ["1", "2", "3"].forEach((v, i) => { const x = 120 + i * 90; g += llnode(x, 44, v, 0); if (i < 2) g += arr(x + 61, 58, x + 90, 58); });
+  g += txt(390, 58, "→ null", { s: 10, o: 0.7 });
+  g += txt(30, 100, "delete node 2:  prev.next = curr.next   (skip over 2)", { mono: true, s: 9.5 });
+  g += txt(30, 122, "insert after 1: newNode.next = curr.next;  curr.next = newNode", { mono: true, s: 9.5 });
+  g += txt(30, 148, "dummy head removes the special-case for deleting/inserting at the front.", { s: 9, o: 0.7 });
+  return svg(760, 164, g);
+}
+
+// ── m32_t3 — linked list reversal steps ──
+function m32_t3() {
+  let g = title(14, "Linked list reversal — prev / curr / next");
+  const steps = [["Step 0", [["1", 0], ["2", 5], ["3", 5]], "prev=null curr=1"], ["Step 1", [["1", 1], ["2", 0], ["3", 5]], "1.next=null prev=1 curr=2"], ["Step 2", [["1", 1], ["2", 1], ["3", 0]], "2.next=1 prev=2 curr=3"], ["Step 3", [["1", 1], ["2", 1], ["3", 1]], "3.next=2 prev=3 → return 3"]];
+  steps.forEach((s, si) => {
+    const y = 40 + si * 42;
+    g += txt(20, y + 19, s[0], { s: 9, w: 600 });
+    s[1].forEach((n, i) => g += llnode(90 + i * 80, y, n[0], n[1]));
+    g += txt(360, y + 19, s[2], { mono: true, s: 8.5, o: 0.8 });
+  });
+  g += txt(20, 218, "Result: 3 → 2 → 1 → null", { s: 10, w: 700, fill: GRN });
+  return svg(760, 232, g);
+}
+
+// ── m32_t4 — Floyd cycle detection ──
+function m32_t4() {
+  let g = title(14, "Floyd's cycle detection (tortoise & hare)");
+  [1, 2, 3, 4, 5].forEach((v, i) => { const x = 60 + i * 90; g += llnode(x, 50, v, i === 2 ? 2 : 0); if (i < 4) g += arr(x + 61, 64, x + 90, 64); });
+  // cycle back-edge 5 -> 3
+  g += `<path d="M481,78 L481,110 L240,110 L240,80" fill="none" stroke="${ARR}" marker-end="url(#ah)"/>` + txt(360, 124, "cycle: 5 → 3", { a: "middle", s: 9, o: 0.7 });
+  g += txt(40, 150, "Phase 1: slow +1 / fast +2 → meet inside cycle (node 4).", { s: 9.5 });
+  g += txt(40, 170, "Phase 2: reset slow to head, both +1 → meet at entry (node 3).", { s: 9.5 });
+  g += txt(40, 190, "Phase 3: loop from entry → cycle length = 3.", { s: 9.5, fill: GRN });
+  return svg(760, 206, g);
+}
+
+// ── m32_t5 — merge K sorted lists with min-heap ──
+function m32_t5() {
+  let g = title(14, "Merge K sorted lists — min-heap");
+  [["[1, 4, 7]", 0], ["[2, 5, 8]", 0], ["[3, 6, 9]", 0]].forEach(([l, ci], i) => g += box(30, 42 + i * 34, 130, 26, ci) + txt(95, 59 + i * 34, l, { a: "middle", mono: true, s: 10 }));
+  g += arr(160, 76, 200, 76, "", "heads");
+  g += box(200, 56, 150, 40, 2) + txt(275, 72, "min-heap {1,2,3}", { a: "middle", mono: true, s: 9 }) + txt(275, 88, "extract 1, push 4", { a: "middle", s: 8, o: 0.7 });
+  g += arr(350, 76, 390, 76, "g");
+  g += box(390, 56, 340, 40, 1) + txt(560, 80, "output: 1 2 3 4 5 6 7 8 9", { a: "middle", mono: true, s: 11, w: 700 });
+  g += txt(30, 156, "N = 9 extractions, each O(log K) → O(N log K).", { s: 9.5, o: 0.8 });
+  return svg(760, 172, g);
+}
+
+// ── m33_t3 — queue FIFO + BFS level-order ──
+function m33_t3() {
+  let g = title(14, "Queue — FIFO + BFS level-order");
+  g += txt(30, 40, "poll() ← head", { s: 9, o: 0.7 });
+  ["A", "B", "C", "D"].forEach((v, i) => g += vcell(150 + i * 60, 32, 54, 30, v, 5, { s: 11 }));
+  g += txt(400, 40, "tail ← offer()", { s: 9, o: 0.7 });
+  g += arr(150, 80, 110, 80, "g") + txt(70, 84, "out", { s: 8.5 }) + arr(420, 80, 460, 80, "g") + txt(466, 84, "in", { s: 8.5 });
+  // BFS tree
+  g += txt(30, 116, "BFS level-order uses a queue:", { s: 9.5, w: 600 });
+  const tn = (x, y, t) => `<circle cx="${x}" cy="${y}" r="15" fill="${TINT[0]}" stroke="${STRK[0]}"/>` + txt(x, y + 4, t, { a: "middle", s: 9, w: 600 });
+  g += tn(380, 132, "1") + arr(370, 144, 320, 158) + arr(390, 144, 440, 158);
+  g += tn(310, 168, "2") + tn(450, 168, "3");
+  g += arr(300, 180, 270, 194) + arr(320, 180, 350, 194) + arr(440, 180, 410, 194) + arr(460, 180, 490, 194);
+  ["4", "5", "6", "7"].forEach((v, i) => g += tn(260 + i * 80, 200, v));
+  g += txt(560, 150, "L0: [1]", { mono: true, s: 9, o: 0.8 }) + txt(560, 168, "L1: [2,3]", { mono: true, s: 9, o: 0.8 }) + txt(560, 186, "L2: [4,5,6,7]", { mono: true, s: 9, o: 0.8 });
+  return svg(760, 226, g);
+}
+
 // ── m29_t2 — merge sort recursion tree ──
 function m29_t2() {
   let g = title(14, "Merge sort recursion tree → O(n log n)");
@@ -970,6 +1065,8 @@ const SPECS = {
   java_m24_t2: m24_t2, java_m25_t1: m25_t1, java_m25_t2: m25_t2, java_m25_t5: m25_t5,
   java_m29_t2: m29_t2, java_m29_t3: m29_t3, java_m29_t4: m29_t4, java_m30_t1: m30_t1,
   java_m30_5_t1: m30_5_t1, java_m30_5_t2: m30_5_t2, java_m30_5_t3: m30_5_t3, java_m30_5_t4: m30_5_t4,
+  java_m31_t1: m31_t1, java_m31_t2: m31_t2, java_m32_t1: m32_t1, java_m32_t3: m32_t3,
+  java_m32_t4: m32_t4, java_m32_t5: m32_t5, java_m33_t3: m33_t3,
 };
 
 async function run() {

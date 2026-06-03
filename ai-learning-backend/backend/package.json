@@ -411,7 +411,8 @@
     "seed:ap-ssc-math8-content-ch13": "node config/seedApSscMath8Ch13.js",
     "seed:ap-ssc-math8-content-ch14": "node config/seedApSscMath8Ch14.js",
     "seed:ap-ssc-math8-content-ch15": "node config/seedApSscMath8Ch15.js",
-    "seed:ap-ssc-math8-content-ch16": "node config/seedApSscMath8Ch16.js"
+    "seed:ap-ssc-math8-content-ch16": "node config/seedApSscMath8Ch16.js",
+    "rag:build-ap-ssc-math8": "node scripts/buildRagFromTopicContent.js --prefix=ap_ssc_math8_"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",

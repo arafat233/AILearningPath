@@ -11,12 +11,18 @@ import "dotenv/config";
 import mongoose from "mongoose";
 
 const DSA = /^java_m(29|3[0-9]|30_5|4[0-8]|41_5)_/;
+// M42 (Interview Prep) + M45 (Mock Coding) are timed mock/practice rounds, not
+// algorithm-concept problems → out of scope for per-problem animations (like
+// complexity-analysis). They account for the "untagged" bucket.
+const MOCK = /^java_m(42|45)_/;
 
 async function run() {
   await mongoose.connect(process.env.MONGO_URI);
   const E = mongoose.connection.collection("proexercises");
-  const code = await E.find({ trackKey: "pro_java", topicId: DSA, type: { $in: ["code_scratch", "algorithm"] } })
-    .project({ pattern: 1, animation: 1 }).toArray();
+  const raw = await E.find({ trackKey: "pro_java", topicId: DSA, type: { $in: ["code_scratch", "algorithm"] } })
+    .project({ topicId: 1, pattern: 1, animation: 1 }).toArray();
+  const mockCount = raw.filter((e) => MOCK.test(e.topicId)).length;
+  const code = raw.filter((e) => !MOCK.test(e.topicId));
   const tot = {}, anim = {};
   code.forEach((e) => { const p = e.pattern || "(untagged)"; tot[p] = (tot[p] || 0) + 1; if (e.animation) anim[p] = (anim[p] || 0) + 1; });
 
@@ -39,7 +45,7 @@ async function run() {
     const flag = d === 0 ? " ⬅ ZERO" : d < t ? "" : " ✅ FULL";
     console.log(`  ${p.padEnd(24)}${String(d).padStart(3)}/${String(t).padEnd(4)}${flag}`);
   });
-  console.log(`\n(complexity-analysis: ${tot["complexity-analysis"] || 0} — out of scope, not step-animatable)`);
+  console.log(`\nout of scope: complexity-analysis ${tot["complexity-analysis"] || 0} (Big-O reasoning) + M42/M45 mock/interview ${mockCount} (timed practice, not concept problems)`);
   await mongoose.disconnect();
 }
 run().catch((e) => { console.error(e); process.exit(1); });

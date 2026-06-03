@@ -98,7 +98,7 @@
 | linked-list | linked-list ✅ NEW | 65 | 8 | 🔄 |
 | heap | tree ✅ (reused) | 33 | 8 | 🔄 |
 | dynamic-programming | grid ✅ (reused) | 30 | 8 | 🔄 |
-| queue | **NEW queue** | 30 | — | ⬜ |
+| queue | array-pointers/stack ✅ | 30 | 2 | 🔄 |
 | tree-dfs | tree ✅ NEW | 15 | 3 | 🔄 |
 | tree-traversal | **NEW tree** | 15 | — | ⬜ |
 | bst | tree ✅ | 12 | 5 | 🔄 |
@@ -107,13 +107,13 @@
 | bit-manipulation | array-pointers ✅ (reused) | 15 | 2 | 🔄 |
 | binary-search | array-pointers ✅ (reused) | 13 | 4 | 🔄 |
 | binary-search-on-answer | bsearch | 7 | — | ⬜ |
-| strings | **NEW string** | 13 | — | ⬜ |
+| strings | array-pointers ✅ (reused) | 13 | 4 | 🔄 |
 | palindrome | array-pointers ✅ | 12 | 2 | 🔄 |
-| pattern-matching | string | 12 | — | ⬜ |
+| pattern-matching | array-pointers ✅ | 12 | 2 | 🔄 |
 | trie | tree ✅ (reused) | 11 | 2 | 🔄 |
 | recursion | tree ✅ (reused) | 9 | 1 | 🔄 |
-| topological-sort | grid/graph | 5 | — | ⬜ |
-| shortest-path | grid/graph | 5 | — | ⬜ |
+| topological-sort | tree ✅ (reused) | 5 | 1 | 🔄 |
+| shortest-path | tree ✅ (reused) | 5 | 1 | 🔄 |
 | intervals | array-pointers | 5 | 1 | 🔄 |
 | union-find | tree ✅ (reused) | 4 | 2 | 🔄 |
 | greedy | array-pointers | 4 | 2 | 🔄 |
@@ -122,7 +122,7 @@
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 109 / ~700.** (committed + deployed + prod-verified)
+**Animated so far: 119 / ~700.** (committed + deployed + prod-verified)
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 
@@ -139,6 +139,7 @@
 - [x] 2026-06-04 — batch 9 (8) DP via REUSED grid renderer. Fibonacci, Climbing Stairs, House Robber, Min-Cost Stairs, LCS, Edit Distance, Longest Palindromic Subseq, Longest Common Substring. Verified on dev.
 - [x] 2026-06-04 — batch 10 (10) sort/bsearch/bits/palindrome via REUSED array-pointers. Merge/Quick Sort, Binary Search, First/Last, Search/Find-Min Rotated, Count Set Bits, Single Number XOR, Valid Palindrome, Longest Palindromic Substring. (past 100 ✅)
 - [x] 2026-06-04 — batch 11 (8) backtrack/trie/union-find via REUSED tree renderer. Power Set, Permutations, Combination Sum, Subsets-recursion, Trie insert/search, Union-Find, Provinces.
-- [ ] next — strings/pattern-matching, queue/BFS, hashing, topological-sort/shortest-path, then sweep remaining within each pattern toward full coverage.
+- [x] 2026-06-04 — batch 12 (10): anagram, reverse, Roman, group-anagrams, KMP (LPS+search), queue FIFO, two-stack queue, Kahns topo-sort, Dijkstra. All renderers now exercised.
+- [ ] ALL renderer types now in use. Remaining = SWEEP the long tail within each pattern (hashing 78, linked-list 57 left, matrix, etc.) batch by batch to full coverage.
 - [ ] then — stack family (stack/monotonic/stack-queue), grid family (matrix/graph).
 - [ ] then — NEW renderers: linked-list, tree, heap, dp-table, queue, sort, backtrack, bits, bsearch, string, hashing-table, union-find.

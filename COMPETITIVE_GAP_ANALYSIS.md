@@ -122,7 +122,7 @@
 
 **Renderers to build:** table (hashing), linked-list, heap-tree, dp-table, queue, tree, sort, backtrack-tree, bits, bsearch, string, unionfind.
 
-**Animated so far: 209 / 598 animatable (35%).** (committed + deployed + prod-verified; M42/M45 mock + complexity-analysis excluded as out-of-scope)
+**Animated so far: 251 / 598 animatable (42%).** intervals & greedy FULL. (committed + deployed + prod-verified; M42/M45 mock + complexity-analysis excluded as out-of-scope)
 - Original 21 pilots: two-pointers ×6, sliding-window ×4, monotonic-stack ×3, grid ×3, batch2 ×5.
 - `seedAnimationCoverage1.js` (2026-06-04): +6 sliding-window (Max-Sum-K, Find Anagrams, ≤2 Distinct, Char Replacement, Fruit Baskets, Longest-1s-after-deletion).
 

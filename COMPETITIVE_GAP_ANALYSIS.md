@@ -19,14 +19,14 @@
 | # | Feature | Stellar | DSA Animator | AlgoMaster |
 |--|---|---|---|---|
 | 1 | DSA problems | ~900 | ~170 (60E/85M/25H) | 600+ |
-| 2 | Coding patterns | 33 + quiz + atlas | 43 templates + quiz | 70+ |
+| 2 | Coding patterns | ✅ 72 (atlas) + quiz + templates | 43 templates + quiz | 70+ |
 | 3 | Step-by-step animation | ⚠️ 21 | ✅ ~170 (USP) | ⚠️ newer |
 | 4 | Run real code (compile+grade) | ✅ Judge0 JDK 21 | ⚠️ "AI Java Backend" | ❌ |
 | 5 | Exercise types | ✅ 8 types | ❌ read + LC links | ⚠️ read + mark done |
 | 6 | AI tutor | ✅ Socratic, per-exercise | ⚠️ AI backend | ✅ inline AI |
 | 7 | Concept diagrams / visual aids | ✅ 245 topics | ⚠️ problem animation only | ⚠️ static in articles |
-| 8 | System Design | ⚠️ light (5 topics) | ⚠️ new | ✅ deep (50+ Q, 20+ patterns) |
-| 9 | Low-Level Design (UML) | ❌ | ❌ | ✅ |
+| 8 | System Design | ✅ deep (51 topics / 7 modules / 15 case studies) | ⚠️ new | ✅ deep (50+ Q, 20+ patterns) |
+| 9 | Low-Level Design (UML) | ✅ deep (60 topics / 22 patterns / 20 case studies / UML diagrams) | ❌ | ✅ |
 | 10 | Concurrency track | ✅ M10 | ❌ | ✅ |
 | 11 | Behavioral / STAR | ✅ M44 | ⚠️ via mock | ✅ |
 | 12 | Mock interview | ✅ simulator + history | ✅ | ⚠️ via practice |
@@ -34,13 +34,13 @@
 | 14 | LeetCode identity / links | ✅ badges | ✅ LC/GFG/IB | ✅ |
 | 15 | Focus mode | ✅ | ✅ | ✅ |
 | 16 | Spaced repetition | ✅ /pro/review | ❌ | ⚠️ star |
-| 17 | Notes / highlights / notebook | ❌ | ❌ | ✅ |
-| 18 | Listen / audio mode | ⚠️ Voice Tutor | ❌ | ✅ |
-| 19 | Edge-case catalog | ❌ | ✅ | ⚠️ inline |
-| 20 | Code-tricks catalog | ⚠️ templates (26) | ✅ | ⚠️ inline |
+| 17 | Notes / highlights / notebook | ✅ app-wide + Notebook | ❌ | ✅ |
+| 18 | Listen / audio mode | ✅ ListenButton + Voice Tutor | ❌ | ✅ |
+| 19 | Edge-case catalog | ✅ 598/598 | ✅ | ⚠️ inline |
+| 20 | Code-tricks catalog | ✅ 35 idioms + templates | ✅ | ⚠️ inline |
 | 21 | Jobs board | ❌ | ✅ | ❌ |
 | 22 | Resume tool | ❌ | ❌ | ✅ |
-| 23 | Newsletter / community | ❌ | ⚠️ small | ✅ 135K / 700K |
+| 23 | Newsletter / community | ✅ Community engine (feature) | ⚠️ small | ✅ 135K / 700K (audience) |
 | 24 | Production-backend curriculum | ✅ M13–M28 | ❌ | ❌ |
 | 25 | Certs / DAG / planner / analytics | ✅ | ❌ | ⚠️ progress only |
 | 26 | K-12 product | ✅ | ❌ | ❌ |

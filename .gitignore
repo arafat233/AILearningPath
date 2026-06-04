@@ -50,3 +50,6 @@ backups/
 
 # QA screenshot artifacts (not code)
 b10_screenshots/
+
+# Dev-only visual QA artifact (LLD UML diagrams)
+lld-diagrams-preview.html

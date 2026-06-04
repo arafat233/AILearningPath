@@ -94,6 +94,17 @@ for (const [id, type] of SAMPLES) {
   step(`GET ${id} (${type}) → 200`, r.status === 200, `status=${r.status}`);
 }
 
+// ── UML visual aids reach the client (GAP #4 polish) ──
+console.log("\nUML visual aids");
+r = await http("GET", "/v1/pro/topics/lld_m1_t4");
+const va = r.payload?.data?.teaching?.visual_aid;
+step("Strategy topic ships a UML svg", r.status === 200 && typeof va?.svg === "string" && va.svg.startsWith("<svg"),
+  `type="${va?.type}" svgLen=${va?.svg?.length || 0}`);
+r = await http("GET", "/v1/pro/topics/lld_m4_t8");
+const va2 = r.payload?.data?.teaching?.visual_aid;
+step("Visitor topic ships a UML svg", r.status === 200 && typeof va2?.svg === "string" && va2.svg.startsWith("<svg"),
+  `svgLen=${va2?.svg?.length || 0}`);
+
 // ── Client-safe payload (answer key hidden) ──
 console.log("\nClient-safe payload");
 r = await http("GET", "/v1/pro/exercises/lld_m1_t1_pm_1");

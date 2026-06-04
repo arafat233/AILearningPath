@@ -155,6 +155,22 @@ async function run() {
   const emptyTopics = [...topicIds].filter((id) => !topicsWithEx.has(id));
   if (emptyTopics.length) fails.push(`topics with 0 exercises: ${emptyTopics.join(",")}`);
 
+  // ── Visual aids: count + validate any authored SVG is well-formed ──
+  let withVisualAid = 0, badSvg = 0;
+  for (const t of topics) {
+    const va = t.teaching?.visual_aid;
+    if (!va) continue;
+    withVisualAid++;
+    if (va.svg) {
+      const s = String(va.svg);
+      const opens = (s.match(/<[a-zA-Z]/g) || []).length;
+      const closes = (s.match(/<\//g) || []).length + (s.match(/\/>/g) || []).length;
+      if (!s.startsWith("<svg") || !s.trimEnd().endsWith("</svg>") || closes !== opens) {
+        badSvg++; fails.push(`topic ${t.topicId}: malformed visual_aid.svg`);
+      }
+    }
+  }
+
   // ── Track totals consistency ──
   if (track.totalTopics !== topics.length) fails.push(`track.totalTopics=${track.totalTopics} != ${topics.length}`);
   if (track.totalExercises !== exercises.length) fails.push(`track.totalExercises=${track.totalExercises} != ${exercises.length}`);
@@ -168,6 +184,7 @@ async function run() {
   console.log(`  duplicate ex ids    = ${dupEx.length}${dupEx.length ? " → " + dupEx.join(",") : " ✓"}`);
   console.log(`  orphan exercises    = ${orphans.length}${orphans.length ? " → " + orphans.join(",") : " ✓"}`);
   console.log(`  topics w/o exercise = ${emptyTopics.length}${emptyTopics.length ? " → " + emptyTopics.join(",") : " ✓"}`);
+  console.log(`  topics w/ visual_aid= ${withVisualAid} (malformed svg = ${badSvg}${badSvg ? "" : " ✓"})`);
   console.log(`  track totals match  = ${track.totalTopics === topics.length && track.totalExercises === exercises.length ? "✓" : "✗"}`);
   console.log(`  total XP            = ${track.totalXp}`);
 

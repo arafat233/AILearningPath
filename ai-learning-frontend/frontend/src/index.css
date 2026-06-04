@@ -364,3 +364,10 @@ html { scrollbar-width: thin; scrollbar-color: var(--scroll-thumb) transparent; 
 
 @keyframes twinkle { from { opacity: .3; } to { opacity: 1; } }
 @keyframes lg-swing { 0%,100%{transform:rotate(-35deg)} 50%{transform:rotate(35deg)} }
+
+/* Notes/Notebook (GAP #3) — inline highlight paint via CSS Custom Highlight API.
+   Non-destructive: no DOM mutation, so it coexists with React re-renders. */
+::highlight(stellar-note) {
+  background-color: rgba(255, 214, 10, 0.40);
+  color: inherit;
+}

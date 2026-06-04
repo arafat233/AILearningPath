@@ -113,6 +113,16 @@ export const toggleBookmark  = (questionId) => api.post(`/user/bookmarks/${quest
 export const getBookmarks    = ()            => api.get("/user/bookmarks");
 
 // ── Bookmarks v2 — server-side collections, SM-2, share, export, AI summary ──
+// ── Notes / Highlights / Notebook (GAP #3) ───────────────────────────────────
+const nb = "/v1/notes";
+export const notesForItem   = (kind, refId) => api.get(`${nb}/for/${kind}/${encodeURIComponent(refId)}`);
+export const notesNotebook  = (params)      => api.get(nb, { params });
+export const notesTags      = ()            => api.get(`${nb}/tags`);
+export const notesStats     = ()            => api.get(`${nb}/stats`);
+export const notesCreate    = (body)        => api.post(nb, body);
+export const notesUpdate    = (id, patch)   => api.patch(`${nb}/${id}`, patch);
+export const notesDelete    = (id)          => api.delete(`${nb}/${id}`);
+
 const bm = "/v1/bookmarks";
 export const bmGetReviews        = ()                    => api.get(`${bm}/reviews`);
 export const bmRate              = (questionId, rating)  => api.post(`${bm}/reviews/rate`, { questionId, rating });

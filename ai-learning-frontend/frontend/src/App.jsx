@@ -56,6 +56,7 @@ const Lessons          = lazy(() => import("./pages/Lessons"));
 const LessonView       = lazy(() => import("./pages/LessonView"));
 const Practice         = lazy(() => import("./pages/PracticeSwitch"));
 const Bookmarks        = lazy(() => import("./pages/BookmarksSwitch"));
+const Notebook         = lazy(() => import("./pages/Notebook"));
 const SharedCollection = lazy(() => import("./pages/SharedCollection"));
 const PublicProfile    = lazy(() => import("./pages/PublicProfile"));
 const Analytics        = lazy(() => import("./pages/Analytics"));
@@ -279,6 +280,7 @@ export default function App() {
 
             {/* ── Always accessible after login (account / misc) ── */}
             <Route path="bookmarks"               element={<Bookmarks />} />
+            <Route path="notebook"                element={<Notebook />} />
             <Route path="tracks"                  element={<Tracks />} />
             <Route path="portal"                  element={<Portal />} />
             <Route path="parent"                  element={<ParentDashboard />} />

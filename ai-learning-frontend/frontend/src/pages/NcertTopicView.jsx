@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef, useMemo, Component } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DiagramLazy } from "../components/DiagramLibraryLazy";
+import NotesPanel from "../components/NotesPanel";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
          getStudiedTopics, toggleNcertStudied, getNcertNote, saveNcertNote,
          getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt,
@@ -2574,6 +2575,7 @@ export default function NcertTopicView() {
   const { topicId } = useParams();
   const navigate    = useNavigate();
   const engagement  = useTopicEngagement(topicId);
+  const notesRef    = useRef(null); // GAP #3 — content container for notes/highlights
 
   const [topic,      setTopic]      = useState(null);
   const [loading,    setLoading]    = useState(true);
@@ -3168,7 +3170,7 @@ export default function NcertTopicView() {
     <TopicErrorBoundary>
       <TopicReadingProgress />
       {toast.node}
-      <div className="ntv-page"
+      <div className="ntv-page" ref={notesRef}
         style={{ fontFamily:"-apple-system,'SF Pro Display','Helvetica Neue',sans-serif", display:"flex", flexDirection:"column", gap:"16px", paddingBottom:"120px" }}>
 
         <button onClick={() => navigate(-1)}
@@ -3651,6 +3653,14 @@ export default function NcertTopicView() {
             />
           </aside>
         </div>
+
+        {/* GAP #3 — notes & highlights for this lesson */}
+        {topic && (
+          <NotesPanel
+            item={{ scope: "k12", kind: "topic", refId: topicId, subject: currentSubject || "", title: topic.name || "", url: `/ncert/topics/${topicId}` }}
+            contentRef={notesRef}
+          />
+        )}
 
         {/* #4 #5 Sticky floating actions */}
         <TopicStickyActions

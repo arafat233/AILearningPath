@@ -16,6 +16,7 @@
 |---|---|---|
 | DSA animations | `config/auditAnimations.mjs` | done/total per pattern (incl. untagged) + 0 broken kinds/steps |
 | DSA edge-case catalog | `config/auditEdgeCases.mjs` | done/total per pattern (same 598-problem scope as animations) + 0 malformed (well-formed array ≥2, each entry has non-empty case+handling) |
+| Notes / Notebook (GAP #3) | `config/auditNotes.mjs` | conformance scan of every Note doc: required fields, valid enums (scope/kind/type), note→non-empty body, highlight→non-empty quote; 0 malformed. (Backend route also covered by the `note.service` Jest suite + a live HTTP round-trip; frontend by `Notes.test.jsx` render tests.) |
 | Pro visual aids | `config/auditVisualAids.mjs` | real-diagram vs text-panel; flags panels whose brief describes a diagram; topics with no visual_aid |
 
 ## Adding a new build → add its audit here

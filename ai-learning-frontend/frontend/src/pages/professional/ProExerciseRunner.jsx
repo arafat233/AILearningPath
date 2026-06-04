@@ -14,7 +14,7 @@
  *      and grades the testCases server-side.
  *   4. Show the sandbox stdout/stderr + per-test pass/fail.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { proGetExercise, proSubmitExercise, proToggleExerciseBookmark, proListBookmarks } from "../../services/api";
 import CodeEditor from "../../components/pro/CodeEditor";
@@ -23,10 +23,12 @@ import TutorPanel from "../../components/pro/TutorPanel";
 import StepPlayer from "../../components/pro/StepPlayer";
 import TemplatePanel from "../../components/pro/TemplatePanel";
 import PatternMatchRunner from "../../components/pro/PatternMatchRunner";
+import NotesPanel from "../../components/NotesPanel";
 
 export default function ProExerciseRunner() {
   const { exerciseId } = useParams();
   const navigate = useNavigate();
+  const contentRef = useRef(null);
   const [ex, setEx] = useState(null);
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
@@ -126,7 +128,7 @@ export default function ProExerciseRunner() {
     <div className={focus ? "max-w-4xl mx-auto" : "grid lg:grid-cols-2 gap-5 max-w-7xl"}>
       {/* ── Left: instructions (hidden in focus mode) ── */}
       {!focus && (
-      <div className="space-y-4">
+      <div className="space-y-4" ref={contentRef}>
         <button onClick={() => navigate(-1)} className="text-[12px] text-apple-gray hover:text-apple-blue transition-colors">
           ← Back
         </button>
@@ -218,6 +220,11 @@ export default function ProExerciseRunner() {
             </ul>
           </div>
         )}
+
+        <NotesPanel
+          item={{ scope: "pro", kind: "exercise", refId: ex.exerciseId, trackKey: ex.trackKey || "pro_java", title: ex.title, url: `/pro/exercise/${ex.exerciseId}` }}
+          contentRef={contentRef}
+        />
       </div>
       )}
 

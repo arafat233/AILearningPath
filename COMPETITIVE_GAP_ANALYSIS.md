@@ -70,7 +70,7 @@
 | 5 | Listen / audio narration mode | AlgoMaster | Med | ✅ DONE — ListenButton (Web Speech API) on lessons + Pro exercises |
 | 6 | Edge-case catalog (per problem) | DSA Animator | Low | ✅ DONE — 598/598 (100%) |
 | 7 | Code-tricks / idioms library | DSA Animator | Low | ✅ DONE — 35-idiom catalog at /idioms (audit 35/35) |
-| 8 | Newsletter / content / community engine | AlgoMaster | Ongoing | ⬜ not started |
+| 8 | Newsletter / content / community engine | AlgoMaster | Ongoing | ✅ DONE — Community engine at `/community`: user-generated articles + global Q&A, upvotes, comments, reporting + admin moderation. `CommunityPost` model + `/api/v1/community` + 2 pages. Audit + acceptance + 17 svc tests + 6 render tests PASS. (Per-topic Pro discussions already existed.) |
 | 9 | Resume tool / Jobs board | both | Low | ⬜ not started |
 
 ---

@@ -123,6 +123,19 @@ export const notesCreate    = (body)        => api.post(nb, body);
 export const notesUpdate    = (id, patch)   => api.patch(`${nb}/${id}`, patch);
 export const notesDelete    = (id)          => api.delete(`${nb}/${id}`);
 
+// ── Community / Newsletter (GAP #8) ──
+const cm = "/v1/community";
+export const communityList          = (params)  => api.get(`${cm}/posts`, { params });
+export const communityGet           = (id)      => api.get(`${cm}/posts/${id}`);
+export const communityTags          = ()        => api.get(`${cm}/tags`);
+export const communityCreate        = (body)    => api.post(`${cm}/posts`, body);
+export const communityEdit          = (id, p)   => api.patch(`${cm}/posts/${id}`, p);
+export const communityDelete        = (id)      => api.delete(`${cm}/posts/${id}`);
+export const communityUpvote        = (id)      => api.post(`${cm}/posts/${id}/upvote`);
+export const communityComment       = (id, body)=> api.post(`${cm}/posts/${id}/comments`, { body });
+export const communityDeleteComment = (id, cid) => api.delete(`${cm}/posts/${id}/comments/${cid}`);
+export const communityReport        = (id, reason) => api.post(`${cm}/posts/${id}/report`, { reason });
+
 const bm = "/v1/bookmarks";
 export const bmGetReviews        = ()                    => api.get(`${bm}/reviews`);
 export const bmRate              = (questionId, rating)  => api.post(`${bm}/reviews/rate`, { questionId, rating });

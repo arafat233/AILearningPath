@@ -58,6 +58,8 @@ const Practice         = lazy(() => import("./pages/PracticeSwitch"));
 const Bookmarks        = lazy(() => import("./pages/BookmarksSwitch"));
 const Notebook         = lazy(() => import("./pages/Notebook"));
 const Idioms           = lazy(() => import("./pages/Idioms"));
+const Community        = lazy(() => import("./pages/Community"));
+const CommunityPost    = lazy(() => import("./pages/CommunityPost"));
 const SharedCollection = lazy(() => import("./pages/SharedCollection"));
 const PublicProfile    = lazy(() => import("./pages/PublicProfile"));
 const Analytics        = lazy(() => import("./pages/Analytics"));
@@ -283,6 +285,8 @@ export default function App() {
             <Route path="bookmarks"               element={<Bookmarks />} />
             <Route path="notebook"                element={<Notebook />} />
             <Route path="idioms"                  element={<Idioms />} />
+            <Route path="community"               element={<Community />} />
+            <Route path="community/:id"           element={<CommunityPost />} />
             <Route path="tracks"                  element={<Tracks />} />
             <Route path="portal"                  element={<Portal />} />
             <Route path="parent"                  element={<ParentDashboard />} />

@@ -68,7 +68,7 @@
 | 3 | Highlights + notes + searchable notebook | AlgoMaster | Low–Med | ⬜ not started |
 | 4 | Low-Level Design (UML, OOD) track | AlgoMaster | High | ⬜ not started |
 | 5 | Listen / audio narration mode | AlgoMaster | Med | ⬜ not started |
-| 6 | Edge-case catalog (per problem) | DSA Animator | Low | ⬜ not started |
+| 6 | Edge-case catalog (per problem) | DSA Animator | Low | ✅ DONE — 598/598 (100%) |
 | 7 | Code-tricks / idioms library | DSA Animator | Low | ⬜ not started |
 | 8 | Newsletter / content / community engine | AlgoMaster | Ongoing | ⬜ not started |
 | 9 | Resume tool / Jobs board | both | Low | ⬜ not started |

@@ -66,7 +66,7 @@
 | 1 | **Animation coverage → ALL DSA problems** | DSA Animator | High (scale) | ✅ DONE — 598/598 (100%) |
 | 2 | Deep System Design track (cases, 20+ patterns) | AlgoMaster | High | ⬜ not started |
 | 3 | Highlights + notes + searchable notebook | AlgoMaster | Low–Med | ✅ DONE — app-wide (Pro+K-12); Practice-Q surface = fast-follow |
-| 4 | Low-Level Design (UML, OOD) track | AlgoMaster | High | ⬜ not started |
+| 4 | Low-Level Design (UML, OOD) track | AlgoMaster | High | ✅ DONE — `pro_lld` track, 5 modules / **36 topics / 112 exercises**: OOP+SOLID+UML, all 14 GoF patterns, 4 LLD case studies (audit 112/112, acceptance PASS, 10/10 code solutions verified on Judge0). |
 | 5 | Listen / audio narration mode | AlgoMaster | Med | ✅ DONE — ListenButton (Web Speech API) on lessons + Pro exercises |
 | 6 | Edge-case catalog (per problem) | DSA Animator | Low | ✅ DONE — 598/598 (100%) |
 | 7 | Code-tricks / idioms library | DSA Animator | Low | ✅ DONE — 35-idiom catalog at /idioms (audit 35/35) |

@@ -65,7 +65,7 @@
 |--|---|---|---|---|
 | 1 | **Animation coverage → ALL DSA problems** | DSA Animator | High (scale) | ✅ DONE — 598/598 (100%) |
 | 2 | Deep System Design track (cases, 20+ patterns) | AlgoMaster | High | ⬜ not started |
-| 3 | Highlights + notes + searchable notebook | AlgoMaster | Low–Med | ⬜ not started |
+| 3 | Highlights + notes + searchable notebook | AlgoMaster | Low–Med | ✅ DONE — app-wide (Pro+K-12); Practice-Q surface = fast-follow |
 | 4 | Low-Level Design (UML, OOD) track | AlgoMaster | High | ⬜ not started |
 | 5 | Listen / audio narration mode | AlgoMaster | Med | ⬜ not started |
 | 6 | Edge-case catalog (per problem) | DSA Animator | Low | ✅ DONE — 598/598 (100%) |

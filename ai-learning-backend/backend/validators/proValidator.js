@@ -9,9 +9,10 @@
 import Joi from "joi";
 
 // trackKey format: lowercase letters / digits / underscores, starts with
-// "pro_". Slug is the same but without the "pro_" prefix.
+// "pro_". Slug starts with a letter and allows digits, underscores, and
+// hyphens (conventional URL-slug separator, e.g. "system-design").
 const trackKeyPattern  = /^pro_[a-z][a-z0-9_]*$/;
-const trackSlugPattern = /^[a-z][a-z0-9_]*$/;
+const trackSlugPattern = /^[a-z][a-z0-9_-]*$/;
 // The optional (_\d+)? after _m\d+ allows decimal/minor modules such as
 // "java_m30_5" (the 2D-Array module that slots between m30 and m31). Without it
 // the whole m30_5 module 422s on these param routes.

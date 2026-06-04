@@ -24,6 +24,7 @@ import StepPlayer from "../../components/pro/StepPlayer";
 import TemplatePanel from "../../components/pro/TemplatePanel";
 import PatternMatchRunner from "../../components/pro/PatternMatchRunner";
 import NotesPanel from "../../components/NotesPanel";
+import ListenButton from "../../components/ListenButton";
 
 export default function ProExerciseRunner() {
   const { exerciseId } = useParams();
@@ -140,6 +141,7 @@ export default function ProExerciseRunner() {
           <div className="flex items-start justify-between gap-3 mt-2">
             <h1 className="text-[24px] font-bold tracking-tight text-[var(--label)]">{ex.title}</h1>
             <div className="flex items-center gap-1.5 shrink-0">
+              <ListenButton text={[ex.scenario, ex.instructions, ...(ex.hints || []), ...(ex.edge_cases || []).map((e) => `${e.case}. ${e.handling}`)].filter(Boolean).join(". ")} />
               <button
                 onClick={() => setTutorOpen(true)}
                 title="Ask the AI tutor"

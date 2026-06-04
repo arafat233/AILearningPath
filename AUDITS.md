@@ -18,6 +18,8 @@
 | DSA edge-case catalog | `config/auditEdgeCases.mjs` | done/total per pattern (same 598-problem scope as animations) + 0 malformed (well-formed array ≥2, each entry has non-empty case+handling) |
 | Notes / Notebook (GAP #3) | `config/auditNotes.mjs` | conformance scan of every Note doc: required fields, valid enums (scope/kind/type), note→non-empty body, highlight→non-empty quote; 0 malformed. (Backend route also covered by the `note.service` Jest suite + a live HTTP round-trip; frontend by `Notes.test.jsx` render tests.) |
 | Pro visual aids | `config/auditVisualAids.mjs` | real-diagram vs text-panel; flags panels whose brief describes a diagram; topics with no visual_aid |
+| Java idioms catalog (GAP #7) | `ai-learning-frontend/frontend/scripts/auditIdioms.mjs` (run `node scripts/auditIdioms.mjs` from `ai-learning-frontend/frontend`) | total + done/total per category over the live `src/data/javaIdioms.js`; 0 malformed (every required field non-empty, ≥1 tag, explanation ≥20 chars) + 0 duplicate ids. Frontend render covered by `AudioIdioms.test.jsx`. |
+| Listen / audio mode (GAP #5) | `ai-learning-frontend/frontend/src/__tests__/AudioIdioms.test.jsx` (run `npx vitest run src/__tests__/AudioIdioms.test.jsx`) | ListenButton renders, speaks first chunk + shows transport, stop cancels + returns to idle, gathers semantic text from a contentRef (skips button chrome). Pure-client (Web Speech API) so no DB/HTTP layer to audit. |
 
 ## Adding a new build → add its audit here
 Pick the method by type (see CLAUDE.md §5):

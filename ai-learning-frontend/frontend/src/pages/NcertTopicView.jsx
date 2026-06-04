@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef, useMemo, Component } from "re
 import { useParams, useNavigate } from "react-router-dom";
 import { DiagramLazy } from "../components/DiagramLibraryLazy";
 import NotesPanel from "../components/NotesPanel";
+import ListenButton from "../components/ListenButton";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
          getStudiedTopics, toggleNcertStudied, getNcertNote, saveNcertNote,
          getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt,
@@ -3177,6 +3178,11 @@ export default function NcertTopicView() {
           style={{ fontSize:"13px", color:"#86868B", display:"flex", alignItems:"center", gap:"4px", cursor:"pointer", background:"none", border:"none", padding:0, alignSelf:"flex-start" }}>
           ‹ Back
         </button>
+
+        {/* GAP #5 — listen to this lesson */}
+        <div style={{ alignSelf: "flex-start" }}>
+          <ListenButton contentRef={notesRef} label="Listen to this lesson" />
+        </div>
 
         {/* ── TOPIC NAV (top) ────────────────────────────────────── */}
         {siblings.length > 1 && (

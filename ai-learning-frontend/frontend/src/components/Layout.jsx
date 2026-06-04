@@ -21,6 +21,8 @@ function Icon({ id }) {
     bookmarks:   <><path d="M4.5 1.5h7a1 1 0 011 1v12l-4.5-2.8-4.5 2.8v-12a1 1 0 011-1z"/></>,
     // Notebook — book with a pencil line (notes & highlights)
     notebook:    <><rect x="2.5" y="2" width="11" height="12" rx="1.5"/><path d="M5 5.5h6M5 8h6M5 10.5h3.5"/></>,
+    // Idioms — code brackets { }
+    idioms:      <><path d="M6 2.5C4 2.5 4.5 7 2.5 8c2 1 1.5 5.5 3.5 5.5M10 2.5c2 0 1.5 4.5 3.5 5.5-2 1-1.5 5.5-3.5 5.5"/></>,
     // BarChart2 — 3 ascending bars + baseline
     analytics:   <><path d="M1.5 13.5h13"/><rect x="2.5" y="8.5" width="2.5" height="5" rx=".5"/><rect x="6.75" y="5.5" width="2.5" height="8" rx=".5"/><rect x="11" y="2.5" width="2.5" height="11" rx=".5"/></>,
     // Award — medal circle + ribbon tails
@@ -104,6 +106,7 @@ const PRO_NAV = [
   { to: "/practice",    label: "Practice",     icon: "practice"              },
   { to: "/bookmarks",   label: "Bookmarks",    icon: "bookmarks"             },
   { to: "/notebook",    label: "Notebook",     icon: "notebook"              },
+  { to: "/idioms",      label: "Java Idioms",  icon: "idioms"                },
   { to: "/analytics",   label: "Analytics",    icon: "analytics"             },
   { to: "/certificate", label: "Certificate",  icon: "certificate"           },
   { to: "/planner",     label: "Plan",         icon: "planner"               },

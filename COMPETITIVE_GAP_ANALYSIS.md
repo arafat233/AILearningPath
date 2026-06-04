@@ -67,9 +67,9 @@
 | 2 | Deep System Design track (cases, 20+ patterns) | AlgoMaster | High | ⬜ not started |
 | 3 | Highlights + notes + searchable notebook | AlgoMaster | Low–Med | ✅ DONE — app-wide (Pro+K-12); Practice-Q surface = fast-follow |
 | 4 | Low-Level Design (UML, OOD) track | AlgoMaster | High | ⬜ not started |
-| 5 | Listen / audio narration mode | AlgoMaster | Med | ⬜ not started |
+| 5 | Listen / audio narration mode | AlgoMaster | Med | ✅ DONE — ListenButton (Web Speech API) on lessons + Pro exercises |
 | 6 | Edge-case catalog (per problem) | DSA Animator | Low | ✅ DONE — 598/598 (100%) |
-| 7 | Code-tricks / idioms library | DSA Animator | Low | ⬜ not started |
+| 7 | Code-tricks / idioms library | DSA Animator | Low | ✅ DONE — 35-idiom catalog at /idioms (audit 35/35) |
 | 8 | Newsletter / content / community engine | AlgoMaster | Ongoing | ⬜ not started |
 | 9 | Resume tool / Jobs board | both | Low | ⬜ not started |
 

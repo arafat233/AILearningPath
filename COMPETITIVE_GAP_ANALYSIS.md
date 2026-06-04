@@ -64,7 +64,7 @@
 | Pri | Gap | vs | Effort | Status |
 |--|---|---|---|---|
 | 1 | **Animation coverage → ALL DSA problems** | DSA Animator | High (scale) | ✅ DONE — 598/598 (100%) |
-| 2 | Deep System Design track (cases, 20+ patterns) | AlgoMaster | High | 🟡 MVP DONE — `pro_sysd` track, 12 topics / 38 exercises (fundamentals + estimation + scaling/LB/caching/data/CAP/queues + 3 case studies; audit 38/38, acceptance PASS). Expand cases + topics next. |
+| 2 | Deep System Design track (cases, 20+ patterns) | AlgoMaster | High | ✅ DONE — `pro_sysd` track, 4 modules / **34 topics / 104 exercises**: fundamentals, building blocks & distributed patterns (API/gateway/CDN/microservices/consensus/sagas/bloom…), + **9 case studies** (URL shortener, rate limiter, news feed, chat, autocomplete, notifications, Instagram, presence, pastebin, video, Uber, Dropbox, crawler, KV store, Ticketmaster). Audit 104/104, acceptance PASS. |
 | 3 | Highlights + notes + searchable notebook | AlgoMaster | Low–Med | ✅ DONE — app-wide (Pro+K-12); Practice-Q surface = fast-follow |
 | 4 | Low-Level Design (UML, OOD) track | AlgoMaster | High | ✅ DONE — `pro_lld` track, 5 modules / **36 topics / 112 exercises**: OOP+SOLID+UML, all 14 GoF patterns, 4 LLD case studies (audit 112/112, acceptance PASS, 10/10 code solutions verified on Judge0). |
 | 5 | Listen / audio narration mode | AlgoMaster | Med | ✅ DONE — ListenButton (Web Speech API) on lessons + Pro exercises |

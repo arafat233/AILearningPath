@@ -47,15 +47,18 @@ step("Enroll in pro_sysd", r.status === 200, `status=${r.status}`);
 r = await http("GET", "/v1/pro/tracks");
 const tr = (r.payload?.data || []).find((t) => t.key === "pro_sysd");
 step("pro_sysd appears in track list", !!tr, tr ? `name="${tr.name}"` : "missing");
-step("enrolled + totals set (12 topics, 38 ex)", !!tr?.enrolled && tr.totalTopics === 12 && tr.totalExercises === 38,
+step("enrolled + totals set (34 topics, 104 ex)", !!tr?.enrolled && tr.totalTopics === 34 && tr.totalExercises === 104,
   `enrolled=${tr?.enrolled} topics=${tr?.totalTopics} ex=${tr?.totalExercises}`);
 
-r = await http("GET", "/v1/pro/tracks/system-design/modules/sysd_m1");
-const topics = r.payload?.data?.topics || [];
-step("sysd_m1 → 200 with 12 topics", r.status === 200 && topics.length === 12, `status=${r.status} topics=${topics.length}`);
+console.log("\nModule reachability (all 4)");
+for (const [mid, n] of [["sysd_m1", 12], ["sysd_m2", 10], ["sysd_m3", 6], ["sysd_m4", 6]]) {
+  r = await http("GET", `/v1/pro/tracks/system-design/modules/${mid}`);
+  const tps = r.payload?.data?.topics || [];
+  step(`${mid} → 200 with ${n} topics`, r.status === 200 && tps.length === n, `status=${r.status} topics=${tps.length}`);
+}
 
 console.log("\nExercise reachability (pattern_match → 200, not 422)");
-for (const id of ["sysd_m1_t1_pm_1", "sysd_m1_t7_pm_2", "sysd_m1_t12_pm_2"]) {
+for (const id of ["sysd_m1_t1_pm_1", "sysd_m2_t8_pm_1", "sysd_m3_t1_pm_2", "sysd_m4_t5_pm_2"]) {
   r = await http("GET", `/v1/pro/exercises/${id}`);
   step(`GET ${id} → 200`, r.status === 200, `status=${r.status}`);
 }

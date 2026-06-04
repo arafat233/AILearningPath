@@ -65,6 +65,8 @@ const TOPICS = [
         body: "Facade SIMPLIFIES access to a subsystem (new, smaller interface over many classes). Adapter CONVERTS one existing interface into another the client expects (usually 1:1). Decorator ADDS behaviour while keeping the same interface. Facade is about reducing complexity; the others are about compatibility and extension." },
       { kind: "concept", heading: "Benefits and limits",
         body: "A facade decouples clients from subsystem internals (DIP) and gives a stable surface even if the subsystem is refactored. It does NOT add functionality and shouldn't become a god-object that grows every method — keep it focused on common use-cases; advanced callers can still reach the subsystem directly." },
+      { kind: "concept", heading: "Where you'll see it",
+        body: "SLF4J is a facade over Log4j/Logback; a service-layer class that orchestrates several repositories/clients for one use-case is a facade; in microservices the API Gateway is a facade over many backend services. Whenever you wrap 'a tangle of classes' behind one intention-revealing method, that's this pattern." },
     ] },
     interviewRelevance: "Facade is the go-to answer for 'wrap this messy subsystem behind something simple'. Distinguishing it from Adapter and Decorator is a frequent follow-up.",
     commonGaps: { gaps: [
@@ -117,6 +119,8 @@ const TOPICS = [
         body: "Virtual proxy: defers expensive creation until first use (lazy loading). Protection proxy: checks access rights before delegating. Remote proxy: stands in for an object in another address space (RPC stubs). Caching/smart proxy: memoizes results or adds reference counting. All share the same-interface, control-access idea." },
       { kind: "concept", heading: "Proxy vs Decorator vs Adapter",
         body: "All wrap an object. Proxy keeps the same interface and CONTROLS access (often deciding WHEN to delegate). Decorator keeps the same interface and ADDS behaviour (always delegates plus extra). Adapter CHANGES the interface. The intent differs: control vs enhance vs convert." },
+      { kind: "concept", heading: "Where you'll see it",
+        body: "Hibernate/JPA returns lazy proxies for un-fetched associations (the famous LazyInitializationException is a proxy whose session closed); Spring AOP wraps your beans in dynamic proxies to add @Transactional / @Cacheable / security; java.lang.reflect.Proxy and RMI stubs are proxies; mocking frameworks (Mockito) generate proxies. You rarely hand-write proxies — frameworks generate them — but recognising 'this is a proxy' explains a lot of framework magic." },
     ] },
     interviewRelevance: "Proxy underlies lazy loading (Hibernate), Spring AOP, RPC stubs, and access control. The discriminating question is Proxy vs Decorator — control access vs add behaviour.",
     commonGaps: { gaps: [
@@ -143,6 +147,8 @@ const TOPICS = [
         body: "With inheritance, m shapes × n colors = m*n subclasses, and adding either axis multiplies the count. With Bridge, you have m + n classes and combine them at runtime. The abstraction and implementation evolve on separate axes without touching each other." },
       { kind: "concept", heading: "Bridge vs Strategy vs Adapter",
         body: "Bridge is designed UP FRONT to let two dimensions vary independently (structural, two hierarchies). Strategy swaps one algorithm behind an interface (behavioural, usually one dimension). Adapter retrofits an incompatible interface AFTER the fact. Bridge and Strategy look similar in code; the difference is intent and the presence of two evolving hierarchies." },
+      { kind: "concept", heading: "Where you'll see it",
+        body: "The classic real example is JDBC: your code uses the Driver/Connection abstraction while each database ships its own implementation — same API, swappable backend. SLF4J ↔ logging backends is a bridge too (an API hierarchy bridged to implementation hierarchies). The signal is two things that both vary — an abstraction you call and an implementation you plug in — connected by composition rather than a combined inheritance tree." },
     ] },
     interviewRelevance: "Bridge answers 'how do you avoid a subclass explosion across two independent dimensions?' It appears with cross-platform rendering, device drivers, and message-channel × message-type matrices.",
     commonGaps: { gaps: [
@@ -169,6 +175,8 @@ const TOPICS = [
         body: "class TreeType { final String name; TreeType(String n){ name=n; } }   // intrinsic, shared\nclass TreeFactory {\n    private static final Map<String,TreeType> cache = new HashMap<>();\n    static TreeType of(String name) {\n        return cache.computeIfAbsent(name, TreeType::new);  // reuse if seen\n    }\n}\n// 1,000,000 trees, but only a handful of TreeType instances — (x,y) is extrinsic." },
       { kind: "concept", heading: "When it's worth it",
         body: "Flyweight pays off only when you have a huge number of objects AND much of their state is shareable. The factory hands out cached shared instances (often by ==-identity). It complicates the code, so reserve it for genuine memory pressure — particle systems, map tiles, glyphs, game entities." },
+      { kind: "concept", heading: "Where you'll see it",
+        body: "The JVM itself uses Flyweight: Integer.valueOf caches -128..127 (so `Integer.valueOf(100) == Integer.valueOf(100)` is true), and String literals are interned/shared in the string pool. Text editors share Glyph objects across characters; map renderers share tile/sprite textures. The signature is a factory with a cache that returns the SAME instance for equal intrinsic state, with the varying (extrinsic) part passed in at call time." },
     ] },
     interviewRelevance: "Flyweight comes up for memory-constrained, high-cardinality object scenarios (text rendering, game maps, particle systems). The signal is correctly splitting intrinsic (shared) from extrinsic (per-instance) state.",
     commonGaps: { gaps: [

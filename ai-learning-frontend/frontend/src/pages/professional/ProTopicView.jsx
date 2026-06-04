@@ -173,6 +173,33 @@ function ConceptExplanation({ block }) {
   );
 }
 
+// Renders teaching.blocks = [{ kind: "concept" | "code", heading, body }].
+// Used by the LLD / System Design tracks and the recursion module. Concept
+// blocks become titled prose cards; code blocks get the syntax-highlighted
+// CodeBlock — so the lesson reads as structured content, not a raw dump.
+function TeachingBlocks({ blocks }) {
+  if (!Array.isArray(blocks) || blocks.length === 0) return null;
+  return (
+    <div className="space-y-4">
+      {blocks.map((b, i) => {
+        const isCode = b?.kind === "code";
+        return (
+          <div key={i} className={isCode ? "" : "card p-4 border-l-4 border-apple-blue"}>
+            {b?.heading && (
+              <p className={`font-semibold text-[var(--label)] ${isCode ? "text-[13px] mb-1.5" : "text-[14px] mb-1.5"}`}>
+                {b.heading}
+              </p>
+            )}
+            {isCode
+              ? <CodeBlock code={b.body || ""} />
+              : <p className="text-[14px] text-[var(--label)] leading-relaxed whitespace-pre-wrap">{b?.body}</p>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function CommonGapCard({ gap, index }) {
   return (
     <div className="card p-5 border-l-4 border-apple-orange">
@@ -352,6 +379,7 @@ export default function ProTopicView() {
     const items = [];
     if (topic.hook && Object.keys(topic.hook).length) items.push({ id: "sec-hook", label: "Hook" });
     if (topic.teaching?.concept_explanation) items.push({ id: "sec-concept", label: "Concept" });
+    if (Array.isArray(topic.teaching?.blocks) && topic.teaching.blocks.length) items.push({ id: "sec-lesson", label: "Lesson" });
     // Nav entry per syntax-like teaching block.
     for (const { key } of syntaxBlocks) {
       items.push({ id: `sec-${key}`, label: prettyKey(key) });
@@ -386,7 +414,7 @@ export default function ProTopicView() {
   // GenericBlock below.
   const t = topic.teaching || {};
   const syntaxKeys     = new Set(syntaxBlocks.map((s) => s.key));
-  const teachingKnown  = new Set(["concept_explanation", "visual_aid", ...syntaxKeys]);
+  const teachingKnown  = new Set(["concept_explanation", "visual_aid", "blocks", ...syntaxKeys]);
   const teachingExtras = Object.fromEntries(Object.entries(t).filter(([k]) => !teachingKnown.has(k)));
   const commonGaps = Array.isArray(topic.commonGaps)
     ? topic.commonGaps
@@ -467,6 +495,12 @@ export default function ProTopicView() {
         <section className="space-y-3">
           <SectionHeading id="sec-concept" eyebrow="Teaching" title="Concept" />
           <ConceptExplanation block={t.concept_explanation} />
+        </section>
+      )}
+      {Array.isArray(t.blocks) && t.blocks.length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading id="sec-lesson" eyebrow="Teaching" title="Lesson" />
+          <TeachingBlocks blocks={t.blocks} />
         </section>
       )}
       {syntaxBlocks.map(({ key, block }) => (

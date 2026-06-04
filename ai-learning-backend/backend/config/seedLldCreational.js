@@ -69,6 +69,8 @@ const TOPICS = [
         body: "Each setter returns `this` so calls chain fluently and self-document (size(\"L\").cheese(true)). The product's constructor is private, so the ONLY way to build it is through the builder — the object is never observed half-constructed, and can be made immutable (final fields). build() is the single place to validate invariants and throw if the combination is illegal." },
       { kind: "concept", heading: "When to reach for it",
         body: "Use Builder when an object has many optional parameters, when you want immutability, or when construction has steps/validation. Don't use it for a 2-field value object — a plain constructor is clearer. Effective Java (Item 2) recommends Builder once you pass ~4+ constructor parameters." },
+      { kind: "concept", heading: "Where you'll see it",
+        body: "The JDK and ecosystem are full of builders: StringBuilder, Stream.Builder, HttpRequest.newBuilder()...build() (java.net.http), java.time's date builders, and Lombok's @Builder which generates the whole nested class for you. Test frameworks use builders for fixtures (a `UserBuilder().withEmail(...).build()`). The fluent, chainable, build()-terminated shape is the unmistakable signature." },
     ] },
     interviewRelevance: "Builder is the standard answer to 'how would you construct this object with many optional fields cleanly?' and appears in nearly every case study (building a Pizza/Order/HttpRequest). Knowing it pairs with immutability is a strong signal.",
     commonGaps: { gaps: [
@@ -95,6 +97,8 @@ const TOPICS = [
         body: "Factory Method creates ONE product via an overridable method. Abstract Factory creates a FAMILY of related products via an object whose methods each return a different product type. Abstract Factory is often implemented with several Factory Methods. Use it when products must be used together and mixing families would be a bug." },
       { kind: "concept", heading: "Trade-off",
         body: "Adding a new product to the family means changing the factory interface and every concrete factory — so it's rigid against new product TYPES but excellent at adding new FAMILIES (just add one new concrete factory). Choose it only when the 'consistent family' guarantee is real; otherwise a Simple Factory is lighter." },
+      { kind: "concept", heading: "Where you'll see it",
+        body: "javax.xml's DocumentBuilderFactory / TransformerFactory create families of parser objects; JDBC drivers produce a matching family of Connection/Statement/ResultSet for a given database; cross-platform UI toolkits create a coherent set of widgets per look-and-feel. The tell is a factory object (not just a static method) whose several methods each return a different product that must work together." },
     ] },
     interviewRelevance: "Abstract Factory comes up for cross-platform UI, database-driver families, and theme systems. The discriminating question is always 'how is this different from Factory Method?' — answer: one product vs a consistent family.",
     commonGaps: { gaps: [
@@ -121,6 +125,8 @@ const TOPICS = [
         body: "class Config implements Cloneable {\n    List<String> flags;\n    Config(List<String> f) { this.flags = f; }\n    public Config deepCopy() {\n        return new Config(new ArrayList<>(this.flags)); // copy the inner list\n    }\n}\n// shallow would be: new Config(this.flags) — shares the same list (bug-prone)" },
       { kind: "concept", heading: "When to use it",
         body: "Use Prototype when object creation is expensive (DB/disk/network), when you need many variations of a configured base, or to avoid a parallel hierarchy of factory classes. A prototype registry (Map<String,Prototype>) lets clients fetch a named prototype and clone it. Note: Java's Cloneable/clone() is awkward — a copy constructor or copy method is usually clearer." },
+      { kind: "concept", heading: "Where you'll see it",
+        body: "Game engines spawn entities by cloning a configured template (one loaded 'enemy' prototype → thousands of copies); object pools clone a pristine instance; Spring's `prototype` bean scope returns a fresh instance per request. The everyday Java advice: skip Cloneable and write a copy constructor `new Config(existing)` or a static `Config.copyOf(existing)` — deep-copying the mutable fields explicitly so copies don't share state." },
     ] },
     interviewRelevance: "Prototype appears for object pools, game-entity spawning, and config templating. Interviewers always probe shallow-vs-deep copy — being able to show a deep copy of a nested structure is the key signal.",
     commonGaps: { gaps: [

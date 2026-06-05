@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { register } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import GoogleSignInButton from "../components/GoogleSignInButton";
+import StellarLogo from "../components/StellarLogo";
 
 function passwordStrength(pw) {
   if (!pw) return { score: 0, label: "", color: "" };
@@ -62,9 +63,7 @@ export default function Register() {
       <div className="w-full max-w-[380px]">
         {/* Logo */}
         <div className="flex justify-center mb-8">
-          <div className="w-16 h-16 rounded-[22px] bg-apple-blue shadow-apple-md flex items-center justify-center">
-            <span className="text-white text-2xl font-bold">A</span>
-          </div>
+          <StellarLogo size={64} />
         </div>
 
         <div className="card p-8">
@@ -154,7 +153,7 @@ export default function Register() {
             <div className="flex-1 h-px bg-[var(--separator)]" />
           </div>
 
-          <GoogleSignInButton redirectTo="/onboarding" />
+          <GoogleSignInButton redirectTo="/welcome" />
 
           <div className="divider my-5" />
 

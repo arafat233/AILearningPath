@@ -238,3 +238,19 @@ describe("Practice — session summary", () => {
     );
   });
 });
+
+describe("Practice — notes/highlights (GAP #3 Practice-Q surface)", () => {
+  it("does not show the notes panel before answering", async () => {
+    await startSession();
+    expect(screen.getByText(/How Confident\?/i)).toBeInTheDocument();
+    expect(screen.queryByText(/my notes & highlights/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the notes & highlights panel after answering a question", async () => {
+    await startSession();
+    await submitOptionByIndex(0);
+    await waitFor(() =>
+      expect(screen.getByText(/my notes & highlights/i)).toBeInTheDocument()
+    );
+  });
+});

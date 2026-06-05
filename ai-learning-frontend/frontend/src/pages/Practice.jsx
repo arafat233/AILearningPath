@@ -12,6 +12,7 @@ import { useAuthStore } from "../store/authStore";
 import { useActiveProfile } from "../hooks/useActiveProfile";
 import AICreditsIndicator from "../components/AICreditsIndicator";
 import MathText from "../components/MathTextLazy";
+import NotesPanel from "../components/NotesPanel";
 import { enqueueAttempt, flushQueue, getQueuedCount } from "../utils/offlineQueue";
 
 // Respect reduced motion preference
@@ -148,6 +149,7 @@ export default function Practice() {
   const [practiceColsVer, setPracticeColsVer] = useState(0); // bump to re-read localStorage
 
   const startTimeRef     = useRef(null);
+  const qContentRef      = useRef(null); // notes/highlights anchor for the current question (GAP #3 Practice-Q surface)
   const handleAnswerRef  = useRef(null);
   const timerRef         = useRef(null);
   const chatEndRef       = useRef(null);
@@ -1383,22 +1385,25 @@ export default function Practice() {
               </div>
             )}
 
-            {/* Case passage */}
-            {question.caseContext && (
-              <div className="bg-[#F2F2F7] border border-[#E5E5EA] rounded-xl px-4 py-3">
-                <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mb-1">Read the passage</p>
-                <p className="text-[13px] text-[var(--label2)] leading-relaxed">{question.caseContext}</p>
-              </div>
-            )}
+            {/* Question content (case passage + question text) — notes/highlights anchor */}
+            <div ref={qContentRef} className="space-y-4">
+              {/* Case passage */}
+              {question.caseContext && (
+                <div className="bg-[#F2F2F7] border border-[#E5E5EA] rounded-xl px-4 py-3">
+                  <p className="text-[11px] font-bold text-[#8E8E93] uppercase tracking-wider mb-1">Read the passage</p>
+                  <p className="text-[13px] text-[var(--label2)] leading-relaxed">{question.caseContext}</p>
+                </div>
+              )}
 
-            {/* Question text */}
-            {question.questionType === "assertion_reason" ? (
-              <AssertionReasonText text={question.questionText} />
-            ) : (
-              <p className="text-[18px] font-semibold text-[var(--label)] leading-snug">
-                <MathText text={question.questionText} />
-              </p>
-            )}
+              {/* Question text */}
+              {question.questionType === "assertion_reason" ? (
+                <AssertionReasonText text={question.questionText} />
+              ) : (
+                <p className="text-[18px] font-semibold text-[var(--label)] leading-snug">
+                  <MathText text={question.questionText} />
+                </p>
+              )}
+            </div>
 
             {/* MCQ options */}
             <div className="flex flex-col gap-2">
@@ -1444,6 +1449,21 @@ export default function Practice() {
                 );
               })}
             </div>
+
+            {/* Notes & highlights for this question — review mode (GAP #3 Practice-Q surface) */}
+            {feedback && question?._id && !bookmarkMode && (
+              <NotesPanel
+                item={{
+                  scope: "k12",
+                  kind: "question",
+                  refId: String(question._id),
+                  subject: activeSubject || question.subject || undefined,
+                  title: question.questionText?.slice(0, 120) || "Practice question",
+                  url: "/practice",
+                }}
+                contentRef={qContentRef}
+              />
+            )}
 
             {/* Keyboard shortcut hint */}
             {!feedback && (

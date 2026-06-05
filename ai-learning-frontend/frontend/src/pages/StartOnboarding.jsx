@@ -18,6 +18,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { updateMe, updateChild } from "../services/api";
+import StellarLogo from "../components/StellarLogo";
 
 const BOARDS = ["CBSE", "ICSE", "AP_SSC", "IB", "SSC", "State Board"];
 
@@ -62,8 +63,8 @@ export default function StartOnboarding() {
       <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center px-4">
         <div className="card p-10 w-full max-w-md text-center">
           {/* Logo mark */}
-          <div className="w-14 h-14 rounded-2xl bg-apple-blue flex items-center justify-center mx-auto mb-6">
-            <span className="text-white text-2xl font-bold">S</span>
+          <div className="flex justify-center mb-6">
+            <StellarLogo size={56} />
           </div>
 
           <h1 className="text-[22px] font-bold text-[var(--label)] mb-2">
@@ -112,7 +113,10 @@ function SetupForm({ effective, user, activeChild, setAuth, setActiveChild, navi
   const [error,  setError]  = useState("");
 
   const valid = board && grade;
-  const targetName = effective?.name?.split(" ")[0] || "there";
+  const rawFirst = effective?.name?.split(" ")[0];
+  const targetName = rawFirst
+    ? rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1)
+    : "there";
   const isChildContext = !!activeChild;
 
   async function handleSubmit(e) {
@@ -151,8 +155,8 @@ function SetupForm({ effective, user, activeChild, setAuth, setActiveChild, navi
       <div className="card p-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-apple-blue flex items-center justify-center mx-auto mb-5">
-            <span className="text-white text-2xl font-bold">S</span>
+          <div className="flex justify-center mb-5">
+            <StellarLogo size={56} />
           </div>
           <h1 className="text-[22px] font-bold text-[var(--label)] mb-1">
             {isChildContext ? `Finish setting up ${targetName}` : "Set up your learning"}

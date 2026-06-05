@@ -16,7 +16,10 @@ function normalizeRedirect(value) {
 }
 
 function authedRedirectTarget(requestedRedirect, needsOnboarding) {
-  if (needsOnboarding) return "/onboarding";
+  // New users pick a learning track first (School / Professional / Competitive)
+  // on /welcome, which then routes to the track-specific onboarding. Sending
+  // them straight to /onboarding (the K-12 parent flow) skipped that choice.
+  if (needsOnboarding) return "/welcome";
   return ["/login", "/register", "/start", "/clerk-callback"].includes(requestedRedirect)
     ? "/dashboard"
     : requestedRedirect;

@@ -14,6 +14,7 @@
  */
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import StellarLogo from "../components/StellarLogo";
 
 const OPTIONS = [
   {
@@ -66,8 +67,8 @@ export default function Welcome() {
       <div className="w-full max-w-4xl">
         {/* Header */}
         <div className="text-center mb-10">
-          <div className="w-14 h-14 rounded-2xl bg-apple-blue flex items-center justify-center mx-auto mb-5">
-            <span className="text-white text-2xl font-bold">S</span>
+          <div className="flex justify-center mb-5">
+            <StellarLogo size={56} />
           </div>
           <h1 className="text-[28px] font-bold tracking-tight text-[var(--label)] mb-2">
             Welcome to Stellar, {firstName}.

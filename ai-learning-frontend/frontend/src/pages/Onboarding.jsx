@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createChild } from "../services/api";
 import { useAuthStore } from "../store/authStore";
+import StellarLogo from "../components/StellarLogo";
 
 const CLASSES = ["1","2","3","4","5","6","7","8","9","10","11","12"];
 const BOARDS  = ["CBSE","ICSE","AP_SSC","IB","SSC","State Board"];
@@ -44,16 +45,8 @@ export default function Onboarding() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-[18px] mb-4"
-               style={{ background: "linear-gradient(135deg,#9D50BB,#3A1C71)" }}>
-            <svg viewBox="0 0 500 500" width="32" height="32" xmlns="http://www.w3.org/2000/svg">
-              <path d="M310 255 L350 310" stroke="white" strokeWidth="16" strokeLinecap="round" fill="none"/>
-              <path d="M310 255 L260 320" stroke="white" strokeWidth="16" strokeLinecap="round" fill="none"/>
-              <path d="M190 190 L310 255" stroke="white" strokeWidth="16" strokeLinecap="round" fill="none"/>
-              <circle cx="310" cy="255" r="22" fill="white"/>
-              <circle cx="350" cy="310" r="22" fill="white"/>
-              <circle cx="260" cy="320" r="22" fill="white"/>
-            </svg>
+          <div className="flex justify-center mb-4">
+            <StellarLogo size={56} />
           </div>
           <h1 className="text-[24px] font-bold text-[var(--label)] tracking-tight">Tell us about your child</h1>
           <p className="text-[14px] text-apple-gray mt-1">We'll personalise their study experience</p>

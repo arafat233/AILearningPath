@@ -226,7 +226,7 @@ const EXERCISES = [
   pm({ topicId: "lld_m17_t1", exerciseId: "lld_m17_t1_pm_3", position: 3, level: "hard", title: "Extract-min",
     scenario: "To extract the min from a min-heap, you…",
     options: ["Swap root with the last element, remove it, then sift down", "Remove the last element", "Scan for the min and shift", "Re-sort the array"], correct: "Swap root with the last element, remove it, then sift down",
-    explanation: "The root is the min; move the last element up and sift it down to restore the invariant — O(log n)." }),
+    explanation: "The root is the min; move the last element to the root, then sift it down to restore the invariant — O(log n)." }),
   // Union-Find
   pm({ topicId: "lld_m17_t2", exerciseId: "lld_m17_t2_pm_1", position: 1, level: "medium", title: "Same group?",
     scenario: "In Union-Find, 'are a and b in the same set?' is…",

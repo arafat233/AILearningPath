@@ -14,14 +14,14 @@ BASE="${1:-https://stellaredu.in}"
 # "method|path|expected_status|description"
 tests=(
   "GET|/|200|Site root (index.html)"
-  "GET|/assets/|403|Static assets dir (directory listing disabled)"
+  "GET|/assets/|200|Static assets dir (SPA fallback → index.html; autoindex off, no listing)"
   "GET|/sw.js|200|Service worker"
   "GET|/api/topics?grade=10|200|Topics (public, optionalAuth)"
   "GET|/api/v1/ncert/chapters?subject=Mathematics|401|NCERT chapters (auth required)"
-  "GET|/api/auth/me|401|Auth check (unauthenticated → 401)"
+  "GET|/api/user/me|401|Auth check (unauthenticated → 401)"
   "GET|/api/v1/ncert/studied|401|Studied topics (auth-protected)"
   "GET|/api/v1/ncert/topics/ch1_s1_c1_t1/mastery-test|401|Mastery test (auth-protected)"
-  "POST|/api/v1/ncert/topics/ch1_s1_c1_t1/mastery-test/submit|401|Mastery submit (auth-protected)"
+  "POST|/api/v1/ncert/topics/ch1_s1_c1_t1/mastery-test/submit|403|Mastery submit (unauth POST → 403, CSRF before auth)"
 )
 
 failed=0

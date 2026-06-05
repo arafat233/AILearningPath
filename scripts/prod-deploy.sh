@@ -19,7 +19,11 @@ REPO=~/AILearningPath
 NGINX_ROOT=/var/www/stellar
 DIST_STAGING=/tmp/stellar-dist
 API_CONTAINER=ailearningpath-api-1
-IMAGE_NAME=ailearningpath-api
+# Full ghcr ref — MUST match the image in docker-compose.yml's api service, so
+# the :previous tag we create here is the same reference compose (and rollback)
+# actually run. A bare local tag (ailearningpath-api) is NOT what compose uses,
+# which is why rollback was previously a silent no-op.
+IMAGE_NAME=ghcr.io/arafat233/ailearningpath-api
 
 echo "=== [1/6] Reset server tree to origin/main ==="
 cd "$REPO"
@@ -39,7 +43,7 @@ fi
 echo "=== [3/6] Pull pre-built backend image from ghcr.io ==="
 # Image is public — no auth needed. Built on GitHub Actions CI with layer
 # cache so npm ci is cached. Pull takes ~30s vs 16min local build.
-docker pull ghcr.io/arafat233/ailearningpath-api:latest
+docker pull "$IMAGE_NAME:latest"
 echo "    → Image pulled"
 
 echo "=== [4/6] Restart API container ==="
@@ -48,15 +52,20 @@ echo "    → Waiting for API to start..."
 sleep 8
 docker ps --format 'table {{.Names}}\t{{.Status}}'
 
-echo "=== [5/6] Verify API health (max 30s) ==="
-for i in 1 2 3 4 5 6; do
-  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 5 "http://localhost:5001/api/topics?grade=10")
+echo "=== [5/6] Verify API health (max 60s) ==="
+# NOTE the `|| true`: on a cold start the freshly-recreated container isn't
+# listening yet, so the first curl gets connection-refused (exit 7). Under
+# `set -e` a failing command substitution in an assignment aborts the whole
+# script — which is exactly why CI deploys failed (cold container) while manual
+# reruns passed (warm container). `|| true` lets the retry loop do its job.
+for i in $(seq 1 12); do
+  STATUS=$(curl -s -o /dev/null -w "%{http_code}" -m 5 "http://localhost:5001/api/topics?grade=10" || true)
   if [ "$STATUS" = "200" ]; then
     echo "    → API healthy on try $i (HTTP 200)"
     break
   fi
-  if [ "$i" = "6" ]; then
-    echo "    ❌ API health check failed after 30s (last status: $STATUS)"
+  if [ "$i" = "12" ]; then
+    echo "    ❌ API health check failed after 60s (last status: $STATUS)"
     docker logs --tail 30 "$API_CONTAINER" 2>&1 | tail -20
     exit 1
   fi

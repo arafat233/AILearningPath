@@ -30,8 +30,15 @@ export default function Onboarding() {
     setError("");
     try {
       const { data } = await createChild(form);
-      setActiveChild(data.data.child);
-      setAuth(null, { ...user, linkedStudents: [...(user?.linkedStudents || []), data.data.child._id] });
+      const child = data.data.child;
+      // createChild seeds the school track server-side. If the response shape
+      // omits tracks (legacy), top up locally so the onboarding gate doesn't
+      // bounce us through /welcome → /start to re-enter board+grade.
+      const enrolled = child.tracks?.length
+        ? child
+        : { ...child, tracks: [{ key: "school" }], activeTrack: child.activeTrack || "school" };
+      setActiveChild(enrolled);
+      setAuth(null, { ...user, linkedStudents: [...(user?.linkedStudents || []), child._id] });
       navigate("/");
     } catch (err) {
       setError(err?.response?.data?.error || "Something went wrong. Please try again.");

@@ -349,7 +349,7 @@ r.put("/children/:childId", auth, validate(updateChildSchema), async (req, res, 
       }
     }
     const updated = await User.findByIdAndUpdate(childId, ops, { new: true })
-      .select("_id name grade examBoard schoolName location subject examDate")
+      .select("_id name grade examBoard schoolName location subject examDate tracks activeTrack")
       .lean();
     if (!updated) return next(new AppError("Student not found", 404));
 
@@ -357,8 +357,16 @@ r.put("/children/:childId", auth, validate(updateChildSchema), async (req, res, 
   } catch (err) { next(err); }
 });
 
-function _childView(u) {
-  return { _id: u._id, name: u.name, grade: u.grade, examBoard: u.examBoard, schoolName: u.schoolName, location: u.location };
+export function _childView(u) {
+  // Include tracks/activeTrack so the client knows the child is already
+  // enrolled (createChild seeds the school track). Without these the
+  // onboarding gate bounces the freshly-created child through /welcome →
+  // /start and re-asks for board+grade that were just saved.
+  return {
+    _id: u._id, name: u.name, grade: u.grade, examBoard: u.examBoard,
+    schoolName: u.schoolName, location: u.location,
+    tracks: u.tracks || [], activeTrack: u.activeTrack || null,
+  };
 }
 
 export default r;

@@ -379,6 +379,7 @@
     "seed:sysd-depth-7": "node config/seedSysdDepthBatch7.js",
     "seed:sysd-depth-8": "node config/seedSysdDepthBatch8.js",
     "seed:sysd-depth-9": "node config/seedSysdDepthBatch9.js",
+    "seed:sysd-depth-10": "node config/seedSysdDepthBatch10.js",
     "audit:pro-grading": "node config/auditProGrading.mjs",
     "acceptance:sysd": "node scripts/acceptanceSysd.mjs",
     "seed:community": "node config/seedCommunitySeedPosts.js",

@@ -390,6 +390,7 @@
     "seed:sysd-depth-18": "node config/seedSysdDepthBatch18.js",
     "seed:sysd-depth-19": "node config/seedSysdDepthBatch19.js",
     "seed:sysd-depth-20": "node config/seedSysdDepthBatch20.js",
+    "seed:sysd-depth-21": "node config/seedSysdDepthBatch21.js",
     "audit:pro-grading": "node config/auditProGrading.mjs",
     "acceptance:sysd": "node scripts/acceptanceSysd.mjs",
     "seed:community": "node config/seedCommunitySeedPosts.js",

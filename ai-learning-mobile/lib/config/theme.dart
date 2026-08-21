@@ -17,15 +17,13 @@ final ThemeData stellarTheme = ThemeData(
     seedColor: kPrimary,
     brightness: Brightness.light,
     primary: kPrimary,
-    background: kBackground,
     surface: kCard,
     error: kError,
     onPrimary: Colors.white,
-    onBackground: kTextPrimary,
     onSurface: kTextPrimary,
   ),
   scaffoldBackgroundColor: kBackground,
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     elevation: 0,
     color: kCard,
     shape: RoundedRectangleBorder(

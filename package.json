@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "check:imports": "node scripts/check-relative-imports.mjs",
     "prepare": "husky install"
   },
   "devDependencies": {

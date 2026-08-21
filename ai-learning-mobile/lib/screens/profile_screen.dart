@@ -100,7 +100,7 @@ class _ProfileView extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: kPrimary.withOpacity(0.3),
+                color: kPrimary.withValues(alpha: 0.3),
                 blurRadius: 16,
                 offset: const Offset(0, 4),
               ),
@@ -143,10 +143,10 @@ class _ProfileView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
       decoration: BoxDecoration(
-        color: isPro ? kWarning.withOpacity(0.12) : kBackground,
+        color: isPro ? kWarning.withValues(alpha: 0.12) : kBackground,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: isPro ? kWarning.withOpacity(0.5) : kSeparator,
+          color: isPro ? kWarning.withValues(alpha: 0.5) : kSeparator,
         ),
       ),
       child: Row(
@@ -344,7 +344,7 @@ class _ProfileView extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: const Color(0xFF5856D6).withOpacity(0.1),
+              color: const Color(0xFF5856D6).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.psychology_outlined,
@@ -390,7 +390,8 @@ class _ProfileView extends StatelessWidget {
               ? const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: kError),
+                  child:
+                      CircularProgressIndicator(strokeWidth: 2, color: kError),
                 )
               : const Icon(Icons.logout_rounded),
           label: const Text('Log Out'),

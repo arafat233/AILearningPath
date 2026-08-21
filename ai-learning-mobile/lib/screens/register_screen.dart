@@ -173,8 +173,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
             validator: (val) {
-              if (val == null || val.isEmpty) return 'Password is required';
-              if (val.length < 6) return 'Password must be at least 6 characters';
+              if (val == null || val.isEmpty) {
+                return 'Password is required';
+              }
+              if (val.length < 6) {
+                return 'Password must be at least 6 characters';
+              }
               return null;
             },
           ),
@@ -191,9 +195,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: kError.withOpacity(0.08),
+            color: kError.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: kError.withOpacity(0.3)),
+            border: Border.all(color: kError.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [
@@ -248,8 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ?.copyWith(color: kTextSecondary),
         ),
         TextButton(
-          onPressed: () =>
-              Navigator.of(context).pushReplacementNamed('/login'),
+          onPressed: () => Navigator.of(context).pushReplacementNamed('/login'),
           child: const Text('Sign In'),
         ),
       ],

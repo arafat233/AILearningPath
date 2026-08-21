@@ -121,9 +121,7 @@ class _LessonsScreenState extends State<LessonsScreen>
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               ),
-              tabs: _subjects
-                  .map((s) => Tab(text: s['label']))
-                  .toList(),
+              tabs: _subjects.map((s) => Tab(text: s['label'])).toList(),
             ),
           ),
         ),
@@ -181,7 +179,7 @@ class _LessonsScreenState extends State<LessonsScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.menu_book_outlined,
+              const Icon(Icons.menu_book_outlined,
                   color: kTextTertiary, size: 56),
               const SizedBox(height: 16),
               const Text(
@@ -233,7 +231,7 @@ class _LessonsScreenState extends State<LessonsScreen>
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: const Color(0xFF5856D6).withOpacity(0.1),
+                color: const Color(0xFF5856D6).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: const Icon(Icons.article_outlined,
@@ -308,7 +306,7 @@ class _TopicDetailSheet extends StatelessWidget {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: const Color(0xFF5856D6).withOpacity(0.1),
+              color: const Color(0xFF5856D6).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.article_outlined,
@@ -338,8 +336,7 @@ class _TopicDetailSheet extends StatelessWidget {
             ),
             child: Row(
               children: [
-                const Icon(Icons.quiz_outlined,
-                    color: kPrimary, size: 20),
+                const Icon(Icons.quiz_outlined, color: kPrimary, size: 20),
                 const SizedBox(width: 12),
                 Text(
                   '${topic.totalQuestions} practice questions',

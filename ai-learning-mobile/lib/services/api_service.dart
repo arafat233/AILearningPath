@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -9,7 +8,10 @@ class ApiService {
   late final Dio _dio;
   late final PersistCookieJar _cookieJar;
 
-  static const String _baseUrl = 'https://stellaredu.in/api';
+  static const String _baseUrl = String.fromEnvironment(
+    'STELLAR_API_URL',
+    defaultValue: 'https://stellaredu.in/api',
+  );
 
   ApiService._();
 
@@ -58,7 +60,7 @@ class ApiService {
 
   Future<bool> isAuthenticated() async {
     try {
-      final uri = Uri.parse(_baseUrl);
+      final uri = Uri.parse(ApiService._baseUrl);
       final cookies = await _cookieJar.loadForRequest(uri);
       return cookies.any(
         (c) => c.name == '__Host-token' || c.name == 'token',
@@ -93,7 +95,7 @@ class _CsrfInterceptor extends Interceptor {
     }
 
     try {
-      final uri = Uri.parse('https://stellaredu.in');
+      final uri = Uri.parse(ApiService._baseUrl);
       final cookies = await _jar.loadForRequest(uri);
       final csrfCookie = cookies.firstWhere(
         (c) => c.name == '__Host-csrf' || c.name == 'csrf',
@@ -119,7 +121,8 @@ class _LoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     // ignore: avoid_print
-    print('[API] ERROR ${err.response?.statusCode} ${err.requestOptions.path}: ${err.message}');
+    print(
+        '[API] ERROR ${err.response?.statusCode} ${err.requestOptions.path}: ${err.message}');
     handler.next(err);
   }
 }

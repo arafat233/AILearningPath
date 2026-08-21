@@ -92,8 +92,10 @@ class User {
   }
 
   bool get hasOnboarded =>
-      grade != null && grade!.isNotEmpty &&
-      subject != null && subject!.isNotEmpty;
+      grade != null &&
+      grade!.isNotEmpty &&
+      subject != null &&
+      subject!.isNotEmpty;
 
   String get initials {
     final parts = name.trim().split(' ');

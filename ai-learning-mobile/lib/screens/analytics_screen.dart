@@ -40,7 +40,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   static const Map<String, _ProfileMeta> _profiles = {
     'Guesser': _ProfileMeta(
       icon: Icons.casino_outlined,
-      description: 'You often answer quickly without thinking through the options.',
+      description:
+          'You often answer quickly without thinking through the options.',
     ),
     'Surface Learner': _ProfileMeta(
       icon: Icons.remove_red_eye_outlined,
@@ -102,7 +103,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loadReport,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
                 child: const Text('Try Again'),
               ),
             ],
@@ -150,7 +152,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget _buildThinkingProfileCard(String? profileName) {
     final meta = profileName != null ? _profiles[profileName] : null;
     final icon = meta?.icon ?? Icons.school_outlined;
-    final description = meta?.description ?? 'Complete more practice to unlock your thinking profile.';
+    final description = meta?.description ??
+        'Complete more practice to unlock your thinking profile.';
     final label = profileName ?? 'Not determined yet';
 
     return Container(
@@ -170,7 +173,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Icon(icon, color: Colors.white, size: 28),
@@ -204,7 +207,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   description,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     height: 1.5,
                   ),
                 ),
@@ -219,7 +222,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   // ── Performance stats ────────────────────────────────────────────────────────
 
   Widget _buildPerformanceStats(AnalyticsReport report) {
-    final topicsInProgress = report.topicProgress.where((t) => t.attempts > 0).length;
+    final topicsInProgress =
+        report.topicProgress.where((t) => t.attempts > 0).length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -312,10 +316,14 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget _buildBehaviorStats(BehaviorStats bs) {
     final rows = [
       _BehaviorRow('Guessing', bs.guessing, bs.percentage(bs.guessing)),
-      _BehaviorRow('Concept Error', bs.conceptError, bs.percentage(bs.conceptError)),
-      _BehaviorRow('Calc Error', bs.calculationError, bs.percentage(bs.calculationError)),
-      _BehaviorRow('Partial Logic', bs.partialLogic, bs.percentage(bs.partialLogic)),
-      _BehaviorRow('Misinterpretation', bs.misinterpretation, bs.percentage(bs.misinterpretation)),
+      _BehaviorRow(
+          'Concept Error', bs.conceptError, bs.percentage(bs.conceptError)),
+      _BehaviorRow('Calc Error', bs.calculationError,
+          bs.percentage(bs.calculationError)),
+      _BehaviorRow(
+          'Partial Logic', bs.partialLogic, bs.percentage(bs.partialLogic)),
+      _BehaviorRow('Misinterpretation', bs.misinterpretation,
+          bs.percentage(bs.misinterpretation)),
     ];
 
     return Container(
@@ -540,7 +548,10 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           ),
         ),
         if (!isLast)
-          Container(height: 0.5, color: kSeparator, margin: const EdgeInsets.symmetric(horizontal: 16)),
+          Container(
+              height: 0.5,
+              color: kSeparator,
+              margin: const EdgeInsets.symmetric(horizontal: 16)),
       ],
     );
   }

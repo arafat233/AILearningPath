@@ -30,7 +30,12 @@ import Pricing from "../pages/Pricing";
 
 // ── Razorpay mock helpers ──────────────────────────────────────────────────────
 const mockRazorpayOpen = vi.fn();
-const mockRazorpayConstructor = vi.fn().mockImplementation(() => ({ open: mockRazorpayOpen }));
+const mockRazorpayConstructor = vi.fn();
+
+function MockRazorpay(options) {
+  mockRazorpayConstructor(options);
+  this.open = mockRazorpayOpen;
+}
 
 const MOCK_PLANS = {
   pro: {
@@ -63,7 +68,7 @@ beforeEach(() => {
     s.id = "razorpay-script";
     document.body.appendChild(s);
   }
-  window.Razorpay = mockRazorpayConstructor;
+  window.Razorpay = MockRazorpay;
 
   getPlans.mockResolvedValue({ data: { data: MOCK_PLANS } });
   getSubscription.mockResolvedValue({ data: { data: FREE_SUBSCRIPTION } });

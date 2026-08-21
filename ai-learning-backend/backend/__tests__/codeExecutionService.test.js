@@ -11,6 +11,9 @@ jest.unstable_mockModule("../utils/redisClient.js", () => ({
   sessionSet: jest.fn(),
   sessionDel: jest.fn(),
 }));
+jest.unstable_mockModule("../utils/eventTracker.js", () => ({
+  trackEvent: jest.fn(),
+}));
 
 const { runCode, runTestCases, __test__ } =
   await import("../services/codeExecutionService.js");

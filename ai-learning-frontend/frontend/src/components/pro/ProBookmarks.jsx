@@ -6,7 +6,12 @@
  */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { proListBookmarks, proToggleExerciseBookmark, proToggleTopicBookmark } from "../../services/api";
+import {
+  proListBookmarks,
+  proToggleExerciseBookmark,
+  proToggleProjectBookmark,
+  proToggleTopicBookmark,
+} from "../../services/api";
 
 const LEVEL_STYLE = {
   warmup: { bg: "bg-apple-blue/10",   text: "text-apple-blue",   label: "Warmup" },
@@ -90,7 +95,8 @@ function TopicRow({ r, onRemove, navigate }) {
   );
 }
 
-function ProjectRow({ r }) {
+function ProjectRow({ r, onRemove, navigate }) {
+  const slug = trackSlugFromRef(r.refId);
   return (
     <div className="card p-4 flex items-center gap-4">
       <div className="min-w-0 flex-1">
@@ -102,7 +108,22 @@ function ProjectRow({ r }) {
         <h3 className="text-[14px] font-bold text-[var(--label)] truncate">{r.title}</h3>
         <p className="text-[11px] text-apple-gray mt-0.5 truncate">{r.moduleId} · {r.topicId}</p>
       </div>
-      <span className="text-[11px] text-apple-gray shrink-0">Project view coming soon</span>
+      <div className="flex items-center gap-2 shrink-0">
+        <button
+          onClick={() => navigate(`/pro/${slug}/${r.moduleId}/${r.topicId}/project/${r.refId}`)}
+          className="btn-primary text-[12px] px-3 py-1.5"
+        >
+          Open
+        </button>
+        <button
+          onClick={() => onRemove(r)}
+          className="text-apple-gray hover:text-apple-red transition-colors text-[12px] px-2"
+          aria-label="Remove bookmark"
+          title="Remove"
+        >
+          âœ•
+        </button>
+      </div>
     </div>
   );
 }
@@ -131,7 +152,8 @@ export default function ProBookmarks({ trackKey = "pro_java" }) {
     try {
       if (r.kind === "exercise") await proToggleExerciseBookmark(r.refId);
       else if (r.kind === "topic") await proToggleTopicBookmark(r.refId);
-      else return; // project removal will exist once the route ships
+      else if (r.kind === "project") await proToggleProjectBookmark(r.refId);
+      else return;
       setRows((rs) => rs.filter((x) => !(x.kind === r.kind && x.refId === r.refId)));
     } catch {}
   };
@@ -201,7 +223,7 @@ export default function ProBookmarks({ trackKey = "pro_java" }) {
         <section>
           <h2 className="text-[14px] font-bold text-[var(--label)] mb-2">Saved projects ({projects.length})</h2>
           <div className="space-y-2">
-            {projects.map((r) => <ProjectRow key={r.refId} r={r} />)}
+            {projects.map((r) => <ProjectRow key={r.refId} r={r} onRemove={handleRemove} navigate={navigate} />)}
           </div>
         </section>
       )}

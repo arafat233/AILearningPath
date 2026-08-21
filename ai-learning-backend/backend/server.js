@@ -14,6 +14,7 @@ import { RedisStore } from "rate-limit-redis";
 import helmet from "helmet";
 import morgan from "morgan";
 import http from "http";
+import crypto from "crypto";
 import { initSocket } from "./utils/socket.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { csrfProtect } from "./middleware/csrf.js";
@@ -201,10 +202,13 @@ app.use((req, res, next) => {
   next();
 });
 
-// CSRF: skip safe methods and auth/webhook routes (auth routes issue the token)
+// CSRF: skip safe methods and routes that bootstrap non-cookie auth.
 app.use((req, res, next) => {
   const safe    = ["GET", "HEAD", "OPTIONS"].includes(req.method);
-  const excluded = req.path.startsWith("/api/auth") || req.path.startsWith("/api/webhooks");
+  const excluded =
+    req.path.startsWith("/api/auth") ||
+    req.path.startsWith("/api/webhooks") ||
+    req.path === "/api/company/login";
   if (safe || excluded) return next();
   return csrfProtect(req, res, next);
 });

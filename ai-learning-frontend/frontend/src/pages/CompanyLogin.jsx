@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCompanyStore } from "../store/companyStore";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001/api").replace(/\/$/, "");
 
 export default function CompanyLogin() {
   const navigate   = useNavigate();
@@ -22,7 +22,7 @@ export default function CompanyLogin() {
     setError("");
     setLoading(true);
     try {
-      const res  = await fetch(`${API}/api/company/login`, {
+      const res  = await fetch(`${API_BASE}/company/login`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify({ email, password }),

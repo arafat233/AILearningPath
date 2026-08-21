@@ -89,10 +89,12 @@ class SubmitResult {
   });
 
   factory SubmitResult.fromJson(Map<String, dynamic> json) {
-    final data =
-        json['data'] is Map<String, dynamic> ? json['data'] as Map<String, dynamic> : json;
+    final data = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
     final isCorrect = data['isCorrect'] == true || data['correct'] == true;
-    final correctIdx = _parseInt(data['correctOptionIndex'] ?? data['correctAnswer']);
+    final correctIdx =
+        _parseInt(data['correctOptionIndex'] ?? data['correctAnswer']);
     final correctLetter = correctIdx >= 0 && correctIdx <= 25
         ? String.fromCharCode(65 + correctIdx)
         : '';
@@ -167,8 +169,9 @@ class StreakStatus {
   });
 
   factory StreakStatus.fromJson(Map<String, dynamic> json) {
-    final data =
-        json['data'] is Map<String, dynamic> ? json['data'] as Map<String, dynamic> : json;
+    final data = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
     return StreakStatus(
       streak: _parseInt(data['streak']),
       longestStreak: _parseInt(data['longestStreak']),
@@ -310,8 +313,9 @@ class AnalyticsReport {
   });
 
   factory AnalyticsReport.fromJson(Map<String, dynamic> json) {
-    final outer =
-        json['data'] is Map<String, dynamic> ? json['data'] as Map<String, dynamic> : json;
+    final outer = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json;
 
     // The response may have userProfile nested inside data
     final profile = outer['userProfile'] is Map<String, dynamic>
@@ -320,7 +324,8 @@ class AnalyticsReport {
 
     BehaviorStats? bs;
     if (profile['behaviorStats'] is Map<String, dynamic>) {
-      bs = BehaviorStats.fromJson(profile['behaviorStats'] as Map<String, dynamic>);
+      bs = BehaviorStats.fromJson(
+          profile['behaviorStats'] as Map<String, dynamic>);
     }
 
     List<TopicProgress> tp = [];
@@ -333,7 +338,8 @@ class AnalyticsReport {
     }
 
     return AnalyticsReport(
-      totalAttempts: _parseInt(profile['totalAttempts'] ?? outer['totalAttempts']),
+      totalAttempts:
+          _parseInt(profile['totalAttempts'] ?? outer['totalAttempts']),
       accuracy: _parseDouble(profile['accuracy'] ?? outer['accuracy']),
       thinkingProfile: profile['thinkingProfile']?.toString(),
       behaviorStats: bs,
@@ -369,8 +375,12 @@ class StudyService {
   Future<List<Topic>> getTopics({String? subject, String? grade}) async {
     try {
       final queryParams = <String, String>{};
-      if (subject != null && subject.isNotEmpty) queryParams['subject'] = subject;
-      if (grade != null && grade.isNotEmpty) queryParams['grade'] = grade;
+      if (subject != null && subject.isNotEmpty) {
+        queryParams['subject'] = subject;
+      }
+      if (grade != null && grade.isNotEmpty) {
+        queryParams['grade'] = grade;
+      }
 
       final response = await _dio.get(
         '/topics',
@@ -393,7 +403,10 @@ class StudyService {
         } else if (body is List) {
           list = body;
         }
-        return list.whereType<Map<String, dynamic>>().map(Topic.fromJson).toList();
+        return list
+            .whereType<Map<String, dynamic>>()
+            .map(Topic.fromJson)
+            .toList();
       }
       throw const StudyException('Failed to load topics');
     } on DioException catch (e) {
@@ -526,7 +539,10 @@ class StudyService {
         } else if (body is List) {
           list = body;
         }
-        return list.whereType<Map<String, dynamic>>().map(RevisionItem.fromJson).toList();
+        return list
+            .whereType<Map<String, dynamic>>()
+            .map(RevisionItem.fromJson)
+            .toList();
       }
       throw const StudyException('Failed to load revision due');
     } on DioException catch (e) {
@@ -575,7 +591,8 @@ class StudyService {
     if (e.response != null) {
       final data = e.response?.data;
       if (data is Map<String, dynamic>) {
-        return (data['message'] ?? data['error'] ?? 'Request failed').toString();
+        return (data['message'] ?? data['error'] ?? 'Request failed')
+            .toString();
       }
       return 'Request failed (${e.response?.statusCode})';
     }

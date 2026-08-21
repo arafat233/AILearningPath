@@ -61,7 +61,6 @@ export async function getClassDashboard(userId) {
   }
 
   const weekRows = buildRows(sinceWeek, "week")
-    .map((r) => ({ ...r, totalScore: r.totalScore || 4000 })) // placeholder for empty
     .sort((a, b) => b.totalScore - a.totalScore);
 
   // Rank deltas vs last week — simple heuristic: random for now (real prod needs snapshot)

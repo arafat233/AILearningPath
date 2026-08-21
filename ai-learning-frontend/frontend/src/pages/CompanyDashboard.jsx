@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCompanyStore } from "../store/companyStore";
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5001/api").replace(/\/$/, "");
 
 /* ── tiny helpers ───────────────────────────────────────── */
 const fmt  = (n) => n == null ? "—" : Number(n).toLocaleString("en-IN");
@@ -95,7 +95,7 @@ export default function CompanyDashboard() {
   const fetchStats = useCallback(async () => {
     if (!token) return;
     try {
-      const res  = await fetch(`${API}/api/company/stats`, {
+      const res  = await fetch(`${API_BASE}/company/stats`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.status === 401) { logout(); navigate("/company-login", { replace: true }); return; }

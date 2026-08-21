@@ -81,7 +81,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _questionStartTime = DateTime.now();
     });
     try {
-      final question = await StudyService.instance.startTopic(_selectedTopic!.id);
+      final question =
+          await StudyService.instance.startTopic(_selectedTopic!.id);
       if (mounted) {
         setState(() {
           _currentQuestion = question;
@@ -202,7 +203,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _loadTopics,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
                 child: const Text('Try Again'),
               ),
             ],
@@ -212,21 +214,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
 
     if (_topics.isEmpty) {
-      return Center(
+      return const Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.all(24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.school_outlined, color: kTextTertiary, size: 56),
-              const SizedBox(height: 16),
-              const Text(
+              SizedBox(height: 16),
+              Text(
                 'No topics found',
                 style: TextStyle(
-                    fontSize: 17, fontWeight: FontWeight.w600, color: kTextPrimary),
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: kTextPrimary),
               ),
-              const SizedBox(height: 8),
-              const Text(
+              SizedBox(height: 8),
+              Text(
                 'Complete onboarding to see topics for your subject.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: kTextSecondary),
@@ -260,10 +264,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: kPrimary.withOpacity(0.1),
+                color: kPrimary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.topic_outlined, color: kPrimary, size: 22),
+              child:
+                  const Icon(Icons.topic_outlined, color: kPrimary, size: 22),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -363,7 +368,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _fetchNextQuestion,
-                style: ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
+                style:
+                    ElevatedButton.styleFrom(minimumSize: const Size(160, 44)),
                 child: const Text('Try Again'),
               ),
             ],
@@ -444,19 +450,19 @@ class _PracticeScreenState extends State<PracticeScreen> {
     Color letterColor = kTextSecondary;
 
     if (isCorrect) {
-      bgColor = kSuccess.withOpacity(0.08);
+      bgColor = kSuccess.withValues(alpha: 0.08);
       borderColor = kSuccess;
       textColor = kTextPrimary;
       letterBg = kSuccess;
       letterColor = Colors.white;
     } else if (isWrong) {
-      bgColor = kError.withOpacity(0.08);
+      bgColor = kError.withValues(alpha: 0.08);
       borderColor = kError;
       textColor = kTextPrimary;
       letterBg = kError;
       letterColor = Colors.white;
     } else if (isSelected) {
-      bgColor = kPrimary.withOpacity(0.08);
+      bgColor = kPrimary.withValues(alpha: 0.08);
       borderColor = kPrimary;
       letterBg = kPrimary;
       letterColor = Colors.white;
@@ -520,13 +526,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: result.correct
-            ? kSuccess.withOpacity(0.08)
-            : kError.withOpacity(0.08),
+            ? kSuccess.withValues(alpha: 0.08)
+            : kError.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: result.correct
-              ? kSuccess.withOpacity(0.4)
-              : kError.withOpacity(0.4),
+              ? kSuccess.withValues(alpha: 0.4)
+              : kError.withValues(alpha: 0.4),
         ),
       ),
       child: Column(
@@ -552,7 +558,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
               ),
               if (_streak > 1) ...[
                 const SizedBox(width: 8),
-                Text('🔥 $_streak streak!', style: const TextStyle(fontSize: 13)),
+                Text('🔥 $_streak streak!',
+                    style: const TextStyle(fontSize: 13)),
               ],
             ],
           ),

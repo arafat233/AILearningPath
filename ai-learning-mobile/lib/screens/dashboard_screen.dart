@@ -149,7 +149,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 '$greeting,',
                 style: TextStyle(
                   fontSize: 15,
-                  color: Colors.white.withOpacity(0.85),
+                  color: Colors.white.withValues(alpha: 0.85),
                   fontWeight: FontWeight.w400,
                 ),
               ),
@@ -188,7 +188,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -279,7 +279,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   'Best: $longest days',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                     fontWeight: FontWeight.w400,
                   ),
                 ),
@@ -290,7 +290,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: const Text(
@@ -319,7 +319,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final accuracy = _report?.accuracy ?? user?.accuracy ?? 0.0;
     final mastered = _report?.topicsMastered ?? 0;
 
-    return Row(
+    final statsRow = Row(
       children: [
         Expanded(
           child: _buildStatCard(
@@ -349,6 +349,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ],
     );
+
+    if (_reportError == null) {
+      return statsRow;
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        statsRow,
+        const SizedBox(height: 8),
+        Text(
+          'Latest report unavailable. Showing saved progress.',
+          style:
+              Theme.of(context).textTheme.labelSmall?.copyWith(color: kError),
+        ),
+      ],
+    );
   }
 
   Widget _buildStatsShimmer() {
@@ -366,7 +383,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(strokeWidth: 2, color: kPrimary),
+                child:
+                    CircularProgressIndicator(strokeWidth: 2, color: kPrimary),
               ),
             ),
           ),
@@ -435,7 +453,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: kPrimary.withOpacity(0.1),
+                      color: kPrimary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.auto_awesome_rounded,
@@ -493,7 +511,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: kError.withOpacity(0.08),
+            color: kError.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -581,9 +599,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [

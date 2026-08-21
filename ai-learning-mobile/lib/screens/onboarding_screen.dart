@@ -17,7 +17,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String? _examBoard;
 
   static const List<String> _grades = [
-    '6', '7', '8', '9', '10', '11', '12',
+    '6',
+    '7',
+    '8',
+    '9',
+    '10',
+    '11',
+    '12',
   ];
 
   static const List<Map<String, String>> _subjects = [
@@ -29,9 +35,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
 
   static const List<Map<String, String>> _boards = [
-    {'value': 'CBSE', 'label': 'CBSE', 'desc': 'Central Board of Secondary Education'},
-    {'value': 'ICSE', 'label': 'ICSE', 'desc': 'Indian Certificate of Secondary Education'},
-    {'value': 'State Board', 'label': 'State Board', 'desc': 'State government curriculum'},
+    {
+      'value': 'CBSE',
+      'label': 'CBSE',
+      'desc': 'Central Board of Secondary Education'
+    },
+    {
+      'value': 'ICSE',
+      'label': 'ICSE',
+      'desc': 'Indian Certificate of Secondary Education'
+    },
+    {
+      'value': 'State Board',
+      'label': 'State Board',
+      'desc': 'State government curriculum'
+    },
   ];
 
   bool get _canProceed {
@@ -195,7 +213,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       'Grade',
                       style: TextStyle(
                         fontSize: 10,
-                        color: selected ? Colors.white.withOpacity(0.8) : kTextTertiary,
+                        color: selected
+                            ? Colors.white.withValues(alpha: 0.8)
+                            : kTextTertiary,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -244,7 +264,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: selected ? kPrimary.withOpacity(0.06) : kCard,
+                  color: selected ? kPrimary.withValues(alpha: 0.06) : kCard,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: selected ? kPrimary : kSeparator,
@@ -304,7 +324,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: selected ? kPrimary.withOpacity(0.06) : kCard,
+                  color: selected ? kPrimary.withValues(alpha: 0.06) : kCard,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: selected ? kPrimary : kSeparator,
@@ -331,7 +351,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               color: selected
-                                  ? kPrimary.withOpacity(0.7)
+                                  ? kPrimary.withValues(alpha: 0.7)
                                   : kTextSecondary,
                             ),
                           ),

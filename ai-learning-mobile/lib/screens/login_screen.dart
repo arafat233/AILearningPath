@@ -124,7 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
             autocorrect: false,
             decoration: const InputDecoration(
               labelText: 'Email',
-              prefixIcon: Icon(Icons.mail_outline_rounded, color: kTextSecondary),
+              prefixIcon:
+                  Icon(Icons.mail_outline_rounded, color: kTextSecondary),
             ),
             validator: (val) {
               if (val == null || val.trim().isEmpty) return 'Email is required';
@@ -156,8 +157,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             validator: (val) {
-              if (val == null || val.isEmpty) return 'Password is required';
-              if (val.length < 6) return 'Password must be at least 6 characters';
+              if (val == null || val.isEmpty) {
+                return 'Password is required';
+              }
+              if (val.length < 6) {
+                return 'Password must be at least 6 characters';
+              }
               return null;
             },
           ),
@@ -174,9 +179,9 @@ class _LoginScreenState extends State<LoginScreen> {
           margin: const EdgeInsets.only(bottom: 16),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: kError.withOpacity(0.08),
+            color: kError.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: kError.withOpacity(0.3)),
+            border: Border.all(color: kError.withValues(alpha: 0.3)),
           ),
           child: Row(
             children: [

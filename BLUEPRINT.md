@@ -2849,3 +2849,111 @@ AILearningPath/
                 ├── AdminNPS.jsx            ← NPS scores + export
                 └── AdminCertificates.jsx   ← users who earned certificates
 ```
+
+## 2026-08-21 — Mistake Notebook + Today Plan
+
+**Mistake Notebook** (priority-list feature #5): derived entirely from existing `Attempt` records — no new collection. A question appears while its latest attempt is wrong; a later correct attempt clears it.
+- `services/mistakeService.js` — `getMistakes(userId, {topic})`: question, selected vs correct answer, why-wrong (from distractor `selectedType`), 3-day retry date, up to 3 similar-question IDs.
+- `routes/mistakeRoutes.js` → `GET /api/v1/mistakes` (auth). Retry reuses `POST /api/practice/start-bookmarks {questionIds}`.
+- Frontend: `pages/Mistakes.jsx` at `/mistakes` (topic filter, retry-due batch, per-mistake retry + practice-similar), nav item `mistakes` in `navService.js` (school track), icon in `Layout.jsx`.
+
+**Today Plan** (priority-list feature #1): one "start today" call serving a real question queue, not just topic names.
+- `services/dailyBriefService.js` — `getTodayPlan(userId)`: queue of question IDs (3 weak topics + 1 distinct revision topic, prefer-unseen), streak status, continue-lesson card, daily brief.
+- `routes/userRoutes.js` → `GET /api/user/today-plan` (auth).
+- Frontend: Dashboard "Begin plan" fetches the plan and launches the queue via the retry-practice flow (`retryWrongIds` + new `retryLabel` banner override in `Practice.jsx`); falls back to the old navigation when the queue is empty.
+
+Audits: `__tests__/mistake.service.test.js`, `__tests__/todayPlan.service.test.js` (registered in AUDITS.md). Gap tracker: `docs/FEATURE_GAP_CHECKLIST.md`.
+
+## 2026-08-21 (later) — Exam Readiness Score + AI Tutor Modes
+
+**Exam Readiness Score** (priority-list feature #6): "JEE Physics: 62% ready" style per-subject scores.
+- `analyticsV2Service.getReadiness(userId)`: examFrequency-weighted mean of per-topic accuracy across the WHOLE syllabus for the user board/grade — unattempted topics count 0, so the score reflects coverage, not just accuracy. Weakest 3 topics per subject; exam label from `User.goal` (JEE/NEET) else board.
+- Routes: `readiness` added to the one-shot `GET /api/v1/analytics-v2/dashboard` payload + standalone `GET /api/v1/analytics-v2/readiness`.
+- Frontend: readiness cards (score, progress bar, weakest topic, coverage) atop `Analytics.jsx`.
+
+**AI Tutor modes + Hinglish** (priority-list feature #4, Khanmigo-style guardrails):
+- `aiService.tutorModeInstruction(mode, lang)` — modes `full` (default) / `hint` (one nudge, never the answer) / `socratic` (guides with one question at a time, never answers) / `shortcut` (fastest exam method); languages `en` / `hi` (Devanagari) / `hinglish`. Appended to the system prompt in `getChatResponse` + `getChatResponseFull` via a new `opts` param.
+- `POST /api/ai/chat` (tutorChat) and the doubt chat (`POST /api/doubt/:questionId/message`) accept Joi-validated `mode` + `lang`; stored `User.locale === "hi"` is now the default language when no explicit `lang` is sent (first real consumer of that field). Non-default mode/lang bypasses the first-turn AIResponseCache so cached full-English answers never leak into hint/socratic/Hinglish sessions.
+- Frontend: mode chips (Explain / Hint only / Socratic / Exam shortcut) + Hinglish toggle above the Practice tutor chat input, persisted in localStorage; `askTutor(message, history, topic, subject, mode, lang)`.
+
+Audits: `__tests__/readiness.service.test.js`, tutor-mode block in `__tests__/ai.service.test.js` (registered in AUDITS.md).
+
+## 2026-08-21 (later still) — Teacher Assignments
+
+**Teacher/Classroom assignments** (priority-list feature #9): assign practice with due dates + completion tracking.
+- Model: `Assignment` in `schoolGroupV2Models.js` — `{schoolGroupId, teacherId, teacherName, title, topic, questionIds[], dueAt}`. No submission collection: completion is DERIVED from `Attempt` records on the assigned questionIds made after the assignment was created (a student answering those questions anywhere counts; pre-assignment attempts do not).
+- Service (`schoolGroupV2Service.js`): `createAssignment` (role-gated to teacher/admin; teacher targets a class by its JOIN CODE; questions auto-picked from the topic), `getStudentAssignments` (progress per assignment, injected into `getClassDashboard` payload as `assignments`), `listTeacherAssignments`, `getAssignmentReport` (owning teacher only; per-student attempted/correct/completed — the assignment-level class heatmap).
+- Routes: `POST /api/v1/school-group/assignments`, `GET .../assignments/mine`, `GET .../assignments/:id/report` (Joi-validated, `dueAt` must be future).
+- Frontend: Assignments card in `SchoolGroups.jsx` (due date, overdue flag, progress, Start/Continue via the retry-practice flow with `retryLabel`); role-gated "Assign practice" form + per-assignment completion report in `Portal.jsx` (due end-of-day).
+
+Audit: `__tests__/assignment.service.test.js` (registered in AUDITS.md).
+
+## 2026-08-21 (evening) — Visual Mastery Map
+
+**Mastery Map** (priority-list feature #2): every syllabus topic in one clickable colour grid.
+- `lessonsV2Service.getMasteryMapView(userId, subject, grade)` — extends the existing 4-state topic mastery into the 5 product states: `not_started` / `learning` (was in_progress) / `weak` (was wrong_repeat, 3+ wrong attempts) / `mastered` / `needs_revision` (mastered AND due per `revisionService.getRevisionTopics`, matched by topic name case-insensitively). Grouped by chapter, with per-state counts. Math grade filtering extracted into a shared `filterByMathGrade` helper (also used by `getChaptersMeta`).
+- Route: `GET /api/v1/lessons-v2/mastery-map?subject=&grade=`.
+- Frontend: "Mastery map" card on `Lessons.jsx` — per-chapter rows of colour-coded cells (grey/blue/red/green/orange), legend with counts, hover tooltip shows topic + state, click opens `/ncert/topics/:topicId`.
+
+Audit: `__tests__/masteryMap.service.test.js` (registered in AUDITS.md).
+
+## 2026-08-21 (night) — Image Doubt Solving + Worksheet Generator
+
+**Image doubt solving** (differentiator from priority list): student photographs a handwritten/textbook question, Claude vision solves it.
+- `aiService.solveImageDoubt(base64, mediaType, prompt, subject, userId, {mode, lang})` — image sent as a base64 content block; system prompt restates the question first, solves step-by-step, asks for a clearer photo if unreadable; respects tutor modes + Hinglish; budget/guard/logging identical to chat.
+- `routes/imageDoubtRoutes.js` → `POST /api/ai/image-doubt`, mounted BEFORE the global 100kb `express.json()` with its own 6mb parser (same precedent as webhooks). Joi caps base64 at 5.6MB (jpeg/png/webp only), per-user 20/hr rate limit + daily AI quota.
+- Frontend: 📷 button in the Practice tutor chat — client-side canvas downscale to ≤1600px JPEG (phone photos would blow the cap), reply lands in the chat thread; typed text becomes the accompanying prompt.
+
+**Worksheet generator** (teacher tools, priority-list feature #10): bank-backed, zero AI cost.
+- `schoolGroupV2Service.generateWorksheet(teacherId, {topic, questionCount, difficulty})` — role-gated (teacher/admin); numbered questions with options + answer key + solution steps.
+- Route `POST /api/v1/school-group/worksheet`; Portal card renders a printable page (answer key page-breaks onto its own sheet).
+
+Audits: solveImageDoubt block in `__tests__/ai.service.test.js`, generateWorksheet block in `__tests__/assignment.service.test.js` (registered in AUDITS.md).
+
+## 2026-08-21 (late night) — AI Teacher Docs
+
+**AI content creation for teachers** (priority-list feature #10, completing the teacher toolkit):
+- `aiService.generateTeacherDoc(kind, statsBlock, userId)` — three document kinds: `class_summary` (trend + top weak topics + 2 next actions, <200 words), `remedial_plan` (2-week structure with concrete reteach/practice/check actions, <250 words), `parent_note` (warm WhatsApp-ready note <120 words: one strength, one support area, one suggestion). System prompt forbids inventing data not in the input; standard output guard + AI call logging.
+- `schoolGroupV2Service.generateTeacherContent(teacherId, {kind, classCode, studentName})` — role-gated; resolves the class by JOIN CODE; builds the stats block from real data (per-student accuracy, attempt counts, weak/strong areas from UserProfile); parent notes require an exact student-name match within the class; AI failure → 503, never an empty doc.
+- Route `POST /api/v1/school-group/teacher-content` — 10/hr per-user limiter + daily AI quota (`checkAndIncrementUsage`).
+- Frontend: "AI teacher tools" card on Portal — kind chips, class code (+ student name for parent notes), output textarea with a copy button ("paste into WhatsApp/email" — the manual bridge until a WhatsApp Business API account exists).
+
+Audit: generateTeacherContent block in `__tests__/assignment.service.test.js` (registered in AUDITS.md).
+
+## 2026-08-21 (final) — Class Heatmap
+
+**Per-topic class heatmap** (closes priority-list feature #9): `schoolGroupV2Service.getClassHeatmap(teacherId, classCode)` — teacher-only students × topics accuracy grid from `UserProfile.topicProgress`; columns are the top-12 topics by class coverage; unattempted cells are `null` (rendered grey, never conflated with 0%). Route `GET /api/v1/school-group/class-heatmap?classCode=`; colour grid card on Portal (green ≥70% / orange ≥40% / red <40% / grey untouched, vertical topic labels, hover tooltips). Audit: getClassHeatmap block in `__tests__/assignment.service.test.js`.
+
+## 2026-08-21 (last) — Career Path Mode + Scholarship Tracker
+
+**Career path mode** (differentiator from priority list): "I want IIT/medicine/AI" → roadmap.
+- `services/careerService.js` — 5 curated static roadmaps (engineering_iit, medicine_neet, ai_data_science, software_dev, commerce_ca), each with exams, focus subjects, 4 staged plans (Class 9-10 → after-exam), and deep links into existing surfaces (practice, mock papers, PYQ bank, Pro track). Zero AI cost.
+- Chosen path persists on `User.careerPath` (nullable; unknown keys → 400).
+
+**Scholarship/admission tracker** (differentiator): curated Indian scholarship + talent-exam list (NMMS, INSPIRE SHE, NSEJS/NSEP/NSEC Olympiads, IOQM, Vidyadhan, NTSE [flagged suspended], AICTE Pragati/Saksham) with eligibility grades, award, indicative window, and caveat notes. Grade-filtered per user; per-user tracking via `User.trackedScholarships` ($addToSet/$pull toggle).
+
+Routes: `GET /api/v1/career` (paths + state + grade-filtered scholarships in one call), `PUT /api/v1/career/path`, `POST /api/v1/career/track`. Frontend: `pages/CareerPath.jsx` at `/career` (expandable roadmap cards with "Make this my path", scholarship list with Track toggles), nav item `career` + flag icon.
+
+Audit: `__tests__/career.service.test.js` (registered in AUDITS.md).
+
+## 2026-08-22 — Offline Mobile Practice Packs
+
+**Offline practice packs** (last open differentiator): download while online, practice with zero connectivity, sync back.
+- Backend `services/offlinePackService.js`:
+  - `buildOfflinePack(userId)` — up to 5 weakest topics × 8 questions each, with `correctIndex` + joined `solutionSteps` so the CLIENT can grade offline (accepted trade-off: offline grading is impossible without the key). Empty pack when no practice history.
+  - `syncOfflineAttempts(userId, attempts)` — correctness and mistake-type derived SERVER-SIDE from the stored question (the client verdict is never trusted); creates Attempt records (feeds analytics, mistake notebook, heatmaps); unknown questions/options skipped; capped at 200/call. ponytail: UserProfile recompute deferred until offline volume warrants it.
+  - Routes on practiceRoutes: `GET /api/practice/offline-pack`, `POST /api/practice/sync-offline` (Joi-validated).
+- Mobile (Flutter, NO new dependencies — dio + path_provider already present):
+  - `lib/services/offline_service.dart` — `OfflinePack`/`OfflineQuestion` models; downloadPack/loadPack persist to `offline_pack.json`; queueAttempt/pendingCount/syncAttempts persist to `offline_attempts.json` (queue survives failed syncs).
+  - `lib/screens/offline_practice_screen.dart` — download CTA, offline question flow with local grading + solutions, per-pack score, sync badge in the app bar.
+  - Entry: download icon on the Practice screen app bar.
+
+Audit: `__tests__/offlinePack.service.test.js` (5/5) + `flutter analyze` clean on lib/ (registered in AUDITS.md).
+
+## 2026-08-22 (ii) — Hindi UI (nav + key CTAs)
+
+**Hindi interface slice** (closes the actionable part of the i18n gap): `User.locale === "hi"` now changes what the student SEES, not just what the AI says.
+- Sidebar: `navService.js` `HI_LABELS` map — every school + pro nav label translated SERVER-SIDE (labels already lived there; one source of truth, no client i18n library). Icon keys and routes untouched. Both nav routes (`GET /user/nav`, `PATCH /user/active-track`) now select `locale`; changing locale in Settings invalidates the cached nav (`profileV2Service.updateSettings` → `sessionDel("nav:<id>")`).
+- Client: `src/i18n.js` — a plain `t(string, locale)` dictionary, applied to the Dashboard hero CTAs ("Begin plan" → "प्लान शुरू करें", commit chip, "Jump back in"). Extend key-by-key as screens get translated; no library, no build step.
+
+Audit: Hindi-locale block in `__tests__/navService.test.js` — includes a label-by-label leak check so an untranslated nav item fails the suite (registered in AUDITS.md).

@@ -302,6 +302,11 @@ export async function updateSettings(userId, body) {
     throw new AppError("Avatar too large (max 100KB)", 422);
   }
   await User.findByIdAndUpdate(userId, { $set: update });
+  if (update.locale) {
+    // Nav labels are locale-dependent — drop the cached nav so the sidebar re-renders in the new language
+    const { sessionDel } = await import("../utils/redisClient.js");
+    await sessionDel(`nav:${userId}`);
+  }
   return User.findById(userId).select("avatarDataUrl manifesto locale timezone theme density notifPrefs twoFactorEnabled").lean();
 }
 

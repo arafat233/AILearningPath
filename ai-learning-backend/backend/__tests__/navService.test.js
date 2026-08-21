@@ -71,6 +71,33 @@ describe("navService.getNavForUser", () => {
   });
 });
 
+describe("navService — Hindi locale labels", () => {
+  test("locale=hi translates sidebar labels; routes and icons unchanged", () => {
+    const nav = getNavForUser({ tracks: [{ key: "school" }], activeTrack: "school", locale: "hi" });
+    const practice = nav.items.find((i) => i.to === "/practice");
+    expect(practice.label).toBe("अभ्यास");
+    expect(practice.icon).toBe("practice"); // icon key untouched
+    expect(nav.items.find((i) => i.to === "/mistakes").label).toBe("गलतियाँ");
+  });
+
+  test("locale=en (or absent) keeps English labels", () => {
+    const nav = getNavForUser({ tracks: [{ key: "school" }], activeTrack: "school" });
+    expect(nav.items.find((i) => i.to === "/practice").label).toBe("Practice");
+  });
+
+  test("every school + pro nav label has a Hindi translation (no silent English leaks)", () => {
+    const hiNav = getNavForUser({
+      tracks: [{ key: "school" }, { key: "pro_java" }], activeTrack: "school", locale: "hi",
+    });
+    const enNav = getNavForUser({
+      tracks: [{ key: "school" }, { key: "pro_java" }], activeTrack: "school",
+    });
+    hiNav.items.forEach((item, i) => {
+      expect(item.label).not.toBe(enNav.items[i].label);
+    });
+  });
+});
+
 describe("navService.isValidTrackKey", () => {
   test("accepts known keys", () => {
     expect(isValidTrackKey("school")).toBe(true);

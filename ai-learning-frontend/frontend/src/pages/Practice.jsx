@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   startTopic, submitAnswer, evaluateExplanation, flagQuestion,
   getTopics, getHint, toggleBookmark, startBookmarkPractice,
-  startRetryPractice, startCollectionPractice, getBookmarks, rateAIResponse, askTutor, getReport,
+  startRetryPractice, startCollectionPractice, getBookmarks, rateAIResponse, askTutor, askImageDoubt, getReport,
   reportQuestion, submitSkipReason, submitErrorLabel,
   getQuestionStats, getPeerTime, getQuestionLineage,
   bmGetDue, bmRate, bmUpsertSection,
@@ -143,6 +143,8 @@ export default function Practice() {
   const [chatOpen, setChatOpen]       = useState(true);
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput]     = useState("");
+  const [tutorMode, setTutorMode]     = useState(() => localStorage.getItem("tutorMode") || "full");
+  const [tutorLang, setTutorLang]     = useState(() => localStorage.getItem("tutorLang") || "en");
   const [chatTyping, setChatTyping]   = useState(false);
 
   const [colPickerOpen,   setColPickerOpen]   = useState(false);
@@ -250,6 +252,31 @@ export default function Practice() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, chatTyping]);
 
+  // Photo doubt: downscale client-side (phone photos exceed the 6mb cap), send to vision endpoint
+  const handleImageDoubt = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || chatTyping) return;
+    setChatTyping(true);
+    setChatMessages((prev) => [...prev, { role: "user", content: "📷 Sent a photo of a question" }]);
+    try {
+      const bitmap = await createImageBitmap(file);
+      const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(bitmap.width * scale);
+      canvas.height = Math.round(bitmap.height * scale);
+      canvas.getContext("2d").drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+      const image = canvas.toDataURL("image/jpeg", 0.85);
+      const { data } = await askImageDoubt(image, chatInput.trim(), activeSubject, tutorMode, tutorLang);
+      setChatMessages((prev) => [...prev, { role: "assistant", content: data?.data?.reply || "I couldn't read that photo — try a clearer picture." }]);
+      setChatInput("");
+    } catch (err) {
+      setChatMessages((prev) => [...prev, { role: "assistant", content: err.response?.data?.error || "I couldn't read that photo — try a clearer, well-lit picture." }]);
+    } finally {
+      setChatTyping(false);
+    }
+  };
+
   const handleSendChat = async () => {
     const msg = chatInput.trim();
     if (!msg || chatTyping) return;
@@ -259,7 +286,7 @@ export default function Practice() {
     setChatTyping(true);
     try {
       const history = updated.slice(0, -1);
-      const { data } = await askTutor(msg, history, selectedTopic, activeSubject);
+      const { data } = await askTutor(msg, history, selectedTopic, activeSubject, tutorMode, tutorLang);
       const reply = data?.message || data?.reply || data?.data?.message || "I can help with that — try rephrasing your question.";
       setChatMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch {
@@ -729,7 +756,8 @@ export default function Practice() {
 
         {retryWrongIds?.length > 0 && (
           <div className="bg-[#FF9500]/10 border border-[#FF9500]/25 text-[#FF9500] text-[13px] px-4 py-3 rounded-xl font-medium">
-            Retrying {retryWrongIds.length} wrong question{retryWrongIds.length !== 1 ? "s" : ""} from your last exam
+            {location.state?.retryLabel ||
+              `Retrying ${retryWrongIds.length} wrong question${retryWrongIds.length !== 1 ? "s" : ""} from your last exam`}
           </div>
         )}
 
@@ -1877,7 +1905,35 @@ export default function Practice() {
 
               {/* Input */}
               <div className="px-3 py-3 border-t border-[#F2F2F7]">
+                {/* Tutor mode + language (Khanmigo-style guardrails) */}
+                <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                  {[["full","Explain"],["hint","Hint only"],["socratic","Socratic"],["shortcut","Exam shortcut"]].map(([m, label]) => (
+                    <button key={m}
+                      onClick={() => { setTutorMode(m); localStorage.setItem("tutorMode", m); }}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
+                        tutorMode === m
+                          ? "bg-[#1C1C1E] text-white border-[#1C1C1E]"
+                          : "bg-white text-[#8E8E93] border-[#F2F2F7] hover:border-[#d0d0d8]"
+                      }`}
+                    >{label}</button>
+                  ))}
+                  <button
+                    onClick={() => { const l = tutorLang === "hinglish" ? "en" : "hinglish"; setTutorLang(l); localStorage.setItem("tutorLang", l); }}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-colors ${
+                      tutorLang === "hinglish"
+                        ? "bg-[#FF9500] text-white border-[#FF9500]"
+                        : "bg-white text-[#8E8E93] border-[#F2F2F7] hover:border-[#d0d0d8]"
+                    }`}
+                  >Hinglish</button>
+                </div>
                 <div className="flex items-center gap-2">
+                  <label className={`w-8 h-8 rounded-xl bg-[#F2F2F7] flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-[#E5E5EA] transition-colors ${chatTyping ? "opacity-35 pointer-events-none" : ""}`}
+                    title="Upload a photo of a question">
+                    <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageDoubt} />
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#3A3A3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>
+                    </svg>
+                  </label>
                   <input
                     type="text"
                     value={chatInput}

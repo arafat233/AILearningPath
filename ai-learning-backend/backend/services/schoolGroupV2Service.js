@@ -1,5 +1,5 @@
-import { User, SchoolGroup, Attempt, Streak, UserProfile } from "../models/index.js";
-import { ClassChallenge, TeacherPost, Kudos, SubjectFocus, ClassPreference, ClassReport, isoWeekKey } from "../models/schoolGroupV2Models.js";
+import { User, SchoolGroup, Attempt, Streak, UserProfile, Question } from "../models/index.js";
+import { ClassChallenge, TeacherPost, Kudos, SubjectFocus, ClassPreference, ClassReport, Assignment, isoWeekKey } from "../models/schoolGroupV2Models.js";
 import { AppError } from "../utils/AppError.js";
 
 const initials = (n = "") => n.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("") || "?";
@@ -141,6 +141,7 @@ export async function getClassDashboard(userId) {
       commentCount: teacherPost.comments?.length || 0,
     } : null,
     cluster,
+    assignments: await getStudentAssignments(userId, me.schoolGroupId),
     subjectFocus: focus,
     inviteLink: `https://stellaredu.in/c/${(me.grade || "10").toLowerCase()}-${(group.schoolName?.[0] || "a").toLowerCase()}/${(me.name || "you").split(" ")[0].toLowerCase()}`,
     kudosReceivedThisWeek: myKudos.length,
@@ -151,6 +152,228 @@ function hashColor(id) {
   const colors = ["#7c3aed","#f472b6","#fb923c","#34c759","#06b6d4","#a78bfa","#facc15"];
   let h = 0; for (const c of id) h = (h + c.charCodeAt(0)) % colors.length;
   return colors[h];
+}
+
+// ── Assignments — teacher-assigned practice with due dates ────────
+
+// Teacher creates an assignment by class join code; questions auto-picked from the topic.
+export async function createAssignment(teacherId, body) {
+  const me = await User.findById(teacherId).select("name role").lean();
+  if (!me || !["teacher", "admin"].includes(me.role)) {
+    throw new AppError("Only teachers can assign practice", 403);
+  }
+  const code = String(body.classCode || "").trim();
+  const group = await SchoolGroup.findOne({ joinCode: { $in: [code, code.toUpperCase()] } }).lean();
+  if (!group) throw new AppError("No class found for this code", 404);
+
+  const questions = await Question.find({
+    topic: body.topic,
+    deletedAt: null,
+    questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+    "options.0": { $exists: true },
+  }).select("_id").limit(body.questionCount || 10).lean();
+  if (!questions.length) throw new AppError("No questions available for this topic", 404);
+
+  const a = await Assignment.create({
+    schoolGroupId: String(group._id),
+    teacherId,
+    teacherName: me.name || "Class Teacher",
+    title: body.title || `${body.topic} practice`,
+    topic: body.topic,
+    questionIds: questions.map((q) => String(q._id)),
+    dueAt: body.dueAt,
+  });
+  return { id: String(a._id), title: a.title, topic: a.topic, total: a.questionIds.length, dueAt: a.dueAt };
+}
+
+// Student view: assignments for their group with completion derived from Attempts.
+export async function getStudentAssignments(userId, schoolGroupId) {
+  const assignments = await Assignment.find({ schoolGroupId: String(schoolGroupId) })
+    .sort({ dueAt: -1 }).limit(10).lean();
+  if (!assignments.length) return [];
+
+  const allQids = [...new Set(assignments.flatMap((a) => a.questionIds))];
+  const oldest = new Date(Math.min(...assignments.map((a) => new Date(a.createdAt).getTime())));
+  const attempts = await Attempt.find({ userId, questionId: { $in: allQids }, createdAt: { $gte: oldest } })
+    .select("questionId isCorrect createdAt").lean();
+
+  return assignments.map((a) => {
+    const mine = attempts.filter(
+      (x) => a.questionIds.includes(x.questionId) && new Date(x.createdAt) >= new Date(a.createdAt)
+    );
+    const attempted = new Set(mine.map((x) => x.questionId)).size;
+    const correct = new Set(mine.filter((x) => x.isCorrect).map((x) => x.questionId)).size;
+    return {
+      id: String(a._id),
+      title: a.title,
+      topic: a.topic,
+      teacherName: a.teacherName,
+      dueAt: a.dueAt,
+      overdue: Date.now() > new Date(a.dueAt).getTime(),
+      total: a.questionIds.length,
+      attempted,
+      correct,
+      completed: attempted >= a.questionIds.length,
+      questionIds: a.questionIds,
+    };
+  });
+}
+
+export async function listTeacherAssignments(teacherId) {
+  const list = await Assignment.find({ teacherId }).sort({ createdAt: -1 }).limit(20).lean();
+  return list.map((a) => ({
+    id: String(a._id), title: a.title, topic: a.topic, dueAt: a.dueAt,
+    total: a.questionIds.length, createdAt: a.createdAt,
+  }));
+}
+
+// Teacher report: per-student completion — doubles as the class heatmap for the assignment.
+export async function getAssignmentReport(teacherId, assignmentId) {
+  const a = await Assignment.findById(assignmentId).lean();
+  if (!a) throw new AppError("Assignment not found", 404);
+  if (a.teacherId !== String(teacherId)) throw new AppError("Not your assignment", 403);
+
+  const group = await SchoolGroup.findById(a.schoolGroupId).lean();
+  const studentIds = (group?.enrolledStudentIds || []).map(String);
+  const [students, attempts] = await Promise.all([
+    User.find({ _id: { $in: studentIds } }).select("_id name").lean(),
+    Attempt.find({ userId: { $in: studentIds }, questionId: { $in: a.questionIds }, createdAt: { $gte: a.createdAt } })
+      .select("userId questionId isCorrect").lean(),
+  ]);
+
+  const rows = students.map((s) => {
+    const mine = attempts.filter((x) => x.userId === String(s._id));
+    const attempted = new Set(mine.map((x) => x.questionId)).size;
+    const correct = new Set(mine.filter((x) => x.isCorrect).map((x) => x.questionId)).size;
+    return {
+      userId: String(s._id), name: s.name,
+      attempted, correct, total: a.questionIds.length,
+      completed: attempted >= a.questionIds.length,
+    };
+  }).sort((x, y) => y.correct - x.correct || y.attempted - x.attempted);
+
+  return {
+    assignment: { id: String(a._id), title: a.title, topic: a.topic, dueAt: a.dueAt, total: a.questionIds.length },
+    students: rows,
+    completedCount: rows.filter((r) => r.completed).length,
+  };
+}
+
+// ── Worksheet generator (teacher) ─────────────────────────────────
+// Bank-backed: picks questions from the topic with an answer key — zero AI cost.
+export async function generateWorksheet(teacherId, { topic, questionCount = 10, difficulty = null }) {
+  const me = await User.findById(teacherId).select("role").lean();
+  if (!me || !["teacher", "admin"].includes(me.role)) {
+    throw new AppError("Only teachers can generate worksheets", 403);
+  }
+  const filter = {
+    topic,
+    deletedAt: null,
+    questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+    "options.0": { $exists: true },
+  };
+  if (difficulty) filter.difficulty = difficulty;
+  const questions = await Question.find(filter)
+    .select("questionText options difficulty conceptTested solutionSteps")
+    .limit(questionCount)
+    .lean();
+  if (!questions.length) throw new AppError("No questions available for this topic", 404);
+
+  return {
+    topic,
+    count: questions.length,
+    questions: questions.map((q, i) => ({
+      number: i + 1,
+      questionText: q.questionText,
+      options: (q.options || []).map((o) => o.text),
+      difficulty: q.difficulty,
+      conceptTested: q.conceptTested || null,
+      answer: (q.options || []).find((o) => o.type === "correct")?.text || null,
+      solutionSteps: q.solutionSteps || [],
+    })),
+  };
+}
+
+// ── Class heatmap — students × topics accuracy grid (teacher) ─────
+export async function getClassHeatmap(teacherId, classCode) {
+  const me = await User.findById(teacherId).select("role").lean();
+  if (!me || !["teacher", "admin"].includes(me.role)) {
+    throw new AppError("Only teachers can view the class heatmap", 403);
+  }
+  const code = String(classCode || "").trim();
+  const group = await SchoolGroup.findOne({ joinCode: { $in: [code, code.toUpperCase()] } }).lean();
+  if (!group) throw new AppError("No class found for this code", 404);
+
+  const ids = (group.enrolledStudentIds || []).map(String);
+  const [students, profiles] = await Promise.all([
+    User.find({ _id: { $in: ids } }).select("_id name").lean(),
+    UserProfile.find({ userId: { $in: ids } }).select("userId topicProgress").lean(),
+  ]);
+  const profMap = new Map(profiles.map((p) => [String(p.userId), p]));
+
+  // Columns: topics ranked by how many students have attempted them, top 12
+  const topicCoverage = {};
+  for (const p of profiles) {
+    for (const tp of p.topicProgress || []) {
+      if ((tp.attempts || 0) > 0) topicCoverage[tp.topic] = (topicCoverage[tp.topic] || 0) + 1;
+    }
+  }
+  const topics = Object.entries(topicCoverage)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+    .map(([t]) => t);
+
+  const rows = students.map((s) => {
+    const tpMap = new Map((profMap.get(String(s._id))?.topicProgress || []).map((tp) => [tp.topic, tp]));
+    return {
+      userId: String(s._id),
+      name: s.name,
+      cells: topics.map((t) => {
+        const tp = tpMap.get(t);
+        return tp && (tp.attempts || 0) > 0 ? Math.round((tp.accuracy || 0) * 100) : null;
+      }),
+    };
+  });
+
+  return { topics, rows };
+}
+
+// ── AI teacher docs — remedial plan / parent note / class summary ─
+export async function generateTeacherContent(teacherId, { kind, classCode, studentName }) {
+  const me = await User.findById(teacherId).select("role").lean();
+  if (!me || !["teacher", "admin"].includes(me.role)) {
+    throw new AppError("Only teachers can use this tool", 403);
+  }
+  const code = String(classCode || "").trim();
+  const group = await SchoolGroup.findOne({ joinCode: { $in: [code, code.toUpperCase()] } }).lean();
+  if (!group) throw new AppError("No class found for this code", 404);
+
+  const ids = (group.enrolledStudentIds || []).map(String);
+  let [students, profiles] = await Promise.all([
+    User.find({ _id: { $in: ids } }).select("_id name grade").lean(),
+    UserProfile.find({ userId: { $in: ids } }).select("userId accuracy totalAttempts weakAreas strongAreas").lean(),
+  ]);
+  const profMap = new Map(profiles.map((p) => [String(p.userId), p]));
+
+  if (kind === "parent_note") {
+    const target = students.find(
+      (s) => (s.name || "").toLowerCase() === String(studentName || "").trim().toLowerCase()
+    );
+    if (!target) throw new AppError("Student not found in this class — check the exact name", 404);
+    students = [target];
+  }
+
+  const lines = students.map((s) => {
+    const p = profMap.get(String(s._id));
+    if (!p) return `${s.name}: no practice data yet`;
+    return `${s.name}: accuracy ${Math.round((p.accuracy || 0) * 100)}% over ${p.totalAttempts || 0} questions; weak: ${(p.weakAreas || []).slice(0, 3).join(", ") || "none recorded"}; strong: ${(p.strongAreas || []).slice(0, 2).join(", ") || "none recorded"}`;
+  });
+  const statsBlock = `Class: ${group.schoolName || "class"} (${students.length} student${students.length !== 1 ? "s" : ""})\n${lines.join("\n")}`;
+
+  const { generateTeacherDoc } = await import("./aiService.js");
+  const text = await generateTeacherDoc(kind, statsBlock, teacherId);
+  if (!text) throw new AppError("AI generation failed — try again in a minute", 503);
+  return { kind, text };
 }
 
 // ── Kudos send ────────────────────────────────────────────────────

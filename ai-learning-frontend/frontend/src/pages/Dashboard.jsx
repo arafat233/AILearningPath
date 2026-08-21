@@ -3,13 +3,14 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   getReport, getAIAdvice, getAIUsage, getAICacheStats,
   getLinkRequests, respondToLinkRequest,
-  submitFeedback, getNpsEligibility, getDailyBrief, getPrediction,
+  submitFeedback, getNpsEligibility, getDailyBrief, getPrediction, getTodayPlan,
   dashboardV2Get, dashboardV2Commit, dashboardV2Snooze, dashboardV2Widget,
   profileGetMood, profileSetMood, profileGetBestWindow,
   askTutor,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useTrackStore } from "../store/trackStore";
+import { t } from "../i18n";
 import { DashboardSkeleton } from "../components/Skeleton";
 import AICreditsIndicator from "../components/AICreditsIndicator";
 import TrackTabs from "../components/TrackTabs";
@@ -422,11 +423,28 @@ export default function Dashboard() {
         </p>
         <div className="flex items-center gap-3 flex-wrap">
           <button
-            onClick={() => navigate(brief?.weakTopics?.[0]?.topic ? "/practice" : "/lessons")}
+            onClick={async () => {
+              // Launch today's real question queue; fall back to the old nav if empty
+              try {
+                const { data } = await getTodayPlan();
+                const queue = data?.data?.queue || [];
+                if (queue.length) {
+                  navigate("/practice", {
+                    state: {
+                      retryWrongIds: queue.map((s) => s.questionId),
+                      autoStart: true,
+                      retryLabel: `Today's plan — ${queue.length} questions on your weak & revision topics`,
+                    },
+                  });
+                  return;
+                }
+              } catch { /* fall through to default nav */ }
+              navigate(brief?.weakTopics?.[0]?.topic ? "/practice" : "/lessons");
+            }}
             className="flex items-center gap-2 px-5 py-3 rounded-full text-[14px] font-semibold text-white transition-opacity hover:opacity-90"
             style={{ background: "#1a1040" }}
           >
-            <IconPlay /> Begin plan
+            <IconPlay /> {t("Begin plan", user?.locale)}
           </button>
           {/* #2 Daily commitment */}
           {v2?.commitment ? (
@@ -438,7 +456,7 @@ export default function Dashboard() {
             </div>
           ) : (
             <button onClick={() => setShowCommitModal(true)} className="px-3 py-2 rounded-full bg-white/40 backdrop-blur-sm text-[12px] font-semibold text-[#1a1040]">
-              + Commit to today
+              {t("+ Commit to today", user?.locale)}
             </button>
           )}
           {/* #15 NBA chip */}
@@ -487,7 +505,7 @@ export default function Dashboard() {
             </svg>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#8e8e93] mb-0.5">Jump back in</p>
+            <p className="text-[11px] font-bold tracking-[0.14em] uppercase text-[#8e8e93] mb-0.5">{t("Jump back in", user?.locale)}</p>
             <p className="text-[15px] font-semibold text-[#1c1c1e] truncate">{brief.weakTopics[0].topic}</p>
           </div>
           <span className="shrink-0 px-2.5 py-1 rounded-full text-[11px] font-semibold mr-1"

@@ -4,6 +4,7 @@ import '../config/theme.dart';
 import '../models/user.dart';
 import '../providers/auth_provider.dart';
 import '../services/study_service.dart';
+import 'offline_practice_screen.dart';
 
 enum _PracticePhase { topics, question, result }
 
@@ -168,6 +169,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
       appBar: AppBar(
         title: const Text('Practice'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download_for_offline_outlined),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const OfflinePracticeScreen(),
+              ),
+            ),
+            tooltip: 'Offline practice packs',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
             onPressed: _loadTopics,

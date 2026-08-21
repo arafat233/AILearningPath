@@ -38,6 +38,8 @@ export default defineConfig({
     globals:     true,
     environment: "jsdom",
     setupFiles:  ["./src/__tests__/setup.js"],
+    // e2e/ holds Playwright specs — they crash under vitest's runner
+    exclude:     ["e2e/**", "node_modules/**"],
     coverage: {
       provider:   "v8",
       reporter:   ["text", "html"],

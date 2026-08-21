@@ -122,6 +122,16 @@ export async function getRecommendedTopics(userId, subject = "Math", grade = "10
   return out.slice(0, 3);
 }
 
+// Math grade filter (matches Lessons.jsx) — shared by getChaptersMeta + getMasteryMapView
+function filterByMathGrade(topics, subject, grade, userBoard) {
+  if (subject !== "Math" || !grade) return topics;
+  const prefix = `math${grade}_`;
+  const isPrefixed = (t) => /^math\d+_/.test(t.topicId || "");
+  if (userBoard === "ICSE") return topics; // ICSE topics already board-filtered above
+  if (grade === "10") return topics.filter((t) => !isPrefixed(t));
+  return topics.filter((t) => (t.topicId || "").startsWith(prefix));
+}
+
 // ── Per-chapter meta (the big aggregator) ────────────────────────────
 export async function getChaptersMeta(subject = "Math", grade = "10", userId = null) {
   const ncSubj = ncertSubject(subject);
@@ -129,16 +139,7 @@ export async function getChaptersMeta(subject = "Math", grade = "10", userId = n
   const topics = await NcertTopicContent.find({ subject: ncSubj, ...boardIdFilter(userBoard) }).select("topicId name chapterNumber prerequisite_knowledge teaching_content updatedAt").lean();
   if (!topics.length) return [];
 
-  // Math grade filter (matches Lessons.jsx)
-  const filtered = subject === "Math" && grade
-    ? (() => {
-        const prefix = `math${grade}_`;
-        const isPrefixed = (t) => /^math\d+_/.test(t.topicId || "");
-        if (userBoard === "ICSE") return topics; // ICSE topics already board-filtered above
-        if (grade === "10") return topics.filter((t) => !isPrefixed(t));
-        return topics.filter((t) => (t.topicId || "").startsWith(prefix));
-      })()
-    : topics;
+  const filtered = filterByMathGrade(topics, subject, grade, userBoard);
 
   // PYQ count per chapter (board-scoped via examBoard field)
   const pyqRows = await Question.aggregate([
@@ -213,6 +214,41 @@ export async function getChaptersMeta(subject = "Math", grade = "10", userId = n
       lastUpdated: newestUpdate,
     };
   }).sort((a, b) => a.chapterNumber - b.chapterNumber);
+}
+
+// ── Mastery map — every topic with a 5-way state, grouped by chapter ──
+// not_started | learning | weak | mastered | needs_revision
+export async function getMasteryMapView(userId, subject = "Math", grade = "10") {
+  const ncSubj = ncertSubject(subject);
+  const userBoard = await getBoardForUser(userId);
+  const { getRevisionTopics } = await import("./revisionService.js");
+  const [topics, masteryMap, revisionDue] = await Promise.all([
+    NcertTopicContent.find({ subject: ncSubj, ...boardIdFilter(userBoard) }).select("topicId name chapterNumber").lean(),
+    getTopicMasteryMap(userId),
+    getRevisionTopics(userId),
+  ]);
+  if (!topics.length) return { chapters: [], counts: {} };
+
+  const filtered = filterByMathGrade(topics, subject, grade, userBoard);
+  // Revision engine keys by topic NAME — match case-insensitively against NCERT names
+  const dueNames = new Set(revisionDue.map((r) => (r.topic || "").toLowerCase()));
+  const RENAME = { not_started: "not_started", in_progress: "learning", wrong_repeat: "weak", mastered: "mastered" };
+
+  const counts = { not_started: 0, learning: 0, weak: 0, mastered: 0, needs_revision: 0 };
+  const byChapter = {};
+  for (const t of filtered) {
+    let state = RENAME[masteryMap[t.topicId] || "not_started"] || "not_started";
+    if (state === "mastered" && dueNames.has((t.name || "").toLowerCase())) state = "needs_revision";
+    counts[state]++;
+    (byChapter[t.chapterNumber] ||= []).push({ topicId: t.topicId, name: t.name, state });
+  }
+
+  return {
+    chapters: Object.entries(byChapter)
+      .map(([ch, tps]) => ({ chapterNumber: parseInt(ch, 10), topics: tps }))
+      .sort((a, b) => a.chapterNumber - b.chapterNumber),
+    counts,
+  };
 }
 
 // ── Quick pre-lesson diagnostic (3 questions) ─────────────────────────

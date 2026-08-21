@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { getChatResponse, getChatResponseFull } from "../services/aiService.js";
 import { smartStudyAdvice, getUsageCount, getCacheStats, checkAndIncrementUsage } from "../services/aiRouter.js";
 import { getCached, setCache } from "../utils/cache.js";
-import { UserProfile, AIResponseCache, SavedNote } from "../models/index.js";
+import { UserProfile, AIResponseCache, SavedNote, User } from "../models/index.js";
 import { AppError } from "../utils/AppError.js";
 
 const CHAT_CACHE_TTL = 24 * 60 * 60 * 1000;
@@ -33,10 +33,20 @@ export const usageInfo = async (req, res, next) => {
 
 export const tutorChat = async (req, res, next) => {
   try {
-    const { message, history = [], topic, subject = "Math" } = req.body;
+    const { message, history = [], topic, subject = "Math", mode = "full" } = req.body;
     const userId       = req.user.id;
     const cleanHistory = history.map((m) => ({ role: m.role, content: m.content }));
     const isFirstTurn  = cleanHistory.length === 0;
+
+    // Language: explicit request wins, else the user's stored locale preference
+    let lang = req.body.lang;
+    if (!lang) {
+      const u = await User.findById(userId).select("locale").lean();
+      lang = u?.locale === "hi" ? "hi" : "en";
+    }
+    const opts = { mode, lang };
+    // Cached replies were generated in default mode/language — only reuse them there
+    const isDefaultMode = mode === "full" && lang === "en";
 
     // Enforce daily AI quota
     const allowed = await checkAndIncrementUsage(userId);
@@ -44,7 +54,7 @@ export const tutorChat = async (req, res, next) => {
       return res.status(429).json({ error: "daily_limit_reached", message: "You've used your daily AI limit. Upgrade for more." });
     }
 
-    if (isFirstTurn) {
+    if (isFirstTurn && isDefaultMode) {
       const cacheKey = `chat::${crypto.createHash("md5")
         .update(`${topic || "general"}::${subject}::${message.toLowerCase().trim()}`)
         .digest("hex")}`;
@@ -62,7 +72,7 @@ export const tutorChat = async (req, res, next) => {
         return res.json({ reply: dbHit.response, followUps: [], fromCache: true });
       }
 
-      const { text: reply, followUps } = await getChatResponseFull([], message, topic, subject, userId);
+      const { text: reply, followUps } = await getChatResponseFull([], message, topic, subject, userId, opts);
       if (reply) {
         const expiresAt = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
         AIResponseCache.findOneAndUpdate(
@@ -75,7 +85,7 @@ export const tutorChat = async (req, res, next) => {
       return res.json({ reply: reply || "I'm here to help! Could you rephrase that?", followUps });
     }
 
-    const { text: reply, followUps } = await getChatResponseFull(cleanHistory, message, topic, subject, userId);
+    const { text: reply, followUps } = await getChatResponseFull(cleanHistory, message, topic, subject, userId, opts);
     res.json({ reply: reply || "I'm here to help! Could you rephrase that?", followUps });
   } catch (err) {
     next(err);

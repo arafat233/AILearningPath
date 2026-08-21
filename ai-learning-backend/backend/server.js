@@ -72,6 +72,9 @@ import parentV2Routes    from "./routes/parentV2Routes.js";
 import schoolGroupV2Routes from "./routes/schoolGroupV2Routes.js";
 import proRoutes         from "./routes/proRoutes.js";
 import proAnalyticsRoutes from "./routes/proAnalyticsRoutes.js";
+import mistakeRoutes from "./routes/mistakeRoutes.js";
+import imageDoubtRoutes from "./routes/imageDoubtRoutes.js";
+import careerRoutes from "./routes/careerRoutes.js";
 import interviewRoutes   from "./routes/interviewRoutes.js";
 import { setupSwagger } from "./utils/swagger.js";
 
@@ -147,6 +150,9 @@ app.use(passport.initialize());
 
 // Webhooks need raw body for signature verification — mount BEFORE express.json()
 app.use("/api/webhooks", webhookRoutes);
+// Photo doubts carry a base64 image — the router has its own 6mb JSON parser,
+// so it must also mount BEFORE the global 100kb express.json()
+app.use("/api/ai/image-doubt", imageDoubtRoutes);
 
 app.use(express.json());
 
@@ -254,6 +260,8 @@ app.use("/api/v1/school-group",   schoolGroupV2Routes);
 app.use("/api/v1/pro/interview",  interviewRoutes);  // must precede /api/v1/pro (auth guard order)
 app.use("/api/v1/pro",            proRoutes);
 app.use("/api/v1/pro-analytics",  proAnalyticsRoutes);
+app.use("/api/v1/mistakes",       mistakeRoutes);
+app.use("/api/v1/career",         careerRoutes);
 
 // API docs — only in non-production or when ENABLE_SWAGGER=true
 if (process.env.NODE_ENV !== "production" || process.env.ENABLE_SWAGGER === "true") {

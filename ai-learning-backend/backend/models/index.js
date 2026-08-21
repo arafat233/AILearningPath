@@ -80,6 +80,9 @@ const userSchema = new mongoose.Schema({
   }],
   // NCERT topics the student has marked as studied (topicIds)
   studiedNcertTopics: [{ type: String }],
+  // Career path chosen from the roadmap picker + scholarships the student tracks
+  careerPath:          { type: String, default: null },
+  trackedScholarships: [{ type: String }],
   // Web Push subscription (stored server-side; auto-removed on 410 response)
   pushSubscription: {
     endpoint:       { type: String, default: null },

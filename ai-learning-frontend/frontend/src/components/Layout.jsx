@@ -19,6 +19,10 @@ function Icon({ id }) {
     practice:    <><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3.5"/><circle cx="8" cy="8" r="1" fill="currentColor" stroke="none"/></>,
     // Bookmark — single ribbon bookmark
     bookmarks:   <><path d="M4.5 1.5h7a1 1 0 011 1v12l-4.5-2.8-4.5 2.8v-12a1 1 0 011-1z"/></>,
+    // Career — flag on a pole (career path / goal)
+    career:      <><path d="M4 14.5V2"/><path d="M4 2.5h8.5l-2 3 2 3H4"/></>,
+    // Mistakes — circle with an X (wrong-answer notebook)
+    mistakes:    <><circle cx="8" cy="8" r="6"/><path d="M5.8 5.8l4.4 4.4M10.2 5.8l-4.4 4.4"/></>,
     // Notebook — book with a pencil line (notes & highlights)
     notebook:    <><rect x="2.5" y="2" width="11" height="12" rx="1.5"/><path d="M5 5.5h6M5 8h6M5 10.5h3.5"/></>,
     // Idioms — code brackets { }

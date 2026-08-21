@@ -143,6 +143,30 @@ r.post("/flag", auth, flagLimiter, validate(flagSchema), async (req, res, next) 
   }
 });
 
+// ── Offline packs (low-connectivity mobile) ───────────────────────────
+// Pack includes the answer key so the client can grade offline.
+r.get("/offline-pack", auth, async (req, res, next) => {
+  try {
+    const { buildOfflinePack } = await import("../services/offlinePackService.js");
+    res.json({ data: await buildOfflinePack(req.user.id) });
+  } catch (err) { next(err); }
+});
+
+const syncSchema = Joi.object({
+  attempts: Joi.array().items(Joi.object({
+    questionId:          Joi.string().pattern(/^[a-f\d]{24}$/i).required(),
+    selectedOptionIndex: Joi.number().integer().min(0).max(10).required(),
+    timeTaken:           Joi.number().min(1).max(600).optional(),
+    answeredAt:          Joi.date().iso().optional(),
+  })).min(1).max(200).required(),
+});
+r.post("/sync-offline", auth, validate(syncSchema), async (req, res, next) => {
+  try {
+    const { syncOfflineAttempts } = await import("../services/offlinePackService.js");
+    res.json({ data: await syncOfflineAttempts(req.user.id, req.body.attempts) });
+  } catch (err) { next(err); }
+});
+
 // ── Practice v2 endpoints ─────────────────────────────────────────────
 
 // Question stats (i affordance — social proof)

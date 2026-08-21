@@ -1,5 +1,7 @@
-import { UserProfile, StudyPlan, Topic, User } from "../models/index.js";
+import { UserProfile, StudyPlan, Topic, User, Question, SeenQuestion } from "../models/index.js";
 import { getRevisionTopics } from "./revisionService.js";
+import { getStreakStatus } from "./streakService.js";
+import { getContinueCard } from "./lessonsV2Service.js";
 
 export const getDailyBrief = async (userId) => {
   const [profile, revisionDue, activePlan, userDoc] = await Promise.all([
@@ -59,4 +61,51 @@ export const getDailyBrief = async (userId) => {
   }
 
   return { weakTopics, revisionDue: revisionTop, planProgress };
+};
+
+// Pick one playable, preferably-unseen question for a topic.
+const pickQuestionFor = async (topicName, seenSet) => {
+  const qs = await Question.find({
+    topic: topicName,
+    deletedAt: null,
+    questionType: { $in: ["mcq", "assertion_reason", "case_based"] },
+    "options.0": { $exists: true },
+  })
+    .select("_id")
+    .limit(50)
+    .lean();
+  if (!qs.length) return null;
+  const unseen = qs.filter((q) => !seenSet.has(String(q._id)));
+  const pool = unseen.length ? unseen : qs;
+  return pool[Math.floor(Math.random() * pool.length)];
+};
+
+/**
+ * The single "start today" payload: a sequenced queue of REAL question IDs
+ * (3 weak-topic + 1 revision), streak summary, and the next lesson to
+ * continue — one call, one obvious flow. The client launches the queue via
+ * the existing POST /api/practice/start-bookmarks {questionIds}.
+ */
+export const getTodayPlan = async (userId) => {
+  const [brief, streak, nextLesson, seen] = await Promise.all([
+    getDailyBrief(userId),
+    getStreakStatus(userId),
+    getContinueCard(userId),
+    SeenQuestion.find({ userId }).select("questionId").lean(),
+  ]);
+  const seenSet = new Set(seen.map((s) => s.questionId));
+
+  const weakNames = brief.weakTopics.map((t) => t.topic);
+  const revisionName = brief.revisionDue.find((r) => !weakNames.includes(r.topic))?.topic || null;
+
+  const slots = [
+    ...weakNames.map((topic) => ({ kind: "weak_topic", topic })),
+    ...(revisionName ? [{ kind: "revision", topic: revisionName }] : []),
+  ];
+  const picks = await Promise.all(slots.map((s) => pickQuestionFor(s.topic, seenSet)));
+  const queue = slots
+    .map((s, i) => (picks[i] ? { ...s, questionId: String(picks[i]._id) } : null))
+    .filter(Boolean);
+
+  return { queue, streak, nextLesson, brief };
 };

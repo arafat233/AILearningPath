@@ -18,6 +18,8 @@ const messageSchema = Joi.object({
   message: Joi.string().trim().min(1).max(2000).required(),
   topic:   Joi.string().optional().allow(""),
   subject: Joi.string().optional().allow(""),
+  mode:    Joi.string().valid("full", "hint", "socratic", "shortcut").optional(),
+  lang:    Joi.string().valid("en", "hi", "hinglish").optional(),
 });
 
 // Get or create thread for a question
@@ -36,7 +38,7 @@ r.get("/:questionId", auth, async (req, res, next) => {
 r.post("/:questionId/message", auth, validate(messageSchema), async (req, res, next) => {
   try {
     const { questionId } = req.params;
-    const { message, topic, subject } = req.body;
+    const { message, topic, subject, mode = "full" } = req.body;
 
     if (!isValidQuestionId(questionId))
       return next(new AppError("Invalid question ID", 400));
@@ -49,7 +51,8 @@ r.post("/:questionId/message", auth, validate(messageSchema), async (req, res, n
 
     // SEC-13: Atomic counter update — prevents race condition where two concurrent
     // requests both pass the limit check and both increment, exceeding the cap
-    const user = await User.findById(req.user.id).select("isPaid").lean();
+    const user = await User.findById(req.user.id).select("isPaid locale").lean();
+    const lang = req.body.lang || (user?.locale === "hi" ? "hi" : "en");
     const limit = user?.isPaid ? PRO_LIMIT : FREE_LIMIT;
 
     const updated = await User.findOneAndUpdate(
@@ -86,7 +89,7 @@ r.post("/:questionId/message", auth, validate(messageSchema), async (req, res, n
     }
 
     const history = thread.messages.slice(-8).map((m) => ({ role: m.role, content: m.content }));
-    const reply   = await getChatResponse(history, message, topic, subject || thread.subject || updated?.subject || "Math");
+    const reply   = await getChatResponse(history, message, topic, subject || thread.subject || updated?.subject || "Math", req.user.id, { mode, lang });
     if (!reply) return next(new AppError("AI response failed. Try again.", 500));
 
     thread.messages.push({ role: "user",      content: message });

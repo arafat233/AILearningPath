@@ -1,6 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { listLessons, getRevisionDue, listNcertChapters, listNcertTopics, lessonsV2Dashboard, lessonsV2Search, lessonsV2Diagnostic, lessonsV2CoStudy, getPlan, getStudiedTopics, listAvailableSubjects } from "../services/api";
+import { listLessons, getRevisionDue, listNcertChapters, listNcertTopics, lessonsV2Dashboard, lessonsV2Search, lessonsV2Diagnostic, lessonsV2CoStudy, lessonsV2MasteryMap, getPlan, getStudiedTopics, listAvailableSubjects } from "../services/api";
 import { useAuthStore } from "../store/authStore";
 import { useActiveProfile } from "../hooks/useActiveProfile";
 import { LessonsSkeleton } from "../components/Skeleton";
@@ -56,6 +56,10 @@ const SCIENCE_SUBS = {
 
 // NCERT content was imported with "Mathematics", user model uses "Math"
 const ncertSubject = (s) => (s === "Math" ? "Mathematics" : s);
+
+// Mastery map state → colour/label (5-way)
+const MAP_COLOR = { not_started: "#E5E5EA", learning: "#007AFF", weak: "#FF3B30", mastered: "#34C759", needs_revision: "#FF9500" };
+const MAP_LABEL = { not_started: "Not started", learning: "Learning", weak: "Weak", mastered: "Mastered", needs_revision: "Needs revision" };
 
 const SCIENCE_CHAPTER_TITLES = {
   1: "Chemical Reactions and Equations",
@@ -977,6 +981,7 @@ export default function Lessons() {
   const [continueCard, setContinueCard] = useState(null); // #1
   const [recentTopics, setRecentTopics] = useState([]);    // #21
   const [recommended,  setRecommended]  = useState([]);    // #5
+  const [masteryMapView, setMasteryMapView] = useState(null); // 5-state topic map
   const [chapterMeta,  setChapterMeta]  = useState({});    // #3,6,7,8,9,10,14,22 — {chapterNumber: meta}
   const [masteryMap,   setMasteryMap]   = useState({});    // #2 {topicId: state}
   const [studiedSet,   setStudiedSet]   = useState(new Set()); // user-marked studied topicIds
@@ -1076,6 +1081,9 @@ export default function Lessons() {
     }).catch(() => {});
     getStudiedTopics()
       .then((r) => setStudiedSet(new Set(r.data?.data || [])))
+      .catch(() => {});
+    lessonsV2MasteryMap(activeSubject, grade)
+      .then((r) => setMasteryMapView(r.data?.data || null))
       .catch(() => {});
   }, [activeSubject, grade]);
 
@@ -1478,6 +1486,41 @@ export default function Lessons() {
                 <p className="text-[13px] font-semibold text-[#1C1C1E] truncate">{t.name}</p>
                 <p className="text-[10px] text-[#8E8E93] mt-1">Ch {t.chapterNumber} · {t.reason}</p>
               </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Mastery map — every topic, 5 states, click to open */}
+      {(masteryMapView?.chapters?.length || 0) > 0 && (
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#f0f0f5]">
+          <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <p className="text-[10px] font-bold tracking-[0.16em] uppercase text-[#8E8E93]">Mastery map</p>
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {Object.entries(MAP_LABEL).map(([k, label]) => (
+                <span key={k} className="flex items-center gap-1 text-[10px] text-[#8E8E93]">
+                  <span className="w-2 h-2 rounded-[3px]" style={{ background: MAP_COLOR[k] }} />
+                  {label} {masteryMapView.counts?.[k] ?? 0}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            {masteryMapView.chapters.map((ch) => (
+              <div key={ch.chapterNumber} className="flex items-center gap-2">
+                <span className="w-10 shrink-0 text-[10px] font-bold text-[#8E8E93]">Ch {ch.chapterNumber}</span>
+                <div className="flex gap-1 flex-wrap">
+                  {ch.topics.map((t) => (
+                    <button
+                      key={t.topicId}
+                      title={`${t.name} — ${MAP_LABEL[t.state]}`}
+                      onClick={() => navigate(`/ncert/topics/${t.topicId}`)}
+                      className="w-3.5 h-3.5 rounded-[4px] hover:scale-125 transition-transform"
+                      style={{ background: MAP_COLOR[t.state] }}
+                    />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>

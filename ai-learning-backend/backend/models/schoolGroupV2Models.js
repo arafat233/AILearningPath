@@ -97,6 +97,23 @@ const classReportSchema = new mongoose.Schema({
 classReportSchema.index({ status: 1, createdAt: -1 });
 export const ClassReport = mongoose.model("ClassReport", classReportSchema);
 
+// ── Assignment — teacher-assigned practice with a due date ────────
+// Completion is DERIVED from Attempt records on the assigned questionIds
+// after createdAt — no submission collection needed.
+const assignmentSchema = new mongoose.Schema({
+  schoolGroupId: { type: String, required: true, index: true },
+  teacherId:     { type: String, required: true },
+  teacherName:   { type: String, default: "Class Teacher" },
+  title:         { type: String, required: true, maxlength: 120 },
+  topic:         { type: String, required: true },
+  questionIds:   [{ type: String }],
+  dueAt:         { type: Date, required: true },
+  createdAt:     { type: Date, default: Date.now },
+});
+assignmentSchema.index({ schoolGroupId: 1, dueAt: -1 });
+assignmentSchema.index({ teacherId: 1, createdAt: -1 });
+export const Assignment = mongoose.model("Assignment", assignmentSchema);
+
 // ── Helpers ──────────────────────────────────────────────────────
 export function isoWeekKey(d = new Date()) {
   const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));

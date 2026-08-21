@@ -494,7 +494,21 @@ const FOLLOW_UP_INSTRUCTION = `\nEnd your response with exactly this line (no ex
 // ── Multi-turn AI tutor chat ──────────────────────────────────────
 // 7. Auto-injects last explanation as context on first turn so follow-ups work.
 // history = [{role:"user"|"assistant", content:"..."}]
-export const getChatResponse = async (history, userMessage, topic, subject = "Math", userId = null) => {
+// ── Tutor modes + language (Khanmigo-style guardrails) ─────────────
+// "full" keeps current behaviour; the rest change HOW the tutor helps.
+const MODE_INSTRUCTIONS = {
+  hint:     "HINT-ONLY MODE: Never reveal the final answer or the full solution. Give exactly one small nudge toward the next step — at most 2 sentences — then stop.",
+  socratic: "SOCRATIC MODE: Never state the answer or do the work for the student. Guide with ONE short question at a time that leads them to discover the next step themselves. If they stay stuck, narrow your question — but still never answer it for them.",
+  shortcut: "EXAM SHORTCUT MODE: Give the fastest exam-ready method — the trick, formula, or elimination strategy — in minimal steps. Skip derivations and theory unless asked.",
+};
+const LANG_INSTRUCTIONS = {
+  hi:       "Reply in simple Hindi (Devanagari script). Keep formulas, symbols, and technical terms in English.",
+  hinglish: "Reply in Hinglish — conversational Hindi written in Latin script, naturally mixing common English words, like an Indian tutor talking to a student. Keep formulas and technical terms in English.",
+};
+export const tutorModeInstruction = (mode, lang) =>
+  [MODE_INSTRUCTIONS[mode], LANG_INSTRUCTIONS[lang]].filter(Boolean).map((s) => `\n${s}`).join("");
+
+export const getChatResponse = async (history, userMessage, topic, subject = "Math", userId = null, opts = {}) => {
   let messages = [...history.slice(-8), { role: "user", content: userMessage }];
 
   // 7. If first turn and userId provided, prepend last explanation as context
@@ -515,7 +529,7 @@ export const getChatResponse = async (history, userMessage, topic, subject = "Ma
       model:       MODEL,
       temperature: 0.3,
       max_tokens:  400,
-      system:      `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.`,
+      system:      `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.${tutorModeInstruction(opts.mode, opts.lang)}`,
       messages,
     }, userId);
     const text = res.content[0]?.text?.trim() || null;
@@ -535,8 +549,72 @@ export const getChatResponse = async (history, userMessage, topic, subject = "Ma
   }
 };
 
+// ── Teacher docs — remedial plan / parent note / class summary ────
+const TEACHER_DOC_PROMPTS = {
+  remedial_plan: "Create a practical 2-week remedial plan targeting the weak topics in the data below. Structure: Week 1 and Week 2, each with 3-4 concrete actions (what to reteach, what to practice, how to check understanding). Under 250 words.",
+  parent_note:   "Write a warm, encouraging note to this student's parent (WhatsApp-friendly, under 120 words). Mention one genuine strength, one area to support at home, and one concrete suggestion. Write it ready to send — no placeholders.",
+  class_summary: "Write a concise class performance summary for the teacher: overall trend, the top 3 weak topics and which students struggle with them, and 2 recommended next actions. Under 200 words.",
+};
+
+export const generateTeacherDoc = async (kind, statsBlock, userId = null) => {
+  const instruction = TEACHER_DOC_PROMPTS[kind];
+  if (!instruction) return null;
+  const start = Date.now();
+  try {
+    const res = await callClaude({
+      model:       MODEL,
+      temperature: 0.4,
+      max_tokens:  600,
+      system: "You are an experienced Indian school teacher's assistant. You write clear, practical, encouraging documents based strictly on the student data provided. Never invent data that isn't in the input.",
+      messages: [{ role: "user", content: `${instruction}\n\nDATA:\n${statsBlock}` }],
+    }, userId);
+    const text = res.content[0]?.text?.trim() || null;
+    if (text) {
+      const { safe } = checkOutput(text, { aiType: "teacher_doc" });
+      if (!safe) return null;
+    }
+    logAICall({ userId, aiType: "teacher_doc", model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: !!text });
+    return text;
+  } catch (err) {
+    logger.error("Claude teacher doc error", { err: err.message, kind });
+    logAICall({ userId, aiType: "teacher_doc", latencyMs: Date.now()-start, success: false });
+    return null;
+  }
+};
+
+// ── Image doubt — student uploads a photo of a question ───────────
+export const solveImageDoubt = async (base64Data, mediaType, userPrompt = "", subject = "Math", userId = null, opts = {}) => {
+  const start = Date.now();
+  try {
+    const res = await callClaude({
+      model:       MODEL,
+      temperature: 0.3,
+      max_tokens:  700,
+      system: `${getSystemPrompt(subject)}\nThe student has uploaded a PHOTO of a question (handwritten or from a textbook). First restate the question you see in one line, then solve it step by step. If the image is unreadable or contains no academic question, say so and ask for a clearer photo.${tutorModeInstruction(opts.mode, opts.lang)}`,
+      messages: [{
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: mediaType, data: base64Data } },
+          { type: "text", text: userPrompt?.trim() || "Please solve this question step by step." },
+        ],
+      }],
+    }, userId);
+    const text = res.content[0]?.text?.trim() || null;
+    if (text) {
+      const { safe } = checkOutput(text, { aiType: "image_doubt", subject });
+      if (!safe) return null;
+    }
+    logAICall({ userId, aiType: "image_doubt", subject, model: res._usedModel, tokens: (res.usage?.input_tokens||0)+(res.usage?.output_tokens||0), latencyMs: Date.now()-start, success: !!text });
+    return text;
+  } catch (err) {
+    logger.error("Claude image doubt error", { err: err.message, subject });
+    logAICall({ userId, aiType: "image_doubt", subject, latencyMs: Date.now()-start, success: false });
+    return null;
+  }
+};
+
 // Same as getChatResponse but returns { text, followUps } — used by tutorChat + voice-answer
-export const getChatResponseFull = async (history, userMessage, topic, subject = "Math", userId = null) => {
+export const getChatResponseFull = async (history, userMessage, topic, subject = "Math", userId = null, opts = {}) => {
   let messages = [...history.slice(-8), { role: "user", content: userMessage }];
   if (userId && history.length === 0) {
     const lastExpl = await getLastExplanation(userId);
@@ -555,7 +633,7 @@ export const getChatResponseFull = async (history, userMessage, topic, subject =
       model:       MODEL,
       temperature: 0.3,
       max_tokens:  500,
-      system:      `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.${FOLLOW_UP_INSTRUCTION}`,
+      system:      `${getSystemPrompt(subject)}\nCurrent topic being discussed: ${topic || `General ${subject}`}.${tutorModeInstruction(opts.mode, opts.lang)}${FOLLOW_UP_INSTRUCTION}`,
       messages,
     }, userId);
 

@@ -8,7 +8,7 @@ const r = express.Router();
 r.get("/dashboard", auth, async (req, res, next) => {
   try {
     const { subject } = req.query;
-    const [persona, radar, predicted, mistakeByTopic, timeOfDay, calibration, thisWeek, heatmap, qTypes, difficulty, retest, mockPaper, anomalies, insights, fingerprint] = await Promise.all([
+    const [persona, radar, predicted, mistakeByTopic, timeOfDay, calibration, thisWeek, heatmap, qTypes, difficulty, retest, mockPaper, anomalies, insights, fingerprint, readiness] = await Promise.all([
       svc.getPersona(req.user.id),
       svc.getRadar(req.user.id, subject),
       svc.getPredictedBreakdown(req.user.id, subject || "Math"),
@@ -24,11 +24,20 @@ r.get("/dashboard", auth, async (req, res, next) => {
       svc.getAnomalies(req.user.id),
       svc.getInsights(req.user.id, subject),
       svc.getBehaviourFingerprint(req.user.id, subject),
+      svc.getReadiness(req.user.id),
     ]);
     res.json({ data: {
       persona, radar, predicted, mistakeByTopic, timeOfDay, calibration, thisWeek,
       heatmap, qTypes, difficulty, retest, mockPaper, anomalies, insights, fingerprint,
+      readiness,
     } });
+  } catch (e) { next(e); }
+});
+
+// Standalone exam-readiness score ("JEE Physics: 62% ready")
+r.get("/readiness", auth, async (req, res, next) => {
+  try {
+    res.json({ data: await svc.getReadiness(req.user.id) });
   } catch (e) { next(e); }
 });
 

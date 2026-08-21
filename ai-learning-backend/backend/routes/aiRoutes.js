@@ -39,6 +39,8 @@ const chatSchema = Joi.object({
   history: Joi.array().max(20).optional(),
   topic:   Joi.string().max(200).optional().allow(""),
   subject: Joi.string().max(100).optional().allow(""),
+  mode:    Joi.string().valid("full", "hint", "socratic", "shortcut").optional(),
+  lang:    Joi.string().valid("en", "hi", "hinglish").optional(),
 });
 
 const noteSchema = Joi.object({

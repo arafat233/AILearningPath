@@ -94,7 +94,7 @@ export default function SchoolGroups() {
     );
   }
 
-  const { school, stats, leaderboard, challenge, teacherPost, cluster, subjectFocus, inviteLink } = data;
+  const { school, stats, leaderboard, challenge, teacherPost, cluster, subjectFocus, inviteLink, assignments } = data;
   const rows = leaderboard?.week || [];
 
   const handleKudos = async (toId, emoji) => {
@@ -219,6 +219,40 @@ export default function SchoolGroups() {
         ) : (
           <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5] text-center">
             <p className="text-[12px] text-[#8e8e93]">No active challenge.</p>
+          </div>
+        )}
+
+        {/* ASSIGNMENTS (teacher-assigned practice with due dates) */}
+        {(assignments?.length || 0) > 0 && (
+          <div className="bg-white rounded-2xl p-5 border border-[#f0f0f5]">
+            <p className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#8e8e93] mb-3">Assignments</p>
+            <div className="space-y-3">
+              {assignments.map((a) => (
+                <div key={a.id} className="flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[13px] font-semibold text-[#1c1c1e] truncate">{a.title}</p>
+                    <p className="text-[11px] text-[#8e8e93]">
+                      {a.teacherName} · due {new Date(a.dueAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                      {a.overdue && !a.completed && <span className="text-[#FF3B30] font-semibold"> · overdue</span>}
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-semibold text-[#8e8e93] shrink-0">{a.attempted}/{a.total}</span>
+                  {a.completed ? (
+                    <span className="shrink-0 px-2.5 py-1 rounded-full bg-[#34C759]/10 text-[#34C759] text-[11px] font-bold">Done ✓</span>
+                  ) : (
+                    <button
+                      onClick={() => navigate("/practice", { state: {
+                        retryWrongIds: a.questionIds, autoStart: true,
+                        retryLabel: `Assignment: ${a.title} (${a.total} questions)`,
+                      } })}
+                      className="shrink-0 px-3 py-1.5 rounded-full bg-[#1c1c1e] text-white text-[11px] font-bold hover:bg-[#3A3A3C]"
+                    >
+                      {a.attempted > 0 ? "Continue" : "Start"}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

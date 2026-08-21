@@ -1,4 +1,4 @@
-import { Attempt, Question, User, UserProfile, ErrorMemory, UserTopicMastery } from "../models/index.js";
+import { Attempt, Question, User, UserProfile, ErrorMemory, UserTopicMastery, Topic } from "../models/index.js";
 import { ExamAttempt } from "../models/index.js";
 import { ErrorLabel, SkipReason } from "../models/practiceFeedbackModels.js";
 import { BookmarkReview } from "../models/bookmarkModels.js";
@@ -320,6 +320,60 @@ export async function getMockPaperReadiness(userId) {
       readiness: s.total ? Math.round((s.correct / s.total) * 100) : 0,
     })),
   };
+}
+
+// ── 11b. Exam readiness score per subject ─────────────────────────
+// "JEE Physics: 62% ready — weak in Trigonometry". Weighted mean of per-topic
+// accuracy (weight = Topic.examFrequency); topics never attempted contribute 0,
+// so readiness naturally reflects syllabus coverage, not just accuracy.
+export async function getReadiness(userId) {
+  const [profile, user] = await Promise.all([
+    UserProfile.findOne({ userId }).lean(),
+    User.findById(userId).select("examBoard grade goal").lean(),
+  ]);
+  const attempted = (profile?.topicProgress || []).filter((tp) => (tp.attempts || 0) > 0);
+  if (!attempted.length) return null;
+
+  const board = (user?.examBoard || "CBSE").toUpperCase();
+  const topicFilter = { examBoard: board, deletedAt: null };
+  if (user?.grade) topicFilter.grade = user.grade;
+  const topics = await Topic.find(topicFilter).select("name subject examFrequency").lean();
+  if (!topics.length) return null;
+
+  const accByTopic = new Map(attempted.map((tp) => [tp.topic, tp.accuracy || 0]));
+  // Exam label: goal string if it names an exam (JEE/NEET), else the board
+  const goal = user?.goal || "";
+  const exam = /jee/i.test(goal) ? "JEE" : /neet/i.test(goal) ? "NEET" : board;
+
+  const bySubject = new Map();
+  for (const t of topics) {
+    const s = bySubject.get(t.subject) || { weightSum: 0, scoreSum: 0, total: 0, covered: 0, weak: [] };
+    const w = t.examFrequency ?? 0.5;
+    s.weightSum += w;
+    s.total++;
+    if (accByTopic.has(t.name)) {
+      const acc = accByTopic.get(t.name);
+      s.scoreSum += acc * w;
+      s.covered++;
+      s.weak.push({ topic: t.name, accuracy: Math.round(acc * 100) });
+    }
+    bySubject.set(t.subject, s);
+  }
+
+  const subjects = [...bySubject.entries()]
+    .filter(([, s]) => s.covered > 0)
+    .map(([subject, s]) => ({
+      subject,
+      exam,
+      label: `${exam} ${subject}`,
+      readiness: Math.round((s.scoreSum / Math.max(s.weightSum, 0.001)) * 100),
+      coveredTopics: s.covered,
+      totalTopics: s.total,
+      weakestTopics: s.weak.sort((a, b) => a.accuracy - b.accuracy).slice(0, 3),
+    }))
+    .sort((a, b) => a.readiness - b.readiness);
+
+  return subjects.length ? { exam, subjects } : null;
 }
 
 // ── 12. Anomaly + intervention detector ───────────────────────────

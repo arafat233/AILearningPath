@@ -57,6 +57,8 @@ const LessonView       = lazy(() => import("./pages/LessonView"));
 const Practice         = lazy(() => import("./pages/PracticeSwitch"));
 const Bookmarks        = lazy(() => import("./pages/BookmarksSwitch"));
 const Notebook         = lazy(() => import("./pages/Notebook"));
+const Mistakes         = lazy(() => import("./pages/Mistakes"));
+const CareerPath       = lazy(() => import("./pages/CareerPath"));
 const Idioms           = lazy(() => import("./pages/Idioms"));
 const Community        = lazy(() => import("./pages/Community"));
 const CommunityPost    = lazy(() => import("./pages/CommunityPost"));
@@ -284,6 +286,8 @@ export default function App() {
             {/* ── Always accessible after login (account / misc) ── */}
             <Route path="bookmarks"               element={<Bookmarks />} />
             <Route path="notebook"                element={<Notebook />} />
+            <Route path="mistakes"                element={<Mistakes />} />
+            <Route path="career"                  element={<CareerPath />} />
             <Route path="idioms"                  element={<Idioms />} />
             <Route path="community"               element={<Community />} />
             <Route path="community/:id"           element={<CommunityPost />} />

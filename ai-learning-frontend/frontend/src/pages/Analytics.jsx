@@ -145,6 +145,31 @@ export default function Analytics() {
         </div>
       )}
 
+      {/* ── Exam readiness score ── */}
+      {(v2?.readiness?.subjects?.length || 0) > 0 && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {v2.readiness.subjects.map((s) => (
+            <div key={s.subject} className="rounded-2xl bg-white border border-[#f0f0f5] shadow-sm px-5 py-4">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="text-[13px] font-semibold text-[#1c1c1e]">{s.label}</p>
+                <p className="text-[22px] font-bold" style={{ color: s.readiness >= 70 ? "#34C759" : s.readiness >= 40 ? "#FF9500" : "#FF3B30" }}>
+                  {s.readiness}%<span className="text-[11px] font-semibold text-apple-gray ml-1">ready</span>
+                </p>
+              </div>
+              <div className="mt-2 w-full h-1.5 bg-[#F2F2F7] rounded-full overflow-hidden">
+                <div className="h-full rounded-full" style={{ width: `${s.readiness}%`, background: s.readiness >= 70 ? "#34C759" : s.readiness >= 40 ? "#FF9500" : "#FF3B30" }} />
+              </div>
+              <p className="text-[11px] text-apple-gray mt-2">
+                {s.weakestTopics?.[0]
+                  ? `Weak in ${s.weakestTopics[0].topic}`
+                  : "Keep practicing to refine this score"}
+                {" · "}{s.coveredTopics}/{s.totalTopics} topics covered
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ── HERO: persona + radar ── */}
       <div className="rounded-3xl p-7 lg:p-9 relative overflow-hidden grid md:grid-cols-2 gap-6 items-center"
         style={{ background: "linear-gradient(130deg, #ddd6fe 0%, #fbcfe8 50%, #fde68a 100%)" }}>

@@ -24,6 +24,7 @@ export const NAV_CONFIG = {
     { to: "/lessons",     label: "Learn",         icon: "lessons"               },
     { to: "/practice",    label: "Practice",      icon: "practice"              },
     { to: "/bookmarks",   label: "Bookmarks",     icon: "bookmarks"             },
+    { to: "/mistakes",    label: "Mistakes",      icon: "mistakes"              },
     { to: "/analytics",   label: "Analytics",     icon: "analytics"             },
     { to: "/certificate", label: "Certificate",   icon: "certificate"           },
     { to: "/competition", label: "Competition",   icon: "competition"           },
@@ -33,6 +34,7 @@ export const NAV_CONFIG = {
     { to: "/parent",      label: "Parent View",   icon: "parent"                },
     { to: "/school",      label: "School Groups", icon: "school"                },
     { to: "/mock-paper",  label: "Mock Paper",    icon: "mock"                  },
+    { to: "/career",      label: "Career Path",   icon: "career"                },
     { to: "/voice-tutor", label: "Voice Tutor",   icon: "voiceTutor"            },
     { to: "/pro",         label: "Pro Tracks",    icon: "upgrade", crossMode: true },
     { to: "/profile",     label: "Profile",       icon: "profile"               },
@@ -42,12 +44,37 @@ export const NAV_CONFIG = {
     { to: "/pro",         label: "Pro Tracks",    icon: "upgrade"               },
     { to: "/practice",    label: "Practice",      icon: "practice"              },
     { to: "/bookmarks",   label: "Bookmarks",     icon: "bookmarks"             },
+    { to: "/mistakes",    label: "Mistakes",      icon: "mistakes"              },
     { to: "/analytics",   label: "Analytics",     icon: "analytics"             },
     { to: "/certificate", label: "Certificate",   icon: "certificate"           },
     { to: "/planner",     label: "Plan",          icon: "planner"               },
     { to: "/voice-tutor", label: "Voice Tutor",   icon: "voiceTutor"            },
     { to: "/profile",     label: "Profile",       icon: "profile"               },
   ],
+};
+
+// Hindi sidebar labels for locale="hi" users. Server-side because the nav
+// labels already live here — one source of truth, no client i18n library.
+const HI_LABELS = {
+  "Dashboard":     "डैशबोर्ड",
+  "Learn":         "सीखें",
+  "Practice":      "अभ्यास",
+  "Bookmarks":     "बुकमार्क",
+  "Mistakes":      "गलतियाँ",
+  "Analytics":     "विश्लेषण",
+  "Certificate":   "प्रमाणपत्र",
+  "Competition":   "प्रतियोगिता",
+  "Live Room":     "लाइव रूम",
+  "Study Planner": "स्टडी प्लानर",
+  "Plan":          "प्लान",
+  "PYQ Bank":      "PYQ बैंक",
+  "Parent View":   "अभिभावक",
+  "School Groups": "स्कूल ग्रुप",
+  "Mock Paper":    "मॉक पेपर",
+  "Career Path":   "करियर पथ",
+  "Voice Tutor":   "वॉइस ट्यूटर",
+  "Pro Tracks":    "प्रो ट्रैक",
+  "Profile":       "प्रोफ़ाइल",
 };
 
 export function resolveActiveTrack(user) {
@@ -64,9 +91,11 @@ export function getNavForUser(user) {
   const hasProTrack = (user?.tracks || []).some((t) => t.key && t.key.startsWith("pro_"));
   // Drop crossMode items unless the user is actually enrolled across modes.
   // Strip the crossMode flag itself before returning — it's an internal hint.
+  const hindi = user?.locale === "hi";
   const items = baseItems
     .filter((i) => !i.crossMode || hasProTrack)
-    .map(({ crossMode, ...rest }) => rest);
+    .map(({ crossMode, ...rest }) =>
+      hindi ? { ...rest, label: HI_LABELS[rest.label] || rest.label } : rest);
   return {
     activeTrack,
     tracks: (user?.tracks || []).map((t) => ({ key: t.key, role: t.role })),

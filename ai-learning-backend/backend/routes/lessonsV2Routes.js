@@ -22,6 +22,15 @@ r.get("/dashboard", auth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// Visual mastery map — 5-way topic states grouped by chapter
+r.get("/mastery-map", auth, async (req, res, next) => {
+  try {
+    const subject = req.query.subject || "Math";
+    const grade   = req.query.grade   || "10";
+    res.json({ data: await svc.getMasteryMapView(req.user.id, subject, grade) });
+  } catch (e) { next(e); }
+});
+
 r.get("/search", auth, async (req, res, next) => {
   try {
     const { q, subject, grade } = req.query;

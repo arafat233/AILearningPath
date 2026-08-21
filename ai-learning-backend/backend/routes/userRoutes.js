@@ -7,7 +7,7 @@ import { LessonProgress } from "../models/lessonModel.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
-import { getDailyBrief } from "../services/dailyBriefService.js";
+import { getDailyBrief, getTodayPlan } from "../services/dailyBriefService.js";
 import { getStreakStatus } from "../services/streakService.js";
 import { getCachedBoard } from "../services/adaptiveService.js";
 import { getNavForUser, isValidTrackKey } from "../services/navService.js";
@@ -218,7 +218,7 @@ r.get("/nav", auth, async (req, res, next) => {
     const cached = await sessionGet(cacheKey);
     if (cached) return res.json({ data: cached });
 
-    const user = await User.findById(req.user.id).select("tracks activeTrack").lean();
+    const user = await User.findById(req.user.id).select("tracks activeTrack locale").lean();
     if (!user) return next(new AppError("User not found", 404));
     const data = getNavForUser(user);
     await sessionSet(cacheKey, data, 60);
@@ -234,7 +234,7 @@ r.patch("/active-track", auth, validate(activeTrackSchema), async (req, res, nex
   try {
     const { key } = req.body;
     if (!isValidTrackKey(key)) return next(new AppError("Unknown track key", 400));
-    const user = await User.findById(req.user.id).select("tracks activeTrack");
+    const user = await User.findById(req.user.id).select("tracks activeTrack locale");
     if (!user) return next(new AppError("User not found", 404));
     const enrolled = (user.tracks || []).some((t) => t.key === key);
     if (!enrolled) return next(new AppError("Not enrolled in this track", 403));
@@ -250,6 +250,16 @@ r.get("/streak-status", auth, async (req, res, next) => {
     const status = await getStreakStatus(req.user.id);
     res.json({ data: status });
   } catch (err) { next(err); }
+});
+
+// One "start today" call: real question queue + streak + next lesson
+r.get("/today-plan", auth, async (req, res, next) => {
+  try {
+    const plan = await getTodayPlan(req.user.id);
+    res.json({ data: plan });
+  } catch (err) {
+    next(err);
+  }
 });
 
 r.get("/daily-brief", auth, async (req, res, next) => {

@@ -100,7 +100,16 @@ export const getMe          = ()     => api.get("/user/me");
 export const updateMe       = (data) => api.put("/user/me", data);
 export const deleteMe       = ()     => api.delete("/user/me");
 export const getDailyBrief   = ()     => api.get("/user/daily-brief");
+export const getTodayPlan    = ()     => api.get("/user/today-plan");
 export const getStreakStatus = ()     => api.get("/user/streak-status");
+
+// Mistake notebook — derived from wrong attempts; retry uses startRetryPractice
+export const getMistakes     = (topic) => api.get("/v1/mistakes", { params: topic ? { topic } : {} });
+
+// Career paths + scholarship tracker
+export const getCareer             = ()    => api.get("/v1/career");
+export const setCareerPathApi      = (key) => api.put("/v1/career/path", { key });
+export const toggleScholarshipApi  = (id)  => api.post("/v1/career/track", { id });
 
 // Sidebar nav per active track (school / pro_java / ...).
 export const getNav           = ()     => api.get("/user/nav");
@@ -194,6 +203,7 @@ export const profileGetPublic         = (slug)     => api.get(`${pv}/public/${sl
 
 // ── Lessons v2 ───────────────────────────────────────────────────────
 const lv = "/v1/lessons-v2";
+export const lessonsV2MasteryMap = (subject, grade) => api.get(`${lv}/mastery-map`, { params: { subject, grade } });
 export const lessonsV2Dashboard   = (subject, grade) => api.get(`${lv}/dashboard`, { params: { subject, grade } });
 export const lessonsV2Search      = (q, subject, grade) => api.get(`${lv}/search`, { params: { q, subject, grade } });
 export const lessonsV2Diagnostic  = (topicId)        => api.get(`${lv}/diagnostic/${encodeURIComponent(topicId)}`);
@@ -247,6 +257,12 @@ export const sgPostTeacher       = (body)                 => api.post(`${sg}/tea
 export const sgReactPost         = (id, emoji)            => api.post(`${sg}/teacher-post/${id}/react`, { emoji });
 export const sgCommentPost       = (id, text)             => api.post(`${sg}/teacher-post/${id}/comment`, { text });
 export const sgSetFocus          = (body)                 => api.post(`${sg}/subject-focus`, body);
+export const sgCreateAssignment  = (body)                 => api.post(`${sg}/assignments`, body);
+export const sgMyAssignments     = ()                     => api.get(`${sg}/assignments/mine`);
+export const sgAssignmentReport  = (id)                   => api.get(`${sg}/assignments/${id}/report`);
+export const sgGenerateWorksheet = (body)                 => api.post(`${sg}/worksheet`, body);
+export const sgTeacherContent    = (body)                 => api.post(`${sg}/teacher-content`, body);
+export const sgClassHeatmap      = (classCode)            => api.get(`${sg}/class-heatmap`, { params: { classCode } });
 export const sgGetPrefs          = ()                     => api.get(`${sg}/prefs`);
 export const sgUpdatePrefs       = (patch)                => api.patch(`${sg}/prefs`, patch);
 export const sgReport            = (body)                 => api.post(`${sg}/report`, body);
@@ -304,7 +320,10 @@ export const getAIAdvice         = ()                           => api.get("/ai/
 export const getAIUsage          = ()                           => api.get("/ai/usage");
 export const getAICacheStats     = ()                           => api.get("/ai/cache-stats");
 export const getAIMetrics        = ()                           => api.get("/ai/metrics");
-export const askTutor            = (message, history, topic, subject) => api.post("/ai/chat", { message, history, topic, subject });
+export const askTutor            = (message, history, topic, subject, mode, lang) =>
+  api.post("/ai/chat", { message, history, topic, subject, ...(mode && mode !== "full" && { mode }), ...(lang && lang !== "en" && { lang }) });
+export const askImageDoubt       = (image, prompt, subject, mode, lang) =>
+  api.post("/ai/image-doubt", { image, prompt: prompt || "", ...(subject && { subject }), ...(mode && mode !== "full" && { mode }), ...(lang && lang !== "en" && { lang }) });
 export const saveVoiceTutorNote  = (data)                      => api.post("/ai/save-note", data);
 export const getSavedVoiceTutorNotes = ()                      => api.get("/ai/saved-notes");
 export const deleteVoiceTutorNote    = (id)                    => api.delete(`/ai/saved-notes/${id}`);

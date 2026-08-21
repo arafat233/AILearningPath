@@ -23,6 +23,8 @@ const {
   getStudyAdvice,
   generateHint,
   getChatResponse,
+  tutorModeInstruction,
+  solveImageDoubt,
 } = await import("../services/aiService.js");
 
 afterEach(() => jest.clearAllMocks());
@@ -208,5 +210,62 @@ describe("getChatResponse — fallback on API error", () => {
     mockCreate.mockResolvedValue({ content: [{ text: "  Here is the answer.  " }] });
     const result = await getChatResponse([], "Explain x²", "Algebra");
     expect(result).toBe("Here is the answer.");
+  });
+});
+
+// ── Tutor modes + language ─────────────────────────────────────────────────────
+
+describe("tutorModeInstruction + getChatResponse mode threading", () => {
+  test("hint mode forbids revealing the answer", () => {
+    expect(tutorModeInstruction("hint")).toMatch(/Never reveal the final answer/);
+  });
+
+  test("socratic mode guides with questions, no answers", () => {
+    expect(tutorModeInstruction("socratic")).toMatch(/Never state the answer/);
+  });
+
+  test("hinglish language instruction is included", () => {
+    expect(tutorModeInstruction(undefined, "hinglish")).toMatch(/Hinglish/);
+  });
+
+  test("default full mode + English adds nothing", () => {
+    expect(tutorModeInstruction("full", "en")).toBe("");
+    expect(tutorModeInstruction()).toBe("");
+  });
+
+  test("getChatResponse appends mode + lang instruction to the system prompt", async () => {
+    mockCreate.mockResolvedValue({ content: [{ text: "reply" }] });
+    await getChatResponse([], "help", "Algebra", "Math", null, { mode: "socratic", lang: "hinglish" });
+    const system = mockCreate.mock.calls[0][0].system;
+    expect(system).toMatch(/SOCRATIC MODE/);
+    expect(system).toMatch(/Hinglish/);
+  });
+
+  test("getChatResponse without opts keeps the default system prompt", async () => {
+    mockCreate.mockResolvedValue({ content: [{ text: "reply" }] });
+    await getChatResponse([], "help", "Algebra");
+    const system = mockCreate.mock.calls[0][0].system;
+    expect(system).not.toMatch(/MODE:/);
+  });
+});
+
+// ── solveImageDoubt (photo → vision) ───────────────────────────────────────────
+
+describe("solveImageDoubt", () => {
+  test("sends the image as a base64 content block plus the student's prompt", async () => {
+    mockCreate.mockResolvedValue({ content: [{ type: "text", text: "The question asks 2+2. Answer: 4." }] });
+    const out = await solveImageDoubt("BASE64DATA", "image/jpeg", "solve this", "Math");
+    expect(out).toMatch(/Answer: 4/);
+    const msg = mockCreate.mock.calls[0][0].messages[0];
+    expect(msg.content[0]).toEqual({
+      type: "image",
+      source: { type: "base64", media_type: "image/jpeg", data: "BASE64DATA" },
+    });
+    expect(msg.content[1]).toEqual({ type: "text", text: "solve this" });
+  });
+
+  test("returns null on API error instead of throwing", async () => {
+    mockCreate.mockRejectedValue(new Error("connection reset"));
+    expect(await solveImageDoubt("BASE64DATA", "image/png")).toBeNull();
   });
 });

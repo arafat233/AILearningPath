@@ -1,7 +1,10 @@
 import express from "express";
 import Joi from "joi";
+import rateLimit from "express-rate-limit";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
+import { AppError } from "../utils/AppError.js";
+import { checkAndIncrementUsage } from "../services/aiRouter.js";
 import * as svc from "../services/schoolGroupV2Service.js";
 
 const r = express.Router();
@@ -83,6 +86,63 @@ const reportSchema = Joi.object({
 });
 r.post("/report", auth, validate(reportSchema), async (req, res, next) => {
   try { res.json({ data: await svc.reportClassmate(req.user.id, req.body.targetId, req.body.schoolGroupId, req.body.reason, req.body.note) }); } catch (e) { next(e); }
+});
+
+// ── Assignments (teacher assigns by class join code) ──────────────
+const assignmentSchema = Joi.object({
+  classCode:     Joi.string().trim().min(3).max(20).required(),
+  topic:         Joi.string().trim().min(2).max(200).required(),
+  title:         Joi.string().trim().max(120).optional().allow(""),
+  questionCount: Joi.number().integer().min(1).max(30).optional(),
+  dueAt:         Joi.date().iso().greater("now").required(),
+});
+r.post("/assignments", auth, validate(assignmentSchema), async (req, res, next) => {
+  try { res.json({ data: await svc.createAssignment(req.user.id, req.body) }); } catch (e) { next(e); }
+});
+
+r.get("/assignments/mine", auth, async (req, res, next) => {
+  try { res.json({ data: await svc.listTeacherAssignments(req.user.id) }); } catch (e) { next(e); }
+});
+
+r.get("/assignments/:id/report", auth, async (req, res, next) => {
+  try { res.json({ data: await svc.getAssignmentReport(req.user.id, req.params.id) }); } catch (e) { next(e); }
+});
+
+// Class heatmap — students × topics accuracy grid (teacher-only)
+r.get("/class-heatmap", auth, async (req, res, next) => {
+  try { res.json({ data: await svc.getClassHeatmap(req.user.id, req.query.classCode) }); } catch (e) { next(e); }
+});
+
+// AI teacher docs — remedial plan / parent note / class summary (costs AI tokens)
+const teacherContentLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  keyGenerator: (req) => req.user?.id || req.ip,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many AI generations. Try again in an hour." },
+});
+const teacherContentSchema = Joi.object({
+  kind:        Joi.string().valid("remedial_plan", "parent_note", "class_summary").required(),
+  classCode:   Joi.string().trim().min(3).max(20).required(),
+  studentName: Joi.string().trim().max(80).optional().allow(""),
+});
+r.post("/teacher-content", auth, teacherContentLimiter, validate(teacherContentSchema), async (req, res, next) => {
+  try {
+    const allowed = await checkAndIncrementUsage(req.user.id);
+    if (!allowed) return next(new AppError("Daily AI limit reached. Upgrade for more.", 429));
+    res.json({ data: await svc.generateTeacherContent(req.user.id, req.body) });
+  } catch (e) { next(e); }
+});
+
+// Worksheet generator (teacher-only; includes answer key)
+const worksheetSchema = Joi.object({
+  topic:         Joi.string().trim().min(2).max(200).required(),
+  questionCount: Joi.number().integer().min(1).max(30).optional(),
+  difficulty:    Joi.string().valid("easy", "medium", "hard").optional(),
+});
+r.post("/worksheet", auth, validate(worksheetSchema), async (req, res, next) => {
+  try { res.json({ data: await svc.generateWorksheet(req.user.id, req.body) }); } catch (e) { next(e); }
 });
 
 export default r;

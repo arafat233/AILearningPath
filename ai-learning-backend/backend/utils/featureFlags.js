@@ -19,6 +19,8 @@ const FLAGS = {
   parent_portal:        { default: true,  description: "Enable parent/teacher portal features"   },
   weekly_digest_email:  { default: true,  description: "Send weekly progress email to parents"   },
   push_notifications:   { default: true,  description: "Web Push subscription and delivery"      },
+  transformations:      { default: true,  description: "Topic transformations (flashcards, exam Qs, ELI5, revision sheet, podcast script)" },
+  dialogue_podcast:     { default: true,  description: "Two-voice dialogue podcast player on NCERT topics (browser TTS)" },
   // Gradual rollout flags (percentage-based — 0-100)
   new_ai_model:         { default: false, rollout: 0,   description: "Use Claude 3.5 for hints (A/B test)" },
   new_practice_ui:      { default: false, rollout: 0,   description: "New practice question card design"   },

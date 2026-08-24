@@ -148,6 +148,20 @@ async function callClaude(params, userId = null) {
 const lessonCacheKey = (topic, subject, grade) =>
   `lesson::${crypto.createHash("md5").update(`${topic.toLowerCase().trim()}::${subject}::${grade}`).digest("hex")}`;
 
+// ── Citation line from RAG chunk provenance ───────────────────────
+// Built server-side from the chunks we actually injected — never from the
+// model echoing sources, so it can't hallucinate a citation.
+function citationLine(sources) {
+  if (!sources?.length) return null;
+  const labels = [...new Set(
+    sources
+      .map((s) => s.source
+        || [s.chapterNumber ? `Ch.${s.chapterNumber}` : null, s.chapterTitle, s.conceptName].filter(Boolean).join(" — "))
+      .filter(Boolean)
+  )].slice(0, 3);
+  return labels.length ? `📖 From NCERT: ${labels.join(" · ")}` : null;
+}
+
 // ── Wrong answer explanation ──────────────────────────────────────
 export const getAIExplanation = async (question, mistakeType, correctAnswer, subject = "Math", userId = null) => {
   const mistakeLabel = {
@@ -171,10 +185,11 @@ Explain in 3-4 sentences:
 Be direct and helpful like a good tutor.`;
 
   // 8. Student model — personalize system prompt
-  const [ncertContext, studentCtx] = await Promise.all([
+  const [rag, studentCtx] = await Promise.all([
     retrieveContext(question, subject),
     buildStudentContext(userId),
   ]);
+  const ncertContext = rag?.context || null;
 
   let systemPrompt = getSystemPrompt(subject);
   if (ncertContext) systemPrompt += `\n\nRelevant NCERT content for this question:\n${ncertContext}`;
@@ -183,7 +198,7 @@ Be direct and helpful like a good tutor.`;
   const start = Date.now();
   try {
     const res    = await callClaude({ model: MODEL, temperature: 0.3, max_tokens: 320, system: systemPrompt, messages: [{ role: "user", content: prompt }] }, userId);
-    const text   = res.content[0]?.text?.trim() || null;
+    let text     = res.content[0]?.text?.trim() || null;
     const tokens = (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0);
 
     // 4. Output guardrails
@@ -194,6 +209,13 @@ Be direct and helpful like a good tutor.`;
         logAICall({ userId, aiType: "explanation", subject, model: res._usedModel, tokens, latencyMs: Date.now() - start, hitRAG: !!ncertContext, success: false });
         return { text: null, tokens };
       }
+    }
+
+    // Citation footer — provenance of the chunks that grounded this answer.
+    // Appended inside the text so it flows through every cache layer unchanged.
+    if (text) {
+      const cite = citationLine(rag?.sources);
+      if (cite) text += `\n\n${cite}`;
     }
 
     // 7. Store last explanation for follow-up chat context
@@ -322,10 +344,11 @@ Give ONE helpful hint (2 sentences max):
 
 Be a good tutor — guide, don't solve.`;
 
-  const [ncertContext, studentCtx] = await Promise.all([
+  const [rag, studentCtx] = await Promise.all([
     retrieveContext(questionText, subject),
     buildStudentContext(userId),
   ]);
+  const ncertContext = rag?.context || null;
 
   let systemPrompt = getSystemPrompt(subject);
   if (ncertContext) systemPrompt += `\n\nRelevant NCERT content:\n${ncertContext}`;
@@ -476,6 +499,121 @@ Return ONLY valid JSON — no markdown, no explanation outside the JSON.
   } catch (err) {
     logger.error("Claude lesson generation error", { err: err.message, topic, subject, grade });
     logAICall({ userId, aiType: "lesson", subject, latencyMs: Date.now()-start, success: false });
+    return null;
+  }
+};
+
+// ── Transformations — one-click derived study formats ─────────────
+// Topic content → flashcards / likely exam questions / ELI5 / revision
+// sheet / dialogue-podcast script. All cross-user cached under
+// MD5(topic::kind::subject::grade): generated once, served to every
+// student forever (same economics as the explanation cache).
+const TRANSFORM_CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // Redis TTL; Mongo copy lives 90 days
+
+const JSON_ONLY = "Return ONLY valid JSON — no markdown fences, no text outside the JSON.";
+
+const TRANSFORMS = {
+  flashcards: {
+    maxTokens: 1400,
+    prompt: (topic, subject, grade) => `Create 10 revision flashcards for "${topic}" (${subject}, Grade ${grade}, CBSE India).
+Front = a short question or term. Back = a crisp answer (1-2 sentences, exam-accurate).
+Cover definitions, formulas, and the most-tested facts.
+${JSON_ONLY}
+{"cards":[{"front":"...","back":"..."}]}`,
+  },
+  examqs: {
+    maxTokens: 1400,
+    prompt: (topic, subject, grade) => `Write the 5 most likely board-exam questions for "${topic}" (${subject}, Grade ${grade}, CBSE India), based on how this topic is typically tested.
+Mix marks: two 1-mark, two 3-mark, one 5-mark. Give a model answer and one examiner tip per question.
+${JSON_ONLY}
+{"questions":[{"question":"...","marks":1,"answer":"...","examTip":"..."}]}`,
+  },
+  eli5: {
+    maxTokens: 700,
+    prompt: (topic, subject, grade) => `Explain "${topic}" (${subject}, Grade ${grade}) like the student is 10 years old.
+Simple words, short sentences, one everyday Indian-context analogy. No jargon unless you define it in the same sentence.
+${JSON_ONLY}
+{"explanation":"...","analogy":"..."}`,
+  },
+  revision: {
+    maxTokens: 1600,
+    prompt: (topic, subject, grade) => `Create a one-page revision sheet for "${topic}" (${subject}, Grade ${grade}, CBSE India) — what a topper's notes would look like the night before the exam.
+3-5 sections of terse bullet points, every formula on the topic, and one memory trick.
+${JSON_ONLY}
+{"sections":[{"heading":"...","points":["..."]}],"formulas":["..."],"mnemonic":"..."}`,
+  },
+  podcast: {
+    maxTokens: 2000,
+    prompt: (topic, subject, grade) => `Write a ~5-minute teacher-student podcast dialogue teaching "${topic}" (${subject}, Grade ${grade}, CBSE India).
+The student is curious and asks the questions real students ask (including one common misconception); the teacher explains warmly with everyday Indian examples. 25-35 alternating lines, each 1-3 sentences. Start with a one-line hook, end with the teacher's 2-sentence recap.
+${JSON_ONLY}
+{"lines":[{"speaker":"teacher","line":"..."},{"speaker":"student","line":"..."}]}`,
+  },
+};
+
+export const TRANSFORM_KINDS = Object.keys(TRANSFORMS);
+
+const transformCacheKey = (topic, kind, subject, grade) =>
+  `transform::${crypto.createHash("md5").update(`${topic.toLowerCase().trim()}::${kind}::${subject}::${grade}`).digest("hex")}`;
+
+export const generateTransformation = async (topic, kind, subject = "Math", grade = "10", userId = null) => {
+  const spec = TRANSFORMS[kind];
+  if (!spec) return null;
+
+  // Redis cache, then MongoDB (survives Redis restarts) — same layering as generateLesson
+  const cKey = transformCacheKey(topic, kind, subject, grade);
+  const cached = await getCached(cKey);
+  if (cached) {
+    logAICall({ userId, aiType: `transform_${kind}`, subject, cached: true, success: true });
+    return cached;
+  }
+  try {
+    const dbHit = await AIResponseCache.findOne({ cacheKey: cKey }).lean();
+    if (dbHit?.response) {
+      const parsed = typeof dbHit.response === "string" ? JSON.parse(dbHit.response) : dbHit.response;
+      setCache(cKey, parsed, TRANSFORM_CACHE_TTL).catch(() => {});
+      AIResponseCache.findOneAndUpdate({ cacheKey: cKey }, { $inc: { hitCount: 1, savedCalls: 1 }, $set: { lastHitAt: new Date() } }).catch(() => {});
+      logAICall({ userId, aiType: `transform_${kind}`, subject, cached: true, success: true });
+      return parsed;
+    }
+  } catch { /* fallthrough to Claude */ }
+
+  // Ground in NCERT content so output matches the textbook, not generic knowledge
+  const rag = await retrieveContext(topic, subject);
+  let systemPrompt = getSystemPrompt(subject);
+  if (rag?.context) systemPrompt += `\n\nRelevant NCERT content for this topic:\n${rag.context}`;
+
+  const start = Date.now();
+  try {
+    const res = await callClaude(
+      { model: MODEL, temperature: 0.4, max_tokens: spec.maxTokens, system: systemPrompt, messages: [{ role: "user", content: spec.prompt(topic, subject, grade) }] },
+      userId
+    );
+    const raw = res.content[0]?.text?.trim() || "";
+
+    const { safe, reason } = checkOutput(raw, { aiType: `transform_${kind}`, subject });
+    if (!safe) {
+      logger.warn("generateTransformation: output blocked", { reason, kind, topic });
+      logAICall({ userId, aiType: `transform_${kind}`, subject, model: res._usedModel, latencyMs: Date.now() - start, hitRAG: !!rag, success: false });
+      return null;
+    }
+
+    const parsed = JSON.parse(raw.replace(/```json|```/g, "").trim());
+    const cite = citationLine(rag?.sources);
+    if (cite) parsed.citation = cite;
+
+    setCache(cKey, parsed, TRANSFORM_CACHE_TTL).catch(() => {});
+    AIResponseCache.findOneAndUpdate(
+      { cacheKey: cKey },
+      { cacheKey: cKey, questionSnippet: topic.slice(0, 120), mistakeType: `transform_${kind}`, response: JSON.stringify(parsed), expiresAt: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000) },
+      { upsert: true }
+    ).catch(() => {});
+
+    logAICall({ userId, aiType: `transform_${kind}`, subject, model: res._usedModel, tokens: (res.usage?.input_tokens || 0) + (res.usage?.output_tokens || 0), latencyMs: Date.now() - start, hitRAG: !!rag, success: true });
+    return parsed;
+  } catch (err) {
+    logger.error("Claude transformation error", { err: err.message, kind, topic, subject });
+    logAICall({ userId, aiType: `transform_${kind}`, subject, latencyMs: Date.now() - start, success: false });
     return null;
   }
 };

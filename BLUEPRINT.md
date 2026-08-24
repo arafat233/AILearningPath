@@ -647,6 +647,28 @@ Functions:
 - generateHint(questionText, topic, subject) → 120 tokens, no answer given
 - getChatResponse(history, userMessage, topic, subject, userId) → 400 tokens, multi-turn
     first turn auto-injects last explanation context if available
+- generateTransformation(topic, kind, subject, grade, userId) → Open-Notebook-inspired
+    one-click study formats: flashcards | examqs | eli5 | revision | podcast (dialogue script)
+    Redis+DB cached under transform::md5(topic::kind::subject::grade) — cross-user, generated
+    once per topic, RAG-grounded, citation attached from chunk provenance.
+    Route: POST /api/ai/transform (auth + Joi + inputGuard + 50/hr limiter + `transformations`
+    feature flag). UI: components/TransformChips.jsx chips row on NcertTopicView.
+    Audit: config/auditTransformations.mjs · tests: __tests__/transform.service.test.js
+
+Citations: retrieveContext() returns { context, sources } (chunk provenance:
+    chapterNumber/chapterTitle/conceptName/source). getAIExplanation appends a
+    server-built "📖 From NCERT: …" footer INSIDE the text (flows through every
+    cache layer + API unchanged; never model-echoed). Audit: config/auditCitations.mjs
+
+Dialogue podcast (zero TTS cost): the kind:"podcast" script above is played by
+    components/PodcastPlayer.jsx — two distinct browser speechSynthesis voices
+    (teacher prefers en-IN; pitch 0.9/1.2 fallback on one-voice devices),
+    transcript with current-line highlight, pause/speed. Entry "🎧 Listen as
+    conversation" on NcertTopicView, gated by `dialogue_podcast` flag.
+    Listen-through metric: POST /api/ai/podcast-listened (auth + Joi) →
+    trackEvent("podcast_listened", {linesPlayed, totalLines, pct}) — reported
+    once per playback session; this number decides whether server TTS/mp3s
+    ever get funded. Tests: src/__tests__/PodcastPlayer.test.jsx (6).
 ```
 
 ### 4.2 aiRouter.js — 7-Layer Cost Minimisation

@@ -3,7 +3,9 @@ import express from "express";
 import rateLimit from "express-rate-limit";
 import Joi from "joi";
 import { studyAdvice, usageInfo, cacheStats, tutorChat, saveNote, getSavedNotes, deleteSavedNote } from "../controllers/aiController.js";
-import { getChatResponse, getChatResponseFull, generateHint } from "../services/aiService.js";
+import { getChatResponse, getChatResponseFull, generateHint, generateTransformation, TRANSFORM_KINDS } from "../services/aiService.js";
+import { isEnabled } from "../utils/featureFlags.js";
+import { trackEvent } from "../utils/eventTracker.js";
 import { getCached, setCache } from "../utils/cache.js";
 import { checkAndIncrementUsage } from "../services/aiRouter.js";
 import { AIResponseCache, AIFeedback, AICallLog } from "../models/index.js";
@@ -228,6 +230,45 @@ r.post("/hint", auth, perUserAILimit, validate(hintSchema), inputGuard, async (r
   } catch (err) {
     next(err);
   }
+});
+
+// Topic transformations — flashcards / exam Qs / ELI5 / revision sheet / podcast script.
+// Cross-user cached inside generateTransformation, so most calls never reach Claude.
+const transformSchema = Joi.object({
+  topic:   Joi.string().trim().min(2).max(200).required(),
+  kind:    Joi.string().valid(...TRANSFORM_KINDS).required(),
+  subject: Joi.string().max(60).default("Math"),
+  grade:   Joi.string().max(6).default("10"),
+});
+
+r.post("/transform", auth, perUserAILimit, validate(transformSchema), inputGuard, async (req, res, next) => {
+  try {
+    if (!isEnabled("transformations", req.user)) {
+      return next(new AppError("This feature is not available right now.", 404));
+    }
+    const { topic, kind, subject, grade } = req.body;
+    const data = await generateTransformation(topic, kind, subject, grade, req.user.id);
+    if (!data) return next(new AppError("Couldn't generate that right now — please try again in a minute.", 503));
+    res.json({ data });
+  } catch (err) { next(err); }
+});
+
+// Podcast listen-through — the metric that decides whether real TTS ever gets funded.
+// Fire-and-forget into AnalyticsEvent via trackEvent (never throws).
+const podcastListenSchema = Joi.object({
+  topic:       Joi.string().trim().min(2).max(200).required(),
+  subject:     Joi.string().max(60).default("Math"),
+  linesPlayed: Joi.number().integer().min(0).max(500).required(),
+  totalLines:  Joi.number().integer().min(1).max(500).required(),
+});
+
+r.post("/podcast-listened", auth, validate(podcastListenSchema), (req, res) => {
+  const { topic, subject, linesPlayed, totalLines } = req.body;
+  trackEvent(req.user.id, "podcast_listened", {
+    subject, topic, linesPlayed, totalLines,
+    pct: Math.min(100, Math.round((linesPlayed / totalLines) * 100)),
+  });
+  res.json({ data: { saved: true } });
 });
 
 // 5. Thumbs up/down on AI explanations — 20 ratings/hour per user max

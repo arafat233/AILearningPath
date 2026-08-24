@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { DiagramLazy } from "../components/DiagramLibraryLazy";
 import NotesPanel from "../components/NotesPanel";
 import ListenButton from "../components/ListenButton";
+import TransformChips from "../components/TransformChips";
+import PodcastPlayer from "../components/PodcastPlayer";
+import { useFeatureFlags } from "../hooks/useFeatureFlags";
 import { getNcertTopicContent, evaluateExplanation, listNcertTopics, listNcertChapters,
          getStudiedTopics, toggleNcertStudied, getNcertNote, saveNcertNote,
          getTopicMastery, startTopic, submitAnswer, recordAdaptiveAttempt,
@@ -2578,6 +2581,7 @@ export default function NcertTopicView() {
   const engagement  = useTopicEngagement(topicId);
   const notesRef    = useRef(null); // GAP #3 — content container for notes/highlights
 
+  const { isEnabled: flagOn } = useFeatureFlags();
   const [topic,      setTopic]      = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [fetchErr,   setFetchErr]   = useState(false);                                   // #25 network resilience
@@ -3179,10 +3183,17 @@ export default function NcertTopicView() {
           ‹ Back
         </button>
 
-        {/* GAP #5 — listen to this lesson */}
-        <div style={{ alignSelf: "flex-start" }}>
+        {/* GAP #5 — listen to this lesson · dialogue podcast */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", alignSelf: "flex-start" }}>
           <ListenButton contentRef={notesRef} label="Listen to this lesson" />
+          {flagOn("dialogue_podcast") && (
+            <PodcastPlayer topic={topic.name} subject={isSci ? "Science" : isEng ? "English" : isHin ? "Hindi" : "Math"} />
+          )}
         </div>
+
+        {/* Transformations — flashcards / exam Qs / ELI5 / revision sheet */}
+        <TransformChips topic={topic.name} subject={isSci ? "Science" : isEng ? "English" : isHin ? "Hindi" : "Math"} />
+
 
         {/* ── TOPIC NAV (top) ────────────────────────────────────── */}
         {siblings.length > 1 && (

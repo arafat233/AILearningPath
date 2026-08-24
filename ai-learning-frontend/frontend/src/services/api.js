@@ -329,6 +329,8 @@ export const getSavedVoiceTutorNotes = ()                      => api.get("/ai/s
 export const deleteVoiceTutorNote    = (id)                    => api.delete(`/ai/saved-notes/${id}`);
 export const evaluateExplanation = (concept, userExplanation)  => api.post("/ai/evaluate-explanation", { concept, userExplanation });
 export const getHint             = (questionText, topic)       => api.post("/ai/hint", { questionText, topic });
+export const getTransformation   = (topic, kind, subject, grade) => api.post("/ai/transform", { topic, kind, ...(subject && { subject }), ...(grade && { grade }) });
+export const trackPodcastListen  = (topic, subject, linesPlayed, totalLines) => api.post("/ai/podcast-listened", { topic, subject, linesPlayed, totalLines });
 export const voiceAnswer         = (transcript, subject, topic) => api.post("/ai/voice-answer", { transcript, subject, topic });
 export const getVoiceHistory     = ()     => api.get("/ai/voice-history");
 export const clearVoiceHistory   = ()     => api.delete("/ai/voice-history");

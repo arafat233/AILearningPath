@@ -26,7 +26,8 @@ const SUBJECT_MAP = {
  * @param {string} questionText  - the question the student got wrong
  * @param {string} subject       - e.g. "Math"
  * @param {number} topN          - how many chunks to return (default 3)
- * @returns {string|null}        - formatted context block, or null if nothing found
+ * @returns {{context: string, sources: Array<{chapterNumber?: number, chapterTitle?: string, conceptName?: string, source?: string}>}|null}
+ *   formatted context block + provenance of the chunks it was built from, or null if nothing found
  */
 export async function retrieveContext(questionText, subject = "Math", topN = 3) {
   try {
@@ -47,7 +48,7 @@ export async function retrieveContext(questionText, subject = "Math", topN = 3) 
         $text: { $search: searchTerms },
         subject: storedSubject,
       },
-      { score: { $meta: "textScore" }, text: 1, chapterTitle: 1, conceptName: 1, source: 1, chunkType: 1 }
+      { score: { $meta: "textScore" }, text: 1, chapterNumber: 1, chapterTitle: 1, conceptName: 1, source: 1, chunkType: 1 }
     )
       .sort({ score: { $meta: "textScore" } })
       .limit(topN)
@@ -62,8 +63,15 @@ export async function retrieveContext(questionText, subject = "Math", topN = 3) 
       })
       .join("\n\n---\n\n");
 
+    const sources = chunks.map((c) => ({
+      chapterNumber: c.chapterNumber,
+      chapterTitle:  c.chapterTitle,
+      conceptName:   c.conceptName,
+      source:        c.source,
+    }));
+
     logger.info("RAG context retrieved", { subject, chunks: chunks.length, searchTerms: searchTerms.slice(0, 60) });
-    return formatted;
+    return { context: formatted, sources };
   } catch (err) {
     logger.warn("RAG retrieval failed — proceeding without context", { err: err.message });
     return null;

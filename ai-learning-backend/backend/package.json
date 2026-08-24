@@ -342,6 +342,7 @@
     "seed:lld-cases16": "node config/seedLldCases16.js",
     "seed:lld-all": "node config/seedLldTrack.js && node config/seedLldCreational.js && node config/seedLldStructural.js && node config/seedLldBehavioral.js && node config/seedLldCaseStudies.js && node config/seedLldPrinciples.js && node config/seedLldMorePatterns.js && node config/seedLldMoreCases.js && node config/seedLldCases3.js && node config/seedLldCases4.js && node config/seedLldCases5.js && node config/seedLldCases6.js && node config/seedLldCases7.js && node config/seedLldCases8.js && node config/seedLldCases9.js && node config/seedLldCases10.js && node config/seedLldCases11.js && node config/seedLldCases12.js && node config/seedLldCases13.js && node config/seedLldCases14.js && node config/seedLldCases15.js && node config/seedLldCases16.js && node config/seedLldDiagrams.js",
     "audit:lld": "node config/auditLldTrack.mjs",
+    "audit:lld-depth": "node config/auditLldDepth.mjs",
     "acceptance:lld": "node scripts/acceptanceLld.mjs",
     "verify:lld-code": "node scripts/verifyLldCode.mjs",
     "seed:sysd": "node config/seedSysdTrack.js",

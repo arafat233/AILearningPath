@@ -12,25 +12,25 @@
       wrap custom keyGenerators with the `ipKeyGenerator` helper. Done = clean boot log.
 - [x] **3. fill_blank grader** — `fill_blank` testCase type has no grader case
       (default→fail). Added graders for ALL 5 unknown types (fill_blank, expected_stdout, expected_output, conceptual, tests_pass — 550 formerly ungradeable exercises) + 3 Jest tests. tests_pass is structural (@Test+asserts; JUnit not runnable in Judge0 — ponytail comment marks upgrade path).
-- [ ] **4. Rotate server secrets** (post-miner-compromise hygiene) — JWT_SECRET +
+- [x] **4. Rotate server secrets** (post-miner-compromise hygiene) — JWT_SECRET +
       COMPANY_JWT_SECRET rotatable by us (logs users out); ANTHROPIC/RAZORPAY/RESEND/
-      GOOGLE keys + SSH keypair need the user (external consoles). Do ours, list theirs.
+      GOOGLE keys + SSH keypair need the user (external consoles). DONE 2026-08-24: JWT_SECRET + COMPANY_JWT_SECRET rotated on box + local .env.production (all sessions invalidated). STILL ON USER: Anthropic/Razorpay/Resend/Google console keys + a new SSH keypair.
 - [ ] **5. graphos-site leftovers** — `/opt/graphos-site` + `graphos-site_pgdata` volume
       still on the box. NEEDS USER DECISION: delete permanently or keep as backup.
 
 ## Content
 
-- [ ] **6. ICSE Class 10 Math — Ph5 DAG** — topic-level DAG (1 node/sub-topic per
-      project standard). Done = seeded + audit PASS local & prod.
-- [ ] **7. ICSE Class 10 Math — Ph6 RAG** — RAG chunks for all 100 topics.
-      Done = chunk count audit PASS local & prod.
+- [x] **6. ICSE Class 10 Math — Ph5 DAG** — topic-level DAG (1 node/sub-topic per
+      project standard). VERIFIED ALREADY DONE (memory was stale): 100 topics, 25 roots, 0 dangling, 0 cycles — local AND prod.
+- [x] **7. ICSE Class 10 Math — Ph6 RAG** — RAG chunks for all 100 topics.
+      VERIFIED ALREADY DONE: 623 chunks, 100/100 topics covered — local AND prod.
 - [ ] **8. LLD depth standard** — apply an SD_DEPTH-style standard to the LLD track
       (172 topics; case studies first). Large grind: standard doc + audit script first,
-      then batches. Done = audit:lld-depth exists and coverage grows batch by batch.
+      then batches. STARTED 2026-08-24: LLD_DEPTH_STANDARD.md + auditLldDepth.mjs + npm run audit:lld-depth shipped; baseline 0/129 DEEP (129 case studies identified). Next: deepen in batches of ~6 (SD took 24 batches).
 
 ## Features
 
-- [ ] **9. Notes on Practice questions** — extend Notes/Highlights (GAP #3) to the
+- [x] **9. Notes on Practice questions** — extend Notes/Highlights (GAP #3) to the
       Practice-Q surface (the planned fast-follow). Done = highlight+note on a practice
       question round-trips; render audit PASS.
 - [ ] **10. Chat with own uploads (Open-Notebook "U", 0/7 + X1–X4)** — UserChunk model,

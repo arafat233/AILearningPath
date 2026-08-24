@@ -1,6 +1,7 @@
 import express from "express";
 import Joi from "joi";
 import rateLimit from "express-rate-limit";
+import { userOrIpKey } from "../utils/rateLimitKey.js";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
 import { AppError } from "../utils/AppError.js";
@@ -117,7 +118,7 @@ r.get("/class-heatmap", auth, async (req, res, next) => {
 const teacherContentLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many AI generations. Try again in an hour." },

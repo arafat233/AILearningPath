@@ -1,5 +1,6 @@
 import express from "express";
 import rateLimit from "express-rate-limit";
+import { userOrIpKey } from "../utils/rateLimitKey.js";
 import Joi from "joi";
 import { auth } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -14,7 +15,7 @@ r.use(express.json({ limit: "6mb" }));
 const imageDoubtLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many photo doubts. Try again in an hour." },

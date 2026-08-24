@@ -446,6 +446,46 @@ export async function runTestCases({ userId, source, language, testCases }) {
               : `The right pattern is "${label}". ${tc.explanation || ""}`.trim(),
           };
         }
+        case "fill_blank": {
+          // Student's blank answer (source) vs tc.correct — whitespace-tolerant.
+          const norm = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+          const passed = norm(source) === norm(tc.correct);
+          return {
+            caseId: id, passed,
+            message: passed
+              ? "Correct"
+              : `Expected: "${tc.correct}". ${tc.explanation || ""}`.trim(),
+          };
+        }
+        case "expected_stdout":
+        case "expected_output":
+        case "conceptual": {
+          // predict_output-style: student types their answer as plain text;
+          // compare to the authored expectation (same semantics as text_match).
+          const expected = tc.expected_stdout ?? tc.expected ?? "";
+          const opts = { caseInsensitive: true, normalizeWhitespace: true };
+          const passed = normalizeStdout(source, opts) === normalizeStdout(expected, opts);
+          return {
+            caseId: id, passed,
+            message: passed ? "Output matches expected" : `Expected: "${expected}"`,
+          };
+        }
+        case "tests_pass": {
+          // ponytail: JUnit isn't runnable in the Judge0 sandbox, so this can't
+          // execute the student's tests. Grade structurally instead: the source
+          // must contain @Test methods and assertions. Upgrade path: run JUnit
+          // via a console launcher jar in the sandbox and parse the summary.
+          const s = String(source || "");
+          const hasTests = /@Test\b/.test(s);
+          const hasAsserts = /\bassert\w*\s*\(/.test(s);
+          const passed = hasTests && hasAsserts;
+          return {
+            caseId: id, passed,
+            message: passed
+              ? "Tests present (@Test methods with assertions)"
+              : "Write JUnit tests: @Test methods containing assertions (assertEquals, assertTrue, ...)",
+          };
+        }
         default:
           return { caseId: id, passed: false, message: `Unknown test type: ${tc.type}` };
       }

@@ -1,6 +1,7 @@
 import express from "express";
 import Joi from "joi";
 import rateLimit from "express-rate-limit";
+import { userOrIpKey } from "../utils/rateLimitKey.js";
 import bcrypt from "bcryptjs";
 import { Attempt, Badge, DoubtThread, ErrorMemory, Question, Streak, Topic, User, UserProfile } from "../models/index.js";
 import { LessonProgress } from "../models/lessonModel.js";
@@ -16,7 +17,7 @@ import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
 const updateMeLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many profile updates. Try again in an hour." },

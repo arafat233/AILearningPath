@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import express from "express";
 import rateLimit from "express-rate-limit";
+import { userOrIpKey } from "../utils/rateLimitKey.js";
 import Joi from "joi";
 import { studyAdvice, usageInfo, cacheStats, tutorChat, saveNote, getSavedNotes, deleteSavedNote } from "../controllers/aiController.js";
 import { getChatResponse, getChatResponseFull, generateHint, generateTransformation, TRANSFORM_KINDS } from "../services/aiService.js";
@@ -29,7 +30,7 @@ const EVAL_CACHE_TTL = 24 * 60 * 60 * 1000;
 const perUserAILimit = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 50,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   handler: (_req, res) =>
     res.status(429).json({ error: "AI rate limit exceeded — try again in an hour" }),
   standardHeaders: true,
@@ -275,7 +276,7 @@ r.post("/podcast-listened", auth, validate(podcastListenSchema), (req, res) => {
 const feedbackRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   handler: (_req, res) => res.status(429).json({ error: "Too many ratings — try again later" }),
   standardHeaders: true, legacyHeaders: false,
 });

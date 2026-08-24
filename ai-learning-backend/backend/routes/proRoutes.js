@@ -14,6 +14,7 @@
 
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
+import { userOrIpKey } from "../utils/rateLimitKey.js";
 
 import { auth } from "../middleware/auth.js";
 import { validate, validateParams, validateQuery } from "../middleware/validate.js";
@@ -39,7 +40,7 @@ r.use(auth);
 const submitLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 60,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many code submissions. Try again in an hour." },
@@ -87,7 +88,7 @@ r.post("/review/:topicId",
 const tutorLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,                               // generous IP bucket; Redis does the tight user-level check
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many tutor requests. Try again in an hour." },

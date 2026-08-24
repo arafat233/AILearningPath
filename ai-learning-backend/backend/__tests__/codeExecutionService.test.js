@@ -180,3 +180,33 @@ describe("runTestCases", () => {
     expect(passed).toBe(false);
   });
 });
+
+describe("runTestCases — formerly-unknown types (default→fail fix)", () => {
+  test("fill_blank grades whitespace-tolerant equality against tc.correct", async () => {
+    const tc = [{ type: "fill_blank", correct: "path.remove(path.size() - 1)", explanation: "undo choose" }];
+    const ok = await runTestCases({ userId: "u", source: "  path.remove( path.size() - 1 )".replace(/\( /g, "(").replace(/ \)/g, ")"), language: "java", testCases: tc });
+    expect(ok.passed).toBe(true);
+    const bad = await runTestCases({ userId: "u", source: "path.clear()", language: "java", testCases: tc });
+    expect(bad.passed).toBe(false);
+    expect(bad.testResults[0].message).toContain("undo choose");
+  });
+
+  test("expected_stdout / expected_output / conceptual grade as text match", async () => {
+    for (const [type, field] of [["expected_stdout", "expected_stdout"], ["expected_output", "expected"], ["conceptual", "expected"]]) {
+      const tc = [{ type, [field]: "1\n7\n6" }];
+      const ok = await runTestCases({ userId: "u", source: "1\n7\n6\n", language: "java", testCases: tc });
+      expect(ok.passed).toBe(true);
+      const bad = await runTestCases({ userId: "u", source: "2\n7\n6", language: "java", testCases: tc });
+      expect(bad.passed).toBe(false);
+    }
+  });
+
+  test("tests_pass grades structurally: @Test + assertions present", async () => {
+    const tc = [{ type: "tests_pass", expected: "3 tests pass" }];
+    const good = "class T { @Test void t() { assertEquals(2, c.add(1,1)); } }";
+    expect((await runTestCases({ userId: "u", source: good, language: "java", testCases: tc })).passed).toBe(true);
+    const noAssert = "class T { @Test void t() { c.add(1,1); } }";
+    expect((await runTestCases({ userId: "u", source: noAssert, language: "java", testCases: tc })).passed).toBe(false);
+    expect((await runTestCases({ userId: "u", source: "class T {}", language: "java", testCases: tc })).passed).toBe(false);
+  });
+});

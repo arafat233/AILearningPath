@@ -1,6 +1,7 @@
 import express from "express";
 import Joi from "joi";
 import rateLimit from "express-rate-limit";
+import { userOrIpKey } from "../utils/rateLimitKey.js";
 import { startTopic, submitAnswer, getTeacherMessage } from "../controllers/practiceController.js";
 import { getInterleavedQuestion } from "../services/adaptiveService.js";
 import { Question, User, SeenQuestion, QuestionStats, Attempt } from "../models/index.js";
@@ -17,7 +18,7 @@ const r = express.Router();
 const flagLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 20,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: userOrIpKey,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many flag requests. Slow down." },

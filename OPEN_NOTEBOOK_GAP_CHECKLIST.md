@@ -7,6 +7,10 @@
 >
 > **Created:** 2026-08-24. Verified against the codebase on this date — every
 > "HAVE" line below was confirmed by reading the named file, not from memory.
+>
+> **Reconciled 2026-08-25:** every box in this file is now `[x]`. §U and X1–X4 were
+> shipped but never ticked; each was re-verified against the named file (model, route,
+> service, UI control, audit row, test count) before being checked off here.
 
 ---
 
@@ -71,27 +75,30 @@
 
 ## U — Chat with own uploads (coaching notes / PDFs → blended RAG)
 
-**Priority 3 — DEFERRED until T/C/P prove out. Multi-sprint; listed so scope is honest.**
+**SHIPPED 2026-08-24 (boxes reconciled 2026-08-25).** Was "Priority 3 — DEFERRED until T/C/P
+prove out"; T/C/P landed and U was built straight after, but the boxes were never ticked,
+so this section still read as unstarted. Verified end-to-end below, file by file.
 
-- [ ] **U1.** Decision first: PDF text extraction approach (Claude vision on page images reuses `solveImageDoubt` plumbing vs. a text-extraction lib — new dependency). Decide when we get here, not now.
-- [ ] **U2.** `UserChunk` model mirroring NcertChunk + `userId`, per-user text index or filtered search; storage quota per tier.
-- [ ] **U3.** Upload route (size/type limits, page cap) → chunker → store.
-- [ ] **U4.** Blended retrieval: user chunks + NCERT chunks in one context block, labeled by origin (feeds Citations).
-- [ ] **U5.** Safety: uploaded content is untrusted — prompt-injection filtering before injection into prompts (`inputGuard.js` extension).
-- [ ] **U6.** UI: upload in Notebook page; source picker in DoubtChat.
-- [ ] **U7. AUDIT:** per-user chunk integrity + retrieval round-trip.
+- [x] **U1.** Decision made 2026-08-25: **text extraction, not Claude vision** — `pdf-parse` was already a dependency (no new package), so the vision route's per-page cost bought nothing for text PDFs. Wired in `uploadService.js` `extractText()` with a 60-page cap; `text/plain` + `text/markdown` pass straight through.
+- [x] **U2.** Done — `models/userChunkModels.js` (`UserSource` + `UserChunk`, mirroring NcertChunk plus `userId`/`sourceId`/`sourceName`/`chunkIndex`). Per-user `$text` index; quota via `LIMITS` (20 sources, 400 chunks/source).
+- [x] **U3.** Done — `routes/uploadRoutes.js`, mounted `/api/v1/uploads`, Joi-validated. Caps: 8MB raw, 60 PDF pages, 20 sources/user, 400 chunks/source. Chunker `chunkText()` = ~1200 chars / 150 overlap, breaking on paragraph → sentence → word. Partial-write rollback deletes the source AND its chunks so no orphans survive a failed `insertMany`.
+- [x] **U4.** Done — `retrieveUserContext()` in `uploadService.js`, the per-user mirror of `ragStore.retrieveContext`. Wired into `aiService.js` at **both** call sites; each chunk is injected labeled `[From the student's own notes: "<name>"]` so citations can tell own-notes from NCERT. Best-effort: returns null on error, never blocks the answer.
+- [x] **U5.** Done — `sanitizeUploadText()`. Defangs 7 instruction-hijack patterns by breaking their imperative form rather than rejecting the file (legit notes may say "instructions"), and strips control characters that can smuggle prompt formatting. Covered by 3 of the 9 Jest tests.
+- [x] **U6.** Done — upload + source list/delete UI on `pages/Notebook.jsx` (`uploadsList`/`uploadsCreate`/`uploadsDelete`, `api.js:136`). Source picker in `components/DoubtChat.jsx:100` as the **"use my notes"** toggle → `api.js:352` → `doubtRoutes.js:22` (Joi `useMyNotes`) → `getChatResponse(..., { userSources })`. Defaults on; unchecking sends `useMyNotes:false` and the blend is skipped.
+- [x] **U7. AUDIT:** Done — `config/auditUserChunks.mjs` (`npm run audit:uploads`), registered in `AUDITS.md`. Asserts stored `chunkCount` == actual chunks, 0 orphans, no source over the cap, the `UserChunk` text index exists, and a synthetic round-trip proving retrieval works **and that a different userId retrieves 0** (per-user isolation). First live run 2026-08-24 PASS. Service logic: `__tests__/upload.service.test.js` 9/9.
 
 ---
 
 ## Cross-cutting (applies to whatever we build first)
 
-- [ ] **X1.** All new routes under `/api/v1/`, Joi-validated, controller → service split per architecture rules.
-- [ ] **X2.** Every Claude call goes through failover + outputGuard + tokenBudget (no raw Anthropic client calls in new services).
-- [ ] **X3.** New route groups get Jest tests; new pages get the Playwright render audit.
-- [ ] **X4.** `AUDITS.md` registry updated per audit added.
+- [x] **X1.** Done — U shipped under `/api/v1/uploads`, Joi-validated, route → service split (`routes/uploadRoutes.js` → `services/uploadService.js`).
+- [x] **X2.** Done — U adds no Claude call of its own; it feeds context into the existing `aiService` path, so failover + outputGuard + tokenBudget apply unchanged. No raw Anthropic client anywhere in `uploadService.js`.
+- [x] **X3.** Done — `__tests__/upload.service.test.js` 9/9 (chunker splits/overlap/empty, injection defang, `createSource` limit rejections). No new page shipped: upload lives on the existing Notebook page and the picker is a control inside DoubtChat.
+- [x] **X4.** Done — `AUDITS.md` carries the Chat-with-your-own-uploads (U7) row alongside the T/C/P rows.
 
 ## Recommended build order
 
 1. **T + C together** (T2's service consumes C1's structured sources) — one sprint.
 2. **P** — rides T's cache + prompt file; frontend-heavy, one component.
-3. **U** — separate decision point after T/C/P metrics land.
+3. ~~**U** — separate decision point after T/C/P metrics land.~~ **Done** — built 2026-08-24;
+   the decision point was passed and U shipped. Whole checklist is now complete.

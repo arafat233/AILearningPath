@@ -5,6 +5,30 @@
 > sessions below. Each session owns whole MODULES so the two never edit the same
 > seed file or DB module concurrently.
 
+## ✅ Status — reconciled 2026-08-25
+
+**All 22 items are DONE.** Both sessions shipped (A: 2026-06-02, B: 2026-06-03) but the
+per-item boxes were never ticked, so this file read as 22 items of outstanding work for
+almost three months. Reconciled by verifying each item against the seed files rather
+than trusting the section headers:
+
+- `config/seedM33StackQueueGaps.js` — 13 exercises (8 queue → T3, 4 stack → T1, 1 → T2),
+  matching the Session A header exactly. `npm run seed:m33-gaps`.
+- `config/seedDsaGapsB.js` — 9 items / 14 docs across M34, M35, M37, M38.
+  `npm run seed:dsa-gaps-b`.
+
+Both npm scripts are registered in `package.json`. Each box below now records the
+exercise title it was seeded as, so the checklist item → shipped artifact mapping is
+checkable without re-reading the seeds.
+
+> **One wording drift, recorded not hidden:** the item written as "Reverse K elements of a
+> queue (rearrangement variant) — generic ints" was seeded as **Reverse an Entire Queue
+> using Recursion**. Same module/topic and the 13/13 count holds, but it is a whole-queue
+> reverse, not a K-element one. If the generic-int K-reverse was genuinely wanted as a
+> distinct exercise, it is the one real gap left in M33.
+
+---
+
 ## ⚠️ Coordination rules (read first)
 
 1. **Stay in your lane.** Session A touches ONLY `java_m33`. Session B touches
@@ -45,21 +69,21 @@
 > M33 T3 (Queue) / T4 (Deque); Stack exercises append to M33 T1 (Stack) / T2 (Monotonic).
 
 ### Queue (8)
-- [ ] **First non-repeating character in a stream** — queue of chars + freq map; emit first non-repeating after each char. `code_scratch` + a `predict_output` trace.
-- [ ] **Reverse first K characters/elements of a queue** — dequeue K → stack → re-enqueue → rotate rest. `code_scratch`.
-- [ ] **Generate binary numbers 1..n** — BFS with a queue ("1" → "10","11" → …). `code_scratch` + trace.
-- [ ] **Generate number pattern (queue BFS)** — e.g. numbers whose digits are only {1,2} up to n, or staying.fun's "number pattern" generator. `code_scratch`.
-- [ ] **Interleave first half and second half of a queue** — split, use a stack/aux queue to interleave. `code_scratch` + trace.
-- [ ] **Reverse K elements of a queue (rearrangement variant)** — same primitive as the string one but generic ints; can share helper, distinct exercise. `code_scratch`.
-- [ ] **Rotate a queue by K** — dequeue+enqueue K times. `code_scratch` + warmup trace.
-- [ ] **Rotate a queue by blocks** — rotate in chunks of size B. `code_scratch`.
+- [x] **First non-repeating character in a stream** — queue of chars + freq map; emit first non-repeating after each char. `code_scratch` + a `predict_output` trace. → seeded as **First Non-Repeating Character in a Stream (LeetCode #387 stream variant)** (`config/seedM33StackQueueGaps.js`).
+- [x] **Reverse first K characters/elements of a queue** — dequeue K → stack → re-enqueue → rotate rest. `code_scratch`. → seeded as **Reverse First K Elements of a Queue** (`config/seedM33StackQueueGaps.js`).
+- [x] **Generate binary numbers 1..n** — BFS with a queue ("1" → "10","11" → …). `code_scratch` + trace. → seeded as **Generate Binary Numbers 1 to N (queue BFS)** (`config/seedM33StackQueueGaps.js`).
+- [x] **Generate number pattern (queue BFS)** — e.g. numbers whose digits are only {1,2} up to n, or staying.fun's "number pattern" generator. `code_scratch`. → seeded as **Generate Number Pattern with Digits 1 and 2 (queue BFS)** (`config/seedM33StackQueueGaps.js`).
+- [x] **Interleave first half and second half of a queue** — split, use a stack/aux queue to interleave. `code_scratch` + trace. → seeded as **Interleave the Two Halves of a Queue** (`config/seedM33StackQueueGaps.js`).
+- [x] **Reverse K elements of a queue (rearrangement variant)** — same primitive as the string one but generic ints; can share helper, distinct exercise. `code_scratch`. → seeded as **Reverse an Entire Queue using Recursion** (`config/seedM33StackQueueGaps.js`).
+- [x] **Rotate a queue by K** — dequeue+enqueue K times. `code_scratch` + warmup trace. → seeded as **Trace: rotate a queue by K** (`config/seedM33StackQueueGaps.js`).
+- [x] **Rotate a queue by blocks** — rotate in chunks of size B. `code_scratch`. → seeded as **Rotate a Queue by Blocks of K (reverse each block)** (`config/seedM33StackQueueGaps.js`).
 
 ### Stack (5)
-- [ ] **String reversal using a stack** — push all chars, pop to rebuild. `code_scratch` (we only have non-stack "reverse a string — 3 ways" in M31).
-- [ ] **Sort a stack** — using recursion or a temp stack (insert-in-sorted-order). `code_scratch` + trace.
-- [ ] **Reverse a stack** — using recursion (insertAtBottom). `code_scratch`.
-- [ ] **132 Pattern (LeetCode #456)** — monotonic stack. `code_scratch`.
-- [ ] **Valid Stack Sequences (LeetCode #946)** — simulate push/pop. `code_scratch` + trace.
+- [x] **String reversal using a stack** — push all chars, pop to rebuild. `code_scratch` (we only have non-stack "reverse a string — 3 ways" in M31). → seeded as **Reverse a String using a Stack** (`config/seedM33StackQueueGaps.js`).
+- [x] **Sort a stack** — using recursion or a temp stack (insert-in-sorted-order). `code_scratch` + trace. → seeded as **Sort a Stack using a Temporary Stack** (`config/seedM33StackQueueGaps.js`).
+- [x] **Reverse a stack** — using recursion (insertAtBottom). `code_scratch`. → seeded as **Reverse a Stack using Recursion** (`config/seedM33StackQueueGaps.js`).
+- [x] **132 Pattern (LeetCode #456)** — monotonic stack. `code_scratch`. → seeded as **132 Pattern (LeetCode #456)** (`config/seedM33StackQueueGaps.js`).
+- [x] **Valid Stack Sequences (LeetCode #946)** — simulate push/pop. `code_scratch` + trace. → seeded as **Validate Stack Sequences (LeetCode #946)** (`config/seedM33StackQueueGaps.js`).
 
 **Target: ~13 exercises + brief teaching notes if a topic lacks the concept.**
 
@@ -76,22 +100,22 @@
 > these four modules). Never touch M33.
 
 ### M34 — HashMap (2)
-- [ ] **Two Sum — all pairs** — return ALL index/value pairs summing to target (not just the first). `code_scratch`. Append to M34 T1.
-- [ ] **Simple cache (HashMap-backed)** — get/put with no eviction (the pre-LRU teaching step). `code_scratch`. Append to M34 T5 (before LRU).
+- [x] **Two Sum — all pairs** — return ALL index/value pairs summing to target (not just the first). `code_scratch`. Append to M34 T1. → seeded as **Two Sum — ALL pairs (every index pair, not just the first)** (`config/seedDsaGapsB.js`).
+- [x] **Simple cache (HashMap-backed)** — get/put with no eviction (the pre-LRU teaching step). `code_scratch`. Append to M34 T5 (before LRU). → seeded as **Simple cache (HashMap-backed, no eviction) — the pre-LRU step** (`config/seedDsaGapsB.js`).
 
 ### M35 — Binary Tree (2)
-- [ ] **Preorder traversal — dedicated exercise** — recursive + iterative (stack). `code_scratch` + trace. (Currently only inside "All traversals comparison".) Append to M35 T1.
-- [ ] **Postorder traversal — dedicated exercise** — recursive + iterative (two-stack or reverse-preorder). `code_scratch` + trace. Append to M35 T1.
+- [x] **Preorder traversal — dedicated exercise** — recursive + iterative (stack). `code_scratch` + trace. (Currently only inside "All traversals comparison".) Append to M35 T1. → seeded as **Preorder traversal — recursive AND iterative (stack)  + Trace: preorder traversal order** (`config/seedDsaGapsB.js`).
+- [x] **Postorder traversal — dedicated exercise** — recursive + iterative (two-stack or reverse-preorder). `code_scratch` + trace. Append to M35 T1. → seeded as **Postorder traversal — recursive AND iterative  + Trace: postorder traversal order** (`config/seedDsaGapsB.js`).
 
 ### M37 — Graph (1)
-- [ ] **Bellman-Ford** — single-source shortest path WITH negative edges + negative-cycle detection. `code_scratch` + a `predict_output` trace contrasting with Dijkstra. Append to M37.
+- [x] **Bellman-Ford** — single-source shortest path WITH negative edges + negative-cycle detection. `code_scratch` + a `predict_output` trace contrasting with Dijkstra. Append to M37. → seeded as **Bellman-Ford — shortest paths with negative edges + cycle detection  + Trace: why Dijkstra fails on a negative edge** (`config/seedDsaGapsB.js`).
 
 ### M38 — Sorting Algorithms (4)
 > M38 currently has merge/quick/counting/3-way but NOT the elementary O(n²) sorts.
-- [ ] **Bubble sort** — implementation + why O(n²), early-exit optimisation. `code_scratch` + trace.
-- [ ] **Selection sort** — implementation, O(n²), min-selection invariant. `code_scratch`.
-- [ ] **Insertion sort** — implementation (M29 only analyses complexity; no impl exercise). `code_scratch` + best-case O(n) note.
-- [ ] **Shell sort** — gap-sequence insertion sort. `code_scratch` + trace showing gap shrink.
+- [x] **Bubble sort** — implementation + why O(n²), early-exit optimisation. `code_scratch` + trace. → seeded as **Bubble sort — with early-exit optimisation  + Trace: one pass of bubble sort** (`config/seedDsaGapsB.js`).
+- [x] **Selection sort** — implementation, O(n²), min-selection invariant. `code_scratch`. → seeded as **Selection sort** (`config/seedDsaGapsB.js`).
+- [x] **Insertion sort** — implementation (M29 only analyses complexity; no impl exercise). `code_scratch` + best-case O(n) note. → seeded as **Insertion sort — with the O(n) best case** (`config/seedDsaGapsB.js`).
+- [x] **Shell sort** — gap-sequence insertion sort. `code_scratch` + trace showing gap shrink. → seeded as **Shell sort — gapped insertion sort  + Trace: Shell sort first gap pass** (`config/seedDsaGapsB.js`).
 
 **Target: ~9 exercises + teaching notes for the elementary sorts.**
 

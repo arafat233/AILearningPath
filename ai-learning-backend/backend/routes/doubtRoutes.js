@@ -19,6 +19,7 @@ const messageSchema = Joi.object({
   topic:   Joi.string().optional().allow(""),
   subject: Joi.string().optional().allow(""),
   mode:    Joi.string().valid("full", "hint", "socratic", "shortcut").optional(),
+  useMyNotes: Joi.boolean().optional(),
   lang:    Joi.string().valid("en", "hi", "hinglish").optional(),
 });
 
@@ -38,7 +39,7 @@ r.get("/:questionId", auth, async (req, res, next) => {
 r.post("/:questionId/message", auth, validate(messageSchema), async (req, res, next) => {
   try {
     const { questionId } = req.params;
-    const { message, topic, subject, mode = "full" } = req.body;
+    const { message, topic, subject, mode = "full", useMyNotes = true } = req.body;
 
     if (!isValidQuestionId(questionId))
       return next(new AppError("Invalid question ID", 400));
@@ -89,7 +90,7 @@ r.post("/:questionId/message", auth, validate(messageSchema), async (req, res, n
     }
 
     const history = thread.messages.slice(-8).map((m) => ({ role: m.role, content: m.content }));
-    const reply   = await getChatResponse(history, message, topic, subject || thread.subject || updated?.subject || "Math", req.user.id, { mode, lang });
+    const reply   = await getChatResponse(history, message, topic, subject || thread.subject || updated?.subject || "Math", req.user.id, { mode, lang, userSources: useMyNotes });
     if (!reply) return next(new AppError("AI response failed. Try again.", 500));
 
     thread.messages.push({ role: "user",      content: message });

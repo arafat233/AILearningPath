@@ -139,6 +139,14 @@ async function run() {
     }
   }
 
+  if (process.argv.includes("--list-shallow")) {
+    console.log(`\nSHALLOW topics (module | topicId | topicNumber | slug | name):`);
+    shallow
+      .slice()
+      .sort((a, b) => a.topicId.localeCompare(b.topicId, undefined, { numeric: true }))
+      .forEach((t) => console.log(`   - ${t.moduleId} | ${t.topicId} | ${t.topicNumber} | ${t.slug} | ${t.name}`));
+  }
+
   if (deep.length) {
     console.log(`\nDEEP topics:`);
     deep.forEach((t) => console.log(`   ✓ ${t.topicId} (${t.name}) — ${graded[t.topicId].words} words`));

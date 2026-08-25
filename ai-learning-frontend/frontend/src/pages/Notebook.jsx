@@ -5,6 +5,81 @@ import * as api from "../services/api";
 const COLORS = { yellow: "rgba(255,214,10,0.40)", green: "rgba(48,209,88,0.32)", blue: "rgba(10,132,255,0.28)", pink: "rgba(255,55,95,0.28)" };
 const KIND_LABEL = { exercise: "Exercise", topic: "Topic", lesson: "Lesson", question: "Question", project: "Project" };
 
+// ── My Uploads — chat-with-your-own-notes sources (Open-Notebook U6) ────────
+function MyUploads() {
+  const [sources, setSources] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  const load = () => api.uploadsList().then(({ data }) => setSources(data.data || [])).catch(() => {});
+  useEffect(() => { load(); }, []);
+
+  const onFile = async (e) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (!f) return;
+    setErr("");
+    const isPdf = f.type === "application/pdf" || f.name.toLowerCase().endsWith(".pdf");
+    const isText = /\.(txt|md)$/i.test(f.name) || f.type.startsWith("text/");
+    if (!isPdf && !isText) { setErr("Only PDF, .txt and .md files are supported."); return; }
+    if (f.size > 8 * 1024 * 1024) { setErr("Max file size is 8MB."); return; }
+    setBusy(true);
+    try {
+      let body;
+      if (isPdf) {
+        const dataBase64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(String(r.result).split(",")[1]);
+          r.onerror = rej;
+          r.readAsDataURL(f);
+        });
+        body = { name: f.name, mime: "application/pdf", dataBase64 };
+      } else {
+        const text = await f.text();
+        body = { name: f.name, mime: f.name.toLowerCase().endsWith(".md") ? "text/markdown" : "text/plain", text };
+      }
+      await api.uploadsCreate(body);
+      load();
+    } catch (ex) {
+      setErr(ex?.response?.data?.error || ex?.response?.data?.message || "Upload failed.");
+    } finally { setBusy(false); }
+  };
+
+  const del = async (id) => {
+    try { await api.uploadsDelete(id); setSources((s) => s.filter((x) => x._id !== id)); } catch { /* noop */ }
+  };
+
+  return (
+    <div className="card p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[15px] font-semibold text-[var(--label)]">My study material</p>
+          <p className="text-[12px] text-apple-gray">Upload coaching notes or PDFs — the AI tutor will use them (with your NCERT content) when answering your doubts.</p>
+        </div>
+        <label className={`text-[13px] font-semibold px-3 py-1.5 rounded-lg cursor-pointer ${busy ? "bg-apple-gray5 text-apple-gray" : "bg-apple-blue text-white hover:opacity-90"}`}>
+          {busy ? "Uploading…" : "Upload"}
+          <input type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" className="hidden" onChange={onFile} disabled={busy} />
+        </label>
+      </div>
+      {err && <p className="text-[12px] text-apple-red">{err}</p>}
+      {sources.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          {sources.map((s) => (
+            <div key={s._id} className="flex items-center gap-2 rounded-lg border border-apple-gray5 px-3 py-2">
+              <span className="text-[16px]">{s.mime === "application/pdf" ? "📄" : "📝"}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12px] font-semibold text-[var(--label)] truncate">{s.name}</p>
+                <p className="text-[10px] text-apple-gray3">{s.chunkCount} passages{s.pages ? ` · ${s.pages}p` : ""}</p>
+              </div>
+              <button onClick={() => del(s._id)} className="text-[11px] text-apple-gray hover:text-apple-red">✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Notebook() {
   const [items, setItems] = useState([]);
   const [stats, setStats] = useState(null);
@@ -56,6 +131,9 @@ export default function Notebook() {
           {stats ? `${stats.notes} notes · ${stats.highlights} highlights${stats.pinned ? ` · ${stats.pinned} pinned` : ""}` : "Your saved notes & highlights, searchable."}
         </p>
       </div>
+
+      {/* My uploaded study material (chat-with-own-notes) */}
+      <MyUploads />
 
       {/* Search + filters */}
       <div className="card p-4 space-y-3">

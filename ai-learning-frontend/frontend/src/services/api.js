@@ -132,6 +132,12 @@ export const notesCreate    = (body)        => api.post(nb, body);
 export const notesUpdate    = (id, patch)   => api.patch(`${nb}/${id}`, patch);
 export const notesDelete    = (id)          => api.delete(`${nb}/${id}`);
 
+// ── My Uploads — chat with your own notes (Open-Notebook U) ─────────────────
+const up = "/v1/uploads";
+export const uploadsList   = ()     => api.get(up);
+export const uploadsCreate = (body) => api.post(up, body);   // { name, mime, dataBase64? | text?, subject? }
+export const uploadsDelete = (id)   => api.delete(`${up}/${id}`);
+
 // ── Community / Newsletter (GAP #8) ──
 const cm = "/v1/community";
 export const communityList          = (params)  => api.get(`${cm}/posts`, { params });
@@ -343,7 +349,7 @@ export const submitFeedback    = (data) => api.post("/feedback", data);
 export const getNpsEligibility = ()     => api.get("/feedback/nps-eligible");
 
 export const getDoubtThread   = (questionId)                          => api.get(`/doubt/${questionId}`);
-export const sendDoubtMessage = (questionId, message, topic, subject) => api.post(`/doubt/${questionId}/message`, { message, topic, subject });
+export const sendDoubtMessage = (questionId, message, topic, subject, opts = {}) => api.post(`/doubt/${questionId}/message`, { message, topic, subject, ...(opts.useMyNotes === false && { useMyNotes: false }) });
 export const clearDoubtThread = (questionId)                          => api.delete(`/doubt/${questionId}`);
 
 export const adminGetStats       = ()          => api.get("/admin/stats");

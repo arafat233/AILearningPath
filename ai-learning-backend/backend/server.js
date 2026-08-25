@@ -74,6 +74,7 @@ import proRoutes         from "./routes/proRoutes.js";
 import proAnalyticsRoutes from "./routes/proAnalyticsRoutes.js";
 import mistakeRoutes from "./routes/mistakeRoutes.js";
 import imageDoubtRoutes from "./routes/imageDoubtRoutes.js";
+import uploadRoutes     from "./routes/uploadRoutes.js";
 import careerRoutes from "./routes/careerRoutes.js";
 import interviewRoutes   from "./routes/interviewRoutes.js";
 import { setupSwagger } from "./utils/swagger.js";
@@ -153,6 +154,8 @@ app.use("/api/webhooks", webhookRoutes);
 // Photo doubts carry a base64 image — the router has its own 6mb JSON parser,
 // so it must also mount BEFORE the global 100kb express.json()
 app.use("/api/ai/image-doubt", imageDoubtRoutes);
+// User uploads (chat-with-own-notes) carry base64 PDFs — own 12mb JSON parser
+app.use("/api/v1/uploads", uploadRoutes);
 
 app.use(express.json());
 

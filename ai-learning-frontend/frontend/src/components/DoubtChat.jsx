@@ -7,6 +7,7 @@ export default function DoubtChat({ questionId, topic, subject }) {
   const [input, setInput]     = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
+  const [useMyNotes, setUseMyNotes] = useState(true); // blend my uploaded notes into answers
   const bottomRef = useRef(null);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function DoubtChat({ questionId, topic, subject }) {
     setLoading(true);
     setError("");
     try {
-      const { data } = await sendDoubtMessage(questionId, msg, topic, subject);
+      const { data } = await sendDoubtMessage(questionId, msg, topic, subject, { useMyNotes });
       setMessages((m) => [...m, { role: "assistant", content: data.reply }]);
     } catch (err) {
       const errMsg = err.response?.data?.error || "AI response failed. Try again.";
@@ -93,6 +94,12 @@ export default function DoubtChat({ questionId, topic, subject }) {
               {error}
             </div>
           )}
+
+          {/* Source picker: blend the student's own uploads into answers */}
+          <label className="flex items-center gap-1.5 px-3 py-1.5 border-t border-apple-gray5 bg-white text-[11px] text-apple-gray cursor-pointer select-none">
+            <input type="checkbox" checked={useMyNotes} onChange={(e) => setUseMyNotes(e.target.checked)} className="accent-[#0A84FF]" />
+            Use my uploaded notes (Notebook &rsaquo; My study material)
+          </label>
 
           {/* Input */}
           <div className="flex items-center gap-2 p-2 border-t border-apple-gray5 bg-white">

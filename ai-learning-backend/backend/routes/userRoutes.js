@@ -11,7 +11,7 @@ import { AppError } from "../utils/AppError.js";
 import { getDailyBrief, getTodayPlan } from "../services/dailyBriefService.js";
 import { getStreakStatus } from "../services/streakService.js";
 import { getCachedBoard } from "../services/adaptiveService.js";
-import { getNavForUser, isValidTrackKey } from "../services/navService.js";
+import { getNavForUser, isValidTrackKey, tracksForUser } from "../services/navService.js";
 import { sessionGet, sessionSet, sessionDel } from "../utils/redisClient.js";
 
 const updateMeLimiter = rateLimit({
@@ -219,7 +219,8 @@ r.get("/nav", auth, async (req, res, next) => {
     const cached = await sessionGet(cacheKey);
     if (cached) return res.json({ data: cached });
 
-    const user = await User.findById(req.user.id).select("tracks activeTrack locale").lean();
+    // examBoard/grade are needed so navService can surface the implicit school track.
+    const user = await User.findById(req.user.id).select("tracks activeTrack locale examBoard grade").lean();
     if (!user) return next(new AppError("User not found", 404));
     const data = getNavForUser(user);
     await sessionSet(cacheKey, data, 60);
@@ -235,10 +236,18 @@ r.patch("/active-track", auth, validate(activeTrackSchema), async (req, res, nex
   try {
     const { key } = req.body;
     if (!isValidTrackKey(key)) return next(new AppError("Unknown track key", 400));
-    const user = await User.findById(req.user.id).select("tracks activeTrack locale");
+    const user = await User.findById(req.user.id).select("tracks activeTrack locale examBoard grade");
     if (!user) return next(new AppError("User not found", 404));
-    const enrolled = (user.tracks || []).some((t) => t.key === key);
+    // Check against tracksForUser, not the raw array: school can be implied by
+    // examBoard/grade without a tracks[] row, and the sidebar offers it on that
+    // basis. Reading the raw array here 403s the exact switch we just offered.
+    const enrolled = tracksForUser(user).some((t) => t.key === key);
     if (!enrolled) return next(new AppError("Not enrolled in this track", 403));
+    // Materialise an implied school track on first use so the row stops being
+    // derived — keeps proService.enroll's shouldFlipActive guard honest.
+    if (key === "school" && !(user.tracks || []).some((t) => t.key === "school")) {
+      user.tracks.unshift({ key: "school", role: "learner", enrolledAt: new Date() });
+    }
     user.activeTrack = key;
     await user.save();
     await sessionDel(`nav:${req.user.id}`);

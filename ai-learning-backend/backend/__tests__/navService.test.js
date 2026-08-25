@@ -1,6 +1,6 @@
 // Unit tests for services/navService.js — the per-track sidebar nav resolver.
 import { describe, test, expect } from "@jest/globals";
-import { NAV_CONFIG, resolveActiveTrack, getNavForUser, isValidTrackKey } from "../services/navService.js";
+import { NAV_CONFIG, resolveActiveTrack, getNavForUser, isValidTrackKey, tracksForUser } from "../services/navService.js";
 
 describe("navService.resolveActiveTrack", () => {
   test("returns 'school' when user is null", () => {
@@ -107,5 +107,42 @@ describe("navService.isValidTrackKey", () => {
     expect(isValidTrackKey("pro_python")).toBe(false);
     expect(isValidTrackKey(null)).toBe(false);
     expect(isValidTrackKey(123)).toBe(false);
+  });
+});
+
+// Regression: a pro_java user with a board/grade but no school row in tracks[]
+// was stranded on the Java surface. ProDashboard renders no TrackTabs, so the
+// sidebar TrackSwitcher is the only switcher there — and it lists exactly what
+// getNavForUser returns. Returning [pro_java] left it with no way back.
+describe("navService.tracksForUser — implicit school track", () => {
+  test("prepends school for a pro-only tracks[] when examBoard is set", () => {
+    const tracks = tracksForUser({ tracks: [{ key: "pro_java", role: "learner" }], examBoard: "CBSE" });
+    expect(tracks.map((t) => t.key)).toEqual(["school", "pro_java"]);
+  });
+
+  test("prepends school when only grade is set", () => {
+    const tracks = tracksForUser({ tracks: [{ key: "pro_java", role: "learner" }], grade: 10 });
+    expect(tracks.map((t) => t.key)).toEqual(["school", "pro_java"]);
+  });
+
+  test("does not duplicate an existing school row", () => {
+    const tracks = tracksForUser({ tracks: [{ key: "school" }, { key: "pro_java" }], examBoard: "CBSE" });
+    expect(tracks.map((t) => t.key)).toEqual(["school", "pro_java"]);
+  });
+
+  test("does not invent school for a pro-only adult account", () => {
+    const tracks = tracksForUser({ tracks: [{ key: "pro_java", role: "learner" }] });
+    expect(tracks.map((t) => t.key)).toEqual(["pro_java"]);
+  });
+
+  test("handles a user with no tracks at all", () => {
+    expect(tracksForUser({})).toEqual([]);
+    expect(tracksForUser(null)).toEqual([]);
+  });
+
+  test("getNavForUser surfaces school so the sidebar can offer the way back", () => {
+    const nav = getNavForUser({ tracks: [{ key: "pro_java" }], activeTrack: "pro_java", examBoard: "CBSE" });
+    expect(nav.activeTrack).toBe("pro_java");            // still on Java, as stored
+    expect(nav.tracks.map((t) => t.key)).toContain("school"); // but school is reachable
   });
 });

@@ -85,6 +85,29 @@ export function resolveActiveTrack(user) {
   return "school";
 }
 
+/**
+ * School is implicit for any account that ever onboarded with a board/grade,
+ * even when it was never written into tracks[]. Two paths leave it out:
+ * PUT /user/me only seeds it when tracks[] is still empty (so enrol-then-
+ * onboard never gets it), and the 2026-05-26 backfill only targets
+ * `tracks: []` (so a `[pro_java]` user is skipped).
+ *
+ * Without this the sidebar TrackSwitcher — the ONLY track switcher on the pro
+ * surface, since TrackTabs renders inside the K-12 Dashboard — lists just the
+ * pro track, leaving the user stranded on Java with no way back to school.
+ *
+ * Returns the enrolled list with school prepended when it is implied. Never
+ * duplicates an existing school entry, and never invents one for a genuine
+ * adult/pro-only account (no examBoard, no grade).
+ */
+export function tracksForUser(user) {
+  const enrolled = (user?.tracks || []).map((t) => ({ key: t.key, role: t.role }));
+  const hasSchool = enrolled.some((t) => t.key === "school");
+  const impliedSchool = Boolean(user?.examBoard || user?.grade);
+  if (hasSchool || !impliedSchool) return enrolled;
+  return [{ key: "school", role: "learner" }, ...enrolled];
+}
+
 export function getNavForUser(user) {
   const activeTrack = resolveActiveTrack(user);
   const baseItems = NAV_CONFIG[activeTrack] || NAV_CONFIG.school;
@@ -98,7 +121,7 @@ export function getNavForUser(user) {
       hindi ? { ...rest, label: HI_LABELS[rest.label] || rest.label } : rest);
   return {
     activeTrack,
-    tracks: (user?.tracks || []).map((t) => ({ key: t.key, role: t.role })),
+    tracks: tracksForUser(user),
     items,
   };
 }

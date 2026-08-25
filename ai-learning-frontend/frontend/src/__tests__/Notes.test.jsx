@@ -10,6 +10,9 @@ vi.mock("../services/api", () => ({
   notesCreate: vi.fn(),
   notesUpdate: vi.fn(),
   notesDelete: vi.fn(),
+  uploadsList: vi.fn(),
+  uploadsCreate: vi.fn(),
+  uploadsDelete: vi.fn(),
 }));
 
 import * as api from "../services/api";
@@ -22,6 +25,7 @@ beforeEach(() => {
   api.notesNotebook.mockResolvedValue({ data: { data: { items: [], total: 0 } } });
   api.notesTags.mockResolvedValue({ data: { data: [] } });
   api.notesStats.mockResolvedValue({ data: { data: { notes: 0, highlights: 0, pinned: 0, total: 0 } } });
+  api.uploadsList.mockResolvedValue({ data: { data: [] } });
 });
 
 const ITEM = { scope: "pro", kind: "exercise", refId: "java_m30_t1_ex_8", trackKey: "pro_java", title: "Move Zeroes", url: "/pro/exercise/java_m30_t1_ex_8" };

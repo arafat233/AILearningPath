@@ -13,6 +13,21 @@ import { getNav, setActiveTrackApi } from "../services/api";
  * call completes. Zustand's persist rehydrates asynchronously, so callers
  * MUST use `hydrated` (not null-check) to know when persisted data is ready.
  */
+/**
+ * resolveTrack — the single precedence rule for "which track is the UI in".
+ *
+ * An explicit ?track= beats the persisted value: it is a deliberate, more
+ * recent instruction than a stored preference. The old order (stored first)
+ * meant ?track= silently did nothing for anyone who already had a track
+ * saved — the param was only ever reachable by a brand-new user, so
+ * /?track=school could never move a pro user back to the school surface.
+ *
+ * Pass `storeTrack` as null while the store is still rehydrating, so the
+ * param carries the first paint and no wrong surface flashes.
+ */
+export const resolveTrack = (paramTrack, storeTrack, fallback = "school") =>
+  paramTrack || storeTrack || fallback;
+
 export const useTrackStore = create(
   persist(
     (set, get) => ({

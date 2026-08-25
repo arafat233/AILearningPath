@@ -17,7 +17,7 @@
  */
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { useTrackStore } from "../store/trackStore";
+import { useTrackStore, resolveTrack } from "../store/trackStore";
 
 const TRACK_LABEL = {
   school:    { label: "School",       hint: "K-12 board curriculum" },
@@ -50,9 +50,9 @@ export default function TrackTabs() {
 
   if (tracks.length < 2) return null; // only one track → no tabs
 
-  // Prefer the store's activeTrack (persisted), fall back to URL param for
-  // bookmarked /shared URLs, then fall back to "school".
-  const active = activeTrack || searchParams.get("track") || "school";
+  // Which tab reads as selected — same precedence the surfaces use, so the
+  // highlighted tab always matches the page being rendered.
+  const active = resolveTrack(searchParams.get("track"), activeTrack);
 
   const onPick = (key) => {
     // Sync the URL param for bookmarkability, then let Dashboard read from the store.

@@ -9,7 +9,7 @@ import {
   askTutor,
 } from "../services/api";
 import { useAuthStore } from "../store/authStore";
-import { useTrackStore } from "../store/trackStore";
+import { useTrackStore, resolveTrack } from "../store/trackStore";
 import { t } from "../i18n";
 import { DashboardSkeleton } from "../components/Skeleton";
 import AICreditsIndicator from "../components/AICreditsIndicator";
@@ -326,7 +326,7 @@ export default function Dashboard() {
   // PRO_TRACK_PLAN.md Phase 9: when activeTrack is pro_<lang>, render
   // the compact pro snapshot instead of the K-12 dashboard.
   // The TrackTabs at the top is the same UI on both branches.
-  const effectiveTrack = activeTrack || searchParams.get("track") || "school";
+  const effectiveTrack = resolveTrack(searchParams.get("track"), activeTrack);
   if (effectiveTrack.startsWith("pro_")) {
     return (
       <div className="space-y-5">

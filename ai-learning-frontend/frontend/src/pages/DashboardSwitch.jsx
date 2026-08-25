@@ -10,7 +10,7 @@
  * the async API call completes), falling back to "school".
  */
 import { useSearchParams } from "react-router-dom";
-import { useTrackStore } from "../store/trackStore";
+import { useTrackStore, resolveTrack } from "../store/trackStore";
 import Dashboard from "./Dashboard";
 import ProDashboard from "../components/pro/ProDashboard";
 
@@ -18,10 +18,9 @@ export default function DashboardSwitch() {
   const [searchParams] = useSearchParams();
   const activeTrack = useTrackStore((s) => s.activeTrack);
   const hydrated   = useTrackStore((s) => s.hydrated);
-  // hydrated must be true before we trust the store's activeTrack.
-  // Before hydration: fall back to URL param (set eagerly by TrackSwitcher).
-  // After hydration: use the persisted store value (faster, avoids flash).
-  const effective = hydrated ? (activeTrack || searchParams.get("track")) : (searchParams.get("track"));
+  // An explicit ?track= wins; the store value applies only once hydrated
+  // (before that it is not yet trustworthy, and the param avoids a flash).
+  const effective = resolveTrack(searchParams.get("track"), hydrated ? activeTrack : null);
   if (effective?.startsWith("pro_")) {
     return <ProDashboard trackKey={effective} />;
   }

@@ -8,7 +8,7 @@ import {
   XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import { getReport, getErrorMemory, getWeeklyLeaderboard, getPrediction, analyticsV2Dashboard, proAnalyticsDashboard } from "../services/api";
-import { useTrackStore } from "../store/trackStore";
+import { useTrackStore, resolveTrack } from "../store/trackStore";
 
 const SUBJECTS = [
   { id: "all",      label: "All",     color: "#1c1c1e" },
@@ -45,7 +45,7 @@ export default function Analytics() {
 
   const activeTrack = useTrackStore((s) => s.activeTrack);
   const [searchParams] = useSearchParams();
-  const effectiveTrack = activeTrack || searchParams.get("track") || "school";
+  const effectiveTrack = resolveTrack(searchParams.get("track"), activeTrack);
   const isProTrack  = effectiveTrack.startsWith("pro_");
   const [proData, setProData] = useState(null);
 

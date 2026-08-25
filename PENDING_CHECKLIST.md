@@ -31,9 +31,21 @@
       project standard). VERIFIED ALREADY DONE (memory was stale): 100 topics, 25 roots, 0 dangling, 0 cycles — local AND prod.
 - [x] **7. ICSE Class 10 Math — Ph6 RAG** — RAG chunks for all 100 topics.
       VERIFIED ALREADY DONE: 623 chunks, 100/100 topics covered — local AND prod.
-- [ ] **8. LLD depth standard** — apply an SD_DEPTH-style standard to the LLD track
-      (172 topics; case studies first). Large grind: standard doc + audit script first,
-      then batches. STARTED 2026-08-24: LLD_DEPTH_STANDARD.md + auditLldDepth.mjs + npm run audit:lld-depth shipped; baseline 0/129 DEEP (129 case studies identified). Next: deepen in batches of ~6 (SD took 24 batches).
+- [x] **8. LLD depth standard** — DONE. Completed in `1112f417` (2026-08-25):
+      **129/129 case studies DEEP, 0 PARTIAL, 0 SHALLOW** per `npm run audit:lld-depth`.
+      Authored in 21 batches (`config/seedLldDepthBatch1..21.js`), each gated with
+      `auditLldDepth.mjs --require <ids>` before the next started. Track now
+      22 modules / 172 topics / 907 exercises / 27,665 XP. The note above ("baseline
+      0/129 … next: batches of ~6") was written mid-flight and never updated.
+
+      **Follow-up shipped 2026-08-25:** only batches 1–8 had npm scripts, so 13 of the
+      21 batch files were unreachable via `npm run` — **81 of the 129 deepened topics**
+      would have silently stayed shallow on any fresh reseed. Registered 9–21, added
+      `seed:lld-depth-all`, and chained it onto `seed:lld-all` so the DEEP track is
+      actually reproducible from the seed pipeline. (System Design has all 23 of its
+      depth batches registered — that is the pattern LLD now matches — but
+      `seed:sysd-all` likewise does not chain its depth batches: same latent gap,
+      untouched here.)
 
 ## Features
 

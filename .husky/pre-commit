@@ -1,5 +1,9 @@
 #!/bin/sh
-# Pre-commit hook: run tests before allowing commit
+# Pre-commit hook: run tests before allowing commit.
+# NOTE: do NOT add `|| true` or `2>/dev/null` to the test runs — that swallows
+# the exit code, so `set -e` never fires and the hook reports success while
+# tests are failing. (It did exactly that until 2026-08-25, letting a broken
+# Notes.test.jsx mock through.) Failures must abort the commit.
 set -e
 
 echo "🔍 Running pre-commit checks..."
@@ -7,13 +11,13 @@ echo "🔍 Running pre-commit checks..."
 # Backend tests
 echo "  → Backend tests..."
 cd ai-learning-backend/backend
-npm test -- --passWithNoTests 2>/dev/null || true
+npm test -- --passWithNoTests
 cd ../..
 
 # Frontend tests
 echo "  → Frontend tests..."
 cd ai-learning-frontend/frontend
-npm test 2>/dev/null || true
+npm test
 cd ../..
 
 echo "✅ Pre-commit checks passed"

@@ -61,7 +61,7 @@ The parts of this codebase worth reading:
 
 **Platform.** JWT + refresh-token-family auth · parent/teacher portal with invite codes · admin dashboards (users, questions, topics, cache, analytics, coupons, retention) · Razorpay subscriptions with coupons and a 7-day trial · Web Push (VAPID) · PWA with offline fallback · feature flags with % rollout · Sentry monitoring · nightly mongodump backups
 
-Per-area detail lives in [`docs/`](docs/); see [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md) for the full system spec and [`docs/ROADMAP.md`](docs/ROADMAP.md) for what's next.
+Follow-up product and readiness work is tracked in [`docs/FEATURE_CHECKLIST.md`](docs/FEATURE_CHECKLIST.md).
 
 ---
 
@@ -97,7 +97,7 @@ npm run seed:placement-quiz
 npm run audit:coverage          # verify what landed
 ```
 
-The full seed list, including per-subject content scripts, is in [`docs/CONTENT_PIPELINE.md`](docs/CONTENT_PIPELINE.md).
+The full seed list, including per-subject content scripts, is maintained in `ai-learning-backend/backend/package.json`.
 
 **Promote yourself to admin:**
 
@@ -141,7 +141,7 @@ Everything else is optional and degrades gracefully: Redis falls back to in-memo
 | `SENTRY_DSN` / `VITE_SENTRY_DSN` | Error monitoring |
 | `SMTP_*` / `EMAIL_FROM` | Transactional email |
 
-The complete table is in [`docs/STAGING.md`](docs/STAGING.md).
+Keep deployment-specific environment values in `.env` or your hosting provider's secret store.
 
 ---
 
@@ -207,7 +207,7 @@ Production deploys run through `scripts/prod-deploy.sh`: a preflight that blocks
 ├── ai-learning-mobile/  # Flutter client, shares the REST API
 ├── load-tests/          # k6 scripts
 ├── scripts/             # prod-deploy.sh, prod-rollback.sh
-├── docs/                # specs, audits, roadmap, content pipeline
+├── docs/                # feature checklist and project documentation
 └── docker-compose.yml
 ```
 

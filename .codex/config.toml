@@ -1,3 +1,9 @@
 [mcp_servers.code-review-graph]
 args = ["serve"]
 command = "C:/Users/LENOVO/AppData/Local/Python/pythoncore-3.14-64/Scripts/code-review-graph.exe"
+
+[mcp_servers.code-review-graph.tools.get_architecture_overview_tool]
+approval_mode = "approve"
+
+[mcp_servers.code-review-graph.tools.semantic_search_nodes_tool]
+approval_mode = "approve"

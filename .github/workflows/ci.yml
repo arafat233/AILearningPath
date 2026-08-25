@@ -43,7 +43,7 @@ jobs:
         working-directory: ai-learning-backend/backend
         env:
           MONGO_URI: mongodb://localhost:27017/ai_learning_test
-          JWT_SECRET: test_secret_for_ci_only
+          JWT_SECRET: test_secret_for_ci_only_padded_to_32_plus_chars
           ANTHROPIC_API_KEY: sk-ant-test-key
           NODE_ENV: test
         run: npm test
@@ -52,7 +52,7 @@ jobs:
         working-directory: ai-learning-backend/backend
         env:
           MONGO_URI: mongodb://localhost:27017/ai_learning_test
-          JWT_SECRET: test_secret_for_ci_only
+          JWT_SECRET: test_secret_for_ci_only_padded_to_32_plus_chars
           ANTHROPIC_API_KEY: sk-ant-test-key
           NODE_ENV: test
         run: npm run test:integration
@@ -129,10 +129,13 @@ jobs:
       - name: Start backend
         working-directory: ai-learning-backend/backend
         env:
+          # Secrets must be >=32 chars or utils/validateEnv.js exits before
+          # listen(), leaving `node server.js &` dead and every backend-backed
+          # E2E assertion silently running against nothing.
           MONGO_URI: mongodb://localhost:27017/ai_learning_e2e
           REDIS_URL: redis://localhost:6379
-          JWT_SECRET: test_secret_for_ci_only
-          JWT_REFRESH_SECRET: refresh_secret_for_ci_only
+          JWT_SECRET: test_secret_for_ci_only_padded_to_32_plus_chars
+          JWT_REFRESH_SECRET: refresh_secret_for_ci_only_padded_to_32_plus
           ANTHROPIC_API_KEY: sk-ant-test-key
           NODE_ENV: test
           PORT: 5001

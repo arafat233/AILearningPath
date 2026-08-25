@@ -9,7 +9,10 @@ const TEST_USER = {
 test.describe("Registration → Login → Logout", () => {
   test("landing page loads with CTA", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/AI Learning|CBSE/i);
+    // Matches the <title> in index.html. This assertion silently rotted through
+    // the "AI Learning" -> "Stellar" rebrand and failed every CI run since,
+    // taking the rest of this file's auth tests down with it.
+    await expect(page).toHaveTitle(/Stellar/i);
     // unauthenticated users should see a sign-in/get-started link
     const cta = page.getByRole("link", { name: /get started|sign in|login/i }).first();
     await expect(cta).toBeVisible();
@@ -38,7 +41,10 @@ test.describe("Registration → Login → Logout", () => {
 
   test("login with wrong password shows error", async ({ page }) => {
     await page.goto("/login");
-    await page.getByLabel(/email/i).fill("nobody@invalid.example");
+    // A real TLD on purpose: the address must survive Joi's email validation so
+    // the request reaches the credential check. ".example" is rejected upstream
+    // with 422 '"email" must be a valid email', which is not an auth error.
+    await page.getByLabel(/email/i).fill("nobody-e2e@invalid-user.com");
     await page.getByLabel(/password/i).fill("WrongPassword!");
     await page.getByRole("button", { name: /sign in|login/i }).click();
 

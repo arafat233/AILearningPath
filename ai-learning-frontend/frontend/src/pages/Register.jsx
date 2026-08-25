@@ -71,7 +71,7 @@ export default function Register() {
           <p className="text-[13px] text-apple-gray text-center mb-7">Start your adaptive learning journey</p>
 
           {error && (
-            <div className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple mb-5">
+            <div role="alert" className="bg-apple-red/8 border border-apple-red/20 text-apple-red text-[13px] px-4 py-3 rounded-apple mb-5">
               {error}
               {emailExists && (
                 <div className="mt-2">
@@ -89,23 +89,26 @@ export default function Register() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             {/* Name */}
             <div>
-              <label className="text-[13px] font-medium text-[var(--label2)] block mb-1.5">Full Name</label>
-              <input className="input" placeholder="Your name" value={form.name}
+              <label htmlFor="register-name" className="text-[13px] font-medium text-[var(--label2)] block mb-1.5">Full Name</label>
+              <input id="register-name" name="name" autoComplete="name" className="input" placeholder="Your name" value={form.name}
                 onChange={(e) => set("name", e.target.value)} required />
             </div>
 
             {/* Email */}
             <div>
-              <label className="text-[13px] font-medium text-[var(--label2)] block mb-1.5">Email</label>
-              <input className="input" type="email" placeholder="you@example.com" value={form.email}
+              <label htmlFor="register-email" className="text-[13px] font-medium text-[var(--label2)] block mb-1.5">Email</label>
+              <input id="register-email" name="email" autoComplete="email" className="input" type="email" placeholder="you@example.com" value={form.email}
                 onChange={(e) => set("email", e.target.value)} required />
             </div>
 
             {/* Password + strength */}
             <div>
-              <label className="text-[13px] font-medium text-[var(--label2)] block mb-1.5">Password</label>
+              <label htmlFor="register-password" className="text-[13px] font-medium text-[var(--label2)] block mb-1.5">Password</label>
               <div className="relative">
                 <input
+                  id="register-password"
+                  name="password"
+                  autoComplete="new-password"
                   className="input pr-10"
                   type={showPass ? "text" : "password"}
                   placeholder="Min 8 characters"

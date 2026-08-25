@@ -341,15 +341,18 @@ export default function Login() {
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 text-[13px] px-4 py-3 rounded-xl mb-4">
+            <div role="alert" className="bg-red-50 border border-red-200 text-red-600 text-[13px] px-4 py-3 rounded-xl mb-4">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="text-[13px] font-medium text-[#3a3a3c] block mb-1.5">Email</label>
+              <label htmlFor="login-email" className="text-[13px] font-medium text-[#3a3a3c] block mb-1.5">Email</label>
               <input
+                id="login-email"
+                name="email"
+                autoComplete="email"
                 type="email"
                 placeholder="you@example.com"
                 value={form.email}
@@ -361,13 +364,16 @@ export default function Login() {
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-[13px] font-medium text-[#3a3a3c]">Password</label>
+                <label htmlFor="login-password" className="text-[13px] font-medium text-[#3a3a3c]">Password</label>
                 <Link to="/forgot-password" className="text-[12px] text-[#007AFF] hover:opacity-70 transition-opacity">
                   Forgot?
                 </Link>
               </div>
               <div className="relative">
                 <input
+                  id="login-password"
+                  name="password"
+                  autoComplete="current-password"
                   type={showPass ? "text" : "password"}
                   placeholder="••••••••"
                   value={form.password}

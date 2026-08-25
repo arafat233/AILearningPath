@@ -2,6 +2,13 @@
 
 > Auto-resume: on session start, work the first unchecked item. Every item ships
 > with its audit per CLAUDE.md §5. Update this file in the same commit as the work.
+>
+> **Reconciled 2026-08-25.** #10 (Chat with own uploads) was shipped 2026-08-24 but left
+> unchecked. Two items remain and neither is ordinary feature work: **#5** is blocked on
+> a user decision, and **#8** is a long content grind whose tooling is already shipped.
+> Sibling files reconciled in the same pass: DSA_GAP_CHECKLIST (22 stale boxes) and
+> OPEN_NOTEBOOK_GAP_CHECKLIST (11). PRO_EXERCISE_TYPE_CHECKLIST is a template — its
+> boxes stay unchecked by design.
 
 ## Quick infra / hygiene
 
@@ -33,10 +40,15 @@
 - [x] **9. Notes on Practice questions** — extend Notes/Highlights (GAP #3) to the
       Practice-Q surface (the planned fast-follow). Done = highlight+note on a practice
       question round-trips; render audit PASS.
-- [ ] **10. Chat with own uploads (Open-Notebook "U", 0/7 + X1–X4)** — UserChunk model,
-      PDF upload→chunk route, blended user+NCERT retrieval with origin labels,
-      prompt-injection guard for untrusted uploads, Notebook UI + DoubtChat source
-      picker, per-user audit (U7). Follow OPEN_NOTEBOOK_GAP_CHECKLIST.md §U.
+- [x] **10. Chat with own uploads (Open-Notebook "U", 7/7 + X1–X4)** — DONE (shipped
+      2026-08-24, verified + boxes reconciled 2026-08-25). `UserSource`/`UserChunk`
+      models, `POST/GET/DELETE /api/v1/uploads` (Joi; 8MB / 60 pages / 20 sources /
+      400 chunks), `pdf-parse` text extraction (U1 decided: extraction, not vision —
+      the dep already existed), `sanitizeUploadText()` injection guard,
+      `retrieveUserContext()` blended into `aiService` at both call sites with
+      origin labels, Notebook upload UI + DoubtChat "use my notes" toggle
+      (`useMyNotes` → `doubtRoutes.js:22`), `auditUserChunks.mjs` in AUDITS.md
+      (per-user isolation asserted), `upload.service.test.js` 9/9.
 
 ## Blocked on user decisions (not workable)
 

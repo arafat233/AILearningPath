@@ -1,5 +1,15 @@
 # Pro Exercise Type / ID-Format Checklist
 
+> ## ⚠️ THIS IS A TEMPLATE, NOT A BACKLOG
+> The unchecked boxes below are **not outstanding work**. This is a procedure you
+> re-run from scratch *every time* you add a new pro-track exercise `type` or id
+> suffix — the boxes are meant to sit unchecked between uses, and you tick a
+> throwaway copy during the change, not this file.
+>
+> Noted 2026-08-25 after a sweep counted these 12 boxes as pending features.
+> If you want per-change tracking, copy this file into the PR description.
+
+
 > Run this **every time** you add a new pro-track exercise `type`, a new
 > exercise/topic/module **id suffix**, or any new shape that travels through a
 > validated route. Born from the 2026-06-01 `_pm_` incident: pattern_match

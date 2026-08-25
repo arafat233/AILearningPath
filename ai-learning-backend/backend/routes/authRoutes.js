@@ -8,9 +8,16 @@ import { auth } from "../middleware/auth.js";
 const r = Router();
 
 // SEC-02: Tight limiter for login — 10 attempts per 15 min per IP
+// The E2E suite logs in once per test via a beforeEach and registers throwaway
+// accounts, all from a single IP, and CI retries failures twice. That is ~18
+// logins against a production cap of 10, so the limiter — not the code under
+// test — decided whether the suite passed. Relaxed for NODE_ENV=test only;
+// production limits are untouched.
+const IS_TEST = process.env.NODE_ENV === "test";
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: IS_TEST ? 1000 : 10,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many login attempts. Please try again in 15 minutes." },
@@ -19,7 +26,7 @@ const loginLimiter = rateLimit({
 // Prevent account-creation spam / enumeration — 5 registrations per hour per IP
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 5,
+  max: IS_TEST ? 1000 : 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many registration attempts. Please try again in an hour." },

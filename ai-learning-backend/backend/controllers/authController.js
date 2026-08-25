@@ -103,6 +103,20 @@ function safeUser(user) {
     planExpiry:  user.planExpiry || null,
     trialExpiry: user.trialExpiry || null,
     trialActive: !!trialActive,
+    // tracks + linkedStudents are what the client routes on immediately after
+    // login, and omitting them made both decisions wrong for every user:
+    //   - App.jsx's OnboardingGate/RootElement treat `tracks` as the source of
+    //     truth for "did this user onboard" (its own comment says so). Absent
+    //     here, it read as empty and bounced even fully-onboarded users to
+    //     /welcome on every single login.
+    //   - Login.jsx picks /onboarding vs /child-picker off `linkedStudents`.
+    //     Absent here it was always [], so a parent with children never
+    //     reached the child picker.
+    // GET /user/me already returns both (it selects -password); this only makes
+    // the login/register payload consistent with it. Neither field is sensitive
+    // — they are the caller's own enrolment and their own linked children.
+    tracks:         (user.tracks || []).map((t) => ({ key: t.key, role: t.role })),
+    linkedStudents: user.linkedStudents || [],
   };
 }
 

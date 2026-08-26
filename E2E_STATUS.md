@@ -2,9 +2,9 @@
 
 **Last worked:** 2026-08-26 · **Current: 16 passed / 0 failed** (was 4 passed / 4 failed)
 
-The suite is green locally — 16/16 on three consecutive runs. If it fails for you, the
-cause is almost always missing fixtures: read **Running it locally** first, especially
-the seeding step.
+The suite is green in CI (16/16 in 13.2s, run 33004338376) and locally (16/16 on three
+consecutive runs). If it fails for you, the cause is almost always missing fixtures:
+read **Running it locally** first, especially the seeding step.
 
 ---
 

@@ -83,6 +83,10 @@ test.describe("Navigation", () => {
 
   test("sign-out returns to login page", async ({ page }) => {
     await page.goto("/");
+    // Sign out lives inside the account dropdown (Layout.jsx:492) and is not in
+    // the DOM until it is opened — clicking it directly just waited out the
+    // timeout. The trigger is the avatar button, aria-label="Account menu".
+    await page.getByRole("button", { name: /account menu/i }).click();
     await page.getByRole("button", { name: /sign out|logout/i }).click();
     await expect(page).toHaveURL(/login/, { timeout: 8_000 });
   });

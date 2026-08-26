@@ -143,9 +143,12 @@ jobs:
         run: node server.js &
 
       # practice.spec.js logs in as E2E_EMAIL/E2E_PASSWORD and viewAsChild.spec.js
-      # asserts 12 AP_SSC Math 9 chapters + 4 topics on ch1. MONGO_URI points at a
-      # fresh ai_learning_e2e every run, so without this the account does not exist
-      # and the content is absent — those tests fail for missing data, not bugs.
+      # asserts all 12 AP_SSC Math 9 chapter titles + 4 topics on ch1. MONGO_URI
+      # points at a fresh ai_learning_e2e every run, so without this the account
+      # does not exist and the content is absent — those tests fail for missing
+      # data, not bugs. All 12 chapters are needed, not just ch1: /lessons renders
+      # only chapters that have topics, so seeding ch1 alone showed "1 chapters"
+      # and the 12-title assertion failed. The full set seeds in ~8s.
       - name: Seed E2E fixtures
         working-directory: ai-learning-backend/backend
         env:
@@ -153,7 +156,7 @@ jobs:
         run: |
           node config/seedE2eFixtures.js
           node config/seedApSscMath9NcertChapters.js
-          node config/seedApSscMath9Ch01.js
+          npm run seed:ap-ssc-math9-content-all
 
       - name: Install frontend dependencies
         working-directory: ai-learning-frontend/frontend

@@ -8,7 +8,7 @@
 // Requires:
 //   - backend at http://localhost:5001 with AP_SSC Math 9 content seeded
 //     (chapters + topics; see seedApSscMath9NcertChapters.js and Ch01.js)
-//   - frontend at http://localhost:5173
+//   - frontend at PLAYWRIGHT_BASE_URL (5173 dev / 4173 `vite preview` in CI)
 
 import { test, expect } from "@playwright/test";
 
@@ -48,7 +48,9 @@ test.describe("Parent-views-child end-to-end", () => {
     await page.getByRole("button", { name: /Continue to Dashboard/i }).click();
 
     // 3. Land on dashboard (or /) — activeChild is now the new AP_SSC kid
-    await page.waitForURL(/^http:\/\/localhost:5173\/(\?|$)/, { timeout: 15_000 });
+    // Match on pathname, not an absolute URL: the port differs between local
+    // dev (5173) and CI's `vite preview` (4173, via PLAYWRIGHT_BASE_URL).
+    await page.waitForURL((u) => new URL(u).pathname === "/", { timeout: 15_000 });
 
     // 4. Navigate to Lessons
     await page.goto("/lessons");
@@ -112,7 +114,7 @@ test.describe("Parent-views-child end-to-end", () => {
     await page.getByLabel(/email/i).fill(PARENT.email);
     await page.getByLabel(/password/i).fill(PARENT.password);
     await page.getByRole("button", { name: /sign in|login/i }).click();
-    await page.waitForURL(/^http:\/\/localhost:5173\//, { timeout: 15_000 });
+    await page.waitForURL((u) => !new URL(u).pathname.startsWith("/login"), { timeout: 15_000 });
 
     // For a fresh child, the dashboard should NOT show accumulated parent
     // data. We can't assert the exact UI, but specific numbers like a streak

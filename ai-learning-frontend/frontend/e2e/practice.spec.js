@@ -9,8 +9,21 @@ async function login(page) {
   await page.goto("/login");
   await page.getByLabel(/email/i).fill(EMAIL);
   await page.getByLabel(/password/i).fill(PASSWORD);
-  await page.getByRole("button", { name: /sign in|login/i }).click();
-  await page.waitForURL(/dashboard|\//);
+  // Wait on the response, not the URL. The previous guard was
+  // waitForURL(/dashboard|\//), and that alternation matches ANY path
+  // containing a slash — including /login itself — so it resolved instantly
+  // and login() returned before the request had even been sent. Tests that
+  // then navigated immediately (Navigation does page.goto("/")) raced the
+  // auth cookie and booted unauthenticated onto the marketing landing page,
+  // where no sidebar link exists. App.jsx only calls getMe() once at boot, so
+  // a page that starts unauthenticated stays that way no matter how long the
+  // locator waits — which is why this surfaced as a 30s click timeout rather
+  // than as a login error.
+  await Promise.all([
+    page.waitForResponse((r) => r.url().includes("/api/auth/login") && r.status() === 200),
+    page.getByRole("button", { name: /sign in|login/i }).click(),
+  ]);
+  await page.waitForURL((u) => !new URL(u).pathname.startsWith("/login"), { timeout: 15_000 });
 }
 
 test.describe("Practice flow", () => {

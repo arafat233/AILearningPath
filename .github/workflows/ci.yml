@@ -142,6 +142,19 @@ jobs:
           FRONTEND_URL: http://localhost:4173
         run: node server.js &
 
+      # practice.spec.js logs in as E2E_EMAIL/E2E_PASSWORD and viewAsChild.spec.js
+      # asserts 12 AP_SSC Math 9 chapters + 4 topics on ch1. MONGO_URI points at a
+      # fresh ai_learning_e2e every run, so without this the account does not exist
+      # and the content is absent — those tests fail for missing data, not bugs.
+      - name: Seed E2E fixtures
+        working-directory: ai-learning-backend/backend
+        env:
+          MONGO_URI: mongodb://localhost:27017/ai_learning_e2e
+        run: |
+          node config/seedE2eFixtures.js
+          node config/seedApSscMath9NcertChapters.js
+          node config/seedApSscMath9Ch01.js
+
       - name: Install frontend dependencies
         working-directory: ai-learning-frontend/frontend
         run: npm ci --legacy-peer-deps

@@ -1,9 +1,10 @@
 # E2E Suite — Status & Handoff
 
-**Last worked:** 2026-08-25 · **Current:** 12–13 passed / 3–4 failed (was 4 passed / 4 failed)
+**Last worked:** 2026-08-26 · **Current: 16 passed / 0 failed** (was 4 passed / 4 failed)
 
-Picking this up on another machine? Read **Running it locally** first — the suite needs
-seeded fixtures that nothing creates automatically, which is why it looked broken.
+The suite is green in CI (16/16 in 13.2s, run 33004338376) and locally (16/16 on three
+consecutive runs). If it fails for you, the cause is almost always missing fixtures:
+read **Running it locally** first, especially the seeding step.
 
 ---
 
@@ -19,8 +20,8 @@ docker run -d --name stellar-e2e-mongo -p 27017:27017 mongo:7
 cd ai-learning-backend/backend
 set MONGO_URI=mongodb://localhost:27017/ai_learning_e2e     # PowerShell: $env:MONGO_URI="..."
 node config/seedE2eFixtures.js          # creates test@ailearn.dev / TestPassword1!
-node config/seedApSscMath9NcertChapters.js   # 12 chapters  — viewAsChild asserts these
-node config/seedApSscMath9Ch01.js            # 4 topics/ch1 — viewAsChild asserts these
+node config/seedApSscMath9NcertChapters.js   # the 12 chapter records
+npm run seed:ap-ssc-math9-content-all        # topics for ALL 12 — see note below (~8s)
 
 # 3. Backend. Secrets MUST be >=32 chars or validateEnv exits before listen()
 #    and the server dies silently — see "CI was running against no backend" below.
@@ -40,6 +41,9 @@ set PLAYWRIGHT_BASE_URL=http://localhost:4173
 npx playwright test --retries=0 --reporter=line
 ```
 
+Seed **all 12** chapters, not just ch1: `/lessons` renders only chapters that have
+topics, so ch1 alone shows "1 chapters" and `viewAsChild`'s 12-title assertion fails.
+
 `NODE_ENV=test` matters beyond convention: it relaxes the auth rate limiters
 (`routes/authRoutes.js`). Production caps are 10 logins/15min and 5 registrations/hour
 per IP. The suite logs in on every `beforeEach` from one IP, so a full run with CI's
@@ -48,41 +52,29 @@ it passes. Production limits are unchanged.
 
 ---
 
-## Still failing — 3 known, 1 flaky
+## Previously failing — all resolved 2026-08-26
 
-### 1. `practice.spec.js` › Navigation › sign-out returns to login page
+**`practice.spec.js` › sign-out.** The app was fine; the test was wrong. Sign out lives
+inside the account dropdown (`Layout.jsx:492`) and is not in the DOM until it is opened,
+so clicking it directly waited out the full 30s. The test now opens the trigger first —
+the avatar button, `aria-label="Account menu"`.
 
-**App is fine; the test is wrong.** The test clicks Sign out directly:
+**`viewAsChild.spec.js` › both tests.** Two causes stacked, which is why they looked
+harder than they were:
 
-```js
-await page.getByRole("button", { name: /sign out|logout/i }).click();
-```
+1. *Hardcoded port.* Both waits matched `/^http:\/\/localhost:5173\//` — the Vite dev
+   port. CI serves the built app with `vite preview` on 4173 via `PLAYWRIGHT_BASE_URL`,
+   so neither could ever match. They match on pathname now.
+2. *Only chapter 1 was seeded.* `/lessons` renders only chapters that have topics, so
+   with `seedApSscMath9Ch01.js` alone the page reported "1 chapters" and the spec's
+   12-title assertion failed on "Polynomials". The API was returning all 12 the whole
+   time — the gap was topics, not chapters. CI now seeds all 12
+   (`npm run seed:ap-ssc-math9-content-all`, ~8s).
 
-But Sign out lives *inside the user dropdown* (`Layout.jsx:492`), rendered only when
-`userOpen` is true. It does not exist in the DOM until the avatar menu is opened, so the
-click waits the full 30s.
+**`practice.spec.js` › navigate to Practice page — was flaky.** Never reproduced after
+the fixture and `login()` fixes; passed 3/3 consecutive full runs. It was most likely the
+login race, not the practice page.
 
-**Fix:** open the menu first. The trigger is the avatar button in the sidebar footer —
-find its accessible name in `Layout.jsx` around line 440, click that, then click Sign out.
-
-### 2 & 3. `viewAsChild.spec.js` › both tests
-
-Both time out on `waitForURL` after the onboarding step. The hardcoded-port bug is
-already fixed (they pinned `localhost:5173`; CI serves `vite preview` on 4173), and the
-page snapshot at failure shows the app working correctly — sidebar renders, header reads
-`AP_SSC · Class 9`, so **registration and child onboarding both succeed**.
-
-What is left is the wait *after* "Continue to Dashboard": the URL never settles to `/`
-within 15s. Worth checking whether the app lands somewhere else now (`/child-picker` is
-plausible, since `linkedStudents` is populated for a parent and `Login.jsx` routes on it).
-Start by dropping a `console.log(page.url())` right after the click.
-
-### 4. `practice.spec.js` › Practice flow › navigate to Practice page — FLAKY
-
-Passes in isolation and in most full runs; failed in one. Not diagnosed. Suspect
-test-order interference or a slow first-load of the practice bundle.
-
----
 
 ## Fixed in this pass
 

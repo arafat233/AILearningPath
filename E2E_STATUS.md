@@ -122,25 +122,16 @@ whose name lacks `e2e`/`test`, since it writes a known-password account).
 
 ---
 
-## Not yet wired into CI
+## CI seeding — now wired
 
-`ci.yml` does **not** run the fixture seeds. Until it does, the three data-dependent
-tests will keep failing there even though they pass locally. Add between "Start backend"
-and "Run E2E tests":
+`ci.yml`'s e2e job runs the three fixture seeds between "Start backend" and "Install
+frontend dependencies". This landed with the same change that fixed `login()`, and it
+had to: once the helper genuinely waits for a 200, a missing fixture account stops
+being survivable. Before the fix CI sailed past the failed login unauthenticated and
+some tests passed by accident — that run read 11 passed / 5 failed. With an honest
+login and no fixtures it read 8 passed / 8 failed. Neither number described the code;
+both described whether the suite noticed it was logged out.
 
-```yaml
-      - name: Seed E2E fixtures
-        working-directory: ai-learning-backend/backend
-        env:
-          MONGO_URI: mongodb://localhost:27017/ai_learning_e2e
-        run: |
-          node config/seedE2eFixtures.js
-          node config/seedApSscMath9NcertChapters.js
-          node config/seedApSscMath9Ch01.js
-```
-
-Deliberately left out of this commit: it should land with a CI run that proves it, and
-the remaining three failures are worth fixing first so the job can actually go green.
 
 ## Unrelated, still red
 

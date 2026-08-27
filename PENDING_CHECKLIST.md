@@ -64,6 +64,14 @@
 
 ## Blocked on user decisions (not workable)
 
-- **Math 1–10 standardization** — 4 decisions pending (see project_math_standardization).
+- **Math 1–10 standardization** — **1 decision open, not 4** (verified 2026-08-27 against
+  CONTENT_STATUS.md; see SPEC_MATH_STANDARDIZATION.md §Status). Decisions 1, 3 and 4
+  (density, diagrams, execution order) are satisfied in shipped content — CBSE Math 1–10
+  are all ✅ on every phase, as are ICSE 9/10 and AP SSC 8/9/10. The open one is #2 for
+  **CBSE grades 1–7 only**: they kept legacy `math{G}_*` topicIds instead of the
+  board-prefixed `cbse_math{G}_*`. Harmless today (audit accepts both; no other board has
+  a grade below 8, so nothing can collide) but ambiguous the moment one does. Renaming
+  costs ~380 topics + questions + DAG + RAG across four collections, plus every
+  prefix-branching code path.
 - **Judge0 JDK 21 upgrade** — runbook at infra/judge0/JDK_UPGRADE.md; needs Hetzner box
   session to install language 90; env var `JUDGE0_JAVA_LANGUAGE_ID` already wired.

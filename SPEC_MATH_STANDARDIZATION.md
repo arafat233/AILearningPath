@@ -4,6 +4,30 @@
 > Benchmark = current CBSE Class 10 Math (54/54 passing 14-point checklist).
 > Scope = ~568 sub-topics across CBSE 1–9, CBSE 10 (re-keyed only), ICSE 10.
 > Written 2026-05-21. Pending: user sign-off → Class 9 pilot → plow.
+>
+> **STATUS 2026-08-27 — the work described here is substantively DONE.** The header
+> above is the state on the day it was written; it was never updated. Per
+> `CONTENT_STATUS.md`, CBSE Math **grades 1–10 are all ✅** across every phase
+> (Ph0–Ph9 + Audit), and so are ICSE Math 9/10 and AP SSC Math 8/9/10. Three of the
+> four locked decisions are satisfied in shipped content:
+>
+> | # | Decision | State |
+> |---|---|---|
+> | 1 | Density target | **Met.** Every CBSE grade passes `audit:math` 15/15. |
+> | 2 | topicId format | **Partial — the one open item.** See below. |
+> | 3 | Diagrams (≥1 SVG per sub-topic) | **Met.** Every topic carries an inline SVG. |
+> | 4 | Execution (spec → pilot → plow) | **Done.** Class 9 piloted, remaining grades plowed; grades 1–7 completed by v3 enrichment 2026-06-02. |
+>
+> **The single open decision is #2 for CBSE grades 1–7.** They kept the legacy v1
+> `math{G}_*` topicIds this spec says to drop (§2.3); grades 8/9/10 were re-keyed to
+> `cbse_math{G}_*`, and every other board is already board-prefixed. Nothing is broken
+> today — the audit accepts both (`audit:math --prefix=math5_` passes) and no other
+> board has a grade below 8, so no ID can currently collide. It becomes a real problem
+> the day any board adds grades 1–7, at which point `math3_ch1_...` is ambiguous.
+>
+> Renaming is not free: ~380 topics plus their questions, DAG nodes and RAG chunks
+> across four collections, and every code path that branches on the topicId prefix
+> (§2.3 lists them). That is the decision to make — not the other three.
 
 ---
 
